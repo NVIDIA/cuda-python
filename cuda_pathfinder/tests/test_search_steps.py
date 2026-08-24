@@ -16,7 +16,11 @@ from cuda.pathfinder._dynamic_libs import search_platform as search_platform_mod
 from cuda.pathfinder._dynamic_libs.descriptor_catalog import WindowsSearchDirs
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS, LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
-from cuda.pathfinder._dynamic_libs.search_platform import LinuxSearchPlatform, WindowsSearchPlatform
+from cuda.pathfinder._dynamic_libs.search_platform import (
+    LinuxSearchPlatform,
+    WindowsSearchPlatform,
+    _find_descriptor_dll_under_dir,
+)
 from cuda.pathfinder._dynamic_libs.search_steps import (
     EARLY_FIND_STEPS,
     LATE_FIND_STEPS,
@@ -25,6 +29,8 @@ from cuda.pathfinder._dynamic_libs.search_steps import (
     _find_lib_dir_using_anchor,
     find_in_conda,
     find_in_cuda_path,
+    find_in_install_root_env_vars,
+    find_in_program_files_roots,
     find_in_site_packages,
     run_find_steps,
 )
@@ -306,6 +312,91 @@ class TestFindInSitePackages:
         assert result is not None
         assert result.abs_path == str(dll)
         assert result.found_via == "site-packages"
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_windows_exact_names_reject_cudnn_sidecar(self, mocker, tmp_path):
+        bin_dir = tmp_path / "nvidia" / "cudnn" / "bin"
+        bin_dir.mkdir(parents=True)
+        (bin_dir / "cudnn_adv64_9.dll").touch()
+
+        mocker.patch(
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            return_value=[str(bin_dir)],
+        )
+
+        result = find_in_site_packages(
+            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
+        )
+
+        assert result is None
+
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_windows_explicit_glob_finds_unlisted_future_cupti(self, mocker, tmp_path):
+        bin_dir = tmp_path / "nvidia" / "cuda_cupti" / "bin"
+        bin_dir.mkdir(parents=True)
+        dll = bin_dir / "cupti64_2027.1.0.dll"
+        dll.touch()
+
+        mocker.patch(
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            return_value=[str(bin_dir)],
+        )
+        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
+
+        result = find_in_site_packages(
+            _ctx(LIB_DESCRIPTORS["cupti"], platform=WindowsSearchPlatform(target_arch="x64"))
+        )
+
+        assert result == FindResult(str(dll), "site-packages")
+
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_windows_explicit_glob_prefers_known_cupti_name(self, mocker, tmp_path):
+        bin_dir = tmp_path / "nvidia" / "cuda_cupti" / "bin"
+        bin_dir.mkdir(parents=True)
+        known_dll = bin_dir / "cupti64_2026.3.0.dll"
+        known_dll.touch()
+        (bin_dir / "cupti64_2027.1.0.dll").touch()
+
+        mocker.patch(
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            return_value=[str(bin_dir)],
+        )
+        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
+
+        result = find_in_site_packages(
+            _ctx(LIB_DESCRIPTORS["cupti"], platform=WindowsSearchPlatform(target_arch="x64"))
+        )
+
+        assert result == FindResult(str(known_dll), "site-packages")
+
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_windows_known_cupti_names_prefer_newest(self, tmp_path):
+        older_dll = tmp_path / "cupti64_2026.2.1.dll"
+        newer_dll = tmp_path / "cupti64_2026.3.0.dll"
+        older_dll.touch()
+        newer_dll.touch()
+
+        result = _find_descriptor_dll_under_dir(str(tmp_path), LIB_DESCRIPTORS["cupti"])
+
+        assert result == str(newer_dll)
+
+    @pytest.mark.parametrize(
+        ("libname", "sibling_dll"),
+        (
+            ("cublas", "cublasLt64_13.dll"),
+            ("cufft", "cufftw64_12.dll"),
+            ("cusolver", "cusolverMg64_12.dll"),
+            ("cusparse", "cusparseLt.dll"),
+            ("cutensor", "cutensorMg.dll"),
+        ),
+    )
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_windows_matching_rejects_sibling_library(self, tmp_path, libname, sibling_dll):
+        (tmp_path / sibling_dll).touch()
+
+        result = _find_descriptor_dll_under_dir(str(tmp_path), LIB_DESCRIPTORS[libname])
+
+        assert result is None
 
     @pytest.mark.agent_authored(model="gpt-5")
     def test_found_windows_arm64_prefers_cuda13_arch_dir_to_cuda12(self, mocker, tmp_path):
@@ -646,6 +737,164 @@ class TestFindInCudaHome:
 
 
 # ---------------------------------------------------------------------------
+# Descriptor-specific Linux install roots
+# ---------------------------------------------------------------------------
+
+
+class TestLinuxInstallRoots:
+    @pytest.mark.parametrize(
+        ("libname", "env_var", "rel_dir", "soname"),
+        (
+            ("cudnn", "CUDNN_PATH", "lib", "libcudnn.so.9"),
+            ("cudnn", "CUDNN_PATH", "lib64", "libcudnn.so.9"),
+            ("nccl", "NCCL_HOME", "lib", "libnccl.so.2"),
+            ("nccl", "NCCL_HOME", "lib64", "libnccl.so.2"),
+            ("nccl", "NCCL_HOME", "build/lib", "libnccl.so.2"),
+        ),
+    )
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_product_root_finds_supported_layouts(self, mocker, tmp_path, libname, env_var, rel_dir, soname):
+        root = tmp_path / libname
+        lib_dir = root / rel_dir
+        lib_dir.mkdir(parents=True)
+        library = lib_dir / soname
+        library.touch()
+        env = {"CUDNN_PATH": "", "NCCL_HOME": ""}
+        env[env_var] = str(root)
+        mocker.patch.dict(os.environ, env)
+
+        result = find_in_install_root_env_vars(_ctx(LIB_DESCRIPTORS[libname], platform=LinuxSearchPlatform()))
+
+        assert result == FindResult(str(library), env_var)
+
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_nccl_home_prefers_canonical_installed_layout(self, mocker, tmp_path):
+        libraries = []
+        for rel_dir in ("lib", "lib64", "build/lib"):
+            lib_dir = tmp_path / rel_dir
+            lib_dir.mkdir(parents=True)
+            library = lib_dir / "libnccl.so.2"
+            library.touch()
+            libraries.append(library)
+        mocker.patch.dict(os.environ, {"CUDNN_PATH": "", "NCCL_HOME": str(tmp_path)})
+
+        result = find_in_install_root_env_vars(_ctx(LIB_DESCRIPTORS["nccl"], platform=LinuxSearchPlatform()))
+
+        assert result == FindResult(str(libraries[0]), "NCCL_HOME")
+
+
+# ---------------------------------------------------------------------------
+# Descriptor-specific Windows install roots
+# ---------------------------------------------------------------------------
+
+
+class TestWindowsInstallRoots:
+    @pytest.mark.parametrize(
+        ("target_arch", "archive_bin_rel_dir"),
+        [
+            ("x64", "bin/x64"),
+            ("x64", "bin"),
+            ("arm64", "bin/arm64"),
+        ],
+    )
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_cudnn_path_finds_supported_archive_layouts(self, mocker, tmp_path, target_arch, archive_bin_rel_dir):
+        bin_dir = tmp_path / archive_bin_rel_dir
+        bin_dir.mkdir(parents=True)
+        dll = bin_dir / "cudnn64_9.dll"
+        dll.touch()
+        mocker.patch.dict(os.environ, {"CUDNN_PATH": str(tmp_path)})
+
+        result = find_in_install_root_env_vars(
+            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch=target_arch))
+        )
+
+        assert result == FindResult(str(dll), "CUDNN_PATH")
+
+    @pytest.mark.parametrize(
+        ("target_arch", "other_arch_bin_rel_dir"),
+        [
+            ("x64", "bin/arm64"),
+            ("arm64", "bin/x64"),
+            ("arm64", "bin"),
+        ],
+    )
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_cudnn_path_does_not_cross_architectures(self, mocker, tmp_path, target_arch, other_arch_bin_rel_dir):
+        bin_dir = tmp_path / other_arch_bin_rel_dir
+        bin_dir.mkdir(parents=True)
+        (bin_dir / "cudnn64_9.dll").touch()
+        mocker.patch.dict(os.environ, {"CUDNN_PATH": str(tmp_path)})
+
+        result = find_in_install_root_env_vars(
+            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch=target_arch))
+        )
+
+        assert result is None
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_program_files_finds_versioned_cudnn_install(self, mocker, tmp_path):
+        bin_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.24" / "bin"
+        x64_bin_dir = bin_dir / "x64"
+        x64_bin_dir.mkdir(parents=True)
+        (x64_bin_dir / "cudnn_adv64_9.dll").touch()
+        dll = bin_dir / "cudnn64_9.dll"
+        dll.touch()
+        mocker.patch.dict(os.environ, {"PROGRAMFILES": str(tmp_path), "PROGRAMW6432": ""})
+
+        result = find_in_program_files_roots(
+            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
+        )
+
+        assert result == FindResult(str(dll), "ProgramFiles")
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_program_files_prefers_newest_numeric_cudnn_version_across_layouts(self, mocker, tmp_path):
+        older_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.9" / "bin" / "x64"
+        newer_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.10" / "bin"
+        older_dir.mkdir(parents=True)
+        newer_dir.mkdir(parents=True)
+        (older_dir / "cudnn64_9.dll").touch()
+        newer_dll = newer_dir / "cudnn64_9.dll"
+        newer_dll.touch()
+        mocker.patch.dict(os.environ, {"PROGRAMFILES": str(tmp_path), "PROGRAMW6432": ""})
+
+        result = find_in_program_files_roots(
+            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
+        )
+
+        assert result == FindResult(str(newer_dll), "ProgramFiles")
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_cudnn_arm64_archive_layout_is_not_assumed_for_other_roots(self, mocker, tmp_path):
+        conda_root = tmp_path / "conda"
+        cuda_root = tmp_path / "cuda"
+        program_files_root = tmp_path / "Program Files"
+        for bin_dir in (
+            conda_root / "Library" / "bin" / "arm64",
+            cuda_root / "bin" / "arm64",
+            program_files_root / "NVIDIA" / "CUDNN" / "v9.25" / "bin" / "arm64",
+        ):
+            bin_dir.mkdir(parents=True)
+            (bin_dir / "cudnn64_9.dll").touch()
+        mocker.patch.dict(
+            os.environ,
+            {
+                "CONDA_PREFIX": str(conda_root),
+                "PROGRAMFILES": str(program_files_root),
+                "PROGRAMW6432": "",
+            },
+        )
+        mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(cuda_root))
+        ctx = _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="arm64"))
+
+        assert find_in_conda(ctx) is None
+        assert find_in_cuda_path(ctx) is None
+        assert find_in_program_files_roots(ctx) is None
+        assert ctx.platform.site_packages_rel_dirs(ctx.desc) == ()
+
+
+# ---------------------------------------------------------------------------
 # run_find_steps
 # ---------------------------------------------------------------------------
 
@@ -687,7 +936,17 @@ class TestStepTuples:
         assert find_in_conda in EARLY_FIND_STEPS
 
     def test_late_find_steps_contains_expected(self):
+        assert find_in_install_root_env_vars in LATE_FIND_STEPS
         assert find_in_cuda_path in LATE_FIND_STEPS
+        assert find_in_program_files_roots in LATE_FIND_STEPS
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_late_find_steps_use_specific_roots_before_generic_roots(self):
+        assert (
+            find_in_install_root_env_vars,
+            find_in_cuda_path,
+            find_in_program_files_roots,
+        ) == LATE_FIND_STEPS
 
     def test_early_and_late_are_disjoint(self):
         assert not set(EARLY_FIND_STEPS) & set(LATE_FIND_STEPS)

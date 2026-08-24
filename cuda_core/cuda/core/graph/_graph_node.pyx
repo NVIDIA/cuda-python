@@ -21,6 +21,7 @@ from cuda.core._event cimport Event, Event_check_open
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._memory._buffer cimport Buffer, Buffer_check_open
+from cuda.core._memory._location cimport cumemlocation_from_id
 from cuda.core._module cimport Kernel
 from cuda.core.graph._graph_definition cimport (
     GraphCondition,
@@ -852,11 +853,9 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object device,
             peer_id = getattr(peer_dev, 'device_id', peer_dev)
             peer_ids.append(peer_id)
             access_descs.push_back(cydriver.CUmemAccessDesc_st(
-                cydriver.CUmemLocation_st(
-                    cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
-                    peer_id
-                ),
-                cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+                cumemlocation_from_id(
+                    cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE, peer_id),
+                cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE,
             ))
 
     cdef str memory_type_str = "device" if memory_type is None else str(memory_type)

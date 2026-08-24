@@ -40,6 +40,18 @@ class Program:
     def __init__(self, code: str | bytes | bytearray, code_type: SourceCodeType | str, options: ProgramOptions | None=None): ...
     def close(self) -> None:
         """Destroy this program."""
+    def __dealloc__(self): ...
+    def _cleanup_debug_source(self): ...
+    def _unlink_debug_source(self, path: str) -> None: ...
+    def _try_materialize_nvrtc_debug_source(self, code: str) -> str | None:
+        """Write *code* to a ``{caller}_{kernel}_XXXXXXXX.cu`` temp file for cuda-gdb.
+
+        ``caller`` is the Python file stem (no ``.py``). ``kernel`` is the first
+        ``__global__`` function name, or ``kernel`` if none is found.
+
+        Returns None if the filesystem is not writable, so the caller can fall back
+        to the label-only behavior instead of failing the compile.
+        """
     @property
     def is_closed(self) -> bool:
         """Whether this program has been closed."""
