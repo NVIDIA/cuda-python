@@ -526,9 +526,8 @@ def sample_switch_node_alt(sample_graphdef):
     return sample_graphdef.switch(condition, 3)
 
 
-# Indirect-parametrize helpers: request.getfixturevalue() runs here, in the
-# fixture (main thread), so the resolved object is already available when the
-# test function runs in a worker thread.
+# Resolve fixture names during pytest setup, before pytest-run-parallel starts
+# worker threads. The workers then share the resolved, read-only test object.
 
 
 @pytest.fixture
