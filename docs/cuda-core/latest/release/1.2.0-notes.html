@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=b9dcd0fa"></script>
+    <script src="../_static/documentation_options.js?v=1da454e3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev100';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev101';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -904,6 +904,17 @@ spellings and was unaffected. The option itself is only recognized by newer
 toolkits; libNVVM from CUDA 12.x does not support it under either spelling and
 still reports <code class="docutils literal notranslate"><span class="pre">NVVM_ERROR_INVALID_OPTION</span></code>.
 (closes <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2570">#2570</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.from_dlpack" title="cuda.core.utils.StridedMemoryView.from_dlpack"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_dlpack()</span></code></a>, and
+<a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.from_any_interface" title="cuda.core.utils.StridedMemoryView.from_any_interface"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_any_interface()</span></code></a> on a DLPack producer, now
+add <code class="docutils literal notranslate"><span class="pre">DLTensor.byte_offset</span></code> to <code class="docutils literal notranslate"><span class="pre">ptr</span></code>. DLPack places a tensor’s first
+element at <code class="docutils literal notranslate"><span class="pre">data</span> <span class="pre">+</span> <span class="pre">byte_offset</span></code>, but <code class="docutils literal notranslate"><span class="pre">ptr</span></code> was taken from <code class="docutils literal notranslate"><span class="pre">data</span></code> alone,
+so a producer that reported an allocation base in <code class="docutils literal notranslate"><span class="pre">data</span></code> and expressed a
+slice as an offset yielded a view pointing <code class="docutils literal notranslate"><span class="pre">byte_offset</span></code> bytes before the
+tensor, with no error raised. The offset was also lost permanently on a
+round-trip, since the <code class="docutils literal notranslate"><span class="pre">__dlpack__</span></code> re-export writes <code class="docutils literal notranslate"><span class="pre">ptr</span></code> back out as
+<code class="docutils literal notranslate"><span class="pre">data</span></code> with <code class="docutils literal notranslate"><span class="pre">byte_offset</span> <span class="pre">=</span> <span class="pre">0</span></code>. The capsule-consuming path was already
+correct.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2592">#2592</a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Program(ptx,</span> <span class="pre">&quot;ptx&quot;,</span> <span class="pre">ProgramOptions(numba_debug=True))</span></code> now warns that the
 option is ignored instead of discarding it silently. <code class="docutils literal notranslate"><span class="pre">numba_debug</span></code> is an
 NVVM/NVRTC <em>compiler</em> option: nvJitLink rejects it with

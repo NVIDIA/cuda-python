@@ -164,6 +164,18 @@ Fixes and enhancements
   still reports ``NVVM_ERROR_INVALID_OPTION``.
   (closes `#2570 <https://github.com/NVIDIA/cuda-python/issues/2570>`__)
 
+- :meth:`~utils.StridedMemoryView.from_dlpack`, and
+  :meth:`~utils.StridedMemoryView.from_any_interface` on a DLPack producer, now
+  add ``DLTensor.byte_offset`` to ``ptr``. DLPack places a tensor's first
+  element at ``data + byte_offset``, but ``ptr`` was taken from ``data`` alone,
+  so a producer that reported an allocation base in ``data`` and expressed a
+  slice as an offset yielded a view pointing ``byte_offset`` bytes before the
+  tensor, with no error raised. The offset was also lost permanently on a
+  round-trip, since the ``__dlpack__`` re-export writes ``ptr`` back out as
+  ``data`` with ``byte_offset = 0``. The capsule-consuming path was already
+  correct.
+  (`#2592 <https://github.com/NVIDIA/cuda-python/issues/2592>`__)
+
 - ``Program(ptx, "ptx", ProgramOptions(numba_debug=True))`` now warns that the
   option is ignored instead of discarding it silently. ``numba_debug`` is an
   NVVM/NVRTC *compiler* option: nvJitLink rejects it with
