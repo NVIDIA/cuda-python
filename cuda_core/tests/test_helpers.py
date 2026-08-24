@@ -6,7 +6,7 @@ import time
 import types
 
 import pytest
-from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer
+from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer, thread_unsafe_on_windows
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 from helpers.oom_diagnostics import (
@@ -29,6 +29,7 @@ NBYTES = 64
 
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
+@pytest.mark.thread_unsafe(reason="requires a barrier wait to avoid overlapping pinned latch allocations")
 def test_latchkernel():
     """Test LatchKernel."""
     log = TimestampedLogger(enabled=ENABLE_LOGGING)
@@ -63,16 +64,18 @@ def test_latchkernel():
     under_compute_sanitizer(),
     reason="Too slow under compute-sanitizer (UVM-heavy test).",
 )
+@thread_unsafe_on_windows
 def test_patterngen_seeds():
     """Test PatternGen with seed argument."""
     device = Device()
     device.set_current()
     buffer = make_scratch_buffer(device, 0, NBYTES)
+    stream = device.default_stream
 
     # All seeds are pairwise different.
     # We test a sampling of values because exhaustive testing is too slow,
     # especially on Windows. See https://github.com/NVIDIA/cuda-python/issues/1455
-    pgen = PatternGen(device, NBYTES)
+    pgen = PatternGen(device, NBYTES, stream=stream)
     for i in (ii for ii in range(256) if ii < 5 or ii % 17 == 0):
         pgen.fill_buffer(buffer, seed=i)
         pgen.verify_buffer(buffer, seed=i)
@@ -81,6 +84,7 @@ def test_patterngen_seeds():
                 pgen.verify_buffer(buffer, seed=j)
 
 
+@thread_unsafe_on_windows
 def test_patterngen_values():
     """Test PatternGen with value argument, also compare_equal_buffers."""
     device = Device()
@@ -89,7 +93,7 @@ def test_patterngen_values():
     twos = make_scratch_buffer(device, 2, NBYTES)
     assert compare_equal_buffers(ones, ones)
     assert not compare_equal_buffers(ones, twos)
-    pgen = PatternGen(device, NBYTES)
+    pgen = PatternGen(device, NBYTES, stream=device.default_stream)
     pgen.verify_buffer(ones, value=1)
     pgen.verify_buffer(twos, value=2)
 

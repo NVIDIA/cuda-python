@@ -17,7 +17,7 @@ from packaging.version import Version
 
 import cuda.bindings
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, Program, ProgramOptions, StreamOptions, launch
-from cuda.core.graph import GraphBuilder, GraphDefinition
+from cuda.core.graph import GraphBuilder, GraphCompleteOptions, GraphDefinition
 from cuda.core.graph._graph_builder import (
     _capture_callback_with_tail_failure_for_testing,
 )
@@ -216,7 +216,7 @@ def test_graph_complete_after_close_forked(init_cuda):
 
     # join() closes the non-root builder (right); it must now be rejected, not crash.
     GraphBuilder.join(left, right)
-    with pytest.raises(RuntimeError, match="^Graph builder has been closed."):
+    with pytest.raises(RuntimeError, match="^GraphBuilder has been closed"):
         right.complete()
 
 
@@ -234,7 +234,7 @@ def test_graph_update_after_source_close(init_cuda):
     source.end_building()
     source.close()
 
-    with pytest.raises(ValueError, match="^Source graph builder has been closed."):
+    with pytest.raises(RuntimeError, match="^GraphBuilder has been closed"):
         graph.update(source)
 
 
@@ -465,6 +465,46 @@ def test_graph_close_is_idempotent(init_cuda):
     graph.close()
     graph.close()
     assert int(graph.handle) == 0
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_graph_and_builder_rejected_before_operations(init_cuda):
+    device = Device()
+    stream = device.create_stream()
+    graph_def = GraphDefinition()
+    node = graph_def.empty()
+    graph = graph_def.instantiate()
+    graph.close()
+
+    assert graph.is_closed
+    assert bool(graph) is True  # Preserve backward-compatible truthiness after close.
+    for operation in (
+        lambda: graph[node],
+        lambda: graph.update(graph_def),
+        lambda: graph.upload(stream),
+        lambda: graph.launch(stream),
+    ):
+        with pytest.raises(RuntimeError, match="Graph has been closed"):
+            operation()
+
+    builder = device.create_graph_builder()
+    other = device.create_graph_builder()
+    builder.close()
+    assert builder.is_closed
+    assert bool(builder) is True  # Preserve backward-compatible truthiness after close.
+    with pytest.raises(RuntimeError, match="GraphBuilder has been closed"):
+        GraphBuilder.join(builder, other)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_graph_instantiation_rejects_closed_upload_stream(init_cuda):
+    graph_def = GraphDefinition()
+    graph_def.empty()
+    stream = Device().create_stream()
+    stream.close()
+
+    with pytest.raises(RuntimeError, match="Stream has been closed"):
+        graph_def.instantiate(GraphCompleteOptions(upload_stream=stream))
 
 
 def test_graph_stream_lifetime(init_cuda):

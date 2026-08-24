@@ -501,7 +501,7 @@ def test_object_code_load_rdc_with_linker(kind, from_fn, init_cuda):
     host_buf = cuda.core.LegacyPinnedMemoryResource().allocate(4)
     result = np.from_dlpack(host_buf).view(np.float32)
     result[:] = 0.0
-    dev_buf = init_cuda.memory_resource.allocate(4, stream=init_cuda.default_stream)
+    dev_buf = init_cuda.memory_resource.allocate(4, stream=stream)
 
     cuda.core.launch(
         stream,
@@ -880,7 +880,7 @@ def test_kernel_keeps_library_alive(init_cuda):
     result = np.from_dlpack(host_buf).view(np.int32)
     result[:] = 0
 
-    dev_buf = device.memory_resource.allocate(4, stream=device.default_stream)
+    dev_buf = device.memory_resource.allocate(4, stream=stream)
 
     # Launch kernel
     config = cuda.core.LaunchConfig(grid=1, block=1)

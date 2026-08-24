@@ -35,6 +35,7 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 
 from cuda.core._memory import Buffer
+from cuda.core._memory._buffer cimport Buffer as cyBuffer, Buffer_check_open
 
 
 # ---------------------------------------------------------------------------
@@ -1105,7 +1106,7 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
     buf.dl_tensor = dl_tensor
     buf.metadata = capsule
-    buf.ptr = <intptr_t>(dl_tensor.data)
+    buf.ptr = <intptr_t>(dl_tensor.data) + <intptr_t>(dl_tensor.byte_offset)
     buf.device_id = device_id
     buf.is_device_accessible = is_device_accessible
     buf.readonly = is_readonly
@@ -1335,6 +1336,8 @@ cdef inline int view_buffer_strided(
     object dtype,
     bint is_readonly,
 ) except -1:
+    if isinstance(buffer, Buffer):
+        Buffer_check_open(<cyBuffer>buffer)
     if dtype is not None:
         dtype = numpy.dtype(dtype)
         if dtype.itemsize != layout.itemsize:

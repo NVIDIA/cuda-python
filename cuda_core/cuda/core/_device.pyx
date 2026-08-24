@@ -12,7 +12,7 @@ from libcpp.vector cimport vector
 
 import threading
 
-from cuda.core._context cimport Context
+from cuda.core._context cimport Context, Context_check_open
 from cuda.core._context import ContextOptions
 from cuda.core._device_resources cimport DeviceResources, SMResource, WorkqueueResource
 from cuda.core._event cimport Event as cyEvent
@@ -1281,6 +1281,7 @@ class Device:
         if ctx is not None:
             # TODO: revisit once Context is cythonized
             assert_type(ctx, Context)
+            Context_check_open(ctx)
             if ctx._device_id != self._device_id:
                 raise RuntimeError(
                     "the provided context was created on the device with"

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cuda.bindings cimport cydriver
-from cuda.core._resource_handles cimport GraphHandle
+from cuda.core._resource_handles cimport GraphHandle, as_intptr
 
 
 cdef class GraphCondition:
@@ -22,3 +22,9 @@ cdef class GraphDefinition:
 
     @staticmethod
     cdef GraphDefinition _from_handle(GraphHandle h_graph)
+
+
+cdef inline int GD_check_valid(GraphDefinition self) except -1:
+    if as_intptr(self._h_graph) == 0:
+        raise RuntimeError("GraphDefinition is no longer valid")
+    return 0
