@@ -76,15 +76,17 @@ def _get_cuda_path() -> str:
 
 
 @functools.cache
-def _determine_cuda_major_version() -> str:
-    """Determine the CUDA major version for building cuda.core.
+def _determine_cuda_version() -> tuple[int, int]:
+    """Determine the CUDA major and minor version for building cuda.core.
 
     This version is used for two purposes:
     1. Determining which cuda-bindings version to install as a build dependency
-    2. Setting CUDA_CORE_BUILD_MAJOR for Cython compile-time conditionals
+    2. Setting CUDA_CORE_BUILD_MAJOR and CUDA_CORE_BUILD_MINOR for Cython
+       compile-time conditionals
 
     The version is derived from (in order of priority):
-    1. CUDA_CORE_BUILD_MAJOR environment variable (explicit override, e.g. in CI)
+    1. CUDA_CORE_BUILD_MAJOR (and optionally CUDA_CORE_BUILD_MINOR) environment
+       variables (explicit override, e.g. in CI)
     2. CUDA_VERSION macro in cuda.h from CUDA_PATH or CUDA_HOME
 
     Since CUDA_PATH or CUDA_HOME is required for the build (to provide include
@@ -93,8 +95,9 @@ def _determine_cuda_major_version() -> str:
     # Explicit override, e.g. in CI.
     cuda_major = os.environ.get("CUDA_CORE_BUILD_MAJOR")
     if cuda_major is not None:
-        print("CUDA MAJOR VERSION:", cuda_major)
-        return cuda_major
+        cuda_minor = int(os.environ.get("CUDA_CORE_BUILD_MINOR", "0"))
+        print(f"CUDA VERSION: {cuda_major}.{cuda_minor}")
+        return int(cuda_major), cuda_minor
 
     # Derive from the CUDA headers (the authoritative source for what we compile against).
     cuda_path = _get_cuda_path()
@@ -105,10 +108,11 @@ def _determine_cuda_major_version() -> str:
                 m = re.match(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$", line)
                 if m:
                     v = int(m.group(1))
-                    # CUDA_VERSION is e.g. 12020 for 12.2.
-                    cuda_major = str(v // 1000)
-                    print("CUDA MAJOR VERSION:", cuda_major)
-                    return cuda_major
+                    # CUDA_VERSION is e.g. 12020 for 12.2, 13010 for 13.1.
+                    major = v // 1000
+                    minor = (v % 1000) // 10
+                    print(f"CUDA VERSION: {major}.{minor}")
+                    return major, minor
     except OSError:
         pass
 
@@ -119,6 +123,12 @@ def _determine_cuda_major_version() -> str:
         "Set CUDA_CORE_BUILD_MAJOR environment variable, or ensure CUDA_PATH or CUDA_HOME "
         "points to a valid CUDA installation with include/cuda.h."
     )
+
+
+def _determine_cuda_major_version() -> str:
+    """Return the CUDA major version as a string."""
+    major, _ = _determine_cuda_version()
+    return str(major)
 
 
 # used later by setup()
@@ -274,7 +284,8 @@ def _build_cuda_core(debug=False):
     cuda_major = _check_build_major()
 
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
-    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(cuda_major)}
+    _, cuda_minor = _determine_cuda_version()
+    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(cuda_major), "CUDA_CORE_BUILD_MINOR": cuda_minor}
     compiler_directives = {"embedsignature": True, "warn.deprecated.IF": False, "freethreading_compatible": True}
     _CythonOptions.warning_errors = True
     if COMPILE_FOR_COVERAGE:
