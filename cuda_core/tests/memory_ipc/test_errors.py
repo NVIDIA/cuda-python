@@ -72,6 +72,23 @@ def test_register_rejects_non_ipc_memory_resource(mempool_device):
         DeviceMemoryResource.from_registry(key)
 
 
+@pytest.mark.human_authored
+def test_register_rejects_mismatched_uuid(ipc_memory_resource):
+    """A UUID that is not the resource's own is rejected even when CPython runs with -O."""
+    mr = ipc_memory_resource
+    own = mr.uuid
+    assert own is not None
+
+    other = uuid.UUID("00000000-0000-0000-0000-000000000001")
+    with pytest.raises(ValueError, match="cannot register it as"):
+        mr.register(other)
+
+    # The resource must keep its own identity rather than silently taking on the new key.
+    assert mr.uuid == own
+    with pytest.raises(RuntimeError, match=r"Memory resource [a-z0-9-]+ was not found"):
+        type(mr).from_registry(other)
+
+
 @pytest.mark.skipif(os.name == "nt", reason="IPC allocation handles are not supported on Windows")
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_ipc_allocation_handle_state_tracks_close():
