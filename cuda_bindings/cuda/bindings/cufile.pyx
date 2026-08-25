@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=df46a6921d93f83249134c7705b2809f57145b6fb72f6f40c4657ecd1b443b81
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3f53b4aef109461d93dd698a71700a3429c3e7e7889aaaeb6e3d63cb8f57645e
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -445,9 +445,10 @@ cdef class IOEvents:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -784,9 +785,10 @@ cdef class PerGpuStats:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -1248,9 +1250,10 @@ cdef class Descr:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -2293,9 +2296,10 @@ cdef class IOParams:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -3009,22 +3013,21 @@ cdef int check_status(ReturnT status) except 1 nogil:
 # Wrapper functions
 ###############################################################################
 
-cpdef intptr_t handle_register(intptr_t descr) except? 0:
+cpdef intptr_t handle_register(descr) except? 0:
     """cuFileHandleRegister is required, and performs extra checking that is memoized to provide increased performance on later cuFile operations.
 
     Args:
-        descr (intptr_t): ``CUfileDescr_t`` file descriptor (OS
-            agnostic).
+        descr (intptr_t): ``CUfileDescr_t`` file descriptor (OS agnostic).
 
     Returns:
-        intptr_t: ``CUfileHandle_t`` opaque file handle for IO
-            operations.
+        intptr_t: ``CUfileHandle_t`` opaque file handle for IO operations.
 
     .. seealso:: `cuFileHandleRegister`
     """
+    cdef intptr_t _descr_ptr_ = int(descr)
     cdef Handle fh
     with nogil:
-        __status__ = cuFileHandleRegister(&fh, <CUfileDescr_t*>descr)
+        __status__ = cuFileHandleRegister(&fh, <CUfileDescr_t*>_descr_ptr_)
     check_status(__status__)
     return <intptr_t>fh
 
@@ -3046,8 +3049,8 @@ cpdef buf_register(intptr_t buf_ptr_base, size_t length, int flags):
 
     Args:
         buf_ptr_base (intptr_t): buffer pointer allocated.
-        length (size_t): size of memory region from the above
-            specified bufPtr.
+        length (size_t): size of memory region from the above specified
+            bufPtr.
         flags (int): CU_FILE_RDMA_REGISTER.
 
     .. seealso:: `cuFileBufRegister`
@@ -3107,10 +3110,9 @@ cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
     """Sets whether the Read/Write APIs use polling to do IO operations This takes place before the driver is opened. No-op if driver is already open.
 
     Args:
-        poll (bint): boolean to indicate whether to use poll mode or
-            not.
-        poll_threshold_size (size_t): max IO size to use for POLLING
-            mode in KB.
+        poll (bint): boolean to indicate whether to use poll mode or not.
+        poll_threshold_size (size_t): max IO size to use for POLLING mode
+            in KB.
 
     .. seealso:: `cuFileDriverSetPollMode`
     """
@@ -3123,8 +3125,7 @@ cpdef driver_set_max_direct_io_size(size_t max_direct_io_size):
     """Control parameter to set max IO size(KB) used by the library to talk to nvidia-fs driver This takes place before the driver is opened. No-op if driver is already open.
 
     Args:
-        max_direct_io_size (size_t): maximum allowed direct io size in
-            KB.
+        max_direct_io_size (size_t): maximum allowed direct io size in KB.
 
     .. seealso:: `cuFileDriverSetMaxDirectIOSize`
     """
@@ -3137,8 +3138,8 @@ cpdef driver_set_max_cache_size(size_t max_cache_size):
     """Control parameter to set maximum GPU memory reserved per device by the library for internal buffering This takes place before the driver is opened. No-op if driver is already open.
 
     Args:
-        max_cache_size (size_t): The maximum GPU buffer space per
-            device used for internal use in KB.
+        max_cache_size (size_t): The maximum GPU buffer space per device
+            used for internal use in KB.
 
     .. seealso:: `cuFileDriverSetMaxCacheSize`
     """
@@ -3151,8 +3152,8 @@ cpdef driver_set_max_pinned_mem_size(size_t max_pinned_size):
     """Sets maximum buffer space that is pinned in KB for use by ``cuFileBufRegister`` This takes place before the driver is opened. No-op if driver is already open.
 
     Args:
-        max_pinned_size (size_t): maximum buffer space that is pinned
-            in KB.
+        max_pinned_size (size_t): maximum buffer space that is pinned in
+            KB.
 
     .. seealso:: `cuFileDriverSetMaxPinnedMemSize`
     """
@@ -3169,15 +3170,17 @@ cpdef intptr_t batch_io_set_up(unsigned nr) except? 0:
     return <intptr_t>batch_idp
 
 
-cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, intptr_t iocbp, unsigned int flags):
+cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, iocbp, unsigned int flags):
+    cdef intptr_t _iocbp_ptr_ = int(iocbp)
     with nogil:
-        __status__ = cuFileBatchIOSubmit(<BatchHandle>batch_idp, nr, <CUfileIOParams_t*>iocbp, flags)
+        __status__ = cuFileBatchIOSubmit(<BatchHandle>batch_idp, nr, <CUfileIOParams_t*>_iocbp_ptr_, flags)
     check_status(__status__)
 
 
-cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, intptr_t iocbp, intptr_t timeout):
+cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, iocbp, intptr_t timeout):
+    cdef intptr_t _iocbp_ptr_ = int(iocbp)
     with nogil:
-        __status__ = cuFileBatchIOGetStatus(<BatchHandle>batch_idp, min_nr, <unsigned*>nr, <CUfileIOEvents_t*>iocbp, <timespec*>timeout)
+        __status__ = cuFileBatchIOGetStatus(<BatchHandle>batch_idp, min_nr, <unsigned*>nr, <CUfileIOEvents_t*>_iocbp_ptr_, <timespec*>timeout)
     check_status(__status__)
 
 
@@ -3283,7 +3286,6 @@ cpdef tuple get_parameter_min_max_value(int param):
 
     Returns:
         A 2-tuple containing:
-
         - size_t: Pointer to store the minimum value.
         - size_t: Pointer to store the maximum value.
 
@@ -3356,45 +3358,48 @@ cpdef stats_reset():
     check_status(__status__)
 
 
-cpdef get_stats_l1(intptr_t stats):
+cpdef get_stats_l1(stats):
     """Get Level 1 cuFile statistics.
 
     Args:
-        stats (intptr_t): Pointer to ``CUfileStatsLevel1_t`` structure
-            to be filled.
+        stats (intptr_t): Pointer to ``CUfileStatsLevel1_t`` structure to
+            be filled.
 
     .. seealso:: `cuFileGetStatsL1`
     """
+    cdef intptr_t _stats_ptr_ = int(stats)
     with nogil:
-        __status__ = cuFileGetStatsL1(<CUfileStatsLevel1_t*>stats)
+        __status__ = cuFileGetStatsL1(<CUfileStatsLevel1_t*>_stats_ptr_)
     check_status(__status__)
 
 
-cpdef get_stats_l2(intptr_t stats):
+cpdef get_stats_l2(stats):
     """Get Level 2 cuFile statistics.
 
     Args:
-        stats (intptr_t): Pointer to ``CUfileStatsLevel2_t`` structure
-            to be filled.
+        stats (intptr_t): Pointer to ``CUfileStatsLevel2_t`` structure to
+            be filled.
 
     .. seealso:: `cuFileGetStatsL2`
     """
+    cdef intptr_t _stats_ptr_ = int(stats)
     with nogil:
-        __status__ = cuFileGetStatsL2(<CUfileStatsLevel2_t*>stats)
+        __status__ = cuFileGetStatsL2(<CUfileStatsLevel2_t*>_stats_ptr_)
     check_status(__status__)
 
 
-cpdef get_stats_l3(intptr_t stats):
+cpdef get_stats_l3(stats):
     """Get Level 3 cuFile statistics.
 
     Args:
-        stats (intptr_t): Pointer to ``CUfileStatsLevel3_t`` structure
-            to be filled.
+        stats (intptr_t): Pointer to ``CUfileStatsLevel3_t`` structure to
+            be filled.
 
     .. seealso:: `cuFileGetStatsL3`
     """
+    cdef intptr_t _stats_ptr_ = int(stats)
     with nogil:
-        __status__ = cuFileGetStatsL3(<CUfileStatsLevel3_t*>stats)
+        __status__ = cuFileGetStatsL3(<CUfileStatsLevel3_t*>_stats_ptr_)
     check_status(__status__)
 
 
@@ -3427,8 +3432,7 @@ cpdef get_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_v
     Args:
         size_values (intptr_t): Buffer to receive slab sizes in KB.
         count_values (intptr_t): Buffer to receive slab counts.
-        len (int): Buffer size (must match the actual parameter
-            length).
+        len (int): Buffer size (must match the actual parameter length).
 
     .. seealso:: `cuFileGetParameterPosixPoolSlabArray`
     """
