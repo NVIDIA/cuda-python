@@ -51,7 +51,7 @@ class LaunchConfig:
     shmem_size: int
     is_cooperative: bool
     programmatic_stream_serialization: bool
-    cluster_scheduling_policy_preference: ClusterSchedulingPolicyType | None
+    cluster_scheduling_policy_preference: object
 
     def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False, programmatic_stream_serialization: bool=False, cluster_scheduling_policy_preference: ClusterSchedulingPolicyType | None=None) -> None:
         """Initialize LaunchConfig with validation.
@@ -79,6 +79,7 @@ class LaunchConfig:
     def __eq__(self, other: object) -> bool: ...
     def __hash__(self) -> int: ...
 
+def _validate_cluster_scheduling_policy_preference(value): ...
 def _to_native_launch_config(config: LaunchConfig) -> object:
     """Convert LaunchConfig to native driver CUlaunchConfig.
 
@@ -92,5 +93,3 @@ def _to_native_launch_config(config: LaunchConfig) -> object:
     driver.CUlaunchConfig
         Native CUDA driver launch configuration
     """
-
-def _validate_cluster_scheduling_policy_preference(value): ...
