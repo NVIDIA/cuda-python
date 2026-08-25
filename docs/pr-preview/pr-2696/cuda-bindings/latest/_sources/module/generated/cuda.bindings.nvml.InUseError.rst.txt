@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.InUseError
+=============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: InUseError
