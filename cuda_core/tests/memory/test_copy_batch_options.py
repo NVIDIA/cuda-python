@@ -8,16 +8,16 @@ option field behaves, and every rejection path.
 """
 
 import pytest
-
-# Shared with test_managed_ops.py: handles the CUDA 13 requirement, mempool
-# OOM, and CUDA_ERROR_NOT_SUPPORTED (managed pools are unavailable on
-# Windows), so the location-hint tests skip rather than error there.
-from conftest import create_managed_memory_resource_or_skip
 from helpers.buffers import compare_buffer_to_constant, set_buffer
 from helpers.copy_batch import (
     COPY_BATCH_SIZE,
     assert_managed_holds,
 )
+
+# Shared with test_managed_ops.py: handles the CUDA 13 requirement, mempool
+# OOM, and CUDA_ERROR_NOT_SUPPORTED (managed pools are unavailable on
+# Windows), so the location-hint tests skip rather than error there.
+from helpers.memory import create_managed_memory_resource_or_skip
 
 from cuda.core import Host, LegacyPinnedMemoryResource
 from cuda.core._memory._copy_enums import _attr_run_starts, _reject_unsupported_during_api_call

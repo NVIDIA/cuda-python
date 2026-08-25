@@ -301,13 +301,46 @@ def test_destroyed_node(init_cuda):
     assert b.value == 42  # tolerable
     assert b.width == 4  # tolerable
 
-    # Adding an edge to a destroyed node fails.
-    with pytest.raises(CUDAError):
+    # Adding an edge to a destroyed node fails before reaching CUDA.
+    with pytest.raises(RuntimeError, match="GraphNode has been destroyed"):
         a.succ.add(b)
 
     # Repeated destroy succeeds quietly.
     b.destroy()
     assert not b.is_valid
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_destroyed_node_and_invalid_child_view_are_rejected(init_cuda):
+    parent = GraphDefinition()
+    predecessor = parent.empty()
+    child = GraphDefinition()
+    child.empty()
+    embedded = predecessor.embed(child)
+    child_view = embedded.child_graph
+
+    assert embedded.is_valid
+    assert child_view.is_valid
+    embedded.destroy()
+
+    assert not embedded.is_valid
+    assert not child_view.is_valid
+    assert bool(embedded) is True  # Preserve backward-compatible truthiness after destruction.
+    assert bool(child_view) is True  # Preserve backward-compatible truthiness after invalidation.
+    assert repr(embedded)
+    assert repr(child_view)
+
+    for operation in (
+        embedded.join,
+        embedded.pred.clear,
+        lambda: predecessor.join(embedded),
+        lambda: predecessor.succ.add(embedded),
+        child_view.empty,
+        child_view.nodes,
+        child_view.instantiate,
+    ):
+        with pytest.raises(RuntimeError):
+            operation()
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -356,13 +389,29 @@ def test_add_wrong_type(init_cuda):
         node.succ.add(42)
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_discard_absent_invalid_value_is_noop(init_cuda):
+    graph = GraphDefinition()
+    owner = graph.empty()
+    neighbor = graph.empty()
+    destroyed = graph.empty()
+    owner.succ.add(neighbor)
+    destroyed.destroy()
+
+    foreign = GraphDefinition().empty()
+    for value in (destroyed, foreign):
+        owner.succ.discard(value)
+
+    assert owner.succ == {neighbor}
+
+
 def test_cross_graph_edge(init_cuda):
-    """Adding an edge to a node from a different graph raises CUDAError."""
+    """Adding an edge to a node from a different graph raises ValueError."""
     g1 = GraphDefinition()
     g2 = GraphDefinition()
     a = g1.empty()
     b = g2.empty()
-    with pytest.raises(CUDAError):
+    with pytest.raises(ValueError, match="Graph nodes must belong to the same GraphDefinition"):
         a.succ.add(b)
 
 

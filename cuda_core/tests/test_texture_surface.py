@@ -715,6 +715,77 @@ def test_texture_surface_close_is_idempotent(init_cuda):
     tex_arr.close()
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_arrays_rejected_before_active_operations(init_cuda):
+    device = Device()
+    stream = device.create_stream()
+    arr = device.create_opaque_array(OpaqueArrayOptions(shape=(8,), format=ArrayFormatType.UINT8, num_channels=1))
+    array_resource = ResourceDescriptor.from_opaque_array(arr)
+    arr.close()
+
+    assert arr.is_closed
+    assert bool(arr) is True  # Preserve backward-compatible truthiness after close.
+    with pytest.raises(RuntimeError, match="OpaqueArray has been closed"):
+        arr.copy_from(bytearray(8), stream=stream)
+    with pytest.raises(RuntimeError, match="OpaqueArray has been closed"):
+        ResourceDescriptor.from_opaque_array(arr)
+    with pytest.raises(RuntimeError, match="OpaqueArray has been closed"):
+        device.create_texture_object(resource=array_resource, options=TextureObjectOptions())
+
+    mip = device.create_mipmapped_array(
+        MipmappedArrayOptions(
+            shape=(8, 8),
+            format=ArrayFormatType.UINT8,
+            num_channels=1,
+            num_levels=2,
+        )
+    )
+    mip_resource = ResourceDescriptor.from_mipmapped_array(mip)
+    mip.close()
+
+    assert mip.is_closed
+    assert bool(mip) is True  # Preserve backward-compatible truthiness after close.
+    with pytest.raises(RuntimeError, match="MipmappedArray has been closed"):
+        mip.get_level(0)
+    with pytest.raises(RuntimeError, match="MipmappedArray has been closed"):
+        ResourceDescriptor.from_mipmapped_array(mip)
+    with pytest.raises(RuntimeError, match="MipmappedArray has been closed"):
+        device.create_texture_object(resource=mip_resource, options=TextureObjectOptions())
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_texture_and_surface_state_tracks_close(init_cuda):
+    device = Device()
+    texture_array = device.create_opaque_array(
+        OpaqueArrayOptions(shape=(8,), format=ArrayFormatType.UINT8, num_channels=1)
+    )
+    texture = device.create_texture_object(
+        resource=ResourceDescriptor.from_opaque_array(texture_array),
+        options=TextureObjectOptions(),
+    )
+    assert not texture.is_closed
+    texture.close()
+    assert texture.is_closed
+    assert bool(texture) is True  # Preserve backward-compatible truthiness after close.
+
+    surface_array = device.create_opaque_array(
+        OpaqueArrayOptions(
+            shape=(8, 8),
+            format=ArrayFormatType.UINT8,
+            num_channels=4,
+            is_surface_load_store=True,
+        )
+    )
+    surface = device.create_surface_object(resource=ResourceDescriptor.from_opaque_array(surface_array))
+    assert not surface.is_closed
+    surface.close()
+    assert surface.is_closed
+    assert bool(surface) is True  # Preserve backward-compatible truthiness after close.
+
+    texture_array.close()
+    surface_array.close()
+
+
 # --- Negative-path validation tests ------------------------------------------
 
 

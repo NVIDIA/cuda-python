@@ -15,6 +15,7 @@ import re
 import helpers
 import pytest
 
+from cuda.core import Device as CudaDevice
 from cuda.core import system
 from cuda.core.system import typing
 
@@ -128,7 +129,8 @@ def test_numa_node_id(subtests):
 
 
 def test_device_cuda_compute_capability():
-    for device in system.Device.get_all_devices():
+    for cuda_device in CudaDevice.get_all_devices():
+        device = cuda_device.to_system_device()
         cuda_compute_capability = device.cuda_compute_capability
         assert isinstance(cuda_compute_capability, tuple)
         assert len(cuda_compute_capability) == 2
@@ -309,7 +311,8 @@ def test_device_brand():
 
 
 def test_device_pci_bus_id():
-    for device in system.Device.get_all_devices():
+    for cuda_device in CudaDevice.get_all_devices():
+        device = cuda_device.to_system_device()
         pci_bus_id = device.pci_info.bus_id
         assert isinstance(pci_bus_id, str)
 
@@ -341,6 +344,30 @@ def test_device_attributes(subtests):
             assert attributes.memory_size_mb > 0
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.7")
+def test_device_attributes_wraps_nvml_struct():
+    # Use synthetic data because NVML exposes these attributes only for MIG
+    # devices.
+    raw = nvml.DeviceAttributes()
+    raw.multiprocessor_count = 14
+    raw.memory_size_mb = 9728
+
+    attrs = _device.DeviceAttributes(raw)
+    assert isinstance(attrs, _device.DeviceAttributes)
+    assert attrs.multiprocessor_count == 14
+    assert attrs.memory_size_mb == 9728
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.7")
+def test_event_data_wraps_nvml_struct():
+    raw = nvml.EventData()
+    raw.event_type = nvml.EventType.PSTATE
+
+    event = _device.EventData(raw)
+    assert isinstance(event, _device.EventData)
+    assert event.event_type is typing.EventType.PSTATE
+
+
 def test_c2c_mode_enabled(subtests):
     for device in system.Device.get_all_devices():
         with subtests.test(device_index=device.index):
@@ -350,6 +377,7 @@ def test_c2c_mode_enabled(subtests):
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Persistence mode not supported on WSL or Windows")
+@pytest.mark.thread_unsafe(reason="device persistence mode is global state")
 def test_persistence_mode_enabled(subtests):
     for device in system.Device.get_all_devices():
         with subtests.test(device_index=device.index):
@@ -852,7 +880,8 @@ def test_pstates(subtests):
 
 
 def test_compute_running_processes(subtests):
-    for device in system.Device.get_all_devices():
+    for cuda_device in CudaDevice.get_all_devices():
+        device = cuda_device.to_system_device()
         with subtests.test(device_index=device.index):
             with unsupported_before(device, "FERMI"):
                 processes = device.compute_running_processes

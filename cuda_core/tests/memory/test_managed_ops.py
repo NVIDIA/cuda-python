@@ -4,8 +4,8 @@
 import mmap
 
 import pytest
-from conftest import create_managed_memory_resource_or_skip
 from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource
+from helpers.memory import create_managed_memory_resource_or_skip
 
 from cuda.bindings import driver
 from cuda.core import Device, Host, ManagedBuffer
@@ -37,9 +37,10 @@ def _page_base(buf):
 
 
 def _skip_if_raw_managed_alloc_unsupported(device):
-    # Raw `cuMemAllocManaged` capability — distinct from conftest's
-    # `skip_if_managed_memory_unsupported`, which gates `ManagedMemoryResource`
-    # pool creation. Used by tests that exercise `DummyUnifiedMemoryResource`.
+    # Raw `cuMemAllocManaged` capability — distinct from
+    # `helpers.memory.skip_if_managed_memory_unsupported`, which gates
+    # `ManagedMemoryResource` pool creation. Used by tests that exercise
+    # `DummyUnifiedMemoryResource`.
     try:
         if not device.properties.managed_memory:
             pytest.skip("Device does not support managed memory operations")
@@ -104,6 +105,7 @@ def managed_buffer(request, location_ops_device, location_ops_mr):
     size = _MANAGED_TEST_ALLOCATION_SIZE
     if request.param == "pool":
         buf = location_ops_mr.allocate(size, stream=location_ops_device.default_stream)
+        location_ops_device.default_stream.sync()
         yield buf
         buf.close()
     else:
@@ -215,8 +217,8 @@ class TestPrefetchBatch:
         from cuda.core.utils import prefetch_batch
 
         device = location_ops_device
-        bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=device.default_stream) for _ in range(3)]
         stream = device.create_stream()
+        bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=stream) for _ in range(3)]
 
         prefetch_batch(stream, bufs, device)
         stream.sync()
@@ -230,12 +232,12 @@ class TestPrefetchBatch:
         from cuda.core.utils import prefetch_batch
 
         device = location_ops_device
-        bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=device.default_stream) for _ in range(2)]
+        stream = device.create_stream()
+        bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=stream) for _ in range(2)]
         # Per-buffer prefetch locations are only observable when the buffers sit
         # on distinct physical pages; assert that here so a pool-packing change
         # fails loudly instead of silently migrating one shared page.
         assert _page_base(bufs[0]) != _page_base(bufs[1])
-        stream = device.create_stream()
 
         prefetch_batch(stream, bufs, [Host(), device])
         stream.sync()
@@ -257,8 +259,8 @@ class TestDiscardBatch:
         if not hasattr(driver, "cuMemDiscardBatchAsync"):
             pytest.skip("cuMemDiscardBatchAsync unavailable")
         device = location_ops_device
-        bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=device.default_stream) for _ in range(3)]
         stream = device.create_stream()
+        bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=stream) for _ in range(3)]
         prefetch_batch(stream, bufs, device)
         stream.sync()
         discard_batch(stream, bufs)
@@ -276,8 +278,8 @@ class TestDiscardPrefetchBatch:
         if not hasattr(driver, "cuMemDiscardAndPrefetchBatchAsync"):
             pytest.skip("cuMemDiscardAndPrefetchBatchAsync unavailable")
         device = location_ops_device
-        bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=device.default_stream) for _ in range(2)]
         stream = device.create_stream()
+        bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=stream) for _ in range(2)]
         prefetch_batch(stream, bufs, Host())
         stream.sync()
         discard_prefetch_batch(stream, bufs, device)
@@ -364,6 +366,7 @@ class TestManagedBuffer:
         finally:
             plain.close()
 
+    @pytest.mark.thread_unsafe(reason="external_managed_buffer is shared between threads")
     def test_read_mostly_roundtrip(self, external_managed_buffer):
         buf = external_managed_buffer
         assert buf.read_mostly is False
@@ -372,6 +375,7 @@ class TestManagedBuffer:
         buf.read_mostly = False
         assert buf.read_mostly is False
 
+    @pytest.mark.thread_unsafe(reason="external_managed_buffer is shared between threads")
     def test_preferred_location_roundtrip(self, location_ops_device, external_managed_buffer):
         device = location_ops_device
         buf = external_managed_buffer
@@ -386,6 +390,7 @@ class TestManagedBuffer:
         buf.preferred_location = None
         assert buf.preferred_location is None
 
+    @pytest.mark.thread_unsafe(reason="external_managed_buffer is shared between threads")
     def test_preferred_location_roundtrip_host_numa(self, location_ops_device):
         """Host(numa_id=N) round-trips correctly on CUDA 13 builds."""
         from cuda.core._utils.version import binding_version
@@ -406,6 +411,7 @@ class TestManagedBuffer:
         finally:
             plain.close()
 
+    @pytest.mark.thread_unsafe(reason="external_managed_buffer is shared between threads")
     def test_accessed_by_add_discard(self, location_ops_device, external_managed_buffer):
         device = location_ops_device
         buf = external_managed_buffer
@@ -417,6 +423,7 @@ class TestManagedBuffer:
         buf.accessed_by.discard(device)
         assert device not in buf.accessed_by
 
+    @pytest.mark.thread_unsafe(reason="external_managed_buffer is shared between threads")
     def test_accessed_by_mutable_set_interface(self, location_ops_device, external_managed_buffer):
         """Full MutableSet conformance pass on AccessedBySetProxy.
 
@@ -436,6 +443,7 @@ class TestManagedBuffer:
             non_member=Host(numa_id=0),
         )
 
+    @pytest.mark.thread_unsafe(reason="external_managed_buffer is shared between threads")
     def test_accessed_by_set_assignment(self, location_ops_device, external_managed_buffer):
         device = location_ops_device
         buf = external_managed_buffer
@@ -486,9 +494,9 @@ class TestManagedBuffer:
     def test_instance_discard_prefetch(self, discard_prefetch_device):
         device = discard_prefetch_device
         mr = create_managed_memory_resource_or_skip()
-        buf = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=device.default_stream)
+        stream = device.create_stream()
+        buf = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=stream)
         try:
-            stream = device.create_stream()
             buf.prefetch(Host(), stream=stream)
             stream.sync()
             buf.discard_prefetch(device, stream=stream)
