@@ -476,9 +476,46 @@ def test_to_native_launch_config_cluster_and_policy(monkeypatch):
     assert driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE in attr_ids
 
 
-@pytest.mark.agent_authored(model="composer-2.5-fast")
-def test_launch_cluster_scheduling_policy_smoke(init_cuda):
-    """Smoke-test launching with cluster scheduling policy on Hopper+."""
+@pytest.mark.parametrize(
+    "policy",
+    [
+        ClusterSchedulingPolicyType.DEFAULT,
+        ClusterSchedulingPolicyType.SPREAD,
+        ClusterSchedulingPolicyType.LOAD_BALANCING,
+    ],
+)
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_launch_config_cluster_scheduling_policy_getter_setter(monkeypatch, policy):
+    """Getter/setter round-trip for each cluster scheduling policy."""
+    from cuda.core import _launch_config as _lc_mod
+
+    class _FakeDev:
+        compute_capability = (9, 0)
+
+    monkeypatch.setattr(_lc_mod, "Device", lambda: _FakeDev())
+
+    cfg = LaunchConfig(grid=1, block=1)
+    assert cfg.cluster_scheduling_policy_preference is None
+    cfg.cluster_scheduling_policy_preference = policy
+    assert cfg.cluster_scheduling_policy_preference is policy
+
+    cfg2 = LaunchConfig(grid=1, block=1, cluster_scheduling_policy_preference=policy)
+    assert cfg2.cluster_scheduling_policy_preference is policy
+    cfg2.cluster_scheduling_policy_preference = None
+    assert cfg2.cluster_scheduling_policy_preference is None
+
+
+@pytest.mark.parametrize(
+    "policy",
+    [
+        ClusterSchedulingPolicyType.DEFAULT,
+        ClusterSchedulingPolicyType.SPREAD,
+        ClusterSchedulingPolicyType.LOAD_BALANCING,
+    ],
+)
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_launch_cluster_scheduling_policy_smoke(init_cuda, policy):
+    """Application code runs through launch() for each policy on Hopper+."""
     dev = Device()
     if dev.compute_capability < (9, 0):
         pytest.skip("Cluster scheduling policy requires compute capability >= 9.0")
@@ -492,7 +529,7 @@ def test_launch_cluster_scheduling_policy_smoke(init_cuda):
         grid=1,
         block=32,
         cluster=(2, 1, 1),
-        cluster_scheduling_policy_preference=ClusterSchedulingPolicyType.LOAD_BALANCING,
+        cluster_scheduling_policy_preference=policy,
     )
     launch(stream, launch_config, kernel)
     stream.sync()
