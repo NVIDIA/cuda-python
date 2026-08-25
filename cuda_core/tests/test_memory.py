@@ -20,6 +20,7 @@ from helpers.buffers import (
     DummyUnifiedMemoryResource,
     StubMemoryResource,
     make_instrumented_memory_resource,
+    thread_unsafe_on_windows,
 )
 from helpers.constants import POOL_SIZE
 from helpers.memory import (
@@ -283,9 +284,8 @@ def _pattern_bytes(value) -> bytes:
 
 
 @pytest.fixture(params=["device", "unified", "pinned"])
-def fill_env(request):
-    device = Device()
-    device.set_current()
+def fill_env(request, init_cuda):
+    device = init_cuda
     if request.param == "device":
         mr = DummyDeviceMemoryResource(device)
     elif request.param == "unified":
@@ -348,6 +348,7 @@ if np is not None:
     )
 
 
+@thread_unsafe_on_windows
 @pytest.mark.parametrize("value,size,exc", _FILL_CASES)
 def test_buffer_fill(fill_env, value, size, exc):
     device, mr = fill_env
@@ -595,8 +596,82 @@ def test_set_deallocation_stream_rejects_none_and_closed_buffer():
         buf.set_deallocation_stream(None)
 
     buf.close()
-    with pytest.raises(RuntimeError, match="closed Buffer"):
+    with pytest.raises(RuntimeError, match="Buffer has been closed"):
         buf.set_deallocation_stream(stream)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_deallocation_stream_does_not_mutate_buffer():
+    device = Device()
+    device.set_current()
+    initial_stream = device.create_stream()
+    closed_stream = device.create_stream()
+    CapturingMR, telemetry = make_instrumented_memory_resource(record_streams=True)
+    mr = CapturingMR(device)
+    buf = Buffer.from_handle(1, 1024, mr=mr, stream=initial_stream)
+    closed_stream.close()
+
+    with pytest.raises(RuntimeError, match="Stream has been closed"):
+        buf.set_deallocation_stream(closed_stream)
+    assert not buf.is_closed
+
+    with pytest.raises(RuntimeError, match="Stream has been closed"):
+        buf.close(stream=closed_stream)
+    assert not buf.is_closed
+
+    buf.close()
+    assert len(telemetry["deallocations"]) == 1
+    assert telemetry["deallocations"][0]["stream"].handle == initial_stream.handle
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_buffer_rejected_before_active_operations():
+    device = Device()
+    device.set_current()
+    stream = device.create_stream()
+    closed = Buffer.from_handle(1, 16, owner=object())
+    live = Buffer.from_handle(2, 16, owner=object())
+    closed.close()
+
+    for operation in (
+        lambda: closed.copy_to(live, stream=stream),
+        lambda: closed.copy_from(live, stream=stream),
+        lambda: closed.fill(0, stream=stream),
+        closed.__dlpack__,
+        closed.__dlpack_device__,
+        lambda: closed.device_id,
+        lambda: closed.is_device_accessible,
+        lambda: closed.is_host_accessible,
+        lambda: closed.is_managed,
+        lambda: closed.ipc_descriptor,
+    ):
+        with pytest.raises(RuntimeError, match="Buffer has been closed"):
+            operation()
+
+    with pytest.raises(RuntimeError, match="Buffer has been closed"):
+        live.copy_to(closed, stream=stream)
+    with pytest.raises(RuntimeError, match="Buffer has been closed"):
+        live.copy_from(closed, stream=stream)
+    live.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_memory_pool_rejected_before_active_operations(mempool_device):
+    mr = DeviceMemoryResource(mempool_device)
+    peer_access = mr.peer_accessible_by
+    mr.close()
+
+    assert mr.is_closed
+    assert bool(mr) is True  # Preserve backward-compatible truthiness after close.
+    for operation in (
+        lambda: mr.allocate(16, stream=mempool_device.default_stream),
+        lambda: mr.attributes,
+        lambda: mr.peer_accessible_by,
+        lambda: len(peer_access),
+        lambda: mr.allocation_handle,
+    ):
+        with pytest.raises(RuntimeError, match="DeviceMemoryResource has been closed"):
+            operation()
 
 
 @pytest.mark.parametrize("buffer_type", [Buffer, ManagedBuffer])
@@ -1417,9 +1492,9 @@ def test_device_memory_resource_with_options(init_cuda):
     buffer.close(stream)
 
     # Test memory copying between buffers from same pool
-    src_buffer = mr.allocate(64, stream=device.default_stream)
-    dst_buffer = mr.allocate(64, stream=device.default_stream)
     stream = device.create_stream()
+    src_buffer = mr.allocate(64, stream=stream)
+    dst_buffer = mr.allocate(64, stream=stream)
     src_buffer.copy_to(dst_buffer, stream=stream)
     device.sync()
     dst_buffer.close()
@@ -1465,9 +1540,9 @@ def test_pinned_memory_resource_with_options(init_cuda):
     buffer.close(stream)
 
     # Test memory copying between buffers from same pool
-    src_buffer = mr.allocate(64, stream=device.default_stream)
-    dst_buffer = mr.allocate(64, stream=device.default_stream)
     stream = device.create_stream()
+    src_buffer = mr.allocate(64, stream=stream)
+    dst_buffer = mr.allocate(64, stream=stream)
     src_buffer.copy_to(dst_buffer, stream=stream)
     device.sync()
     dst_buffer.close()
@@ -1512,13 +1587,15 @@ def test_managed_memory_resource_with_options(init_cuda):
     buffer.close(stream)
 
     # Test memory copying between buffers from same pool
-    src_buffer = mr.allocate(64, stream=device.default_stream)
-    dst_buffer = mr.allocate(64, stream=device.default_stream)
     stream = device.create_stream()
+    src_buffer = mr.allocate(64, stream=stream)
+    dst_buffer = mr.allocate(64, stream=stream)
     src_buffer.copy_to(dst_buffer, stream=stream)
     device.sync()
     dst_buffer.close()
     src_buffer.close()
+    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+    device.sync()
 
 
 def test_managed_memory_resource_preferred_location_default(init_cuda):

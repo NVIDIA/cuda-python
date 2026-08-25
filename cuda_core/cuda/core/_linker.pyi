@@ -39,6 +39,9 @@ class Linker:
         Options for the linker. If not provided, default options will be used.
     """
     def __init__(self, *object_codes: ObjectCode, options: LinkerOptions | None=None): ...
+    @property
+    def is_closed(self) -> bool:
+        """Whether this linker has been closed."""
     def link(self, target_type: ObjectCodeFormatType | str) -> ObjectCode:
         """Link the provided object codes into a single output of the specified target type.
 

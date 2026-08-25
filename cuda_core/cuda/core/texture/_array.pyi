@@ -75,6 +75,9 @@ class OpaqueArray:
     def handle(self):
         """The underlying ``CUarray`` as an integer."""
     @property
+    def is_closed(self) -> bool:
+        """Whether this array has been closed."""
+    @property
     def shape(self):
         """Allocation shape, in elements."""
     @property

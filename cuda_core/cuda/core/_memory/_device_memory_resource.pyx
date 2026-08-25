@@ -7,7 +7,7 @@ from __future__ import annotations
 from cuda.bindings cimport cydriver
 from cuda.core._memory._location cimport cumemlocation_from_id
 from cuda.core._memory._memory_pool cimport (
-    _MemPool, MP_init_create_pool, MP_raise_release_threshold,
+    _MemPool, MP_check_open, MP_init_create_pool, MP_raise_release_threshold,
 )
 from cuda.core._memory cimport _ipc
 from cuda.core._memory._ipc cimport IPCAllocationHandle
@@ -154,6 +154,7 @@ cdef class DeviceMemoryResource(_MemPool):
         _DMR_init(self, device_id, options)
 
     def __reduce__(self) -> tuple[object, ...]:
+        MP_check_open(self)
         return DeviceMemoryResource.from_registry, (self.uuid,)
 
     @staticmethod
@@ -217,6 +218,7 @@ cdef class DeviceMemoryResource(_MemPool):
         The handle can be used to share the memory pool with other processes.
         The handle is cached in this `MemoryResource` and owned by it.
         """
+        MP_check_open(self)
         if not self.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
         return self._ipc_data._alloc_handle
@@ -245,6 +247,7 @@ cdef class DeviceMemoryResource(_MemPool):
         >>> dmr.peer_accessible_by.add(2)  # update access to include device 2
         >>> dmr.peer_accessible_by = []    # revoke peer access
         """
+        MP_check_open(self)
         return PeerAccessibleBySetProxy(self)
 
     @peer_accessible_by.setter

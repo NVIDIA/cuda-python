@@ -45,6 +45,9 @@ class IPCAllocationHandle:
     def _init(cls, handle: int, uuid: uuid.UUID | None) -> IPCAllocationHandle: ...
     def close(self):
         """Close the handle."""
+    @property
+    def is_closed(self) -> bool:
+        """Whether this allocation handle has been closed."""
     def __int__(self) -> int: ...
     @property
     def handle(self) -> int: ...

@@ -37,6 +37,12 @@ cdef int MP_init_current_pool(
 cdef int MP_raise_release_threshold(_MemPool self) except? -1
 
 
+cdef inline int MP_check_open(_MemPool self) except -1:
+    if not self._h_pool:
+        raise RuntimeError(f"{self.__class__.__name__} has been closed")
+    return 0
+
+
 # Allocate from this pool, returning an instance of `cls` (defaulting to
 # Buffer). Subclasses (e.g. ManagedMemoryResource) pass their own buffer
 # subclass so their `allocate` returns the typed object.

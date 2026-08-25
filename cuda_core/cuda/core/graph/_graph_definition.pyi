@@ -61,6 +61,9 @@ class GraphDefinition:
     def __eq__(self, other: object) -> bool: ...
     def __hash__(self) -> int: ...
     @property
+    def is_valid(self) -> bool:
+        """Whether this graph definition remains valid."""
+    @property
     def _entry(self) -> GraphNode:
         """Return the internal entry-point GraphNode (no dependencies)."""
     def allocate(self, size: int, *, device: Device | int | None=None, memory_type: GraphMemoryType=GraphMemoryType.DEVICE, peer_access: list[Device | int] | None=None) -> AllocNode:

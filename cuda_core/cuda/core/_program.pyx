@@ -63,6 +63,12 @@ The ``int`` type covers NVVM handles, which don't have a wrapper class.
 # =============================================================================
 
 
+cdef inline int Program_check_open(Program self) except -1:
+    if self.is_closed:
+        raise RuntimeError("Program has been closed")
+    return 0
+
+
 cdef class Program:
     """Represent a compilation machinery to process programs into
     :class:`~cuda.core.ObjectCode`.
@@ -86,7 +92,7 @@ cdef class Program:
 
     def close(self) -> None:
         """Destroy this program."""
-        if self._linker:
+        if self._linker is not None:
             self._linker.close()
         # Reset handles - the C++ shared_ptr destructor handles cleanup
         self._h_nvrtc.reset()
@@ -134,6 +140,15 @@ cdef class Program:
         except OSError:
             self._unlink_debug_source(path)
             return None
+
+    @property
+    def is_closed(self) -> bool:
+        """Whether this program has been closed."""
+        if self._backend == "NVRTC":
+            return self._h_nvrtc.get() == NULL
+        if self._backend == "NVVM":
+            return self._h_nvvm.get() == NULL
+        return self._linker is None or self._linker.is_closed
 
     def compile(
         self,
@@ -190,6 +205,7 @@ cdef class Program:
         :class:`~cuda.core.ObjectCode`
             The compiled object code.
         """
+        Program_check_open(self)
         # Mirror Program_init's code_type normalization so callers can pass
         # ``ObjectCodeFormatType.PTX`` or ``"PTX"`` and get the same routing
         # / cache key as the lowercase string. ``Program_compile_nvrtc``
