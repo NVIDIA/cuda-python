@@ -72,6 +72,34 @@ def test_register_rejects_non_ipc_memory_resource(mempool_device):
         DeviceMemoryResource.from_registry(key)
 
 
+@pytest.mark.human_authored
+def test_register_rejects_mismatched_uuid(ipc_memory_resource):
+    """register() rejects a UUID that does not match the resource's own.
+
+    The check is an explicit ValueError (not a bare ``assert``) so it remains
+    enforced even when CPython runs with ``-O``, where assertions are removed
+    (see #2697). Registering under a foreign key would otherwise rewrite the
+    resource's UUID and silently corrupt the IPC registry.
+    """
+    mr = ipc_memory_resource
+    assert mr.is_ipc_enabled
+
+    # The resource must already carry its own UUID (assigned on creation).
+    assert mr.uuid is not None
+    other = uuid.uuid4()
+    while other == mr.uuid:
+        other = uuid.uuid4()
+
+    with pytest.raises(ValueError, match="already has UUID"):
+        mr.register(other)
+
+    # A rejected registration must not rewrite the resource's own UUID.
+    assert mr.uuid != other
+
+    # Registering under the resource's own UUID still succeeds.
+    assert mr.register(mr.uuid) is mr
+
+
 @pytest.mark.skipif(os.name == "nt", reason="IPC allocation handles are not supported on Windows")
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_ipc_allocation_handle_state_tracks_close():
