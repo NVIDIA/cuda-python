@@ -283,7 +283,7 @@ def test_strided_memory_view_from_mapped_buffer(init_cuda):
         stream = _create_stream()
         resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
         with resource.map(stream=stream) as buf:
-            view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.float32)
+            view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.dtype(np.float32))
             assert view.ptr == int(buf.handle)
             assert view.shape == (256,)
             assert view.is_device_accessible
@@ -298,7 +298,7 @@ def test_from_gl_buffer_with_stream_context_manager(init_cuda):
         with GraphicsResource.from_gl_buffer(gl_buf, stream=stream) as buf:
             assert isinstance(buf, Buffer)
             assert buf.size == nbytes
-            view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.float32)
+            view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.dtype(np.float32))
             assert view.ptr == int(buf.handle)
             assert view.shape == (256,)
             assert view.is_device_accessible
