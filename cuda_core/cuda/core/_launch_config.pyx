@@ -20,6 +20,7 @@ _LAUNCH_CONFIG_ATTRS = (
     'shmem_size',
     'is_cooperative',
     'programmatic_stream_serialization',
+    'priority',
 )
 
 __all__ = ['LaunchConfig']
@@ -59,6 +60,9 @@ cdef class LaunchConfig:
         Whether to allow programmatic stream serialization (PDL). When True,
         the kernel may overlap with a previous kernel in the same stream that
         signals completion via programmatic means.
+    priority : int, optional
+        Execution priority of the kernel. Lower numbers represent higher
+        priorities. When omitted, the launch uses the stream's priority.
     """
 
     # TODO: expand LaunchConfig to include other attributes
@@ -72,6 +76,7 @@ cdef class LaunchConfig:
         shmem_size: int | None = None,
         is_cooperative: bool = False,
         programmatic_stream_serialization: bool = False,
+        priority: int | None = None,
     ) -> None:
         """Initialize LaunchConfig with validation.
 
@@ -89,6 +94,9 @@ cdef class LaunchConfig:
             Whether to launch as cooperative kernel (default: False)
         programmatic_stream_serialization : bool, optional
             Whether to allow programmatic stream serialization / PDL (default: False)
+        priority : int, optional
+            Execution priority of the kernel. Lower numbers represent higher
+            priorities. When omitted, the launch uses the stream's priority.
         """
         # Convert and validate grid and block dimensions
         self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)
@@ -116,6 +124,7 @@ cdef class LaunchConfig:
 
         self.is_cooperative = is_cooperative
         self.programmatic_stream_serialization = programmatic_stream_serialization
+        self.priority = priority
 
         if self.is_cooperative and not Device().properties.cooperative_launch:
             raise CUDAError("cooperative kernels are not supported on this device")
@@ -167,6 +176,11 @@ cdef class LaunchConfig:
         if self.programmatic_stream_serialization:
             attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION
             attr.value.programmaticStreamSerializationAllowed = 1
+            self._attrs.push_back(attr)
+
+        if self.priority is not None:
+            attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PRIORITY
+            attr.value.priority = self.priority
             self._attrs.push_back(attr)
 
         drv_cfg.numAttrs = self._attrs.size()
@@ -228,6 +242,12 @@ cpdef object _to_native_launch_config(LaunchConfig config):
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION
         attr.value.programmaticStreamSerializationAllowed = 1
+        attrs.append(attr)
+
+    if config.priority is not None:
+        attr = driver.CUlaunchAttribute()
+        attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PRIORITY
+        attr.value.priority = config.priority
         attrs.append(attr)
 
     drv_cfg.numAttrs = len(attrs)
