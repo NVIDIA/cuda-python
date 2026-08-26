@@ -550,16 +550,17 @@
 <h2>Bugfixes<a class="headerlink" href="#bugfixes" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Restrict Windows CUPTI filesystem discovery to descriptor-declared DLL
-names. Removing broad wildcard matches keeps candidate selection consistent
+names. Removing its wildcard fallback keeps candidate selection consistent
 with already-loaded detection and native loading, and prevents undeclared
 DLL names from being selected.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2689">PR #2689</a>)</p></li>
 <li><p>Make Linux filesystem discovery, already-loaded detection, and native loading
-use one descriptor-declared, newest-first library filename list. This prevents
-broad matches from selecting undeclared ABI or patch-version filenames;
-explicit directory layouts must expose a declared name. Explicitly declare
-the unversioned NVVM wheel filename to preserve CUDA 12.9 wheel discovery,
-and correct the <code class="docutils literal notranslate"><span class="pre">cufftMp</span></code> catalog order so ABI 12 is preferred over ABI 11.
+use one descriptor-declared, newest-first library filename list. Remove the
+implicit <code class="docutils literal notranslate"><span class="pre">lib&lt;name&gt;.so</span></code> and broad <code class="docutils literal notranslate"><span class="pre">.so*</span></code> filesystem fallbacks, so
+explicit directory layouts must expose a declared filename. Explicitly
+declare the unversioned <code class="docutils literal notranslate"><span class="pre">libnvvm.so</span></code> wheel filename to preserve CUDA 12.9
+wheel discovery, and correct the <code class="docutils literal notranslate"><span class="pre">cufftMp</span></code> catalog order so ABI 12 is
+preferred over ABI 11.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2689">PR #2689</a>)</p></li>
 </ul>
 </section>

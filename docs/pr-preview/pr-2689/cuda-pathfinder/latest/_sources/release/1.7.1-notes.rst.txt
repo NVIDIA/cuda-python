@@ -10,15 +10,16 @@ Bugfixes
 --------
 
 * Restrict Windows CUPTI filesystem discovery to descriptor-declared DLL
-  names. Removing broad wildcard matches keeps candidate selection consistent
+  names. Removing its wildcard fallback keeps candidate selection consistent
   with already-loaded detection and native loading, and prevents undeclared
   DLL names from being selected.
   (`PR #2689 <https://github.com/NVIDIA/cuda-python/pull/2689>`_)
 
 * Make Linux filesystem discovery, already-loaded detection, and native loading
-  use one descriptor-declared, newest-first library filename list. This prevents
-  broad matches from selecting undeclared ABI or patch-version filenames;
-  explicit directory layouts must expose a declared name. Explicitly declare
-  the unversioned NVVM wheel filename to preserve CUDA 12.9 wheel discovery,
-  and correct the ``cufftMp`` catalog order so ABI 12 is preferred over ABI 11.
+  use one descriptor-declared, newest-first library filename list. Remove the
+  implicit ``lib<name>.so`` and broad ``.so*`` filesystem fallbacks, so
+  explicit directory layouts must expose a declared filename. Explicitly
+  declare the unversioned ``libnvvm.so`` wheel filename to preserve CUDA 12.9
+  wheel discovery, and correct the ``cufftMp`` catalog order so ABI 12 is
+  preferred over ABI 11.
   (`PR #2689 <https://github.com/NVIDIA/cuda-python/pull/2689>`_)
