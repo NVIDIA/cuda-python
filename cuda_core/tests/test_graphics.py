@@ -15,7 +15,6 @@ import pytest
 
 from cuda.core import (
     Buffer,
-    Device,
     GraphicsResource,
 )
 from cuda.core.utils import StridedMemoryView
@@ -134,13 +133,6 @@ def _gl_context_and_texture(width=16, height=16):
             pass
 
 
-def _create_stream():
-    """Create a CUDA stream for testing."""
-    dev = Device(0)
-    dev.set_current()
-    return dev.create_stream()
-
-
 # ---------------------------------------------------------------------------
 # Register flags parsing tests
 # ---------------------------------------------------------------------------
@@ -235,7 +227,7 @@ def test_register_image(init_cuda):
 
 def test_map_returns_buffer(init_cuda):
     with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
-        stream = _create_stream()
+        stream = init_cuda.create_stream()
         resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
         mapped = resource.map(stream=stream)
         assert resource.is_mapped
@@ -252,7 +244,7 @@ def test_map_returns_buffer(init_cuda):
 
 def test_context_manager_unmaps(init_cuda):
     with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
-        stream = _create_stream()
+        stream = init_cuda.create_stream()
         resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
         with resource.map(stream=stream) as buf:
             assert isinstance(buf, Buffer)
@@ -266,7 +258,7 @@ def test_context_manager_unmaps(init_cuda):
 
 def test_context_manager_unmaps_on_exception(init_cuda):
     with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
-        stream = _create_stream()
+        stream = init_cuda.create_stream()
         resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
         with pytest.raises(ValueError, match="test error"), resource.map(stream=stream) as _buf:
             assert resource.is_mapped
@@ -280,7 +272,7 @@ def test_strided_memory_view_from_mapped_buffer(init_cuda):
     """End-to-end: register, map, create StridedMemoryView."""
     nbytes = 256 * 4  # 256 float32 elements
     with _gl_context_and_buffer(nbytes=nbytes) as (gl_buf, _):
-        stream = _create_stream()
+        stream = init_cuda.create_stream()
         resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
         with resource.map(stream=stream) as buf:
             view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.dtype(np.float32))
@@ -294,7 +286,7 @@ def test_from_gl_buffer_with_stream_context_manager(init_cuda):
     """Register + auto-map via from_gl_buffer(stream=), then create StridedMemoryView."""
     nbytes = 256 * 4  # 256 float32 elements
     with _gl_context_and_buffer(nbytes=nbytes) as (gl_buf, _):
-        stream = _create_stream()
+        stream = init_cuda.create_stream()
         with GraphicsResource.from_gl_buffer(gl_buf, stream=stream) as buf:
             assert isinstance(buf, Buffer)
             assert buf.size == nbytes
@@ -317,7 +309,7 @@ def test_resource_context_manager_auto_closes(init_cuda):
 
 def test_resource_context_manager_can_map_inside_scope(init_cuda):
     with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
-        stream = _create_stream()
+        stream = init_cuda.create_stream()
         with GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard").map(stream=stream) as buf:
             assert isinstance(buf, Buffer)
             assert buf.handle != 0
@@ -325,7 +317,7 @@ def test_resource_context_manager_can_map_inside_scope(init_cuda):
 
 def test_chained_map_context_manager_unmaps(init_cuda):
     with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
-        stream = _create_stream()
+        stream = init_cuda.create_stream()
         with GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard").map(stream=stream) as buf:
             assert isinstance(buf, Buffer)
             assert buf.handle != 0
@@ -336,7 +328,7 @@ def test_chained_map_context_manager_unmaps(init_cuda):
 
 def test_map_with_stream(init_cuda):
     with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
-        stream = _create_stream()
+        stream = init_cuda.create_stream()
         resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
         with resource.map(stream=stream) as buf:
             assert buf.size > 0
@@ -360,7 +352,7 @@ def test_map_requires_explicit_stream(init_cuda):
 
 def test_double_map_raises(init_cuda):
     with _gl_context_and_buffer() as (gl_buf, nbytes):
-        stream = _create_stream()
+        stream = init_cuda.create_stream()
         resource = GraphicsResource.from_gl_buffer(gl_buf)
         resource.map(stream=stream)
         with pytest.raises(RuntimeError, match="already mapped"):
@@ -379,7 +371,7 @@ def test_unmap_without_map_raises(init_cuda):
 
 def test_map_after_close_raises(init_cuda):
     with _gl_context_and_buffer() as (gl_buf, nbytes):
-        stream = _create_stream()
+        stream = init_cuda.create_stream()
         resource = GraphicsResource.from_gl_buffer(gl_buf)
         resource.close()
         with pytest.raises(RuntimeError, match="has been closed"):
@@ -397,7 +389,7 @@ def test_unmap_after_close_raises(init_cuda):
 def test_close_while_mapped(init_cuda):
     """close() should unmap before unregistering."""
     with _gl_context_and_buffer() as (gl_buf, nbytes):
-        stream = _create_stream()
+        stream = init_cuda.create_stream()
         resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
         buf = resource.map(stream=stream)
         assert resource.is_mapped
@@ -413,8 +405,8 @@ def test_close_while_mapped(init_cuda):
 )
 def test_close_while_mapped_passes_stream_override(init_cuda):
     with _gl_context_and_buffer() as (gl_buf, _):
-        map_stream = _create_stream()
-        close_stream = _create_stream()
+        map_stream = init_cuda.create_stream()
+        close_stream = init_cuda.create_stream()
         resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
         resource.map(stream=map_stream)
 
@@ -435,7 +427,7 @@ def test_close_while_mapped_passes_stream_override(init_cuda):
 
 def test_buffer_close_updates_resource_state(init_cuda):
     with _gl_context_and_buffer() as (gl_buf, _):
-        stream = _create_stream()
+        stream = init_cuda.create_stream()
         resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
         buf = resource.map(stream=stream)
         assert resource.is_mapped
