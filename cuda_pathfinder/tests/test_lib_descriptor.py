@@ -6,7 +6,7 @@ the existing data tables in supported_nvidia_libs.py."""
 
 import pytest
 
-from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
+from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS, linux_soname_candidates
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     DIRECT_DEPENDENCIES,
     LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY,
@@ -153,3 +153,26 @@ def test_descriptor_is_frozen():
     desc = LIB_DESCRIPTORS["cudart"]
     with pytest.raises(AttributeError):
         desc.name = "bogus"  # type: ignore[misc]
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_linux_soname_candidates_are_declared_names_newest_first():
+    desc = LIB_DESCRIPTORS["cudart"]
+
+    assert desc.linux_sonames == ("libcudart.so.12", "libcudart.so.13")
+    assert linux_soname_candidates(desc) == ("libcudart.so.13", "libcudart.so.12")
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_linux_soname_candidates_preserve_explicit_unversioned_name():
+    desc = LIB_DESCRIPTORS["nvcudla"]
+
+    assert linux_soname_candidates(desc) == ("libnvcudla.so",)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_linux_soname_candidates_prefer_versioned_name_over_declared_unversioned_name():
+    desc = LIB_DESCRIPTORS["nvvm"]
+
+    assert desc.linux_sonames == ("libnvvm.so", "libnvvm.so.4")
+    assert linux_soname_candidates(desc) == ("libnvvm.so.4", "libnvvm.so")

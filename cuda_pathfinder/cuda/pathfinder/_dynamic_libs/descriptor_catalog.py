@@ -59,9 +59,9 @@ def _ctk_windows_wheel_dirs(cuda13_bin_dir: str, cuda12_dir: str) -> WindowsSear
 class DescriptorSpec:
     name: str
     packaged_with: PackagedWith
+    # Keep declared SONAMEs in oldest -> newest order.
     linux_sonames: tuple[str, ...] = ()
     windows_dlls: tuple[str, ...] = ()
-    windows_dll_fallback_globs: tuple[str, ...] = ()
     supported_windows_arch: tuple[WindowsArch, ...] = ()
     site_packages_linux: tuple[str, ...] = ()
     site_packages_windows: WindowsSearchDirs = WindowsSearchDirs()
@@ -124,7 +124,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
     DescriptorSpec(
         name="nvvm",
         packaged_with="ctk",
-        linux_sonames=("libnvvm.so.4",),
+        linux_sonames=("libnvvm.so", "libnvvm.so.4"),
         windows_dlls=("nvvm64.dll", "nvvm64_40_0.dll", "nvvm70.dll"),
         supported_windows_arch=("x64", "arm64"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cuda_nvcc/nvvm/lib64"),
@@ -377,7 +377,6 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
             "cupti64_2026.2.1.dll",
             "cupti64_2026.3.0.dll",
         ),
-        windows_dll_fallback_globs=("cupti64_*.dll",),
         supported_windows_arch=("x64", "arm64"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cuda_cupti/lib"),
         site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cuda_cupti/bin"),
@@ -414,7 +413,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
     DescriptorSpec(
         name="cufftMp",
         packaged_with="other",
-        linux_sonames=("libcufftMp.so.12", "libcufftMp.so.11"),
+        linux_sonames=("libcufftMp.so.11", "libcufftMp.so.12"),
         site_packages_linux=("nvidia/cufftmp/cu13/lib", "nvidia/cufftmp/cu12/lib"),
         dependencies=("nvshmem_host",),
         requires_rtld_deepbind=True,
