@@ -212,7 +212,8 @@ def _instantiate_graph(source, options: GraphCompleteOptions | None = None) -> G
     h_exec = create_graph_exec_handle(h_graph, &params)
     status = get_last_error()
     if params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_ERROR:
-        # HANDLE_RETURN raises CUDAError when status is not CUDA_SUCCESS.
+        # HANDLE_RETURN raises CUDAError with the CUresult name and message (e.g. CUDA_ERROR_INVALID_VALUE)
+        # when status is not CUDA_SUCCESS.
         HANDLE_RETURN(status)
         raise RuntimeError(
             "Instantiation failed for an unexpected reason which is described in the return value of the function."
