@@ -176,6 +176,7 @@ class GraphCompleteOptions:
 def _instantiate_graph(source, options: GraphCompleteOptions | None = None) -> Graph:
     cdef GraphHandle h_graph
     cdef GraphExecHandle h_exec
+    cdef cydriver.CUresult status
 
     if isinstance(source, GraphBuilder):
         GB_check_open(<GraphBuilder>source)
@@ -209,7 +210,10 @@ def _instantiate_graph(source, options: GraphCompleteOptions | None = None) -> G
     # The exec is adopted only when result_out reports success, so the
     # diagnostics below run before the handle is checked.
     h_exec = create_graph_exec_handle(h_graph, &params)
+    status = get_last_error()
     if params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_ERROR:
+        # HANDLE_RETURN raises CUDAError when status is not CUDA_SUCCESS.
+        HANDLE_RETURN(status)
         raise RuntimeError(
             "Instantiation failed for an unexpected reason which is described in the return value of the function."
         )
@@ -230,7 +234,7 @@ def _instantiate_graph(source, options: GraphCompleteOptions | None = None) -> G
         raise RuntimeError(f"Graph instantiation failed with unexpected error code: {params.result_out}")
 
     if as_cu(h_exec) == NULL:
-        HANDLE_RETURN(get_last_error())
+        HANDLE_RETURN(status)
     return Graph._init(h_exec)
 
 
