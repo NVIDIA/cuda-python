@@ -19,7 +19,7 @@ def get_version_for_module(module_name: str | None = None) -> str:
         relative_to=__file__,
         # Preserve a/b pre-release suffixes, but intentionally strip rc suffixes.
         tag_regex=f"^{module_name}(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)",
-        git_describe_command=["git", "describe", "--dirty", "--tags", "--long", "--match", f"{module_name}v*[0-9]*"],
+        git_describe_command=["git", "describe", "--dirty", "--tags", "--long", "--match", f"{module_name}v[0-9]*"],
         version_scheme="post-release",
     )
 
