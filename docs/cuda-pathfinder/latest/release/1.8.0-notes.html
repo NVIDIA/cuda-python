@@ -565,13 +565,24 @@ with already-loaded detection and native loading, and prevents undeclared
 DLL names from being selected.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2689">PR #2689</a>)</p></li>
 <li><p>Make Linux filesystem discovery, already-loaded detection, and native loading
-use one descriptor-declared, newest-first library filename list. Remove the
-implicit <code class="docutils literal notranslate"><span class="pre">lib&lt;name&gt;.so</span></code> and broad <code class="docutils literal notranslate"><span class="pre">.so*</span></code> filesystem fallbacks, so
-explicit directory layouts must expose a declared filename. Explicitly
-declare the unversioned <code class="docutils literal notranslate"><span class="pre">libnvvm.so</span></code> wheel filename to preserve CUDA 12.9
-wheel discovery, and correct the <code class="docutils literal notranslate"><span class="pre">cufftMp</span></code> catalog order so ABI 12 is
-preferred over ABI 11.
+use one descriptor-declared library filename list in runtime preference
+order. Remove the implicit <code class="docutils literal notranslate"><span class="pre">lib&lt;name&gt;.so</span></code> and broad <code class="docutils literal notranslate"><span class="pre">.so*</span></code> filesystem
+fallbacks, so explicit directory layouts must expose a declared filename.
+Explicitly declare the unversioned <code class="docutils literal notranslate"><span class="pre">libnvvm.so</span></code> wheel filename to preserve
+CUDA 12.9 wheel discovery, and correct the <code class="docutils literal notranslate"><span class="pre">cufftMp</span></code> catalog order so ABI
+12 is preferred over ABI 11.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2689">PR #2689</a>)</p></li>
+</ul>
+</section>
+<section id="internal-maintenance">
+<h2>Internal maintenance<a class="headerlink" href="#internal-maintenance" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Author dynamic-library filename candidates directly in runtime preference
+order and consume them without catalog-to-runtime reversals. Document the
+same first-to-last candidate convention for dynamic libraries, headers,
+binary utilities, static libraries, and bitcode libraries. Runtime selection
+is unchanged.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2708">PR #2708</a>)</p></li>
 </ul>
 </section>
 </section>
@@ -618,6 +629,7 @@ preferred over ABI 11.
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compatibility-note">Compatibility note</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bugfixes">Bugfixes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#internal-maintenance">Internal maintenance</a></li>
 </ul>
   </nav></div>
 
