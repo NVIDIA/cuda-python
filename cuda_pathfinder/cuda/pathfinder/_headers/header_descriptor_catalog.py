@@ -13,6 +13,8 @@ HeaderPackagedWith = Literal["ctk", "other"]
 
 @dataclass(frozen=True, slots=True)
 class HeaderDescriptorSpec:
+    """Header metadata with ordered alternatives searched first-to-last."""
+
     name: str
     packaged_with: HeaderPackagedWith
     header_basename: str

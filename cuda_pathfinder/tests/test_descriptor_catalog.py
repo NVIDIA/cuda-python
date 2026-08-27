@@ -14,7 +14,6 @@ import re
 import pytest
 
 from cuda.pathfinder._dynamic_libs.descriptor_catalog import DESCRIPTOR_CATALOG, DescriptorSpec, WindowsSearchDirs
-from cuda.pathfinder._utils.path_sort import numeric_aware_path_sort_key
 
 _VALID_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _VALID_PACKAGED_WITH_VALUES = {"ctk", "other", "driver"}
@@ -92,8 +91,9 @@ def test_linux_sonames_look_like_sonames(spec: DescriptorSpec):
 
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_linux_sonames_are_ordered_oldest_to_newest(spec: DescriptorSpec):
-    assert spec.linux_sonames == tuple(sorted(spec.linux_sonames, key=numeric_aware_path_sort_key))
+def test_library_filenames_are_unique_per_platform(spec: DescriptorSpec):
+    assert len(spec.linux_sonames) == len(set(spec.linux_sonames))
+    assert len(spec.windows_dlls) == len({dll.casefold() for dll in spec.windows_dlls})
 
 
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)

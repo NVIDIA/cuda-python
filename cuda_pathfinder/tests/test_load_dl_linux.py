@@ -17,12 +17,12 @@ def _descriptor() -> DescriptorSpec:
     return DescriptorSpec(
         name="probe",
         packaged_with="other",
-        linux_sonames=("libprobe.so.12", "libprobe.so.13"),
+        linux_sonames=("libprobe.so.13", "libprobe.so.12"),
     )
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_already_loaded_library_checks_only_declared_sonames_newest_first(mocker):
+def test_already_loaded_library_checks_declared_sonames_in_preference_order(mocker):
     queried_sonames: list[tuple[str, int]] = []
 
     def cdll(soname, mode):
@@ -41,7 +41,7 @@ def test_already_loaded_library_checks_only_declared_sonames_newest_first(mocker
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_system_search_checks_only_declared_sonames_newest_first(mocker):
+def test_system_search_checks_declared_sonames_in_preference_order(mocker):
     queried_sonames: list[str] = []
 
     def load_lib(_desc, soname):
