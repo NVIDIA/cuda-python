@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda-pathfinder 1.7.1 Release notes &#8212; cuda.pathfinder</title>
+    <title>cuda-pathfinder 1.8.0 Release notes &#8212; cuda.pathfinder</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'release/1.7.1-notes';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'release/1.8.0-notes';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
@@ -59,7 +59,7 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2689/cuda-pathfinder/latest/release/1.7.1-notes.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2689/cuda-pathfinder/latest/release/1.8.0-notes.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -460,7 +460,7 @@
 </ul>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">1.7.1</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">1.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1.7.0-notes.html">1.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1.6.1-notes.html">1.6.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1.6.0-notes.html">1.6.0</a></li>
@@ -527,7 +527,7 @@
     
     <li class="breadcrumb-item"><a href="../release.html" class="nav-link">Release Notes</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> 1.7.1 Release notes</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> 1.8.0 Release notes</span></li>
   </ul>
 </nav>
 </div>
@@ -544,8 +544,18 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-pathfinder-1-7-1-release-notes">
-<h1><code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> 1.7.1 Release notes<a class="headerlink" href="#cuda-pathfinder-1-7-1-release-notes" title="Link to this heading">#</a></h1>
+  <section id="cuda-pathfinder-1-8-0-release-notes">
+<h1><code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> 1.8.0 Release notes<a class="headerlink" href="#cuda-pathfinder-1-8-0-release-notes" title="Link to this heading">#</a></h1>
+<section id="compatibility-note">
+<h2>Compatibility note<a class="headerlink" href="#compatibility-note" title="Link to this heading">#</a></h2>
+<p>The discovery behavior change in this release is subtle and is expected to
+affect only a small fraction of installations: those that rely exclusively on
+a dynamic-library filename not declared in Pathfinder’s descriptor catalog.
+All currently verified NVIDIA wheel and local CUDA Toolkit layouts continue to
+work. Nevertheless, because a previously accepted wildcard-only layout can now
+fail discovery, this release increments the minor version out of an abundance
+of caution.</p>
+</section>
 <section id="bugfixes">
 <h2>Bugfixes<a class="headerlink" href="#bugfixes" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -606,6 +616,7 @@ preferred over ABI 11.
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compatibility-note">Compatibility note</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bugfixes">Bugfixes</a></li>
 </ul>
   </nav></div>

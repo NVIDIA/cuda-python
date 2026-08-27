@@ -3,8 +3,19 @@
 
 .. py:currentmodule:: cuda.pathfinder
 
-``cuda-pathfinder`` 1.7.1 Release notes
+``cuda-pathfinder`` 1.8.0 Release notes
 =======================================
+
+Compatibility note
+------------------
+
+The discovery behavior change in this release is subtle and is expected to
+affect only a small fraction of installations: those that rely exclusively on
+a dynamic-library filename not declared in Pathfinder's descriptor catalog.
+All currently verified NVIDIA wheel and local CUDA Toolkit layouts continue to
+work. Nevertheless, because a previously accepted wildcard-only layout can now
+fail discovery, this release increments the minor version out of an abundance
+of caution.
 
 Bugfixes
 --------
