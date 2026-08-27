@@ -366,15 +366,15 @@ class TestFindInSitePackages:
         assert result is None
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_windows_known_cupti_names_prefer_newest(self, tmp_path):
-        older_dll = tmp_path / "cupti64_2026.2.1.dll"
-        newer_dll = tmp_path / "cupti64_2026.3.0.dll"
-        older_dll.touch()
-        newer_dll.touch()
+    def test_windows_known_cupti_names_follow_declared_preference_order(self, tmp_path):
+        preferred_dll = tmp_path / "cupti64_2026.3.0.dll"
+        fallback_dll = tmp_path / "cupti64_2026.2.1.dll"
+        preferred_dll.touch()
+        fallback_dll.touch()
 
         result = _find_descriptor_dll_under_dir(str(tmp_path), LIB_DESCRIPTORS["cupti"])
 
-        assert result == str(newer_dll)
+        assert result == str(preferred_dll)
 
     @pytest.mark.parametrize(
         ("libname", "sibling_dll"),
@@ -497,30 +497,30 @@ class TestFindInSitePackages:
             return_value=[str(lib_dir)],
         )
 
-        desc = _make_desc(linux_sonames=("libcudart.so.12", "libcudart.so.13"))
+        desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
         result = find_in_site_packages(_ctx(desc, platform=LinuxSearchPlatform()))
         assert result is not None
         assert result.abs_path == str(versioned)
         assert result.found_via == "site-packages"
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_linux_declared_sonames_prefer_newest(self, mocker, tmp_path):
+    def test_linux_declared_sonames_follow_preference_order(self, mocker, tmp_path):
         lib_dir = tmp_path / "nvidia" / "cuda_runtime" / "lib"
         lib_dir.mkdir(parents=True)
-        older = lib_dir / "libcudart.so.12"
-        newer = lib_dir / "libcudart.so.13"
-        older.touch()
-        newer.touch()
+        preferred = lib_dir / "libcudart.so.13"
+        fallback = lib_dir / "libcudart.so.12"
+        preferred.touch()
+        fallback.touch()
 
         mocker.patch(
             f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
             return_value=[str(lib_dir)],
         )
 
-        desc = _make_desc(linux_sonames=("libcudart.so.12", "libcudart.so.13"))
+        desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
         result = find_in_site_packages(_ctx(desc, platform=LinuxSearchPlatform()))
         assert result is not None
-        assert result.abs_path == str(newer)
+        assert result.abs_path == str(preferred)
         assert result.found_via == "site-packages"
 
     @pytest.mark.parametrize(
@@ -538,7 +538,7 @@ class TestFindInSitePackages:
             return_value=[str(lib_dir)],
         )
 
-        desc = _make_desc(linux_sonames=("libcudart.so.12", "libcudart.so.13"))
+        desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
         ctx = _ctx(desc, platform=LinuxSearchPlatform())
         result = find_in_site_packages(ctx)
         assert result is None
@@ -612,7 +612,7 @@ class TestFindInConda:
 
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
 
-        desc = _make_desc(linux_sonames=("libcudart.so.12", "libcudart.so.13"))
+        desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
         result = find_in_conda(_ctx(desc, platform=LinuxSearchPlatform()))
         assert result is not None
         assert result.abs_path == str(versioned)
@@ -630,7 +630,7 @@ class TestFindInConda:
 
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
 
-        desc = _make_desc(linux_sonames=("libcudart.so.12", "libcudart.so.13"))
+        desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
         ctx = _ctx(desc, platform=LinuxSearchPlatform())
         result = find_in_conda(ctx)
         assert result is None

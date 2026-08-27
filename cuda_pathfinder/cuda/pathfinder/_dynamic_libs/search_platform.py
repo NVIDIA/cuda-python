@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from pathlib import PurePath
 from typing import Protocol, cast
 
-from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor, linux_soname_candidates
+from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import is_suppressed_dll_file
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
@@ -34,7 +34,7 @@ def _no_such_file_in_sub_dirs(
 
 
 def _find_descriptor_so_under_dir(dirpath: str, desc: LibDescriptor) -> str | None:
-    for soname in linux_soname_candidates(desc):
+    for soname in desc.linux_sonames:
         path = os.path.join(dirpath, soname)
         if os.path.isfile(path):
             return path
@@ -73,8 +73,7 @@ def _find_descriptor_dll_under_dir(
             return False
         return target_arch is None or windows_pe_matches_arch(path, target_arch)
 
-    # Try the descriptor's known DLL names in its established search order.
-    for dll_basename in reversed(cast(tuple[str, ...], desc.windows_dlls)):
+    for dll_basename in desc.windows_dlls:
         path = os.path.join(dirpath, dll_basename)
         if candidate_is_usable(path):
             return path
@@ -138,7 +137,7 @@ class SearchPlatform(Protocol):
 @dataclass(frozen=True, slots=True)
 class LinuxSearchPlatform:
     def lib_searched_for(self, desc: LibDescriptor) -> str:
-        return " or ".join(linux_soname_candidates(desc))
+        return " or ".join(desc.linux_sonames)
 
     def site_packages_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]:
         return cast(tuple[str, ...], desc.site_packages_linux)
