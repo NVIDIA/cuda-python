@@ -90,3 +90,88 @@ Follow these rules when adding or moving shared test code:
   `conftest.py`.
 - In directories without `__init__.py`, keep test-module basenames unique
   within this test suite.
+
+## Skip only real setup failures
+
+`pytest.skip(reason)` records the test as SKIPPED with `reason` in the
+report. A helper that wraps `yield` in `except Exception: pytest.skip(...)`
+therefore records every test-body failure as a skip — a real regression, a
+`TypeError`, an `AttributeError` all become "SKIPPED: <reason>" instead of
+"FAILED", and the suite goes green regardless of whether the code under
+test works.
+
+Catch only the specific exception that legitimately means "not available",
+and only around the setup call — never around `yield`:
+
+```python
+@contextlib.contextmanager
+def _gl_context():
+    try:
+        win, tex_id = _setup_gl_texture()      # setup only
+    except (pyglet.NoSuchConfigException, GLContextError) as e:
+        pytest.skip(f"GL unavailable: {e}")
+    try:
+        yield tex_id                          # body exceptions propagate
+    finally:
+        _cleanup(win, tex_id)
+```
+
+When a CUDA call's error means "feature refused by this driver" (e.g.
+`CUDA_ERROR_OPERATING_SYSTEM` for CUDA-GL interop on WSL), skip at the call
+site with a narrow catch on the specific error, not inside the GL helper —
+see `_register_gl_buffer` / `_register_gl_image` in `tests/test_graphics.py`.
+
+## `importorskip` is for optional dependencies only
+
+`pytest.importorskip("X")` is correct when `X` is genuinely optional
+(platform-gated binding, parametrized "test each available module"). It is
+dead code when `X` is a declared test or runtime dependency: the skip then
+fires only when the environment is broken, which is the case you want to fail
+loudly, not hide. Use a bare top-level `import` for declared deps.
+
+Before adding `importorskip`, check `cuda_core/pyproject.toml`'s `test`
+and `test-cu*` groups and `cuda_core`'s `dependencies`. If the target is
+listed, import it directly.
+
+## Capability probes must not swallow real bugs
+
+A probe function that answers "is feature X available?" by catching
+`Exception` and returning `False` will report "not available" even when the
+probed API failed for a real, unexpected reason — silently enabling a skip
+that hides the bug. Catch only the exception that genuinely means "not
+available", and split the checks so each catch is narrow:
+
+```python
+def _is_nvfatbin_available():
+    try:
+        from cuda.bindings import nvfatbin
+    except ImportError:
+        return False
+    try:
+        nvfatbin.version()
+    except nvfatbin.nvFatbinError:
+        return False
+    return True
+```
+
+Do not catch `ImportError` for a hard runtime dependency (e.g.
+`cuda.bindings` for `cuda.core`) — that is a broken environment and should
+surface at collection time.
+
+## Tests that touch CUDA must establish their own context
+
+The `init_cuda` fixture pops the CUDA context on teardown, so a test
+that calls a CUDA API without `init_cuda` (or an explicit
+`Device.set_current()`) inherits whatever context the previous test happened
+to leave current on the thread — possibly none. With `pytest-randomly` that
+makes the pass/fail outcome depend on test order, so it moves seed to seed and
+looks like flakiness. Request `init_cuda` for any test that calls into the
+driver, or set up and tear down a context yourself.
+
+## Assert on behavior, not implementation
+
+Pin on observable behavior the contract guarantees — return values, raised
+exception types, public state transitions. Avoid asserting on internal
+call counts, private helper invocation order, or error message substrings
+that are not part of the contract. A refactor that preserves behavior but
+changes internals should not break the test.
