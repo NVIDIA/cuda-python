@@ -13,7 +13,7 @@ import pytest
 from cuda.bindings import runtime as cudart
 
 
-def _configure_pyglet_headless(pyglet):
+def _configure_pyglet_headless():
     """On headless Linux: enable EGL mode or skip if EGL is absent."""
     if sys.platform.startswith("linux") and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
         if ctypes.util.find_library("EGL") is None:
@@ -21,8 +21,11 @@ def _configure_pyglet_headless(pyglet):
         pyglet.options["headless"] = True
 
 
-def _setup_gl_texture(pyglet):
-    """Open a GL context and allocate a 2-D RGBA8 texture. Returns (win, tex_id, target)."""
+def _setup_gl_texture():
+    """Open a GL context and allocate a 2-D RGBA8 texture. Returns (win, tex_id, target).
+
+    Cleans up the window if texture allocation raises, so partial resources do not leak.
+    """
     if not pyglet.options.get("headless"):
         # Hidden window path (WGL on Windows, GLX/WLS on Linux)
         from pyglet import gl
@@ -36,27 +39,35 @@ def _setup_gl_texture(pyglet):
 
         win = None
 
-    # Make a tiny texture so we have a real GL object to register
-    from pyglet.gl import gl as _gl
+    try:
+        # Make a tiny texture so we have a real GL object to register
+        from pyglet.gl import gl as _gl
 
-    tex_id = _gl.GLuint(0)
-    _gl.glGenTextures(1, ctypes.byref(tex_id))
-    target = _gl.GL_TEXTURE_2D
-    _gl.glBindTexture(target, tex_id.value)
-    _gl.glTexParameteri(target, _gl.GL_TEXTURE_MIN_FILTER, _gl.GL_NEAREST)
-    _gl.glTexParameteri(target, _gl.GL_TEXTURE_MAG_FILTER, _gl.GL_NEAREST)
-    width, height = 16, 16
-    _gl.glTexImage2D(target, 0, _gl.GL_RGBA8, width, height, 0, _gl.GL_RGBA, _gl.GL_UNSIGNED_BYTE, None)
-    return win, tex_id, target
+        tex_id = _gl.GLuint(0)
+        _gl.glGenTextures(1, ctypes.byref(tex_id))
+        target = _gl.GL_TEXTURE_2D
+        _gl.glBindTexture(target, tex_id.value)
+        _gl.glTexParameteri(target, _gl.GL_TEXTURE_MIN_FILTER, _gl.GL_NEAREST)
+        _gl.glTexParameteri(target, _gl.GL_TEXTURE_MAG_FILTER, _gl.GL_NEAREST)
+        width, height = 16, 16
+        _gl.glTexImage2D(target, 0, _gl.GL_RGBA8, width, height, 0, _gl.GL_RGBA, _gl.GL_UNSIGNED_BYTE, None)
+        return win, tex_id, target
+    except Exception:
+        try:
+            if win is not None:
+                win.close()
+        except Exception:  # noqa: S110
+            pass
+        raise
 
 
 @contextlib.contextmanager
 def _gl_context():
     """Yield ``(tex_id, tex_target)`` with a current GL context, or skip if GL is unavailable."""
-    _configure_pyglet_headless(pyglet)
+    _configure_pyglet_headless()
 
     try:
-        win, tex_id, target = _setup_gl_texture(pyglet)
+        win, tex_id, target = _setup_gl_texture()
     except Exception as e:
         pytest.skip(f"Could not create GL context/texture: {type(e).__name__}: {e}")
 
