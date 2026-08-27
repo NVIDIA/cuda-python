@@ -4,7 +4,7 @@
 import functools
 import os
 
-from cuda.core._utils.cuda_utils import handle_return
+from cuda.core._utils.cuda_utils import CUDAError, handle_return
 from cuda.pathfinder import get_cuda_path_or_home
 from cuda_python_test_helpers import *
 
@@ -49,5 +49,6 @@ def supports_ipc_mempool(device_id: int | object) -> bool:
         # Check POSIX FD handle type support via bitmask
         posix_fd = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
         return (int(mask) & int(posix_fd)) != 0
-    except Exception:
+    except CUDAError:
+        # cuInit or cuDeviceGetAttribute failed: IPC mempool not usable here.
         return False

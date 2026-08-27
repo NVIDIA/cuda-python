@@ -42,11 +42,13 @@ def _is_nvfatbin_available():
     """Check if nvfatbin bindings are available."""
     try:
         from cuda.bindings import nvfatbin
-
-        nvfatbin.version()
-        return True
-    except Exception:
+    except ImportError:
         return False
+    try:
+        nvfatbin.version()
+    except nvfatbin.nvFatbinError:
+        return False
+    return True
 
 
 nvfatbin_available = pytest.mark.skipif(not _is_nvfatbin_available(), reason="nvfatbin bindings not available")

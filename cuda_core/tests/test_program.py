@@ -54,7 +54,9 @@ def _get_nvrtc_version_for_tests():
         nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
         version = nvrtc_major * 1000 + nvrtc_minor * 100
         return version
-    except Exception:
+    except (AttributeError, CUDAError):
+        # AttributeError: nvrtc not imported (suppressed above) or missing nvrtcVersion.
+        # CUDAError: driver not loaded or nvrtc call failed.
         return None
 
 
