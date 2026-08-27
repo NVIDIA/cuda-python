@@ -7,6 +7,7 @@ import ctypes.util
 import os
 import sys
 
+import pyglet
 import pytest
 
 from cuda.bindings import runtime as cudart
@@ -52,7 +53,6 @@ def _setup_gl_texture(pyglet):
 @contextlib.contextmanager
 def _gl_context():
     """Yield ``(tex_id, tex_target)`` with a current GL context, or skip if GL is unavailable."""
-    pyglet = pytest.importorskip("pyglet")
     _configure_pyglet_headless(pyglet)
 
     try:

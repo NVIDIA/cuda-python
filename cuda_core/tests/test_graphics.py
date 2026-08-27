@@ -11,6 +11,7 @@ import sys
 from unittest.mock import patch
 
 import numpy as np
+import pyglet
 import pytest
 
 from cuda.core import (
@@ -102,7 +103,6 @@ def _setup_gl_texture(pyglet, width, height):
 @contextlib.contextmanager
 def _gl_context_and_buffer(nbytes=1024):
     """Yield ``(gl_buffer_name, nbytes)`` with a current GL context, or skip if GL is unavailable."""
-    pyglet = pytest.importorskip("pyglet")
     _configure_pyglet_headless(pyglet)
 
     try:
@@ -130,7 +130,6 @@ def _gl_context_and_buffer(nbytes=1024):
 @contextlib.contextmanager
 def _gl_context_and_texture(width=16, height=16):
     """Yield ``(tex_id, tex_target)`` with a current GL context, or skip if GL is unavailable."""
-    pyglet = pytest.importorskip("pyglet")
     _configure_pyglet_headless(pyglet)
 
     try:
