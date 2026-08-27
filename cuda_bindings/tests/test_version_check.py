@@ -85,32 +85,6 @@ class TestVersionCompatibilityCheck:
             assert len(w) == 0
 
     @pytest.mark.agent_authored(model="claude-opus-5")
-    @pytest.mark.parametrize(
-        ("raw", "expected"),
-        [
-            pytest.param("0", False, id="zero"),
-            pytest.param(" 0 ", False, id="zero-padded"),
-            pytest.param("", False, id="empty"),
-            pytest.param("   ", False, id="blank"),
-            pytest.param("1", True, id="one"),
-            pytest.param("2", True, id="two"),
-            # Not an integer: keep the old set-means-disabled behaviour so no
-            # one relying on a spelling like `=true` starts seeing the warning
-            # again.
-            pytest.param("true", True, id="true"),
-            pytest.param("yes", True, id="yes"),
-        ],
-    )
-    def test_disable_flag_parsing(self, monkeypatch, raw, expected):
-        monkeypatch.setenv("CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING", raw)
-        assert _version_check._warning_disabled() is expected
-
-    @pytest.mark.agent_authored(model="claude-opus-5")
-    def test_disable_flag_unset(self, monkeypatch):
-        monkeypatch.delenv("CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING", raising=False)
-        assert _version_check._warning_disabled() is False
-
-    @pytest.mark.agent_authored(model="claude-opus-5")
     def test_warning_not_suppressed_when_env_var_is_zero(self):
         """``=0`` is how a user says "no, keep warning me".
 

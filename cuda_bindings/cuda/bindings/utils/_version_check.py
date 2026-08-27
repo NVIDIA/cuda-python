@@ -1,39 +1,16 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 import threading
 import warnings
+
+from ._envvar import envvar_bool
 
 # Track whether we've already checked major version compatibility
 _major_version_compatibility_checked = False
 _lock = threading.Lock()
 
 _DISABLE_WARNING_ENV_VAR = "CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING"
-
-
-def _warning_disabled() -> bool:
-    """Whether the user asked to suppress the major-version warning.
-
-    ``=0`` means "do not suppress". A bare truthiness test on the raw string
-    made ``CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING=0`` suppress the warning
-    -- the exact opposite of what the warning itself tells the user to type,
-    and the opposite of the other boolean knobs in this repository
-    (``CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM`` and
-    ``CUDA_CORE_DONT_FIX_TAB_COMPLETION``), which both parse their value with
-    ``int()``.
-
-    Unset and empty still mean "not disabled". A value that is not an integer
-    keeps the old set-means-disabled behaviour, so anyone currently relying on
-    a spelling like ``=true`` does not silently start seeing the warning again.
-    """
-    raw = os.environ.get(_DISABLE_WARNING_ENV_VAR, "").strip()
-    if not raw:
-        return False
-    try:
-        return int(raw) != 0
-    except ValueError:
-        return True
 
 
 def warn_if_cuda_major_version_mismatch():
@@ -59,7 +36,7 @@ def warn_if_cuda_major_version_mismatch():
         _major_version_compatibility_checked = True
 
     # Allow users to suppress the warning
-    if _warning_disabled():
+    if envvar_bool(_DISABLE_WARNING_ENV_VAR):
         return
 
     # Import here to avoid circular imports and allow lazy loading
