@@ -35,6 +35,9 @@ for module in ["cuda-bindings", "cuda-core", "cuda-pathfinder"]:
     version = get_version_for_module(module_prefix)
     base_version: str = Version(version).base_version
 
+    if module == "cuda-pathfinder":
+        base_version = base_version.rsplit(".", 1)[0]
+
     install_requires.append(f"{module}~={base_version}")
 
     if module == "cuda-bindings":
