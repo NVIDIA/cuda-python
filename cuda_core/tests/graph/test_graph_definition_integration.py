@@ -10,7 +10,7 @@ import pytest
 from helpers.memory import xfail_on_graph_mempool_oom
 
 from cuda.core import Device, EventOptions, LaunchConfig, Program, ProgramOptions
-from cuda.core._utils.cuda_utils import driver, handle_return
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core.graph import GraphDefinition
 
 SIZEOF_FLOAT = 4
@@ -121,6 +121,25 @@ def _nvrtc_opts():
     return ProgramOptions(std="c++17", arch=f"sm_{arch}")
 
 
+# NVRTC diagnostic phrases that indicate cudaGraphConditionalHandle itself is unknown
+# to the compiler (older NVRTC builds predate the type). Matched narrowly so a
+# genuine compile error (syntax error, etc.) is not hidden as a skip.
+# Phrase #1 is the exact diagnostic observed on this machine's NVRTC; phrase #2
+# is a common clang/NVRTC wording for an unknown type, not verified against the
+# cudaGraphConditionalHandle case on an old NVRTC build.
+_COND_HANDLE_UNKNOWN = (
+    'identifier "cudaGraphConditionalHandle" is undefined',
+    'unknown type name "cudaGraphConditionalHandle"',
+)
+
+
+def _skip_if_nvrtc_lacks_conditional_handle(exc):
+    msg = str(exc)
+    if any(phrase in msg for phrase in _COND_HANDLE_UNKNOWN):
+        pytest.skip("NVRTC does not support cudaGraphConditionalHandle")
+    raise
+
+
 def _compile_heat_kernels():
     prog = Program(_HEAT_KERNEL_SOURCE, code_type="c++", options=_nvrtc_opts())
     try:
@@ -128,8 +147,9 @@ def _compile_heat_kernels():
             "cubin",
             name_expressions=("heat_step", "countdown"),
         )
-    except Exception:
-        pytest.skip("NVRTC does not support cudaGraphConditionalHandle")
+    except CUDAError as exc:
+        _skip_if_nvrtc_lacks_conditional_handle(exc)
+        raise
     return mod.get_kernel("heat_step"), mod.get_kernel("countdown")
 
 
@@ -145,8 +165,9 @@ def _compile_bisect_kernels():
     prog = Program(_BISECT_KERNEL_SOURCE, code_type="c++", options=_nvrtc_opts())
     try:
         mod = prog.compile("cubin", name_expressions=names)
-    except Exception:
-        pytest.skip("NVRTC does not support cudaGraphConditionalHandle")
+    except CUDAError as exc:
+        _skip_if_nvrtc_lacks_conditional_handle(exc)
+        raise
     return tuple(mod.get_kernel(n) for n in names)
 
 
