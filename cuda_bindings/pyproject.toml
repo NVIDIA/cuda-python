@@ -65,6 +65,7 @@ include = ["cuda*"]
 
 [tool.setuptools]
 include-package-data = false
+package-dir = {"" = "."}
 
 [tool.setuptools.package-data]
 "*" = ["*.pxd", "*.pxi"]

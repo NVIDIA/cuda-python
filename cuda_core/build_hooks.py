@@ -2,349 +2,142 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# This module implements basic PEP 517 backend support, see e.g.
-# - https://peps.python.org/pep-0517/
-# - https://setuptools.pypa.io/en/latest/build_meta.html#dynamic-build-dependencies-and-other-build-meta-tweaks
-# Specifically, there are 5 APIs required to create a proper build backend, see below.
+"""PEP 517 wrapper for cuda.core's scikit-build-core backend.
 
-import functools
-import glob
+The wrapper keeps CUDA-major-dependent build requirements out of the static
+``build-system.requires`` list. Compilation and wheel assembly are delegated to
+scikit-build-core.
+"""
+
+from __future__ import annotations
+
 import os
 import re
-import sys
-import tempfile
-import zipfile
-from pathlib import Path
+import warnings
+from collections.abc import Mapping
 
-from Cython.Build import cythonize
-from Cython.Compiler import Options as _CythonOptions
-from setuptools import Extension
-from setuptools import build_meta as _build_meta
+import scikit_build_core.build as _build_backend
 
-prepare_metadata_for_build_editable = _build_meta.prepare_metadata_for_build_editable
-prepare_metadata_for_build_wheel = _build_meta.prepare_metadata_for_build_wheel
-build_sdist = _build_meta.build_sdist
-get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
-
-COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
+_ConfigSettings = Mapping[str, str | list[str] | bool] | None
+_BUILD_TYPE_SETTINGS = ("cmake.build-type", "skbuild.cmake.build-type")
 
 
-# Please keep in sync with the copy in cuda_bindings/build_hooks.py.
-def _import_get_cuda_path_or_home():
-    """Import get_cuda_path_or_home, working around PEP 517 namespace shadowing.
-
-    See https://github.com/NVIDIA/cuda-python/issues/1824 for why this helper is needed.
-    """
-    try:
-        import cuda.pathfinder
-    except ModuleNotFoundError as exc:
-        if exc.name not in ("cuda", "cuda.pathfinder"):
-            raise
-        try:
-            import cuda
-        except ModuleNotFoundError:
-            cuda = None
-
-        for p in sys.path:
-            sp_cuda = Path(p) / "cuda"
-            if (sp_cuda / "pathfinder").is_dir():
-                cuda.__path__ = list(cuda.__path__) + [str(sp_cuda)]
-                break
-        else:
-            raise ModuleNotFoundError(
-                "cuda-pathfinder is not installed in the build environment. "
-                "Ensure 'cuda-pathfinder>=1.5' is in build-system.requires."
-            )
-        import cuda.pathfinder
-
-    pathfinder_dir = Path(cuda.pathfinder.__file__).parent
-    print(
-        f"Using cuda-pathfinder {cuda.pathfinder.__version__} from {pathfinder_dir}",
-        file=sys.stderr,
-    )
-    return cuda.pathfinder.get_cuda_path_or_home
-
-
-@functools.cache
 def _get_cuda_path() -> str:
-    get_cuda_path_or_home = _import_get_cuda_path_or_home()
-    cuda_path = get_cuda_path_or_home()
-    if not cuda_path:
-        raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
-    print("CUDA path:", cuda_path)
-    return cuda_path
+    cuda_path = os.environ.get("CUDA_PATH") or os.environ.get("CUDA_HOME")
+    if cuda_path:
+        return cuda_path
+    raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
 
 
-@functools.cache
-def _determine_cuda_major_version() -> str:
-    """Determine the CUDA major version for building cuda.core.
-
-    This version is used for two purposes:
-    1. Determining which cuda-bindings version to install as a build dependency
-    2. Setting CUDA_CORE_BUILD_MAJOR for Cython compile-time conditionals
-
-    The version is derived from (in order of priority):
-    1. CUDA_CORE_BUILD_MAJOR environment variable (explicit override, e.g. in CI)
-    2. CUDA_VERSION macro in cuda.h from CUDA_PATH or CUDA_HOME
-
-    Since CUDA_PATH or CUDA_HOME is required for the build (to provide include
-    directories), the cuda.h header should always be available.
-    """
-    # Explicit override, e.g. in CI.
-    cuda_major = os.environ.get("CUDA_CORE_BUILD_MAJOR")
-    if cuda_major is not None:
-        print("CUDA MAJOR VERSION:", cuda_major)
-        return cuda_major
-
-    # Derive from the CUDA headers (the authoritative source for what we compile against).
-    cuda_path = _get_cuda_path()
+def _cuda_major_from_headers(cuda_path: str) -> str:
     cuda_h = os.path.join(cuda_path, "include", "cuda.h")
     try:
         with open(cuda_h, encoding="utf-8") as f:
             for line in f:
-                m = re.match(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$", line)
-                if m:
-                    v = int(m.group(1))
+                match = re.match(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$", line)
+                if match:
                     # CUDA_VERSION is e.g. 12020 for 12.2.
-                    cuda_major = str(v // 1000)
-                    print("CUDA MAJOR VERSION:", cuda_major)
-                    return cuda_major
+                    return str(int(match.group(1)) // 1000)
     except OSError:
         pass
 
-    # CUDA_PATH or CUDA_HOME is required for the build, so we should not reach here
-    # in normal circumstances. Raise an error to make the issue clear.
     raise RuntimeError(
         "Cannot determine CUDA major version. "
-        "Set CUDA_CORE_BUILD_MAJOR environment variable, or ensure CUDA_PATH or CUDA_HOME "
-        "points to a valid CUDA installation with include/cuda.h."
+        "Set CUDA_CORE_BUILD_MAJOR, or ensure CUDA_PATH or CUDA_HOME points "
+        "to a valid CUDA installation with include/cuda.h."
     )
 
 
-# used later by setup()
-_extensions = None
+def _determine_cuda_major_version() -> str:
+    """Determine the CUDA major used for build requirements."""
+    cuda_major = os.environ.get("CUDA_CORE_BUILD_MAJOR") or None
+    if cuda_major is None:
+        cuda_major = _cuda_major_from_headers(_get_cuda_path())
+
+    if not re.fullmatch(r"\d+", cuda_major):
+        raise RuntimeError(f"CUDA_CORE_BUILD_MAJOR must be an integer, got {cuda_major!r}")
+
+    print("CUDA MAJOR VERSION:", cuda_major)
+    return cuda_major
 
 
-def _build_cuda_core(debug=False):
-    # Customizing the build hooks is needed because we must defer cythonization until cuda-bindings,
-    # now a required build-time dependency that's dynamically installed via the other hook below,
-    # is installed. Otherwise, cimport any cuda.bindings modules would fail!
-    #
-    # This function populates "_extensions".
-    global _extensions
-
-    # Resolve CUDA first so the pathfinder import repairs PEP 517 namespace shadowing before importing bindings.
-    cuda_path = _get_cuda_path()
-
-    # Add cuda-bindings to sys.path so Cython can find .pxd files
-    # This is needed for editable installs where meta path finders don't work for Cython
-    # We need to add the directory containing the 'cuda' package so Cython can resolve
-    # "from cuda.bindings cimport cydriver"
-    try:
-        import cuda.bindings
-
-        bindings_path = Path(cuda.bindings.__file__).parent  # .../cuda/bindings/
-        print(f"Using cuda-bindings {cuda.bindings.__version__} from {bindings_path}", file=sys.stderr)
-        cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings/ (contains cuda/)
-        if str(cuda_package_dir) not in sys.path:
-            sys.path.insert(0, str(cuda_package_dir))
-            print(f"Added cuda-bindings parent path for Cython: {cuda_package_dir}", file=sys.stderr)
-    except ImportError:
-        # cuda-bindings not available in editable mode, will use installed version
-        pass
-
-    _posix_only_modules = frozenset(
-        {
-            "_utils/_wsl_locale",
-        }
-    )
-
-    # It seems setuptools' wildcard support has problems for namespace packages,
-    # so we explicitly spell out all Extension instances.
-    def module_names():
-        root_path = os.path.sep.join(["cuda", "core", ""])
-        for filename in glob.glob(f"{root_path}/**/*.pyx", recursive=True):
-            mod = filename[len(root_path) : -4]
-            if sys.platform == "win32" and mod.replace(os.path.sep, "/") in _posix_only_modules:
-                continue
-            yield mod
-
-    def get_sources(mod_name):
-        """Get source files for a module, including any .cpp files."""
-        sources = [f"cuda/core/{mod_name}.pyx"]
-
-        # Add module-specific .cpp file from _cpp/ directory if it exists
-        # Example: _resource_handles.pyx finds _cpp/resource_handles.cpp.
-        cpp_file = f"cuda/core/_cpp/{mod_name.lstrip('_')}.cpp"
-        if os.path.exists(cpp_file):
-            sources.append(cpp_file)
-
-        return sources
-
-    all_include_dirs = [os.path.join(cuda_path, "include")]
-    extra_compile_args = []
-    extra_link_args = []
-    extra_cythonize_kwargs = {}
-    if sys.platform == "win32":
-        extra_compile_args += ["/std:c++17"]
-        if debug:
-            raise RuntimeError("Debuggable builds are not supported on Windows.")
-    else:
-        extra_compile_args += ["-std=c++17"]
-        if debug:
-            extra_cythonize_kwargs["gdb_debug"] = True
-            extra_compile_args += ["-g", "-O0"]
-            extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]
-        else:
-            extra_compile_args += ["-O2"]
-            extra_link_args += ["-Wl,--strip-all"]
-    if COMPILE_FOR_COVERAGE:
-        # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
-        # related to free-threading builds.
-        extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
-
-    ext_modules = tuple(
-        Extension(
-            f"cuda.core.{mod.replace(os.path.sep, '.')}",
-            sources=get_sources(mod),
-            include_dirs=[
-                "cuda/core/_include",
-                "cuda/core/_cpp",
-            ]
-            + all_include_dirs,
-            language="c++",
-            extra_compile_args=extra_compile_args,
-            extra_link_args=extra_link_args,
-        )
-        for mod in module_names()
-    )
-
-    nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
-    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(_determine_cuda_major_version())}
-    compiler_directives = {"embedsignature": True, "warn.deprecated.IF": False, "freethreading_compatible": True}
-    _CythonOptions.warning_errors = True
-    if COMPILE_FOR_COVERAGE:
-        compiler_directives["linetrace"] = True
-    _extensions = cythonize(
-        ext_modules,
-        verbose=True,
-        language_level=3,
-        build_dir="." if COMPILE_FOR_COVERAGE else "build/cython",
-        nthreads=nthreads,
-        compiler_directives=compiler_directives,
-        compile_time_env=compile_time_env,
-        **extra_cythonize_kwargs,
-    )
-
-    return
-
-
-def _add_cython_include_paths_to_pth(wheel_path: str) -> None:
-    """
-    Modify the .pth file in an editable install wheel to add Cython include paths.
-
-    This is needed because Cython cannot find .pxd files through meta path finders,
-    it only looks in sys.path directories. By adding direct paths to the .pth file,
-    we enable Cython to find .pxd files from editable-installed cuda-bindings.
-
-    See: https://github.com/scikit-build/scikit-build-core/pull/516
-    See: https://github.com/cython/cython/issues/7326
-    """
-    # Find cuda-bindings location
-    # When building with pixi path dependencies, cuda-bindings should be importable
-    try:
-        import cuda.bindings
-
-        bindings_path = Path(cuda.bindings.__file__).parent  # .../cuda/bindings/
-        # We need the directory containing the 'cuda' package for Cython imports
-        cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings/ (contains cuda/)
-        print(f"Found cuda-bindings at: {bindings_path}", file=sys.stderr)
-        print(f"Will add to .pth for Cython: {cuda_package_dir}", file=sys.stderr)
-    except ImportError:
-        # If cuda-bindings isn't available yet, we can't add the path
-        # This might happen in some build scenarios, but it's okay - the
-        # wildcard dependency will work in those cases
-        print("cuda-bindings not found in current environment, skipping .pth modification")
-        return
-
-    # Create a temporary directory for wheel manipulation
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        wheel_file = Path(wheel_path)
-
-        # Extract the wheel
-        extract_dir = tmpdir_path / "extracted"
-        with zipfile.ZipFile(wheel_file, "r") as zf:
-            zf.extractall(extract_dir)
-
-        # Find the .pth file (should be named something like __editable___cuda_core-*.pth)
-        pth_files = list(extract_dir.glob("**/*.pth"))
-        if not pth_files:
-            print("Warning: No .pth file found in editable wheel", file=sys.stderr)
-            return
-
-        # Modify each .pth file (usually just one)
-        for pth_file in pth_files:
-            print(f"Modifying {pth_file.name} to add Cython include paths", file=sys.stderr)
-
-            # Read existing content
-            content = pth_file.read_text()
-
-            # Add the cuda-bindings source path to sys.path for Cython
-            # This allows Cython to find .pxd files via direct path lookup
-            # The path must be the directory containing the 'cuda' package
-            path_to_add = str(cuda_package_dir.absolute())
-
-            # Ensure content ends with newline before adding path
-            if not content.endswith("\n"):
-                content += "\n"
-
-            # Append to the .pth file (after the import hook line)
-            if path_to_add not in content:
-                pth_file.write_text(content + path_to_add + "\n")
-                print(f"Added Cython include path: {cuda_package_dir}", file=sys.stderr)
-
-        # Repackage the wheel
-        # Remove the old wheel first
-        wheel_file.unlink()
-
-        # Create new wheel with same name
-        with zipfile.ZipFile(wheel_file, "w", zipfile.ZIP_DEFLATED) as zf:
-            for file_path in extract_dir.rglob("*"):
-                if file_path.is_file():
-                    arcname = file_path.relative_to(extract_dir)
-                    zf.write(file_path, arcname)
-
-        print(f"Successfully patched {wheel_file.name}", file=sys.stderr)
-
-
-def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
-    debug_default = sys.platform != "win32"  # Debug builds not supported on Windows
-    debug = config_settings.get("debug", debug_default) if config_settings else debug_default
-    _build_cuda_core(debug=debug)
-    wheel_name = _build_meta.build_editable(wheel_directory, config_settings, metadata_directory)
-
-    # Patch the .pth file to add Cython include paths
-    wheel_path = os.path.join(wheel_directory, wheel_name)
-    _add_cython_include_paths_to_pth(wheel_path)
-
-    return wheel_name
-
-
-def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
-    debug = config_settings.get("debug", False) if config_settings else False
-    _build_cuda_core(debug=debug)
-    return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
-
-
-def _get_cuda_bindings_require():
+def _get_cuda_bindings_require() -> list[str]:
     cuda_major = _determine_cuda_major_version()
     return [f"cuda-bindings=={cuda_major}.*"]
 
 
-def get_requires_for_build_editable(config_settings=None):
-    return _build_meta.get_requires_for_build_editable(config_settings) + _get_cuda_bindings_require()
+def _translate_legacy_debug(config_settings: _ConfigSettings, *, warn: bool = False) -> _ConfigSettings:
+    if config_settings is None or "debug" not in config_settings:
+        return config_settings
+
+    settings = dict(config_settings)
+    debug = settings.pop("debug")
+    if warn:
+        warnings.warn(
+            "The 'debug' build config setting is deprecated and will be removed in "
+            "cuda.core 2.0; use 'cmake.build-type=Debug' or "
+            "'cmake.build-type=Release' instead.",
+            FutureWarning,
+            stacklevel=3,
+        )
+
+    if any(key in settings for key in _BUILD_TYPE_SETTINGS):
+        return settings
+
+    if isinstance(debug, list):
+        if not debug:
+            raise ValueError("debug must have a value")
+        debug = debug[-1]
+    if isinstance(debug, bool):
+        debug_enabled = debug
+    else:
+        normalized = debug.strip().lower()
+        if normalized in {"1", "true", "on", "yes", "y"}:
+            debug_enabled = True
+        elif normalized in {"0", "false", "off", "no", "n"}:
+            debug_enabled = False
+        else:
+            raise ValueError(f"debug must be a boolean value, got {debug!r}")
+
+    settings["cmake.build-type"] = "Debug" if debug_enabled else "Release"
+    return settings
+
+
+def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
+    settings = _translate_legacy_debug(config_settings)
+    return _build_backend.prepare_metadata_for_build_wheel(metadata_directory, settings)
+
+
+def prepare_metadata_for_build_editable(metadata_directory, config_settings=None):
+    settings = _translate_legacy_debug(config_settings)
+    return _build_backend.prepare_metadata_for_build_editable(metadata_directory, settings)
+
+
+def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
+    settings = _translate_legacy_debug(config_settings, warn=True)
+    return _build_backend.build_wheel(wheel_directory, settings, metadata_directory)
+
+
+def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
+    settings = _translate_legacy_debug(config_settings, warn=True)
+    return _build_backend.build_editable(wheel_directory, settings, metadata_directory)
+
+
+def build_sdist(sdist_directory, config_settings=None):
+    settings = _translate_legacy_debug(config_settings)
+    return _build_backend.build_sdist(sdist_directory, settings)
 
 
 def get_requires_for_build_wheel(config_settings=None):
-    return _build_meta.get_requires_for_build_wheel(config_settings) + _get_cuda_bindings_require()
+    settings = _translate_legacy_debug(config_settings)
+    return _build_backend.get_requires_for_build_wheel(settings) + _get_cuda_bindings_require()
+
+
+def get_requires_for_build_editable(config_settings=None):
+    settings = _translate_legacy_debug(config_settings)
+    return _build_backend.get_requires_for_build_editable(settings) + _get_cuda_bindings_require()
+
+
+def get_requires_for_build_sdist(config_settings=None):
+    settings = _translate_legacy_debug(config_settings)
+    return _build_backend.get_requires_for_build_sdist(settings)
