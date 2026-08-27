@@ -1,0 +1,6 @@
+﻿cuda.core.utils.make\_program\_cache\_key
+=========================================
+
+.. currentmodule:: cuda.core.utils
+
+.. autofunction:: make_program_cache_key
