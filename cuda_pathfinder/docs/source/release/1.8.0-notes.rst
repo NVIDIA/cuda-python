@@ -17,6 +17,15 @@ work. Nevertheless, because a previously accepted wildcard-only layout can now
 fail discovery, this release increments the minor version out of an abundance
 of caution.
 
+Highlights
+----------
+
+* Add support for the CUDA 13.4 cuRAND dynamic-library filenames
+  ``libcurand.so.11`` on Linux and ``curand64_11.dll`` on Windows, so
+  :func:`load_nvidia_dynamic_lib` can recognize the installed library while
+  retaining support for the ABI 10 filenames.
+  (`PR #2692 <https://github.com/NVIDIA/cuda-python/pull/2692>`_)
+
 Bugfixes
 --------
 
