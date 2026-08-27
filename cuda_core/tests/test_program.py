@@ -1121,8 +1121,9 @@ def test_cuda_gdb_shows_nvrtc_debug_source_lines(init_cuda):
         timeout=120,
     )
     output = (proc.stdout or "") + (proc.stderr or "")
-    if "Operation not permitted" in output or "ptrace" in output.lower():
-        pytest.skip("cuda-gdb cannot trace this process")
+    lowered = output.lower()
+    if "operation not permitted" in lowered or "ptrace" in lowered or "debugging is not possible" in lowered:
+        pytest.xfail("cuda-gdb is not usable for debugging on this machine: " + output)
     assert re.search(r"cuda_gdb_src_kernel_\w+\.cu", output), output
     assert "ISSUE_2422_SOURCE_LINE" in output, output
     assert "No such file or directory" not in output, output
