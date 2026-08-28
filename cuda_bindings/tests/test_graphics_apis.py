@@ -40,7 +40,16 @@ def _is_gl_unavailable(exc):
     # AttributeError(dll_name). Match narrowly on the dll name so a
     # different FileNotFoundError or AttributeError from our own code
     # does not match.
-    return isinstance(exc, (FileNotFoundError, AttributeError)) and "opengl32" in str(exc)
+    if isinstance(exc, (FileNotFoundError, AttributeError)) and "opengl32" in str(exc):
+        return True
+    # Linux without libGL/libEGL: pyglet raises ImportError with these
+    # exact messages from pyglet/lib.py. Match them so a genuine GL
+    # setup is skipped, not failed; a different ImportError from our
+    # own code does not match.
+    return isinstance(exc, ImportError) and str(exc) in (
+        'Library "GL" not found.',
+        'Library "EGL" not found.',
+    )
 
 
 def _configure_pyglet_headless():
