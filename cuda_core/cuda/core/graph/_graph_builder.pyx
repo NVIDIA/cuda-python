@@ -216,7 +216,8 @@ def _instantiate_graph(source, options: GraphCompleteOptions | None = None) -> G
         # when status is not CUDA_SUCCESS.
         HANDLE_RETURN(status)
         raise RuntimeError(
-            "Instantiation failed for an unexpected reason which is described in the return value of the function."
+            "CUDA graph instantiation failed, but cuGraphInstantiateWithParams "
+            "returned CUDA_SUCCESS; no driver error details are available."
         )
     elif params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_INVALID_STRUCTURE:
         raise RuntimeError("Instantiation failed due to invalid structure, such as cycles.")
