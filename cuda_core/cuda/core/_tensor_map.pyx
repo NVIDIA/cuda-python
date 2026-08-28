@@ -686,6 +686,8 @@ cdef class TensorMapDescriptor:
         # TODO(seberg): CCCL has various limitations as of writing, see:
         # https://github.com/NVIDIA/cccl/issues/10511.
         # Because of this, the path is only taken in _very_ narrow conditions.
+        # We should probably use it broadly as soon as the fix is available in
+        # CCCL 3.5.0 (and likely just not bother with these narrow conditions).
         make_tma = _get_cccl_make_tma_fn()
         if (make_tma != NULL
                 and device_type == _kDLCUDA

@@ -245,7 +245,8 @@ def _build_cuda_core(debug=False):
     extra_link_args = []
     extra_cythonize_kwargs = {}
     if sys.platform == "win32":
-        extra_compile_args += ["/std:c++17"]
+        # CCCL headers #error without the conforming MSVC preprocessor.
+        extra_compile_args += ["/std:c++17", "/Zc:preprocessor"]
         if debug:
             raise RuntimeError("Debuggable builds are not supported on Windows.")
     else:
