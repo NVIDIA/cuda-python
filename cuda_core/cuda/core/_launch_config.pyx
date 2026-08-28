@@ -269,7 +269,10 @@ cpdef object _to_native_launch_config(LaunchConfig config):
     if config.cluster_scheduling_policy_preference is not None:
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
-        attr.value.clusterSchedulingPolicyPreference = int(config.cluster_scheduling_policy_preference)
+        # 13.0.2 setter reads .value; pass FastEnum, not a raw int.
+        attr.value.clusterSchedulingPolicyPreference = (
+            driver.CUclusterSchedulingPolicy(int(config.cluster_scheduling_policy_preference))
+        )
         attrs.append(attr)
 
     drv_cfg.numAttrs = len(attrs)
