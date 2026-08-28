@@ -4,7 +4,9 @@
 """Tests for GraphDefinition topology, node types, instantiation, and execution."""
 
 import ctypes
+import gc
 import sys
+import weakref
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
@@ -908,6 +910,34 @@ def test_alloc_peer_access(mempool_device_x2):
     with xfail_on_graph_mempool_oom(d0):
         node = g.allocate(ALLOC_SIZE, device=d0.device_id, peer_access=[d1.device_id])
     assert d1.device_id in node.peer_access
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_alloc_memory_type_host(init_cuda):
+    """HOST graph alloc nodes reconstruct memory_type from the driver, not the Python argument."""
+    _skip_if_no_mempool()
+    from cuda.core._utils.cuda_utils import CUDAError
+
+    g = GraphDefinition()
+    try:
+        with xfail_on_graph_mempool_oom():
+            node = g.allocate(ALLOC_SIZE, memory_type=GraphMemoryType.HOST)
+    except CUDAError as e:
+        if "CUDA_ERROR_NOT_SUPPORTED" in str(e):
+            pytest.skip("Driver does not support graph alloc memory_type='host'")
+        raise
+
+    expected_dptr = node.dptr
+    succ = node.record(Device().create_event())
+    node_ref = weakref.ref(node)
+    del node
+    gc.collect()
+    assert node_ref() is None
+    reconstructed = next(iter(succ.pred))
+    assert isinstance(reconstructed, AllocNode)
+    assert reconstructed.memory_type == GraphMemoryType.HOST
+    assert reconstructed.dptr == expected_dptr
+    assert reconstructed.dptr != 0
 
 
 # =============================================================================

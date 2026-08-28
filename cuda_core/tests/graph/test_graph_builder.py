@@ -17,7 +17,7 @@ from packaging.version import Version
 
 import cuda.bindings
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, Program, ProgramOptions, StreamOptions, launch
-from cuda.core.graph import GraphBuilder, GraphCompleteOptions, GraphDefinition
+from cuda.core.graph import Graph, GraphBuilder, GraphCompleteOptions, GraphDefinition
 from cuda.core.graph._graph_builder import (
     _capture_callback_with_tail_failure_for_testing,
 )
@@ -30,6 +30,13 @@ def _wait_until(predicate, timeout=5.0):
             raise AssertionError(f"condition not satisfied within {timeout}s")
         gc.collect()
         time.sleep(0.02)
+
+
+def _skip_if_conditional_handles_unsupported():
+    from cuda.core._utils.version import binding_version, driver_version
+
+    if driver_version() < (12, 3, 0) or binding_version() < (12, 3, 0):
+        pytest.skip("conditional handles require CUDA driver and bindings 12.3+")
 
 
 def test_graph_is_building(init_cuda):
@@ -895,3 +902,121 @@ def test_pdl_same_stream_primary_secondary_overlap_via_graph(init_cuda):
             "PDL (Programmatic Dependent Launch) graph overlap was not observed. "
             "If this keeps xfailing in CI, manually re-check on a quiet Hopper+ GPU."
         )
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_join_rejects_non_builder(init_cuda):
+    """join() type-checks its arguments before looking at capture state."""
+    gb = Device().create_graph_builder()
+    with pytest.raises(TypeError, match="All arguments must be GraphBuilder"):
+        GraphBuilder.join(gb, object())
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_builder_cuda_stream_protocol(init_cuda):
+    """The builder exports its underlying stream, and stops doing so once closed."""
+    gb = Device().create_graph_builder()
+    protocol = gb.__cuda_stream__()
+    assert protocol[0] == 0
+    assert int(protocol[1]) == int(gb.stream.handle)
+    gb.close()
+    with pytest.raises(RuntimeError, match="GraphBuilder has been closed"):
+        gb.__cuda_stream__()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_end_building_requires_active_capture(init_cuda):
+    """end_building() on a builder that never started capturing is rejected."""
+    gb = Device().create_graph_builder()
+    with pytest.raises(RuntimeError, match="Graph builder is not building"):
+        gb.end_building()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_debug_dot_print_requires_finished_build(init_cuda, tmp_path):
+    """debug_dot_print() needs a completed capture, both before and during building."""
+    gb = Device().create_graph_builder()
+    with pytest.raises(RuntimeError, match="Graph has not finished building"):
+        gb.debug_dot_print(str(tmp_path / "unfinished.dot"))
+    gb.begin_building()
+    try:
+        with pytest.raises(RuntimeError, match="Graph has not finished building"):
+            gb.debug_dot_print(str(tmp_path / "capturing.dot"))
+    finally:
+        gb.end_building()
+    gb.debug_dot_print(str(tmp_path / "finished.dot"))
+    assert (tmp_path / "finished.dot").exists()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_callback_requires_active_capture(init_cuda):
+    """callback() is rejected outside an active capture."""
+    gb = Device().create_graph_builder()
+    with pytest.raises(RuntimeError, match="Cannot add callback when graph is not being built"):
+        gb.callback(lambda: None)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_create_condition_requires_active_capture(init_cuda):
+    """create_condition() is rejected outside an active capture."""
+    _skip_if_conditional_handles_unsupported()
+    gb = Device().create_graph_builder()
+    with pytest.raises(RuntimeError, match="Cannot create a condition when graph is not being built"):
+        gb.create_condition()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_embed_requires_finished_child_and_capturing_parent(init_cuda):
+    """embed() rejects an unfinished child and a parent that is not capturing."""
+    parent = Device().create_graph_builder()
+    # embed() checks the child before the parent, so the child must already be
+    # ended for the parent guard to be the one that fires here.
+    child = Device().create_graph_builder().begin_building().end_building()
+    with pytest.raises(ValueError, match="Parent graph is not being built"):
+        parent.embed(child)
+
+    unfinished = Device().create_graph_builder().begin_building()
+    capturing = Device().create_graph_builder().begin_building()
+    try:
+        with pytest.raises(ValueError, match="Child graph has not finished building"):
+            capturing.embed(unfinished)
+    finally:
+        capturing.end_building()
+        unfinished.end_building()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_graph_builder_and_graph_cannot_be_constructed_directly():
+    """Both types are factory-only; the guards run before any CUDA call."""
+    with pytest.raises(NotImplementedError, match="directly creating"):
+        GraphBuilder()
+    with pytest.raises(RuntimeError, match="directly constructing"):
+        Graph()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_graph_builder_close_ends_active_capture(init_cuda):
+    """close() during capture ends it and hands the stream back usable."""
+    empty = compile_common_kernels().get_kernel("empty_kernel")
+    stream = Device().create_stream()
+    gb = stream.create_graph_builder().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), empty)
+    assert gb.is_building
+    gb.close()
+    with pytest.raises(RuntimeError, match="has been closed"):
+        _ = gb.is_building
+    # Ending capture via close() must leave the stream usable.
+    launch(stream, LaunchConfig(grid=1, block=1), empty)
+    stream.sync()
+    stream.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_if_then_requires_active_capture(init_cuda):
+    """Conditional nodes cannot be added once capture has ended."""
+    _skip_if_conditional_handles_unsupported()
+    gb = Device().create_graph_builder().begin_building()
+    condition = try_create_condition(gb)
+    gb.end_building()
+    with pytest.raises(RuntimeError, match="Cannot add conditional node when not actively capturing"):
+        gb.if_then(condition)

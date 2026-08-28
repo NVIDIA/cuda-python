@@ -756,3 +756,142 @@ def test_kernel_arg_python_isinstance_fallbacks():
 
     holder = ParamHolder([MyBool(1), MyFloat(1.5), MyComplex(1 + 2j)])
     assert holder.ptr != 0
+
+
+_NUMPY_SUBCLASS_FALLBACK_PARAMS = [
+    # One case per prepare_numpy_arg isinstance-fallback branch (exact type is
+    # skipped because type(arg) is the subclass). Values catch width/sign mixups.
+    (np.bool_, np.bool_, "bool", True),
+    (np.int8, np.int8, "signed char", -42),
+    (np.int16, np.int16, "signed short", -1234),
+    (np.int32, np.int32, "signed int", -123456),
+    (np.int64, np.int64, "signed long long", -123456789),
+    (np.uint8, np.uint8, "unsigned char", 200),
+    (np.uint16, np.uint16, "unsigned short", 60000),
+    (np.uint32, np.uint32, "unsigned int", 4000000000),
+    (np.uint64, np.uint64, "unsigned long long", 0x1_0000_0001),
+    (np.float64, np.float64, "double", 2.718281828),
+]
+_NUMPY_SUBCLASS_FALLBACK_IDS = [
+    "numpy_bool",
+    "numpy_int8",
+    "numpy_int16",
+    "numpy_int32",
+    "numpy_int64",
+    "numpy_uint8",
+    "numpy_uint16",
+    "numpy_uint32",
+    "numpy_uint64",
+    "numpy_float64",
+]
+if helpers.CCCL_INCLUDE_PATHS is not None:
+    _NUMPY_SUBCLASS_FALLBACK_PARAMS += [
+        (np.float16, np.float16, "half", 0.78),
+        (np.complex64, np.complex64, "cuda::std::complex<float>", 1 + 2j),
+        (np.complex128, np.complex128, "cuda::std::complex<double>", -3 - 4j),
+    ]
+    _NUMPY_SUBCLASS_FALLBACK_IDS += ["numpy_float16", "numpy_complex64", "numpy_complex128"]
+
+
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
+@pytest.mark.parametrize(
+    ("base_type", "np_dtype", "cpp_type", "raw_value"),
+    _NUMPY_SUBCLASS_FALLBACK_PARAMS,
+    ids=_NUMPY_SUBCLASS_FALLBACK_IDS,
+)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_launch_numpy_scalar_subclass_fallback(base_type, np_dtype, cpp_type, raw_value):
+    """Subclassed numpy scalars take prepare_numpy_arg's isinstance fallback and reach the kernel (readback)."""
+
+    class Subclassed(base_type):
+        pass
+
+    scalar = Subclassed(raw_value)
+    expected = np_dtype(raw_value)
+
+    dev = Device()
+    dev.set_current()
+
+    mr = LegacyPinnedMemoryResource()
+    b = mr.allocate(np.dtype(np_dtype).itemsize)
+    arr = np.from_dlpack(b).view(np_dtype)
+    arr[:] = 0
+
+    code = r"""
+    template <typename T>
+    __global__ void write_scalar(T* arr, T val) {
+        arr[0] = val;
+    }
+    """
+    if helpers.CCCL_INCLUDE_PATHS is not None:
+        code = (
+            r"""
+        #include <cuda_fp16.h>
+        #include <cuda/std/complex>
+        """
+            + code
+        )
+
+    arch = "".join(f"{i}" for i in dev.compute_capability)
+    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=helpers.CCCL_INCLUDE_PATHS)
+    prog = Program(code, code_type="c++", options=pro_opts)
+    ker_name = f"write_scalar<{cpp_type}>"
+    mod = prog.compile("cubin", name_expressions=(ker_name,))
+    ker = mod.get_kernel(ker_name)
+
+    stream = dev.default_stream
+    config = LaunchConfig(grid=1, block=1)
+    launch(stream, config, ker, arr.ctypes.data, scalar)
+    stream.sync()
+
+    assert arr[0] == expected
+
+
+# Truncates to 1 if the launcher packs the handle as uint32 instead of uint64.
+_UINT64_HANDLE_VALUE = 0x1_0000_0001
+
+
+def _compile_write_ull_kernel(dev):
+    code = r"""
+    extern "C" __global__ void write_ull(unsigned long long *out, unsigned long long val) {
+        *out = val;
+    }
+    """
+    arch = "".join(f"{i}" for i in dev.compute_capability)
+    prog = Program(code, code_type="c++", options=ProgramOptions(std="c++17", arch=f"sm_{arch}"))
+    return prog.compile("cubin", name_expressions=("write_ull",)).get_kernel("write_ull")
+
+
+def _assert_kernel_sees_ull(dev, kernel_arg, expected):
+    mr = LegacyPinnedMemoryResource()
+    buf = mr.allocate(np.dtype(np.uint64).itemsize)
+    try:
+        arr = np.from_dlpack(buf).view(np.uint64)
+        arr[:] = 0
+        ker = _compile_write_ull_kernel(dev)
+        stream = dev.default_stream
+        launch(stream, LaunchConfig(grid=1, block=1), ker, arr.ctypes.data, kernel_arg)
+        stream.sync()
+        assert int(arr[0]) == int(expected)
+    finally:
+        buf.close()
+
+
+@pytest.mark.parametrize("use_subclass", [False, True], ids=["exact_type", "subclass_fallback"])
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_launch_graph_conditional_handle_as_kernel_arg(init_cuda, use_subclass):
+    """CUgraphConditionalHandle is packed as its uint64 value (readback)."""
+    from cuda.bindings import driver
+
+    if not hasattr(driver, "CUgraphConditionalHandle"):
+        pytest.skip("CUgraphConditionalHandle requires cuda-bindings 12.3+")
+
+    class SubclassedHandle(driver.CUgraphConditionalHandle):
+        pass
+
+    handle_cls = SubclassedHandle if use_subclass else driver.CUgraphConditionalHandle
+    handle = handle_cls(_UINT64_HANDLE_VALUE)
+
+    dev = Device()
+    dev.set_current()
+    _assert_kernel_sees_ull(dev, handle, _UINT64_HANDLE_VALUE)
