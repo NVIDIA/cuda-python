@@ -9,47 +9,9 @@ import sys
 
 import pyglet
 import pytest
+from cuda_python_test_helpers.graphics import is_gl_context_unavailable
 
 from cuda.bindings import runtime as cudart
-
-# pyglet raises these when GL context/window creation fails. Matched by type
-# name (not by class) because importing pyglet.gl / pyglet.window at
-# module top triggers pyglet's shadow-window creation, which fails on
-# headless machines before _configure_pyglet_headless() has set the
-# headless option. GLException is intentionally excluded: pyglet
-# raises it after any GL call that reports an error (GL_INVALID_ENUM,
-# etc.), so catching it would hide real bugs in our own GL
-# allocation code as "GL unavailable" skips.
-_GL_UNAVAILABLE_EXC_NAMES = frozenset(
-    {
-        "NoSuchDisplayException",
-        "NoSuchConfigException",
-        "NoSuchScreenModeException",
-        "WindowException",
-        "ContextException",
-    }
-)
-
-
-def _is_gl_unavailable(exc):
-    if type(exc).__module__.startswith("pyglet") and type(exc).__name__ in _GL_UNAVAILABLE_EXC_NAMES:
-        return True
-    # Windows CI runners may lack opengl32.dll; pyglet's WGL backend raises
-    # FileNotFoundError from ctypes.windll.opengl32. On newer Python
-    # (3.12+) ctypes.LibraryLoader catches that and re-raises
-    # AttributeError(dll_name). Match narrowly on the dll name so a
-    # different FileNotFoundError or AttributeError from our own code
-    # does not match.
-    if isinstance(exc, (FileNotFoundError, AttributeError)) and "opengl32" in str(exc):
-        return True
-    # Linux without libGL/libEGL: pyglet raises ImportError with these
-    # exact messages from pyglet/lib.py. Match them so a genuine GL
-    # setup is skipped, not failed; a different ImportError from our
-    # own code does not match.
-    return isinstance(exc, ImportError) and str(exc) in (
-        'Library "GL" not found.',
-        'Library "EGL" not found.',
-    )
 
 
 def _configure_pyglet_headless():
@@ -100,7 +62,7 @@ def _gl_context():
     try:
         win = _open_gl_window()
     except Exception as e:
-        if _is_gl_unavailable(e):
+        if is_gl_context_unavailable(e):
             pytest.skip(f"Could not create GL context: {type(e).__name__}: {e}")
         raise
 
