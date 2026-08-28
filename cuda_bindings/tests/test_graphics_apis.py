@@ -23,14 +23,22 @@ def _configure_pyglet_headless():
 
 
 def _open_gl_window():
-    """Open a hidden window (or configure EGL headless). Returns the window or None."""
+    """Open a hidden window (or configure EGL headless). Returns the window or None.
+
+    Closes the window if switch_to() fails so a partially-constructed window does not leak.
+    """
     if not pyglet.options.get("headless"):
         # Hidden window path (WGL on Windows, GLX/WLS on Linux)
         from pyglet import gl
 
         config = gl.Config(double_buffer=False)
         win = pyglet.window.Window(visible=False, config=config)
-        win.switch_to()
+        try:
+            win.switch_to()
+        except Exception:
+            with contextlib.suppress(Exception):
+                win.close()
+            raise
         return win
     else:
         # Headless EGL path; pyglet will arrange a pbuffer-like headless context
@@ -40,18 +48,28 @@ def _open_gl_window():
 
 
 def _allocate_gl_texture(win):
-    """Allocate a 2-D RGBA8 texture. Caller must have a current GL context."""
+    """Allocate a 2-D RGBA8 texture. Caller must have a current GL context.
+
+    Deletes the generated texture if a later GL call fails, so a partial
+    resource does not leak.
+    """
     from pyglet.gl import gl as _gl
 
     tex_id = _gl.GLuint(0)
-    _gl.glGenTextures(1, ctypes.byref(tex_id))
-    target = _gl.GL_TEXTURE_2D
-    _gl.glBindTexture(target, tex_id.value)
-    _gl.glTexParameteri(target, _gl.GL_TEXTURE_MIN_FILTER, _gl.GL_NEAREST)
-    _gl.glTexParameteri(target, _gl.GL_TEXTURE_MAG_FILTER, _gl.GL_NEAREST)
-    width, height = 16, 16
-    _gl.glTexImage2D(target, 0, _gl.GL_RGBA8, width, height, 0, _gl.GL_RGBA, _gl.GL_UNSIGNED_BYTE, None)
-    return tex_id, target
+    try:
+        _gl.glGenTextures(1, ctypes.byref(tex_id))
+        target = _gl.GL_TEXTURE_2D
+        _gl.glBindTexture(target, tex_id.value)
+        _gl.glTexParameteri(target, _gl.GL_TEXTURE_MIN_FILTER, _gl.GL_NEAREST)
+        _gl.glTexParameteri(target, _gl.GL_TEXTURE_MAG_FILTER, _gl.GL_NEAREST)
+        width, height = 16, 16
+        _gl.glTexImage2D(target, 0, _gl.GL_RGBA8, width, height, 0, _gl.GL_RGBA, _gl.GL_UNSIGNED_BYTE, None)
+        return tex_id, target
+    except Exception:
+        if tex_id.value:
+            with contextlib.suppress(Exception):
+                _gl.glDeleteTextures(1, ctypes.byref(tex_id))
+        raise
 
 
 @contextlib.contextmanager
@@ -66,23 +84,20 @@ def _gl_context():
             pytest.skip(f"Could not create GL context: {type(e).__name__}: {e}")
         raise
 
+    tex_id = None
     try:
         tex_id, target = _allocate_gl_texture(win)
         yield int(tex_id.value), int(target)
     finally:
-        # Best-effort cleanup
-        try:
-            from pyglet.gl import gl as _gl
+        if tex_id is not None:
+            with contextlib.suppress(Exception):
+                from pyglet.gl import gl as _gl
 
-            if tex_id.value:
-                _gl.glDeleteTextures(1, ctypes.byref(tex_id))
-        except Exception:  # noqa: S110
-            pass
-        try:
+                if tex_id.value:
+                    _gl.glDeleteTextures(1, ctypes.byref(tex_id))
+        with contextlib.suppress(Exception):
             if win is not None:
                 win.close()
-        except Exception:  # noqa: S110
-            pass
 
 
 @pytest.mark.parametrize(
