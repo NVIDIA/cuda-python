@@ -3,12 +3,9 @@
 
 # Include "param_packer.h" so its contents get compiled into every
 # Cython extension module that depends on param_packer.pxd. Each such module
-# therefore owns an independent copy of the header's static state and must call
-# init_param_packer() from its own module body.
+# owns a copy of the header statics and must call init_param_packer().
 cdef extern from "param_packer.h":
-    # `except +` translates a C++ throw (failed `import ctypes`, or an
-    # allocation failure while building the feeder table) into a Python
-    # exception. Without it Cython treats an extern cdef function as implicitly
-    # noexcept and generates no handler, so a throw would hit std::terminate.
+    # except +* so a C++ throw or pending ImportError become Python exceptions.
     void init_param_packer() except +*
+    # -1 is a feeder rejection; 0 means no feeder (ctypes fallback).
     int feed(void* ptr, object o, object ct) except -1
