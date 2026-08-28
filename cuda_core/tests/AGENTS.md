@@ -83,6 +83,11 @@ Follow these rules when adding or moving shared test code:
   `tests/helpers/` instead.
 - Import helpers explicitly from the test root, for example:
   `from helpers.memory import create_managed_memory_resource_or_skip`.
+- Search `tests/helpers/` and `cuda_python_test_helpers/` for prior art
+  before adding a new helper; consolidate duplicates across
+
+  packages into `cuda_python_test_helpers` (both `cuda_core` and
+  `cuda_bindings` test environments already depend on it).
 - Fixtures in a nested `conftest.py` are available to tests in its directory
   and descendants; fixtures from applicable parent `conftest.py` files remain
   available.
@@ -115,6 +120,19 @@ def _gl_context():
     finally:
         _cleanup(win, tex_id)
 ```
+
+The exception names in the example are illustrative — `GLContextError`
+is not a real pyglet class. Match real pyglet exception names by type, or
+use the shared `is_gl_context_unavailable` helper in
+`cuda_python_test_helpers.graphics`.
+
+`GLException` is pyglet's generic GL-error class, raised after any GL call that reports an error
+(`GL_INVALID_ENUM`, etc.). Do **not** include it in the "GL unavailable" set — it hides real bugs in GL allocation code as skips.
+
+Platform-specific "library not loadable" manifestations (genuine "GL unavailable"):
+
+- Linux without libGL/libEGL: `ImportError('Library "GL" not found.')` / `ImportError('Library "EGL" not found.')` from `pyglet/lib.py`.
+- Windows without opengl32.dll: `FileNotFoundError` from `ctypes.windll.opengl32`; on Python 3.12+ `ctypes.LibraryLoader` re-raises `AttributeError("opengl32")`.
 
 When a CUDA call's error means "feature refused by this driver" (e.g.
 `CUDA_ERROR_OPERATING_SYSTEM` for CUDA-GL interop on WSL), skip at the call
@@ -163,9 +181,56 @@ A genuine API-status failure (e.g. `nvfatbin.nvFatbinError` from a
 successfully loaded library) must propagate so a real bug is not hidden
 as "unavailable".
 
+For a probe that calls a CUDA API returning a `CUresult`, inspect the raw result and
+classify only the documented "not available" code as `False`; let
+other failures propagate so a real driver bug is not hidden as "unsupported":
+
+```python
+@functools.cache
+def supports_ipc_mempool(device_id):
+    from cuda.bindings import driver
+
+    handle_return(driver.cuInit(0))
+    dev_id = int(getattr(device_id, "device_id", device_id))
+    attr = driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMPOOL_SUPPORTED_HANDLE_TYPES
+    result, mask = driver.cuDeviceGetAttribute(attr, dev_id)
+    if result == driver.CUresult.CUDA_ERROR_NOT_SUPPORTED:
+        return False
+    handle_return((result, mask))  # raise CUDAError for other driver errors
+    posix_fd = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
+    return (int(mask) & int(posix_fd)) != 0
+```
+
 Do not catch `ImportError` for a hard runtime dependency (e.g.
 `cuda.bindings` for `cuda.core`) — that is a broken environment and should
 surface at collection time.
+
+## Clean up partial setup on failure
+
+If a setup step allocates a resource (GL object, window, file handle) and a later
+step fails, clean up the partial resource before re-raising so it does not
+leak. Wrap the allocation in `try/except` and delete the generated object in
+the `except` before re-raising:
+
+```python
+def _allocate_gl_buffer(win, nbytes):
+    from pyglet.gl import gl as _gl
+
+    buf_id = _gl.GLuint(0)
+    try:
+        _gl.glGenBuffers(1, ctypes.byref(buf_id))
+        _gl.glBindBuffer(_gl.GL_ARRAY_BUFFER, buf_id.value)
+        _gl.glBufferData(_gl.GL_ARRAY_BUFFER, nbytes, None, _gl.GL_DYNAMIC_DRAW)
+        return buf_id
+    except Exception:
+        if buf_id.value:
+            with contextlib.suppress(Exception):
+                _gl.glDeleteBuffers(1, ctypes.byref(buf_id))
+        raise
+```
+
+Initialize handles to `None` before the protected region so the `finally`
+cleanup does not `NameError` when allocation raises before returning a handle.
 
 ## Tests that touch CUDA must establish their own context
 
