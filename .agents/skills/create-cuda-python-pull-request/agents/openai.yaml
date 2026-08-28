@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+interface:
+  display_name: "Create CUDA Python PR"
+  short_description: "Open an explicitly requested CUDA Python pull request"
+  default_prompt: "Use $create-cuda-python-pull-request to create the CUDA Python pull request I explicitly requested."
+policy:
+  allow_implicit_invocation: true

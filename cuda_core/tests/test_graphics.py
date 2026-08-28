@@ -11,64 +11,112 @@ import sys
 from unittest.mock import patch
 
 import numpy as np
+import pyglet
 import pytest
 
 from cuda.core import (
     Buffer,
-    Device,
     GraphicsResource,
 )
+from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.utils import StridedMemoryView
 
 # TODO(seberg): Maybe some of these tests can be made threadable?
 pytestmark = pytest.mark.thread_unsafe(reason="OpenGL context not threadable")
 
 # ---------------------------------------------------------------------------
-# GL context + buffer helpers
+# GL context + buffer/texture helpers
 # ---------------------------------------------------------------------------
 
 
-@contextlib.contextmanager
-def _gl_context_and_buffer(nbytes=1024):
-    """
-    Create a hidden GL context and a GL buffer of *nbytes* bytes.
-    Yields ``(gl_buffer_name, nbytes)`` or skips if GL is unavailable.
-    """
-    pyglet = pytest.importorskip("pyglet")
+# cuGraphicsGLRegister{Buffer,Image} returns CUDA_ERROR_OPERATING_SYSTEM on
+# environments where the driver refuses CUDA-GL interop (e.g. WSL). Treat
+# that as an acceptable skip, mirroring cuda_bindings/tests/test_graphics_apis.py.
+def _register_gl_buffer(gl_buf, *, flags=None, stream=None):
+    try:
+        return GraphicsResource.from_gl_buffer(gl_buf, flags=flags, stream=stream)
+    except CUDAError as exc:
+        if "CUDA_ERROR_OPERATING_SYSTEM" in str(exc):
+            pytest.skip(f"CUDA-GL interop refused by driver: {exc}")
+        raise
 
+
+def _register_gl_image(tex_id, target):
+    try:
+        return GraphicsResource.from_gl_image(tex_id, target)
+    except CUDAError as exc:
+        if "CUDA_ERROR_OPERATING_SYSTEM" in str(exc):
+            pytest.skip(f"CUDA-GL interop refused by driver: {exc}")
+        raise
+
+
+def _configure_pyglet_headless(pyglet):
+    """On headless Linux: enable EGL mode or skip if EGL is absent."""
     if sys.platform.startswith("linux") and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
         if ctypes.util.find_library("EGL") is None:
             pytest.skip("No DISPLAY and no EGL runtime available for headless context.")
         pyglet.options["headless"] = True
 
-    win = None
-    buf_id = None
+
+def _open_gl_window(pyglet):
+    """Open a hidden window (or configure EGL headless). Returns the window or None."""
+    if not pyglet.options.get("headless"):
+        from pyglet import gl
+
+        config = gl.Config(double_buffer=False)
+        win = pyglet.window.Window(visible=False, config=config)
+        win.switch_to()
+        return win
+    else:
+        from pyglet.gl import headless  # noqa: F401
+
+        return None
+
+
+def _setup_gl_buffer(pyglet, nbytes):
+    """Open a GL context and allocate a buffer. Returns (win, buf_id)."""
+    win = _open_gl_window(pyglet)
+    from pyglet.gl import gl as _gl
+
+    buf_id = _gl.GLuint(0)
+    _gl.glGenBuffers(1, ctypes.byref(buf_id))
+    _gl.glBindBuffer(_gl.GL_ARRAY_BUFFER, buf_id.value)
+    _gl.glBufferData(_gl.GL_ARRAY_BUFFER, nbytes, None, _gl.GL_DYNAMIC_DRAW)
+    return win, buf_id
+
+
+def _setup_gl_texture(pyglet, width, height):
+    """Open a GL context and allocate a 2-D RGBA8 texture. Returns (win, tex_id, target)."""
+    win = _open_gl_window(pyglet)
+    from pyglet.gl import gl as _gl
+
+    tex_id = _gl.GLuint(0)
+    _gl.glGenTextures(1, ctypes.byref(tex_id))
+    target = _gl.GL_TEXTURE_2D
+    _gl.glBindTexture(target, tex_id.value)
+    _gl.glTexParameteri(target, _gl.GL_TEXTURE_MIN_FILTER, _gl.GL_NEAREST)
+    _gl.glTexParameteri(target, _gl.GL_TEXTURE_MAG_FILTER, _gl.GL_NEAREST)
+    _gl.glTexImage2D(target, 0, _gl.GL_RGBA8, width, height, 0, _gl.GL_RGBA, _gl.GL_UNSIGNED_BYTE, None)
+    return win, tex_id, target
+
+
+@contextlib.contextmanager
+def _gl_context_and_buffer(nbytes=1024):
+    """Yield ``(gl_buffer_name, nbytes)`` with a current GL context, or skip if GL is unavailable."""
+    _configure_pyglet_headless(pyglet)
+
     try:
-        if not pyglet.options.get("headless"):
-            from pyglet import gl
-
-            config = gl.Config(double_buffer=False)
-            win = pyglet.window.Window(visible=False, config=config)
-            win.switch_to()
-        else:
-            from pyglet.gl import headless  # noqa: F401
-
-        from pyglet.gl import gl as _gl
-
-        buf_id = _gl.GLuint(0)
-        _gl.glGenBuffers(1, ctypes.byref(buf_id))
-        _gl.glBindBuffer(_gl.GL_ARRAY_BUFFER, buf_id.value)
-        _gl.glBufferData(_gl.GL_ARRAY_BUFFER, nbytes, None, _gl.GL_DYNAMIC_DRAW)
-
-        yield int(buf_id.value), nbytes
-
+        win, buf_id = _setup_gl_buffer(pyglet, nbytes)
     except Exception as e:
         pytest.skip(f"Could not create GL context/buffer: {type(e).__name__}: {e}")
+
+    try:
+        yield int(buf_id.value), nbytes
     finally:
         try:
             from pyglet.gl import gl as _gl
 
-            if buf_id is not None and buf_id.value:
+            if buf_id.value:
                 _gl.glDeleteBuffers(1, ctypes.byref(buf_id))
         except Exception:  # noqa: S110
             pass
@@ -81,58 +129,21 @@ def _gl_context_and_buffer(nbytes=1024):
 
 @contextlib.contextmanager
 def _gl_context_and_texture(width=16, height=16):
-    """
-    Create a hidden GL context and a GL texture.
-    Yields ``(tex_id, tex_target)``.
-    """
-    pyglet = pytest.importorskip("pyglet")
+    """Yield ``(tex_id, tex_target)`` with a current GL context, or skip if GL is unavailable."""
+    _configure_pyglet_headless(pyglet)
 
-    if sys.platform.startswith("linux") and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
-        if ctypes.util.find_library("EGL") is None:
-            pytest.skip("No DISPLAY and no EGL runtime available for headless context.")
-        pyglet.options["headless"] = True
-
-    win = None
-    tex_id = None
     try:
-        if not pyglet.options.get("headless"):
-            from pyglet import gl
-
-            config = gl.Config(double_buffer=False)
-            win = pyglet.window.Window(visible=False, config=config)
-            win.switch_to()
-        else:
-            from pyglet.gl import headless  # noqa: F401
-
-        from pyglet.gl import gl as _gl
-
-        tex_id = _gl.GLuint(0)
-        _gl.glGenTextures(1, ctypes.byref(tex_id))
-        target = _gl.GL_TEXTURE_2D
-        _gl.glBindTexture(target, tex_id.value)
-        _gl.glTexParameteri(target, _gl.GL_TEXTURE_MIN_FILTER, _gl.GL_NEAREST)
-        _gl.glTexParameteri(target, _gl.GL_TEXTURE_MAG_FILTER, _gl.GL_NEAREST)
-        _gl.glTexImage2D(
-            target,
-            0,
-            _gl.GL_RGBA8,
-            width,
-            height,
-            0,
-            _gl.GL_RGBA,
-            _gl.GL_UNSIGNED_BYTE,
-            None,
-        )
-
-        yield int(tex_id.value), int(target)
-
+        win, tex_id, target = _setup_gl_texture(pyglet, width, height)
     except Exception as e:
         pytest.skip(f"Could not create GL context/texture: {type(e).__name__}: {e}")
+
+    try:
+        yield int(tex_id.value), int(target)
     finally:
         try:
             from pyglet.gl import gl as _gl
 
-            if tex_id is not None and tex_id.value:
+            if tex_id.value:
                 _gl.glDeleteTextures(1, ctypes.byref(tex_id))
         except Exception:  # noqa: S110
             pass
@@ -143,41 +154,36 @@ def _gl_context_and_texture(width=16, height=16):
             pass
 
 
-def _create_stream():
-    """Create a CUDA stream for testing."""
-    dev = Device(0)
-    dev.set_current()
-    return dev.create_stream()
-
-
 # ---------------------------------------------------------------------------
 # Register flags parsing tests
 # ---------------------------------------------------------------------------
 
 
-class TestRegisterFlags:
-    def test_parse_none(self):
-        from cuda.core._graphics import _parse_register_flags
+def test_parse_none():
+    from cuda.core._graphics import _parse_register_flags
 
-        assert _parse_register_flags(None) == 0
+    assert _parse_register_flags(None) == 0
 
-    def test_parse_single_string(self):
-        from cuda.core._graphics import _parse_register_flags
 
-        assert _parse_register_flags("read_only") == 1
-        assert _parse_register_flags("write_discard") == 2
+def test_parse_single_string():
+    from cuda.core._graphics import _parse_register_flags
 
-    def test_parse_combined_flags(self):
-        from cuda.core._graphics import _parse_register_flags
+    assert _parse_register_flags("read_only") == 1
+    assert _parse_register_flags("write_discard") == 2
 
-        result = _parse_register_flags(("surface_load_store", "read_only"))
-        assert result == 4 | 1
 
-    def test_parse_invalid_raises(self):
-        from cuda.core._graphics import _parse_register_flags
+def test_parse_combined_flags():
+    from cuda.core._graphics import _parse_register_flags
 
-        with pytest.raises(ValueError, match="Unknown register flag"):
-            _parse_register_flags("bogus")
+    result = _parse_register_flags(("surface_load_store", "read_only"))
+    assert result == 4 | 1
+
+
+def test_parse_invalid_raises():
+    from cuda.core._graphics import _parse_register_flags
+
+    with pytest.raises(ValueError, match="Unknown register flag"):
+        _parse_register_flags("bogus")
 
 
 # ---------------------------------------------------------------------------
@@ -185,10 +191,9 @@ class TestRegisterFlags:
 # ---------------------------------------------------------------------------
 
 
-class TestGraphicsResourceInit:
-    def test_direct_init_raises(self):
-        with pytest.raises(RuntimeError, match="cannot be instantiated directly"):
-            GraphicsResource()
+def test_direct_init_raises():
+    with pytest.raises(RuntimeError, match="cannot be instantiated directly"):
+        GraphicsResource()
 
 
 # ---------------------------------------------------------------------------
@@ -196,27 +201,31 @@ class TestGraphicsResourceInit:
 # ---------------------------------------------------------------------------
 
 
-class TestFromGLBuffer:
-    def test_register_default_flags(self):
-        with _gl_context_and_buffer() as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(gl_buf)
-            assert resource.handle != 0
-            assert resource.resource_handle == resource.handle
-            assert not isinstance(resource, Buffer)
-            assert not resource.is_mapped
-            resource.close()
+def test_register_default_flags(init_cuda):
+    with _gl_context_and_buffer() as (gl_buf, nbytes):
+        resource = _register_gl_buffer(gl_buf)
+        assert resource.handle != 0
+        assert resource.resource_handle == resource.handle
+        assert not isinstance(resource, Buffer)
+        assert not resource.is_mapped
+        resource.close()
 
-    def test_register_write_discard(self):
-        with _gl_context_and_buffer() as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            assert resource.handle != 0
-            resource.close()
 
-    def test_close_is_idempotent(self):
-        with _gl_context_and_buffer() as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(gl_buf)
-            resource.close()
-            resource.close()  # Should not raise
+def test_register_write_discard(init_cuda):
+    with _gl_context_and_buffer() as (gl_buf, nbytes):
+        resource = _register_gl_buffer(gl_buf, flags="write_discard")
+        assert resource.handle != 0
+        resource.close()
+
+
+def test_close_is_idempotent(init_cuda):
+    with _gl_context_and_buffer() as (gl_buf, nbytes):
+        resource = _register_gl_buffer(gl_buf)
+        assert not resource.is_closed
+        resource.close()
+        assert resource.is_closed
+        assert bool(resource) is True  # Preserve backward-compatible truthiness after close.
+        resource.close()  # Should not raise
 
 
 # ---------------------------------------------------------------------------
@@ -224,13 +233,12 @@ class TestFromGLBuffer:
 # ---------------------------------------------------------------------------
 
 
-class TestFromGLImage:
-    def test_register_image(self):
-        with _gl_context_and_texture() as (tex_id, target):
-            resource = GraphicsResource.from_gl_image(tex_id, target)
-            assert resource.handle != 0
-            assert not resource.is_mapped
-            resource.close()
+def test_register_image(init_cuda):
+    with _gl_context_and_texture() as (tex_id, target):
+        resource = _register_gl_image(tex_id, target)
+        assert resource.handle != 0
+        assert not resource.is_mapped
+        resource.close()
 
 
 # ---------------------------------------------------------------------------
@@ -238,116 +246,124 @@ class TestFromGLImage:
 # ---------------------------------------------------------------------------
 
 
-class TestMapUnmap:
-    def test_map_returns_buffer(self):
-        with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
-            stream = _create_stream()
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            mapped = resource.map(stream=stream)
+def test_map_returns_buffer(init_cuda):
+    with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
+        stream = init_cuda.create_stream()
+        resource = _register_gl_buffer(gl_buf, flags="write_discard")
+        mapped = resource.map(stream=stream)
+        assert resource.is_mapped
+        assert isinstance(mapped, Buffer)
+        assert mapped is not resource
+        assert mapped.size > 0
+        assert mapped.handle != 0
+        assert resource.handle != mapped.handle
+        resource.unmap(stream=stream)
+        assert mapped.handle == 0
+        assert not resource.is_mapped
+        resource.close()
+
+
+def test_context_manager_unmaps(init_cuda):
+    with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
+        stream = init_cuda.create_stream()
+        resource = _register_gl_buffer(gl_buf, flags="write_discard")
+        with resource.map(stream=stream) as buf:
+            assert isinstance(buf, Buffer)
             assert resource.is_mapped
-            assert isinstance(mapped, Buffer)
-            assert mapped is not resource
-            assert mapped.size > 0
-            assert mapped.handle != 0
-            assert resource.handle != mapped.handle
-            resource.unmap(stream=stream)
-            assert mapped.handle == 0
+            assert buf.size > 0
+            assert buf.handle != 0
+        assert buf.handle == 0
+        assert not resource.is_mapped
+        resource.close()
+
+
+def test_context_manager_unmaps_on_exception(init_cuda):
+    with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
+        stream = init_cuda.create_stream()
+        resource = _register_gl_buffer(gl_buf, flags="write_discard")
+        with pytest.raises(ValueError, match="test error"), resource.map(stream=stream) as _buf:
+            assert resource.is_mapped
+            raise ValueError("test error")
+        # Must be unmapped even after exception
+        assert not resource.is_mapped
+        resource.close()
+
+
+def test_strided_memory_view_from_mapped_buffer(init_cuda):
+    """End-to-end: register, map, create StridedMemoryView."""
+    nbytes = 256 * 4  # 256 float32 elements
+    with _gl_context_and_buffer(nbytes=nbytes) as (gl_buf, _):
+        stream = init_cuda.create_stream()
+        resource = _register_gl_buffer(gl_buf, flags="write_discard")
+        with resource.map(stream=stream) as buf:
+            view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.dtype(np.float32))
+            assert view.ptr == int(buf.handle)
+            assert view.shape == (256,)
+            assert view.is_device_accessible
+        resource.close()
+
+
+def test_from_gl_buffer_with_stream_context_manager(init_cuda):
+    """Register + auto-map via from_gl_buffer(stream=), then create StridedMemoryView."""
+    nbytes = 256 * 4  # 256 float32 elements
+    with _gl_context_and_buffer(nbytes=nbytes) as (gl_buf, _):
+        stream = init_cuda.create_stream()
+        with _register_gl_buffer(gl_buf, stream=stream) as buf:
+            assert isinstance(buf, Buffer)
+            assert buf.size == nbytes
+            view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.dtype(np.float32))
+            assert view.ptr == int(buf.handle)
+            assert view.shape == (256,)
+            assert view.is_device_accessible
+        assert buf.handle == 0
+        assert buf.size == 0
+
+
+def test_resource_context_manager_auto_closes(init_cuda):
+    with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
+        with _register_gl_buffer(gl_buf, flags="write_discard") as resource:
+            assert isinstance(resource, GraphicsResource)
+            assert resource.handle != 0
             assert not resource.is_mapped
+        assert resource.handle == 0
+
+
+def test_resource_context_manager_can_map_inside_scope(init_cuda):
+    with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
+        stream = init_cuda.create_stream()
+        with _register_gl_buffer(gl_buf, flags="write_discard").map(stream=stream) as buf:
+            assert isinstance(buf, Buffer)
+            assert buf.handle != 0
+
+
+def test_chained_map_context_manager_unmaps(init_cuda):
+    with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
+        stream = init_cuda.create_stream()
+        with _register_gl_buffer(gl_buf, flags="write_discard").map(stream=stream) as buf:
+            assert isinstance(buf, Buffer)
+            assert buf.handle != 0
+            assert buf.size > 0
+        assert buf.handle == 0
+        assert buf.size == 0
+
+
+def test_map_with_stream(init_cuda):
+    with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
+        stream = init_cuda.create_stream()
+        resource = _register_gl_buffer(gl_buf, flags="write_discard")
+        with resource.map(stream=stream) as buf:
+            assert buf.size > 0
+        resource.close()
+
+
+def test_map_requires_explicit_stream(init_cuda):
+    with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
+        resource = _register_gl_buffer(gl_buf, flags="write_discard")
+        try:
+            with pytest.raises(TypeError, match=r"keyword-only argument"):
+                resource.map()
+        finally:
             resource.close()
-
-    def test_context_manager_unmaps(self):
-        with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
-            stream = _create_stream()
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            with resource.map(stream=stream) as buf:
-                assert isinstance(buf, Buffer)
-                assert resource.is_mapped
-                assert buf.size > 0
-                assert buf.handle != 0
-            assert buf.handle == 0
-            assert not resource.is_mapped
-            resource.close()
-
-    def test_context_manager_unmaps_on_exception(self):
-        with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
-            stream = _create_stream()
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            with pytest.raises(ValueError, match="test error"), resource.map(stream=stream) as _buf:
-                assert resource.is_mapped
-                raise ValueError("test error")
-            # Must be unmapped even after exception
-            assert not resource.is_mapped
-            resource.close()
-
-    def test_strided_memory_view_from_mapped_buffer(self):
-        """End-to-end: register, map, create StridedMemoryView."""
-        nbytes = 256 * 4  # 256 float32 elements
-        with _gl_context_and_buffer(nbytes=nbytes) as (gl_buf, _):
-            stream = _create_stream()
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            with resource.map(stream=stream) as buf:
-                view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.float32)
-                assert view.ptr == int(buf.handle)
-                assert view.shape == (256,)
-                assert view.is_device_accessible
-            resource.close()
-
-    def test_from_gl_buffer_with_stream_context_manager(self):
-        """Register + auto-map via from_gl_buffer(stream=), then create StridedMemoryView."""
-        nbytes = 256 * 4  # 256 float32 elements
-        with _gl_context_and_buffer(nbytes=nbytes) as (gl_buf, _):
-            stream = _create_stream()
-            with GraphicsResource.from_gl_buffer(gl_buf, stream=stream) as buf:
-                assert isinstance(buf, Buffer)
-                assert buf.size == nbytes
-                view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.float32)
-                assert view.ptr == int(buf.handle)
-                assert view.shape == (256,)
-                assert view.is_device_accessible
-            assert buf.handle == 0
-            assert buf.size == 0
-
-    def test_resource_context_manager_auto_closes(self):
-        with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
-            with GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard") as resource:
-                assert isinstance(resource, GraphicsResource)
-                assert resource.handle != 0
-                assert not resource.is_mapped
-            assert resource.handle == 0
-
-    def test_resource_context_manager_can_map_inside_scope(self):
-        with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
-            stream = _create_stream()
-            with GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard").map(stream=stream) as buf:
-                assert isinstance(buf, Buffer)
-                assert buf.handle != 0
-
-    def test_chained_map_context_manager_unmaps(self):
-        with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
-            stream = _create_stream()
-            with GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard").map(stream=stream) as buf:
-                assert isinstance(buf, Buffer)
-                assert buf.handle != 0
-                assert buf.size > 0
-            assert buf.handle == 0
-            assert buf.size == 0
-
-    def test_map_with_stream(self):
-        with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
-            stream = _create_stream()
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            with resource.map(stream=stream) as buf:
-                assert buf.size > 0
-            resource.close()
-
-    def test_map_requires_explicit_stream(self):
-        with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            try:
-                with pytest.raises(TypeError, match=r"keyword-only argument"):
-                    resource.map()
-            finally:
-                resource.close()
 
 
 # ---------------------------------------------------------------------------
@@ -355,79 +371,89 @@ class TestMapUnmap:
 # ---------------------------------------------------------------------------
 
 
-class TestErrorHandling:
-    def test_double_map_raises(self):
-        with _gl_context_and_buffer() as (gl_buf, nbytes):
-            stream = _create_stream()
-            resource = GraphicsResource.from_gl_buffer(gl_buf)
+def test_double_map_raises(init_cuda):
+    with _gl_context_and_buffer() as (gl_buf, nbytes):
+        stream = init_cuda.create_stream()
+        resource = _register_gl_buffer(gl_buf)
+        resource.map(stream=stream)
+        with pytest.raises(RuntimeError, match="already mapped"):
             resource.map(stream=stream)
-            with pytest.raises(RuntimeError, match="already mapped"):
-                resource.map(stream=stream)
+        resource.unmap()
+        resource.close()
+
+
+def test_unmap_without_map_raises(init_cuda):
+    with _gl_context_and_buffer() as (gl_buf, nbytes):
+        resource = _register_gl_buffer(gl_buf)
+        with pytest.raises(RuntimeError, match="not mapped"):
             resource.unmap()
-            resource.close()
+        resource.close()
 
-    def test_unmap_without_map_raises(self):
-        with _gl_context_and_buffer() as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(gl_buf)
-            with pytest.raises(RuntimeError, match="not mapped"):
-                resource.unmap()
-            resource.close()
 
-    def test_map_after_close_raises(self):
-        with _gl_context_and_buffer() as (gl_buf, nbytes):
-            stream = _create_stream()
-            resource = GraphicsResource.from_gl_buffer(gl_buf)
-            resource.close()
-            with pytest.raises(RuntimeError, match="has been closed"):
-                resource.map(stream=stream)
+def test_map_after_close_raises(init_cuda):
+    with _gl_context_and_buffer() as (gl_buf, nbytes):
+        stream = init_cuda.create_stream()
+        resource = _register_gl_buffer(gl_buf)
+        resource.close()
+        with pytest.raises(RuntimeError, match="has been closed"):
+            resource.map(stream=stream)
 
-    def test_unmap_after_close_raises(self):
-        with _gl_context_and_buffer() as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(gl_buf)
-            resource.close()
-            with pytest.raises(RuntimeError, match="has been closed"):
-                resource.unmap()
 
-    def test_close_while_mapped(self):
-        """close() should unmap before unregistering."""
-        with _gl_context_and_buffer() as (gl_buf, nbytes):
-            stream = _create_stream()
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            buf = resource.map(stream=stream)
-            assert resource.is_mapped
-            resource.close()  # Should unmap + unregister without error
-            assert not resource.is_mapped
-            assert buf.handle == 0
+def test_unmap_after_close_raises(init_cuda):
+    with _gl_context_and_buffer() as (gl_buf, nbytes):
+        resource = _register_gl_buffer(gl_buf)
+        resource.close()
+        with pytest.raises(RuntimeError, match="has been closed"):
+            resource.unmap()
 
-    def test_close_while_mapped_passes_stream_override(self):
-        with _gl_context_and_buffer() as (gl_buf, _):
-            map_stream = _create_stream()
-            close_stream = _create_stream()
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            resource.map(stream=map_stream)
 
-            original_close = Buffer.close
+def test_close_while_mapped(init_cuda):
+    """close() should unmap before unregistering."""
+    with _gl_context_and_buffer() as (gl_buf, nbytes):
+        stream = init_cuda.create_stream()
+        resource = _register_gl_buffer(gl_buf, flags="write_discard")
+        buf = resource.map(stream=stream)
+        assert resource.is_mapped
+        resource.close()  # Should unmap + unregister without error
+        assert not resource.is_mapped
+        assert buf.handle == 0
 
-            def tracking_close(self, stream=None):
-                tracking_close.calls.append(stream)
-                return original_close(self, stream=stream)
 
-            tracking_close.calls = []
+@pytest.mark.xfail(
+    reason="Buffer is an immutable Cython type; patch.object and __class__ assignment both fail",
+    raises=TypeError,
+    strict=True,
+)
+def test_close_while_mapped_passes_stream_override(init_cuda):
+    with _gl_context_and_buffer() as (gl_buf, _):
+        map_stream = init_cuda.create_stream()
+        close_stream = init_cuda.create_stream()
+        resource = _register_gl_buffer(gl_buf, flags="write_discard")
+        resource.map(stream=map_stream)
 
-            with patch.object(Buffer, "close", new=tracking_close):
-                resource.close(stream=close_stream)
+        original_close = Buffer.close
 
-            assert tracking_close.calls == [close_stream]
-            assert not resource.is_mapped
+        def tracking_close(self, stream=None):
+            tracking_close.calls.append(stream)
+            return original_close(self, stream=stream)
 
-    def test_buffer_close_updates_resource_state(self):
-        with _gl_context_and_buffer() as (gl_buf, _):
-            stream = _create_stream()
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            buf = resource.map(stream=stream)
-            assert resource.is_mapped
-            buf.close()
-            assert not resource.is_mapped
+        tracking_close.calls = []
+
+        with patch.object(Buffer, "close", new=tracking_close):
+            resource.close(stream=close_stream)
+
+        assert tracking_close.calls == [close_stream]
+        assert not resource.is_mapped
+
+
+def test_buffer_close_updates_resource_state(init_cuda):
+    with _gl_context_and_buffer() as (gl_buf, _):
+        stream = init_cuda.create_stream()
+        resource = _register_gl_buffer(gl_buf, flags="write_discard")
+        buf = resource.map(stream=stream)
+        assert resource.is_mapped
+        buf.close()
+        assert not resource.is_mapped
 
 
 # ---------------------------------------------------------------------------
@@ -435,33 +461,35 @@ class TestErrorHandling:
 # ---------------------------------------------------------------------------
 
 
-class TestMisc:
-    def test_gc_cleanup(self):
-        """Creating and dropping a resource should not leak."""
-        with _gl_context_and_buffer() as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(gl_buf)
-            assert resource.handle != 0
-            del resource
-            gc.collect()
-            # If we get here without a CUDA error, cleanup succeeded.
+def test_gc_cleanup(init_cuda):
+    """Creating and dropping a resource should not leak."""
+    with _gl_context_and_buffer() as (gl_buf, nbytes):
+        resource = _register_gl_buffer(gl_buf)
+        assert resource.handle != 0
+        del resource
+        gc.collect()
+        # If we get here without a CUDA error, cleanup succeeded.
 
-    def test_repr(self):
-        with _gl_context_and_buffer() as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(gl_buf)
-            r = repr(resource)
-            assert "GraphicsResource" in r
-            assert "0x" in r
-            resource.close()
 
-    def test_repr_closed(self):
-        with _gl_context_and_buffer() as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(gl_buf)
-            resource.close()
-            r = repr(resource)
-            assert "closed" in r
+def test_repr(init_cuda):
+    with _gl_context_and_buffer() as (gl_buf, nbytes):
+        resource = _register_gl_buffer(gl_buf)
+        r = repr(resource)
+        assert "GraphicsResource" in r
+        assert "0x" in r
+        resource.close()
 
-    def test_graphics_resource_is_not_a_buffer(self):
-        with _gl_context_and_buffer() as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(gl_buf)
-            assert not isinstance(resource, Buffer)
-            resource.close()
+
+def test_repr_closed(init_cuda):
+    with _gl_context_and_buffer() as (gl_buf, nbytes):
+        resource = _register_gl_buffer(gl_buf)
+        resource.close()
+        r = repr(resource)
+        assert "closed" in r
+
+
+def test_graphics_resource_is_not_a_buffer(init_cuda):
+    with _gl_context_and_buffer() as (gl_buf, nbytes):
+        resource = _register_gl_buffer(gl_buf)
+        assert not isinstance(resource, Buffer)
+        resource.close()

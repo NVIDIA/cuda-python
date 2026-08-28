@@ -28,6 +28,9 @@ def get_cuda_native_handle(obj: Any) -> int:
     """
     obj_type = type(obj)
     try:
-        return _handle_getters[obj_type](obj)
+        getter = _handle_getters[obj_type]
     except KeyError:
         raise TypeError("Unknown type: " + str(obj_type)) from None
+    # Deliberately outside the try: a KeyError raised by the getter itself is a
+    # bug in that getter, not an unregistered type.
+    return getter(obj)

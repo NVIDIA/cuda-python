@@ -13,8 +13,8 @@ import time
 import weakref
 
 import pytest
-from conftest import xfail_on_graph_mempool_oom
 from helpers.graph_kernels import compile_common_kernels
+from helpers.memory import xfail_on_graph_mempool_oom
 from helpers.misc import try_create_condition
 
 from cuda_python_test_helpers import under_compute_sanitizer
@@ -685,6 +685,7 @@ def test_event_survives_graph_clone_and_execution(init_cuda):
 # =============================================================================
 
 
+@pytest.mark.thread_unsafe(reason="asserts cleanup on main thread")
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_user_object_cleanup_is_coalesced_on_python_thread(init_cuda):
     """More than 32 CUDA callbacks drain through one main-thread pending call."""
@@ -1412,6 +1413,7 @@ def test_memcpy_buffer_survives_close(init_cuda):
     assert list(out) == [0xCD] * 4
 
 
+@pytest.mark.thread_unsafe(reason="deferred cleanup on main thread which would wait")
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memcpy_buffer_allocations_released_after_graph_destroyed(init_cuda):
     """Destroying the graph frees both memcpy operand allocations.
@@ -1634,7 +1636,7 @@ def test_memcpy_mixed_buffer_and_raw_owner(init_cuda):
 
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memset_closed_buffer_rejected(init_cuda):
-    """Memset rejects a Buffer with no active allocation."""
+    """Memset rejects a closed Buffer."""
     _skip_if_no_mempool()
     dev = Device()
     mr = DeviceMemoryResource(dev)
@@ -1643,7 +1645,7 @@ def test_memset_closed_buffer_rejected(init_cuda):
     buf.close()
 
     g = GraphDefinition()
-    with pytest.raises(ValueError, match="dst Buffer has no active allocation"):
+    with pytest.raises(RuntimeError, match="Buffer has been closed"):
         g.memset(buf, 0xAB, 4)
 
 
@@ -1659,7 +1661,7 @@ def test_memset_closed_buffer_dst_owner_rejected(init_cuda):
     buf.close()
 
     g = GraphDefinition()
-    with pytest.raises(ValueError, match="dst_owner Buffer has no active allocation"):
+    with pytest.raises(RuntimeError, match="Buffer has been closed"):
         g.memset(dptr, 0xAB, 4, dst_owner=buf)
 
 
@@ -1675,7 +1677,7 @@ def test_memcpy_closed_buffer_src_owner_rejected(init_cuda):
     buf.close()
 
     g = GraphDefinition()
-    with pytest.raises(ValueError, match="src_owner Buffer has no active allocation"):
+    with pytest.raises(RuntimeError, match="Buffer has been closed"):
         g.memcpy(dptr, dptr, 4, src_owner=buf)
 
 

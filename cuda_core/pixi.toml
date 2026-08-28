@@ -16,9 +16,6 @@ cuda-version = ["12.*", "13.3.*"]
 cuda-core = { path = "." }
 ml_dtypes = "*"
 pytest = "*"
-
-[feature.test.pypi-dependencies]
-cuda-python-test-helpers = { path = "../cuda_python_test_helpers", editable = true }
 pytest-benchmark = "*"
 pytest-randomly = "*"
 pytest-repeat = "*"
@@ -27,6 +24,9 @@ cloudpickle = "*"
 docutils = "*"
 psutil = "*"
 pyglet = "*"
+
+[feature.test.pypi-dependencies]
+cuda-python-test-helpers = { path = "../cuda_python_test_helpers", editable = true }
 
 [feature.examples.dependencies]
 cuda-core = { path = "." }

@@ -3,20 +3,102 @@
 
 import ctypes
 
+import pytest
+
 from cuda.core import Buffer, Device, MemoryResource
+from cuda.core._stream import Stream_accept
 from cuda.core._utils.cuda_utils import driver, handle_return
 
-from . import libc
+from . import IS_WINDOWS, IS_WSL, libc
 
 __all__ = [
     "DummyDeviceMemoryResource",
     "DummyUnifiedMemoryResource",
     "PatternGen",
-    "TrackingMR",
+    "StubMemoryResource",
     "compare_buffer_to_constant",
     "compare_equal_buffers",
+    "make_instrumented_memory_resource",
     "make_scratch_buffer",
+    "thread_unsafe_on_windows",
 ]
+
+
+def thread_unsafe_on_windows(func):
+    # Tests that use these buffers and access the memory on the host are
+    # thread-unsafe on windows. On windows the GPU must be fully quiescent for host
+    # access to be safe and with threaded tests that would require a barrier.
+    if IS_WINDOWS or IS_WSL:
+        return pytest.mark.thread_unsafe(reason="windows host-access unsafe while GPU is working")
+    return func
+
+
+class StubMemoryResource(MemoryResource):
+    """Device-only memory resource for tests that supply a fake pointer."""
+
+    def __init__(self, device):
+        self.device = device
+
+    def allocate(self, size, *, stream=None):
+        raise NotImplementedError("StubMemoryResource does not allocate")
+
+    def deallocate(self, ptr, size, *, stream=None):
+        Stream_accept(stream)
+
+    @property
+    def is_device_accessible(self):
+        return True
+
+    @property
+    def is_host_accessible(self):
+        return False
+
+    @property
+    def device_id(self):
+        return self.device.device_id
+
+
+def make_instrumented_memory_resource(
+    backing=StubMemoryResource,
+    *,
+    record_streams=False,
+    track_active=False,
+    deallocate_error=None,
+):
+    """Return an instrumented backing subclass and its shared telemetry.
+
+    Only calls dispatched through the Python ``allocate`` and ``deallocate``
+    methods are observed. Some built-in memory resources free their buffers
+    directly in C++ instead (see issue #2615).
+    """
+    if not isinstance(backing, type) or not issubclass(backing, MemoryResource):
+        raise TypeError("backing must be a MemoryResource subclass")
+
+    telemetry = {"active": {}, "deallocations": []}
+
+    class InstrumentedMemoryResource(backing):
+        __slots__ = ()
+
+        if track_active:
+
+            def allocate(self, size, *, stream=None):
+                buffer = super().allocate(size, stream=stream)
+                telemetry["active"][int(buffer.handle)] = size
+                return buffer
+
+        if record_streams or track_active or deallocate_error is not None:
+
+            def deallocate(self, ptr, size, *, stream=None):
+                if record_streams:
+                    telemetry["deallocations"].append({"ptr": int(ptr), "size": size, "stream": stream})
+                if deallocate_error is not None:
+                    raise deallocate_error
+                super().deallocate(ptr, size, stream=stream)
+                if track_active:
+                    telemetry["active"].pop(int(ptr), None)
+
+    InstrumentedMemoryResource.__name__ = f"Instrumented{backing.__name__}"
+    return InstrumentedMemoryResource, telemetry
 
 
 class DummyDeviceMemoryResource(MemoryResource):
@@ -71,46 +153,13 @@ class DummyUnifiedMemoryResource(MemoryResource):
         return self.device
 
 
-class TrackingMR(MemoryResource):
-    """A MemoryResource that tracks active allocations via a dict.
-
-    Useful for verifying that deallocate is called at the expected time.
-    """
-
-    def __init__(self):
-        self.active = {}
-
-    # cuMemAlloc / cuMemFree are synchronous; stream is accepted for
-    # interface conformance but ignored.
-    def allocate(self, size, *, stream=None):
-        ptr = handle_return(driver.cuMemAlloc(size))
-        self.active[int(ptr)] = size
-        return Buffer.from_handle(ptr=ptr, size=size, mr=self)
-
-    def deallocate(self, ptr, size, *, stream=None):
-        handle_return(driver.cuMemFree(ptr))
-        del self.active[int(ptr)]
-
-    @property
-    def is_device_accessible(self):
-        return True
-
-    @property
-    def is_host_accessible(self):
-        return False
-
-    @property
-    def device_id(self):
-        return 0
-
-
 class PatternGen:
     """
     Provides methods to fill a target buffer with  known test patterns and
     verify the expected values.
 
-    If a stream is provided, operations are synchronized with respect to that
-    stream.  Otherwise, they are synchronized over the device.
+    Operations are submitted to the supplied stream. Verification synchronizes
+    that stream before comparing results on the host.
 
     The test pattern is either a fixed value or a cyclic pattern generated from
     an 8-bit seed.  Only one of `value` or `seed` should be supplied.
@@ -121,11 +170,10 @@ class PatternGen:
     buffer and then perform a comparison.
     """
 
-    def __init__(self, device, size, stream=None):
+    def __init__(self, device, size, *, stream):
         self.device = device
         self.size = size
-        self.stream = stream if stream is not None else device.create_stream()
-        self.sync_target = stream if stream is not None else device
+        self.stream = Stream_accept(stream)
         self.pattern_buffers = {}
 
     def fill_buffer(self, buffer, seed=None, value=None):
@@ -142,7 +190,7 @@ class PatternGen:
         pattern_buffer = self._get_pattern_buffer(seed, value)
         ptr_expected = self._ptr(pattern_buffer)
         scratch_buffer.copy_from(buffer, stream=self.stream)
-        self.sync_target.sync()
+        self.stream.sync()
         assert libc.memcmp(ptr_test, ptr_expected, self.size) == 0
 
     @staticmethod
