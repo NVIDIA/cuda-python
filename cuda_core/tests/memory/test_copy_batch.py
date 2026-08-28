@@ -212,6 +212,7 @@ class TestCopyBatchEquivalence:
 class TestCopyBatchStreamSemantics:
     """Where the batch sits in stream order, and what it cannot be part of."""
 
+    @pytest.mark.thread_unsafe(reason="shared copy_stream and buffers must not interleave")
     @pytest.mark.agent_authored(model="Claude Opus 5")
     def test_ordered_between_prior_and_later_stream_work(self, device_bufs, copy_stream):
         """The batch must observe prior stream work and precede later work.

@@ -369,7 +369,7 @@ def test_options_copy_from_data_correct(single_copy_device, single_copy_stream, 
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-def test_options_copy_to_rejected_under_graph_capture(single_copy_stream, pinned_mr):
+def test_options_copy_to_rejected_under_graph_capture(single_copy_device, pinned_mr):
     """copy_to with options raises TypeError when the stream is capturing,
     matching copy_batch. Use GraphNode.memcpy to build attributed copies
     into a graph instead; options=None keeps working under capture as it
@@ -378,57 +378,63 @@ def test_options_copy_to_rejected_under_graph_capture(single_copy_stream, pinned
     src = pinned_mr.allocate(SIZE)
     dst = pinned_mr.allocate(SIZE)
     opts = CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY)
+    stream = single_copy_device.create_stream()
 
-    gb = single_copy_stream.create_graph_builder().begin_building()
+    gb = stream.create_graph_builder().begin_building()
     try:
         with pytest.raises(TypeError, match="graph capture"):
             src.copy_to(dst, stream=gb, options=opts)
     finally:
         gb.end_building()
         gb.close()
+        stream.close()
 
     src.close()
     dst.close()
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-def test_options_copy_from_rejected_under_graph_capture(single_copy_stream, pinned_mr):
+def test_options_copy_from_rejected_under_graph_capture(single_copy_device, pinned_mr):
     """Same as the copy_to variant, exercising copy_from instead."""
     src = pinned_mr.allocate(SIZE)
     dst = pinned_mr.allocate(SIZE)
     opts = CopyOptions(src_access_order=MemcpySrcAccessOrder.STREAM)
+    stream = single_copy_device.create_stream()
 
-    gb = single_copy_stream.create_graph_builder().begin_building()
+    gb = stream.create_graph_builder().begin_building()
     try:
         with pytest.raises(TypeError, match="graph capture"):
             dst.copy_from(src, stream=gb, options=opts)
     finally:
         gb.end_building()
         gb.close()
+        stream.close()
 
     src.close()
     dst.close()
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-def test_options_none_copy_to_still_works_under_graph_capture(single_copy_stream, pinned_mr):
+def test_options_none_copy_to_still_works_under_graph_capture(single_copy_device, pinned_mr):
     """options=None never touches the attributes path, so copy_to keeps
     working under graph capture exactly as it did before options existed.
     """
     src = pinned_mr.allocate(SIZE)
     set_buffer(src, 0xBB)
     dst = pinned_mr.allocate(SIZE)
+    stream = single_copy_device.create_stream()
 
-    gb = single_copy_stream.create_graph_builder().begin_building()
+    gb = stream.create_graph_builder().begin_building()
     src.copy_to(dst, stream=gb)
     graph = gb.end_building().complete()
-    graph.launch(single_copy_stream)
-    single_copy_stream.sync()
+    graph.launch(stream)
+    stream.sync()
 
     assert compare_equal_buffers(src, dst)
 
     src.close()
     dst.close()
+    stream.close()
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 5")

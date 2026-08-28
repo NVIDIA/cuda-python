@@ -751,30 +751,31 @@ CLOSEABLE_TYPES = [
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-@pytest.mark.parametrize("fixture_name", CLOSEABLE_TYPES)
-def test_closeable_object_state_and_safe_inspection(fixture_name, request):
+@pytest.mark.thread_unsafe(reason="closes a fixture object shared between threads")
+@pytest.mark.parametrize("sample_object", CLOSEABLE_TYPES, indirect=True)
+def test_closeable_object_state_and_safe_inspection(sample_object):
     """Closing is idempotent, updates named state, and leaves inspection safe."""
-    obj = request.getfixturevalue(fixture_name)
-    assert not obj.is_closed
+    assert not sample_object.is_closed
 
-    obj.close()
-    assert obj.is_closed
-    assert bool(obj) is True  # Preserve backward-compatible truthiness after close.
-    repr(obj)
-    if hasattr(obj, "handle"):
-        _ = obj.handle
+    sample_object.close()
+    assert sample_object.is_closed
+    assert bool(sample_object) is True  # Preserve backward-compatible truthiness after close.
+    repr(sample_object)
+    if hasattr(sample_object, "handle"):
+        _ = sample_object.handle
 
-    obj.close()
-    assert obj.is_closed
+    sample_object.close()
+    assert sample_object.is_closed
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_graph_object_validity_uses_named_state(sample_graphdef):
+def test_graph_object_validity_uses_named_state(init_cuda):
     """Graph objects remain truthy when their named validity becomes false."""
-    assert sample_graphdef.is_valid
-    assert sample_graphdef._entry.is_valid
+    graph_def = GraphDefinition()
+    assert graph_def.is_valid
+    assert graph_def._entry.is_valid
 
-    node = sample_graphdef.empty()
+    node = graph_def.empty()
     assert node.is_valid
     node.destroy()
     assert not node.is_valid
