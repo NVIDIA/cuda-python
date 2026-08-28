@@ -87,6 +87,13 @@ This must happen *before* the release tag is cut. Removals are breaking
 changes, so they are only permitted at a major-version boundary per the
 [support policy](https://nvidia.github.io/cuda-python/cuda-core/latest/support.html).
 
+There may also be deprecated features in cuda-bindings that should be
+removed upon a specific cuda-core release.
+
+```console
+$ grep -rn 'deprecated:: cuda-core' cuda_bindings/cuda
+```
+
 ---
 
 ## Finalize the doc update, including release notes
