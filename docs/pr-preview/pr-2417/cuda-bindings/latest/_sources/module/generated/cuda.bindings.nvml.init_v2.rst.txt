@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.init\_v2
-===========================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: init_v2
