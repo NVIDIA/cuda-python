@@ -1344,15 +1344,15 @@ The following code snippet lets us validate each API call and raise exceptions i
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_cudaGetErrorEnum</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">driver</span><span class="o">.</span><span class="n">CUresult</span><span class="p">):</span>
         <span class="n">err</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">cuGetErrorName</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">name</span> <span class="k">if</span> <span class="n">err</span> <span class="o">==</span> <span class="n">driver</span><span class="o">.</span><span class="n">CUresult</span><span class="o">.</span><span class="n">CUDA_SUCCESS</span> <span class="k">else</span> <span class="s2">&quot;&lt;unknown&gt;&quot;</span>
+        <span class="k">return</span> <span class="n">name</span> <span class="k">if</span> <span class="n">err</span> <span class="o">==</span> <span class="n">driver</span><span class="o">.</span><span class="n">CUresult</span><span class="o">.</span><span class="n">CUDA_SUCCESS</span> <span class="k">else</span> <span class="s2">"&lt;unknown&gt;"</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcResult</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcGetErrorString</span><span class="p">(</span><span class="n">error</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Unknown error type: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">'Unknown error type: </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">checkCudaErrors</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;CUDA error code=</span><span class="si">{}</span><span class="s2">(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">_cudaGetErrorEnum</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"CUDA error code=</span><span class="si">{}</span><span class="s2">(</span><span class="si">{}</span><span class="s2">)"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">_cudaGetErrorEnum</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -1367,8 +1367,8 @@ string. The string is compiled later using NVRTC. This is the only part of CUDA
 Python that requires some understanding of CUDA C++. For more information, see
 <a class="reference external" href="https://developer.nvidia.com/blog/even-easier-introduction-cuda/">An Even Easier Introduction to
 CUDA</a>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">saxpy</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
-<span class="s2">extern &quot;C&quot; __global__</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">saxpy</span> <span class="o">=</span> <span class="s2">"""</span><span class="se">\</span>
+<span class="s2">extern "C" __global__</span>
 <span class="s2">void saxpy(float a, float *x, float *y, float *out, size_t n)</span>
 <span class="s2">{</span>
 <span class="s2"> size_t tid = blockIdx.x * blockDim.x + threadIdx.x;</span>
@@ -1376,7 +1376,7 @@ CUDA</a>.</p>
 <span class="s2">   out[tid] = a * x[tid] + y[tid];</span>
 <span class="s2"> }</span>
 <span class="s2">}</span>
-<span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">"""</span>
 </pre></div>
 </div>
 <p>Go ahead and compile the kernel into PTX. Remember that this is executed at runtime using NVRTC. There are three basic steps to NVRTC:</p>
@@ -1397,18 +1397,18 @@ the program is compiled to target our local compute capability architecture with
 <span class="c1"># Derive target architecture for device 0</span>
 <span class="n">major</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">CUdevice_attribute</span><span class="o">.</span><span class="n">CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR</span><span class="p">,</span> <span class="n">cuDevice</span><span class="p">))</span>
 <span class="n">minor</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">CUdevice_attribute</span><span class="o">.</span><span class="n">CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR</span><span class="p">,</span> <span class="n">cuDevice</span><span class="p">))</span>
-<span class="n">arch_arg</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--gpu-architecture=compute_</span><span class="si">{</span><span class="n">major</span><span class="si">}{</span><span class="n">minor</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+<span class="n">arch_arg</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">f</span><span class="s1">'--gpu-architecture=compute_</span><span class="si">{</span><span class="n">major</span><span class="si">}{</span><span class="n">minor</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'ascii'</span><span class="p">)</span>
 
 <span class="c1"># Create program</span>
-<span class="n">prog</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcCreateProgram</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">saxpy</span><span class="p">),</span> <span class="sa">b</span><span class="s2">&quot;saxpy.cu&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[]))</span>
+<span class="n">prog</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcCreateProgram</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">saxpy</span><span class="p">),</span> <span class="sa">b</span><span class="s2">"saxpy.cu"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[]))</span>
 
 <span class="c1"># Compile program</span>
-<span class="n">opts</span> <span class="o">=</span> <span class="p">[</span><span class="sa">b</span><span class="s2">&quot;--fmad=false&quot;</span><span class="p">,</span> <span class="n">arch_arg</span><span class="p">]</span>
+<span class="n">opts</span> <span class="o">=</span> <span class="p">[</span><span class="sa">b</span><span class="s2">"--fmad=false"</span><span class="p">,</span> <span class="n">arch_arg</span><span class="p">]</span>
 <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcCompileProgram</span><span class="p">(</span><span class="n">prog</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">opts</span><span class="p">))</span>
 
 <span class="c1"># Get PTX from compilation</span>
 <span class="n">ptxSize</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcGetPTXSize</span><span class="p">(</span><span class="n">prog</span><span class="p">))</span>
-<span class="n">ptx</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">ptxSize</span>
+<span class="n">ptx</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">" "</span> <span class="o">*</span> <span class="n">ptxSize</span>
 <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcGetPTX</span><span class="p">(</span><span class="n">prog</span><span class="p">,</span> <span class="n">ptx</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -1428,7 +1428,7 @@ After loading into the module, extract a specific kernel with
 <span class="n">ptx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ptx</span><span class="p">)</span>
 <span class="c1"># Note: Incompatible --gpu-architecture would be detected here</span>
 <span class="n">module</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuModuleLoadData</span><span class="p">(</span><span class="n">ptx</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
-<span class="n">kernel</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuModuleGetFunction</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;saxpy&quot;</span><span class="p">))</span>
+<span class="n">kernel</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuModuleGetFunction</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="sa">b</span><span class="s2">"saxpy"</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Next, get all your data prepared and transferred to the GPU. For increased
@@ -1520,7 +1520,7 @@ in the designated stream are finished:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assert values are same after running kernel</span>
 <span class="n">hZ</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">hX</span> <span class="o">+</span> <span class="n">hY</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">hOut</span><span class="p">,</span> <span class="n">hZ</span><span class="p">):</span>
-   <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error outside tolerance for host-device vectors&quot;</span><span class="p">)</span>
+   <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Error outside tolerance for host-device vectors"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Perform verification of the data to ensure correctness and finish the code with
@@ -1592,12 +1592,12 @@ maximize performance ({numref}``Figure 1``).</p>
 <h3>Using NumPy<a class="headerlink" href="#using-numpy" title="Link to this heading">#</a></h3>
 <p>NumPy <a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.html">Array objects</a> can be used to fulfill each of these conditions directly.</p>
 <p>Let’s use the following kernel definition as an example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernel_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernel_string</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">typedef struct {</span>
 <span class="s2">    int value;</span>
 <span class="s2">} testStruct;</span>
 
-<span class="s2">extern &quot;C&quot; __global__</span>
+<span class="s2">extern "C" __global__</span>
 <span class="s2">void testkernel(int i, int *pi,</span>
 <span class="s2">                float f, float *pf,</span>
 <span class="s2">                testStruct s, testStruct *ps)</span>
@@ -1606,7 +1606,7 @@ maximize performance ({numref}``Figure 1``).</p>
 <span class="s2">    *pf = f;</span>
 <span class="s2">    ps-&gt;value = s.value;</span>
 <span class="s2">}</span>
-<span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">"""</span>
 </pre></div>
 </div>
 <p>The first step is to create array objects with types corresponding to your kernel arguments. Primitive NumPy types have the following corresponding kernel types:</p>
@@ -1687,7 +1687,7 @@ maximize performance ({numref}``Figure 1``).</p>
 <p>Note how all three pointers are <code class="docutils literal notranslate"><span class="pre">np.intp</span></code> since the pointer values are always a representation of an address space.</p>
 <p>Putting it all together:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define a custom type</span>
-<span class="n">testStruct</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)],</span> <span class="n">align</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">testStruct</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([(</span><span class="s2">"value"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)],</span> <span class="n">align</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Allocate device memory</span>
 <span class="n">pInt</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span><span class="o">.</span><span class="n">itemsize</span><span class="p">))</span>
@@ -1737,7 +1737,7 @@ Furthermore, <a class="reference external" href="https://docs.python.org/3/libra
 <p>For this example the result becomes:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define a custom type</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">testStruct</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">Structure</span><span class="p">):</span>
-    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">)]</span>
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">"value"</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">)]</span>
 
 <span class="c1"># Allocate device memory</span>
 <span class="n">pInt</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">sizeof</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">)))</span>
@@ -1786,16 +1786,16 @@ Furthermore, <a class="reference external" href="https://docs.python.org/3/libra
 <h3>CUDA objects<a class="headerlink" href="#cuda-objects" title="Link to this heading">#</a></h3>
 <p>Certain CUDA kernels use native CUDA types as their parameters such as <code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code>. These types require special handling since they’re neither a primitive ctype nor a custom user type. Since <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> exposes each of them as Python classes, they each implement <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code> and <code class="docutils literal notranslate"><span class="pre">__int__()</span></code>. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#">Tips and Tricks</a>.</p>
 <p>For this example, lets use the <code class="docutils literal notranslate"><span class="pre">transformKernel</span></code> from
-<a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/240d6c45905179c771d1bbc8428547dacb775ce1/cuda_bindings/examples/0_Introduction/simple_cubemap_texture.py">simple_cubemap_texture.py</a>.
+<a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/ec849fa3fb6534af46b27235c4c144d3e1fae152/cuda_bindings/examples/0_Introduction/simple_cubemap_texture.py">simple_cubemap_texture.py</a>.
 The <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> page links to more samples covering textures, graphs,
 memory mapping, and multi-GPU workflows.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simpleCubemapTexture</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
-<span class="s2">extern &quot;C&quot;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simpleCubemapTexture</span> <span class="o">=</span> <span class="s2">"""</span><span class="se">\</span>
+<span class="s2">extern "C"</span>
 <span class="s2">__global__ void transformKernel(float *g_odata, int width, cudaTextureObject_t tex)</span>
 <span class="s2">{</span>
 <span class="s2">    ...</span>
 <span class="s2">}</span>
-<span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">"""</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="o">...</span>
