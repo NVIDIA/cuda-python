@@ -67,7 +67,9 @@ jobs:
   # ── PR guard: CPU-only build + import + placement smoke ──
   build-smoke:
     name: "build smoke (cu13, linux-64, CPU)"
-    if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
+    if: >-
+      github.repository_owner == 'nvidia' &&
+      (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
