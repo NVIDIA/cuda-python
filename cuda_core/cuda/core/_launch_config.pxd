@@ -16,7 +16,7 @@ cdef class LaunchConfig:
         public int shmem_size
         public bint is_cooperative
         public bint programmatic_stream_serialization
-        public object cluster_scheduling_policy_preference
+        public str cluster_scheduling_policy_preference
 
         vector[cydriver.CUlaunchAttribute] _attrs
         object __weakref__

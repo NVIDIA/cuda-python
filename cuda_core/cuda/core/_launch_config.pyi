@@ -2,8 +2,6 @@
 
 from typing import Any
 
-from cuda.core.typing import ClusterSchedulingPolicyType
-
 _LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative', 'programmatic_stream_serialization', 'cluster_scheduling_policy_preference')
 __all__ = ['LaunchConfig']
 
@@ -41,8 +39,9 @@ class LaunchConfig:
         Whether to allow programmatic stream serialization (PDL). When True,
         the kernel may overlap with a previous kernel in the same stream that
         signals completion via programmatic means.
-    cluster_scheduling_policy_preference : ClusterSchedulingPolicyType, optional
-        Cluster scheduling policy for the launch. When omitted, the driver uses
+    cluster_scheduling_policy_preference : str, optional
+        Cluster scheduling policy for the launch. One of ``"DEFAULT"``,
+        ``"SPREAD"``, or ``"LOAD_BALANCING"``. When omitted, the driver uses
         the kernel function's default policy.
     """
     grid: tuple[Any, ...]
@@ -51,9 +50,9 @@ class LaunchConfig:
     shmem_size: int
     is_cooperative: bool
     programmatic_stream_serialization: bool
-    cluster_scheduling_policy_preference: object
+    cluster_scheduling_policy_preference: str | None
 
-    def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False, programmatic_stream_serialization: bool=False, cluster_scheduling_policy_preference: ClusterSchedulingPolicyType | None=None) -> None:
+    def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False, programmatic_stream_serialization: bool=False, cluster_scheduling_policy_preference: str | None=None) -> None:
         """Initialize LaunchConfig with validation.
 
         Parameters
@@ -70,8 +69,9 @@ class LaunchConfig:
             Whether to launch as cooperative kernel (default: False)
         programmatic_stream_serialization : bool, optional
             Whether to allow programmatic stream serialization / PDL (default: False)
-        cluster_scheduling_policy_preference : ClusterSchedulingPolicyType, optional
-            Cluster scheduling policy for the launch (default: None)
+        cluster_scheduling_policy_preference : str, optional
+            Cluster scheduling policy for the launch: ``"DEFAULT"``,
+            ``"SPREAD"``, or ``"LOAD_BALANCING"`` (default: None)
         """
     def _identity(self) -> tuple[Any, ...]: ...
     def __repr__(self) -> str:

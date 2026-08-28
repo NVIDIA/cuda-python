@@ -26,7 +26,7 @@ from cuda.core import (
 )
 from cuda.core._memory._legacy import _SynchronousMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
-from cuda.core.typing import ClusterSchedulingPolicyType, ObjectCodeFormatType, SourceCodeType
+from cuda.core.typing import ObjectCodeFormatType, SourceCodeType
 
 
 def test_launch_config_init(init_cuda):
@@ -365,9 +365,9 @@ def test_to_native_launch_config_cluster_branch():
 
 
 _CLUSTER_SCHED_POLICIES = (
-    ClusterSchedulingPolicyType.DEFAULT,
-    ClusterSchedulingPolicyType.SPREAD,
-    ClusterSchedulingPolicyType.LOAD_BALANCING,
+    "DEFAULT",
+    "SPREAD",
+    "LOAD_BALANCING",
 )
 
 
@@ -395,7 +395,9 @@ def test_launch_config_cluster_scheduling_policy(monkeypatch):
         native = _to_native_launch_config(cfg)
         assert native.numAttrs == 1
         assert native.attrs[0].id == pref
-        assert int(native.attrs[0].value.clusterSchedulingPolicyPreference) == int(policy)
+        assert int(native.attrs[0].value.clusterSchedulingPolicyPreference) == int(
+            getattr(driver.CUclusterSchedulingPolicy, f"CU_CLUSTER_SCHEDULING_POLICY_{policy}")
+        )
         cfg.cluster_scheduling_policy_preference = None
         assert cfg.cluster_scheduling_policy_preference is None
 
@@ -404,13 +406,13 @@ def test_launch_config_cluster_scheduling_policy(monkeypatch):
         block=1,
         cluster_scheduling_policy_preference=driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD,
     )
-    assert cfg.cluster_scheduling_policy_preference == ClusterSchedulingPolicyType.SPREAD
+    assert cfg.cluster_scheduling_policy_preference == "SPREAD"
 
     cfg = LaunchConfig(
         grid=(2, 1, 1),
         block=32,
         cluster=(2, 1, 1),
-        cluster_scheduling_policy_preference=ClusterSchedulingPolicyType.SPREAD,
+        cluster_scheduling_policy_preference="SPREAD",
     )
     native = _to_native_launch_config(cfg)
     assert native.numAttrs == 2
@@ -424,7 +426,7 @@ def test_launch_config_cluster_scheduling_policy_rejected(monkeypatch):
     """Invalid values and pre-Hopper devices are rejected."""
     from cuda.core import _launch_config as _lc_mod
 
-    with pytest.raises(ValueError, match="not a valid ClusterSchedulingPolicyType"):
+    with pytest.raises(ValueError, match="not a valid cluster_scheduling_policy_preference"):
         LaunchConfig(grid=1, block=1, cluster_scheduling_policy_preference=999)
 
     class _FakeDev:
@@ -436,7 +438,7 @@ def test_launch_config_cluster_scheduling_policy_rejected(monkeypatch):
         LaunchConfig(
             grid=2,
             block=32,
-            cluster_scheduling_policy_preference=ClusterSchedulingPolicyType.SPREAD,
+            cluster_scheduling_policy_preference="SPREAD",
         )
     assert looked_up, "Device was not looked up via the module global; mock did not take effect"
 

@@ -13,7 +13,6 @@ from cuda.core._utils.cuda_utils import (
     driver,
 )
 from cuda.core._utils.validators import format_or_list
-from cuda.core.typing import ClusterSchedulingPolicyType
 
 _LAUNCH_CONFIG_ATTRS = (
     'grid',
@@ -25,19 +24,42 @@ _LAUNCH_CONFIG_ATTRS = (
     'cluster_scheduling_policy_preference',
 )
 
+_CLUSTER_SCHED_POLICY_NAMES = (
+    "DEFAULT",
+    "SPREAD",
+    "LOAD_BALANCING",
+)
+
+_CLUSTER_SCHED_POLICY_TO_DRIVER = {
+    "DEFAULT": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_DEFAULT,
+    "SPREAD": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD,
+    "LOAD_BALANCING": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING,
+}
+
+_DRIVER_TO_CLUSTER_SCHED_POLICY = {
+    int(value): name for name, value in _CLUSTER_SCHED_POLICY_TO_DRIVER.items()
+}
+
 
 def _validate_cluster_scheduling_policy_preference(value):
     if value is None:
         return None
-    if isinstance(value, ClusterSchedulingPolicyType):
+    if isinstance(value, str) and value in _CLUSTER_SCHED_POLICY_TO_DRIVER:
         return value
     try:
-        return ClusterSchedulingPolicyType(int(value))
+        name = _DRIVER_TO_CLUSTER_SCHED_POLICY.get(int(value))
     except (TypeError, ValueError):
-        valid = format_or_list(ClusterSchedulingPolicyType)
-        raise ValueError(
-            f"{value!r} is not a valid ClusterSchedulingPolicyType. Must be {valid}"
-        ) from None
+        name = None
+    if name is not None:
+        return name
+    valid = format_or_list(_CLUSTER_SCHED_POLICY_NAMES)
+    raise ValueError(
+        f"{value!r} is not a valid cluster_scheduling_policy_preference. Must be {valid}"
+    )
+
+
+def _cluster_sched_policy_to_driver(value):
+    return _CLUSTER_SCHED_POLICY_TO_DRIVER[value]
 
 __all__ = ['LaunchConfig']
 
@@ -76,8 +98,9 @@ cdef class LaunchConfig:
         Whether to allow programmatic stream serialization (PDL). When True,
         the kernel may overlap with a previous kernel in the same stream that
         signals completion via programmatic means.
-    cluster_scheduling_policy_preference : ClusterSchedulingPolicyType, optional
-        Cluster scheduling policy for the launch. When omitted, the driver uses
+    cluster_scheduling_policy_preference : str, optional
+        Cluster scheduling policy for the launch. One of ``"DEFAULT"``,
+        ``"SPREAD"``, or ``"LOAD_BALANCING"``. When omitted, the driver uses
         the kernel function's default policy.
     """
 
@@ -92,7 +115,7 @@ cdef class LaunchConfig:
         shmem_size: int | None = None,
         is_cooperative: bool = False,
         programmatic_stream_serialization: bool = False,
-        cluster_scheduling_policy_preference: ClusterSchedulingPolicyType | None = None,
+        cluster_scheduling_policy_preference: str | None = None,
     ) -> None:
         """Initialize LaunchConfig with validation.
 
@@ -110,8 +133,9 @@ cdef class LaunchConfig:
             Whether to launch as cooperative kernel (default: False)
         programmatic_stream_serialization : bool, optional
             Whether to allow programmatic stream serialization / PDL (default: False)
-        cluster_scheduling_policy_preference : ClusterSchedulingPolicyType, optional
-            Cluster scheduling policy for the launch (default: None)
+        cluster_scheduling_policy_preference : str, optional
+            Cluster scheduling policy for the launch: ``"DEFAULT"``,
+            ``"SPREAD"``, or ``"LOAD_BALANCING"`` (default: None)
         """
         # Convert and validate grid and block dimensions
         self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)
@@ -202,7 +226,9 @@ cdef class LaunchConfig:
 
         if self.cluster_scheduling_policy_preference is not None:
             attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
-            attr.value.clusterSchedulingPolicyPreference = int(self.cluster_scheduling_policy_preference)
+            attr.value.clusterSchedulingPolicyPreference = int(
+                _cluster_sched_policy_to_driver(self.cluster_scheduling_policy_preference)
+            )
             self._attrs.push_back(attr)
 
         drv_cfg.numAttrs = self._attrs.size()
@@ -270,8 +296,8 @@ cpdef object _to_native_launch_config(LaunchConfig config):
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
         # 13.0.2 setter reads .value; pass FastEnum, not a raw int.
-        attr.value.clusterSchedulingPolicyPreference = (
-            driver.CUclusterSchedulingPolicy(int(config.cluster_scheduling_policy_preference))
+        attr.value.clusterSchedulingPolicyPreference = _cluster_sched_policy_to_driver(
+            config.cluster_scheduling_policy_preference
         )
         attrs.append(attr)
 
