@@ -11,16 +11,10 @@ import sys
 import warnings
 
 import pytest
+from cuda_python_test_helpers.pep723 import has_package_requirements_or_skip
 
-from cuda.core import Device, ManagedMemoryResource, system
+from cuda.core import Device, ManagedMemoryResource
 from cuda.core._program import _can_load_generated_ptx
-
-try:
-    from cuda.bindings._test_helpers.pep723 import has_package_requirements_or_skip
-except ImportError:
-    # If the import fails, we define a dummy function that will cause all tests to be skipped.
-    def has_package_requirements_or_skip(example):
-        pytest.skip("PEP 723 test helper is not available")
 
 
 def has_compute_capability_9_or_higher() -> bool:
@@ -28,7 +22,7 @@ def has_compute_capability_9_or_higher() -> bool:
 
 
 def has_multiple_devices() -> bool:
-    return system.get_num_devices() >= 2
+    return len(Device.get_all_devices()) >= 2
 
 
 def has_display() -> bool:
@@ -82,6 +76,7 @@ def has_recent_memory_pool_support() -> bool:
 
 SYSTEM_REQUIREMENTS = {
     "memory_pool_resources.py": has_recent_memory_pool_support,
+    "batched_memcpy.py": has_recent_memory_pool_support,
     "gl_interop_plasma.py": has_display,
     "gl_interop_fluid.py": has_display,
     "gl_interop_mipmap_lod.py": has_display,

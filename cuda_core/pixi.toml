@@ -25,6 +25,9 @@ docutils = "*"
 psutil = "*"
 pyglet = "*"
 
+[feature.test.pypi-dependencies]
+cuda-python-test-helpers = { path = "../cuda_python_test_helpers", editable = true }
+
 [feature.examples.dependencies]
 cuda-core = { path = "." }
 cffi = "*"

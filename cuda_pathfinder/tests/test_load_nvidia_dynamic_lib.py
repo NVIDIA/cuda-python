@@ -3,15 +3,16 @@
 
 import os
 import platform
+from pathlib import Path
 
 import pytest
 from child_load_nvidia_dynamic_lib_helper import (
     build_child_process_failed_for_libname_message,
     run_load_nvidia_dynamic_lib_in_subprocess,
 )
+from conftest import skip_if_missing_libnvcudla_so
 from local_helpers import have_distribution
 
-from conftest import skip_if_missing_libnvcudla_so
 from cuda.pathfinder import DynamicLibNotAvailableError, DynamicLibUnknownError, load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib_module
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
@@ -85,7 +86,7 @@ def test_libname_dict_values_are_unique(dict_name):
 def test_supported_libnames_windows_libnames_requiring_os_add_dll_directory_consistency():
     assert not (
         set(supported_nvidia_libs.LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY)
-        - set(supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS)
+        - set(supported_nvidia_libs.SUPPORTED_WINDOWS_DLLS)
     )
 
 
@@ -159,4 +160,4 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
         abs_path = payload.abs_path
         assert abs_path is not None
         info_summary_append(f"abs_path={quote_for_shell(abs_path)}")
-        assert os.path.isfile(abs_path)  # double-check the abs_path
+        assert Path(abs_path).is_file()  # double-check the abs_path

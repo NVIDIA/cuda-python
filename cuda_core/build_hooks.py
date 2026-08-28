@@ -46,9 +46,9 @@ def _import_get_cuda_path_or_home():
             cuda = None
 
         for p in sys.path:
-            sp_cuda = os.path.join(p, "cuda")
-            if os.path.isdir(os.path.join(sp_cuda, "pathfinder")):
-                cuda.__path__ = list(cuda.__path__) + [sp_cuda]
+            sp_cuda = Path(p) / "cuda"
+            if (sp_cuda / "pathfinder").is_dir():
+                cuda.__path__ = list(cuda.__path__) + [str(sp_cuda)]
                 break
         else:
             raise ModuleNotFoundError(
@@ -57,6 +57,11 @@ def _import_get_cuda_path_or_home():
             )
         import cuda.pathfinder
 
+    pathfinder_dir = Path(cuda.pathfinder.__file__).parent
+    print(
+        f"Using cuda-pathfinder {cuda.pathfinder.__version__} from {pathfinder_dir}",
+        file=sys.stderr,
+    )
     return cuda.pathfinder.get_cuda_path_or_home
 
 
@@ -119,6 +124,55 @@ def _determine_cuda_major_version() -> str:
 # used later by setup()
 _extensions = None
 
+# Where per-configuration build artifacts live. Anchored to this file rather
+# than the cwd, since a project can be built from anywhere.
+_BUILD_DIR = Path(__file__).parent / "build"
+
+# Records the CUDA major of the last completed build, so setup.py can force
+# build_ext when it changes. Written by record_build_major().
+_BUILD_MAJOR_STAMP = _BUILD_DIR / ".build-cuda-major"
+
+force_build_ext = False
+
+
+def _check_build_major() -> str:
+    """Return the CUDA major to key build artifacts by, and set force_build_ext.
+
+    Cython's up-to-date check does not hash ``compile_time_env``, so generated
+    sources for one CUDA major would otherwise be reused for another. Keying
+    the generated-source directory fixes that, but not the compiled extension:
+    in an editable install it lands in the source tree under a name keyed by
+    the Python ABI tag alone, with nowhere to record the CUDA major. On a
+    cu12 -> cu13 -> cu12 round trip build_ext would find the older cu12
+    generated source next to the newer cu13 .so and skip the rebuild, so the
+    major is also stamped and build_ext forced whenever it changes.
+    """
+    global force_build_ext
+
+    cuda_major = _determine_cuda_major_version()
+    try:
+        previous = _BUILD_MAJOR_STAMP.read_text(encoding="utf-8").strip()
+    except FileNotFoundError:
+        previous = None
+
+    # A missing stamp means the last build's major is unknown, so force too.
+    # On a first build that costs nothing: there are no artifacts to reuse.
+    if previous != cuda_major:
+        print(f"CUDA major of last build: {previous} (building {cuda_major}); forcing a full rebuild")
+        force_build_ext = True
+
+    return cuda_major
+
+
+def record_build_major() -> None:
+    """Stamp the CUDA major of the build that just completed.
+
+    setup.py calls this after build_ext succeeds, so that a build which failed
+    partway through does not claim outputs it never produced.
+    """
+    _BUILD_MAJOR_STAMP.parent.mkdir(parents=True, exist_ok=True)
+    _BUILD_MAJOR_STAMP.write_text(_determine_cuda_major_version() + "\n", encoding="utf-8")
+
 
 def _build_cuda_core(debug=False):
     # Customizing the build hooks is needed because we must defer cythonization until cuda-bindings,
@@ -128,6 +182,9 @@ def _build_cuda_core(debug=False):
     # This function populates "_extensions".
     global _extensions
 
+    # Resolve CUDA first so the pathfinder import repairs PEP 517 namespace shadowing before importing bindings.
+    cuda_path = _get_cuda_path()
+
     # Add cuda-bindings to sys.path so Cython can find .pxd files
     # This is needed for editable installs where meta path finders don't work for Cython
     # We need to add the directory containing the 'cuda' package so Cython can resolve
@@ -136,6 +193,7 @@ def _build_cuda_core(debug=False):
         import cuda.bindings
 
         bindings_path = Path(cuda.bindings.__file__).parent  # .../cuda/bindings/
+        print(f"Using cuda-bindings {cuda.bindings.__version__} from {bindings_path}", file=sys.stderr)
         cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings/ (contains cuda/)
         if str(cuda_package_dir) not in sys.path:
             sys.path.insert(0, str(cuda_package_dir))
@@ -172,7 +230,7 @@ def _build_cuda_core(debug=False):
 
         return sources
 
-    all_include_dirs = [os.path.join(_get_cuda_path(), "include")]
+    all_include_dirs = [os.path.join(cuda_path, "include")]
     extra_compile_args = []
     extra_link_args = []
     extra_cythonize_kwargs = {}
@@ -210,8 +268,13 @@ def _build_cuda_core(debug=False):
         for mod in module_names()
     )
 
+    # Deliberately after the cuda.bindings import above: this re-enters
+    # _get_cuda_path() and reads cuda.h, which must not run before the
+    # pathfinder import has repaired PEP 517 namespace shadowing.
+    cuda_major = _check_build_major()
+
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
-    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(_determine_cuda_major_version())}
+    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(cuda_major)}
     compiler_directives = {"embedsignature": True, "warn.deprecated.IF": False, "freethreading_compatible": True}
     _CythonOptions.warning_errors = True
     if COMPILE_FOR_COVERAGE:
@@ -220,7 +283,10 @@ def _build_cuda_core(debug=False):
         ext_modules,
         verbose=True,
         language_level=3,
-        build_dir="." if COMPILE_FOR_COVERAGE else "build/cython",
+        # CUDA_PYTHON_COVERAGE deliberately generates in-tree so the sources can
+        # be packaged; every other build gets its own per-configuration cache,
+        # anchored alongside the stamp so both resolve the same from any cwd.
+        build_dir="." if COMPILE_FOR_COVERAGE else str(_BUILD_DIR / "cython" / f"cu{cuda_major}"),
         nthreads=nthreads,
         compiler_directives=compiler_directives,
         compile_time_env=compile_time_env,

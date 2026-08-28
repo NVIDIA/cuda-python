@@ -12,25 +12,33 @@ from libc.string cimport memset as c_memset
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._event cimport Event
+from cuda.core._event cimport Event, Event_check_open
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core._module cimport Kernel
-from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
+from cuda.core.graph._graph_definition cimport (
+    GraphCondition,
+    GraphDefinition,
+    GD_check_valid,
+)
 from cuda.core.graph._graph_node cimport (
     GraphNode,
+    GN_check_valid,
     _get_memcpy_memory_type,
+    _init_memcpy_params,
     _resolve_memcpy_operand,
 )
 from cuda.core._resource_handles cimport (
     EventHandle,
+    GraphExecHandle,
     GraphHandle,
     GraphNodeHandle,
     KernelHandle,
     OpaqueHandle,
     PreparedAttachment,
     PreparedChildGraphUpdate,
+    PreparedExecAttachment,
     as_cu,
     as_intptr,
     create_child_graph_handle,
@@ -38,10 +46,12 @@ from cuda.core._resource_handles cimport (
     create_kernel_handle_ref,
     graph_commit_attachment,
     graph_commit_child_graph_update,
+    graph_commit_exec_attachment,
     graph_get_attachment,
     graph_node_get_graph,
     graph_prepare_attachment,
     graph_prepare_child_graph_update,
+    graph_prepare_exec_attachment,
     make_opaque_py,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
@@ -62,6 +72,14 @@ __all__ = [
     'EmptyNode',
     'EventRecordNode',
     'EventWaitNode',
+    'ExecutableChildGraphNode',
+    'ExecutableEventRecordNode',
+    'ExecutableEventWaitNode',
+    'ExecutableGraphNode',
+    'ExecutableHostCallbackNode',
+    'ExecutableKernelNode',
+    'ExecutableMemcpyNode',
+    'ExecutableMemsetNode',
     'FreeNode',
     'HostCallbackNode',
     'IfElseNode',
@@ -99,10 +117,13 @@ cdef void _set_definition_node_params(
         OpaqueHandle owner0,
         OpaqueHandle owner1=OpaqueHandle(),
         cydriver.CUcontext update_ctx=NULL) except *:
-    _require_graph_node_update_support()
-
     cdef GraphHandle h_graph = graph_node_get_graph(h_node)
     cdef cydriver.CUgraphNode node = as_cu(h_node)
+    if as_cu(h_graph) == NULL:
+        raise RuntimeError("GraphDefinition is no longer valid")
+    if node == NULL:
+        raise RuntimeError("GraphNode has been destroyed")
+    _require_graph_node_update_support()
     cdef cydriver.CUcontext previous_ctx = NULL
     cdef bint restore_ctx = False
     cdef PreparedAttachment prepared
@@ -123,6 +144,69 @@ cdef void _set_definition_node_params(
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxSetCurrent(previous_ctx))
     HANDLE_RETURN(graph_commit_attachment(prepared, node))
+
+
+cdef void _set_executable_node_params(
+        const GraphExecHandle& h_exec,
+        const GraphNodeHandle& h_node,
+        cydriver.CUgraphNodeParams* params,
+        OpaqueHandle owner0=OpaqueHandle(),
+        OpaqueHandle owner1=OpaqueHandle()) except *:
+    _require_graph_node_update_support()
+
+    cdef cydriver.CUgraphExec graph_exec = as_cu(h_exec)
+    cdef cydriver.CUgraphNode node = as_cu(h_node)
+    if graph_exec == NULL:
+        raise RuntimeError("Graph has been closed")
+    if node == NULL:
+        raise RuntimeError("GraphNode has been destroyed")
+
+    cdef PreparedExecAttachment prepared
+    HANDLE_RETURN(graph_prepare_exec_attachment(
+        h_exec, owner0, owner1, &prepared))
+
+    cdef cydriver.CUresult status
+    with nogil:
+        status = cydriver.cuGraphExecNodeSetParams(
+            graph_exec, node, params)
+    if status == cydriver.CUDA_SUCCESS:
+        graph_commit_exec_attachment(prepared)
+    HANDLE_RETURN(status)
+
+
+cdef bint _get_executable_node_enabled(
+        const GraphExecHandle& h_exec,
+        const GraphNodeHandle& h_node) except *:
+    _require_graph_node_update_support()
+
+    cdef cydriver.CUgraphExec graph_exec = as_cu(h_exec)
+    cdef cydriver.CUgraphNode node = as_cu(h_node)
+    cdef unsigned int enabled
+    if graph_exec == NULL:
+        raise RuntimeError("Graph has been closed")
+    if node == NULL:
+        raise RuntimeError("GraphNode has been destroyed")
+    with nogil:
+        HANDLE_RETURN(cydriver.cuGraphNodeGetEnabled(
+            graph_exec, node, &enabled))
+    return enabled != 0
+
+
+cdef void _set_executable_node_enabled(
+        const GraphExecHandle& h_exec,
+        const GraphNodeHandle& h_node,
+        bint enabled) except *:
+    _require_graph_node_update_support()
+
+    cdef cydriver.CUgraphExec graph_exec = as_cu(h_exec)
+    cdef cydriver.CUgraphNode node = as_cu(h_node)
+    if graph_exec == NULL:
+        raise RuntimeError("Graph has been closed")
+    if node == NULL:
+        raise RuntimeError("GraphNode has been destroyed")
+    with nogil:
+        HANDLE_RETURN(cydriver.cuGraphNodeSetEnabled(
+            graph_exec, node, <unsigned int>enabled))
 
 
 cdef bint _check_node_get_params():
@@ -266,6 +350,7 @@ cdef class KernelNode(GraphNode):
             graph that retains it cannot be broken by Python's cyclic garbage
             collector. Use a weak reference to break such cycles.
         """
+        GN_check_valid(self)
         cdef LaunchConfig c_config
         cdef Kernel c_kernel
         cdef ParamHolder arg_holder
@@ -576,6 +661,7 @@ cdef class MemsetNode(GraphNode):
             collector. Use a weak reference to break such cycles.
         """
         cdef OpaqueHandle dst_attachment_owner
+        GN_check_valid(self)
         cdef GraphHandle h_graph
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
         cdef cydriver.CUcontext ctx = NULL
@@ -764,6 +850,7 @@ cdef class MemcpyNode(GraphNode):
         cdef cydriver.CUdeviceptr c_src = self._src
         cdef OpaqueHandle dst_attachment_owner
         cdef OpaqueHandle src_attachment_owner
+        GN_check_valid(self)
         cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
         cdef cydriver.CUcontext ctx = NULL
@@ -915,6 +1002,8 @@ cdef class ChildGraphNode(GraphNode):
 
         ``child`` must belong to an independent graph hierarchy.
         """
+        GN_check_valid(self)
+        GD_check_valid(child)
         cdef GraphHandle h_parent = graph_node_get_graph(self._h_node)
         cdef GraphHandle h_replacement
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
@@ -981,6 +1070,8 @@ cdef class EventRecordNode(GraphNode):
 
     def update(self, event: Event) -> None:
         """Replace the event recorded by this node."""
+        GN_check_valid(self)
+        Event_check_open(event)
         cdef OpaqueHandle event_owner = event._h_event
         cdef cydriver.CUgraphNodeParams params
 
@@ -1032,6 +1123,8 @@ cdef class EventWaitNode(GraphNode):
 
     def update(self, event: Event) -> None:
         """Replace the event waited on by this node."""
+        GN_check_valid(self)
+        Event_check_open(event)
         cdef OpaqueHandle event_owner = event._h_event
         cdef cydriver.CUgraphNodeParams params
 
@@ -1096,6 +1189,11 @@ cdef class HostCallbackNode(GraphNode):
     def update(self, fn, *, user_data=None) -> None:
         """Replace the callback and user-data binding for this node.
 
+        ``fn`` accepts the same forms as :meth:`~graph.GraphNode.callback`: a
+        Python callable, or a ctypes function pointer whose declared prototype
+        matches ``CUhostFn`` (``void (*)(void*)``). A mismatched ctypes
+        prototype raises ``TypeError``.
+
         .. warning::
 
             Callbacks must not call CUDA API functions. Doing so may
@@ -1106,6 +1204,7 @@ cdef class HostCallbackNode(GraphNode):
             retains it cannot be broken by Python's cyclic garbage collector.
             Use a weak reference to break such cycles.
         """
+        GN_check_valid(self)
         cdef cydriver.CUhostFn c_fn
         cdef void* c_user_data
         cdef OpaqueHandle fn_owner, data_owner
@@ -1285,3 +1384,305 @@ cdef class SwitchNode(ConditionalNode):
     def __repr__(self) -> str:
         return (f"<SwitchNode handle=0x{as_intptr(self._h_node):x}"
                 f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
+
+
+cdef class ExecutableGraphNode:
+    """A lightweight view pairing an executable graph with a source node.
+
+    Create executable-node views with ``graph[node]``. CUDA validates that the
+    node identifies a node in the executable graph when an operation is
+    performed.
+    """
+
+    def __init__(self):
+        raise RuntimeError(
+            "directly constructing an executable graph node is not supported")
+
+    def __repr__(self) -> str:
+        return (
+            f"<{type(self).__name__} graph=0x{as_intptr(self._h_graph_exec):x}"
+            f" node=0x{as_intptr(self._h_node):x}>"
+        )
+
+
+cdef class ExecutableKernelNode(ExecutableGraphNode):
+    """An executable kernel-node view."""
+
+    def update(
+        self,
+        *,
+        config: LaunchConfig,
+        kernel: Kernel,
+        args,
+    ) -> None:
+        """Replace all kernel launch parameters for future launches.
+
+        ``args`` must contain the complete argument sequence; use ``args=()``
+        for a no-argument kernel. Clustered and cooperative launch
+        configurations are not supported.
+        """
+        cdef LaunchConfig c_config = config
+        cdef Kernel c_kernel = kernel
+        cdef ParamHolder arg_holder
+        cdef object kernel_args
+        cdef OpaqueHandle kernel_owner = c_kernel._h_kernel
+        cdef OpaqueHandle args_owner
+        cdef cydriver.CUgraphNodeParams params
+
+        if c_config.cluster is not None or c_config.is_cooperative:
+            raise NotImplementedError(
+                "updating clustered or cooperative kernel nodes is not "
+                "supported")
+        arg_holder = ParamHolder(args)
+
+        c_memset(&params, 0, sizeof(params))
+        params.type = cydriver.CU_GRAPH_NODE_TYPE_KERNEL
+        params.kernel.kern = as_cu(c_kernel._h_kernel)
+        params.kernel.func = <cydriver.CUfunction>NULL
+        params.kernel.gridDimX = c_config.grid[0]
+        params.kernel.gridDimY = c_config.grid[1]
+        params.kernel.gridDimZ = c_config.grid[2]
+        params.kernel.blockDimX = c_config.block[0]
+        params.kernel.blockDimY = c_config.block[1]
+        params.kernel.blockDimZ = c_config.block[2]
+        params.kernel.sharedMemBytes = c_config.shmem_size
+        params.kernel.kernelParams = <void**><uintptr_t>arg_holder.ptr
+        params.kernel.extra = NULL
+        params.kernel.ctx = <cydriver.CUcontext>NULL
+
+        kernel_args = arg_holder.kernel_args
+        if kernel_args is not None:
+            args_owner = make_opaque_py(kernel_args)
+        _set_executable_node_params(
+            self._h_graph_exec, self._h_node, &params,
+            kernel_owner, args_owner)
+
+    @property
+    def is_enabled(self) -> bool:
+        """Whether this node is enabled in the executable graph."""
+        return _get_executable_node_enabled(
+            self._h_graph_exec, self._h_node)
+
+    def enable(self) -> None:
+        """Enable this node in the executable graph."""
+        _set_executable_node_enabled(
+            self._h_graph_exec, self._h_node, True)
+
+    def disable(self) -> None:
+        """Disable this node in the executable graph."""
+        _set_executable_node_enabled(
+            self._h_graph_exec, self._h_node, False)
+
+
+cdef class ExecutableMemsetNode(ExecutableGraphNode):
+    """An executable memset-node view."""
+
+    def update(
+        self,
+        *,
+        dst: Buffer | int,
+        value,
+        size_t width,
+        size_t height=1,
+        size_t pitch=0,
+    ) -> None:
+        """Replace all memset parameters for future launches."""
+        cdef cydriver.CUdeviceptr c_dst
+        cdef OpaqueHandle dst_owner = _resolve_memcpy_operand(
+            dst, None, "dst", &c_dst)
+        cdef unsigned int c_value
+        cdef unsigned int element_size
+        c_value, element_size = _parse_fill_value(value)
+
+        cdef cydriver.CUcontext ctx = NULL
+        cdef cydriver.CUgraphNodeParams params
+        with nogil:
+            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+
+        c_memset(&params, 0, sizeof(params))
+        params.type = cydriver.CU_GRAPH_NODE_TYPE_MEMSET
+        params.memset.dst = c_dst
+        params.memset.value = c_value
+        params.memset.elementSize = element_size
+        params.memset.width = width
+        params.memset.height = height
+        params.memset.pitch = pitch
+        params.memset.ctx = ctx
+        _set_executable_node_params(
+            self._h_graph_exec, self._h_node, &params, dst_owner)
+
+    @property
+    def is_enabled(self) -> bool:
+        """Whether this node is enabled in the executable graph."""
+        return _get_executable_node_enabled(
+            self._h_graph_exec, self._h_node)
+
+    def enable(self) -> None:
+        """Enable this node in the executable graph."""
+        _set_executable_node_enabled(
+            self._h_graph_exec, self._h_node, True)
+
+    def disable(self) -> None:
+        """Disable this node in the executable graph."""
+        _set_executable_node_enabled(
+            self._h_graph_exec, self._h_node, False)
+
+
+cdef class ExecutableMemcpyNode(ExecutableGraphNode):
+    """An executable memcpy-node view."""
+
+    def update(
+        self,
+        *,
+        dst: Buffer | int,
+        src: Buffer | int,
+        size_t size,
+    ) -> None:
+        """Replace all one-dimensional memcpy parameters for future launches."""
+        cdef cydriver.CUdeviceptr c_dst
+        cdef cydriver.CUdeviceptr c_src
+        cdef OpaqueHandle dst_owner = _resolve_memcpy_operand(
+            dst, None, "dst", &c_dst)
+        cdef OpaqueHandle src_owner = _resolve_memcpy_operand(
+            src, None, "src", &c_src)
+        cdef cydriver.CUmemorytype dst_type
+        cdef cydriver.CUmemorytype src_type
+        cdef cydriver.CUcontext ctx = NULL
+        cdef cydriver.CUgraphNodeParams params
+
+        c_memset(&params, 0, sizeof(params))
+        params.type = cydriver.CU_GRAPH_NODE_TYPE_MEMCPY
+        _init_memcpy_params(
+            c_dst, c_src, size, &params.memcpy.copyParams,
+            &dst_type, &src_type)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+        params.memcpy.copyCtx = ctx
+        _set_executable_node_params(
+            self._h_graph_exec, self._h_node, &params,
+            dst_owner, src_owner)
+
+    @property
+    def is_enabled(self) -> bool:
+        """Whether this node is enabled in the executable graph."""
+        return _get_executable_node_enabled(
+            self._h_graph_exec, self._h_node)
+
+    def enable(self) -> None:
+        """Enable this node in the executable graph."""
+        _set_executable_node_enabled(
+            self._h_graph_exec, self._h_node, True)
+
+    def disable(self) -> None:
+        """Disable this node in the executable graph."""
+        _set_executable_node_enabled(
+            self._h_graph_exec, self._h_node, False)
+
+
+cdef class ExecutableChildGraphNode(ExecutableGraphNode):
+    """An executable child-graph-node view."""
+
+    def update(self, child: GraphDefinition) -> None:
+        """Replace the embedded graph parameters for future launches."""
+        GD_check_valid(child)
+        cdef cydriver.CUgraphNodeParams params
+        c_memset(&params, 0, sizeof(params))
+        params.type = cydriver.CU_GRAPH_NODE_TYPE_GRAPH
+        params.graph.graph = as_cu(child._h_graph)
+        _set_executable_node_params(
+            self._h_graph_exec, self._h_node, &params)
+
+
+cdef class ExecutableEventRecordNode(ExecutableGraphNode):
+    """An executable event-record-node view."""
+
+    def update(self, event: Event) -> None:
+        """Replace the event recorded by future launches."""
+        Event_check_open(event)
+        cdef OpaqueHandle event_owner = event._h_event
+        cdef cydriver.CUgraphNodeParams params
+        c_memset(&params, 0, sizeof(params))
+        params.type = cydriver.CU_GRAPH_NODE_TYPE_EVENT_RECORD
+        params.eventRecord.event = as_cu(event._h_event)
+        _set_executable_node_params(
+            self._h_graph_exec, self._h_node, &params, event_owner)
+
+
+cdef class ExecutableEventWaitNode(ExecutableGraphNode):
+    """An executable event-wait-node view."""
+
+    def update(self, event: Event) -> None:
+        """Replace the event waited on by future launches."""
+        Event_check_open(event)
+        cdef OpaqueHandle event_owner = event._h_event
+        cdef cydriver.CUgraphNodeParams params
+        c_memset(&params, 0, sizeof(params))
+        params.type = cydriver.CU_GRAPH_NODE_TYPE_WAIT_EVENT
+        params.eventWait.event = as_cu(event._h_event)
+        _set_executable_node_params(
+            self._h_graph_exec, self._h_node, &params, event_owner)
+
+
+cdef class ExecutableHostCallbackNode(ExecutableGraphNode):
+    """An executable host-callback-node view."""
+
+    def update(self, fn, *, user_data=None) -> None:
+        """Replace the callback and user-data binding for future launches.
+
+        ``fn`` may be a Python callable, or a ctypes function pointer whose
+        declared prototype matches ``CUhostFn`` (``void (*)(void*)``); a
+        mismatched prototype raises ``TypeError``.
+
+        .. warning::
+
+            Callbacks must not call CUDA API functions. Doing so may deadlock
+            or corrupt driver state.
+        """
+        cdef cydriver.CUhostFn c_fn
+        cdef void* c_user_data
+        cdef OpaqueHandle fn_owner
+        cdef OpaqueHandle data_owner
+        cdef cydriver.CUgraphNodeParams params
+
+        _resolve_host_callback(
+            fn, user_data, &c_fn, &c_user_data, &fn_owner, &data_owner)
+        c_memset(&params, 0, sizeof(params))
+        params.type = cydriver.CU_GRAPH_NODE_TYPE_HOST
+        params.host.fn = c_fn
+        params.host.userData = c_user_data
+        _set_executable_node_params(
+            self._h_graph_exec, self._h_node, &params,
+            fn_owner, data_owner)
+
+
+cdef ExecutableGraphNode create_executable_node_view(
+        const GraphExecHandle& h_exec,
+        GraphNode node):
+    cdef type view_type
+    if isinstance(node, KernelNode):
+        view_type = ExecutableKernelNode
+    elif isinstance(node, MemsetNode):
+        view_type = ExecutableMemsetNode
+    elif isinstance(node, MemcpyNode):
+        view_type = ExecutableMemcpyNode
+    elif isinstance(node, ChildGraphNode):
+        view_type = ExecutableChildGraphNode
+    elif isinstance(node, EventRecordNode):
+        view_type = ExecutableEventRecordNode
+    elif isinstance(node, EventWaitNode):
+        view_type = ExecutableEventWaitNode
+    elif isinstance(node, HostCallbackNode):
+        view_type = ExecutableHostCallbackNode
+    else:
+        raise TypeError(
+            f"{type(node).__name__} does not support executable updates")
+
+    if as_cu(h_exec) == NULL:
+        raise ValueError("executable graph has been closed")
+    if as_cu(node._h_node) == NULL:
+        raise ValueError("source graph node is no longer valid")
+
+    cdef ExecutableGraphNode view = view_type.__new__(view_type)
+    view._h_graph_exec = h_exec
+    view._h_node = node._h_node
+    return view
