@@ -267,6 +267,19 @@ class TestGeneratedSourceDirIsKeyed:
         assert build_dir.parent.parent == build_hooks._BUILD_MAJOR_STAMP.parent
 
 
+class TestSetuptoolsSourcePaths:
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_absolute_sources_are_made_relative(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        generated = tmp_path / "build" / "cython" / "cu13" / "cuda" / "core" / "_device.cpp"
+        relative = "cuda/core/_cpp/helper.cpp"
+        extension = build_hooks.Extension("cuda.core._device", [str(generated), relative])
+
+        build_hooks._relativize_extension_sources([extension])
+
+        assert extension.sources == [os.path.relpath(generated, start=tmp_path), relative]
+
+
 def _load_setup_py(monkeypatch):
     """Import setup.py for its command classes.
 
