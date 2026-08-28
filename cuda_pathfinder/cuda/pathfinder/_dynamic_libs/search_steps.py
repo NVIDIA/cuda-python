@@ -59,7 +59,7 @@ class SearchContext:
 
     @property
     def lib_searched_for(self) -> str:
-        return cast(str, self.platform.lib_searched_for(self.libname))
+        return cast(str, self.platform.lib_searched_for(self.desc))
 
     def raise_not_found(self) -> NoReturn:
         err = ", ".join(self.error_messages)
@@ -102,7 +102,6 @@ def _find_using_lib_dir(ctx: SearchContext, lib_dir: str | None) -> str | None:
         ctx.platform.find_in_lib_dir(
             lib_dir,
             ctx.desc,
-            ctx.lib_searched_for,
             ctx.error_messages,
             ctx.attachments,
         ),
@@ -195,7 +194,6 @@ def find_in_site_packages(ctx: SearchContext) -> FindResult | None:
     abs_path = ctx.platform.find_in_site_packages(
         rel_dirs,
         ctx.desc,
-        ctx.lib_searched_for,
         ctx.error_messages,
         ctx.attachments,
     )

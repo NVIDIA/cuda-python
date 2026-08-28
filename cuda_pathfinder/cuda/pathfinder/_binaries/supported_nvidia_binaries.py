@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
 
-# Site-packages bin directories where binaries might be found
+# Site-packages bin directories where binaries might be found, in search order.
 # Based on NVIDIA wheel layouts (same for Linux and Windows)
 _CUDA_NVCC_BIN = os.path.join("nvidia", "cuda_nvcc", "bin")
 _CUDA13_BIN = os.path.join("nvidia", "cu13", "bin")
