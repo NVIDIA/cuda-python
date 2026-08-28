@@ -29,6 +29,30 @@ except ImportError as e:
 
 pytest_plugins = ["cuda_python_test_helpers._pytest_plugin"]
 
+
+class _BanBindingsTestHelpersShimFinder:
+    """Hard-fails any import of the deprecated ``cuda.bindings._test_helpers``
+    shim (added by #2731).
+
+    That shim exists solely so already-released cuda-core <=1.1.1 test trees
+    keep working against newer cuda-bindings wheels (see #2725); it is
+    scheduled for removal once cuda-core >= 1.2 is the oldest supported
+    release. This (current, in-repo) cuda-core test suite must always use
+    cuda_python_test_helpers directly and should never exercise that shim.
+    """
+
+    def find_spec(self, fullname, path, target=None):
+        if fullname == "cuda.bindings._test_helpers" or fullname.startswith("cuda.bindings._test_helpers."):
+            raise ImportError(
+                f"Refusing to import {fullname!r}: this is a deprecated compatibility shim "
+                "(see #2731/#2725) meant only for already-released cuda-core <=1.1.1 test "
+                "trees. This test suite must import from cuda_python_test_helpers directly."
+            )
+        return None
+
+
+sys.meta_path.insert(0, _BanBindingsTestHelpersShimFinder())
+
 from helpers.constants import POOL_SIZE
 from helpers.memory import skip_if_pinned_memory_unsupported
 
@@ -182,6 +206,21 @@ def session_setup():
 
     # Never fork processes.
     multiprocessing.set_start_method("spawn", force=True)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _forbid_bindings_test_helpers_shim():
+    # Belt-and-suspenders alongside _BanBindingsTestHelpersShimFinder above:
+    # independently re-check at session end that nothing slipped the
+    # deprecated cuda.bindings._test_helpers shim into sys.modules, in case
+    # the meta path finder is ever bypassed, disabled, or removed by mistake.
+    yield
+    banned = [
+        name
+        for name in sys.modules
+        if name == "cuda.bindings._test_helpers" or name.startswith("cuda.bindings._test_helpers.")
+    ]
+    assert not banned, f"deprecated cuda.bindings._test_helpers shim was imported (see #2731): {banned}"
 
 
 @pytest.fixture
