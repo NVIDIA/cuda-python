@@ -143,16 +143,25 @@ available", and split the checks so each catch is narrow:
 
 ```python
 def _is_nvfatbin_available():
+    from cuda.bindings._internal.utils import FunctionNotFoundError
+    from cuda.pathfinder import DynamicLibNotFoundError
+
     try:
         from cuda.bindings import nvfatbin
     except ImportError:
         return False
     try:
         nvfatbin.version()
-    except nvfatbin.nvFatbinError:
+    except (DynamicLibNotFoundError, FunctionNotFoundError):
+        # libnvfatbin not loadable, or nvFatbinVersion symbol missing.
         return False
     return True
 ```
+
+Catch only the exceptions that mean "not installed / not loadable".
+A genuine API-status failure (e.g. `nvfatbin.nvFatbinError` from a
+successfully loaded library) must propagate so a real bug is not hidden
+as "unavailable".
 
 Do not catch `ImportError` for a hard runtime dependency (e.g.
 `cuda.bindings` for `cuda.core`) — that is a broken environment and should
