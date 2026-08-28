@@ -364,17 +364,16 @@ def test_to_native_launch_config_cluster_branch():
     assert (attr.value.clusterDim.x, attr.value.clusterDim.y, attr.value.clusterDim.z) == (2, 2, 2)
 
 
-@pytest.mark.parametrize(
-    "policy",
-    [
-        ClusterSchedulingPolicyType.DEFAULT,
-        ClusterSchedulingPolicyType.SPREAD,
-        ClusterSchedulingPolicyType.LOAD_BALANCING,
-    ],
+_CLUSTER_SCHED_POLICIES = (
+    ClusterSchedulingPolicyType.DEFAULT,
+    ClusterSchedulingPolicyType.SPREAD,
+    ClusterSchedulingPolicyType.LOAD_BALANCING,
 )
-@pytest.mark.agent_authored(model="composer-2.5-fast")
-def test_to_native_launch_config_cluster_scheduling_policy(monkeypatch, policy):
-    """LaunchConfig(cluster_scheduling_policy_preference=...) maps to the native attribute."""
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_launch_config_cluster_scheduling_policy(monkeypatch):
+    """Ctor, getter/setter, driver enum, and native attrs for all policies."""
     from cuda.bindings import driver
     from cuda.core import _launch_config as _lc_mod
     from cuda.core._launch_config import _to_native_launch_config
@@ -383,65 +382,56 @@ def test_to_native_launch_config_cluster_scheduling_policy(monkeypatch, policy):
         compute_capability = (9, 0)
 
     monkeypatch.setattr(_lc_mod, "Device", lambda: _FakeDev())
+    pref = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
 
-    config = LaunchConfig(
-        grid=2,
-        block=4,
-        cluster_scheduling_policy_preference=policy,
-    )
-    native = _to_native_launch_config(config)
-    assert native.numAttrs == 1
-    attr = native.attrs[0]
-    assert attr.id == driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE, (
-        f"Expected CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE, got {attr.id}"
-    )
-    assert int(attr.value.clusterSchedulingPolicyPreference) == int(policy), (
-        f"Expected clusterSchedulingPolicyPreference={int(policy)!r}, "
-        f"got {int(attr.value.clusterSchedulingPolicyPreference)!r}"
-    )
+    for policy in _CLUSTER_SCHED_POLICIES:
+        cfg = LaunchConfig(grid=1, block=1)
+        assert cfg.cluster_scheduling_policy_preference is None
+        cfg.cluster_scheduling_policy_preference = policy
+        assert cfg.cluster_scheduling_policy_preference is policy
 
+        cfg = LaunchConfig(grid=2, block=4, cluster_scheduling_policy_preference=policy)
+        assert cfg.cluster_scheduling_policy_preference is policy
+        native = _to_native_launch_config(cfg)
+        assert native.numAttrs == 1
+        assert native.attrs[0].id == pref
+        assert int(native.attrs[0].value.clusterSchedulingPolicyPreference) == int(policy)
+        cfg.cluster_scheduling_policy_preference = None
+        assert cfg.cluster_scheduling_policy_preference is None
 
-@pytest.mark.agent_authored(model="composer-2.5-fast")
-def test_to_native_launch_config_cluster_scheduling_policy_accepts_driver_enum(monkeypatch):
-    """LaunchConfig accepts cuda.bindings.driver.CUclusterSchedulingPolicy values."""
-    from cuda.bindings import driver
-    from cuda.core import _launch_config as _lc_mod
-    from cuda.core._launch_config import _to_native_launch_config
-
-    class _FakeDev:
-        compute_capability = (9, 0)
-
-    monkeypatch.setattr(_lc_mod, "Device", lambda: _FakeDev())
-
-    config = LaunchConfig(
+    cfg = LaunchConfig(
         grid=1,
         block=1,
         cluster_scheduling_policy_preference=driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD,
     )
-    assert config.cluster_scheduling_policy_preference == ClusterSchedulingPolicyType.SPREAD
-    native = _to_native_launch_config(config)
-    assert native.numAttrs == 1
-    assert int(native.attrs[0].value.clusterSchedulingPolicyPreference) == int(ClusterSchedulingPolicyType.SPREAD)
+    assert cfg.cluster_scheduling_policy_preference == ClusterSchedulingPolicyType.SPREAD
+
+    cfg = LaunchConfig(
+        grid=(2, 1, 1),
+        block=32,
+        cluster=(2, 1, 1),
+        cluster_scheduling_policy_preference=ClusterSchedulingPolicyType.SPREAD,
+    )
+    native = _to_native_launch_config(cfg)
+    assert native.numAttrs == 2
+    attr_ids = {attr.id for attr in native.attrs}
+    assert driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION in attr_ids
+    assert pref in attr_ids
 
 
-@pytest.mark.agent_authored(model="composer-2.5-fast")
-def test_launch_config_cluster_scheduling_policy_invalid():
-    """LaunchConfig rejects invalid cluster scheduling policy values."""
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_launch_config_cluster_scheduling_policy_rejected(monkeypatch):
+    """Invalid values and pre-Hopper devices are rejected."""
+    from cuda.core import _launch_config as _lc_mod
+
     with pytest.raises(ValueError, match="not a valid ClusterSchedulingPolicyType"):
         LaunchConfig(grid=1, block=1, cluster_scheduling_policy_preference=999)
-
-
-@pytest.mark.agent_authored(model="composer-2.5-fast")
-def test_launch_config_cluster_scheduling_policy_rejects_pre_hopper_cc(monkeypatch):
-    """LaunchConfig(cluster_scheduling_policy_preference=...) raises on CC < 9.0."""
-    from cuda.core import _launch_config as _lc_mod
 
     class _FakeDev:
         compute_capability = (8, 6)
 
     looked_up = []
     monkeypatch.setattr(_lc_mod, "Device", lambda: looked_up.append(1) or _FakeDev())
-
     with pytest.raises(CUDAError, match="cluster launch attributes are not supported"):
         LaunchConfig(
             grid=2,
@@ -451,87 +441,27 @@ def test_launch_config_cluster_scheduling_policy_rejects_pre_hopper_cc(monkeypat
     assert looked_up, "Device was not looked up via the module global; mock did not take effect"
 
 
-@pytest.mark.agent_authored(model="composer-2.5-fast")
-def test_to_native_launch_config_cluster_and_policy(monkeypatch):
-    """Cluster dimension and scheduling policy produce two launch attributes."""
-    from cuda.bindings import driver
-    from cuda.core import _launch_config as _lc_mod
-    from cuda.core._launch_config import _to_native_launch_config
-
-    class _FakeDev:
-        compute_capability = (9, 0)
-
-    monkeypatch.setattr(_lc_mod, "Device", lambda: _FakeDev())
-
-    config = LaunchConfig(
-        grid=(2, 1, 1),
-        block=32,
-        cluster=(2, 1, 1),
-        cluster_scheduling_policy_preference=ClusterSchedulingPolicyType.SPREAD,
-    )
-    native = _to_native_launch_config(config)
-    assert native.numAttrs == 2
-    attr_ids = {attr.id for attr in native.attrs}
-    assert driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION in attr_ids
-    assert driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE in attr_ids
-
-
-@pytest.mark.parametrize(
-    "policy",
-    [
-        ClusterSchedulingPolicyType.DEFAULT,
-        ClusterSchedulingPolicyType.SPREAD,
-        ClusterSchedulingPolicyType.LOAD_BALANCING,
-    ],
-)
 @pytest.mark.agent_authored(model="cursor-grok-4.6")
-def test_launch_config_cluster_scheduling_policy_getter_setter(monkeypatch, policy):
-    """Getter/setter round-trip for each cluster scheduling policy."""
-    from cuda.core import _launch_config as _lc_mod
-
-    class _FakeDev:
-        compute_capability = (9, 0)
-
-    monkeypatch.setattr(_lc_mod, "Device", lambda: _FakeDev())
-
-    cfg = LaunchConfig(grid=1, block=1)
-    assert cfg.cluster_scheduling_policy_preference is None
-    cfg.cluster_scheduling_policy_preference = policy
-    assert cfg.cluster_scheduling_policy_preference is policy
-
-    cfg2 = LaunchConfig(grid=1, block=1, cluster_scheduling_policy_preference=policy)
-    assert cfg2.cluster_scheduling_policy_preference is policy
-    cfg2.cluster_scheduling_policy_preference = None
-    assert cfg2.cluster_scheduling_policy_preference is None
-
-
-@pytest.mark.parametrize(
-    "policy",
-    [
-        ClusterSchedulingPolicyType.DEFAULT,
-        ClusterSchedulingPolicyType.SPREAD,
-        ClusterSchedulingPolicyType.LOAD_BALANCING,
-    ],
-)
-@pytest.mark.agent_authored(model="cursor-grok-4.6")
-def test_launch_cluster_scheduling_policy_smoke(init_cuda, policy):
-    """Application code runs through launch() for each policy on Hopper+."""
+def test_launch_cluster_scheduling_policy_smoke(init_cuda):
+    """launch() accepts each policy on Hopper+ (skip on CC < 9.0)."""
     dev = Device()
     if dev.compute_capability < (9, 0):
         pytest.skip("Cluster scheduling policy requires compute capability >= 9.0")
 
     prog = Program('extern "C" __global__ void noop() {}', SourceCodeType.CXX)
-    mod = prog.compile(ObjectCodeFormatType.CUBIN)
-    kernel = mod.get_kernel("noop")
+    kernel = prog.compile(ObjectCodeFormatType.CUBIN).get_kernel("noop")
     stream = dev.default_stream
-
-    launch_config = LaunchConfig(
-        grid=1,
-        block=32,
-        cluster=(2, 1, 1),
-        cluster_scheduling_policy_preference=policy,
-    )
-    launch(stream, launch_config, kernel)
+    for policy in _CLUSTER_SCHED_POLICIES:
+        launch(
+            stream,
+            LaunchConfig(
+                grid=1,
+                block=32,
+                cluster=(2, 1, 1),
+                cluster_scheduling_policy_preference=policy,
+            ),
+            kernel,
+        )
     stream.sync()
 
 
