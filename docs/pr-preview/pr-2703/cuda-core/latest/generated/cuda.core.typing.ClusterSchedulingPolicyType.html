@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.LegacyPinnedMemoryResource &#8212; cuda.core</title>
+    <title>cuda.core.typing.ClusterSchedulingPolicyType &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.LegacyPinnedMemoryResource';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.typing.ClusterSchedulingPolicyType';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -59,13 +59,11 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2703/cuda-core/latest/generated/cuda.core.LegacyPinnedMemoryResource.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2703/cuda-core/latest/generated/cuda.core.typing.ClusterSchedulingPolicyType.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.VirtualMemoryResource" href="cuda.core.VirtualMemoryResource.html" />
-    <link rel="prev" title="cuda.core.ManagedMemoryResource" href="cuda.core.ManagedMemoryResource.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -239,7 +237,7 @@
 </li>
 
 
-<li class=" current active">
+<li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../api.html">
     cuda.core API Reference
   </a>
@@ -470,7 +468,7 @@
 </li>
 
 
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core API Reference
   </a>
@@ -563,14 +561,14 @@
      aria-label="Table of Contents">
   <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../10_minutes_to_cuda_core.html">10 minutes to <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../concurrency.html">Concurrency and Thread Safety</a></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Device.html">cuda.core.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Host.html">cuda.core.Host</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
@@ -592,7 +590,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.PinnedMemoryResource.html">cuda.core.PinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ManagedMemoryResource.html">cuda.core.ManagedMemoryResource</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.LegacyPinnedMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.LegacyPinnedMemoryResource.html">cuda.core.LegacyPinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResource.html">cuda.core.VirtualMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResourceOptions.html">cuda.core.DeviceMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
@@ -740,10 +738,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    
-    <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.LegacyPinnedMemoryResource</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.typing.ClusterSchedulingPolicyType</span></li>
   </ul>
 </nav>
 </div>
@@ -760,117 +755,61 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-legacypinnedmemoryresource">
-<h1>cuda.core.LegacyPinnedMemoryResource<a class="headerlink" href="#cuda-core-legacypinnedmemoryresource" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-typing-clusterschedulingpolicytype">
+<h1>cuda.core.typing.ClusterSchedulingPolicyType<a class="headerlink" href="#cuda-core-typing-clusterschedulingpolicytype" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.LegacyPinnedMemoryResource">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">LegacyPinnedMemoryResource</span></span><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource" title="Link to this definition">#</a></dt>
-<dd><p>Create a pinned memory resource that uses legacy cuMemAllocHost/cudaMallocHost
-APIs.</p>
-<p class="rubric">Methods</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.LegacyPinnedMemoryResource.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.LegacyPinnedMemoryResource.allocate">
-<span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span>
+<dt class="sig sig-object py" id="cuda.core.typing.ClusterSchedulingPolicyType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.typing.</span></span><span class="sig-name descname"><span class="pre">ClusterSchedulingPolicyType</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><span class="pre">GraphBuilder</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource.allocate" title="Link to this definition">#</a></dt>
-<dd><p>Allocate a buffer of the requested size.</p>
-<p><code class="docutils literal notranslate"><span class="pre">cuMemAllocHost</span></code> is synchronous, so this resource ignores any
-supplied stream. The argument is accepted (and validated when
-non-<code class="docutils literal notranslate"><span class="pre">None</span></code>) for interface conformance with stream-ordered
-memory resources.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to allocate, in bytes.</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><em>Stream</em></a><em>, </em><em>optional</em>) – Keyword-only. Validated when provided but otherwise unused.</p></li>
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.typing.ClusterSchedulingPolicyType" title="Link to this definition">#</a></dt>
+<dd><p>Cluster scheduling policy for <a class="reference internal" href="cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>.</p>
+<p>Corresponds to <code class="docutils literal notranslate"><span class="pre">CUclusterSchedulingPolicy</span></code> from the CUDA driver API.
+Valid for graph nodes and kernel launches on Hopper+ (compute capability &gt;= 9.0).</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code> — driver default scheduling within a cluster.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SPREAD</span></code> — spread blocks within a cluster across SMs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LOAD_BALANCING</span></code> — allow hardware load-balancing of cluster blocks.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The allocated buffer object, which is accessible on both host and device.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer">Buffer</a></p>
-</dd>
-</dl>
-</dd></dl>
+<dl class="simple">
+<dt><strong>DEFAULT</strong>: 0</dt><dd><p>Cluster scheduling policy for <a class="reference internal" href="cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>.
 
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.LegacyPinnedMemoryResource.deallocate">
-<span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span>
+    Corresponds to <code class="docutils literal notranslate"><span class="pre">CUclusterSchedulingPolicy</span></code> from the CUDA driver API.
+    Valid for graph nodes and kernel launches on Hopper+ (compute capability &gt;= 9.0).
 
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">ptr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DevicePointerType</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><span class="pre">GraphBuilder</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-</dl>
+    * <code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code> — driver default scheduling within a cluster.
+    * <code class="docutils literal notranslate"><span class="pre">SPREAD</span></code> — spread blocks within a cluster across SMs.
+    * <code class="docutils literal notranslate"><span class="pre">LOAD_BALANCING</span></code> — allow hardware load-balancing of cluster blocks.</p>
+</dd>
+<dt><strong>SPREAD</strong>: 1</dt><dd><p>Cluster scheduling policy for <a class="reference internal" href="cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>.
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource.deallocate" title="Link to this definition">#</a></dt>
-<dd><p>Deallocate a buffer previously allocated by this resource.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ptr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerType</span></code>) – The pointer or handle to the buffer to deallocate.</p></li>
-<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to deallocate, in bytes.</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><em>Stream</em></a><em>, </em><em>optional</em>) – Keyword-only. If provided, <code class="docutils literal notranslate"><span class="pre">stream.sync()</span></code> is called before the
-host allocation is freed. <code class="docutils literal notranslate"><span class="pre">None</span></code> skips the sync.</p></li>
-</ul>
+    Corresponds to <code class="docutils literal notranslate"><span class="pre">CUclusterSchedulingPolicy</span></code> from the CUDA driver API.
+    Valid for graph nodes and kernel launches on Hopper+ (compute capability &gt;= 9.0).
+
+    * <code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code> — driver default scheduling within a cluster.
+    * <code class="docutils literal notranslate"><span class="pre">SPREAD</span></code> — spread blocks within a cluster across SMs.
+    * <code class="docutils literal notranslate"><span class="pre">LOAD_BALANCING</span></code> — allow hardware load-balancing of cluster blocks.</p>
+</dd>
+<dt><strong>LOAD_BALANCING</strong>: 2</dt><dd><p>Cluster scheduling policy for <a class="reference internal" href="cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>.
+
+    Corresponds to <code class="docutils literal notranslate"><span class="pre">CUclusterSchedulingPolicy</span></code> from the CUDA driver API.
+    Valid for graph nodes and kernel launches on Hopper+ (compute capability &gt;= 9.0).
+
+    * <code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code> — driver default scheduling within a cluster.
+    * <code class="docutils literal notranslate"><span class="pre">SPREAD</span></code> — spread blocks within a cluster across SMs.
+    * <code class="docutils literal notranslate"><span class="pre">LOAD_BALANCING</span></code> — allow hardware load-balancing of cluster blocks.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<p class="rubric">Attributes</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.LegacyPinnedMemoryResource.device_id">
-<span class="sig-name descname"><span class="pre">device_id</span></span><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource.device_id" title="Link to this definition">#</a></dt>
-<dd><p>This memory resource is not bound to any GPU.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.LegacyPinnedMemoryResource.is_device_accessible">
-<span class="sig-name descname"><span class="pre">is_device_accessible</span></span><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource.is_device_accessible" title="Link to this definition">#</a></dt>
-<dd><p>this memory resource provides device-accessible buffers.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.LegacyPinnedMemoryResource.is_host_accessible">
-<span class="sig-name descname"><span class="pre">is_host_accessible</span></span><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource.is_host_accessible" title="Link to this definition">#</a></dt>
-<dd><p>this memory resource provides host-accessible buffers.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.LegacyPinnedMemoryResource.is_managed">
-<span class="sig-name descname"><span class="pre">is_managed</span></span><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource.is_managed" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>Whether buffers allocated by this resource are CUDA managed (unified) memory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>MemoryResource.is_managed</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -885,24 +824,6 @@ host allocation is freed. <code class="docutils literal notranslate"><span class
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="cuda.core.ManagedMemoryResource.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.ManagedMemoryResource</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="cuda.core.VirtualMemoryResource.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.VirtualMemoryResource</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
@@ -924,16 +845,7 @@ host allocation is freed. <code class="docutils literal notranslate"><span class
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LegacyPinnedMemoryResource"><code class="docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LegacyPinnedMemoryResource.__init__"><code class="docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LegacyPinnedMemoryResource.allocate"><code class="docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource.allocate()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LegacyPinnedMemoryResource.deallocate"><code class="docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource.deallocate()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LegacyPinnedMemoryResource.device_id"><code class="docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource.device_id</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LegacyPinnedMemoryResource.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource.is_device_accessible</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LegacyPinnedMemoryResource.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource.is_host_accessible</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LegacyPinnedMemoryResource.is_managed"><code class="docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource.is_managed</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.typing.ClusterSchedulingPolicyType"><code class="docutils literal notranslate"><span class="pre">ClusterSchedulingPolicyType</span></code></a></li>
 </ul>
   </nav></div>
 

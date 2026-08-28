@@ -23,6 +23,7 @@ CUDA runtime
    _module.ParamInfo
    typing.AddressModeType
    typing.ArrayFormatType
+   typing.ClusterSchedulingPolicyType
    typing.CompilerBackendType
    typing.DevicePointerType
    typing.DeviceResourcesType

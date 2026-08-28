@@ -1,0 +1,6 @@
+﻿cuda.core.typing.ClusterSchedulingPolicyType
+============================================
+
+.. currentmodule:: cuda.core.typing
+
+.. autoenum:: ClusterSchedulingPolicyType
