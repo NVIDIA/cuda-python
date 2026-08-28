@@ -8,11 +8,11 @@ import ctypes.util
 import gc
 import os
 import sys
-from unittest.mock import patch
 
 import numpy as np
 import pyglet
 import pytest
+from cuda_python_test_helpers.graphics import is_gl_context_unavailable
 
 from cuda.core import (
     Buffer,
@@ -50,7 +50,7 @@ def _register_gl_image(tex_id, target):
         raise
 
 
-def _configure_pyglet_headless(pyglet):
+def _configure_pyglet_headless():
     """On headless Linux: enable EGL mode or skip if EGL is absent."""
     if sys.platform.startswith("linux") and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
         if ctypes.util.find_library("EGL") is None:
@@ -58,14 +58,22 @@ def _configure_pyglet_headless(pyglet):
         pyglet.options["headless"] = True
 
 
-def _open_gl_window(pyglet):
-    """Open a hidden window (or configure EGL headless). Returns the window or None."""
+def _open_gl_window():
+    """Open a hidden window (or configure EGL headless). Returns the window or None.
+
+    Closes the window if switch_to() fails so a partially-constructed window does not leak.
+    """
     if not pyglet.options.get("headless"):
         from pyglet import gl
 
         config = gl.Config(double_buffer=False)
         win = pyglet.window.Window(visible=False, config=config)
-        win.switch_to()
+        try:
+            win.switch_to()
+        except Exception:
+            with contextlib.suppress(Exception):
+                win.close()
+            raise
         return win
     else:
         from pyglet.gl import headless  # noqa: F401
@@ -73,85 +81,105 @@ def _open_gl_window(pyglet):
         return None
 
 
-def _setup_gl_buffer(pyglet, nbytes):
-    """Open a GL context and allocate a buffer. Returns (win, buf_id)."""
-    win = _open_gl_window(pyglet)
+def _allocate_gl_buffer(win, nbytes):
+    """Allocate a GL buffer. Caller must have a current GL context.
+
+    Deletes the generated buffer if a later GL call fails, so a partial
+    resource does not leak.
+    """
     from pyglet.gl import gl as _gl
 
     buf_id = _gl.GLuint(0)
-    _gl.glGenBuffers(1, ctypes.byref(buf_id))
-    _gl.glBindBuffer(_gl.GL_ARRAY_BUFFER, buf_id.value)
-    _gl.glBufferData(_gl.GL_ARRAY_BUFFER, nbytes, None, _gl.GL_DYNAMIC_DRAW)
-    return win, buf_id
+    try:
+        _gl.glGenBuffers(1, ctypes.byref(buf_id))
+        _gl.glBindBuffer(_gl.GL_ARRAY_BUFFER, buf_id.value)
+        _gl.glBufferData(_gl.GL_ARRAY_BUFFER, nbytes, None, _gl.GL_DYNAMIC_DRAW)
+        return buf_id
+    except Exception:
+        if buf_id.value:
+            with contextlib.suppress(Exception):
+                _gl.glDeleteBuffers(1, ctypes.byref(buf_id))
+        raise
 
 
-def _setup_gl_texture(pyglet, width, height):
-    """Open a GL context and allocate a 2-D RGBA8 texture. Returns (win, tex_id, target)."""
-    win = _open_gl_window(pyglet)
+def _allocate_gl_texture(win, width, height):
+    """Allocate a 2-D RGBA8 texture. Caller must have a current GL context.
+
+    Deletes the generated texture if a later GL call fails, so a partial
+    resource does not leak.
+    """
     from pyglet.gl import gl as _gl
 
     tex_id = _gl.GLuint(0)
-    _gl.glGenTextures(1, ctypes.byref(tex_id))
-    target = _gl.GL_TEXTURE_2D
-    _gl.glBindTexture(target, tex_id.value)
-    _gl.glTexParameteri(target, _gl.GL_TEXTURE_MIN_FILTER, _gl.GL_NEAREST)
-    _gl.glTexParameteri(target, _gl.GL_TEXTURE_MAG_FILTER, _gl.GL_NEAREST)
-    _gl.glTexImage2D(target, 0, _gl.GL_RGBA8, width, height, 0, _gl.GL_RGBA, _gl.GL_UNSIGNED_BYTE, None)
-    return win, tex_id, target
+    try:
+        _gl.glGenTextures(1, ctypes.byref(tex_id))
+        target = _gl.GL_TEXTURE_2D
+        _gl.glBindTexture(target, tex_id.value)
+        _gl.glTexParameteri(target, _gl.GL_TEXTURE_MIN_FILTER, _gl.GL_NEAREST)
+        _gl.glTexParameteri(target, _gl.GL_TEXTURE_MAG_FILTER, _gl.GL_NEAREST)
+        _gl.glTexImage2D(target, 0, _gl.GL_RGBA8, width, height, 0, _gl.GL_RGBA, _gl.GL_UNSIGNED_BYTE, None)
+        return tex_id, target
+    except Exception:
+        if tex_id.value:
+            with contextlib.suppress(Exception):
+                _gl.glDeleteTextures(1, ctypes.byref(tex_id))
+        raise
 
 
 @contextlib.contextmanager
 def _gl_context_and_buffer(nbytes=1024):
     """Yield ``(gl_buffer_name, nbytes)`` with a current GL context, or skip if GL is unavailable."""
-    _configure_pyglet_headless(pyglet)
+    _configure_pyglet_headless()
 
     try:
-        win, buf_id = _setup_gl_buffer(pyglet, nbytes)
+        win = _open_gl_window()
     except Exception as e:
-        pytest.skip(f"Could not create GL context/buffer: {type(e).__name__}: {e}")
+        if is_gl_context_unavailable(e):
+            pytest.skip(f"Could not create GL context: {type(e).__name__}: {e}")
+        raise
 
+    buf_id = None
     try:
+        buf_id = _allocate_gl_buffer(win, nbytes)
         yield int(buf_id.value), nbytes
     finally:
-        try:
-            from pyglet.gl import gl as _gl
+        if buf_id is not None:
+            with contextlib.suppress(Exception):
+                from pyglet.gl import gl as _gl
 
-            if buf_id.value:
-                _gl.glDeleteBuffers(1, ctypes.byref(buf_id))
-        except Exception:  # noqa: S110
-            pass
-        try:
+                if buf_id.value:
+                    _gl.glDeleteBuffers(1, ctypes.byref(buf_id))
+        with contextlib.suppress(Exception):
             if win is not None:
                 win.close()
-        except Exception:  # noqa: S110
-            pass
 
 
 @contextlib.contextmanager
 def _gl_context_and_texture(width=16, height=16):
     """Yield ``(tex_id, tex_target)`` with a current GL context, or skip if GL is unavailable."""
-    _configure_pyglet_headless(pyglet)
+    _configure_pyglet_headless()
 
     try:
-        win, tex_id, target = _setup_gl_texture(pyglet, width, height)
+        win = _open_gl_window()
     except Exception as e:
-        pytest.skip(f"Could not create GL context/texture: {type(e).__name__}: {e}")
+        if is_gl_context_unavailable(e):
+            pytest.skip(f"Could not create GL context: {type(e).__name__}: {e}")
+        raise
 
+    tex_id = None
     try:
+        tex_id, target = _allocate_gl_texture(win, width, height)
         yield int(tex_id.value), int(target)
     finally:
-        try:
-            from pyglet.gl import gl as _gl
+        if tex_id is not None:
+            with contextlib.suppress(Exception):
+                from pyglet.gl import gl as _gl
 
-            if tex_id.value:
-                _gl.glDeleteTextures(1, ctypes.byref(tex_id))
-        except Exception:  # noqa: S110
-            pass
-        try:
+                if tex_id.value:
+                    _gl.glDeleteTextures(1, ctypes.byref(tex_id))
+        with contextlib.suppress(Exception):
             if win is not None:
                 win.close()
-        except Exception:  # noqa: S110
-            pass
 
 
 # ---------------------------------------------------------------------------
@@ -417,33 +445,6 @@ def test_close_while_mapped(init_cuda):
         resource.close()  # Should unmap + unregister without error
         assert not resource.is_mapped
         assert buf.handle == 0
-
-
-@pytest.mark.xfail(
-    reason="Buffer is an immutable Cython type; patch.object and __class__ assignment both fail",
-    raises=TypeError,
-    strict=True,
-)
-def test_close_while_mapped_passes_stream_override(init_cuda):
-    with _gl_context_and_buffer() as (gl_buf, _):
-        map_stream = init_cuda.create_stream()
-        close_stream = init_cuda.create_stream()
-        resource = _register_gl_buffer(gl_buf, flags="write_discard")
-        resource.map(stream=map_stream)
-
-        original_close = Buffer.close
-
-        def tracking_close(self, stream=None):
-            tracking_close.calls.append(stream)
-            return original_close(self, stream=stream)
-
-        tracking_close.calls = []
-
-        with patch.object(Buffer, "close", new=tracking_close):
-            resource.close(stream=close_stream)
-
-        assert tracking_close.calls == [close_stream]
-        assert not resource.is_mapped
 
 
 def test_buffer_close_updates_resource_state(init_cuda):

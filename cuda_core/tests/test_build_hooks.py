@@ -24,13 +24,14 @@ import tempfile
 from pathlib import Path
 from unittest import mock
 
+# build_hooks.py imports Cython and setuptools at the top level; both are
+# declared test dependencies, so a missing install must surface as an
+# ImportError at collection time rather than being hidden by importorskip.
+import Cython  # noqa: F401
 import pytest
+import setuptools  # noqa: F401
 
 from cuda.pathfinder import get_cuda_path_or_home
-
-# build_hooks.py imports Cython and setuptools at the top level, so skip if not available
-pytest.importorskip("Cython")
-pytest.importorskip("setuptools")
 
 
 def _load_build_hooks():
