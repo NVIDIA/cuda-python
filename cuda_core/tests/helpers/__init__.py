@@ -29,10 +29,10 @@ def supports_ipc_mempool(device_id: int | object) -> bool:
     to check for CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR support. Does not
     require an active CUDA context.
 
-    Only CUDA_ERROR_NOT_SUPPORTED (the documented "attribute not
-    available" result) is treated as "unsupported"; other driver errors
-    (invalid device, deinitialized driver) propagate so a real
-    bug is not hidden as "unsupported".
+    Unsupported handle types are represented by a successful query whose bitmask
+    lacks the POSIX-FD bit, so the check below naturally returns False.
+    Other driver errors (invalid device, deinitialized driver) propagate via
+    handle_return so a real bug is not hidden as "unsupported".
     """
     if IS_WSL:
         return False
@@ -46,13 +46,10 @@ def supports_ipc_mempool(device_id: int | object) -> bool:
     # Resolve device id from int or Device-like object
     dev_id = int(getattr(device_id, "device_id", device_id))
 
-    # Query supported mempool handle types bitmask. Inspect the raw CUresult
-    # so only the documented "not available" case is treated as unsupported.
+    # Query supported mempool handle types bitmask. Unsupported handle types are
+    # represented by a successful query whose bitmask lacks the POSIX-FD bit.
     attr = driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMPOOL_SUPPORTED_HANDLE_TYPES
-    result, mask = driver.cuDeviceGetAttribute(attr, dev_id)
-    if result == driver.CUresult.CUDA_ERROR_NOT_SUPPORTED:
-        return False
-    handle_return((result, mask))  # raise CUDAError for other driver errors
+    mask = handle_return(driver.cuDeviceGetAttribute(attr, dev_id))
 
     # Check POSIX FD handle type support via bitmask
     posix_fd = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR

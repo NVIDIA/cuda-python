@@ -23,6 +23,9 @@ _GL_CONTEXT_UNAVAILABLE_EXC_NAMES = frozenset(
         "NoSuchScreenModeException",
         "WindowException",
         "ContextException",
+        # Pyglet's headless display raises MissingFunctionException when libEGL
+        # exists but eglQueryDevicesEXT / eglGetPlatformDisplayEXT entry points do not.
+        "MissingFunctionException",
     }
 )
 

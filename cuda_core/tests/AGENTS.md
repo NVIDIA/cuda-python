@@ -181,9 +181,9 @@ A genuine API-status failure (e.g. `nvfatbin.nvFatbinError` from a
 successfully loaded library) must propagate so a real bug is not hidden
 as "unavailable".
 
-For a probe that calls a CUDA API returning a `CUresult`, inspect the raw result and
-classify only the documented "not available" code as `False`; let
-other failures propagate so a real driver bug is not hidden as "unsupported":
+For a probe that calls a CUDA API returning a `CUresult`, let `handle_return`
+raise on any non-success result and classify only a successful bitmask
+lacking the documented bit as `False`; other failures propagate so a real driver bug is not hidden as "unsupported":
 
 ```python
 @functools.cache
@@ -193,10 +193,7 @@ def supports_ipc_mempool(device_id):
     handle_return(driver.cuInit(0))
     dev_id = int(getattr(device_id, "device_id", device_id))
     attr = driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMPOOL_SUPPORTED_HANDLE_TYPES
-    result, mask = driver.cuDeviceGetAttribute(attr, dev_id)
-    if result == driver.CUresult.CUDA_ERROR_NOT_SUPPORTED:
-        return False
-    handle_return((result, mask))  # raise CUDAError for other driver errors
+    mask = handle_return(driver.cuDeviceGetAttribute(attr, dev_id))
     posix_fd = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
     return (int(mask) & int(posix_fd)) != 0
 ```
