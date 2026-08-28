@@ -445,6 +445,19 @@ def test_field_values(subtests):
             assert field_values[0].value <= old_value
 
 
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_field_value_decodes_signed_long_long():
+    """SIGNED_LONG_LONG decodes from nvmlValue_t.sll_val as a Python int."""
+    field_value = nvml.FieldValue()
+    field_value.nvml_return = int(nvml.Return.SUCCESS)
+    field_value.value_type = int(nvml.ValueType.SIGNED_LONG_LONG)
+    field_value.value.sll_val[0] = -45
+
+    value = _device.FieldValue(field_value).value
+    assert value == -45
+    assert type(value) is int
+
+
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_get_all_devices_with_cpu_affinity(subtests):
     for i in range(multiprocessing.cpu_count()):
