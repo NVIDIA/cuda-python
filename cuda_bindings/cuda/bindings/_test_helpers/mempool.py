@@ -6,6 +6,10 @@ Kept for one release cycle so released cuda-core test trees keep importing.
 Remove after cuda-core >= 1.2 is the oldest supported release.
 """
 
-from cuda_python_test_helpers.mempool import is_windows_mcdm_device, xfail_if_mempool_oom
+from cuda.bindings._test_helpers import _import_current
+
+_mempool = _import_current("mempool")
+is_windows_mcdm_device = _mempool.is_windows_mcdm_device
+xfail_if_mempool_oom = _mempool.xfail_if_mempool_oom
 
 __all__ = ["is_windows_mcdm_device", "xfail_if_mempool_oom"]
