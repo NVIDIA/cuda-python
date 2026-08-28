@@ -373,7 +373,7 @@ _CLUSTER_SCHED_POLICIES = (
 
 @pytest.mark.agent_authored(model="cursor-grok-4.6")
 def test_launch_config_cluster_scheduling_policy(monkeypatch):
-    """Ctor, getter/setter, driver enum, and native attrs for all policies."""
+    """Ctor, getter/setter, and native attrs for all policy strings."""
     from cuda.bindings import driver
     from cuda.core import _launch_config as _lc_mod
     from cuda.core._launch_config import _to_native_launch_config
@@ -402,13 +402,6 @@ def test_launch_config_cluster_scheduling_policy(monkeypatch):
         assert cfg.cluster_scheduling_policy_preference is None
 
     cfg = LaunchConfig(
-        grid=1,
-        block=1,
-        cluster_scheduling_policy_preference=driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD,
-    )
-    assert cfg.cluster_scheduling_policy_preference == "SPREAD"
-
-    cfg = LaunchConfig(
         grid=(2, 1, 1),
         block=32,
         cluster=(2, 1, 1),
@@ -427,7 +420,7 @@ def test_launch_config_cluster_scheduling_policy_rejected(monkeypatch):
     from cuda.core import _launch_config as _lc_mod
 
     with pytest.raises(ValueError, match="not a valid cluster_scheduling_policy_preference"):
-        LaunchConfig(grid=1, block=1, cluster_scheduling_policy_preference=999)
+        LaunchConfig(grid=1, block=1, cluster_scheduling_policy_preference="NOT_A_POLICY")
 
     class _FakeDev:
         compute_capability = (8, 6)

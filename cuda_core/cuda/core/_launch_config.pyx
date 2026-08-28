@@ -36,22 +36,12 @@ _CLUSTER_SCHED_POLICY_TO_DRIVER = {
     "LOAD_BALANCING": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING,
 }
 
-_DRIVER_TO_CLUSTER_SCHED_POLICY = {
-    int(value): name for name, value in _CLUSTER_SCHED_POLICY_TO_DRIVER.items()
-}
-
 
 def _validate_cluster_scheduling_policy_preference(value):
     if value is None:
         return None
     if isinstance(value, str) and value in _CLUSTER_SCHED_POLICY_TO_DRIVER:
         return value
-    try:
-        name = _DRIVER_TO_CLUSTER_SCHED_POLICY.get(int(value))
-    except (TypeError, ValueError):
-        name = None
-    if name is not None:
-        return name
     valid = format_or_list(_CLUSTER_SCHED_POLICY_NAMES)
     raise ValueError(
         f"{value!r} is not a valid cluster_scheduling_policy_preference. Must be {valid}"
