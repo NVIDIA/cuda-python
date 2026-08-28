@@ -2,7 +2,11 @@
 
 from typing import Any
 
+from cuda.core._utils.cuda_utils import driver
+
 _LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative', 'programmatic_stream_serialization', 'cluster_scheduling_policy_preference')
+_CLUSTER_SCHED_POLICY_NAMES = ('DEFAULT', 'SPREAD', 'LOAD_BALANCING')
+_CLUSTER_SCHED_POLICY_TO_DRIVER = {'DEFAULT': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_DEFAULT, 'SPREAD': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD, 'LOAD_BALANCING': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING}
 __all__ = ['LaunchConfig']
 
 class LaunchConfig:
@@ -50,7 +54,7 @@ class LaunchConfig:
     shmem_size: int
     is_cooperative: bool
     programmatic_stream_serialization: bool
-    cluster_scheduling_policy_preference: str | None
+    cluster_scheduling_policy_preference: str
 
     def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False, programmatic_stream_serialization: bool=False, cluster_scheduling_policy_preference: str | None=None) -> None:
         """Initialize LaunchConfig with validation.
@@ -80,6 +84,7 @@ class LaunchConfig:
     def __hash__(self) -> int: ...
 
 def _validate_cluster_scheduling_policy_preference(value): ...
+def _cluster_sched_policy_to_driver(value): ...
 def _to_native_launch_config(config: LaunchConfig) -> object:
     """Convert LaunchConfig to native driver CUlaunchConfig.
 
