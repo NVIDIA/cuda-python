@@ -16,9 +16,10 @@ from cuda.bindings import runtime as cudart
 # name (not by class) because importing pyglet.gl / pyglet.window at
 # module top triggers pyglet's shadow-window creation, which fails on
 # headless machines before _configure_pyglet_headless() has set the
-# headless option. A bug in our own setup code (e.g. a TypeError) comes
-# from builtins, not pyglet, so it re-raises and fails the test rather than
-# being hidden as a skip.
+# headless option. GLException is intentionally excluded: pyglet
+# raises it after any GL call that reports an error (GL_INVALID_ENUM,
+# etc.), so catching it would hide real bugs in our own GL
+# allocation code as "GL unavailable" skips.
 _GL_UNAVAILABLE_EXC_NAMES = frozenset(
     {
         "NoSuchDisplayException",
@@ -26,7 +27,6 @@ _GL_UNAVAILABLE_EXC_NAMES = frozenset(
         "NoSuchScreenModeException",
         "WindowException",
         "ContextException",
-        "GLException",
     }
 )
 
@@ -51,11 +51,8 @@ def _configure_pyglet_headless():
         pyglet.options["headless"] = True
 
 
-def _setup_gl_texture():
-    """Open a GL context and allocate a 2-D RGBA8 texture. Returns (win, tex_id, target).
-
-    Cleans up the window if texture allocation raises, so partial resources do not leak.
-    """
+def _open_gl_window():
+    """Open a hidden window (or configure EGL headless). Returns the window or None."""
     if not pyglet.options.get("headless"):
         # Hidden window path (WGL on Windows, GLX/WLS on Linux)
         from pyglet import gl
@@ -63,32 +60,27 @@ def _setup_gl_texture():
         config = gl.Config(double_buffer=False)
         win = pyglet.window.Window(visible=False, config=config)
         win.switch_to()
+        return win
     else:
         # Headless EGL path; pyglet will arrange a pbuffer-like headless context
         from pyglet.gl import headless  # noqa: F401
 
-        win = None
+        return None
 
-    try:
-        # Make a tiny texture so we have a real GL object to register
-        from pyglet.gl import gl as _gl
 
-        tex_id = _gl.GLuint(0)
-        _gl.glGenTextures(1, ctypes.byref(tex_id))
-        target = _gl.GL_TEXTURE_2D
-        _gl.glBindTexture(target, tex_id.value)
-        _gl.glTexParameteri(target, _gl.GL_TEXTURE_MIN_FILTER, _gl.GL_NEAREST)
-        _gl.glTexParameteri(target, _gl.GL_TEXTURE_MAG_FILTER, _gl.GL_NEAREST)
-        width, height = 16, 16
-        _gl.glTexImage2D(target, 0, _gl.GL_RGBA8, width, height, 0, _gl.GL_RGBA, _gl.GL_UNSIGNED_BYTE, None)
-        return win, tex_id, target
-    except Exception:
-        try:
-            if win is not None:
-                win.close()
-        except Exception:  # noqa: S110
-            pass
-        raise
+def _allocate_gl_texture(win):
+    """Allocate a 2-D RGBA8 texture. Caller must have a current GL context."""
+    from pyglet.gl import gl as _gl
+
+    tex_id = _gl.GLuint(0)
+    _gl.glGenTextures(1, ctypes.byref(tex_id))
+    target = _gl.GL_TEXTURE_2D
+    _gl.glBindTexture(target, tex_id.value)
+    _gl.glTexParameteri(target, _gl.GL_TEXTURE_MIN_FILTER, _gl.GL_NEAREST)
+    _gl.glTexParameteri(target, _gl.GL_TEXTURE_MAG_FILTER, _gl.GL_NEAREST)
+    width, height = 16, 16
+    _gl.glTexImage2D(target, 0, _gl.GL_RGBA8, width, height, 0, _gl.GL_RGBA, _gl.GL_UNSIGNED_BYTE, None)
+    return tex_id, target
 
 
 @contextlib.contextmanager
@@ -97,13 +89,14 @@ def _gl_context():
     _configure_pyglet_headless()
 
     try:
-        win, tex_id, target = _setup_gl_texture()
+        win = _open_gl_window()
     except Exception as e:
         if _is_gl_unavailable(e):
-            pytest.skip(f"Could not create GL context/texture: {type(e).__name__}: {e}")
+            pytest.skip(f"Could not create GL context: {type(e).__name__}: {e}")
         raise
 
     try:
+        tex_id, target = _allocate_gl_texture(win)
         yield int(tex_id.value), int(target)
     finally:
         # Best-effort cleanup

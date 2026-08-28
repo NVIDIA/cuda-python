@@ -53,8 +53,9 @@ def _register_gl_image(tex_id, target):
 # name (not by class) because importing pyglet.gl / pyglet.window at module
 # top triggers pyglet's shadow-window creation, which fails on headless
 # machines before _configure_pyglet_headless() has set the headless option.
-# A bug in our own setup code (e.g. a TypeError) comes from builtins, not
-# pyglet, so it re-raises and fails the test rather than being hidden as a skip.
+# GLException is intentionally excluded: pyglet raises it after any GL
+# call that reports an error (GL_INVALID_ENUM, etc.), so catching it would
+# hide real bugs in our own GL allocation code as "GL unavailable" skips.
 _GL_UNAVAILABLE_EXC_NAMES = frozenset(
     {
         "NoSuchDisplayException",
@@ -62,7 +63,6 @@ _GL_UNAVAILABLE_EXC_NAMES = frozenset(
         "NoSuchScreenModeException",
         "WindowException",
         "ContextException",
-        "GLException",
     }
 )
 
@@ -102,53 +102,29 @@ def _open_gl_window():
         return None
 
 
-def _setup_gl_buffer(nbytes):
-    """Open a GL context and allocate a buffer. Returns (win, buf_id).
+def _allocate_gl_buffer(win, nbytes):
+    """Allocate a GL buffer. Caller must have a current GL context."""
+    from pyglet.gl import gl as _gl
 
-    Cleans up the window if buffer allocation raises, so partial resources do not leak.
-    """
-    win = _open_gl_window()
-    try:
-        from pyglet.gl import gl as _gl
-
-        buf_id = _gl.GLuint(0)
-        _gl.glGenBuffers(1, ctypes.byref(buf_id))
-        _gl.glBindBuffer(_gl.GL_ARRAY_BUFFER, buf_id.value)
-        _gl.glBufferData(_gl.GL_ARRAY_BUFFER, nbytes, None, _gl.GL_DYNAMIC_DRAW)
-        return win, buf_id
-    except Exception:
-        try:
-            if win is not None:
-                win.close()
-        except Exception:  # noqa: S110
-            pass
-        raise
+    buf_id = _gl.GLuint(0)
+    _gl.glGenBuffers(1, ctypes.byref(buf_id))
+    _gl.glBindBuffer(_gl.GL_ARRAY_BUFFER, buf_id.value)
+    _gl.glBufferData(_gl.GL_ARRAY_BUFFER, nbytes, None, _gl.GL_DYNAMIC_DRAW)
+    return buf_id
 
 
-def _setup_gl_texture(width, height):
-    """Open a GL context and allocate a 2-D RGBA8 texture. Returns (win, tex_id, target).
+def _allocate_gl_texture(win, width, height):
+    """Allocate a 2-D RGBA8 texture. Caller must have a current GL context."""
+    from pyglet.gl import gl as _gl
 
-    Cleans up the window if texture allocation raises, so partial resources do not leak.
-    """
-    win = _open_gl_window()
-    try:
-        from pyglet.gl import gl as _gl
-
-        tex_id = _gl.GLuint(0)
-        _gl.glGenTextures(1, ctypes.byref(tex_id))
-        target = _gl.GL_TEXTURE_2D
-        _gl.glBindTexture(target, tex_id.value)
-        _gl.glTexParameteri(target, _gl.GL_TEXTURE_MIN_FILTER, _gl.GL_NEAREST)
-        _gl.glTexParameteri(target, _gl.GL_TEXTURE_MAG_FILTER, _gl.GL_NEAREST)
-        _gl.glTexImage2D(target, 0, _gl.GL_RGBA8, width, height, 0, _gl.GL_RGBA, _gl.GL_UNSIGNED_BYTE, None)
-        return win, tex_id, target
-    except Exception:
-        try:
-            if win is not None:
-                win.close()
-        except Exception:  # noqa: S110
-            pass
-        raise
+    tex_id = _gl.GLuint(0)
+    _gl.glGenTextures(1, ctypes.byref(tex_id))
+    target = _gl.GL_TEXTURE_2D
+    _gl.glBindTexture(target, tex_id.value)
+    _gl.glTexParameteri(target, _gl.GL_TEXTURE_MIN_FILTER, _gl.GL_NEAREST)
+    _gl.glTexParameteri(target, _gl.GL_TEXTURE_MAG_FILTER, _gl.GL_NEAREST)
+    _gl.glTexImage2D(target, 0, _gl.GL_RGBA8, width, height, 0, _gl.GL_RGBA, _gl.GL_UNSIGNED_BYTE, None)
+    return tex_id, target
 
 
 @contextlib.contextmanager
@@ -157,13 +133,14 @@ def _gl_context_and_buffer(nbytes=1024):
     _configure_pyglet_headless()
 
     try:
-        win, buf_id = _setup_gl_buffer(nbytes)
+        win = _open_gl_window()
     except Exception as e:
         if _is_gl_unavailable(e):
-            pytest.skip(f"Could not create GL context/buffer: {type(e).__name__}: {e}")
+            pytest.skip(f"Could not create GL context: {type(e).__name__}: {e}")
         raise
 
     try:
+        buf_id = _allocate_gl_buffer(win, nbytes)
         yield int(buf_id.value), nbytes
     finally:
         try:
@@ -186,13 +163,14 @@ def _gl_context_and_texture(width=16, height=16):
     _configure_pyglet_headless()
 
     try:
-        win, tex_id, target = _setup_gl_texture(width, height)
+        win = _open_gl_window()
     except Exception as e:
         if _is_gl_unavailable(e):
-            pytest.skip(f"Could not create GL context/texture: {type(e).__name__}: {e}")
+            pytest.skip(f"Could not create GL context: {type(e).__name__}: {e}")
         raise
 
     try:
+        tex_id, target = _allocate_gl_texture(win, width, height)
         yield int(tex_id.value), int(target)
     finally:
         try:
