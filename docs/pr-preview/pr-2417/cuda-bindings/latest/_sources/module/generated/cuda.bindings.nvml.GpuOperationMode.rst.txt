@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.GpuOperationMode
+===================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: GpuOperationMode
