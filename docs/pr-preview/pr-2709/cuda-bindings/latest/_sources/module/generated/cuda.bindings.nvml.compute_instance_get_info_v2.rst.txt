@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.compute\_instance\_get\_info\_v2
-===================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: compute_instance_get_info_v2

@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_power\_smoothing\_update\_preset\_profile\_param
-===========================================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_power_smoothing_update_preset_profile_param
