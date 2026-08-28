@@ -45,3 +45,11 @@ Types
 
    Device
    NvlinkInfo
+
+Constants
+---------
+
+.. autosummary::
+   :toctree: generated/
+
+   CUDA_BINDINGS_NVML_IS_COMPATIBLE

@@ -1380,9 +1380,11 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
-<li><p><strong>buffer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – NVVM IR module in the bitcode or text representation.</p></li>
+<li><p><strong>buffer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – NVVM IR module in the bitcode or text
+representation.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – Size of the NVVM IR module.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the NVVM IR module. If NULL, “&lt;unnamed&gt;” is used as the name.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the NVVM IR module. If NULL, “&lt;unnamed&gt;”
+is used as the name.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1402,7 +1404,8 @@
 <li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
 <li><p><strong>buffer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – NVVM IR module in the bitcode representation.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – Size of the NVVM IR module.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the NVVM IR module. If NULL, “&lt;unnamed&gt;” is used as the name.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the NVVM IR module. If NULL, “&lt;unnamed&gt;”
+is used as the name.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1421,7 +1424,8 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
 <li><p><strong>num_options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of compiler <code class="docutils literal notranslate"><span class="pre">options</span></code> passed.</p></li>
-<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>Compiler options in the form of C string array. It can be:</p>
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>Compiler options in the form of C string
+array. It can be:</p>
 <ul>
 <li><p>an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> as the pointer address to the nested sequence, or</p></li>
 <li><p>a Python sequence of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s, each of which is a pointer address
@@ -1447,7 +1451,8 @@ to a valid sequence of ‘char’, or</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
 <li><p><strong>num_options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of compiler <code class="docutils literal notranslate"><span class="pre">options</span></code> passed.</p></li>
-<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>Compiler options in the form of C string array. It can be:</p>
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>Compiler options in the form of C string
+array. It can be:</p>
 <ul>
 <li><p>an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> as the pointer address to the nested sequence, or</p></li>
 <li><p>a Python sequence of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s, each of which is a pointer address
@@ -1473,7 +1478,11 @@ to a valid sequence of ‘char’, or</p></li>
 <dd class="field-odd"><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Size of the compiled result (including the trailing NULL).</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>Size of the compiled result (including the trailing</dt><dd><p>NULL).</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>size_t</p>
@@ -1512,7 +1521,11 @@ to a valid sequence of ‘char’, or</p></li>
 <dd class="field-odd"><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Size of the compilation/verification log (including the trailing NULL).</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>Size of the compilation/verification log (including</dt><dd><p>the trailing NULL).</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>size_t</p>

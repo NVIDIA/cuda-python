@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=3046f3c1"></script>
+    <script src="_static/documentation_options.js?v=21621a19"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev34';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev114';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -630,6 +630,14 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableGraphNode.html">cuda.core.graph.ExecutableGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableKernelNode.html">cuda.core.graph.ExecutableKernelNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableMemcpyNode.html">cuda.core.graph.ExecutableMemcpyNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableMemsetNode.html">cuda.core.graph.ExecutableMemsetNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableHostCallbackNode.html">cuda.core.graph.ExecutableHostCallbackNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableChildGraphNode.html">cuda.core.graph.ExecutableChildGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableEventRecordNode.html">cuda.core.graph.ExecutableEventRecordNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableEventWaitNode.html">cuda.core.graph.ExecutableEventWaitNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
@@ -643,10 +651,14 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.copy_batch.html">cuda.core.utils.copy_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.prefetch_batch.html">cuda.core.utils.prefetch_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.discard_batch.html">cuda.core.utils.discard_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.discard_prefetch_batch.html">cuda.core.utils.discard_prefetch_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.CopyOptions.html">cuda.core.utils.CopyOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.MemcpySrcAccessOrder.html">cuda.core.utils.MemcpySrcAccessOrder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.MemcpyOverlapMode.html">cuda.core.utils.MemcpyOverlapMode</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api_nvml.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -661,6 +673,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE.html">cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="environment_variables.html">Environment Variables</a></li>
@@ -674,6 +687,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="release/1.2.0-notes.html">1.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.1.1-notes.html">1.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.1.0-notes.html">1.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.0.1-notes.html">1.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.0.0-notes.html">1.0.0</a></li>
@@ -816,10 +830,10 @@ their inclusion in a release.</p>
 <p>CI publishes wheels as GitHub Actions artifacts on every push to <code class="docutils literal notranslate"><span class="pre">main</span></code>. To
 obtain the most recent build, use the following commands:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="c1"># Find the latest successful CI run on main:</span>
-<span class="gp">$ </span><span class="nv">RUN_ID</span><span class="o">=</span><span class="k">$(</span>gh<span class="w"> </span>run<span class="w"> </span>list<span class="w"> </span>-R<span class="w"> </span>NVIDIA/cuda-python<span class="w"> </span>-w<span class="w"> </span>ci.yml<span class="w"> </span>-b<span class="w"> </span>main<span class="w"> </span>-s<span class="w"> </span>success<span class="w"> </span>-L1<span class="w"> </span>--json<span class="w"> </span>databaseId<span class="w"> </span>-q<span class="w"> </span><span class="s1">&#39;.[0].databaseId&#39;</span><span class="k">)</span>
+<span class="gp">$ </span><span class="nv">RUN_ID</span><span class="o">=</span><span class="k">$(</span>gh<span class="w"> </span>run<span class="w"> </span>list<span class="w"> </span>-R<span class="w"> </span>NVIDIA/cuda-python<span class="w"> </span>-w<span class="w"> </span>ci.yml<span class="w"> </span>-b<span class="w"> </span>main<span class="w"> </span>-s<span class="w"> </span>success<span class="w"> </span>-L1<span class="w"> </span>--json<span class="w"> </span>databaseId<span class="w"> </span>-q<span class="w"> </span><span class="s1">'.[0].databaseId'</span><span class="k">)</span>
 
 <span class="gp">$ </span><span class="c1"># Download the wheel (pick your Python version and platform):</span>
-<span class="gp">$ </span>gh<span class="w"> </span>run<span class="w"> </span>download<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$RUN_ID</span><span class="s2">&quot;</span><span class="w"> </span>-R<span class="w"> </span>NVIDIA/cuda-python<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;cuda-core-python312-linux-64-*&quot;</span>
+<span class="gp">$ </span>gh<span class="w"> </span>run<span class="w"> </span>download<span class="w"> </span><span class="s2">"</span><span class="nv">$RUN_ID</span><span class="s2">"</span><span class="w"> </span>-R<span class="w"> </span>NVIDIA/cuda-python<span class="w"> </span>-p<span class="w"> </span><span class="s2">"cuda-core-python312-linux-64-*"</span>
 
 <span class="gp">$ </span><span class="c1"># Install the downloaded wheel:</span>
 <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>cuda-core-python312-linux-64-*/cuda_core*.whl<span class="o">[</span>cu13<span class="o">]</span>
@@ -834,7 +848,7 @@ with <code class="docutils literal notranslate"><span class="pre">linux-aarch64<
 <h3>Development with uv<a class="headerlink" href="#development-with-uv" title="Link to this heading">#</a></h3>
 <p><a class="reference external" href="https://docs.astral.sh/uv/">uv</a> is a fast Python package and project manager. For example, to work on
 <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> against CUDA 13:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA/cuda-python
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
 <span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>cuda-python/cuda_core
 <span class="gp">$ </span>uv<span class="w"> </span>venv
 <span class="gp">$ </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate<span class="w">   </span><span class="c1"># On Windows: .venv\Scripts\activate</span>
@@ -850,7 +864,7 @@ with <code class="docutils literal notranslate"><span class="pre">linux-aarch64<
 <h3>Development with pixi<a class="headerlink" href="#development-with-pixi" title="Link to this heading">#</a></h3>
 <p><a class="reference external" href="https://pixi.sh/">pixi</a> provides a reproducible development environment across the repository.
 From the repository root:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA/cuda-python
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
 <span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>cuda-python
 <span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>cu13<span class="w"> </span>test-core
 </pre></div>
@@ -863,12 +877,21 @@ From the repository root:</p>
 </section>
 <section id="installing-from-source">
 <h3>Installing from Source<a class="headerlink" href="#installing-from-source" title="Link to this heading">#</a></h3>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA/cuda-python
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
 <span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>cuda-python/cuda_core
 <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.x or 13.x is a required dependency.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The version is derived from git tags via <code class="docutils literal notranslate"><span class="pre">setuptools-scm</span></code>, so the clone
+must include tags reaching back to at least the latest <code class="docutils literal notranslate"><span class="pre">cuda-core-v*</span></code> tag.
+Do not use <code class="docutils literal notranslate"><span class="pre">--depth</span></code> or <code class="docutils literal notranslate"><span class="pre">--no-tags</span></code>: a shallow clone builds without
+error but produces a bogus version such as <code class="docutils literal notranslate"><span class="pre">0.1.dev1+g0d22cb444</span></code>. See
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md">Cloning the repository</a>
+for details and recovery steps.</p>
+</div>
 </section>
 </section>
 </section>
