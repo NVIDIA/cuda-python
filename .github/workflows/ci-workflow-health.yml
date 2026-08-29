@@ -74,6 +74,7 @@ jobs:
               `<!-- cuda-python-ci-health:${run.workflow_id}:${scopeKey} -->`;
             const eventMarker =
               `<!-- cuda-python-ci-health-event:${run.id}:${run.run_attempt} -->`;
+            const incidentLabel = "ci-workflow-health";
             const title = `[CI failure] ${run.name} ${scopeLabel}`;
             const repositoryUrl =
               `${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}`;
@@ -154,6 +155,19 @@ jobs:
               );
             }
 
+            for (const incident of incidents) {
+              const hasIncidentLabel = incident.labels.some((label) =>
+                (typeof label === "string" ? label : label.name) === incidentLabel,
+              );
+              if (!hasIncidentLabel) {
+                await github.rest.issues.addLabels({
+                  ...context.repo,
+                  issue_number: incident.number,
+                  labels: [incidentLabel],
+                });
+              }
+            }
+
             async function eventAlreadyRecorded(issue) {
               if (issue.body.includes(eventMarker)) {
                 return true;
@@ -207,7 +221,7 @@ jobs:
               await github.rest.issues.create({
                 ...context.repo,
                 title,
-                labels: ["bug", "CI/CD", "triage"],
+                labels: ["bug", "CI/CD", "triage", incidentLabel],
                 body: [
                   trackerMarker,
                   eventMarker,
