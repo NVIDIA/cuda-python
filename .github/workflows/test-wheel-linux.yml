@@ -478,7 +478,13 @@ jobs:
 
       - name: Run numba-cuda-mlir tests
         if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}
+        env:
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: |
+          if [[ "${LOCAL_CTK}" != 1 ]]; then
+            # Let numba-cuda-mlir skip inputs that require toolkit executables.
+            export NUMBA_CUDA_MLIR_TEST_WHEEL_ONLY=1
+          fi
           pushd numba-cuda-mlir-released
           # Install this tag's test deps (pytest + plugins + ml-dtypes + ...).
           pip install --upgrade "pip>=25.1"
@@ -486,45 +492,9 @@ jobs:
           # Skip tests/benchmarks/ and tests/doc_examples/ — they import the
           # numba package at collection time, which cuSIMT intentionally does
           # not depend on. See NVIDIA/numba-cuda-mlir#136.
-          #
-          # Version-gated deselects: when a newer numba-cuda-mlir release
-          # ships with the referenced fix, the guard evaluates false and the
-          # tests get run automatically. If they still fail on the newer
-          # version we hear about it loudly (rather than silently masking).
-          DESELECTS=()
-          if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${NUMBA_CUDA_MLIR_VER}') <= Version('0.4.1') else 1)"; then
-            # NVIDIA/numba-cuda-mlir#135: serial-pytest contamination of
-            # numba_cuda_mlir.cuda.cudadrv from an xfailed test in
-            # test_nrt_comprehensive.py contaminates any later test that
-            # touches cuda.cudadrv.driver. Upstream CI hides it via
-            # `-n auto --dist loadscope`. Which specific tests fail depends
-            # on collection order (we saw different subsets on linux-64 vs
-            # win-64 across runs), so we deselect the union of all tests
-            # #135 lists as vulnerable + test_fortran_contiguous (observed
-            # to hit the same contamination in our runs).
-            #
-            # test_nvjitlink_jit_with_linkable_code_lto_dump_assembly_warn:
-            # subprocess-invokes `cuobjdump`, not on PATH in the base
-            # ubuntu:24.04 container. (Linux-only; Windows runners ship
-            # cuobjdump with the local CTK. No upstream fix yet — pending
-            # a skip-guard bug to be filed against NVIDIA/numba-cuda-mlir.)
-            DESELECTS+=(
-              --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_no_sync_default_stream'
-              --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_no_sync_supplied_stream'
-              --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_sync'
-              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_consume_no_sync'
-              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_consume_sync'
-              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_no_sync'
-              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_sync'
-              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_sync_two_streams'
-              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_fortran_contiguous'
-              --deselect 'tests/numba_cuda_tests/cudadrv/test_nvjitlink.py::TestLinkerDumpAssembly::test_nvjitlink_jit_with_linkable_code_lto_dump_assembly_warn'
-            )
-          fi
           pytest -rxXs -v \
             --ignore=tests/benchmarks \
             --ignore=tests/doc_examples \
-            "${DESELECTS[@]}" \
             tests/
           popd
 
