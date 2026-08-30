@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/core/texture/_mipmapped_array.pyx: 87.14%</title>
+    <title>Coverage for cuda/core/texture/_mipmapped_array.pyx: 87.50%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
@@ -12,16 +12,17 @@
   "c": "tests/test_texture_surface.py::test_mipmapped_array_get_level_halves_dims|run",
   "d": "tests/test_texture_surface.py::test_mipmapped_array_get_level_zero_matches_shape|run",
   "e": "tests/test_texture_surface.py::test_mipmapped_array_level_outlives_dropped_parent|run",
-  "f": "tests/test_texture_surface.py::test_texture_object_from_mipmapped_array|run",
-  "g": "tests/test_texture_surface.py::test_texture_surface_close_is_idempotent|run",
-  "h": "tests/test_texture_surface.py::test_resource_descriptor_from_mipmapped_array|run",
-  "i": "tests/test_texture_surface.py::test_surface_rejects_mipmapped_array|run",
-  "j": "(empty)",
-  "k": "tests/test_texture_surface.py::test_mipmapped_array_rejects_zero_levels|run",
-  "l": "tests/test_texture_surface.py::test_mipmapped_array_rejects_zero_dim|run",
-  "m": "tests/test_texture_surface.py::test_mipmapped_array_rejects_bad_channels|run",
-  "n": "tests/test_texture_surface.py::test_mipmapped_array_rejects_bad_format|run",
-  "o": "tests/test_texture_surface.py::test_mipmapped_array_init_disabled|run"
+  "f": "tests/test_texture_surface.py::test_closed_arrays_rejected_before_active_operations|run",
+  "g": "tests/test_texture_surface.py::test_texture_object_from_mipmapped_array|run",
+  "h": "tests/test_texture_surface.py::test_texture_surface_close_is_idempotent|run",
+  "i": "tests/test_texture_surface.py::test_resource_descriptor_from_mipmapped_array|run",
+  "j": "tests/test_texture_surface.py::test_surface_rejects_mipmapped_array|run",
+  "k": "(empty)",
+  "l": "tests/test_texture_surface.py::test_mipmapped_array_rejects_zero_levels|run",
+  "m": "tests/test_texture_surface.py::test_mipmapped_array_rejects_zero_dim|run",
+  "n": "tests/test_texture_surface.py::test_mipmapped_array_rejects_bad_channels|run",
+  "o": "tests/test_texture_surface.py::test_mipmapped_array_rejects_bad_format|run",
+  "p": "tests/test_texture_surface.py::test_mipmapped_array_init_disabled|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -31,7 +32,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>core<span class="sep">/</span>texture<span class="sep">/</span>_mipmapped_array.pyx</b>:
-            <span class="pc_cov">87.14%</span>
+            <span class="pc_cov">87.50%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -73,18 +74,18 @@
             </div>
         </aside>
         <h2>
-            <span class="text">70 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">61<span class="text"> run</span></button>
+            <span class="text">72 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">63<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">9<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
-            <a id="prevFileLink" class="nav" href="z_fb411eceba5d49eb__array_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="prevFileLink" class="nav" href="z_fb411eceba5d49eb__mipmapped_array_pxd.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_fb411eceba5d49eb__surface_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
-            created at 2026-08-23 01:01 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
+            created at 2026-08-30 01:29 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -165,11 +166,11 @@
     <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">    is_surface_load_store: bool = False</span>&nbsp;</span><span class="r"><label for="ctxs64" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">    def __post_init__(self):</span>&nbsp;</span><span class="r"><label for="ctxs66" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">        self.format = _validate_format_channels(self.format, self.num_channels)</span>&nbsp;</span><input type="checkbox" id="ctxs67"><span class="r"><label for="ctxs67" class="ctx">13 ctx</label></span><span class="ctxs">1acbdemnlkhifg</span></p>
-    <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">        self.shape = _validate_array_shape(self.shape)</span>&nbsp;</span><input type="checkbox" id="ctxs68"><span class="r"><label for="ctxs68" class="ctx">11 ctx</label></span><span class="ctxs">1acbdelkhifg</span></p>
-    <p class="run"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">        self.num_levels = int(self.num_levels)</span>&nbsp;</span><input type="checkbox" id="ctxs69"><span class="r"><label for="ctxs69" class="ctx">10 ctx</label></span><span class="ctxs">1acbdekhifg</span></p>
-    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">        if self.num_levels &lt; 1:</span>&nbsp;</span><input type="checkbox" id="ctxs70"><span class="r"><label for="ctxs70" class="ctx">10 ctx</label></span><span class="ctxs">1acbdekhifg</span></p>
-    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">            raise ValueError(f&quot;num_levels must be &gt;= 1, got {self.num_levels}&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs71"><span class="r"><label for="ctxs71" class="ctx">1 ctx</label></span><span class="ctxs">1k</span></p>
+    <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">        self.format = _validate_format_channels(self.format, self.num_channels)</span>&nbsp;</span><input type="checkbox" id="ctxs67"><span class="r"><label for="ctxs67" class="ctx">14 ctx</label></span><span class="ctxs">1facbdenomlijgh</span></p>
+    <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">        self.shape = _validate_array_shape(self.shape)</span>&nbsp;</span><input type="checkbox" id="ctxs68"><span class="r"><label for="ctxs68" class="ctx">12 ctx</label></span><span class="ctxs">1facbdemlijgh</span></p>
+    <p class="run"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">        self.num_levels = int(self.num_levels)</span>&nbsp;</span><input type="checkbox" id="ctxs69"><span class="r"><label for="ctxs69" class="ctx">11 ctx</label></span><span class="ctxs">1facbdelijgh</span></p>
+    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">        if self.num_levels &lt; 1:</span>&nbsp;</span><input type="checkbox" id="ctxs70"><span class="r"><label for="ctxs70" class="ctx">11 ctx</label></span><span class="ctxs">1facbdelijgh</span></p>
+    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">            raise ValueError(f&quot;num_levels must be &gt;= 1, got {self.num_levels}&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs71"><span class="r"><label for="ctxs71" class="ctx">1 ctx</label></span><span class="ctxs">1l</span></p>
     <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">cdef class MipmappedArray:</span>&nbsp;</span><span class="r"></span></p>
@@ -188,7 +189,7 @@
     <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">    def __init__(self, *args, **kwargs):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">        raise RuntimeError(</span>&nbsp;</span><input type="checkbox" id="ctxs90"><span class="r"><label for="ctxs90" class="ctx">1 ctx</label></span><span class="ctxs">1o</span></p>
+    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">        raise RuntimeError(</span>&nbsp;</span><input type="checkbox" id="ctxs90"><span class="r"><label for="ctxs90" class="ctx">1 ctx</label></span><span class="ctxs">1p</span></p>
     <p class="pln"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">            &quot;MipmappedArray cannot be instantiated directly. &quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">            &quot;Use Device.create_mipmapped_array().&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
@@ -209,137 +210,142 @@
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">            returned :class:`OpaqueArray`; the underlying storage is released only</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">            when this :class:`MipmappedArray` is destroyed.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">        lvl = int(level)</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">4 ctx</label></span><span class="ctxs">1cbde</span></p>
-    <p class="run"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">        if lvl &lt; 0:</span>&nbsp;</span><input type="checkbox" id="ctxs112"><span class="r"><label for="ctxs112" class="ctx">4 ctx</label></span><span class="ctxs">1cbde</span></p>
-    <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">            raise ValueError(f&quot;level must be &gt;= 0, got {lvl}&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs113"><span class="r"><label for="ctxs113" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
-    <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">        if lvl &gt;= &lt;int&gt;self._num_levels:</span>&nbsp;</span><input type="checkbox" id="ctxs114"><span class="r"><label for="ctxs114" class="ctx">4 ctx</label></span><span class="ctxs">1cbde</span></p>
-    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">            raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs115"><span class="r"><label for="ctxs115" class="ctx">2 ctx</label></span><span class="ctxs">1jb</span></p>
-    <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">                f&quot;level ({lvl}) must be &lt; num_levels ({self._num_levels})&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs116"><span class="r"><label for="ctxs116" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
-    <p class="pln"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">            )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">        cdef OpaqueArrayHandle h_level = create_array_level_handle(self._handle, &lt;unsigned int&gt;lvl)</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">3 ctx</label></span><span class="ctxs">1cde</span></p>
-    <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">        if not h_level:</span>&nbsp;</span><input type="checkbox" id="ctxs120"><span class="r"><label for="ctxs120" class="ctx">3 ctx</label></span><span class="ctxs">1cde</span></p>
-    <p class="mis show_mis"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">            HANDLE_RETURN(get_last_error())</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">        # The returned OpaqueArray is non-owning; its C++ box embeds this mipmap&#x27;s</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">        # handle, so the parent&#x27;s storage structurally outlives the level view</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">        # (no Python parent reference needed).</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">        return _array_from_handle(h_level, self._device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs125"><span class="r"><label for="ctxs125" class="ctx">3 ctx</label></span><span class="ctxs">1cde</span></p>
-    <p class="pln"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">    def handle(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;The underlying ``CUmipmappedArray`` as an integer.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">        return as_intptr(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs130"><span class="r"><label for="ctxs130" class="ctx">2 ctx</label></span><span class="ctxs">1ag</span></p>
-    <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">    def shape(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Base-level (level 0) allocation shape, in elements.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">        return self._shape</span>&nbsp;</span><input type="checkbox" id="ctxs135"><span class="r"><label for="ctxs135" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
-    <p class="pln"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">    def format(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;The element :class:`~cuda.core.typing.ArrayFormatType`.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">        return _CU_TO_ARRAYFORMAT[self._format]</span>&nbsp;</span><input type="checkbox" id="ctxs140"><span class="r"><label for="ctxs140" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
-    <p class="pln"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">    def num_channels(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Channels per element (1, 2, or 4).&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">        return self._num_channels</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
-    <p class="pln"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">    def num_levels(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Number of mip levels.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">        return int(self._num_levels)</span>&nbsp;</span><input type="checkbox" id="ctxs150"><span class="r"><label for="ctxs150" class="ctx">3 ctx</label></span><span class="ctxs">1abf</span></p>
-    <p class="pln"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">    def is_surface_load_store(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;True if this mipmap (and each of its levels) was created with</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">        ``CUDA_ARRAY3D_SURFACE_LDST`` and can back a :class:`SurfaceObject`.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">        return self._surface_load_store</span>&nbsp;</span><input type="checkbox" id="ctxs156"><span class="r"><label for="ctxs156" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">        MipmappedArray_check_open(self)</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">5 ctx</label></span><span class="ctxs">1fcbde</span></p>
+    <p class="run"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">        lvl = int(level)</span>&nbsp;</span><input type="checkbox" id="ctxs112"><span class="r"><label for="ctxs112" class="ctx">4 ctx</label></span><span class="ctxs">1cbde</span></p>
+    <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">        if lvl &lt; 0:</span>&nbsp;</span><input type="checkbox" id="ctxs113"><span class="r"><label for="ctxs113" class="ctx">4 ctx</label></span><span class="ctxs">1cbde</span></p>
+    <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">            raise ValueError(f&quot;level must be &gt;= 0, got {lvl}&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs114"><span class="r"><label for="ctxs114" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">        if lvl &gt;= &lt;int&gt;self._num_levels:</span>&nbsp;</span><input type="checkbox" id="ctxs115"><span class="r"><label for="ctxs115" class="ctx">5 ctx</label></span><span class="ctxs">1kcbde</span></p>
+    <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">            raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs116"><span class="r"><label for="ctxs116" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">                f&quot;level ({lvl}) must be &lt; num_levels ({self._num_levels})&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs117"><span class="r"><label for="ctxs117" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="pln"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">            )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">        cdef OpaqueArrayHandle h_level = create_array_level_handle(self._handle, &lt;unsigned int&gt;lvl)</span>&nbsp;</span><input type="checkbox" id="ctxs120"><span class="r"><label for="ctxs120" class="ctx">3 ctx</label></span><span class="ctxs">1cde</span></p>
+    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">        if not h_level:</span>&nbsp;</span><input type="checkbox" id="ctxs121"><span class="r"><label for="ctxs121" class="ctx">3 ctx</label></span><span class="ctxs">1cde</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">            HANDLE_RETURN(get_last_error())</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">        # The returned OpaqueArray is non-owning; its C++ box embeds this mipmap&#x27;s</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">        # handle, so the parent&#x27;s storage structurally outlives the level view</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">        # (no Python parent reference needed).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">        return _array_from_handle(h_level, self._device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">3 ctx</label></span><span class="ctxs">1cde</span></p>
+    <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">    def handle(self):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;The underlying ``CUmipmappedArray`` as an integer.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">        return as_intptr(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs131"><span class="r"><label for="ctxs131" class="ctx">2 ctx</label></span><span class="ctxs">1ah</span></p>
+    <p class="pln"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">    def is_closed(self) -&gt; bool:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Whether this mipmapped array has been closed.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">        return self._handle.get() == NULL</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">1 ctx</label></span><span class="ctxs">1f</span></p>
+    <p class="pln"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">    def shape(self):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Base-level (level 0) allocation shape, in elements.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">        return self._shape</span>&nbsp;</span><input type="checkbox" id="ctxs141"><span class="r"><label for="ctxs141" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="pln"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">    def format(self):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;The element :class:`~cuda.core.typing.ArrayFormatType`.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">        return _CU_TO_ARRAYFORMAT[self._format]</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="pln"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">    def num_channels(self):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Channels per element (1, 2, or 4).&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">        return self._num_channels</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="pln"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">    def num_levels(self):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Number of mip levels.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">        return int(self._num_levels)</span>&nbsp;</span><input type="checkbox" id="ctxs156"><span class="r"><label for="ctxs156" class="ctx">3 ctx</label></span><span class="ctxs">1abg</span></p>
     <p class="pln"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">    def device(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;The :class:`Device` this mipmap was allocated on.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">        from cuda.core._device import Device</span>&nbsp;</span><input type="checkbox" id="ctxs161"><span class="r"><label for="ctxs161" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
-    <p class="run"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">        return Device(self._device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs162"><span class="r"><label for="ctxs162" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="pln"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">    def is_surface_load_store(self):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;True if this mipmap (and each of its levels) was created with</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">        ``CUDA_ARRAY3D_SURFACE_LDST`` and can back a :class:`SurfaceObject`.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">        return self._surface_load_store</span>&nbsp;</span><input type="checkbox" id="ctxs162"><span class="r"><label for="ctxs162" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="pln"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">    cpdef close(self):</span>&nbsp;</span><span class="r"><label for="ctxs164" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Release this object&#x27;s reference to the underlying ``CUmipmappedArray``.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">        Destruction (``cuMipmappedArrayDestroy``) happens via the handle&#x27;s</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">        deleter when the last reference is dropped. A level :class:`OpaqueArray`</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">        from :meth:`get_level` holds its own reference to this mipmap&#x27;s storage,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">        so it stays valid until both it and this object are released. Idempotent.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">        self._handle.reset()</span>&nbsp;</span><input type="checkbox" id="ctxs172"><span class="r"><label for="ctxs172" class="ctx">8 ctx</label></span><span class="ctxs">1acbdhifg</span></p>
-    <p class="pln"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">    def __enter__(self):</span>&nbsp;</span><span class="r"><label for="ctxs174" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">    def __exit__(self, exc_type, exc, tb):</span>&nbsp;</span><span class="r"><label for="ctxs177" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">        self.close()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">    def device(self):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;The :class:`Device` this mipmap was allocated on.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">        from cuda.core._device import Device</span>&nbsp;</span><input type="checkbox" id="ctxs167"><span class="r"><label for="ctxs167" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">        return Device(self._device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs168"><span class="r"><label for="ctxs168" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="pln"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">    cpdef close(self):</span>&nbsp;</span><span class="r"><label for="ctxs170" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Release this object&#x27;s reference to the underlying ``CUmipmappedArray``.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">        Destruction (``cuMipmappedArrayDestroy``) happens via the handle&#x27;s</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">        deleter when the last reference is dropped. A level :class:`OpaqueArray`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">        from :meth:`get_level` holds its own reference to this mipmap&#x27;s storage,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t"><span class="txt">        so it stays valid until both it and this object are released. Idempotent.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">        self._handle.reset()</span>&nbsp;</span><input type="checkbox" id="ctxs178"><span class="r"><label for="ctxs178" class="ctx">9 ctx</label></span><span class="ctxs">1facbdijgh</span></p>
     <p class="pln"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">        return (</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">            f&quot;MipmappedArray(shape={self._shape}, &quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t"><span class="txt">            f&quot;format={_CU_TO_ARRAYFORMAT[self._format].name}, &quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t"><span class="txt">            f&quot;num_channels={self._num_channels}, &quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t"><span class="txt">            f&quot;num_levels={self._num_levels})&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">def _create_mipmapped_array(options):</span>&nbsp;</span><span class="r"><label for="ctxs189" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;Allocate a new :class:`MipmappedArray` on the current device.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t"><span class="txt">    Backs :meth:`cuda.core.Device.create_mipmapped_array`. ``options`` is a</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t"><span class="txt">    :class:`MipmappedArrayOptions` (or a mapping accepted by it); its fields are</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">    validated at construction.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">    cdef object opts = check_or_create_options(</span>&nbsp;</span><input type="checkbox" id="ctxs196"><span class="r"><label for="ctxs196" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="run"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">        MipmappedArrayOptions, options, &quot;Mipmapped array options&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs197"><span class="r"><label for="ctxs197" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="pln"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">    shape_t = opts.shape</span>&nbsp;</span><input type="checkbox" id="ctxs199"><span class="r"><label for="ctxs199" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="pln"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">    cdef cydriver.CUarray_format c_format = &lt;cydriver.CUarray_format&gt;_ARRAYFORMAT_TO_CU[opts.format]</span>&nbsp;</span><input type="checkbox" id="ctxs201"><span class="r"><label for="ctxs201" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="run"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">    cdef int rank = len(shape_t)</span>&nbsp;</span><input type="checkbox" id="ctxs202"><span class="r"><label for="ctxs202" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="pln"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t"><span class="txt">    cdef unsigned int flags = (</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">        cydriver.CUDA_ARRAY3D_SURFACE_LDST if opts.is_surface_load_store else 0</span>&nbsp;</span><input type="checkbox" id="ctxs204"><span class="r"><label for="ctxs204" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="pln"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t"><span class="txt">    cdef unsigned int c_levels = &lt;unsigned int&gt;opts.num_levels</span>&nbsp;</span><input type="checkbox" id="ctxs206"><span class="r"><label for="ctxs206" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="pln"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">    # Mipmap creation uses the 3D descriptor regardless of rank; lower-rank</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t"><span class="txt">    # shapes use Height=0/Depth=0 sentinels, matching cuArray3DCreate.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">    cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d = cydriver.CUDA_ARRAY3D_DESCRIPTOR(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">        Width=&lt;size_t&gt;shape_t[0],</span>&nbsp;</span><input type="checkbox" id="ctxs211"><span class="r"><label for="ctxs211" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="run"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t"><span class="txt">        Height=&lt;size_t&gt;(shape_t[1] if rank &gt;= 2 else 0),</span>&nbsp;</span><input type="checkbox" id="ctxs212"><span class="r"><label for="ctxs212" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="run"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">        Depth=&lt;size_t&gt;(shape_t[2] if rank &gt;= 3 else 0),</span>&nbsp;</span><input type="checkbox" id="ctxs213"><span class="r"><label for="ctxs213" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="run"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">        Format=c_format,</span>&nbsp;</span><input type="checkbox" id="ctxs214"><span class="r"><label for="ctxs214" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="run"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">        NumChannels=&lt;unsigned int&gt;opts.num_channels,</span>&nbsp;</span><input type="checkbox" id="ctxs215"><span class="r"><label for="ctxs215" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="run"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">        Flags=flags,</span>&nbsp;</span><input type="checkbox" id="ctxs216"><span class="r"><label for="ctxs216" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="pln"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">    cdef MipmappedArrayHandle h = create_mipmapped_array_handle(desc3d, c_levels)</span>&nbsp;</span><input type="checkbox" id="ctxs219"><span class="r"><label for="ctxs219" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="run"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">    if not h:</span>&nbsp;</span><input type="checkbox" id="ctxs220"><span class="r"><label for="ctxs220" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="mis show_mis"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">        HANDLE_RETURN(get_last_error())</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">    cdef MipmappedArray self = MipmappedArray.__new__(MipmappedArray)</span>&nbsp;</span><input type="checkbox" id="ctxs223"><span class="r"><label for="ctxs223" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="run"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t"><span class="txt">    self._handle = h</span>&nbsp;</span><input type="checkbox" id="ctxs224"><span class="r"><label for="ctxs224" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="run"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t"><span class="txt">    self._shape = shape_t</span>&nbsp;</span><input type="checkbox" id="ctxs225"><span class="r"><label for="ctxs225" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="run"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">    self._format = c_format</span>&nbsp;</span><input type="checkbox" id="ctxs226"><span class="r"><label for="ctxs226" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="run"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">    self._num_channels = opts.num_channels</span>&nbsp;</span><input type="checkbox" id="ctxs227"><span class="r"><label for="ctxs227" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="run"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">    self._num_levels = &lt;unsigned int&gt;opts.num_levels</span>&nbsp;</span><input type="checkbox" id="ctxs228"><span class="r"><label for="ctxs228" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="run"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">    self._surface_load_store = bool(opts.is_surface_load_store)</span>&nbsp;</span><input type="checkbox" id="ctxs229"><span class="r"><label for="ctxs229" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="run"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">    self._device_id = _get_current_device_id()</span>&nbsp;</span><input type="checkbox" id="ctxs230"><span class="r"><label for="ctxs230" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
-    <p class="run"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">    return self</span>&nbsp;</span><input type="checkbox" id="ctxs231"><span class="r"><label for="ctxs231" class="ctx">9 ctx</label></span><span class="ctxs">1acbdehifg</span></p>
+    <p class="run"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">    def __enter__(self):</span>&nbsp;</span><span class="r"><label for="ctxs180" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t"><span class="txt">    def __exit__(self, exc_type, exc, tb):</span>&nbsp;</span><span class="r"><label for="ctxs183" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t"><span class="txt">        self.close()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">        return (</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">            f&quot;MipmappedArray(shape={self._shape}, &quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">            f&quot;format={_CU_TO_ARRAYFORMAT[self._format].name}, &quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">            f&quot;num_channels={self._num_channels}, &quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">            f&quot;num_levels={self._num_levels})&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">def _create_mipmapped_array(options):</span>&nbsp;</span><span class="r"><label for="ctxs194" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;Allocate a new :class:`MipmappedArray` on the current device.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">    Backs :meth:`cuda.core.Device.create_mipmapped_array`. ``options`` is a</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">    :class:`MipmappedArrayOptions` (or a mapping accepted by it); its fields are</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">    validated at construction.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">    cdef object opts = check_or_create_options(</span>&nbsp;</span><input type="checkbox" id="ctxs201"><span class="r"><label for="ctxs201" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="run"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">        MipmappedArrayOptions, options, &quot;Mipmapped array options&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs202"><span class="r"><label for="ctxs202" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="pln"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">    shape_t = opts.shape</span>&nbsp;</span><input type="checkbox" id="ctxs204"><span class="r"><label for="ctxs204" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="pln"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t"><span class="txt">    cdef cydriver.CUarray_format c_format = &lt;cydriver.CUarray_format&gt;_ARRAYFORMAT_TO_CU[opts.format]</span>&nbsp;</span><input type="checkbox" id="ctxs206"><span class="r"><label for="ctxs206" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="run"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">    cdef int rank = len(shape_t)</span>&nbsp;</span><input type="checkbox" id="ctxs207"><span class="r"><label for="ctxs207" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="pln"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">    cdef unsigned int flags = (</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t"><span class="txt">        cydriver.CUDA_ARRAY3D_SURFACE_LDST if opts.is_surface_load_store else 0</span>&nbsp;</span><input type="checkbox" id="ctxs209"><span class="r"><label for="ctxs209" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="pln"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">    cdef unsigned int c_levels = &lt;unsigned int&gt;opts.num_levels</span>&nbsp;</span><input type="checkbox" id="ctxs211"><span class="r"><label for="ctxs211" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="pln"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">    # Mipmap creation uses the 3D descriptor regardless of rank; lower-rank</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">    # shapes use Height=0/Depth=0 sentinels, matching cuArray3DCreate.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">    cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d = cydriver.CUDA_ARRAY3D_DESCRIPTOR(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">        Width=&lt;size_t&gt;shape_t[0],</span>&nbsp;</span><input type="checkbox" id="ctxs216"><span class="r"><label for="ctxs216" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="run"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">        Height=&lt;size_t&gt;(shape_t[1] if rank &gt;= 2 else 0),</span>&nbsp;</span><input type="checkbox" id="ctxs217"><span class="r"><label for="ctxs217" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="run"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">        Depth=&lt;size_t&gt;(shape_t[2] if rank &gt;= 3 else 0),</span>&nbsp;</span><input type="checkbox" id="ctxs218"><span class="r"><label for="ctxs218" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="run"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">        Format=c_format,</span>&nbsp;</span><input type="checkbox" id="ctxs219"><span class="r"><label for="ctxs219" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="run"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">        NumChannels=&lt;unsigned int&gt;opts.num_channels,</span>&nbsp;</span><input type="checkbox" id="ctxs220"><span class="r"><label for="ctxs220" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="run"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">        Flags=flags,</span>&nbsp;</span><input type="checkbox" id="ctxs221"><span class="r"><label for="ctxs221" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="pln"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t"><span class="txt">    cdef MipmappedArrayHandle h = create_mipmapped_array_handle(desc3d, c_levels)</span>&nbsp;</span><input type="checkbox" id="ctxs224"><span class="r"><label for="ctxs224" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="run"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t"><span class="txt">    if not h:</span>&nbsp;</span><input type="checkbox" id="ctxs225"><span class="r"><label for="ctxs225" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">        HANDLE_RETURN(get_last_error())</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">    cdef MipmappedArray self = MipmappedArray.__new__(MipmappedArray)</span>&nbsp;</span><input type="checkbox" id="ctxs228"><span class="r"><label for="ctxs228" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="run"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">    self._handle = h</span>&nbsp;</span><input type="checkbox" id="ctxs229"><span class="r"><label for="ctxs229" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="run"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">    self._shape = shape_t</span>&nbsp;</span><input type="checkbox" id="ctxs230"><span class="r"><label for="ctxs230" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="run"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">    self._format = c_format</span>&nbsp;</span><input type="checkbox" id="ctxs231"><span class="r"><label for="ctxs231" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="run"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">    self._num_channels = opts.num_channels</span>&nbsp;</span><input type="checkbox" id="ctxs232"><span class="r"><label for="ctxs232" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="run"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">    self._num_levels = &lt;unsigned int&gt;opts.num_levels</span>&nbsp;</span><input type="checkbox" id="ctxs233"><span class="r"><label for="ctxs233" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="run"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">    self._surface_load_store = bool(opts.is_surface_load_store)</span>&nbsp;</span><input type="checkbox" id="ctxs234"><span class="r"><label for="ctxs234" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="run"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">    self._device_id = _get_current_device_id()</span>&nbsp;</span><input type="checkbox" id="ctxs235"><span class="r"><label for="ctxs235" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
+    <p class="run"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">    return self</span>&nbsp;</span><input type="checkbox" id="ctxs236"><span class="r"><label for="ctxs236" class="ctx">10 ctx</label></span><span class="ctxs">1facbdeijgh</span></p>
 </main>
 <footer>
     <div class="content">
         <p>
-            <a class="nav" href="z_fb411eceba5d49eb__array_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="z_fb411eceba5d49eb__mipmapped_array_pxd.html">&#xab; prev</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_fb411eceba5d49eb__surface_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
-            created at 2026-08-23 01:01 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
+            created at 2026-08-30 01:29 +0000
         </p>
     </div>
 </footer>

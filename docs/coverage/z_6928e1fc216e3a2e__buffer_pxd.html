@@ -2,9 +2,574 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/core/_memory/_buffer.pxd: 100.00%</title>
+    <title>Coverage for cuda/core/_memory/_buffer.pxd: 75.00%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "tests/test_memory.py::test_closed_buffer_rejected_before_active_operations|run",
+  "b": "tests/test_memory.py::test_set_deallocation_stream_rejects_none_and_closed_buffer|run",
+  "c": "tests/graph/test_graph_builder.py::test_graph_child_graph|run",
+  "d": "tests/graph/test_graph_builder.py::test_graph_definition_conditional_body_after_capture|run",
+  "e": "tests/graph/test_graph_builder.py::test_graph_definition_hybrid_conditional_body|run",
+  "f": "tests/graph/test_graph_builder.py::test_graph_definition_round_trips_through_explicit_api|run",
+  "g": "tests/graph/test_graph_builder.py::test_graph_repeat_capture|run",
+  "h": "tests/graph/test_graph_builder.py::test_pdl_launch_graph_capture|run",
+  "i": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[0]|run",
+  "j": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[1]|run",
+  "k": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[False]|run",
+  "l": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[True]|run",
+  "m": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[condition_value2]|run",
+  "n": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[condition_value3]|run",
+  "o": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[condition_value4]|run",
+  "p": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[condition_value5]|run",
+  "q": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[0]|run",
+  "r": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[1]|run",
+  "s": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[False]|run",
+  "t": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[True]|run",
+  "u": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[condition_value2]|run",
+  "v": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[condition_value3]|run",
+  "w": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[condition_value4]|run",
+  "x": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[condition_value5]|run",
+  "y": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_nested|run",
+  "z": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_on_forked_builder|run",
+  "A": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[0]|run",
+  "B": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[1]|run",
+  "C": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[2]|run",
+  "D": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[3]|run",
+  "E": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[0]|run",
+  "F": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[1]|run",
+  "G": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[False]|run",
+  "H": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[True]|run",
+  "I": "tests/graph/test_graph_definition_lifetime.py::test_inflight_launch_retains_attachments_until_completion|run",
+  "J": "tests/graph/test_graph_definition_lifetime.py::test_kernel_args_buffer_lifetime|run",
+  "K": "tests/graph/test_graph_definition_lifetime.py::test_kernel_args_survive_graph_clone|run",
+  "L": "tests/graph/test_graph_definition_lifetime.py::test_memcpy_buffer_allocations_released_after_graph_destroyed|run",
+  "M": "tests/graph/test_graph_definition_lifetime.py::test_memcpy_buffer_and_src_owner_rejected|run",
+  "N": "tests/graph/test_graph_definition_lifetime.py::test_memcpy_buffer_lifetime|run",
+  "O": "tests/graph/test_graph_definition_lifetime.py::test_memcpy_buffer_survives_close|run",
+  "P": "tests/graph/test_graph_definition_lifetime.py::test_memcpy_buffers_survive_graph_clone|run",
+  "Q": "tests/graph/test_graph_definition_lifetime.py::test_memcpy_closed_buffer_src_owner_rejected|run",
+  "R": "tests/graph/test_graph_definition_lifetime.py::test_memcpy_mixed_buffer_and_raw_owner|run",
+  "S": "tests/graph/test_graph_definition_lifetime.py::test_memcpy_raw_ptrs_with_owners|run",
+  "T": "tests/graph/test_graph_definition_lifetime.py::test_memset_buffer_lifetime|run",
+  "U": "tests/graph/test_graph_definition_lifetime.py::test_memset_buffer_survives_close|run",
+  "V": "tests/graph/test_graph_definition_lifetime.py::test_memset_closed_buffer_dst_owner_rejected|run",
+  "W": "tests/graph/test_graph_definition_lifetime.py::test_memset_closed_buffer_rejected|run",
+  "X": "tests/graph/test_graph_definition_lifetime.py::test_memset_raw_ptr_with_dst_owner|run",
+  "Y": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_baseline|run",
+  "Z": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a1|run",
+  "0": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_a2|run",
+  "1": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_destroy_joint|run",
+  "2": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_insert_b|run",
+  "3": "tests/graph/test_graph_definition_mutation.py::test_convert_linear_to_fan_in|run",
+  "4": "tests/graph/test_graph_definition_mutation.py::test_destroyed_node|run",
+  "5": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-global]|run",
+  "6": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-no_graph]|run",
+  "7": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-relaxed]|run",
+  "8": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-thread_local]|run",
+  "9": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-global]|run",
+  "!": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-no_graph]|run",
+  "#": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-relaxed]|run",
+  "$": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-thread_local]|run",
+  "%": "tests/graph/test_graph_memory_resource.py::test_graph_alloc_with_output[global]|run",
+  "'": "tests/graph/test_graph_memory_resource.py::test_graph_alloc_with_output[relaxed]|run",
+  "(": "tests/graph/test_graph_memory_resource.py::test_graph_alloc_with_output[thread_local]|run",
+  ")": "tests/graph/test_graph_memory_resource.py::test_graph_mem_alloc_zero[global]|run",
+  "*": "tests/graph/test_graph_memory_resource.py::test_graph_mem_alloc_zero[relaxed]|run",
+  "+": "tests/graph/test_graph_memory_resource.py::test_graph_mem_alloc_zero[thread_local]|run",
+  ",": "tests/graph/test_graph_memory_resource.py::test_graph_mem_set_attributes[global]|run",
+  "-": "tests/graph/test_graph_memory_resource.py::test_graph_mem_set_attributes[relaxed]|run",
+  ".": "tests/graph/test_graph_memory_resource.py::test_graph_mem_set_attributes[thread_local]|run",
+  "/": "tests/graph/test_graph_node_update.py::test_closing_executable_during_launch_defers_owner_release|run",
+  ":": "tests/graph/test_graph_node_update.py::test_definition_node_update_changes_future_instantiations[kernel-args]|run",
+  ";": "tests/graph/test_graph_node_update.py::test_definition_node_update_changes_future_instantiations[kernel-args]|setup",
+  "=": "tests/graph/test_graph_node_update.py::test_definition_node_update_changes_future_instantiations[kernel-config]|setup",
+  "?": "tests/graph/test_graph_node_update.py::test_definition_node_update_changes_future_instantiations[kernel-function]|setup",
+  "@": "tests/graph/test_graph_node_update.py::test_definition_node_update_changes_future_instantiations[memcpy-destination]|run",
+  "[": "tests/graph/test_graph_node_update.py::test_definition_node_update_changes_future_instantiations[memcpy-destination]|setup",
+  "]": "tests/graph/test_graph_node_update.py::test_definition_node_update_changes_future_instantiations[memcpy-size]|setup",
+  "^": "tests/graph/test_graph_node_update.py::test_definition_node_update_changes_future_instantiations[memcpy-source]|run",
+  "_": "tests/graph/test_graph_node_update.py::test_definition_node_update_changes_future_instantiations[memcpy-source]|setup",
+  "`": "tests/graph/test_graph_node_update.py::test_definition_node_update_changes_future_instantiations[memset-destination]|run",
+  "{": "tests/graph/test_graph_node_update.py::test_definition_node_update_changes_future_instantiations[memset-destination]|setup",
+  "|": "tests/graph/test_graph_node_update.py::test_definition_node_update_changes_future_instantiations[memset-value]|setup",
+  "}": "tests/graph/test_graph_node_update.py::test_definition_node_update_rejects_wrong_type[kernel-args]|setup",
+  "~": "tests/graph/test_graph_node_update.py::test_definition_node_update_rejects_wrong_type[kernel-config]|setup",
+  "ab": "tests/graph/test_graph_node_update.py::test_definition_node_update_rejects_wrong_type[kernel-function]|setup",
+  "bb": "tests/graph/test_graph_node_update.py::test_definition_node_update_rejects_wrong_type[memcpy-destination]|setup",
+  "cb": "tests/graph/test_graph_node_update.py::test_definition_node_update_rejects_wrong_type[memcpy-size]|setup",
+  "db": "tests/graph/test_graph_node_update.py::test_definition_node_update_rejects_wrong_type[memcpy-source]|setup",
+  "eb": "tests/graph/test_graph_node_update.py::test_definition_node_update_rejects_wrong_type[memset-destination]|setup",
+  "fb": "tests/graph/test_graph_node_update.py::test_definition_node_update_rejects_wrong_type[memset-value]|setup",
+  "gb": "tests/graph/test_graph_node_update.py::test_destroyed_definition_node_rejects_update[kernel-args]|setup",
+  "hb": "tests/graph/test_graph_node_update.py::test_destroyed_definition_node_rejects_update[kernel-config]|setup",
+  "ib": "tests/graph/test_graph_node_update.py::test_destroyed_definition_node_rejects_update[kernel-function]|setup",
+  "jb": "tests/graph/test_graph_node_update.py::test_destroyed_definition_node_rejects_update[memcpy-destination]|setup",
+  "kb": "tests/graph/test_graph_node_update.py::test_destroyed_definition_node_rejects_update[memcpy-size]|setup",
+  "lb": "tests/graph/test_graph_node_update.py::test_destroyed_definition_node_rejects_update[memcpy-source]|setup",
+  "mb": "tests/graph/test_graph_node_update.py::test_destroyed_definition_node_rejects_update[memset-destination]|setup",
+  "nb": "tests/graph/test_graph_node_update.py::test_destroyed_definition_node_rejects_update[memset-value]|setup",
+  "ob": "tests/graph/test_graph_node_update.py::test_executable_node_enable_state[memcpy]|run",
+  "pb": "tests/graph/test_graph_node_update.py::test_executable_node_enable_state[memset]|run",
+  "qb": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[kernel-args]|run",
+  "rb": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[kernel-args]|setup",
+  "sb": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[kernel-config]|run",
+  "tb": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[kernel-config]|setup",
+  "ub": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[kernel-function]|setup",
+  "vb": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[memcpy-destination]|run",
+  "wb": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[memcpy-destination]|setup",
+  "xb": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[memcpy-size]|run",
+  "yb": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[memcpy-size]|setup",
+  "zb": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[memcpy-source]|run",
+  "Ab": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[memcpy-source]|setup",
+  "Bb": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[memset-destination]|run",
+  "Cb": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[memset-destination]|setup",
+  "Db": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[memset-value]|run",
+  "Eb": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[memset-value]|setup",
+  "Fb": "tests/graph/test_graph_node_update.py::test_failed_definition_node_update_preserves_state[kernel-args]|setup",
+  "Gb": "tests/graph/test_graph_node_update.py::test_failed_definition_node_update_preserves_state[kernel-config]|setup",
+  "Hb": "tests/graph/test_graph_node_update.py::test_failed_definition_node_update_preserves_state[kernel-function]|setup",
+  "Ib": "tests/graph/test_graph_node_update.py::test_failed_definition_node_update_preserves_state[memcpy-destination]|setup",
+  "Jb": "tests/graph/test_graph_node_update.py::test_failed_definition_node_update_preserves_state[memcpy-size]|setup",
+  "Kb": "tests/graph/test_graph_node_update.py::test_failed_definition_node_update_preserves_state[memcpy-source]|setup",
+  "Lb": "tests/graph/test_graph_node_update.py::test_failed_definition_node_update_preserves_state[memset-destination]|setup",
+  "Mb": "tests/graph/test_graph_node_update.py::test_failed_definition_node_update_preserves_state[memset-value]|setup",
+  "Nb": "tests/graph/test_graph_node_update.py::test_inflight_launch_defers_replaced_executable_owners|run",
+  "Ob": "tests/graph/test_graph_node_update.py::test_memcpy_update_between_host_and_device[device-to-host]|run",
+  "Pb": "tests/graph/test_graph_node_update.py::test_memcpy_update_between_host_and_device[host-to-device]|run",
+  "Qb": "tests/graph/test_graph_node_update.py::test_memcpy_update_rejects_unsupported_descriptor|run",
+  "Rb": "tests/graph/test_graph_node_update.py::test_partial_memory_updates_are_keyword_only|run",
+  "Sb": "tests/graph/test_graph_node_update.py::test_rejected_executable_update_rolls_back_owners|run",
+  "Tb": "tests/graph/test_graph_update.py::test_graph_update_conditional|run",
+  "Ub": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphBuilder]|run",
+  "Vb": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphDefinition]|run",
+  "Wb": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2d_batch|run",
+  "Xb": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2d_batch|teardown",
+  "Yb": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2h_batch|run",
+  "Zb": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2h_batch|teardown",
+  "0b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_h2d_batch|run",
+  "1b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_h2d_batch|teardown",
+  "2b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_single_element_batch|run",
+  "3b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_various_sizes|run",
+  "4b": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_copy_to|run",
+  "5b": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_copy_to|teardown",
+  "6b": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_d2d|run",
+  "7b": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_d2d|teardown",
+  "8b": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_varied_sizes|run",
+  "9b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_capturing_stream_is_rejected|run",
+  "!b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_capturing_stream_is_rejected|teardown",
+  "#b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_graph_builder_is_rejected|teardown",
+  "$b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_legacy_default_stream_token_is_rejected|run",
+  "%b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_legacy_default_stream_token_is_rejected|teardown",
+  "'b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_ordered_between_prior_and_later_stream_work|run",
+  "(b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_ordered_between_prior_and_later_stream_work|teardown",
+  ")b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_per_thread_default_stream_token_is_accepted|run",
+  "*b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_default_overlap_mode_does_not_warn|run",
+  "+b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_default_overlap_mode_does_not_warn|teardown",
+  ",b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_during_api_call|run",
+  "-b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_during_api_call|teardown",
+  ".b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_host_numa_current_location_hint|run",
+  "/b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_host_numa_location_hint|run",
+  ":b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_location_hints_do_not_corrupt_copy|run",
+  ";b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_options_on_per_thread_default_stream|run",
+  "=b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_overlap_mode_copies_correctly|run",
+  "?b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_overlap_mode_copies_correctly|teardown",
+  "@b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_per_copy_options|run",
+  "[b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_per_copy_options|teardown",
+  "]b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[any-33]|run",
+  "^b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[any-33]|teardown",
+  "_b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[stream-31]|run",
+  "`b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[stream-31]|teardown",
+  "{b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_length_mismatch|run",
+  "|b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_length_mismatch|teardown",
+  "}b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_options_length_mismatch|run",
+  "~b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_options_length_mismatch|teardown",
+  "ac": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_element|run",
+  "bc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_element|teardown",
+  "cc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_type|run",
+  "dc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_type|teardown",
+  "ec": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_empty_sequence|run",
+  "fc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_empty_sequence|teardown",
+  "gc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_buffer_element|run",
+  "hc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_buffer_element|teardown",
+  "ic": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_sequence|run",
+  "jc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_sequence|teardown",
+  "kc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_single_buffer|run",
+  "lc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_single_buffer|teardown",
+  "mc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_size_mismatch[1024-2048]|run",
+  "nc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_size_mismatch[2048-1024]|run",
+  "oc": "tests/memory/test_copy_single_options.py::test_copy_to_rejects_invalid_options_type[42]|run",
+  "pc": "tests/memory/test_copy_single_options.py::test_copy_to_rejects_invalid_options_type[bad_options2]|run",
+  "qc": "tests/memory/test_copy_single_options.py::test_copy_to_rejects_invalid_options_type[not-copyoptions]|run",
+  "rc": "tests/memory/test_copy_single_options.py::test_dst_none_with_options|run",
+  "sc": "tests/memory/test_copy_single_options.py::test_during_api_call_copy_from|run",
+  "tc": "tests/memory/test_copy_single_options.py::test_during_api_call_copy_to|run",
+  "uc": "tests/memory/test_copy_single_options.py::test_host_numa_current_location_hint|run",
+  "vc": "tests/memory/test_copy_single_options.py::test_host_numa_location_hint|run",
+  "wc": "tests/memory/test_copy_single_options.py::test_legacy_default_stream_token_rejected_with_options|run",
+  "xc": "tests/memory/test_copy_single_options.py::test_location_hints_do_not_corrupt_copy|run",
+  "yc": "tests/memory/test_copy_single_options.py::test_options_copy_from_data_correct|run",
+  "zc": "tests/memory/test_copy_single_options.py::test_options_copy_from_rejected_under_graph_capture|run",
+  "Ac": "tests/memory/test_copy_single_options.py::test_options_copy_to_data_correct|run",
+  "Bc": "tests/memory/test_copy_single_options.py::test_options_copy_to_rejected_under_graph_capture|run",
+  "Cc": "tests/memory/test_copy_single_options.py::test_options_none_copy_from_data_correct|run",
+  "Dc": "tests/memory/test_copy_single_options.py::test_options_none_copy_to_data_correct|run",
+  "Ec": "tests/memory/test_copy_single_options.py::test_options_none_copy_to_still_works_under_graph_capture|run",
+  "Fc": "tests/memory/test_copy_single_options.py::test_overlap_mode_copies_correctly|run",
+  "Gc": "tests/memory/test_copy_single_options.py::test_per_thread_default_stream_token_accepted_with_options|run",
+  "Hc": "tests/memory/test_copy_single_options.py::test_src_access_order_copy_from[any-67]|run",
+  "Ic": "tests/memory/test_copy_single_options.py::test_src_access_order_copy_from[stream-65]|run",
+  "Jc": "tests/memory/test_copy_single_options.py::test_src_access_order_copy_to[any-51]|run",
+  "Kc": "tests/memory/test_copy_single_options.py::test_src_access_order_copy_to[stream-49]|run",
+  "Lc": "tests/memory/test_managed_ops.py::TestDiscardBatch::test_basic|run",
+  "Mc": "tests/memory/test_managed_ops.py::TestDiscardPrefetchBatch::test_same_location|run",
+  "Nc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_accessed_by_add_discard|run",
+  "Oc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_accessed_by_mutable_set_interface|run",
+  "Pc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_accessed_by_set_assignment_validates_kind_before_mutation|run",
+  "Qc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_accessed_by_set_assignment|run",
+  "Rc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_advise_location_validation|run",
+  "Sc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_discard[external]|run",
+  "Tc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_discard[pool]|run",
+  "Uc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_discard_prefetch|run",
+  "Vc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_prefetch[external]|run",
+  "Wc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_prefetch[pool]|run",
+  "Xc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_operation_validation[external]|run",
+  "Yc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_operation_validation[pool]|run",
+  "Zc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_preferred_location_roundtrip_host_numa|run",
+  "0c": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_preferred_location_roundtrip|run",
+  "1c": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_read_mostly_roundtrip|run",
+  "2c": "tests/memory/test_managed_ops.py::TestPrefetchBatch::test_per_buffer_location|run",
+  "3c": "tests/memory/test_managed_ops.py::TestPrefetchBatch::test_same_location|run",
+  "4c": "tests/memory/test_managed_ops.py::test_batch_length_mismatch[discard_prefetch_batch]|run",
+  "5c": "tests/memory/test_managed_ops.py::test_batch_length_mismatch[prefetch_batch]|run",
+  "6c": "tests/memory/test_managed_ops.py::test_managed_memory_operations_reject_non_managed_allocations|run",
+  "7c": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[DeviceMR]|run",
+  "8c": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[PinnedMR]|run",
+  "9c": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[DeviceMR]|run",
+  "!c": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[PinnedMR]|run",
+  "#c": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[DeviceMR]|run",
+  "$c": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[PinnedMR]|run",
+  "%c": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[DeviceMR]|run",
+  "'c": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[PinnedMR]|run",
+  "(c": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
+  ")c": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
+  "*c": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[DeviceMR]|run",
+  "+c": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[PinnedMR]|run",
+  ",c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer]|run",
+  "-c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer_desc]|run",
+  ".c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer]|run",
+  "/c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer_desc]|run",
+  ":c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer]|run",
+  ";c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer_desc]|run",
+  "=c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer]|run",
+  "?c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|run",
+  "@c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|run",
+  "[c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|run",
+  "]c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer]|run",
+  "^c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|run",
+  "_c": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[DeviceMR]|run",
+  "`c": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[PinnedMR]|run",
+  "{c": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[DeviceMR]|run",
+  "|c": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[PinnedMR]|run",
+  "}c": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[DeviceMR]|run",
+  "~c": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[PinnedMR]|run",
+  "ad": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[DeviceMR]|run",
+  "bd": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[PinnedMR]|run",
+  "cd": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[DeviceMR]|run",
+  "dd": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[PinnedMR]|run",
+  "ed": "tests/memory_ipc/test_send_buffers.py::TestIpcSendBuffers::test_main[1]|run",
+  "fd": "tests/memory_ipc/test_send_buffers.py::TestIpcSendBuffers::test_main[3]|run",
+  "gd": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[DeviceMR]|run",
+  "hd": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|run",
+  "id": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[DeviceMR]|run",
+  "jd": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|run",
+  "kd": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[DeviceMR]|run",
+  "ld": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|run",
+  "md": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[1]|run",
+  "nd": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[3]|run",
+  "od": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[1]|run",
+  "pd": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[3]|run",
+  "qd": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingRegistry::test_main[1]|run",
+  "rd": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingRegistry::test_main[3]|run",
+  "sd": "tests/test_device.py::test_device_alloc_zero_bytes|run",
+  "td": "tests/test_device.py::test_device_alloc|run",
+  "ud": "tests/test_graphics.py::test_from_gl_buffer_with_stream_context_manager|run",
+  "vd": "tests/test_graphics.py::test_map_returns_buffer|run",
+  "wd": "tests/test_graphics.py::test_strided_memory_view_from_mapped_buffer|run",
+  "xd": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_launch_and_verify|run",
+  "yd": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_two_green_contexts_independent|run",
+  "zd": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_with_workqueue_resource|run",
+  "Ad": "tests/test_green_context.py::test_memory_node_updates_preserve_green_context|run",
+  "Bd": "tests/test_helpers.py::test_latchkernel|run",
+  "Cd": "tests/test_helpers.py::test_patterngen_seeds|run",
+  "Dd": "tests/test_helpers.py::test_patterngen_values|run",
+  "Ed": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True0]|run",
+  "Fd": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True1]|run",
+  "Gd": "tests/test_launcher.py::test_launch_scalar_argument[c_bool-bool-True]|run",
+  "Hd": "tests/test_launcher.py::test_launch_scalar_argument[c_byte-signed char--42]|run",
+  "Id": "tests/test_launcher.py::test_launch_scalar_argument[c_double-double-2.718]|run",
+  "Jd": "tests/test_launcher.py::test_launch_scalar_argument[c_float-float-3.14]|run",
+  "Kd": "tests/test_launcher.py::test_launch_scalar_argument[c_int-signed int--123456]|run",
+  "Ld": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed int--123456]|run",
+  "Md": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed long long--123456789]|run",
+  "Nd": "tests/test_launcher.py::test_launch_scalar_argument[c_longlong-signed long long--123456789]|run",
+  "Od": "tests/test_launcher.py::test_launch_scalar_argument[c_short-signed short--1234]|run",
+  "Pd": "tests/test_launcher.py::test_launch_scalar_argument[c_ubyte-unsigned char-42]|run",
+  "Qd": "tests/test_launcher.py::test_launch_scalar_argument[c_uint-unsigned int-123456]|run",
+  "Rd": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned int-123456]|run",
+  "Sd": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned long long-123456789]|run",
+  "Td": "tests/test_launcher.py::test_launch_scalar_argument[c_ulonglong-unsigned long long-123456789]|run",
+  "Ud": "tests/test_launcher.py::test_launch_scalar_argument[c_ushort-unsigned short-1234]|run",
+  "Vd": "tests/test_launcher.py::test_launch_scalar_argument[complex64-cuda::std::complex\u003cfloat\u003e-(1+2j)]|run",
+  "Wd": "tests/test_launcher.py::test_launch_scalar_argument[complex128-cuda::std::complex\u003cdouble\u003e-(-3-4j)]|run",
+  "Xd": "tests/test_launcher.py::test_launch_scalar_argument[complex-cuda::std::complex\u003cdouble\u003e-(5-7j)]|run",
+  "Yd": "tests/test_launcher.py::test_launch_scalar_argument[float16-half-0.78]|run",
+  "Zd": "tests/test_launcher.py::test_launch_scalar_argument[float32-float-3.14]|run",
+  "0d": "tests/test_launcher.py::test_launch_scalar_argument[float64-double-2.718]|run",
+  "1d": "tests/test_launcher.py::test_launch_scalar_argument[float-double-2.718]|run",
+  "2d": "tests/test_launcher.py::test_launch_scalar_argument[int8-signed char--42]|run",
+  "3d": "tests/test_launcher.py::test_launch_scalar_argument[int16-signed short--1234]|run",
+  "4d": "tests/test_launcher.py::test_launch_scalar_argument[int32-signed int--123456]|run",
+  "5d": "tests/test_launcher.py::test_launch_scalar_argument[int64-signed long long--123456789]|run",
+  "6d": "tests/test_launcher.py::test_launch_scalar_argument[uint8-unsigned char-42]|run",
+  "7d": "tests/test_launcher.py::test_launch_scalar_argument[uint16-unsigned short-1234]|run",
+  "8d": "tests/test_launcher.py::test_launch_scalar_argument[uint32-unsigned int-123456]|run",
+  "9d": "tests/test_launcher.py::test_launch_scalar_argument[uint64-unsigned long long-123456789]|run",
+  "!d": "tests/test_launcher.py::test_launch_scalar_argument_subclass_fallback[ctypes_bool]|run",
+  "#d": "tests/test_launcher.py::test_launch_scalar_argument_subclass_fallback[ctypes_double]|run",
+  "$d": "tests/test_launcher.py::test_launch_scalar_argument_subclass_fallback[ctypes_float]|run",
+  "%d": "tests/test_launcher.py::test_launch_scalar_argument_subclass_fallback[ctypes_int8]|run",
+  "'d": "tests/test_launcher.py::test_launch_scalar_argument_subclass_fallback[ctypes_int16]|run",
+  "(d": "tests/test_launcher.py::test_launch_scalar_argument_subclass_fallback[ctypes_int32]|run",
+  ")d": "tests/test_launcher.py::test_launch_scalar_argument_subclass_fallback[ctypes_int64]|run",
+  "*d": "tests/test_launcher.py::test_launch_scalar_argument_subclass_fallback[ctypes_uint8]|run",
+  "+d": "tests/test_launcher.py::test_launch_scalar_argument_subclass_fallback[ctypes_uint16]|run",
+  ",d": "tests/test_launcher.py::test_launch_scalar_argument_subclass_fallback[ctypes_uint32]|run",
+  "-d": "tests/test_launcher.py::test_launch_scalar_argument_subclass_fallback[ctypes_uint64]|run",
+  ".d": "tests/test_launcher.py::test_launch_scalar_argument_subclass_fallback[numpy_float32]|run",
+  "/d": "tests/test_memory.py::test_buffer_copy_from_size_mismatch_raises|run",
+  ":d": "tests/test_memory.py::test_buffer_copy_from|run",
+  ";d": "tests/test_memory.py::test_buffer_copy_to_size_mismatch_raises|run",
+  "=d": "tests/test_memory.py::test_buffer_copy_to|run",
+  "?d": "tests/test_memory.py::test_buffer_deallocation_stream_configuration_paths[close-close]|run",
+  "@d": "tests/test_memory.py::test_buffer_deallocation_stream_configuration_paths[setter-close]|run",
+  "[d": "tests/test_memory.py::test_buffer_deallocation_stream_configuration_paths[setter-gc]|run",
+  "]d": "tests/test_memory.py::test_buffer_dlpack_failure_clean_up|run",
+  "^d": "tests/test_memory.py::test_buffer_dunder_dlpack_device_failure|run",
+  "_d": "tests/test_memory.py::test_buffer_dunder_dlpack_device_success[DummyDeviceMemoryResource-expected0]|run",
+  "`d": "tests/test_memory.py::test_buffer_dunder_dlpack_device_success[DummyHostMemoryResource-expected1]|run",
+  "{d": "tests/test_memory.py::test_buffer_dunder_dlpack_device_success[DummyPinnedMemoryResource-expected3]|run",
+  "|d": "tests/test_memory.py::test_buffer_dunder_dlpack_device_success[DummyUnifiedMemoryResource-expected2]|run",
+  "}d": "tests/test_memory.py::test_buffer_dunder_dlpack|run",
+  "~d": "tests/test_memory.py::test_buffer_external_device[False]|run",
+  "ae": "tests/test_memory.py::test_buffer_external_device[True]|run",
+  "be": "tests/test_memory.py::test_buffer_external_host|run",
+  "ce": "tests/test_memory.py::test_buffer_external_managed[False]|run",
+  "de": "tests/test_memory.py::test_buffer_external_managed[True]|run",
+  "ee": "tests/test_memory.py::test_buffer_external_pinned_alloc[False]|run",
+  "fe": "tests/test_memory.py::test_buffer_external_pinned_alloc[True]|run",
+  "ge": "tests/test_memory.py::test_buffer_external_pinned_registered[False]|run",
+  "he": "tests/test_memory.py::test_buffer_external_pinned_registered[True]|run",
+  "ie": "tests/test_memory.py::test_buffer_fill[device-bad-type-str]|run",
+  "je": "tests/test_memory.py::test_buffer_fill[device-bytes-0]|run",
+  "ke": "tests/test_memory.py::test_buffer_fill[device-bytes-1]|run",
+  "le": "tests/test_memory.py::test_buffer_fill[device-bytes-2-bad-size]|run",
+  "me": "tests/test_memory.py::test_buffer_fill[device-bytes-2]|run",
+  "ne": "tests/test_memory.py::test_buffer_fill[device-bytes-3]|run",
+  "oe": "tests/test_memory.py::test_buffer_fill[device-bytes-4-bad-size]|run",
+  "pe": "tests/test_memory.py::test_buffer_fill[device-bytes-4]|run",
+  "qe": "tests/test_memory.py::test_buffer_fill[device-int-0x42]|run",
+  "re": "tests/test_memory.py::test_buffer_fill[device-int-256]|run",
+  "se": "tests/test_memory.py::test_buffer_fill[device-int-1000]|run",
+  "te": "tests/test_memory.py::test_buffer_fill[device-int-neg]|run",
+  "ue": "tests/test_memory.py::test_buffer_fill[device-np-float32-1.0]|run",
+  "ve": "tests/test_memory.py::test_buffer_fill[device-np-float64-err]|run",
+  "we": "tests/test_memory.py::test_buffer_fill[device-np-int8-127]|run",
+  "xe": "tests/test_memory.py::test_buffer_fill[device-np-int8--1]|run",
+  "ye": "tests/test_memory.py::test_buffer_fill[device-np-int8--128]|run",
+  "ze": "tests/test_memory.py::test_buffer_fill[device-np-int16--1]|run",
+  "Ae": "tests/test_memory.py::test_buffer_fill[device-np-int16-max]|run",
+  "Be": "tests/test_memory.py::test_buffer_fill[device-np-int16-min]|run",
+  "Ce": "tests/test_memory.py::test_buffer_fill[device-np-int32--1]|run",
+  "De": "tests/test_memory.py::test_buffer_fill[device-np-int32-max]|run",
+  "Ee": "tests/test_memory.py::test_buffer_fill[device-np-int32-min]|run",
+  "Fe": "tests/test_memory.py::test_buffer_fill[device-np-int64-err]|run",
+  "Ge": "tests/test_memory.py::test_buffer_fill[device-np-uint8-0]|run",
+  "He": "tests/test_memory.py::test_buffer_fill[device-np-uint8-255]|run",
+  "Ie": "tests/test_memory.py::test_buffer_fill[device-np-uint16-0x1234]|run",
+  "Je": "tests/test_memory.py::test_buffer_fill[device-np-uint16-0xFFFF]|run",
+  "Ke": "tests/test_memory.py::test_buffer_fill[device-np-uint16-bad-size]|run",
+  "Le": "tests/test_memory.py::test_buffer_fill[device-np-uint32-0xDEADBEEF]|run",
+  "Me": "tests/test_memory.py::test_buffer_fill[device-np-uint32-0xFFFFFFFF]|run",
+  "Ne": "tests/test_memory.py::test_buffer_fill[device-np-uint32-bad-size]|run",
+  "Oe": "tests/test_memory.py::test_buffer_fill[device-np-uint64-err]|run",
+  "Pe": "tests/test_memory.py::test_buffer_fill[pinned-bad-type-str]|run",
+  "Qe": "tests/test_memory.py::test_buffer_fill[pinned-bytes-0]|run",
+  "Re": "tests/test_memory.py::test_buffer_fill[pinned-bytes-1]|run",
+  "Se": "tests/test_memory.py::test_buffer_fill[pinned-bytes-2-bad-size]|run",
+  "Te": "tests/test_memory.py::test_buffer_fill[pinned-bytes-2]|run",
+  "Ue": "tests/test_memory.py::test_buffer_fill[pinned-bytes-3]|run",
+  "Ve": "tests/test_memory.py::test_buffer_fill[pinned-bytes-4-bad-size]|run",
+  "We": "tests/test_memory.py::test_buffer_fill[pinned-bytes-4]|run",
+  "Xe": "tests/test_memory.py::test_buffer_fill[pinned-int-0x42]|run",
+  "Ye": "tests/test_memory.py::test_buffer_fill[pinned-int-256]|run",
+  "Ze": "tests/test_memory.py::test_buffer_fill[pinned-int-1000]|run",
+  "0e": "tests/test_memory.py::test_buffer_fill[pinned-int-neg]|run",
+  "1e": "tests/test_memory.py::test_buffer_fill[pinned-np-float32-1.0]|run",
+  "2e": "tests/test_memory.py::test_buffer_fill[pinned-np-float64-err]|run",
+  "3e": "tests/test_memory.py::test_buffer_fill[pinned-np-int8-127]|run",
+  "4e": "tests/test_memory.py::test_buffer_fill[pinned-np-int8--1]|run",
+  "5e": "tests/test_memory.py::test_buffer_fill[pinned-np-int8--128]|run",
+  "6e": "tests/test_memory.py::test_buffer_fill[pinned-np-int16--1]|run",
+  "7e": "tests/test_memory.py::test_buffer_fill[pinned-np-int16-max]|run",
+  "8e": "tests/test_memory.py::test_buffer_fill[pinned-np-int16-min]|run",
+  "9e": "tests/test_memory.py::test_buffer_fill[pinned-np-int32--1]|run",
+  "!e": "tests/test_memory.py::test_buffer_fill[pinned-np-int32-max]|run",
+  "#e": "tests/test_memory.py::test_buffer_fill[pinned-np-int32-min]|run",
+  "$e": "tests/test_memory.py::test_buffer_fill[pinned-np-int64-err]|run",
+  "%e": "tests/test_memory.py::test_buffer_fill[pinned-np-uint8-0]|run",
+  "'e": "tests/test_memory.py::test_buffer_fill[pinned-np-uint8-255]|run",
+  "(e": "tests/test_memory.py::test_buffer_fill[pinned-np-uint16-0x1234]|run",
+  ")e": "tests/test_memory.py::test_buffer_fill[pinned-np-uint16-0xFFFF]|run",
+  "*e": "tests/test_memory.py::test_buffer_fill[pinned-np-uint16-bad-size]|run",
+  "+e": "tests/test_memory.py::test_buffer_fill[pinned-np-uint32-0xDEADBEEF]|run",
+  ",e": "tests/test_memory.py::test_buffer_fill[pinned-np-uint32-0xFFFFFFFF]|run",
+  "-e": "tests/test_memory.py::test_buffer_fill[pinned-np-uint32-bad-size]|run",
+  ".e": "tests/test_memory.py::test_buffer_fill[pinned-np-uint64-err]|run",
+  "/e": "tests/test_memory.py::test_buffer_fill[unified-bad-type-str]|run",
+  ":e": "tests/test_memory.py::test_buffer_fill[unified-bytes-0]|run",
+  ";e": "tests/test_memory.py::test_buffer_fill[unified-bytes-1]|run",
+  "=e": "tests/test_memory.py::test_buffer_fill[unified-bytes-2-bad-size]|run",
+  "?e": "tests/test_memory.py::test_buffer_fill[unified-bytes-2]|run",
+  "@e": "tests/test_memory.py::test_buffer_fill[unified-bytes-3]|run",
+  "[e": "tests/test_memory.py::test_buffer_fill[unified-bytes-4-bad-size]|run",
+  "]e": "tests/test_memory.py::test_buffer_fill[unified-bytes-4]|run",
+  "^e": "tests/test_memory.py::test_buffer_fill[unified-int-0x42]|run",
+  "_e": "tests/test_memory.py::test_buffer_fill[unified-int-256]|run",
+  "`e": "tests/test_memory.py::test_buffer_fill[unified-int-1000]|run",
+  "{e": "tests/test_memory.py::test_buffer_fill[unified-int-neg]|run",
+  "|e": "tests/test_memory.py::test_buffer_fill[unified-np-float32-1.0]|run",
+  "}e": "tests/test_memory.py::test_buffer_fill[unified-np-float64-err]|run",
+  "~e": "tests/test_memory.py::test_buffer_fill[unified-np-int8-127]|run",
+  "af": "tests/test_memory.py::test_buffer_fill[unified-np-int8--1]|run",
+  "bf": "tests/test_memory.py::test_buffer_fill[unified-np-int8--128]|run",
+  "cf": "tests/test_memory.py::test_buffer_fill[unified-np-int16--1]|run",
+  "df": "tests/test_memory.py::test_buffer_fill[unified-np-int16-max]|run",
+  "ef": "tests/test_memory.py::test_buffer_fill[unified-np-int16-min]|run",
+  "ff": "tests/test_memory.py::test_buffer_fill[unified-np-int32--1]|run",
+  "gf": "tests/test_memory.py::test_buffer_fill[unified-np-int32-max]|run",
+  "hf": "tests/test_memory.py::test_buffer_fill[unified-np-int32-min]|run",
+  "if": "tests/test_memory.py::test_buffer_fill[unified-np-int64-err]|run",
+  "jf": "tests/test_memory.py::test_buffer_fill[unified-np-uint8-0]|run",
+  "kf": "tests/test_memory.py::test_buffer_fill[unified-np-uint8-255]|run",
+  "lf": "tests/test_memory.py::test_buffer_fill[unified-np-uint16-0x1234]|run",
+  "mf": "tests/test_memory.py::test_buffer_fill[unified-np-uint16-0xFFFF]|run",
+  "nf": "tests/test_memory.py::test_buffer_fill[unified-np-uint16-bad-size]|run",
+  "of": "tests/test_memory.py::test_buffer_fill[unified-np-uint32-0xDEADBEEF]|run",
+  "pf": "tests/test_memory.py::test_buffer_fill[unified-np-uint32-0xFFFFFFFF]|run",
+  "qf": "tests/test_memory.py::test_buffer_fill[unified-np-uint32-bad-size]|run",
+  "rf": "tests/test_memory.py::test_buffer_fill[unified-np-uint64-err]|run",
+  "sf": "tests/test_memory.py::test_buffer_initialization|run",
+  "tf": "tests/test_memory.py::test_close_with_default_stream_requires_context|run",
+  "uf": "tests/test_memory.py::test_closed_deallocation_stream_does_not_mutate_buffer|run",
+  "vf": "tests/test_memory.py::test_device_memory_resource_initialization[False]|run",
+  "wf": "tests/test_memory.py::test_device_memory_resource_initialization[True]|run",
+  "xf": "tests/test_memory.py::test_device_memory_resource_with_options|run",
+  "yf": "tests/test_memory.py::test_dmr_deallocate_frees_pool_pointer|run",
+  "zf": "tests/test_memory.py::test_managed_buffer_dlpack_roundtrip_device_type|run",
+  "Af": "tests/test_memory.py::test_managed_memory_resource_buffer_dlpack_device_type|run",
+  "Bf": "tests/test_memory.py::test_managed_memory_resource_initialization|run",
+  "Cf": "tests/test_memory.py::test_managed_memory_resource_with_options|run",
+  "Df": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[DeviceMR]|run",
+  "Ef": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[ManagedMR]|run",
+  "Ff": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[PinnedMR]|run",
+  "Gf": "tests/test_memory.py::test_mempool_ipc_errors|run",
+  "Hf": "tests/test_memory.py::test_mr_deallocate_receives_stream|run",
+  "If": "tests/test_memory.py::test_mr_deallocation_without_current_context[True]|run",
+  "Jf": "tests/test_memory.py::test_non_managed_resources_report_not_managed[device]|run",
+  "Kf": "tests/test_memory.py::test_non_managed_resources_report_not_managed[pinned]|run",
+  "Lf": "tests/test_memory.py::test_pinned_memory_resource_initialization|run",
+  "Mf": "tests/test_memory.py::test_pinned_memory_resource_with_options|run",
+  "Nf": "tests/test_memory.py::test_pinned_mempool_ipc_basic|run",
+  "Of": "tests/test_memory.py::test_pinned_mempool_ipc_errors|run",
+  "Pf": "tests/test_memory.py::test_synchronous_memory_resource_deallocate_accepts_stream|run",
+  "Qf": "tests/test_memory.py::test_vmm_allocator_basic_allocation[handle_type0-False]|run",
+  "Rf": "tests/test_memory.py::test_vmm_allocator_basic_allocation[handle_type0-True]|run",
+  "Sf": "tests/test_memory.py::test_vmm_allocator_policy_configuration|run",
+  "Tf": "tests/test_module.py::test_kernel_keeps_library_alive|run",
+  "Uf": "tests/test_module.py::test_object_code_load_rdc_with_linker[library-from_library]|run",
+  "Vf": "tests/test_module.py::test_object_code_load_rdc_with_linker[object-from_object]|run",
+  "Wf": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_ipc_buffer_descriptor-cloudpickle]|setup",
+  "Xf": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_ipc_buffer_descriptor-pickle]|setup",
+  "Yf": "tests/test_texture_surface.py::test_array_copy_accepts_graph_builder|run",
+  "Zf": "tests/test_texture_surface.py::test_array_copy_rejects_undersized_device_buffer|run",
+  "0f": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_defaults_size|run",
+  "1f": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_rejects_bad_channels|run",
+  "2f": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_rejects_non_multiple|run",
+  "3f": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_rejects_oversize|run",
+  "4f": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_rejects_zero_size|run",
+  "5f": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_size_override|run",
+  "6f": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_rejects_bad_channels|run",
+  "7f": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_rejects_bad_format|run",
+  "8f": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_rejects_zero_dims|run",
+  "9f": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_validates_buffer_size|run",
+  "!f": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_validates_pitch|run",
+  "#f": "tests/test_texture_surface.py::test_surface_rejects_linear_and_pitch2d|run",
+  "$f": "tests/test_texture_surface.py::test_texture_object_from_linear|run",
+  "%f": "tests/test_texture_surface.py::test_texture_object_from_pitch2d|run",
+  "'f": "tests/test_utils.py::test_dlpack_export_device_accessible_cai_view|run",
+  "(f": "tests/test_utils.py::test_dlpack_export_non_native_endian_rejected|run",
+  ")f": "tests/test_utils.py::test_dlpack_export_structured_dtype_raises|run",
+  "*f": "tests/test_utils.py::test_dlpack_export_unsupported_dtype_raises|run",
+  "+f": "tests/test_utils.py::test_from_buffer[False-C-int8-(2, 3)]|run",
+  ",f": "tests/test_utils.py::test_from_buffer[False-C-int8-(10, 10)]|run",
+  "-f": "tests/test_utils.py::test_from_buffer[False-C-int8-(10, 13, 11)]|run",
+  ".f": "tests/test_utils.py::test_from_buffer[False-C-int8-()]|run",
+  "/f": "tests/test_utils.py::test_from_buffer[False-C-uint32-(2, 3)]|run",
+  ":f": "tests/test_utils.py::test_from_buffer[False-C-uint32-(10, 10)]|run",
+  ";f": "tests/test_utils.py::test_from_buffer[False-C-uint32-(10, 13, 11)]|run",
+  "=f": "tests/test_utils.py::test_from_buffer[False-C-uint32-()]|run",
+  "?f": "tests/test_utils.py::test_from_buffer[False-F-int8-(2, 3)]|run",
+  "@f": "tests/test_utils.py::test_from_buffer[False-F-int8-(10, 10)]|run",
+  "[f": "tests/test_utils.py::test_from_buffer[False-F-int8-(10, 13, 11)]|run",
+  "]f": "tests/test_utils.py::test_from_buffer[False-F-int8-()]|run",
+  "^f": "tests/test_utils.py::test_from_buffer[False-F-uint32-(2, 3)]|run",
+  "_f": "tests/test_utils.py::test_from_buffer[False-F-uint32-(10, 10)]|run",
+  "`f": "tests/test_utils.py::test_from_buffer[False-F-uint32-(10, 13, 11)]|run",
+  "{f": "tests/test_utils.py::test_from_buffer[False-F-uint32-()]|run",
+  "|f": "tests/test_utils.py::test_from_buffer[True-C-int8-(2, 3)]|run",
+  "}f": "tests/test_utils.py::test_from_buffer[True-C-int8-(10, 10)]|run",
+  "~f": "tests/test_utils.py::test_from_buffer[True-C-int8-(10, 13, 11)]|run",
+  "ag": "tests/test_utils.py::test_from_buffer[True-C-int8-()]|run",
+  "bg": "tests/test_utils.py::test_from_buffer[True-C-uint32-(2, 3)]|run",
+  "cg": "tests/test_utils.py::test_from_buffer[True-C-uint32-(10, 10)]|run",
+  "dg": "tests/test_utils.py::test_from_buffer[True-C-uint32-(10, 13, 11)]|run",
+  "eg": "tests/test_utils.py::test_from_buffer[True-C-uint32-()]|run",
+  "fg": "tests/test_utils.py::test_from_buffer[True-F-int8-(2, 3)]|run",
+  "gg": "tests/test_utils.py::test_from_buffer[True-F-int8-(10, 10)]|run",
+  "hg": "tests/test_utils.py::test_from_buffer[True-F-int8-(10, 13, 11)]|run",
+  "ig": "tests/test_utils.py::test_from_buffer[True-F-int8-()]|run",
+  "jg": "tests/test_utils.py::test_from_buffer[True-F-uint32-(2, 3)]|run",
+  "kg": "tests/test_utils.py::test_from_buffer[True-F-uint32-(10, 10)]|run",
+  "lg": "tests/test_utils.py::test_from_buffer[True-F-uint32-(10, 13, 11)]|run",
+  "mg": "tests/test_utils.py::test_from_buffer[True-F-uint32-()]|run",
+  "ng": "tests/test_utils.py::test_from_buffer_disallowed_negative_offset|run",
+  "og": "tests/test_utils.py::test_from_buffer_sliced[C]|run",
+  "pg": "tests/test_utils.py::test_from_buffer_sliced[F]|run",
+  "qg": "tests/test_utils.py::test_from_buffer_too_small|run",
+  "rg": "tests/test_utils.py::test_from_buffer_with_non_power_of_two_itemsize|run",
+  "sg": "tests/test_utils.py::test_strided_memory_view_dlpack_export_requires_dtype|run",
+  "tg": "tests/test_utils.py::test_strided_memory_view_repr_with_none_dtype|run",
+  "ug": "tests/test_utils.py::test_strided_memory_view_view_with_dtype_only|run",
+  "vg": "tests/test_utils.py::test_view_sliced_external[shape0-slices0-C-dlpack]|run",
+  "wg": "tests/test_utils.py::test_view_sliced_external[shape2-slices2-F-dlpack]|run",
+  "xg": "tests/test_utils.py::test_view_sliced_external[shape4-slices4-C-dlpack]|run",
+  "yg": "tests/test_utils.py::test_view_sliced_external[shape6-slices6-F-dlpack]|run",
+  "zg": "tests/test_utils.py::test_view_sliced_external_negative_offset[C-dlpack]|run",
+  "Ag": "tests/test_utils.py::test_view_sliced_external_negative_offset[F-dlpack]|run"
+}
+    </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
 </head>
 <body class="pyfile">
@@ -12,7 +577,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>core<span class="sep">/</span>_memory<span class="sep">/</span>_buffer.pxd</b>:
-            <span class="pc_cov">100.00%</span>
+            <span class="pc_cov">75.00%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -54,9 +619,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">0 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">0<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">0<span class="text"> missing</span></button>
+            <span class="text">4 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">3<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">1<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -64,8 +629,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__buffer_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
-            created at 2026-05-30 01:32 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
+            created at 2026-08-30 01:29 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -84,56 +649,60 @@
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt">from libc.stdint cimport uintptr_t</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">from cuda.bindings cimport cydriver</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt">from libcpp cimport bool as cpp_bool</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">from libcpp.atomic cimport atomic as std_atomic</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">from cuda.core._resource_handles cimport DevicePtrHandle</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">from cuda.core._stream cimport Stream</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">cdef struct _MemAttrs:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">    int device_id</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">    bint is_device_accessible</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    bint is_host_accessible</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">    bint is_managed</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">cdef struct _MemAttrs:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">    int device_id</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">    bint is_device_accessible</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">    bint is_host_accessible</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    bint is_managed</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">cdef class Buffer:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">    cdef:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">        DevicePtrHandle _h_ptr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">        MemoryResource  _memory_resource</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">        object          _ipc_data</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">        object          _owner</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">        _MemAttrs       _mem_attrs</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">        bint            _mem_attrs_inited</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">        object          __weakref__</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">    cdef public:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">        # Python code in _memory/_virtual_memory_resource.py needs to update</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">        # this value, though it is technically private.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">        size_t          _size</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">cdef class Buffer:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">    cdef:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">        DevicePtrHandle       _h_ptr</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">        MemoryResource        _memory_resource</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">        object                _ipc_data</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">        object                _owner</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">        _MemAttrs             _mem_attrs</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">        std_atomic[cpp_bool]  _mem_attrs_inited</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">        object                __weakref__</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">    cdef public:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">        # Python code in _memory/_virtual_memory_resource.py needs to update</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">        # this value, though it is technically private.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">        size_t          _size</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">cdef class MemoryResource:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">    pass</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">cdef class MemoryResource:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    pass</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt"># Helper function to create a Buffer from a DevicePtrHandle.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt"># `cls` lets callers materialize Buffer subclasses (e.g. ManagedBuffer for</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt"># managed-memory allocations); defaults to Buffer.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">cdef Buffer Buffer_from_deviceptr_handle(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">    DevicePtrHandle h_ptr,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    size_t size,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">    MemoryResource mr,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">    object ipc_descriptor = *,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">    type cls = *,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt"># Helper function to create a Buffer from a DevicePtrHandle.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt"># `cls` lets callers materialize Buffer subclasses (e.g. ManagedBuffer for</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt"># managed-memory allocations); defaults to Buffer.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">cdef Buffer Buffer_from_deviceptr_handle(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    DevicePtrHandle h_ptr,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">    size_t size,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    MemoryResource mr,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">    object ipc_descriptor = *,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">    type cls = *,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt"># Memory attribute query helpers (used by _managed_memory_ops)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">cdef void _init_mem_attrs(Buffer self)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">cdef int _query_memory_attrs(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">    _MemAttrs&amp; out,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">    cydriver.CUdeviceptr ptr,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">) except -1 nogil</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt"># Shared argument coercion for the batched free functions (copy_batch,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt"># prefetch_batch, discard_batch, discard_prefetch_batch). `single_hint`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt"># names the per-buffer API to use instead when a bare Buffer is passed.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">cdef tuple Buffer_coerce_batch(object buffers, str what, str single_hint)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">cdef inline int Buffer_check_open(Buffer self) except -1:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">    if not self._h_ptr:</span>&nbsp;</span><input type="checkbox" id="ctxs56"><span class="r"><label for="ctxs56" class="ctx">561 ctx</label></span><span class="ctxs">2c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdSdTdUdVdWdXdYdZd0d1d2d3d4d5d6d7d8d9d!d#d$d%d'd(d)d*d+d,d-d.d/d:d;d=d?d@d[d]d^d_d`d{d|d}d~daebecedeeefegeheiejekelemeneoepeqereseteuevewexeyezeAeBeCeDeEeFeGeHeIeJeKeLeMeNeOePeQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%e'e(e)e*e+e,e-e.e/e:e;e=e?e@e[e]e^e_e`e{e|e}e~eafbfcfdfefffgfhfifjfkflfmfnfofpfqfrfsftfa ufvfwfxfyfzfAfBfCfDfEfFfGfHfIfJfKfLfMfNfOfb PfQfRfSfTfUfVfWfXfYfZf0f1f2f3f4f5f6f7f8f9f!f#f$f%f'f(f)f*f+f,f-f.f/f:f;f=f?f@f[f]f^f_f`f{f|f}f~fagbgcgdgegfggghgigjgkglgmgngogpgqgrgsgtgugvgwgxgygzgAg</span></p>
+    <p class="run"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">        raise RuntimeError(&quot;Buffer has been closed&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs57"><span class="r"><label for="ctxs57" class="ctx">5 ctx</label></span><span class="ctxs">1QVWab</span></p>
+    <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs58"><span class="r"><label for="ctxs58" class="ctx">558 ctx</label></span><span class="ctxs">2c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P R S T U X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdSdTdUdVdWdXdYdZd0d1d2d3d4d5d6d7d8d9d!d#d$d%d'd(d)d*d+d,d-d.d/d:d;d=d?d@d[d]d^d_d`d{d|d}d~daebecedeeefegeheiejekelemeneoepeqereseteuevewexeyezeAeBeCeDeEeFeGeHeIeJeKeLeMeNeOePeQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%e'e(e)e*e+e,e-e.e/e:e;e=e?e@e[e]e^e_e`e{e|e}e~eafbfcfdfefffgfhfifjfkflfmfnfofpfqfrfsftfa ufvfwfxfyfzfAfBfCfDfEfFfGfHfIfJfKfLfMfNfOfb PfQfRfSfTfUfVfWfXfYfZf0f1f2f3f4f5f6f7f8f9f!f#f$f%f'f(f)f*f+f,f-f.f/f:f;f=f?f@f[f]f^f_f`f{f|f}f~fagbgcgdgegfggghgigjgkglgmgngogpgqgrgsgtgugvgwgxgygzgAg</span></p>
 </main>
 <footer>
     <div class="content">
@@ -142,8 +711,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_6928e1fc216e3a2e__buffer_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
-            created at 2026-05-30 01:32 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
+            created at 2026-08-30 01:29 +0000
         </p>
     </div>
 </footer>

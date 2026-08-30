@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage for cuda/core/_event.pxd: 75.00%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "tests/graph/test_graph_node_update.py::test_failed_definition_node_update_preserves_state[event-record]|run",
+  "b": "tests/graph/test_graph_node_update.py::test_failed_definition_node_update_preserves_state[event-wait]|run",
+  "c": "tests/test_event.py::test_closed_event_rejected_before_operations|run",
+  "d": "tests/graph/test_graph_builder.py::test_graph_complete_after_close_forked|run",
+  "e": "tests/graph/test_graph_builder.py::test_graph_definition_raises_for_forked|run",
+  "f": "tests/graph/test_graph_builder.py::test_graph_fork_join|run",
+  "g": "tests/graph/test_graph_builder.py::test_graph_is_join_required|run",
+  "h": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[0]|run",
+  "i": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[1]|run",
+  "j": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[False]|run",
+  "k": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[True]|run",
+  "l": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[condition_value2]|run",
+  "m": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[condition_value3]|run",
+  "n": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[condition_value4]|run",
+  "o": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[condition_value5]|run",
+  "p": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[0]|run",
+  "q": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[1]|run",
+  "r": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[False]|run",
+  "s": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[True]|run",
+  "t": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[condition_value2]|run",
+  "u": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[condition_value3]|run",
+  "v": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[condition_value4]|run",
+  "w": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[condition_value5]|run",
+  "x": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_on_forked_builder|run",
+  "y": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[0]|run",
+  "z": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[1]|run",
+  "A": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[2]|run",
+  "B": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[3]|run",
+  "C": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_event_record_wait|run",
+  "D": "tests/graph/test_graph_definition.py::test_node_attrs[event_record]|setup",
+  "E": "tests/graph/test_graph_definition.py::test_node_attrs[event_wait]|setup",
+  "F": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[event_record]|setup",
+  "G": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[event_wait]|setup",
+  "H": "tests/graph/test_graph_definition.py::test_node_isinstance[event_record]|setup",
+  "I": "tests/graph/test_graph_definition.py::test_node_isinstance[event_wait]|setup",
+  "J": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_nodes[event_record]|setup",
+  "K": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_nodes[event_wait]|setup",
+  "L": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_pred_succ[event_record]|setup",
+  "M": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_pred_succ[event_wait]|setup",
+  "N": "tests/graph/test_graph_definition.py::test_node_type_property[event_record]|setup",
+  "O": "tests/graph/test_graph_definition.py::test_node_type_property[event_wait]|setup",
+  "P": "tests/graph/test_graph_definition_lifetime.py::test_event_metadata_survives_gc|run",
+  "Q": "tests/graph/test_graph_definition_lifetime.py::test_event_record_node_keeps_event_alive|run",
+  "R": "tests/graph/test_graph_definition_lifetime.py::test_event_record_node_preserves_metadata|run",
+  "S": "tests/graph/test_graph_definition_lifetime.py::test_event_survives_graph_clone_and_execution|run",
+  "T": "tests/graph/test_graph_definition_lifetime.py::test_event_survives_graph_instantiation_and_execution|run",
+  "U": "tests/graph/test_graph_definition_lifetime.py::test_event_wait_node_keeps_event_alive|run",
+  "V": "tests/graph/test_graph_definition_lifetime.py::test_event_wait_node_preserves_metadata|run",
+  "W": "tests/graph/test_graph_definition_lifetime.py::test_kernel_node_reconstruction_preserves_validity|run",
+  "X": "tests/graph/test_graph_node_update.py::test_definition_node_update_changes_future_instantiations[event-record]|run",
+  "Y": "tests/graph/test_graph_node_update.py::test_definition_node_update_changes_future_instantiations[event-record]|setup",
+  "Z": "tests/graph/test_graph_node_update.py::test_definition_node_update_changes_future_instantiations[event-wait]|run",
+  "0": "tests/graph/test_graph_node_update.py::test_definition_node_update_changes_future_instantiations[event-wait]|setup",
+  "1": "tests/graph/test_graph_node_update.py::test_definition_node_update_rejects_wrong_type[event-record]|setup",
+  "2": "tests/graph/test_graph_node_update.py::test_definition_node_update_rejects_wrong_type[event-wait]|setup",
+  "3": "tests/graph/test_graph_node_update.py::test_destroyed_definition_node_rejects_update[event-record]|setup",
+  "4": "tests/graph/test_graph_node_update.py::test_destroyed_definition_node_rejects_update[event-wait]|setup",
+  "5": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[event-record]|run",
+  "6": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[event-record]|setup",
+  "7": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[event-wait]|run",
+  "8": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[event-wait]|setup",
+  "9": "tests/graph/test_graph_node_update.py::test_failed_definition_node_update_preserves_state[event-record]|setup",
+  "!": "tests/graph/test_graph_node_update.py::test_failed_definition_node_update_preserves_state[event-wait]|setup",
+  "#": "tests/graph/test_options.py::test_graph_dot_print_options|run",
+  "$": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
+  "%": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
+  "'": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[False-False-False]|run",
+  "(": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[False-False-True]|run",
+  ")": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[False-True-False]|run",
+  "*": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[False-True-True]|run",
+  "+": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[True-False-False]|run",
+  ",": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[True-False-True]|run",
+  "-": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[True-True-False]|run",
+  ".": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[True-True-True]|run",
+  "/": "tests/memory_ipc/test_event_ipc.py::test_event_is_monadic|run",
+  ":": "tests/test_event.py::test_error_timing_disabled|run",
+  ";": "tests/test_event.py::test_error_timing_incomplete|run",
+  "=": "tests/test_event.py::test_error_timing_recorded|run",
+  "?": "tests/test_event.py::test_event_context|run",
+  "@": "tests/test_event.py::test_event_device|run",
+  "[": "tests/test_event.py::test_event_ipc_descriptor_non_ipc|run",
+  "]": "tests/test_event.py::test_event_is_done_false|run",
+  "^": "tests/test_event.py::test_is_blocking_sync|run",
+  "_": "tests/test_event.py::test_is_done|run",
+  "`": "tests/test_event.py::test_sync|run",
+  "{": "tests/test_event.py::test_timing_success|run",
+  "|": "tests/test_green_context.py::TestGreenContextLifecycle::test_stream_and_event_track_green_context|run",
+  "}": "tests/test_multiprocessing_warning.py::test_warn_on_fork_method_event|run",
+  "~": "tests/test_object_protocols.py::test_equality_basic[sample_event_record_node]|setup",
+  "ab": "tests/test_object_protocols.py::test_equality_basic[sample_event_wait_node]|setup",
+  "bb": "tests/test_object_protocols.py::test_hash_consistency[sample_event_record_node]|setup",
+  "cb": "tests/test_object_protocols.py::test_hash_consistency[sample_event_wait_node]|setup",
+  "db": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_alloc_node-sample_event_record_node]|setup",
+  "eb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_alloc_node-sample_event_wait_node]|setup",
+  "fb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_event_record_node]|setup",
+  "gb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_event_wait_node]|setup",
+  "hb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_event_record_node]|setup",
+  "ib": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_event_wait_node]|setup",
+  "jb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_condition-sample_event_record_node]|setup",
+  "kb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_condition-sample_event_wait_node]|setup",
+  "lb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_event_record_node]|setup",
+  "mb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_event_wait_node]|setup",
+  "nb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_event_record_node]|setup",
+  "ob": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_event_wait_node]|setup",
+  "pb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_empty_node-sample_event_record_node]|setup",
+  "qb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_empty_node-sample_event_wait_node]|setup",
+  "rb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_event_record_node]|setup",
+  "sb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_event_wait_node]|setup",
+  "tb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_record_node-sample_event_wait_node]|setup",
+  "ub": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_record_node-sample_host_callback_node]|setup",
+  "vb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_record_node-sample_if_else_node]|setup",
+  "wb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_record_node-sample_if_node]|setup",
+  "xb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_record_node-sample_switch_node]|setup",
+  "yb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_record_node-sample_while_node]|setup",
+  "zb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_wait_node-sample_host_callback_node]|setup",
+  "Ab": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_wait_node-sample_if_else_node]|setup",
+  "Bb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_wait_node-sample_if_node]|setup",
+  "Cb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_wait_node-sample_switch_node]|setup",
+  "Db": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_wait_node-sample_while_node]|setup",
+  "Eb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_free_node-sample_event_record_node]|setup",
+  "Fb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_free_node-sample_event_wait_node]|setup",
+  "Gb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_graphdef-sample_event_record_node]|setup",
+  "Hb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_graphdef-sample_event_wait_node]|setup",
+  "Ib": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_event_record_node]|setup",
+  "Jb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_event_wait_node]|setup",
+  "Kb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_event_record_node]|setup",
+  "Lb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_event_wait_node]|setup",
+  "Mb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_event_record_node]|setup",
+  "Nb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_event_wait_node]|setup",
+  "Ob": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_memcpy_node-sample_event_record_node]|setup",
+  "Pb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_memcpy_node-sample_event_wait_node]|setup",
+  "Qb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_memset_node-sample_event_record_node]|setup",
+  "Rb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_memset_node-sample_event_wait_node]|setup",
+  "Sb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_event_record_node]|setup",
+  "Tb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_event_wait_node]|setup",
+  "Ub": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_root_node-sample_event_record_node]|setup",
+  "Vb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_root_node-sample_event_wait_node]|setup",
+  "Wb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_event_record_node]|setup",
+  "Xb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_event_wait_node]|setup",
+  "Yb": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_event_record_node-sample_event_record_node_alt]|setup",
+  "Zb": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_event_wait_node-sample_event_wait_node_alt]|setup",
+  "0b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_alloc_node-sample_event_record_node]|setup",
+  "1b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_alloc_node-sample_event_wait_node]|setup",
+  "2b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_event_record_node]|setup",
+  "3b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_event_wait_node]|setup",
+  "4b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_event_record_node]|setup",
+  "5b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_event_wait_node]|setup",
+  "6b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_condition-sample_event_record_node]|setup",
+  "7b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_condition-sample_event_wait_node]|setup",
+  "8b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_event_record_node]|setup",
+  "9b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_event_wait_node]|setup",
+  "!b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_event_record_node]|setup",
+  "#b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_event_wait_node]|setup",
+  "$b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_empty_node-sample_event_record_node]|setup",
+  "%b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_empty_node-sample_event_wait_node]|setup",
+  "'b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_event_record_node]|setup",
+  "(b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_event_wait_node]|setup",
+  ")b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_record_node-sample_event_wait_node]|setup",
+  "*b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_record_node-sample_host_callback_node]|setup",
+  "+b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_record_node-sample_if_else_node]|setup",
+  ",b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_record_node-sample_if_node]|setup",
+  "-b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_record_node-sample_switch_node]|setup",
+  ".b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_record_node-sample_while_node]|setup",
+  "/b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_wait_node-sample_host_callback_node]|setup",
+  ":b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_wait_node-sample_if_else_node]|setup",
+  ";b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_wait_node-sample_if_node]|setup",
+  "=b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_wait_node-sample_switch_node]|setup",
+  "?b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_wait_node-sample_while_node]|setup",
+  "@b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_free_node-sample_event_record_node]|setup",
+  "[b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_free_node-sample_event_wait_node]|setup",
+  "]b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_graphdef-sample_event_record_node]|setup",
+  "^b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_graphdef-sample_event_wait_node]|setup",
+  "_b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_event_record_node]|setup",
+  "`b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_event_wait_node]|setup",
+  "{b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_event_record_node]|setup",
+  "|b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_event_wait_node]|setup",
+  "}b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_event_record_node]|setup",
+  "~b": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_event_wait_node]|setup",
+  "ac": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_memcpy_node-sample_event_record_node]|setup",
+  "bc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_memcpy_node-sample_event_wait_node]|setup",
+  "cc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_memset_node-sample_event_record_node]|setup",
+  "dc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_memset_node-sample_event_wait_node]|setup",
+  "ec": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_event_record_node]|setup",
+  "fc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_event_wait_node]|setup",
+  "gc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_root_node-sample_event_record_node]|setup",
+  "hc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_root_node-sample_event_wait_node]|setup",
+  "ic": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_event_record_node]|setup",
+  "jc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_event_wait_node]|setup",
+  "kc": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_ipc_event_descriptor-cloudpickle]|setup",
+  "lc": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_ipc_event_descriptor-pickle]|setup",
+  "mc": "tests/test_object_protocols.py::test_repr_format[sample_event_record_node-\u003cEventRecordNode handle=0x[0-9a-f]+ event=0x[0-9a-f]+\u003e]|setup",
+  "nc": "tests/test_object_protocols.py::test_repr_format[sample_event_wait_node-\u003cEventWaitNode handle=0x[0-9a-f]+ event=0x[0-9a-f]+\u003e]|setup",
+  "oc": "tests/test_object_protocols.py::test_same_type_inequality[sample_event_record_node-sample_event_record_node_alt]|setup",
+  "pc": "tests/test_object_protocols.py::test_same_type_inequality[sample_event_wait_node-sample_event_wait_node_alt]|setup",
+  "qc": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_event_record_node]|setup",
+  "rc": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_event_wait_node]|setup",
+  "sc": "tests/test_object_protocols.py::test_usable_in_set[sample_event_record_node]|setup",
+  "tc": "tests/test_object_protocols.py::test_usable_in_set[sample_event_wait_node]|setup",
+  "uc": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_event_record_node]|setup",
+  "vc": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_event_wait_node]|setup",
+  "wc": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_event_record_node]|setup",
+  "xc": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_event_wait_node]|setup",
+  "yc": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_event_record_node]|setup",
+  "zc": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_event_wait_node]|setup",
+  "Ac": "tests/test_object_protocols.py::test_weakref_supported[sample_event_record_node]|setup",
+  "Bc": "tests/test_object_protocols.py::test_weakref_supported[sample_event_wait_node]|setup",
+  "Cc": "tests/test_stream.py::test_stream_wait_event|run"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
+</head>
+<body class="pyfile">
+<header>
+    <div class="content">
+        <h1>
+            <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>core<span class="sep">/</span>_event.pxd</b>:
+            <span class="pc_cov">75.00%</span>
+        </h1>
+        <aside id="help_panel_wrapper">
+            <input id="help_panel_state" type="checkbox">
+            <label for="help_panel_state">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
+            </label>
+            <div id="help_panel">
+                <p class="legend">Shortcuts on this page</p>
+                <div class="keyhelp">
+                    <p>
+                        <kbd>r</kbd>
+                        <kbd>m</kbd>
+                        <kbd>x</kbd>
+                        &nbsp; toggle line displays
+                    </p>
+                    <p>
+                        <kbd>j</kbd>
+                        <kbd>k</kbd>
+                        &nbsp; next/prev highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>0</kbd> &nbsp; (zero) top of page
+                    </p>
+                    <p>
+                        <kbd>1</kbd> &nbsp; (one) first highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>[</kbd>
+                        <kbd>]</kbd>
+                        &nbsp; prev/next file
+                    </p>
+                    <p>
+                        <kbd>u</kbd> &nbsp; up to the index
+                    </p>
+                    <p>
+                        <kbd>?</kbd> &nbsp; show/hide this help
+                    </p>
+                </div>
+            </div>
+        </aside>
+        <h2>
+            <span class="text">4 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">3<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">1<span class="text"> missing</span></button>
+            <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
+        </h2>
+        <p class="text">
+            <a id="prevFileLink" class="nav" href="z_0efdcd0c69c2ddb8__dlpack_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__event_pyx.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
+            created at 2026-08-30 01:29 +0000
+        </p>
+        <aside class="hidden">
+            <button type="button" class="button_next_chunk" data-shortcut="j"></button>
+            <button type="button" class="button_prev_chunk" data-shortcut="k"></button>
+            <button type="button" class="button_top_of_page" data-shortcut="0"></button>
+            <button type="button" class="button_first_chunk" data-shortcut="1"></button>
+            <button type="button" class="button_prev_file" data-shortcut="["></button>
+            <button type="button" class="button_next_file" data-shortcut="]"></button>
+            <button type="button" class="button_to_index" data-shortcut="u"></button>
+            <button type="button" class="button_show_hide_help" data-shortcut="?"></button>
+        </aside>
+    </div>
+</header>
+<main id="source">
+    <p class="pln"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt">from cuda.bindings cimport cydriver</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">from cuda.core._resource_handles cimport ContextHandle, EventHandle</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">cdef class Event:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">    cdef:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">        EventHandle _h_event</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">        object _ipc_descriptor</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">        object __weakref__</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">    @staticmethod</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">    cdef Event _init(type cls, int device_id, ContextHandle h_context, options, bint is_free)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">    @staticmethod</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">    cdef Event _from_handle(EventHandle h_event)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">    cpdef close(self)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">cdef Event Event_accept(object arg)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">cdef inline int Event_check_open(Event self) except -1:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">    if not self._h_event:</span>&nbsp;</span><input type="checkbox" id="ctxs27"><span class="r"><label for="ctxs27" class="ctx">207 ctx</label></span><span class="ctxs">2d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 a 9 b ! # $ % ' ( ) * + , - . / c : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCc</span></p>
+    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">        raise RuntimeError(&quot;Event has been closed&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs28"><span class="r"><label for="ctxs28" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
+    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs29"><span class="r"><label for="ctxs29" class="ctx">207 ctx</label></span><span class="ctxs">2d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 a 9 b ! # $ % ' ( ) * + , - . / c : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCc</span></p>
+</main>
+<footer>
+    <div class="content">
+        <p>
+            <a class="nav" href="z_0efdcd0c69c2ddb8__dlpack_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a class="nav" href="z_0efdcd0c69c2ddb8__event_pyx.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
+            created at 2026-08-30 01:29 +0000
+        </p>
+    </div>
+</footer>
+</body>
+</html>
