@@ -9,8 +9,8 @@ self-hosted-runner:
     - linux-amd64-cpu8
     - linux-amd64-gpu-l4-latest-1
 
-# GitHub supports queued concurrency runs, but the pinned actionlint parser
-# predates this key.
+# GitHub supports queued concurrency runs, but the latest actionlint release
+# does not yet recognize the concurrency.queue key.
 paths:
   ".github/workflows/ci-workflow-health.yml":
     ignore:
