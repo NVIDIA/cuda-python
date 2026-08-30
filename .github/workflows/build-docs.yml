@@ -18,6 +18,11 @@ on:
         #   - cuda-python
         #   - cuda-pathfinder
         #   - all
+      targets:
+        description: "JSON array of exact Moon docs targets. Empty derives targets from component."
+        required: false
+        default: ""
+        type: string
       git-tag:
         description: "Target git tag to build docs for"
         required: false
@@ -60,6 +65,39 @@ jobs:
           fetch-depth: 1
           ref: ${{ inputs.git-tag }}
 
+      - name: Resolve Moon docs targets
+        env:
+          REQUESTED_TARGETS: ${{ inputs.targets }}
+          COMPONENT: ${{ inputs.component }}
+        run: |
+          if [[ -n "$REQUESTED_TARGETS" ]]; then
+            targets="$REQUESTED_TARGETS"
+          else
+            case "$COMPONENT" in
+              all) targets='["root:docs"]' ;;
+              cuda-pathfinder) targets='["pathfinder:docs"]' ;;
+              cuda-bindings) targets='["bindings:docs"]' ;;
+              cuda-core) targets='["core:docs"]' ;;
+              cuda-python) targets='["metapackage:docs"]' ;;
+              *) echo "error: unsupported docs component: $COMPONENT" >&2; exit 1 ;;
+            esac
+          fi
+          jq -e '
+            type == "array" and length > 0 and
+            all(.[];
+              . == "root:docs" or
+              . == "pathfinder:docs" or
+              . == "bindings:docs" or
+              . == "core:docs" or
+              . == "metapackage:docs")
+          ' <<< "$targets" >/dev/null
+          echo "DOCS_TARGETS=$(jq -c . <<< "$targets")" >> "$GITHUB_ENV"
+          if [[ -f .moon/workspace.yml && -f moon.yml ]]; then
+            echo "DOCS_USE_MOON=true" >> "$GITHUB_ENV"
+          else
+            echo "DOCS_USE_MOON=false" >> "$GITHUB_ENV"
+          fi
+
       - name: Read build CTK version
         run: |
           if [[ -f ci/versions.yml ]]; then
@@ -93,6 +131,12 @@ jobs:
           conda list
           conda config --show-sources
           conda config --show
+
+      - name: Install Moon
+        if: ${{ env.DOCS_USE_MOON == 'true' }}
+        run: |
+          curl -fsSL "https://github.com/moonrepo/moon/releases/download/v2.5.1/moon_cli-installer.sh" | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
 
       # WAR: Building the doc currently requires CTK installed (NVIDIA/cuda-python#326,327)
       - name: Set up mini CTK
@@ -132,7 +176,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-python-wheel
-          path: .
+          path: ./cuda_python/dist
           run-id: ${{ inputs.run-id }}
           github-token: ${{ github.token }}
 
@@ -145,7 +189,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-pathfinder-wheel
-          path: ./cuda_pathfinder
+          path: ./cuda_pathfinder/dist
           run-id: ${{ inputs.run-id }}
           github-token: ${{ github.token }}
 
@@ -200,7 +244,7 @@ jobs:
 
       - name: Install all packages
         run: |
-          pushd cuda_pathfinder
+          pushd cuda_pathfinder/dist
           pip install *.whl
           popd
 
@@ -214,7 +258,7 @@ jobs:
 
           # Subpackages are already installed from CI artifacts above.
           # --no-deps avoids re-resolving cuda-core from PyPI during tag releases.
-          pip install --no-deps cuda_python*.whl
+          pip install --no-deps cuda_python/dist/*.whl
 
       # This step sets the PR_NUMBER/BUILD_LATEST/BUILD_PREVIEW env vars.
       - name: Get PR number
@@ -227,42 +271,79 @@ jobs:
           # create an empty folder for removal use
           mkdir -p artifacts/empty_docs
 
-      - name: Build all docs
-        if: ${{ inputs.component == 'all' }}
+      - name: Build selected docs
+        if: ${{ env.DOCS_USE_MOON == 'true' }}
+        env:
+          DOCS_BUILD_ARGS: ${{ !inputs.is-release && 'latest-only' || '' }}
         run: |
-          pushd cuda_python/docs/
-          if [[ "${{ inputs.is-release }}" == "false" ]]; then
-            ./build_all_docs.sh latest-only
-          else
-            ./build_all_docs.sh
-            # At release time, we don't want to update the latest docs
-            rm -rf build/html/latest
-          fi
-          ls -l build
-          popd
-          mv cuda_python/docs/build/html/* artifacts/docs/
+          mapfile -t targets < <(jq -r '.[]' <<< "$DOCS_TARGETS")
+          moon run "${targets[@]}" --upstream deep --downstream none
 
-      - name: Build component docs
-        if: ${{ inputs.component != 'all' }}
+      # Release workflows may check out tags created before Moon was added.
+      - name: Build selected docs from a legacy tag
+        if: ${{ env.DOCS_USE_MOON != 'true' }}
         run: |
-          COMPONENT=$(echo "${{ inputs.component }}" | tr '-' '_')
-          pushd ${COMPONENT}/docs/
-          if [[ "${{ inputs.is-release }}" == "false" ]]; then
-            ./build_docs.sh latest-only
+          if [[ "${{ inputs.component }}" == "all" ]]; then
+            pushd cuda_python/docs
+            if [[ "${{ inputs.is-release }}" == "false" ]]; then
+              ./build_all_docs.sh latest-only
+            else
+              ./build_all_docs.sh
+              rm -rf build/html/latest
+            fi
+            popd
           else
-            ./build_docs.sh
-            # At release time, we don't want to update the latest docs
-            rm -rf build/html/latest
+            component="${{ inputs.component }}"
+            component=${component//-/_}
+            pushd "$component/docs"
+            if [[ "${{ inputs.is-release }}" == "false" ]]; then
+              ./build_docs.sh latest-only
+            else
+              ./build_docs.sh
+              rm -rf build/html/latest
+            fi
+            popd
           fi
-          ls -l build
-          popd
-          if [[ "${{ inputs.component }}" != "cuda-python" ]]; then
-            TARGET="${{ inputs.component }}"
-            mkdir -p artifacts/docs/${TARGET}
-          else
-            TARGET=""
+
+      - name: Assemble selected docs
+        run: |
+          if jq -e 'index("root:docs") != null' <<< "$DOCS_TARGETS" >/dev/null; then
+            if [[ "${{ inputs.is-release }}" == "true" ]]; then
+              rm -rf cuda_python/docs/build/html/latest
+            fi
+            ls -l cuda_python/docs/build
+            mv cuda_python/docs/build/html/* artifacts/docs/
+            exit 0
           fi
-          mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
+
+          while IFS= read -r target; do
+            case "$target" in
+              pathfinder:docs)
+                component=cuda_pathfinder
+                destination=cuda-pathfinder
+                ;;
+              bindings:docs)
+                component=cuda_bindings
+                destination=cuda-bindings
+                ;;
+              core:docs)
+                component=cuda_core
+                destination=cuda-core
+                ;;
+              metapackage:docs)
+                component=cuda_python
+                destination=
+                ;;
+            esac
+            if [[ "${{ inputs.is-release }}" == "true" ]]; then
+              rm -rf "$component/docs/build/html/latest"
+            fi
+            ls -l "$component/docs/build"
+            if [[ -n "$destination" ]]; then
+              mkdir -p "artifacts/docs/$destination"
+            fi
+            mv "$component"/docs/build/html/* "artifacts/docs/$destination"
+          done < <(jq -r '.[]' <<< "$DOCS_TARGETS")
 
       - name: Write rendered docs file list
         if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}

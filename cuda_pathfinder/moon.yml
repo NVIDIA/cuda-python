@@ -1,0 +1,117 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+$schema: https://moonrepo.dev/schemas/v2/project.json
+
+fileGroups:
+  package:
+    - 'cuda/**/*'
+    - '!cuda/**/{AGENTS.md,CLAUDE.md,pixi.lock,pixi.toml}'
+    - '!cuda/**/*.{md,svg}'
+    - 'DESCRIPTION.rst'
+    - 'LICENSE'
+    - 'pyproject.toml'
+    - '.git_archival.txt'
+    - '/.git_archival.txt'
+  tests:
+    - 'tests/**/*'
+    - 'examples/**/*'
+    - '!{tests,examples}/**/{AGENTS.md,CLAUDE.md,pixi.lock,pixi.toml}'
+  docs:
+    - 'docs/**/*'
+    - '!docs/**/{AGENTS.md,CLAUDE.md,pixi.lock,pixi.toml}'
+  sharedTestInfra:
+    - '/cuda_python_test_helpers/**/*'
+    - '/benchmarks/**/*'
+    - '!/{benchmarks,cuda_python_test_helpers}/**/{AGENTS.md,CLAUDE.md,pixi.lock,pixi.toml}'
+    - '!/benchmarks/**/*.{md,svg}'
+    - '/ci/test-matrix.yml'
+    - '/ci/tools/download-wheels'
+    - '/ci/tools/run-tests'
+  linuxTestInfra:
+    - '/.github/workflows/test-wheel-linux.yml'
+    - '/ci/tools/guess_latest.sh'
+    - '/ci/tools/install_gpu_driver.sh'
+    - '/ci/tools/setup-sanitizer'
+  windowsTestInfra:
+    - '/.github/workflows/test-wheel-windows.yml'
+    - '/ci/tools/configure_driver_mode.ps1'
+    - '/ci/tools/install_gpu_driver.ps1'
+
+tasks:
+  install:
+    script: 'python -m pip install -e . --group test'
+    inputs: ['@group(package)']
+    options:
+      cache: false
+      windowsShell: 'bash'
+
+  test:
+    script: 'python -m pytest tests/'
+    deps: ['install']
+    inputs: ['@group(package)', '@group(tests)', '@group(sharedTestInfra)']
+    options:
+      cache: false
+      windowsShell: 'bash'
+
+  test-installed:
+    script: |
+      set -euo pipefail
+      cd ..
+      temporary_wheels=()
+      for wheel in cuda_pathfinder/dist/*.whl; do
+        staged="cuda_pathfinder/$(basename "$wheel")"
+        if [[ ! -e "$staged" ]]; then
+          cp "$wheel" "$staged"
+          temporary_wheels+=("$staged")
+        fi
+      done
+      trap 'rm -f "${temporary_wheels[@]}"' EXIT
+      CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS=see_what_works CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS=see_what_works CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS=see_what_works ci/tools/run-tests pathfinder
+      python -m pip install --only-binary=:all: -v cuda_pathfinder/*.whl --group "./cuda_pathfinder/pyproject.toml:test-cu${TEST_CUDA_MAJOR:?}"
+      CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS=all_must_work CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS=all_must_work CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS=all_must_work ci/tools/run-tests pathfinder
+    deps: ['wheel']
+    inputs: ['@group(package)', '@group(tests)', '@group(sharedTestInfra)']
+    options:
+      cache: false
+      internal: true
+      mutex: 'ci-python-gpu'
+      windowsShell: 'bash'
+
+  wheel:
+    script: 'mkdir -p dist && python -m pip wheel -v --no-deps --wheel-dir dist .'
+    inputs: ['@group(package)']
+    options:
+      cache: false
+      windowsShell: 'bash'
+    tags: ['ci-wheel-foundation']
+
+  sdist:
+    script: 'mkdir -p dist && python -m build --sdist --outdir dist . && python -m pip wheel --no-deps --wheel-dir dist dist/*.tar.gz'
+    inputs: ['@group(package)']
+    options:
+      cache: false
+      windowsShell: 'bash'
+    tags: ['ci-sdist-foundation']
+
+  docs:
+    script: 'rm -rf docs/build docs/source/generated && cd docs && ./build_docs.sh ${DOCS_BUILD_ARGS:-}'
+    inputs: ['@group(docs)']
+    options:
+      cache: false
+    tags: ['ci-docs']
+
+  ci-test-linux:
+    deps: ['test-installed']
+    inputs: ['@group(package)', '@group(tests)', '@group(sharedTestInfra)', '@group(linuxTestInfra)']
+    options:
+      cache: false
+    tags: ['ci-test-linux']
+
+  ci-test-windows:
+    deps: ['test-installed']
+    inputs: ['@group(package)', '@group(tests)', '@group(sharedTestInfra)', '@group(windowsTestInfra)']
+    options:
+      cache: false
+    tags: ['ci-test-windows']
