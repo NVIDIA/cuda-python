@@ -7,7 +7,7 @@ from __future__ import annotations
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core.texture._array cimport OpaqueArray
+from cuda.core.texture._array cimport OpaqueArray, OpaqueArray_check_open
 from cuda.core._resource_handles cimport (
     SurfObjectHandle,
     as_cu,
@@ -49,6 +49,11 @@ cdef class SurfaceObject:
     def handle(self):
         """The underlying ``CUsurfObject`` as an integer (64-bit kernel arg)."""
         return as_intptr(self._handle)
+
+    @property
+    def is_closed(self) -> bool:
+        """Whether this surface object has been closed."""
+        return self._handle.get() == NULL
 
     @property
     def resource(self):
@@ -100,6 +105,7 @@ def _create_surface_object(resource):
         )
 
     cdef OpaqueArray arr = <OpaqueArray>resource.source
+    OpaqueArray_check_open(arr)
     if not arr.is_surface_load_store:
         raise ValueError(
             "OpaqueArray must be created with is_surface_load_store=True to be "

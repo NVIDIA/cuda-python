@@ -12,14 +12,19 @@ from libc.string cimport memset as c_memset
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._event cimport Event
+from cuda.core._event cimport Event, Event_check_open
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core._module cimport Kernel
-from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
+from cuda.core.graph._graph_definition cimport (
+    GraphCondition,
+    GraphDefinition,
+    GD_check_valid,
+)
 from cuda.core.graph._graph_node cimport (
     GraphNode,
+    GN_check_valid,
     _get_memcpy_memory_type,
     _init_memcpy_params,
     _resolve_memcpy_operand,
@@ -112,10 +117,13 @@ cdef void _set_definition_node_params(
         OpaqueHandle owner0,
         OpaqueHandle owner1=OpaqueHandle(),
         cydriver.CUcontext update_ctx=NULL) except *:
-    _require_graph_node_update_support()
-
     cdef GraphHandle h_graph = graph_node_get_graph(h_node)
     cdef cydriver.CUgraphNode node = as_cu(h_node)
+    if as_cu(h_graph) == NULL:
+        raise RuntimeError("GraphDefinition is no longer valid")
+    if node == NULL:
+        raise RuntimeError("GraphNode has been destroyed")
+    _require_graph_node_update_support()
     cdef cydriver.CUcontext previous_ctx = NULL
     cdef bint restore_ctx = False
     cdef PreparedAttachment prepared
@@ -149,9 +157,9 @@ cdef void _set_executable_node_params(
     cdef cydriver.CUgraphExec graph_exec = as_cu(h_exec)
     cdef cydriver.CUgraphNode node = as_cu(h_node)
     if graph_exec == NULL:
-        raise ValueError("executable graph has been closed")
+        raise RuntimeError("Graph has been closed")
     if node == NULL:
-        raise ValueError("source graph node is no longer valid")
+        raise RuntimeError("GraphNode has been destroyed")
 
     cdef PreparedExecAttachment prepared
     HANDLE_RETURN(graph_prepare_exec_attachment(
@@ -175,9 +183,9 @@ cdef bint _get_executable_node_enabled(
     cdef cydriver.CUgraphNode node = as_cu(h_node)
     cdef unsigned int enabled
     if graph_exec == NULL:
-        raise ValueError("executable graph has been closed")
+        raise RuntimeError("Graph has been closed")
     if node == NULL:
-        raise ValueError("source graph node is no longer valid")
+        raise RuntimeError("GraphNode has been destroyed")
     with nogil:
         HANDLE_RETURN(cydriver.cuGraphNodeGetEnabled(
             graph_exec, node, &enabled))
@@ -193,9 +201,9 @@ cdef void _set_executable_node_enabled(
     cdef cydriver.CUgraphExec graph_exec = as_cu(h_exec)
     cdef cydriver.CUgraphNode node = as_cu(h_node)
     if graph_exec == NULL:
-        raise ValueError("executable graph has been closed")
+        raise RuntimeError("Graph has been closed")
     if node == NULL:
-        raise ValueError("source graph node is no longer valid")
+        raise RuntimeError("GraphNode has been destroyed")
     with nogil:
         HANDLE_RETURN(cydriver.cuGraphNodeSetEnabled(
             graph_exec, node, <unsigned int>enabled))
@@ -342,6 +350,7 @@ cdef class KernelNode(GraphNode):
             graph that retains it cannot be broken by Python's cyclic garbage
             collector. Use a weak reference to break such cycles.
         """
+        GN_check_valid(self)
         cdef LaunchConfig c_config
         cdef Kernel c_kernel
         cdef ParamHolder arg_holder
@@ -652,6 +661,7 @@ cdef class MemsetNode(GraphNode):
             collector. Use a weak reference to break such cycles.
         """
         cdef OpaqueHandle dst_attachment_owner
+        GN_check_valid(self)
         cdef GraphHandle h_graph
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
         cdef cydriver.CUcontext ctx = NULL
@@ -840,6 +850,7 @@ cdef class MemcpyNode(GraphNode):
         cdef cydriver.CUdeviceptr c_src = self._src
         cdef OpaqueHandle dst_attachment_owner
         cdef OpaqueHandle src_attachment_owner
+        GN_check_valid(self)
         cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
         cdef cydriver.CUcontext ctx = NULL
@@ -991,6 +1002,8 @@ cdef class ChildGraphNode(GraphNode):
 
         ``child`` must belong to an independent graph hierarchy.
         """
+        GN_check_valid(self)
+        GD_check_valid(child)
         cdef GraphHandle h_parent = graph_node_get_graph(self._h_node)
         cdef GraphHandle h_replacement
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
@@ -1057,6 +1070,8 @@ cdef class EventRecordNode(GraphNode):
 
     def update(self, event: Event) -> None:
         """Replace the event recorded by this node."""
+        GN_check_valid(self)
+        Event_check_open(event)
         cdef OpaqueHandle event_owner = event._h_event
         cdef cydriver.CUgraphNodeParams params
 
@@ -1108,6 +1123,8 @@ cdef class EventWaitNode(GraphNode):
 
     def update(self, event: Event) -> None:
         """Replace the event waited on by this node."""
+        GN_check_valid(self)
+        Event_check_open(event)
         cdef OpaqueHandle event_owner = event._h_event
         cdef cydriver.CUgraphNodeParams params
 
@@ -1187,6 +1204,7 @@ cdef class HostCallbackNode(GraphNode):
             retains it cannot be broken by Python's cyclic garbage collector.
             Use a weak reference to break such cycles.
         """
+        GN_check_valid(self)
         cdef cydriver.CUhostFn c_fn
         cdef void* c_user_data
         cdef OpaqueHandle fn_owner, data_owner
@@ -1566,6 +1584,7 @@ cdef class ExecutableChildGraphNode(ExecutableGraphNode):
 
     def update(self, child: GraphDefinition) -> None:
         """Replace the embedded graph parameters for future launches."""
+        GD_check_valid(child)
         cdef cydriver.CUgraphNodeParams params
         c_memset(&params, 0, sizeof(params))
         params.type = cydriver.CU_GRAPH_NODE_TYPE_GRAPH
@@ -1579,6 +1598,7 @@ cdef class ExecutableEventRecordNode(ExecutableGraphNode):
 
     def update(self, event: Event) -> None:
         """Replace the event recorded by future launches."""
+        Event_check_open(event)
         cdef OpaqueHandle event_owner = event._h_event
         cdef cydriver.CUgraphNodeParams params
         c_memset(&params, 0, sizeof(params))
@@ -1593,6 +1613,7 @@ cdef class ExecutableEventWaitNode(ExecutableGraphNode):
 
     def update(self, event: Event) -> None:
         """Replace the event waited on by future launches."""
+        Event_check_open(event)
         cdef OpaqueHandle event_owner = event._h_event
         cdef cydriver.CUgraphNodeParams params
         c_memset(&params, 0, sizeof(params))
