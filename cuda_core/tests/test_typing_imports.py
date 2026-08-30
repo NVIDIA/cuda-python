@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests for cuda.core.typing public type aliases and protocols."""
+"""Tests for public type aliases and protocols exported by cuda.core.typing."""
 
 
 def test_typing_module_imports():
