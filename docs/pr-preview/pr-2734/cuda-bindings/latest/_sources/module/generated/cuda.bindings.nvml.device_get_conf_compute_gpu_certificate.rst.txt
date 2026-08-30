@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_conf\_compute\_gpu\_certificate
+===============================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_conf_compute_gpu_certificate
