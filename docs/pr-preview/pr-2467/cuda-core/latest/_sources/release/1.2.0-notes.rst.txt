@@ -58,6 +58,13 @@ Fixes and enhancements
   a buffer's eventual deallocation without closing the buffer.
   (`#2600 <https://github.com/NVIDIA/cuda-python/issues/2600>`__)
 
+- Closeable resource objects now report their state through ``is_closed``, while
+  graph definitions and nodes report their state through ``is_valid``. Active
+  operations reject closed or invalid resources, and cross-object APIs reject
+  them before passing a null handle to CUDA. Closing either default-stream
+  singleton remains a no-op because those process-wide tokens must stay valid.
+  (`#2627 <https://github.com/NVIDIA/cuda-python/issues/2627>`__)
+
 - Explicit calls to ``deallocate()`` on pool-backed memory resources and
   :class:`GraphMemoryResource` now propagate errors from the underlying CUDA
   free operation. Previously, these errors could be suppressed. Automatic
@@ -157,6 +164,18 @@ Fixes and enhancements
   still reports ``NVVM_ERROR_INVALID_OPTION``.
   (closes `#2570 <https://github.com/NVIDIA/cuda-python/issues/2570>`__)
 
+- :meth:`~utils.StridedMemoryView.from_dlpack`, and
+  :meth:`~utils.StridedMemoryView.from_any_interface` on a DLPack producer, now
+  add ``DLTensor.byte_offset`` to ``ptr``. DLPack places a tensor's first
+  element at ``data + byte_offset``, but ``ptr`` was taken from ``data`` alone,
+  so a producer that reported an allocation base in ``data`` and expressed a
+  slice as an offset yielded a view pointing ``byte_offset`` bytes before the
+  tensor, with no error raised. The offset was also lost permanently on a
+  round-trip, since the ``__dlpack__`` re-export writes ``ptr`` back out as
+  ``data`` with ``byte_offset = 0``. The capsule-consuming path was already
+  correct.
+  (`#2592 <https://github.com/NVIDIA/cuda-python/issues/2592>`__)
+
 - ``Program(ptx, "ptx", ProgramOptions(numba_debug=True))`` now warns that the
   option is ignored instead of discarding it silently. ``numba_debug`` is an
   NVVM/NVRTC *compiler* option: nvJitLink rejects it with
@@ -171,6 +190,11 @@ Fixes and enhancements
   NVVM path gates emission, so ``numba_debug=False`` asks for nothing and is
   not worth a warning.
   (closes `#2640 <https://github.com/NVIDIA/cuda-python/issues/2640>`__)
+
+- CUDA device enumeration now queries the CUDA driver rather than using the
+  NVML system-device count. This prevents non-CUDA accelerators, such as an NPU,
+  from being treated as CUDA devices by :meth:`Device.get_all_devices`, examples,
+  and tests.
 
 Deprecation Notices
 -------------------

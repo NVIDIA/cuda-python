@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=b9dcd0fa"></script>
+    <script src="../_static/documentation_options.js?v=870cae45"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev100';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev132';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1074,6 +1074,12 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Buffer.is_closed">
+<span class="sig-name descname"><span class="pre">is_closed</span></span><a class="headerlink" href="#cuda.core.Buffer.is_closed" title="Link to this definition">#</a></dt>
+<dd><p>Whether this buffer has been closed.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.Buffer.is_device_accessible">
 <span class="sig-name descname"><span class="pre">is_device_accessible</span></span><a class="headerlink" href="#cuda.core.Buffer.is_device_accessible" title="Link to this definition">#</a></dt>
 <dd><p>Return True if this buffer can be accessed by the GPU, otherwise False.</p>
@@ -1180,6 +1186,7 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.device_id"><code class="docutils literal notranslate"><span class="pre">Buffer.device_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.handle"><code class="docutils literal notranslate"><span class="pre">Buffer.handle</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">Buffer.ipc_descriptor</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_closed"><code class="docutils literal notranslate"><span class="pre">Buffer.is_closed</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">Buffer.is_device_accessible</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">Buffer.is_host_accessible</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_managed"><code class="docutils literal notranslate"><span class="pre">Buffer.is_managed</span></code></a></li>

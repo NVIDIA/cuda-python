@@ -37,6 +37,7 @@ cuda.core.ManagedBuffer
    .. autoattribute:: device_id
    .. autoattribute:: handle
    .. autoattribute:: ipc_descriptor
+   .. autoattribute:: is_closed
    .. autoattribute:: is_device_accessible
    .. autoattribute:: is_host_accessible
    .. autoattribute:: is_managed
