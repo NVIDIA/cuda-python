@@ -1,0 +1,6 @@
+﻿cuda.core.system.LibRmVersionMismatchError
+==========================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: LibRmVersionMismatchError
