@@ -21,6 +21,9 @@ pytest-repeat = "*"
 pyglet = ">=2.1.9"
 numpy = "*"
 
+[feature.test.pypi-dependencies]
+cuda-python-test-helpers = { path = "../cuda_python_test_helpers", editable = true }
+
 # Keep this dependency set aligned with cuda_python/docs/environment-docs.yml.
 [feature.docs.dependencies]
 cuda-bindings = "13.2.*"

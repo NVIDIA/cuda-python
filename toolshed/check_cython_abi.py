@@ -92,6 +92,21 @@ def is_cython_module(module: object) -> bool:
     return hasattr(module, "__pyx_capi__")
 
 
+def iter_public_extension_modules(build_dir: Path):
+    """Yield the extension modules under `build_dir` that are part of the public ABI.
+
+    Private modules (e.g. cuda/bindings/_internal/utils.so) are skipped. Only the
+    path *inside* the package is inspected: directories above it routinely start
+    with an underscore (manylinux installs Python under /opt/_internal, GitHub
+    Actions containers check out under /__w), and those must not make every
+    module look private.
+    """
+    for so_path in Path(build_dir).glob(f"**/*{EXT_SUFFIX}"):
+        if any(part.startswith("_") for part in so_path.relative_to(build_dir).parts):
+            continue
+        yield so_path
+
+
 ######################################################################################
 # STRUCTS
 
@@ -473,7 +488,7 @@ def check(package: str, abi_dir: Path) -> bool:
             print(f"No module found for {abi_path.relative_to(abi_dir)}")
             has_errors = True
 
-    for so_path in Path(build_dir).glob(f"**/*{EXT_SUFFIX}"):
+    for so_path in iter_public_extension_modules(build_dir):
         module = import_from_path(package, build_dir, so_path)
         if hasattr(module, "__pyx_capi__"):
             abi_path = so_path_to_abi_path(so_path, build_dir, abi_dir)
@@ -498,10 +513,7 @@ def generate(package: str, abi_dir: Path) -> bool:
         return True
 
     build_dir = get_package_path(package)
-    for so_path in Path(build_dir).glob(f"**/*{EXT_SUFFIX}"):
-        if any(x.startswith("_") for x in so_path.parts):
-            # Skip private modules (e.g. _driver.so) since they are not part of the public ABI
-            continue
+    for so_path in iter_public_extension_modules(build_dir):
         try:
             module = import_from_path(package, build_dir, so_path)
         except ImportError:

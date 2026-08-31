@@ -28,6 +28,7 @@ on:
 
 jobs:
   ci-vars:
+    if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     outputs:
       CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
@@ -47,10 +48,15 @@ jobs:
           echo "cuda_prev_build_ver=$cuda_prev_build_ver" >> $GITHUB_OUTPUT
 
   should-skip:
+    if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       skip: ${{ steps.get-should-skip.outputs.skip }}
       doc-only: ${{ steps.get-should-skip.outputs.doc_only }}
+      base-ref: ${{ steps.get-should-skip.outputs.base_ref }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
@@ -62,179 +68,190 @@ jobs:
           set -euxo pipefail
           if ${{ startsWith(github.ref_name, 'pull-request/') }}; then
             pr_number="$(grep -Po '(\d+)$' <<< '${{ github.ref_name }}')"
-            pr_title="$(gh pr view "${pr_number}" --json title --jq '.title')"
+            pr="$(gh pr view "${pr_number}" --json baseRefName,title)"
+            pr_title="$(jq -r '.title' <<< "${pr}")"
+            base_ref="$(jq -r '.baseRefName' <<< "${pr}")"
             skip="$(echo "${pr_title}" | grep -q '\[no-ci\]' && echo true || echo false)"
             doc_only="$(echo "${pr_title}" | grep -q '\[doc-only\]' && echo true || echo false)"
           else
             skip=false
             doc_only=false
+            base_ref=""
           fi
           echo "skip=${skip}" >> "$GITHUB_OUTPUT"
           echo "doc_only=${doc_only}" >> "$GITHUB_OUTPUT"
+          echo "base_ref=${base_ref}" >> "$GITHUB_OUTPUT"
 
-  # Detect which top-level modules were touched by the PR so downstream build
-  # and test jobs can avoid rebuilding/retesting modules unaffected by the
-  # change. See issue #299.
+  # Detect which packages were touched by the PR so downstream build and test
+  # jobs can avoid rebuilding/retesting packages unaffected by the change.
+  # See issue #299.
   #
   # Dependency graph (verified in pyproject.toml files):
   #   cuda_pathfinder   -> (no internal deps)
   #   cuda_bindings     -> cuda_pathfinder
   #   cuda_core         -> cuda_pathfinder, cuda_bindings
-  #   cuda_python       -> cuda_bindings (meta package)
+  #   cuda_python       -> cuda_pathfinder, cuda_bindings, cuda_core (meta package)
   #
   # A change to cuda_pathfinder (or shared infra) forces a rebuild of every
   # downstream module. A change to cuda_bindings forces rebuild of cuda_core.
-  # A change to cuda_core alone skips rebuilding/retesting cuda_bindings.
+  # A change to cuda_core alone skips rebuilding/retesting cuda_bindings and
+  # cuda_pathfinder, but still retests the downstream cuda-python metapackage.
+  # Shared build/orchestration changes run the full pipeline; test-only CI
+  # infrastructure runs every test suite without rebuilding package wheels.
   # On push to main, tag refs, schedule, or workflow_dispatch events we
   # unconditionally run everything because there is no meaningful "changed
   # paths" baseline for those events.
   detect-changes:
+    if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
+    needs: should-skip
+    permissions:
+      actions: read
+      contents: read
     outputs:
-      bindings: ${{ steps.compose.outputs.bindings }}
-      core: ${{ steps.compose.outputs.core }}
-      pathfinder: ${{ steps.compose.outputs.pathfinder }}
-      python_meta: ${{ steps.compose.outputs.python_meta }}
-      test_helpers: ${{ steps.compose.outputs.test_helpers }}
-      shared: ${{ steps.compose.outputs.shared }}
-      build_bindings: ${{ steps.compose.outputs.build_bindings }}
-      build_core: ${{ steps.compose.outputs.build_core }}
-      build_pathfinder: ${{ steps.compose.outputs.build_pathfinder }}
-      test_bindings: ${{ steps.compose.outputs.test_bindings }}
-      test_core: ${{ steps.compose.outputs.test_core }}
-      test_pathfinder: ${{ steps.compose.outputs.test_pathfinder }}
-      pr_merge_base: ${{ steps.filter.outputs.merge_base }}
+      workplan: ${{ steps.workplan.outputs.workplan }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
-          # Treeless clone: commit graph is needed for `git merge-base` and
-          # `git diff --name-only` below, but historical blobs aren't.
+          # Treeless clone: the commit graph is needed to resolve the PR merge
+          # base and classify its changed paths, but historical blobs aren't.
           fetch-depth: 0
           filter: blob:none
 
-      # copy-pr-bot pushes every PR (whether it targets main or a backport
-      # branch such as 12.9.x) to pull-request/<N>, so the base branch
-      # cannot be inferred from github.ref_name. Look it up via the
-      # upstream PR metadata so the diff below is rooted at the right place.
-      - name: Resolve PR base branch
-        id: pr-info
-        if: ${{ startsWith(github.ref_name, 'pull-request/') }}
-        uses: nv-gha-runners/get-pr-info@main
-
-      - name: Detect changed paths
-        id: filter
+      - name: Resolve PR merge base
+        id: merge-base
         if: ${{ startsWith(github.ref_name, 'pull-request/') }}
         env:
-          # GitHub Actions evaluates step-level `env:` expressions eagerly —
-          # the step's `if:` gate does NOT short-circuit them. On non-PR
-          # events (push/tag/schedule), `pr-info` is skipped and its outputs
-          # are empty strings, so `fromJSON('')` would raise a template error
-          # and fail the step despite `if:` being false. Guard the
-          # `fromJSON` call with a short-circuit so the expression resolves
-          # to an empty string on non-PR events; the step is still gated
-          # off by `if:`, so `BASE_REF` is never consumed there.
-          BASE_REF: ${{ steps.pr-info.outputs.pr-info && fromJSON(steps.pr-info.outputs.pr-info).base.ref || '' }}
+          BASE_REF: ${{ needs.should-skip.outputs.base-ref }}
         run: |
-          # Diff against the merge base with the PR's actual target branch.
-          # Uses merge-base so diverged branches only show files changed on
-          # the PR side, not upstream commits.
+          set -euo pipefail
           if [[ -z "${BASE_REF}" ]]; then
-            echo "Could not resolve PR base branch from get-pr-info output" >&2
+            echo "Could not resolve PR base branch" >&2
             exit 1
           fi
-          base=$(git merge-base HEAD "origin/${BASE_REF}")
-          changed=$(git diff --name-only "$base"...HEAD)
 
-          has_match() {
-            grep -qE "$1" <<< "$changed" && echo true || echo false
+          base=$(git merge-base HEAD "origin/${BASE_REF}")
+          echo "sha=${base}" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve reusable base artifacts
+        id: baseline
+        if: ${{ startsWith(github.ref_name, 'pull-request/') }}
+        env:
+          BASE_REF: ${{ needs.should-skip.outputs.base-ref }}
+          MERGE_BASE: ${{ steps.merge-base.outputs.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+
+          unavailable() {
+            echo "No complete reusable artifact set was found; this run will build and test everything." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
           }
 
-          {
-            echo "bindings=$(has_match '^cuda_bindings/')"
-            echo "core=$(has_match '^cuda_core/')"
-            echo "pathfinder=$(has_match '^cuda_pathfinder/')"
-            echo "python_meta=$(has_match '^cuda_python/')"
-            echo "test_helpers=$(has_match '^cuda_python_test_helpers/')"
-            echo "shared=$(has_match '^(\.github/|ci/|scripts/|toolshed/|conftest\.py$|pyproject\.toml$|pixi\.(toml|lock)$|pytest\.ini$|ruff\.toml$)')"
-            echo "merge_base=${base}"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Compose gating outputs
-        id: compose
-        env:
-          IS_PR: ${{ startsWith(github.ref_name, 'pull-request/') }}
-          BINDINGS: ${{ steps.filter.outputs.bindings || 'false' }}
-          CORE: ${{ steps.filter.outputs.core || 'false' }}
-          PATHFINDER: ${{ steps.filter.outputs.pathfinder || 'false' }}
-          PYTHON_META: ${{ steps.filter.outputs.python_meta || 'false' }}
-          TEST_HELPERS: ${{ steps.filter.outputs.test_helpers || 'false' }}
-          SHARED: ${{ steps.filter.outputs.shared || 'false' }}
-        run: |
-          set -euxo pipefail
-          # Non-PR events (push to main, tag push, schedule, workflow_dispatch)
-          # always exercise the full pipeline because there is no baseline for
-          # a meaningful diff.
-          if [[ "${IS_PR}" != "true" ]]; then
-            bindings=true
-            core=true
-            pathfinder=true
-            python_meta=true
-            test_helpers=true
-            shared=true
-          else
-            bindings="${BINDINGS}"
-            core="${CORE}"
-            pathfinder="${PATHFINDER}"
-            python_meta="${PYTHON_META}"
-            test_helpers="${TEST_HELPERS}"
-            shared="${SHARED}"
+          if [[ -z "${BASE_REF}" ]]; then
+            unavailable
           fi
 
-          or_flag() {
-            for v in "$@"; do
-              if [[ "${v}" == "true" ]]; then
-                echo "true"
-                return
-              fi
-            done
-            echo "false"
+          merge_base="${MERGE_BASE}"
+          if [[ -z "${merge_base}" ]]; then
+            unavailable
+          fi
+          if ! runs=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --branch "${BASE_REF}" \
+            --commit "${merge_base}" \
+            --event push \
+            --workflow ci.yml \
+            --status success \
+            --limit 1 \
+            --json databaseId,headSha); then
+            unavailable
+          fi
+
+          # Reuse only artifacts produced from the exact commit used as the
+          # PR diff base. Using the latest base-branch run is unsafe for a PR
+          # that was opened before newer changes landed on that branch.
+          run_id=$(jq -r '.[0].databaseId // empty' <<< "$runs")
+          run_sha=$(jq -r '.[0].headSha // empty' <<< "$runs")
+          if [[ -z "${run_id}" || "${run_sha}" != "${merge_base}" ]]; then
+            unavailable
+          fi
+
+          if ! artifact_names=$(gh api \
+            "repos/${{ github.repository }}/actions/runs/${run_id}/artifacts?per_page=100" \
+            --paginate \
+            --jq '.artifacts[] | select(.expired == false) | .name'); then
+            unavailable
+          fi
+
+          has_artifact() {
+            grep -Fxq "$1" <<< "$artifact_names"
           }
 
-          # Build gating: pathfinder change forces rebuild of bindings and
-          # core; bindings change forces rebuild of core. shared changes force
-          # a full rebuild.
-          build_pathfinder="$(or_flag "${shared}" "${pathfinder}")"
-          build_bindings="$(or_flag "${shared}" "${pathfinder}" "${bindings}")"
-          build_core="$(or_flag "${shared}" "${pathfinder}" "${bindings}" "${core}")"
+          missing=()
+          for name in cuda-pathfinder-wheel cuda-python-wheel; do
+            has_artifact "$name" || missing+=("$name")
+          done
 
-          # Test gating: tests for a module must run whenever that module, any
-          # of its runtime dependencies, the shared test helper package, or
-          # shared infra changes. pathfinder tests are cheap and always run.
-          test_pathfinder=true
-          test_bindings="$(or_flag "${shared}" "${pathfinder}" "${bindings}" "${test_helpers}")"
-          test_core="$(or_flag "${shared}" "${pathfinder}" "${bindings}" "${core}" "${test_helpers}")"
+          cuda_version=$(yq '.cuda.build.version' ci/versions.yml)
+          if ! python_versions=$(yq -r '.jobs.build.strategy.matrix."python-version"[]' .github/workflows/build-wheel.yml); then
+            unavailable
+          fi
+          if ! platforms=$(yq -r '.platforms[]' ci/test-matrix.yml); then
+            unavailable
+          fi
+          if [[ -z "${python_versions}" || -z "${platforms}" ]]; then
+            unavailable
+          fi
+          while IFS= read -r python_version; do
+            python=${python_version//./}
+            while IFS= read -r platform; do
+              binding="cuda-bindings-python${python}-cuda${cuda_version}-${platform}-${merge_base}"
+              core="cuda-core-python${python}-${platform}-${merge_base}"
+              has_artifact "$binding" || missing+=("$binding")
+              has_artifact "$core" || missing+=("$core")
+            done <<< "${platforms}"
+          done <<< "${python_versions}"
 
+          if (( ${#missing[@]} != 0 )); then
+            printf 'Missing reusable artifact: %s\n' "${missing[@]}" >&2
+            unavailable
+          fi
+
+          echo "run_id=${run_id}" >> "$GITHUB_OUTPUT"
           {
-            echo "bindings=${bindings}"
-            echo "core=${core}"
-            echo "pathfinder=${pathfinder}"
-            echo "python_meta=${python_meta}"
-            echo "test_helpers=${test_helpers}"
-            echo "shared=${shared}"
-            echo "build_bindings=${build_bindings}"
-            echo "build_core=${build_core}"
-            echo "build_pathfinder=${build_pathfinder}"
-            echo "test_bindings=${test_bindings}"
-            echo "test_core=${test_core}"
-            echo "test_pathfinder=${test_pathfinder}"
-          } >> "$GITHUB_OUTPUT"
+            echo
+            echo "Reusable artifacts: run \`${run_id}\` at \`${merge_base}\` on \`${BASE_REF}\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Test CI workplan planner
+        run: python3 -m unittest ci/tools/tests/test_compute_ci_plan.py
+
+      - name: Compute CI workplan
+        id: workplan
+        env:
+          MERGE_BASE: ${{ steps.merge-base.outputs.sha }}
+          BASELINE_RUN_ID: ${{ steps.baseline.outputs.run_id }}
+        run: |
+          set -euo pipefail
+          workplan=$(python3 ci/tools/compute_ci_plan.py \
+            --merge-base "$MERGE_BASE" \
+            --baseline-run-id "$BASELINE_RUN_ID")
+          echo "workplan=$workplan" >> "$GITHUB_OUTPUT"
+          {
+            echo
+            echo "### CI workplan"
+            echo '```json'
+            jq . <<< "$workplan"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   api-check-core-vs-release:
     name: API check (cuda_core vs. latest release)
     if: >-
       ${{ !fromJSON(needs.should-skip.outputs.skip) &&
-          fromJSON(needs.detect-changes.outputs.core) }}
+          fromJSON(needs.detect-changes.outputs.workplan).jobs.core_api_checks }}
     runs-on: ubuntu-latest
     needs:
       - should-skip
@@ -285,7 +302,7 @@ jobs:
     if: >-
       ${{ startsWith(github.ref_name, 'pull-request/') &&
           !fromJSON(needs.should-skip.outputs.skip) &&
-          fromJSON(needs.detect-changes.outputs.core) }}
+          fromJSON(needs.detect-changes.outputs.workplan).jobs.core_api_checks }}
     runs-on: ubuntu-latest
     needs:
       - should-skip
@@ -303,7 +320,7 @@ jobs:
         shell: bash --noprofile --norc -euo pipefail {0}
         run: |
           git fetch --depth=1 --filter=blob:none origin \
-            "${{ needs.detect-changes.outputs.pr_merge_base }}"
+            "${{ fromJSON(needs.detect-changes.outputs.workplan).merge_base }}"
 
       - name: Check cuda_core public API
         id: griffe
@@ -311,18 +328,20 @@ jobs:
         with:
           package-name: cuda.core
           package-dir: cuda_core
-          merge-base: ${{ needs.detect-changes.outputs.pr_merge_base }}
+          merge-base: ${{ fromJSON(needs.detect-changes.outputs.workplan).merge_base }}
 
   # NOTE: Build jobs are intentionally split by platform rather than using a single
-  # matrix. This allows each test job to depend only on its corresponding build,
-  # so faster platforms can proceed through build & test without waiting for slower
-  # ones. Keep these job definitions textually identical except for:
+  # matrix. This lets each test job consume its platform-specific artifacts as
+  # soon as they are ready. ARM64 and Windows tests also wait for linux-64,
+  # which produces the universal pathfinder and cuda-python wheels. Keep these
+  # job definitions textually identical except for:
   #   - host-platform value
   #   - if: condition (build-linux-64 omits doc-only check since it's needed for docs)
   build-linux-64:
     needs:
       - ci-vars
       - should-skip
+      - detect-changes
     strategy:
       fail-fast: false
       matrix:
@@ -330,50 +349,70 @@ jobs:
           - linux-64
     name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
     if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
+    permissions:
+      actions: read
+      contents: read
     secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See build-linux-64 for why build jobs are split by platform.
   build-linux-aarch64:
     needs:
       - ci-vars
       - should-skip
+      - detect-changes
     strategy:
       fail-fast: false
       matrix:
         host-platform:
           - linux-aarch64
     name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) }}
+    if: ${{ github.repository_owner == 'nvidia' &&
+            !fromJSON(needs.should-skip.outputs.skip) &&
+            !fromJSON(needs.should-skip.outputs.doc-only) &&
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux }}
+    permissions:
+      actions: read
+      contents: read
     secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See build-linux-64 for why build jobs are split by platform.
   build-windows:
     needs:
       - ci-vars
       - should-skip
+      - detect-changes
     strategy:
       fail-fast: false
       matrix:
         host-platform:
           - win-64
     name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) }}
+    if: ${{ github.repository_owner == 'nvidia' &&
+            !fromJSON(needs.should-skip.outputs.skip) &&
+            !fromJSON(needs.should-skip.outputs.doc-only) &&
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows }}
+    permissions:
+      actions: read
+      contents: read
     secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # NOTE: test-sdist jobs are split by platform (mirroring build-* and test-wheel-*)
   # so platform-specific sources (e.g. cuda_bindings/*_windows.pyx selected by
@@ -385,26 +424,45 @@ jobs:
     needs:
       - ci-vars
       - should-skip
+      - detect-changes
+      - build-linux-64
     name: Test sdist linux-64
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) }}
+    if: ${{ github.repository_owner == 'nvidia' &&
+            !fromJSON(needs.should-skip.outputs.skip) &&
+            !fromJSON(needs.should-skip.outputs.doc-only) &&
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.sdist_tests }}
+    permissions:
+      actions: read
+      contents: read
     secrets: inherit
     uses: ./.github/workflows/test-sdist-linux.yml
     with:
       host-platform: linux-64
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See test-sdist-linux for why sdist test jobs are split by platform.
   test-sdist-windows:
     needs:
       - ci-vars
       - should-skip
+      - detect-changes
+      - build-linux-64
+      - build-windows
     name: Test sdist win-64
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) }}
+    if: ${{ github.repository_owner == 'nvidia' &&
+            !fromJSON(needs.should-skip.outputs.skip) &&
+            !fromJSON(needs.should-skip.outputs.doc-only) &&
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.sdist_tests }}
+    permissions:
+      actions: read
+      contents: read
     secrets: inherit
     uses: ./.github/workflows/test-sdist-windows.yml
     with:
       host-platform: win-64
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # NOTE: Test jobs are split by platform for the same reason as build jobs (see
   # build-linux-64). Keep these job definitions textually identical except for:
@@ -418,8 +476,11 @@ jobs:
         host-platform:
           - linux-64
     name: Test ${{ matrix.host-platform }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) }}
+    if: ${{ github.repository_owner == 'nvidia' &&
+            !fromJSON(needs.should-skip.outputs.doc-only) &&
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux }}
     permissions:
+      actions: read
       contents: read  # This is required for actions/checkout
     needs:
       - ci-vars
@@ -433,7 +494,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
-      skip-bindings-test: ${{ !fromJSON(needs.detect-changes.outputs.test_bindings) }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See test-linux-64 for why test jobs are split by platform.
   test-linux-aarch64:
@@ -443,13 +504,17 @@ jobs:
         host-platform:
           - linux-aarch64
     name: Test ${{ matrix.host-platform }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) }}
+    if: ${{ github.repository_owner == 'nvidia' &&
+            !fromJSON(needs.should-skip.outputs.doc-only) &&
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux }}
     permissions:
+      actions: read
       contents: read  # This is required for actions/checkout
     needs:
       - ci-vars
       - should-skip
       - detect-changes
+      - build-linux-64
       - build-linux-aarch64
     secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
@@ -458,7 +523,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
-      skip-bindings-test: ${{ !fromJSON(needs.detect-changes.outputs.test_bindings) }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See test-linux-64 for why test jobs are split by platform.
   test-windows:
@@ -468,13 +533,17 @@ jobs:
         host-platform:
           - win-64
     name: Test ${{ matrix.host-platform }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) }}
+    if: ${{ github.repository_owner == 'nvidia' &&
+            !fromJSON(needs.should-skip.outputs.doc-only) &&
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows }}
     permissions:
+      actions: read
       contents: read  # This is required for actions/checkout
     needs:
       - ci-vars
       - should-skip
       - detect-changes
+      - build-linux-64
       - build-windows
     secrets: inherit
     uses: ./.github/workflows/test-wheel-windows.yml
@@ -483,7 +552,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
-      skip-bindings-test: ${{ !fromJSON(needs.detect-changes.outputs.test_bindings) }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   doc:
     name: Docs
@@ -535,20 +604,28 @@ jobs:
 
   checks:
     name: Check job status
-    if: always()
+    if: ${{ always() && github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     needs:
+      - ci-vars
       - should-skip
       - detect-changes
+      - build-linux-64
+      - build-linux-aarch64
+      - build-windows
       - test-sdist-linux
       - test-sdist-windows
       - test-linux-64
       - test-linux-aarch64
       - test-windows
+      - api-check-core-vs-release
+      - api-check-core-vs-base
       - doc
       - precommit-windows
     steps:
       - name: Exit
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
         run: |
           # GitHub treats `result == 'skipped'` as success for required
           # status checks (see CCCL gate comment + cccl#605). The previous
@@ -565,9 +642,15 @@ jobs:
           fi
 
           doc_only="${{ needs.should-skip.outputs.doc-only }}"
+          linux_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux || false }}"
+          windows_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows || false }}"
+          build_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.sdist_tests || false }}"
+          run_core_api_check="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.core_api_checks || false }}"
+          is_pr="${{ startsWith(github.ref_name, 'pull-request/') }}"
           status="success"
           check_result() {
-            name=$1; expected=$2; result=$3
+            local name=$1 expected=$2 result
+            result=$(jq -r --arg name "$name" '.[$name].result // "missing"' <<< "$NEEDS_JSON")
             echo "Checking $name: result='$result' (expected '$expected')"
             if [[ "$result" != "$expected" ]]; then
               echo "::error::$name did not match expected result"
@@ -575,18 +658,47 @@ jobs:
             fi
           }
 
-          # always expected to succeed (even in [doc-only] mode)
-          check_result "should-skip"    "success" "${{ needs.should-skip.result }}"
-          check_result "detect-changes" "success" "${{ needs.detect-changes.result }}"
-          check_result "doc"            "success" "${{ needs.doc.result }}"
-          check_result "precommit-windows" "success" "${{ needs.precommit-windows.result }}"
+          # Control jobs, the universal linux build, docs, and Windows
+          # pre-commit checks always run.
+          check_result "ci-vars"           "success"
+          check_result "should-skip"       "success"
+          check_result "detect-changes"    "success"
+          check_result "build-linux-64"    "success"
+          check_result "doc"               "success"
+          check_result "precommit-windows" "success"
 
-          # [doc-only] flips these from 'success' to 'skipped'
-          if [[ "$doc_only" == "true" ]]; then expected="skipped"; else expected="success"; fi
-          check_result "test-sdist-linux"   "$expected" "${{ needs.test-sdist-linux.result }}"
-          check_result "test-sdist-windows" "$expected" "${{ needs.test-sdist-windows.result }}"
-          check_result "test-linux-64"      "$expected" "${{ needs.test-linux-64.result }}"
-          check_result "test-linux-aarch64" "$expected" "${{ needs.test-linux-aarch64.result }}"
-          check_result "test-windows"       "$expected" "${{ needs.test-windows.result }}"
+          # Optional platform builds and wheel tests share the platform plan.
+          linux_expected="skipped"
+          if [[ "$doc_only" != "true" && "$linux_selected" == "true" ]]; then
+            linux_expected="success"
+          fi
+          windows_expected="skipped"
+          if [[ "$doc_only" != "true" && "$windows_selected" == "true" ]]; then
+            windows_expected="success"
+          fi
+          check_result "build-linux-aarch64" "$linux_expected"
+          check_result "build-windows"       "$windows_expected"
+
+          # Sdist tests follow build selection; wheel tests follow the platform plan.
+          expected="skipped"
+          if [[ "$doc_only" != "true" && "$build_selected" == "true" ]]; then
+            expected="success"
+          fi
+          check_result "test-sdist-linux"   "$expected"
+          check_result "test-sdist-windows" "$expected"
+
+          check_result "test-linux-64"      "$linux_expected"
+          check_result "test-linux-aarch64" "$linux_expected"
+          check_result "test-windows"       "$windows_expected"
+
+          # API compatibility checks run for cuda_core source changes and for
+          # conservative full runs when reusable base artifacts are unavailable.
+          expected="skipped"
+          if [[ "$run_core_api_check" == "true" ]]; then expected="success"; fi
+          check_result "api-check-core-vs-release" "$expected"
+
+          expected="skipped"
+          if [[ "$is_pr" == "true" && "$run_core_api_check" == "true" ]]; then expected="success"; fi
+          check_result "api-check-core-vs-base" "$expected"
 
           [[ "$status" == "success" ]]

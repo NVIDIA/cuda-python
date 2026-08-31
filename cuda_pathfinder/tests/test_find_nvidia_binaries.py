@@ -128,6 +128,256 @@ def test_find_binary_windows_extension_and_search_dirs(monkeypatch, mocker):
     assert checked == [os.path.join(d, "nvcc.exe") for d in expected_dirs]
 
 
+@pytest.mark.parametrize(
+    ("launcher_exists", "expected_rel", "checked_rels"),
+    (
+        (True, os.path.join("bin", "compute-sanitizer.bat"), (os.path.join("bin", "compute-sanitizer.bat"),)),
+        (
+            False,
+            os.path.join("compute-sanitizer", "compute-sanitizer.exe"),
+            (
+                os.path.join("bin", "compute-sanitizer.bat"),
+                os.path.join("compute-sanitizer", "compute-sanitizer.exe"),
+            ),
+        ),
+    ),
+)
+@pytest.mark.usefixtures("clear_find_binary_cache")
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_find_compute_sanitizer_prefers_ctk_launcher_with_executable_fallback(
+    monkeypatch, mocker, launcher_exists, expected_rel, checked_rels
+):
+    cuda_home = os.path.join(os.sep, "cuda")
+    launcher = os.path.join(cuda_home, "bin", "compute-sanitizer.bat")
+    executable = os.path.join(cuda_home, "compute-sanitizer", "compute-sanitizer.exe")
+
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=True)
+    mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=cuda_home)
+    canary_mock = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary")
+    existing = [executable]
+    if launcher_exists:
+        existing.append(launcher)
+    checked = _patch_exec_probe(mocker, existing=existing)
+
+    assert find_nvidia_binary_utility("compute-sanitizer") == os.path.abspath(os.path.join(cuda_home, expected_rel))
+    assert checked == [os.path.join(cuda_home, rel) for rel in checked_rels]
+    canary_mock.assert_not_called()
+
+
+@pytest.mark.usefixtures("clear_find_binary_cache")
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_find_compute_sanitizer_uses_canary_ctk_root(monkeypatch, mocker):
+    ctk_root = os.path.join(os.sep, "cuda")
+    launcher = os.path.join(ctk_root, "bin", "compute-sanitizer.bat")
+
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=True)
+    mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
+    canary = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=ctk_root)
+    checked = _patch_exec_probe(mocker, existing=[launcher])
+
+    assert find_nvidia_binary_utility("compute-sanitizer") == os.path.abspath(launcher)
+    assert checked == [launcher]
+    canary.assert_called_once_with()
+
+
+@pytest.mark.parametrize(
+    ("utility_name", "candidate_names"),
+    (
+        ("nsys", ("nsys.exe",)),
+        ("ncu", ("ncu.bat", "ncu.exe")),
+    ),
+)
+@pytest.mark.usefixtures("clear_find_binary_cache")
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_find_binary_windows_nsight_conda_precedes_registry(monkeypatch, mocker, utility_name, candidate_names):
+    site_dir = os.path.join(os.sep, "site-packages", utility_name, "bin")
+    conda_prefix = os.path.join(os.sep, "conda")
+    conda_bin = os.path.join(conda_prefix, "Library", "bin")
+    expected = os.path.join(conda_bin, candidate_names[0])
+
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=True)
+    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[site_dir])
+    monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
+    candidate_paths = mocker.patch.object(binary_finder_module.windows_nsight, f"{utility_name}_candidate_paths")
+    get_cuda_path = mocker.patch.object(binary_finder_module, "get_cuda_path_or_home")
+    canary = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary")
+    checked = _patch_exec_probe(mocker, existing=[expected])
+
+    assert find_nvidia_binary_utility(utility_name) == os.path.abspath(expected)
+    assert checked == [
+        *(os.path.join(site_dir, name) for name in candidate_names),
+        os.path.join(conda_bin, candidate_names[0]),
+    ]
+    candidate_paths.assert_not_called()
+    get_cuda_path.assert_not_called()
+    canary.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("utility_name", "product", "machine_arch", "target_rel", "candidate_names"),
+    (
+        ("nsys", "Systems", "x64", os.path.join("target-windows-x64", "nsys.exe"), ("nsys.exe",)),
+        ("nsys", "Systems", "arm64", os.path.join("target-windows-armv8", "nsys.exe"), ("nsys.exe",)),
+        (
+            "ncu",
+            "Compute",
+            "x64",
+            os.path.join("target", "windows-desktop-win7-x64", "ncu.exe"),
+            ("ncu.bat", "ncu.exe"),
+        ),
+        (
+            "ncu",
+            "Compute",
+            "arm64",
+            os.path.join("target", "windows-desktop-win10-t23x-a64", "ncu.exe"),
+            ("ncu.bat", "ncu.exe"),
+        ),
+    ),
+)
+@pytest.mark.usefixtures("clear_find_binary_cache")
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_find_binary_windows_nsight_composes_registry_and_native_target(
+    monkeypatch, mocker, utility_name, product, machine_arch, target_rel, candidate_names
+):
+    site_dir = os.path.join(os.sep, "site-packages", utility_name, "bin")
+    conda_prefix = os.path.join(os.sep, "conda")
+    conda_bin = os.path.join(conda_prefix, "Library", "bin")
+    install_root = os.path.join(os.sep, "Program Files", utility_name)
+    expected = os.path.join(install_root, target_rel)
+
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=True)
+    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[site_dir])
+    monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
+    registry_root = mocker.patch.object(
+        binary_finder_module.windows_nsight, "_installed_product_root", return_value=install_root
+    )
+    machine_arch_mock = mocker.patch.object(
+        binary_finder_module.windows_nsight, "windows_machine_arch", return_value=machine_arch
+    )
+    get_cuda_path = mocker.patch.object(binary_finder_module, "get_cuda_path_or_home")
+    canary = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary")
+    checked = _patch_exec_probe(mocker, existing=[expected])
+
+    assert find_nvidia_binary_utility(utility_name) == os.path.abspath(expected)
+    assert checked == [
+        *(os.path.join(directory, name) for directory in (site_dir, conda_bin) for name in candidate_names),
+        *((os.path.join(install_root, "ncu.bat"),) if utility_name == "ncu" else ()),
+        expected,
+    ]
+    registry_root.assert_called_once_with(product)
+    machine_arch_mock.assert_called_once_with()
+    get_cuda_path.assert_not_called()
+    canary.assert_not_called()
+
+
+@pytest.mark.usefixtures("clear_find_binary_cache")
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_find_binary_windows_ncu_launcher_hit_does_not_resolve_machine_arch(monkeypatch, mocker):
+    install_root = os.path.join(os.sep, "Program Files", "Nsight Compute")
+    launcher = os.path.join(install_root, "ncu.bat")
+
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=True)
+    mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    registry_root = mocker.patch.object(
+        binary_finder_module.windows_nsight, "_installed_product_root", return_value=install_root
+    )
+    machine_arch = mocker.patch.object(binary_finder_module.windows_nsight, "windows_machine_arch")
+    get_cuda_path = mocker.patch.object(binary_finder_module, "get_cuda_path_or_home")
+    canary = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary")
+    checked = _patch_exec_probe(mocker, existing=[launcher])
+
+    assert find_nvidia_binary_utility("ncu") == os.path.abspath(launcher)
+    assert checked == [launcher]
+    registry_root.assert_called_once_with("Compute")
+    machine_arch.assert_not_called()
+    get_cuda_path.assert_not_called()
+    canary.assert_not_called()
+
+
+@pytest.mark.parametrize(("utility_name", "product"), (("nsys", "Systems"), ("ncu", "Compute")))
+@pytest.mark.usefixtures("clear_find_binary_cache")
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_find_binary_windows_nsight_registry_miss_is_terminal(monkeypatch, mocker, utility_name, product):
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=True)
+    mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    registry_root = mocker.patch.object(
+        binary_finder_module.windows_nsight, "_installed_product_root", return_value=None
+    )
+    machine_arch = mocker.patch.object(binary_finder_module.windows_nsight, "windows_machine_arch")
+    get_cuda_path = mocker.patch.object(binary_finder_module, "get_cuda_path_or_home")
+    canary = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary")
+
+    assert find_nvidia_binary_utility(utility_name) is None
+    registry_root.assert_called_once_with(product)
+    machine_arch.assert_not_called()
+    get_cuda_path.assert_not_called()
+    canary.assert_not_called()
+
+
+@pytest.mark.parametrize("utility_name", ("nsight-sys", "nsight-compute"))
+@pytest.mark.usefixtures("clear_find_binary_cache")
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_find_windows_nsight_legacy_names_remain_literal_in_early_search(monkeypatch, mocker, utility_name):
+    site_key = os.path.join("nvidia", utility_name, "bin")
+    site_dir = os.path.join(os.sep, "site-packages", utility_name, "bin")
+    conda_prefix = os.path.join(os.sep, "conda")
+    conda_bin = os.path.join(conda_prefix, "Library", "bin")
+    expected = os.path.join(conda_bin, f"{utility_name}.exe")
+
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=True)
+    mocker.patch.object(
+        binary_finder_module.supported_nvidia_binaries,
+        "SITE_PACKAGES_BINDIRS",
+        {utility_name: (site_key,)},
+    )
+    find_sub_dirs = mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[site_dir])
+    monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
+    get_cuda_path = mocker.patch.object(binary_finder_module, "get_cuda_path_or_home")
+    nsys_candidates = mocker.patch.object(binary_finder_module.windows_nsight, "nsys_candidate_paths")
+    ncu_candidates = mocker.patch.object(binary_finder_module.windows_nsight, "ncu_candidate_paths")
+    checked = _patch_exec_probe(mocker, existing=[expected])
+
+    assert find_nvidia_binary_utility(utility_name) == os.path.abspath(expected)
+    assert checked == [os.path.join(site_dir, f"{utility_name}.exe"), expected]
+    find_sub_dirs.assert_called_once_with(site_key.split(os.sep))
+    get_cuda_path.assert_not_called()
+    nsys_candidates.assert_not_called()
+    ncu_candidates.assert_not_called()
+
+
+@pytest.mark.parametrize("utility_name", ("nsight-sys", "nsight-compute"))
+@pytest.mark.usefixtures("clear_find_binary_cache")
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_find_windows_nsight_legacy_names_remain_literal_in_ctk(monkeypatch, mocker, utility_name):
+    cuda_home = os.path.join(os.sep, "cuda")
+    expected = os.path.join(cuda_home, "bin", f"{utility_name}.exe")
+
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=True)
+    mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=cuda_home)
+    nsys_candidates = mocker.patch.object(binary_finder_module.windows_nsight, "nsys_candidate_paths")
+    ncu_candidates = mocker.patch.object(binary_finder_module.windows_nsight, "ncu_candidate_paths")
+    canary = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary")
+    checked = _patch_exec_probe(mocker, existing=[expected])
+
+    assert find_nvidia_binary_utility(utility_name) == os.path.abspath(expected)
+    assert checked == [
+        os.path.join(cuda_home, "bin", "x64", f"{utility_name}.exe"),
+        os.path.join(cuda_home, "bin", "x86_64", f"{utility_name}.exe"),
+        expected,
+    ]
+    nsys_candidates.assert_not_called()
+    ncu_candidates.assert_not_called()
+    canary.assert_not_called()
+
+
 @pytest.mark.usefixtures("clear_find_binary_cache")
 def test_find_binary_first_matching_dir_wins(monkeypatch, mocker):
     conda_prefix = os.path.join(os.sep, "conda")

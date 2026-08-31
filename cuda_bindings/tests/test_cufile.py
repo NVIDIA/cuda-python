@@ -151,7 +151,7 @@ def ctx():
     (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    yield
+    yield ctx
 
     cuda.cuDevicePrimaryCtxRelease(device)
 

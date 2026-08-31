@@ -4,7 +4,10 @@
 """Tests for updating individual graph node parameters."""
 
 import ctypes
+import gc
 import threading
+import time
+import weakref
 from dataclasses import dataclass
 from typing import Callable
 
@@ -12,9 +15,19 @@ import pytest
 from helpers.graph_kernels import compile_common_kernels
 
 from cuda.core import LaunchConfig, LegacyPinnedMemoryResource
+from cuda.core._utils._weak_handles import weak_handle
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core._utils.version import driver_version
-from cuda.core.graph import GraphDefinition, HostCallbackNode
+from cuda.core.graph import (
+    ChildGraphNode,
+    EventRecordNode,
+    EventWaitNode,
+    GraphDefinition,
+    HostCallbackNode,
+    KernelNode,
+    MemcpyNode,
+    MemsetNode,
+)
 
 
 @dataclass
@@ -33,6 +46,51 @@ class _DefinitionUpdateCase:
 
 def _assert_equal(actual, expected):
     assert actual == expected
+
+
+def _wait_until(predicate, timeout=5.0):
+    deadline = time.monotonic() + timeout
+    while not predicate():
+        if time.monotonic() >= deadline:
+            raise AssertionError(f"condition not satisfied within {timeout}s")
+        gc.collect()
+        time.sleep(0.02)
+
+
+def _update_executable_case(graph, case):
+    view = graph[case.node]
+    replacement = case.replacement
+    if isinstance(case.node, (EventRecordNode, EventWaitNode)):
+        view.update(replacement)
+    elif isinstance(case.node, HostCallbackNode):
+        if isinstance(replacement, tuple):
+            view.update(replacement[0], user_data=replacement[1])
+        else:
+            view.update(replacement)
+    elif isinstance(case.node, MemsetNode):
+        view.update(
+            dst=replacement["dst"],
+            value=replacement["value"],
+            width=replacement["width"],
+            height=replacement["height"],
+            pitch=replacement["pitch"],
+        )
+    elif isinstance(case.node, MemcpyNode):
+        view.update(
+            dst=replacement["dst"],
+            src=replacement["src"],
+            size=replacement["size"],
+        )
+    elif isinstance(case.node, KernelNode):
+        view.update(
+            config=replacement["config"],
+            kernel=replacement["kernel"],
+            args=replacement["args"],
+        )
+    elif isinstance(case.node, ChildGraphNode):
+        view.update(replacement["child"])
+    else:  # pragma: no cover - fixture cases are exhaustive
+        raise AssertionError(f"unsupported case: {type(case.node).__name__}")
 
 
 def _event_record_case(device):
@@ -76,7 +134,7 @@ def _event_record_case(device):
         assert_current=lambda expected: _assert_equal(node.event, expected),
         assert_exec_uses=assert_exec_uses,
         invalid_update=lambda: node.update(invalid_replacement),
-        invalid_exception=CUDAError,
+        invalid_exception=RuntimeError,
         invalid_argument_update=lambda: node.update(object()),
     )
 
@@ -128,7 +186,7 @@ def _event_wait_case(device):
         assert_current=lambda expected: _assert_equal(node.event, expected),
         assert_exec_uses=assert_exec_uses,
         invalid_update=lambda: node.update(invalid_replacement),
-        invalid_exception=CUDAError,
+        invalid_exception=RuntimeError,
         invalid_argument_update=lambda: node.update(object()),
     )
 
@@ -709,7 +767,7 @@ def test_destroyed_definition_node_rejects_update(
 
     assert not case.node.is_valid
     assert case.node not in case.graph_def.nodes()
-    with pytest.raises(CUDAError):
+    with pytest.raises(RuntimeError, match="GraphNode has been destroyed"):
         case.update(case.replacement)
     assert not case.node.is_valid
     assert case.node not in case.graph_def.nodes()
@@ -739,3 +797,423 @@ def test_definition_node_update_rejects_wrong_type(
         pytest.skip("update method has no typed positional argument")
     with pytest.raises(TypeError):
         definition_update_case.invalid_argument_update()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_executable_node_update_changes_existing_exec(
+    definition_update_case,
+):
+    case = definition_update_case
+    graph = case.graph_def.instantiate()
+
+    _update_executable_case(graph, case)
+
+    case.assert_current(case.original)
+    case.assert_exec_uses(graph, case.replacement)
+
+
+@pytest.mark.parametrize("node_kind", ["kernel", "memcpy", "memset"])
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_executable_node_enable_state(init_cuda, node_kind):
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    graph_def = GraphDefinition()
+    if node_kind == "kernel":
+        kernel = compile_common_kernels().get_kernel("empty_kernel")
+        node = graph_def.launch(LaunchConfig(grid=1, block=1), kernel)
+    else:
+        memory_resource = LegacyPinnedMemoryResource()
+        src = memory_resource.allocate(4)
+        dst = memory_resource.allocate(4)
+        if node_kind == "memcpy":
+            node = graph_def.memcpy(dst, src, 4)
+        else:
+            node = graph_def.memset(dst, 0, 4)
+
+    view = graph_def.instantiate()[node]
+    assert view.is_enabled
+    view.disable()
+    assert not view.is_enabled
+    view.disable()
+    assert not view.is_enabled
+    view.enable()
+    assert view.is_enabled
+    view.enable()
+    assert view.is_enabled
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_executable_node_view_rejects_unsupported_and_destroyed_nodes(
+    init_cuda,
+):
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    kernel = compile_common_kernels().get_kernel("empty_kernel")
+    graph_def = GraphDefinition()
+    empty = graph_def.empty()
+    kernel_node = graph_def.launch(LaunchConfig(grid=1, block=1), kernel)
+    graph = graph_def.instantiate()
+
+    with pytest.raises(TypeError, match="does not support executable updates"):
+        graph[empty]
+    with pytest.raises(TypeError):
+        graph[object()]
+
+    kernel_node.destroy()
+    with pytest.raises(RuntimeError, match="GraphNode has been destroyed"):
+        graph[kernel_node]
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_executable_node_view_retains_source_only_while_live(init_cuda):
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    called = []
+
+    def original():
+        called.append("original")
+
+    def replacement():
+        called.append("replacement")
+
+    source = GraphDefinition()
+    node = source.callback(original)
+    source_weak = weak_handle(source)
+    graph = source.instantiate()
+    view = graph[node]
+
+    del source, node
+    gc.collect()
+    assert source_weak
+
+    view.update(replacement)
+    del view
+    _wait_until(lambda: not source_weak)
+
+    stream = init_cuda.create_stream()
+    graph.launch(stream)
+    stream.sync()
+    assert called == ["replacement"]
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_executable_attachment_accumulators_are_independent(init_cuda):
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    called = []
+
+    def original():
+        called.append("original")
+
+    def first_replacement():
+        called.append("first")
+
+    def second_replacement():
+        called.append("second")
+
+    first_weak = weakref.ref(first_replacement)
+    second_weak = weakref.ref(second_replacement)
+    source = GraphDefinition()
+    node = source.callback(original)
+    first = source.instantiate()
+    second = source.instantiate()
+
+    first[node].update(first_replacement)
+    second[node].update(second_replacement)
+    del first_replacement, second_replacement, original, node, source
+    gc.collect()
+    assert first_weak() is not None
+    assert second_weak() is not None
+
+    stream = init_cuda.create_stream()
+    first.launch(stream)
+    second.launch(stream)
+    stream.sync()
+    assert called == ["first", "second"]
+
+    del first
+    _wait_until(lambda: first_weak() is None)
+    assert second_weak() is not None
+
+    del second
+    _wait_until(lambda: second_weak() is None)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_rejected_executable_update_rolls_back_owners(init_cuda):
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    kernel = compile_common_kernels().get_kernel("add_one")
+    config = LaunchConfig(grid=1, block=1)
+    memory_resource = LegacyPinnedMemoryResource()
+    active = memory_resource.allocate(ctypes.sizeof(ctypes.c_int))
+    rejected = memory_resource.allocate(ctypes.sizeof(ctypes.c_int))
+    ctypes.c_int.from_address(int(active.handle)).value = 0
+    rejected_weak = weak_handle(rejected)
+
+    source = GraphDefinition()
+    source.launch(config, kernel, active)
+    graph = source.instantiate()
+    unrelated = GraphDefinition()
+    unrelated_node = unrelated.launch(config, kernel, active)
+
+    with pytest.raises(CUDAError):
+        graph[unrelated_node].update(config=config, kernel=kernel, args=(rejected,))
+
+    del rejected
+    _wait_until(lambda: not rejected_weak)
+
+    stream = init_cuda.create_stream()
+    graph.launch(stream)
+    stream.sync()
+    assert ctypes.c_int.from_address(int(active.handle)).value == 1
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_whole_update_replaces_executable_attachment_accumulator(init_cuda):
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    called = []
+
+    def original():
+        called.append("original")
+
+    def individual():
+        called.append("individual")
+
+    def whole():
+        called.append("whole")
+
+    individual_weak = weakref.ref(individual)
+    source = GraphDefinition()
+    node = source.callback(original)
+    graph = source.instantiate()
+    graph[node].update(individual)
+
+    replacement = GraphDefinition()
+    replacement.callback(whole)
+    del individual
+    graph.update(replacement)
+    _wait_until(lambda: individual_weak() is None)
+
+    stream = init_cuda.create_stream()
+    graph.launch(stream)
+    stream.sync()
+    assert called == ["whole"]
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_failed_whole_update_preserves_executable_accumulator(init_cuda):
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    called = []
+
+    def original():
+        called.append("original")
+
+    def active():
+        called.append("active")
+
+    active_weak = weakref.ref(active)
+    source = GraphDefinition()
+    node = source.callback(original)
+    graph = source.instantiate()
+    graph[node].update(active)
+
+    rejected = GraphDefinition()
+    rejected.callback(lambda: called.append("rejected"))
+    rejected.empty()
+    with pytest.raises(CUDAError):
+        graph.update(rejected)
+
+    del active, original, node, source, rejected
+    gc.collect()
+    assert active_weak() is not None
+
+    stream = init_cuda.create_stream()
+    graph.launch(stream)
+    stream.sync()
+    assert called == ["active"]
+
+    del graph
+    _wait_until(lambda: active_weak() is None)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_inflight_launch_defers_replaced_executable_owners(init_cuda):
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    callback_started = threading.Event()
+    callback_release = threading.Event()
+
+    def blocking_callback():
+        callback_started.set()
+        assert callback_release.wait(timeout=30)
+
+    kernel = compile_common_kernels().get_kernel("add_one")
+    config = LaunchConfig(grid=1, block=1)
+    memory_resource = LegacyPinnedMemoryResource()
+    original = memory_resource.allocate(ctypes.sizeof(ctypes.c_int))
+    inflight = memory_resource.allocate(ctypes.sizeof(ctypes.c_int))
+    future = memory_resource.allocate(ctypes.sizeof(ctypes.c_int))
+    inflight_weak = weak_handle(inflight)
+
+    source = GraphDefinition()
+    kernel_node = source.callback(blocking_callback).launch(config, kernel, original)
+    graph = source.instantiate()
+    graph[kernel_node].update(config=config, kernel=kernel, args=(inflight,))
+    del inflight
+    gc.collect()
+    assert inflight_weak
+
+    replacement = GraphDefinition()
+    replacement.callback(lambda: None).launch(config, kernel, future)
+    stream = init_cuda.create_stream()
+    graph.launch(stream)
+    assert callback_started.wait(timeout=5)
+
+    try:
+        graph.update(replacement)
+        gc.collect()
+        assert inflight_weak
+    finally:
+        callback_release.set()
+        stream.sync()
+
+    _wait_until(lambda: not inflight_weak)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_sequential_executable_updates_accumulate_owners(init_cuda):
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    called = []
+
+    def original():
+        called.append("original")
+
+    def first():
+        called.append("first")
+
+    def second():
+        called.append("second")
+
+    first_weak = weakref.ref(first)
+    second_weak = weakref.ref(second)
+    source = GraphDefinition()
+    node = source.callback(original)
+    graph = source.instantiate()
+
+    graph[node].update(first)
+    graph[node].update(second)
+
+    # CUDA cannot detach user objects from an executable graph, so the
+    # superseded owner stays reachable for as long as the executable lives.
+    del first, second, original
+    gc.collect()
+    assert first_weak() is not None
+    assert second_weak() is not None
+
+    stream = init_cuda.create_stream()
+    graph.launch(stream)
+    stream.sync()
+    assert called == ["second"]
+
+    del node, source, graph
+    _wait_until(lambda: first_weak() is None and second_weak() is None)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_child_graph_update_transfers_source_owners_to_executable(init_cuda):
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    called = []
+
+    def original():
+        called.append("original")
+
+    def replacement():
+        called.append("replacement")
+
+    original_child = GraphDefinition()
+    original_child.callback(original)
+    source = GraphDefinition()
+    node = source.embed(original_child)
+    graph = source.instantiate()
+
+    replacement_child = GraphDefinition()
+    replacement_child.callback(replacement)
+    graph[node].update(replacement_child)
+
+    replacement_weak = weakref.ref(replacement)
+    child_weak = weak_handle(replacement_child)
+
+    # A child-graph update is the one executable update that attaches no owner
+    # of its own. It is safe because CUDA clones the replacement graph's user
+    # object references into the executable, so the callback must outlive the
+    # definition that supplied it.
+    del replacement_child, replacement
+    _wait_until(lambda: not child_weak)
+    assert replacement_weak() is not None
+
+    stream = init_cuda.create_stream()
+    graph.launch(stream)
+    stream.sync()
+    assert called == ["replacement"]
+
+    del graph
+    _wait_until(lambda: replacement_weak() is None)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_closing_executable_during_launch_defers_owner_release(init_cuda):
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    callback_started = threading.Event()
+    callback_release = threading.Event()
+
+    def blocking_callback():
+        callback_started.set()
+        assert callback_release.wait(timeout=30)
+
+    kernel = compile_common_kernels().get_kernel("add_one")
+    config = LaunchConfig(grid=1, block=1)
+    memory_resource = LegacyPinnedMemoryResource()
+    original = memory_resource.allocate(ctypes.sizeof(ctypes.c_int))
+    inflight = memory_resource.allocate(ctypes.sizeof(ctypes.c_int))
+    inflight_weak = weak_handle(inflight)
+
+    source = GraphDefinition()
+    kernel_node = source.callback(blocking_callback).launch(config, kernel, original)
+    graph = source.instantiate()
+    graph[kernel_node].update(config=config, kernel=kernel, args=(inflight,))
+    del inflight
+    gc.collect()
+    assert inflight_weak
+
+    stream = init_cuda.create_stream()
+    graph.launch(stream)
+    assert callback_started.wait(timeout=5)
+
+    try:
+        # The launch still writes through the buffer the update attached, so
+        # closing the executable must not retire the accumulator yet.
+        graph.close()
+        gc.collect()
+        assert inflight_weak
+    finally:
+        callback_release.set()
+        stream.sync()
+
+    _wait_until(lambda: not inflight_weak)

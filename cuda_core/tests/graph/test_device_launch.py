@@ -5,8 +5,9 @@
 
 import numpy as np
 import pytest
-from helpers.marks import requires_module
+from cuda_python_test_helpers.marks import requires_module
 
+import cuda.pathfinder as pathfinder
 from cuda.core import (
     Device,
     LaunchConfig,
@@ -48,7 +49,6 @@ def _compile_device_launcher_kernel():
 
     Raises pytest.skip if libcudadevrt.a cannot be found.
     """
-    pathfinder = pytest.importorskip("cuda.pathfinder")
     try:
         cudadevrt_path = pathfinder.find_static_lib("cudadevrt")
     except pathfinder.StaticLibNotFoundError as e:

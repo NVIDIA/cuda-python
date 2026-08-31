@@ -6,8 +6,8 @@ cimport cpython
 
 from libc.stddef cimport size_t
 from cuda.bindings cimport cydriver
-from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle
-from cuda.core._memory._memory_pool cimport _MemPool
+from cuda.core._memory._buffer cimport Buffer, Buffer_check_open, Buffer_from_deviceptr_handle
+from cuda.core._memory._memory_pool cimport _MemPool, MP_check_open
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._resource_handles cimport (
     DevicePtrHandle,
@@ -16,7 +16,6 @@ from cuda.core._resource_handles cimport (
     deviceptr_import_ipc,
     get_last_error,
     as_cu,
-    as_intptr,
     as_py,
 )
 
@@ -110,6 +109,12 @@ cdef class IPCBufferDescriptor:
         return <const void*><const char*>(self._payload)
 
 
+cdef inline int IPCAllocationHandle_check_open(IPCAllocationHandle self) except -1:
+    if self._h_fd.get() == NULL:
+        raise RuntimeError("IPCAllocationHandle has been closed")
+    return 0
+
+
 cdef class IPCAllocationHandle:
     """Shareable handle to an IPC-enabled device memory pool."""
 
@@ -129,8 +134,13 @@ cdef class IPCAllocationHandle:
         """Close the handle."""
         self._h_fd.reset()
 
+    @property
+    def is_closed(self) -> bool:
+        """Whether this allocation handle has been closed."""
+        return self._h_fd.get() == NULL
+
     def __int__(self) -> int:
-        if not self._h_fd or as_intptr(self._h_fd) < 0:
+        if self._h_fd.get() == NULL:
             raise ValueError(
                 f"Cannot convert IPCAllocationHandle to int: the handle (id={id(self)}) is closed."
             )
@@ -146,6 +156,7 @@ cdef class IPCAllocationHandle:
 
 
 def _reduce_allocation_handle(alloc_handle: IPCAllocationHandle) -> tuple[object, ...]:
+    IPCAllocationHandle_check_open(alloc_handle)
     check_multiprocessing_start_method()
     df = multiprocessing.reduction.DupFd(alloc_handle.handle)
     return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)
@@ -161,6 +172,7 @@ multiprocessing.reduction.register(IPCAllocationHandle, _reduce_allocation_handl
 # Buffer IPC Implementation
 # -------------------------
 cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer self):
+    Buffer_check_open(self)
     if not self.memory_resource.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
     cdef cydriver.CUmemPoolPtrExportData data
@@ -177,6 +189,7 @@ cdef Buffer Buffer_from_ipc_descriptor(
     cls, _MemPool mr, IPCBufferDescriptor ipc_descriptor, stream
 ):
     """Import a buffer that was exported from another process."""
+    MP_check_open(mr)
     if not mr.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
     cdef size_t payload_size = len(ipc_descriptor._payload)
@@ -214,6 +227,9 @@ cdef Buffer Buffer_from_ipc_descriptor(
 # ---------------------------
 
 cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
+    if isinstance(alloc_handle, IPCAllocationHandle):
+        IPCAllocationHandle_check_open(<IPCAllocationHandle>alloc_handle)
+
     # Quick exit for registry hits.
     uuid = getattr(alloc_handle, 'uuid', None)  # no-cython-lint
     mr = registry.get(uuid)
@@ -222,6 +238,7 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
             raise TypeError(
                 f"Registry contains a {type(mr).__name__} for uuid "
                 f"{uuid}, but {cls.__name__} was requested")
+        MP_check_open(<_MemPool>mr)
         return mr
 
     # Ensure we have an allocation handle. Duplicate the file descriptor, if
@@ -258,16 +275,23 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
 
 
 cdef _MemPool MP_from_registry(uuid):
+    cdef _MemPool mr
     try:
-        return registry[uuid]
+        mr = registry[uuid]
+        MP_check_open(mr)
+        return mr
     except KeyError:
         raise RuntimeError(f"Memory resource {uuid} was not found") from None
 
 
 cdef _MemPool MP_register(_MemPool self, uuid):
+    MP_check_open(self)
     existing = registry.get(uuid)
     if existing is not None:
+        MP_check_open(<_MemPool>existing)
         return existing
+    if not self.is_ipc_enabled:
+        raise RuntimeError("Memory resource is not IPC-enabled")
     assert self.uuid is None or self.uuid == uuid
     registry[uuid] = self
     self._ipc_data._alloc_handle._uuid = uuid
@@ -276,6 +300,7 @@ cdef _MemPool MP_register(_MemPool self, uuid):
 
 cdef IPCAllocationHandle MP_export_mempool(_MemPool self):
     # Note: This is Linux only (int for file descriptor)
+    MP_check_open(self)
     cdef int fd
     with nogil:
         HANDLE_RETURN(cydriver.cuMemPoolExportToShareableHandle(
