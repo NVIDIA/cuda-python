@@ -37,12 +37,12 @@ headers selected by generator configuration.
 
 ## File classes
 
-- Generated bindings carry a `CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE`
-  content seal. A seal proves file integrity, not the cybind revision, target,
-  or cross-root synchronization. Change the cybind source first, generate into
-  a clean temporary output directory for CUDA 12.9, and copy the generated
-  result only after reviewing the diff. Record the cybind commit, toolkit
-  inputs, and command in the pull request.
+- Generated bindings carry an embedded content seal. A seal proves file
+  integrity, not the cybind revision, target, or cross-root synchronization.
+  Change the cybind source first, generate into a clean temporary output
+  directory for CUDA 12.9, and copy the generated result only after reviewing
+  the diff. Record the cybind commit, toolkit inputs, and command in the pull
+  request.
 - Files listed in `ci/cuda-bindings-shared-files.json` are intentionally shared
   by both bindings lines and must remain byte-identical. The list contains both
   generated and handwritten files; pre-commit and CI enforce it.
