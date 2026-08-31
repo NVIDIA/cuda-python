@@ -68,7 +68,7 @@ def test_device_get_memory_affinity(handles, scope, subtests):
     size = 1024
     for device_index, handle in enumerate(handles):
         with subtests.test(device_index=device_index):
-            with unsupported_before(handle, nvml.DeviceArch.KEPLER):
+            with unsupported_before(handle, None):
                 node_set = nvml.device_get_memory_affinity(handle, size, scope)
             assert node_set is not None
             assert len(node_set) == size
@@ -80,7 +80,7 @@ def test_device_get_cpu_affinity_within_scope(handles, scope, subtests):
     size = 1024
     for device_index, handle in enumerate(handles):
         with subtests.test(device_index=device_index):
-            with unsupported_before(handle, nvml.DeviceArch.KEPLER):
+            with unsupported_before(handle, None):
                 cpu_set = nvml.device_get_cpu_affinity_within_scope(handle, size, scope)
             assert cpu_set is not None
             assert len(cpu_set) == size
