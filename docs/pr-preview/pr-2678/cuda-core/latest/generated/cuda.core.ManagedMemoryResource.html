@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=a5fb8e1e"></script>
+    <script src="../_static/documentation_options.js?v=47bbfa18"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev90';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev123';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -835,8 +835,12 @@ and instance methods (<code class="docutils literal notranslate"><span class="pr
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.close" title="Link to this definition">#</a></dt>
-<dd><p>Close the memory resource and destroy the associated memory pool
-if owned.</p>
+<dd><p>Release this object’s reference to the memory pool.</p>
+<p>New allocations and operations requiring this object’s pool handle are
+rejected afterward. For owned pools, release of the underlying pool’s
+resources is deferred until all outstanding allocations are freed and
+pending free operations complete. <a class="reference internal" href="#cuda.core.ManagedMemoryResource.deallocate" title="cuda.core.ManagedMemoryResource.deallocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">deallocate()</span></code></a> remains available
+after <a class="reference internal" href="#cuda.core.ManagedMemoryResource.close" title="cuda.core.ManagedMemoryResource.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a> so existing allocations can still be released.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -893,6 +897,18 @@ asynchronously. Must be passed explicitly; pass
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>_MemPool.handle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.is_closed">
+<span class="sig-name descname"><span class="pre">is_closed</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.is_closed" title="Link to this definition">#</a></dt>
+<dd><p>bool</p>
+<p>Whether this memory resource has been closed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_MemPool.is_closed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1037,6 +1053,7 @@ only for IPC-enabled memory resources.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.attributes"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.attributes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.device_id"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.device_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.handle"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.handle</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.is_closed"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.is_closed</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.is_device_accessible</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.is_handle_owned"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.is_handle_owned</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.is_host_accessible</span></code></a></li>
