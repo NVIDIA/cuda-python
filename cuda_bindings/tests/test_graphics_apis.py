@@ -7,47 +7,56 @@ import ctypes.util
 import os
 import sys
 
+import pyglet
 import pytest
+from cuda_python_test_helpers.graphics import is_gl_context_unavailable
 
 from cuda.bindings import runtime as cudart
 
 
-@contextlib.contextmanager
-def _gl_context():
-    """
-    Yield a (tex_id, tex_target) with a current GL context.
-    Tries:
-      1) Windows: hidden WGL window (no EGL)
-      2) Linux with DISPLAY/wayland: hidden window
-      3) Linux headless: EGL headless if available
-    Skips if none work.
-    """
-    pyglet = pytest.importorskip("pyglet")
-
-    # Prefer non-headless when a display is available; it's more portable and avoids EGL.
+def _configure_pyglet_headless():
+    """On headless Linux: enable EGL mode or skip if EGL is absent."""
     if sys.platform.startswith("linux") and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
         if ctypes.util.find_library("EGL") is None:
             pytest.skip("No DISPLAY and no EGL runtime available for headless context.")
         pyglet.options["headless"] = True
 
-    # Create a minimal offscreen/hidden context
-    win = None
-    try:
-        if not pyglet.options.get("headless"):
-            # Hidden window path (WGL on Windows, GLX/WLS on Linux)
-            from pyglet import gl
 
-            config = gl.Config(double_buffer=False)
-            win = pyglet.window.Window(visible=False, config=config)
+def _open_gl_window():
+    """Open a hidden window (or configure EGL headless). Returns the window or None.
+
+    Closes the window if switch_to() fails so a partially-constructed window does not leak.
+    """
+    if not pyglet.options.get("headless"):
+        # Hidden window path (WGL on Windows, GLX/WLS on Linux)
+        from pyglet import gl
+
+        config = gl.Config(double_buffer=False)
+        win = pyglet.window.Window(visible=False, config=config)
+        try:
             win.switch_to()
-        else:
-            # Headless EGL path; pyglet will arrange a pbuffer-like headless context
-            from pyglet.gl import headless  # noqa: F401
+        except Exception:
+            with contextlib.suppress(Exception):
+                win.close()
+            raise
+        return win
+    else:
+        # Headless EGL path; pyglet will arrange a pbuffer-like headless context
+        from pyglet.gl import headless  # noqa: F401
 
-        # Make a tiny texture so we have a real GL object to register
-        from pyglet.gl import gl as _gl
+        return None
 
-        tex_id = _gl.GLuint(0)
+
+def _allocate_gl_texture(win):
+    """Allocate a 2-D RGBA8 texture. Caller must have a current GL context.
+
+    Deletes the generated texture if a later GL call fails, so a partial
+    resource does not leak.
+    """
+    from pyglet.gl import gl as _gl
+
+    tex_id = _gl.GLuint(0)
+    try:
         _gl.glGenTextures(1, ctypes.byref(tex_id))
         target = _gl.GL_TEXTURE_2D
         _gl.glBindTexture(target, tex_id.value)
@@ -55,26 +64,40 @@ def _gl_context():
         _gl.glTexParameteri(target, _gl.GL_TEXTURE_MAG_FILTER, _gl.GL_NEAREST)
         width, height = 16, 16
         _gl.glTexImage2D(target, 0, _gl.GL_RGBA8, width, height, 0, _gl.GL_RGBA, _gl.GL_UNSIGNED_BYTE, None)
-
-        yield int(tex_id.value), int(target)
-
-    except Exception as e:
-        # Convert any pyglet/GL creation failure into a clean skip
-        pytest.skip(f"Could not create GL context/texture: {type(e).__name__}: {e}")
-    finally:
-        # Best-effort cleanup
-        try:
-            from pyglet.gl import gl as _gl
-
-            if tex_id.value:
+        return tex_id, target
+    except Exception:
+        if tex_id.value:
+            with contextlib.suppress(Exception):
                 _gl.glDeleteTextures(1, ctypes.byref(tex_id))
-        except Exception:  # noqa: S110
-            pass
-        try:
+        raise
+
+
+@contextlib.contextmanager
+def _gl_context():
+    """Yield ``(tex_id, tex_target)`` with a current GL context, or skip if GL is unavailable."""
+    _configure_pyglet_headless()
+
+    try:
+        win = _open_gl_window()
+    except Exception as e:
+        if is_gl_context_unavailable(e):
+            pytest.skip(f"Could not create GL context: {type(e).__name__}: {e}")
+        raise
+
+    tex_id = None
+    try:
+        tex_id, target = _allocate_gl_texture(win)
+        yield int(tex_id.value), int(target)
+    finally:
+        if tex_id is not None:
+            with contextlib.suppress(Exception):
+                from pyglet.gl import gl as _gl
+
+                if tex_id.value:
+                    _gl.glDeleteTextures(1, ctypes.byref(tex_id))
+        with contextlib.suppress(Exception):
             if win is not None:
                 win.close()
-        except Exception:  # noqa: S110
-            pass
 
 
 @pytest.mark.parametrize(

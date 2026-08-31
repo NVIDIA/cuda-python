@@ -7,10 +7,9 @@ from functools import partial
 import multiprocessing
 import platform
 import warnings
-from collections import namedtuple
 from collections.abc import Sequence
 from contextlib import ExitStack
-from typing import Any, Callable
+from typing import Any, Callable, NamedTuple
 
 from cuda.bindings import driver as driver, nvrtc as nvrtc, runtime as runtime
 
@@ -42,7 +41,10 @@ class NVRTCError(CUDAError):
 
 
 
-ComputeCapability = namedtuple("ComputeCapability", ("major", "minor"))
+class ComputeCapability(NamedTuple):
+    """A named tuple of (major, minor) CUDA compute capability version numbers."""
+    major: int
+    minor: int
 
 
 def cast_to_3_tuple(label: str, cfg: int | tuple[int, ...]) -> tuple[int, int, int]:

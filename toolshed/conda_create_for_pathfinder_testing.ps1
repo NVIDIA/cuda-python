@@ -19,6 +19,7 @@ conda activate "pathfinder_testing_cu$CudaMajorMinorPatch"
 # Keep this list aligned with the Windows-installable subset of
 # cuda_pathfinder/pyproject.toml.
 $cpkgs = @(
+    "cudnn",
     "cusparselt-dev",
     "cutensor",
     "cutlass",

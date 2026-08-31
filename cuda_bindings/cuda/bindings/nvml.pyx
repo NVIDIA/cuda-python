@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9167da2a3d3194c67c44a0fe8d4d34b3dbd3c0f43061c50b7d238d2044c75509
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e6b2e2f1456e0ba7ef3201063d4e670ba71db9334bb671005b63224aeecded0a
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -28660,7 +28660,7 @@ cpdef object device_get_field_values(intptr_t device, values):
         __status__ = nvmlDeviceGetFieldValues(<Device>device, valuesCount, ptr)
     check_status(__status__)
 
-    values_._data.resize((valuesCount,))
+    values_._data = values_._data[:valuesCount]
     return values_
 
 
@@ -29304,7 +29304,7 @@ cpdef object system_event_set_wait(intptr_t event_set, unsigned int timeout_ms, 
         request[0].dataSize = buffer_size
         __status__ = nvmlSystemEventSetWait(<nvmlSystemEventSetWaitRequest_t*>request)
     check_status(__status__)
-    event_data._data.resize((request[0].numEvent,))
+    event_data._data = event_data._data[:request[0].numEvent]
     return event_data
 
 

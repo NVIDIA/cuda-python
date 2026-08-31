@@ -51,7 +51,7 @@ install_requires = [f"cuda-bindings{matcher}{version}"]
 if build_major == "13":
     install_requires.extend(
         [
-            "cuda-core~=1.0.0",
+            "cuda-core~=1.1.0",
             "cuda-pathfinder~=1.1",
         ]
     )

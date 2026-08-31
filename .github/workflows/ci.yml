@@ -27,6 +27,7 @@ on:
 
 jobs:
   ci-vars:
+    if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     outputs:
       CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
@@ -46,6 +47,7 @@ jobs:
           echo "cuda_prev_build_ver=$cuda_prev_build_ver" >> $GITHUB_OUTPUT
 
   should-skip:
+    if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -102,6 +104,7 @@ jobs:
   # "changed paths" baseline for those events. Bare v12.9/v13 tags select the
   # corresponding cuda.bindings and cuda-python release line.
   detect-changes:
+    if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     needs: should-skip
     permissions:
@@ -643,7 +646,7 @@ jobs:
 
   checks:
     name: Check job status
-    if: always()
+    if: ${{ always() && github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     needs:
       - ci-vars

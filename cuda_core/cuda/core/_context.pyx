@@ -21,7 +21,7 @@ from cuda.core._resource_handles cimport (
     as_intptr,
     as_py,
 )
-from cuda.core._stream import Stream
+from cuda.core._stream import Stream, StreamOptions
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 if TYPE_CHECKING:
@@ -75,6 +75,11 @@ cdef class Context:
         return self.handle
 
     @property
+    def is_closed(self) -> bool:
+        """Whether this context has been closed."""
+        return self._h_context.get() == NULL
+
+    @property
     def is_green(self) -> bool:
         """True if this context was created from device resources."""
         if not self._h_context:
@@ -91,11 +96,10 @@ cdef class Context:
 
         Raises :class:`RuntimeError` if the context has been closed.
         """
-        if not self._h_context:
-            raise RuntimeError("Cannot query resources on a closed context")
+        Context_check_open(self)
         return DeviceResources._init_from_ctx(self._h_context, self._device_id)
 
-    def create_stream(self, options: object = None) -> Stream:
+    def create_stream(self, options: StreamOptions | None = None) -> Stream:
         """Create a new stream bound to this green context.
 
         This method is only available on green contexts. For primary
@@ -111,8 +115,7 @@ cdef class Context:
         :obj:`~_stream.Stream`
             Newly created stream object.
         """
-        if not self._h_context:
-            raise RuntimeError("Cannot create a stream on a closed context")
+        Context_check_open(self)
         if not self.is_green:
             raise RuntimeError(
                 "Context.create_stream() is only supported on green contexts. "

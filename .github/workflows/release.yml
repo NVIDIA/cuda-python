@@ -54,6 +54,7 @@ defaults:
 
 jobs:
   determine-run-id:
+    if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     outputs:
       run-id: ${{ steps.lookup-run-id.outputs.run-id }}
@@ -81,6 +82,7 @@ jobs:
           echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
   check-tag:
+    if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source
@@ -132,6 +134,7 @@ jobs:
           fi
 
   check-release-notes:
+    if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source
