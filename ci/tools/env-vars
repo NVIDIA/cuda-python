@@ -59,8 +59,10 @@ if [[ "${1}" == "build" ]]; then
   CUDA12_SCM_VERSION=""
   CUDA12_SCM_ENV=""
   if [[ "${GITHUB_REF_TYPE:-}" != "tag" || "${GITHUB_REF_NAME:-}" != v12.9.* ]]; then
-    CUDA12_SCM_VERSION="12.9.8.dev0+g${SHA:0:7}"
-    CUDA12_SCM_ENV="SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_BINDINGS=${CUDA12_SCM_VERSION}"
+    CUDA12_SCM_VERSION="$(python "${TOOLS_PATH}/cuda12_scm_version.py" --repo-root "${REPO_DIR}" --sha "${SHA}")"
+    if [[ -n "${CUDA12_SCM_VERSION}" ]]; then
+      CUDA12_SCM_ENV="SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_BINDINGS=${CUDA12_SCM_VERSION}"
+    fi
   fi
 
   {

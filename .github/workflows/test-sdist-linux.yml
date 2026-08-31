@@ -67,9 +67,11 @@ jobs:
         if: ${{ startsWith(inputs.cuda-version, '12.') &&
                 (github.ref_type != 'tag' || startsWith(github.ref_name, 'v12.9.') == false) }}
         run: |
-          version="12.9.8.dev0+g${GITHUB_SHA:0:7}"
-          echo "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_BINDINGS=${version}" >> "$GITHUB_ENV"
-          echo "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_PYTHON=${version}" >> "$GITHUB_ENV"
+          version="$(python ci/tools/cuda12_scm_version.py --sha "$GITHUB_SHA")"
+          if [[ -n "$version" ]]; then
+            echo "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_BINDINGS=${version}" >> "$GITHUB_ENV"
+            echo "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_PYTHON=${version}" >> "$GITHUB_ENV"
+          fi
 
       # Pure Python packages -- no CTK needed.
       - name: Build cuda.pathfinder sdist and wheel-from-sdist
