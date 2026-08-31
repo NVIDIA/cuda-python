@@ -1221,6 +1221,7 @@ def test_nvrtc_as_bytes_emits_sequence_and_uncommon_flags():
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_nvrtc_debug_falls_back_when_temp_file_write_fails(init_cuda, monkeypatch):
     """A write failure removes the temporary source and falls back to the default name."""
+    import contextlib
     import os
 
     from cuda.core import _program
