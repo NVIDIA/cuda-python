@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=e781bd4b"></script>
+    <script src="../_static/documentation_options.js?v=d43bf46b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev63';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev121';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -798,7 +798,12 @@ resource’s respective property.)</p>
 <li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to allocate, in bytes.</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword-only. The stream on which to perform the allocation
 asynchronously. Must be passed explicitly; pass
-<code class="docutils literal notranslate"><span class="pre">device.default_stream</span></code> to use the default stream.</p></li>
+<code class="docutils literal notranslate"><span class="pre">device.default_stream</span></code> to use the default stream. For subclasses
+that support stream-ordered deallocation, this stream also orders
+the buffer’s eventual deallocation, so if the buffer may be freed
+from a different host thread, prefer a stream other than the
+per-thread default stream, which refers to a different stream on
+each thread.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

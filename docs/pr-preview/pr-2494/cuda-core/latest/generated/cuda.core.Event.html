@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=e781bd4b"></script>
+    <script src="../_static/documentation_options.js?v=d43bf46b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev63';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev121';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -775,13 +775,13 @@ between GPU work submissions, and record the elapsed time (in milliseconds)
 on GPU:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># To create events and record the timing:</span>
 <span class="n">s</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span><span class="o">.</span><span class="n">create_stream</span><span class="p">()</span>
-<span class="n">e1</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span><span class="o">.</span><span class="n">create_event</span><span class="p">({</span><span class="s2">&quot;timing_enabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
-<span class="n">e2</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span><span class="o">.</span><span class="n">create_event</span><span class="p">({</span><span class="s2">&quot;timing_enabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="n">e1</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span><span class="o">.</span><span class="n">create_event</span><span class="p">({</span><span class="s2">"timing_enabled"</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="n">e2</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span><span class="o">.</span><span class="n">create_event</span><span class="p">({</span><span class="s2">"timing_enabled"</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
 <span class="n">s</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">e1</span><span class="p">)</span>
 <span class="c1"># ... run some GPU works ...</span>
 <span class="n">s</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">e2</span><span class="p">)</span>
 <span class="n">e2</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;time = </span><span class="si">{</span><span class="n">e2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">e1</span><span class="si">}</span><span class="s2"> milliseconds&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"time = </span><span class="si">{</span><span class="n">e2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">e1</span><span class="si">}</span><span class="s2"> milliseconds"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Directly creating an <a class="reference internal" href="#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a> is not supported due to ambiguity,
@@ -880,6 +880,12 @@ thread blocks on <a class="reference internal" href="#cuda.core.Event.sync" titl
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Event.is_closed">
+<span class="sig-name descname"><span class="pre">is_closed</span></span><a class="headerlink" href="#cuda.core.Event.is_closed" title="Link to this definition">#</a></dt>
+<dd><p>Whether this event has been closed.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.Event.is_done">
 <span class="sig-name descname"><span class="pre">is_done</span></span><a class="headerlink" href="#cuda.core.Event.is_done" title="Link to this definition">#</a></dt>
 <dd><p>Return True if all captured works have been completed, otherwise False.</p>
@@ -960,6 +966,7 @@ thread blocks on <a class="reference internal" href="#cuda.core.Event.sync" titl
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Event.handle"><code class="docutils literal notranslate"><span class="pre">Event.handle</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Event.ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">Event.ipc_descriptor</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Event.is_blocking_sync"><code class="docutils literal notranslate"><span class="pre">Event.is_blocking_sync</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Event.is_closed"><code class="docutils literal notranslate"><span class="pre">Event.is_closed</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Event.is_done"><code class="docutils literal notranslate"><span class="pre">Event.is_done</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Event.is_ipc_enabled"><code class="docutils literal notranslate"><span class="pre">Event.is_ipc_enabled</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Event.is_timing_enabled"><code class="docutils literal notranslate"><span class="pre">Event.is_timing_enabled</span></code></a></li>
