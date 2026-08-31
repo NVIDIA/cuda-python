@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_repair\_status
+==============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_repair_status
