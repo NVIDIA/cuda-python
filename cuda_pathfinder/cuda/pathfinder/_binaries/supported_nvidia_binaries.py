@@ -25,9 +25,15 @@ SITE_PACKAGES_BINDIRS = {
     "compute-sanitizer": (_CUDA13_BIN, _CUDA_NVCC_BIN),
     # Profiling tools
     "nvprof": (_CUDA_NVCC_BIN,),
+    # Nsight Systems/Compute ship both a CLI (nsys/ncu) and a GUI (nsys-ui/ncu-ui).
+    # The GUI executable names differ between the legacy CUDA-toolkit-bundled
+    # products (nsight-sys/nsight-compute) and the current standalone Nsight
+    # releases (nsys-ui/ncu-ui), so all four names are kept searchable.
     "nsys": (_NSIGHT_SYSTEMS_BIN,),
+    "nsys-ui": (_NSIGHT_SYSTEMS_BIN,),
     "nsight-sys": (_NSIGHT_SYSTEMS_BIN,),
     "ncu": (_NSIGHT_COMPUTE_BIN,),
+    "ncu-ui": (_NSIGHT_COMPUTE_BIN,),
     "nsight-compute": (_NSIGHT_COMPUTE_BIN,),
 }
 

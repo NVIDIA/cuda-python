@@ -158,8 +158,9 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
                 Nsight Compute from their installer registry entries. Select
                 architecture-specific binaries using the native machine
                 architecture, independent of Python. Lookup of the standalone
-                ``nsys`` and ``ncu`` CLIs is terminal; a miss does not fall
-                through to CUDA Toolkit locations.
+                ``nsys``/``ncu`` CLIs and the ``nsys-ui``/``ncu-ui`` GUI
+                launchers is terminal; a miss does not fall through to CUDA
+                Toolkit locations.
 
            3.2. **CUDA Toolkit installation**: Use ``CUDA_PATH`` or ``CUDA_HOME``
                 (in that order), searching ``bin/x64``, ``bin/x86_64``, and
@@ -215,11 +216,16 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
         return found
 
     # 3. Search library-specific standalone installations.
-    # 3.1. Standalone Nsight CLI lookup is terminal; CTK does not contain nsys/ncu.
+    # 3.1. Standalone Nsight lookup is terminal; CTK does not contain nsys/ncu
+    #      (nor the nsys-ui/ncu-ui GUI launchers).
     if IS_WINDOWS and utility_name == "nsys":
         return _resolve_candidate_paths(windows_nsight.nsys_candidate_paths())
     if IS_WINDOWS and utility_name == "ncu":
         return _resolve_candidate_paths(windows_nsight.ncu_candidate_paths())
+    if IS_WINDOWS and utility_name == "nsys-ui":
+        return _resolve_candidate_paths(windows_nsight.nsys_ui_candidate_paths())
+    if IS_WINDOWS and utility_name == "ncu-ui":
+        return _resolve_candidate_paths(windows_nsight.ncu_ui_candidate_paths())
 
     # 3.2. Search in CUDA Toolkit (CUDA_PATH/CUDA_HOME).
     if (cuda_path := get_cuda_path_or_home()) is not None:
