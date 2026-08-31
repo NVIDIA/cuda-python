@@ -1,22 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-function change_current_version(event) {
-  event.preventDefault();
-
-  var selectedVersion = event.target.textContent;
-  var currentVersion = document.getElementById('currentVersion');
-
-  // need to update both the on-screen state and the internal (persistent) storage
-  currentVersion.textContent = selectedVersion;
-  sessionStorage.setItem("currentVersion", selectedVersion);
-
-  // Navigate to the clicked URL
-  window.location.href = event.target.href;
-}
-
-
-function add_version_dropdown(jsonLoc, targetLoc, currentVersion) {
+function add_version_dropdown(jsonLoc, currentVersion) {
   var otherVersionsDiv = document.getElementById('otherVersions');
 
   fetch(jsonLoc)
@@ -26,17 +11,18 @@ function add_version_dropdown(jsonLoc, targetLoc, currentVersion) {
     .then(function(data) {
       var versions = data;
 
-      if (Object.keys(versions).length >= 1) {
+      if (Array.isArray(versions) && versions.length >= 1) {
         var dlElement = document.createElement('dl');
         var dtElement = document.createElement('dt');
         dtElement.textContent = 'Versions';
         dlElement.appendChild(dtElement);
 
-        for (var ver in versions) {
-          var url = versions[ver];
+        for (var index = 0; index < versions.length; index++) {
+          var ver = versions[index].version;
+          var url = versions[index].url;
           var ddElement = document.createElement('dd');
           var aElement = document.createElement('a');
-          aElement.setAttribute('href', targetLoc + url);
+          aElement.setAttribute('href', url);
           aElement.textContent = ver;
 
           if (ver === currentVersion) {
@@ -46,8 +32,6 @@ function add_version_dropdown(jsonLoc, targetLoc, currentVersion) {
           }
 
           ddElement.appendChild(aElement);
-          // Attach event listeners to version links
-          ddElement.addEventListener('click', change_current_version);
           dlElement.appendChild(ddElement);
         }
 
@@ -56,6 +40,6 @@ function add_version_dropdown(jsonLoc, targetLoc, currentVersion) {
       }
     })
     .catch(function(error) {
-      console.error('Error fetching version.json:', error);
+      console.error('Error fetching nv-versions.json:', error);
     });
 }

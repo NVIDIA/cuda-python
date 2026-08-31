@@ -12,6 +12,9 @@ import cuda.bindings.driver as _driver
 cimport cuda.bindings._lib.param_packer as param_packer
 from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 
+# Import-time init so feed() is a pure read under free threading.
+param_packer.init_param_packer()
+
 cdef void* _callocWrapper(length, size):
     cdef void* out = calloc(length, size)
     if out is NULL:
@@ -624,6 +627,8 @@ cdef class _HelperCUcoredumpSettings:
                 self._cptr = <void*><void_ptr>self._charstar
                 self._size = 1024
             else:
+                # Keep a reference so the borrowed _charstar buffer stays alive.
+                self._references = init_value
                 self._charstar = init_value
                 self._cptr = <void*><void_ptr>self._charstar
                 self._size = len(init_value)
@@ -640,7 +645,11 @@ cdef class _HelperCUcoredumpSettings:
             raise TypeError('Unsupported attribute: {}'.format(attr.name))
 
     def __dealloc__(self):
-        pass
+        # Only the getter path owns heap (the calloc'd 1024-byte buffer). The
+        # setter borrows caller bytes and the bool path points at &self._bool,
+        # so only free for the getter.
+        if self._is_getter:
+            free(self._charstar)
 
     @property
     def cptr(self):

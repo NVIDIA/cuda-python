@@ -2,6 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Include "param_packer.h" so its contents get compiled into every
-# Cython extension module that depends on param_packer.pxd.
+# Cython extension module that depends on param_packer.pxd. Each such module
+# owns a copy of the header statics and must call init_param_packer().
 cdef extern from "param_packer.h":
-    int feed(void* ptr, object o, object ct)
+    # except +* so a C++ throw or pending ImportError become Python exceptions.
+    void init_param_packer() except +*
+    # -1 is a feeder rejection; 0 means no feeder (ctypes fallback).
+    int feed(void* ptr, object o, object ct) except -1

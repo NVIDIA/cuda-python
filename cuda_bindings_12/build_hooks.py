@@ -304,6 +304,7 @@ def _build_cuda_bindings(strip=False):
     CUDA toolkit installation.
     """
     from Cython.Build import cythonize
+    from Cython.Compiler import Options as _CythonOptions
 
     global _extensions
 
@@ -433,6 +434,7 @@ def _build_cuda_bindings(strip=False):
         )
 
     # Cythonize
+    _CythonOptions.warning_errors = True
     cython_directives = dict(language_level=3, embedsignature=True, binding=True, freethreading_compatible=True)
     if compile_for_coverage:
         cython_directives["linetrace"] = True

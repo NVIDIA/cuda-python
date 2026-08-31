@@ -33,9 +33,9 @@ SPHINXOPTS="-j 4 -d build/.doctrees" make html
 # obsecure Sphinx errors
 #SPHINXOPTS="-v" make html
 
-# Keep the CUDA 12.9 release pages on the monorepo's shared bindings version
-# selector so publishing a legacy line cannot remove newer CUDA 13 entries.
-cp ../../cuda_bindings/docs/versions.json build/html/versions.json
+# Keep the CUDA 12.9 release pages on the monorepo's canonical bindings
+# selector so publishing this line cannot remove newer CUDA 13 entries.
+cp ../../cuda_bindings/docs/nv-versions.json build/html/nv-versions.json
 
 # to have a redirection page (to the latest docs)
 cp source/_templates/main.html build/html/index.html

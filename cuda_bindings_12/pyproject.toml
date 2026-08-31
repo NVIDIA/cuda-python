@@ -5,7 +5,7 @@
 requires = [
     "setuptools>=80.0.0",
     "setuptools-scm[simple]>=8,!=10.1",
-    "cython>=3.2,<3.3",
+    "cython>=3.2.5,<3.3",
     "pyclibrary>=0.1.7"
 ]
 build-backend = "build_hooks"
@@ -19,7 +19,6 @@ license = "Apache-2.0"
 license-files = ["LICENSE"]
 classifiers = [
     "Intended Audience :: Developers",
-    "Topic :: Database",
     "Topic :: Scientific/Engineering",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.10",
@@ -48,7 +47,7 @@ all = [
 ]
 
 test = [
-    "cython>=3.2,<3.3",
+    "cython>=3.2.5,<3.3",
     "setuptools>=77.0.0",
     "numpy>=1.21.1",
     "pytest>=6.2.4",
@@ -62,6 +61,14 @@ Documentation = "https://nvidia.github.io/cuda-python/"
 
 [tool.setuptools.packages.find]
 include = ["cuda*"]
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.package-data]
+"*" = ["*.pxd", "*.pxi"]
+"cuda.bindings._bindings" = ["*.h"]
+"cuda.bindings._lib" = ["*.h"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
