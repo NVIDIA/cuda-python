@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=d6a008b6"></script>
+    <script src="_static/documentation_options.js?v=1166ed6b"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.6.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.8.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -461,6 +461,8 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/1.8.0-notes.html">1.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.7.0-notes.html">1.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.6.1-notes.html">1.6.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.6.0-notes.html">1.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.5.6-notes.html">1.5.6</a></li>
@@ -546,7 +548,7 @@
 <h2>Runtime Requirements<a class="headerlink" href="#runtime-requirements" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> is a pure-Python package with no runtime dependencies:</p>
 <ul class="simple">
-<li><p>Linux (x86-64, arm64) and Windows (x86-64)</p></li>
+<li><p>Linux (x86-64, arm64) and Windows (x86-64, arm64)</p></li>
 <li><p>Python 3.10 - 3.14</p></li>
 </ul>
 </section>
@@ -575,10 +577,10 @@ Because <code class="docutils literal notranslate"><span class="pre">cuda.pathfi
 supported Python version and platform. To obtain the most recent build, use
 the following commands:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="c1"># Find the latest successful CI run on main:</span>
-<span class="gp">$ </span><span class="nv">RUN_ID</span><span class="o">=</span><span class="k">$(</span>gh<span class="w"> </span>run<span class="w"> </span>list<span class="w"> </span>-R<span class="w"> </span>NVIDIA/cuda-python<span class="w"> </span>-w<span class="w"> </span>ci.yml<span class="w"> </span>-b<span class="w"> </span>main<span class="w"> </span>-s<span class="w"> </span>success<span class="w"> </span>-L1<span class="w"> </span>--json<span class="w"> </span>databaseId<span class="w"> </span>-q<span class="w"> </span><span class="s1">&#39;.[0].databaseId&#39;</span><span class="k">)</span>
+<span class="gp">$ </span><span class="nv">RUN_ID</span><span class="o">=</span><span class="k">$(</span>gh<span class="w"> </span>run<span class="w"> </span>list<span class="w"> </span>-R<span class="w"> </span>NVIDIA/cuda-python<span class="w"> </span>-w<span class="w"> </span>ci.yml<span class="w"> </span>-b<span class="w"> </span>main<span class="w"> </span>-s<span class="w"> </span>success<span class="w"> </span>-L1<span class="w"> </span>--json<span class="w"> </span>databaseId<span class="w"> </span>-q<span class="w"> </span><span class="s1">'.[0].databaseId'</span><span class="k">)</span>
 
 <span class="gp">$ </span><span class="c1"># Download the wheel:</span>
-<span class="gp">$ </span>gh<span class="w"> </span>run<span class="w"> </span>download<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$RUN_ID</span><span class="s2">&quot;</span><span class="w"> </span>-R<span class="w"> </span>NVIDIA/cuda-python<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;cuda-pathfinder-wheel&quot;</span>
+<span class="gp">$ </span>gh<span class="w"> </span>run<span class="w"> </span>download<span class="w"> </span><span class="s2">"</span><span class="nv">$RUN_ID</span><span class="s2">"</span><span class="w"> </span>-R<span class="w"> </span>NVIDIA/cuda-python<span class="w"> </span>-p<span class="w"> </span><span class="s2">"cuda-pathfinder-wheel"</span>
 
 <span class="gp">$ </span><span class="c1"># Install the downloaded wheel:</span>
 <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>cuda-pathfinder-wheel/*.whl

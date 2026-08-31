@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=5a961468"></script>
+    <script src="_static/documentation_options.js?v=284aeecc"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev16';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev125';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -630,6 +630,14 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableGraphNode.html">cuda.core.graph.ExecutableGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableKernelNode.html">cuda.core.graph.ExecutableKernelNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableMemcpyNode.html">cuda.core.graph.ExecutableMemcpyNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableMemsetNode.html">cuda.core.graph.ExecutableMemsetNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableHostCallbackNode.html">cuda.core.graph.ExecutableHostCallbackNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableChildGraphNode.html">cuda.core.graph.ExecutableChildGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableEventRecordNode.html">cuda.core.graph.ExecutableEventRecordNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableEventWaitNode.html">cuda.core.graph.ExecutableEventWaitNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
@@ -643,10 +651,14 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.copy_batch.html">cuda.core.utils.copy_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.prefetch_batch.html">cuda.core.utils.prefetch_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.discard_batch.html">cuda.core.utils.discard_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.discard_prefetch_batch.html">cuda.core.utils.discard_prefetch_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.CopyOptions.html">cuda.core.utils.CopyOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.MemcpySrcAccessOrder.html">cuda.core.utils.MemcpySrcAccessOrder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.MemcpyOverlapMode.html">cuda.core.utils.MemcpyOverlapMode</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api_nvml.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -830,16 +842,16 @@ on other non-blocking streams.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.MemoryResource.html#cuda.core.MemoryResource" title="cuda.core.MemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code></a></p></td>
 <td><p>Abstract base class for memory resources that manage allocation and deallocation of buffers.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a>(device_id[, options])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a>(device_id, ...)</p></td>
 <td><p>A device memory resource managing a stream-ordered memory pool.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.GraphMemoryResource.html#cuda.core.GraphMemoryResource" title="cuda.core.GraphMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphMemoryResource</span></code></a>(device_id)</p></td>
 <td><p>A memory resource for memory related to graphs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a>([options])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a>(...)</p></td>
 <td><p>A host-pinned memory resource managing a stream-ordered memory pool.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource" title="cuda.core.ManagedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a>([options])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource" title="cuda.core.ManagedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a>(...)</p></td>
 <td><p>A managed memory resource managing a stream-ordered memory pool.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.LegacyPinnedMemoryResource.html#cuda.core.LegacyPinnedMemoryResource" title="cuda.core.LegacyPinnedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource</span></code></a></p></td>
@@ -863,6 +875,13 @@ on other non-blocking streams.</p>
 </tbody>
 </table>
 </div>
+<p>A <a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> records the stream that will order its eventual deallocation.
+Use <a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.core.Buffer.set_deallocation_stream" title="cuda.core.Buffer.set_deallocation_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.set_deallocation_stream()</span></code></a> to replace that stream without
+closing the buffer. Changing the recorded stream does not synchronize streams;
+the caller must order allocation and every access before the deallocation,
+using events or other CUDA synchronization mechanisms as needed. See
+<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/e0a6ab87447da821466e1bd8ed0db6582a497420/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
+for a complete example.</p>
 </section>
 <section id="cuda-compilation-toolchain">
 <h2>CUDA compilation toolchain<a class="headerlink" href="#cuda-compilation-toolchain" title="Link to this heading">#</a></h2>
@@ -1020,6 +1039,53 @@ nodes also cannot currently be constructed explicitly.</p>
 </table>
 </div>
 </section>
+<section id="executable-node-views">
+<h3>Executable node views<a class="headerlink" href="#executable-node-views" title="Link to this heading">#</a></h3>
+<p>Index an executable <a class="reference internal" href="generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph" title="cuda.core.graph.Graph"><code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code></a> with a definition node to update that
+node in the executable, for example
+<code class="docutils literal notranslate"><span class="pre">graph[kernel_node].update(config=config,</span> <span class="pre">kernel=kernel,</span> <span class="pre">args=args)</span></code>.
+The returned view retains the executable and source node, while CUDA validates
+that the node is associated with the executable.</p>
+<p>Executable graphs do not support reading back current node parameters, so
+updates take a complete replacement. Buffer operands, kernels, events, kernel
+arguments, and callback bindings are retained for every future launch that may
+use them. Superseded resources remain retained until a successful whole-graph
+update or executable destruction. Raw integer addresses remain caller-owned.
+Memcpy and memset updates use the current CUDA context, which must match the
+original node context.</p>
+<p>Kernel, memcpy, and memset views also provide <code class="docutils literal notranslate"><span class="pre">is_enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">enable()</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">disable()</span></code>. Executable-node updates require CUDA driver and
+<code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> versions 12.2 or newer.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableGraphNode.html#cuda.core.graph.ExecutableGraphNode" title="cuda.core.graph.ExecutableGraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableGraphNode</span></code></a>()</p></td>
+<td><p>A lightweight view pairing an executable graph with a source node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableKernelNode.html#cuda.core.graph.ExecutableKernelNode" title="cuda.core.graph.ExecutableKernelNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableKernelNode</span></code></a></p></td>
+<td><p>An executable kernel-node view.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableMemcpyNode.html#cuda.core.graph.ExecutableMemcpyNode" title="cuda.core.graph.ExecutableMemcpyNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableMemcpyNode</span></code></a></p></td>
+<td><p>An executable memcpy-node view.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableMemsetNode.html#cuda.core.graph.ExecutableMemsetNode" title="cuda.core.graph.ExecutableMemsetNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableMemsetNode</span></code></a></p></td>
+<td><p>An executable memset-node view.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableHostCallbackNode.html#cuda.core.graph.ExecutableHostCallbackNode" title="cuda.core.graph.ExecutableHostCallbackNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableHostCallbackNode</span></code></a></p></td>
+<td><p>An executable host-callback-node view.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableChildGraphNode.html#cuda.core.graph.ExecutableChildGraphNode" title="cuda.core.graph.ExecutableChildGraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableChildGraphNode</span></code></a></p></td>
+<td><p>An executable child-graph-node view.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableEventRecordNode.html#cuda.core.graph.ExecutableEventRecordNode" title="cuda.core.graph.ExecutableEventRecordNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableEventRecordNode</span></code></a></p></td>
+<td><p>An executable event-record-node view.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableEventWaitNode.html#cuda.core.graph.ExecutableEventWaitNode" title="cuda.core.graph.ExecutableEventWaitNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableEventWaitNode</span></code></a></p></td>
+<td><p>An executable event-wait-node view.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 </section>
 <section id="graphics-interoperability">
 <h2>Graphics interoperability<a class="headerlink" href="#graphics-interoperability" title="Link to this heading">#</a></h2>
@@ -1162,21 +1228,41 @@ execution.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html#cuda.core.utils.args_viewable_as_strided_memory" title="cuda.core.utils.args_viewable_as_strided_memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.args_viewable_as_strided_memory</span></code></a>(...)</p></td>
 <td><p>Decorator to create proxy objects to <code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code> for the specified positional arguments.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.prefetch_batch.html#cuda.core.utils.prefetch_batch" title="cuda.core.utils.prefetch_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.prefetch_batch</span></code></a>(stream, buffers, locations)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.copy_batch.html#cuda.core.utils.copy_batch" title="cuda.core.utils.copy_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.copy_batch</span></code></a>(Stream stream, srcs, dsts, ...)</p></td>
+<td><p>Copy a batch of buffers asynchronously.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.prefetch_batch.html#cuda.core.utils.prefetch_batch" title="cuda.core.utils.prefetch_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.prefetch_batch</span></code></a>(stream, buffers, locations)</p></td>
 <td><p>Prefetch a batch of managed-memory ranges to target locations.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.discard_batch.html#cuda.core.utils.discard_batch" title="cuda.core.utils.discard_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.discard_batch</span></code></a>(stream, buffers)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.discard_batch.html#cuda.core.utils.discard_batch" title="cuda.core.utils.discard_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.discard_batch</span></code></a>(stream, buffers)</p></td>
 <td><p>Discard a batch of managed-memory ranges.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.discard_prefetch_batch.html#cuda.core.utils.discard_prefetch_batch" title="cuda.core.utils.discard_prefetch_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.discard_prefetch_batch</span></code></a>(stream, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.discard_prefetch_batch.html#cuda.core.utils.discard_prefetch_batch" title="cuda.core.utils.discard_prefetch_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.discard_prefetch_batch</span></code></a>(stream, ...)</p></td>
 <td><p>Discard a batch of managed-memory ranges and prefetch them to target locations.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.StridedMemoryView</span></code></a>(obj, int stream_ptr)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.StridedMemoryView</span></code></a>(obj, int stream_ptr)</p></td>
 <td><p>A class holding metadata of a strided dense array/tensor.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<section id="data-transfer-options">
+<h3>Data transfer options<a class="headerlink" href="#data-transfer-options" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.CopyOptions</span></code></a>([src_access_order, ...])</p></td>
+<td><p>Attribute bundle for a single copy within a batched memcpy.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.MemcpySrcAccessOrder.html#cuda.core.utils.MemcpySrcAccessOrder" title="cuda.core.utils.MemcpySrcAccessOrder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.MemcpySrcAccessOrder</span></code></a>(value[, names, ...])</p></td>
+<td><p>Source access order hint for batched memcpy operations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.MemcpyOverlapMode.html#cuda.core.utils.MemcpyOverlapMode" title="cuda.core.utils.MemcpyOverlapMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.MemcpyOverlapMode</span></code></a>(value[, names, ...])</p></td>
+<td><p>Overlap mode hint for batched memcpy operations.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 </section>
 </section>
 
@@ -1241,13 +1327,17 @@ execution.</p>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-graphs">CUDA graphs</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#node-types">Node types</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#executable-node-views">Executable node views</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphics-interoperability">Graphics interoperability</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tensor-memory-accelerator-tma">Tensor Memory Accelerator (TMA)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#textures-and-surfaces">Textures and surfaces</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-process-checkpointing">CUDA process checkpointing</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#utility-functions">Utility functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#utility-functions">Utility functions</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-transfer-options">Data transfer options</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
