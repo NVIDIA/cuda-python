@@ -67,6 +67,8 @@ def test_get_handle_by_uuidv(all_devices, subtests):
     for device in all_devices:
         with subtests.test(device_index=nvml.device_get_index(device)):
             uuid = nvml.device_get_uuid(device)
+            if "Orin" in nvml.device_get_name(device) and len(uuid) == 36:
+                pytest.skip("UUID lookup is unsupported on Orin, which reports a UUID without a GPU- prefix")
             with unsupported_before(device, None):
                 new_handle = nvml.device_get_handle_by_uuidv(nvml.UUIDType.ASCII, uuid.encode("ascii"))
             assert new_handle == device
