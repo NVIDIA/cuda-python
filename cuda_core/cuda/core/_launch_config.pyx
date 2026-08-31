@@ -7,6 +7,7 @@ from libc.string cimport memset
 from typing import Any
 
 from cuda.core._device import Device
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils import (
     CUDAError,
     cast_to_3_tuple,
@@ -62,7 +63,13 @@ cdef class LaunchConfig:
         signals completion via programmatic means.
     priority : int, optional
         Execution priority of the kernel. Lower numbers represent higher
-        priorities. When omitted, the launch uses the stream's priority.
+        priorities. The meaningful range of values is device-specific,
+        given by ``[greatestPriority, leastPriority]`` as returned by
+        ``cuCtxGetStreamPriorityRange`` (the same range used by
+        :attr:`~cuda.core.StreamOptions.priority`); both bounds are 0 on
+        a device that does not support multiple stream priorities. A
+        nonzero value outside this range raises :class:`ValueError`.
+        When omitted (or 0), the launch uses the stream's priority.
     """
 
     # TODO: expand LaunchConfig to include other attributes
@@ -96,7 +103,13 @@ cdef class LaunchConfig:
             Whether to allow programmatic stream serialization / PDL (default: False)
         priority : int, optional
             Execution priority of the kernel. Lower numbers represent higher
-            priorities. When omitted, the launch uses the stream's priority.
+            priorities. The meaningful range of values is device-specific,
+            given by ``[greatestPriority, leastPriority]`` as returned by
+            ``cuCtxGetStreamPriorityRange`` (the same range used by
+            :attr:`~cuda.core.StreamOptions.priority`); both bounds are 0 on
+            a device that does not support multiple stream priorities. A
+            nonzero value outside this range raises :class:`ValueError`.
+            When omitted (or 0), the launch uses the stream's priority.
         """
         # Convert and validate grid and block dimensions
         self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)
@@ -124,7 +137,26 @@ cdef class LaunchConfig:
 
         self.is_cooperative = is_cooperative
         self.programmatic_stream_serialization = programmatic_stream_serialization
-        self.priority = priority
+
+        # priority=0 is treated the same as an unset priority (see
+        # _to_native_launch_config), so only nonzero values need validating
+        # against the device's stream priority range.
+        cdef int high, low
+        cdef cydriver.CUresult res_code
+        cdef int prio
+        if priority:
+            with nogil:
+                res_code = cydriver.cuCtxGetStreamPriorityRange(&high, &low)
+            if res_code != cydriver.CUresult.CUDA_SUCCESS:
+                if res_code == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
+                    raise RuntimeError(
+                        "No current CUDA context. Call dev.set_current() before creating a LaunchConfig with a priority."
+                    )
+                HANDLE_RETURN(res_code)
+            prio = priority
+            if not (low <= prio <= high):
+                raise ValueError(f"{priority=} is out of range {[low, high]}")
+            self.priority = prio
 
         if self.is_cooperative and not Device().properties.cooperative_launch:
             raise CUDAError("cooperative kernels are not supported on this device")
@@ -178,7 +210,7 @@ cdef class LaunchConfig:
             attr.value.programmaticStreamSerializationAllowed = 1
             self._attrs.push_back(attr)
 
-        if self.priority is not None:
+        if self.priority:
             attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PRIORITY
             attr.value.priority = self.priority
             self._attrs.push_back(attr)
@@ -244,7 +276,7 @@ cpdef object _to_native_launch_config(LaunchConfig config):
         attr.value.programmaticStreamSerializationAllowed = 1
         attrs.append(attr)
 
-    if config.priority is not None:
+    if config.priority:
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PRIORITY
         attr.value.priority = config.priority
