@@ -39,14 +39,25 @@ __global__ void saxpy(const T a,
 
 
 def _is_nvfatbin_available():
-    """Check if nvfatbin bindings are available."""
+    """Check if nvfatbin bindings are available.
+
+    Catches only the exceptions that mean "not installed / not loadable"
+    (ImportError, DynamicLibNotFoundError, FunctionNotFoundError). A
+    genuine nvfatbin API-status failure (nvFatbinError) propagates so a
+    real bug is not hidden as "unavailable".
+    """
+    from cuda.bindings._internal.utils import FunctionNotFoundError
+    from cuda.pathfinder import DynamicLibNotFoundError
+
     try:
         from cuda.bindings import nvfatbin
-
-        nvfatbin.version()
-        return True
-    except Exception:
+    except ImportError:
         return False
+    try:
+        nvfatbin.version()
+    except (DynamicLibNotFoundError, FunctionNotFoundError):
+        return False
+    return True
 
 
 nvfatbin_available = pytest.mark.skipif(not _is_nvfatbin_available(), reason="nvfatbin bindings not available")

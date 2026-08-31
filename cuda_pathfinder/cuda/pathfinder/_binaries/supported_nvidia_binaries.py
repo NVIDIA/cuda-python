@@ -14,7 +14,7 @@ SITE_PACKAGES_BINDIRS = {
     # Core compilation tools
     "nvcc": (_CUDA13_BIN, _CUDA_NVCC_BIN),
     "nvdisasm": (_CUDA13_BIN, _CUDA_NVCC_BIN),
-    "cuobjdump": (_CUDA_NVCC_BIN,),
+    "cuobjdump": (_CUDA13_BIN, _CUDA_NVCC_BIN),
     "nvprune": (_CUDA_NVCC_BIN,),
     "fatbinary": (_CUDA13_BIN, _CUDA_NVCC_BIN),
     "bin2c": (_CUDA13_BIN, _CUDA_NVCC_BIN),

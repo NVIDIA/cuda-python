@@ -32,6 +32,12 @@
 #           ENV: { CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM: '1' }
 #           ENV: { MODE: 'nightly-pytorch', TORCH_VER: '2.12.1', TORCH_CUDA: 'cu126' }
 
+# Host platforms that produce wheel artifacts in the main CI workflow.
+platforms:
+  - linux-64
+  - linux-aarch64
+  - win-64
+
 linux:
   pull-request:
     # linux-64
