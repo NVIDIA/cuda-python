@@ -21,3 +21,5 @@ cdef class Program:
         str _code_type          # Normalised code_type ("c++", "ptx", "nvvm")
         str _pch_status         # PCH creation outcome after compile
         bytes _nvrtc_name       # Source filepath given to NVRTC; a real path for debug builds
+        str _debug_source_path  # Temp source this Program wrote, or None; the only path it may unlink
+        list _extra_options     # NVRTC options Program adds on top of ProgramOptions

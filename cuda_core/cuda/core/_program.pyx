@@ -103,8 +103,12 @@ cdef class Program:
         self._cleanup_debug_source()
 
     def _cleanup_debug_source(self):
-        path = self._nvrtc_name.decode()
-        self._unlink_debug_source(path)
+        # Only a temp file this Program wrote may be removed. self._nvrtc_name is
+        # still the caller's options.name whenever the source was not redirected,
+        # and a name like "matmul.cu" can match a file the caller owns.
+        if self._debug_source_path is not None:
+            self._unlink_debug_source(self._debug_source_path)
+            self._debug_source_path = None
 
     def _unlink_debug_source(self, path: str) -> None:
         try:
@@ -852,6 +856,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
 
     self._pch_status = None
     self._nvrtc_name = options._name
+    self._extra_options = []
 
     if code_type == "c++":
         assert_type(code, str)
@@ -862,6 +867,17 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
             debug_path = self._try_materialize_nvrtc_debug_source(code)
             if debug_path is not None:
                 self._nvrtc_name = debug_path.encode()
+                self._debug_source_path = debug_path
+                # NVRTC resolves #include "..." against the directory of the name it
+                # is given, so moving the name into the temp dir would otherwise stop
+                # every quoted include from resolving where it did before.
+                try:
+                    include_dir = os.path.dirname(os.path.abspath(options.name))
+                except OSError:
+                    # abspath needs a cwd; with none there is no directory to restore.
+                    pass
+                else:
+                    self._extra_options = [b"--include-path=" + include_dir.encode()]
 
         # TODO: support pre-loaded headers & include names
         code_bytes = code.encode()
@@ -1035,7 +1051,7 @@ cdef object _read_pch_status(cynvrtc.nvrtcProgram prog):
 cdef object Program_compile_nvrtc(Program self, str target_type, object name_expressions, object logs):
     """Compile using NVRTC backend and return ObjectCode."""
     cdef cynvrtc.nvrtcProgram prog = as_cu(self._h_nvrtc)
-    cdef list options_list = self._options.as_bytes("nvrtc", target_type)
+    cdef list options_list = self._options.as_bytes("nvrtc", target_type) + self._extra_options
 
     result = _nvrtc_compile_and_extract(
         prog, target_type, name_expressions, logs, options_list, self._nvrtc_name.decode(),
