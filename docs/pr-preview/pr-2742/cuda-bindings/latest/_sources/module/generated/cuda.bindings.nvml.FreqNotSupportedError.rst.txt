@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.FreqNotSupportedError
+========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: FreqNotSupportedError
