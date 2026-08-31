@@ -12,12 +12,21 @@ install path is covered too.
 
 import pytest
 
+from cuda_python_test_helpers import IS_WINDOWS
 from cuda_python_test_helpers.marks import _cuda_headers_available
 
 
 def pytest_collection_modifyitems(config, items):  # noqa: ARG001
     have_headers = _cuda_headers_available()
     for item in items:
+        if IS_WINDOWS and "subtests" in getattr(item, "fixturenames", ()):
+            item.add_marker(
+                pytest.mark.thread_unsafe(
+                    reason="as of 2026-09, subtests are not thread-safe on windows: "
+                    "https://github.com/Quansight-Labs/pytest-run-parallel/issues/195"
+                )
+            )
+
         nodeid = item.nodeid.replace("\\", "/")
 
         # Package markers by path
