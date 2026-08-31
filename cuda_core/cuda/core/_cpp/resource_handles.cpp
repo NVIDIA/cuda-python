@@ -625,8 +625,14 @@ ContextHandle get_primary_context(int device_id) {
         new ContextBox{ctx, {}},
         [device_id](const ContextBox* b) {
             context_registry.unregister_handle(b->resource);
-            GILReleaseGuard gil;
-            p_cuDevicePrimaryCtxRelease(device_id);
+            // The driver function pointer targets a Cython __pyx_capi__
+            // wrapper, which touches the Python runtime even though the
+            // underlying CUDA call does not. During interpreter shutdown,
+            // leave primary-context cleanup to process teardown.
+            if (Py_IsInitialized() && !py_is_finalizing()) {
+                GILReleaseGuard gil;
+                p_cuDevicePrimaryCtxRelease(device_id);
+            }
             delete b;
         }
     );

@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import contextlib
+import subprocess
+import sys
 
 import pytest
 
@@ -52,6 +54,19 @@ def test_device_set_current(deinit_cuda):
     device = Device()
     device.set_current()
     assert handle_return(driver.cuCtxGetCurrent()) is not None
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_primary_context_cleanup_is_safe_during_python_shutdown(init_cuda, tmp_path):
+    result = subprocess.run(
+        [sys.executable, "-c", "from cuda.core import Device; Device().set_current()"],
+        capture_output=True,
+        text=True,
+        timeout=20,
+        # Avoid shadowing the installed package with cuda_core/cuda/core.
+        cwd=tmp_path,
+    )
+    assert result.returncode == 0, result.stderr
 
 
 def test_device_repr(deinit_cuda):
