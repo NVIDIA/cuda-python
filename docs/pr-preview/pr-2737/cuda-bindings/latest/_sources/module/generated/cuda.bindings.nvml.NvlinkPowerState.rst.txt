@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.NvlinkPowerState
+===================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: NvlinkPowerState
