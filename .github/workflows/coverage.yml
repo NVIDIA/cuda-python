@@ -542,7 +542,8 @@ jobs:
           echo "=== Combining coverage data ==="
           coverage combine --rcfile=./.coveragerc --keep .coverage.*
 
-          # Generate reports
+      - name: Generate coverage reports
+        run: |
           echo ""
           echo "=== Generating HTML, XML, and text reports ==="
           coverage html --rcfile=./.coveragerc
