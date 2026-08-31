@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Check that explicitly shared files match across CUDA-major bindings roots."""
+"""Check that explicitly shared files match across public bindings roots."""
 
 from __future__ import annotations
 
@@ -12,8 +12,11 @@ import sys
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
+import bindings_config
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_POLICY = REPO_ROOT / "ci" / "cuda-bindings-shared-files.json"
+DEFAULT_CONFIG = bindings_config.DEFAULT_CONFIG
 POLICY_VERSION = 1
 
 
@@ -46,7 +49,7 @@ def _sorted_unique_paths(value: Any, label: str, *, minimum: int) -> tuple[str, 
     return paths
 
 
-def load_policy(path: Path) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def load_policy(path: Path) -> tuple[str, ...]:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
@@ -54,7 +57,7 @@ def load_policy(path: Path) -> tuple[tuple[str, ...], tuple[str, ...]]:
 
     if not isinstance(data, dict):
         raise PolicyError("policy must be a JSON object")
-    allowed_keys = {"schema_version", "roots", "shared_paths"}
+    allowed_keys = {"schema_version", "shared_paths"}
     unexpected = sorted(set(data) - allowed_keys)
     if unexpected:
         raise PolicyError(f"unexpected policy keys: {', '.join(unexpected)}")
@@ -62,9 +65,8 @@ def load_policy(path: Path) -> tuple[tuple[str, ...], tuple[str, ...]]:
     if type(schema_version) is not int or schema_version != POLICY_VERSION:
         raise PolicyError(f"schema_version must be {POLICY_VERSION}")
 
-    roots = _sorted_unique_paths(data.get("roots"), "roots", minimum=2)
     shared_paths = _sorted_unique_paths(data.get("shared_paths"), "shared_paths", minimum=1)
-    return roots, shared_paths
+    return shared_paths
 
 
 def _digest(path: Path) -> str:
@@ -105,15 +107,22 @@ def find_drift(repo_root: Path, roots: tuple[str, ...], shared_paths: tuple[str,
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--policy", type=Path, default=DEFAULT_POLICY)
+    parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     args = parser.parse_args(argv)
 
     try:
-        roots, shared_paths = load_policy(args.policy)
+        shared_paths = load_policy(args.policy)
     except PolicyError as error:
         print(f"error: invalid CUDA bindings shared-file policy: {error}", file=sys.stderr)
         return 2
+    try:
+        config = bindings_config.load_config(args.config)
+    except bindings_config.BindingsConfigError as error:
+        print(f"error: invalid CUDA bindings release-line registry: {error}", file=sys.stderr)
+        return 2
 
+    roots = tuple(line.source_dir for line in config.public_lines)
     violations = find_drift(args.repo_root, roots, shared_paths)
     if not violations:
         return 0

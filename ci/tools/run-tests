@@ -8,6 +8,8 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
 # Check if the script was called with exactly 1 argument
 if [[ ${#} -ne 1 ]]; then
   echo "Error: This script requires exactly 1 argument. You provided ${#}"
@@ -56,17 +58,11 @@ elif [[ "${test_module}" == "bindings" ]]; then
     echo "Expected exactly one cuda-bindings wheel in ${CUDA_BINDINGS_ARTIFACTS_DIR}" >&2
     exit 1
   fi
-  if [[ "${CUDA_BINDINGS_ROOT}" == "cuda_bindings_12" ]]; then
-    if [[ "${LOCAL_CTK}" == 1 ]]; then
-      pip install "${bindings_wheels[0]}[test]"
-    else
-      pip install "${bindings_wheels[0]}[all,test]"
-    fi
-  elif [[ "${LOCAL_CTK}" == 1 ]]; then
-    pip install "${bindings_wheels[0]}" --group test
-  else
-    pip install "${bindings_wheels[0]}[all]" --group test
+  install_args=("${bindings_wheels[0]}" "pyproject.toml")
+  if [[ "${LOCAL_CTK}" != 1 ]]; then
+    install_args+=(--all)
   fi
+  python "${SCRIPT_DIR}/install_bindings_test_wheel.py" "${install_args[@]}"
   echo "Running bindings tests"
   ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
@@ -84,7 +80,7 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
   fi
 
   # Resolve bindings based on BINDINGS_SOURCE (set by env-vars):
-  #   local         → matching CUDA 12 or 13 wheel from this run
+  #   local         → matching configured-line wheel from this run
   #   published     → install from PyPI by version
   BINDINGS_ARGS=()
   if [[ "${BINDINGS_SOURCE}" == "published" ]]; then

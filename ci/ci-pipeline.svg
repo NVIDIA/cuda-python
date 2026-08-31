@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
+<!-- SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 800" style="background-color: white;">
   <!-- Hand-drawn style definitions -->
@@ -130,8 +130,8 @@
   <text x="101" y="597" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Test against multiple CUDA runtime versions</text>
   <text x="102" y="612" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Run Python unit tests, Cython tests, examples</text>
   <text x="501" y="582" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#E91E63" font-weight="bold">Artifact Flows:</text>
-  <text x="502" y="597" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#E91E63" font-weight="bold">• cuda_bindings_12 → CUDA 12 tests</text>
-  <text x="501" y="612" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#E91E63" font-weight="bold">• cuda_bindings → CUDA 13 tests</text>
+  <text x="502" y="597" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#E91E63" font-weight="bold">• cuda-pathfinder: main → backport</text>
+  <text x="501" y="612" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#E91E63" font-weight="bold">• cuda-bindings: backport → main</text>
 
   <!-- Rough arrow down -->
   <path d="M451,622 Q449,635 450,642 M446,638 L450,644 L455,639" stroke="#333" stroke-width="2.5" fill="none" stroke-linejoin="round"/>

@@ -16,9 +16,13 @@ version_options = {
     "root": "..",
     "relative_to": __file__,
     "dist_name": "cuda-python",
-    # Preserve the established version policy of each release line. CUDA 12.9
-    # strips prerelease suffixes, while CUDA 13 preserves a/b suffixes.
-    "tag_regex": (r"^(?P<version>v12\.9\.\d+)" if build_major == "12" else r"^(?P<version>v13\.\d+\.\d+(?:[ab]\d+)?)"),
+    # Preserve the established prerelease policy of each line and post-release
+    # suffixes for both: CUDA 12.9 strips prereleases, CUDA 13 preserves a/b.
+    "tag_regex": (
+        r"^(?P<version>v12\.9\.\d+(?:\.post\d+)?)"
+        if build_major == "12"
+        else r"^(?P<version>v13\.\d+\.\d+(?:[ab]\d+)?(?:\.post\d+)?)"
+    ),
     "git_describe_command": [
         "git",
         "describe",

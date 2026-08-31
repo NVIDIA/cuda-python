@@ -44,8 +44,11 @@ headers selected by generator configuration.
   the diff. Record the cybind commit, toolkit inputs, and command in the pull
   request.
 - Files listed in `ci/cuda-bindings-shared-files.json` are intentionally shared
-  by both bindings lines and must remain byte-identical. The list contains both
-  generated and handwritten files; pre-commit and CI enforce it.
+  by the public bindings lines and must remain byte-identical. Pre-commit and CI
+  apply the list to the public source roots declared in `ci/versions.yml`.
+- Cybind-owned support files, including `_internal/_fast_enum.py` and
+  `_internal/utils.pxd`, are not in the shared-file list. They follow cybind's
+  snippets and templates and may legitimately change with generated output.
 - Files absent from that list may differ because the CUDA 12 line retains the
   legacy runtime-generation layout, APIs, tests, documentation, packaging, and
   toolkit pins. Absence from the list does not mean fixes may be ignored.

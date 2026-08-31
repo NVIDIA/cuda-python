@@ -11,12 +11,13 @@ set -euo pipefail
 
 # Check required arguments
 if [[ $# -lt 3 ]]; then
-    echo "Usage: $0 <run-id> <component> <repository> [output-dir] [git-tag]" >&2
+    echo "Usage: $0 <run-id> <component> <repository> [output-dir] [git-tag] [bindings-line-json]" >&2
     echo "  run-id: The GitHub Actions run ID containing the artifacts" >&2
     echo "  component: The component name pattern to download (e.g., cuda-core, cuda-bindings)" >&2
     echo "  repository: The GitHub repository (e.g., NVIDIA/cuda-python)" >&2
     echo "  output-dir: Optional output directory (default: ./dist)" >&2
-    echo "  git-tag: Optional release tag used to select CUDA 12 or 13 artifacts" >&2
+    echo "  git-tag: Optional release tag used to select its configured bindings line" >&2
+    echo "  bindings-line-json: Resolved line JSON; required for bindings/python release tags" >&2
     exit 1
 fi
 
@@ -25,6 +26,7 @@ COMPONENT="$2"
 REPOSITORY="$3"
 OUTPUT_DIR="${4:-./dist}"
 GIT_TAG="${5:-}"
+RESOLVED_BINDINGS_LINE_JSON="${6:-}"
 
 # Ensure we have a GitHub token
 if [[ -z "${GH_TOKEN:-}" ]]; then
@@ -34,55 +36,108 @@ fi
 
 echo "Downloading wheels for component: $COMPONENT from run: $RUN_ID"
 
+ARTIFACTS_DIR="$(mktemp -d)"
+cleanup() {
+    rm -rf -- "$ARTIFACTS_DIR"
+}
+trap cleanup EXIT
+
 # Download component wheels using the same logic as release.yml
 if [[ "$COMPONENT" == "all" ]]; then
     # Download all component patterns
-    gh run download "$RUN_ID" -p "cuda-*" -R "$REPOSITORY"
+    gh run download "$RUN_ID" -p "cuda-*" -R "$REPOSITORY" --dir "$ARTIFACTS_DIR"
 else
     ARTIFACT_PATTERN="${COMPONENT}*"
-    if [[ "$COMPONENT" =~ ^cuda-(bindings|python)$ && "$GIT_TAG" =~ ^v(12|13)\. ]]; then
-        ARTIFACT_PATTERN="${COMPONENT}*cuda${BASH_REMATCH[1]}.*"
+    if [[ "$COMPONENT" =~ ^cuda-(bindings|python)$ && "$GIT_TAG" == v* ]]; then
+        if [[ -z "$RESOLVED_BINDINGS_LINE_JSON" ]]; then
+            echo "Error: resolved bindings-line JSON is required for $COMPONENT release tag $GIT_TAG" >&2
+            exit 1
+        fi
+        if ! command -v jq >/dev/null 2>&1; then
+            echo "Error: jq is required for bindings release artifact routing" >&2
+            exit 1
+        fi
+        if ! TOOLKIT_VERSION="$(jq -er '.toolkit_version | select(type == "string")' \
+            <<< "$RESOLVED_BINDINGS_LINE_JSON")"; then
+            echo "Error: resolved bindings-line JSON has no string toolkit_version" >&2
+            exit 1
+        fi
+        if [[ ! "$TOOLKIT_VERSION" =~ ^[1-9][0-9]*\.[0-9]+\.[0-9]+([.-][A-Za-z0-9]+)*$ ]]; then
+            echo "Error: invalid toolkit_version in resolved bindings-line JSON: $TOOLKIT_VERSION" >&2
+            exit 1
+        fi
+        if ! RELEASE_REGISTRY_ORIGIN="$(jq -er \
+            '.release_registry_origin | select(. == "tag" or . == "control")' \
+            <<< "$RESOLVED_BINDINGS_LINE_JSON")"; then
+            echo "Error: resolved bindings-line JSON has invalid release_registry_origin" >&2
+            exit 1
+        fi
+
+        if ! ARTIFACT_NAMES="$(gh api --paginate \
+            "repos/${REPOSITORY}/actions/runs/${RUN_ID}/artifacts?per_page=100" \
+            --jq '.artifacts[] | select(.expired == false) | .name')"; then
+            echo "Error: failed to inspect artifacts for run $RUN_ID" >&2
+            exit 1
+        fi
+
+        MATCHING_ARTIFACTS=()
+        if [[ "$COMPONENT" == "cuda-python" ]]; then
+            LINE_ARTIFACT_PATTERN="cuda-python-wheel-cuda${TOOLKIT_VERSION}"
+        else
+            LINE_ARTIFACT_PATTERN="cuda-bindings-python*-cuda${TOOLKIT_VERSION}-*"
+        fi
+        while IFS= read -r artifact_name; do
+            [[ -n "$artifact_name" ]] || continue
+            # The pattern is assembled from a validated toolkit version.
+            # shellcheck disable=SC2053
+            if [[ "$artifact_name" == $LINE_ARTIFACT_PATTERN && "$artifact_name" != *-tests ]]; then
+                MATCHING_ARTIFACTS+=("$artifact_name")
+            fi
+        done <<< "$ARTIFACT_NAMES"
+
+        if [[ ${#MATCHING_ARTIFACTS[@]} -eq 0 \
+              && "$COMPONENT" == "cuda-python" \
+              && "$RELEASE_REGISTRY_ORIGIN" == "control" ]]; then
+            while IFS= read -r artifact_name; do
+                if [[ "$artifact_name" == "cuda-python-wheel" ]]; then
+                    MATCHING_ARTIFACTS+=("$artifact_name")
+                    break
+                fi
+            done <<< "$ARTIFACT_NAMES"
+        fi
+
+        if [[ ${#MATCHING_ARTIFACTS[@]} -eq 0 ]]; then
+            echo "Error: run $RUN_ID has no unexpired artifact matching $LINE_ARTIFACT_PATTERN" >&2
+            if [[ "$COMPONENT" == "cuda-python" && "$RELEASE_REGISTRY_ORIGIN" != "control" ]]; then
+                echo "Error: legacy cuda-python-wheel fallback is not allowed for a tag registry" >&2
+            fi
+            exit 1
+        fi
+
+        for artifact_name in "${MATCHING_ARTIFACTS[@]}"; do
+            gh run download "$RUN_ID" --name "$artifact_name" -R "$REPOSITORY" --dir "$ARTIFACTS_DIR"
+        done
+    else
+        gh run download "$RUN_ID" -p "$ARTIFACT_PATTERN" -R "$REPOSITORY" --dir "$ARTIFACTS_DIR"
     fi
-    gh run download "$RUN_ID" -p "$ARTIFACT_PATTERN" -R "$REPOSITORY"
 fi
 
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
 
-# Process downloaded artifacts
-for p in cuda-*
-do
-    if [[ ! -d "$p" ]]; then
+# `gh run download` extracts a sole selected artifact directly into --dir,
+# while multiple artifacts get per-artifact subdirectories. Find wheels
+# recursively so both layouts are handled identically.
+while IFS= read -r -d '' wheel; do
+    relative_path="${wheel#"$ARTIFACTS_DIR"/}"
+    # TODO: remove the Python 3.15 exclusion once 3.15 is officially supported.
+    if [[ "$relative_path" == *python315* || "$(basename "$wheel")" == *cp315* ]]; then
+        echo "Skipping pre-release Python artifact wheel: $relative_path"
         continue
     fi
-
-    # exclude cython test artifacts
-    if [[ "${p}" == *-tests ]]; then
-        echo "Skipping test artifact: $p"
-        continue
-    fi
-
-    # TODO: remove the Python 3.15 exclusion once 3.15 is officially supported
-    # exclude pre-release Python (3.15) wheels from releasing
-    if [[ "${p}" == *python315* ]]; then
-        echo "Skipping pre-release Python artifact: $p"
-        continue
-    fi
-
-    # If we're not downloading "all", only process matching component
-    if [[ "$COMPONENT" != "all" && "$p" != ${COMPONENT}* ]]; then
-        continue
-    fi
-
-    echo "Processing artifact: $p"
-    # Move wheel files to output directory
-    if [[ -d "$p" ]]; then
-        find "$p" -name "*.whl" -exec mv {} "$OUTPUT_DIR/" \;
-    fi
-done
-
-# Clean up artifact directories
-rm -rf cuda-*
+    echo "Processing wheel: $relative_path"
+    mv "$wheel" "$OUTPUT_DIR/"
+done < <(find "$ARTIFACTS_DIR" -type f -name "*.whl" -print0)
 
 echo "Downloaded wheels to: $OUTPUT_DIR"
 ls -la "$OUTPUT_DIR"

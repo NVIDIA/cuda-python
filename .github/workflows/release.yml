@@ -10,8 +10,9 @@ name: "CI: Release"
 # without publishing to external release surfaces.
 #
 # Maintenance note: validate non-trivial changes with dry-run workflow_dispatch
-# runs for both a v12.9 tag and a v13 tag. Leave run-id blank so automatic
-# tag-run discovery, artifact filtering, and version validation are exercised.
+# runs for tags from both the maintenance and current bindings lines. Leave
+# run-id blank so automatic tag-run discovery, artifact filtering, and version
+# validation are exercised.
 
 on:
   workflow_dispatch:
@@ -53,6 +54,45 @@ defaults:
     shell: bash --noprofile --norc -xeuo pipefail {0}
 
 jobs:
+  resolve-bindings-line:
+    if: ${{ github.repository_owner == 'nvidia' }}
+    runs-on: ubuntu-latest
+    outputs:
+      bindings-line: ${{ steps.resolve.outputs.bindings-line }}
+    steps:
+      - name: Checkout release control plane
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+      - name: Checkout release source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          ref: ${{ inputs.git-tag }}
+          path: release-source
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        with:
+          python-version: "3.12"
+
+      - name: Install CI tool dependencies
+        run: python -m pip install -r ci/tools/requirements.txt
+
+      - name: Resolve bindings release line
+        id: resolve
+        env:
+          RELEASE_COMPONENT: ${{ inputs.component }}
+          RELEASE_TAG: ${{ inputs.git-tag }}
+        run: |
+          if [[ "$RELEASE_COMPONENT" == "cuda-bindings" || "$RELEASE_COMPONENT" == "cuda-python" ]]; then
+            bindings_line=$(python ci/tools/resolve_release_bindings_line.py \
+              --release-tag "$RELEASE_TAG" \
+              --release-source-root release-source \
+              --control-config ci/versions.yml)
+            echo "bindings-line=${bindings_line}" >> "$GITHUB_OUTPUT"
+          else
+            echo "bindings-line=" >> "$GITHUB_OUTPUT"
+          fi
+
   determine-run-id:
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
@@ -70,13 +110,19 @@ jobs:
         id: lookup-run-id
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_GIT_TAG: ${{ inputs.git-tag }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          REQUESTED_RUN_ID: ${{ inputs.run-id }}
         run: |
-          if [[ -n "${{ inputs.run-id }}" ]]; then
-            echo "Using provided run ID: ${{ inputs.run-id }}"
-            RUN_ID="${{ inputs.run-id }}"
+          if [[ -n "$REQUESTED_RUN_ID" ]]; then
+            echo "Validating provided run ID: $REQUESTED_RUN_ID"
+            RUN_ID=$(./ci/tools/lookup-run-id \
+              --tag "$RELEASE_GIT_TAG" \
+              --run-id "$REQUESTED_RUN_ID" \
+              "$RELEASE_REPOSITORY")
           else
-            echo "Auto-detecting successful tag-triggered run ID for tag: ${{ inputs.git-tag }}"
-            RUN_ID=$(./ci/tools/lookup-run-id "${{ inputs.git-tag }}" "${{ github.repository }}")
+            echo "Auto-detecting successful tag-triggered run ID for tag: $RELEASE_GIT_TAG"
+            RUN_ID=$(./ci/tools/lookup-run-id --tag "$RELEASE_GIT_TAG" "$RELEASE_REPOSITORY")
             echo "Auto-detected run ID: $RUN_ID"
           fi
           echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
@@ -97,6 +143,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_ACTION: ${{ inputs.release-action }}
           RELEASE_GIT_TAG: ${{ inputs.git-tag }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
           DRY_RUN_DOCS_BRANCH: ${{ inputs.dry-run-docs-branch }}
         run: |
           if [[ "$RELEASE_ACTION" == "full-release" && -n "$DRY_RUN_DOCS_BRANCH" ]]; then
@@ -107,19 +154,21 @@ jobs:
             echo "error: dry-run-docs-branch must be a non-production gh-pages-* branch" >&2
             exit 1
           fi
+          git check-ref-format "refs/tags/$RELEASE_GIT_TAG"
+          git rev-parse --verify "refs/tags/${RELEASE_GIT_TAG}^{commit}"
+
           if [[ "$RELEASE_ACTION" == "dry-run" ]]; then
-            git rev-parse --verify "${RELEASE_GIT_TAG}^{commit}"
             echo "Dry-run selected; not checking or creating a GitHub release draft."
             exit 0
           fi
 
-          mapfile -t tags < <(gh release list -R "${{ github.repository }}" --json tagName --jq '.[] | .tagName')
-          mapfile -t is_draft < <(gh release list -R "${{ github.repository }}" --json isDraft --jq '.[] | .isDraft')
+          mapfile -t tags < <(gh release list -R "$RELEASE_REPOSITORY" --json tagName --jq '.[] | .tagName')
+          mapfile -t is_draft < <(gh release list -R "$RELEASE_REPOSITORY" --json isDraft --jq '.[] | .isDraft')
 
           found=0
           for idx in "${!tags[@]}"; do
-            if [[ "${tags[$idx]}" == "${{ inputs.git-tag }}" ]]; then
-              echo "found existing release for ${{ inputs.git-tag }}"
+            if [[ "${tags[$idx]}" == "$RELEASE_GIT_TAG" ]]; then
+              echo "found existing release for $RELEASE_GIT_TAG"
               found=1
               if [[ "${is_draft[$idx]}" != "true" ]]; then
                 echo "the release note is not in draft state"
@@ -129,29 +178,49 @@ jobs:
             fi
           done
           if [[ "$found" == 0 ]]; then
-            echo "no release found for ${{ inputs.git-tag }}, creating draft release"
-            gh release create "${{ inputs.git-tag }}" --draft --repo "${{ github.repository }}" --title "Release ${{ inputs.git-tag }}" --notes "Release ${{ inputs.git-tag }}"
+            echo "no release found for $RELEASE_GIT_TAG, creating draft release"
+            gh release create "$RELEASE_GIT_TAG" \
+              --verify-tag \
+              --draft \
+              --repo "$RELEASE_REPOSITORY" \
+              --title "Release $RELEASE_GIT_TAG" \
+              --notes "Release $RELEASE_GIT_TAG"
           fi
 
   check-release-notes:
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
+    needs: resolve-bindings-line
     steps:
-      - name: Checkout Source
+      - name: Checkout release control plane
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+      - name: Checkout release source
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           ref: ${{ inputs.git-tag }}
+          path: release-source
 
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
           python-version: "3.12"
 
+      - name: Install CI tool dependencies
+        run: python -m pip install -r ci/tools/requirements.txt
+
       - name: Check versioned release notes exist
+        env:
+          BINDINGS_LINE: ${{ needs.resolve-bindings-line.outputs.bindings-line }}
+          RELEASE_COMPONENT: ${{ inputs.component }}
+          RELEASE_TAG: ${{ inputs.git-tag }}
         run: |
           python ci/tools/check_release_notes.py \
-            --git-tag "${{ inputs.git-tag }}" \
-            --component "${{ inputs.component }}"
+            --git-tag "$RELEASE_TAG" \
+            --component "$RELEASE_COMPONENT" \
+            --repo-root release-source \
+            --control-repo-root . \
+            --bindings-line "$BINDINGS_LINE"
 
   doc:
     name: Build release docs
@@ -165,6 +234,7 @@ jobs:
       - check-tag
       - check-release-notes
       - determine-run-id
+      - resolve-bindings-line
     secrets: inherit
     uses: ./.github/workflows/build-docs.yml
     with:
@@ -174,6 +244,7 @@ jobs:
       is-release: true
       deploy-docs: ${{ inputs.release-action == 'full-release' || inputs.dry-run-docs-branch != '' }}
       docs-branch: ${{ (inputs.release-action == 'dry-run' && inputs.dry-run-docs-branch) || 'gh-pages' }}
+      bindings-line: ${{ needs.resolve-bindings-line.outputs.bindings-line }}
 
   upload-archive:
     name: Validate release artifacts
@@ -184,6 +255,7 @@ jobs:
       - check-release-notes
       - determine-run-id
       - doc
+      - resolve-bindings-line
     secrets: inherit
     uses: ./.github/workflows/release-upload.yml
     with:
@@ -191,6 +263,7 @@ jobs:
       run-id: ${{ needs.determine-run-id.outputs.run-id }}
       component: ${{ inputs.component }}
       dry-run: ${{ inputs.release-action == 'dry-run' }}
+      bindings-line: ${{ needs.resolve-bindings-line.outputs.bindings-line }}
 
   publish-testpypi:
     name: Publish wheels to TestPyPI
@@ -201,6 +274,7 @@ jobs:
       - check-release-notes
       - determine-run-id
       - doc
+      - resolve-bindings-line
     environment:
       name: testpypi
       url: https://test.pypi.org/p/${{ inputs.component }}/
@@ -210,20 +284,42 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        with:
+          python-version: "3.12"
+
+      - name: Install CI tool dependencies
+        run: python -m pip install -r ci/tools/requirements.txt
+
       - name: Download component wheels
         env:
+          BINDINGS_LINE: ${{ needs.resolve-bindings-line.outputs.bindings-line }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_COMPONENT: ${{ inputs.component }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          RELEASE_RUN_ID: ${{ needs.determine-run-id.outputs.run-id }}
+          RELEASE_TAG: ${{ inputs.git-tag }}
         run: |
           ./ci/tools/download-wheels \
-            "${{ needs.determine-run-id.outputs.run-id }}" \
-            "${{ inputs.component }}" \
-            "${{ github.repository }}" \
+            "$RELEASE_RUN_ID" \
+            "$RELEASE_COMPONENT" \
+            "$RELEASE_REPOSITORY" \
             "dist" \
-            "${{ inputs.git-tag }}"
+            "$RELEASE_TAG" \
+            "$BINDINGS_LINE"
 
       - name: Validate wheel versions for release tag
+        env:
+          BINDINGS_LINE: ${{ needs.resolve-bindings-line.outputs.bindings-line }}
+          RELEASE_COMPONENT: ${{ inputs.component }}
+          RELEASE_TAG: ${{ inputs.git-tag }}
         run: |
-          ./ci/tools/validate-release-wheels "${{ inputs.git-tag }}" "${{ inputs.component }}" "dist"
+          ./ci/tools/validate-release-wheels \
+            "$RELEASE_TAG" \
+            "$RELEASE_COMPONENT" \
+            "dist" \
+            --bindings-line "$BINDINGS_LINE"
 
       - name: Publish package distributions to TestPyPI
         uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b  # v1.14.0
@@ -237,6 +333,7 @@ jobs:
     needs:
       - determine-run-id
       - publish-testpypi
+      - resolve-bindings-line
     environment:
       name: pypi
       url: https://pypi.org/p/${{ inputs.component }}/
@@ -246,20 +343,42 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        with:
+          python-version: "3.12"
+
+      - name: Install CI tool dependencies
+        run: python -m pip install -r ci/tools/requirements.txt
+
       - name: Download component wheels
         env:
+          BINDINGS_LINE: ${{ needs.resolve-bindings-line.outputs.bindings-line }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_COMPONENT: ${{ inputs.component }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          RELEASE_RUN_ID: ${{ needs.determine-run-id.outputs.run-id }}
+          RELEASE_TAG: ${{ inputs.git-tag }}
         run: |
           ./ci/tools/download-wheels \
-            "${{ needs.determine-run-id.outputs.run-id }}" \
-            "${{ inputs.component }}" \
-            "${{ github.repository }}" \
+            "$RELEASE_RUN_ID" \
+            "$RELEASE_COMPONENT" \
+            "$RELEASE_REPOSITORY" \
             "dist" \
-            "${{ inputs.git-tag }}"
+            "$RELEASE_TAG" \
+            "$BINDINGS_LINE"
 
       - name: Validate wheel versions for release tag
+        env:
+          BINDINGS_LINE: ${{ needs.resolve-bindings-line.outputs.bindings-line }}
+          RELEASE_COMPONENT: ${{ inputs.component }}
+          RELEASE_TAG: ${{ inputs.git-tag }}
         run: |
-          ./ci/tools/validate-release-wheels "${{ inputs.git-tag }}" "${{ inputs.component }}" "dist"
+          ./ci/tools/validate-release-wheels \
+            "$RELEASE_TAG" \
+            "$RELEASE_COMPONENT" \
+            "dist" \
+            --bindings-line "$BINDINGS_LINE"
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b  # v1.14.0

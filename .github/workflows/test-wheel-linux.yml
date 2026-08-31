@@ -13,10 +13,8 @@ on:
       host-platform:
         type: string
         required: true
-      build-ctk-ver:
-        type: string
-        required: true
-      prev-build-ctk-ver:
+      bindings-config:
+        description: Normalized CUDA bindings release-line registry JSON.
         type: string
         required: true
       matrix_filter:
@@ -55,12 +53,14 @@ defaults:
 
 jobs:
   compute-matrix:
-    if: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).jobs.test_cuda_majors.cu12 || fromJSON(inputs.workplan).jobs.test_cuda_majors.cu13 }}
+    if: >-
+      ${{ inputs.workplan == '' ||
+          contains(fromJSON(inputs.workplan).jobs.test_cuda_majors.*, true) }}
     runs-on: ubuntu-latest
     env:
+      BINDINGS_CONFIG: ${{ inputs.bindings-config }}
       BUILD_TYPE: ${{ inputs.build-type }}
-      TEST_CU12: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).jobs.test_cuda_majors.cu12 }}
-      TEST_CU13: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).jobs.test_cuda_majors.cu13 }}
+      WORKPLAN: ${{ inputs.workplan }}
       ARCH: ${{ (inputs.host-platform == 'linux-64' && 'amd64') ||
                 (inputs.host-platform == 'linux-aarch64' && 'arm64') }}
     outputs:
@@ -68,6 +68,8 @@ jobs:
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          ref: ${{ inputs.sha || github.sha }}
 
       - name: Validate Test Type
         run: |
@@ -88,6 +90,31 @@ jobs:
           # Read base matrix from YAML file for the specific architecture
           TEST_MATRIX=$(yq -o json ".linux[\"${MATRIX_TYPE}\"] | map(select(.ARCH == \"${ARCH}\"))" ci/test-matrix.yml)
 
+          PUBLIC_BINDINGS_LINES=$(jq -ce '
+            [.lines[] | select(any(.roles[]; . == "current" or . == "maintenance"))]
+            | if length > 0 then . else error("bindings registry has no public lines") end
+          ' <<< "$BINDINGS_CONFIG")
+          CURRENT_BINDINGS_SOURCE_DIR=$(jq -er '
+            [.[] | select(.roles | index("current"))]
+            | if length == 1 then .[0].source_dir else error("bindings registry must have one current line") end
+          ' <<< "$PUBLIC_BINDINGS_LINES")
+
+          if [[ -z "$WORKPLAN" ]]; then
+            TEST_CUDA_MAJORS=$(jq -c '
+              [.[].cuda_variant] | unique | map({key: ., value: true}) | from_entries
+            ' <<< "$PUBLIC_BINDINGS_LINES")
+          else
+            TEST_CUDA_MAJORS=$(jq -ce '
+              .jobs.test_cuda_majors
+              | if type == "object" then . else error("workplan test_cuda_majors must be an object") end
+            ' <<< "$WORKPLAN")
+          fi
+
+          python3 ci/tools/check_test_matrix_bindings.py \
+            --bindings-config "$BINDINGS_CONFIG" \
+            --enabled-cuda-variants "$TEST_CUDA_MAJORS" \
+            --test-matrix "$TEST_MATRIX"
+
           # Apply matrix filter; reject custom DRIVER + FLAVOR=wsl (the
           # in-container driver swap doesn't work under WSL); add a
           # RUNNER_DRIVER field that maps any custom version back to
@@ -95,11 +122,28 @@ jobs:
           # need to land on the runner that ships with the most recent
           # pre-installed driver); wrap in include structure.
           MATRIX=$(echo "$TEST_MATRIX" | jq -c \
-            --argjson test_cu12 "${TEST_CU12}" \
-            --argjson test_cu13 "${TEST_CU13}" \
+            --argjson test_cuda_majors "$TEST_CUDA_MAJORS" \
+            --argjson bindings_lines "$PUBLIC_BINDINGS_LINES" \
+            --arg default_bindings_source_dir "$CURRENT_BINDINGS_SOURCE_DIR" \
             '${{ inputs.matrix_filter }}
-             | map(select((((.CUDA_VER | split(".")[0]) == "12") and $test_cu12)
-                          or (((.CUDA_VER | split(".")[0]) == "13") and $test_cu13)))
+             | map(
+                 . as $row
+                 | ("cu" + ($row.CUDA_VER | split(".")[0])) as $cuda_variant
+                 | ($bindings_lines | map(select(.toolkit_version == $row.CUDA_VER))) as $matching_lines
+                 | if ($matching_lines | length) > 1 then
+                     error("multiple bindings lines match CUDA \($row.CUDA_VER)")
+                   else
+                     ($matching_lines[0] // null) as $bindings_line
+                     | $row + {
+                         CUDA_VARIANT: $cuda_variant,
+                         BINDINGS_SOURCE: (if $bindings_line == null then "published" else "local" end),
+                         BINDINGS_LINE_ID: ($bindings_line.line_id // ""),
+                         BINDINGS_SOURCE_DIR: ($bindings_line.source_dir // ""),
+                         DEFAULT_BINDINGS_SOURCE_DIR: $default_bindings_source_dir
+                       }
+                   end
+               )
+             | map(select($test_cuda_majors[.CUDA_VARIANT] == true))
              | if any(.[]; .DRIVER != "latest" and .DRIVER != "earliest" and .FLAVOR == "wsl") then "Error: custom DRIVER is not supported with FLAVOR=wsl\n" | halt_error(1) else . end
              | map(. + {RUNNER_DRIVER: (if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)})
              | if (. | length) > 0 then {include: .} else "Error: Empty matrix after CUDA-major workplan filtering\n" | halt_error(1) end')
@@ -123,7 +167,7 @@ jobs:
     continue-on-error: ${{ startsWith(matrix.PY_VER, '3.15') }}
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() &&
-            (inputs.workplan == '' || fromJSON(inputs.workplan).jobs.test_cuda_majors.cu12 || fromJSON(inputs.workplan).jobs.test_cuda_majors.cu13) }}
+            (inputs.workplan == '' || contains(fromJSON(inputs.workplan).jobs.test_cuda_majors.*, true)) }}
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
     container:
@@ -138,6 +182,8 @@ jobs:
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          ref: ${{ inputs.sha || github.sha }}
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -165,8 +211,10 @@ jobs:
 
       - name: Set environment variables
         env:
-          BUILD_CUDA_VER: ${{ inputs.build-ctk-ver }}
-          PREV_BUILD_CUDA_VER: ${{ inputs.prev-build-ctk-ver }}
+          BINDINGS_SOURCE: ${{ matrix.BINDINGS_SOURCE }}
+          BINDINGS_LINE_ID: ${{ matrix.BINDINGS_LINE_ID }}
+          BINDINGS_SOURCE_DIR: ${{ matrix.BINDINGS_SOURCE_DIR }}
+          DEFAULT_BINDINGS_SOURCE_DIR: ${{ matrix.DEFAULT_BINDINGS_SOURCE_DIR }}
           CUDA_VER: ${{ matrix.CUDA_VER }}
           HOST_PLATFORM: ${{ inputs.host-platform }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}

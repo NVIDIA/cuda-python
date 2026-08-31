@@ -8,7 +8,8 @@ on:
       host-platform:
         required: true
         type: string
-      cuda-version:
+      bindings-line:
+        description: Normalized CUDA bindings line JSON.
         required: true
         type: string
       workplan:
@@ -27,23 +28,22 @@ permissions:
 
 jobs:
   test-sdist:
-    name: Test sdist builds
+    name: Test sdist builds (${{ fromJSON(inputs.bindings-line).line_id }})
     if: ${{ (inputs.workplan == '' || fromJSON(inputs.workplan).jobs.sdist_tests) &&
-            ((startsWith(inputs.cuda-version, '12.') && (inputs.workplan == '' || fromJSON(inputs.workplan).jobs.sdist_cuda_majors.cu12)) ||
-             (startsWith(inputs.cuda-version, '13.') && (inputs.workplan == '' || fromJSON(inputs.workplan).jobs.sdist_cuda_majors.cu13))) }}
+            (inputs.workplan == '' ||
+             fromJSON(inputs.workplan).jobs.sdist_lines[fromJSON(inputs.bindings-line).line_id]) }}
     env:
-      BINDINGS_ROOT: ${{ startsWith(inputs.cuda-version, '12.') && 'cuda_bindings_12' || 'cuda_bindings' }}
-      CUDA_PYTHON_BUILD_MAJOR: ${{ startsWith(inputs.cuda-version, '12.') && '12' || '13' }}
+      BINDINGS_LINE_ID: ${{ fromJSON(inputs.bindings-line).line_id }}
+      BINDINGS_ROOT: ${{ fromJSON(inputs.bindings-line).source_dir }}
+      CUDA_BUILD_VERSION: ${{ fromJSON(inputs.bindings-line).toolkit_version }}
+      CUDA_PYTHON_BUILD_MAJOR: ${{ fromJSON(inputs.bindings-line).cuda_major }}
       BUILD_PATHFINDER: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_build }}
       BUILD_BINDINGS: ${{ inputs.workplan == '' ||
-                          (startsWith(inputs.cuda-version, '12.') && fromJSON(inputs.workplan).modules.bindings.variants.cu12.needs_build) ||
-                          (startsWith(inputs.cuda-version, '13.') && fromJSON(inputs.workplan).modules.bindings.variants.cu13.needs_build) }}
+                          fromJSON(inputs.workplan).modules.bindings.lines[fromJSON(inputs.bindings-line).line_id].needs_build }}
       BUILD_CORE: ${{ inputs.workplan == '' ||
-                      (startsWith(inputs.cuda-version, '12.') && fromJSON(inputs.workplan).modules.core.variants.cu12.needs_build) ||
-                      (startsWith(inputs.cuda-version, '13.') && fromJSON(inputs.workplan).modules.core.variants.cu13.needs_build) }}
+                      fromJSON(inputs.workplan).modules.core.cuda_majors[fromJSON(inputs.bindings-line).cuda_variant].needs_build }}
       BUILD_PYTHON: ${{ inputs.workplan == '' ||
-                        (startsWith(inputs.cuda-version, '12.') && fromJSON(inputs.workplan).modules.python.variants.cu12.needs_build) ||
-                        (startsWith(inputs.cuda-version, '13.') && fromJSON(inputs.workplan).modules.python.variants.cu13.needs_build) }}
+                        fromJSON(inputs.workplan).modules.python.lines[fromJSON(inputs.bindings-line).line_id].needs_build }}
     timeout-minutes: 60
     runs-on: linux-amd64-cpu8
     steps:
@@ -60,14 +60,17 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install build tools
-        run: python -m pip install "pip>=25.3" build
+      - name: Install build and CI tools
+        run: python -m pip install "pip>=25.3" build -r ci/tools/requirements.txt
 
-      - name: Set CUDA 12 development versions
-        if: ${{ startsWith(inputs.cuda-version, '12.') &&
-                (github.ref_type != 'tag' || startsWith(github.ref_name, 'v12.9.') == false) }}
+      - name: Set maintenance-line development versions
+        if: ${{ contains(fromJSON(inputs.bindings-line).roles, 'maintenance') &&
+                (github.ref_type != 'tag' ||
+                 startsWith(github.ref_name, fromJSON(inputs.bindings-line).tag_series) == false) }}
         run: |
-          version="$(python ci/tools/cuda12_scm_version.py --sha "$GITHUB_SHA")"
+          version="$(python ci/tools/bindings_scm_version.py \
+            --line-id "${BINDINGS_LINE_ID}" \
+            --sha "$GITHUB_SHA")"
           if [[ -n "$version" ]]; then
             echo "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_BINDINGS=${version}" >> "$GITHUB_ENV"
             echo "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_PYTHON=${version}" >> "$GITHUB_ENV"
@@ -138,7 +141,7 @@ jobs:
         continue-on-error: false
         with:
           host-platform: ${{ inputs.host-platform }}
-          cuda-version: ${{ inputs.cuda-version }}
+          cuda-version: ${{ fromJSON(inputs.bindings-line).toolkit_version }}
 
       # cuda_bindings/setup.py parses CUDA headers at import time, so CUDA_PATH
       # (set by fetch_ctk) must be available for both sdist and wheel builds.
@@ -157,13 +160,13 @@ jobs:
         if: ${{ env.BUILD_BINDINGS != 'true' && env.BUILD_CORE == 'true' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
-          name: cuda-bindings-python312-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}-${{ github.sha }}
+          name: cuda-bindings-python312-cuda${{ fromJSON(inputs.bindings-line).toolkit_version }}-${{ inputs.host-platform }}-${{ github.sha }}
           path: ${{ env.BINDINGS_ROOT }}/dist
 
       - name: Constrain cuda.core to the local cuda.bindings wheel
         if: ${{ env.BUILD_CORE == 'true' }}
         run: |
-          CUDA_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
+          CUDA_MAJOR='${{ fromJSON(inputs.bindings-line).cuda_major }}'
           pathfinder_wheels=(cuda_pathfinder/dist/cuda_pathfinder-*.whl)
           bindings_wheels=("${BINDINGS_ROOT}"/dist/cuda_bindings-"${CUDA_MAJOR}".*.whl)
           test "${#pathfinder_wheels[@]}" -eq 1
@@ -185,7 +188,7 @@ jobs:
         if: ${{ env.BUILD_CORE == 'true' }}
         run: |
           export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
-          export CUDA_CORE_BUILD_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
+          export CUDA_CORE_BUILD_MAJOR='${{ fromJSON(inputs.bindings-line).cuda_major }}'
           export CC="sccache cc"
           export CXX="sccache c++"
           export PIP_BUILD_CONSTRAINT="$(pwd)/wheel-constraints/cuda-core.txt"

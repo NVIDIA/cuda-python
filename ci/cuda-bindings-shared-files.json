@@ -1,17 +1,11 @@
 {
   "schema_version": 1,
-  "roots": [
-    "cuda_bindings",
-    "cuda_bindings_12"
-  ],
   "shared_paths": [
     "LICENSE",
     "MANIFEST.in",
     "cuda/bindings/__init__.pxd",
     "cuda/bindings/__init__.py",
     "cuda/bindings/_internal/__init__.py",
-    "cuda/bindings/_internal/_fast_enum.py",
-    "cuda/bindings/_internal/utils.pxd",
     "cuda/bindings/_lib/__init__.py",
     "cuda/bindings/_lib/dlfcn.pxd",
     "cuda/bindings/_lib/param_packer.h",

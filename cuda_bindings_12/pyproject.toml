@@ -148,8 +148,8 @@ exclude = ["cuda/bindings/_version.py"]
 [tool.setuptools_scm]
 root = ".."
 version_file = "cuda/bindings/_version.py"
-# We deliberately do not want to include the version suffixes (a/b/rc) in cuda-bindings versioning
-tag_regex = "^(?P<version>v12\\.9\\.\\d+)"
+# Preserve post releases but deliberately exclude prerelease suffixes (a/b/rc).
+tag_regex = "^(?P<version>v12\\.9\\.\\d+(?:\\.post\\d+)?)"
 # Main only contains the original v12.9.0 tag. Ignore it so development builds
 # do not regress below the already-released 12.9.x wheels.
 git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v12.9.[1-9]*"]

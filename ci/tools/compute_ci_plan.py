@@ -10,75 +10,28 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import subprocess
 from pathlib import Path, PurePosixPath
+from typing import TYPE_CHECKING
+
+if __package__:
+    from .bindings_config import load_config
+else:
+    from bindings_config import load_config
+
+if TYPE_CHECKING:
+    if __package__:
+        from .bindings_config import BindingsConfig
+    else:
+        from bindings_config import BindingsConfig
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-MODULES = ("pathfinder", "bindings", "core", "python")
-VARIANT_MODULES = ("bindings", "core", "python")
-CUDA_VARIANTS = ("cu12", "cu13")
 PLATFORMS = ("linux", "windows")
-PACKAGE_TARGETS = {
+PACKAGE_TARGETS: dict[str, tuple[str, None]] = {
     "cuda_pathfinder": ("pathfinder", None),
-    "cuda_bindings_12": ("bindings", "cu12"),
-    "cuda_bindings": ("bindings", "cu13"),
     "cuda_core": ("core", None),
     "cuda_python": ("python", None),
 }
-ALL_TARGETS = frozenset(
-    {("pathfinder", None), *((module, variant) for module in VARIANT_MODULES for variant in CUDA_VARIANTS)}
-)
-
-# Source changes have different build and test consumers. In particular,
-# cuda-python source needs a same-version bindings wheel, while a core-only
-# change can reuse the baseline cuda-python wheel.
-SOURCE_IMPACT = {
-    ("pathfinder", None): (ALL_TARGETS, ALL_TARGETS),
-    ("bindings", "cu12"): (
-        frozenset(
-            {
-                ("bindings", "cu12"),
-                ("core", "cu12"),
-                ("core", "cu13"),
-                ("python", "cu12"),
-            }
-        ),
-        frozenset({("bindings", "cu12"), ("core", "cu12"), ("python", "cu12")}),
-    ),
-    ("bindings", "cu13"): (
-        frozenset(
-            {
-                ("bindings", "cu13"),
-                ("core", "cu12"),
-                ("core", "cu13"),
-                ("python", "cu13"),
-            }
-        ),
-        frozenset({("bindings", "cu13"), ("core", "cu13"), ("python", "cu13")}),
-    ),
-    ("core", None): (
-        frozenset({("core", variant) for variant in CUDA_VARIANTS}),
-        frozenset({(module, variant) for module in ("core", "python") for variant in CUDA_VARIANTS}),
-    ),
-    ("python", None): (
-        frozenset({(module, variant) for module in ("bindings", "python") for variant in CUDA_VARIANTS}),
-        frozenset({("python", variant) for variant in CUDA_VARIANTS}),
-    ),
-}
-
-SOURCE_SDIST_VARIANTS = {
-    ("pathfinder", None): frozenset(CUDA_VARIANTS),
-    ("bindings", "cu12"): frozenset({"cu12"}),
-    ("bindings", "cu13"): frozenset({"cu13"}),
-    ("core", None): frozenset(CUDA_VARIANTS),
-    ("python", None): frozenset(CUDA_VARIANTS),
-}
-
-RELEASE_TAG_VARIANTS = (
-    (re.compile(r"^v12\.9\.\d+$"), "cu12"),
-    (re.compile(r"^v13\.\d+\.\d+(?:[ab]\d+)?$"), "cu13"),
-)
 
 IGNORED_BASENAMES = {"AGENTS.md", "CLAUDE.md", "pixi.lock", "pixi.toml"}
 IGNORED_SUFFIXES = {".md", ".svg"}
@@ -113,21 +66,69 @@ def compute_workplan(
     baseline_run_id: str,
     linked_paths: set[str] | None = None,
     release_tag: str = "",
+    bindings_config: BindingsConfig | None = None,
 ) -> dict[str, object]:
     """Return the final CI decisions for the supplied changed paths."""
+    config = bindings_config or load_config()
+    lines = config.public_lines
+    line_by_id = {line.line_id: line for line in lines}
+    line_ids = tuple(line_by_id)
+    cuda_variants = tuple(dict.fromkeys(line.cuda_variant for line in lines))
+    cuda_major_by_variant = {line.cuda_variant: line.cuda_major for line in lines}
+
+    bindings_targets = frozenset(("bindings", line_id) for line_id in line_ids)
+    core_targets = frozenset(("core", variant) for variant in cuda_variants)
+    python_targets = frozenset(("python", line_id) for line_id in line_ids)
+    all_targets = frozenset({("pathfinder", None), *bindings_targets, *core_targets, *python_targets})
+
+    package_targets = {
+        PurePosixPath(source_dir): ("bindings", line_id)
+        for line_id, source_dir in ((line.line_id, line.source_dir) for line in lines)
+    }
+    package_targets.update((PurePosixPath(source_dir), target) for source_dir, target in PACKAGE_TARGETS.items())
+
+    # Source changes have different build and test consumers. In particular,
+    # cuda-python source needs same-version bindings wheels, while a core-only
+    # change can reuse baseline cuda-python wheels.
+    def source_impact(
+        target: tuple[str, str | None],
+    ) -> tuple[frozenset[tuple[str, str | None]], frozenset[tuple[str, str | None]], frozenset[str]]:
+        module, selector = target
+        if module == "pathfinder":
+            return all_targets, all_targets, frozenset(line_ids)
+        if module == "bindings":
+            assert selector is not None
+            line = line_by_id[selector]
+            return (
+                frozenset({("bindings", selector), ("python", selector), *core_targets}),
+                frozenset({("bindings", selector), ("core", line.cuda_variant), ("python", selector)}),
+                frozenset({selector}),
+            )
+        if module == "core":
+            return (
+                core_targets,
+                frozenset({*core_targets, *python_targets}),
+                frozenset(line_ids),
+            )
+        if module == "python":
+            return (
+                frozenset({*bindings_targets, *python_targets}),
+                python_targets,
+                frozenset(line_ids),
+            )
+        raise AssertionError(f"unhandled source target: {target!r}")
+
     linked_paths = linked_paths or set()
     source_changes: set[tuple[str, str | None]] = set()
     test_changes: set[tuple[str, str | None]] = set()
     test_platforms: set[str] = set()
-    release_variant = next(
-        (variant for pattern, variant in RELEASE_TAG_VARIANTS if pattern.fullmatch(release_tag)),
-        None,
-    )
-    force_all = (bool(release_tag) and release_variant is None) or (
-        release_variant is None and (not merge_base or not baseline_run_id)
+    matched_line = config.match_tag(release_tag) if release_tag else None
+    release_line = matched_line if matched_line is not None and matched_line.line_id in line_by_id else None
+    force_all = (bool(release_tag) and release_line is None) or (
+        release_line is None and (not merge_base or not baseline_run_id)
     )
 
-    if release_variant is None and not force_all:
+    if release_line is None and not force_all:
         for path in paths:
             path_parts = PurePosixPath(path).parts
             if not path_parts:
@@ -146,10 +147,20 @@ def compute_workplan(
             if path_parts[0] == ".github" or path_parts[-1] in IGNORED_BASENAMES:
                 continue
 
-            target = PACKAGE_TARGETS.get(path_parts[0])
-            if target is not None and len(path_parts) > 1:
-                module, variant = target
-                relative = path_parts[1:]
+            target_match = next(
+                (
+                    (root, target)
+                    for root, target in sorted(
+                        package_targets.items(), key=lambda item: len(item[0].parts), reverse=True
+                    )
+                    if len(path_parts) > len(root.parts) and path_parts[: len(root.parts)] == root.parts
+                ),
+                None,
+            )
+            if target_match is not None:
+                root, target = target_match
+                module, _ = target
+                relative = path_parts[len(root.parts) :]
                 if relative[0] == "docs":
                     continue
                 if (
@@ -157,8 +168,10 @@ def compute_workplan(
                     or relative[0] == "examples"
                     or (module == "core" and relative == ("pytest.ini",))
                 ):
-                    if variant is None and module in VARIANT_MODULES:
-                        test_changes.update((module, cuda_variant) for cuda_variant in CUDA_VARIANTS)
+                    if module == "core":
+                        test_changes.update(core_targets)
+                    elif module == "python":
+                        test_changes.update(python_targets)
                     else:
                         test_changes.add(target)
                 elif PurePosixPath(path).suffix in IGNORED_SUFFIXES and path not in linked_paths:
@@ -169,7 +182,7 @@ def compute_workplan(
 
             is_test_path = any(part in {"test", "tests"} for part in path_parts[:-1])
             if is_test_path:
-                test_changes.update(ALL_TARGETS)
+                test_changes.update(all_targets)
             elif (
                 path in IGNORED_PATHS
                 or PurePosixPath(path).suffix in IGNORED_SUFFIXES
@@ -177,30 +190,30 @@ def compute_workplan(
             ):
                 continue
             elif path_parts[0] in {"benchmarks", "cuda_python_test_helpers"}:
-                test_changes.update(ALL_TARGETS)
+                test_changes.update(all_targets)
             else:
                 force_all = True
                 break
 
-    if release_variant is not None:
-        builds = {("bindings", release_variant), ("python", release_variant)}
+    if release_line is not None:
+        builds = {("bindings", release_line.line_id), ("python", release_line.line_id)}
         tests = set(builds)
         test_platforms = set(PLATFORMS)
-        sdist_cuda_variants = {release_variant}
+        sdist_lines = {release_line.line_id}
     elif force_all:
-        builds = set(ALL_TARGETS)
-        tests = set(ALL_TARGETS)
+        builds = set(all_targets)
+        tests = set(all_targets)
         test_platforms = set(PLATFORMS)
-        sdist_cuda_variants = set(CUDA_VARIANTS)
+        sdist_lines = set(line_ids)
     else:
         builds: set[tuple[str, str | None]] = set()
-        tests = set(ALL_TARGETS) if test_platforms else set(test_changes)
-        sdist_cuda_variants: set[str] = set()
+        tests = set(all_targets) if test_platforms else set(test_changes)
+        sdist_lines: set[str] = set()
         for target in source_changes:
-            build_impact, test_impact = SOURCE_IMPACT[target]
+            build_impact, test_impact, sdist_impact = source_impact(target)
             builds.update(build_impact)
             tests.update(test_impact)
-            sdist_cuda_variants.update(SOURCE_SDIST_VARIANTS[target])
+            sdist_lines.update(sdist_impact)
         if source_changes or test_changes:
             test_platforms.update(PLATFORMS)
 
@@ -210,26 +223,72 @@ def compute_workplan(
             "needs_test": ("pathfinder", None) in tests,
         }
     }
-    for module in VARIANT_MODULES:
+    for module in ("bindings", "python"):
+        line_decisions = {
+            line.line_id: {
+                **config.line_to_dict(line),
+                "needs_build": (module, line.line_id) in builds,
+                "needs_test": (module, line.line_id) in tests,
+            }
+            for line in lines
+        }
+        # Transitional compatibility for workflows that still address a CUDA
+        # major directly. OR aggregation prevents same-major lines from
+        # overwriting one another while consumers migrate to `lines`.
         variants = {
             variant: {
-                "needs_build": (module, variant) in builds,
-                "needs_test": (module, variant) in tests,
+                "needs_build": any(
+                    decision["needs_build"]
+                    for line_id, decision in line_decisions.items()
+                    if line_by_id[line_id].cuda_variant == variant
+                ),
+                "needs_test": any(
+                    decision["needs_test"]
+                    for line_id, decision in line_decisions.items()
+                    if line_by_id[line_id].cuda_variant == variant
+                ),
             }
-            for variant in CUDA_VARIANTS
+            for variant in cuda_variants
         }
         modules[module] = {
-            "needs_build": any(decision["needs_build"] for decision in variants.values()),
-            "needs_test": any(decision["needs_test"] for decision in variants.values()),
+            "needs_build": any(decision["needs_build"] for decision in line_decisions.values()),
+            "needs_test": any(decision["needs_test"] for decision in line_decisions.values()),
+            "lines": line_decisions,
             "variants": variants,
         }
 
+    cuda_major_decisions = {
+        variant: {
+            "cuda_major": cuda_major_by_variant[variant],
+            "cuda_variant": variant,
+            "needs_build": ("core", variant) in builds,
+            "needs_test": ("core", variant) in tests,
+        }
+        for variant in cuda_variants
+    }
+    modules["core"] = {
+        "needs_build": any(decision["needs_build"] for decision in cuda_major_decisions.values()),
+        "needs_test": any(decision["needs_test"] for decision in cuda_major_decisions.values()),
+        "cuda_majors": cuda_major_decisions,
+        # Transitional compatibility; `cuda_majors` is canonical.
+        "variants": {
+            variant: {
+                "needs_build": decision["needs_build"],
+                "needs_test": decision["needs_test"],
+            }
+            for variant, decision in cuda_major_decisions.items()
+        },
+    }
+
     test_cuda_variants = {
         variant
-        for variant in CUDA_VARIANTS
+        for variant in cuda_variants
         if modules["pathfinder"]["needs_test"]
-        or any(modules[module]["variants"][variant]["needs_test"] for module in VARIANT_MODULES)
+        or modules["bindings"]["variants"][variant]["needs_test"]
+        or modules["core"]["cuda_majors"][variant]["needs_test"]
+        or modules["python"]["variants"][variant]["needs_test"]
     }
+    sdist_cuda_variants = {line.cuda_variant for line in lines if line.line_id in sdist_lines}
     return {
         "modules": modules,
         "jobs": {
@@ -237,13 +296,15 @@ def compute_workplan(
             "platforms": {platform: platform in test_platforms for platform in PLATFORMS},
             "sdist_tests": bool(builds),
             "core_api_checks": force_all or ("core", None) in source_changes,
-            "test_cuda_majors": {variant: variant in test_cuda_variants for variant in CUDA_VARIANTS},
-            "sdist_cuda_majors": {variant: variant in sdist_cuda_variants for variant in CUDA_VARIANTS},
+            "test_cuda_majors": {variant: variant in test_cuda_variants for variant in cuda_variants},
+            "sdist_lines": {line_id: line_id in sdist_lines for line_id in line_ids},
+            # Transitional compatibility; `sdist_lines` is canonical.
+            "sdist_cuda_majors": {variant: variant in sdist_cuda_variants for variant in cuda_variants},
         },
         "merge_base": merge_base,
         "baseline": {
-            "run_id": baseline_run_id if release_variant is None and not force_all else "",
-            "sha": merge_base if release_variant is None and not force_all else "",
+            "run_id": baseline_run_id if release_line is None and not force_all else "",
+            "sha": merge_base if release_line is None and not force_all else "",
         },
     }
 

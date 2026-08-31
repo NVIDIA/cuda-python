@@ -19,6 +19,7 @@ dependencies:
   - sphinx-copybutton
   - myst-nb
   - enum_tools
+  # Required by the maintenance cuda.bindings documentation theme.
   - furo
   - sphinx-toolbox
   - pyclibrary

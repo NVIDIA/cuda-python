@@ -1,8 +1,27 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+schema_version: 2
+
 cuda:
-  build:
-    version: "13.3.0"
-  prev_build:
-    version: "12.9.1"
+  bindings:
+    lines:
+      released-12:
+        source_dir: cuda_bindings_12
+        ctk_target: "12.9"
+        toolkit_version: "12.9.1"
+        toolkit_channel: stable
+        tag_series: "v12.9."
+        allow_alpha_beta_tags: false
+      released-13:
+        source_dir: cuda_bindings
+        ctk_target: "13.3"
+        toolkit_version: "13.3.0"
+        toolkit_channel: stable
+        tag_series: "v13.3."
+        allow_alpha_beta_tags: true
+    roles:
+      current: released-13
+      maintenance:
+        - released-12
+      unreleased: []

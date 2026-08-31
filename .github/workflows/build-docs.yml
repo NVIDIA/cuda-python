@@ -43,6 +43,11 @@ on:
         required: false
         default: "gh-pages"
         type: string
+      bindings-line:
+        description: "Resolved CUDA bindings release-line JSON"
+        required: false
+        default: ""
+        type: string
 
 jobs:
   build:
@@ -60,28 +65,46 @@ jobs:
           fetch-depth: 1
           ref: ${{ inputs.git-tag }}
 
-      - name: Read build CTK version
+      - name: Checkout docs control plane
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          ref: ${{ github.sha }}
+          path: .ci-control
+
+      - name: Install CI tool dependencies
+        run: python3 -m pip install -r .ci-control/ci/tools/requirements.txt
+
+      - name: Resolve CUDA bindings line
+        env:
+          BINDINGS_LINE: ${{ inputs.bindings-line }}
+          IS_RELEASE: ${{ inputs.is-release }}
+          RELEASE_TAG: ${{ inputs.git-tag }}
         run: |
-          VERSION_KEY='.cuda.build.version'
-          BINDINGS_COMPONENT_DIR='cuda_bindings'
-          if [[ "${{ inputs.is-release }}" == "true" && "${{ inputs.git-tag }}" == v12.9.* ]]; then
-            VERSION_KEY='.cuda.prev_build.version'
-            BINDINGS_COMPONENT_DIR='cuda_bindings_12'
-          fi
-          if [[ -f ci/versions.yml ]]; then
-            BUILD_CTK_VER=$(yq "${VERSION_KEY}" ci/versions.yml)
-          elif [[ -f ci/versions.json ]]; then
-            BUILD_CTK_VER=$(jq -r "${VERSION_KEY}" ci/versions.json)
+          set -euo pipefail
+          if [[ -n "$BINDINGS_LINE" ]]; then
+            bindings_line="$BINDINGS_LINE"
+          elif [[ "${IS_RELEASE}" == "true" && "$RELEASE_TAG" == v* ]]; then
+            bindings_line=$(python3 .ci-control/ci/tools/resolve_release_bindings_line.py \
+              --release-tag "$RELEASE_TAG" \
+              --release-source-root . \
+              --control-config .ci-control/ci/versions.yml)
           else
-            echo "error: cannot find ci/versions.yml or ci/versions.json" >&2
-            exit 1
+            bindings_line=$(python3 .ci-control/ci/tools/bindings_config.py get --role current)
           fi
+          BUILD_CTK_VER=$(jq -er '.toolkit_version' <<< "$bindings_line")
+          BINDINGS_COMPONENT_DIR=$(jq -er '.release_source_dir // .source_dir' <<< "$bindings_line")
+          BINDINGS_REGISTRY_ORIGIN=$(jq -er '.release_registry_origin // "tag"' <<< "$bindings_line")
           if [[ ! "${BUILD_CTK_VER}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "error: derived CTK build version ${BUILD_CTK_VER} does not match MAJOR.MINOR.MICRO" >&2
             exit 1
           fi
+          if [[ ! -d "$BINDINGS_COMPONENT_DIR" ]]; then
+            echo "error: resolved bindings source directory does not exist: $BINDINGS_COMPONENT_DIR" >&2
+            exit 1
+          fi
           echo "BUILD_CTK_VER=${BUILD_CTK_VER}" >> "$GITHUB_ENV"
           echo "BINDINGS_COMPONENT_DIR=${BINDINGS_COMPONENT_DIR}" >> "$GITHUB_ENV"
+          echo "BINDINGS_REGISTRY_ORIGIN=${BINDINGS_REGISTRY_ORIGIN}" >> "$GITHUB_ENV"
 
       # TODO: This workflow runs on GH-hosted runner and cannot use the proxy cache
 
@@ -89,7 +112,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@8ee1f361103df19b6f8c8655fd3967a8ecb162d5  # v4.0.1
         with:
           activate-environment: cuda-python-docs
-          environment-file: ./cuda_python/docs/environment-docs.yml
+          environment-file: ./.ci-control/cuda_python/docs/environment-docs.yml
           miniforge-version: latest
           conda-remove-defaults: "true"
           python-version: 3.12
@@ -109,13 +132,16 @@ jobs:
           cuda-version: ${{ env.BUILD_CTK_VER }}
 
       - name: Set environment variables
+        env:
+          IS_RELEASE: ${{ inputs.is-release }}
+          RELEASE_TAG: ${{ inputs.git-tag }}
         run: |
           PYTHON_VERSION_FORMATTED="312"  # see above
           REPO_DIR=$(pwd)
 
-          if [[ ${{ inputs.is-release }} == "true" ]]; then
+          if [[ "$IS_RELEASE" == "true" ]]; then
             FILE_HASH="*"
-            DOCS_GITHUB_REF="${{ inputs.git-tag }}"
+            DOCS_GITHUB_REF="$RELEASE_TAG"
             if [[ -z "${DOCS_GITHUB_REF}" ]]; then
               DOCS_GITHUB_REF="${GITHUB_REF_NAME}"
             fi
@@ -134,7 +160,12 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/${BINDINGS_COMPONENT_DIR}/dist")" >> $GITHUB_ENV
-          echo "CUDA_PYTHON_ARTIFACT_NAME=cuda-python-wheel-cuda${BUILD_CTK_VER}" >> $GITHUB_ENV
+          if [[ "$BINDINGS_REGISTRY_ORIGIN" == "control" ]]; then
+            CUDA_PYTHON_ARTIFACT_NAME="cuda-python-wheel"
+          else
+            CUDA_PYTHON_ARTIFACT_NAME="cuda-python-wheel-cuda${BUILD_CTK_VER}"
+          fi
+          echo "CUDA_PYTHON_ARTIFACT_NAME=${CUDA_PYTHON_ARTIFACT_NAME}" >> $GITHUB_ENV
 
       - name: Download cuda-python build artifacts
         if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-python' }}
@@ -253,9 +284,11 @@ jobs:
 
       - name: Build all docs
         if: ${{ inputs.component == 'all' }}
+        env:
+          IS_RELEASE: ${{ inputs.is-release }}
         run: |
           pushd cuda_python/docs/
-          if [[ "${{ inputs.is-release }}" == "false" ]]; then
+          if [[ "$IS_RELEASE" == "false" ]]; then
             ./build_all_docs.sh latest-only
           else
             ./build_all_docs.sh
@@ -268,13 +301,20 @@ jobs:
 
       - name: Build component docs
         if: ${{ inputs.component != 'all' }}
+        env:
+          DOCS_COMPONENT: ${{ inputs.component }}
+          IS_RELEASE: ${{ inputs.is-release }}
         run: |
-          COMPONENT=$(echo "${{ inputs.component }}" | tr '-' '_')
-          if [[ "${{ inputs.component }}" == "cuda-bindings" ]]; then
+          case "$DOCS_COMPONENT" in
+            cuda-bindings|cuda-core|cuda-pathfinder|cuda-python) ;;
+            *) echo "error: unsupported docs component: $DOCS_COMPONENT" >&2; exit 1 ;;
+          esac
+          COMPONENT="${DOCS_COMPONENT//-/_}"
+          if [[ "$DOCS_COMPONENT" == "cuda-bindings" ]]; then
             COMPONENT="${BINDINGS_COMPONENT_DIR}"
           fi
-          pushd ${COMPONENT}/docs/
-          if [[ "${{ inputs.is-release }}" == "false" ]]; then
+          pushd "${COMPONENT}/docs/"
+          if [[ "$IS_RELEASE" == "false" ]]; then
             ./build_docs.sh latest-only
           else
             ./build_docs.sh
@@ -283,13 +323,13 @@ jobs:
           fi
           ls -l build
           popd
-          if [[ "${{ inputs.component }}" != "cuda-python" ]]; then
-            TARGET="${{ inputs.component }}"
-            mkdir -p artifacts/docs/${TARGET}
+          if [[ "$DOCS_COMPONENT" != "cuda-python" ]]; then
+            TARGET="$DOCS_COMPONENT"
+            mkdir -p "artifacts/docs/${TARGET}"
           else
             TARGET=""
           fi
-          mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
+          mv "${COMPONENT}"/docs/build/html/* "artifacts/docs/${TARGET}"
 
       - name: Write rendered docs file list
         if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}

@@ -32,9 +32,9 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
   - [CI infrastructure overview](#ci-infrastructure-overview)
     - [CI Pipeline Flow](#ci-pipeline-flow)
     - [Pipeline Execution Details](#pipeline-execution-details)
-    - [Branch-specific Artifact Flow](#branch-specific-artifact-flow)
+    - [CUDA-major Artifact Flow](#cuda-major-artifact-flow)
       - [Main Branch](#main-branch)
-      - [Backport Branches](#backport-branches)
+      - [Historical 12.9.x Branch](#historical-129x-branch)
     - [Key Infrastructure Details](#key-infrastructure-details)
   - [Code coverage](#code-coverage)
 

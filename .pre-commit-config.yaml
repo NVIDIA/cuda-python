@@ -28,7 +28,7 @@ repos:
     hooks:
       - id: ruff-check
         args: [--fix, --show-fixes]
-        exclude: (^cuda_bindings(?:_12)?/cuda/bindings/_internal/_fast_enum\.py$)|(.*\.pyi$)
+        exclude: (^cuda_bindings(?:_[^/]+)?/cuda/bindings/_internal/_fast_enum\.py$)|(.*\.pyi$)
       - id: ruff-format
         exclude: .*\.pyi$
 
@@ -55,13 +55,14 @@ repos:
         name: Check generated-file seals
         entry: python ./toolshed/check_generated_file_seals.py
         language: python
-        files: ^cuda_bindings(?:_12)?/
+        files: ^cuda_bindings(?:_[^/]+)?/
         types: [text]
 
       - id: check-cuda-bindings-shared-files
         name: Check shared CUDA bindings files
         entry: python ./ci/tools/check_cuda_bindings_shared_files.py
         language: python
+        additional_dependencies: [pyyaml==6.0.3]
         always_run: true
         pass_filenames: false
 
@@ -70,7 +71,7 @@ repos:
         entry: python ./ci/tools/check_pixi_cuda_version.py
         language: python
         additional_dependencies: [pyyaml==6.0.3]
-        files: '^(ci/versions\.yml|cuda_bindings/pixi\.toml|cuda_core/pixi\.toml)$'
+        files: '^(ci/versions\.yml|cuda_bindings(?:_[^/]+)?/pixi\.toml|cuda_core/pixi\.toml)$'
         pass_filenames: false
 
       - id: check-mempool-hygiene
@@ -119,7 +120,7 @@ repos:
     rev: "3e8a8703264a2f4a69428a0aa4dcb512790b2c8c"  # frozen: v6.0.0
     hooks:
     - id: check-added-large-files
-      exclude: '^(?:cuda_bindings(?:_12)?/cuda/bindings/(?:driver\.pyx|runtime\.pyx\.in|nvml\.pyx)|cuda_bindings_12/pixi\.lock)$'
+      exclude: '^(?:cuda_bindings(?:_[^/]+)?/(?:cuda/bindings/(?:driver\.pyx|runtime\.pyx\.in|nvml\.pyx)|pixi\.lock))$'
     - id: check-case-conflict
     - id: check-docstring-first
     - id: check-merge-conflict
@@ -128,14 +129,14 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
-      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings(?:_12)?/cuda/bindings/.*\.in?|cuda_bindings(?:_12)?/docs/source/module/.*\.rst?|.*\.pyi)$'
+      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings(?:_[^/]+)?/cuda/bindings/.*\.in?|cuda_bindings(?:_[^/]+)?/docs/source/module/.*\.rst?|.*\.pyi)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
       exclude: |
         (?x)^(?:
           cuda_python/README\.md|
-          cuda_bindings(?:_12)?/cuda/bindings/.*\.in?|
-          cuda_bindings(?:_12)?/docs/source/module/.*\.rst?|
+          cuda_bindings(?:_[^/]+)?/cuda/bindings/.*\.in?|
+          cuda_bindings(?:_[^/]+)?/docs/source/module/.*\.rst?|
           .*\.patch$
         )$
 
@@ -177,7 +178,7 @@ repos:
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]
-        exclude: ^cuda_bindings(?:_12)?/
+        exclude: ^cuda_bindings(?:_[^/]+)?/
         additional_dependencies:
           - Cython==3.2.9
 

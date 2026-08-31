@@ -30,21 +30,21 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     outputs:
-      CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
-      CUDA_PREV_BUILD_VER: ${{ steps.get-vars.outputs.cuda_prev_build_ver }}
+      BINDINGS_CONFIG: ${{ steps.get-vars.outputs.bindings_config }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           fetch-depth: 1
-      - name: Get CUDA build versions
+      - name: Install CI tool dependencies
+        run: python3 -m pip install -r ci/tools/requirements.txt
+      - name: Resolve CUDA bindings lines
         id: get-vars
         run: |
-          cuda_build_ver=$(yq '.cuda.build.version' ci/versions.yml)
-          echo "cuda_build_ver=$cuda_build_ver" >> $GITHUB_OUTPUT
+          set -euo pipefail
+          bindings_config=$(python3 ci/tools/bindings_config.py json)
 
-          cuda_prev_build_ver=$(yq '.cuda.prev_build.version' ci/versions.yml)
-          echo "cuda_prev_build_ver=$cuda_prev_build_ver" >> $GITHUB_OUTPUT
+          echo "bindings_config=$bindings_config" >> "$GITHUB_OUTPUT"
 
   should-skip:
     if: ${{ github.repository_owner == 'nvidia' }}
@@ -87,8 +87,7 @@ jobs:
   #
   # Dependency graph (verified in pyproject.toml files):
   #   cuda_pathfinder   -> (no internal deps)
-  #   cuda_bindings_12  -> cuda_pathfinder (CUDA 12.9 line)
-  #   cuda_bindings     -> cuda_pathfinder (CUDA 13 line)
+  #   each registered cuda.bindings line -> cuda_pathfinder
   #   cuda_core         -> cuda_pathfinder, cuda_bindings
   #   cuda_python       -> cuda_pathfinder, cuda_bindings, cuda_core (meta package)
   #
@@ -101,8 +100,8 @@ jobs:
   # infrastructure runs every test suite without rebuilding package wheels.
   # On pushes to main, schedule, workflow_dispatch, or non-bindings release
   # tags we unconditionally run everything because there is no meaningful
-  # "changed paths" baseline for those events. Bare v12.9/v13 tags select the
-  # corresponding cuda.bindings and cuda-python release line.
+  # "changed paths" baseline for those events. Bare bindings tags select the
+  # corresponding registered cuda.bindings and cuda-python release line.
   detect-changes:
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
@@ -112,7 +111,7 @@ jobs:
       contents: read
     outputs:
       workplan: ${{ steps.workplan.outputs.workplan }}
-      sdist-cuda-majors: ${{ steps.workplan.outputs.sdist-cuda-majors }}
+      sdist-lines: ${{ steps.workplan.outputs.sdist-lines }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
@@ -121,6 +120,9 @@ jobs:
           # base and classify its changed paths, but historical blobs aren't.
           fetch-depth: 0
           filter: blob:none
+
+      - name: Install CI tool test dependencies
+        run: python3 -m pip install -r ci/tools/test-requirements.txt
 
       - name: Resolve PR merge base
         id: merge-base
@@ -195,17 +197,16 @@ jobs:
           missing=()
           has_artifact cuda-pathfinder-wheel || missing+=(cuda-pathfinder-wheel)
 
-          if ! prev_cuda_version=$(yq '.cuda.prev_build.version' ci/versions.yml); then
+          if ! bindings_config=$(python3 ci/tools/bindings_config.py json); then
             unavailable
           fi
-          if ! cuda_version=$(yq '.cuda.build.version' ci/versions.yml); then
+          if ! cuda_versions_json=$(jq -ce '
+            [.lines[] | select((.roles | index("unreleased")) == null) | .toolkit_version]
+            | if length > 0 then . else error("bindings registry has no public toolkit versions") end
+          ' <<< "$bindings_config"); then
             unavailable
           fi
-          if [[ -z "${prev_cuda_version}" || "${prev_cuda_version}" == "null" ||
-                -z "${cuda_version}" || "${cuda_version}" == "null" ]]; then
-            unavailable
-          fi
-          cuda_versions=("${prev_cuda_version}" "${cuda_version}")
+          mapfile -t cuda_versions < <(jq -r '.[]' <<< "$cuda_versions_json")
           for version in "${cuda_versions[@]}"; do
             name="cuda-python-wheel-cuda${version}"
             has_artifact "$name" || missing+=("$name")
@@ -244,7 +245,10 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Test CI workplan planner
-        run: python3 -m unittest ci/tools/tests/test_compute_ci_plan.py
+        run: >-
+          python3 -m pytest -q --noconftest
+          ci/tools/tests/test_bindings_config.py
+          ci/tools/tests/test_compute_ci_plan.py
 
       - name: Compute CI workplan
         id: workplan
@@ -263,7 +267,7 @@ jobs:
           fi
           workplan=$(python3 ci/tools/compute_ci_plan.py "${planner_args[@]}")
           echo "workplan=$workplan" >> "$GITHUB_OUTPUT"
-          echo "sdist-cuda-majors=$(jq -c '[.jobs.sdist_cuda_majors | to_entries[] | select(.value) | .key]' <<< "$workplan")" >> "$GITHUB_OUTPUT"
+          echo "sdist-lines=$(jq -c '[. as $plan | .jobs.sdist_lines | to_entries[] | select(.value) | $plan.modules.bindings.lines[.key]]' <<< "$workplan")" >> "$GITHUB_OUTPUT"
           {
             echo
             echo "### CI workplan"
@@ -372,7 +376,7 @@ jobs:
       matrix:
         host-platform:
           - linux-64
-    name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+    name: Build ${{ matrix.host-platform }} (registered bindings lines)
     if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
     permissions:
       actions: read
@@ -381,8 +385,7 @@ jobs:
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
-      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See build-linux-64 for why build jobs are split by platform.
@@ -396,7 +399,7 @@ jobs:
       matrix:
         host-platform:
           - linux-aarch64
-    name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+    name: Build ${{ matrix.host-platform }} (registered bindings lines)
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -408,8 +411,7 @@ jobs:
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
-      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See build-linux-64 for why build jobs are split by platform.
@@ -423,7 +425,7 @@ jobs:
       matrix:
         host-platform:
           - win-64
-    name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+    name: Build ${{ matrix.host-platform }} (registered bindings lines)
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -435,8 +437,7 @@ jobs:
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
-      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # NOTE: test-sdist jobs are split by platform (mirroring build-* and test-wheel-*)
@@ -449,13 +450,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cuda-major: ${{ fromJSON(needs.detect-changes.outputs.sdist-cuda-majors) }}
+        line: ${{ fromJSON(needs.detect-changes.outputs.sdist-lines) }}
     needs:
       - ci-vars
       - should-skip
       - detect-changes
       - build-linux-64
-    name: Test sdist linux-64 (${{ matrix.cuda-major }})
+    name: Test sdist linux-64 (${{ matrix.line.line_id }})
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -467,7 +468,7 @@ jobs:
     uses: ./.github/workflows/test-sdist-linux.yml
     with:
       host-platform: linux-64
-      cuda-version: ${{ matrix.cuda-major == 'cu12' && needs.ci-vars.outputs.CUDA_PREV_BUILD_VER || needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      bindings-line: ${{ toJSON(matrix.line) }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See test-sdist-linux for why sdist test jobs are split by platform.
@@ -475,14 +476,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cuda-major: ${{ fromJSON(needs.detect-changes.outputs.sdist-cuda-majors) }}
+        line: ${{ fromJSON(needs.detect-changes.outputs.sdist-lines) }}
     needs:
       - ci-vars
       - should-skip
       - detect-changes
       - build-linux-64
       - build-windows
-    name: Test sdist win-64 (${{ matrix.cuda-major }})
+    name: Test sdist win-64 (${{ matrix.line.line_id }})
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -494,7 +495,7 @@ jobs:
     uses: ./.github/workflows/test-sdist-windows.yml
     with:
       host-platform: win-64
-      cuda-version: ${{ matrix.cuda-major == 'cu12' && needs.ci-vars.outputs.CUDA_PREV_BUILD_VER || needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      bindings-line: ${{ toJSON(matrix.line) }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # NOTE: Test jobs are split by platform for the same reason as build jobs (see
@@ -525,8 +526,7 @@ jobs:
     with:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
-      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      prev-build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
@@ -555,8 +555,7 @@ jobs:
     with:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
-      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      prev-build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
@@ -585,8 +584,7 @@ jobs:
     with:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
-      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      prev-build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
@@ -604,10 +602,10 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/build-docs.yml
     with:
-      # Bare v12.9/v13 tags intentionally produce only their matching
+      # Bare cuda.bindings tags intentionally produce only their matching
       # cuda.bindings and cuda-python artifacts. Keep tag docs on that focused
       # artifact set; component-specific release runs build the other docs.
-      component: ${{ (startsWith(github.ref_name, 'v12.9.') || startsWith(github.ref_name, 'v13.')) && 'cuda-bindings' || 'all' }}
+      component: ${{ startsWith(github.ref_name, 'v') && 'cuda-bindings' || 'all' }}
       git-tag: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
       run-id: ${{ github.run_id }}
       is-release: ${{ github.ref_type == 'tag' }}
