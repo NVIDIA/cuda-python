@@ -353,10 +353,12 @@ flowchart TD
 - Artifacts include their Python version, CUDA Toolkit version, platform, and source SHA where applicable
 - Shared dependency changes and scheduled runs cover both CUDA majors across all supported platforms
 
-#### Legacy 12.9.x Branch
-- The branch remains available for legacy compatibility and exceptional manual backports
-- Routine CUDA 12.9 builds, tests, documentation, and releases use `cuda_bindings_12/` on `main`
+#### Historical 12.9.x Branch
+- The branch is retained as a read-only record of historical releases; do not add new backports
+- Routine and emergency CUDA 12.9 fixes, builds, tests, documentation, and releases use `cuda_bindings_12/` on `main`
 - Main CI and releases do not fetch package artifacts from the legacy branch
+- CUDA 12 ownership, regeneration, and cross-root drift rules are documented in
+  [`cuda_bindings_12/MAINTENANCE.md`](cuda_bindings_12/MAINTENANCE.md)
 
 ### Key Infrastructure Details
 
