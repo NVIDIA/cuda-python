@@ -3,11 +3,13 @@
 
 import ctypes
 
+import pytest
+
 from cuda.core import Buffer, Device, MemoryResource
 from cuda.core._stream import Stream_accept
 from cuda.core._utils.cuda_utils import driver, handle_return
 
-from . import libc
+from . import IS_WINDOWS, IS_WSL, libc
 
 __all__ = [
     "DummyDeviceMemoryResource",
@@ -18,7 +20,17 @@ __all__ = [
     "compare_equal_buffers",
     "make_instrumented_memory_resource",
     "make_scratch_buffer",
+    "thread_unsafe_on_windows",
 ]
+
+
+def thread_unsafe_on_windows(func):
+    # Tests that use these buffers and access the memory on the host are
+    # thread-unsafe on windows. On windows the GPU must be fully quiescent for host
+    # access to be safe and with threaded tests that would require a barrier.
+    if IS_WINDOWS or IS_WSL:
+        return pytest.mark.thread_unsafe(reason="windows host-access unsafe while GPU is working")
+    return func
 
 
 class StubMemoryResource(MemoryResource):
@@ -146,8 +158,8 @@ class PatternGen:
     Provides methods to fill a target buffer with  known test patterns and
     verify the expected values.
 
-    If a stream is provided, operations are synchronized with respect to that
-    stream.  Otherwise, they are synchronized over the device.
+    Operations are submitted to the supplied stream. Verification synchronizes
+    that stream before comparing results on the host.
 
     The test pattern is either a fixed value or a cyclic pattern generated from
     an 8-bit seed.  Only one of `value` or `seed` should be supplied.
@@ -158,11 +170,10 @@ class PatternGen:
     buffer and then perform a comparison.
     """
 
-    def __init__(self, device, size, stream=None):
+    def __init__(self, device, size, *, stream):
         self.device = device
         self.size = size
-        self.stream = stream if stream is not None else device.create_stream()
-        self.sync_target = stream if stream is not None else device
+        self.stream = Stream_accept(stream)
         self.pattern_buffers = {}
 
     def fill_buffer(self, buffer, seed=None, value=None):
@@ -179,7 +190,7 @@ class PatternGen:
         pattern_buffer = self._get_pattern_buffer(seed, value)
         ptr_expected = self._ptr(pattern_buffer)
         scratch_buffer.copy_from(buffer, stream=self.stream)
-        self.sync_target.sync()
+        self.stream.sync()
         assert libc.memcmp(ptr_test, ptr_expected, self.size) == 0
 
     @staticmethod

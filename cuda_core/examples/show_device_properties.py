@@ -15,7 +15,7 @@
 
 import sys
 
-from cuda.core import Device, system
+from cuda.core import Device
 
 
 # Convert boolean to YES or NO string
@@ -219,11 +219,12 @@ def print_device_properties(properties):
 
 # Print info about all CUDA devices in the system
 def show_device_properties():
-    ndev = system.get_num_devices()
+    devices = Device.get_all_devices()
+    ndev = len(devices)
     print(f"Number of GPUs: {ndev}")
 
-    for device_id in range(ndev):
-        device = Device(device_id)
+    for device in devices:
+        device_id = device.device_id
         print(f"DEVICE {device.name} (id={device_id})")
 
         device.set_current()

@@ -63,6 +63,13 @@ LinkerHandleT = Union["cuda.bindings.nvjitlink.nvJitLinkHandle", "cuda.bindings.
 # Principal class
 # =============================================================================
 
+
+cdef inline int Linker_check_open(Linker self) except -1:
+    if self.is_closed:
+        raise RuntimeError("Linker has been closed")
+    return 0
+
+
 cdef class Linker:
     """Represent a linking machinery to link one or more object codes into
     :class:`~cuda.core.ObjectCode`.
@@ -80,6 +87,13 @@ cdef class Linker:
 
     def __init__(self, *object_codes: ObjectCode, options: LinkerOptions | None = None):
         Linker_init(self, object_codes, options)
+
+    @property
+    def is_closed(self) -> bool:
+        """Whether this linker has been closed."""
+        if self._use_nvjitlink:
+            return self._nvjitlink_handle.get() == NULL
+        return self._culink_handle.get() == NULL
 
     def link(self, target_type: ObjectCodeFormatType | str) -> ObjectCode:
         """Link the provided object codes into a single output of the specified target type.
@@ -99,6 +113,7 @@ cdef class Linker:
             Ensure that input object codes were compiled with appropriate
             flags for linking (e.g., relocatable device code enabled).
         """
+        Linker_check_open(self)
         return Linker_link(self, str(target_type))
 
     def get_error_log(self) -> str:
@@ -112,6 +127,7 @@ cdef class Linker:
         # After link(), the decoded log is cached here.
         if self._error_log is not None:
             return self._error_log
+        Linker_check_open(self)
         cdef cynvjitlink.nvJitLinkHandle c_h
         cdef size_t c_log_size = 0
         cdef char* c_log_ptr
@@ -138,6 +154,7 @@ cdef class Linker:
         # After link(), the decoded log is cached here.
         if self._info_log is not None:
             return self._info_log
+        Linker_check_open(self)
         cdef cynvjitlink.nvJitLinkHandle c_h
         cdef size_t c_log_size = 0
         cdef char* c_log_ptr

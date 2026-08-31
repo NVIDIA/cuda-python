@@ -23,7 +23,6 @@ pytest-rerunfailures = "*"
 cloudpickle = "*"
 docutils = "*"
 psutil = "*"
-pyelftools = "*"
 pyglet = "*"
 
 [feature.test.pypi-dependencies]

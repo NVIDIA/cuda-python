@@ -70,9 +70,8 @@ test = [
     "cloudpickle==3.1.2",
     "psutil==7.2.2",
     "docutils==0.23",
-    # Reads the DWARF line table out of a compiled cubin; pure Python, so it
-    # works on every platform and free-threaded build in the test matrix.
-    "pyelftools==0.33",
+    # Required by tests/test_graphics.py; pinned to match cuda_bindings.
+    "pyglet==2.1.14",
     # TODO: remove the Python 3.15 guard once 3.15 is officially supported
     "cffi==2.0.0; python_version < '3.15'",
 ]

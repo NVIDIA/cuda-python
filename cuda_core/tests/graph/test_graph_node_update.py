@@ -134,7 +134,7 @@ def _event_record_case(device):
         assert_current=lambda expected: _assert_equal(node.event, expected),
         assert_exec_uses=assert_exec_uses,
         invalid_update=lambda: node.update(invalid_replacement),
-        invalid_exception=CUDAError,
+        invalid_exception=RuntimeError,
         invalid_argument_update=lambda: node.update(object()),
     )
 
@@ -186,7 +186,7 @@ def _event_wait_case(device):
         assert_current=lambda expected: _assert_equal(node.event, expected),
         assert_exec_uses=assert_exec_uses,
         invalid_update=lambda: node.update(invalid_replacement),
-        invalid_exception=CUDAError,
+        invalid_exception=RuntimeError,
         invalid_argument_update=lambda: node.update(object()),
     )
 
@@ -767,7 +767,7 @@ def test_destroyed_definition_node_rejects_update(
 
     assert not case.node.is_valid
     assert case.node not in case.graph_def.nodes()
-    with pytest.raises(CUDAError):
+    with pytest.raises(RuntimeError, match="GraphNode has been destroyed"):
         case.update(case.replacement)
     assert not case.node.is_valid
     assert case.node not in case.graph_def.nodes()
@@ -862,7 +862,7 @@ def test_executable_node_view_rejects_unsupported_and_destroyed_nodes(
         graph[object()]
 
     kernel_node.destroy()
-    with pytest.raises(ValueError, match="no longer valid"):
+    with pytest.raises(RuntimeError, match="GraphNode has been destroyed"):
         graph[kernel_node]
 
 

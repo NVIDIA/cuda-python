@@ -7,6 +7,7 @@ import numpy
 from cuda.core._layout import _StridedLayout
 from cuda.core._memory import Buffer
 from cuda.core._stream import Stream
+from cuda.core._tensor_map import TensorMapDescriptorOptions
 
 from ._dlpack import *
 
@@ -161,7 +162,7 @@ class StridedMemoryView:
         Creates a new view with adjusted layout and dtype.
         Same as calling :meth:`from_buffer` with the current buffer.
         """
-    def as_tensor_map(self, box_dim: tuple[int, ...] | None=None, *, options: object | None=None, element_strides: tuple[int, ...] | None=None, data_type: object | None=None, interleave: object | None=None, swizzle: object | None=None, l2_promotion: object | None=None, oob_fill: object | None=None) -> object:
+    def as_tensor_map(self, box_dim: tuple[int, ...] | None=None, *, options: TensorMapDescriptorOptions | None=None, element_strides: tuple[int, ...] | None=None, data_type: object | None=None, interleave: object | None=None, swizzle: object | None=None, l2_promotion: object | None=None, oob_fill: object | None=None) -> object:
         """Create a tiled :obj:`TensorMapDescriptor` from this view.
 
         This is the public entry point for creating tiled tensor map

@@ -111,6 +111,71 @@ def test_per_thread_default_stream():
     assert isinstance(PER_THREAD_DEFAULT_STREAM, Stream)
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.parametrize(
+    ("handle", "singleton"),
+    [
+        (driver.CU_STREAM_LEGACY, LEGACY_DEFAULT_STREAM),
+        (driver.CU_STREAM_PER_THREAD, PER_THREAD_DEFAULT_STREAM),
+    ],
+)
+def test_borrowed_default_stream_token_can_close(handle, singleton, init_cuda):
+    Device().set_current()
+    stream = Stream.from_handle(int(handle))
+
+    assert stream is not singleton
+    assert not stream.is_closed
+
+    stream.close()
+
+    assert stream.is_closed
+    assert not singleton.is_closed
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_raw_null_stream_is_live_until_closed(init_cuda):
+    """A live wrapper around NULL CUstream is distinct from a closed wrapper."""
+    Device().set_current()
+    stream = Stream.from_handle(0)
+
+    assert not stream.is_closed
+    assert Stream_accept(stream) is stream
+    assert stream.__cuda_stream__() == (0, 0)
+
+    stream.close()
+    assert stream.is_closed
+    assert int(stream.handle) == 0
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_stream_rejected_before_operations(init_cuda):
+    stream = Device().create_stream()
+    wrapped = StreamWrapper(stream)
+    stream.close()
+
+    assert stream.is_closed
+    for operation in (
+        lambda: Stream_accept(stream),
+        lambda: Stream_accept(wrapped, allow_stream_protocol=True),
+        stream.__cuda_stream__,
+        stream.sync,
+        stream.record,
+        stream.create_graph_builder,
+    ):
+        with pytest.raises(RuntimeError, match="Stream has been closed"):
+            operation()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_stream_accept_rejects_closed_graph_builder(init_cuda):
+    builder = Device().create_graph_builder()
+    builder.close()
+
+    assert builder.is_closed
+    with pytest.raises(RuntimeError, match="GraphBuilder has been closed"):
+        Stream_accept(builder)
+
+
 def test_stream_subclassing(init_cuda):
     class MyStream(Stream):
         pass
@@ -408,9 +473,7 @@ def test_default_stream_per_thread_when_env_set(monkeypatch):
 
 
 def _skip_unless_multi_gpu():
-    from cuda.core import system
-
-    if system.get_num_devices() < 2:
+    if len(Device.get_all_devices()) < 2:
         pytest.skip("requires 2+ GPUs")
 
 
