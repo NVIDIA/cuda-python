@@ -13,6 +13,7 @@ _NSIGHT_COMPUTE_BIN = os.path.join("nvidia", "nsight_compute", "bin")
 SITE_PACKAGES_BINDIRS = {
     # Core compilation tools
     "nvcc": (_CUDA13_BIN, _CUDA_NVCC_BIN),
+    "ptxas": (_CUDA13_BIN, _CUDA_NVCC_BIN),
     "nvdisasm": (_CUDA13_BIN, _CUDA_NVCC_BIN),
     "cuobjdump": (_CUDA13_BIN, _CUDA_NVCC_BIN),
     "nvprune": (_CUDA_NVCC_BIN,),
