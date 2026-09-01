@@ -190,7 +190,7 @@ def test_stream_subclassing(init_cuda):
 
     dev = Device()
     dev.set_current()
-    stream = MyStream._init(options=StreamOptions(), device_id=dev.device_id)
+    stream = MyStream._init(options=StreamOptions(), device_id=dev.device_id, ctx=dev.context)
     assert isinstance(stream, MyStream)
 
 

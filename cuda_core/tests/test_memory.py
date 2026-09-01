@@ -23,6 +23,7 @@ from helpers.buffers import (
     thread_unsafe_on_windows,
 )
 from helpers.constants import POOL_SIZE
+from helpers.contexts import current_context_handle, no_current_context
 from helpers.memory import (
     create_managed_memory_resource_or_skip,
     create_pinned_memory_resource_or_xfail,
@@ -739,14 +740,10 @@ def test_close_with_default_stream_requires_context():
     # Use a real stream at creation so _init succeeds without a current context later.
     buf = Buffer.from_handle(1, 1024, mr=mr, stream=stream)
 
-    previous = handle_return(driver.cuCtxPopCurrent())
-    assert int(previous) != 0
-    try:
-        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+    with no_current_context():
+        assert current_context_handle() == 0
         with pytest.raises(RuntimeError, match="no CUDA context is current"):
             buf.close(stream=default_stream())
-    finally:
-        handle_return(driver.cuCtxSetCurrent(previous))
 
     buf.close()  # clean up using the recorded stream (which carries a context)
 
@@ -758,14 +755,10 @@ def test_from_handle_mr_default_stream_requires_context(buffer_type):
     device = Device()
     device.set_current()
     mr = StubMemoryResource(device)
-    previous = handle_return(driver.cuCtxPopCurrent())
-    assert int(previous) != 0
-    try:
-        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+    with no_current_context():
+        assert current_context_handle() == 0
         with pytest.raises(RuntimeError, match="no CUDA context is current"):
             buffer_type.from_handle(1, 1024, mr=mr)
-    finally:
-        handle_return(driver.cuCtxSetCurrent(previous))
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -777,15 +770,11 @@ def test_from_handle_mr_explicit_stream_without_current_context(buffer_type):
     stream = device.create_stream()
     CapturingMR, telemetry = make_instrumented_memory_resource(record_streams=True)
     mr = CapturingMR(device)
-    previous = handle_return(driver.cuCtxPopCurrent())
-    assert int(previous) != 0
-    try:
-        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+    with no_current_context():
+        assert current_context_handle() == 0
         buf = buffer_type.from_handle(1, 1024, mr=mr, stream=stream)
         buf.close()
-        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
-    finally:
-        handle_return(driver.cuCtxSetCurrent(previous))
+        assert current_context_handle() == 0
 
     assert telemetry["deallocations"][-1]["stream"].handle == stream.handle
 
@@ -814,39 +803,31 @@ def test_mr_deallocation_without_current_context(init_cuda, capsys, replace_stre
     stream = init_cuda.create_stream() if replace_stream else None
     assert len(telemetry["active"]) == 1
 
-    previous = handle_return(driver.cuCtxPopCurrent())
-    assert int(previous) != 0
-    try:
-        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+    with no_current_context():
+        assert current_context_handle() == 0
 
         buf.close(stream)
 
         assert len(telemetry["active"]) == 0
-        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+        assert current_context_handle() == 0
         assert "mr.deallocate() failed" not in capsys.readouterr().err
-    finally:
-        handle_return(driver.cuCtxSetCurrent(previous))
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
 @pytest.mark.parametrize("replace_stream", [False, True])
-def test_mr_deallocation_with_foreign_context(capsys, replace_stream):
+def test_mr_deallocation_with_foreign_context(device_x2, capsys, replace_stream):
     """MR-backed Buffer teardown switches away from an unrelated current context."""
-    if len(Device.get_all_devices()) < 2:
-        pytest.skip("Test requires at least 2 GPUs")
-
-    alloc_dev = Device(0)
+    alloc_dev, foreign_dev = device_x2
     alloc_dev.set_current()
     TrackingMR, telemetry = make_instrumented_memory_resource(DummyDeviceMemoryResource, track_active=True)
     mr = TrackingMR(alloc_dev)
     buf = mr.allocate(1024)
     stream = alloc_dev.create_stream() if replace_stream else None
     assert len(telemetry["active"]) == 1
-    alloc_ctx = int(handle_return(driver.cuCtxGetCurrent()))
+    alloc_ctx = current_context_handle()
 
-    foreign_dev = Device(1)
     foreign_dev.set_current()
-    foreign_ctx = int(handle_return(driver.cuCtxGetCurrent()))
+    foreign_ctx = current_context_handle()
     assert foreign_ctx != 0
     assert foreign_ctx != alloc_ctx
 
@@ -854,7 +835,7 @@ def test_mr_deallocation_with_foreign_context(capsys, replace_stream):
         buf.close(stream)
 
         assert len(telemetry["active"]) == 0
-        assert int(handle_return(driver.cuCtxGetCurrent())) == foreign_ctx
+        assert current_context_handle() == foreign_ctx
         assert "mr.deallocate() failed" not in capsys.readouterr().err
     finally:
         alloc_dev.set_current()
@@ -886,21 +867,17 @@ def test_pool_buffer_deallocates_without_current_context(mempool_device, capfd):
     stream.sync()
     used_after_alloc = mr.attributes.used_mem_current
 
-    previous = handle_return(driver.cuCtxPopCurrent())
-    assert int(previous) != 0
-    try:
-        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+    with no_current_context():
+        assert current_context_handle() == 0
 
         buf.close()
         stream.sync()
 
         assert mr.attributes.used_mem_current < used_after_alloc
-        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+        assert current_context_handle() == 0
         err = capfd.readouterr().err
-        assert "failed during resource destruction" not in err
+        assert "cuMemFreeAsync failed" not in err
         assert "mr.deallocate() failed" not in err
-    finally:
-        handle_return(driver.cuCtxSetCurrent(previous))
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
@@ -914,16 +891,16 @@ def test_pool_buffer_deallocates_with_foreign_context(mempool_device_x2, capfd):
     buf = mr.allocate(size, stream=stream)
     stream.sync()
     used_after_alloc = mr.attributes.used_mem_current
-    alloc_ctx = int(handle_return(driver.cuCtxGetCurrent()))
+    alloc_ctx = current_context_handle()
 
     foreign_dev.set_current()
-    foreign_ctx = int(handle_return(driver.cuCtxGetCurrent()))
+    foreign_ctx = current_context_handle()
     assert foreign_ctx != 0
     assert foreign_ctx != alloc_ctx
 
     try:
         buf.close()
-        assert int(handle_return(driver.cuCtxGetCurrent())) == foreign_ctx
+        assert current_context_handle() == foreign_ctx
 
         # Observe the free on the allocation device, then restore the foreign context.
         alloc_dev.set_current()
@@ -932,7 +909,7 @@ def test_pool_buffer_deallocates_with_foreign_context(mempool_device_x2, capfd):
         foreign_dev.set_current()
 
         err = capfd.readouterr().err
-        assert "failed during resource destruction" not in err
+        assert "cuMemFreeAsync failed" not in err
     finally:
         alloc_dev.set_current()
 
@@ -2189,7 +2166,7 @@ def test_legacy_pinned_device_id_raises():
 
 def test_synchronous_memory_resource_basic(init_cuda):
     """_SynchronousMemoryResource exercises properties and allocate paths (zero, non-zero, with-stream)."""
-    from cuda.core._memory._legacy import _SynchronousMemoryResource
+    from cuda.core._memory._device_memory_resource import _SynchronousMemoryResource
 
     dev = Device()
     mr = _SynchronousMemoryResource(dev.device_id)
@@ -2222,7 +2199,7 @@ def test_synchronous_memory_resource_basic(init_cuda):
 
 def test_synchronous_memory_resource_deallocate_accepts_stream(init_cuda):
     """_SynchronousMemoryResource.deallocate accepts an explicit stream."""
-    from cuda.core._memory._legacy import _SynchronousMemoryResource
+    from cuda.core._memory._device_memory_resource import _SynchronousMemoryResource
 
     dev = Device()
     mr = _SynchronousMemoryResource(dev.device_id)
@@ -2230,6 +2207,60 @@ def test_synchronous_memory_resource_deallocate_accepts_stream(init_cuda):
     stream = dev.create_stream()
     buf.close(stream=stream)
     stream.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_synchronous_memory_resource_uses_its_context(device_x2):
+    """Synchronous allocation targets its stored context and restores the current one."""
+    from cuda.core._memory._device_memory_resource import _SynchronousMemoryResource
+
+    alloc_dev, current_dev = device_x2
+    alloc_dev.set_current()
+    stream = alloc_dev.create_stream()
+    mr = _SynchronousMemoryResource(alloc_dev.device_id, alloc_dev.context)
+
+    current_dev.set_current()
+    current_context = current_context_handle()
+
+    buf = mr.allocate(64, stream=stream)
+    try:
+        pointer_context = handle_return(
+            driver.cuPointerGetAttribute(
+                driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_CONTEXT,
+                int(buf.handle),
+            )
+        )
+        pointer_device = handle_return(
+            driver.cuPointerGetAttribute(
+                driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
+                int(buf.handle),
+            )
+        )
+        assert int(pointer_context) == int(alloc_dev.context.handle)
+        assert pointer_device == alloc_dev.device_id
+        assert current_context_handle() == current_context
+    finally:
+        buf.close(stream=stream)
+        stream.close()
+
+    assert current_context_handle() == current_context
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_synchronous_memory_resource_restores_context_after_failure(device_x2):
+    """A failed synchronous allocation restores the context that was current."""
+    from cuda.core._memory._device_memory_resource import _SynchronousMemoryResource
+
+    alloc_dev, current_dev = device_x2
+    alloc_dev.set_current()
+    mr = _SynchronousMemoryResource(alloc_dev.device_id, alloc_dev.context)
+    current_dev.set_current()
+    current_context = current_context_handle()
+
+    with pytest.raises(CUDAError):
+        mr.allocate(sys.maxsize)
+
+    assert current_context_handle() == current_context
 
 
 @pytest.mark.parametrize(

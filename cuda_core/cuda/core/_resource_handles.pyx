@@ -51,6 +51,12 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ContextHandle get_primary_context "cuda_core::get_primary_context" (
         int device_id) except+ nogil
     ContextHandle get_current_context "cuda_core::get_current_context" () except+ nogil
+    cydriver.CUresult context_synchronize "cuda_core::context_synchronize" (
+        const ContextHandle& h_context) noexcept nogil
+    cydriver.CUresult context_get_stream_priority_range "cuda_core::context_get_stream_priority_range" (
+        const ContextHandle& h_context,
+        int* least_priority,
+        int* greatest_priority) noexcept nogil
 
     # Stream handles
     StreamHandle create_stream_handle "cuda_core::create_stream_handle" (
@@ -107,7 +113,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         size_t size, const MemoryPoolHandle& h_pool, const StreamHandle& h_stream) except+ nogil
     DevicePtrHandle deviceptr_alloc_async "cuda_core::deviceptr_alloc_async" (
         size_t size, const StreamHandle& h_stream) except+ nogil
-    DevicePtrHandle deviceptr_alloc "cuda_core::deviceptr_alloc" (size_t size) except+ nogil
+    cydriver.CUresult deviceptr_alloc_raw "cuda_core::deviceptr_alloc_raw" (
+        cydriver.CUdeviceptr* ptr, size_t size, const ContextHandle& h_context) noexcept nogil
     DevicePtrHandle deviceptr_alloc_host "cuda_core::deviceptr_alloc_host" (size_t size) except+ nogil
     DevicePtrHandle deviceptr_create_ref "cuda_core::deviceptr_create_ref" (
         cydriver.CUdeviceptr ptr) except+ nogil
@@ -253,26 +260,32 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # Array / mipmapped-array / texture / surface handles (PR #467)
     OpaqueArrayHandle create_array_handle "cuda_core::create_array_handle" (
-        const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc) except+ nogil
+        const ContextHandle& h_context, const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc) except+ nogil
     OpaqueArrayHandle create_array_handle_ref "cuda_core::create_array_handle_ref" (
         cydriver.CUarray arr) except+ nogil
     OpaqueArrayHandle create_array_handle_owning "cuda_core::create_array_handle_owning" (
         cydriver.CUarray arr) except+ nogil
+    ContextHandle get_array_context "cuda_core::get_array_context" (
+        const OpaqueArrayHandle& h) noexcept nogil
     OpaqueArrayHandle create_array_level_handle "cuda_core::create_array_level_handle" (
         const MipmappedArrayHandle& h_mip, unsigned int level) except+ nogil
     MipmappedArrayHandle create_mipmapped_array_handle "cuda_core::create_mipmapped_array_handle" (
-        const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc, unsigned int num_levels) except+ nogil
+        const ContextHandle& h_context, const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc,
+        unsigned int num_levels) except+ nogil
+    ContextHandle get_mipmapped_array_context "cuda_core::get_mipmapped_array_context" (
+        const MipmappedArrayHandle& h) noexcept nogil
     TexObjectHandle create_tex_object_handle_array "cuda_core::create_tex_object_handle_array" (
-        const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
-        const OpaqueArrayHandle& h_backing) except+ nogil
+        const ContextHandle& h_context, const cydriver.CUDA_RESOURCE_DESC& res,
+        const cydriver.CUDA_TEXTURE_DESC& tex, const OpaqueArrayHandle& h_backing) except+ nogil
     TexObjectHandle create_tex_object_handle_mipmap "cuda_core::create_tex_object_handle_mipmap" (
-        const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
-        const MipmappedArrayHandle& h_backing) except+ nogil
+        const ContextHandle& h_context, const cydriver.CUDA_RESOURCE_DESC& res,
+        const cydriver.CUDA_TEXTURE_DESC& tex, const MipmappedArrayHandle& h_backing) except+ nogil
     TexObjectHandle create_tex_object_handle_linear "cuda_core::create_tex_object_handle_linear" (
-        const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
-        const DevicePtrHandle& h_backing) except+ nogil
+        const ContextHandle& h_context, const cydriver.CUDA_RESOURCE_DESC& res,
+        const cydriver.CUDA_TEXTURE_DESC& tex, const DevicePtrHandle& h_backing) except+ nogil
     SurfObjectHandle create_surf_object_handle "cuda_core::create_surf_object_handle" (
-        const cydriver.CUDA_RESOURCE_DESC& res, const OpaqueArrayHandle& h_backing) except+ nogil
+        const ContextHandle& h_context, const cydriver.CUDA_RESOURCE_DESC& res,
+        const OpaqueArrayHandle& h_backing) except+ nogil
 
 
 # =============================================================================
@@ -297,11 +310,17 @@ cdef const char* _CUDA_DRIVER_API_V1_NAME = b"cuda.core._resource_handles._CUDA_
 
 # Declare extern variables with reinterpret_cast to allow void* assignment
 cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
+    # Error formatting
+    void* p_cuGetErrorName "reinterpret_cast<void*&>(cuda_core::p_cuGetErrorName)"
+    void* p_cuGetErrorString "reinterpret_cast<void*&>(cuda_core::p_cuGetErrorString)"
+
     # Context
     void* p_cuDevicePrimaryCtxRetain "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRetain)"
     void* p_cuDevicePrimaryCtxRelease "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRelease)"
     void* p_cuCtxGetCurrent "reinterpret_cast<void*&>(cuda_core::p_cuCtxGetCurrent)"
     void* p_cuCtxSetCurrent "reinterpret_cast<void*&>(cuda_core::p_cuCtxSetCurrent)"
+    void* p_cuCtxSynchronize "reinterpret_cast<void*&>(cuda_core::p_cuCtxSynchronize)"
+    void* p_cuCtxGetStreamPriorityRange "reinterpret_cast<void*&>(cuda_core::p_cuCtxGetStreamPriorityRange)"
     void* p_cuGreenCtxCreate "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxCreate)"
     void* p_cuGreenCtxDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxDestroy)"
     void* p_cuCtxFromGreenCtx "reinterpret_cast<void*&>(cuda_core::p_cuCtxFromGreenCtx)"
@@ -408,8 +427,9 @@ cdef void* _get_optional_driver_fn(str name):
 
 
 cdef void _init_driver_fn_pointers() noexcept:
+    global p_cuGetErrorName, p_cuGetErrorString
     global p_cuDevicePrimaryCtxRetain, p_cuDevicePrimaryCtxRelease, p_cuCtxGetCurrent
-    global p_cuCtxSetCurrent
+    global p_cuCtxSetCurrent, p_cuCtxSynchronize, p_cuCtxGetStreamPriorityRange
     global p_cuGreenCtxCreate, p_cuGreenCtxDestroy, p_cuCtxFromGreenCtx
     global p_cuDevResourceGenerateDesc, p_cuGreenCtxStreamCreate
     global p_cuStreamCreateWithPriority, p_cuStreamDestroy
@@ -435,11 +455,17 @@ cdef void _init_driver_fn_pointers() noexcept:
     global p_cuTexObjectCreate, p_cuTexObjectDestroy
     global p_cuSurfObjectCreate, p_cuSurfObjectDestroy
 
+    # Error formatting
+    p_cuGetErrorName = _get_driver_fn("cuGetErrorName")
+    p_cuGetErrorString = _get_driver_fn("cuGetErrorString")
+
     # Context
     p_cuDevicePrimaryCtxRetain = _get_driver_fn("cuDevicePrimaryCtxRetain")
     p_cuDevicePrimaryCtxRelease = _get_driver_fn("cuDevicePrimaryCtxRelease")
     p_cuCtxGetCurrent = _get_driver_fn("cuCtxGetCurrent")
     p_cuCtxSetCurrent = _get_driver_fn("cuCtxSetCurrent")
+    p_cuCtxSynchronize = _get_driver_fn("cuCtxSynchronize")
+    p_cuCtxGetStreamPriorityRange = _get_driver_fn("cuCtxGetStreamPriorityRange")
     p_cuGreenCtxCreate = _get_optional_driver_fn("cuGreenCtxCreate")
     p_cuGreenCtxDestroy = _get_optional_driver_fn("cuGreenCtxDestroy")
     p_cuCtxFromGreenCtx = _get_optional_driver_fn("cuCtxFromGreenCtx")

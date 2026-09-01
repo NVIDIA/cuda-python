@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 
 from cuda.bindings import cydriver
+from cuda.core._context import Context
 from cuda.core.typing import AddressModeType, FilterModeType, ReadModeType
 
 _TRSF_READ_AS_INTEGER = 1
@@ -215,8 +216,8 @@ def _normalize_enum(name, value, enum_type):
 def _normalize_address_modes(address_mode):
     """Return a 3-tuple of :class:`AddressModeType` values from a scalar or
     1-3 tuple. Individual entries may be plain strings."""
-def _create_texture_object(resource, options):
-    """Create a :class:`TextureObject` on the current device.
+def _create_texture_object(resource, options, ctx: Context, device_id: int):
+    """Create a :class:`TextureObject` on the specified device.
 
     Backs :meth:`cuda.core.Device.create_texture_object`. ``resource`` is a
     :class:`ResourceDescriptor`; ``options`` is a :class:`TextureObjectOptions`

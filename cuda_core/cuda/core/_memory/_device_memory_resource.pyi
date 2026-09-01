@@ -4,9 +4,13 @@ import uuid
 from dataclasses import dataclass
 
 from cuda.core._device import Device
+from cuda.core._memory._buffer import Buffer, MemoryResource
 from cuda.core._memory._ipc import IPCAllocationHandle
 from cuda.core._memory._memory_pool import _MemPool
 from cuda.core._memory._peer_access_utils import PeerAccessibleBySetProxy
+from cuda.core._stream import Stream
+from cuda.core.graph import GraphBuilder
+from cuda.core.typing import DevicePointerType
 
 __all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']
 
@@ -27,6 +31,19 @@ class DeviceMemoryResourceOptions:
     """
     ipc_enabled: bool = False
     max_size: int = 0
+
+class _SynchronousMemoryResource(MemoryResource):
+    __slots__ = ('_context', '_device_id')
+
+    def __init__(self, device_id: int, context=None) -> None: ...
+    def allocate(self, size: int, *, stream: Stream | GraphBuilder | None=None) -> Buffer: ...
+    def deallocate(self, ptr: DevicePointerType, size: int, *, stream: Stream | GraphBuilder | None=None) -> None: ...
+    @property
+    def is_device_accessible(self) -> bool: ...
+    @property
+    def is_host_accessible(self) -> bool: ...
+    @property
+    def device_id(self) -> int: ...
 
 class DeviceMemoryResource(_MemPool):
     """

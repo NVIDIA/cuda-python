@@ -7,19 +7,19 @@ from __future__ import annotations
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
+from cuda.core._context cimport Context
 from cuda.core.texture._array cimport OpaqueArray, OpaqueArray_check_open
 from cuda.core._resource_handles cimport (
+    ContextHandle,
     SurfObjectHandle,
     as_cu,
     as_intptr,
     create_surf_object_handle,
+    get_array_context,
     get_last_error,
 )
 from cuda.core.texture._texture import ResourceDescriptor
-from cuda.core._utils.cuda_utils cimport (
-    HANDLE_RETURN,
-    _get_current_device_id,
-)
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 
 cdef class SurfaceObject:
@@ -85,8 +85,8 @@ cdef class SurfaceObject:
         return f"SurfaceObject(handle=0x{as_intptr(self._handle):x})"
 
 
-def _create_surface_object(resource):
-    """Create a :class:`SurfaceObject` on the current device.
+def _create_surface_object(resource, Context ctx, int device_id):
+    """Create a :class:`SurfaceObject` on the specified device.
 
     Backs :meth:`cuda.core.Device.create_surface_object`. ``resource`` must be a
     :class:`ResourceDescriptor` wrapping an :class:`OpaqueArray` allocated with
@@ -106,6 +106,14 @@ def _create_surface_object(resource):
 
     cdef OpaqueArray arr = <OpaqueArray>resource.source
     OpaqueArray_check_open(arr)
+    if arr._device_id != device_id:
+        raise ValueError(
+            f"resource belongs to device {arr._device_id}, "
+            f"but surface creation was requested on device {device_id}"
+        )
+    cdef ContextHandle resource_context = get_array_context(arr._handle)
+    if resource_context and as_cu(resource_context) != as_cu(ctx._h_context):
+        raise ValueError("resource is not compatible with this Device object")
     if not arr.is_surface_load_store:
         raise ValueError(
             "OpaqueArray must be created with is_surface_load_store=True to be "
@@ -117,12 +125,13 @@ def _create_surface_object(resource):
     res_desc.resType = cydriver.CU_RESOURCE_TYPE_ARRAY
     res_desc.res.array.hArray = as_cu(arr._handle)
 
-    cdef SurfObjectHandle h = create_surf_object_handle(res_desc, arr._handle)
+    cdef SurfObjectHandle h = create_surf_object_handle(
+        ctx._h_context, res_desc, arr._handle)
     if not h:
         HANDLE_RETURN(get_last_error())
 
     cdef SurfaceObject self = SurfaceObject.__new__(SurfaceObject)
     self._handle = h
     self._source_ref = resource
-    self._device_id = _get_current_device_id()
+    self._device_id = device_id
     return self

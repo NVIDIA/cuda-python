@@ -213,6 +213,15 @@ def deinit_cuda():
 
 
 @pytest.fixture
+def device_x2(deinit_cuda):
+    """Provide two CUDA devices, or skip when fewer are available."""
+    devices = Device.get_all_devices()
+    if len(devices) < 2:
+        pytest.skip("Test requires at least 2 CUDA devices")
+    return devices[:2]
+
+
+@pytest.fixture
 def deinit_all_contexts_function():
     def pop_all_contexts():
         max_iters = 256

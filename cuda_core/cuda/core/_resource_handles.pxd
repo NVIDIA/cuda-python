@@ -178,6 +178,12 @@ cdef GreenCtxHandle create_green_ctx_handle(
 cdef GreenCtxHandle create_green_ctx_handle_ref(cydriver.CUgreenCtx ctx) except+ nogil
 cdef ContextHandle get_primary_context(int device_id) except+ nogil
 cdef ContextHandle get_current_context() except+ nogil
+cdef cydriver.CUresult context_synchronize(
+    const ContextHandle& h_context) noexcept nogil
+cdef cydriver.CUresult context_get_stream_priority_range(
+    const ContextHandle& h_context,
+    int* least_priority,
+    int* greatest_priority) noexcept nogil
 
 # Stream handles
 cdef StreamHandle create_stream_handle(
@@ -219,7 +225,8 @@ cdef MemoryPoolHandle create_mempool_handle_ipc(
 cdef DevicePtrHandle deviceptr_alloc_from_pool(
     size_t size, const MemoryPoolHandle& h_pool, const StreamHandle& h_stream) except+ nogil
 cdef DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream) except+ nogil
-cdef DevicePtrHandle deviceptr_alloc(size_t size) except+ nogil
+cdef cydriver.CUresult deviceptr_alloc_raw(
+    cydriver.CUdeviceptr* ptr, size_t size, const ContextHandle& h_context) noexcept nogil
 cdef DevicePtrHandle deviceptr_alloc_host(size_t size) except+ nogil
 cdef DevicePtrHandle deviceptr_create_ref(cydriver.CUdeviceptr ptr) except+ nogil
 cdef DevicePtrHandle deviceptr_create_with_owner(cydriver.CUdeviceptr ptr, object owner) except+ nogil
@@ -325,23 +332,29 @@ cdef FileDescriptorHandle create_fd_handle(int fd) except+ nogil
 cdef FileDescriptorHandle create_fd_handle_ref(int fd) except+ nogil
 
 # Array / mipmapped-array / texture / surface handles (PR #467)
-cdef OpaqueArrayHandle create_array_handle(const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc) except+ nogil
+cdef OpaqueArrayHandle create_array_handle(
+    const ContextHandle& h_context, const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc) except+ nogil
 cdef OpaqueArrayHandle create_array_handle_ref(cydriver.CUarray arr) except+ nogil
 cdef OpaqueArrayHandle create_array_handle_owning(cydriver.CUarray arr) except+ nogil
+cdef ContextHandle get_array_context(const OpaqueArrayHandle& h) noexcept nogil
 cdef OpaqueArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigned int level) except+ nogil
 cdef MipmappedArrayHandle create_mipmapped_array_handle(
-    const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc, unsigned int num_levels) except+ nogil
+    const ContextHandle& h_context, const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc,
+    unsigned int num_levels) except+ nogil
+cdef ContextHandle get_mipmapped_array_context(
+    const MipmappedArrayHandle& h) noexcept nogil
 cdef TexObjectHandle create_tex_object_handle_array(
-    const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
-    const OpaqueArrayHandle& h_backing) except+ nogil
+    const ContextHandle& h_context, const cydriver.CUDA_RESOURCE_DESC& res,
+    const cydriver.CUDA_TEXTURE_DESC& tex, const OpaqueArrayHandle& h_backing) except+ nogil
 cdef TexObjectHandle create_tex_object_handle_mipmap(
-    const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
-    const MipmappedArrayHandle& h_backing) except+ nogil
+    const ContextHandle& h_context, const cydriver.CUDA_RESOURCE_DESC& res,
+    const cydriver.CUDA_TEXTURE_DESC& tex, const MipmappedArrayHandle& h_backing) except+ nogil
 cdef TexObjectHandle create_tex_object_handle_linear(
-    const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
-    const DevicePtrHandle& h_backing) except+ nogil
+    const ContextHandle& h_context, const cydriver.CUDA_RESOURCE_DESC& res,
+    const cydriver.CUDA_TEXTURE_DESC& tex, const DevicePtrHandle& h_backing) except+ nogil
 cdef SurfObjectHandle create_surf_object_handle(
-    const cydriver.CUDA_RESOURCE_DESC& res, const OpaqueArrayHandle& h_backing) except+ nogil
+    const ContextHandle& h_context, const cydriver.CUDA_RESOURCE_DESC& res,
+    const OpaqueArrayHandle& h_backing) except+ nogil
 
 # SM resource split (13.1+ — calls through function pointer, safe on older bindings)
 # groupParams is void* here to avoid referencing CU_DEV_SM_RESOURCE_GROUP_PARAMS

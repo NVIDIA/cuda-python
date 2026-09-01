@@ -20,7 +20,10 @@ import warnings
 from dataclasses import dataclass
 from typing import Protocol, TYPE_CHECKING
 
-from cuda.core._context cimport Context
+from cuda.core._context cimport (
+    Context,
+    Context_check_open,
+)
 from cuda.core._device_resources cimport DeviceResources
 from cuda.core._event import Event, EventOptions
 
@@ -32,6 +35,7 @@ from cuda.core._resource_handles cimport (
     create_event_handle_noctx,
     create_stream_handle,
     create_stream_handle_with_owner,
+    context_get_stream_priority_range,
     get_current_context,
     get_last_error,
     get_legacy_stream,
@@ -129,10 +133,7 @@ cdef class Stream:
         cdef StreamHandle h_stream
         cdef cydriver.CUstream borrowed
         cdef ContextHandle h_context
-
-        # Extract context handle if provided
-        if ctx is not None:
-            h_context = (<Context>ctx)._h_context
+        cdef Context context
 
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
@@ -144,6 +145,12 @@ cdef class Stream:
             h_stream = create_stream_handle_with_owner(borrowed, obj)
             return Stream._from_handle(cls, h_stream)
 
+        if ctx is None:
+            raise RuntimeError("A CUDA context is required to create a stream")
+        context = <Context>ctx
+        Context_check_open(context)
+        h_context = context._h_context
+
         cdef StreamOptions opts = check_or_create_options(StreamOptions, options, "Stream options")
         nonblocking = opts.nonblocking
         priority = opts.priority
@@ -154,13 +161,9 @@ cdef class Stream:
         cdef int high, low
         cdef cydriver.CUresult res_code
         with nogil:
-            res_code = cydriver.cuCtxGetStreamPriorityRange(&high, &low)
-        if res_code != cydriver.CUresult.CUDA_SUCCESS:
-            if res_code == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
-                raise RuntimeError(
-                    "No current CUDA context. Call dev.set_current() before creating streams."
-                )
-            HANDLE_RETURN(res_code)
+            res_code = context_get_stream_priority_range(
+                context._h_context, &high, &low)
+        HANDLE_RETURN(res_code)
         cdef int prio
         if priority is not None:
             prio = priority
