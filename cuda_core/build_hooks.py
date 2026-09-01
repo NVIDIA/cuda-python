@@ -174,6 +174,15 @@ def record_build_major() -> None:
     _BUILD_MAJOR_STAMP.write_text(_determine_cuda_major_version() + "\n", encoding="utf-8")
 
 
+def _relativize_extension_sources(extensions) -> None:
+    """Keep absolute source paths out of setuptools' temporary build tree."""
+    for extension in extensions:
+        extension.sources = [
+            os.path.relpath(source, start=Path.cwd()) if os.path.isabs(source) else source
+            for source in extension.sources
+        ]
+
+
 def _build_cuda_core(debug=False):
     # Customizing the build hooks is needed because we must defer cythonization until cuda-bindings,
     # now a required build-time dependency that's dynamically installed via the other hook below,
@@ -292,6 +301,10 @@ def _build_cuda_core(debug=False):
         compile_time_env=compile_time_env,
         **extra_cythonize_kwargs,
     )
+    # Cython returns generated sources under the absolute build_dir above.
+    # setuptools mirrors absolute source paths into build/temp, which can push
+    # MSVC linker output paths past MAX_PATH in deeper Windows checkouts.
+    _relativize_extension_sources(_extensions)
 
     return
 
