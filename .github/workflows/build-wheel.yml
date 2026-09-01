@@ -77,9 +77,9 @@ jobs:
             build_bindings_current=true
             build_bindings_maintenance=true
             build_core=true
-            build_python=true
-            build_python_current=true
-            build_python_maintenance=true
+            build_cuda_python=true
+            build_cuda_python_current=true
+            build_cuda_python_maintenance=true
             test_bindings=true
             test_bindings_current=true
             test_bindings_maintenance=true
@@ -90,13 +90,13 @@ jobs:
             build_pathfinder=$(jq -r '.modules.pathfinder.needs_build | if type == "boolean" then . else error("invalid pathfinder build gate") end' <<< "$WORKPLAN")
             build_bindings=$(jq -r '.modules.bindings.needs_build | if type == "boolean" then . else error("invalid bindings build gate") end' <<< "$WORKPLAN")
             build_core=$(jq -r '.modules.core.needs_build | if type == "boolean" then . else error("invalid core build gate") end' <<< "$WORKPLAN")
-            build_python=$(jq -r '.modules.python.needs_build | if type == "boolean" then . else error("invalid python build gate") end' <<< "$WORKPLAN")
+            build_cuda_python=$(jq -r '.modules.python.needs_build | if type == "boolean" then . else error("invalid python build gate") end' <<< "$WORKPLAN")
             test_bindings=$(jq -r '.modules.bindings.needs_test | if type == "boolean" then . else error("invalid bindings test gate") end' <<< "$WORKPLAN")
             test_core=$(jq -r '.modules.core.needs_test | if type == "boolean" then . else error("invalid core test gate") end' <<< "$WORKPLAN")
             build_bindings_current=$(jq -r --arg id "$current_line_id" '.modules.bindings.lines[$id].needs_build | if type == "boolean" then . else error("invalid current bindings build gate") end' <<< "$WORKPLAN")
             build_bindings_maintenance=$(jq -r --arg id "$maintenance_line_id" '.modules.bindings.lines[$id].needs_build | if type == "boolean" then . else error("invalid maintenance bindings build gate") end' <<< "$WORKPLAN")
-            build_python_current=$(jq -r --arg id "$current_line_id" '.modules.python.lines[$id].needs_build | if type == "boolean" then . else error("invalid current python build gate") end' <<< "$WORKPLAN")
-            build_python_maintenance=$(jq -r --arg id "$maintenance_line_id" '.modules.python.lines[$id].needs_build | if type == "boolean" then . else error("invalid maintenance python build gate") end' <<< "$WORKPLAN")
+            build_cuda_python_current=$(jq -r --arg id "$current_line_id" '.modules.python.lines[$id].needs_build | if type == "boolean" then . else error("invalid current python build gate") end' <<< "$WORKPLAN")
+            build_cuda_python_maintenance=$(jq -r --arg id "$maintenance_line_id" '.modules.python.lines[$id].needs_build | if type == "boolean" then . else error("invalid maintenance python build gate") end' <<< "$WORKPLAN")
             test_bindings_current=$(jq -r --arg id "$current_line_id" '.modules.bindings.lines[$id].needs_test | if type == "boolean" then . else error("invalid current bindings test gate") end' <<< "$WORKPLAN")
             test_bindings_maintenance=$(jq -r --arg id "$maintenance_line_id" '.modules.bindings.lines[$id].needs_test | if type == "boolean" then . else error("invalid maintenance bindings test gate") end' <<< "$WORKPLAN")
             current_variant=$(jq -er --arg id "$current_line_id" '.modules.bindings.lines[$id].cuda_variant' <<< "$WORKPLAN")
@@ -111,9 +111,9 @@ jobs:
             echo "BUILD_BINDINGS_CURRENT=$build_bindings_current"
             echo "BUILD_BINDINGS_MAINTENANCE=$build_bindings_maintenance"
             echo "BUILD_CORE=$build_core"
-            echo "BUILD_PYTHON=$build_python"
-            echo "BUILD_PYTHON_CURRENT=$build_python_current"
-            echo "BUILD_PYTHON_MAINTENANCE=$build_python_maintenance"
+            echo "BUILD_CUDA_PYTHON=$build_cuda_python"
+            echo "BUILD_CUDA_PYTHON_CURRENT=$build_cuda_python_current"
+            echo "BUILD_CUDA_PYTHON_MAINTENANCE=$build_cuda_python_maintenance"
             echo "TEST_BINDINGS=$test_bindings"
             echo "TEST_BINDINGS_CURRENT=$test_bindings_current"
             echo "TEST_BINDINGS_MAINTENANCE=$test_bindings_maintenance"
@@ -471,7 +471,7 @@ jobs:
 
       # We only need/want one copy of each pure Python wheel, so use linux-64 index 0.
       - name: Build and check maintenance-line cuda-python wheel
-        if: ${{ env.BUILD_PYTHON_MAINTENANCE == 'true' && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        if: ${{ env.BUILD_CUDA_PYTHON_MAINTENANCE == 'true' && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
           mkdir -p "cuda_python/dist/${MAINTENANCE_CUDA_VARIANT}"
           pushd cuda_python
@@ -484,7 +484,7 @@ jobs:
           popd
 
       - name: Download reusable maintenance-line cuda-python wheel
-        if: ${{ env.BUILD_PYTHON_MAINTENANCE != 'true' && env.BASELINE_RUN_ID != '' && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        if: ${{ env.BUILD_CUDA_PYTHON_MAINTENANCE != 'true' && env.BASELINE_RUN_ID != '' && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.MAINTENANCE_PYTHON_ARTIFACT_NAME }}
@@ -493,7 +493,7 @@ jobs:
           run-id: ${{ env.BASELINE_RUN_ID }}
 
       - name: Upload maintenance-line cuda-python build artifacts
-        if: ${{ (env.BUILD_PYTHON_MAINTENANCE == 'true' || env.BASELINE_RUN_ID != '') && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        if: ${{ (env.BUILD_CUDA_PYTHON_MAINTENANCE == 'true' || env.BASELINE_RUN_ID != '') && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.MAINTENANCE_PYTHON_ARTIFACT_NAME }}
@@ -501,7 +501,7 @@ jobs:
           if-no-files-found: error
 
       - name: Build and check current-line cuda-python wheel
-        if: ${{ env.BUILD_PYTHON_CURRENT == 'true' && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        if: ${{ env.BUILD_CUDA_PYTHON_CURRENT == 'true' && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
           mkdir -p "cuda_python/dist/${CURRENT_CUDA_VARIANT}"
           pushd cuda_python
@@ -511,7 +511,7 @@ jobs:
           popd
 
       - name: Download reusable current-line cuda-python wheel
-        if: ${{ env.BUILD_PYTHON_CURRENT != 'true' && env.BASELINE_RUN_ID != '' && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        if: ${{ env.BUILD_CUDA_PYTHON_CURRENT != 'true' && env.BASELINE_RUN_ID != '' && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CURRENT_PYTHON_ARTIFACT_NAME }}
@@ -520,7 +520,7 @@ jobs:
           run-id: ${{ env.BASELINE_RUN_ID }}
 
       - name: Upload current-line cuda-python build artifacts
-        if: ${{ (env.BUILD_PYTHON_CURRENT == 'true' || env.BASELINE_RUN_ID != '') && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        if: ${{ (env.BUILD_CUDA_PYTHON_CURRENT == 'true' || env.BASELINE_RUN_ID != '') && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CURRENT_PYTHON_ARTIFACT_NAME }}
@@ -528,7 +528,7 @@ jobs:
           if-no-files-found: error
 
       - name: List the cuda-python artifacts directories
-        if: ${{ (env.BUILD_PYTHON == 'true' || env.BASELINE_RUN_ID != '') && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        if: ${{ (env.BUILD_CUDA_PYTHON == 'true' || env.BASELINE_RUN_ID != '') && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
           if [[ "${{ inputs.host-platform }}" == win* ]]; then
             export CHOWN=chown

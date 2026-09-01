@@ -20,21 +20,6 @@ paths modified by #2604. It does not reproduce the snapshot's legacy
 runtime/v2 storage layout, so generation provenance for the complete imported
 root remains partial.
 
-The later NVML memoryview fix is reproducible from cybind commit
-`6def52ca508c9e14ef67f4ce26a0c677f3fbad72` with Doxygen 1.17.0:
-
-```console
-CUDA_PATH=/usr/local/cuda-12.9 python -m cybind \
-  --ctk-target-version 12.9 \
-  --generate nvml \
-  --output-dir /tmp/cuda-bindings-12-generated \
-  --jobs 1
-```
-
-All eight emitted NVML files byte-match this directory. NVML has
-`need_cuda: false`; its substantive inputs are the checked-in cybind NVML
-headers selected by generator configuration.
-
 ## File classes
 
 - Generated bindings carry an embedded content seal. A seal proves file

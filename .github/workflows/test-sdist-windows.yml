@@ -48,8 +48,8 @@ jobs:
                           fromJSON(inputs.workplan).modules.bindings.lines[fromJSON(inputs.bindings-line).line_id].needs_build }}
       BUILD_CORE: ${{ inputs.workplan == '' ||
                       fromJSON(inputs.workplan).modules.core.cuda_majors[fromJSON(inputs.bindings-line).cuda_variant].needs_build }}
-      BUILD_PYTHON: ${{ inputs.workplan == '' ||
-                        fromJSON(inputs.workplan).modules.python.lines[fromJSON(inputs.bindings-line).line_id].needs_build }}
+      BUILD_CUDA_PYTHON: ${{ inputs.workplan == '' ||
+                             fromJSON(inputs.workplan).modules.python.lines[fromJSON(inputs.bindings-line).line_id].needs_build }}
     timeout-minutes: 60
     runs-on: windows-2022
     steps:
@@ -95,7 +95,7 @@ jobs:
           pip wheel --no-deps --wheel-dir cuda_pathfinder/dist cuda_pathfinder/dist/*.tar.gz
 
       - name: Build cuda-python sdist and wheel-from-sdist
-        if: ${{ env.BUILD_PYTHON == 'true' }}
+        if: ${{ env.BUILD_CUDA_PYTHON == 'true' }}
         run: |
           python -m build --sdist cuda_python/
           pip wheel --no-deps --wheel-dir cuda_python/dist cuda_python/dist/*.tar.gz
