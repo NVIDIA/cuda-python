@@ -103,12 +103,12 @@ cdef class Program:
         self._cleanup_debug_source()
 
     def _cleanup_debug_source(self):
-        # Only a temp file this Program wrote may be removed. self._nvrtc_name is
-        # still the caller's options.name whenever the source was not redirected,
-        # and a name like "matmul.cu" can match a file the caller owns.
-        if self._debug_source_path is not None:
-            self._unlink_debug_source(self._debug_source_path)
-            self._debug_source_path = None
+        # Only a temp file this Program wrote may be removed, and the name having
+        # moved off options.name is what says one was written. Without that test
+        # the caller's own file is deleted whenever options.name happens to match
+        # something on disk, since the unredirected name is just that path.
+        if self._nvrtc_name is not None and self._nvrtc_name != self._options._name:
+            self._unlink_debug_source(self._nvrtc_name.decode())
 
     def _unlink_debug_source(self, path: str) -> None:
         try:
@@ -867,7 +867,6 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
             debug_path = self._try_materialize_nvrtc_debug_source(code)
             if debug_path is not None:
                 self._nvrtc_name = debug_path.encode()
-                self._debug_source_path = debug_path
                 # NVRTC resolves #include "..." against the directory of the name it
                 # is given, so moving the name into the temp dir would otherwise stop
                 # every quoted include from resolving where it did before.
