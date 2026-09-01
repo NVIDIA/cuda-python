@@ -15,6 +15,7 @@ pytest = ">=6.2.4"
 pytest-mock = "*"
 pytest-repeat = "*"
 pytest-randomly = "*"
+pytest-run-parallel = ">=0.4.1"
 
 # Keep this dependency set aligned with cuda_python/docs/environment-docs.yml.
 [feature.docs.dependencies]
