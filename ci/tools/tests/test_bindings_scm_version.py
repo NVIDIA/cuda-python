@@ -23,13 +23,13 @@ RELEASED_12 = bindings_config.BindingsLine(
     tag_series="v12.9.",
     allow_alpha_beta_tags=False,
 )
-FUTURE_13_4 = bindings_config.BindingsLine(
-    line_id="future-13-4",
-    source_dir="cuda_bindings_13_4",
-    ctk_target="13.4",
-    toolkit_version="13.4.0",
-    toolkit_channel="prerelease",
-    tag_series="v13.4.",
+ALTERNATE_13 = bindings_config.BindingsLine(
+    line_id="alternate-13",
+    source_dir="alternate_bindings",
+    ctk_target="13.2",
+    toolkit_version="13.2.0",
+    toolkit_channel="stable",
+    tag_series="v13.2.",
     allow_alpha_beta_tags=True,
 )
 
@@ -100,17 +100,17 @@ def test_rejects_development_fallback_for_another_ctk_target(tmp_path):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_future_maintenance_line_uses_its_source_target_and_tag_series(tmp_path):
-    repo, config = make_repo(tmp_path, FUTURE_13_4, "13.4.2.dev0")
-    assert config == repo / "cuda_bindings_13_4" / "pyproject.toml"
+def test_configured_line_uses_its_source_target_and_tag_series(tmp_path):
+    repo, config = make_repo(tmp_path, ALTERNATE_13, "13.2.2.dev0")
+    assert config == repo / "alternate_bindings" / "pyproject.toml"
 
     git(repo, "tag", "v12.9.99")
     git(repo, "tag", "v13.3.99")
-    git(repo, "tag", "v13.4.1")
-    assert pretend_version(repo, SHA, FUTURE_13_4) == "13.4.2.dev0+gabcdef0"
+    git(repo, "tag", "v13.2.1")
+    assert pretend_version(repo, SHA, ALTERNATE_13) == "13.2.2.dev0+gabcdef0"
 
-    git(repo, "tag", "v13.4.2a1")
-    assert pretend_version(repo, SHA, FUTURE_13_4) is None
+    git(repo, "tag", "v13.2.2a1")
+    assert pretend_version(repo, SHA, ALTERNATE_13) is None
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")

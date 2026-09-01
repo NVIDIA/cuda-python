@@ -28,9 +28,9 @@ verification procedure in that repository's own documentation.
 `ci/versions.yml` is the authoritative public registry for CUDA bindings
 release lines. Each stable line ID maps an exact CTK target and build/test pin
 to an explicit source directory. Roles are orchestration aliases: `current`
-selects one line, while `maintenance` and `unreleased` are ordered lists.
-Public builds operate on `current` plus `maintenance`; the public registry
-normally keeps `unreleased` empty.
+selects one line, while `maintenance` is an ordered list. Every registered line
+must have exactly one of those roles and participates in public CI and release
+orchestration.
 
 Use `ci/tools/bindings_config.py` instead of reading the YAML directly. The
 resolver validates the registry and emits normalized records containing the
@@ -40,15 +40,14 @@ For example:
 
 ```console
 python ci/tools/bindings_config.py validate
-python ci/tools/bindings_config.py list --scope public
+python ci/tools/bindings_config.py list
 python ci/tools/bindings_config.py get --role current
 python ci/tools/bindings_config.py match-tag v13.3.0
 ```
 
-A bindings line and a CUDA ABI major are different dimensions. Multiple
-unreleased lines such as 13.4 and 13.5 may need separate roots, artifacts, and
-tests even though both derive the `cu13` ABI variant. CUDA Core packaging may
-deduplicate work by ABI major only where doing so preserves line-specific
+A bindings line and a CUDA ABI major are different dimensions. CI and release
+jobs select bindings and `cuda-python` work by line identity, while CUDA Core
+work may be aggregated by ABI major where that preserves line-specific
 compatibility checks.
 
 The public wheel builder currently has an explicit transitional boundary: it
@@ -58,8 +57,3 @@ validation are list-based and preserve same-major line identity, but the
 monolithic wheel job fails closed rather than pretending it can build multiple
 maintenance lines or two release lines for one ABI. Extending that job is a
 separate reviewer-visible design change.
-
-Future private CTK overlays may add records assigned to `unreleased`, but must
-produce the same validated effective schema and keep private roots out of the
-public projection. Overlay merging and promotion are intentionally outside the
-scope of the public resolver today.

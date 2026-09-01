@@ -122,7 +122,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"error: invalid CUDA bindings release-line registry: {error}", file=sys.stderr)
         return 2
 
-    roots = tuple(line.source_dir for line in config.public_lines)
+    roots = tuple(line.source_dir for line in config.lines)
     violations = find_drift(args.repo_root, roots, shared_paths)
     if not violations:
         return 0

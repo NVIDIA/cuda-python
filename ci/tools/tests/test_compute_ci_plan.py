@@ -18,7 +18,7 @@ ALL_MODULES = {"pathfinder", "bindings", "core", "python"}
 ALL_PLATFORMS = {"linux", "windows"}
 VARIANT_MODULES = {"bindings", "core", "python"}
 DEFAULT_BINDINGS_CONFIG = load_config()
-CUDA_VARIANTS = {line.cuda_variant for line in DEFAULT_BINDINGS_CONFIG.public_lines}
+CUDA_VARIANTS = {line.cuda_variant for line in DEFAULT_BINDINGS_CONFIG.lines}
 
 
 def plan_for(
@@ -119,7 +119,6 @@ def synthetic_config(
     *lines: BindingsLine,
     current: str,
     maintenance: tuple[str, ...] = (),
-    unreleased: tuple[str, ...] = (),
 ) -> BindingsConfig:
     return BindingsConfig(
         schema_version=2,
@@ -128,7 +127,6 @@ def synthetic_config(
             {
                 "current": (current,),
                 "maintenance": maintenance,
-                "unreleased": unreleased,
             }
         ),
     )
@@ -367,7 +365,7 @@ class ComputeWorkplanTest(unittest.TestCase):
             compute_workplan([], merge_base="", baseline_run_id="123"),
             plan_for(baseline=False, release_tag="cuda-core-v1.3.0"),
             plan_for(baseline=False, release_tag="v13.3.0rc1"),
-            plan_for(baseline=False, release_tag="v13.5.0"),
+            plan_for(baseline=False, release_tag="v13.2.0"),
             plan_for(baseline=False, release_tag="v12.8.1"),
             plan_for(baseline=False, release_tag="v14.0.0"),
         ):
@@ -428,73 +426,73 @@ class ComputeWorkplanTest(unittest.TestCase):
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_same_major_release_lines_remain_independently_selectable(self) -> None:
-        line_13_4 = synthetic_line("released-13-4", "cuda_bindings_13_4", "13.4")
-        line_13_5 = synthetic_line("released-13-5", "cuda_bindings_13_5", "13.5")
+        line_11_7 = synthetic_line("released-11-7", "cuda_bindings_11_7", "11.7")
+        line_11_8 = synthetic_line("released-11-8", "cuda_bindings_11_8", "11.8")
         config = synthetic_config(
-            line_13_4,
-            line_13_5,
-            current=line_13_5.line_id,
-            maintenance=(line_13_4.line_id,),
+            line_11_7,
+            line_11_8,
+            current=line_11_8.line_id,
+            maintenance=(line_11_7.line_id,),
         )
 
         plan = plan_for(
-            "cuda_bindings_13_4/cuda/bindings/driver.pyx",
+            "cuda_bindings_11_7/cuda/bindings/driver.pyx",
             bindings_config=config,
         )
 
-        assert selected_lines(plan, "bindings", "needs_build") == {line_13_4.line_id}
-        assert selected_lines(plan, "bindings", "needs_test") == {line_13_4.line_id}
-        assert selected_lines(plan, "python", "needs_build") == {line_13_4.line_id}
-        assert selected_lines(plan, "python", "needs_test") == {line_13_4.line_id}
-        assert selected_core_majors(plan, "needs_build") == {"cu13"}
-        assert selected_core_majors(plan, "needs_test") == {"cu13"}
-        assert selected_variants(plan, "bindings", "needs_build") == {"cu13"}
-        assert selected_cuda_majors(plan, "sdist_cuda_majors") == {"cu13"}
-        assert {line_id for line_id, enabled in plan["jobs"]["sdist_lines"].items() if enabled} == {line_13_4.line_id}
+        assert selected_lines(plan, "bindings", "needs_build") == {line_11_7.line_id}
+        assert selected_lines(plan, "bindings", "needs_test") == {line_11_7.line_id}
+        assert selected_lines(plan, "python", "needs_build") == {line_11_7.line_id}
+        assert selected_lines(plan, "python", "needs_test") == {line_11_7.line_id}
+        assert selected_core_majors(plan, "needs_build") == {"cu11"}
+        assert selected_core_majors(plan, "needs_test") == {"cu11"}
+        assert selected_variants(plan, "bindings", "needs_build") == {"cu11"}
+        assert selected_cuda_majors(plan, "sdist_cuda_majors") == {"cu11"}
+        assert {line_id for line_id, enabled in plan["jobs"]["sdist_lines"].items() if enabled} == {line_11_7.line_id}
 
-        line_decision = plan["modules"]["bindings"]["lines"][line_13_4.line_id]
-        assert line_decision["source_dir"] == line_13_4.source_dir
-        assert line_decision["ctk_target"] == line_13_4.ctk_target
-        assert line_decision["cuda_major"] == "13"
-        assert line_decision["cuda_variant"] == "cu13"
+        line_decision = plan["modules"]["bindings"]["lines"][line_11_7.line_id]
+        assert line_decision["source_dir"] == line_11_7.source_dir
+        assert line_decision["ctk_target"] == line_11_7.ctk_target
+        assert line_decision["cuda_major"] == "11"
+        assert line_decision["cuda_variant"] == "cu11"
         assert line_decision["roles"] == ["maintenance"]
 
         release_plan = plan_for(
             baseline=False,
-            release_tag="v13.5.1",
+            release_tag="v11.8.1",
             bindings_config=config,
         )
-        assert selected_lines(release_plan, "bindings", "needs_build") == {line_13_5.line_id}
-        assert selected_lines(release_plan, "python", "needs_build") == {line_13_5.line_id}
+        assert selected_lines(release_plan, "bindings", "needs_build") == {line_11_8.line_id}
+        assert selected_lines(release_plan, "python", "needs_build") == {line_11_8.line_id}
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_current_line_can_move_to_a_new_cuda_major(self) -> None:
-        line_13 = synthetic_line("released-13", "cuda_bindings_13", "13.5")
-        line_14 = synthetic_line("released-14", "cuda_bindings_14", "14.0")
+        line_11 = synthetic_line("released-11", "cuda_bindings_11", "11.8")
+        line_12 = synthetic_line("released-12", "cuda_bindings_12", "12.0")
         config = synthetic_config(
-            line_13,
-            line_14,
-            current=line_14.line_id,
-            maintenance=(line_13.line_id,),
+            line_11,
+            line_12,
+            current=line_12.line_id,
+            maintenance=(line_11.line_id,),
         )
 
         plan = plan_for(
-            "cuda_bindings_14/cuda/bindings/runtime.pyx",
+            "cuda_bindings_12/cuda/bindings/runtime.pyx",
             bindings_config=config,
         )
 
-        assert selected_lines(plan, "bindings", "needs_build") == {line_14.line_id}
-        assert selected_lines(plan, "python", "needs_build") == {line_14.line_id}
-        assert selected_core_majors(plan, "needs_build") == {"cu13", "cu14"}
-        assert selected_core_majors(plan, "needs_test") == {"cu14"}
-        assert selected_cuda_majors(plan, "test_cuda_majors") == {"cu14"}
-        assert selected_cuda_majors(plan, "sdist_cuda_majors") == {"cu14"}
+        assert selected_lines(plan, "bindings", "needs_build") == {line_12.line_id}
+        assert selected_lines(plan, "python", "needs_build") == {line_12.line_id}
+        assert selected_core_majors(plan, "needs_build") == {"cu11", "cu12"}
+        assert selected_core_majors(plan, "needs_test") == {"cu12"}
+        assert selected_cuda_majors(plan, "test_cuda_majors") == {"cu12"}
+        assert selected_cuda_majors(plan, "sdist_cuda_majors") == {"cu12"}
 
         core_plan = plan_for("cuda_core/cuda/core/_device.py", bindings_config=config)
-        assert selected_core_majors(core_plan, "needs_build") == {"cu13", "cu14"}
+        assert selected_core_majors(core_plan, "needs_build") == {"cu11", "cu12"}
         assert selected_lines(core_plan, "python", "needs_test") == {
-            line_13.line_id,
-            line_14.line_id,
+            line_11.line_id,
+            line_12.line_id,
         }
 
 

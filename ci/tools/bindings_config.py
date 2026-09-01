@@ -93,12 +93,6 @@ class BindingsConfig:
                 return line
         raise BindingsConfigError(f"unknown CUDA bindings line: {line_id!r}")
 
-    @property
-    def public_lines(self) -> tuple[BindingsLine, ...]:
-        """Return public lines in their configured order."""
-        public_ids = set(self.roles["current"]) | set(self.roles["maintenance"])
-        return tuple(line for line in self.lines if line.line_id in public_ids)
-
     def lines_for_role(self, role: str) -> tuple[BindingsLine, ...]:
         """Return the ordered lines assigned to a role."""
         try:
@@ -217,20 +211,17 @@ def _line(line_id: str, raw: Any) -> BindingsLine:
 
 def _roles(raw: Any, line_ids: set[str]) -> Mapping[str, tuple[str, ...]]:
     data = _mapping(raw, "cuda.bindings.roles")
-    _check_keys(data, "cuda.bindings.roles", {"current", "maintenance", "unreleased"})
+    _check_keys(data, "cuda.bindings.roles", {"current", "maintenance"})
 
     current = _string(data["current"], "cuda.bindings.roles.current", _LINE_ID_PATTERN)
-    lists: dict[str, tuple[str, ...]] = {}
-    for role in ("maintenance", "unreleased"):
-        values = data[role]
-        if not isinstance(values, list):
-            raise BindingsConfigError(f"cuda.bindings.roles.{role} must be a list")
-        line_list = tuple(_string(value, f"cuda.bindings.roles.{role} entry", _LINE_ID_PATTERN) for value in values)
-        if len(set(line_list)) != len(line_list):
-            raise BindingsConfigError(f"cuda.bindings.roles.{role} must not contain duplicates")
-        lists[role] = line_list
+    values = data["maintenance"]
+    if not isinstance(values, list):
+        raise BindingsConfigError("cuda.bindings.roles.maintenance must be a list")
+    maintenance = tuple(_string(value, "cuda.bindings.roles.maintenance entry", _LINE_ID_PATTERN) for value in values)
+    if len(set(maintenance)) != len(maintenance):
+        raise BindingsConfigError("cuda.bindings.roles.maintenance must not contain duplicates")
 
-    role_sets = {"current": {current}, **{role: set(values) for role, values in lists.items()}}
+    role_sets = {"current": {current}, "maintenance": set(maintenance)}
     overlaps = {
         line_id
         for role, members in role_sets.items()
@@ -247,10 +238,8 @@ def _roles(raw: Any, line_ids: set[str]) -> Mapping[str, tuple[str, ...]]:
         raise BindingsConfigError(f"CUDA bindings roles reference unknown lines: {', '.join(unknown)}")
     unassigned = sorted(line_ids - referenced)
     if unassigned:
-        raise BindingsConfigError(f"public CUDA bindings lines are missing a role: {', '.join(unassigned)}")
-    return MappingProxyType(
-        {"current": (current,), "maintenance": lists["maintenance"], "unreleased": lists["unreleased"]}
-    )
+        raise BindingsConfigError(f"CUDA bindings lines are missing a role: {', '.join(unassigned)}")
+    return MappingProxyType({"current": (current,), "maintenance": maintenance})
 
 
 def validate_config(raw: Any) -> BindingsConfig:
@@ -305,8 +294,7 @@ def main(argv: list[str] | None = None) -> int:
     commands.add_parser("validate", help="validate the registry")
     commands.add_parser("json", help="print the full normalized registry")
 
-    list_parser = commands.add_parser("list", help="print normalized line records")
-    list_parser.add_argument("--scope", choices=("all", "public"), default="public")
+    commands.add_parser("list", help="print normalized line records")
 
     get_parser = commands.add_parser("get", help="print one normalized line record")
     selector = get_parser.add_mutually_exclusive_group(required=True)
@@ -325,8 +313,7 @@ def main(argv: list[str] | None = None) -> int:
             print(config.to_json())
             return 0
         if args.command == "list":
-            lines = config.lines if args.scope == "all" else config.public_lines
-            print(_json([config.line_to_dict(line) for line in lines]))
+            print(_json([config.line_to_dict(line) for line in config.lines]))
             return 0
         if args.command == "get":
             line = config.get_line(args.line) if args.line else config.line_for_role(args.role)

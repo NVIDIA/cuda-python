@@ -42,7 +42,6 @@ def registry(
                 "roles": {
                     "current": line_id,
                     "maintenance": [],
-                    "unreleased": [],
                 },
             }
         },

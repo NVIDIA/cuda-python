@@ -141,15 +141,15 @@ class TestCheckReleaseNotes:
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_bindings_notes_use_registry_source_dir(self, tmp_path, monkeypatch):
-        self._make_notes(tmp_path, "cuda_bindings_13_4", "13.4.0")
+        self._make_notes(tmp_path, "alternate_bindings", "13.2.0")
         config = Mock()
-        config.match_tag.return_value = SimpleNamespace(source_dir="cuda_bindings_13_4")
+        config.match_tag.return_value = SimpleNamespace(source_dir="alternate_bindings")
         monkeypatch.setattr(release_notes_module.bindings_config, "load_config", lambda: config)
 
-        problems = check_release_notes("v13.4.0", "cuda-bindings", tmp_path)
+        problems = check_release_notes("v13.2.0", "cuda-bindings", tmp_path)
 
         assert problems == []
-        config.match_tag.assert_called_once_with("v13.4.0")
+        config.match_tag.assert_called_once_with("v13.2.0")
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_resolved_legacy_bindings_source_dir(self, tmp_path):
@@ -220,19 +220,19 @@ class TestCheckReleaseNotes:
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_resolved_tag_line_does_not_depend_on_current_registry(self, tmp_path):
-        self._make_notes(tmp_path, "cuda_bindings_13_4", "13.4.0")
+        self._make_notes(tmp_path, "alternate_bindings", "13.2.0")
         line = {
-            "line_id": "released-13-4",
-            "source_dir": "cuda_bindings_13_4",
-            "release_source_dir": "cuda_bindings_13_4",
-            "ctk_target": "13.4",
-            "toolkit_version": "13.4.0",
+            "line_id": "alternate-13",
+            "source_dir": "alternate_bindings",
+            "release_source_dir": "alternate_bindings",
+            "ctk_target": "13.2",
+            "toolkit_version": "13.2.0",
             "toolkit_channel": "stable",
-            "tag_series": "v13.4.",
+            "tag_series": "v13.2.",
             "allow_alpha_beta_tags": True,
         }
 
-        problems = check_release_notes("v13.4.0", "cuda-bindings", tmp_path, line)
+        problems = check_release_notes("v13.2.0", "cuda-bindings", tmp_path, line)
 
         assert problems == []
 

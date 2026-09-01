@@ -70,7 +70,7 @@ def compute_workplan(
 ) -> dict[str, object]:
     """Return the final CI decisions for the supplied changed paths."""
     config = bindings_config or load_config()
-    lines = config.public_lines
+    lines = config.lines
     line_by_id = {line.line_id: line for line in lines}
     line_ids = tuple(line_by_id)
     cuda_variants = tuple(dict.fromkeys(line.cuda_variant for line in lines))

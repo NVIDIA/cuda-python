@@ -90,19 +90,19 @@ jobs:
           # Read base matrix from YAML file for the specific architecture
           TEST_MATRIX=$(yq -o json ".linux[\"${MATRIX_TYPE}\"] | map(select(.ARCH == \"${ARCH}\"))" ci/test-matrix.yml)
 
-          PUBLIC_BINDINGS_LINES=$(jq -ce '
-            [.lines[] | select(any(.roles[]; . == "current" or . == "maintenance"))]
-            | if length > 0 then . else error("bindings registry has no public lines") end
+          BINDINGS_LINES=$(jq -ce '
+            .lines
+            | if length > 0 then . else error("bindings registry has no lines") end
           ' <<< "$BINDINGS_CONFIG")
           CURRENT_BINDINGS_SOURCE_DIR=$(jq -er '
             [.[] | select(.roles | index("current"))]
             | if length == 1 then .[0].source_dir else error("bindings registry must have one current line") end
-          ' <<< "$PUBLIC_BINDINGS_LINES")
+          ' <<< "$BINDINGS_LINES")
 
           if [[ -z "$WORKPLAN" ]]; then
             TEST_CUDA_MAJORS=$(jq -c '
               [.[].cuda_variant] | unique | map({key: ., value: true}) | from_entries
-            ' <<< "$PUBLIC_BINDINGS_LINES")
+            ' <<< "$BINDINGS_LINES")
           else
             TEST_CUDA_MAJORS=$(jq -ce '
               .jobs.test_cuda_majors
@@ -123,7 +123,7 @@ jobs:
           # pre-installed driver); wrap in include structure.
           MATRIX=$(echo "$TEST_MATRIX" | jq -c \
             --argjson test_cuda_majors "$TEST_CUDA_MAJORS" \
-            --argjson bindings_lines "$PUBLIC_BINDINGS_LINES" \
+            --argjson bindings_lines "$BINDINGS_LINES" \
             --arg default_bindings_source_dir "$CURRENT_BINDINGS_SOURCE_DIR" \
             '${{ inputs.matrix_filter }}
              | map(

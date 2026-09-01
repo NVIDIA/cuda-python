@@ -13,7 +13,7 @@ from typing import Any
 
 _CUDA_VARIANT_PATTERN = re.compile(r"cu[1-9][0-9]*")
 _TOOLKIT_VERSION_PATTERN = re.compile(r"[1-9][0-9]*\.[0-9]+\.[0-9]+(?:[.-][A-Za-z0-9]+)*")
-_PUBLIC_ROLES = frozenset({"current", "maintenance"})
+_BINDINGS_ROLES = frozenset({"current", "maintenance"})
 
 
 class MatrixBindingsError(ValueError):
@@ -27,7 +27,7 @@ def _json_value(text: str, label: str) -> Any:
         raise MatrixBindingsError(f"{label} is not valid JSON: {error.msg}") from error
 
 
-def _public_lines(bindings_config: Any) -> list[tuple[str, str, str]]:
+def _registered_lines(bindings_config: Any) -> list[tuple[str, str, str]]:
     if not isinstance(bindings_config, dict):
         raise MatrixBindingsError("bindings config must be a JSON object")
     if bindings_config.get("schema_version") != 2:
@@ -37,7 +37,7 @@ def _public_lines(bindings_config: Any) -> list[tuple[str, str, str]]:
     if not isinstance(lines, list):
         raise MatrixBindingsError("bindings config lines must be a JSON list")
 
-    public_lines: list[tuple[str, str, str]] = []
+    registered_lines: list[tuple[str, str, str]] = []
     seen_line_ids: set[str] = set()
     seen_toolkit_versions: set[str] = set()
     for index, line in enumerate(lines):
@@ -48,8 +48,9 @@ def _public_lines(bindings_config: Any) -> list[tuple[str, str, str]]:
         roles = line.get("roles")
         if not isinstance(roles, list) or not all(isinstance(role, str) for role in roles):
             raise MatrixBindingsError(f"{label} roles must be a JSON list of strings")
-        if not _PUBLIC_ROLES.intersection(roles):
-            continue
+        if len(roles) != 1 or roles[0] not in _BINDINGS_ROLES:
+            allowed = ", ".join(sorted(_BINDINGS_ROLES))
+            raise MatrixBindingsError(f"{label} roles must contain exactly one of: {allowed}")
 
         line_id = line.get("line_id")
         toolkit_version = line.get("toolkit_version")
@@ -67,16 +68,16 @@ def _public_lines(bindings_config: Any) -> list[tuple[str, str, str]]:
                 f"toolkit_version {toolkit_version!r}"
             )
         if line_id in seen_line_ids:
-            raise MatrixBindingsError(f"duplicate public bindings line_id: {line_id!r}")
+            raise MatrixBindingsError(f"duplicate bindings line_id: {line_id!r}")
         if toolkit_version in seen_toolkit_versions:
-            raise MatrixBindingsError(f"duplicate public bindings toolkit_version: {toolkit_version!r}")
+            raise MatrixBindingsError(f"duplicate bindings toolkit_version: {toolkit_version!r}")
         seen_line_ids.add(line_id)
         seen_toolkit_versions.add(toolkit_version)
-        public_lines.append((line_id, cuda_variant, toolkit_version))
+        registered_lines.append((line_id, cuda_variant, toolkit_version))
 
-    if not public_lines:
-        raise MatrixBindingsError("bindings config has no public current or maintenance lines")
-    return public_lines
+    if not registered_lines:
+        raise MatrixBindingsError("bindings config has no registered lines")
+    return registered_lines
 
 
 def check_test_matrix_bindings(
@@ -84,9 +85,9 @@ def check_test_matrix_bindings(
     enabled_cuda_variants: Any,
     test_matrix: Any,
 ) -> None:
-    """Raise if an enabled public bindings line has no exact toolkit-pin row."""
-    public_lines = _public_lines(bindings_config)
-    public_variants = {cuda_variant for _, cuda_variant, _ in public_lines}
+    """Raise if an enabled bindings line has no exact toolkit-pin row."""
+    registered_lines = _registered_lines(bindings_config)
+    registered_variants = {cuda_variant for _, cuda_variant, _ in registered_lines}
 
     if not isinstance(enabled_cuda_variants, dict) or not all(
         isinstance(cuda_variant, str) and type(enabled) is bool
@@ -96,11 +97,11 @@ def check_test_matrix_bindings(
     unknown_enabled = sorted(
         cuda_variant
         for cuda_variant, enabled in enabled_cuda_variants.items()
-        if enabled and cuda_variant not in public_variants
+        if enabled and cuda_variant not in registered_variants
     )
     if unknown_enabled:
         raise MatrixBindingsError(
-            "enabled CUDA variants are absent from the public bindings registry: " + ", ".join(unknown_enabled)
+            "enabled CUDA variants are absent from the bindings registry: " + ", ".join(unknown_enabled)
         )
 
     if not isinstance(test_matrix, list):
@@ -116,7 +117,7 @@ def check_test_matrix_bindings(
 
     missing = [
         (line_id, cuda_variant, toolkit_version)
-        for line_id, cuda_variant, toolkit_version in public_lines
+        for line_id, cuda_variant, toolkit_version in registered_lines
         if enabled_cuda_variants.get(cuda_variant) is True and toolkit_version not in matrix_versions
     ]
     if missing:

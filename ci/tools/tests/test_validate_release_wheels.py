@@ -16,14 +16,14 @@ VALIDATE_RELEASE_WHEELS = Path(__file__).parent.parent / "validate-release-wheel
 def resolved_line() -> str:
     return json.dumps(
         {
-            "line_id": "released-13-4",
-            "source_dir": "cuda_bindings_13_4",
-            "release_source_dir": "cuda_bindings_13_4",
+            "line_id": "alternate-13",
+            "source_dir": "alternate_bindings",
+            "release_source_dir": "alternate_bindings",
             "release_registry_origin": "tag",
-            "ctk_target": "13.4",
-            "toolkit_version": "13.4.0",
+            "ctk_target": "13.2",
+            "toolkit_version": "13.2.0",
             "toolkit_channel": "stable",
-            "tag_series": "v13.4.",
+            "tag_series": "v13.2.",
             "allow_alpha_beta_tags": True,
         },
         separators=(",", ":"),
@@ -35,7 +35,7 @@ def run_validator(wheel_dir: Path, *extra_args: str) -> subprocess.CompletedProc
         [
             sys.executable,
             str(VALIDATE_RELEASE_WHEELS),
-            "v13.4.0",
+            "v13.2.0",
             "cuda-bindings",
             str(wheel_dir),
             *extra_args,
@@ -48,7 +48,7 @@ def run_validator(wheel_dir: Path, *extra_args: str) -> subprocess.CompletedProc
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_tag_authoritative_line_validates_after_control_registry_moves_on(tmp_path):
-    (tmp_path / "cuda_bindings-13.4.0-cp312-cp312-manylinux.whl").touch()
+    (tmp_path / "cuda_bindings-13.2.0-cp312-cp312-manylinux.whl").touch()
 
     without_resolved_line = run_validator(tmp_path)
     with_resolved_line = run_validator(

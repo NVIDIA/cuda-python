@@ -29,20 +29,17 @@ def write_policy(tmp_path: Path, **updates: object) -> Path:
 def write_config(
     tmp_path: Path,
     *,
-    public_roots: tuple[str, ...] = DEFAULT_ROOTS,
-    unreleased_roots: tuple[str, ...] = (),
+    roots: tuple[str, ...] = DEFAULT_ROOTS,
 ) -> Path:
-    public_specs = (
+    specs = (
         ("current", "13.3"),
         ("maintenance-12", "12.9"),
         ("maintenance-11", "11.8"),
     )
-    unreleased_specs = (("unreleased-14", "14.0"), ("unreleased-15", "15.0"))
-    assert len(public_roots) <= len(public_specs)
-    assert len(unreleased_roots) <= len(unreleased_specs)
+    assert len(roots) <= len(specs)
 
     lines = {}
-    for (line_id, ctk_target), source_dir in zip(public_specs[: len(public_roots)], public_roots, strict=True):
+    for (line_id, ctk_target), source_dir in zip(specs[: len(roots)], roots, strict=True):
         lines[line_id] = {
             "source_dir": source_dir,
             "ctk_target": ctk_target,
@@ -51,27 +48,14 @@ def write_config(
             "tag_series": f"v{ctk_target}.",
             "allow_alpha_beta_tags": True,
         }
-    for (line_id, ctk_target), source_dir in zip(
-        unreleased_specs[: len(unreleased_roots)], unreleased_roots, strict=True
-    ):
-        lines[line_id] = {
-            "source_dir": source_dir,
-            "ctk_target": ctk_target,
-            "toolkit_version": f"{ctk_target}.0",
-            "toolkit_channel": "prerelease",
-            "tag_series": f"v{ctk_target}.",
-            "allow_alpha_beta_tags": True,
-        }
-
     config = {
         "schema_version": 2,
         "cuda": {
             "bindings": {
                 "lines": lines,
                 "roles": {
-                    "current": public_specs[0][0],
-                    "maintenance": [line_id for line_id, _ in public_specs[1 : len(public_roots)]],
-                    "unreleased": [line_id for line_id, _ in unreleased_specs[: len(unreleased_roots)]],
+                    "current": specs[0][0],
+                    "maintenance": [line_id for line_id, _ in specs[1 : len(roots)]],
                 },
             }
         },
@@ -174,20 +158,12 @@ def test_symlink_is_rejected(tmp_path, capsys):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_all_registry_public_roots_are_checked(tmp_path, capsys):
+def test_all_registry_roots_are_checked(tmp_path, capsys):
     roots = ("cuda_bindings_13", "cuda_bindings_12", "cuda_bindings_11")
     write_roots(tmp_path, roots=roots[:2])
 
-    assert run_check(tmp_path, config=write_config(tmp_path, public_roots=roots)) == 1
+    assert run_check(tmp_path, config=write_config(tmp_path, roots=roots)) == 1
     assert "bindings root is missing or not a directory: cuda_bindings_11" in capsys.readouterr().err
-
-
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_unreleased_registry_roots_are_not_checked(tmp_path):
-    write_roots(tmp_path)
-
-    config = write_config(tmp_path, unreleased_roots=("cuda_bindings_13_4",))
-    assert run_check(tmp_path, config=config) == 0
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")

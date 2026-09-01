@@ -21,7 +21,6 @@ def bindings_config(*lines):
         "roles": {
             "current": ["released-13"],
             "maintenance": ["released-12"],
-            "unreleased": [],
         },
     }
 
@@ -38,7 +37,7 @@ def line(line_id, toolkit_version, role, *, cuda_variant=None):
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 class TestCheckTestMatrixBindings:
-    def test_accepts_exact_rows_for_enabled_public_lines(self):
+    def test_accepts_exact_rows_for_enabled_lines(self):
         config = bindings_config(
             line("released-12", "12.9.1", "maintenance"),
             line("released-13", "13.3.0", "current"),
@@ -52,18 +51,17 @@ class TestCheckTestMatrixBindings:
 
     def test_requires_each_enabled_same_major_line(self):
         config = bindings_config(
-            line("released-13-4", "13.4.0", "maintenance"),
-            line("released-13-5", "13.5.0", "current"),
+            line("released-11-7", "11.7.1", "maintenance"),
+            line("released-11-8", "11.8.0", "current"),
         )
 
-        with pytest.raises(MatrixBindingsError, match=r"released-13-5 .*CUDA 13\.5\.0"):
-            check_test_matrix_bindings(config, {"cu13": True}, [{"CUDA_VER": "13.4.0"}])
+        with pytest.raises(MatrixBindingsError, match=r"released-11-8 .*CUDA 11\.8\.0"):
+            check_test_matrix_bindings(config, {"cu11": True}, [{"CUDA_VER": "11.7.1"}])
 
-    def test_ignores_disabled_and_unreleased_lines(self):
+    def test_ignores_disabled_lines(self):
         config = bindings_config(
             line("released-12", "12.9.1", "maintenance"),
             line("released-13", "13.3.0", "current"),
-            line("future-13-4", "13.4.0", "unreleased"),
         )
 
         check_test_matrix_bindings(config, {"cu12": False, "cu13": True}, [{"CUDA_VER": "13.3.0"}])
@@ -82,7 +80,7 @@ class TestCheckTestMatrixBindings:
                 bindings_config(line("released-13", "13.3.0", "current")),
                 {"cu14": True},
                 [],
-                "enabled CUDA variants are absent from the public bindings registry: cu14",
+                "enabled CUDA variants are absent from the bindings registry: cu14",
             ),
             (
                 bindings_config(line("released-13", "13.3.0", "current")),
@@ -95,6 +93,12 @@ class TestCheckTestMatrixBindings:
                 {"cu13": True},
                 [],
                 "does not match toolkit_version",
+            ),
+            (
+                bindings_config(line("released-13", "13.3.0", "other")),
+                {"cu13": True},
+                [],
+                "roles must contain exactly one of",
             ),
         ],
     )

@@ -103,7 +103,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           REQUESTED_CUDA_ENV: ${{ inputs.cuda-env || '' }}
         run: |
-          bindings_lines=$(python3 ci/tools/bindings_config.py list --scope public)
+          bindings_lines=$(python3 ci/tools/bindings_config.py list)
           selected_lines='[]'
           docs_lines='[]'
 
@@ -291,7 +291,7 @@ jobs:
       - name: Build current, another ABI, then current again in one checkout
         run: |
           current_line=$(python3 ci/tools/bindings_config.py get --role current)
-          bindings_lines=$(python3 ci/tools/bindings_config.py list --scope public)
+          bindings_lines=$(python3 ci/tools/bindings_config.py list)
           current_env=$(jq -r '.cuda_variant' <<< "${current_line}")
           current_major=$(jq -r '.cuda_major' <<< "${current_line}")
           other_env=$(jq -r --arg current_env "${current_env}" \
@@ -358,7 +358,7 @@ jobs:
           REQUESTED_CUDA_ENV: ${{ inputs.cuda-env || '' }}
         run: |
           if [[ -n "${REQUESTED_CUDA_ENV}" ]]; then
-            bindings_lines=$(python3 ci/tools/bindings_config.py list --scope public)
+            bindings_lines=$(python3 ci/tools/bindings_config.py list)
             if ! jq -e --arg cuda_env "${REQUESTED_CUDA_ENV}" \
               'any(.[]; .cuda_variant == $cuda_env)' <<< "${bindings_lines}" > /dev/null; then
               registered_envs=$(jq -r '[.[].cuda_variant] | unique | join(", ")' <<< "${bindings_lines}")

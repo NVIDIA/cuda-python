@@ -201,8 +201,8 @@ jobs:
             unavailable
           fi
           if ! cuda_versions_json=$(jq -ce '
-            [.lines[] | select((.roles | index("unreleased")) == null) | .toolkit_version]
-            | if length > 0 then . else error("bindings registry has no public toolkit versions") end
+            [.lines[].toolkit_version]
+            | if length > 0 then . else error("bindings registry has no toolkit versions") end
           ' <<< "$bindings_config"); then
             unavailable
           fi
