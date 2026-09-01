@@ -58,10 +58,9 @@ def test_cuda_device_order():
     cuda_devices = get_cuda_device_names()
     nvml_devices = get_nvml_device_names()
 
-    if any("Thor" in device["name"] for device in nvml_devices) or any(
-        "Orin" in device["name"] for device in nvml_devices
-    ):
-        pytest.skip("Skipping test on Thor or Orin, which have non-standard device naming")
+    for kind in ("Orin", "Thor"):
+        if any(kind in device["name"] for device in nvml_devices):
+            pytest.skip(f"Skipping test on {kind}, which has non-standard device naming")
         return
 
     if "CUDA_VISIBLE_DEVICES" not in os.environ:
