@@ -23,7 +23,7 @@ jobs:
       CUDA_VER: ${{ steps.get-vars.outputs.cuda_ver }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Get CUDA version
         id: get-vars
         run: |
@@ -65,7 +65,7 @@ jobs:
           apt-get install -y git
 
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           # Treeless clone: setuptools-scm needs the commit graph (`git describe`)
           # but not historical blobs.
@@ -100,7 +100,7 @@ jobs:
           echo "CUDA_PYTHON_COVERAGE=1" >> $GITHUB_ENV
 
       - name: Set up Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: ${{ env.PY_VER }}
         env:
@@ -233,7 +233,7 @@ jobs:
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           # Treeless clone: setuptools-scm needs the commit graph (`git describe`)
           # but not historical blobs.
@@ -241,7 +241,7 @@ jobs:
           filter: blob:none
 
       - name: Set up Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: ${{ env.PY_VER }}
 
@@ -349,7 +349,7 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
 
@@ -372,7 +372,7 @@ jobs:
           nvidia-smi
 
       - name: Set up Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: ${{ env.PY_VER }}
 
@@ -474,10 +474,10 @@ jobs:
       contents: write
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Set up Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: ${{ env.PY_VER }}
 
@@ -567,7 +567,7 @@ jobs:
           include-hidden-files: true
 
       - name: Deploy to gh-pages
-        uses: JamesIves/github-pages-deploy-action@d92aa235d04922e8f08b40ce78cc5442fcfbfa2f  # v4.8.0
+        uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445  # v4.9.0
         with:
           git-config-name: cuda-python-bot
           git-config-email: cuda-python-bot@users.noreply.github.com
