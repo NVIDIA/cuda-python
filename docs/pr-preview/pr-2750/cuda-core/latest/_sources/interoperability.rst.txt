@@ -26,11 +26,9 @@ Conversely, if any GPU library already sets a device (or context) to current, th
 method ensures that the same device/context is picked up by and shared with
 ``cuda.core``.
 
-The :class:`Device` methods for resource creation and synchronization act on
-that device, even when another device is current. These methods do not change
-which device is current. For example, if device 0 is current, ``dev1.sync()``
-synchronizes device 1 and leaves device 0 current. When the device is already
-current, no context switch is performed.
+Other :class:`Device` methods do not change the current context. For example,
+``dev1.sync()`` synchronizes device 1 and leaves the current context unchanged,
+even when another device is current.
 
 
 ``__cuda_stream__`` protocol

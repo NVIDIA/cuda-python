@@ -795,12 +795,11 @@ devices of compute capability 9.0.
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>The <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> methods for resource creation and synchronization now act
-on that device, even when another device is current. These methods do not
-change which device is current. For example, if device 0 is current,
-<code class="docutils literal notranslate"><span class="pre">dev1.sync()</span></code> synchronizes device 1 and leaves device 0 current. The return
-value from <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.set_current()</span></code></a> now identifies the device that was
-previously current.
+<li><p><a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> methods that create resources or synchronize now act on that
+device, even when another device is current. They do not change which device
+is current. For example, <code class="docutils literal notranslate"><span class="pre">dev1.sync()</span></code> synchronizes device 1 even when
+device 0 is current. <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.set_current()</span></code></a> now always returns a
+<a class="reference internal" href="../generated/cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a> with the correct device ID.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2311">#2311</a>)</p></li>
 <li><p>A <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> is now freed correctly even when the CUDA context current
 at teardown is not the one it was allocated in, or when no context is current
