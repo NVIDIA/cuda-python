@@ -28,6 +28,14 @@ def test_stream_init_with_options(init_cuda):
     assert stream.priority == 0
 
 
+@pytest.mark.agent_authored(model="glm-5.2")
+def test_stream_init_with_dict_options(init_cuda):
+    """Device.create_stream accepts a plain dict for options (backward compat)."""
+    stream = Device().create_stream(options={"nonblocking": True, "priority": 0})
+    assert stream.is_nonblocking is True
+    assert stream.priority == 0
+
+
 def test_stream_handle(init_cuda):
     stream = Device().create_stream(options=StreamOptions())
     assert isinstance(stream.handle, driver.CUstream)

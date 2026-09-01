@@ -123,6 +123,7 @@ cdef class Stream:
         return Stream._from_handle(cls, get_per_thread_stream())
 
     @classmethod
+    @cython.annotation_typing(False)
     def _init(cls, obj: IsStreamType | None = None, options: StreamOptions | None = None,
               device_id: int | None = None, ctx: Context | None = None) -> Stream:
         cdef StreamHandle h_stream
