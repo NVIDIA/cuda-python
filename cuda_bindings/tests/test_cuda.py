@@ -1335,3 +1335,35 @@ def test_dealloc_clears_array_field_in_external_struct():
         f"external struct still holds a dangling pointer ({attrs_after:#x}) "
         "where attrs was, after the aliasing wrapper was destroyed"
     )
+
+
+def test_pointer_device_ordinal_matches_allocation_device():
+    # Regression test for cuPointerGetAttribute(s)(DEVICE_ORDINAL): the binding
+    # must report the real device the pointer was allocated on, not always 0.
+    # Needs >= 2 GPUs: on device 0 a wrong 0 is indistinguishable from correct.
+    err, ndev = cudart.cudaGetDeviceCount()
+    assert err == cudart.cudaError_t.cudaSuccess
+    if ndev < 2:
+        pytest.skip("needs >= 2 GPUs to distinguish a wrong 0 from the correct ordinal")
+
+    ord_attr = cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL
+    for dev in range(ndev):
+        (err,) = cudart.cudaSetDevice(dev)
+        assert err == cudart.cudaError_t.cudaSuccess
+        err, ptr = cudart.cudaMalloc(256)
+        assert err == cudart.cudaError_t.cudaSuccess
+        try:
+            err, attrs = cudart.cudaPointerGetAttributes(ptr)
+            assert err == cudart.cudaError_t.cudaSuccess
+            expected = attrs.device
+
+            err, singular = cuda.cuPointerGetAttribute(ord_attr, cuda.CUdeviceptr(ptr))
+            assert err == cuda.CUresult.CUDA_SUCCESS
+            assert singular == expected, f"singular ordinal {singular} != {expected} on device {dev}"
+
+            err, plural = cuda.cuPointerGetAttributes(1, [ord_attr], cuda.CUdeviceptr(ptr))
+            assert err == cuda.CUresult.CUDA_SUCCESS
+            assert plural[0] == expected, f"plural ordinal {plural[0]} != {expected} on device {dev}"
+        finally:
+            (err,) = cudart.cudaFree(ptr)
+            assert err == cudart.cudaError_t.cudaSuccess
