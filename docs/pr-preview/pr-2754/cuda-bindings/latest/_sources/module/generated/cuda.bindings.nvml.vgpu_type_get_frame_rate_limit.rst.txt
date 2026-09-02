@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.vgpu\_type\_get\_frame\_rate\_limit
+======================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: vgpu_type_get_frame_rate_limit
