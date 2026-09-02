@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_pgpu\_metadata\_string
-======================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_pgpu_metadata_string
