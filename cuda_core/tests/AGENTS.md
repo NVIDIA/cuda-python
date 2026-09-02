@@ -60,7 +60,7 @@ with pytest.raises(RuntimeError, match="IPC is not available"):
 
 ## Release resources at test boundaries
 
-The `_init_cuda_context` fixture in `conftest.py` runs `gc.collect()` followed
+The `init_cuda` fixture in `conftest.py` runs `gc.collect()` followed
 by `cuCtxSynchronize()` before popping the context. Tests should not rely on
 that as a substitute for cleaning up explicitly: prefer context managers for
 resources whose lifetime fits a single scope, and keep pool lifetimes inside
