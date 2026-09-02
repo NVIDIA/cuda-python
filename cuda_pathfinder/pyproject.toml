@@ -18,6 +18,9 @@ test = [
     "pytest-randomly==4.1.0",
     "pytest-run-parallel>=0.4.1",
 ]
+test-ft = [
+    "pytest-run-parallel==0.10.0",
+]
 # Internal organization of test dependencies.
 cu12 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl,cupti,profiler]==12.*",

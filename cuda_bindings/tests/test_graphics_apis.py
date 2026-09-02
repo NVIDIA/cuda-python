@@ -13,6 +13,8 @@ from cuda_python_test_helpers.graphics import is_gl_context_unavailable
 
 from cuda.bindings import runtime as cudart
 
+pytestmark = pytest.mark.thread_unsafe(reason="pyglet/OpenGL context is process-global")
+
 
 def _configure_pyglet_headless():
     """On headless Linux: enable EGL mode or skip if EGL is absent."""
