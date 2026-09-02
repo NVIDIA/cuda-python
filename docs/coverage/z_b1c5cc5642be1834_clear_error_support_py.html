@@ -644,47 +644,50 @@
   "lh": "tests/test_program.py::test_nvrtc_compile_with_logs_capture|run",
   "mh": "tests/test_program.py::test_nvrtc_debug_concurrent_compile_uses_unique_temp_files|run",
   "nh": "tests/test_program.py::test_nvrtc_debug_falls_back_when_tmp_not_writable|run",
-  "oh": "tests/test_program.py::test_nvrtc_debug_materializes_source_to_temp_file|run",
-  "ph": "tests/test_program.py::test_program_backend_property|run",
-  "qh": "tests/test_program.py::test_program_close|run",
-  "rh": "tests/test_program.py::test_program_compile_invalid_target_type|run",
-  "sh": "tests/test_program.py::test_program_compile_valid_target_type|run",
-  "th": "tests/test_program.py::test_program_handle_property|run",
-  "uh": "tests/test_program.py::test_program_init_valid_code_type|run",
-  "vh": "tests/test_program.py::test_ptx_program_extra_sources_unsupported|run",
-  "wh": "tests/test_program.py::test_ptx_program_handle_is_linker_handle|run",
-  "xh": "tests/test_program.py::test_ptx_program_numba_debug_unset_or_false_does_not_warn[False]|run",
-  "yh": "tests/test_program.py::test_ptx_program_numba_debug_unset_or_false_does_not_warn[None]|run",
-  "zh": "tests/test_program.py::test_ptx_program_numba_debug_warns_and_is_ignored|run",
-  "Ah": "tests/test_program.py::test_ptx_program_with_various_options[options0]|run",
-  "Bh": "tests/test_program.py::test_ptx_program_with_various_options[options1]|run",
-  "Ch": "tests/test_program.py::test_ptx_program_with_various_options[options2]|run",
-  "Dh": "tests/test_program.py::test_ptx_program_with_various_options[options3]|run",
-  "Eh": "tests/test_program.py::test_ptx_program_with_various_options[options4]|run",
-  "Fh": "tests/test_program.py::test_ptx_program_with_various_options[options5]|run",
-  "Gh": "tests/test_program.py::test_ptx_program_with_various_options[options6]|run",
-  "Hh": "tests/test_program.py::test_ptx_program_with_various_options[options6]|setup",
-  "Ih": "tests/test_program.py::test_ptx_program_with_various_options[options7]|run",
-  "Jh": "tests/test_program.py::test_ptx_program_with_various_options[options8]|run",
-  "Kh": "tests/test_program.py::test_ptx_program_with_various_options[options8]|setup",
-  "Lh": "tests/test_program_cache.py::test_cache_roundtrip_with_real_compilation|run",
-  "Mh": "tests/test_program_compile_cache.py::test_cache_accepts_empty_name_expressions|run",
-  "Nh": "tests/test_program_compile_cache.py::test_cache_hit_emits_ptx_loadability_warning_when_driver_too_old|run",
-  "Oh": "tests/test_program_compile_cache.py::test_cache_hit_no_ptx_warning_when_driver_supports_it|run",
-  "Ph": "tests/test_program_compile_cache.py::test_cache_hit_returns_object_code_reconstructed_from_bytes|run",
-  "Qh": "tests/test_program_compile_cache.py::test_cache_kwarg_roundtrip_across_reopen|run",
-  "Rh": "tests/test_program_compile_cache.py::test_cache_miss_compile_failure_does_not_store|run",
-  "Sh": "tests/test_program_compile_cache.py::test_cache_miss_runs_compile_then_stores|run",
-  "Th": "tests/test_program_compile_cache.py::test_cache_must_subclass_program_cache_resource|run",
-  "Uh": "tests/test_program_compile_cache.py::test_cache_raises_for_extra_digest_required_option|run",
-  "Vh": "tests/test_program_compile_cache.py::test_cache_raises_for_nvrtc_name_with_dir_component|run",
-  "Wh": "tests/test_program_compile_cache.py::test_cache_raises_for_side_effect_option|run",
-  "Xh": "tests/test_program_compile_cache.py::test_cache_read_exception_propagates|run",
-  "Yh": "tests/test_program_compile_cache.py::test_cache_rejects_name_expressions|run",
-  "Zh": "tests/test_program_compile_cache.py::test_cache_write_exception_propagates|run",
-  "0h": "tests/test_program_compile_cache.py::test_filestream_hit_returns_byte_equal_object_code|run",
-  "1h": "tests/test_program_compile_cache.py::test_no_cache_kwarg_does_not_derive_key|run",
-  "2h": "tests/test_cuda_utils.py::test_raise_code_path_meant_to_be_unreachable|run"
+  "oh": "tests/test_program.py::test_nvrtc_debug_keeps_file_the_caller_named[False]|run",
+  "ph": "tests/test_program.py::test_nvrtc_debug_keeps_file_the_caller_named[True]|run",
+  "qh": "tests/test_program.py::test_nvrtc_debug_materializes_source_to_temp_file|run",
+  "rh": "tests/test_program.py::test_nvrtc_debug_preserves_quoted_include_resolution|run",
+  "sh": "tests/test_program.py::test_program_backend_property|run",
+  "th": "tests/test_program.py::test_program_close|run",
+  "uh": "tests/test_program.py::test_program_compile_invalid_target_type|run",
+  "vh": "tests/test_program.py::test_program_compile_valid_target_type|run",
+  "wh": "tests/test_program.py::test_program_handle_property|run",
+  "xh": "tests/test_program.py::test_program_init_valid_code_type|run",
+  "yh": "tests/test_program.py::test_ptx_program_extra_sources_unsupported|run",
+  "zh": "tests/test_program.py::test_ptx_program_extra_sources_unsupported|setup",
+  "Ah": "tests/test_program.py::test_ptx_program_handle_is_linker_handle|run",
+  "Bh": "tests/test_program.py::test_ptx_program_numba_debug_unset_or_false_does_not_warn[False]|run",
+  "Ch": "tests/test_program.py::test_ptx_program_numba_debug_unset_or_false_does_not_warn[None]|run",
+  "Dh": "tests/test_program.py::test_ptx_program_numba_debug_warns_and_is_ignored|run",
+  "Eh": "tests/test_program.py::test_ptx_program_with_various_options[options0]|run",
+  "Fh": "tests/test_program.py::test_ptx_program_with_various_options[options1]|run",
+  "Gh": "tests/test_program.py::test_ptx_program_with_various_options[options2]|run",
+  "Hh": "tests/test_program.py::test_ptx_program_with_various_options[options3]|run",
+  "Ih": "tests/test_program.py::test_ptx_program_with_various_options[options3]|setup",
+  "Jh": "tests/test_program.py::test_ptx_program_with_various_options[options4]|run",
+  "Kh": "tests/test_program.py::test_ptx_program_with_various_options[options5]|run",
+  "Lh": "tests/test_program.py::test_ptx_program_with_various_options[options6]|run",
+  "Mh": "tests/test_program.py::test_ptx_program_with_various_options[options7]|run",
+  "Nh": "tests/test_program.py::test_ptx_program_with_various_options[options8]|run",
+  "Oh": "tests/test_program_cache.py::test_cache_roundtrip_with_real_compilation|run",
+  "Ph": "tests/test_program_compile_cache.py::test_cache_accepts_empty_name_expressions|run",
+  "Qh": "tests/test_program_compile_cache.py::test_cache_hit_emits_ptx_loadability_warning_when_driver_too_old|run",
+  "Rh": "tests/test_program_compile_cache.py::test_cache_hit_no_ptx_warning_when_driver_supports_it|run",
+  "Sh": "tests/test_program_compile_cache.py::test_cache_hit_returns_object_code_reconstructed_from_bytes|run",
+  "Th": "tests/test_program_compile_cache.py::test_cache_kwarg_roundtrip_across_reopen|run",
+  "Uh": "tests/test_program_compile_cache.py::test_cache_miss_compile_failure_does_not_store|run",
+  "Vh": "tests/test_program_compile_cache.py::test_cache_miss_runs_compile_then_stores|run",
+  "Wh": "tests/test_program_compile_cache.py::test_cache_must_subclass_program_cache_resource|run",
+  "Xh": "tests/test_program_compile_cache.py::test_cache_raises_for_extra_digest_required_option|run",
+  "Yh": "tests/test_program_compile_cache.py::test_cache_raises_for_nvrtc_name_with_dir_component|run",
+  "Zh": "tests/test_program_compile_cache.py::test_cache_raises_for_side_effect_option|run",
+  "0h": "tests/test_program_compile_cache.py::test_cache_read_exception_propagates|run",
+  "1h": "tests/test_program_compile_cache.py::test_cache_rejects_name_expressions|run",
+  "2h": "tests/test_program_compile_cache.py::test_cache_write_exception_propagates|run",
+  "3h": "tests/test_program_compile_cache.py::test_filestream_hit_returns_byte_equal_object_code|run",
+  "4h": "tests/test_program_compile_cache.py::test_no_cache_kwarg_does_not_derive_key|run",
+  "5h": "tests/test_cuda_utils.py::test_raise_code_path_meant_to_be_unreachable|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -747,7 +750,7 @@
             <a id="nextFileLink" class="nav" href="z_b1c5cc5642be1834_driver_cu_result_explanations_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
-            created at 2026-09-01 01:32 +0000
+            created at 2026-09-02 01:33 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -773,7 +776,7 @@
     <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="key">def</span> <span class="nam">assert_type</span><span class="op">(</span><span class="nam">obj</span><span class="op">:</span> <span class="nam">object</span><span class="op">,</span> <span class="nam">expected_type</span><span class="op">:</span> <span class="nam">type</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs10" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t">    <span class="str">&quot;&quot;&quot;Ensure obj is of expected_type, else raise AssertionError with a clear message.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">obj</span><span class="op">,</span> <span class="nam">expected_type</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs12"><span class="r"><label for="ctxs12" class="ctx">675 ctx</label></span><span class="ctxs">2d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdSdTdUdVdWdXdYdZd0d1d2d3d4d5d6d7d8d9d!d#d$d%d'd(d)d*d+d,d-d.d/d:d;d=d?d@d[d]d^d_d`d{d|d}d~daebecedeeefegeheiejekelemeneoepeqereseteuevewexeyezeAeBeCeDeEeFeGeHeIeJeKeLeMeNeOePeQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%e'e(e)e*e+e,e-e.e/e:e;e=e?e@e[e]e^e_e`e{e|e}e~eafbfcfdfefffgfhfifjfkflfmfnfofpfqfrfsftfufvfwfxfyfzfAfBfCfDfEfFfGfHfIfJfKfLfMfNfOfPfQfRfSfTfUfVfWfXfYfZf0f1f2f3f4f5f6f7f8f9f!f#f$f%f'f(f)f*f+f,f-f.f/f:f;f=f?f@f[f]f^f_f`f{f|f}f~fagbgcgdgegfggghgigjgkglgmgngogpgqgrgsgtgugvgwgxgygzgAgBgCgDgEgFgGgHgIgJgKgLgMgNgOgPgQgRgSgTgUgVgWgXgYgZg0g1g2g3g4g5g6g7g8g9g!g#g$g%g'g(g)g*g+g,g-g.g/g:g;g=g?g@g[g]g^g_g`g{g|g}g~gahbhchdhehfhghhhihjhkhlhmhnhohphqhrhshthb uhvhwhxhyhzhAhBhChDhEhFhGhHhIhJhKhLhMhNhOhPhQhRhShThUhVhWhXhYhZh0h1h</span></p>
+    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">obj</span><span class="op">,</span> <span class="nam">expected_type</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs12"><span class="r"><label for="ctxs12" class="ctx">678 ctx</label></span><span class="ctxs">2d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdSdTdUdVdWdXdYdZd0d1d2d3d4d5d6d7d8d9d!d#d$d%d'd(d)d*d+d,d-d.d/d:d;d=d?d@d[d]d^d_d`d{d|d}d~daebecedeeefegeheiejekelemeneoepeqereseteuevewexeyezeAeBeCeDeEeFeGeHeIeJeKeLeMeNeOePeQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%e'e(e)e*e+e,e-e.e/e:e;e=e?e@e[e]e^e_e`e{e|e}e~eafbfcfdfefffgfhfifjfkflfmfnfofpfqfrfsftfufvfwfxfyfzfAfBfCfDfEfFfGfHfIfJfKfLfMfNfOfPfQfRfSfTfUfVfWfXfYfZf0f1f2f3f4f5f6f7f8f9f!f#f$f%f'f(f)f*f+f,f-f.f/f:f;f=f?f@f[f]f^f_f`f{f|f}f~fagbgcgdgegfggghgigjgkglgmgngogpgqgrgsgtgugvgwgxgygzgAgBgCgDgEgFgGgHgIgJgKgLgMgNgOgPgQgRgSgTgUgVgWgXgYgZg0g1g2g3g4g5g6g7g8g9g!g#g$g%g'g(g)g*g+g,g-g.g/g:g;g=g?g@g[g]g^g_g`g{g|g}g~gahbhchdhehfhghhhihjhkhlhmhnhohphqhrhshthuhvhwhb xhyhzhAhBhChDhEhFhGhHhIhJhKhLhMhNhOhPhQhRhShThUhVhWhXhYhZh0h1h2h3h4h</span></p>
     <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t">        <span class="key">raise</span> <span class="nam">TypeError</span><span class="op">(</span><span class="fst">f&quot;</span><span class="fst">Expected type </span><span class="op">{</span><span class="nam">expected_type</span><span class="op">.</span><span class="nam">__name__</span><span class="op">}</span><span class="fst">, but got </span><span class="op">{</span><span class="nam">type</span><span class="op">(</span><span class="nam">obj</span><span class="op">)</span><span class="op">.</span><span class="nam">__name__</span><span class="op">}</span><span class="fst">&quot;</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs13"><span class="r"><label for="ctxs13" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -784,7 +787,7 @@
     <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="key">def</span> <span class="nam">raise_code_path_meant_to_be_unreachable</span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">NoReturn</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs22" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">    <span class="key">raise</span> <span class="nam">RuntimeError</span><span class="op">(</span><span class="str">&quot;This code path is meant to be unreachable.&quot;</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">1 ctx</label></span><span class="ctxs">22h</span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">    <span class="key">raise</span> <span class="nam">RuntimeError</span><span class="op">(</span><span class="str">&quot;This code path is meant to be unreachable.&quot;</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">1 ctx</label></span><span class="ctxs">25h</span></p>
 </main>
 <footer>
     <div class="content">
@@ -794,7 +797,7 @@
             <a class="nav" href="z_b1c5cc5642be1834_driver_cu_result_explanations_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
-            created at 2026-09-01 01:32 +0000
+            created at 2026-09-02 01:33 +0000
         </p>
     </div>
 </footer>

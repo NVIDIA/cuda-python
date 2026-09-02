@@ -71,7 +71,7 @@
   "9": "tests/test_graphics_apis.py::test_cuda_gl_register_image_smoketest[\u003ccudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsNone: 0\u003e]|run",
   "!": "tests/test_graphics_apis.py::test_cuda_gl_register_image_smoketest[\u003ccudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsWriteDiscard: 2\u003e]|run",
   "#": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_options_on_per_thread_default_stream|run",
-  "$": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[DeviceMR]|teardown",
+  "$": "tests/memory/test_copy_single_options.py::test_legacy_default_stream_token_rejected_with_options|run",
   "%": "tests/test_interoperability.py::test_interop_memPool|run",
   "'": "tests/test_cudart.py::test_getLocalRuntimeVersion|run",
   "(": "tests/system/test_system_device.py::test_to_cuda_device|run",
@@ -86,62 +86,62 @@
   ";": "tests/test_device.py::test_pci_bus_id|run",
   "=": "tests/test_device.py::test_to_system_device|run",
   "?": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_per_thread_default_stream_token_is_accepted|run",
-  "@": "tests/memory/test_copy_single_options.py::test_legacy_default_stream_token_rejected_with_options|run",
-  "[": "tests/memory/test_copy_single_options.py::test_per_thread_default_stream_token_accepted_with_options|run",
-  "]": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|teardown",
-  "^": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|teardown",
-  "_": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[DeviceMR]|teardown",
-  "`": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[PinnedMR]|teardown",
-  "{": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[DeviceMR]|teardown",
-  "|": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[PinnedMR]|teardown",
-  "}": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[DeviceMR]|teardown",
-  "~": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[PinnedMR]|teardown",
-  "ab": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[DeviceMR]|teardown",
-  "bb": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[PinnedMR]|teardown",
-  "cb": "tests/memory_ipc/test_errors.py::test_closed_ipc_allocation_handle_rejected_before_registry_hit[DeviceMR]|teardown",
-  "db": "tests/memory_ipc/test_errors.py::test_closed_ipc_allocation_handle_rejected_before_registry_hit[PinnedMR]|teardown",
-  "eb": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[DeviceMR]|teardown",
-  "fb": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[PinnedMR]|teardown",
-  "gb": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|teardown",
-  "hb": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|teardown",
-  "ib": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[DeviceMR]|teardown",
-  "jb": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[PinnedMR]|teardown",
-  "kb": "tests/memory_ipc/test_leaks.py::test_alloc_handle[DeviceMR]|teardown",
-  "lb": "tests/memory_ipc/test_leaks.py::test_alloc_handle[PinnedMR]|teardown",
-  "mb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-alloc_handle]|teardown",
-  "nb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer]|teardown",
-  "ob": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer_desc]|teardown",
-  "pb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-mr]|teardown",
-  "qb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|teardown",
-  "rb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer]|teardown",
-  "sb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer_desc]|teardown",
-  "tb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-mr]|teardown",
-  "ub": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-alloc_handle]|teardown",
-  "vb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer]|teardown",
-  "wb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer_desc]|teardown",
-  "xb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|teardown",
-  "yb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|teardown",
-  "zb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer]|teardown",
-  "Ab": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|teardown",
-  "Bb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|teardown",
-  "Cb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|teardown",
-  "Db": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|teardown",
-  "Eb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|teardown",
-  "Fb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|teardown",
-  "Gb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|teardown",
-  "Hb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer]|teardown",
-  "Ib": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|teardown",
-  "Jb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|teardown",
-  "Kb": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[DeviceMR]|teardown",
-  "Lb": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[PinnedMR]|teardown",
-  "Mb": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[DeviceMR]|teardown",
-  "Nb": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[PinnedMR]|teardown",
-  "Ob": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[DeviceMR]|teardown",
-  "Pb": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[PinnedMR]|teardown",
-  "Qb": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[DeviceMR]|teardown",
-  "Rb": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[PinnedMR]|teardown",
-  "Sb": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[DeviceMR]|teardown",
-  "Tb": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[PinnedMR]|teardown",
+  "@": "tests/memory/test_copy_single_options.py::test_per_thread_default_stream_token_accepted_with_options|run",
+  "[": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|teardown",
+  "]": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|teardown",
+  "^": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[DeviceMR]|teardown",
+  "_": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[PinnedMR]|teardown",
+  "`": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[DeviceMR]|teardown",
+  "{": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[PinnedMR]|teardown",
+  "|": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[DeviceMR]|teardown",
+  "}": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[PinnedMR]|teardown",
+  "~": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[DeviceMR]|teardown",
+  "ab": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[PinnedMR]|teardown",
+  "bb": "tests/memory_ipc/test_errors.py::test_closed_ipc_allocation_handle_rejected_before_registry_hit[DeviceMR]|teardown",
+  "cb": "tests/memory_ipc/test_errors.py::test_closed_ipc_allocation_handle_rejected_before_registry_hit[PinnedMR]|teardown",
+  "db": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[DeviceMR]|teardown",
+  "eb": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[PinnedMR]|teardown",
+  "fb": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|teardown",
+  "gb": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|teardown",
+  "hb": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[DeviceMR]|teardown",
+  "ib": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[PinnedMR]|teardown",
+  "jb": "tests/memory_ipc/test_leaks.py::test_alloc_handle[DeviceMR]|teardown",
+  "kb": "tests/memory_ipc/test_leaks.py::test_alloc_handle[PinnedMR]|teardown",
+  "lb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-alloc_handle]|teardown",
+  "mb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer]|teardown",
+  "nb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer_desc]|teardown",
+  "ob": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-mr]|teardown",
+  "pb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|teardown",
+  "qb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer]|teardown",
+  "rb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer_desc]|teardown",
+  "sb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-mr]|teardown",
+  "tb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-alloc_handle]|teardown",
+  "ub": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer]|teardown",
+  "vb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer_desc]|teardown",
+  "wb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|teardown",
+  "xb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|teardown",
+  "yb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer]|teardown",
+  "zb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|teardown",
+  "Ab": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|teardown",
+  "Bb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|teardown",
+  "Cb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|teardown",
+  "Db": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|teardown",
+  "Eb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|teardown",
+  "Fb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|teardown",
+  "Gb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer]|teardown",
+  "Hb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|teardown",
+  "Ib": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|teardown",
+  "Jb": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[DeviceMR]|teardown",
+  "Kb": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[PinnedMR]|teardown",
+  "Lb": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[DeviceMR]|teardown",
+  "Mb": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[PinnedMR]|teardown",
+  "Nb": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[DeviceMR]|teardown",
+  "Ob": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[PinnedMR]|teardown",
+  "Pb": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[DeviceMR]|teardown",
+  "Qb": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[PinnedMR]|teardown",
+  "Rb": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[DeviceMR]|teardown",
+  "Sb": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[PinnedMR]|teardown",
+  "Tb": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[DeviceMR]|teardown",
   "Ub": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|teardown",
   "Vb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[DeviceMR]|teardown",
   "Wb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|teardown",
@@ -284,7 +284,7 @@
             <a id="nextFileLink" class="nav" href="z_1c6fa6fde3f60f5e_runtime_ptds_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
-            created at 2026-09-01 01:32 +0000
+            created at 2026-09-02 01:33 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -332,8 +332,8 @@
     <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">    return __usePTDS</span>&nbsp;</span><input type="checkbox" id="ctxs31"><span class="r"><label for="ctxs31" class="ctx">3 ctx</label></span><span class="ctxs">1a#$</span></p>
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">cdef inline int cudaPythonInit() except -1 nogil:</span>&nbsp;</span><span class="r"><label for="ctxs33" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    if __cudaPythonInit:</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">214 ctx</label></span><span class="ctxs">2a N O P Q l ? # @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTb$ UbVbWbXbYb( R ) S T 7 * U V W E t d F m u v r G M + 8 H w x , s e c y n k f o i b g j h p z A B D C X - . I Y / Zb0b: ; = 9 ! J Z 0 K L 1 % 2 3 4 5 6 q 1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc</span></p>
-    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">        return __usePTDS</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">214 ctx</label></span><span class="ctxs">2a N O P Q l ? # @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTb$ UbVbWbXbYb( R ) S T 7 * U V W E t d F m u v r G M + 8 H w x , s e c y n k f o i b g j h p z A B D C X - . I Y / Zb0b: ; = 9 ! J Z 0 K L 1 % 2 3 4 5 6 q 1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc</span></p>
+    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    if __cudaPythonInit:</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">214 ctx</label></span><span class="ctxs">2a N O P Q l ? # $ @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYb( R ) S T 7 * U V W E t d F m u v r G M + 8 H w x , s e c y n k f o i b g j h p z A B D C X - . I Y / Zb0b: ; = 9 ! J Z 0 K L 1 % 2 3 4 5 6 q 1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc</span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">        return __usePTDS</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">214 ctx</label></span><span class="ctxs">2a N O P Q l ? # $ @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYb( R ) S T 7 * U V W E t d F m u v r G M + 8 H w x , s e c y n k f o i b g j h p z A B D C X - . I Y / Zb0b: ; = 9 ! J Z 0 K L 1 % 2 3 4 5 6 q 1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc</span></p>
     <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    return _cudaPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">3 ctx</label></span><span class="ctxs">1a#$</span></p>
     <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -1357,10 +1357,10 @@
     <p class="pln"><span class="n"><a id="t1056" href="#t1056">1056</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1057" href="#t1057">1057</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1058" href="#t1058">1058</a></span><span class="t"><span class="txt">cdef cudaError_t _cudaDeviceSynchronize() except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1058" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t1059" href="#t1059">1059</a></span><span class="t"><span class="txt">    cdef bint usePTDS = cudaPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs1059"><span class="r"><label for="ctxs1059" class="ctx">140 ctx</label></span><span class="ctxs">2? # @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTb$ UbVbWbXbYbD Zb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc</span></p>
-    <p class="run"><span class="n"><a id="t1060" href="#t1060">1060</a></span><span class="t"><span class="txt">    if usePTDS:</span>&nbsp;</span><input type="checkbox" id="ctxs1060"><span class="r"><label for="ctxs1060" class="ctx">141 ctx</label></span><span class="ctxs">2a ? # @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTb$ UbVbWbXbYbD Zb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc</span></p>
+    <p class="run"><span class="n"><a id="t1059" href="#t1059">1059</a></span><span class="t"><span class="txt">    cdef bint usePTDS = cudaPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs1059"><span class="r"><label for="ctxs1059" class="ctx">140 ctx</label></span><span class="ctxs">2? # $ @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbD Zb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc</span></p>
+    <p class="run"><span class="n"><a id="t1060" href="#t1060">1060</a></span><span class="t"><span class="txt">    if usePTDS:</span>&nbsp;</span><input type="checkbox" id="ctxs1060"><span class="r"><label for="ctxs1060" class="ctx">141 ctx</label></span><span class="ctxs">2a ? # $ @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbD Zb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc</span></p>
     <p class="mis show_mis"><span class="n"><a id="t1061" href="#t1061">1061</a></span><span class="t"><span class="txt">        return ptds._cudaDeviceSynchronize()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1062" href="#t1062">1062</a></span><span class="t"><span class="txt">    return _static_cudaDeviceSynchronize()</span>&nbsp;</span><input type="checkbox" id="ctxs1062"><span class="r"><label for="ctxs1062" class="ctx">140 ctx</label></span><span class="ctxs">2? # @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTb$ UbVbWbXbYbD Zb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc</span></p>
+    <p class="run"><span class="n"><a id="t1062" href="#t1062">1062</a></span><span class="t"><span class="txt">    return _static_cudaDeviceSynchronize()</span>&nbsp;</span><input type="checkbox" id="ctxs1062"><span class="r"><label for="ctxs1062" class="ctx">140 ctx</label></span><span class="ctxs">2? # $ @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbD Zb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc</span></p>
     <p class="pln"><span class="n"><a id="t1063" href="#t1063">1063</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1064" href="#t1064">1064</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1065" href="#t1065">1065</a></span><span class="t"><span class="txt">cdef cudaError_t _cudaDeviceSetLimit(cudaLimit limit, size_t value) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1065" class="ctx">(empty)</label></span></p>
@@ -3596,7 +3596,7 @@
             <a class="nav" href="z_1c6fa6fde3f60f5e_runtime_ptds_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
-            created at 2026-09-01 01:32 +0000
+            created at 2026-09-02 01:33 +0000
         </p>
     </div>
 </footer>

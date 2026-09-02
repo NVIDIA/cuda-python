@@ -95,11 +95,11 @@
   "{": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options2]|setup",
   "|": "tests/test_program.py::test_bitcode_format[bitcode_static]|setup",
   "}": "tests/test_program.py::test_bitcode_format[txt]|setup",
-  "~": "tests/test_program.py::test_nvvm_program_numba_debug|setup",
-  "ab": "tests/test_program.py::test_nvvm_program_options[options1-ltoir]|setup",
+  "~": "tests/test_program.py::test_nvvm_program_options[options1-ptx]|setup",
+  "ab": "tests/test_program.py::test_nvvm_program_options[options2-ptx]|setup",
   "bb": "tests/test_object_protocols.py::test_repr_format[sample_program_nvvm-\u003cProgram backend='NVVM'\u003e]|teardown",
-  "cb": "tests/test_program.py::test_nvvm_program_options[options0-ltoir]|teardown",
-  "db": "tests/test_program.py::test_nvvm_program_options[options5-ltoir]|teardown",
+  "cb": "tests/test_program.py::test_cpp_program_with_various_options[options5]|teardown",
+  "db": "tests/test_program.py::test_cpp_program_with_various_options[options29]|teardown",
   "eb": "tests/test_nvvm.py::test_nvvm_llvm_version|run"
 }
     </script>
@@ -163,7 +163,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cyruntime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
-            created at 2026-09-01 01:32 +0000
+            created at 2026-09-02 01:33 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -209,7 +209,7 @@
     <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">cdef nvvmResult nvvmDestroyProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs31" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">    return _nvvm._nvvmDestroyProgram(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">58 ctx</label></span><span class="ctxs">2a 9 ! C D E F G H X Y d e f g h i j k # P Q R S T U V W bbl m Z I 0 n o cbp q r s t u v w x y dbz A B b c K L M N O </span></p>
+    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">    return _nvvm._nvvmDestroyProgram(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">58 ctx</label></span><span class="ctxs">2a 9 ! C D E F G H X Y d e f g h i j k # P Q R S T U V W bbl m cbdbZ I 0 n o p q r s t u v w x y z A B b c K L M N O </span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">cdef nvvmResult nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs35" class="ctx">(empty)</label></span></p>
@@ -255,7 +255,7 @@
             <a class="nav" href="z_bb8e88d71740c463_cyruntime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
-            created at 2026-09-01 01:32 +0000
+            created at 2026-09-02 01:33 +0000
         </p>
     </div>
 </footer>
