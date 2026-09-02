@@ -331,6 +331,8 @@ jobs:
     container:
       options: -u root --security-opt seccomp=unconfined --shm-size 16g
       image: ubuntu:24.04
+      env:
+        NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
     steps:
       - name: Ensure GPU is working
         run: nvidia-smi
