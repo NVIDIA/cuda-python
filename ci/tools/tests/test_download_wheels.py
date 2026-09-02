@@ -167,3 +167,28 @@ class TestDownloadWheels:
 
         assert result.returncode == 1
         assert "no unexpired release artifact" in result.stderr
+
+
+@pytest.mark.parametrize(
+    ("component", "artifacts", "expected"),
+    (
+        (
+            "all",
+            ["cuda-core-wheel", "cuda-core-wheel-tests", "cuda-python-wheel", "build-metadata"],
+            ["cuda-core-wheel", "cuda-python-wheel"],
+        ),
+        (
+            "cuda-core",
+            ["cuda-core-wheel", "cuda-core-wheel-tests", "cuda-python-wheel"],
+            ["cuda-core-wheel"],
+        ),
+    ),
+)
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_non_release_selection_excludes_test_artifacts(tmp_path, fake_gh, component, artifacts, expected):
+    result, commands = run_download(tmp_path, fake_gh, artifacts, component)
+
+    assert result.returncode == 0, result.stderr
+    downloads = [command[command.index("--name") + 1] for command in commands if "--name" in command]
+    assert downloads == expected
+    assert all("-p" not in command for command in commands)

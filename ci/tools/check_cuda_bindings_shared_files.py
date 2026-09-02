@@ -73,11 +73,20 @@ def _digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()[:12]
 
 
+def _contains_symlink(base: Path, relative: str) -> bool:
+    path = base
+    for part in PurePosixPath(relative).parts:
+        path /= part
+        if path.is_symlink():
+            return True
+    return False
+
+
 def find_drift(repo_root: Path, roots: tuple[str, ...], shared_paths: tuple[str, ...]) -> list[str]:
     violations = []
     for root in roots:
         root_path = repo_root / root
-        if root_path.is_symlink():
+        if _contains_symlink(repo_root, root):
             violations.append(f"bindings root must not be a symlink: {root}")
         elif not root_path.is_dir():
             violations.append(f"bindings root is missing or not a directory: {root}")
@@ -87,7 +96,7 @@ def find_drift(repo_root: Path, roots: tuple[str, ...], shared_paths: tuple[str,
 
     for relative in shared_paths:
         candidates = [(root, repo_root / root / relative) for root in roots]
-        symlinks = [root for root, path in candidates if path.is_symlink()]
+        symlinks = [root for root, _ in candidates if _contains_symlink(repo_root / root, relative)]
         if symlinks:
             violations.append(f"{relative}: symlink in {', '.join(symlinks)}")
             continue

@@ -42,79 +42,93 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Download component wheels using the same logic as release.yml
+# Select artifacts before downloading so non-wheel test artifacts cannot enter
+# the release staging directory.
 if [[ "$COMPONENT" == "all" ]]; then
-    # Download all component patterns
-    gh run download "$RUN_ID" -p "cuda-*" -R "$REPOSITORY" --dir "$ARTIFACTS_DIR"
+    ARTIFACT_PATTERN="cuda-*"
 else
     ARTIFACT_PATTERN="${COMPONENT}*"
-    if [[ "$COMPONENT" =~ ^cuda-(bindings|python)$ && "$GIT_TAG" == v* ]]; then
-        if [[ -z "$RESOLVED_BINDINGS_LINE_JSON" ]]; then
-            echo "Error: resolved bindings-line JSON is required for $COMPONENT release tag $GIT_TAG" >&2
-            exit 1
-        fi
-        if ! command -v jq >/dev/null 2>&1; then
-            echo "Error: jq is required for bindings release artifact routing" >&2
-            exit 1
-        fi
-        if ! TOOLKIT_VERSION="$(jq -er '.toolkit_version | select(type == "string")' \
-            <<< "$RESOLVED_BINDINGS_LINE_JSON")"; then
-            echo "Error: resolved bindings-line JSON has no string toolkit_version" >&2
-            exit 1
-        fi
-        if [[ ! "$TOOLKIT_VERSION" =~ ^[1-9][0-9]*\.[0-9]+\.[0-9]+([.-][A-Za-z0-9]+)*$ ]]; then
-            echo "Error: invalid toolkit_version in resolved bindings-line JSON: $TOOLKIT_VERSION" >&2
-            exit 1
-        fi
-        if ! RELEASE_REGISTRY_ORIGIN="$(jq -er \
-            '.release_registry_origin | select(. == "tag" or . == "control")' \
-            <<< "$RESOLVED_BINDINGS_LINE_JSON")"; then
-            echo "Error: resolved bindings-line JSON has invalid release_registry_origin" >&2
-            exit 1
-        fi
+fi
 
-        if ! ARTIFACT_NAMES="$(gh api --paginate \
-            "repos/${REPOSITORY}/actions/runs/${RUN_ID}/artifacts?per_page=100" \
-            --jq '.artifacts[] | select(.expired == false) | .name')"; then
-            echo "Error: failed to inspect artifacts for run $RUN_ID" >&2
-            exit 1
-        fi
+IS_BINDINGS_RELEASE=false
+if [[ "$COMPONENT" != "all" \
+        && "$COMPONENT" =~ ^cuda-(bindings|python)$ \
+        && "$GIT_TAG" == v* ]]; then
+    IS_BINDINGS_RELEASE=true
+fi
 
-        MATCHING_ARTIFACTS=()
-        if [[ "$COMPONENT" == "cuda-python" ]]; then
-            ARTIFACT_NAME="cuda-python-wheel-cuda${TOOLKIT_VERSION}"
-            if grep -Fxq "$ARTIFACT_NAME" <<< "$ARTIFACT_NAMES"; then
-                MATCHING_ARTIFACTS+=("$ARTIFACT_NAME")
-            elif [[ "$RELEASE_REGISTRY_ORIGIN" == "control" ]] \
-                    && grep -Fxq cuda-python-wheel <<< "$ARTIFACT_NAMES"; then
-                MATCHING_ARTIFACTS+=(cuda-python-wheel)
-            fi
-        else
-            ARTIFACT_PATTERN="cuda-bindings-python*-cuda${TOOLKIT_VERSION}-*"
-            while IFS= read -r artifact_name; do
-                # The pattern contains only the validated toolkit version.
-                # shellcheck disable=SC2053
-                if [[ "$artifact_name" == $ARTIFACT_PATTERN && "$artifact_name" != *-tests ]]; then
-                    MATCHING_ARTIFACTS+=("$artifact_name")
-                fi
-            done <<< "$ARTIFACT_NAMES"
-        fi
-
-        if [[ ${#MATCHING_ARTIFACTS[@]} == 0 ]]; then
-            echo "Error: run $RUN_ID has no unexpired release artifact for CUDA $TOOLKIT_VERSION" >&2
-            if [[ "$COMPONENT" == "cuda-python" && "$RELEASE_REGISTRY_ORIGIN" != "control" ]]; then
-                echo "Error: legacy cuda-python-wheel fallback is not allowed for a tag registry" >&2
-            fi
-            exit 1
-        fi
-        for artifact_name in "${MATCHING_ARTIFACTS[@]}"; do
-            gh run download "$RUN_ID" --name "$artifact_name" \
-                -R "$REPOSITORY" --dir "$ARTIFACTS_DIR"
-        done
-    else
-        gh run download "$RUN_ID" -p "$ARTIFACT_PATTERN" -R "$REPOSITORY" --dir "$ARTIFACTS_DIR"
+if [[ "$IS_BINDINGS_RELEASE" == true ]]; then
+    if [[ -z "$RESOLVED_BINDINGS_LINE_JSON" ]]; then
+        echo "Error: resolved bindings-line JSON is required for $COMPONENT release tag $GIT_TAG" >&2
+        exit 1
+    fi
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "Error: jq is required for bindings release artifact routing" >&2
+        exit 1
+    fi
+    if ! TOOLKIT_VERSION="$(jq -er '.toolkit_version | select(type == "string")' \
+        <<< "$RESOLVED_BINDINGS_LINE_JSON")"; then
+        echo "Error: resolved bindings-line JSON has no string toolkit_version" >&2
+        exit 1
+    fi
+    if [[ ! "$TOOLKIT_VERSION" =~ ^[1-9][0-9]*\.[0-9]+\.[0-9]+([.-][A-Za-z0-9]+)*$ ]]; then
+        echo "Error: invalid toolkit_version in resolved bindings-line JSON: $TOOLKIT_VERSION" >&2
+        exit 1
+    fi
+    if ! RELEASE_REGISTRY_ORIGIN="$(jq -er \
+        '.release_registry_origin | select(. == "tag" or . == "control")' \
+        <<< "$RESOLVED_BINDINGS_LINE_JSON")"; then
+        echo "Error: resolved bindings-line JSON has invalid release_registry_origin" >&2
+        exit 1
     fi
 fi
+
+if ! ARTIFACT_NAMES="$(gh api --paginate \
+    "repos/${REPOSITORY}/actions/runs/${RUN_ID}/artifacts?per_page=100" \
+    --jq '.artifacts[] | select(.expired == false) | .name')"; then
+    echo "Error: failed to inspect artifacts for run $RUN_ID" >&2
+    exit 1
+fi
+
+MATCHING_ARTIFACTS=()
+if [[ "$IS_BINDINGS_RELEASE" == true && "$COMPONENT" == "cuda-python" ]]; then
+    ARTIFACT_NAME="cuda-python-wheel-cuda${TOOLKIT_VERSION}"
+    if grep -Fxq "$ARTIFACT_NAME" <<< "$ARTIFACT_NAMES"; then
+        MATCHING_ARTIFACTS+=("$ARTIFACT_NAME")
+    elif [[ "$RELEASE_REGISTRY_ORIGIN" == "control" ]] \
+            && grep -Fxq cuda-python-wheel <<< "$ARTIFACT_NAMES"; then
+        MATCHING_ARTIFACTS+=(cuda-python-wheel)
+    fi
+else
+    if [[ "$IS_BINDINGS_RELEASE" == true ]]; then
+        ARTIFACT_PATTERN="cuda-bindings-python*-cuda${TOOLKIT_VERSION}-*"
+    fi
+    while IFS= read -r artifact_name; do
+        # Release patterns contain only the validated toolkit version. Other
+        # patterns preserve the component matching accepted by this script.
+        # shellcheck disable=SC2053
+        if [[ "$artifact_name" == $ARTIFACT_PATTERN && "$artifact_name" != *-tests ]]; then
+            MATCHING_ARTIFACTS+=("$artifact_name")
+        fi
+    done <<< "$ARTIFACT_NAMES"
+fi
+
+if [[ ${#MATCHING_ARTIFACTS[@]} == 0 ]]; then
+    if [[ "$IS_BINDINGS_RELEASE" == true ]]; then
+        echo "Error: run $RUN_ID has no unexpired release artifact for CUDA $TOOLKIT_VERSION" >&2
+        if [[ "$COMPONENT" == "cuda-python" && "$RELEASE_REGISTRY_ORIGIN" != "control" ]]; then
+            echo "Error: legacy cuda-python-wheel fallback is not allowed for a tag registry" >&2
+        fi
+    else
+        echo "Error: run $RUN_ID has no unexpired releasable artifact matching $ARTIFACT_PATTERN" >&2
+    fi
+    exit 1
+fi
+
+for artifact_name in "${MATCHING_ARTIFACTS[@]}"; do
+    gh run download "$RUN_ID" --name "$artifact_name" \
+        -R "$REPOSITORY" --dir "$ARTIFACTS_DIR"
+done
 
 # Create output directory
 mkdir -p "$OUTPUT_DIR"

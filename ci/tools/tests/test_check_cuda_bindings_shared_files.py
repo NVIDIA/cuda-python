@@ -85,6 +85,21 @@ def test_symlink_is_rejected(tmp_path, capsys):
     assert f"shared.py: symlink in {ROOTS[1]}" in capsys.readouterr().err
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_intermediate_symlink_is_rejected(tmp_path, capsys):
+    policy = write_policy(tmp_path, ["nested/shared.py"])
+    first = tmp_path / ROOTS[0] / "nested" / "shared.py"
+    first.parent.mkdir(parents=True)
+    first.write_text("same", encoding="utf-8")
+    target = tmp_path / ROOTS[1] / "target"
+    target.mkdir(parents=True)
+    (target / "shared.py").write_text("same", encoding="utf-8")
+    (tmp_path / ROOTS[1] / "nested").symlink_to(target, target_is_directory=True)
+
+    assert run_check(tmp_path, policy) == 1
+    assert f"nested/shared.py: symlink in {ROOTS[1]}" in capsys.readouterr().err
+
+
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_live_policy_is_clean():
     assert main(["--repo-root", str(REPO_ROOT), "--policy", str(DEFAULT_POLICY)]) == 0

@@ -605,7 +605,7 @@ jobs:
       # Bare cuda.bindings tags intentionally produce only their matching
       # cuda.bindings and cuda-python artifacts. Keep tag docs on that focused
       # artifact set; component-specific release runs build the other docs.
-      component: ${{ startsWith(github.ref_name, 'v') && 'cuda-bindings' || 'all' }}
+      component: ${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'v') && 'cuda-bindings' || 'all' }}
       git-tag: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
       run-id: ${{ github.run_id }}
       is-release: ${{ github.ref_type == 'tag' }}
