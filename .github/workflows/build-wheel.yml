@@ -62,7 +62,8 @@ jobs:
           WORKPLAN: ${{ inputs.workplan }}
         run: |
           set -euo pipefail
-          IFS=$'\t' read -r \
+          # Native jq on Windows emits CRLF, so treat CR as an input delimiter too.
+          IFS=$'\t\r' read -r \
             current_line_id maintenance_line_id current_variant maintenance_variant < <(
               jq -er '
                 .roles.current as $current
@@ -91,7 +92,7 @@ jobs:
             test_core_current=true
             test_core_maintenance=true
           else
-            IFS=$'\t' read -r \
+            IFS=$'\t\r' read -r \
               pathfinder_source build_pathfinder build_bindings build_core build_cuda_python \
               test_bindings test_core build_bindings_current build_bindings_maintenance \
               build_cuda_python_current build_cuda_python_maintenance test_bindings_current \
