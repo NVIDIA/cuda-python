@@ -1,0 +1,259 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "CI: Track workflow health"
+
+on:
+  workflow_run:
+    # These names must exactly match the top-level workflows. Keep this list in
+    # sync when an unattended CI workflow is added or renamed.
+    workflows:
+      - "CI"
+      - "CI: Coverage"
+      - "CI: Nightly optional-deps"
+      - "CI: pixi run test (source build)"
+      - "Security Suite (Pulse + CodeQL)"
+      - "Static Analysis: Bandit Scan"
+    types:
+      - completed
+    branches:
+      - main
+
+# Serialize updates to one incident while allowing scheduled and main-push
+# health to be tracked independently for workflows that support both. Queue all
+# events; the script also rejects stale completions because dispatch order is
+# not guaranteed.
+concurrency:
+  group: >-
+    ${{ github.workflow }}-${{ github.event.workflow_run.workflow_id }}-${{
+      github.event.workflow_run.event }}
+  queue: max
+
+permissions: {}
+
+jobs:
+  update-incident:
+    name: Update CI health issue
+    if: >-
+      github.repository == 'NVIDIA/cuda-python' &&
+      (
+        github.event.workflow_run.event == 'schedule' ||
+        (
+          github.event.workflow_run.event == 'push' &&
+          github.event.workflow_run.head_branch == github.event.repository.default_branch
+        )
+      ) &&
+      (
+        github.event.workflow_run.conclusion == 'success' ||
+        contains(
+          fromJSON('["action_required","failure","stale","startup_failure","timed_out"]'),
+          github.event.workflow_run.conclusion
+        ) ||
+        (
+          github.event.workflow_run.event == 'schedule' &&
+          github.event.workflow_run.conclusion == 'cancelled'
+        )
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      issues: write
+    steps:
+      - name: Open, update, or close the workflow incident
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const run = context.payload.workflow_run;
+            const scheduled = run.event === "schedule";
+            const scopeKey = scheduled ? "schedule" : "push-main";
+            const scopeLabel = scheduled ? "scheduled runs" : "on main";
+            const trackerMarker =
+              `<!-- cuda-python-ci-health:${run.workflow_id}:${scopeKey} -->`;
+            const eventMarker =
+              `<!-- cuda-python-ci-health-event:${run.id}:${run.run_attempt} -->`;
+            const incidentLabel = "ci-workflow-health";
+            const title = `[CI failure] ${run.name} ${scopeLabel}`;
+            const repositoryUrl =
+              `${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}`;
+            const runUrl = `${run.html_url}/attempts/${run.run_attempt}`;
+            const shortSha = run.head_sha.slice(0, 7);
+            const report = [
+              `[${run.name} run #${run.run_number}, attempt ${run.run_attempt}](${runUrl}) ` +
+                `concluded with **${run.conclusion}**.`,
+              "",
+              `- Trigger: \`${run.event}\``,
+              `- Branch: \`${run.head_branch}\``,
+              `- Commit: [\`${shortSha}\`](${repositoryUrl}/commit/${run.head_sha})`,
+              `- Completed: \`${run.updated_at}\``,
+            ].join("\n");
+
+            const {data: {workflow_runs: completedRuns}} =
+              await github.rest.actions.listWorkflowRuns({
+                ...context.repo,
+                workflow_id: run.workflow_id,
+                branch: run.head_branch,
+                event: run.event,
+                status: "completed",
+                per_page: 100,
+              });
+            const isNewer = (candidate, reference) =>
+              candidate.run_number > reference.run_number ||
+              (
+                candidate.run_number === reference.run_number &&
+                candidate.run_attempt > reference.run_attempt
+              );
+            const unhealthyConclusions = new Set([
+              "action_required",
+              "failure",
+              "stale",
+              "startup_failure",
+              "timed_out",
+            ]);
+            const actionableRuns = completedRuns.filter((candidate) =>
+              candidate.conclusion === "success" ||
+              unhealthyConclusions.has(candidate.conclusion) ||
+              (
+                candidate.event === "schedule" &&
+                candidate.conclusion === "cancelled"
+              ),
+            );
+            const latestRun = actionableRuns.reduce(
+              (latest, candidate) => isNewer(candidate, latest) ? candidate : latest,
+              run,
+            );
+            if (isNewer(latestRun, run)) {
+              core.info(
+                `Ignoring stale completion for run #${run.run_number}, attempt ` +
+                  `${run.run_attempt}; run #${latestRun.run_number}, attempt ` +
+                  `${latestRun.run_attempt} has already completed.`,
+              );
+              return;
+            }
+
+            const openIssues = await github.paginate(
+              github.rest.issues.listForRepo,
+              {
+                ...context.repo,
+                state: "open",
+                per_page: 100,
+              },
+            );
+            const incidents = openIssues
+              .filter((issue) =>
+                !issue.pull_request &&
+                typeof issue.body === "string" &&
+                issue.body.includes(trackerMarker),
+              )
+              .sort((left, right) => left.number - right.number);
+
+            if (incidents.length > 1) {
+              core.warning(
+                `Found ${incidents.length} open incidents for ${run.name} (${scopeKey}).`,
+              );
+            }
+
+            for (const incident of incidents) {
+              const hasIncidentLabel = incident.labels.some((label) =>
+                (typeof label === "string" ? label : label.name) === incidentLabel,
+              );
+              if (!hasIncidentLabel) {
+                await github.rest.issues.addLabels({
+                  ...context.repo,
+                  issue_number: incident.number,
+                  labels: [incidentLabel],
+                });
+              }
+            }
+
+            async function eventAlreadyRecorded(issue) {
+              if (issue.body.includes(eventMarker)) {
+                return true;
+              }
+              const comments = await github.paginate(
+                github.rest.issues.listComments,
+                {
+                  ...context.repo,
+                  issue_number: issue.number,
+                  per_page: 100,
+                },
+              );
+              return comments.some((comment) =>
+                typeof comment.body === "string" &&
+                comment.body.includes(eventMarker),
+              );
+            }
+
+            if (run.conclusion === "success") {
+              if (incidents.length === 0) {
+                core.info(`No open incident for ${run.name} (${scopeKey}).`);
+                return;
+              }
+
+              for (const incident of incidents) {
+                if (!(await eventAlreadyRecorded(incident))) {
+                  await github.rest.issues.createComment({
+                    ...context.repo,
+                    issue_number: incident.number,
+                    body: [
+                      eventMarker,
+                      "### Recovered",
+                      "",
+                      report,
+                      "",
+                      "Closing this incident automatically.",
+                    ].join("\n"),
+                  });
+                }
+                await github.rest.issues.update({
+                  ...context.repo,
+                  issue_number: incident.number,
+                  state: "closed",
+                  state_reason: "completed",
+                });
+              }
+              return;
+            }
+
+            if (incidents.length === 0) {
+              await github.rest.issues.create({
+                ...context.repo,
+                title,
+                labels: ["bug", "CI/CD", "triage", incidentLabel],
+                body: [
+                  trackerMarker,
+                  eventMarker,
+                  "This issue tracks an unhealthy unattended CI workflow.",
+                  "Subsequent failures are recorded in comments; a successful run in the",
+                  "same trigger scope closes the issue automatically.",
+                  "",
+                  "### First unhealthy run",
+                  "",
+                  report,
+                  "",
+                  "_Created automatically by the CI workflow-health monitor._",
+                ].join("\n"),
+              });
+              return;
+            }
+
+            const incident = incidents[0];
+            if (await eventAlreadyRecorded(incident)) {
+              core.info(
+                `Run ${run.id}, attempt ${run.run_attempt} is already recorded in ` +
+                  `issue #${incident.number}.`,
+              );
+              return;
+            }
+            await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: incident.number,
+              body: [
+                eventMarker,
+                "### Another unhealthy run",
+                "",
+                report,
+              ].join("\n"),
+            });

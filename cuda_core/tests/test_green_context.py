@@ -21,7 +21,9 @@ from cuda.core import (
     WorkqueueResourceOptions,
     launch,
 )
-from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
+from cuda.core._utils.version import binding_version, driver_version
+from cuda.core.graph import GraphDefinition
 from cuda.core.typing import WorkqueueSharingScopeType
 
 # ---------------------------------------------------------------------------
@@ -160,6 +162,38 @@ def _use_green_ctx(dev, ctx):
         dev.set_current(prev)
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_memory_node_updates_preserve_green_context(
+    init_cuda,
+    green_ctx,
+):
+    if driver_version() < (13, 2, 0) or binding_version() < (13, 2, 0):
+        pytest.skip("generic graph node parameter queries require CUDA 13.2+")
+
+    memory_resource = LegacyPinnedMemoryResource()
+    src = memory_resource.allocate(4)
+    dst = memory_resource.allocate(4)
+    with _use_green_ctx(init_cuda, green_ctx):
+        graph_def = GraphDefinition()
+        memset_node = graph_def.memset(dst, 0, 4)
+        memcpy_node = graph_def.memcpy(dst, src, 4)
+        original_memset = handle_return(driver.cuGraphNodeGetParams(memset_node.handle))
+        original_memcpy = handle_return(driver.cuGraphNodeGetParams(memcpy_node.handle))
+
+    memset_node.update(value=1)
+    memcpy_node.update(size=2)
+    updated_memset = handle_return(driver.cuGraphNodeGetParams(memset_node.handle))
+    updated_memcpy = handle_return(driver.cuGraphNodeGetParams(memcpy_node.handle))
+
+    assert int(updated_memset.memset.ctx) == int(original_memset.memset.ctx)
+    assert int(updated_memcpy.memcpy.copyCtx) == int(original_memcpy.memcpy.copyCtx)
+
+    memset_node.destroy()
+    memcpy_node.destroy()
+    src.close()
+    dst.close()
+
+
 # ---------------------------------------------------------------------------
 # Construction / type tests
 # ---------------------------------------------------------------------------
@@ -197,8 +231,20 @@ def test_context_handle_alias_and_closed_queries(init_cuda, sm_resource):
     ctx.close()
     assert ctx.handle is None
     assert ctx.is_green is False
-    with pytest.raises(RuntimeError, match="Cannot query resources"):
+    with pytest.raises(RuntimeError, match="Context has been closed"):
         _ = ctx.resources
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_set_current_rejects_closed_context(init_cuda, sm_resource):
+    groups, _ = sm_resource.split(SMResourceOptions(count=None))
+    ctx = init_cuda.create_context(ContextOptions(resources=[groups[0]]))
+    ctx.close()
+
+    assert ctx.is_closed
+    assert bool(ctx) is True  # Preserve backward-compatible truthiness after close.
+    with pytest.raises(RuntimeError, match="Context has been closed"):
+        init_cuda.set_current(ctx)
 
 
 # ---------------------------------------------------------------------------
@@ -257,12 +303,12 @@ class TestWorkqueueResource:
         assert wq_resource.sharing_scope is scope
 
     def test_device_id_matches_source_multi_gpu(self):
-        from cuda.core import Device, system
+        from cuda.core import Device
 
-        if system.get_num_devices() < 2:
+        devices = Device.get_all_devices()
+        if len(devices) < 2:
             pytest.skip("requires 2+ GPUs")
-        dev0 = Device(0)
-        dev1 = Device(1)
+        dev0, dev1 = devices[:2]
         try:
             wq0 = dev0.resources.workqueue
             wq1 = dev1.resources.workqueue
@@ -371,11 +417,37 @@ class TestSMResourceSplit:
         assert len(groups) == 1
         assert groups[0].sm_count >= sm_resource.min_partition_size
 
-    def test_discovery_respects_alignment(self, sm_resource):
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_by_count_discovery_respects_alignment(self, sm_resource):
+        """CUDA 12 SplitByCount discovery returns an aligned SM count."""
+        if binding_version()[0] != 12:
+            pytest.skip("test covers the CUDA 12 SplitByCount path")
+
         groups, _ = sm_resource.split(SMResourceOptions(count=None))
 
-        if sm_resource.coscheduled_alignment > 0:
-            assert groups[0].sm_count % sm_resource.coscheduled_alignment == 0
+        assert groups[0].sm_count % sm_resource.coscheduled_alignment == 0
+
+    def test_discovery_respects_explicit_coscheduled_sm_count(self, sm_resource):
+        """Constrain discovery explicitly because unconstrained discovery may use all SMs."""
+        if driver_version() < (13, 1, 0):
+            pytest.skip("explicit co-scheduled SM discovery requires CUDA 13.1+")
+
+        alignment = sm_resource.coscheduled_alignment
+        try:
+            groups, _ = sm_resource.split(
+                SMResourceOptions(
+                    count=None,
+                    coscheduled_sm_count=alignment,
+                )
+            )
+        except RuntimeError as exc:
+            pytest.skip(str(exc))
+        except CUDAError as exc:
+            if _is_invalid_resource_configuration(exc):
+                pytest.skip(str(exc))
+            raise
+
+        assert groups[0].sm_count % alignment == 0
 
     def test_two_groups(self, sm_resource):
         """Two-group split succeeds for a supported explicit request."""

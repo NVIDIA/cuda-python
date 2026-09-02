@@ -2,14 +2,34 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
+import gc
+import importlib
 import multiprocessing
 import os
 import pathlib
 import sys
-from contextlib import contextmanager
-from importlib.metadata import PackageNotFoundError, distribution
 
 import pytest
+
+# Keep in sync with cuda_bindings/tests/conftest.py.
+try:
+    import cuda_python_test_helpers._pytest_plugin  # noqa: F401
+except ImportError as e:
+    # Don't call .resolve(): resolving symlinks can make parents[2] point
+    # somewhere other than the monorepo root if a sub-directory is symlinked.
+    _test_helpers_root = pathlib.Path(__file__).parents[2] / "cuda_python_test_helpers"
+    if not _test_helpers_root.is_dir():
+        raise RuntimeError(f"cuda-python-test-helpers not installed and not found at {_test_helpers_root}") from e
+    for _k in list(sys.modules):
+        if _k == "cuda_python_test_helpers" or _k.startswith("cuda_python_test_helpers."):
+            del sys.modules[_k]
+    sys.path.insert(0, str(_test_helpers_root))
+    importlib.invalidate_caches()
+
+pytest_plugins = ["cuda_python_test_helpers._pytest_plugin"]
+
+from helpers.constants import POOL_SIZE
+from helpers.memory import skip_if_pinned_memory_unsupported
 
 import cuda.core
 from cuda.bindings import driver
@@ -23,73 +43,7 @@ from cuda.core import (
     PinnedMemoryResourceOptions,
     _device,
 )
-from cuda.core._utils.cuda_utils import CUDAError, handle_return
-from cuda.pathfinder import get_cuda_path_or_home
-
-try:
-    from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
-except ModuleNotFoundError:
-    # Older cuda.bindings artifacts (for example 12.9.x backports) do not ship
-    # this helper yet. Keep the fallback local so tests against published
-    # bindings still xfail the known Windows MCDM mempool setup issue.
-    #
-    # Keep in sync with cuda_bindings/cuda/bindings/_test_helpers/mempool.py.
-    # This copy is intentionally simpler because it only handles cuda_core
-    # CUDAError exceptions when the shared helper is absent.
-    def _is_windows_mcdm_device(device=0):
-        if sys.platform != "win32":
-            return False
-        import cuda.bindings.nvml as nvml
-
-        device_id = int(getattr(device, "device_id", device))
-        (err,) = driver.cuInit(0)
-        if err != driver.CUresult.CUDA_SUCCESS:
-            return False
-        err, pci_bus_id = driver.cuDeviceGetPCIBusId(13, device_id)
-        if err != driver.CUresult.CUDA_SUCCESS:
-            return False
-        pci_bus_id = pci_bus_id.split(b"\x00", 1)[0].decode("ascii")
-        nvml.init_v2()
-        try:
-            handle = nvml.device_get_handle_by_pci_bus_id_v2(pci_bus_id)
-            current, _ = nvml.device_get_driver_model_v2(handle)
-            return current == nvml.DriverModel.DRIVER_MCDM
-        finally:
-            nvml.shutdown()
-
-    def xfail_if_mempool_oom(err_or_exc, api_name=None, device=0):
-        if api_name is not None and not isinstance(api_name, str):
-            device = api_name
-            api_name = None
-
-        if "CUDA_ERROR_OUT_OF_MEMORY" not in str(err_or_exc):
-            return
-        try:
-            is_windows_mcdm = _is_windows_mcdm_device(device)
-        except Exception:
-            # If MCDM detection fails, leave the primary test failure visible.
-            return
-        if not is_windows_mcdm:
-            return
-
-        api_context = f"{api_name} " if api_name else ""
-        pytest.xfail(f"{api_context}could not reserve VA for mempool operations on Windows MCDM")
-
-
-# Import shared test helpers for tests across subprojects.
-# PLEASE KEEP IN SYNC with copies in other conftest.py in this repo.
-_test_helpers_root = pathlib.Path(__file__).resolve().parents[2] / "cuda_python_test_helpers"
-try:
-    distribution("cuda-python-test-helpers")
-except PackageNotFoundError as exc:
-    if not _test_helpers_root.is_dir():
-        raise RuntimeError(
-            f"cuda-python-test-helpers not installed; expected checkout path {_test_helpers_root}"
-        ) from exc
-
-    test_helpers_root = str(_test_helpers_root)
-    if test_helpers_root not in sys.path:
-        sys.path.insert(0, test_helpers_root)
+from cuda.core._utils.cuda_utils import handle_return
 
 
 def pytest_configure(config):
@@ -99,22 +53,22 @@ def pytest_configure(config):
         config.pluginmanager.register(_CudaCoreParallelPlugin(), name="_cuda_core_parallel_plugin")
 
 
-@contextmanager
-def _init_cuda_context():
-    # TODO: rename this to e.g. init_context
-    device = Device(0)
-    device.set_current()
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_makereport(item, call):
+    # Runs the OOM reason checker on the first CUDA OOM of a session; see
+    # issue #2381 and helpers/oom_diagnostics.py for why this is latched and
+    # what it checks (host VA exhaustion vs. physical device memory).
+    report = yield
+    from helpers import oom_diagnostics
 
-    # Set option to avoid spin-waiting on synchronization.
-    if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
-        handle_return(
-            driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
-        )
+    oom_diagnostics.record_if_oom(item, call, report)
+    return report
 
-    try:
-        yield device
-    finally:
-        _ = _device_unset_current()
+
+def pytest_terminal_summary(terminalreporter):
+    from helpers import oom_diagnostics
+
+    oom_diagnostics.report_terminal_summary(terminalreporter)
 
 
 def _wrap_worker_cuda_test(func):
@@ -124,7 +78,9 @@ def _wrap_worker_cuda_test(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         kwargs = dict(kwargs)  # copy before mutating
-        with _init_cuda_context() as device:
+        device = Device(0)
+        device.set_current()
+        try:
             if "init_cuda" in kwargs:
                 kwargs["init_cuda"] = device
             if "mempool_device_x2" in kwargs:
@@ -144,6 +100,12 @@ def _wrap_worker_cuda_test(func):
                 groups, _ = device.resources.sm.split(SMResourceOptions(count=None))
                 kwargs["green_ctx"] = device.create_context(ContextOptions(resources=[groups[0]]))
             return func(*args, **kwargs)
+        finally:
+            # Unlike the `init_cuda` fixture we do not synchronize here
+            # to avoid doing so while other workers are still running.
+            # (E.g. for stream capture). The fixture cleanup is still run
+            # even with pytest-run-parallel after worker join.
+            _ = _device_unset_current()
 
     wrapper._cuda_core_worker_cuda_wrapped = True
     return wrapper
@@ -173,86 +135,11 @@ class _CudaCoreParallelPlugin:
                 item.obj = _wrap_worker_cuda_test(item.obj)
 
 
-def skip_if_pinned_memory_unsupported(device):
-    try:
-        if not device.properties.host_memory_pools_supported:
-            pytest.skip("Device does not support host mempool operations")
-    except AttributeError:
-        pytest.skip("PinnedMemoryResource requires CUDA 13.0 or later")
-
-
-def skip_if_managed_memory_unsupported(device):
-    try:
-        if not device.properties.memory_pools_supported or not device.properties.concurrent_managed_access:
-            pytest.skip("Device does not support managed memory pool operations")
-    except AttributeError:
-        pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
-    try:
-        ManagedMemoryResource()
-    except CUDAError as e:
-        xfail_if_mempool_oom(e, device)
-        raise
-    except RuntimeError as e:
-        if "requires CUDA 13.0" in str(e):
-            pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
-        raise
-
-
-def create_managed_memory_resource_or_skip(*args, xfail_device=None, **kwargs):
-    # Keep the established "skip" helper name for call-site readability, even though
-    # Windows MCDM mempool OOM setup failures are xfailed instead of skipped.
-    try:
-        return ManagedMemoryResource(*args, **kwargs)
-    except CUDAError as e:
-        xfail_if_mempool_oom(e, _device_id_from_resource_options(xfail_device, args, kwargs))
-        if "CUDA_ERROR_NOT_SUPPORTED" in str(e):
-            pytest.skip("ManagedMemoryResource is not supported on this platform/device")
-        raise
-    except RuntimeError as e:
-        if "requires CUDA 13.0" in str(e):
-            pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
-        raise
-
-
-def create_pinned_memory_resource_or_xfail(*args, xfail_device=None, **kwargs):
-    try:
-        return PinnedMemoryResource(*args, **kwargs)
-    except CUDAError as e:
-        xfail_if_mempool_oom(e, xfail_device)
-        raise
-
-
-@contextmanager
-def xfail_on_graph_mempool_oom(device=0):
-    try:
-        yield
-    except CUDAError as e:
-        xfail_if_mempool_oom(e, "cuGraphAddMemAllocNode", device)
-        raise
-
-
-def _device_id_from_resource_options(device, args, kwargs):
-    if device is not None:
-        return device
-    options = kwargs.get("options")
-    if options is None and args:
-        options = args[0]
-    if options is None:
-        return 0
-    if isinstance(options, dict):
-        preferred_location = options.get("preferred_location")
-        preferred_location_type = options.get("preferred_location_type")
-    else:
-        preferred_location = getattr(options, "preferred_location", None)
-        preferred_location_type = getattr(options, "preferred_location_type", None)
-    if preferred_location_type in (None, "device") and isinstance(preferred_location, int) and preferred_location >= 0:
-        return preferred_location
-    return 0
-
-
 def _require_ipc_mempool_devices(devices):
     """Return devices if they all support IPC-enabled mempools, otherwise skip."""
-    from helpers import IS_WSL, supports_ipc_mempool
+    from helpers import supports_ipc_mempool
+
+    from cuda_python_test_helpers import IS_WSL
 
     checked_devices = tuple(devices)
 
@@ -276,8 +163,33 @@ def session_setup():
 
 @pytest.fixture
 def init_cuda():
-    with _init_cuda_context() as device:
+    # TODO: rename this to e.g. init_context
+    device = Device(0)
+    device.set_current()
+
+    # Set option to avoid spin-waiting on synchronization.
+    if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
+        handle_return(
+            driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
+        )
+
+    try:
         yield device
+    finally:
+        # Force any pool/allocation whose only remaining reference was a local
+        # in this test's frame to actually get destroyed now, then drain the
+        # context so the stream-ordered frees that destruction enqueues retire
+        # before the next test runs. Without this, a memory pool's VA
+        # reservation is not returned until both have happened, and per-test
+        # leftovers accumulate across the run -- which is how full-suite runs
+        # can exhaust address space and hit CUDA_ERROR_OUT_OF_MEMORY on a
+        # device with plenty of free physical memory (issue #2381). gc.collect()
+        # must run first: cuCtxSynchronize alone cannot drain frees that were
+        # never enqueued because their owning object had not been collected yet.
+        # With pytest-run-parallel this runs after worker join.
+        gc.collect()
+        driver.cuCtxSynchronize()
+        _ = _device_unset_current()
 
 
 def _device_unset_current() -> bool:
@@ -347,7 +259,6 @@ def ipc_device(init_cuda):
 )
 def ipc_memory_resource(request, ipc_device):
     """Provides IPC-enabled memory resource (either Device or Pinned)."""
-    POOL_SIZE = 2097152
     mr_type = request.param
 
     if mr_type == "device":
@@ -445,24 +356,3 @@ def memory_resource_factory(request, init_cuda):
                 mr = MRClass()
     """
     return request.param
-
-
-# Please keep in sync with the copy in the top-level conftest.py.
-def _cuda_headers_available() -> bool:
-    """Return True if CUDA headers are available, False if no CUDA path is set.
-
-    Raises AssertionError if a CUDA path is set but has no include/ subdirectory.
-    """
-    cuda_path = get_cuda_path_or_home()
-    if cuda_path is None:
-        return False
-    assert os.path.isdir(os.path.join(cuda_path, "include")), (
-        f"CUDA path {cuda_path} does not contain an 'include' subdirectory"
-    )
-    return True
-
-
-skipif_need_cuda_headers = pytest.mark.skipif(
-    not _cuda_headers_available(),
-    reason="need CUDA header",
-)

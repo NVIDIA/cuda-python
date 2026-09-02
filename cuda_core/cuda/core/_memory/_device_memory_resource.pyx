@@ -5,8 +5,9 @@
 from __future__ import annotations
 
 from cuda.bindings cimport cydriver
+from cuda.core._memory._location cimport cumemlocation_from_id
 from cuda.core._memory._memory_pool cimport (
-    _MemPool, MP_init_create_pool, MP_raise_release_threshold,
+    _MemPool, MP_check_open, MP_init_create_pool, MP_raise_release_threshold,
 )
 from cuda.core._memory cimport _ipc
 from cuda.core._memory._ipc cimport IPCAllocationHandle
@@ -19,6 +20,8 @@ from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
 )
+
+import cython
 from dataclasses import dataclass
 import multiprocessing
 import platform  # no-cython-lint
@@ -145,14 +148,16 @@ cdef class DeviceMemoryResource(_MemPool):
     def __cinit__(self, *args, **kwargs) -> None:
         self._dev_id = cydriver.CU_DEVICE_INVALID
 
+    @cython.annotation_typing(False)
     def __init__(
         self,
         device_id: Device | int,
-        options: DeviceMemoryResourceOptions | dict[str, object] | None = None
+        options: DeviceMemoryResourceOptions | None = None
     ) -> None:
         _DMR_init(self, device_id, options)
 
     def __reduce__(self) -> tuple[object, ...]:
+        MP_check_open(self)
         return DeviceMemoryResource.from_registry, (self.uuid,)
 
     @staticmethod
@@ -216,6 +221,7 @@ cdef class DeviceMemoryResource(_MemPool):
         The handle can be used to share the memory pool with other processes.
         The handle is cached in this `MemoryResource` and owned by it.
         """
+        MP_check_open(self)
         if not self.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
         return self._ipc_data._alloc_handle
@@ -244,6 +250,7 @@ cdef class DeviceMemoryResource(_MemPool):
         >>> dmr.peer_accessible_by.add(2)  # update access to include device 2
         >>> dmr.peer_accessible_by = []    # revoke peer access
         """
+        MP_check_open(self)
         return PeerAccessibleBySetProxy(self)
 
     @peer_accessible_by.setter
@@ -321,10 +328,8 @@ cpdef str DMR_mempool_get_access(DeviceMemoryResource dmr, int device_id):
 
     cdef int dev_id = Device(device_id).device_id
     cdef cydriver.CUmemAccess_flags flags
-    cdef cydriver.CUmemLocation location = cydriver.CUmemLocation(
-        type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
-        id=dev_id,
-    )
+    cdef cydriver.CUmemLocation location = cumemlocation_from_id(
+        cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE, dev_id)
 
     with nogil:
         HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, as_cu(dmr._h_pool), &location))

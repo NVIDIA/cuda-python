@@ -110,7 +110,7 @@ Development with uv
 
 .. code-block:: console
 
-   $ git clone https://github.com/NVIDIA/cuda-python
+   $ git clone https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_core
    $ uv venv
    $ source .venv/bin/activate   # On Windows: .venv\Scripts\activate
@@ -132,7 +132,7 @@ From the repository root:
 
 .. code-block:: console
 
-   $ git clone https://github.com/NVIDIA/cuda-python
+   $ git clone https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python
    $ pixi run -e cu13 test-core
 
@@ -151,8 +151,18 @@ Installing from Source
 
 .. code-block:: console
 
-   $ git clone https://github.com/NVIDIA/cuda-python
+   $ git clone https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_core
    $ pip install .
 
 ``cuda-bindings`` 12.x or 13.x is a required dependency.
+
+.. note::
+
+   The version is derived from git tags via ``setuptools-scm``, so the clone
+   must include tags reaching back to at least the latest ``cuda-core-v*`` tag.
+   Do not use ``--depth`` or ``--no-tags``: a shallow clone builds without
+   error but produces a bogus version such as ``0.1.dev1+g0d22cb444``. See
+   `Cloning the repository
+   <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md>`_
+   for details and recovery steps.

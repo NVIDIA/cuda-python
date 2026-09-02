@@ -2,30 +2,32 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
+import importlib
 import inspect
 import pathlib
 import sys
 from contextlib import contextmanager
-from importlib.metadata import PackageNotFoundError, distribution
 
 import pytest
 
 import cuda.bindings.driver as cuda
 
-# Import shared test helpers for tests across subprojects.
-# PLEASE KEEP IN SYNC with copies in other conftest.py in this repo.
-_test_helpers_root = pathlib.Path(__file__).resolve().parents[2] / "cuda_python_test_helpers"
+# Keep in sync with cuda_core/tests/conftest.py.
 try:
-    distribution("cuda-python-test-helpers")
-except PackageNotFoundError as exc:
+    import cuda_python_test_helpers._pytest_plugin  # noqa: F401
+except ImportError as e:
+    # Don't call .resolve(): resolving symlinks can make parents[2] point
+    # somewhere other than the monorepo root if a sub-directory is symlinked.
+    _test_helpers_root = pathlib.Path(__file__).parents[2] / "cuda_python_test_helpers"
     if not _test_helpers_root.is_dir():
-        raise RuntimeError(
-            f"cuda-python-test-helpers not installed; expected checkout path {_test_helpers_root}"
-        ) from exc
+        raise RuntimeError(f"cuda-python-test-helpers not installed and not found at {_test_helpers_root}") from e
+    for _k in list(sys.modules):
+        if _k == "cuda_python_test_helpers" or _k.startswith("cuda_python_test_helpers."):
+            del sys.modules[_k]
+    sys.path.insert(0, str(_test_helpers_root))
+    importlib.invalidate_caches()
 
-    test_helpers_root = str(_test_helpers_root)
-    if test_helpers_root not in sys.path:
-        sys.path.insert(0, test_helpers_root)
+pytest_plugins = ["cuda_python_test_helpers._pytest_plugin"]
 
 
 def pytest_configure(config):

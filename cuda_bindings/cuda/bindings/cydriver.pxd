@@ -3,8 +3,19 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=bb890a59df1f24c75b658b283d480647d1201feb4e6b644edd4742022b7fbf8c
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3d716616a92d8ac919b59eccac24b84cb45d655dfb75436b7f9714c71d6f39e6
+
+# <<<< PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport (
+    uint32_t,
+    uint64_t,
+)
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
 from libc.stdint cimport uint32_t, uint64_t
 
 

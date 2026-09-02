@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """Platform loader seam for OS-specific dynamic linking.
@@ -16,22 +16,22 @@ branch on platform; it calls through the loader instance exported here.
 
 from __future__ import annotations
 
+import sys
 from typing import Protocol
 
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
-from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 
 class PlatformLoader(Protocol):
-    def check_if_already_loaded_from_elsewhere(self, desc: LibDescriptor, have_abs_path: bool) -> LoadedDL | None: ...
+    def check_if_already_loaded_from_elsewhere(self, desc: LibDescriptor) -> LoadedDL | None: ...
 
     def load_with_system_search(self, desc: LibDescriptor) -> LoadedDL | None: ...
 
     def load_with_abs_path(self, desc: LibDescriptor, found_path: str, found_via: str | None = None) -> LoadedDL: ...
 
 
-if IS_WINDOWS:
+if sys.platform == "win32":
     from cuda.pathfinder._dynamic_libs import load_dl_windows as _impl
 else:
     from cuda.pathfinder._dynamic_libs import load_dl_linux as _impl

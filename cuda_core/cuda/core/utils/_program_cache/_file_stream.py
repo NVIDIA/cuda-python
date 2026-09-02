@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any, Callable, Iterable
 
 from cuda.core._module import ObjectCode
+from cuda.core.utils._cache_dir import _default_cache_dir as _user_cache_dir
 
 from ._abc import ProgramCacheResource, _as_key_bytes, _extract_bytes
 
@@ -57,28 +58,10 @@ def _stat_key(st: os.stat_result) -> tuple[int, int, int]:
 
 
 def _default_cache_dir() -> Path:
-    """OS-conventional default location for the file-stream cache.
-
-    Resolves to the user-cache root for the calling user, with a
-    ``program-cache`` leaf so future tooling can place sibling caches
-    under the same ``cuda-python`` vendor directory:
-
-    * Linux: ``$XDG_CACHE_HOME/cuda-python/program-cache``
-      (default ``~/.cache/cuda-python/program-cache`` per the XDG Base
-      Directory spec).
-    * Windows: ``%LOCALAPPDATA%\\cuda-python\\program-cache``
-      (Windows uses local AppData -- caches don't roam; falls back to
-      ``~/AppData/Local`` if the env var is unset).
-
-    CUDA does not support macOS, so no macOS branch is provided.
+    """Default location for the file-stream cache: the ``program-cache`` leaf under the shared
+    ``cuda-python`` user-cache root (see :func:`cuda.core.utils._cache_dir._default_cache_dir`).
     """
-    if _IS_WINDOWS:
-        local_app_data = os.environ.get("LOCALAPPDATA")
-        root = Path(local_app_data) if local_app_data else Path.home() / "AppData" / "Local"
-    else:
-        xdg = os.environ.get("XDG_CACHE_HOME")
-        root = Path(xdg) if xdg else Path.home() / ".cache"
-    return root / "cuda-python" / "program-cache"
+    return _user_cache_dir() / "program-cache"
 
 
 def _with_sharing_retry(

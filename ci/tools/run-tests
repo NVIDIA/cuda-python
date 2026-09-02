@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -20,13 +20,20 @@ fi
 
 test_module=${1}
 
+TEST_FT_GROUP=()
+PYTEST_PARALLEL_ARGS=()
+if python -c 'import sys; assert not sys._is_gil_enabled()' 2> /dev/null; then
+  TEST_FT_GROUP=(--group test-ft)
+  PYTEST_PARALLEL_ARGS=(--parallel-threads=4)
+fi
+
 # For standard modes, install pathfinder up front (it is a direct dependency
 # of bindings, and a transitive dependency of core).  Nightly modes install
 # all wheels together in a single pip call further below.
 if [[ "${test_module}" != nightly-* ]]; then
   pushd ./cuda_pathfinder
   echo "Installing pathfinder wheel"
-  pip install ./*.whl --group test
+  pip install ./*.whl --group test "${TEST_FT_GROUP[@]}"
   popd
 fi
 
@@ -36,7 +43,7 @@ if [[ "${test_module}" == "pathfinder" ]]; then
     "LD:${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS} " \
     "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS} " \
     "BC:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS}"
-  pytest -ra -s -v --durations=0 tests/ |& tee /tmp/pathfinder_test_log.txt
+  pytest -ra -s -v "${PYTEST_PARALLEL_ARGS[@]}" tests/ |& tee /tmp/pathfinder_test_log.txt
   # Report the number of "INFO test_" lines (including zero)
   # to support quick validations based on GHA log archives.
   line_count=$(awk '/^INFO test_/ {count++} END {print count+0}' /tmp/pathfinder_test_log.txt)
@@ -46,25 +53,20 @@ elif [[ "${test_module}" == "bindings" ]]; then
   echo "Installing bindings wheel"
   pushd ./cuda_bindings
   if [[ "${LOCAL_CTK}" == 1 ]]; then
-    pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl --group test
+    pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl --group test "${TEST_FT_GROUP[@]}"
   else
-    pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group test
+    pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group test "${TEST_FT_GROUP[@]}"
   fi
   echo "Running bindings tests"
-  ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
+  ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
+    ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/cython
   fi
   popd
 elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
   # Shared setup for core and nightly modes.
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
   TEST_CUDA_MAJOR_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
-
-  FREE_THREADING=""
-  if python -c 'import sys; assert not sys._is_gil_enabled()' 2> /dev/null; then
-    FREE_THREADING+="-ft"
-  fi
 
   # Resolve bindings based on BINDINGS_SOURCE (set by env-vars):
   #   main/backport → local wheel from artifacts dir
@@ -101,15 +103,15 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     echo "Installing core wheel"
     # Constrain cuda-toolkit to the requested CTK version to avoid
     # pip pulling in a newer nvidia-cuda-runtime that conflicts with it.
-    pip install "${CORE_WHL[@]}" --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" "cuda-toolkit==${TEST_CUDA_MAJOR_MINOR}.*"
+    pip install "${CORE_WHL[@]}" --group "test-cu${TEST_CUDA_MAJOR}" "${TEST_FT_GROUP[@]}" "cuda-toolkit==${TEST_CUDA_MAJOR_MINOR}.*"
     echo "Installed packages before core tests:"
     pip list
     echo "Running core tests"
-    ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
+    ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/
     # Currently our CI always installs the latest bindings (from either major version).
     # This is not compatible with the test requirements.
     if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-      ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
+      ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/cython
     fi
     popd
   elif [[ "${test_module}" == "nightly-cuda-core" ]]; then
@@ -123,7 +125,7 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     released_ver=$(pip show cuda-core | awk '/^Version:/{print $2}')
     if [[ -n "${GITHUB_ENV:-}" ]]; then
       echo "CUDA_CORE_RELEASED_VER=${released_ver}" >> "${GITHUB_ENV}"
-      echo "CUDA_CORE_TEST_GROUP=test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" >> "${GITHUB_ENV}"
+      echo "CUDA_CORE_TEST_GROUP=test-cu${TEST_CUDA_MAJOR}" >> "${GITHUB_ENV}"
     fi
     echo "Installed packages before released cuda-core tests:"
     pip list
@@ -137,7 +139,8 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
       "${PATHFINDER_WHL[@]}"
       "${BINDINGS_ARGS[@]}"
       "${CORE_WHL[@]}"
-      --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
+      --group "test-cu${TEST_CUDA_MAJOR}"
+      "${TEST_FT_GROUP[@]}"
     )
 
     if [[ "${test_module}" == "nightly-pytorch" ]]; then
