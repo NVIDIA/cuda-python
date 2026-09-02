@@ -1,6 +1,0 @@
-﻿cuda.core.system.CorruptedInforomError
-======================================
-
-.. currentmodule:: cuda.core.system
-
-.. autoexception:: CorruptedInforomError
