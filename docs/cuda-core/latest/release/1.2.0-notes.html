@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=870cae45"></script>
+    <script src="../_static/documentation_options.js?v=23742a5c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev132';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev133';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -790,6 +790,20 @@ completed (programmatic dependent launch, PDL). Available starting with
 devices of compute capability 9.0.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2456">#2456</a>,
 <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1334">#1334</a>)</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.use_bundled_headers" title="cuda.core.ProgramOptions.use_bundled_headers"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ProgramOptions.use_bundled_headers</span></code></a>, which lets NVRTC
+resolve the CUDA and CCCL headers from the toolkit bundled with NVRTC
+itself, installed into a per-user cache directory, instead of requiring
+a full CUDA Toolkit installation on the compile host. NVRTC backend
+only; requires NVRTC 13.3 or newer.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2753">#2753</a>,
+closes <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2363">#2363</a>)</p></li>
+<li><p>When a <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> is compiled with <code class="docutils literal notranslate"><span class="pre">debug</span></code> or <code class="docutils literal notranslate"><span class="pre">lineinfo</span></code>,
+the NVRTC input source is now materialized as a temporary <code class="docutils literal notranslate"><span class="pre">.cu</span></code> file
+so <code class="docutils literal notranslate"><span class="pre">cuda-gdb</span></code> can list the original source while stepping through
+JIT-compiled kernels. <code class="docutils literal notranslate"><span class="pre">#include</span> <span class="pre">&quot;...&quot;</span></code> search still resolves against
+the original source directory.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2678">#2678</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2679">#2679</a>)</p></li>
 </ul>
 </section>
 <section id="fixes-and-enhancements">
@@ -933,6 +947,33 @@ not worth a warning.
 NVML system-device count. This prevents non-CUDA accelerators, such as an NPU,
 from being treated as CUDA devices by <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.get_all_devices" title="cuda.core.Device.get_all_devices"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.get_all_devices()</span></code></a>, examples,
 and tests.</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> now rejects unsupported host memory pools
+at construction with <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>, instead of letting a later
+allocation or copy fail with <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code>.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2487">#2487</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.is_host_accessible" title="cuda.core.VirtualMemoryResource.is_host_accessible"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VirtualMemoryResource.is_host_accessible</span></code></a>, and by extension
+<a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.is_host_accessible" title="cuda.core.Buffer.is_host_accessible"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.is_host_accessible</span></code></a>, now correctly return <code class="docutils literal notranslate"><span class="pre">True</span></code> for a
+resource configured with <code class="docutils literal notranslate"><span class="pre">location_type=&quot;host_numa&quot;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&quot;host_numa_current&quot;</span></code>. Previously both properties reported <code class="docutils literal notranslate"><span class="pre">False</span></code>
+on those NUMA-located variants.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2503">#2503</a>)</p></li>
+<li><p>Graph predecessor and successor queries no longer truncate their results
+on large graphs.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2587">#2587</a>)</p></li>
+<li><p>Per-domain clock queries in <a class="reference internal" href="../api_nvml.html#module-cuda.core.system" title="cuda.core.system"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.system</span></code></a> treat each domain
+(minimum, maximum, and current) as independently optional, so an
+unsupported domain no longer fails the whole clock query for a device.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2651">#2651</a>)</p></li>
+<li><p>Temperature threshold checks in <a class="reference internal" href="../api_nvml.html#module-cuda.core.system" title="cuda.core.system"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.system</span></code></a> are now
+forward-compatible with GPU architectures newer than the generated
+<code class="docutils literal notranslate"><span class="pre">DeviceArch</span></code> enum. An unrecognized architecture no longer raises
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code> before the query runs.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2488">#2488</a>)</p></li>
+<li><p>The frozen fallback <code class="docutils literal notranslate"><span class="pre">CUresult</span></code> explanation table, used when the
+driver’s <code class="docutils literal notranslate"><span class="pre">cuGetErrorName</span></code> / <code class="docutils literal notranslate"><span class="pre">cuGetErrorString</span></code> are unavailable, is
+refreshed for CUDA 13.3 and now recognizes
+<code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_GRAPH_RECAPTURE_FAILURE</span></code>.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2383">#2383</a>)</p></li>
 </ul>
 </section>
 <section id="deprecation-notices">
