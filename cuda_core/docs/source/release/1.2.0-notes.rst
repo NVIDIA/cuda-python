@@ -239,13 +239,6 @@ Fixes and enhancements
   ``ValueError`` before the query runs.
   (`#2488 <https://github.com/NVIDIA/cuda-python/pull/2488>`__)
 
-- ``import cuda.core`` no longer raises ``ValueError`` when
-  ``CUDA_CORE_DONT_FIX_TAB_COMPLETION`` is set to a non-integer value such
-  as an empty string, ``true``, or ``yes``. Any non-empty, non-integer
-  value is honored as an opt-out. See :doc:`environment_variables` for
-  details.
-  (`#2535 <https://github.com/NVIDIA/cuda-python/pull/2535>`__)
-
 - The frozen fallback ``CUresult`` explanation table, used when the
   driver's ``cuGetErrorName`` / ``cuGetErrorString`` are unavailable, is
   refreshed for CUDA 13.3 and now recognizes
