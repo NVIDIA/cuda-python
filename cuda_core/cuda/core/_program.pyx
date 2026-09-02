@@ -47,6 +47,7 @@ from cuda.core._utils.cuda_utils import (
     is_sequence,
 )
 from cuda.core._utils.version import binding_version, driver_version
+from cuda.core.utils._cache_dir import _default_cache_dir
 from cuda.core.typing import ObjectCodeFormatType, CompilerBackendType, PCHStatusType, SourceCodeType
 
 __all__ = ["Program", "ProgramOptions"]
@@ -430,6 +431,13 @@ class ProgramOptions:
     include_path : str | list[str], optional
         Add the directory or directories to the list of directories to be searched for headers.
         Default: None
+    use_bundled_headers : bool, optional
+        Use the CUDA and CCCL headers bundled with NVRTC, installed into a per-user cache
+        directory, instead of requiring a full CUDA Toolkit installation. Implemented via NVRTC's
+        ``--use-bundled-headers=<dir>`` compiler option, which installs the headers into the cache
+        directory (skipping installation if already present and up to date) and adds that
+        directory to the include search path. NVRTC only.
+        Default: False
     pre_include : str | list[str], optional
         Preinclude one or more headers during preprocessing. Can be either a string or a list of strings.
         Default: None
@@ -563,6 +571,7 @@ class ProgramOptions:
     define_macro: str | tuple[str, str] | list[str | tuple[str, str]] | tuple[str | tuple[str, str], ...] | None = None
     undefine_macro: str | list[str] | tuple[str] | None = None
     include_path: str | list[str] | tuple[str] | None = None
+    use_bundled_headers: bool | None = None
     pre_include: str | list[str] | tuple[str] | None = None
     no_source_include: bool | None = None
     std: str | None = None
@@ -606,6 +615,16 @@ class ProgramOptions:
         # Set arch to default if not provided
         if self.arch is None:
             self.arch = f"sm_{Device().arch}"
+        if self.use_bundled_headers:
+            # --use-bundled-headers (and the bundled CUDA/CCCL headers themselves) were
+            # introduced in NVRTC 13.3.
+            nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
+            if (nvrtc_major, nvrtc_minor) < (13, 3):
+                raise RuntimeError(
+                    "use_bundled_headers requires NVRTC >= 13.3, but found "
+                    f"{nvrtc_major}.{nvrtc_minor}. Upgrade the CUDA Toolkit / driver providing "
+                    "libnvrtc, or set use_bundled_headers=False and supply include_path manually."
+                )
         if self.extra_sources is not None:
             if not is_sequence(self.extra_sources):
                 raise TypeError(
@@ -763,8 +782,6 @@ def _find_libdevice_path() -> object:
     """Find libdevice*.bc for NVVM compilation using cuda.pathfinder."""
     from cuda.pathfinder import find_bitcode_lib
     return find_bitcode_lib("device")
-
-
 
 
 cdef inline bint _process_define_macro_inner(list options, object macro) except? -1:
@@ -1234,6 +1251,8 @@ cdef inline list _prepare_nvrtc_options_impl(object opts):
         elif is_sequence(opts.undefine_macro):
             for macro in opts.undefine_macro:
                 options.append(f"--undefine-macro={macro}")
+    if opts.use_bundled_headers:
+        options.append(f"--use-bundled-headers={_default_cache_dir() / 'nvrtc-bundled-headers'}")
     if opts.include_path is not None:
         if isinstance(opts.include_path, str):
             options.append(f"--include-path={opts.include_path}")
@@ -1398,6 +1417,8 @@ cdef inline object _prepare_nvvm_options_impl(object opts, bint as_bytes):
         unsupported.append("undefine_macro")
     if opts.include_path is not None:
         unsupported.append("include_path")
+    if opts.use_bundled_headers:
+        unsupported.append("use_bundled_headers")
     if opts.pre_include is not None:
         unsupported.append("pre_include")
     if opts.no_source_include is not None and opts.no_source_include:
