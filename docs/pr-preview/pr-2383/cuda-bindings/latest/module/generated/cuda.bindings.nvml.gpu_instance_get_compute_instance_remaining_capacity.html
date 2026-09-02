@@ -537,6 +537,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.4.0-notes.html">13.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.3.1-notes.html">13.3.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.3.0-notes.html">13.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.2.0-notes.html">13.2.0</a></li>
@@ -1320,12 +1321,18 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>gpu_instance</strong> (<em>intptr_t</em>) – The identifier of the target GPU instance.</p></li>
-<li><p><strong>profile_id</strong> (<em>unsigned int</em>) – The compute instance profile ID. See <code class="docutils literal notranslate"><span class="pre">nvmlGpuInstanceGetComputeInstanceProfileInfo</span></code>.</p></li>
+<li><p><strong>gpu_instance</strong> (<em>intptr_t</em>) – The identifier of the target GPU
+instance.</p></li>
+<li><p><strong>profile_id</strong> (<em>unsigned int</em>) – The compute instance profile ID.
+See <code class="docutils literal notranslate"><span class="pre">nvmlGpuInstanceGetComputeInstanceProfileInfo</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Returns remaining instance count for the profile ID.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>Returns remaining instance count for the profile</dt><dd><p>ID.</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>unsigned int</p>

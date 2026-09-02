@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=6a595d3a"></script>
+    <script src="_static/documentation_options.js?v=4c853e88"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev16';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev135';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -630,6 +630,14 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableGraphNode.html">cuda.core.graph.ExecutableGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableKernelNode.html">cuda.core.graph.ExecutableKernelNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableMemcpyNode.html">cuda.core.graph.ExecutableMemcpyNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableMemsetNode.html">cuda.core.graph.ExecutableMemsetNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableHostCallbackNode.html">cuda.core.graph.ExecutableHostCallbackNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableChildGraphNode.html">cuda.core.graph.ExecutableChildGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableEventRecordNode.html">cuda.core.graph.ExecutableEventRecordNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableEventWaitNode.html">cuda.core.graph.ExecutableEventWaitNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
@@ -643,10 +651,14 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.copy_batch.html">cuda.core.utils.copy_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.prefetch_batch.html">cuda.core.utils.prefetch_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.discard_batch.html">cuda.core.utils.discard_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.discard_prefetch_batch.html">cuda.core.utils.discard_prefetch_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.CopyOptions.html">cuda.core.utils.CopyOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.MemcpySrcAccessOrder.html">cuda.core.utils.MemcpySrcAccessOrder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.MemcpyOverlapMode.html">cuda.core.utils.MemcpyOverlapMode</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api_nvml.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -661,6 +673,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE.html">cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="environment_variables.html">Environment Variables</a></li>
@@ -673,6 +686,8 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/1.2.0-notes.html">1.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.1.1-notes.html">1.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.1.0-notes.html">1.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.0.1-notes.html">1.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.0.0-notes.html">1.0.0</a></li>
@@ -778,7 +793,7 @@ a kernel” using small, runnable snippets. For the full reference, see the
 <p>These snippets target CUDA 13 and need a working CUDA 13 installation plus
 <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> and a matching <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> (13.x). The quickest way to get
 both from PyPI is:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;cuda-core[cu13]&quot;</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"cuda-core[cu13]"</span>
 </pre></div>
 </div>
 <p>The <a class="reference internal" href="install.html"><span class="doc">install page</span></a> covers driver requirements, conda, CUDA 12,
@@ -797,9 +812,9 @@ on the current host thread. Always call it before doing GPU work.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dev</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span>        <span class="c1"># current device (device 0 if none is current); Device(1) picks a specific GPU</span>
 <span class="n">dev</span><span class="o">.</span><span class="n">set_current</span><span class="p">()</span>     <span class="c1"># initialize CUDA and make this device current</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">dev</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>                 <span class="c1"># e.g. &#39;NVIDIA GB10&#39;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dev</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>                 <span class="c1"># e.g. 'NVIDIA GB10'</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">dev</span><span class="o">.</span><span class="n">compute_capability</span><span class="p">)</span>   <span class="c1"># ComputeCapability(major=12, minor=1)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">dev</span><span class="o">.</span><span class="n">arch</span><span class="p">)</span>                 <span class="c1"># &#39;121&#39;  (handy for building kernels below)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dev</span><span class="o">.</span><span class="n">arch</span><span class="p">)</span>                 <span class="c1"># '121'  (handy for building kernels below)</span>
 </pre></div>
 </div>
 <p><a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> is a thread-local singleton: on the same thread, <code class="docutils literal notranslate"><span class="pre">Device(0)</span></code>
@@ -813,19 +828,19 @@ attributes live under <a class="reference internal" href="generated/cuda.core.De
 compile with <a class="reference internal" href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramOptions</span></code></a> (here: the C++ standard and the target
 architecture, taken from <code class="docutils literal notranslate"><span class="pre">dev.arch</span></code>), call <a class="reference internal" href="generated/cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Program.compile()</span></code></a> to get an
 <a class="reference internal" href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>, then pull out a callable <a class="reference internal" href="generated/cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core.Kernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kernel</span></code></a> by name.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">code</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">extern &quot;C&quot; __global__</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">code</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"""</span>
+<span class="s2">extern "C" __global__</span>
 <span class="s2">void scale(float* data, float factor, size_t n) {</span>
 <span class="s2">    size_t i = threadIdx.x + blockIdx.x * blockDim.x;</span>
 <span class="s2">    if (i &lt; n)</span>
 <span class="s2">        data[i] *= factor;</span>
 <span class="s2">}</span>
-<span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">"""</span>
 
-<span class="n">opts</span> <span class="o">=</span> <span class="n">ProgramOptions</span><span class="p">(</span><span class="n">std</span><span class="o">=</span><span class="s2">&quot;c++17&quot;</span><span class="p">,</span> <span class="n">arch</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;sm_</span><span class="si">{</span><span class="n">dev</span><span class="o">.</span><span class="n">arch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="n">prog</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">code_type</span><span class="o">=</span><span class="s2">&quot;c++&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">opts</span><span class="p">)</span>
-<span class="n">mod</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;cubin&quot;</span><span class="p">)</span>          <span class="c1"># &quot;cubin&quot; | &quot;ptx&quot; | &quot;ltoir&quot;</span>
-<span class="n">scale</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">get_kernel</span><span class="p">(</span><span class="s2">&quot;scale&quot;</span><span class="p">)</span>
+<span class="n">opts</span> <span class="o">=</span> <span class="n">ProgramOptions</span><span class="p">(</span><span class="n">std</span><span class="o">=</span><span class="s2">"c++17"</span><span class="p">,</span> <span class="n">arch</span><span class="o">=</span><span class="sa">f</span><span class="s2">"sm_</span><span class="si">{</span><span class="n">dev</span><span class="o">.</span><span class="n">arch</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">prog</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">code_type</span><span class="o">=</span><span class="s2">"c++"</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">opts</span><span class="p">)</span>
+<span class="n">mod</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">"cubin"</span><span class="p">)</span>          <span class="c1"># "cubin" | "ptx" | "ltoir"</span>
+<span class="n">scale</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">get_kernel</span><span class="p">(</span><span class="s2">"scale"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>We wrap the kernel in <code class="docutils literal notranslate"><span class="pre">extern</span> <span class="pre">&quot;C&quot;</span></code> so its name is exactly <code class="docutils literal notranslate"><span class="pre">&quot;scale&quot;</span></code>, which is
@@ -834,12 +849,12 @@ the name we pass to <a class="reference internal" href="generated/cuda.core.Obje
 than returning an error code. A compilation failure is especially friendly: the
 exception carries the compiler’s log, so you can see exactly what went wrong
 (other errors raise an exception with the CUDA error name and description).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bad</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;extern &quot;C&quot; __global__ void k() { not_a_real_symbol; }&#39;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bad</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">'extern "C" __global__ void k() { not_a_real_symbol; }'</span>
 <span class="k">try</span><span class="p">:</span>
-    <span class="n">Program</span><span class="p">(</span><span class="n">bad</span><span class="p">,</span> <span class="n">code_type</span><span class="o">=</span><span class="s2">&quot;c++&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">opts</span><span class="p">)</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;cubin&quot;</span><span class="p">)</span>
+    <span class="n">Program</span><span class="p">(</span><span class="n">bad</span><span class="p">,</span> <span class="n">code_type</span><span class="o">=</span><span class="s2">"c++"</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">opts</span><span class="p">)</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">"cubin"</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
     <span class="c1"># the exception carries the compiler log</span>
-    <span class="k">assert</span> <span class="s1">&#39;identifier &quot;not_a_real_symbol&quot; is undefined&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s1">'identifier "not_a_real_symbol" is undefined'</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -930,8 +945,8 @@ copy, launch, sync.</strong> Everything below builds on it.</p>
 <p>An <a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> marks a point in a stream. Create timing-enabled events,
 <a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream.record" title="cuda.core.Stream.record"><code class="xref py py-meth docutils literal notranslate"><span class="pre">record</span></code></a> them around some work, synchronize, and subtract
 to get the elapsed time between them in milliseconds.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">create_event</span><span class="p">({</span><span class="s2">&quot;timing_enabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
-<span class="n">end</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">create_event</span><span class="p">({</span><span class="s2">&quot;timing_enabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">create_event</span><span class="p">({</span><span class="s2">"timing_enabled"</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="n">end</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">create_event</span><span class="p">({</span><span class="s2">"timing_enabled"</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
 
 <span class="n">stream</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
@@ -939,7 +954,7 @@ to get the elapsed time between them in milliseconds.</p>
 <span class="n">stream</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
 <span class="n">end</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;100 launches took </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> ms&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"100 launches took </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> ms"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Events are also how you build cross-stream dependencies without stalling the
@@ -966,7 +981,7 @@ for another’s work to finish before continuing.</p>
 <span class="n">launch</span><span class="p">(</span><span class="n">stream_a</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">buf_a</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="mf">2.0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
 <span class="n">launch</span><span class="p">(</span><span class="n">stream_b</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">buf_b</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="mf">5.0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
 
-<span class="c1"># stream_b now needs stream_a&#39;s result, so it waits before reading it.</span>
+<span class="c1"># stream_b now needs stream_a's result, so it waits before reading it.</span>
 <span class="n">stream_b</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">stream_a</span><span class="p">)</span>
 <span class="n">buf_b</span><span class="o">.</span><span class="n">copy_from</span><span class="p">(</span><span class="n">buf_a</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream_b</span><span class="p">)</span>   <span class="c1"># safe: buf_a is ready</span>
 
@@ -1002,7 +1017,7 @@ operations into the <em>builder</em> instead of the stream, then complete the gr
 <span class="n">stream</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>See <a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/2c213053a49144003388e173cccdb6e3d60f528d/cuda_core/examples/cuda_graphs.py">cuda_graphs.py</a>
+<p>See <a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/82e40fcb92c184dfa74538db73f304eb8be0a4f8/cuda_core/examples/cuda_graphs.py">cuda_graphs.py</a>
 for a complete capture-and-replay example with a measured speedup.</p>
 <p>Beyond the stream capture shown here, <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> also provides an explicit
 graph interface (the <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.graph</span></code> module) for building, inspecting, and
@@ -1027,7 +1042,7 @@ array of ones:</p>
 <span class="kn">import</span><span class="w"> </span><span class="nn">cupy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cp</span>
 
 <span class="n">a</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-<span class="n">dev</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>  <span class="c1"># CuPy fills &quot;a&quot; on its own stream; sync before our stream reads it</span>
+<span class="n">dev</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>  <span class="c1"># CuPy fills "a" on its own stream; sync before our stream reads it</span>
 <span class="n">launch</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="mf">2.0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
 <span class="n">stream</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
 <span class="k">assert</span> <span class="nb">bool</span><span class="p">((</span><span class="n">a</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
@@ -1036,7 +1051,7 @@ array of ones:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># PyTorch streams implement the __cuda_stream__ protocol natively</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 
-<span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">)</span>
 <span class="n">ts</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">create_stream</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_stream</span><span class="p">())</span>
 <span class="n">launch</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">data_ptr</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="mf">2.0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">numel</span><span class="p">()))</span>
 <span class="n">ts</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
@@ -1079,7 +1094,7 @@ can be handed to any DLPack importer for zero-copy exchange.</p>
 <h2>Cleaning up<a class="headerlink" href="#cleaning-up" title="Link to this heading">#</a></h2>
 <p>Buffers, streams, events, graphs, and graph builders hold CUDA resources. They
 are released when garbage-collected, but you can release them explicitly with
-<code class="docutils literal notranslate"><span class="pre">close()</span></code>, which the <a class="extlink-cuda-core-examples reference external" href="https://github.com/NVIDIA/cuda-python/tree/2c213053a49144003388e173cccdb6e3d60f528d/cuda_core/examples/">cuda.core examples</a> do in a
+<code class="docutils literal notranslate"><span class="pre">close()</span></code>, which the <a class="extlink-cuda-core-examples reference external" href="https://github.com/NVIDIA/cuda-python/tree/82e40fcb92c184dfa74538db73f304eb8be0a4f8/cuda_core/examples/">cuda.core examples</a> do in a
 <code class="docutils literal notranslate"><span class="pre">finally</span></code> block.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">graph</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 <span class="n">gb</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>

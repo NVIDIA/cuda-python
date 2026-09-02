@@ -537,6 +537,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.4.0-notes.html">13.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.3.1-notes.html">13.3.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.3.0-notes.html">13.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.2.0-notes.html">13.2.0</a></li>
@@ -1312,10 +1313,15 @@
 <dd><p>Acquire the device information for an excluded GPU device, based on its index.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>index</strong> (<em>unsigned int</em>) – The index of the target GPU, &gt;= 0 and &lt; <code class="docutils literal notranslate"><span class="pre">deviceCount</span></code>.</p>
+<dd class="field-odd"><p><strong>index</strong> (<em>unsigned int</em>) – The index of the target GPU, &gt;= 0 and &lt;
+<code class="docutils literal notranslate"><span class="pre">deviceCount</span></code>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Reference in which to return the device information.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>Reference in which to return the</dt><dd><p>device information.</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>nvmlExcludedDeviceInfo_t</p>

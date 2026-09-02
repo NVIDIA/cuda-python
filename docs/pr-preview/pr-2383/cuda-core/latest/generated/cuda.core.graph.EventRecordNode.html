@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=6a595d3a"></script>
+    <script src="../_static/documentation_options.js?v=4c853e88"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev16';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev135';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -630,6 +630,14 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ExecutableGraphNode.html">cuda.core.graph.ExecutableGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ExecutableKernelNode.html">cuda.core.graph.ExecutableKernelNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ExecutableMemcpyNode.html">cuda.core.graph.ExecutableMemcpyNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ExecutableMemsetNode.html">cuda.core.graph.ExecutableMemsetNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ExecutableHostCallbackNode.html">cuda.core.graph.ExecutableHostCallbackNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ExecutableChildGraphNode.html">cuda.core.graph.ExecutableChildGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ExecutableEventRecordNode.html">cuda.core.graph.ExecutableEventRecordNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ExecutableEventWaitNode.html">cuda.core.graph.ExecutableEventWaitNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
@@ -643,10 +651,14 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.copy_batch.html">cuda.core.utils.copy_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.prefetch_batch.html">cuda.core.utils.prefetch_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.discard_batch.html">cuda.core.utils.discard_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.discard_prefetch_batch.html">cuda.core.utils.discard_prefetch_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.CopyOptions.html">cuda.core.utils.CopyOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.MemcpySrcAccessOrder.html">cuda.core.utils.MemcpySrcAccessOrder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.MemcpyOverlapMode.html">cuda.core.utils.MemcpyOverlapMode</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api_nvml.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -661,6 +673,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE.html">cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
@@ -673,6 +686,8 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.2.0-notes.html">1.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.1.1-notes.html">1.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.1.0-notes.html">1.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.0.1-notes.html">1.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.0.0-notes.html">1.0.0</a></li>
@@ -825,15 +840,21 @@ Two modes are supported:</p>
 <li><p><strong>Python callable</strong>: Pass any callable. The GIL is acquired
 automatically. The callable must take no arguments; use closures
 or <code class="docutils literal notranslate"><span class="pre">functools.partial</span></code> to bind state.</p></li>
-<li><p><strong>ctypes function pointer</strong>: Pass a <code class="docutils literal notranslate"><span class="pre">ctypes.CFUNCTYPE</span></code> instance.
-The function receives a single <code class="docutils literal notranslate"><span class="pre">void*</span></code> argument (the
-<code class="docutils literal notranslate"><span class="pre">user_data</span></code>). The caller must keep the ctypes wrapper alive
-for the lifetime of the graph.</p></li>
+<li><p><strong>ctypes function pointer</strong>: The function receives a single
+<code class="docutils literal notranslate"><span class="pre">void*</span></code> argument (the <code class="docutils literal notranslate"><span class="pre">user_data</span></code>), and the caller must keep
+the ctypes wrapper alive for the lifetime of the graph. Its
+declared prototype must match the driver’s <code class="docutils literal notranslate"><span class="pre">CUhostFn</span></code>
+(<code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">(*)(void*)</span></code>): <code class="docutils literal notranslate"><span class="pre">ctypes.CFUNCTYPE(None,</span> <span class="pre">ctypes.c_void_p)</span></code>,
+or <code class="docutils literal notranslate"><span class="pre">ctypes.WINFUNCTYPE(None,</span> <span class="pre">ctypes.c_void_p)</span></code> on Windows.</p></li>
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Callbacks must not call CUDA API functions. Doing so may
 deadlock or corrupt driver state.</p>
+<p>Use caution when a Python callback retains an object that owns a
+graph. Any reference cycle involving the callback and a graph that
+retains it cannot be broken by Python’s cyclic garbage collector.
+Use a weak reference to break such cycles.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -849,6 +870,13 @@ copied and its lifetime is tied to the graph.</p></li>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.graph.HostCallbackNode.html#cuda.core.graph.HostCallbackNode" title="cuda.core.graph.HostCallbackNode">HostCallbackNode</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">fn</span></code> is a ctypes function pointer whose declared prototype
+    does not match <code class="docutils literal notranslate"><span class="pre">CUhostFn</span></code>.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">user_data</span></code> is given for a Python callable.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -990,6 +1018,15 @@ a non-zero value at runtime.</p>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.KernelNode.html#cuda.core.graph.KernelNode" title="cuda.core.graph.KernelNode"><span class="pre">KernelNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.launch" title="Link to this definition">#</a></dt>
 <dd><p>Add a kernel launch node depending on this node.</p>
+<p>Clustered and cooperative launch configurations are not currently
+supported for graph kernel nodes.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Use caution when a retained kernel argument directly or indirectly
+owns a graph. Any reference cycle involving the argument and a
+graph that retains it cannot be broken by Python’s cyclic garbage
+collector. Use a weak reference to break such cycles.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1026,6 +1063,13 @@ a non-zero value at runtime.</p>
 <p>Copies <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes from <code class="docutils literal notranslate"><span class="pre">src</span></code> to <code class="docutils literal notranslate"><span class="pre">dst</span></code>. Memory types are
 auto-detected via the driver, so both device and pinned host
 pointers are supported.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Use caution when a retained operand owner directly or indirectly
+owns a graph. Any reference cycle involving the owner and a graph
+that retains it cannot be broken by Python’s cyclic garbage
+collector. Use a weak reference to break such cycles.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1074,6 +1118,13 @@ Must not be passed when <code class="docutils literal notranslate"><span class="
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode" title="cuda.core.graph.MemsetNode"><span class="pre">MemsetNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.memset" title="Link to this definition">#</a></dt>
 <dd><p>Add a memset node depending on this node.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Use caution when a retained operand owner directly or indirectly
+owns a graph. Any reference cycle involving the owner and a graph
+that retains it cannot be broken by Python’s cyclic garbage
+collector. Use a weak reference to break such cycles.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1148,6 +1199,12 @@ value is out of range, no branch executes.</p>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.graph.SwitchNode.html#cuda.core.graph.SwitchNode" title="cuda.core.graph.SwitchNode">SwitchNode</a></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.graph.EventRecordNode.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Event</span> <span class="pre">event:</span> <span class="pre">Event</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.update" title="Link to this definition">#</a></dt>
+<dd><p>Replace the event recorded by this node.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1229,7 +1286,7 @@ evaluates to a non-zero value.</p>
 <dt class="sig sig-object py" id="cuda.core.graph.EventRecordNode.is_valid">
 <span class="sig-name descname"><span class="pre">is_valid</span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.is_valid" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
-<p>Whether this node is valid (not destroyed).</p>
+<p>Whether this node and its graph definition remain valid.</p>
 <p>Returns <code class="docutils literal notranslate"><span class="pre">False</span></code> after <a class="reference internal" href="#cuda.core.graph.EventRecordNode.destroy" title="cuda.core.graph.EventRecordNode.destroy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">destroy()</span></code></a> has been called.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -1349,6 +1406,7 @@ evaluates to a non-zero value.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.EventRecordNode.memset"><code class="docutils literal notranslate"><span class="pre">EventRecordNode.memset()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.EventRecordNode.record"><code class="docutils literal notranslate"><span class="pre">EventRecordNode.record()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.EventRecordNode.switch"><code class="docutils literal notranslate"><span class="pre">EventRecordNode.switch()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.EventRecordNode.update"><code class="docutils literal notranslate"><span class="pre">EventRecordNode.update()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.EventRecordNode.wait"><code class="docutils literal notranslate"><span class="pre">EventRecordNode.wait()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.EventRecordNode.while_loop"><code class="docutils literal notranslate"><span class="pre">EventRecordNode.while_loop()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.EventRecordNode.event"><code class="docutils literal notranslate"><span class="pre">EventRecordNode.event</span></code></a></li>

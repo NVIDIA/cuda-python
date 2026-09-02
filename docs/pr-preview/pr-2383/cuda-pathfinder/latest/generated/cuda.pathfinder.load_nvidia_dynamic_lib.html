@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=2b2ec289"></script>
+    <script src="../_static/documentation_options.js?v=269e6701"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.5.7';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.8.2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -437,6 +437,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.DynamicLibNotFoundError.html">cuda.pathfinder.DynamicLibNotFoundError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.DynamicLibUnknownError.html">cuda.pathfinder.DynamicLibUnknownError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.DynamicLibNotAvailableError.html">cuda.pathfinder.DynamicLibNotAvailableError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.UnsupportedArchError.html">cuda.pathfinder.UnsupportedArchError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.SUPPORTED_HEADERS_CTK.html">cuda.pathfinder.SUPPORTED_HEADERS_CTK</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.find_nvidia_header_directory.html">cuda.pathfinder.find_nvidia_header_directory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.locate_nvidia_header_directory.html">cuda.pathfinder.locate_nvidia_header_directory</a></li>
@@ -460,6 +461,11 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.8.1-notes.html">1.8.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.8.0-notes.html">1.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.7.0-notes.html">1.7.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.6.1-notes.html">1.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.6.0-notes.html">1.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.5.6-notes.html">1.5.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.5.5-notes.html">1.5.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.5.4-notes.html">1.5.4</a></li>
@@ -583,6 +589,14 @@ it, leading to crashes or subtle failures.</p>
 </dd>
 </dl>
 <dl>
+<dt>Windows on ARM (WoA) Note:</dt><dd><p>On Windows, this API aims to load a dynamic library whose architecture
+matches the Python interpreter architecture. For example, x64 Python
+running on an Arm64 machine targets an x64 DLL, while native Arm64 Python
+targets an Arm64 DLL. A library loaded into the Python process must be
+compatible with that process. This differs from
+<code class="docutils literal notranslate"><span class="pre">find_nvidia_binary_utility</span></code>, which targets the native machine
+architecture when selecting architecture-specific executables.</p>
+</dd>
 <dt>Search order:</dt><dd><ol class="arabic" start="0">
 <li><p><strong>Already loaded in the current process</strong></p>
 <ul class="simple">
@@ -621,10 +635,20 @@ the system <code class="docutils literal notranslate"><span class="pre">PATH</sp
 </li>
 <li><p><strong>Environment variables</strong></p>
 <ul class="simple">
-<li><p>If set, use <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> (in that order).
-On Windows, this is the typical way system-installed CTK DLLs are
-located. Note that the NVIDIA CTK installer automatically
+<li><p>First search library-specific roots declared by the descriptor,
+such as <code class="docutils literal notranslate"><span class="pre">CUDNN_PATH</span></code> and <code class="docutils literal notranslate"><span class="pre">NCCL_HOME</span></code>, using their
+platform-specific product layouts. Then use <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> or
+<code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> (in that order).
+On Windows, <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> is the typical way system-installed CTK
+DLLs are located. Note that the NVIDIA CTK installer automatically
 adds <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> to the system-wide environment.</p></li>
+</ul>
+</li>
+<li><p><strong>Windows Program Files (configured libraries only)</strong></p>
+<ul class="simple">
+<li><p>Search descriptor-configured standalone installation roots, such
+as versioned x64 cuDNN directories under <code class="docutils literal notranslate"><span class="pre">ProgramFiles</span></code>, using
+the general per-library anchor layout.</p></li>
 </ul>
 </li>
 <li><p><strong>CTK root canary probe (discoverable libs only)</strong></p>
@@ -649,8 +673,8 @@ libraries the search is simplified to:</p>
 <li><p>Already loaded in the current process</p></li>
 <li><p>OS default mechanisms (<code class="docutils literal notranslate"><span class="pre">dlopen</span></code> / <code class="docutils literal notranslate"><span class="pre">LoadLibraryExW</span></code>)</p></li>
 </ol>
-<p>The CTK-specific steps (site-packages, conda, <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code>, canary
-probe) are skipped entirely.</p>
+<p>The non-driver steps (site-packages, conda, environment roots,
+<code class="docutils literal notranslate"><span class="pre">ProgramFiles</span></code>, and canary probe) are skipped entirely.</p>
 </div></blockquote>
 <p class="rubric">Notes</p>
 <p>The search is performed <strong>per library</strong>. There is currently no mechanism to

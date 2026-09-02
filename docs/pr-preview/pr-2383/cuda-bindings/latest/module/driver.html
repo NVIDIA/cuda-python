@@ -537,6 +537,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.4.0-notes.html">13.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.3.1-notes.html">13.3.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.3.0-notes.html">13.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.2.0-notes.html">13.2.0</a></li>
@@ -1356,16 +1357,6 @@ the NVSwitch fabric.</p>
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUipcEventHandle_st">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUipcEventHandle_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUipcEventHandle_st" title="Link to this definition">#</a></dt>
 <dd><p>CUDA IPC event handle</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.driver.CUipcEventHandle_st.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.driver.CUipcEventHandle_st.reserved" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUipcEventHandle_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUipcEventHandle_st.getPtr" title="Link to this definition">#</a></dt>
@@ -1378,16 +1369,6 @@ the NVSwitch fabric.</p>
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUipcMemHandle_st">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUipcMemHandle_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUipcMemHandle_st" title="Link to this definition">#</a></dt>
 <dd><p>CUDA IPC mem handle</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.driver.CUipcMemHandle_st.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.driver.CUipcMemHandle_st.reserved" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUipcMemHandle_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUipcMemHandle_st.getPtr" title="Link to this definition">#</a></dt>
@@ -1966,9 +1947,6 @@ Accordingly, this field must be set to zero.</p>
 (It is typed as char due to compiler-specific layout of bitfields.)
 See CUgraphDependencyType.</p>
 </dd>
-<dt>reserved<span class="classifier">bytes</span></dt><dd><p>These bytes are unused and must be zeroed. This ensures
-compatibility if additional fields are added in the future.</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUgraphEdgeData_st.getPtr">
@@ -2487,8 +2465,6 @@ from D3D12 graphics clients.</p>
 </dd>
 <dt>srcArray<span class="classifier">CUarray</span></dt><dd><p>Source array reference</p>
 </dd>
-<dt>reserved0<span class="classifier">Any</span></dt><dd><p>Must be NULL</p>
-</dd>
 <dt>srcPitch<span class="classifier">size_t</span></dt><dd><p>Source pitch (ignored when src is array)</p>
 </dd>
 <dt>srcHeight<span class="classifier">size_t</span></dt><dd><p>Source height (ignored when src is array; may be 0 if Depth==1)</p>
@@ -2508,8 +2484,6 @@ from D3D12 graphics clients.</p>
 <dt>dstDevice<span class="classifier">CUdeviceptr</span></dt><dd><p>Destination device pointer</p>
 </dd>
 <dt>dstArray<span class="classifier">CUarray</span></dt><dd><p>Destination array reference</p>
-</dd>
-<dt>reserved1<span class="classifier">Any</span></dt><dd><p>Must be NULL</p>
 </dd>
 <dt>dstPitch<span class="classifier">size_t</span></dt><dd><p>Destination pitch (ignored when dst is array)</p>
 </dd>
@@ -2622,8 +2596,6 @@ Depth==1)</p>
 </dd></dl>
 
 <dl class="simple">
-<dt>reserved<span class="classifier">int</span></dt><dd><p>Must be zero</p>
-</dd>
 <dt>copyCtx<span class="classifier">CUcontext</span></dt><dd><p>Context on which to run the node</p>
 </dd>
 <dt>copyParams<span class="classifier">CUDA_MEMCPY3D</span></dt><dd><p>Parameters for the memory copy</p>
@@ -2726,7 +2698,6 @@ Depth==1)</p>
 CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_ARRAY_SPARSE_PROPERTIES_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_ARRAY_SPARSE_PROPERTIES_st.getPtr" title="Link to this definition">#</a></dt>
@@ -2754,7 +2725,6 @@ CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 <dt>alignment<span class="classifier">size_t</span></dt><dd><p>alignment requirement</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_ARRAY_MEMORY_REQUIREMENTS_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_ARRAY_MEMORY_REQUIREMENTS_st.getPtr" title="Link to this definition">#</a></dt>
@@ -2824,7 +2794,6 @@ CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 <dt>borderColor<span class="classifier">list[float]</span></dt><dd><p>Border Color</p>
 </dd>
 </dl>
-<p>reserved : list[int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_TEXTURE_DESC_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_TEXTURE_DESC_st.getPtr" title="Link to this definition">#</a></dt>
@@ -2864,7 +2833,6 @@ CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 <dt>lastLayer<span class="classifier">unsigned int</span></dt><dd><p>Last layer index</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_RESOURCE_VIEW_DESC_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_RESOURCE_VIEW_DESC_st.getPtr" title="Link to this definition">#</a></dt>
@@ -2984,7 +2952,6 @@ CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Flags must either be zero or CUDA_EXTERNAL_MEMORY_DEDICATED</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.getPtr" title="Link to this definition">#</a></dt>
@@ -3014,7 +2981,6 @@ CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Flags reserved for future use. Must be zero.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st.getPtr" title="Link to this definition">#</a></dt>
@@ -3045,7 +3011,6 @@ chain is.</p>
 <dt>numLevels<span class="classifier">unsigned int</span></dt><dd><p>Total number of levels in the mipmap chain</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st.getPtr" title="Link to this definition">#</a></dt>
@@ -3074,7 +3039,6 @@ chain is.</p>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Flags reserved for the future. Must be zero.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st.getPtr" title="Link to this definition">#</a></dt>
@@ -3108,7 +3072,6 @@ memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
 For all other types of CUexternalSemaphore, flags must be zero.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st.getPtr" title="Link to this definition">#</a></dt>
@@ -3142,7 +3105,6 @@ memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
 For all other types of CUexternalSemaphore, flags must be zero.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.getPtr" title="Link to this definition">#</a></dt>
@@ -3306,8 +3268,6 @@ information</p>
 <dt>deviceBitMask<span class="classifier">unsigned int</span></dt><dd><p>Device ordinal bit mask</p>
 </dd>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>flags for future use, must be zero now.</p>
-</dd>
-<dt>reserved<span class="classifier">list[unsigned int]</span></dt><dd><p>Reserved for future use, must be zero now.</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -3508,8 +3468,6 @@ value.</p>
 </dd>
 <dt>usage<span class="classifier">unsigned short</span></dt><dd><p>Bitmask indicating intended usage for the pool.</p>
 </dd>
-<dt>reserved<span class="classifier">bytes</span></dt><dd><p>reserved for future use, must be 0</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUmemPoolProps_st.getPtr">
@@ -3523,16 +3481,6 @@ value.</p>
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUmemPoolPtrExportData_st">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUmemPoolPtrExportData_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUmemPoolPtrExportData_st" title="Link to this definition">#</a></dt>
 <dd><p>Opaque data for exporting a pool allocation</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.driver.CUmemPoolPtrExportData_st.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.driver.CUmemPoolPtrExportData_st.reserved" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUmemPoolPtrExportData_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUmemPoolPtrExportData_st.getPtr" title="Link to this definition">#</a></dt>
@@ -3870,10 +3818,6 @@ to the parent.</p>
 </dd></dl>
 
 <dl class="simple">
-<dt>reserved0<span class="classifier">list[int]</span></dt><dd><p>Reserved. Must be zero.</p>
-</dd>
-<dt>reserved1<span class="classifier">list[long long]</span></dt><dd><p>Padding. Unused bytes must be zero.</p>
-</dd>
 <dt>kernel<span class="classifier">CUDA_KERNEL_NODE_PARAMS_v3</span></dt><dd><p>Kernel node parameters.</p>
 </dd>
 <dt>memcpy<span class="classifier">CUDA_MEMCPY_NODE_PARAMS</span></dt><dd><p>Memcpy node parameters.</p>
@@ -3902,8 +3846,6 @@ to the parent.</p>
 </dd>
 <dt>asBytes<span class="classifier">bytes</span></dt><dd><p>Padding as bytes</p>
 </dd>
-<dt>reserved2<span class="classifier">long long</span></dt><dd><p>Reserved bytes. Must be zero.</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUgraphNodeParams_st.getPtr">
@@ -3929,12 +3871,6 @@ no timeout</p>
 </dl>
 </dd></dl>
 
-<dl class="simple">
-<dt>reserved0<span class="classifier">unsigned int</span></dt><dd><p>Reserved for future use, must be zero</p>
-</dd>
-<dt>reserved1<span class="classifier">list[cuuint64_t]</span></dt><dd><p>Reserved for future use, must be zeroed</p>
-</dd>
-</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointLockArgs_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointLockArgs_st.getPtr" title="Link to this definition">#</a></dt>
@@ -3947,17 +3883,6 @@ no timeout</p>
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointCheckpointArgs_st">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUcheckpointCheckpointArgs_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointCheckpointArgs_st" title="Link to this definition">#</a></dt>
 <dd><p>CUDA checkpoint optional checkpoint arguments</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointCheckpointArgs_st.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointCheckpointArgs_st.reserved" title="Link to this definition">#</a></dt>
-<dd><p>Reserved for future use, must be zeroed</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[cuuint64_t]</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointCheckpointArgs_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointCheckpointArgs_st.getPtr" title="Link to this definition">#</a></dt>
@@ -4012,10 +3937,6 @@ during restore</p>
 <dl class="simple">
 <dt>gpuPairsCount<span class="classifier">unsigned int</span></dt><dd><p>Number of gpu pairs to remap</p>
 </dd>
-<dt>reserved<span class="classifier">bytes</span></dt><dd><p>Reserved for future use, must be zeroed</p>
-</dd>
-<dt>reserved<span class="classifier">list[cuuint64_t]</span></dt><dd><p>Reserved for future use, must be zeroed</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointRestoreArgs_st.getPtr">
@@ -4029,17 +3950,6 @@ during restore</p>
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointUnlockArgs_st">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUcheckpointUnlockArgs_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointUnlockArgs_st" title="Link to this definition">#</a></dt>
 <dd><p>CUDA checkpoint optional unlock arguments</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointUnlockArgs_st.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointUnlockArgs_st.reserved" title="Link to this definition">#</a></dt>
-<dd><p>Reserved for future use, must be zeroed</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[cuuint64_t]</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointUnlockArgs_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointUnlockArgs_st.getPtr" title="Link to this definition">#</a></dt>
@@ -11358,16 +11268,6 @@ the NVSwitch fabric.</p>
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUipcEventHandle_v1">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUipcEventHandle_v1</span></span><a class="headerlink" href="#cuda.bindings.driver.CUipcEventHandle_v1" title="Link to this definition">#</a></dt>
 <dd><p>CUDA IPC event handle</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.driver.CUipcEventHandle_v1.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.driver.CUipcEventHandle_v1.reserved" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUipcEventHandle_v1.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUipcEventHandle_v1.getPtr" title="Link to this definition">#</a></dt>
@@ -11380,16 +11280,6 @@ the NVSwitch fabric.</p>
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUipcEventHandle">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUipcEventHandle</span></span><a class="headerlink" href="#cuda.bindings.driver.CUipcEventHandle" title="Link to this definition">#</a></dt>
 <dd><p>CUDA IPC event handle</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.driver.CUipcEventHandle.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.driver.CUipcEventHandle.reserved" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUipcEventHandle.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUipcEventHandle.getPtr" title="Link to this definition">#</a></dt>
@@ -11402,16 +11292,6 @@ the NVSwitch fabric.</p>
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUipcMemHandle_v1">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUipcMemHandle_v1</span></span><a class="headerlink" href="#cuda.bindings.driver.CUipcMemHandle_v1" title="Link to this definition">#</a></dt>
 <dd><p>CUDA IPC mem handle</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.driver.CUipcMemHandle_v1.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.driver.CUipcMemHandle_v1.reserved" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUipcMemHandle_v1.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUipcMemHandle_v1.getPtr" title="Link to this definition">#</a></dt>
@@ -11424,16 +11304,6 @@ the NVSwitch fabric.</p>
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUipcMemHandle">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUipcMemHandle</span></span><a class="headerlink" href="#cuda.bindings.driver.CUipcMemHandle" title="Link to this definition">#</a></dt>
 <dd><p>CUDA IPC mem handle</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.driver.CUipcMemHandle.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.driver.CUipcMemHandle.reserved" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUipcMemHandle.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUipcMemHandle.getPtr" title="Link to this definition">#</a></dt>
@@ -12307,9 +12177,6 @@ Accordingly, this field must be set to zero.</p>
 <dt>type<span class="classifier">bytes</span></dt><dd><p>This should be populated with a value from CUgraphDependencyType.
 (It is typed as char due to compiler-specific layout of bitfields.)
 See CUgraphDependencyType.</p>
-</dd>
-<dt>reserved<span class="classifier">bytes</span></dt><dd><p>These bytes are unused and must be zeroed. This ensures
-compatibility if additional fields are added in the future.</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -13375,8 +13242,6 @@ from D3D12 graphics clients.</p>
 </dd>
 <dt>srcArray<span class="classifier">CUarray</span></dt><dd><p>Source array reference</p>
 </dd>
-<dt>reserved0<span class="classifier">Any</span></dt><dd><p>Must be NULL</p>
-</dd>
 <dt>srcPitch<span class="classifier">size_t</span></dt><dd><p>Source pitch (ignored when src is array)</p>
 </dd>
 <dt>srcHeight<span class="classifier">size_t</span></dt><dd><p>Source height (ignored when src is array; may be 0 if Depth==1)</p>
@@ -13396,8 +13261,6 @@ from D3D12 graphics clients.</p>
 <dt>dstDevice<span class="classifier">CUdeviceptr</span></dt><dd><p>Destination device pointer</p>
 </dd>
 <dt>dstArray<span class="classifier">CUarray</span></dt><dd><p>Destination array reference</p>
-</dd>
-<dt>reserved1<span class="classifier">Any</span></dt><dd><p>Must be NULL</p>
 </dd>
 <dt>dstPitch<span class="classifier">size_t</span></dt><dd><p>Destination pitch (ignored when dst is array)</p>
 </dd>
@@ -13449,8 +13312,6 @@ Depth==1)</p>
 </dd>
 <dt>srcArray<span class="classifier">CUarray</span></dt><dd><p>Source array reference</p>
 </dd>
-<dt>reserved0<span class="classifier">Any</span></dt><dd><p>Must be NULL</p>
-</dd>
 <dt>srcPitch<span class="classifier">size_t</span></dt><dd><p>Source pitch (ignored when src is array)</p>
 </dd>
 <dt>srcHeight<span class="classifier">size_t</span></dt><dd><p>Source height (ignored when src is array; may be 0 if Depth==1)</p>
@@ -13470,8 +13331,6 @@ Depth==1)</p>
 <dt>dstDevice<span class="classifier">CUdeviceptr</span></dt><dd><p>Destination device pointer</p>
 </dd>
 <dt>dstArray<span class="classifier">CUarray</span></dt><dd><p>Destination array reference</p>
-</dd>
-<dt>reserved1<span class="classifier">Any</span></dt><dd><p>Must be NULL</p>
 </dd>
 <dt>dstPitch<span class="classifier">size_t</span></dt><dd><p>Destination pitch (ignored when dst is array)</p>
 </dd>
@@ -13659,8 +13518,6 @@ Depth==1)</p>
 </dd></dl>
 
 <dl class="simple">
-<dt>reserved<span class="classifier">int</span></dt><dd><p>Must be zero</p>
-</dd>
 <dt>copyCtx<span class="classifier">CUcontext</span></dt><dd><p>Context on which to run the node</p>
 </dd>
 <dt>copyParams<span class="classifier">CUDA_MEMCPY3D</span></dt><dd><p>Parameters for the memory copy</p>
@@ -13829,7 +13686,6 @@ Depth==1)</p>
 CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_ARRAY_SPARSE_PROPERTIES_v1.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_ARRAY_SPARSE_PROPERTIES_v1.getPtr" title="Link to this definition">#</a></dt>
@@ -13861,7 +13717,6 @@ CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_ARRAY_SPARSE_PROPERTIES.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_ARRAY_SPARSE_PROPERTIES.getPtr" title="Link to this definition">#</a></dt>
@@ -13889,7 +13744,6 @@ CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 <dt>alignment<span class="classifier">size_t</span></dt><dd><p>alignment requirement</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_ARRAY_MEMORY_REQUIREMENTS_v1.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_ARRAY_MEMORY_REQUIREMENTS_v1.getPtr" title="Link to this definition">#</a></dt>
@@ -13917,7 +13771,6 @@ CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 <dt>alignment<span class="classifier">size_t</span></dt><dd><p>alignment requirement</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_ARRAY_MEMORY_REQUIREMENTS.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_ARRAY_MEMORY_REQUIREMENTS.getPtr" title="Link to this definition">#</a></dt>
@@ -14015,7 +13868,6 @@ CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 <dt>borderColor<span class="classifier">list[float]</span></dt><dd><p>Border Color</p>
 </dd>
 </dl>
-<p>reserved : list[int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_TEXTURE_DESC_v1.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_TEXTURE_DESC_v1.getPtr" title="Link to this definition">#</a></dt>
@@ -14057,7 +13909,6 @@ CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 <dt>borderColor<span class="classifier">list[float]</span></dt><dd><p>Border Color</p>
 </dd>
 </dl>
-<p>reserved : list[int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_TEXTURE_DESC.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_TEXTURE_DESC.getPtr" title="Link to this definition">#</a></dt>
@@ -14097,7 +13948,6 @@ CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 <dt>lastLayer<span class="classifier">unsigned int</span></dt><dd><p>Last layer index</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_RESOURCE_VIEW_DESC_v1.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_RESOURCE_VIEW_DESC_v1.getPtr" title="Link to this definition">#</a></dt>
@@ -14137,7 +13987,6 @@ CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 <dt>lastLayer<span class="classifier">unsigned int</span></dt><dd><p>Last layer index</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_RESOURCE_VIEW_DESC.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_RESOURCE_VIEW_DESC.getPtr" title="Link to this definition">#</a></dt>
@@ -14323,7 +14172,6 @@ CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Flags must either be zero or CUDA_EXTERNAL_MEMORY_DEDICATED</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1.getPtr" title="Link to this definition">#</a></dt>
@@ -14354,7 +14202,6 @@ CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Flags must either be zero or CUDA_EXTERNAL_MEMORY_DEDICATED</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.getPtr" title="Link to this definition">#</a></dt>
@@ -14384,7 +14231,6 @@ CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Flags reserved for future use. Must be zero.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1.getPtr" title="Link to this definition">#</a></dt>
@@ -14414,7 +14260,6 @@ CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL</p>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Flags reserved for future use. Must be zero.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC.getPtr" title="Link to this definition">#</a></dt>
@@ -14445,7 +14290,6 @@ chain is.</p>
 <dt>numLevels<span class="classifier">unsigned int</span></dt><dd><p>Total number of levels in the mipmap chain</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1.getPtr" title="Link to this definition">#</a></dt>
@@ -14476,7 +14320,6 @@ chain is.</p>
 <dt>numLevels<span class="classifier">unsigned int</span></dt><dd><p>Total number of levels in the mipmap chain</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC.getPtr" title="Link to this definition">#</a></dt>
@@ -14505,7 +14348,6 @@ chain is.</p>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Flags reserved for the future. Must be zero.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1.getPtr" title="Link to this definition">#</a></dt>
@@ -14534,7 +14376,6 @@ chain is.</p>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Flags reserved for the future. Must be zero.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.getPtr" title="Link to this definition">#</a></dt>
@@ -14568,7 +14409,6 @@ memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
 For all other types of CUexternalSemaphore, flags must be zero.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1.getPtr" title="Link to this definition">#</a></dt>
@@ -14602,7 +14442,6 @@ memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
 For all other types of CUexternalSemaphore, flags must be zero.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS.getPtr" title="Link to this definition">#</a></dt>
@@ -14636,7 +14475,6 @@ memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
 For all other types of CUexternalSemaphore, flags must be zero.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1.getPtr" title="Link to this definition">#</a></dt>
@@ -14670,7 +14508,6 @@ memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
 For all other types of CUexternalSemaphore, flags must be zero.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS.getPtr" title="Link to this definition">#</a></dt>
@@ -14917,8 +14754,6 @@ information</p>
 </dd>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>flags for future use, must be zero now.</p>
 </dd>
-<dt>reserved<span class="classifier">list[unsigned int]</span></dt><dd><p>Reserved for future use, must be zero now.</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUarrayMapInfo_v1.getPtr">
@@ -14963,8 +14798,6 @@ information</p>
 <dt>deviceBitMask<span class="classifier">unsigned int</span></dt><dd><p>Device ordinal bit mask</p>
 </dd>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>flags for future use, must be zero now.</p>
-</dd>
-<dt>reserved<span class="classifier">list[unsigned int]</span></dt><dd><p>Reserved for future use, must be zero now.</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -15323,8 +15156,6 @@ value.</p>
 </dd>
 <dt>usage<span class="classifier">unsigned short</span></dt><dd><p>Bitmask indicating intended usage for the pool.</p>
 </dd>
-<dt>reserved<span class="classifier">bytes</span></dt><dd><p>reserved for future use, must be 0</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUmemPoolProps_v1.getPtr">
@@ -15366,8 +15197,6 @@ value.</p>
 </dd>
 <dt>usage<span class="classifier">unsigned short</span></dt><dd><p>Bitmask indicating intended usage for the pool.</p>
 </dd>
-<dt>reserved<span class="classifier">bytes</span></dt><dd><p>reserved for future use, must be 0</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUmemPoolProps.getPtr">
@@ -15381,16 +15210,6 @@ value.</p>
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUmemPoolPtrExportData_v1">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUmemPoolPtrExportData_v1</span></span><a class="headerlink" href="#cuda.bindings.driver.CUmemPoolPtrExportData_v1" title="Link to this definition">#</a></dt>
 <dd><p>Opaque data for exporting a pool allocation</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.driver.CUmemPoolPtrExportData_v1.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.driver.CUmemPoolPtrExportData_v1.reserved" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUmemPoolPtrExportData_v1.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUmemPoolPtrExportData_v1.getPtr" title="Link to this definition">#</a></dt>
@@ -15403,16 +15222,6 @@ value.</p>
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUmemPoolPtrExportData">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUmemPoolPtrExportData</span></span><a class="headerlink" href="#cuda.bindings.driver.CUmemPoolPtrExportData" title="Link to this definition">#</a></dt>
 <dd><p>Opaque data for exporting a pool allocation</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.driver.CUmemPoolPtrExportData.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.driver.CUmemPoolPtrExportData.reserved" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUmemPoolPtrExportData.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUmemPoolPtrExportData.getPtr" title="Link to this definition">#</a></dt>
@@ -15926,10 +15735,6 @@ to the parent.</p>
 </dd></dl>
 
 <dl class="simple">
-<dt>reserved0<span class="classifier">list[int]</span></dt><dd><p>Reserved. Must be zero.</p>
-</dd>
-<dt>reserved1<span class="classifier">list[long long]</span></dt><dd><p>Padding. Unused bytes must be zero.</p>
-</dd>
 <dt>kernel<span class="classifier">CUDA_KERNEL_NODE_PARAMS_v3</span></dt><dd><p>Kernel node parameters.</p>
 </dd>
 <dt>memcpy<span class="classifier">CUDA_MEMCPY_NODE_PARAMS</span></dt><dd><p>Memcpy node parameters.</p>
@@ -15958,8 +15763,6 @@ to the parent.</p>
 </dd>
 <dt>asBytes<span class="classifier">bytes</span></dt><dd><p>Padding as bytes</p>
 </dd>
-<dt>reserved2<span class="classifier">long long</span></dt><dd><p>Reserved bytes. Must be zero.</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUgraphNodeParams.getPtr">
@@ -15985,12 +15788,6 @@ no timeout</p>
 </dl>
 </dd></dl>
 
-<dl class="simple">
-<dt>reserved0<span class="classifier">unsigned int</span></dt><dd><p>Reserved for future use, must be zero</p>
-</dd>
-<dt>reserved1<span class="classifier">list[cuuint64_t]</span></dt><dd><p>Reserved for future use, must be zeroed</p>
-</dd>
-</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointLockArgs.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointLockArgs.getPtr" title="Link to this definition">#</a></dt>
@@ -16003,17 +15800,6 @@ no timeout</p>
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointCheckpointArgs">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUcheckpointCheckpointArgs</span></span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointCheckpointArgs" title="Link to this definition">#</a></dt>
 <dd><p>CUDA checkpoint optional checkpoint arguments</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointCheckpointArgs.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointCheckpointArgs.reserved" title="Link to this definition">#</a></dt>
-<dd><p>Reserved for future use, must be zeroed</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[cuuint64_t]</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointCheckpointArgs.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointCheckpointArgs.getPtr" title="Link to this definition">#</a></dt>
@@ -16068,10 +15854,6 @@ during restore</p>
 <dl class="simple">
 <dt>gpuPairsCount<span class="classifier">unsigned int</span></dt><dd><p>Number of gpu pairs to remap</p>
 </dd>
-<dt>reserved<span class="classifier">bytes</span></dt><dd><p>Reserved for future use, must be zeroed</p>
-</dd>
-<dt>reserved<span class="classifier">list[cuuint64_t]</span></dt><dd><p>Reserved for future use, must be zeroed</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointRestoreArgs.getPtr">
@@ -16085,17 +15867,6 @@ during restore</p>
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointUnlockArgs">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUcheckpointUnlockArgs</span></span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointUnlockArgs" title="Link to this definition">#</a></dt>
 <dd><p>CUDA checkpoint optional unlock arguments</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointUnlockArgs.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointUnlockArgs.reserved" title="Link to this definition">#</a></dt>
-<dd><p>Reserved for future use, must be zeroed</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[cuuint64_t]</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUcheckpointUnlockArgs.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUcheckpointUnlockArgs.getPtr" title="Link to this definition">#</a></dt>
@@ -19572,7 +19343,6 @@ the memory pointed to by CUmemDecompressParams_st.dstActBytes</p>
 <dt>algo<span class="classifier">CUmemDecompressAlgorithm</span></dt><dd><p>The decompression algorithm to use.</p>
 </dd>
 </dl>
-<p>padding : bytes</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUmemDecompressParams_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUmemDecompressParams_st.getPtr" title="Link to this definition">#</a></dt>
@@ -19648,7 +19418,6 @@ the memory pointed to by CUmemDecompressParams_st.dstActBytes</p>
 <dt>algo<span class="classifier">CUmemDecompressAlgorithm</span></dt><dd><p>The decompression algorithm to use.</p>
 </dd>
 </dl>
-<p>padding : bytes</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUmemDecompressParams.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUmemDecompressParams.getPtr" title="Link to this definition">#</a></dt>
@@ -23621,7 +23390,7 @@ the</p></li>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference internal" href="#cuda.bindings.driver.cuMemSetAccess" title="cuda.bindings.driver.cuMemSetAccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemSetAccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.cuMemCreate" title="cuda.bindings.driver.cuMemCreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemCreate</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">py</span></code><a class="reference internal" href="#cuda.bindings.driver.cuMemMap" title="cuda.bindings.driver.cuMemMap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemMap</span></code></a></p>
+<p><a class="reference internal" href="#cuda.bindings.driver.cuMemSetAccess" title="cuda.bindings.driver.cuMemSetAccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemSetAccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.cuMemCreate" title="cuda.bindings.driver.cuMemCreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemCreate</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.cuMemMap" title="cuda.bindings.driver.cuMemMap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemMap</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -24554,11 +24323,11 @@ memory can be bound to it. Memory is bound to the multicast object via
 <a class="reference internal" href="#cuda.bindings.driver.cuMulticastBindAddr" title="cuda.bindings.driver.cuMulticastBindAddr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMulticastBindAddr</span></code></a>, or <a class="reference internal" href="#cuda.bindings.driver.cuMulticastBindAddr_v2" title="cuda.bindings.driver.cuMulticastBindAddr_v2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMulticastBindAddr_v2</span></code></a>.
 and can be unbound via <a class="reference internal" href="#cuda.bindings.driver.cuMulticastUnbind" title="cuda.bindings.driver.cuMulticastUnbind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMulticastUnbind</span></code></a>. The total amount
 of memory that can be bound per device is specified by
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">py</span></code><code class="xref py py-obj docutils literal notranslate"><span class="pre">size</span></code>. This size must be a
-multiple of the value returned by <a class="reference internal" href="#cuda.bindings.driver.cuMulticastGetGranularity" title="cuda.bindings.driver.cuMulticastGetGranularity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMulticastGetGranularity</span></code></a>
-with the flag <a class="reference internal" href="#cuda.bindings.driver.CUmulticastGranularity_flags.CU_MULTICAST_GRANULARITY_MINIMUM" title="cuda.bindings.driver.CUmulticastGranularity_flags.CU_MULTICAST_GRANULARITY_MINIMUM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_MULTICAST_GRANULARITY_MINIMUM</span></code></a>. For best
-performance however, the size should be aligned to the value returned
-by <a class="reference internal" href="#cuda.bindings.driver.cuMulticastGetGranularity" title="cuda.bindings.driver.cuMulticastGetGranularity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMulticastGetGranularity</span></code></a> with the flag
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">size</span></code>. This size must be a multiple of
+the value returned by <a class="reference internal" href="#cuda.bindings.driver.cuMulticastGetGranularity" title="cuda.bindings.driver.cuMulticastGetGranularity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMulticastGetGranularity</span></code></a> with the
+flag <a class="reference internal" href="#cuda.bindings.driver.CUmulticastGranularity_flags.CU_MULTICAST_GRANULARITY_MINIMUM" title="cuda.bindings.driver.CUmulticastGranularity_flags.CU_MULTICAST_GRANULARITY_MINIMUM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_MULTICAST_GRANULARITY_MINIMUM</span></code></a>. For best performance
+however, the size should be aligned to the value returned by
+<a class="reference internal" href="#cuda.bindings.driver.cuMulticastGetGranularity" title="cuda.bindings.driver.cuMulticastGetGranularity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMulticastGetGranularity</span></code></a> with the flag
 <a class="reference internal" href="#cuda.bindings.driver.CUmulticastGranularity_flags.CU_MULTICAST_GRANULARITY_RECOMMENDED" title="cuda.bindings.driver.CUmulticastGranularity_flags.CU_MULTICAST_GRANULARITY_RECOMMENDED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_MULTICAST_GRANULARITY_RECOMMENDED</span></code></a>.</p>
 <p>After all participating devices have been added, multicast objects can
 also be mapped to a device’s virtual address space using the virtual
@@ -25732,13 +25501,12 @@ the value returned in <cite>*data</cite> will equal the input value <cite>ptr</c
 interface. <cite>data</cite> must be a struct of type
 <a class="reference internal" href="#cuda.bindings.driver.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS" title="cuda.bindings.driver.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_POINTER_ATTRIBUTE_P2P_TOKENS</span></code></a>.</p></li>
 <li><p><cite>ptr</cite> must be a pointer to memory obtained from
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">py</span></code><a class="reference internal" href="#cuda.bindings.driver.cuMemAlloc" title="cuda.bindings.driver.cuMemAlloc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemAlloc()</span></code></a>. Note that p2pToken and
-vaSpaceToken are only valid for the lifetime of the source
-allocation. A subsequent allocation at the same address may return
-completely different tokens. Querying this attribute has a side
-effect of setting the attribute
-<a class="reference internal" href="#cuda.bindings.driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS" title="cuda.bindings.driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_POINTER_ATTRIBUTE_SYNC_MEMOPS</span></code></a> for the region of memory
-that <cite>ptr</cite> points to.</p></li>
+<a class="reference internal" href="#cuda.bindings.driver.cuMemAlloc" title="cuda.bindings.driver.cuMemAlloc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemAlloc()</span></code></a>. Note that p2pToken and vaSpaceToken are
+only valid for the lifetime of the source allocation. A subsequent
+allocation at the same address may return completely different
+tokens. Querying this attribute has a side effect of setting the
+attribute <a class="reference internal" href="#cuda.bindings.driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS" title="cuda.bindings.driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_POINTER_ATTRIBUTE_SYNC_MEMOPS</span></code></a> for the region
+of memory that <cite>ptr</cite> points to.</p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS" title="cuda.bindings.driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_POINTER_ATTRIBUTE_SYNC_MEMOPS</span></code></a>:</p></li>
 <li><p>A boolean attribute which when set, ensures that synchronous memory
 operations initiated on the region of memory that <cite>ptr</cite> points to
@@ -35656,18 +35424,7 @@ CUdevSmResourceGroup_flags.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevWorkqueueResource_st">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUdevWorkqueueResource_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUdevWorkqueueResource_st" title="Link to this definition">#</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.driver.CUdevWorkqueueResource_st.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.driver.CUdevWorkqueueResource_st.reserved" title="Link to this definition">#</a></dt>
-<dd><p>Reserved for future use</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
+<dd><dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevWorkqueueResource_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUdevWorkqueueResource_st.getPtr" title="Link to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
@@ -35700,7 +35457,6 @@ groups of this size.</p>
 CUdevSmResourceGroup_flags.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.getPtr" title="Link to this definition">#</a></dt>
@@ -35810,18 +35566,7 @@ CUdevSmResourceGroup_flags.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevWorkqueueResource">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUdevWorkqueueResource</span></span><a class="headerlink" href="#cuda.bindings.driver.CUdevWorkqueueResource" title="Link to this definition">#</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.driver.CUdevWorkqueueResource.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.driver.CUdevWorkqueueResource.reserved" title="Link to this definition">#</a></dt>
-<dd><p>Reserved for future use</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
+<dd><dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevWorkqueueResource.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CUdevWorkqueueResource.getPtr" title="Link to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
@@ -35854,7 +35599,6 @@ groups of this size.</p>
 CUdevSmResourceGroup_flags.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS.getPtr" title="Link to this definition">#</a></dt>
@@ -36071,31 +35815,20 @@ CUdevSmResourceGroup_flags.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="id75">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CUdevWorkqueueResource</span></span><a class="headerlink" href="#id75" title="Link to this definition">#</a></dt>
-<dd><dl class="py attribute">
+<dd><dl class="py method">
 <dt class="sig sig-object py" id="id76">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#id76" title="Link to this definition">#</a></dt>
-<dd><p>Reserved for future use</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id77">
-<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id77" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id76" title="Link to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="id78">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS</span></span><a class="headerlink" href="#id78" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id77">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS</span></span><a class="headerlink" href="#id77" title="Link to this definition">#</a></dt>
 <dd><dl class="py attribute">
-<dt class="sig sig-object py" id="id79">
-<span class="sig-name descname"><span class="pre">smCount</span></span><a class="headerlink" href="#id79" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id78">
+<span class="sig-name descname"><span class="pre">smCount</span></span><a class="headerlink" href="#id78" title="Link to this definition">#</a></dt>
 <dd><p>The amount of SMs available in this resource.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -36115,10 +35848,9 @@ groups of this size.</p>
 CUdevSmResourceGroup_flags.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="id80">
-<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id80" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id79">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id79" title="Link to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
 </dd></dl>
 
@@ -36476,7 +36208,7 @@ context, or device.</p></li>
 <li><p>The <cite>remainder</cite> group may be NULL.</p></li>
 <li><p>There are no API <cite>flags</cite> at this time, so the value passed in should
 be 0.</p></li>
-<li><p>A <a class="reference internal" href="#id78" title="cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS</span></code></a> array of size
+<li><p>A <a class="reference internal" href="#id77" title="cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS</span></code></a> array of size
 <cite>nbGroups</cite>. Each entry must be zero-initialized.</p>
 <ul>
 <li><p><cite>smCount:</cite> must be either 0 or in the range of [2,inputSmCount]
@@ -36534,7 +36266,7 @@ call wherever possible.</p>
 <cite>CU_DEV_RESOURCE_TYPE_SM</cite> resource.</p></li>
 <li><p><strong>flags</strong> (<em>unsigned int</em>) – Flags specifying how the API should behave. The value should be 0
 for now.</p></li>
-<li><p><strong>groupParams</strong> (list[<a class="reference internal" href="#id78" title="cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS</span></code></a>]) – Description of how the SMs should be split and assigned to the
+<li><p><strong>groupParams</strong> (list[<a class="reference internal" href="#id77" title="cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS</span></code></a>]) – Description of how the SMs should be split and assigned to the
 corresponding result entry.</p></li>
 </ul>
 </dd>
@@ -37597,7 +37329,7 @@ is returned.</p>
 <dt class="sig sig-object py" id="cuda.bindings.driver.cuEventCreateFromEGLSync">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.driver.</span></span><span class="sig-name descname"><span class="pre">cuEventCreateFromEGLSync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eglSync</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.driver.cuEventCreateFromEGLSync" title="Link to this definition">#</a></dt>
 <dd><p>Creates an event from EGLSync object.</p>
-<p>Creates an event <a href="#id81"><span class="problematic" id="id82">*</span></a>phEvent from an <code class="xref py py-obj docutils literal notranslate"><span class="pre">EGLSyncKHR</span></code> eglSync with
+<p>Creates an event <a href="#id80"><span class="problematic" id="id81">*</span></a>phEvent from an <code class="xref py py-obj docutils literal notranslate"><span class="pre">EGLSyncKHR</span></code> eglSync with
 the flags specified via <cite>flags</cite>. Valid flags include:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#cuda.bindings.driver.CUevent_flags.CU_EVENT_DEFAULT" title="cuda.bindings.driver.CUevent_flags.CU_EVENT_DEFAULT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_EVENT_DEFAULT</span></code></a>: Default event creation flag.</p></li>
@@ -38050,12 +37782,10 @@ mapping is shown in the table below. <cite>mipLevel</cite> must be 0.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcEventHandle_st"><code class="docutils literal notranslate"><span class="pre">CUipcEventHandle_st</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcEventHandle_st.reserved"><code class="docutils literal notranslate"><span class="pre">CUipcEventHandle_st.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcEventHandle_st.getPtr"><code class="docutils literal notranslate"><span class="pre">CUipcEventHandle_st.getPtr()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcMemHandle_st"><code class="docutils literal notranslate"><span class="pre">CUipcMemHandle_st</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcMemHandle_st.reserved"><code class="docutils literal notranslate"><span class="pre">CUipcMemHandle_st.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcMemHandle_st.getPtr"><code class="docutils literal notranslate"><span class="pre">CUipcMemHandle_st.getPtr()</span></code></a></li>
 </ul>
 </li>
@@ -38350,7 +38080,6 @@ mapping is shown in the table below. <cite>mipLevel</cite> must be 0.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUmemPoolPtrExportData_st"><code class="docutils literal notranslate"><span class="pre">CUmemPoolPtrExportData_st</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUmemPoolPtrExportData_st.reserved"><code class="docutils literal notranslate"><span class="pre">CUmemPoolPtrExportData_st.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUmemPoolPtrExportData_st.getPtr"><code class="docutils literal notranslate"><span class="pre">CUmemPoolPtrExportData_st.getPtr()</span></code></a></li>
 </ul>
 </li>
@@ -38420,7 +38149,6 @@ mapping is shown in the table below. <cite>mipLevel</cite> must be 0.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointCheckpointArgs_st"><code class="docutils literal notranslate"><span class="pre">CUcheckpointCheckpointArgs_st</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointCheckpointArgs_st.reserved"><code class="docutils literal notranslate"><span class="pre">CUcheckpointCheckpointArgs_st.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointCheckpointArgs_st.getPtr"><code class="docutils literal notranslate"><span class="pre">CUcheckpointCheckpointArgs_st.getPtr()</span></code></a></li>
 </ul>
 </li>
@@ -38435,7 +38163,6 @@ mapping is shown in the table below. <cite>mipLevel</cite> must be 0.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointUnlockArgs_st"><code class="docutils literal notranslate"><span class="pre">CUcheckpointUnlockArgs_st</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointUnlockArgs_st.reserved"><code class="docutils literal notranslate"><span class="pre">CUcheckpointUnlockArgs_st.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointUnlockArgs_st.getPtr"><code class="docutils literal notranslate"><span class="pre">CUcheckpointUnlockArgs_st.getPtr()</span></code></a></li>
 </ul>
 </li>
@@ -39926,22 +39653,18 @@ mapping is shown in the table below. <cite>mipLevel</cite> must be 0.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcEventHandle_v1"><code class="docutils literal notranslate"><span class="pre">CUipcEventHandle_v1</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcEventHandle_v1.reserved"><code class="docutils literal notranslate"><span class="pre">CUipcEventHandle_v1.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcEventHandle_v1.getPtr"><code class="docutils literal notranslate"><span class="pre">CUipcEventHandle_v1.getPtr()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcEventHandle"><code class="docutils literal notranslate"><span class="pre">CUipcEventHandle</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcEventHandle.reserved"><code class="docutils literal notranslate"><span class="pre">CUipcEventHandle.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcEventHandle.getPtr"><code class="docutils literal notranslate"><span class="pre">CUipcEventHandle.getPtr()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcMemHandle_v1"><code class="docutils literal notranslate"><span class="pre">CUipcMemHandle_v1</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcMemHandle_v1.reserved"><code class="docutils literal notranslate"><span class="pre">CUipcMemHandle_v1.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcMemHandle_v1.getPtr"><code class="docutils literal notranslate"><span class="pre">CUipcMemHandle_v1.getPtr()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcMemHandle"><code class="docutils literal notranslate"><span class="pre">CUipcMemHandle</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcMemHandle.reserved"><code class="docutils literal notranslate"><span class="pre">CUipcMemHandle.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUipcMemHandle.getPtr"><code class="docutils literal notranslate"><span class="pre">CUipcMemHandle.getPtr()</span></code></a></li>
 </ul>
 </li>
@@ -40466,12 +40189,10 @@ mapping is shown in the table below. <cite>mipLevel</cite> must be 0.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUmemPoolPtrExportData_v1"><code class="docutils literal notranslate"><span class="pre">CUmemPoolPtrExportData_v1</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUmemPoolPtrExportData_v1.reserved"><code class="docutils literal notranslate"><span class="pre">CUmemPoolPtrExportData_v1.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUmemPoolPtrExportData_v1.getPtr"><code class="docutils literal notranslate"><span class="pre">CUmemPoolPtrExportData_v1.getPtr()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUmemPoolPtrExportData"><code class="docutils literal notranslate"><span class="pre">CUmemPoolPtrExportData</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUmemPoolPtrExportData.reserved"><code class="docutils literal notranslate"><span class="pre">CUmemPoolPtrExportData.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUmemPoolPtrExportData.getPtr"><code class="docutils literal notranslate"><span class="pre">CUmemPoolPtrExportData.getPtr()</span></code></a></li>
 </ul>
 </li>
@@ -40571,7 +40292,6 @@ mapping is shown in the table below. <cite>mipLevel</cite> must be 0.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointCheckpointArgs"><code class="docutils literal notranslate"><span class="pre">CUcheckpointCheckpointArgs</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointCheckpointArgs.reserved"><code class="docutils literal notranslate"><span class="pre">CUcheckpointCheckpointArgs.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointCheckpointArgs.getPtr"><code class="docutils literal notranslate"><span class="pre">CUcheckpointCheckpointArgs.getPtr()</span></code></a></li>
 </ul>
 </li>
@@ -40586,7 +40306,6 @@ mapping is shown in the table below. <cite>mipLevel</cite> must be 0.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointUnlockArgs"><code class="docutils literal notranslate"><span class="pre">CUcheckpointUnlockArgs</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointUnlockArgs.reserved"><code class="docutils literal notranslate"><span class="pre">CUcheckpointUnlockArgs.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUcheckpointUnlockArgs.getPtr"><code class="docutils literal notranslate"><span class="pre">CUcheckpointUnlockArgs.getPtr()</span></code></a></li>
 </ul>
 </li>
@@ -41293,7 +41012,6 @@ mapping is shown in the table below. <cite>mipLevel</cite> must be 0.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevWorkqueueResource_st"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueResource_st</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevWorkqueueResource_st.reserved"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueResource_st.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevWorkqueueResource_st.getPtr"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueResource_st.getPtr()</span></code></a></li>
 </ul>
 </li>
@@ -41318,7 +41036,6 @@ mapping is shown in the table below. <cite>mipLevel</cite> must be 0.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevWorkqueueResource"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueResource</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevWorkqueueResource.reserved"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueResource.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.CUdevWorkqueueResource.getPtr"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueResource.getPtr()</span></code></a></li>
 </ul>
 </li>
@@ -41374,13 +41091,12 @@ mapping is shown in the table below. <cite>mipLevel</cite> must be 0.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id75"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueResource</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id76"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueResource.reserved</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id77"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueResource.getPtr()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id76"><code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueResource.getPtr()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id78"><code class="docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id79"><code class="docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS.smCount</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id80"><code class="docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS.getPtr()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id77"><code class="docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id78"><code class="docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS.smCount</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id79"><code class="docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS.getPtr()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.driver.cuGreenCtxCreate"><code class="docutils literal notranslate"><span class="pre">cuGreenCtxCreate()</span></code></a></li>
