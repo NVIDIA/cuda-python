@@ -3,13 +3,12 @@
 
 import numpy as np
 import pytest
+from helpers.memory import create_managed_memory_resource_or_skip, skip_if_managed_memory_unsupported
 
-from conftest import create_managed_memory_resource_or_skip, skip_if_managed_memory_unsupported
 from cuda.core import (
     Device,
     ManagedMemoryResourceOptions,
     TensorMapDescriptor,
-    system,
 )
 from cuda.core._dlpack import DLDeviceType
 from cuda.core._tensor_map import (
@@ -20,7 +19,9 @@ from cuda.core._tensor_map import (
     TensorMapL2Promotion,
     TensorMapOOBFill,
     TensorMapSwizzle,
+    _coerce_tensor_map_descriptor_options,
     _require_view_device,
+    _resolve_data_type,
 )
 from cuda.core.utils import StridedMemoryView
 
@@ -384,7 +385,7 @@ class TestTensorMapReplaceAddress:
             desc.replace_address(host_arr)
 
     def test_replace_address_rejects_tensor_from_other_device(self, dev, skip_if_no_tma):
-        if system.get_num_devices() < 2:
+        if len(Device.get_all_devices()) < 2:
             pytest.skip("requires multi-GPU")
 
         dev0 = dev
@@ -405,7 +406,7 @@ class TestTensorMapReplaceAddress:
             desc.replace_address(buf1)
 
     def test_replace_address_accepts_managed_buffer_on_nonzero_device(self, init_cuda):
-        if system.get_num_devices() < 2:
+        if len(Device.get_all_devices()) < 2:
             pytest.skip("requires multi-GPU")
 
         dev1 = Device(1)
@@ -429,7 +430,7 @@ class TestTensorMapMultiDeviceValidation:
     """Test multi-device validation for descriptor creation."""
 
     def test_from_tiled_rejects_tensor_from_other_device(self, init_cuda):
-        if system.get_num_devices() < 2:
+        if len(Device.get_all_devices()) < 2:
             pytest.skip("requires multi-GPU")
 
         dev0 = Device(0)
@@ -449,7 +450,7 @@ class TestTensorMapMultiDeviceValidation:
             )
 
     def test_from_tiled_accepts_managed_buffer_on_nonzero_device(self, init_cuda):
-        if system.get_num_devices() < 2:
+        if len(Device.get_all_devices()) < 2:
             pytest.skip("requires multi-GPU")
 
         dev1 = Device(1)
@@ -648,4 +649,68 @@ class TestTensorMapIm2colWide:
                 channels_per_pixel=64,
                 pixels_per_column=4,
                 data_type=TensorMapDataType.FLOAT32,
+            )
+
+
+class _DtypeView:
+    """Minimal stand-in for a StridedMemoryView exposing only ``.dtype``.
+
+    ``_resolve_data_type`` reads nothing else off the view, so this keeps the
+    host-only tests free of any GPU allocation.
+    """
+
+    def __init__(self, dtype):
+        self.dtype = dtype
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+class TestTensorMapHelpers:
+    """Host-only coverage for the arg-marshalling helpers' input-validation branches.
+
+    The happy-path normalize/coerce/resolve/stride cases are covered by the TMA
+    factory-method tests above once they run on TMA-capable hardware (e.g. the H200
+    coverage runner). Only the rejection branches those tests never hit — real
+    devices never feed bad inputs — are pinned here.
+    """
+
+    # Rejected by the public TensorMapDescriptorOptions(...) constructor, whose
+    # __post_init__ runs the normalize/require-enum helpers.
+    @pytest.mark.parametrize(
+        ("kwargs", "match"),
+        [
+            (dict(box_dim=5), "box_dim must be a tuple of ints"),
+            (dict(box_dim=(1, "x", 3)), r"box_dim\[1\] must be an int"),
+            (dict(box_dim=(32,), swizzle=2), "swizzle must be a TensorMapSwizzle"),
+            (dict(box_dim=(32,), interleave=0), "interleave must be a TensorMapInterleave"),
+        ],
+        ids=["box_dim_non_iterable", "box_dim_non_int_element", "swizzle_wrong_type", "interleave_wrong_type"],
+    )
+    def test_options_rejects_invalid(self, kwargs, match):
+        with pytest.raises(TypeError, match=match):
+            TensorMapDescriptorOptions(**kwargs)
+
+    @pytest.mark.parametrize(
+        ("view_dtype", "data_type", "match"),
+        [
+            (None, np.complex128, "Unsupported dtype"),  # explicit unsupported dtype
+            (None, None, "Cannot infer TMA data type"),  # nothing to infer from
+            (np.dtype(np.complex64), None, "Unsupported dtype"),  # view's dtype unsupported
+        ],
+        ids=["explicit_unsupported", "cannot_infer", "view_dtype_unsupported"],
+    )
+    def test_resolve_data_type_rejects(self, view_dtype, data_type, match):
+        with pytest.raises(ValueError, match=match):
+            _resolve_data_type(_DtypeView(view_dtype), data_type)
+
+    def test_coerce_requires_box_dim_without_options(self):
+        with pytest.raises(TypeError, match="box_dim is required unless options is provided"):
+            _coerce_tensor_map_descriptor_options(
+                None,
+                None,
+                element_strides=None,
+                data_type=None,
+                interleave=TensorMapInterleave.NONE,
+                swizzle=TensorMapSwizzle.NONE,
+                l2_promotion=TensorMapL2Promotion.NONE,
+                oob_fill=TensorMapOOBFill.NONE,
             )

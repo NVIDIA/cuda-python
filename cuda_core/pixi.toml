@@ -21,10 +21,14 @@ pytest-randomly = "*"
 pytest-repeat = "*"
 pytest-rerunfailures = "*"
 cloudpickle = "*"
+docutils = "*"
 psutil = "*"
 pyglet = "*"
 packaging = "*"
 tomli = "*"  # PEP 723 parsing fallback on Python 3.10.
+
+[feature.test.pypi-dependencies]
+cuda-python-test-helpers = { path = "../cuda_python_test_helpers", editable = true }
 
 [feature.local-deps.dependencies]
 cuda-bindings = { path = "../cuda_bindings" }
@@ -106,7 +110,7 @@ CUDA_HOME = "$CONDA_PREFIX/targets/sbsa-linux"
 CUDA_HOME = "$CONDA_PREFIX/Library"
 
 [feature.cython-tests.dependencies]
-cython = ">=3.2,<3.3" # for tests that exercise APIs from cython
+cython = ">=3.2.5,<3.3" # for tests that exercise APIs from cython
 setuptools = "*"      # for distutils
 gxx = "*"             # to compile the generated code
 # These are necessary because running the Cython tests requires compiling
@@ -147,7 +151,7 @@ cuda-version = "12.*"
 
 [feature.docs.dependencies]
 cuda-core = { path = "." }
-cython = "*"
+cython = ">=3.2.5,<3.3"
 myst-parser = "*"
 numpy = "*"
 numpydoc = "*"
@@ -264,7 +268,7 @@ python = "*"
 cuda-version = "*"
 setuptools = ">=80"
 setuptools-scm = ">=8"
-cython = ">=3.2,<3.3"
+cython = ">=3.2.5,<3.3"
 cuda-nvrtc-dev = "*"
 cuda-bindings = "*"
 dlpack = "*"

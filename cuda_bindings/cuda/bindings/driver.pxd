@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f4b08b7f4b26966f9f462562819700500a100748c5b34ab47de79836e6bec3f2
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3559a38253c9137d67c5955419f694d32429a7355b84c6e7e06ba1d43a296193
 cimport cuda.bindings.cydriver as cydriver
 
 include "_lib/utils.pxd"
@@ -545,13 +545,6 @@ cdef class CUipcEventHandle_st:
     """
     CUDA IPC event handle
 
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
@@ -563,13 +556,6 @@ cdef class CUipcEventHandle_st:
 cdef class CUipcMemHandle_st:
     """
     CUDA IPC mem handle
-
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
 
     Methods
     -------
@@ -1538,11 +1524,6 @@ cdef class CUgraphEdgeData_st:
         See CUgraphDependencyType.
 
 
-    reserved : bytes
-        These bytes are unused and must be zeroed. This ensures
-        compatibility if additional fields are added in the future.
-
-
     Methods
     -------
     getPtr()
@@ -2336,10 +2317,6 @@ cdef class CUDA_MEMCPY3D_st:
         Source array reference
 
 
-    reserved0 : Any
-        Must be NULL
-
-
     srcPitch : size_t
         Source pitch (ignored when src is array)
 
@@ -2380,10 +2357,6 @@ cdef class CUDA_MEMCPY3D_st:
         Destination array reference
 
 
-    reserved1 : Any
-        Must be NULL
-
-
     dstPitch : size_t
         Destination pitch (ignored when dst is array)
 
@@ -2422,9 +2395,6 @@ cdef class CUDA_MEMCPY3D_st:
     cdef CUarray _srcArray
 
 
-    cdef _HelperInputVoidPtr _cyreserved0
-
-
     cdef _HelperInputVoidPtr _cydstHost
 
 
@@ -2432,9 +2402,6 @@ cdef class CUDA_MEMCPY3D_st:
 
 
     cdef CUarray _dstArray
-
-
-    cdef _HelperInputVoidPtr _cyreserved1
 
 
 cdef class CUDA_MEMCPY3D_PEER_st:
@@ -2589,10 +2556,6 @@ cdef class CUDA_MEMCPY_NODE_PARAMS_st:
         Must be zero
 
 
-    reserved : int
-        Must be zero
-
-
     copyCtx : CUcontext
         Context on which to run the node
 
@@ -2733,10 +2696,6 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
         CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -2761,10 +2720,6 @@ cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS_st:
 
     alignment : size_t
         alignment requirement
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -2885,13 +2840,6 @@ cdef class anon_struct10:
 
 cdef class anon_struct11:
     """
-    Attributes
-    ----------
-
-    reserved : list[int]
-
-
-
     Methods
     -------
     getPtr()
@@ -2920,10 +2868,6 @@ cdef class anon_union4:
 
 
 
-    reserved : anon_struct11
-
-
-
     Methods
     -------
     getPtr()
@@ -2941,9 +2885,6 @@ cdef class anon_union4:
 
 
     cdef anon_struct10 _pitch2D
-
-
-    cdef anon_struct11 _reserved
 
 
 cdef class CUDA_RESOURCE_DESC_st:
@@ -3019,10 +2960,6 @@ cdef class CUDA_TEXTURE_DESC_st:
         Border Color
 
 
-    reserved : list[int]
-
-
-
     Methods
     -------
     getPtr()
@@ -3068,10 +3005,6 @@ cdef class CUDA_RESOURCE_VIEW_DESC_st:
 
     lastLayer : unsigned int
         Last layer index
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -3268,10 +3201,6 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
         Flags must either be zero or CUDA_EXTERNAL_MEMORY_DEDICATED
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -3302,10 +3231,6 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st:
         Flags reserved for future use. Must be zero.
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -3332,10 +3257,6 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
 
     numLevels : unsigned int
         Total number of levels in the mipmap chain
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -3424,10 +3345,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
         Flags reserved for the future. Must be zero.
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -3461,10 +3378,6 @@ cdef class anon_union7:
     ----------
 
     fence : Any
-
-
-
-    reserved : unsigned long long
 
 
 
@@ -3511,10 +3424,6 @@ cdef class anon_struct16:
 
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -3553,10 +3462,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
         For all other types of CUexternalSemaphore, flags must be zero.
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -3590,10 +3495,6 @@ cdef class anon_union8:
     ----------
 
     fence : Any
-
-
-
-    reserved : unsigned long long
 
 
 
@@ -3644,10 +3545,6 @@ cdef class anon_struct19:
 
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -3684,10 +3581,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
         synchronization operations should be performed for any external
         memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
         For all other types of CUexternalSemaphore, flags must be zero.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -4032,10 +3925,6 @@ cdef class CUarrayMapInfo_st:
         flags for future use, must be zero now.
 
 
-    reserved : list[unsigned int]
-        Reserved for future use, must be zero now.
-
-
     Methods
     -------
     getPtr()
@@ -4092,10 +3981,6 @@ cdef class anon_struct22:
 
 
     usage : unsigned short
-
-
-
-    reserved : bytes
 
 
 
@@ -4287,10 +4172,6 @@ cdef class CUmemPoolProps_st:
         Bitmask indicating intended usage for the pool.
 
 
-    reserved : bytes
-        reserved for future use, must be 0
-
-
     Methods
     -------
     getPtr()
@@ -4308,13 +4189,6 @@ cdef class CUmemPoolProps_st:
 cdef class CUmemPoolPtrExportData_st:
     """
     Opaque data for exporting a pool allocation
-
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
 
     Methods
     -------
@@ -4779,14 +4653,6 @@ cdef class CUgraphNodeParams_st:
         Type of the node
 
 
-    reserved0 : list[int]
-        Reserved. Must be zero.
-
-
-    reserved1 : list[long long]
-        Padding. Unused bytes must be zero.
-
-
     kernel : CUDA_KERNEL_NODE_PARAMS_v3
         Kernel node parameters.
 
@@ -4841,10 +4707,6 @@ cdef class CUgraphNodeParams_st:
 
     asBytes : bytes
         Padding as bytes
-
-
-    reserved2 : long long
-        Reserved bytes. Must be zero.
 
 
     Methods
@@ -4906,14 +4768,6 @@ cdef class CUcheckpointLockArgs_st:
         no timeout
 
 
-    reserved0 : unsigned int
-        Reserved for future use, must be zero
-
-
-    reserved1 : list[cuuint64_t]
-        Reserved for future use, must be zeroed
-
-
     Methods
     -------
     getPtr()
@@ -4925,13 +4779,6 @@ cdef class CUcheckpointLockArgs_st:
 cdef class CUcheckpointCheckpointArgs_st:
     """
     CUDA checkpoint optional checkpoint arguments
-
-    Attributes
-    ----------
-
-    reserved : list[cuuint64_t]
-        Reserved for future use, must be zeroed
-
 
     Methods
     -------
@@ -4986,14 +4833,6 @@ cdef class CUcheckpointRestoreArgs_st:
         Number of gpu pairs to remap
 
 
-    reserved : bytes
-        Reserved for future use, must be zeroed
-
-
-    reserved : list[cuuint64_t]
-        Reserved for future use, must be zeroed
-
-
     Methods
     -------
     getPtr()
@@ -5009,13 +4848,6 @@ cdef class CUcheckpointRestoreArgs_st:
 cdef class CUcheckpointUnlockArgs_st:
     """
     CUDA checkpoint optional unlock arguments
-
-    Attributes
-    ----------
-
-    reserved : list[cuuint64_t]
-        Reserved for future use, must be zeroed
-
 
     Methods
     -------
@@ -5064,10 +4896,6 @@ cdef class CUmemDecompressParams_st:
 
     algo : CUmemDecompressAlgorithm
         The decompression algorithm to use.
-
-
-    padding : bytes
-
 
 
     Methods
@@ -5248,13 +5076,6 @@ cdef class CUdevWorkqueueConfigResource_st:
 
 cdef class CUdevWorkqueueResource_st:
     """
-    Attributes
-    ----------
-
-    reserved : bytes
-        Reserved for future use
-
-
     Methods
     -------
     getPtr()
@@ -5285,10 +5106,6 @@ cdef class CU_DEV_SM_RESOURCE_GROUP_PARAMS_st:
     flags : unsigned int
         The flags set on this SM resource group. For possible values see
         CUdevSmResourceGroup_flags.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -5565,13 +5382,6 @@ cdef class CUipcEventHandle_v1(CUipcEventHandle_st):
     """
     CUDA IPC event handle
 
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
@@ -5582,13 +5392,6 @@ cdef class CUipcEventHandle_v1(CUipcEventHandle_st):
 cdef class CUipcEventHandle(CUipcEventHandle_v1):
     """
     CUDA IPC event handle
-
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
 
     Methods
     -------
@@ -5601,13 +5404,6 @@ cdef class CUipcMemHandle_v1(CUipcMemHandle_st):
     """
     CUDA IPC mem handle
 
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
@@ -5618,13 +5414,6 @@ cdef class CUipcMemHandle_v1(CUipcMemHandle_st):
 cdef class CUipcMemHandle(CUipcMemHandle_v1):
     """
     CUDA IPC mem handle
-
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
 
     Methods
     -------
@@ -6507,11 +6296,6 @@ cdef class CUgraphEdgeData(CUgraphEdgeData_st):
         This should be populated with a value from CUgraphDependencyType.
         (It is typed as char due to compiler-specific layout of bitfields.)
         See CUgraphDependencyType.
-
-
-    reserved : bytes
-        These bytes are unused and must be zeroed. This ensures
-        compatibility if additional fields are added in the future.
 
 
     Methods
@@ -7702,10 +7486,6 @@ cdef class CUDA_MEMCPY3D_v2(CUDA_MEMCPY3D_st):
         Source array reference
 
 
-    reserved0 : Any
-        Must be NULL
-
-
     srcPitch : size_t
         Source pitch (ignored when src is array)
 
@@ -7744,10 +7524,6 @@ cdef class CUDA_MEMCPY3D_v2(CUDA_MEMCPY3D_st):
 
     dstArray : CUarray
         Destination array reference
-
-
-    reserved1 : Any
-        Must be NULL
 
 
     dstPitch : size_t
@@ -7817,10 +7593,6 @@ cdef class CUDA_MEMCPY3D(CUDA_MEMCPY3D_v2):
         Source array reference
 
 
-    reserved0 : Any
-        Must be NULL
-
-
     srcPitch : size_t
         Source pitch (ignored when src is array)
 
@@ -7859,10 +7631,6 @@ cdef class CUDA_MEMCPY3D(CUDA_MEMCPY3D_v2):
 
     dstArray : CUarray
         Destination array reference
-
-
-    reserved1 : Any
-        Must be NULL
 
 
     dstPitch : size_t
@@ -8136,10 +7904,6 @@ cdef class CUDA_MEMCPY_NODE_PARAMS(CUDA_MEMCPY_NODE_PARAMS_st):
         Must be zero
 
 
-    reserved : int
-        Must be zero
-
-
     copyCtx : CUcontext
         Context on which to run the node
 
@@ -8315,10 +8079,6 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_v1(CUDA_ARRAY_SPARSE_PROPERTIES_st):
         CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -8350,10 +8110,6 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES(CUDA_ARRAY_SPARSE_PROPERTIES_v1):
         CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -8376,10 +8132,6 @@ cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS_v1(CUDA_ARRAY_MEMORY_REQUIREMENTS_st):
         alignment requirement
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -8400,10 +8152,6 @@ cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS(CUDA_ARRAY_MEMORY_REQUIREMENTS_v1):
 
     alignment : size_t
         alignment requirement
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -8508,10 +8256,6 @@ cdef class CUDA_TEXTURE_DESC_v1(CUDA_TEXTURE_DESC_st):
         Border Color
 
 
-    reserved : list[int]
-
-
-
     Methods
     -------
     getPtr()
@@ -8562,10 +8306,6 @@ cdef class CUDA_TEXTURE_DESC(CUDA_TEXTURE_DESC_v1):
         Border Color
 
 
-    reserved : list[int]
-
-
-
     Methods
     -------
     getPtr()
@@ -8612,10 +8352,6 @@ cdef class CUDA_RESOURCE_VIEW_DESC_v1(CUDA_RESOURCE_VIEW_DESC_st):
         Last layer index
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -8660,10 +8396,6 @@ cdef class CUDA_RESOURCE_VIEW_DESC(CUDA_RESOURCE_VIEW_DESC_v1):
 
     lastLayer : unsigned int
         Last layer index
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -8867,10 +8599,6 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1(CUDA_EXTERNAL_MEMORY_HANDLE_DESC_
         Flags must either be zero or CUDA_EXTERNAL_MEMORY_DEDICATED
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -8901,10 +8629,6 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC(CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1)
         Flags must either be zero or CUDA_EXTERNAL_MEMORY_DEDICATED
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -8931,10 +8655,6 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1(CUDA_EXTERNAL_MEMORY_BUFFER_DESC_
         Flags reserved for future use. Must be zero.
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -8959,10 +8679,6 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC(CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1)
 
     flags : unsigned int
         Flags reserved for future use. Must be zero.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -8992,10 +8708,6 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1(CUDA_EXTERNAL_MEMORY_MIP
         Total number of levels in the mipmap chain
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -9021,10 +8733,6 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC(CUDA_EXTERNAL_MEMORY_MIPMAP
 
     numLevels : unsigned int
         Total number of levels in the mipmap chain
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -9053,10 +8761,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1(CUDA_EXTERNAL_SEMAPHORE_HANDLE
         Flags reserved for the future. Must be zero.
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -9081,10 +8785,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC(CUDA_EXTERNAL_SEMAPHORE_HANDLE_DE
 
     flags : unsigned int
         Flags reserved for the future. Must be zero.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -9116,10 +8816,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1(CUDA_EXTERNAL_SEMAPHORE_SIGN
         For all other types of CUexternalSemaphore, flags must be zero.
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -9147,10 +8843,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_
         synchronization operations should be performed for any external
         memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
         For all other types of CUexternalSemaphore, flags must be zero.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -9182,10 +8874,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1(CUDA_EXTERNAL_SEMAPHORE_WAIT_P
         For all other types of CUexternalSemaphore, flags must be zero.
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -9213,10 +8901,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARA
         synchronization operations should be performed for any external
         memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
         For all other types of CUexternalSemaphore, flags must be zero.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -9448,10 +9132,6 @@ cdef class CUarrayMapInfo_v1(CUarrayMapInfo_st):
         flags for future use, must be zero now.
 
 
-    reserved : list[unsigned int]
-        Reserved for future use, must be zero now.
-
-
     Methods
     -------
     getPtr()
@@ -9505,10 +9185,6 @@ cdef class CUarrayMapInfo(CUarrayMapInfo_v1):
 
     flags : unsigned int
         flags for future use, must be zero now.
-
-
-    reserved : list[unsigned int]
-        Reserved for future use, must be zero now.
 
 
     Methods
@@ -9847,10 +9523,6 @@ cdef class CUmemPoolProps_v1(CUmemPoolProps_st):
         Bitmask indicating intended usage for the pool.
 
 
-    reserved : bytes
-        reserved for future use, must be 0
-
-
     Methods
     -------
     getPtr()
@@ -9895,10 +9567,6 @@ cdef class CUmemPoolProps(CUmemPoolProps_v1):
         Bitmask indicating intended usage for the pool.
 
 
-    reserved : bytes
-        reserved for future use, must be 0
-
-
     Methods
     -------
     getPtr()
@@ -9910,13 +9578,6 @@ cdef class CUmemPoolPtrExportData_v1(CUmemPoolPtrExportData_st):
     """
     Opaque data for exporting a pool allocation
 
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
@@ -9927,13 +9588,6 @@ cdef class CUmemPoolPtrExportData_v1(CUmemPoolPtrExportData_st):
 cdef class CUmemPoolPtrExportData(CUmemPoolPtrExportData_v1):
     """
     Opaque data for exporting a pool allocation
-
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
 
     Methods
     -------
@@ -10429,14 +10083,6 @@ cdef class CUgraphNodeParams(CUgraphNodeParams_st):
         Type of the node
 
 
-    reserved0 : list[int]
-        Reserved. Must be zero.
-
-
-    reserved1 : list[long long]
-        Padding. Unused bytes must be zero.
-
-
     kernel : CUDA_KERNEL_NODE_PARAMS_v3
         Kernel node parameters.
 
@@ -10493,10 +10139,6 @@ cdef class CUgraphNodeParams(CUgraphNodeParams_st):
         Padding as bytes
 
 
-    reserved2 : long long
-        Reserved bytes. Must be zero.
-
-
     Methods
     -------
     getPtr()
@@ -10516,14 +10158,6 @@ cdef class CUcheckpointLockArgs(CUcheckpointLockArgs_st):
         no timeout
 
 
-    reserved0 : unsigned int
-        Reserved for future use, must be zero
-
-
-    reserved1 : list[cuuint64_t]
-        Reserved for future use, must be zeroed
-
-
     Methods
     -------
     getPtr()
@@ -10534,13 +10168,6 @@ cdef class CUcheckpointLockArgs(CUcheckpointLockArgs_st):
 cdef class CUcheckpointCheckpointArgs(CUcheckpointCheckpointArgs_st):
     """
     CUDA checkpoint optional checkpoint arguments
-
-    Attributes
-    ----------
-
-    reserved : list[cuuint64_t]
-        Reserved for future use, must be zeroed
-
 
     Methods
     -------
@@ -10587,14 +10214,6 @@ cdef class CUcheckpointRestoreArgs(CUcheckpointRestoreArgs_st):
         Number of gpu pairs to remap
 
 
-    reserved : bytes
-        Reserved for future use, must be zeroed
-
-
-    reserved : list[cuuint64_t]
-        Reserved for future use, must be zeroed
-
-
     Methods
     -------
     getPtr()
@@ -10605,13 +10224,6 @@ cdef class CUcheckpointRestoreArgs(CUcheckpointRestoreArgs_st):
 cdef class CUcheckpointUnlockArgs(CUcheckpointUnlockArgs_st):
     """
     CUDA checkpoint optional unlock arguments
-
-    Attributes
-    ----------
-
-    reserved : list[cuuint64_t]
-        Reserved for future use, must be zeroed
-
 
     Methods
     -------
@@ -10659,10 +10271,6 @@ cdef class CUmemDecompressParams(CUmemDecompressParams_st):
 
     algo : CUmemDecompressAlgorithm
         The decompression algorithm to use.
-
-
-    padding : bytes
-
 
 
     Methods
@@ -10800,13 +10408,6 @@ cdef class CUdevWorkqueueConfigResource(CUdevWorkqueueConfigResource_st):
 
 cdef class CUdevWorkqueueResource(CUdevWorkqueueResource_st):
     """
-    Attributes
-    ----------
-
-    reserved : bytes
-        Reserved for future use
-
-
     Methods
     -------
     getPtr()
@@ -10836,10 +10437,6 @@ cdef class CU_DEV_SM_RESOURCE_GROUP_PARAMS(CU_DEV_SM_RESOURCE_GROUP_PARAMS_st):
     flags : unsigned int
         The flags set on this SM resource group. For possible values see
         CUdevSmResourceGroup_flags.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods

@@ -6,13 +6,14 @@ from __future__ import annotations
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._memory._memory_pool cimport _MemPool, _MP_allocate
+from cuda.core._memory._memory_pool cimport _MemPool, _MP_allocate, MP_check_open
 from cuda.core._memory._memory_pool cimport MP_init_create_pool, MP_init_current_pool  # no-cython-lint
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils cimport check_or_create_options  # no-cython-lint
 from cuda.core._utils.cuda_utils import CUDAError  # no-cython-lint
 
+import cython
 from dataclasses import dataclass
 import threading
 from typing import TYPE_CHECKING
@@ -97,7 +98,8 @@ cdef class ManagedMemoryResource(_MemPool):
     memory pools.
     """
 
-    def __init__(self, options: ManagedMemoryResourceOptions | dict[str, object] | None = None) -> None:
+    @cython.annotation_typing(False)
+    def __init__(self, options: ManagedMemoryResourceOptions | None = None) -> None:
         _MMR_init(self, options)
 
     def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> ManagedBuffer:
@@ -121,6 +123,7 @@ cdef class ManagedMemoryResource(_MemPool):
             and instance methods (``prefetch``, ``discard``,
             ``discard_prefetch``).
         """
+        MP_check_open(self)
         assert isinstance(stream, Stream), "Only Stream is supported for managed memory allocations"
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")

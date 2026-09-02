@@ -59,11 +59,8 @@ cdef extern from *:
 
 def test_ccudart_interoperable():
     # struct
-    cdef dim3 oldDim, newDim
-    oldDim.x = 1
-    oldDim.y = 2
-    oldDim.z = 3
-    newDim = copy_and_append_dim3(oldDim)
+    cdef dim3 oldDim = [1, 2, 3]
+    cdef dim3 newDim = copy_and_append_dim3(oldDim)
     assert oldDim.x + 1 == newDim.x
     assert oldDim.y + 1 == newDim.y
     assert oldDim.z + 1 == newDim.z

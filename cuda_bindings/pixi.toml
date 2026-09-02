@@ -24,11 +24,14 @@ packaging = "*"
 tomli = "*"
 matplotlib = "*"
 
+[feature.test.pypi-dependencies]
+cuda-python-test-helpers = { path = "../cuda_python_test_helpers", editable = true }
+
 # Keep this dependency set aligned with cuda_python/docs/environment-docs.yml.
 [feature.docs.dependencies]
 cuda-bindings = "13.2.*"
 python = "3.12.*"
-cython = "*"
+cython = ">=3.2.5,<3.3"
 enum_tools = "*"
 make = "*"
 myst-nb = "*"
@@ -44,7 +47,7 @@ sphinx-copybutton = "*"
 sphinx-toolbox = "*"
 
 [feature.cython-tests.dependencies]
-cython = ">=3.2,<3.3" # for tests that exercise APIs from cython
+cython = ">=3.2.5,<3.3" # for tests that exercise APIs from cython
 setuptools = "*"      # for distutils
 gxx = "*"             # to compile the generated code
 # These are necessary because running the Cython tests requires compiling
@@ -118,7 +121,7 @@ python = "*"
 cuda-version = "*"
 setuptools = ">=80"
 setuptools-scm = ">=8"
-cython = ">=3.2,<3.3"
+cython = ">=3.2.5,<3.3"
 cuda-pathfinder = { path = "../cuda_pathfinder" }
 cuda-cudart-static = "*"
 cuda-nvrtc-dev = "*"

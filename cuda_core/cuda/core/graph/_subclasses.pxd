@@ -7,7 +7,13 @@ from libc.stddef cimport size_t
 from cuda.bindings cimport cydriver
 from cuda.core.graph._graph_definition cimport GraphCondition
 from cuda.core.graph._graph_node cimport GraphNode
-from cuda.core._resource_handles cimport EventHandle, GraphHandle, GraphNodeHandle, KernelHandle
+from cuda.core._resource_handles cimport (
+    EventHandle,
+    GraphExecHandle,
+    GraphHandle,
+    GraphNodeHandle,
+    KernelHandle,
+)
 
 
 cdef class EmptyNode(GraphNode):
@@ -172,3 +178,41 @@ cdef class WhileNode(ConditionalNode):
 
 cdef class SwitchNode(ConditionalNode):
     pass
+
+
+cdef class ExecutableGraphNode:
+    cdef:
+        GraphExecHandle _h_graph_exec
+        GraphNodeHandle _h_node
+
+
+cdef class ExecutableKernelNode(ExecutableGraphNode):
+    pass
+
+
+cdef class ExecutableMemsetNode(ExecutableGraphNode):
+    pass
+
+
+cdef class ExecutableMemcpyNode(ExecutableGraphNode):
+    pass
+
+
+cdef class ExecutableChildGraphNode(ExecutableGraphNode):
+    pass
+
+
+cdef class ExecutableEventRecordNode(ExecutableGraphNode):
+    pass
+
+
+cdef class ExecutableEventWaitNode(ExecutableGraphNode):
+    pass
+
+
+cdef class ExecutableHostCallbackNode(ExecutableGraphNode):
+    pass
+
+
+cdef ExecutableGraphNode create_executable_node_view(
+    const GraphExecHandle& h_exec, GraphNode node)

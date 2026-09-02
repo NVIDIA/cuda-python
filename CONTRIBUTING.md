@@ -19,8 +19,13 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
 
 - [Contributing to CUDA Python](#contributing-to-cuda-python)
   - [Table of Contents](#table-of-contents)
+  - [Cloning the repository](#cloning-the-repository)
+    - [Recommended clone](#recommended-clone)
+    - [Fixing an existing clone](#fixing-an-existing-clone)
+    - [Symptoms of a bad clone](#symptoms-of-a-bad-clone)
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
+    - [Pre-commit on Windows](#pre-commit-on-windows)
   - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
@@ -32,6 +37,94 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
       - [Backport Branches](#backport-branches)
     - [Key Infrastructure Details](#key-infrastructure-details)
   - [Code coverage](#code-coverage)
+
+
+## Cloning the repository
+
+Every package in this repository derives its version from git tags using
+[`setuptools-scm`](https://setuptools-scm.readthedocs.io/), so **how you clone
+determines whether you can build at all, and whether the version you build is
+correct.** Each package matches its own tag prefix:
+
+| Package | Tag pattern |
+| --- | --- |
+| `cuda-bindings`, `cuda-python` | `v*` (e.g. `v13.3.1`) |
+| `cuda-core` | `cuda-core-v*` (e.g. `cuda-core-v1.1.0`) |
+| `cuda-pathfinder` | `cuda-pathfinder-v*` (e.g. `cuda-pathfinder-v1.6.0`) |
+
+Each package sets `root = ".."` in its `[tool.setuptools_scm]` table, meaning the
+version is read from the *repository root* rather than the package directory. A
+working build therefore needs all of the following:
+
+1. **A real git clone.** Source zips and GitHub "Download ZIP" archives have no
+   git metadata and the build fails outright. (Tarballs produced by
+   `git archive` do work, thanks to the `.git_archival.txt` substitutions
+   configured in `.gitattributes`.)
+2. **The full repository**, not just the package subdirectory, because the
+   version lookup walks up to the repository root.
+3. **Tags, reaching back at least as far as the most recent tag** matching the
+   package you are building. `git describe` needs to find that tag; the history
+   between it and your checkout must be present too.
+
+### Recommended clone
+
+The default `git clone` gives you everything you need:
+
+```console
+$ git clone https://github.com/NVIDIA/cuda-python.git
+```
+
+
+
+### Fixing an existing clone
+
+If you already have a shallow clone:
+
+```console
+$ git fetch --unshallow --tags
+```
+
+If you are working from a personal fork, your fork's tags stop tracking upstream
+the moment new releases are cut, which silently yields a stale version. Fetch
+tags from upstream directly:
+
+```console
+$ git remote add upstream https://github.com/NVIDIA/cuda-python.git
+$ git fetch --tags upstream
+```
+
+Keep doing this periodically — a fork that was correct when you created it will
+drift.
+
+### Symptoms of a bad clone
+
+Only case 3 below reports an error. The first two fail *silently*, producing a
+wrong version that surfaces much later as a confusing dependency-resolution or
+version-check failure:
+
+1. **No tags reachable.** The build succeeds and produces a version starting at
+   `0.1.dev`: a `--depth 1` clone yields `0.1.dev1+g0d22cb444`, a full clone made
+   with `--no-tags` yields `0.1.dev2114+g0d22cb444`. Installing `cuda-python`
+   built this way then fails, because its `install_requires` pins
+   `cuda-bindings` to that same bogus version.
+2. **Stale tags** (a fork that has not fetched upstream in a while): you get a
+   plausible-looking but wrong version, e.g. `13.0.4.dev650+g0d22cb44` when the
+   real latest tag is `v13.3.1`. Nothing warns you. Note there is no leading
+   `v` — the tag prefix is stripped by `tag_regex`.
+3. **No git metadata** (source zip): the build fails with
+   `LookupError: setuptools-scm was unable to detect version`.
+
+As a last resort — for example when building inside a container that has no git
+history — you can bypass the lookup entirely:
+
+```console
+$ SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_CORE=1.1.0 pip install ./cuda_core
+```
+
+The environment variable is suffixed with the distribution name, uppercased with
+hyphens replaced by underscores: `..._FOR_CUDA_BINDINGS`, `..._FOR_CUDA_CORE`,
+`..._FOR_CUDA_PATHFINDER`, `..._FOR_CUDA_PYTHON`. Use this only when you
+genuinely cannot provide tags; it is not a substitute for a correct clone.
 
 
 ## Type stubs for cuda.core
@@ -73,6 +166,22 @@ keep the tree consistent if they run on *every* commit. Relying on manual
 between commits, leaving stale headers or out-of-date stubs in the history.
 If the hook isn't installed, `pre-commit run` (and CI) will print a visible
 warning reminding you to run `pre-commit install`.
+
+### Pre-commit on Windows
+
+For development on Windows (not WSL), the `lychee` pre-commit task will not work
+when running `pre-commit run --all-files`.  This problem does not occur if you
+install the pre-commit hook and run it automatically as part of your `git
+commit` workflow.  To resolve this, you can either:
+
+1. Run `pre-commit` in Git Bash, rather than directly in PowerShell or cmd
+
+2. Skip it by setting the environment variable `SKIP` to `lychee`.  This would
+   be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
+
+## Secret Scanning
+
+The `secret-scan-trufflehog` pre-commit hook scans staged files and installs TruffleHog into its own environment on first run, on Linux, macOS, and Windows. If it flags a secret, remove it before committing, or contact a maintainer if it's a false positive. Secrets are also scanned server-side in CI.
 
 
 ## Signing Your Work

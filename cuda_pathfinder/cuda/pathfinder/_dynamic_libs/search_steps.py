@@ -21,7 +21,7 @@ current operating system. Platform differences are routed through the
 
 import glob
 import os
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field
 from typing import NoReturn, cast
 
@@ -29,6 +29,7 @@ from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.search_platform import PLATFORM, SearchPlatform
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
+from cuda.pathfinder._utils.path_sort import numeric_aware_path_sort_key
 
 # ---------------------------------------------------------------------------
 # Data types
@@ -58,7 +59,7 @@ class SearchContext:
 
     @property
     def lib_searched_for(self) -> str:
-        return cast(str, self.platform.lib_searched_for(self.libname))
+        return cast(str, self.platform.lib_searched_for(self.desc))
 
     def raise_not_found(self) -> NoReturn:
         err = ", ".join(self.error_messages)
@@ -70,14 +71,26 @@ class SearchContext:
 FindStep = Callable[[SearchContext], FindResult | None]
 
 
-def _find_lib_dir_using_anchor(desc: LibDescriptor, platform: SearchPlatform, anchor_point: str) -> str | None:
-    """Find the library directory under *anchor_point* using the descriptor's relative paths."""
-    rel_dirs = platform.anchor_rel_dirs(desc)
+def _iter_lib_dirs(root: str, rel_dirs: tuple[str, ...]) -> Iterator[str]:
+    """Yield existing library directories under *root* in descriptor order."""
     for rel_path in rel_dirs:
-        for dirname in sorted(glob.glob(os.path.join(anchor_point, rel_path))):
+        for dirname in sorted(glob.glob(os.path.join(root, rel_path))):
             if os.path.isdir(dirname):
-                return os.path.normpath(dirname)
-    return None
+                yield os.path.normpath(dirname)
+
+
+def _iter_lib_dirs_using_anchor(
+    desc: LibDescriptor,
+    platform: SearchPlatform,
+    anchor_point: str,
+) -> Iterator[str]:
+    """Yield existing library directories under *anchor_point* in descriptor order."""
+    yield from _iter_lib_dirs(anchor_point, platform.anchor_rel_dirs(desc))
+
+
+def _find_lib_dir_using_anchor(desc: LibDescriptor, platform: SearchPlatform, anchor_point: str) -> str | None:
+    """Find the first library directory under *anchor_point*."""
+    return next(_iter_lib_dirs_using_anchor(desc, platform, anchor_point), None)
 
 
 def _find_using_lib_dir(ctx: SearchContext, lib_dir: str | None) -> str | None:
@@ -88,12 +101,30 @@ def _find_using_lib_dir(ctx: SearchContext, lib_dir: str | None) -> str | None:
         str | None,
         ctx.platform.find_in_lib_dir(
             lib_dir,
-            ctx.libname,
-            ctx.lib_searched_for,
+            ctx.desc,
             ctx.error_messages,
             ctx.attachments,
         ),
     )
+
+
+def _find_under_root(
+    ctx: SearchContext,
+    root: str,
+    rel_dirs: tuple[str, ...],
+    found_via: str,
+) -> FindResult | None:
+    """Resolve *rel_dirs* under *root*, then find the requested library."""
+    for lib_dir in _iter_lib_dirs(root, rel_dirs):
+        abs_path = _find_using_lib_dir(ctx, lib_dir)
+        if abs_path is not None:
+            return FindResult(abs_path, found_via)
+    return None
+
+
+def _find_under_anchor_root(ctx: SearchContext, root: str, found_via: str) -> FindResult | None:
+    """Resolve the descriptor's general anchors under *root*."""
+    return _find_under_root(ctx, root, ctx.platform.anchor_rel_dirs(ctx.desc), found_via)
 
 
 def _derive_ctk_root_linux(resolved_lib_path: str) -> str | None:
@@ -121,13 +152,14 @@ def _derive_ctk_root_windows(resolved_lib_path: str) -> str | None:
 
     Supports:
     - ``$CTK_ROOT/bin/x64/foo.dll`` (CTK 13 style)
+    - ``$CTK_ROOT/bin/arm64/foo.dll`` (Windows on Arm CTK 13 style)
     - ``$CTK_ROOT/bin/foo.dll`` (CTK 12 style)
     """
     import ntpath
 
     lib_dir = ntpath.dirname(resolved_lib_path)
     basename = ntpath.basename(lib_dir).lower()
-    if basename == "x64":
+    if basename in ("x64", "arm64"):
         parent = ntpath.dirname(lib_dir)
         if ntpath.basename(parent).lower() == "bin":
             return ntpath.dirname(parent)
@@ -146,11 +178,7 @@ def derive_ctk_root(resolved_lib_path: str) -> str | None:
 
 def find_via_ctk_root(ctx: SearchContext, ctk_root: str) -> FindResult | None:
     """Find a library under a previously derived CTK root."""
-    lib_dir = _find_lib_dir_using_anchor(ctx.desc, ctx.platform, ctk_root)
-    abs_path = _find_using_lib_dir(ctx, lib_dir)
-    if abs_path is None:
-        return None
-    return FindResult(abs_path, "system-ctk-root")
+    return _find_under_anchor_root(ctx, ctk_root, "system-ctk-root")
 
 
 # ---------------------------------------------------------------------------
@@ -163,7 +191,12 @@ def find_in_site_packages(ctx: SearchContext) -> FindResult | None:
     rel_dirs = ctx.platform.site_packages_rel_dirs(ctx.desc)
     if not rel_dirs:
         return None
-    abs_path = ctx.platform.find_in_site_packages(rel_dirs, ctx.lib_searched_for, ctx.error_messages, ctx.attachments)
+    abs_path = ctx.platform.find_in_site_packages(
+        rel_dirs,
+        ctx.desc,
+        ctx.error_messages,
+        ctx.attachments,
+    )
     if abs_path is not None:
         return FindResult(abs_path, "site-packages")
     return None
@@ -175,10 +208,19 @@ def find_in_conda(ctx: SearchContext) -> FindResult | None:
     if not conda_prefix:
         return None
     anchor = ctx.platform.conda_anchor_point(conda_prefix)
-    lib_dir = _find_lib_dir_using_anchor(ctx.desc, ctx.platform, anchor)
-    abs_path = _find_using_lib_dir(ctx, lib_dir)
-    if abs_path is not None:
-        return FindResult(abs_path, "conda")
+    return _find_under_anchor_root(ctx, anchor, "conda")
+
+
+def find_in_install_root_env_vars(ctx: SearchContext) -> FindResult | None:
+    """Search installation roots named by descriptor-specific environment variables."""
+    rel_dirs = ctx.platform.install_root_env_rel_dirs(ctx.desc)
+    for env_var in ctx.platform.install_root_env_vars(ctx.desc):
+        root = os.environ.get(env_var)
+        if not root:
+            continue
+        result = _find_under_root(ctx, root, rel_dirs, env_var)
+        if result is not None:
+            return result
     return None
 
 
@@ -196,10 +238,18 @@ def find_in_cuda_path(ctx: SearchContext) -> FindResult | None:
     cuda_home = get_cuda_path_or_home()
     if cuda_home is None:
         return None
-    lib_dir = _find_lib_dir_using_anchor(ctx.desc, ctx.platform, cuda_home)
-    abs_path = _find_using_lib_dir(ctx, lib_dir)
-    if abs_path is not None:
-        return FindResult(abs_path, "CUDA_PATH")
+    return _find_under_anchor_root(ctx, cuda_home, "CUDA_PATH")
+
+
+def find_in_program_files_roots(ctx: SearchContext) -> FindResult | None:
+    """Search descriptor-configured installation roots under Program Files."""
+    for root_glob in ctx.platform.program_files_root_globs(ctx.desc):
+        for root in sorted(glob.glob(root_glob), key=numeric_aware_path_sort_key, reverse=True):
+            if not os.path.isdir(root):
+                continue
+            result = _find_under_anchor_root(ctx, os.path.normpath(root), "ProgramFiles")
+            if result is not None:
+                return result
     return None
 
 
@@ -211,7 +261,11 @@ def find_in_cuda_path(ctx: SearchContext) -> FindResult | None:
 EARLY_FIND_STEPS: tuple[FindStep, ...] = (find_in_site_packages, find_in_conda)
 
 #: Find steps that run after system search fails.
-LATE_FIND_STEPS: tuple[FindStep, ...] = (find_in_cuda_path,)
+LATE_FIND_STEPS: tuple[FindStep, ...] = (
+    find_in_install_root_env_vars,
+    find_in_cuda_path,
+    find_in_program_files_roots,
+)
 
 
 # ---------------------------------------------------------------------------

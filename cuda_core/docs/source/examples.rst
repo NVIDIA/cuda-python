@@ -55,6 +55,9 @@ Memory management and interop
   dispatches to an NVRTC-compiled GPU kernel through the same decorator.
 - :sample:`ipcMemoryPool <ipcMemoryPool/>`
   shares an IPC-enabled ``DeviceMemoryResource`` across processes.
+- :cuda-core-example:`buffer_deallocation_stream.py <buffer_deallocation_stream.py>`
+  transfers a buffer between streams and safely changes the stream that orders
+  its deallocation.
 
 CUDA graphs and linking
 -----------------------

@@ -32,6 +32,12 @@
 #           ENV: { CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM: '1' }
 #           ENV: { MODE: 'nightly-pytorch', TORCH_VER: '2.12.1', TORCH_CUDA: 'cu126' }
 
+# Host platforms that produce wheel artifacts in the main CI workflow.
+platforms:
+  - linux-64
+  - linux-aarch64
+  - win-64
+
 linux:
   pull-request:
     # linux-64
@@ -128,6 +134,7 @@ windows:
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
+    - { ARCH: 'amd64', PY_VER: '3.15',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
     # special runners
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 't4',         GPU_COUNT: '2', DRIVER: 'latest',  DRIVER_MODE: 'TCC' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'h100',       GPU_COUNT: '2', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }

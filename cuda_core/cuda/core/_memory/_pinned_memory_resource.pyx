@@ -5,20 +5,34 @@
 from __future__ import annotations
 
 from cuda.bindings cimport cydriver
-from cuda.core._memory._memory_pool cimport _MemPool, MP_init_create_pool, MP_init_current_pool
+from cuda.core._memory._buffer cimport Buffer
+from cuda.core._memory._memory_pool cimport (
+    _MemPool,
+    _MP_allocate,
+    MP_check_open,
+    MP_init_create_pool,
+    MP_init_current_pool,
+)
 from cuda.core._memory cimport _ipc
 from cuda.core._memory._ipc cimport IPCAllocationHandle
+from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
 )
 
+import cython
 from dataclasses import dataclass
 import multiprocessing
 import platform  # no-cython-lint
 import uuid
 
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cuda.core.graph import GraphBuilder
 
 __all__ = ['PinnedMemoryResource', 'PinnedMemoryResourceOptions']
 
@@ -78,6 +92,14 @@ cdef class PinnedMemoryResource(_MemPool):
 
     Notes
     -----
+    The device associated with ``stream`` must support host memory pools. If
+    ``numa_id`` is set or derived for IPC, it must support host NUMA memory pools.
+    You can query these capabilities through
+    ``Device.properties.host_memory_pools_supported`` and
+    ``Device.properties.host_numa_memory_pools_supported``. If the required pool
+    is unsupported and stream-ordered allocation is not needed, use
+    :class:`LegacyPinnedMemoryResource`.
+
     To create an IPC-Enabled memory resource (MR) that is capable of sharing
     allocations between processes, specify ``ipc_enabled=True`` in the initializer
     option. When IPC is enabled and ``numa_id`` is not specified, the NUMA node
@@ -88,10 +110,33 @@ cdef class PinnedMemoryResource(_MemPool):
     See :class:`DeviceMemoryResource` for more details on IPC usage patterns.
     """
 
-    def __init__(self, options: PinnedMemoryResourceOptions | dict[str, object] | None = None) -> None:
+    @cython.annotation_typing(False)
+    def __init__(self, options: PinnedMemoryResourceOptions | None = None) -> None:
         _PMR_init(self, options)
 
+    def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
+        """Allocate a host-pinned buffer asynchronously on the supplied stream."""
+        MP_check_open(self)
+        if self.is_mapped:
+            raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
+        cdef Stream s = Stream_accept(stream)
+        device = s.device
+        cdef bint supported = (
+            device.properties.host_numa_memory_pools_supported
+            if self._numa_id >= 0
+            else device.properties.host_memory_pools_supported
+        )
+
+        if not supported:
+            raise RuntimeError(
+                f"CUDA device {device.device_id} does not support the requested "
+                "host memory pool for PinnedMemoryResource. Use "
+                "LegacyPinnedMemoryResource if memory-pool features are not required."
+            )
+        return _MP_allocate(self, size, s)
+
     def __reduce__(self) -> tuple[object, ...]:
+        MP_check_open(self)
         return PinnedMemoryResource.from_registry, (self.uuid,)
 
     @staticmethod
@@ -155,6 +200,7 @@ cdef class PinnedMemoryResource(_MemPool):
         The handle can be used to share the memory pool with other processes.
         The handle is cached in this `MemoryResource` and owned by it.
         """
+        MP_check_open(self)
         if not self.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
         return self._ipc_data._alloc_handle

@@ -201,6 +201,96 @@ class _DLTensor(ctypes.Structure):
     ]
 
 
+class _DLManagedTensor(ctypes.Structure):
+    _fields_ = [
+        ("dl_tensor", _DLTensor),
+        ("manager_ctx", ctypes.c_void_p),
+        ("deleter", ctypes.c_void_p),
+    ]
+
+
+class _DLManagedTensorVersioned(ctypes.Structure):
+    _fields_ = [
+        ("version", _DLPackVersion),
+        ("manager_ctx", ctypes.c_void_p),
+        ("deleter", ctypes.c_void_p),
+        ("flags", ctypes.c_uint64),
+        ("dl_tensor", _DLTensor),
+    ]
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.5")
+@pytest.mark.parametrize(
+    "max_version, capsule_name, managed_cls",
+    [
+        pytest.param(None, b"dltensor", _DLManagedTensor, id="unversioned"),
+        pytest.param((1, 0), b"dltensor_versioned", _DLManagedTensorVersioned, id="versioned"),
+    ],
+)
+def test_from_dlpack_null_deleter_dealloc(max_version, capsule_name, managed_cls):
+    """``__dealloc__`` must tolerate a capsule whose deleter is NULL."""
+    src = np.arange(6, dtype=np.int32)
+    base = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    capsule = base.__dlpack__(max_version=max_version)
+    dlm = ctypes.cast(_PyCapsule_GetPointer(capsule, capsule_name), ctypes.POINTER(managed_cls))
+    # Steal the producer deleter so __dealloc__ sees NULL, then invoke it ourselves.
+    producer_deleter = ctypes.CFUNCTYPE(None, ctypes.POINTER(managed_cls))(dlm.contents.deleter)
+    dlm.contents.deleter = None
+
+    class _Export:
+        def __dlpack_device__(self):
+            return base.__dlpack_device__()
+
+        def __dlpack__(self, stream=None, max_version=None, **kwargs):
+            if capsule_name == b"dltensor" and max_version is not None:
+                raise TypeError("force unversioned")
+            return capsule
+
+    view = StridedMemoryView.from_dlpack(_Export(), stream_ptr=-1)
+    del view  # __dealloc__ must not call the NULL deleter
+    producer_deleter(dlm)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize(
+    "max_version, capsule_name, managed_cls",
+    [
+        pytest.param(None, b"dltensor", _DLManagedTensor, id="unversioned"),
+        pytest.param((1, 0), b"dltensor_versioned", _DLManagedTensorVersioned, id="versioned"),
+    ],
+)
+def test_from_dlpack_honours_byte_offset(max_version, capsule_name, managed_cls):
+    """DLPack puts a tensor's first element at ``data + byte_offset``, so a producer
+    may report the allocation base in ``data`` and express a slice as an offset.
+    ``view.ptr`` must account for it, as the capsule-consuming path already does."""
+    src = np.arange(9, dtype=np.int32)
+    # View only the first 8 elements, so shifting by one element below stays inside
+    # the allocation and a regression fails an assertion instead of reading OOB.
+    base = StridedMemoryView.from_any_interface(src[:8], stream_ptr=-1)
+    capsule = base.__dlpack__(max_version=max_version)
+    dlm = ctypes.cast(_PyCapsule_GetPointer(capsule, capsule_name), ctypes.POINTER(managed_cls))
+    assert dlm.contents.dl_tensor.data == src.ctypes.data
+    assert dlm.contents.dl_tensor.byte_offset == 0
+
+    # Re-describe the same 8 elements as src[1:9]. byte_offset is the only field
+    # written: shape and strides share one producer-owned block, so leave them alone.
+    dlm.contents.dl_tensor.byte_offset = src.itemsize
+
+    class _Export:
+        def __dlpack_device__(self):
+            return base.__dlpack_device__()
+
+        def __dlpack__(self, stream=None, max_version=None, **kwargs):
+            if capsule_name == b"dltensor" and max_version is not None:
+                raise TypeError("force unversioned")
+            return capsule
+
+    view = StridedMemoryView.from_dlpack(_Export(), stream_ptr=-1)
+    assert view.ptr == src.ctypes.data + src.itemsize
+    assert view.shape == (8,)
+    assert np.array_equal(np.from_dlpack(view), src[1:])
+
+
 _FN_FROM_PY = ctypes.PYFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p))
 _FN_TO_PY = ctypes.PYFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p))
 _FN_DLTENSOR_FROM_PY = ctypes.PYFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)

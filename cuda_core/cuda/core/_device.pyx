@@ -12,7 +12,7 @@ from libcpp.vector cimport vector
 
 import threading
 
-from cuda.core._context cimport Context
+from cuda.core._context cimport Context, Context_check_open
 from cuda.core._context import ContextOptions
 from cuda.core._device_resources cimport DeviceResources, SMResource, WorkqueueResource
 from cuda.core._event cimport Event as cyEvent
@@ -28,7 +28,7 @@ from cuda.core._resource_handles cimport (
     as_cu,
 )
 
-from cuda.core._stream import IsStreamType, Stream
+from cuda.core._stream import IsStreamType, Stream, StreamOptions
 from cuda.core._utils.clear_error_support import assert_type
 from cuda.core._utils.cuda_utils import (
     ComputeCapability,
@@ -60,6 +60,8 @@ if TYPE_CHECKING:
 _tls = threading.local()
 _lock = threading.Lock()
 cdef bint _is_cuInit = False
+
+__all__ = ['Device']
 
 
 cdef class DeviceProperties:
@@ -922,34 +924,46 @@ cdef class DeviceProperties:
     @property
     def host_memory_pools_supported(self) -> bool:
         """bool: Device supports HOST location with the cuMemAllocAsync and cuMemPool family of APIs."""
-        return bool(
-            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_MEMORY_POOLS_SUPPORTED)
-        )
+        IF CUDA_CORE_BUILD_MAJOR < 13:
+            return False
+        ELSE:
+            return bool(
+                self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_MEMORY_POOLS_SUPPORTED)
+            )
 
     @property
     def host_virtual_memory_management_supported(self) -> bool:
         """bool: Device supports HOST location with the virtual memory management APIs like cuMemCreate, cuMemMap and related APIs."""
-        return bool(
-            self._get_cached_attribute(
-                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED
+        IF CUDA_CORE_BUILD_MAJOR < 13:
+            return False
+        ELSE:
+            return bool(
+                self._get_cached_attribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED
+                )
             )
-        )
 
     @property
     def host_alloc_dma_buf_supported(self) -> bool:
         """bool: Device supports page-locked host memory buffer sharing with dma_buf mechanism."""
-        return bool(
-            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_ALLOC_DMA_BUF_SUPPORTED)
-        )
+        IF CUDA_CORE_BUILD_MAJOR < 13:
+            return False
+        ELSE:
+            return bool(
+                self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_ALLOC_DMA_BUF_SUPPORTED)
+            )
 
     @property
     def only_partial_host_native_atomic_supported(self) -> bool:
         """bool: Link between the device and the host supports only some native atomic operations."""
-        return bool(
-            self._get_cached_attribute(
-                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED
+        IF CUDA_CORE_BUILD_MAJOR < 13:
+            return False
+        ELSE:
+            return bool(
+                self._get_cached_attribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED
+                )
             )
-        )
 
 
 class Device:
@@ -1019,9 +1033,12 @@ class Device:
         tuple of Device
             A tuple containing instances of available devices.
         """
-        from cuda.core import system
-        total = system.get_num_devices()
-        return tuple(cls(device_id) for device_id in range(total))
+        return cls._get_all_devices_from_cuda_driver()
+
+    @classmethod
+    def _get_all_devices_from_cuda_driver(cls):
+        Device_ensure_cuda_initialized()
+        return tuple(Device_ensure_tls_devices(cls))
 
     def to_system_device(self) -> 'cuda.core.system.Device':
         """
@@ -1264,6 +1281,7 @@ class Device:
         if ctx is not None:
             # TODO: revisit once Context is cythonized
             assert_type(ctx, Context)
+            Context_check_open(ctx)
             if ctx._device_id != self._device_id:
                 raise RuntimeError(
                     "the provided context was created on the device with"
@@ -1287,7 +1305,10 @@ class Device:
             # use primary ctx
             h_context = get_primary_context(self._device_id)
             if h_context.get() == NULL:
-                raise ValueError("Cannot set NULL context as current")
+                HANDLE_RETURN(get_last_error())
+                raise RuntimeError(
+                    f"Failed to retain the primary context for device {self._device_id}"
+                )
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxSetCurrent(as_cu(h_context)))
             self._has_inited = True
@@ -1316,7 +1337,6 @@ class Device:
         cdef object res
         cdef SMResource sm_res
         cdef WorkqueueResource wq_res
-        cdef GreenCtxHandle h_green
 
         if options is None:
             raise ValueError(
@@ -1348,7 +1368,7 @@ class Device:
             else:
                 raise TypeError(f"Unsupported context resource type: {type(res)}")
 
-        h_green = create_green_ctx_handle(
+        cdef GreenCtxHandle h_green = create_green_ctx_handle(
             c_resources.data(),
             <unsigned int>(c_resources.size()),
             <cydriver.CUdevice>(self._device_id),
@@ -1360,7 +1380,7 @@ class Device:
 
         return Context._from_green_ctx(Context, h_green, self._device_id)
 
-    def create_stream(self, obj: IsStreamType | None = None, options: object = None) -> Stream:
+    def create_stream(self, obj: IsStreamType | None = None, options: StreamOptions | None = None) -> Stream:
         """Create a :obj:`~_stream.Stream` object.
 
         New stream objects can be created in two different ways:

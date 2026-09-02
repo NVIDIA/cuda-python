@@ -9,12 +9,14 @@
 #include <atomic>
 #include <array>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <list>
 #include <map>
 #include <mutex>
 #include <stdexcept>
+#include <thread>
 #include <unordered_map>
 #include <vector>
 
@@ -34,6 +36,7 @@ namespace cuda_core {
 decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain = nullptr;
 decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease = nullptr;
 decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent = nullptr;
+decltype(&cuCtxSetCurrent) p_cuCtxSetCurrent = nullptr;
 decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate = nullptr;
 decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy = nullptr;
 decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx = nullptr;
@@ -74,6 +77,8 @@ decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel = nullptr;
 
 // Graph
 decltype(&cuGraphDestroy) p_cuGraphDestroy = nullptr;
+decltype(&cuGraphInstantiateWithParams) p_cuGraphInstantiateWithParams = nullptr;
+decltype(&cuGraphExecUpdate) p_cuGraphExecUpdate = nullptr;
 decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy = nullptr;
 decltype(&cuUserObjectCreate) p_cuUserObjectCreate = nullptr;
 decltype(&cuUserObjectRelease) p_cuUserObjectRelease = nullptr;
@@ -104,6 +109,13 @@ decltype(&cuSurfObjectDestroy) p_cuSurfObjectDestroy = nullptr;
 decltype(&cuDevSmResourceSplit) p_cuDevSmResourceSplit = nullptr;
 #else
 void* p_cuDevSmResourceSplit = nullptr;
+#endif
+
+// cuMemcpyWithAttributesAsync (13.2+ — may be null on older drivers/bindings)
+#if CUDA_VERSION >= 13020
+decltype(&cuMemcpyWithAttributesAsync) p_cuMemcpyWithAttributesAsync = nullptr;
+#else
+void* p_cuMemcpyWithAttributesAsync = nullptr;
 #endif
 
 // NVRTC function pointers
@@ -186,6 +198,53 @@ public:
 private:
     PyGILState_STATE gstate_;
     bool acquired_;
+};
+
+// Temporarily make a context current, restoring the caller's prior binding
+// (including having no context current) on scope exit. The handle is held for
+// the duration so the context cannot be destroyed mid-scope.
+class ScopedCurrentContext {
+public:
+    explicit ScopedCurrentContext(ContextHandle h_context) noexcept
+        : h_context_(std::move(h_context)) {
+        CUcontext target = as_cu(h_context_);
+        if (!target) {
+            return;
+        }
+
+        GILReleaseGuard gil;
+        status_ = p_cuCtxGetCurrent(&previous_);
+        if (status_ != CUDA_SUCCESS || previous_ == target) {
+            return;
+        }
+        status_ = p_cuCtxSetCurrent(target);
+        changed_ = status_ == CUDA_SUCCESS;
+    }
+
+    ~ScopedCurrentContext() {
+        if (changed_) {
+            GILReleaseGuard gil;
+            CUresult status = p_cuCtxSetCurrent(previous_);
+            if (status != CUDA_SUCCESS) {
+                std::fprintf(
+                    stderr,
+                    "Warning: cuCtxSetCurrent (restoring the caller's context) "
+                    "failed (CUDA error %d)\n",
+                    static_cast<int>(status));
+            }
+        }
+    }
+
+    CUresult status() const noexcept { return status_; }
+
+    ScopedCurrentContext(const ScopedCurrentContext&) = delete;
+    ScopedCurrentContext& operator=(const ScopedCurrentContext&) = delete;
+
+private:
+    ContextHandle h_context_;
+    CUcontext previous_ = nullptr;
+    bool changed_ = false;
+    CUresult status_ = CUDA_SUCCESS;
 };
 
 }  // namespace
@@ -359,6 +418,15 @@ public:
     void unregister_handle(const Key& key) noexcept {
         std::lock_guard<std::mutex> lock(mutex_);
         map_.erase(key);
+    }
+
+    void register_handles(const std::vector<Handle>& handles) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        for (const Handle& h : handles) {
+            if (h) {
+                map_[*h] = h;
+            }
+        }
     }
 
     Handle lookup(const Key& key) {
@@ -716,6 +784,97 @@ StreamHandle get_per_thread_stream() {
 }
 
 // ============================================================================
+// Deallocation streams
+//
+// A DeallocationStream is a StreamHandle used for ordering frees. It differs
+// from an ordinary StreamHandle only for default-stream tokens, for which it
+// stores the (de)allocation context. Ordinarily, the LEGACY and PER_THREAD
+// default streams resolve to whichever context is active at the time they are
+// used, but for storing deallocation recipes we need to pin the context. With
+// the PER_THREAD token, it is not possible to restore the original stream when
+// deallocation runs on a different thread. Therefore, in that case the
+// allocating host thread id is also stored so that cross-thread frees can be
+// detected and warnings can be issued.
+// ============================================================================
+
+// ptds_tid is std::thread::id{} except for CU_STREAM_PER_THREAD.
+struct DeallocationStream {
+    StreamHandle h_stream;
+    std::thread::id ptds_tid{};
+};
+
+// Real streams are copied unchanged. Default-stream tokens without an embedded
+// context are bound to the current context. Returns false (and sets err) when a
+// default-stream token cannot be bound because no context is current.
+static bool make_deallocation_stream(
+        const StreamHandle& h, DeallocationStream& out) noexcept {
+    out = {};
+    if (!h) {
+        return true;
+    }
+
+    const CUstream stream = as_cu(h);
+    if (stream != nullptr
+            && stream != CU_STREAM_LEGACY
+            && stream != CU_STREAM_PER_THREAD) {
+        out = DeallocationStream{h, {}};
+        return true;
+    }
+
+    StreamHandle h_bound = h;
+    if (!get_stream_context(h)) {
+        ContextHandle h_ctx = get_current_context();
+        if (!h_ctx) {
+            if (err == CUDA_SUCCESS) {
+                err = CUDA_ERROR_INVALID_CONTEXT;
+            }
+            return false;
+        }
+        // Do not register in stream_registry: the token value alone is not
+        // a unique stream identity (context is part of the meaning).
+        auto box = std::shared_ptr<const StreamBox>(
+            new StreamBox{stream, h_ctx});
+        h_bound = StreamHandle(box, &box->resource);
+    }
+
+    std::thread::id ptds_tid{};
+    if (stream == CU_STREAM_PER_THREAD) {
+        ptds_tid = std::this_thread::get_id();
+    }
+    out = DeallocationStream{std::move(h_bound), ptds_tid};
+    return true;
+}
+
+template <typename Fn>
+CUresult with_deallocation_context(
+        const DeallocationStream& stream,
+        const char* operation,
+        Fn&& fn) noexcept {
+    if (stream.ptds_tid != std::thread::id{}
+            && stream.ptds_tid != std::this_thread::get_id()) {
+        std::fprintf(
+            stderr,
+            "Warning: Buffer deallocation for a per-thread default stream "
+            "is running on a different host thread than the one that recorded "
+            "the deallocation stream; ordering relative to the allocating "
+            "thread's PTDS is not preserved\n");
+    }
+    ScopedCurrentContext context(get_stream_context(stream.h_stream));
+    CUresult status = context.status();
+    if (status == CUDA_SUCCESS) {
+        status = fn(stream);
+    }
+    if (status != CUDA_SUCCESS) {
+        std::fprintf(
+            stderr,
+            "Warning: %s failed during resource destruction (CUDA error %d)\n",
+            operation,
+            static_cast<int>(status));
+    }
+    return status;
+}
+
+// ============================================================================
 // Event Handles
 // ============================================================================
 
@@ -902,10 +1061,10 @@ MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType han
 namespace {
 struct DevicePtrBox {
     CUdeviceptr resource;
-    // Mutable to allow set_deallocation_stream() to update the stream
-    // through a const DevicePtrHandle. The stream can be changed after
-    // allocation (e.g., to synchronize deallocation with a different stream).
-    mutable StreamHandle h_stream;
+    // Mutable so set_deallocation_stream() can update free ordering through a
+    // const DevicePtrHandle. Built with make_deallocation_stream so default-
+    // stream tokens carry a bound context.
+    mutable DeallocationStream deallocation;
 };
 }  // namespace
 
@@ -913,7 +1072,7 @@ struct DevicePtrBox {
 // This works because DevicePtrHandle is a shared_ptr alias pointing to
 // &box->resource, so we can compute the containing struct using offsetof.
 // The const_cast is safe because we only use this to access the mutable
-// h_stream member or in the deleter (where the box is being destroyed).
+// deallocation member or in the deleter (where the box is being destroyed).
 static DevicePtrBox* get_box(const DevicePtrHandle& h) {
     const CUdeviceptr* p = h.get();
     return reinterpret_cast<DevicePtrBox*>(
@@ -922,11 +1081,20 @@ static DevicePtrBox* get_box(const DevicePtrHandle& h) {
 }
 
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept {
-    return get_box(h)->h_stream;
+    return get_box(h)->deallocation.h_stream;
 }
 
-void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept {
-    get_box(h)->h_stream = h_stream;
+CUresult set_deallocation_stream(
+        const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept {
+    if (!h) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    DeallocationStream ds;
+    if (!make_deallocation_stream(h_stream, ds)) {
+        return err != CUDA_SUCCESS ? err : CUDA_ERROR_INVALID_CONTEXT;
+    }
+    get_box(h)->deallocation = std::move(ds);
+    return CUDA_SUCCESS;
 }
 
 DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h_pool, const StreamHandle& h_stream) {
@@ -936,11 +1104,23 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h
         return {};
     }
 
+    DeallocationStream ds;
+    if (!make_deallocation_stream(h_stream, ds)) {
+        p_cuMemFreeAsync(ptr, as_cu(h_stream));
+        return {};
+    }
+
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, h_stream},
+        new DevicePtrBox{ptr, std::move(ds)},
         [h_pool](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
+            with_deallocation_context(
+                b->deallocation,
+                "cuMemFreeAsync",
+                [b](const DeallocationStream& stream) {
+                    return p_cuMemFreeAsync(
+                        b->resource, as_cu(stream.h_stream));
+                });
             delete b;
         }
     );
@@ -954,11 +1134,23 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream)
         return {};
     }
 
+    DeallocationStream ds;
+    if (!make_deallocation_stream(h_stream, ds)) {
+        p_cuMemFreeAsync(ptr, as_cu(h_stream));
+        return {};
+    }
+
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, h_stream},
+        new DevicePtrBox{ptr, std::move(ds)},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
+            with_deallocation_context(
+                b->deallocation,
+                "cuMemFreeAsync",
+                [b](const DeallocationStream& stream) {
+                    return p_cuMemFreeAsync(
+                        b->resource, as_cu(stream.h_stream));
+                });
             delete b;
         }
     );
@@ -973,7 +1165,7 @@ DevicePtrHandle deviceptr_alloc(size_t size) {
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, StreamHandle{}},
+        new DevicePtrBox{ptr, DeallocationStream{}},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
             p_cuMemFree(b->resource);
@@ -991,7 +1183,7 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), StreamHandle{}},
+        new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), DeallocationStream{}},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
             p_cuMemFreeHost(reinterpret_cast<void*>(b->resource));
@@ -1002,7 +1194,7 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
 }
 
 DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr) {
-    auto box = std::make_shared<DevicePtrBox>(DevicePtrBox{ptr, StreamHandle{}});
+    auto box = std::make_shared<DevicePtrBox>(DevicePtrBox{ptr, DeallocationStream{}});
     return DevicePtrHandle(box, &box->resource);
 }
 
@@ -1018,7 +1210,7 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
     }
     Py_INCREF(owner);
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, StreamHandle{}},
+        new DevicePtrBox{ptr, DeallocationStream{}},
         [owner](DevicePtrBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
@@ -1035,12 +1227,22 @@ DevicePtrHandle deviceptr_create_mapped_graphics(
     const GraphicsResourceHandle& h_resource,
     const StreamHandle& h_stream
 ) {
+    DeallocationStream ds;
+    if (!make_deallocation_stream(h_stream, ds)) {
+        return {};
+    }
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, h_stream},
+        new DevicePtrBox{ptr, std::move(ds)},
         [h_resource](DevicePtrBox* b) {
             GILReleaseGuard gil;
             CUgraphicsResource resource = as_cu(h_resource);
-            p_cuGraphicsUnmapResources(1, &resource, as_cu(b->h_stream));
+            with_deallocation_context(
+                b->deallocation,
+                "cuGraphicsUnmapResources",
+                [b, &resource](const DeallocationStream& stream) {
+                    return p_cuGraphicsUnmapResources(
+                        1, &resource, as_cu(stream.h_stream));
+                });
             delete b;
         }
     );
@@ -1068,12 +1270,19 @@ DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject*
     }
     Py_INCREF(mr);
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, StreamHandle{}},
+        new DevicePtrBox{ptr, DeallocationStream{}},
         [mr, size](DevicePtrBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
                 if (mr_dealloc_cb) {
-                    mr_dealloc_cb(mr, b->resource, size, b->h_stream);
+                    with_deallocation_context(
+                        b->deallocation,
+                        "MemoryResource deallocate",
+                        [mr, size, b](const DeallocationStream& stream) {
+                            mr_dealloc_cb(
+                                mr, b->resource, size, stream.h_stream);
+                            return CUDA_SUCCESS;
+                        });
                 }
                 Py_DECREF(mr);
             }
@@ -1161,12 +1370,24 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
             return {};
         }
 
+        DeallocationStream ds;
+        if (!make_deallocation_stream(h_stream, ds)) {
+            p_cuMemFreeAsync(ptr, as_cu(h_stream));
+            return {};
+        }
+
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, h_stream},
+            new DevicePtrBox{ptr, std::move(ds)},
             [h_pool, key](DevicePtrBox* b) {
                 ipc_ptr_cache.unregister_handle(key);
                 GILReleaseGuard gil;
-                p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
+                with_deallocation_context(
+                    b->deallocation,
+                    "cuMemFreeAsync",
+                    [b](const DeallocationStream& stream) {
+                        return p_cuMemFreeAsync(
+                            b->resource, as_cu(stream.h_stream));
+                    });
                 delete b;
             }
         );
@@ -1181,11 +1402,23 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
             return {};
         }
 
+        DeallocationStream ds;
+        if (!make_deallocation_stream(h_stream, ds)) {
+            p_cuMemFreeAsync(ptr, as_cu(h_stream));
+            return {};
+        }
+
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, h_stream},
+            new DevicePtrBox{ptr, std::move(ds)},
             [h_pool](DevicePtrBox* b) {
                 GILReleaseGuard gil;
-                p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
+                with_deallocation_context(
+                    b->deallocation,
+                    "cuMemFreeAsync",
+                    [b](const DeallocationStream& stream) {
+                        return p_cuMemFreeAsync(
+                            b->resource, as_cu(stream.h_stream));
+                    });
                 delete b;
             }
         );
@@ -1341,7 +1574,8 @@ struct GraphHierarchy {
 };
 
 // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
-static HandleRegistry<CUgraph, GraphHandle> graph_registry;
+using GraphRegistry = HandleRegistry<CUgraph, GraphHandle>;
+static GraphRegistry graph_registry;
 
 // Immutable resource owners for one version of a graph node's parameters.
 // Inheriting DeferredCleanupItem lets CUDA's user-object destructor enqueue
@@ -1404,52 +1638,71 @@ CUresult rekey_attachments(
     return CUDA_SUCCESS;
 }
 
-// Recursively copy and rekey attachments for a cloned graph hierarchy.
-// The caller must release the GIL before calling this function.
-CUresult copy_attachments(
+struct StagedGraphMetadata {
+    const GraphBox* source;
+    GraphBox* clone;
+    GraphAttachmentMap* attachments;
+};
+using StagedGraphMetadataList = std::vector<StagedGraphMetadata>;
+
+// Copy a source hierarchy into detached metadata before CUDA mutation.
+void stage_graph_metadata(
         const GraphBox& source,
         GraphBox& clone,
         GraphAttachmentMap& attachments,
-        std::list<GraphBox>& subgraphs) {
-    if (!p_cuGraphNodeFindInClone || !p_cuGraphChildGraphNodeGetGraph) {
-        return CUDA_ERROR_NOT_SUPPORTED;
-    }
-
+        std::list<GraphBox>& subgraphs,
+        StagedGraphMetadataList& staged) {
     attachments = source.attachments;
-    CUresult status = rekey_attachments(attachments, clone.resource);
-    if (status != CUDA_SUCCESS) {
-        return status;
-    }
+    staged.push_back({&source, &clone, &attachments});
 
     for (const GraphBox& source_child : source.hierarchy->graphs) {
         if (source_child.parent != &source || !source_child.resource) {
             continue;
         }
-
-        CUgraphNode cloned_owner = nullptr;
-        status = p_cuGraphNodeFindInClone(
-            &cloned_owner, source_child.owner_node, clone.resource);
-        if (status != CUDA_SUCCESS) {
-            return status;
-        }
-
-        CUgraph cloned_graph = nullptr;
-        status = p_cuGraphChildGraphNodeGetGraph(
-            cloned_owner, &cloned_graph);
-        if (status != CUDA_SUCCESS) {
-            return status;
-        }
-
         GraphBox& cloned_child = subgraphs.emplace_back(
-            cloned_graph,
+            nullptr,
             clone.hierarchy,
             &clone,
-            cloned_owner);
-        status = copy_attachments(
+            nullptr);
+        stage_graph_metadata(
             source_child,
             cloned_child,
             cloned_child.attachments,
-            subgraphs);
+            subgraphs,
+            staged);
+    }
+}
+
+// Bind staged metadata to a CUDA-cloned hierarchy. The root clone resource
+// must be populated before entry. The caller must release the GIL.
+CUresult rekey_graph_metadata(
+        StagedGraphMetadataList& staged) {
+    if (!p_cuGraphNodeFindInClone || !p_cuGraphChildGraphNodeGetGraph) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+
+    CUresult status;
+    for (size_t i = 0; i < staged.size(); ++i) {
+        const GraphBox& source = *staged[i].source;
+        GraphBox& clone = *staged[i].clone;
+        if (i != 0) {
+            CUgraphNode cloned_owner = nullptr;
+            status = p_cuGraphNodeFindInClone(
+                &cloned_owner,
+                source.owner_node,
+                clone.parent->resource);
+            if (status == CUDA_SUCCESS) {
+                status = p_cuGraphChildGraphNodeGetGraph(
+                    cloned_owner, &clone.resource);
+            }
+            if (status != CUDA_SUCCESS) {
+                return status;
+            }
+            clone.owner_node = cloned_owner;
+        }
+
+        status = rekey_attachments(
+            *staged[i].attachments, clone.resource);
         if (status != CUDA_SUCCESS) {
             return status;
         }
@@ -1497,6 +1750,29 @@ void rollback_prepared_attachment(
     delete state;
 }
 
+// Detached metadata for a replacement embedded graph hierarchy. Preparation
+// copies every attachment map and allocates every GraphBox before CUDA destroys
+// the old embedded graph. Commit only rekeys and publishes it.
+struct PreparedChildGraphUpdateState {
+    GraphHandle h_parent;
+    GraphHandle h_source;
+    GraphBox* old_root = nullptr;
+    CUgraphNode owner_node = nullptr;
+    std::list<GraphBox> replacement;
+    StagedGraphMetadataList staged;
+    std::vector<GraphHandle> handles;
+
+    PreparedChildGraphUpdateState(
+            GraphHandle h_parent_,
+            GraphHandle h_source_,
+            GraphBox* old_root_,
+            CUgraphNode owner_node_)
+        : h_parent(std::move(h_parent_)),
+          h_source(std::move(h_source_)),
+          old_root(old_root_),
+          owner_node(owner_node_) {}
+};
+
 GraphHandle create_graph_handle(CUgraph graph) {
     if (!graph) {
         return {};
@@ -1543,13 +1819,110 @@ GraphHandle create_child_graph_handle(
         child_graph, hierarchy, parent, owner_node);
 
     GraphHandle h_child(h_parent, &child.resource);
-    try {
-        graph_registry.register_handle(child_graph, h_child);
-    } catch (...) {
-        hierarchy->graphs.pop_back();
-        throw;
-    }
+    graph_registry.register_handle(child_graph, h_child);
     return h_child;
+}
+
+CUresult graph_prepare_child_graph_update(
+        const GraphHandle& h_parent,
+        const GraphHandle& h_old_child,
+        CUgraphNode owner_node,
+        const GraphHandle& h_source,
+        PreparedChildGraphUpdate* out_prepared) {
+    if (!h_parent || !h_old_child || !owner_node ||
+        !h_source || !out_prepared) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    out_prepared->reset();
+
+    GraphBox* parent = get_box(h_parent);
+    GraphBox* old_root = get_box(h_old_child);
+    GraphBox* source = get_box(h_source);
+    // A source from the destination hierarchy can include the old embedded
+    // subtree whose raw node keys CUDA destroys during replacement.
+    if (!parent->resource || !old_root->resource || !source->resource ||
+        old_root->parent != parent ||
+        old_root->owner_node != owner_node ||
+        source->hierarchy == parent->hierarchy) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    PreparedChildGraphUpdate prepared =
+        std::make_shared<PreparedChildGraphUpdateState>(
+            h_parent, h_source, old_root, owner_node);
+
+    GraphBox& replacement_root =
+        prepared->replacement.emplace_back(
+            nullptr, parent->hierarchy, parent, owner_node);
+    stage_graph_metadata(
+        *source,
+        replacement_root,
+        replacement_root.attachments,
+        prepared->replacement,
+        prepared->staged);
+
+    const size_t graph_count = prepared->staged.size();
+    prepared->handles.reserve(graph_count);
+    for (const StagedGraphMetadata& graph : prepared->staged) {
+        prepared->handles.emplace_back(
+            h_parent, &graph.clone->resource);
+    }
+
+    *out_prepared = std::move(prepared);
+    return CUDA_SUCCESS;
+}
+
+void publish_child_graph_update(
+        PreparedChildGraphUpdateState& state,
+        GraphHandle* out_child) {
+    GraphBox* parent = get_box(state.h_parent);
+    parent->hierarchy->graphs.splice(
+        parent->hierarchy->graphs.end(), state.replacement);
+    *out_child = state.handles.front();
+    graph_registry.register_handles(state.handles);
+}
+
+CUresult graph_commit_child_graph_update(
+        PreparedChildGraphUpdate& prepared,
+        GraphHandle* out_child) {
+    if (!prepared || !out_child) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    out_child->reset();
+
+    PreparedChildGraphUpdateState& state = *prepared;
+    GraphBox* parent = get_box(state.h_parent);
+    if (!parent->resource || !state.old_root->resource) {
+        prepared.reset();
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    CUresult status = CUDA_ERROR_NOT_SUPPORTED;
+    CUgraph cloned_root = nullptr;
+    if (p_cuGraphChildGraphNodeGetGraph) {
+        GILReleaseGuard gil;
+        status = p_cuGraphChildGraphNodeGetGraph(
+            state.owner_node, &cloned_root);
+        if (status == CUDA_SUCCESS) {
+            state.staged.front().clone->resource = cloned_root;
+            status = rekey_graph_metadata(state.staged);
+        }
+    }
+
+    // CUDA has already destroyed the old embedded graph. No replacement
+    // metadata is visible yet, so this selects only the old generation.
+    invalidate_child_graph_state(
+        state.h_parent, state.owner_node);
+
+    if (status != CUDA_SUCCESS) {
+        prepared.reset();
+        throw std::runtime_error(
+            "failed to update graph metadata after child graph replacement");
+    }
+
+    publish_child_graph_update(state, out_child);
+    prepared.reset();
+    return status;
 }
 
 CUresult graph_get_attachment(
@@ -1727,13 +2100,22 @@ CUresult graph_clone_attachments(
 
     // Build and rekey the clone metadata off-hierarchy so a CUDA mapping error
     // cannot partially publish it.
-    GraphAttachmentMap attachments = source->attachments;
+    GraphAttachmentMap attachments;
     std::list<GraphBox> subgraphs;
+    StagedGraphMetadataList staged;
+    stage_graph_metadata(
+        *source, *clone, attachments, subgraphs, staged);
+
+    std::vector<GraphHandle> handles;
+    handles.reserve(subgraphs.size());
+    for (GraphBox& graph : subgraphs) {
+        handles.emplace_back(h_clone, &graph.resource);
+    }
+
     CUresult status;
     {
         GILReleaseGuard gil;
-        status = copy_attachments(
-            *source, *clone, attachments, subgraphs);
+        status = rekey_graph_metadata(staged);
     }
     if (status != CUDA_SUCCESS) {
         return status;
@@ -1744,13 +2126,9 @@ CUresult graph_clone_attachments(
         return CUDA_SUCCESS;
     }
 
-    auto first = subgraphs.begin();
     clone->hierarchy->graphs.splice(
         clone->hierarchy->graphs.end(), subgraphs);
-    for (auto it = first; it != clone->hierarchy->graphs.end(); ++it) {
-        GraphHandle h_graph(h_clone, &it->resource);
-        graph_registry.register_handle(it->resource, h_graph);
-    }
+    graph_registry.register_handles(handles);
     return CUDA_SUCCESS;
 }
 
@@ -1759,24 +2137,272 @@ CUresult graph_clone_attachments(
 // ============================================================================
 
 namespace {
-struct GraphExecBox {
-    CUgraphExec resource;
-};
-}  // namespace
 
-GraphExecHandle create_graph_exec_handle(CUgraphExec graph_exec) {
-    auto box = std::shared_ptr<const GraphExecBox>(
-        new GraphExecBox{graph_exec},
-        [](const GraphExecBox* b) {
-            {
+// Append-only owners introduced by individual executable-node updates. CUDA
+// owns this payload through a user object propagated into the CUgraphExec.
+struct ExecAttachments : DeferredCleanupItem {
+    CUuserObject object = nullptr;
+    std::vector<OpaqueHandle> owners;
+};
+
+struct GraphExecBox {
+    CUgraphExec resource = nullptr;
+    ExecAttachments* attachments = nullptr;  // Non-owning.
+
+    ~GraphExecBox() noexcept {
+        if (resource) {
+            GILReleaseGuard gil;
+            p_cuGraphExecDestroy(resource);
+        }
+        // The accumulator fields may be dangling after exec destruction.
+        retry_deferred_cleanup();
+    }
+};
+
+GraphExecBox* get_exec_box(const GraphExecHandle& h) noexcept {
+    return const_cast<GraphExecBox*>(
+        reinterpret_cast<const GraphExecBox*>(h.get()));
+}
+
+GraphExecHandle make_graph_exec_handle(
+        CUgraphExec graph_exec, ExecAttachments* attachments) {
+    struct RawGraphExecGuard {
+        CUgraphExec resource;
+
+        ~RawGraphExecGuard() noexcept {
+            if (resource) {
                 GILReleaseGuard gil;
-                p_cuGraphExecDestroy(b->resource);
+                p_cuGraphExecDestroy(resource);
             }
             retry_deferred_cleanup();
-            delete b;
         }
-    );
+    } guard{graph_exec};
+
+    auto box = std::make_shared<GraphExecBox>();
+    box->resource = graph_exec;
+    box->attachments = attachments;
+    guard.resource = nullptr;
     return GraphExecHandle(box, &box->resource);
+}
+
+// Holds a fresh accumulator retained on the source graph across a CUDA call
+// that propagates user objects into an exec. Releasing drops the source's
+// reference: after successful propagation the exec keeps the accumulator
+// alive, and otherwise this drops its last reference.
+struct ExecAttachmentStaging {
+    GraphHandle h_source;
+    ExecAttachments* accumulator = nullptr;
+
+    ~ExecAttachmentStaging() noexcept {
+        release();
+    }
+
+    CUresult release() noexcept {
+        if (!h_source || !accumulator) {
+            return CUDA_SUCCESS;
+        }
+        const CUuserObject object = accumulator->object;
+        const GraphHandle source = std::move(h_source);
+        accumulator = nullptr;
+        GILReleaseGuard gil;
+        return p_cuGraphReleaseUserObject(*source, object, 1);
+    }
+};
+
+// Create an accumulator and retain it on h_source, so that a following
+// instantiation or whole-graph update propagates a reference into the exec.
+CUresult stage_exec_attachments(
+        const GraphHandle& h_source, ExecAttachmentStaging* out_staging) {
+    if (!p_cuUserObjectCreate || !p_cuUserObjectRelease ||
+        !p_cuGraphRetainUserObject || !p_cuGraphReleaseUserObject) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+
+    ensure_deferred_cleanup_ready();
+    auto* accumulator = new ExecAttachments;
+
+    CUuserObject object = nullptr;
+    CUresult status;
+    {
+        GILReleaseGuard gil;
+        status = p_cuUserObjectCreate(
+            &object,
+            static_cast<DeferredCleanupItem*>(accumulator),
+            reinterpret_cast<CUhostFn>(enqueue_cleanup),
+            1,
+            CU_USER_OBJECT_NO_DESTRUCTOR_SYNC);
+        if (status != CUDA_SUCCESS) {
+            delete accumulator;
+            return status;
+        }
+        accumulator->object = object;
+        status = p_cuGraphRetainUserObject(
+            *h_source, object, 1, CU_GRAPH_USER_OBJECT_MOVE);
+        if (status != CUDA_SUCCESS) {
+            // Dropping the last reference retires the accumulator.
+            p_cuUserObjectRelease(object, 1);
+            return status;
+        }
+    }
+
+    out_staging->h_source = h_source;
+    out_staging->accumulator = accumulator;
+    return CUDA_SUCCESS;
+}
+
+}  // namespace
+
+// State held by PreparedExecAttachment between preparation and commit. It keeps
+// the exec alive and remembers the accumulator size before the append, so that
+// rollback can drop owners staged for a mutation that CUDA rejected.
+struct PreparedExecAttachmentState {
+    GraphExecHandle h_exec;
+    ExecAttachments* attachments = nullptr;
+    size_t original_size = 0;
+
+    PreparedExecAttachmentState(
+            GraphExecHandle h_exec_,
+            ExecAttachments* attachments_,
+            size_t original_size_)
+        : h_exec(std::move(h_exec_)),
+          attachments(attachments_),
+          original_size(original_size_) {}
+};
+
+void rollback_prepared_exec_attachment(
+        PreparedExecAttachmentState* state) noexcept {
+    if (!state) {
+        return;
+    }
+    if (state->attachments) {
+        while (state->attachments->owners.size() > state->original_size) {
+            state->attachments->owners.pop_back();
+        }
+    }
+    delete state;
+}
+
+GraphExecHandle create_graph_exec_handle(
+        const GraphHandle& h_source,
+        CUDA_GRAPH_INSTANTIATE_PARAMS* params) {
+    if (!h_source || !*h_source || !params) {
+        err = CUDA_ERROR_INVALID_VALUE;
+        return {};
+    }
+    if (!p_cuGraphInstantiateWithParams) {
+        err = CUDA_ERROR_NOT_SUPPORTED;
+        return {};
+    }
+
+    ExecAttachmentStaging staging;
+    if (CUDA_SUCCESS != (err = stage_exec_attachments(h_source, &staging))) {
+        return {};
+    }
+
+    CUgraphExec graph_exec = nullptr;
+    {
+        GILReleaseGuard gil;
+        err = p_cuGraphInstantiateWithParams(&graph_exec, *h_source, params);
+    }
+    if (err != CUDA_SUCCESS) {
+        return {};
+    }
+    // CUDA can report a specific failure while returning success. The exec is
+    // then unusable, so it stays unadopted for the caller to diagnose from
+    // params->result_out.
+    if (params->result_out != CUDA_GRAPH_INSTANTIATE_SUCCESS) {
+        return {};
+    }
+    if (!graph_exec) {
+        err = CUDA_ERROR_INVALID_VALUE;
+        return {};
+    }
+
+    GraphExecHandle h_exec = make_graph_exec_handle(
+        graph_exec, staging.accumulator);
+    if (CUDA_SUCCESS != (err = staging.release())) {
+        return {};
+    }
+    return h_exec;
+}
+
+CUresult graph_exec_update(
+        const GraphExecHandle& h_exec,
+        const GraphHandle& h_source,
+        CUgraphExecUpdateResultInfo* result_info) {
+    if (!h_exec || !h_source || !*h_source || !result_info) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    if (!p_cuGraphExecUpdate) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+
+    GraphExecBox* box = get_exec_box(h_exec);
+    if (!box->resource) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    ExecAttachmentStaging staging;
+    CUresult status = stage_exec_attachments(h_source, &staging);
+    if (status != CUDA_SUCCESS) {
+        return status;
+    }
+
+    {
+        GILReleaseGuard gil;
+        status = p_cuGraphExecUpdate(box->resource, *h_source, result_info);
+    }
+    if (status != CUDA_SUCCESS) {
+        return status;
+    }
+
+    // CUDA may already have retired the old accumulator. Publish the new one
+    // before releasing the source graph's temporary reference.
+    box->attachments = staging.accumulator;
+    return staging.release();
+}
+
+CUresult graph_prepare_exec_attachment(
+        const GraphExecHandle& h_exec,
+        OpaqueHandle owner0,
+        OpaqueHandle owner1,
+        PreparedExecAttachment* out_prepared) {
+    if (!out_prepared) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    out_prepared->reset();
+    if (!h_exec) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    GraphExecBox* box = get_exec_box(h_exec);
+    if (!box->resource || !box->attachments) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    ExecAttachments* attachments = box->attachments;
+    const size_t original_size = attachments->owners.size();
+    const size_t additions =
+        static_cast<size_t>(static_cast<bool>(owner0)) +
+        static_cast<size_t>(static_cast<bool>(owner1));
+    // Reserve before staging so that rollback and commit cannot allocate.
+    attachments->owners.reserve(original_size + additions);
+    PreparedExecAttachment prepared(
+        new PreparedExecAttachmentState(h_exec, attachments, original_size),
+        PreparedExecAttachmentDeleter{rollback_prepared_exec_attachment});
+    if (owner0) {
+        attachments->owners.emplace_back(std::move(owner0));
+    }
+    if (owner1) {
+        attachments->owners.emplace_back(std::move(owner1));
+    }
+    *out_prepared = std::move(prepared);
+    return CUDA_SUCCESS;
+}
+
+void graph_commit_exec_attachment(
+        PreparedExecAttachment& prepared) noexcept {
+    delete prepared.release();
 }
 
 namespace {
@@ -2213,6 +2839,27 @@ CUresult sm_resource_split(CUdevResource* result, unsigned int nbGroups,
 
 bool has_sm_resource_split() noexcept {
     return p_cuDevSmResourceSplit != nullptr;
+}
+
+// ============================================================================
+// cuMemcpyWithAttributesAsync wrapper
+// ============================================================================
+
+CUresult memcpy_with_attributes_async(CUdeviceptr dst, CUdeviceptr src, size_t size,
+                                       void* attr, CUstream hStream) {
+#if CUDA_VERSION >= 13020
+    if (!p_cuMemcpyWithAttributesAsync) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+    return p_cuMemcpyWithAttributesAsync(
+        dst, src, size, static_cast<CUmemcpyAttributes*>(attr), hStream);
+#else
+    return CUDA_ERROR_NOT_SUPPORTED;
+#endif
+}
+
+bool has_memcpy_with_attributes_async() noexcept {
+    return p_cuMemcpyWithAttributesAsync != nullptr;
 }
 
 }  // namespace cuda_core

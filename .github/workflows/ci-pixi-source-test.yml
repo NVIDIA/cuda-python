@@ -15,6 +15,11 @@
 #   - build-smoke (PRs): CPU-only. Source-builds bindings + core, imports them,
 #     builds the cython test extensions and checks placement. Catches the
 #     compile / ABI / .so-placement regressions WITHOUT a GPU.
+#   - build-identity-roundtrip (nightly + manual): CPU-only. cu13 -> cu12 ->
+#     cu13 in one checkout, so build artifacts cannot be reused across CUDA
+#     majors. Kept off PRs to avoid adding another job to the org's shared
+#     concurrent-job quota; the fast unit tests in
+#     cuda_core/tests/test_build_hooks.py cover the same intent per-PR.
 #   - full-test (nightly + manual): GPU runner, full `pixi run test`.
 
 name: "CI: pixi run test (source build)"
@@ -62,7 +67,9 @@ jobs:
   # ── PR guard: CPU-only build + import + placement smoke ──
   build-smoke:
     name: "build smoke (cu13, linux-64, CPU)"
-    if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
+    if: >-
+      github.repository_owner == 'nvidia' &&
+      (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -108,6 +115,63 @@ jobs:
           done
           echo "cython test extensions placed correctly"
 
+  # ── Nightly guard: build artifacts must be CUDA-major aware ──
+  #
+  # Neither Cython nor setuptools tracks the CUDA major in its own up-to-date
+  # check: Cython does not hash `compile_time_env`, and an editable install's
+  # .so is named by the Python ABI tag alone. Before build_hooks keyed them,
+  # a cu13 build followed by a cu12 build in the same checkout failed while
+  # compiling cu13-generated C++ against CUDA 12 headers.
+  #
+  # The round trip (not just cu13 -> cu12) is what catches the second half:
+  # coming back to cu13 must not silently reuse the cu12 extension.
+  #
+  # cuda_core only: cuda_bindings cannot be source-built in its cu12
+  # environment at all, for reasons unrelated to stale artifacts.
+  build-identity-roundtrip:
+    name: "cu13 -> cu12 -> cu13 round trip (linux-64, CPU)"
+    if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.repository_owner == 'nvidia' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          # Full history + tags so setuptools-scm derives the real (13.x)
+          # package version; a shallow checkout yields 0.1.dev1, which trips
+          # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
+          fetch-depth: 0
+
+      - name: Setup pixi
+        # Pinned to a commit SHA; install logic lives in the action and is
+        # auditable/pinned (vs. a curl|bash of an unverified installer).
+        uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
+        with:
+          pixi-version: ${{ env.PIXI_VERSION }}
+          run-install: false
+
+      - name: Build cu13, then cu12, then cu13 again in one checkout
+        run: |
+          for cuda_env in cu13 cu12 cu13; do
+            echo "::group::${cuda_env}"
+            pixi run --manifest-path cuda_core -e "${cuda_env}" \
+              python -c "import cuda.core; print('core import OK')"
+            echo "::endgroup::"
+          done
+          # The last build was cu13, and each major must have kept its own
+          # generated sources rather than overwriting the other's.
+          stamp=$(cat cuda_core/build/.build-cuda-major)
+          if [ "${stamp}" != "13" ]; then
+            echo "::error::build stamp is '${stamp}', expected 13"
+            exit 1
+          fi
+          for major in cu12 cu13; do
+            if [ ! -d "cuda_core/build/cython/${major}" ]; then
+              echo "::error::no ${major} generated-source directory"
+              exit 1
+            fi
+          done
+
   # ── Nightly: full `pixi run test` on a GPU runner ──
   full-test:
     name: "pixi run test (${{ inputs.cuda-env || 'cu13' }}, linux-64, GPU)"
@@ -117,6 +181,8 @@ jobs:
     container:
       options: -u root --security-opt seccomp=unconfined --shm-size 16g
       image: ubuntu:24.04
+      env:
+        NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
     steps:
       - name: Ensure GPU is working
         run: nvidia-smi

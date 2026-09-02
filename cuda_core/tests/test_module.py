@@ -39,14 +39,25 @@ __global__ void saxpy(const T a,
 
 
 def _is_nvfatbin_available():
-    """Check if nvfatbin bindings are available."""
+    """Check if nvfatbin bindings are available.
+
+    Catches only the exceptions that mean "not installed / not loadable"
+    (ImportError, DynamicLibNotFoundError, FunctionNotFoundError). A
+    genuine nvfatbin API-status failure (nvFatbinError) propagates so a
+    real bug is not hidden as "unavailable".
+    """
+    from cuda.bindings._internal.utils import FunctionNotFoundError
+    from cuda.pathfinder import DynamicLibNotFoundError
+
     try:
         from cuda.bindings import nvfatbin
-
-        nvfatbin.version()
-        return True
-    except Exception:
+    except ImportError:
         return False
+    try:
+        nvfatbin.version()
+    except (DynamicLibNotFoundError, FunctionNotFoundError):
+        return False
+    return True
 
 
 nvfatbin_available = pytest.mark.skipif(not _is_nvfatbin_available(), reason="nvfatbin bindings not available")
@@ -282,6 +293,21 @@ def test_get_kernel(init_cuda):
     assert object_code.get_kernel(b"ABC").handle is not None
 
 
+def test_object_code_get_module_for_legacy_integration(init_cuda):
+    src = """
+    extern "C" __global__ void ABC() { }
+    extern "C" __global__ void DEF() { }
+    """
+    object_code = Program(src, "c++").compile("cubin")
+
+    # Bridge: CUlibrary (new) → CUmodule (legacy)
+    module = object_code.get_module()
+
+    # Legacy module-only API consumes it directly
+    count = handle_return(driver.cuModuleGetFunctionCount(module))
+    assert count == 2
+
+
 @pytest.mark.parametrize(
     "attr, expected_type",
     [
@@ -486,7 +512,7 @@ def test_object_code_load_rdc_with_linker(kind, from_fn, init_cuda):
     host_buf = cuda.core.LegacyPinnedMemoryResource().allocate(4)
     result = np.from_dlpack(host_buf).view(np.float32)
     result[:] = 0.0
-    dev_buf = init_cuda.memory_resource.allocate(4, stream=init_cuda.default_stream)
+    dev_buf = init_cuda.memory_resource.allocate(4, stream=stream)
 
     cuda.core.launch(
         stream,
@@ -865,7 +891,7 @@ def test_kernel_keeps_library_alive(init_cuda):
     result = np.from_dlpack(host_buf).view(np.int32)
     result[:] = 0
 
-    dev_buf = device.memory_resource.allocate(4, stream=device.default_stream)
+    dev_buf = device.memory_resource.allocate(4, stream=stream)
 
     # Launch kernel
     config = cuda.core.LaunchConfig(grid=1, block=1)
