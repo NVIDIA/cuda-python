@@ -1,13 +1,16 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 import threading
 import warnings
+
+from ._envvar import envvar_bool
 
 # Track whether we've already checked major version compatibility
 _major_version_compatibility_checked = False
 _lock = threading.Lock()
+
+_DISABLE_WARNING_ENV_VAR = "CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING"
 
 
 def warn_if_cuda_major_version_mismatch():
@@ -21,7 +24,8 @@ def warn_if_cuda_major_version_mismatch():
     The check runs only once per process. Subsequent calls are no-ops.
 
     The warning can be suppressed by setting the environment variable
-    ``CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING=1``.
+    ``CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING=1``. Setting it to ``0`` (or
+    leaving it unset or empty) keeps the warning enabled.
     """
     global _major_version_compatibility_checked
     if _major_version_compatibility_checked:
@@ -32,7 +36,7 @@ def warn_if_cuda_major_version_mismatch():
         _major_version_compatibility_checked = True
 
     # Allow users to suppress the warning
-    if os.environ.get("CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING"):
+    if envvar_bool(_DISABLE_WARNING_ENV_VAR):
         return
 
     # Import here to avoid circular imports and allow lazy loading
@@ -55,7 +59,7 @@ def warn_if_cuda_major_version_mismatch():
             f"NVIDIA driver only supports up to CUDA {runtime_major}. Some cuda-bindings "
             f"features may not work correctly. Consider updating your NVIDIA driver, "
             f"or using a cuda-bindings version built for CUDA {runtime_major}. "
-            f"(Set CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING=1 to suppress this warning.)",
+            f"(Set {_DISABLE_WARNING_ENV_VAR}=1 to suppress this warning.)",
             UserWarning,
             stacklevel=3,
         )

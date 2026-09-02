@@ -8,6 +8,8 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+import cython
+
 from cuda.bindings cimport cydriver
 from cuda.core._device_resources cimport DeviceResources, SMResource, WorkqueueResource
 from cuda.core._device_resources import SMResource, WorkqueueResource
@@ -99,6 +101,7 @@ cdef class Context:
         Context_check_open(self)
         return DeviceResources._init_from_ctx(self._h_context, self._device_id)
 
+    @cython.annotation_typing(False)
     def create_stream(self, options: StreamOptions | None = None) -> Stream:
         """Create a new stream bound to this green context.
 

@@ -1082,6 +1082,62 @@ def test_nvrtc_debug_concurrent_compile_uses_unique_temp_files(init_cuda):
         assert not os.path.isfile(name)
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_nvrtc_debug_preserves_quoted_include_resolution(init_cuda, tmp_path, monkeypatch):
+    """A quoted #include keeps resolving once debug redirects the NVRTC name (issue #2422).
+
+    NVRTC looks for #include "..." in the directory of the name it was handed, so
+    pointing that name at a temp .cu moves the search away from where the header
+    lives and turning debug on alone breaks a compile that worked without it.
+    """
+    import os
+
+    (tmp_path / "local.h").write_text("#define BUMP 7\n", encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    code = '#include "local.h"\nextern "C" __global__ void matmul(int* out) { *out = BUMP; }\n'
+
+    for debug in (False, True):
+        prog = Program(code, "c++", ProgramOptions(arch="sm_80", debug=debug))
+        try:
+            name = prog.compile("ptx").name
+        finally:
+            prog.close()
+        if debug:
+            # Only a regression test while the name really does move out of the
+            # directory holding local.h; otherwise it would pass for free.
+            assert os.path.dirname(os.path.realpath(name)) != os.path.realpath(tmp_path)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("debug", [False, True])
+def test_nvrtc_debug_keeps_file_the_caller_named(init_cuda, tmp_path, debug):
+    """Program only unlinks a temp file it wrote itself (issue #2422).
+
+    The name handed to NVRTC doubled as the cleanup target, so a name pointing at
+    a file that already existed made teardown delete the caller's own source.
+    """
+    import gc
+
+    source = tmp_path / "matmul.cu"
+    contents = "// the caller's own file\n"
+    source.write_text(contents, encoding="utf-8")
+    code = 'extern "C" __global__ void matmul() {}'
+    options = ProgramOptions(arch="sm_80", name=str(source), debug=debug)
+
+    prog = Program(code, "c++", options)
+    prog.compile("ptx")
+    prog.close()
+    assert source.is_file(), "close() deleted a file the caller owns"
+
+    # __dealloc__ runs the same cleanup, so collection must spare it too.
+    prog = Program(code, "c++", options)
+    prog.compile("ptx")
+    del prog
+    gc.collect()
+    assert source.is_file(), "collection deleted a file the caller owns"
+    assert source.read_text(encoding="utf-8") == contents
+
+
 @pytest.mark.agent_authored(model="cursor-grok-4.6")
 def test_cuda_gdb_shows_nvrtc_debug_source_lines(init_cuda):
     import pathlib
