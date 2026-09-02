@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.UUIDType
+===========================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: UUIDType

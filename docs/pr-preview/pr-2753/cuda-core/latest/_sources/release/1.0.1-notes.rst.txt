@@ -1,0 +1,26 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 1.0.1 Release Notes
+=================================
+
+
+Fixes and enhancements
+----------------------
+
+- Fixed ``ImportError`` when importing ``cuda.core`` with
+  ``cuda-bindings`` 13.0.x due to an unavailable driver function
+  (``cuDevSmResourceSplit``).
+  (`#2063 <https://github.com/NVIDIA/cuda-python/issues/2063>`__,
+  `#2064 <https://github.com/NVIDIA/cuda-python/pull/2064>`__)
+- When iterating over MIG devices with
+  ``cuda.core.system.Device.mig.get_all_devices``, only available MIG devices will
+  be returned. Previously, if any MIG device was unavailable, an exception would
+  be raised. (`#2065 <https://github.com/NVIDIA/cuda-python/issues/2065>`__)
+- When converting an NVML device (``cuda.core.system.Device``) to a CUDA device
+  (``cuda.core.Device``), using ``cuda.core.system.Device.to_cuda_device``, if the
+  device does not have a matching CUDA device, a ``RuntimeError`` will be raised.
+  Previously, a ``cuda.core.system.InvalidArgumentError`` would be raised.  For
+  example, this may happen for physical devices on a MIG system.
