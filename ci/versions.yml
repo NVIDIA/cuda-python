@@ -9,12 +9,9 @@ cuda:
       released-12:
         source_dir: cuda_bindings_12
         toolkit_version: "12.9.1"
-        allow_alpha_beta_tags: false
       released-13:
         source_dir: cuda_bindings
         toolkit_version: "13.3.0"
-        allow_alpha_beta_tags: true
     roles:
       current: released-13
-      maintenance:
-        - released-12
+      maintenance: released-12

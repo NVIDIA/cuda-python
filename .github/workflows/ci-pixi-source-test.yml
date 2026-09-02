@@ -103,7 +103,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           REQUESTED_CUDA_ENV: ${{ inputs.cuda-env || '' }}
         run: |
-          bindings_lines=$(python3 ci/tools/bindings_config.py --lines)
+          bindings_lines=$(python3 -m ci.tools.bindings_config --lines)
           selected_lines='[]'
           docs_lines='[]'
 
@@ -117,7 +117,7 @@ jobs:
               selected_lines=$(jq -c --arg cuda_env "${REQUESTED_CUDA_ENV}" \
                 '[.[] | select(.cuda_variant == $cuda_env)]' <<< "${bindings_lines}")
             else
-              selected_lines=$(jq -c '[.[] | select(.roles | index("current"))]' \
+              selected_lines=$(jq -c '[.[] | select(.role == "current")]' \
                 <<< "${bindings_lines}")
             fi
             if [[ "${selected_lines}" == '[]' ]]; then
@@ -127,7 +127,7 @@ jobs:
             fi
           else
             merge_base=$(git merge-base HEAD "${BASE_SHA}")
-            workplan=$(python3 ci/tools/compute_ci_plan.py \
+            workplan=$(python3 -m ci.tools.compute_ci_plan \
               --merge-base "${merge_base}" \
               --baseline-run-id pixi-source)
 
@@ -152,7 +152,7 @@ jobs:
               representative=$(jq -c --arg cuda_variant "${cuda_variant}" '
                 ([.[] | select(
                     .cuda_variant == $cuda_variant
-                    and (.roles | index("current")) != null
+                    and .role == "current"
                   )]
                   + [.[] | select(.cuda_variant == $cuda_variant)])
                 | first // empty
@@ -290,8 +290,8 @@ jobs:
 
       - name: Build current, another ABI, then current again in one checkout
         run: |
-          current_line=$(python3 ci/tools/bindings_config.py --role current)
-          bindings_lines=$(python3 ci/tools/bindings_config.py --lines)
+          current_line=$(python3 -m ci.tools.bindings_config --role current)
+          bindings_lines=$(python3 -m ci.tools.bindings_config --lines)
           current_env=$(jq -r '.cuda_variant' <<< "${current_line}")
           current_major=$(jq -r '.cuda_major' <<< "${current_line}")
           other_env=$(jq -r --arg current_env "${current_env}" \
@@ -341,10 +341,10 @@ jobs:
         run: |
           apt-get update
           # ca-certificates + git for checkout; libgl1/libegl1 for pyglet
-          # (pulled in by the test env). PyYAML drives the bindings registry
-          # resolver; pixi itself is installed by setup-pixi.
+          # (pulled in by the test env). PyYAML and packaging drive the
+          # bindings registry resolver; pixi itself is installed by setup-pixi.
           apt-get install -y --no-install-recommends \
-            ca-certificates git jq libgl1 libegl1 python3 python3-yaml
+            ca-certificates git jq libgl1 libegl1 python3 python3-packaging python3-yaml
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -360,7 +360,7 @@ jobs:
           REQUESTED_CUDA_ENV: ${{ inputs.cuda-env || '' }}
         run: |
           if [[ -n "${REQUESTED_CUDA_ENV}" ]]; then
-            bindings_lines=$(python3 ci/tools/bindings_config.py --lines)
+            bindings_lines=$(python3 -m ci.tools.bindings_config --lines)
             if ! jq -e --arg cuda_env "${REQUESTED_CUDA_ENV}" \
               'any(.[]; .cuda_variant == $cuda_env)' <<< "${bindings_lines}" > /dev/null; then
               registered_envs=$(jq -r '[.[].cuda_variant] | unique | join(", ")' <<< "${bindings_lines}")
@@ -369,7 +369,7 @@ jobs:
             fi
             cuda_env="${REQUESTED_CUDA_ENV}"
           else
-            current_line=$(python3 ci/tools/bindings_config.py --role current)
+            current_line=$(python3 -m ci.tools.bindings_config --role current)
             cuda_env=$(jq -r '.cuda_variant' <<< "${current_line}")
           fi
           echo "CUDA_ENV=${cuda_env}" | tee -a "$GITHUB_ENV"

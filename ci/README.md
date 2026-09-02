@@ -26,21 +26,23 @@ verification procedure in that repository's own documentation.
 ## CUDA Bindings Line Registry
 
 `ci/versions.yml` is the authoritative public registry for CUDA bindings
-release lines. Each line declares its source directory, exact toolkit build/test
-pin, and prerelease-tag policy. Roles such as `current` and `maintenance` are
-orchestration aliases for those lines.
+release lines. Each line declares its source directory and exact toolkit
+build/test pin. The scalar `current` and `maintenance` roles select the two
+public lines. A source directory's `[tool.setuptools_scm].tag_regex` defines
+its accepted tag syntax and release family. Update that SCM metadata together
+with the toolkit pin when a source root moves to a new toolkit minor; registry
+validation rejects a configuration where the two disagree.
 
-Use `ci/tools/bindings_config.py` instead of reading the YAML directly. The
-resolver validates the registry and emits JSON with the configured values plus
-the derived CTK target, tag series, and CUDA ABI major/variant:
+The Python helpers are modules in the `ci.tools` package. Use
+`ci.tools.bindings_config` instead of reading the YAML directly. It validates
+the registry and emits normalized JSON with the configured values plus the
+source SCM tag regex and derived CTK target and CUDA ABI major/variant:
 
 ```console
-python ci/tools/bindings_config.py
-python ci/tools/bindings_config.py --lines
-python ci/tools/bindings_config.py --role current
+python -m ci.tools.bindings_config
+python -m ci.tools.bindings_config --lines
+python -m ci.tools.bindings_config --role current
 ```
 
-A bindings line is distinct from a CUDA ABI major, so same-major lines remain
-separate in the registry and CI plan. The public wheel builder currently
-requires one `current` line and one `maintenance` line with different ABI
-majors; it fails if the registry does not meet that narrower requirement.
+The public wheel builder requires one `current` line and one `maintenance`
+line with different CUDA ABI majors.

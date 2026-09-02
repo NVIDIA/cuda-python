@@ -58,19 +58,11 @@ repos:
         files: ^cuda_bindings(?:_[^/]+)?/
         types: [text]
 
-      - id: check-cuda-bindings-shared-files
-        name: Check shared CUDA bindings files
-        entry: python ./ci/tools/check_cuda_bindings_shared_files.py
-        language: python
-        additional_dependencies: [pyyaml==6.0.3]
-        always_run: true
-        pass_filenames: false
-
       - id: check-pixi-cuda-version
         name: Check pixi cuda-version pins track ci/versions.yml
-        entry: python ./ci/tools/check_pixi_cuda_version.py
+        entry: python -m ci.tools.check_pixi_cuda_version
         language: python
-        additional_dependencies: [pyyaml==6.0.3]
+        additional_dependencies: [packaging==26.0, pyyaml==6.0.3]
         files: '^(ci/versions\.yml|cuda_bindings(?:_[^/]+)?/pixi\.toml|cuda_core/pixi\.toml)$'
         pass_filenames: false
 

@@ -43,8 +43,8 @@ if [[ "${1}" == "build" ]]; then
   # platform is handled by the default value of platform (`auto`) in cibuildwheel
   # here we only need to specify the python version we want
   echo "CIBW_BUILD=cp${PYTHON_VERSION_FORMATTED}-*" >> $GITHUB_ENV
-  CURRENT_LINE_JSON="$(python "${TOOLS_PATH}/bindings_config.py" --role current)"
-  MAINTENANCE_LINE_JSON="$(python "${TOOLS_PATH}/bindings_config.py" --role maintenance)"
+  CURRENT_LINE_JSON="$(python -m ci.tools.bindings_config --role current)"
+  MAINTENANCE_LINE_JSON="$(python -m ci.tools.bindings_config --role maintenance)"
   json_field() {
     python -c 'import json, sys; print(json.load(sys.stdin)[sys.argv[1]])' "$1"
   }
@@ -68,7 +68,7 @@ if [[ "${1}" == "build" ]]; then
   CUDA_BINDINGS_ARTIFACT_BASENAME="${CURRENT_BINDINGS_ARTIFACT_BASENAME}"
   CUDA_BINDINGS_ARTIFACTS_DIR="$(realpath "${REPO_DIR}/${CURRENT_BINDINGS_ROOT}/dist")"
   CUDA_BINDINGS_CYTHON_TESTS_DIR="$(realpath "${REPO_DIR}/${CURRENT_BINDINGS_ROOT}/tests/cython")"
-  MAINTENANCE_SCM_VERSION="$(python "${TOOLS_PATH}/bindings_scm_version.py" \
+  MAINTENANCE_SCM_VERSION="$(python -m ci.tools.bindings_scm_version \
     --repo-root "${REPO_DIR}" \
     --line-id "${MAINTENANCE_LINE_ID}" \
     --sha "${SHA}")"
@@ -116,6 +116,11 @@ elif [[ "${1}" == "test" ]]; then
 
   TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${CUDA_VER})"
 
+  if [[ "${PATHFINDER_SOURCE:-}" != "artifact" && "${PATHFINDER_SOURCE:-}" != "published" ]]; then
+    echo "Error: PATHFINDER_SOURCE must be artifact or published, got ${PATHFINDER_SOURCE:-<unset>}" >&2
+    exit 1
+  fi
+
   if [[ "${BINDINGS_SOURCE}" == "local" ]]; then
     : "${BINDINGS_LINE_ID:?BINDINGS_LINE_ID is required for local bindings}"
     : "${BINDINGS_SOURCE_DIR:?BINDINGS_SOURCE_DIR is required for local bindings}"
@@ -143,6 +148,7 @@ elif [[ "${1}" == "test" ]]; then
     CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${BINDINGS_BUILD_CUDA_VER}-${HOST_PLATFORM}"
     CUDA_BINDINGS_ARTIFACTS_DIR="$(realpath "${REPO_DIR}/${CUDA_BINDINGS_ROOT}/dist")"
     CUDA_BINDINGS_CYTHON_TESTS_DIR="$(realpath "${REPO_DIR}/${CUDA_BINDINGS_ROOT}/tests/cython")"
+    CUDA_PYTHON_ARTIFACT_NAME="cuda-python-wheel-cuda${BINDINGS_BUILD_CUDA_VER}"
   else
     # These are unused for published bindings, but deterministic paths make
     # environment dumps and ad-hoc invocations easier to understand.
@@ -164,7 +170,10 @@ elif [[ "${1}" == "test" ]]; then
     echo "SETUP_SANITIZER=${SETUP_SANITIZER}"
     echo "BINDINGS_SOURCE=${BINDINGS_SOURCE}"
     echo "CUDA_BINDINGS_ROOT=${CUDA_BINDINGS_ROOT}"
-    echo "CUDA_PYTHON_ARTIFACT_NAME=cuda-python-wheel-cuda${BINDINGS_BUILD_CUDA_VER:-${CUDA_VER}}"
+    echo "PATHFINDER_SOURCE=${PATHFINDER_SOURCE}"
+    if [[ "${BINDINGS_SOURCE}" == "local" ]]; then
+      echo "CUDA_PYTHON_ARTIFACT_NAME=${CUDA_PYTHON_ARTIFACT_NAME}"
+    fi
     echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}"
     echo "SKIP_CYTHON_TEST=${SKIP_CYTHON_TEST}"
     echo "TEST_CUDA_MAJOR=${TEST_CUDA_MAJOR}"

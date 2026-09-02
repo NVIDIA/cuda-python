@@ -71,6 +71,7 @@ jobs:
           RELEASE_REPOSITORY: ${{ github.repository }}
           REQUESTED_RUN_ID: ${{ inputs.run-id }}
         run: |
+          set -euo pipefail
           if [[ -n "$REQUESTED_RUN_ID" ]]; then
             if [[ ! "$REQUESTED_RUN_ID" =~ ^[1-9][0-9]*$ ]]; then
               echo "::error::run-id must be a positive integer"
@@ -92,15 +93,13 @@ jobs:
             exit 1
           fi
 
-          VERSIONS_YAML=$(gh api \
-            "repos/${RELEASE_REPOSITORY}/contents/ci/versions.yml?ref=$HEAD_SHA" \
-            --jq '.content' \
-            | base64 -d)
-
-          versions_file=$(mktemp)
-          trap 'rm -f "$versions_file"' EXIT
-          printf '%s' "$VERSIONS_YAML" > "$versions_file"
-          BINDINGS_CONFIG=$(python ci/tools/bindings_config.py --config "$versions_file")
+          git fetch --depth=1 origin "$HEAD_SHA"
+          snapshot=$(mktemp -d)
+          trap 'rm -rf -- "$snapshot"' EXIT
+          git archive "$HEAD_SHA" | tar -x -C "$snapshot"
+          BINDINGS_CONFIG=$(python -m ci.tools.bindings_config \
+            --config "$snapshot/ci/versions.yml" \
+            --repo-root "$snapshot")
 
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
           echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT

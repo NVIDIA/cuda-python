@@ -14,16 +14,10 @@ import subprocess
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING
 
-if __package__:
-    from .bindings_config import load_config
-else:
-    from bindings_config import load_config
+from .bindings_config import BindingsConfigError, load_config
 
 if TYPE_CHECKING:
-    if __package__:
-        from .bindings_config import BindingsConfig
-    else:
-        from bindings_config import BindingsConfig
+    from .bindings_config import BindingsConfig
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PLATFORMS = ("linux", "windows")
@@ -115,6 +109,8 @@ def compute_workplan(
     test_changes: set[tuple[str, str | None]] = set()
     test_platforms: set[str] = set()
     release_line = config.match_tag(release_tag) if release_tag else None
+    if release_tag.startswith("v") and release_line is None:
+        raise BindingsConfigError(f"no configured CUDA bindings line matches release tag: {release_tag!r}")
     force_all = release_line is None and (bool(release_tag) or not merge_base or not baseline_run_id)
 
     if release_line is None and not force_all:
@@ -217,15 +213,9 @@ def compute_workplan(
         line_decisions = {
             line.line_id: {**config.line_to_dict(line), **flags(module, (line.line_id,))} for line in lines
         }
-        # Compatibility view for workflows that still address a CUDA major.
-        variants = {
-            variant: flags(module, tuple(line.line_id for line in variant_lines))
-            for variant, variant_lines in lines_by_variant.items()
-        }
         modules[module] = {
             **flags(module, line_ids),
             "lines": line_decisions,
-            "variants": variants,
         }
 
     cuda_major_decisions = {
@@ -239,8 +229,6 @@ def compute_workplan(
     modules["core"] = {
         **flags("core", cuda_variants),
         "cuda_majors": cuda_major_decisions,
-        # Transitional compatibility; `cuda_majors` is canonical.
-        "variants": {variant: flags("core", (variant,)) for variant in cuda_variants},
     }
 
     pathfinder_test = ("pathfinder", None) in tests
@@ -251,18 +239,19 @@ def compute_workplan(
         or ("core", variant) in tests
         or any((module, line.line_id) in tests for module in ("bindings", "python") for line in variant_lines)
     }
-    sdist_cuda_variants = {line.cuda_variant for line in lines if line.line_id in sdist_lines}
     return {
         "modules": modules,
+        "sources": {
+            # Focused bindings releases intentionally omit unrelated artifacts.
+            "pathfinder": "published" if release_line is not None else "artifact",
+        },
         "jobs": {
             # These gates cover both optional artifact builds and wheel tests.
             "platforms": {platform: platform in test_platforms for platform in PLATFORMS},
-            "sdist_tests": bool(builds),
+            "sdist_tests": bool(sdist_lines),
             "core_api_checks": force_all or ("core", None) in source_changes,
             "test_cuda_majors": {variant: variant in test_cuda_variants for variant in cuda_variants},
             "sdist_lines": {line_id: line_id in sdist_lines for line_id in line_ids},
-            # Transitional compatibility; `sdist_lines` is canonical.
-            "sdist_cuda_majors": {variant: variant in sdist_cuda_variants for variant in cuda_variants},
         },
         "merge_base": merge_base,
         "baseline": {
@@ -308,23 +297,55 @@ def _expand_linked_paths(paths: list[str], symlink_paths: list[str], *, root: Pa
     return expanded
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--merge-base", default="")
     parser.add_argument("--baseline-run-id", default="")
     parser.add_argument("--release-tag", default="")
-    args = parser.parse_args()
+    parser.add_argument(
+        "--github-output",
+        type=Path,
+        help="append normalized CI records to this GitHub output file",
+    )
+    parser.add_argument(
+        "--github-step-summary",
+        type=Path,
+        help="append a formatted workplan to this GitHub step summary file",
+    )
+    args = parser.parse_args(argv)
+    if args.github_step_summary is not None and args.github_output is None:
+        parser.error("--github-step-summary requires --github-output")
 
+    config = load_config()
     reusable_baseline = bool(args.merge_base and args.baseline_run_id and not args.release_tag)
     paths, linked_paths = _changed_paths(args.merge_base) if reusable_baseline else ([], set())
-    plan = compute_workplan(
-        paths,
-        merge_base=args.merge_base,
-        baseline_run_id=args.baseline_run_id,
-        linked_paths=linked_paths,
-        release_tag=args.release_tag,
-    )
-    print(json.dumps(plan, separators=(",", ":"), sort_keys=True))
+    try:
+        plan = compute_workplan(
+            paths,
+            merge_base=args.merge_base,
+            baseline_run_id=args.baseline_run_id,
+            linked_paths=linked_paths,
+            release_tag=args.release_tag,
+            bindings_config=config,
+        )
+    except BindingsConfigError as error:
+        parser.error(str(error))
+    workplan = json.dumps(plan, separators=(",", ":"), sort_keys=True)
+    if args.github_output is None:
+        print(workplan)
+        return
+
+    records = {
+        "bindings-config": config.to_json(),
+        "workplan": workplan,
+    }
+    with args.github_output.open("a", encoding="utf-8") as output:
+        for name, value in records.items():
+            output.write(f"{name}={value}\n")
+    if args.github_step_summary is not None:
+        formatted = json.dumps(plan, indent=2, sort_keys=True)
+        with args.github_step_summary.open("a", encoding="utf-8") as summary:
+            summary.write(f"\n### CI workplan\n```json\n{formatted}\n```\n")
 
 
 if __name__ == "__main__":

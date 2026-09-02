@@ -3,16 +3,28 @@
 
 from __future__ import annotations
 
+import ast
 import re
 from pathlib import Path
 
 import pytest
 import tomllib
 
+from ci.tools.bindings_config import load_config
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def _literal_assignment(path: Path, name: str):
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and any(
+            isinstance(target, ast.Name) and target.id == name for target in node.targets
+        ):
+            return ast.literal_eval(node.value)
+    raise AssertionError(f"{name} not found in {path}")
+
+
 @pytest.mark.parametrize(
     ("package", "tag", "version"),
     (
@@ -22,11 +34,60 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
         ("cuda_bindings_12", "v12.9.8.post1", "v12.9.8.post1"),
     ),
 )
+@pytest.mark.agent_authored(model="gpt-5.6")
 def test_release_package_scm_regex_preserves_post_suffix(package, tag, version):
     with (REPO_ROOT / package / "pyproject.toml").open("rb") as stream:
         pattern = tomllib.load(stream)["tool"]["setuptools_scm"]["tag_regex"]
 
-    match = re.match(pattern, tag)
+    match = re.fullmatch(pattern, tag)
 
     assert match is not None
     assert match.group("version") == version
+
+
+@pytest.mark.parametrize(
+    ("line_id", "tag", "expected"),
+    (
+        ("released-13", "v13.3.1", "13.3.1"),
+        ("released-13", "v13.3.1a2", "13.3.1a2"),
+        ("released-13", "v13.3.1b2", "13.3.1b2"),
+        ("released-13", "v13.3.1rc2", "13.3.1rc2"),
+        ("released-13", "v13.3.1.post2", "13.3.1.post2"),
+        ("released-13", "v13.3.1.dev2", "13.3.1.dev2"),
+        ("released-13", "v13.3.1rc2.dev3", "13.3.1rc2.dev3"),
+        ("released-12", "v12.9.8", "12.9.8"),
+        ("released-12", "v12.9.8.post2", "12.9.8.post2"),
+        ("released-12", "v12.9.8a2", None),
+        ("released-12", "v12.9.8rc2", None),
+        ("released-12", "v12.9.8.dev2", None),
+    ),
+)
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_bindings_registry_uses_each_source_scm_regex(line_id, tag, expected):
+    version = load_config().get_line(line_id).version_from_tag(tag)
+
+    assert (str(version) if version is not None else None) == expected
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_current_bindings_scm_metadata_is_minor_specific():
+    with (REPO_ROOT / "cuda_bindings" / "pyproject.toml").open("rb") as stream:
+        scm = tomllib.load(stream)["tool"]["setuptools_scm"]
+
+    assert re.fullmatch(scm["tag_regex"], "v13.3.2") is not None
+    assert re.fullmatch(scm["tag_regex"], "v13.4.0") is None
+    assert scm["git_describe_command"][-1] == "v13.3.*"
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_metapackage_scm_metadata_matches_bindings_sources():
+    setup_path = REPO_ROOT / "cuda_python" / "setup.py"
+    tag_regexes = _literal_assignment(setup_path, "SCM_TAG_REGEX_BY_MAJOR")
+    describe_matches = _literal_assignment(setup_path, "SCM_DESCRIBE_MATCH_BY_MAJOR")
+
+    for major, source_dir in (("12", "cuda_bindings_12"), ("13", "cuda_bindings")):
+        with (REPO_ROOT / source_dir / "pyproject.toml").open("rb") as stream:
+            scm = tomllib.load(stream)["tool"]["setuptools_scm"]
+
+        assert tag_regexes[major] == scm["tag_regex"]
+        assert describe_matches[major] == scm["git_describe_command"][-1]

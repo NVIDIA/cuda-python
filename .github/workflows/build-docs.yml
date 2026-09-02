@@ -82,29 +82,20 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -n "$BINDINGS_LINE" ]]; then
-            bindings_line="$BINDINGS_LINE"
+            (cd .ci-control && python3 -m ci.tools.bindings_config \
+              --line-json "$BINDINGS_LINE" \
+              --github-env "$GITHUB_ENV")
           elif [[ "${IS_RELEASE}" == "true" && "$RELEASE_TAG" == v* ]]; then
-            bindings_line=$(python3 .ci-control/ci/tools/resolve_release_bindings_line.py \
+            (cd .ci-control && python3 -m ci.tools.bindings_config \
               --release-tag "$RELEASE_TAG" \
-              --release-source-root . \
-              --control-config .ci-control/ci/versions.yml)
+              --release-source-root .. \
+              --control-config ci/versions.yml \
+              --github-env "$GITHUB_ENV")
           else
-            bindings_line=$(python3 .ci-control/ci/tools/bindings_config.py --role current)
+            (cd .ci-control && python3 -m ci.tools.bindings_config \
+              --role current \
+              --github-env "$GITHUB_ENV")
           fi
-          BUILD_CTK_VER=$(jq -er '.toolkit_version' <<< "$bindings_line")
-          BINDINGS_COMPONENT_DIR=$(jq -er '.release_source_dir // .source_dir' <<< "$bindings_line")
-          BINDINGS_REGISTRY_ORIGIN=$(jq -er '.release_registry_origin // "tag"' <<< "$bindings_line")
-          if [[ ! "${BUILD_CTK_VER}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "error: derived CTK build version ${BUILD_CTK_VER} does not match MAJOR.MINOR.MICRO" >&2
-            exit 1
-          fi
-          if [[ ! -d "$BINDINGS_COMPONENT_DIR" ]]; then
-            echo "error: resolved bindings source directory does not exist: $BINDINGS_COMPONENT_DIR" >&2
-            exit 1
-          fi
-          echo "BUILD_CTK_VER=${BUILD_CTK_VER}" >> "$GITHUB_ENV"
-          echo "BINDINGS_COMPONENT_DIR=${BINDINGS_COMPONENT_DIR}" >> "$GITHUB_ENV"
-          echo "BINDINGS_REGISTRY_ORIGIN=${BINDINGS_REGISTRY_ORIGIN}" >> "$GITHUB_ENV"
 
       # TODO: This workflow runs on GH-hosted runner and cannot use the proxy cache
 

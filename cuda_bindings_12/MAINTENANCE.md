@@ -28,15 +28,12 @@ root remains partial.
   directory for CUDA 12.9, and copy the generated result only after reviewing
   the diff. Record the cybind commit, toolkit inputs, and command in the pull
   request.
-- Files listed in `ci/cuda-bindings-shared-files.json` are intentionally shared
-  by the public bindings lines and must remain byte-identical. Pre-commit and CI
-  apply the list to the public source roots declared in `ci/versions.yml`.
 - Cybind-owned support files, including `_internal/_fast_enum.py` and
-  `_internal/utils.pxd`, are not in the shared-file list. They follow cybind's
-  snippets and templates and may legitimately change with generated output.
-- Files absent from that list may differ because the CUDA 12 line retains the
-  legacy runtime-generation layout, APIs, tests, documentation, packaging, and
-  toolkit pins. Absence from the list does not mean fixes may be ignored.
+  `_internal/utils.pxd`, follow cybind's snippets and templates and may
+  legitimately change with generated output.
+- Other files may differ because the CUDA 12 line retains the legacy
+  runtime-generation layout, APIs, tests, documentation, packaging, and
+  toolkit pins. Review handwritten fixes for applicability to both roots.
 
 Cybind's target behavior is intentionally mixed. Megaheader-backed libraries
 generated with `need_headers_at_build=False` expose the latest public APIs
@@ -53,11 +50,8 @@ For every handwritten fix in either bindings root, state one of the following
 in the pull request:
 
 - the corresponding file in the other root was updated;
-- the shared-file manifest already proves the roots match; or
 - the change is not applicable to the other root, with a concrete reason.
 
 For generated changes, validate all modified seals with
 `python toolshed/check_generated_file_seals.py <paths...>` and retain the
-generation provenance in the pull request. Run
-`python ci/tools/check_cuda_bindings_shared_files.py` after changing either
-bindings tree.
+generation provenance in the pull request.

@@ -95,7 +95,7 @@ jobs:
             | if length > 0 then . else error("bindings registry has no lines") end
           ' <<< "$BINDINGS_CONFIG")
           CURRENT_BINDINGS_SOURCE_DIR=$(jq -er '
-            [.[] | select(.roles | index("current"))]
+            [.[] | select(.role == "current")]
             | if length == 1 then .[0].source_dir else error("bindings registry must have one current line") end
           ' <<< "$BINDINGS_LINES")
 
@@ -103,10 +103,16 @@ jobs:
             TEST_CUDA_MAJORS=$(jq -c '
               [.[].cuda_variant] | unique | map({key: ., value: true}) | from_entries
             ' <<< "$BINDINGS_LINES")
+            PATHFINDER_SOURCE=artifact
           else
             TEST_CUDA_MAJORS=$(jq -ce '
               .jobs.test_cuda_majors
               | if type == "object" then . else error("workplan test_cuda_majors must be an object") end
+            ' <<< "$WORKPLAN")
+            PATHFINDER_SOURCE=$(jq -er '
+              .sources.pathfinder
+              | select(. == "artifact" or . == "published")
+                // error("workplan has no valid cuda-pathfinder source")
             ' <<< "$WORKPLAN")
           fi
 
@@ -134,6 +140,7 @@ jobs:
             --argjson test_cuda_majors "$TEST_CUDA_MAJORS" \
             --argjson bindings_lines "$BINDINGS_LINES" \
             --arg default_bindings_source_dir "$CURRENT_BINDINGS_SOURCE_DIR" \
+            --arg pathfinder_source "$PATHFINDER_SOURCE" \
             '${{ inputs.matrix_filter }}
              | map(
                  . as $row
@@ -148,7 +155,8 @@ jobs:
                          BINDINGS_SOURCE: (if $bindings_line == null then "published" else "local" end),
                          BINDINGS_LINE_ID: ($bindings_line.line_id // ""),
                          BINDINGS_SOURCE_DIR: ($bindings_line.source_dir // ""),
-                         DEFAULT_BINDINGS_SOURCE_DIR: $default_bindings_source_dir
+                         DEFAULT_BINDINGS_SOURCE_DIR: $default_bindings_source_dir,
+                         PATHFINDER_SOURCE: $pathfinder_source
                        }
                    end
                )
@@ -227,6 +235,7 @@ jobs:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           HOST_PLATFORM: ${{ inputs.host-platform }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+          PATHFINDER_SOURCE: ${{ matrix.PATHFINDER_SOURCE }}
           PY_VER: ${{ matrix.PY_VER }}
           SHA: ${{ inputs.sha || github.sha }}
           SKIP_BINDINGS_TEST_OVERRIDE: ${{ env.TEST_BINDINGS != 'true' && '1' || '0' }}
@@ -240,7 +249,7 @@ jobs:
 
       - name: Download cuda-pathfinder build artifacts
         if: ${{ (env.TEST_PATHFINDER == 'true' || env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
-                (inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_build || fromJSON(inputs.workplan).baseline.run_id != '') }}
+                env.PATHFINDER_SOURCE == 'artifact' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-pathfinder-wheel

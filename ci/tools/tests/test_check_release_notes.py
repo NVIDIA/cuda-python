@@ -4,13 +4,11 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from check_release_notes import check_release_notes, main, notes_path, parse_version_from_tag
+from ci.tools.check_release_notes import check_release_notes, main, notes_path, parse_version_from_tag
 
 
 def write_notes(root: Path, package: str, version: str, content: str = "Release notes.") -> Path:
@@ -26,38 +24,47 @@ def resolved_12_line(release_source_dir: str = "cuda_bindings") -> dict[str, obj
         "source_dir": "cuda_bindings_12",
         "release_source_dir": release_source_dir,
         "toolkit_version": "12.9.1",
-        "allow_alpha_beta_tags": False,
+        "tag_regex": r"^(?P<version>v12\.9\.\d+(?:\.post\d+)?)$",
+        "release_version": "12.9.8",
+        "release_registry_origin": "control",
     }
 
 
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
 @pytest.mark.parametrize(
     ("tag", "component", "version"),
     (
         ("v13.3.0", "cuda-bindings", "13.3.0"),
+        ("v13.3.0rc1", "cuda-bindings", "13.3.0rc1"),
+        ("v13.3.0.dev1", "cuda-bindings", "13.3.0.dev1"),
         ("v12.9.8.post1", "cuda-python", "12.9.8.post1"),
         ("cuda-core-v1.1.1", "cuda-core", "1.1.1"),
         ("cuda-pathfinder-v1.8.1", "cuda-pathfinder", "1.8.1"),
     ),
 )
+@pytest.mark.agent_authored(model="gpt-5.6")
 def test_parse_version_from_tag(tag, component, version):
     assert parse_version_from_tag(tag, component) == version
 
 
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
 @pytest.mark.parametrize(
     ("tag", "component"),
     (
         ("not-a-tag", "cuda-core"),
         ("v1.0.0/../evil", "cuda-bindings"),
         ("cuda-core-v1.0.0", "cuda-pathfinder"),
+        ("vv13.3.0", "cuda-bindings"),
+        ("cuda-core-vv1.0.0", "cuda-core"),
+        ("cuda-core-v1!2.0.0", "cuda-core"),
+        ("cuda-core-v1.0.0-1", "cuda-core"),
+        ("cuda-core-v01.0.0", "cuda-core"),
+        ("cuda-core-v1.0", "cuda-core"),
     ),
 )
+@pytest.mark.agent_authored(model="gpt-5.6")
 def test_parse_version_rejects_invalid_or_mismatched_tags(tag, component):
     assert parse_version_from_tag(tag, component) is None
 
 
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
 @pytest.mark.parametrize(
     ("tag", "package", "version"),
     (
@@ -65,13 +72,14 @@ def test_parse_version_rejects_invalid_or_mismatched_tags(tag, component):
         ("v12.9.8", "cuda_bindings_12", "12.9.8"),
     ),
 )
+@pytest.mark.agent_authored(model="gpt-5.6")
 def test_bindings_notes_follow_current_and_maintenance_lines(tmp_path, tag, package, version):
     write_notes(tmp_path, package, version)
 
     assert check_release_notes(tag, "cuda-bindings", tmp_path) == []
 
 
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
+@pytest.mark.agent_authored(model="gpt-5.6")
 def test_resolved_legacy_line_uses_legacy_source_directory(tmp_path):
     write_notes(tmp_path, "cuda_bindings", "12.9.8")
 
@@ -85,7 +93,7 @@ def test_resolved_legacy_line_uses_legacy_source_directory(tmp_path):
     assert problems == []
 
 
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
+@pytest.mark.agent_authored(model="gpt-5.6")
 def test_present_missing_and_empty_notes(tmp_path):
     write_notes(tmp_path, "cuda_core", "1.1.1")
     assert check_release_notes("cuda-core-v1.1.1", "cuda-core", tmp_path) == []
@@ -98,12 +106,12 @@ def test_present_missing_and_empty_notes(tmp_path):
     assert empty == [(notes_path("cuda_python", "13.3.0"), "empty")]
 
 
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
+@pytest.mark.agent_authored(model="gpt-5.6")
 def test_post_release_needs_no_notes(tmp_path):
     assert check_release_notes("v12.9.8.post1", "cuda-bindings", tmp_path) == []
 
 
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
+@pytest.mark.agent_authored(model="gpt-5.6")
 def test_main_accepts_resolved_line_and_reports_missing_notes(tmp_path, capsys):
     line = resolved_12_line()
     args = [
@@ -124,7 +132,7 @@ def test_main_accepts_resolved_line_and_reports_missing_notes(tmp_path, capsys):
     assert main(args) == 0
 
 
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
+@pytest.mark.agent_authored(model="gpt-5.6")
 def test_main_rejects_unsafe_resolved_source_directory(tmp_path, capsys):
     args = [
         "--git-tag",

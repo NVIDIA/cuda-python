@@ -1,5 +1,4 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-PyYAML==6.0.3
-packaging==26.0
+"""CUDA Python continuous-integration support."""

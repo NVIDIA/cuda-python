@@ -110,7 +110,7 @@ jobs:
             "$BINDINGS_LINE"
 
           # Validate that release wheels match the expected version from tag.
-          ./ci/tools/validate-release-wheels \
+          python -m ci.tools.validate_release_wheels \
             "$RELEASE_GIT_TAG" \
             "$RELEASE_COMPONENT" \
             "release/wheels" \

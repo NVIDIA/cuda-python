@@ -19,7 +19,7 @@ dependencies:
   - sphinx-copybutton
   - myst-nb
   - enum_tools
-  # Required by the maintenance cuda.bindings documentation theme.
+  # cuda_bindings_12/docs/source/conf.py uses the Furo theme.
   - furo
   - sphinx-toolbox
   - pyclibrary

@@ -15,7 +15,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Mapping
 
-from check_release_notes import parse_version_from_tag
+from .check_release_notes import parse_version_from_tag
 
 COMPONENT_TO_DISTRIBUTIONS: dict[str, set[str]] = {
     "cuda-core": {"cuda_core"},
@@ -116,6 +116,10 @@ def main() -> int:
             continue
 
         if distribution not in expected_distributions:
+            errors.append(
+                f"{wheel.name}: unexpected distribution {distribution!r} for component "
+                f"{args.component!r}; expected one of: " + ", ".join(sorted(expected_distributions))
+            )
             continue
 
         seen_versions[distribution].add(version)

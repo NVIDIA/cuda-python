@@ -32,7 +32,7 @@ jobs:
         id: get-vars
         run: |
           set -euo pipefail
-          current=$(python3 ci/tools/bindings_config.py --role current)
+          current=$(python3 -m ci.tools.bindings_config --role current)
           {
             echo "bindings_line_id=$(jq -r '.line_id' <<< "$current")"
             echo "bindings_root=$(jq -r '.source_dir' <<< "$current")"
@@ -107,6 +107,7 @@ jobs:
           CUDA_VER: ${{ env.CUDA_VER }}
           HOST_PLATFORM: ${{ env.HOST_PLATFORM }}
           LOCAL_CTK: ${{ env.LOCAL_CTK }}
+          PATHFINDER_SOURCE: artifact
           PY_VER: ${{ env.PY_VER }}
           SHA: ${{ github.sha }}
         run: |

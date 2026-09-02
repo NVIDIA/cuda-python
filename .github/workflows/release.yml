@@ -84,7 +84,7 @@ jobs:
           RELEASE_TAG: ${{ inputs.git-tag }}
         run: |
           if [[ "$RELEASE_COMPONENT" == "cuda-bindings" || "$RELEASE_COMPONENT" == "cuda-python" ]]; then
-            bindings_line=$(python ci/tools/resolve_release_bindings_line.py \
+            bindings_line=$(python -m ci.tools.bindings_config \
               --release-tag "$RELEASE_TAG" \
               --release-source-root release-source \
               --control-config ci/versions.yml)
@@ -215,7 +215,7 @@ jobs:
           RELEASE_COMPONENT: ${{ inputs.component }}
           RELEASE_TAG: ${{ inputs.git-tag }}
         run: |
-          python ci/tools/check_release_notes.py \
+          python -m ci.tools.check_release_notes \
             --git-tag "$RELEASE_TAG" \
             --component "$RELEASE_COMPONENT" \
             --repo-root release-source \
@@ -314,7 +314,7 @@ jobs:
           RELEASE_COMPONENT: ${{ inputs.component }}
           RELEASE_TAG: ${{ inputs.git-tag }}
         run: |
-          ./ci/tools/validate-release-wheels \
+          python -m ci.tools.validate_release_wheels \
             "$RELEASE_TAG" \
             "$RELEASE_COMPONENT" \
             "dist" \
@@ -373,7 +373,7 @@ jobs:
           RELEASE_COMPONENT: ${{ inputs.component }}
           RELEASE_TAG: ${{ inputs.git-tag }}
         run: |
-          ./ci/tools/validate-release-wheels \
+          python -m ci.tools.validate_release_wheels \
             "$RELEASE_TAG" \
             "$RELEASE_COMPONENT" \
             "dist" \

@@ -34,13 +34,20 @@ fi
 # all wheels together in a single pip call further below.
 if [[ "${test_module}" != nightly-* ]]; then
   pushd ./cuda_pathfinder
-  echo "Installing pathfinder wheel"
-  pathfinder_wheels=(./*.whl)
-  if [[ "${#pathfinder_wheels[@]}" -eq 1 && -f "${pathfinder_wheels[0]}" ]]; then
+  if [[ "${PATHFINDER_SOURCE:-}" == "artifact" ]]; then
+    echo "Installing pathfinder wheel from CI artifacts"
+    pathfinder_wheels=(./*.whl)
+    if [[ "${#pathfinder_wheels[@]}" -ne 1 || ! -f "${pathfinder_wheels[0]}" ]]; then
+      echo "Expected exactly one cuda-pathfinder wheel in $(pwd)" >&2
+      exit 1
+    fi
     pip install "${pathfinder_wheels[0]}" --group test "${TEST_FT_GROUP[@]}"
-  else
-    # Line-specific release-tag runs intentionally omit unrelated artifacts.
+  elif [[ "${PATHFINDER_SOURCE:-}" == "published" && "${test_module}" == "bindings" ]]; then
+    echo "Installing published pathfinder for a focused bindings release"
     pip install cuda-pathfinder --group test "${TEST_FT_GROUP[@]}"
+  else
+    echo "Error: PATHFINDER_SOURCE must be artifact, or published for bindings release tests; got ${PATHFINDER_SOURCE:-<unset>}" >&2
+    exit 1
   fi
   popd
 fi
@@ -110,10 +117,19 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
   fi
 
   if [[ "${test_module}" == nightly-* ]]; then
+    if [[ "${PATHFINDER_SOURCE:-}" != "artifact" ]]; then
+      echo "Error: nightly tests require PATHFINDER_SOURCE=artifact" >&2
+      exit 1
+    fi
     # Resolve pathfinder wheel to absolute path before pushd.
     # CUDA_BINDINGS_ARTIFACTS_DIR and CUDA_CORE_ARTIFACTS_DIR are already
     # absolute (set via realpath in env-vars).
-    PATHFINDER_WHL=($(realpath ./cuda_pathfinder/*.whl))
+    pathfinder_wheels=(./cuda_pathfinder/*.whl)
+    if [[ "${#pathfinder_wheels[@]}" -ne 1 || ! -f "${pathfinder_wheels[0]}" ]]; then
+      echo "Expected exactly one cuda-pathfinder wheel in ./cuda_pathfinder" >&2
+      exit 1
+    fi
+    PATHFINDER_WHL=("$(realpath "${pathfinder_wheels[0]}")")
   fi
 
   if [[ "${test_module}" == "core" ]]; then

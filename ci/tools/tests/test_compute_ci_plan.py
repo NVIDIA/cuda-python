@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+import json
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -11,7 +13,7 @@ from pathlib import Path
 import pytest
 
 from ci.tools.bindings_config import BindingsConfig, BindingsLine, load_config
-from ci.tools.compute_ci_plan import _expand_linked_paths, compute_workplan
+from ci.tools.compute_ci_plan import _expand_linked_paths, compute_workplan, main
 
 ALL_MODULES = {"pathfinder", "bindings", "core", "python"}
 ALL_PLATFORMS = {"linux", "windows"}
@@ -60,10 +62,10 @@ def selected_platforms(plan: dict[str, object]) -> set[str]:
 
 def selected_variants(plan: dict[str, object], module: str, key: str) -> set[str]:
     modules = as_dict(plan["modules"])
-    variants = as_dict(as_dict(modules[module])["variants"])
-    cuda_majors = as_dict(as_dict(modules["core"])["cuda_majors"])
-    assert set(variants) == set(cuda_majors)
-    return enabled(variants, key)
+    if module == "core":
+        return enabled(as_dict(as_dict(modules[module])["cuda_majors"]), key)
+    lines = as_dict(as_dict(modules[module])["lines"])
+    return {str(as_dict(decision)["cuda_variant"]) for decision in lines.values() if as_dict(decision)[key]}
 
 
 def selected_lines(plan: dict[str, object], module: str, key: str) -> set[str]:
@@ -83,24 +85,34 @@ def selected_cuda_majors(plan: dict[str, object], key: str) -> set[str]:
     return enabled(majors)
 
 
+def selected_sdist_variants(plan: dict[str, object]) -> set[str]:
+    jobs = as_dict(plan["jobs"])
+    selected_line_ids = enabled(as_dict(jobs["sdist_lines"]))
+    lines = as_dict(as_dict(as_dict(plan["modules"])["bindings"])["lines"])
+    return {str(as_dict(lines[line_id])["cuda_variant"]) for line_id in selected_line_ids}
+
+
 def synthetic_line(line_id: str, source_dir: str, ctk_target: str) -> BindingsLine:
     return BindingsLine(
         line_id=line_id,
         source_dir=source_dir,
         toolkit_version=f"{ctk_target}.0",
-        allow_alpha_beta_tags=True,
+        tag_regex=rf"^(?P<version>v{re.escape(ctk_target)}\.\d+)$",
     )
 
 
 def synthetic_config(
     *lines: BindingsLine,
     current: str,
-    maintenance: tuple[str, ...] = (),
+    maintenance: str = "",
 ) -> BindingsConfig:
+    roles = {"current": current}
+    if maintenance:
+        roles["maintenance"] = maintenance
     return BindingsConfig(
         schema_version=2,
         lines=lines,
-        roles={"current": (current,), "maintenance": maintenance},
+        roles=roles,
     )
 
 
@@ -211,7 +223,7 @@ class ComputeWorkplanTest(unittest.TestCase):
                     assert decision["needs_test"] == bool(tests)
 
                 assert selected_cuda_majors(plan, "test_cuda_majors") == test_majors
-                assert selected_cuda_majors(plan, "sdist_cuda_majors") == sdist_majors
+                assert selected_sdist_variants(plan) == sdist_majors
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_release_tags_select_only_the_matching_line(self) -> None:
@@ -219,6 +231,8 @@ class ComputeWorkplanTest(unittest.TestCase):
             ("v12.9.9", "released-12", "cu12"),
             ("v13.3.0", "released-13", "cu13"),
             ("v13.3.0b1", "released-13", "cu13"),
+            ("v13.3.0rc1", "released-13", "cu13"),
+            ("v13.3.0.dev1", "released-13", "cu13"),
             ("v12.9.9.post1", "released-12", "cu12"),
             ("v13.3.0.post1", "released-13", "cu13"),
         ):
@@ -234,7 +248,7 @@ class ComputeWorkplanTest(unittest.TestCase):
                 assert not selected_variants(plan, "core", "needs_build")
                 assert not selected_variants(plan, "core", "needs_test")
                 assert selected_cuda_majors(plan, "test_cuda_majors") == {variant}
-                assert selected_cuda_majors(plan, "sdist_cuda_majors") == {variant}
+                assert selected_sdist_variants(plan) == {variant}
                 assert selected_platforms(plan) == ALL_PLATFORMS
                 assert plan["jobs"]["sdist_tests"]
                 assert not plan["jobs"]["core_api_checks"]
@@ -262,7 +276,7 @@ class ComputeWorkplanTest(unittest.TestCase):
                 assert not plan["jobs"]["sdist_tests"]
                 assert not plan["jobs"]["core_api_checks"]
                 assert selected_cuda_majors(plan, "test_cuda_majors") == CUDA_VARIANTS
-                assert not selected_cuda_majors(plan, "sdist_cuda_majors")
+                assert not selected_sdist_variants(plan)
 
         mixed_plan = plan_for("ci/tools/install_gpu_driver.sh", "ci/tools/install_gpu_driver.ps1")
         assert selected_platforms(mixed_plan) == ALL_PLATFORMS
@@ -302,10 +316,6 @@ class ComputeWorkplanTest(unittest.TestCase):
             plan_for("cuda_core/docs/index.rst", baseline=False),
             compute_workplan([], merge_base="", baseline_run_id="123"),
             plan_for(baseline=False, release_tag="cuda-core-v1.3.0"),
-            plan_for(baseline=False, release_tag="v13.3.0rc1"),
-            plan_for(baseline=False, release_tag="v13.2.0"),
-            plan_for(baseline=False, release_tag="v12.8.1"),
-            plan_for(baseline=False, release_tag="v14.0.0"),
         ):
             assert selected(plan, "needs_build") == ALL_MODULES
             assert selected(plan, "needs_test") == ALL_MODULES
@@ -315,8 +325,15 @@ class ComputeWorkplanTest(unittest.TestCase):
             assert selected_platforms(plan) == ALL_PLATFORMS
             assert plan["jobs"]["core_api_checks"]
             assert selected_cuda_majors(plan, "test_cuda_majors") == CUDA_VARIANTS
-            assert selected_cuda_majors(plan, "sdist_cuda_majors") == CUDA_VARIANTS
+            assert selected_sdist_variants(plan) == CUDA_VARIANTS
             assert plan["baseline"] == {"run_id": "", "sha": ""}
+
+        for release_tag in ("v12.8.1", "v13.4.0", "v14.0.0"):
+            with (
+                self.subTest(release_tag=release_tag),
+                pytest.raises(ValueError, match="no configured CUDA bindings line"),
+            ):
+                plan_for(baseline=False, release_tag=release_tag)
 
     def test_mixed_changes_are_combined(self) -> None:
         plan = plan_for("cuda_core/tests/test_device.py", "cuda_python/pyproject.toml")
@@ -329,7 +346,7 @@ class ComputeWorkplanTest(unittest.TestCase):
         assert selected_platforms(plan) == ALL_PLATFORMS
         assert plan["jobs"]["sdist_tests"]
         assert selected_cuda_majors(plan, "test_cuda_majors") == CUDA_VARIANTS
-        assert selected_cuda_majors(plan, "sdist_cuda_majors") == CUDA_VARIANTS
+        assert selected_sdist_variants(plan) == CUDA_VARIANTS
         assert plan["baseline"] == {"run_id": "123", "sha": "base"}
 
     def test_changed_symlink_targets_include_their_consumers(self) -> None:
@@ -365,7 +382,7 @@ class ComputeWorkplanTest(unittest.TestCase):
             line_11_7,
             line_11_8,
             current=line_11_8.line_id,
-            maintenance=(line_11_7.line_id,),
+            maintenance=line_11_7.line_id,
         )
 
         plan = plan_for(
@@ -380,7 +397,7 @@ class ComputeWorkplanTest(unittest.TestCase):
         assert selected_core_majors(plan, "needs_build") == {"cu11"}
         assert selected_core_majors(plan, "needs_test") == {"cu11"}
         assert selected_variants(plan, "bindings", "needs_build") == {"cu11"}
-        assert selected_cuda_majors(plan, "sdist_cuda_majors") == {"cu11"}
+        assert selected_sdist_variants(plan) == {"cu11"}
         assert {line_id for line_id, enabled in plan["jobs"]["sdist_lines"].items() if enabled} == {line_11_7.line_id}
 
         line_decision = plan["modules"]["bindings"]["lines"][line_11_7.line_id]
@@ -388,7 +405,7 @@ class ComputeWorkplanTest(unittest.TestCase):
         assert line_decision["ctk_target"] == line_11_7.ctk_target
         assert line_decision["cuda_major"] == "11"
         assert line_decision["cuda_variant"] == "cu11"
-        assert line_decision["roles"] == ["maintenance"]
+        assert line_decision["role"] == "maintenance"
 
         release_plan = plan_for(
             baseline=False,
@@ -406,7 +423,7 @@ class ComputeWorkplanTest(unittest.TestCase):
             line_11,
             line_12,
             current=line_12.line_id,
-            maintenance=(line_11.line_id,),
+            maintenance=line_11.line_id,
         )
 
         plan = plan_for(
@@ -419,7 +436,7 @@ class ComputeWorkplanTest(unittest.TestCase):
         assert selected_core_majors(plan, "needs_build") == {"cu11", "cu12"}
         assert selected_core_majors(plan, "needs_test") == {"cu12"}
         assert selected_cuda_majors(plan, "test_cuda_majors") == {"cu12"}
-        assert selected_cuda_majors(plan, "sdist_cuda_majors") == {"cu12"}
+        assert selected_sdist_variants(plan) == {"cu12"}
 
         core_plan = plan_for("cuda_core/cuda/core/_device.py", bindings_config=config)
         assert selected_core_majors(core_plan, "needs_build") == {"cu11", "cu12"}
@@ -427,6 +444,32 @@ class ComputeWorkplanTest(unittest.TestCase):
             line_11.line_id,
             line_12.line_id,
         }
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_github_outputs_are_emitted_without_shell_json_transforms(tmp_path: Path) -> None:
+    output = tmp_path / "github-output"
+    summary = tmp_path / "github-summary"
+
+    main(
+        [
+            "--release-tag",
+            "v13.3.0",
+            "--github-output",
+            str(output),
+            "--github-step-summary",
+            str(summary),
+        ]
+    )
+
+    records = dict(line.split("=", maxsplit=1) for line in output.read_text(encoding="utf-8").splitlines())
+    assert set(records) == {"bindings-config", "workplan"}
+    assert json.loads(records["bindings-config"])["roles"]["current"] == "released-13"
+    assert json.loads(records["workplan"])["jobs"]["sdist_lines"] == {
+        "released-12": False,
+        "released-13": True,
+    }
+    assert "### CI workplan" in summary.read_text(encoding="utf-8")
 
 
 if __name__ == "__main__":

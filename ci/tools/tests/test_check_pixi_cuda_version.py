@@ -3,14 +3,12 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-import check_pixi_cuda_version
+from ci.tools import check_pixi_cuda_version
 
 
 def _write_pixi(path: Path, cuda_pins: dict[str, str]) -> None:

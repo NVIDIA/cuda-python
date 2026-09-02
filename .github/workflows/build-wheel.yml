@@ -62,22 +62,20 @@ jobs:
           WORKPLAN: ${{ inputs.workplan }}
         run: |
           set -euo pipefail
-          public_lines=$(jq -er '
-            (.roles.current // []) as $current
-            | (.roles.maintenance // []) as $maintenance
-            | ([.lines[].line_id] | sort) as $lines
-            | ([$current[], $maintenance[]] | sort) as $selected
-            | if (($current | length) == 1
-                  and ($maintenance | length) == 1
-                  and ($selected | unique | length) == 2
-                  and $lines == $selected)
-              then [$current[0], $maintenance[0]] | @tsv
-              else error("wheel builder requires one distinct current and maintenance line covering the registry")
-              end
-          ' <<< "$BINDINGS_CONFIG")
-          IFS=$'\t' read -r current_line_id maintenance_line_id <<< "$public_lines"
+          IFS=$'\t' read -r \
+            current_line_id maintenance_line_id current_variant maintenance_variant < <(
+              jq -er '
+                .roles.current as $current
+                | .roles.maintenance as $maintenance
+                | [$current, $maintenance,
+                   (.lines[] | select(.line_id == $current) | .cuda_variant),
+                   (.lines[] | select(.line_id == $maintenance) | .cuda_variant)]
+                | @tsv
+              ' <<< "$BINDINGS_CONFIG"
+            )
 
           if [[ -z "$WORKPLAN" ]]; then
+            pathfinder_source=artifact
             build_pathfinder=true
             build_bindings=true
             build_bindings_current=true
@@ -93,25 +91,38 @@ jobs:
             test_core_current=true
             test_core_maintenance=true
           else
-            build_pathfinder=$(jq -r '.modules.pathfinder.needs_build | if type == "boolean" then . else error("invalid pathfinder build gate") end' <<< "$WORKPLAN")
-            build_bindings=$(jq -r '.modules.bindings.needs_build | if type == "boolean" then . else error("invalid bindings build gate") end' <<< "$WORKPLAN")
-            build_core=$(jq -r '.modules.core.needs_build | if type == "boolean" then . else error("invalid core build gate") end' <<< "$WORKPLAN")
-            build_cuda_python=$(jq -r '.modules.python.needs_build | if type == "boolean" then . else error("invalid python build gate") end' <<< "$WORKPLAN")
-            test_bindings=$(jq -r '.modules.bindings.needs_test | if type == "boolean" then . else error("invalid bindings test gate") end' <<< "$WORKPLAN")
-            test_core=$(jq -r '.modules.core.needs_test | if type == "boolean" then . else error("invalid core test gate") end' <<< "$WORKPLAN")
-            build_bindings_current=$(jq -r --arg id "$current_line_id" '.modules.bindings.lines[$id].needs_build | if type == "boolean" then . else error("invalid current bindings build gate") end' <<< "$WORKPLAN")
-            build_bindings_maintenance=$(jq -r --arg id "$maintenance_line_id" '.modules.bindings.lines[$id].needs_build | if type == "boolean" then . else error("invalid maintenance bindings build gate") end' <<< "$WORKPLAN")
-            build_cuda_python_current=$(jq -r --arg id "$current_line_id" '.modules.python.lines[$id].needs_build | if type == "boolean" then . else error("invalid current python build gate") end' <<< "$WORKPLAN")
-            build_cuda_python_maintenance=$(jq -r --arg id "$maintenance_line_id" '.modules.python.lines[$id].needs_build | if type == "boolean" then . else error("invalid maintenance python build gate") end' <<< "$WORKPLAN")
-            test_bindings_current=$(jq -r --arg id "$current_line_id" '.modules.bindings.lines[$id].needs_test | if type == "boolean" then . else error("invalid current bindings test gate") end' <<< "$WORKPLAN")
-            test_bindings_maintenance=$(jq -r --arg id "$maintenance_line_id" '.modules.bindings.lines[$id].needs_test | if type == "boolean" then . else error("invalid maintenance bindings test gate") end' <<< "$WORKPLAN")
-            current_variant=$(jq -er --arg id "$current_line_id" '.modules.bindings.lines[$id].cuda_variant' <<< "$WORKPLAN")
-            maintenance_variant=$(jq -er --arg id "$maintenance_line_id" '.modules.bindings.lines[$id].cuda_variant' <<< "$WORKPLAN")
-            test_core_current=$(jq -r --arg variant "$current_variant" '.modules.core.cuda_majors[$variant].needs_test | if type == "boolean" then . else error("invalid current core test gate") end' <<< "$WORKPLAN")
-            test_core_maintenance=$(jq -r --arg variant "$maintenance_variant" '.modules.core.cuda_majors[$variant].needs_test | if type == "boolean" then . else error("invalid maintenance core test gate") end' <<< "$WORKPLAN")
+            IFS=$'\t' read -r \
+              pathfinder_source build_pathfinder build_bindings build_core build_cuda_python \
+              test_bindings test_core build_bindings_current build_bindings_maintenance \
+              build_cuda_python_current build_cuda_python_maintenance test_bindings_current \
+              test_bindings_maintenance test_core_current test_core_maintenance < <(
+                jq -er \
+                  --arg current "$current_line_id" \
+                  --arg maintenance "$maintenance_line_id" \
+                  --arg current_variant "$current_variant" \
+                  --arg maintenance_variant "$maintenance_variant" '
+                    [.sources.pathfinder,
+                     .modules.pathfinder.needs_build,
+                     .modules.bindings.needs_build,
+                     .modules.core.needs_build,
+                     .modules.python.needs_build,
+                     .modules.bindings.needs_test,
+                     .modules.core.needs_test,
+                     .modules.bindings.lines[$current].needs_build,
+                     .modules.bindings.lines[$maintenance].needs_build,
+                     .modules.python.lines[$current].needs_build,
+                     .modules.python.lines[$maintenance].needs_build,
+                     .modules.bindings.lines[$current].needs_test,
+                     .modules.bindings.lines[$maintenance].needs_test,
+                     .modules.core.cuda_majors[$current_variant].needs_test,
+                     .modules.core.cuda_majors[$maintenance_variant].needs_test]
+                    | @tsv
+                  ' <<< "$WORKPLAN"
+              )
           fi
 
           {
+            echo "PATHFINDER_SOURCE=$pathfinder_source"
             echo "BUILD_PATHFINDER=$build_pathfinder"
             echo "BUILD_BINDINGS=$build_bindings"
             echo "BUILD_BINDINGS_CURRENT=$build_bindings_current"
@@ -248,17 +259,22 @@ jobs:
         run: |
           pathfinder_wheels=(cuda_pathfinder/cuda_pathfinder-*.whl)
           mkdir -p wheel-constraints
-          if [[ "${#pathfinder_wheels[@]}" -eq 1 && -f "${pathfinder_wheels[0]}" ]]; then
+          if [[ "$PATHFINDER_SOURCE" == "artifact" ]]; then
+            if [[ "${#pathfinder_wheels[@]}" -ne 1 || ! -f "${pathfinder_wheels[0]}" ]]; then
+              echo "Expected exactly one cuda.pathfinder wheel" >&2
+              exit 1
+            fi
             if [[ "${{ inputs.host-platform }}" == win* ]]; then
               pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
             else
               pathfinder_uri="file:///host$(realpath "${pathfinder_wheels[0]}")"
             fi
             printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" > wheel-constraints/cuda-bindings.txt
-          else
-            # Release-tag workplans intentionally build only one bindings line
-            # and have no baseline run; let pip resolve released pathfinder.
+          elif [[ "$PATHFINDER_SOURCE" == "published" ]]; then
             : > wheel-constraints/cuda-bindings.txt
+          else
+            echo "Unknown cuda.pathfinder source: $PATHFINDER_SOURCE" >&2
+            exit 1
           fi
           cat wheel-constraints/cuda-bindings.txt
 
@@ -578,11 +594,17 @@ jobs:
         if: ${{ env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' }}
         run: |
           pathfinder_wheels=(cuda_pathfinder/*.whl)
-          if [[ "${#pathfinder_wheels[@]}" -eq 1 && -f "${pathfinder_wheels[0]}" ]]; then
+          if [[ "$PATHFINDER_SOURCE" == "artifact" ]]; then
+            if [[ "${#pathfinder_wheels[@]}" -ne 1 || ! -f "${pathfinder_wheels[0]}" ]]; then
+              echo "Expected exactly one cuda.pathfinder wheel" >&2
+              exit 1
+            fi
             pip install "${pathfinder_wheels[0]}"
-          else
-            # Line-specific release tags intentionally omit unrelated local artifacts.
+          elif [[ "$PATHFINDER_SOURCE" == "published" ]]; then
             pip install cuda-pathfinder
+          else
+            echo "Unknown cuda.pathfinder source: $PATHFINDER_SOURCE" >&2
+            exit 1
           fi
 
       - name: Hide GNU link.exe so Meson finds MSVC link.exe

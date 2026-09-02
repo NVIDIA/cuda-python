@@ -26,26 +26,6 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  ci-vars:
-    if: ${{ github.repository_owner == 'nvidia' }}
-    runs-on: ubuntu-latest
-    outputs:
-      BINDINGS_CONFIG: ${{ steps.get-vars.outputs.bindings_config }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
-        with:
-          fetch-depth: 1
-      - name: Install CI tool dependencies
-        run: python3 -m pip install -r ci/tools/requirements.txt
-      - name: Resolve CUDA bindings lines
-        id: get-vars
-        run: |
-          set -euo pipefail
-          bindings_config=$(python3 ci/tools/bindings_config.py)
-
-          echo "bindings_config=$bindings_config" >> "$GITHUB_OUTPUT"
-
   should-skip:
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
@@ -110,8 +90,8 @@ jobs:
       actions: read
       contents: read
     outputs:
+      bindings-config: ${{ steps.workplan.outputs.bindings-config }}
       workplan: ${{ steps.workplan.outputs.workplan }}
-      sdist-lines: ${{ steps.workplan.outputs.sdist-lines }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
@@ -197,7 +177,7 @@ jobs:
           missing=()
           has_artifact cuda-pathfinder-wheel || missing+=(cuda-pathfinder-wheel)
 
-          if ! bindings_config=$(python3 ci/tools/bindings_config.py); then
+          if ! bindings_config=$(python3 -m ci.tools.bindings_config); then
             unavailable
           fi
           if ! cuda_versions_json=$(jq -ce '
@@ -265,16 +245,9 @@ jobs:
           if [[ -n "$RELEASE_TAG" ]]; then
             planner_args+=(--release-tag "$RELEASE_TAG")
           fi
-          workplan=$(python3 ci/tools/compute_ci_plan.py "${planner_args[@]}")
-          echo "workplan=$workplan" >> "$GITHUB_OUTPUT"
-          echo "sdist-lines=$(jq -c '[. as $plan | .jobs.sdist_lines | to_entries[] | select(.value) | $plan.modules.bindings.lines[.key]]' <<< "$workplan")" >> "$GITHUB_OUTPUT"
-          {
-            echo
-            echo "### CI workplan"
-            echo '```json'
-            jq . <<< "$workplan"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+          python3 -m ci.tools.compute_ci_plan "${planner_args[@]}" \
+            --github-output "$GITHUB_OUTPUT" \
+            --github-step-summary "$GITHUB_STEP_SUMMARY"
 
   api-check-core-vs-release:
     name: API check (cuda_core vs. latest release)
@@ -368,7 +341,6 @@ jobs:
   #   - if: condition (build-linux-64 omits doc-only check since it's needed for docs)
   build-linux-64:
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
     strategy:
@@ -385,13 +357,12 @@ jobs:
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
-      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
+      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See build-linux-64 for why build jobs are split by platform.
   build-linux-aarch64:
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
     strategy:
@@ -411,13 +382,12 @@ jobs:
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
-      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
+      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See build-linux-64 for why build jobs are split by platform.
   build-windows:
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
     strategy:
@@ -437,7 +407,7 @@ jobs:
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
-      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
+      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # NOTE: test-sdist jobs are split by platform (mirroring build-* and test-wheel-*)
@@ -450,9 +420,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        line: ${{ fromJSON(needs.detect-changes.outputs.sdist-lines) }}
+        line: ${{ fromJSON(needs.detect-changes.outputs.bindings-config).lines }}
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
       - build-linux-64
@@ -476,9 +445,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        line: ${{ fromJSON(needs.detect-changes.outputs.sdist-lines) }}
+        line: ${{ fromJSON(needs.detect-changes.outputs.bindings-config).lines }}
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
       - build-linux-64
@@ -517,7 +485,6 @@ jobs:
       actions: read
       contents: read  # This is required for actions/checkout
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
       - build-linux-64
@@ -526,7 +493,7 @@ jobs:
     with:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
-      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
+      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
@@ -545,7 +512,6 @@ jobs:
       actions: read
       contents: read  # This is required for actions/checkout
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
       - build-linux-64
@@ -555,7 +521,7 @@ jobs:
     with:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
-      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
+      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
@@ -574,7 +540,6 @@ jobs:
       actions: read
       contents: read  # This is required for actions/checkout
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
       - build-linux-64
@@ -584,7 +549,7 @@ jobs:
     with:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
-      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
+      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
@@ -597,7 +562,6 @@ jobs:
       contents: write
       pull-requests: write
     needs:
-      - ci-vars
       - build-linux-64
     secrets: inherit
     uses: ./.github/workflows/build-docs.yml
@@ -647,7 +611,6 @@ jobs:
     if: ${{ always() && github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
       - build-linux-64
@@ -700,7 +663,6 @@ jobs:
 
           # Control jobs, the universal linux build, docs, and Windows
           # pre-commit checks always run.
-          check_result "ci-vars"           "success"
           check_result "should-skip"       "success"
           check_result "detect-changes"    "success"
           check_result "build-linux-64"    "success"
