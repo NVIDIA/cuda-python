@@ -62,14 +62,20 @@ jobs:
           WORKPLAN: ${{ inputs.workplan }}
         run: |
           set -euo pipefail
-          current_line_id=$(jq -er '
-            .roles.current
-            | if length == 1 then .[0] else error("bindings registry must have one current line") end
+          public_lines=$(jq -er '
+            (.roles.current // []) as $current
+            | (.roles.maintenance // []) as $maintenance
+            | ([.lines[].line_id] | sort) as $lines
+            | ([$current[], $maintenance[]] | sort) as $selected
+            | if (($current | length) == 1
+                  and ($maintenance | length) == 1
+                  and ($selected | unique | length) == 2
+                  and $lines == $selected)
+              then [$current[0], $maintenance[0]] | @tsv
+              else error("wheel builder requires one distinct current and maintenance line covering the registry")
+              end
           ' <<< "$BINDINGS_CONFIG")
-          maintenance_line_id=$(jq -er '
-            .roles.maintenance
-            | if length == 1 then .[0] else error("wheel builder currently requires one maintenance line") end
-          ' <<< "$BINDINGS_CONFIG")
+          IFS=$'\t' read -r current_line_id maintenance_line_id <<< "$public_lines"
 
           if [[ -z "$WORKPLAN" ]]; then
             build_pathfinder=true
@@ -592,9 +598,12 @@ jobs:
           bindings_wheels=(${{ env.CURRENT_BINDINGS_ARTIFACTS_DIR }}/*.whl)
           test "${#bindings_wheels[@]}" -eq 1
           test -f "${bindings_wheels[0]}"
-          python ci/tools/install_bindings_test_wheel.py \
-            "${bindings_wheels[0]}" \
-            "${CURRENT_BINDINGS_ROOT}/pyproject.toml"
+          bindings_pyproject="${CURRENT_BINDINGS_ROOT}/pyproject.toml"
+          if grep -q '^\[dependency-groups\][[:space:]]*$' "${bindings_pyproject}"; then
+            python -m pip install "${bindings_wheels[0]}" --group "${bindings_pyproject}:test"
+          else
+            python -m pip install "${bindings_wheels[0]}[test]"
+          fi
           pushd ${{ env.CURRENT_BINDINGS_CYTHON_TESTS_DIR }}
           bash build_tests.sh
           popd
@@ -747,9 +756,12 @@ jobs:
           bindings_wheels=(${{ env.MAINTENANCE_BINDINGS_ARTIFACTS_DIR }}/*.whl)
           test "${#bindings_wheels[@]}" -eq 1
           test -f "${bindings_wheels[0]}"
-          python ci/tools/install_bindings_test_wheel.py \
-            "${bindings_wheels[0]}" \
-            "${MAINTENANCE_BINDINGS_ROOT}/pyproject.toml"
+          bindings_pyproject="${MAINTENANCE_BINDINGS_ROOT}/pyproject.toml"
+          if grep -q '^\[dependency-groups\][[:space:]]*$' "${bindings_pyproject}"; then
+            python -m pip install "${bindings_wheels[0]}" --group "${bindings_pyproject}:test"
+          else
+            python -m pip install "${bindings_wheels[0]}[test]"
+          fi
           pushd ${{ env.MAINTENANCE_BINDINGS_CYTHON_TESTS_DIR }}
           bash build_tests.sh
           popd

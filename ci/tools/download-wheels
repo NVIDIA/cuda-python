@@ -82,40 +82,34 @@ else
 
         MATCHING_ARTIFACTS=()
         if [[ "$COMPONENT" == "cuda-python" ]]; then
-            LINE_ARTIFACT_PATTERN="cuda-python-wheel-cuda${TOOLKIT_VERSION}"
-        else
-            LINE_ARTIFACT_PATTERN="cuda-bindings-python*-cuda${TOOLKIT_VERSION}-*"
-        fi
-        while IFS= read -r artifact_name; do
-            [[ -n "$artifact_name" ]] || continue
-            # The pattern is assembled from a validated toolkit version.
-            # shellcheck disable=SC2053
-            if [[ "$artifact_name" == $LINE_ARTIFACT_PATTERN && "$artifact_name" != *-tests ]]; then
-                MATCHING_ARTIFACTS+=("$artifact_name")
+            ARTIFACT_NAME="cuda-python-wheel-cuda${TOOLKIT_VERSION}"
+            if grep -Fxq "$ARTIFACT_NAME" <<< "$ARTIFACT_NAMES"; then
+                MATCHING_ARTIFACTS+=("$ARTIFACT_NAME")
+            elif [[ "$RELEASE_REGISTRY_ORIGIN" == "control" ]] \
+                    && grep -Fxq cuda-python-wheel <<< "$ARTIFACT_NAMES"; then
+                MATCHING_ARTIFACTS+=(cuda-python-wheel)
             fi
-        done <<< "$ARTIFACT_NAMES"
-
-        if [[ ${#MATCHING_ARTIFACTS[@]} -eq 0 \
-              && "$COMPONENT" == "cuda-python" \
-              && "$RELEASE_REGISTRY_ORIGIN" == "control" ]]; then
+        else
+            ARTIFACT_PATTERN="cuda-bindings-python*-cuda${TOOLKIT_VERSION}-*"
             while IFS= read -r artifact_name; do
-                if [[ "$artifact_name" == "cuda-python-wheel" ]]; then
+                # The pattern contains only the validated toolkit version.
+                # shellcheck disable=SC2053
+                if [[ "$artifact_name" == $ARTIFACT_PATTERN && "$artifact_name" != *-tests ]]; then
                     MATCHING_ARTIFACTS+=("$artifact_name")
-                    break
                 fi
             done <<< "$ARTIFACT_NAMES"
         fi
 
-        if [[ ${#MATCHING_ARTIFACTS[@]} -eq 0 ]]; then
-            echo "Error: run $RUN_ID has no unexpired artifact matching $LINE_ARTIFACT_PATTERN" >&2
+        if [[ ${#MATCHING_ARTIFACTS[@]} == 0 ]]; then
+            echo "Error: run $RUN_ID has no unexpired release artifact for CUDA $TOOLKIT_VERSION" >&2
             if [[ "$COMPONENT" == "cuda-python" && "$RELEASE_REGISTRY_ORIGIN" != "control" ]]; then
                 echo "Error: legacy cuda-python-wheel fallback is not allowed for a tag registry" >&2
             fi
             exit 1
         fi
-
         for artifact_name in "${MATCHING_ARTIFACTS[@]}"; do
-            gh run download "$RUN_ID" --name "$artifact_name" -R "$REPOSITORY" --dir "$ARTIFACTS_DIR"
+            gh run download "$RUN_ID" --name "$artifact_name" \
+                -R "$REPOSITORY" --dir "$ARTIFACTS_DIR"
         done
     else
         gh run download "$RUN_ID" -p "$ARTIFACT_PATTERN" -R "$REPOSITORY" --dir "$ARTIFACTS_DIR"
@@ -128,6 +122,7 @@ mkdir -p "$OUTPUT_DIR"
 # `gh run download` extracts a sole selected artifact directly into --dir,
 # while multiple artifacts get per-artifact subdirectories. Find wheels
 # recursively so both layouts are handled identically.
+MOVED_WHEELS=0
 while IFS= read -r -d '' wheel; do
     relative_path="${wheel#"$ARTIFACTS_DIR"/}"
     # TODO: remove the Python 3.15 exclusion once 3.15 is officially supported.
@@ -137,7 +132,13 @@ while IFS= read -r -d '' wheel; do
     fi
     echo "Processing wheel: $relative_path"
     mv "$wheel" "$OUTPUT_DIR/"
+    MOVED_WHEELS=$((MOVED_WHEELS + 1))
 done < <(find "$ARTIFACTS_DIR" -type f -name "*.whl" -print0)
+
+if [[ "$MOVED_WHEELS" == 0 ]]; then
+    echo "Error: selected artifacts contain no releasable wheels" >&2
+    exit 1
+fi
 
 echo "Downloaded wheels to: $OUTPUT_DIR"
 ls -la "$OUTPUT_DIR"

@@ -32,10 +32,6 @@ def _tag_tree_config(config_path: Path) -> bindings_config.BindingsConfig | None
         raise ReleaseBindingsLineError(f"tagged config {config_path} must contain a YAML mapping")
     if "schema_version" not in raw:
         return None
-    if type(raw["schema_version"]) is not int or raw["schema_version"] != 2:
-        raise ReleaseBindingsLineError(
-            f"tagged config {config_path} has unsupported schema_version: {raw['schema_version']!r}"
-        )
     try:
         return bindings_config.validate_config(raw)
     except bindings_config.BindingsConfigError as error:

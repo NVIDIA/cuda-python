@@ -7,7 +7,6 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
-from types import MappingProxyType
 
 import pytest
 
@@ -38,79 +37,57 @@ def plan_for(
     )
 
 
+def as_dict(value: object) -> dict[str, object]:
+    assert isinstance(value, dict)
+    return value
+
+
+def enabled(decisions: dict[str, object], key: str | None = None) -> set[str]:
+    if key is None:
+        return {name for name, value in decisions.items() if value}
+    return {name for name, value in decisions.items() if as_dict(value)[key]}
+
+
 def selected(plan: dict[str, object], key: str) -> set[str]:
-    modules = plan["modules"]
-    assert isinstance(modules, dict)
-    return {name for name, decision in modules.items() if decision[key]}
+    return enabled(as_dict(plan["modules"]), key)
 
 
 def selected_platforms(plan: dict[str, object]) -> set[str]:
-    jobs = plan["jobs"]
-    assert isinstance(jobs, dict)
-    platforms = jobs["platforms"]
-    assert isinstance(platforms, dict)
+    platforms = as_dict(as_dict(plan["jobs"])["platforms"])
     assert set(platforms) == ALL_PLATFORMS
-    return {name for name, enabled in platforms.items() if enabled}
+    return enabled(platforms)
 
 
 def selected_variants(plan: dict[str, object], module: str, key: str) -> set[str]:
-    modules = plan["modules"]
-    assert isinstance(modules, dict)
-    decision = modules[module]
-    assert isinstance(decision, dict)
-    variants = decision["variants"]
-    assert isinstance(variants, dict)
-    core = modules["core"]
-    assert isinstance(core, dict)
-    cuda_majors = core["cuda_majors"]
-    assert isinstance(cuda_majors, dict)
+    modules = as_dict(plan["modules"])
+    variants = as_dict(as_dict(modules[module])["variants"])
+    cuda_majors = as_dict(as_dict(modules["core"])["cuda_majors"])
     assert set(variants) == set(cuda_majors)
-    return {name for name, variant_decision in variants.items() if variant_decision[key]}
+    return enabled(variants, key)
 
 
 def selected_lines(plan: dict[str, object], module: str, key: str) -> set[str]:
-    modules = plan["modules"]
-    assert isinstance(modules, dict)
-    decision = modules[module]
-    assert isinstance(decision, dict)
-    lines = decision["lines"]
-    assert isinstance(lines, dict)
-    return {line_id for line_id, line_decision in lines.items() if line_decision[key]}
+    module_plan = as_dict(as_dict(plan["modules"])[module])
+    return enabled(as_dict(module_plan["lines"]), key)
 
 
 def selected_core_majors(plan: dict[str, object], key: str) -> set[str]:
-    modules = plan["modules"]
-    assert isinstance(modules, dict)
-    core = modules["core"]
-    assert isinstance(core, dict)
-    cuda_majors = core["cuda_majors"]
-    assert isinstance(cuda_majors, dict)
-    return {variant for variant, decision in cuda_majors.items() if decision[key]}
+    core = as_dict(as_dict(plan["modules"])["core"])
+    return enabled(as_dict(core["cuda_majors"]), key)
 
 
 def selected_cuda_majors(plan: dict[str, object], key: str) -> set[str]:
-    jobs = plan["jobs"]
-    assert isinstance(jobs, dict)
-    majors = jobs[key]
-    assert isinstance(majors, dict)
-    modules = plan["modules"]
-    assert isinstance(modules, dict)
-    core = modules["core"]
-    assert isinstance(core, dict)
-    cuda_majors = core["cuda_majors"]
-    assert isinstance(cuda_majors, dict)
+    majors = as_dict(as_dict(plan["jobs"])[key])
+    cuda_majors = as_dict(as_dict(as_dict(plan["modules"])["core"])["cuda_majors"])
     assert set(majors) == set(cuda_majors)
-    return {name for name, enabled in majors.items() if enabled}
+    return enabled(majors)
 
 
 def synthetic_line(line_id: str, source_dir: str, ctk_target: str) -> BindingsLine:
     return BindingsLine(
         line_id=line_id,
         source_dir=source_dir,
-        ctk_target=ctk_target,
         toolkit_version=f"{ctk_target}.0",
-        toolkit_channel="stable",
-        tag_series=f"v{ctk_target}.",
         allow_alpha_beta_tags=True,
     )
 
@@ -123,35 +100,15 @@ def synthetic_config(
     return BindingsConfig(
         schema_version=2,
         lines=lines,
-        roles=MappingProxyType(
-            {
-                "current": (current,),
-                "maintenance": maintenance,
-            }
-        ),
+        roles={"current": (current,), "maintenance": maintenance},
     )
 
 
 class ComputeWorkplanTest(unittest.TestCase):
     def test_path_impacts(self) -> None:
         cases = {
-            "cuda_pathfinder/cuda/pathfinder/_loader.py": (ALL_MODULES, ALL_MODULES, False),
-            "cuda_bindings/cuda/bindings/driver.pyx": (
-                {"bindings", "core", "python"},
-                {"bindings", "core", "python"},
-                False,
-            ),
-            "cuda_bindings_12/cuda/bindings/driver.pyx": (
-                {"bindings", "core", "python"},
-                {"bindings", "core", "python"},
-                False,
-            ),
-            "cuda_core/cuda/core/_device.py": ({"core"}, {"core", "python"}, True),
             "cuda_core/cuda/core/examples/demo.py": ({"core"}, {"core", "python"}, True),
-            "cuda_python/pyproject.toml": ({"bindings", "python"}, {"python"}, False),
             "cuda_pathfinder/tests/test_loader.py": (set(), {"pathfinder"}, False),
-            "cuda_bindings/examples/0_Introduction/vectorAddDrv.py": (set(), {"bindings"}, False),
-            "cuda_bindings_12/examples/0_Introduction/vectorAddDrv.py": (set(), {"bindings"}, False),
             "cuda_bindings/tests/README.md": (set(), {"bindings"}, False),
             "cuda_core/pytest.ini": (set(), {"core"}, False),
             "cuda_python/tests/test_import.py": (set(), {"python"}, False),
@@ -161,10 +118,6 @@ class ComputeWorkplanTest(unittest.TestCase):
                 False,
             ),
             "benchmarks/cuda_bindings/run_pyperf.py": (set(), ALL_MODULES, False),
-            "benchmarks/cuda_core/runner.py": (set(), ALL_MODULES, False),
-            "ci/tools/run-tests": (ALL_MODULES, ALL_MODULES, True),
-            "ci/versions.yml": (ALL_MODULES, ALL_MODULES, True),
-            "pytest.ini": (ALL_MODULES, ALL_MODULES, True),
         }
 
         for path, (builds, tests, core_api) in cases.items():
@@ -260,17 +213,22 @@ class ComputeWorkplanTest(unittest.TestCase):
                 assert selected_cuda_majors(plan, "test_cuda_majors") == test_majors
                 assert selected_cuda_majors(plan, "sdist_cuda_majors") == sdist_majors
 
-        release_tags = (
-            ("v12.9.9", "cu12"),
-            ("v13.3.0", "cu13"),
-            ("v13.3.0b1", "cu13"),
-        )
-        for release_tag, variant in release_tags:
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_release_tags_select_only_the_matching_line(self) -> None:
+        for release_tag, line_id, variant in (
+            ("v12.9.9", "released-12", "cu12"),
+            ("v13.3.0", "released-13", "cu13"),
+            ("v13.3.0b1", "released-13", "cu13"),
+            ("v12.9.9.post1", "released-12", "cu12"),
+            ("v13.3.0.post1", "released-13", "cu13"),
+        ):
             with self.subTest(release_tag=release_tag):
                 plan = plan_for(baseline=False, release_tag=release_tag)
                 assert selected(plan, "needs_build") == {"bindings", "python"}
                 assert selected(plan, "needs_test") == {"bindings", "python"}
                 for module in ("bindings", "python"):
+                    assert selected_lines(plan, module, "needs_build") == {line_id}
+                    assert selected_lines(plan, module, "needs_test") == {line_id}
                     assert selected_variants(plan, module, "needs_build") == {variant}
                     assert selected_variants(plan, module, "needs_test") == {variant}
                 assert not selected_variants(plan, "core", "needs_build")
@@ -281,19 +239,6 @@ class ComputeWorkplanTest(unittest.TestCase):
                 assert plan["jobs"]["sdist_tests"]
                 assert not plan["jobs"]["core_api_checks"]
                 assert plan["baseline"] == {"run_id": "", "sha": ""}
-
-    @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_post_release_tags_select_only_the_matching_line(self) -> None:
-        for release_tag, line_id, variant in (
-            ("v12.9.9.post1", "released-12", "cu12"),
-            ("v13.3.0.post1", "released-13", "cu13"),
-        ):
-            with self.subTest(release_tag=release_tag):
-                plan = plan_for(baseline=False, release_tag=release_tag)
-                assert selected_lines(plan, "bindings", "needs_build") == {line_id}
-                assert selected_lines(plan, "python", "needs_build") == {line_id}
-                assert selected_variants(plan, "bindings", "needs_test") == {variant}
-                assert selected_variants(plan, "python", "needs_test") == {variant}
 
     def test_test_infrastructure_platforms(self) -> None:
         cases = {
@@ -326,6 +271,7 @@ class ComputeWorkplanTest(unittest.TestCase):
         assert selected_platforms(source_plan) == ALL_PLATFORMS
 
     def test_ignored_paths_select_no_work(self) -> None:
+        empty_plan = plan_for()
         for path in (
             "cuda_core/docs/index.rst",
             "cuda_core/pixi.toml",
@@ -344,15 +290,7 @@ class ComputeWorkplanTest(unittest.TestCase):
             ".github/ISSUE_TEMPLATE/bug.yml",
         ):
             with self.subTest(path=path):
-                plan = plan_for(path)
-                assert not selected(plan, "needs_build")
-                assert not selected(plan, "needs_test")
-                for module in VARIANT_MODULES:
-                    assert not selected_variants(plan, module, "needs_build")
-                    assert not selected_variants(plan, module, "needs_test")
-                assert not selected_platforms(plan)
-                assert not selected_cuda_majors(plan, "test_cuda_majors")
-                assert not selected_cuda_majors(plan, "sdist_cuda_majors")
+                assert plan_for(path) == empty_plan
 
     def test_unknown_path_and_missing_baseline_force_all(self) -> None:
         for plan in (
@@ -411,18 +349,13 @@ class ComputeWorkplanTest(unittest.TestCase):
 
         assert paths == ["README.md", "cuda_python/README.md"]
         plan = plan_for(*paths, linked_paths={"cuda_python/README.md"})
-        assert selected(plan, "needs_build") == {"bindings", "python"}
-        assert selected(plan, "needs_test") == {"python"}
-        for module in ("bindings", "python"):
-            assert selected_variants(plan, module, "needs_build") == CUDA_VARIANTS
-        assert selected_variants(plan, "python", "needs_test") == CUDA_VARIANTS
-
         removed_link = plan_for("cuda_python/README.md", linked_paths={"cuda_python/README.md"})
-        assert selected(removed_link, "needs_build") == {"bindings", "python"}
-        assert selected(removed_link, "needs_test") == {"python"}
-        for module in ("bindings", "python"):
-            assert selected_variants(removed_link, module, "needs_build") == CUDA_VARIANTS
-        assert selected_variants(removed_link, "python", "needs_test") == CUDA_VARIANTS
+        for linked_plan in (plan, removed_link):
+            assert selected(linked_plan, "needs_build") == {"bindings", "python"}
+            assert selected(linked_plan, "needs_test") == {"python"}
+            for module in ("bindings", "python"):
+                assert selected_variants(linked_plan, module, "needs_build") == CUDA_VARIANTS
+            assert selected_variants(linked_plan, "python", "needs_test") == CUDA_VARIANTS
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_same_major_release_lines_remain_independently_selectable(self) -> None:

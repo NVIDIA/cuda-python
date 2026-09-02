@@ -43,8 +43,8 @@ if [[ "${1}" == "build" ]]; then
   # platform is handled by the default value of platform (`auto`) in cibuildwheel
   # here we only need to specify the python version we want
   echo "CIBW_BUILD=cp${PYTHON_VERSION_FORMATTED}-*" >> $GITHUB_ENV
-  CURRENT_LINE_JSON="$(python "${TOOLS_PATH}/bindings_config.py" get --role current)"
-  MAINTENANCE_LINE_JSON="$(python "${TOOLS_PATH}/bindings_config.py" get --role maintenance)"
+  CURRENT_LINE_JSON="$(python "${TOOLS_PATH}/bindings_config.py" --role current)"
+  MAINTENANCE_LINE_JSON="$(python "${TOOLS_PATH}/bindings_config.py" --role maintenance)"
   json_field() {
     python -c 'import json, sys; print(json.load(sys.stdin)[sys.argv[1]])' "$1"
   }

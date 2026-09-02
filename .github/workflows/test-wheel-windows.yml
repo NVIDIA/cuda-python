@@ -107,10 +107,19 @@ jobs:
             ' <<< "$WORKPLAN")
           fi
 
-          python3 ci/tools/check_test_matrix_bindings.py \
-            --bindings-config "$BINDINGS_CONFIG" \
-            --enabled-cuda-variants "$TEST_CUDA_MAJORS" \
-            --test-matrix "$TEST_MATRIX"
+          jq -en \
+            --argjson lines "$BINDINGS_LINES" \
+            --argjson enabled "$TEST_CUDA_MAJORS" \
+            --argjson matrix "$TEST_MATRIX" '
+              [$lines[]
+               | select($enabled[.cuda_variant] == true)
+               | . as $line
+               | select(all($matrix[]; .CUDA_VER != $line.toolkit_version))
+               | "\(.line_id) (\(.cuda_variant), CUDA \(.toolkit_version))"] as $missing
+              | if $missing | length == 0 then true
+                else error("test matrix has no exact toolkit-pin row for: \($missing | join(", "))")
+                end
+            ' > /dev/null
 
           # Apply matrix filter; add a RUNNER_DRIVER field that maps any
           # custom DRIVER version back to 'latest' (install_gpu_driver.ps1

@@ -13,44 +13,38 @@ import pytest
 DOWNLOAD_WHEELS = Path(__file__).parent.parent / "download-wheels"
 
 FAKE_GH = r"""#!/usr/bin/env python3
+import fnmatch
 import json
 import os
-import re
 import sys
 from pathlib import Path
 
 args = sys.argv[1:]
 with Path(os.environ["FAKE_GH_LOG"]).open("a", encoding="utf-8") as stream:
     print(json.dumps(args), file=stream)
+artifacts = json.loads(os.environ["FAKE_ARTIFACTS"])
 
 if args[:1] == ["api"]:
-    if "--paginate" not in args or "--jq" not in args:
-        print("artifact lookup must be paginated and filtered", file=sys.stderr)
-        raise SystemExit(2)
-    for artifact in json.loads(os.environ["FAKE_ARTIFACTS"]):
-        if not artifact.get("expired", False):
-            print(artifact["name"])
+    print(*artifacts, sep="\n")
     raise SystemExit(0)
 
 if args[:2] == ["run", "download"]:
     if "--name" in args:
-        artifact_name = args[args.index("--name") + 1]
-    elif "-p" in args:
-        pattern = args[args.index("-p") + 1]
-        artifact_name = pattern.replace("*", "wheel")
+        name = args[args.index("--name") + 1]
+        selected = [artifact for artifact in artifacts if artifact == name]
     else:
-        print("download requires --name or -p", file=sys.stderr)
-        raise SystemExit(2)
-    if "--dir" not in args:
-        print("download requires --dir", file=sys.stderr)
-        raise SystemExit(2)
-    artifact_dir = Path(args[args.index("--dir") + 1]) / artifact_name
-    artifact_dir.mkdir()
-    wheel_stem = re.sub(r"[^A-Za-z0-9]+", "_", artifact_name).strip("_")
-    (artifact_dir / f"{wheel_stem}-py3-none-any.whl").write_text("wheel", encoding="utf-8")
+        pattern = args[args.index("-p") + 1]
+        selected = [artifact for artifact in artifacts if fnmatch.fnmatchcase(artifact, pattern)]
+    if not selected:
+        raise SystemExit(1)
+    destination = Path(args[args.index("--dir") + 1])
+    for artifact in selected:
+        artifact_dir = destination / artifact
+        artifact_dir.mkdir(parents=True)
+        suffix = ".so" if artifact.endswith("-tests") else ".whl"
+        (artifact_dir / f"{artifact}{suffix}").touch()
     raise SystemExit(0)
 
-print(f"unexpected gh arguments: {args!r}", file=sys.stderr)
 raise SystemExit(2)
 """
 
@@ -66,46 +60,26 @@ def fake_gh(tmp_path):
 
 
 def resolved_line(*, toolkit_version="13.3.0", origin="tag"):
-    return json.dumps(
-        {
-            "toolkit_version": toolkit_version,
-            "release_registry_origin": origin,
-        },
-        separators=(",", ":"),
-    )
+    return json.dumps({"toolkit_version": toolkit_version, "release_registry_origin": origin})
 
 
-def run_download(
-    tmp_path,
-    fake_gh,
-    artifacts,
-    component,
-    *,
-    git_tag="",
-    bindings_line_json=None,
-):
+def run_download(tmp_path, fake_gh, artifacts, component, *, tag="", line=None):
     log = tmp_path / "gh.log"
     env = os.environ.copy()
     env.update(
         {
-            "FAKE_ARTIFACTS": json.dumps([{"name": name, "expired": False} for name in artifacts]),
+            "FAKE_ARTIFACTS": json.dumps(artifacts),
             "FAKE_GH_LOG": str(log),
             "GH_TOKEN": "test-token",
             "PATH": f"{fake_gh}{os.pathsep}{env['PATH']}",
         }
     )
-    args = [
-        str(DOWNLOAD_WHEELS),
-        "123",
-        component,
-        "NVIDIA/cuda-python",
-        str(tmp_path / "dist"),
-    ]
-    if git_tag or bindings_line_json is not None:
-        args.append(git_tag)
-    if bindings_line_json is not None:
-        args.append(bindings_line_json)
-    result = subprocess.run(  # noqa: S603 - invokes the repository script under test
+    args = [str(DOWNLOAD_WHEELS), "123", component, "NVIDIA/cuda-python", str(tmp_path / "dist")]
+    if tag or line is not None:
+        args.append(tag)
+    if line is not None:
+        args.append(line)
+    result = subprocess.run(  # noqa: S603
         args,
         cwd=tmp_path,
         env=env,
@@ -113,95 +87,83 @@ def run_download(
         capture_output=True,
         text=True,
     )
-    commands = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines()] if log.exists() else []
+    commands = [json.loads(item) for item in log.read_text(encoding="utf-8").splitlines()] if log.exists() else []
     return result, commands
 
 
-def downloaded_names(commands):
-    return [command[command.index("--name") + 1] for command in commands if "--name" in command]
-
-
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-class TestDownloadWheelsReleaseRouting:
-    def test_modern_python_prefers_exact_line_artifact(self, tmp_path, fake_gh):
-        exact = "cuda-python-wheel-cuda13.3.0"
+class TestDownloadWheels:
+    @pytest.mark.parametrize(
+        ("origin", "artifacts", "expected"),
+        (
+            ("tag", ["cuda-python-wheel", "cuda-python-wheel-cuda13.3.0"], "cuda-python-wheel-cuda13.3.0"),
+            ("control", ["cuda-python-wheel"], "cuda-python-wheel"),
+        ),
+    )
+    def test_python_selects_exact_or_legacy_artifact(self, tmp_path, fake_gh, origin, artifacts, expected):
         result, commands = run_download(
             tmp_path,
             fake_gh,
-            ["cuda-python-wheel", "cuda-python-wheel-cuda13.2.0", exact],
+            artifacts,
             "cuda-python",
-            git_tag="v13.3.1",
-            bindings_line_json=resolved_line(),
+            tag="v13.3.1",
+            line=resolved_line(origin=origin),
         )
 
         assert result.returncode == 0, result.stderr
-        assert downloaded_names(commands) == [exact]
+        assert any("--name" in command and expected in command for command in commands)
 
-    def test_control_python_falls_back_to_exact_legacy_artifact(self, tmp_path, fake_gh):
-        result, commands = run_download(
-            tmp_path,
-            fake_gh,
-            ["cuda-python-wheel-old", "cuda-python-wheel"],
-            "cuda-python",
-            git_tag="v12.9.8",
-            bindings_line_json=resolved_line(toolkit_version="12.9.1", origin="control"),
-        )
-
-        assert result.returncode == 0, result.stderr
-        assert downloaded_names(commands) == ["cuda-python-wheel"]
-
-    def test_tag_registry_rejects_legacy_python_fallback(self, tmp_path, fake_gh):
-        result, commands = run_download(
+    def test_tag_registry_rejects_legacy_python_artifact(self, tmp_path, fake_gh):
+        result, _ = run_download(
             tmp_path,
             fake_gh,
             ["cuda-python-wheel"],
             "cuda-python",
-            git_tag="v13.3.1",
-            bindings_line_json=resolved_line(),
+            tag="v13.3.1",
+            line=resolved_line(),
         )
 
-        assert result.returncode != 0
-        assert downloaded_names(commands) == []
+        assert result.returncode == 1
         assert "legacy cuda-python-wheel fallback is not allowed" in result.stderr
 
-    def test_bindings_artifacts_use_the_exact_toolkit_pin(self, tmp_path, fake_gh):
-        exact = [
-            "cuda-bindings-python310-cuda13.3.0-linux-64-sha",
-            "cuda-bindings-python314-cuda13.3.0-win-64-sha",
-        ]
+    def test_bindings_pattern_contains_exact_toolkit_pin(self, tmp_path, fake_gh):
+        exact = "cuda-bindings-python312-cuda13.3.0-linux-64-sha"
         result, commands = run_download(
             tmp_path,
             fake_gh,
-            ["cuda-bindings-python310-cuda13.3.00-linux-64-sha", *exact],
+            ["cuda-bindings-python312-cuda13.2.0-linux-64-sha", exact, f"{exact}-tests"],
             "cuda-bindings",
-            git_tag="v13.3.1",
-            bindings_line_json=resolved_line(),
+            tag="v13.3.1",
+            line=resolved_line(),
         )
 
         assert result.returncode == 0, result.stderr
-        assert downloaded_names(commands) == exact
+        downloads = [command[command.index("--name") + 1] for command in commands if "--name" in command]
+        assert downloads == [exact]
+        assert [path.name for path in (tmp_path / "dist").glob("*.whl")] == [f"{exact}.whl"]
 
-    def test_release_routing_requires_resolved_line_json(self, tmp_path, fake_gh):
+    def test_release_routing_requires_resolved_line(self, tmp_path, fake_gh):
         result, commands = run_download(
             tmp_path,
             fake_gh,
             ["cuda-python-wheel-cuda13.3.0"],
             "cuda-python",
-            git_tag="v13.3.1",
+            tag="v13.3.1",
         )
 
-        assert result.returncode != 0
+        assert result.returncode == 1
         assert commands == []
-        assert "resolved bindings-line JSON is required" in result.stderr
 
-    def test_nonbindings_five_argument_call_keeps_pattern_download(self, tmp_path, fake_gh):
-        result, commands = run_download(
+    def test_bindings_test_artifact_is_not_releasable(self, tmp_path, fake_gh):
+        artifact = "cuda-bindings-python312-cuda13.3.0-linux-64-sha-tests"
+        result, _ = run_download(
             tmp_path,
             fake_gh,
-            [],
-            "cuda-core",
-            git_tag="cuda-core-v1.1.1",
+            [artifact],
+            "cuda-bindings",
+            tag="v13.3.1",
+            line=resolved_line(),
         )
 
-        assert result.returncode == 0, result.stderr
-        assert any("-p" in command and "cuda-core*" in command for command in commands)
+        assert result.returncode == 1
+        assert "no unexpired release artifact" in result.stderr

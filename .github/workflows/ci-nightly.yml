@@ -100,7 +100,7 @@ jobs:
           versions_file=$(mktemp)
           trap 'rm -f "$versions_file"' EXIT
           printf '%s' "$VERSIONS_YAML" > "$versions_file"
-          BINDINGS_CONFIG=$(python ci/tools/bindings_config.py --config "$versions_file" json)
+          BINDINGS_CONFIG=$(python ci/tools/bindings_config.py --config "$versions_file")
 
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
           echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT

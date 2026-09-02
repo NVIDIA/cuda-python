@@ -58,6 +58,8 @@ TEST_INFRA_PLATFORMS = {
     "ci/tools/setup-sanitizer": "linux",
 }
 
+Target = tuple[str, str | None]
+
 
 def compute_workplan(
     paths: list[str],
@@ -71,10 +73,11 @@ def compute_workplan(
     """Return the final CI decisions for the supplied changed paths."""
     config = bindings_config or load_config()
     lines = config.lines
-    line_by_id = {line.line_id: line for line in lines}
-    line_ids = tuple(line_by_id)
+    line_ids = tuple(line.line_id for line in lines)
     cuda_variants = tuple(dict.fromkeys(line.cuda_variant for line in lines))
-    cuda_major_by_variant = {line.cuda_variant: line.cuda_major for line in lines}
+    lines_by_variant = {
+        variant: tuple(line for line in lines if line.cuda_variant == variant) for variant in cuda_variants
+    }
 
     bindings_targets = frozenset(("bindings", line_id) for line_id in line_ids)
     core_targets = frozenset(("core", variant) for variant in cuda_variants)
@@ -87,46 +90,32 @@ def compute_workplan(
     }
     package_targets.update((PurePosixPath(source_dir), target) for source_dir, target in PACKAGE_TARGETS.items())
 
-    # Source changes have different build and test consumers. In particular,
-    # cuda-python source needs same-version bindings wheels, while a core-only
-    # change can reuse baseline cuda-python wheels.
-    def source_impact(
-        target: tuple[str, str | None],
-    ) -> tuple[frozenset[tuple[str, str | None]], frozenset[tuple[str, str | None]], frozenset[str]]:
-        module, selector = target
-        if module == "pathfinder":
-            return all_targets, all_targets, frozenset(line_ids)
-        if module == "bindings":
-            assert selector is not None
-            line = line_by_id[selector]
-            return (
-                frozenset({("bindings", selector), ("python", selector), *core_targets}),
-                frozenset({("bindings", selector), ("core", line.cuda_variant), ("python", selector)}),
-                frozenset({selector}),
+    # Source changes have different build/test consumers. Core-only changes can
+    # reuse baseline cuda-python wheels; cuda-python changes cannot reuse bindings.
+    source_impacts: dict[Target, tuple[frozenset[Target], frozenset[Target], frozenset[str]]] = {
+        ("pathfinder", None): (all_targets, all_targets, frozenset(line_ids)),
+        ("core", None): (core_targets, frozenset({*core_targets, *python_targets}), frozenset(line_ids)),
+        ("python", None): (
+            frozenset({*bindings_targets, *python_targets}),
+            python_targets,
+            frozenset(line_ids),
+        ),
+        **{
+            ("bindings", line.line_id): (
+                frozenset({("bindings", line.line_id), ("python", line.line_id), *core_targets}),
+                frozenset({("bindings", line.line_id), ("core", line.cuda_variant), ("python", line.line_id)}),
+                frozenset({line.line_id}),
             )
-        if module == "core":
-            return (
-                core_targets,
-                frozenset({*core_targets, *python_targets}),
-                frozenset(line_ids),
-            )
-        if module == "python":
-            return (
-                frozenset({*bindings_targets, *python_targets}),
-                python_targets,
-                frozenset(line_ids),
-            )
-        raise AssertionError(f"unhandled source target: {target!r}")
+            for line in lines
+        },
+    }
 
     linked_paths = linked_paths or set()
     source_changes: set[tuple[str, str | None]] = set()
     test_changes: set[tuple[str, str | None]] = set()
     test_platforms: set[str] = set()
-    matched_line = config.match_tag(release_tag) if release_tag else None
-    release_line = matched_line if matched_line is not None and matched_line.line_id in line_by_id else None
-    force_all = (bool(release_tag) and release_line is None) or (
-        release_line is None and (not merge_base or not baseline_run_id)
-    )
+    release_line = config.match_tag(release_tag) if release_tag else None
+    force_all = release_line is None and (bool(release_tag) or not merge_base or not baseline_run_id)
 
     if release_line is None and not force_all:
         for path in paths:
@@ -210,83 +199,57 @@ def compute_workplan(
         tests = set(all_targets) if test_platforms else set(test_changes)
         sdist_lines: set[str] = set()
         for target in source_changes:
-            build_impact, test_impact, sdist_impact = source_impact(target)
+            build_impact, test_impact, sdist_impact = source_impacts[target]
             builds.update(build_impact)
             tests.update(test_impact)
             sdist_lines.update(sdist_impact)
         if source_changes or test_changes:
             test_platforms.update(PLATFORMS)
 
-    modules: dict[str, dict[str, object]] = {
-        "pathfinder": {
-            "needs_build": ("pathfinder", None) in builds,
-            "needs_test": ("pathfinder", None) in tests,
+    def flags(module: str, selectors: tuple[str | None, ...]) -> dict[str, bool]:
+        return {
+            "needs_build": any((module, selector) in builds for selector in selectors),
+            "needs_test": any((module, selector) in tests for selector in selectors),
         }
-    }
+
+    modules: dict[str, dict[str, object]] = {"pathfinder": flags("pathfinder", (None,))}
     for module in ("bindings", "python"):
         line_decisions = {
-            line.line_id: {
-                **config.line_to_dict(line),
-                "needs_build": (module, line.line_id) in builds,
-                "needs_test": (module, line.line_id) in tests,
-            }
-            for line in lines
+            line.line_id: {**config.line_to_dict(line), **flags(module, (line.line_id,))} for line in lines
         }
-        # Transitional compatibility for workflows that still address a CUDA
-        # major directly. OR aggregation prevents same-major lines from
-        # overwriting one another while consumers migrate to `lines`.
+        # Compatibility view for workflows that still address a CUDA major.
         variants = {
-            variant: {
-                "needs_build": any(
-                    decision["needs_build"]
-                    for line_id, decision in line_decisions.items()
-                    if line_by_id[line_id].cuda_variant == variant
-                ),
-                "needs_test": any(
-                    decision["needs_test"]
-                    for line_id, decision in line_decisions.items()
-                    if line_by_id[line_id].cuda_variant == variant
-                ),
-            }
-            for variant in cuda_variants
+            variant: flags(module, tuple(line.line_id for line in variant_lines))
+            for variant, variant_lines in lines_by_variant.items()
         }
         modules[module] = {
-            "needs_build": any(decision["needs_build"] for decision in line_decisions.values()),
-            "needs_test": any(decision["needs_test"] for decision in line_decisions.values()),
+            **flags(module, line_ids),
             "lines": line_decisions,
             "variants": variants,
         }
 
     cuda_major_decisions = {
         variant: {
-            "cuda_major": cuda_major_by_variant[variant],
+            "cuda_major": variant.removeprefix("cu"),
             "cuda_variant": variant,
-            "needs_build": ("core", variant) in builds,
-            "needs_test": ("core", variant) in tests,
+            **flags("core", (variant,)),
         }
         for variant in cuda_variants
     }
     modules["core"] = {
-        "needs_build": any(decision["needs_build"] for decision in cuda_major_decisions.values()),
-        "needs_test": any(decision["needs_test"] for decision in cuda_major_decisions.values()),
+        **flags("core", cuda_variants),
         "cuda_majors": cuda_major_decisions,
         # Transitional compatibility; `cuda_majors` is canonical.
-        "variants": {
-            variant: {
-                "needs_build": decision["needs_build"],
-                "needs_test": decision["needs_test"],
-            }
-            for variant, decision in cuda_major_decisions.items()
-        },
+        "variants": {variant: flags("core", (variant,)) for variant in cuda_variants},
     }
 
+    pathfinder_test = ("pathfinder", None) in tests
     test_cuda_variants = {
         variant
-        for variant in cuda_variants
-        if modules["pathfinder"]["needs_test"]
-        or modules["bindings"]["variants"][variant]["needs_test"]
-        or modules["core"]["cuda_majors"][variant]["needs_test"]
-        or modules["python"]["variants"][variant]["needs_test"]
+        for variant, variant_lines in lines_by_variant.items()
+        if pathfinder_test
+        or ("core", variant) in tests
+        or any((module, line.line_id) in tests for module in ("bindings", "python") for line in variant_lines)
     }
     sdist_cuda_variants = {line.cuda_variant for line in lines if line.line_id in sdist_lines}
     return {

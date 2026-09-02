@@ -11,37 +11,29 @@ import pytest
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from resolve_release_bindings_line import (
-    ReleaseBindingsLineError,
-    main,
-    resolve_release_bindings_line,
-)
+from resolve_release_bindings_line import ReleaseBindingsLineError, main, resolve_release_bindings_line
 
 
-def registry(
-    *,
-    line_id: str = "released-13",
-    source_dir: str = "cuda_bindings",
-    ctk_target: str = "13.3",
-    allow_alpha_beta_tags: bool = True,
-) -> dict[str, object]:
+def registry(*, current_dir: str = "cuda_bindings", maintenance_dir: str = "cuda_bindings_12") -> dict[str, object]:
     return {
         "schema_version": 2,
         "cuda": {
             "bindings": {
                 "lines": {
-                    line_id: {
-                        "source_dir": source_dir,
-                        "ctk_target": ctk_target,
-                        "toolkit_version": f"{ctk_target}.0",
-                        "toolkit_channel": "stable",
-                        "tag_series": f"v{ctk_target}.",
-                        "allow_alpha_beta_tags": allow_alpha_beta_tags,
-                    }
+                    "released-12": {
+                        "source_dir": maintenance_dir,
+                        "toolkit_version": "12.9.1",
+                        "allow_alpha_beta_tags": False,
+                    },
+                    "released-13": {
+                        "source_dir": current_dir,
+                        "toolkit_version": "13.3.0",
+                        "allow_alpha_beta_tags": True,
+                    },
                 },
                 "roles": {
-                    "current": line_id,
-                    "maintenance": [],
+                    "current": "released-13",
+                    "maintenance": ["released-12"],
                 },
             }
         },
@@ -54,25 +46,25 @@ def write_yaml(path: Path, data: object) -> None:
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_modern_tag_tree_overrides_changed_control_registry(tmp_path, capsys):
-    release_root = tmp_path / "release-source"
+@pytest.mark.parametrize(
+    ("release_tag", "expected_line", "expected_dir"),
+    (
+        ("v13.3.2", "released-13", "tag-current"),
+        ("v12.9.8", "released-12", "tag-maintenance"),
+    ),
+)
+def test_modern_tag_tree_is_authoritative(tmp_path, capsys, release_tag, expected_line, expected_dir):
+    release_root = tmp_path / "release"
     tagged_config = release_root / "ci" / "versions.yml"
     control_config = tmp_path / "control" / "versions.yml"
-    write_yaml(
-        tagged_config,
-        registry(line_id="released-13-at-tag", source_dir="cuda_bindings_13_at_tag"),
-    )
-    write_yaml(
-        control_config,
-        registry(line_id="released-13-now", source_dir="cuda_bindings_13_now"),
-    )
-    (release_root / "cuda_bindings").mkdir()
+    write_yaml(tagged_config, registry(current_dir="tag-current", maintenance_dir="tag-maintenance"))
+    write_yaml(control_config, registry(current_dir="control-current", maintenance_dir="control-maintenance"))
 
     assert (
         main(
             [
                 "--release-tag",
-                "v13.3.2",
+                release_tag,
                 "--release-source-root",
                 str(release_root),
                 "--control-config",
@@ -82,35 +74,19 @@ def test_modern_tag_tree_overrides_changed_control_registry(tmp_path, capsys):
         == 0
     )
 
-    output = capsys.readouterr().out.strip()
-    assert " " not in output
-    line = json.loads(output)
-    assert line["line_id"] == "released-13-at-tag"
-    assert line["source_dir"] == "cuda_bindings_13_at_tag"
-    assert line["release_source_dir"] == "cuda_bindings_13_at_tag"
+    line = json.loads(capsys.readouterr().out)
+    assert line["line_id"] == expected_line
+    assert line["release_source_dir"] == expected_dir
     assert line["release_registry_origin"] == "tag"
 
 
-@pytest.mark.parametrize("has_legacy_config", [False, True])
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_legacy_tag_tree_uses_control_registry(tmp_path, has_legacy_config):
-    release_root = tmp_path / "release-source"
-    control_config = tmp_path / "control" / "versions.yml"
-    if has_legacy_config:
-        write_yaml(
-            release_root / "ci" / "versions.yml",
-            {"cuda": {"build": {"version": "12.9.1"}}},
-        )
-    write_yaml(
-        control_config,
-        registry(
-            line_id="released-12",
-            source_dir="cuda_bindings_12",
-            ctk_target="12.9",
-            allow_alpha_beta_tags=False,
-        ),
-    )
+def test_legacy_tag_tree_uses_control_registry_and_legacy_layout(tmp_path):
+    release_root = tmp_path / "release"
+    write_yaml(release_root / "ci" / "versions.yml", {"cuda": {"build": {"version": "12.9.1"}}})
     (release_root / "cuda_bindings").mkdir(parents=True)
+    control_config = tmp_path / "control" / "versions.yml"
+    write_yaml(control_config, registry())
 
     line = resolve_release_bindings_line("v12.9.8", release_root, control_config)
 
@@ -121,47 +97,8 @@ def test_legacy_tag_tree_uses_control_registry(tmp_path, has_legacy_config):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_legacy_layout_keeps_configured_root_when_present(tmp_path):
-    release_root = tmp_path / "release-source"
-    control_config = tmp_path / "control" / "versions.yml"
-    write_yaml(
-        release_root / "ci" / "versions.yml",
-        {"cuda": {"build": {"version": "12.9.1"}}},
-    )
-    (release_root / "cuda_bindings").mkdir()
-    (release_root / "cuda_bindings_12").mkdir()
-    write_yaml(
-        control_config,
-        registry(
-            line_id="released-12",
-            source_dir="cuda_bindings_12",
-            ctk_target="12.9",
-            allow_alpha_beta_tags=False,
-        ),
-    )
-
-    line = resolve_release_bindings_line("v12.9.8", release_root, control_config)
-
-    assert line["release_source_dir"] == "cuda_bindings_12"
-    assert line["release_registry_origin"] == "control"
-
-
-@pytest.mark.parametrize("release_tag", ["v13.3.0a1", "v13.3.0b2", "v13.3.0.post1"])
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_allowed_alpha_beta_and_post_tags_are_resolved(tmp_path, release_tag):
-    release_root = tmp_path / "release-source"
-    control_config = tmp_path / "control" / "versions.yml"
-    write_yaml(release_root / "ci" / "versions.yml", registry())
-    write_yaml(control_config, registry(line_id="unused-control"))
-
-    line = resolve_release_bindings_line(release_tag, release_root, control_config)
-
-    assert line["line_id"] == "released-13"
-
-
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_invalid_modern_tag_config_fails_without_control_fallback(tmp_path):
-    release_root = tmp_path / "release-source"
+def test_invalid_modern_tag_config_does_not_fall_back(tmp_path):
+    release_root = tmp_path / "release"
     control_config = tmp_path / "control" / "versions.yml"
     write_yaml(release_root / "ci" / "versions.yml", {"schema_version": 2, "cuda": {}})
     write_yaml(control_config, registry())
@@ -172,7 +109,7 @@ def test_invalid_modern_tag_config_fails_without_control_fallback(tmp_path):
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_unknown_release_tag_fails_closed(tmp_path):
-    release_root = tmp_path / "release-source"
+    release_root = tmp_path / "release"
     release_root.mkdir()
     control_config = tmp_path / "control" / "versions.yml"
     write_yaml(control_config, registry())

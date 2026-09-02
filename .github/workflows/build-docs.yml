@@ -89,7 +89,7 @@ jobs:
               --release-source-root . \
               --control-config .ci-control/ci/versions.yml)
           else
-            bindings_line=$(python3 .ci-control/ci/tools/bindings_config.py get --role current)
+            bindings_line=$(python3 .ci-control/ci/tools/bindings_config.py --role current)
           fi
           BUILD_CTK_VER=$(jq -er '.toolkit_version' <<< "$bindings_line")
           BINDINGS_COMPONENT_DIR=$(jq -er '.release_source_dir // .source_dir' <<< "$bindings_line")

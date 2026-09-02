@@ -8,8 +8,6 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-
 # Check if the script was called with exactly 1 argument
 if [[ ${#} -ne 1 ]]; then
   echo "Error: This script requires exactly 1 argument. You provided ${#}"
@@ -58,11 +56,19 @@ elif [[ "${test_module}" == "bindings" ]]; then
     echo "Expected exactly one cuda-bindings wheel in ${CUDA_BINDINGS_ARTIFACTS_DIR}" >&2
     exit 1
   fi
-  install_args=("${bindings_wheels[0]}" "pyproject.toml")
-  if [[ "${LOCAL_CTK}" != 1 ]]; then
-    install_args+=(--all)
+  bindings_requirement="${bindings_wheels[0]}"
+  if grep -q '^\[dependency-groups\][[:space:]]*$' pyproject.toml; then
+    if [[ "${LOCAL_CTK}" != 1 ]]; then
+      bindings_requirement+="[all]"
+    fi
+    python -m pip install "${bindings_requirement}" --group pyproject.toml:test
+  else
+    bindings_extras="test"
+    if [[ "${LOCAL_CTK}" != 1 ]]; then
+      bindings_extras="all,test"
+    fi
+    python -m pip install "${bindings_requirement}[${bindings_extras}]"
   fi
-  python "${SCRIPT_DIR}/install_bindings_test_wheel.py" "${install_args[@]}"
   echo "Running bindings tests"
   ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then

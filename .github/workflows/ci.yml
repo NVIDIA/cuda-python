@@ -42,7 +42,7 @@ jobs:
         id: get-vars
         run: |
           set -euo pipefail
-          bindings_config=$(python3 ci/tools/bindings_config.py json)
+          bindings_config=$(python3 ci/tools/bindings_config.py)
 
           echo "bindings_config=$bindings_config" >> "$GITHUB_OUTPUT"
 
@@ -197,7 +197,7 @@ jobs:
           missing=()
           has_artifact cuda-pathfinder-wheel || missing+=(cuda-pathfinder-wheel)
 
-          if ! bindings_config=$(python3 ci/tools/bindings_config.py json); then
+          if ! bindings_config=$(python3 ci/tools/bindings_config.py); then
             unavailable
           fi
           if ! cuda_versions_json=$(jq -ce '

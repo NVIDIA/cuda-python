@@ -17,19 +17,13 @@ SHA = "abcdef0123456789"
 RELEASED_12 = bindings_config.BindingsLine(
     line_id="released-12",
     source_dir="cuda_bindings_12",
-    ctk_target="12.9",
     toolkit_version="12.9.1",
-    toolkit_channel="stable",
-    tag_series="v12.9.",
     allow_alpha_beta_tags=False,
 )
 ALTERNATE_13 = bindings_config.BindingsLine(
     line_id="alternate-13",
     source_dir="alternate_bindings",
-    ctk_target="13.2",
     toolkit_version="13.2.0",
-    toolkit_channel="stable",
-    tag_series="v13.2.",
     allow_alpha_beta_tags=True,
 )
 

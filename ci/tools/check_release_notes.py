@@ -44,41 +44,31 @@ COMPONENT_TO_TAG_RE: dict[str, re.Pattern[str]] = {
 }
 
 
-def _resolved_bindings_line(data: Mapping[str, object]) -> tuple[bindings_config.BindingsLine, str]:
-    """Validate the release resolver's normalized line and actual source path."""
-    required = (
-        "line_id",
-        "source_dir",
-        "ctk_target",
-        "toolkit_version",
-        "toolkit_channel",
-        "tag_series",
-        "allow_alpha_beta_tags",
-    )
-    missing = [key for key in required if key not in data]
-    if missing:
-        raise bindings_config.BindingsConfigError(f"resolved CUDA bindings line is missing keys: {', '.join(missing)}")
-    string_values = {key: data[key] for key in required if key != "allow_alpha_beta_tags"}
-    if any(not isinstance(value, str) for value in string_values.values()):
-        raise bindings_config.BindingsConfigError("resolved CUDA bindings line string fields must be strings")
-    allow_alpha_beta_tags = data["allow_alpha_beta_tags"]
+def _resolved_bindings_source(data: Mapping[str, object], git_tag: str) -> str:
+    """Validate the release resolver fields consumed by this script."""
+    string_fields = ("line_id", "source_dir", "toolkit_version")
+    if any(not isinstance(data.get(key), str) for key in string_fields):
+        raise bindings_config.BindingsConfigError("resolved CUDA bindings line has invalid string fields")
+    allow_alpha_beta_tags = data.get("allow_alpha_beta_tags")
     if type(allow_alpha_beta_tags) is not bool:
         raise bindings_config.BindingsConfigError("resolved CUDA bindings line allow_alpha_beta_tags must be a boolean")
 
     line = bindings_config.BindingsLine(
         line_id=str(data["line_id"]),
         source_dir=str(data["source_dir"]),
-        ctk_target=str(data["ctk_target"]),
         toolkit_version=str(data["toolkit_version"]),
-        toolkit_channel=str(data["toolkit_channel"]),
-        tag_series=str(data["tag_series"]),
         allow_alpha_beta_tags=allow_alpha_beta_tags,
     )
+    try:
+        matches_tag = line.matches_tag(git_tag)
+    except ValueError as error:
+        raise bindings_config.BindingsConfigError("resolved CUDA bindings line has invalid toolkit_version") from error
+    if not matches_tag:
+        raise bindings_config.BindingsConfigError(f"resolved CUDA bindings line does not match release tag {git_tag!r}")
+
     source_dir = data.get("release_source_dir", line.source_dir)
-    if not isinstance(source_dir, str) or not source_dir or source_dir != source_dir.strip():
-        raise bindings_config.BindingsConfigError(
-            "resolved CUDA bindings release_source_dir must be a non-empty, trimmed string"
-        )
+    if not isinstance(source_dir, str) or not source_dir:
+        raise bindings_config.BindingsConfigError("resolved CUDA bindings line has invalid release_source_dir")
     path = PurePosixPath(source_dir)
     if (
         "\\" in source_dir
@@ -90,7 +80,7 @@ def _resolved_bindings_line(data: Mapping[str, object]) -> tuple[bindings_config
         raise bindings_config.BindingsConfigError(
             f"resolved CUDA bindings release_source_dir is not repository-relative: {source_dir!r}"
         )
-    return line, source_dir
+    return source_dir
 
 
 def _release_target_from_tag(
@@ -110,13 +100,11 @@ def _release_target_from_tag(
     if component == "cuda-bindings":
         if bindings_line is None:
             line = bindings_config.load_config().match_tag(git_tag)
-            source_dir = line.source_dir if line is not None else ""
+            if line is None:
+                return None
+            source_dir: object = line.source_dir
         else:
-            line, source_dir = _resolved_bindings_line(bindings_line)
-            if not line.matches_tag(git_tag):
-                line = None
-        if line is None:
-            return None
+            source_dir = _resolved_bindings_source(bindings_line, git_tag)
         return version, source_dir
     return version, COMPONENT_TO_PACKAGE[component]
 
@@ -149,7 +137,6 @@ def check_release_notes(
     component: str,
     repo_root: Path = Path("."),
     bindings_line: Mapping[str, object] | None = None,
-    control_repo_root: Path | None = None,
 ) -> list[tuple[str | Path, str]]:
     """Return a list of (path, reason) for missing or empty release notes.
 
@@ -173,23 +160,6 @@ def check_release_notes(
     path = notes_path(package, version)
     full = repo_root / path
     if not full.is_file():
-        if (
-            bindings_line is not None
-            and bindings_line.get("release_registry_origin") == "control"
-            and control_repo_root is not None
-            and component in ("cuda-bindings", "cuda-python")
-        ):
-            if component == "cuda-bindings":
-                line, _ = _resolved_bindings_line(bindings_line)
-                control_package = line.source_dir
-            else:
-                control_package = COMPONENT_TO_PACKAGE[component]
-            control_path = notes_path(control_package, version)
-            control_full = control_repo_root / control_path
-            if control_full.is_file():
-                if control_full.stat().st_size == 0:
-                    return [(control_path, "empty")]
-                return []
         return [(path, "missing")]
     if full.stat().st_size == 0:
         return [(path, "empty")]
@@ -201,11 +171,6 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--git-tag", required=True)
     parser.add_argument("--component", required=True, choices=list(COMPONENT_TO_PACKAGE))
     parser.add_argument("--repo-root", default=Path("."), type=Path)
-    parser.add_argument(
-        "--control-repo-root",
-        type=Path,
-        help="current control checkout used for legacy bare-tag release notes",
-    )
     parser.add_argument(
         "--bindings-line",
         default="",
@@ -232,17 +197,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Post-release tag ({args.git_tag}), skipping release-notes check.")
         return 0
 
-    try:
-        problems = check_release_notes(
-            args.git_tag,
-            args.component,
-            args.repo_root,
-            bindings_line,
-            args.control_repo_root,
-        )
-    except bindings_config.BindingsConfigError as error:
-        print(f"ERROR: invalid CUDA bindings configuration: {error}", file=sys.stderr)
-        return 2
+    problems = check_release_notes(args.git_tag, args.component, args.repo_root, bindings_line)
 
     if not problems:
         print(f"Release notes present for tag {args.git_tag}, component {args.component}.")

@@ -32,7 +32,7 @@ jobs:
         id: get-vars
         run: |
           set -euo pipefail
-          current=$(python3 ci/tools/bindings_config.py get --role current)
+          current=$(python3 ci/tools/bindings_config.py --role current)
           {
             echo "bindings_line_id=$(jq -r '.line_id' <<< "$current")"
             echo "bindings_root=$(jq -r '.source_dir' <<< "$current")"
@@ -155,9 +155,15 @@ jobs:
           export PIP_BUILD_CONSTRAINT="$(pwd)/wheel-constraints/cuda-bindings.txt"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
           .venv/bin/pip wheel -v --no-deps "./${BINDINGS_ROOT}" -w ./wheels/
-          .venv/bin/python ci/tools/install_bindings_test_wheel.py \
-            ./wheels/cuda_bindings*.whl \
-            "./${BINDINGS_ROOT}/pyproject.toml"
+          bindings_wheels=(./wheels/cuda_bindings*.whl)
+          test "${#bindings_wheels[@]}" -eq 1
+          test -f "${bindings_wheels[0]}"
+          bindings_pyproject="./${BINDINGS_ROOT}/pyproject.toml"
+          if grep -q '^\[dependency-groups\][[:space:]]*$' "${bindings_pyproject}"; then
+            .venv/bin/python -m pip install "${bindings_wheels[0]}" --group "${bindings_pyproject}:test"
+          else
+            .venv/bin/python -m pip install "${bindings_wheels[0]}[test]"
+          fi
 
       - name: Constrain cuda-core to the local cuda-bindings wheel
         run: |
@@ -430,9 +436,15 @@ jobs:
         run: |
           .venv/Scripts/pip install coverage pytest-cov Cython
           .venv/Scripts/pip install --group ./cuda_pathfinder/pyproject.toml:test
-          .venv/Scripts/python ci/tools/install_bindings_test_wheel.py \
-            ./wheels/cuda_bindings*.whl \
-            "./${BINDINGS_ROOT}/pyproject.toml"
+          bindings_wheels=(./wheels/cuda_bindings*.whl)
+          test "${#bindings_wheels[@]}" -eq 1
+          test -f "${bindings_wheels[0]}"
+          bindings_pyproject="./${BINDINGS_ROOT}/pyproject.toml"
+          if grep -q '^\[dependency-groups\][[:space:]]*$' "${bindings_pyproject}"; then
+            .venv/Scripts/python -m pip install "${bindings_wheels[0]}" --group "${bindings_pyproject}:test"
+          else
+            .venv/Scripts/python -m pip install "${bindings_wheels[0]}[test]"
+          fi
           .venv/Scripts/pip install --group ./cuda_core/pyproject.toml:test
 
       - name: Get install root

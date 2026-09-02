@@ -26,34 +26,21 @@ verification procedure in that repository's own documentation.
 ## CUDA Bindings Line Registry
 
 `ci/versions.yml` is the authoritative public registry for CUDA bindings
-release lines. Each stable line ID maps an exact CTK target and build/test pin
-to an explicit source directory. Roles are orchestration aliases: `current`
-selects one line, while `maintenance` is an ordered list. Every registered line
-must have exactly one of those roles and participates in public CI and release
-orchestration.
+release lines. Each line declares its source directory, exact toolkit build/test
+pin, and prerelease-tag policy. Roles such as `current` and `maintenance` are
+orchestration aliases for those lines.
 
 Use `ci/tools/bindings_config.py` instead of reading the YAML directly. The
-resolver validates the registry and emits normalized records containing the
-line ID, source directory, CTK target, toolkit pin, tag series, role membership,
-the line-specific alpha/beta tag policy, and the derived CUDA ABI major/variant.
-For example:
+resolver validates the registry and emits JSON with the configured values plus
+the derived CTK target, tag series, and CUDA ABI major/variant:
 
 ```console
-python ci/tools/bindings_config.py validate
-python ci/tools/bindings_config.py list
-python ci/tools/bindings_config.py get --role current
-python ci/tools/bindings_config.py match-tag v13.3.0
+python ci/tools/bindings_config.py
+python ci/tools/bindings_config.py --lines
+python ci/tools/bindings_config.py --role current
 ```
 
-A bindings line and a CUDA ABI major are different dimensions. CI and release
-jobs select bindings and `cuda-python` work by line identity, while CUDA Core
-work may be aggregated by ABI major where that preserves line-specific
-compatibility checks.
-
-The public wheel builder currently has an explicit transitional boundary: it
-requires one `current` line and exactly one `maintenance` line with different
-CUDA ABI majors. The registry, change planner, sdist jobs, and test-matrix
-validation are list-based and preserve same-major line identity, but the
-monolithic wheel job fails closed rather than pretending it can build multiple
-maintenance lines or two release lines for one ABI. Extending that job is a
-separate reviewer-visible design change.
+A bindings line is distinct from a CUDA ABI major, so same-major lines remain
+separate in the registry and CI plan. The public wheel builder currently
+requires one `current` line and one `maintenance` line with different ABI
+majors; it fails if the registry does not meet that narrower requirement.

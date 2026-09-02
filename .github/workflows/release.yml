@@ -219,7 +219,6 @@ jobs:
             --git-tag "$RELEASE_TAG" \
             --component "$RELEASE_COMPONENT" \
             --repo-root release-source \
-            --control-repo-root . \
             --bindings-line "$BINDINGS_LINE"
 
   doc:

@@ -19,11 +19,7 @@ def resolved_line() -> str:
             "line_id": "alternate-13",
             "source_dir": "alternate_bindings",
             "release_source_dir": "alternate_bindings",
-            "release_registry_origin": "tag",
-            "ctk_target": "13.2",
             "toolkit_version": "13.2.0",
-            "toolkit_channel": "stable",
-            "tag_series": "v13.2.",
             "allow_alpha_beta_tags": True,
         },
         separators=(",", ":"),
@@ -63,15 +59,11 @@ def test_tag_authoritative_line_validates_after_control_registry_moves_on(tmp_pa
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_resolved_line_must_match_the_release_tag(tmp_path):
-    (tmp_path / "cuda_bindings-13.3.0-cp312-cp312-manylinux.whl").touch()
+    (tmp_path / "cuda_bindings-13.2.0-cp312-cp312-manylinux.whl").touch()
     line = json.loads(resolved_line())
-    line.update({"ctk_target": "13.3", "tag_series": "v13.3."})
+    line["toolkit_version"] = "13.3.0"
 
-    result = run_validator(
-        tmp_path,
-        "--bindings-line",
-        json.dumps(line),
-    )
+    result = run_validator(tmp_path, "--bindings-line", json.dumps(line))
 
     assert result.returncode == 1
-    assert "Unsupported git tag format" in result.stderr
+    assert "does not match release tag" in result.stderr
