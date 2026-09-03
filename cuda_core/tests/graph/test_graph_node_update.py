@@ -14,7 +14,7 @@ from typing import Callable
 import pytest
 from helpers.graph_kernels import compile_common_kernels
 
-from cuda.core import LaunchConfig, LegacyPinnedMemoryResource
+from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource
 from cuda.core._utils._weak_handles import weak_handle
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core._utils.version import driver_version
@@ -620,7 +620,10 @@ def _child_graph_case(device):
 def definition_update_case(request, init_cuda):
     if driver_version() < (12, 2, 0):
         pytest.skip("individual graph node updates require CUDA 12.2+")
-    return request.param(init_cuda)
+    factory = request.param
+    # pytest-run-parallel shares this fixture object across workers. Build the
+    # case at call time on Device() so each worker gets its own graph/node.
+    return lambda: factory(Device())
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -746,7 +749,7 @@ def test_memcpy_update_between_host_and_device(init_cuda, device_operand):
 def test_definition_node_update_changes_future_instantiations(
     definition_update_case,
 ):
-    case = definition_update_case
+    case = definition_update_case()
     assert case.original != case.replacement
     old_graph = case.graph_def.instantiate()
 
@@ -763,7 +766,7 @@ def test_definition_node_update_changes_future_instantiations(
 def test_destroyed_definition_node_rejects_update(
     definition_update_case,
 ):
-    case = definition_update_case
+    case = definition_update_case()
     case.node.destroy()
 
     assert not case.node.is_valid
@@ -778,7 +781,7 @@ def test_destroyed_definition_node_rejects_update(
 def test_failed_definition_node_update_preserves_state(
     definition_update_case,
 ):
-    case = definition_update_case
+    case = definition_update_case()
 
     assert case.invalid_update is not None
     assert case.invalid_exception is not None
@@ -794,17 +797,18 @@ def test_failed_definition_node_update_preserves_state(
 def test_definition_node_update_rejects_wrong_type(
     definition_update_case,
 ):
-    if definition_update_case.invalid_argument_update is None:
+    case = definition_update_case()
+    if case.invalid_argument_update is None:
         pytest.skip("update method has no typed positional argument")
     with pytest.raises(TypeError):
-        definition_update_case.invalid_argument_update()
+        case.invalid_argument_update()
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_executable_node_update_changes_existing_exec(
     definition_update_case,
 ):
-    case = definition_update_case
+    case = definition_update_case()
     graph = case.graph_def.instantiate()
 
     _update_executable_case(graph, case)
@@ -975,6 +979,7 @@ def test_rejected_executable_update_rolls_back_owners(init_cuda):
     assert ctypes.c_int.from_address(int(active.handle)).value == 1
 
 
+@pytest.mark.thread_unsafe(reason="deferred cleanup on main thread which would wait")
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_whole_update_replaces_executable_attachment_accumulator(init_cuda):
     if driver_version() < (12, 2, 0):
@@ -1133,6 +1138,7 @@ def test_sequential_executable_updates_accumulate_owners(init_cuda):
     _wait_until(lambda: first_weak() is None and second_weak() is None)
 
 
+@pytest.mark.thread_unsafe(reason="deferred cleanup on main thread which would wait")
 @pytest.mark.agent_authored(model="claude-opus-5")
 def test_child_graph_update_transfers_source_owners_to_executable(init_cuda):
     if driver_version() < (12, 2, 0):

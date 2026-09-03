@@ -72,6 +72,11 @@ nvrtc_pch_available = pytest.mark.skipif(
     reason="PCH runtime APIs require NVRTC >= 12.8 bindings",
 )
 
+bundled_headers_available = pytest.mark.skipif(
+    (_get_nvrtc_version_for_tests() or 0) < 13300,
+    reason="use_bundled_headers requires NVRTC >= 13.3",
+)
+
 
 def _has_check_nvvm_compiler_options():
     try:
@@ -300,6 +305,48 @@ def test_cpp_program_pch_auto_creates(init_cuda, tmp_path):
     assert program.pch_status in ("created", "not_attempted", "failed")
     assert isinstance(program.pch_status, PCHStatusType)
     program.close()
+
+
+@bundled_headers_available
+@pytest.mark.agent_authored(model="claude-sonnet-5")
+def test_use_bundled_headers_installs_and_compiles(init_cuda, tmp_path, monkeypatch):
+    """``use_bundled_headers`` should install NVRTC's bundled CUDA/CCCL headers into the
+    (monkeypatched) cache directory and make them available on the include path, without
+    a CUDA Toolkit or any user-supplied ``include_path``."""
+    import cuda.core._program as _program_module
+
+    cache_root = tmp_path / "cache-root"
+    monkeypatch.setattr(_program_module, "_default_cache_dir", lambda: cache_root)
+
+    code = """
+#include <cuda/std/type_traits>
+extern "C" __global__ void my_kernel(int *out) {
+    *out = cuda::std::is_integral<int>::value;
+}
+"""
+    headers_dir = cache_root / "nvrtc-bundled-headers"
+    assert not headers_dir.exists()
+
+    # Sanity check: without use_bundled_headers, the CCCL header isn't found (proves the
+    # option -- not some ambient CUDA Toolkit install -- is what makes the compile below work).
+    program = Program(code, "c++")
+    try:
+        with pytest.raises(CUDAError, match="could not open source file"):
+            program.compile("ptx")
+    finally:
+        program.close()
+
+    program = Program(code, "c++", ProgramOptions(use_bundled_headers=True))
+    try:
+        object_code = program.compile("ptx")
+    finally:
+        program.close()
+    assert isinstance(object_code, ObjectCode)
+
+    assert headers_dir.is_dir()
+    assert (headers_dir / ".nvrtc_headers_version").is_file()
+    assert (headers_dir / "cccl").is_dir()
+    assert (headers_dir / "cccl" / "cuda" / "std" / "type_traits").is_file()
 
 
 def test_cpp_program_pch_status_none_without_pch(init_cuda):

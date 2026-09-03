@@ -8,7 +8,6 @@ import multiprocessing
 import os
 import pathlib
 import sys
-from contextlib import contextmanager
 
 import pytest
 
@@ -72,36 +71,6 @@ def pytest_terminal_summary(terminalreporter):
     oom_diagnostics.report_terminal_summary(terminalreporter)
 
 
-@contextmanager
-def _init_cuda_context():
-    # TODO: rename this to e.g. init_context
-    device = Device(0)
-    device.set_current()
-
-    # Set option to avoid spin-waiting on synchronization.
-    if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
-        handle_return(
-            driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
-        )
-
-    try:
-        yield device
-    finally:
-        # Force any pool/allocation whose only remaining reference was a local
-        # in this test's frame to actually get destroyed now, then drain the
-        # context so the stream-ordered frees that destruction enqueues retire
-        # before the next test runs. Without this, a memory pool's VA
-        # reservation is not returned until both have happened, and per-test
-        # leftovers accumulate across the run -- which is how full-suite runs
-        # can exhaust address space and hit CUDA_ERROR_OUT_OF_MEMORY on a
-        # device with plenty of free physical memory (issue #2381). gc.collect()
-        # must run first: cuCtxSynchronize alone cannot drain frees that were
-        # never enqueued because their owning object had not been collected yet.
-        gc.collect()
-        driver.cuCtxSynchronize()
-        _ = _device_unset_current()
-
-
 def _wrap_worker_cuda_test(func):
     if getattr(func, "_cuda_core_worker_cuda_wrapped", False):
         return func
@@ -109,7 +78,9 @@ def _wrap_worker_cuda_test(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         kwargs = dict(kwargs)  # copy before mutating
-        with _init_cuda_context() as device:
+        device = Device(0)
+        device.set_current()
+        try:
             if "init_cuda" in kwargs:
                 kwargs["init_cuda"] = device
             if "mempool_device_x2" in kwargs:
@@ -129,6 +100,12 @@ def _wrap_worker_cuda_test(func):
                 groups, _ = device.resources.sm.split(SMResourceOptions(count=None))
                 kwargs["green_ctx"] = device.create_context(ContextOptions(resources=[groups[0]]))
             return func(*args, **kwargs)
+        finally:
+            # Unlike the `init_cuda` fixture we do not synchronize here
+            # to avoid doing so while other workers are still running.
+            # (E.g. for stream capture). The fixture cleanup is still run
+            # even with pytest-run-parallel after worker join.
+            _ = _device_unset_current()
 
     wrapper._cuda_core_worker_cuda_wrapped = True
     return wrapper
@@ -186,8 +163,33 @@ def session_setup():
 
 @pytest.fixture
 def init_cuda():
-    with _init_cuda_context() as device:
+    # TODO: rename this to e.g. init_context
+    device = Device(0)
+    device.set_current()
+
+    # Set option to avoid spin-waiting on synchronization.
+    if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
+        handle_return(
+            driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
+        )
+
+    try:
         yield device
+    finally:
+        # Force any pool/allocation whose only remaining reference was a local
+        # in this test's frame to actually get destroyed now, then drain the
+        # context so the stream-ordered frees that destruction enqueues retire
+        # before the next test runs. Without this, a memory pool's VA
+        # reservation is not returned until both have happened, and per-test
+        # leftovers accumulate across the run -- which is how full-suite runs
+        # can exhaust address space and hit CUDA_ERROR_OUT_OF_MEMORY on a
+        # device with plenty of free physical memory (issue #2381). gc.collect()
+        # must run first: cuCtxSynchronize alone cannot drain frees that were
+        # never enqueued because their owning object had not been collected yet.
+        # With pytest-run-parallel this runs after worker join.
+        gc.collect()
+        driver.cuCtxSynchronize()
+        _ = _device_unset_current()
 
 
 def _device_unset_current() -> bool:

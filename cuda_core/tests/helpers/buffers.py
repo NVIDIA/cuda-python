@@ -29,7 +29,7 @@ def thread_unsafe_on_windows(func):
     # thread-unsafe on windows. On windows the GPU must be fully quiescent for host
     # access to be safe and with threaded tests that would require a barrier.
     if IS_WINDOWS or IS_WSL:
-        return pytest.mark.thread_unsafe(reason="windows host-access unsafe while GPU is working")
+        return pytest.mark.thread_unsafe(reason="windows host-access unsafe while GPU is working")(func)
     return func
 
 

@@ -597,7 +597,6 @@ cdef cydriver.CUstream _handle_from_stream_protocol(obj) except*:
         info = cuda_stream_attr()
     else:
         info = cuda_stream_attr
-        warnings.simplefilter("once", DeprecationWarning)
         warnings.warn(
             "Implementing __cuda_stream__ as an attribute is deprecated; it must be implemented as a method",
             stacklevel=3,
