@@ -176,7 +176,9 @@ cdef void report_cuda_error(
     const char* operation, cydriver.CUresult status, const char* detail) noexcept nogil
 cdef void report_message(const char* message) noexcept nogil
 cdef void report_status_code(const char* operation, long code) noexcept nogil
-cdef const char* take_last_error_detail() noexcept nogil
+cdef void note_or_report_cuda_error(
+    const char* operation, cydriver.CUresult status, const char* detail) noexcept nogil
+cdef const char* take_last_error_detail(cydriver.CUresult status) noexcept nogil
 cdef void clear_last_error_detail() noexcept nogil
 
 # Context handles

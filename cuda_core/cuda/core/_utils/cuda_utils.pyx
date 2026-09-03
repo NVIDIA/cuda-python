@@ -45,9 +45,10 @@ class CUDAWarning(RuntimeWarning):
 
     ``cuda.core`` raises exceptions for failures in ordinary calls. Some failures
     happen where no exception can propagate: while a resource is released by the
-    garbage collector or by a CUDA callback, or while a context switch is undone
-    after the requested operation already succeeded. Those failures are reported
-    as this warning instead, and the affected resource may have leaked.
+    garbage collector or by a CUDA callback, including the driver calls that
+    switch and restore the CUDA context around such a release. Those failures
+    are reported as this warning instead, and the affected resource may have
+    leaked.
 
     Filter on this category to make such failures fatal in tests::
 
@@ -160,6 +161,16 @@ cdef object _RUNTIME_SUCCESS = runtime.cudaError_t.cudaSuccess
 cdef object _NVRTC_SUCCESS = nvrtc.nvrtcResult.NVRTC_SUCCESS
 
 
+cdef inline void _attach_detail(exc, str detail):
+    # PEP 678 notes (Python 3.11+) keep the detail separable from the message;
+    # older interpreters get it appended to the message instead.
+    add_note = getattr(exc, "add_note", None)
+    if add_note is not None:
+        add_note(detail)
+    else:
+        exc.args = (f"{exc.args[0]} ({detail})", *exc.args[1:])
+
+
 cpdef inline int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
     if error == cydriver.CUresult.CUDA_SUCCESS:
         return 0
@@ -167,20 +178,23 @@ cpdef inline int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
     cdef const char* desc
     # A context-scoped helper in the handle layer may have recorded why this
     # status needs more explanation (e.g. the caller's context was not restored).
-    cdef const char* detail = take_last_error_detail()
+    cdef const char* detail = take_last_error_detail(error)
     name_err = cydriver.cuGetErrorName(error, &name)
     if name_err != cydriver.CUresult.CUDA_SUCCESS:
         raise CUDAError(f"UNEXPECTED ERROR CODE: {error}")
     desc_err = cydriver.cuGetErrorString(error, &desc)
     with gil:
-        suffix = f" ({detail.decode()})" if detail != NULL else ""
         # TODO: consider lower this to Cython
         expl = DRIVER_CU_RESULT_EXPLANATIONS.get(int(error))
         if expl is not None:
-            raise CUDAError(f"{name.decode()}: {expl}{suffix}")
-        if desc_err != cydriver.CUresult.CUDA_SUCCESS:
-            raise CUDAError(f"{name.decode()}{suffix}")
-        raise CUDAError(f"{name.decode()}: {desc.decode()}{suffix}")
+            exc = CUDAError(f"{name.decode()}: {expl}")
+        elif desc_err != cydriver.CUresult.CUDA_SUCCESS:
+            exc = CUDAError(name.decode())
+        else:
+            exc = CUDAError(f"{name.decode()}: {desc.decode()}")
+        if detail != NULL:
+            _attach_detail(exc, detail.decode())
+        raise exc
 
 
 cpdef inline int _check_runtime_error(error) except?-1:

@@ -80,12 +80,20 @@ void report_message(const char* message) noexcept;
 // Report a failed NVRTC/NVVM/nvJitLink call by raw status code.
 void report_status_code(const char* operation, long code) noexcept;
 
+// Attach a failed CUDA call to the Python exception currently being handled
+// (PEP 678 note, Python 3.11+): for rollback failures inside `except` blocks
+// whose original exception is about to be re-raised. When no exception is
+// being handled or notes are unavailable, falls back to report_cuda_error().
+void note_or_report_cuda_error(const char* operation, CUresult status, const char* detail = nullptr) noexcept;
+
 // Detail recorded by a context-scoped helper for the CUresult it is about to
 // return, e.g. that the caller's context could not be restored. The Cython
-// error path appends it to the raised CUDAError. Thread-local; take_ returns
-// the detail (valid until the next take on this thread) and clears it, or
-// nullptr when none is recorded.
-const char* take_last_error_detail() noexcept;
+// error path attaches it to the raised CUDAError as a note. Thread-local and
+// keyed by status: take_ returns the detail (valid until the next take on this
+// thread) and clears it when `status` is the CUresult it was recorded for, and
+// returns nullptr otherwise, so a detail whose status was never raised cannot
+// attach to an unrelated error.
+const char* take_last_error_detail(CUresult status) noexcept;
 void clear_last_error_detail() noexcept;
 
 // Tests only: make the next context restoration on this thread fail with

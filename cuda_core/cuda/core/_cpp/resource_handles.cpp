@@ -211,11 +211,12 @@ private:
 // Warning category registered by _resource_handles.pyx (cuda.core.CUDAWarning).
 std::atomic<PyObject*> warning_category{nullptr};
 
-// Thread-local detail attached to the next raised CUDAError (see
-// take_last_error_detail()). Written only by propagating helpers. The taken
-// copy stays valid until the next take on the same thread.
-thread_local char last_error_detail[256] = {0};
-thread_local char taken_error_detail[256] = {0};
+// Thread-local detail attached to the next raised CUDAError with a matching
+// status (see take_last_error_detail()). Written only by propagating helpers.
+// The taken copy stays valid until the next take on the same thread.
+thread_local char last_error_detail[512] = {0};
+thread_local char taken_error_detail[512] = {0};
+thread_local CUresult last_error_detail_status = CUDA_SUCCESS;
 
 // Thread-local fault injected into the next context restoration (tests only).
 thread_local CUresult context_restore_fault = CUDA_SUCCESS;
@@ -295,17 +296,62 @@ void report_cuda_error(const char* operation, CUresult status, const char* detai
     report_message(message);
 }
 
-const char* take_last_error_detail() noexcept {
-    if (!last_error_detail[0]) {
+namespace {
+
+// Attach `message` as a PEP 678 note to the exception currently being handled.
+// Returns false when there is none or the interpreter cannot be used.
+bool add_note_to_handled_exception(const char* message) noexcept {
+#if PY_VERSION_HEX >= 0x030B0000
+    if (!Py_IsInitialized() || py_is_finalizing()) {
+        return false;
+    }
+    GILAcquireGuard gil;
+    if (!gil.acquired()) {
+        return false;
+    }
+    PyObject* exc = PyErr_GetHandledException();
+    if (!exc) {
+        return false;
+    }
+    PyObject* result = PyObject_CallMethod(exc, "add_note", "s", message);
+    Py_DECREF(exc);
+    if (!result) {
+        PyErr_Clear();
+        return false;
+    }
+    Py_DECREF(result);
+    return true;
+#else
+    (void)message;
+    return false;
+#endif
+}
+
+}  // namespace
+
+void note_or_report_cuda_error(const char* operation, CUresult status, const char* detail) noexcept {
+    if (status == CUDA_SUCCESS || status == CUDA_ERROR_DEINITIALIZED) {
+        return;
+    }
+    char message[512];
+    format_cuda_error(message, sizeof(message), operation, status, detail);
+    if (!add_note_to_handled_exception(message)) {
+        report_message(message);
+    }
+}
+
+const char* take_last_error_detail(CUresult status) noexcept {
+    if (!last_error_detail[0] || status != last_error_detail_status) {
         return nullptr;
     }
     std::memcpy(taken_error_detail, last_error_detail, sizeof(taken_error_detail));
-    last_error_detail[0] = 0;
+    clear_last_error_detail();
     return taken_error_detail;
 }
 
 void clear_last_error_detail() noexcept {
     last_error_detail[0] = 0;
+    last_error_detail_status = CUDA_SUCCESS;
 }
 
 void set_context_restore_fault_for_testing(CUresult status) noexcept {
@@ -349,36 +395,47 @@ CUresult restore_context(CUcontext previous) noexcept {
     return p_cuCtxSetCurrent(previous);
 }
 
-// Record why the CUresult about to be returned should be explained further
-// when it is raised as a CUDAError: the caller's context was not restored.
-void note_context_not_restored(CUcontext previous) noexcept {
+// Record that the caller's context was not restored as the detail of the
+// CUresult about to be returned and raised: the operation status if the
+// operation failed too, else the restoration status. For a double failure the
+// detail also names the restoration error, which the raised error does not.
+void note_context_not_restored(CUcontext previous, CUresult operation_status,
+                               CUresult restore_status) noexcept {
     CUcontext current = nullptr;
     if (p_cuCtxGetCurrent(&current) != CUDA_SUCCESS) {
         current = nullptr;
     }
+    char cause[128] = {0};
+    if (operation_status != CUDA_SUCCESS) {
+        const char* error_name = nullptr;
+        if (p_cuGetErrorName && p_cuGetErrorName(restore_status, &error_name) == CUDA_SUCCESS) {
+            std::snprintf(cause, sizeof(cause), " after this failure (cuCtxSetCurrent: %s)", error_name);
+        } else {
+            std::snprintf(cause, sizeof(cause), " after this failure (cuCtxSetCurrent: CUDA error %d)",
+                          static_cast<int>(restore_status));
+        }
+    }
     std::snprintf(last_error_detail, sizeof(last_error_detail),
-                  "the calling thread's CUDA context (%#llx) could not be restored; "
+                  "the calling thread's CUDA context (%#llx) could not be restored%s; "
                   "context %#llx is now current. Call Device.set_current() before issuing "
                   "further CUDA work on this thread",
                   static_cast<unsigned long long>(reinterpret_cast<uintptr_t>(previous)),
+                  cause,
                   static_cast<unsigned long long>(reinterpret_cast<uintptr_t>(current)));
+    last_error_detail_status = operation_status != CUDA_SUCCESS ? operation_status : restore_status;
 }
 
 // Restore the previous context and preserve an earlier operation error. The
-// operation error, if any, is returned; a restoration failure is then reported
-// out of band. Otherwise the restoration status is returned, annotated for the
-// eventual CUDAError.
+// operation error, if any, is returned; otherwise the restoration status is.
+// Either way a restoration failure is recorded as the detail of the returned
+// status, so the eventual CUDAError explains it (see take_last_error_detail()).
 CUresult exit_context(CUcontext previous, int changed, CUresult operation_status) noexcept {
     CUresult restore_status = changed ? restore_context(previous) : CUDA_SUCCESS;
     if (restore_status == CUDA_SUCCESS) {
         return operation_status;
     }
-    if (operation_status != CUDA_SUCCESS) {
-        report_cuda_error("cuCtxSetCurrent (restoring the caller's context)", restore_status);
-        return operation_status;
-    }
-    note_context_not_restored(previous);
-    return restore_status;
+    note_context_not_restored(previous, operation_status, restore_status);
+    return operation_status != CUDA_SUCCESS ? operation_status : restore_status;
 }
 
 // Require a callable to be invocable without throwing.
@@ -491,7 +548,10 @@ CUresult cleanup_in_context(const ContextHandle& h_context, const char* name,
     }
     CUresult restore = exit_context(previous, changed, CUDA_SUCCESS);
     if (restore != CUDA_SUCCESS) {
+        // Nothing is raised here, so the detail exit_context recorded has no
+        // exception to attach to: report it and drop the detail.
         report_cuda_error(name, restore, "failed while restoring the caller's context");
+        clear_last_error_detail();
     }
     return status;
 }
@@ -581,8 +641,8 @@ CUresult context_get_device(const ContextHandle& h_context, CUdevice* device) no
 // the caller's context). Returns the cuGraphNodeSetParams status. A failure to
 // restore the caller's context is returned separately in *restore_status so the
 // caller can publish the metadata that depends on the successful update before
-// raising it; if the update itself failed, a restoration failure is reported
-// out of band and *restore_status is CUDA_SUCCESS.
+// raising it; if the update itself failed, its status is returned with the
+// restoration failure recorded as its detail and *restore_status is CUDA_SUCCESS.
 CUresult graph_node_set_params(CUgraphNode node, CUgraphNodeParams* params,
                                const ContextHandle& h_context,
                                CUresult* restore_status) noexcept {
@@ -607,12 +667,10 @@ CUresult graph_node_set_params(CUgraphNode node, CUgraphNodeParams* params,
     if (restored == CUDA_SUCCESS) {
         return status;
     }
-    if (status != CUDA_SUCCESS) {
-        report_cuda_error("cuCtxSetCurrent (restoring the caller's context)", restored);
-        return status;
+    note_context_not_restored(previous, status, restored);
+    if (status == CUDA_SUCCESS) {
+        *restore_status = restored;
     }
-    note_context_not_restored(previous);
-    *restore_status = restored;
     return status;
 }
 

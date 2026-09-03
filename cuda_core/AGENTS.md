@@ -127,16 +127,18 @@ below are for contributors. Reviewers and agents should flag violations.
   resources anyway (leak) rather than release them; a leak is always preferred
   to a use-after-free.
 - **Non-propagating paths never raise and never discard a status**: shared_ptr
-  deleters, `__dealloc__`, CUDA callbacks and cleanup after a failure report
-  through one channel, `report_cuda_error()` / `report_message()` in C++ (the
+  deleters, `__dealloc__` and CUDA callbacks report through one channel, `report_cuda_error()` / `report_message()` in C++ (the
   `pw_*` wrappers) or `warnings.warn(..., CUDAWarning)` in Cython and Python,
   which emits `cuda.core.CUDAWarning`. No `print(file=sys.stderr)` and no
   `fprintf` outside that helper. `CUDA_ERROR_DEINITIALIZED` is filtered by the
   helper because it means the driver is shutting down.
 - **Rollback failure**: the original exception propagates; the failed rollback
-  is reported out of band (or chained with `raise ... from` when a second
-  exception must be raised). Bare `except:` is acceptable only for
-  rollback-then-`raise` blocks.
+  is attached to it with `note_or_report_cuda_error()` (a PEP 678 note on
+  Python 3.11+, reported out-of-band on 3.10), or chained with
+  `raise ... from` when a second exception must be raised. Catching everything
+  (bare `except:` or `except BaseException:`) is acceptable only for
+  rollback-then-`raise` blocks, where the rollback must also run for
+  `KeyboardInterrupt`.
 - **Finalization**: once `py_is_finalizing()` is true, do no Python work from
   destructors or callbacks and accept the leak (see
   `_cpp/resource_handles.hpp` and `_cpp/GRAPH_ATTACHMENTS.md`).
@@ -146,7 +148,9 @@ below are for contributors. Reviewers and agents should flag violations.
   call, including a failed context restoration, never qualifies: raise or
   report instead. There is currently no such path; if one is ever needed it
   must go through a single helper that writes a diagnostic (call, CUDA error,
-  invariant, "please report") to stderr before aborting, must never trigger
+  invariant, "please report") and a Python traceback of all threads to stderr
+  before aborting (as `faulthandler` does, via the GIL-free
+  `_Py_DumpTracebackThreads`; no Python-object work), must never trigger
   during interpreter finalization or for driver-shutdown errors, and must be
   called out in the docs and release notes. An *implicit* abort (an exception
   escaping a `noexcept` function or a deleter, including `std::bad_alloc` from

@@ -275,9 +275,16 @@ Related functions:
 - `peek_last_error()`: Returns the error without clearing it
 - `clear_last_error()`: Clears the error state
 
-Some functions return a `CUresult` directly instead of a handle (for example
-`context_synchronize`, `context_get_device`, `graph_node_set_params`). Their
-callers `HANDLE_RETURN` the value.
+The C++ layer never raises Python exceptions: it runs `nogil` and `noexcept`,
+and is called from deleters, CUDA callbacks and GIL-released code where raising
+is impossible. Status is turned into `CUDAError` in one place, `HANDLE_RETURN`
+in the Cython layer. Which status convention a function uses is decided by its
+return value. Factories return the handle, so their status goes to thread-local
+`err` and is read with `get_last_error()`. Functions that do not produce a
+handle (`context_synchronize`, `context_get_device`, `graph_node_set_params`,
+the `graph_*_attachment` family, `deviceptr_alloc_raw`) return the `CUresult`
+directly and deliver results through out-parameters, mirroring the driver API;
+their callers `HANDLE_RETURN` the value. The two conventions never mix.
 
 ### Context-scoped operations
 
@@ -285,19 +292,22 @@ Operations that must run in a specific context use `invoke_in_context` /
 `invoke_in_context_or_undo` (propagating paths) and `cleanup_in_context`
 (deleters). They switch the current context, run the operation, and restore the
 caller's context. When restoration fails after the operation succeeded, the
-creation is undone and the restoration status is returned; the helper also
-records a thread-local detail (`take_last_error_detail()`) that the Cython error
-path appends to the raised `CUDAError`, so the user learns that the caller's
-context was not restored and which context is current. When both the operation
-and the restoration fail, the operation status is returned and the restoration
-failure is reported out of band. Tests inject restoration failures with
+creation is undone and the restoration status is returned. When both fail, the
+operation status is returned. Either way the helper records a thread-local
+detail keyed to the returned status (`take_last_error_detail(status)`) that
+`_check_driver_error` attaches to the raised `CUDAError` as a PEP 678 note
+(appended to the message on Python 3.10), so the user learns that the caller's
+context was not restored, which context is current and, for a double failure,
+why restoration failed. Keying the detail to its status keeps it from attaching
+to an unrelated error if the caller never raises that status; `enter_context`
+clears any stale detail. Tests inject restoration failures with
 `set_context_restore_fault_for_testing()`.
 
 ### Reporting from non-propagating paths
 
-Deleters, CUDA callbacks and cleanup-after-failure cannot raise. They report
-through `report_cuda_error()` / `report_message()` (the `pw_*` wrappers
-decorate destroy calls with it), which emit a `cuda.core.CUDAWarning` through
+Deleters and CUDA callbacks cannot raise. They report through
+`report_cuda_error()` / `report_message()` (the `pw_*` wrappers decorate
+destroy calls with it), which emit a `cuda.core.CUDAWarning` through
 the Python warnings machinery when the interpreter is usable, deliver an
 escalated warning as an unraisable exception, and fall back to stderr when the
 GIL cannot be taken (for example during finalization). `CUDA_ERROR_DEINITIALIZED`
@@ -305,6 +315,11 @@ is never reported because it means the driver is shutting down. No status is
 discarded silently anywhere in this layer, and nothing in this layer terminates
 the process; see `docs/source/error_handling.rst` and the "Failure handling"
 section of `AGENTS.md` for the policy.
+
+A rollback that fails inside a Cython `except` block is not a non-propagating
+path: `note_or_report_cuda_error()` attaches it as a note to the exception being
+handled (`PyErr_GetHandledException`, Python 3.11+) and falls back to a report
+only when there is no such exception or notes are unavailable.
 
 ## Usage from Cython
 

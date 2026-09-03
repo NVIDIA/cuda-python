@@ -49,3 +49,10 @@ def _set_context_restore_fault_for_testing(status: int):
     injected failure leaves the target context current, exactly as a failing
     ``cuCtxSetCurrent`` would, so callers must restore the context themselves.
     """
+def _note_or_report_cuda_error_for_testing(status: int):
+    """Attach a failed CUDA call to the exception being handled, or report it.
+
+    Test hook for ``note_or_report_cuda_error()``. Called inside an ``except``
+    block it adds a note to the exception being handled (Python 3.11+); anywhere
+    else it emits a ``CUDAWarning``.
+    """

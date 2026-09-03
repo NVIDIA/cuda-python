@@ -19,9 +19,10 @@ class CUDAWarning(RuntimeWarning):
 
     ``cuda.core`` raises exceptions for failures in ordinary calls. Some failures
     happen where no exception can propagate: while a resource is released by the
-    garbage collector or by a CUDA callback, or while a context switch is undone
-    after the requested operation already succeeded. Those failures are reported
-    as this warning instead, and the affected resource may have leaked.
+    garbage collector or by a CUDA callback, including the driver calls that
+    switch and restore the CUDA context around such a release. Those failures
+    are reported as this warning instead, and the affected resource may have
+    leaked.
 
     Filter on this category to make such failures fatal in tests::
 

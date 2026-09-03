@@ -4,15 +4,17 @@
 """Tests for the error handling policy (docs/source/error_handling.rst).
 
 Ordinary calls raise and leave the caller's context untouched; failures that
-cannot be raised are reported as CUDAWarning; and a failure to restore the
-caller's context is raised (or reported) with an explanation rather than
-swallowed or turned into a process abort. Restoration failures are injected with
-the handle layer's test hook, which leaves the target context current exactly as
-a real ``cuCtxSetCurrent`` failure would, so every test here restores the
-context stack itself.
+cannot be raised are reported as CUDAWarning; a failure to restore the caller's
+context is raised (or reported) with an explanation rather than swallowed or
+turned into a process abort; and a secondary failure that occurs while an
+exception is being raised is attached to that exception as a note. Restoration
+failures are injected with the handle layer's test hook, which leaves the target
+context current exactly as a real ``cuCtxSetCurrent`` failure would, so every
+test here restores the context stack itself.
 """
 
 import ctypes
+import sys
 from contextlib import contextmanager
 
 import pytest
@@ -26,17 +28,32 @@ from cuda.core import (
     DeviceMemoryResourceOptions,
     LegacyPinnedMemoryResource,
 )
-from cuda.core._resource_handles import _set_context_restore_fault_for_testing
+from cuda.core._memory._device_memory_resource import _SynchronousMemoryResource
+from cuda.core._resource_handles import (
+    _note_or_report_cuda_error_for_testing,
+    _set_context_restore_fault_for_testing,
+)
 from cuda.core._stream import default_stream
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core._utils.version import binding_version, driver_version
 from cuda.core.graph import GraphDefinition
 
 INVALID_CONTEXT = int(driver.CUresult.CUDA_ERROR_INVALID_CONTEXT)
+INVALID_VALUE = int(driver.CUresult.CUDA_ERROR_INVALID_VALUE)
+DEINITIALIZED = int(driver.CUresult.CUDA_ERROR_DEINITIALIZED)
+
+# PEP 678 exception notes; on 3.10 the same information lands in the message.
+HAS_NOTES = sys.version_info >= (3, 11)
 
 thread_unsafe_context_fault = pytest.mark.thread_unsafe(
     reason="injects a thread-local restoration fault and mutates the CUDA context stack"
 )
+thread_unsafe_warning_capture = pytest.mark.thread_unsafe(reason="warning capture is process-global")
+
+
+def error_text(exc):
+    """The message plus any notes, wherever the detail lives on this interpreter."""
+    return "\n".join([str(exc), *getattr(exc, "__notes__", [])])
 
 
 @contextmanager
@@ -69,11 +86,16 @@ def test_create_stream_raises_when_context_cannot_be_restored(init_cuda):
     """Creation is undone and the error explains the context state; no abort, no warning."""
     dev = init_cuda
     with no_context_with_restore_fault():
-        with assert_no_cuda_warning(), pytest.raises(CUDAError, match="could not be restored") as excinfo:
+        with assert_no_cuda_warning(), pytest.raises(CUDAError) as excinfo:
             dev.create_stream()
-        message = str(excinfo.value)
-        assert "CUDA_ERROR_INVALID_CONTEXT" in message
-        assert "Device.set_current()" in message
+        text = error_text(excinfo.value)
+        assert "could not be restored" in text
+        assert "CUDA_ERROR_INVALID_CONTEXT" in text
+        assert "Device.set_current()" in text
+        if HAS_NOTES:
+            # The explanation is a note, separable from the driver error message.
+            assert "could not be restored" not in str(excinfo.value)
+            assert any("could not be restored" in note for note in excinfo.value.__notes__)
         # As documented, a failed restoration leaves the device's context current.
         assert current_context_handle() == int(dev.context.handle)
     assert current_context_handle() == int(dev.context.handle)
@@ -85,8 +107,29 @@ def test_sync_raises_when_context_cannot_be_restored(init_cuda):
     """A context-scoped call without a created resource raises the same explanation."""
     dev = init_cuda
     with no_context_with_restore_fault():
-        with pytest.raises(CUDAError, match="could not be restored"):
+        with pytest.raises(CUDAError) as excinfo:
             dev.sync()
+        assert "could not be restored" in error_text(excinfo.value)
+        assert current_context_handle() == int(dev.context.handle)
+
+
+@thread_unsafe_context_fault
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_failed_call_raises_its_own_error_with_the_restore_failure_attached(init_cuda):
+    """When the call and the restoration both fail, the call's error is raised and the
+    restoration failure is attached to it; nothing is reported out of band."""
+    dev = init_cuda
+    mr = _SynchronousMemoryResource(dev.device_id)
+    with no_context_with_restore_fault():
+        with assert_no_cuda_warning(), pytest.raises(CUDAError) as excinfo:
+            mr.allocate(1 << 62)
+        message = str(excinfo.value)
+        text = error_text(excinfo.value)
+        # The allocation failure is the primary error, not the restoration failure.
+        assert not message.startswith("CUDA_ERROR_INVALID_CONTEXT")
+        assert "could not be restored after this failure" in text
+        assert "cuCtxSetCurrent: CUDA_ERROR_INVALID_CONTEXT" in text
+        assert "Device.set_current()" in text
         assert current_context_handle() == int(dev.context.handle)
 
 
@@ -184,8 +227,9 @@ def test_memset_update_keeps_new_owners_alive_when_context_cannot_be_restored(de
     other_dev.set_current()
     _set_context_restore_fault_for_testing(INVALID_CONTEXT)
     try:
-        with pytest.raises(CUDAError, match="could not be restored"):
+        with pytest.raises(CUDAError) as excinfo:
             node.update(dst=replacement, value=0x22)
+        assert "could not be restored" in error_text(excinfo.value)
     finally:
         _set_context_restore_fault_for_testing(0)
         node_dev.set_current()
@@ -205,3 +249,34 @@ def test_memset_update_keeps_new_owners_alive_when_context_cannot_be_restored(de
     assert list(as_bytes(dst)) == [0] * 4
     graph.close()
     stream.close()
+
+
+@thread_unsafe_warning_capture
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_rollback_failure_is_attached_to_the_propagating_exception():
+    """A failed rollback inside an except block becomes a note on the exception being
+    handled (Python 3.11+); on 3.10, or with no exception being handled, it is reported
+    as a CUDAWarning. CUDA_ERROR_DEINITIALIZED is neither attached nor reported."""
+    with pytest.raises(RuntimeError) as excinfo:
+        try:
+            raise RuntimeError("primary failure")
+        except RuntimeError:
+            if HAS_NOTES:
+                with assert_no_cuda_warning():
+                    _note_or_report_cuda_error_for_testing(INVALID_VALUE)
+            else:
+                with pytest.warns(CUDAWarning, match="cuTestOperation failed while testing"):
+                    _note_or_report_cuda_error_for_testing(INVALID_VALUE)
+            with assert_no_cuda_warning():
+                _note_or_report_cuda_error_for_testing(DEINITIALIZED)
+            raise
+    exc = excinfo.value
+    assert str(exc) == "primary failure"
+    if HAS_NOTES:
+        assert len(exc.__notes__) == 1
+        assert "cuTestOperation failed while testing: CUDA_ERROR_INVALID_VALUE" in exc.__notes__[0]
+    else:
+        assert not hasattr(exc, "__notes__")
+    # With no exception being handled there is nothing to attach to.
+    with pytest.warns(CUDAWarning, match="cuTestOperation failed while testing"):
+        _note_or_report_cuda_error_for_testing(INVALID_VALUE)
