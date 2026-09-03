@@ -30,6 +30,11 @@ from cuda.core.graph._graph_node cimport (
     _resolve_memcpy_operand,
 )
 from cuda.core._resource_handles cimport (
+    ContextHandle,
+    create_context_handle_ref,
+    graph_node_set_params,
+)
+from cuda.core._resource_handles cimport (
     EventHandle,
     GraphExecHandle,
     GraphHandle,
@@ -124,26 +129,25 @@ cdef void _set_definition_node_params(
     if node == NULL:
         raise RuntimeError("GraphNode has been destroyed")
     _require_graph_node_update_support()
-    cdef cydriver.CUcontext previous_ctx = NULL
-    cdef bint restore_ctx = False
     cdef PreparedAttachment prepared
+    cdef ContextHandle h_update_ctx
+    cdef cydriver.CUresult status
+    cdef cydriver.CUresult restore_status = cydriver.CUresult.CUDA_SUCCESS
 
     HANDLE_RETURN(graph_prepare_attachment(
         h_graph, owner0, owner1, &prepared))
     if update_ctx != NULL:
-        with nogil:
-            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&previous_ctx))
-            if previous_ctx != update_ctx:
-                HANDLE_RETURN(cydriver.cuCtxSetCurrent(update_ctx))
-                restore_ctx = True
+        h_update_ctx = create_context_handle_ref(update_ctx)
+    with nogil:
+        status = graph_node_set_params(node, params, h_update_ctx, &restore_status)
+    HANDLE_RETURN(status)
+    # The driver node now references the new owners. Publish their attachment
+    # before raising anything else: an exception here would roll back the
+    # prepared retention and leave the node pointing at released resources.
     try:
-        with nogil:
-            HANDLE_RETURN(cydriver.cuGraphNodeSetParams(node, params))
+        HANDLE_RETURN(graph_commit_attachment(prepared, node))
     finally:
-        if restore_ctx:
-            with nogil:
-                HANDLE_RETURN(cydriver.cuCtxSetCurrent(previous_ctx))
-    HANDLE_RETURN(graph_commit_attachment(prepared, node))
+        HANDLE_RETURN(restore_status)
 
 
 cdef void _set_executable_node_params(

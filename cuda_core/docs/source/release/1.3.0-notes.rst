@@ -6,6 +6,18 @@
 ``cuda.core`` 1.3.0 Release Notes
 ==================================
 
+New features
+------------
+
+- Added :class:`CUDAWarning`, the warning category ``cuda.core`` uses for CUDA
+  errors that cannot be raised, such as a failed driver call while a resource
+  is released by the garbage collector. Filter on it with
+  ``warnings.filterwarnings("error", category=cuda.core.CUDAWarning)`` to make
+  such failures loud. The new :doc:`error handling <../error_handling>` page
+  documents what an exception from ``cuda.core`` guarantees, how failures that
+  cannot be raised are reported, and how context restoration failures and
+  sticky CUDA errors are handled.
+
 Fixes and enhancements
 ----------------------
 
@@ -35,3 +47,42 @@ Fixes and enhancements
   ``RuntimeError``. :attr:`Buffer.device_id` on such a buffer returns ``-1``
   as well, which also lets a pinned buffer back a linear or pitched texture
   resource.
+
+- Cleanup failures are now reported as :class:`CUDAWarning` instead of being
+  written to ``stderr`` with ``print`` or ``fprintf``, so they can be filtered,
+  captured with :func:`warnings.catch_warnings`, and escalated. Failures of
+  ``cuStreamDestroy``, ``cuEventDestroy``, ``cuMemFree``, ``cuMemFreeAsync``,
+  ``cuMemFreeHost``, ``cuMemPoolDestroy``, ``cuGreenCtxDestroy``,
+  ``cuGraphDestroy``, ``cuGraphExecDestroy``, ``cuGraphicsUnregisterResource``,
+  ``cuLinkDestroy``, ``cuArrayDestroy``, ``cuMipmappedArrayDestroy``,
+  ``cuTexObjectDestroy``, ``cuSurfObjectDestroy``, user-object releases and the
+  NVRTC, NVVM and nvJitLink destroy calls made from destructors were previously
+  discarded; they are now reported. ``CUDA_ERROR_DEINITIALIZED`` (the driver is
+  shutting down) is not reported. Test code that matched the old ``stderr``
+  text uses ``pytest.warns(CUDAWarning)`` instead.
+
+- When a :class:`Device` method has to run in the device's context and the
+  caller's context cannot be restored afterwards, the created resource is
+  destroyed and the raised ``CUDAError`` now states that the caller's context
+  could not be restored and which context is current. Previously the error
+  named only the driver status of the failed ``cuCtxSetCurrent`` call. A
+  restoration failure during resource cleanup is reported as
+  :class:`CUDAWarning`.
+
+- Updating a memcpy or memset graph node whose context differs from the current
+  one no longer risks a dangling node parameter when the caller's context
+  cannot be restored after the update: the resources referenced by the new
+  parameters are now retained before the restoration failure is raised.
+
+- :meth:`Device.set_current` with an explicit :class:`Context` now switches
+  contexts with a single driver call, so a failure leaves the previous context
+  current instead of leaving the thread with no context. It also works when no
+  context is current, returning ``None``.
+
+- Failed rollbacks of a partially embedded child graph node and failed
+  ``cuStreamEndCapture`` calls made when a still-building
+  :class:`~graph.GraphBuilder` is garbage collected are now reported as
+  :class:`CUDAWarning`; both were silent.
+
+- :attr:`Stream.device` and related queries on a stream whose context is not
+  current now restore the caller's context even when the device query fails.

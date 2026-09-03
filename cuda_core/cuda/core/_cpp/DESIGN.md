@@ -275,6 +275,37 @@ Related functions:
 - `peek_last_error()`: Returns the error without clearing it
 - `clear_last_error()`: Clears the error state
 
+Some functions return a `CUresult` directly instead of a handle (for example
+`context_synchronize`, `context_get_device`, `graph_node_set_params`). Their
+callers `HANDLE_RETURN` the value.
+
+### Context-scoped operations
+
+Operations that must run in a specific context use `invoke_in_context` /
+`invoke_in_context_or_undo` (propagating paths) and `cleanup_in_context`
+(deleters). They switch the current context, run the operation, and restore the
+caller's context. When restoration fails after the operation succeeded, the
+creation is undone and the restoration status is returned; the helper also
+records a thread-local detail (`take_last_error_detail()`) that the Cython error
+path appends to the raised `CUDAError`, so the user learns that the caller's
+context was not restored and which context is current. When both the operation
+and the restoration fail, the operation status is returned and the restoration
+failure is reported out of band. Tests inject restoration failures with
+`set_context_restore_fault_for_testing()`.
+
+### Reporting from non-propagating paths
+
+Deleters, CUDA callbacks and cleanup-after-failure cannot raise. They report
+through `report_cuda_error()` / `report_message()` (the `pw_*` wrappers
+decorate destroy calls with it), which emit a `cuda.core.CUDAWarning` through
+the Python warnings machinery when the interpreter is usable, deliver an
+escalated warning as an unraisable exception, and fall back to stderr when the
+GIL cannot be taken (for example during finalization). `CUDA_ERROR_DEINITIALIZED`
+is never reported because it means the driver is shutting down. No status is
+discarded silently anywhere in this layer, and nothing in this layer terminates
+the process; see `docs/source/error_handling.rst` and the "Failure handling"
+section of `AGENTS.md` for the policy.
+
 ## Usage from Cython
 
 ```cython

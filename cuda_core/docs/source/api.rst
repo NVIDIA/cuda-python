@@ -298,6 +298,21 @@ DLPack zero-copy interop. Data is moved in and out only by copying — use
    TextureObject
    SurfaceObject
 
+
+Errors and warnings
+-------------------
+
+Failed CUDA calls raise exceptions; see :doc:`error_handling` for the
+guarantees an exception provides and for the situations in which a failure is
+reported as a warning instead.
+
+.. currentmodule:: cuda.core
+
+.. autosummary::
+   :toctree: generated/
+
+   CUDAWarning
+
    :template: dataclass.rst
 
    OpaqueArrayOptions

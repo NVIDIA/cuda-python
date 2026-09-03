@@ -27,6 +27,10 @@ from cuda.bindings.nvjitlink import nvJitLinkError
 from cpython.buffer cimport PyObject_GetBuffer, PyBuffer_Release, Py_buffer, PyBUF_SIMPLE
 
 from cuda.bindings cimport cynvrtc, cynvvm, cynvjitlink
+from cuda.core._resource_handles cimport (
+    register_warning_category,
+    take_last_error_detail,
+)
 
 from cuda.core._utils.driver_cu_result_explanations import DRIVER_CU_RESULT_EXPLANATIONS
 from cuda.core._utils.runtime_cuda_error_explanations import RUNTIME_CUDA_ERROR_EXPLANATIONS
@@ -34,6 +38,31 @@ from cuda.core._utils.runtime_cuda_error_explanations import RUNTIME_CUDA_ERROR_
 
 class CUDAError(Exception):
     pass
+
+
+class CUDAWarning(RuntimeWarning):
+    """Warning issued when ``cuda.core`` hits a CUDA error it cannot raise.
+
+    ``cuda.core`` raises exceptions for failures in ordinary calls. Some failures
+    happen where no exception can propagate: while a resource is released by the
+    garbage collector or by a CUDA callback, or while a context switch is undone
+    after the requested operation already succeeded. Those failures are reported
+    as this warning instead, and the affected resource may have leaked.
+
+    Filter on this category to make such failures fatal in tests::
+
+        warnings.filterwarnings("error", category=cuda.core.CUDAWarning)
+
+    Because the report comes from a destructor, an escalated warning cannot be
+    raised into user code; it is delivered through :func:`sys.unraisablehook`
+    (which pytest surfaces as ``PytestUnraisableExceptionWarning``).
+
+    .. versionadded:: 1.3.0
+    """
+
+
+# Route the C++ handle layer's non-propagating reports through this category.
+register_warning_category(<PyObject*>CUDAWarning)
 
 
 class NVRTCError(CUDAError):
@@ -135,19 +164,23 @@ cpdef inline int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
     if error == cydriver.CUresult.CUDA_SUCCESS:
         return 0
     cdef const char* name
+    cdef const char* desc
+    # A context-scoped helper in the handle layer may have recorded why this
+    # status needs more explanation (e.g. the caller's context was not restored).
+    cdef const char* detail = take_last_error_detail()
     name_err = cydriver.cuGetErrorName(error, &name)
     if name_err != cydriver.CUresult.CUDA_SUCCESS:
         raise CUDAError(f"UNEXPECTED ERROR CODE: {error}")
+    desc_err = cydriver.cuGetErrorString(error, &desc)
     with gil:
+        suffix = f" ({detail.decode()})" if detail != NULL else ""
         # TODO: consider lower this to Cython
         expl = DRIVER_CU_RESULT_EXPLANATIONS.get(int(error))
         if expl is not None:
-            raise CUDAError(f"{name.decode()}: {expl}")
-    cdef const char* desc
-    desc_err = cydriver.cuGetErrorString(error, &desc)
-    if desc_err != cydriver.CUresult.CUDA_SUCCESS:
-        raise CUDAError(f"{name.decode()}")
-    raise CUDAError(f"{name.decode()}: {desc.decode()}")
+            raise CUDAError(f"{name.decode()}: {expl}{suffix}")
+        if desc_err != cydriver.CUresult.CUDA_SUCCESS:
+            raise CUDAError(f"{name.decode()}{suffix}")
+        raise CUDAError(f"{name.decode()}: {desc.decode()}{suffix}")
 
 
 cpdef inline int _check_runtime_error(error) except?-1:

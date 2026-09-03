@@ -41,3 +41,11 @@ PreparedAttachmentDeleter: TypeAlias = Incomplete
 PreparedChildGraphUpdateState: TypeAlias = Incomplete
 PreparedExecAttachmentState: TypeAlias = Incomplete
 PreparedExecAttachmentDeleter: TypeAlias = Incomplete
+
+def _set_context_restore_fault_for_testing(status: int):
+    """Make the next context restoration on this thread fail with ``status``.
+
+    Test hook for the context save/restore paths in the handle layer. The
+    injected failure leaves the target context current, exactly as a failing
+    ``cuCtxSetCurrent`` would, so callers must restore the context themselves.
+    """

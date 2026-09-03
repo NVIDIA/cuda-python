@@ -20,6 +20,7 @@ from cuda.core.graph._subclasses cimport (
     ExecutableGraphNode,
     create_executable_node_view,
 )
+from cuda.core._resource_handles cimport report_cuda_error
 from cuda.core._resource_handles cimport (
     GraphExecHandle,
     GraphHandle,
@@ -860,6 +861,12 @@ cdef class GraphBuilder:
             if rollback_status == cydriver.CUDA_SUCCESS:
                 invalidate_child_graph_state(
                     self._h_graph, c_new_node)
+            else:
+                # The original exception propagates; the failed rollback is
+                # reported out of band (error handling policy).
+                report_cuda_error(
+                    b"cuGraphDestroyNode", rollback_status,
+                    b"failed while rolling back a child graph node; the node remains in the graph")
             raise
 
         deps_info_update = [[new_node]] + [None] * (len(deps_info_out) - 1)
@@ -990,8 +997,8 @@ cdef inline int GB_end_capture_if_needed(GraphBuilder gb, bint check_status) exc
     capture. A FORKED builder must not call cuStreamEndCapture: the driver
     requires forked streams to be joined first.
 
-    check_status=True checks the driver return (close()); False ignores it
-    (__dealloc__).
+    check_status=True raises on a driver error (close()); False reports it as
+    a CUDAWarning instead, because nothing can be raised from __dealloc__.
     """
     cdef cydriver.CUgraph c_graph
     cdef cydriver.CUresult err
@@ -1002,6 +1009,10 @@ cdef inline int GB_end_capture_if_needed(GraphBuilder gb, bint check_status) exc
             err = cydriver.cuStreamEndCapture(c_stream, &c_graph)
             if check_status:
                 HANDLE_RETURN(err)
+            else:
+                report_cuda_error(
+                    b"cuStreamEndCapture", err,
+                    b"failed while releasing a GraphBuilder that was still building")
     return 0
 
 
