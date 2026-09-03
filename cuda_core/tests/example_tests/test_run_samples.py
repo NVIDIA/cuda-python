@@ -12,9 +12,8 @@ from pathlib import Path
 from types import ModuleType
 
 import pytest
+import run_samples
 from packaging.utils import canonicalize_name
-
-from . import run_samples
 
 
 class _Distribution:

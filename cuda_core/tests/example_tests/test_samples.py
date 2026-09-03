@@ -7,8 +7,7 @@ from __future__ import annotations
 import sys
 
 import pytest
-
-from .run_samples import (
+from run_samples import (
     DEFAULT_CONFIG,
     DEFAULT_SAMPLES_DIR,
     SAMPLE_NAMESPACE,
