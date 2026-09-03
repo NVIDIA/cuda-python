@@ -142,10 +142,10 @@ def _run_histogram(device, stream):
     kernel_privatized = object_code.get_kernel("histogram_privatized")
     print(f"  Compiled for architecture: {arch}")
 
-    # Generate test data directly on GPU (more efficient than CPU->GPU copy)
+    # Generate test data on CPU and transfer to GPU to avoid a curand dependency.
     n = 10_000_000
     print(f"\nGenerating {n:,} random values on GPU...")
-    data_gpu = cp.random.randint(0, 256, size=n, dtype=cp.uint8)
+    data_gpu = cp.asarray(np.random.randint(0, 256, size=n, dtype=np.uint8))
     hist_gpu = cp.zeros(NUM_BINS, dtype=cp.uint32)
 
     # Compute reference histogram on CPU for verification
