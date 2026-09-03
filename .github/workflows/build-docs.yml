@@ -43,8 +43,8 @@ on:
         required: false
         default: "gh-pages"
         type: string
-      bindings-line:
-        description: "Resolved CUDA bindings release-line JSON"
+      bindings-package:
+        description: "Resolved CUDA bindings package JSON"
         required: false
         default: ""
         type: string
@@ -74,16 +74,16 @@ jobs:
       - name: Install CI tool dependencies
         run: python3 -m pip install -r .ci-control/ci/tools/requirements.txt
 
-      - name: Resolve CUDA bindings line
+      - name: Resolve CUDA bindings package
         env:
-          BINDINGS_LINE: ${{ inputs.bindings-line }}
+          BINDINGS_PACKAGE: ${{ inputs.bindings-package }}
           IS_RELEASE: ${{ inputs.is-release }}
           RELEASE_TAG: ${{ inputs.git-tag }}
         run: |
           set -euo pipefail
-          if [[ -n "$BINDINGS_LINE" ]]; then
+          if [[ -n "$BINDINGS_PACKAGE" ]]; then
             (cd .ci-control && python3 -m ci.tools.bindings_config \
-              --line-json "$BINDINGS_LINE" \
+              --package-json "$BINDINGS_PACKAGE" \
               --github-env "$GITHUB_ENV")
           elif [[ "${IS_RELEASE}" == "true" && "$RELEASE_TAG" == v* ]]; then
             (cd .ci-control && python3 -m ci.tools.bindings_config \
@@ -93,7 +93,7 @@ jobs:
               --github-env "$GITHUB_ENV")
           else
             (cd .ci-control && python3 -m ci.tools.bindings_config \
-              --role current \
+              --release-status current \
               --github-env "$GITHUB_ENV")
           fi
 
@@ -150,7 +150,7 @@ jobs:
           CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${BUILD_CTK_VER}-linux-64"
           echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/${BINDINGS_COMPONENT_DIR}/dist")" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/${BINDINGS_PACKAGE_ROOT}/dist")" >> $GITHUB_ENV
           if [[ "$BINDINGS_REGISTRY_ORIGIN" == "control" ]]; then
             CUDA_PYTHON_ARTIFACT_NAME="cuda-python-wheel"
           else
@@ -302,7 +302,7 @@ jobs:
           esac
           COMPONENT="${DOCS_COMPONENT//-/_}"
           if [[ "$DOCS_COMPONENT" == "cuda-bindings" ]]; then
-            COMPONENT="${BINDINGS_COMPONENT_DIR}"
+            COMPONENT="${BINDINGS_PACKAGE_ROOT}"
           fi
           pushd "${COMPONENT}/docs/"
           if [[ "$IS_RELEASE" == "false" ]]; then

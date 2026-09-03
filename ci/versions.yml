@@ -5,13 +5,10 @@ schema_version: 2
 
 cuda:
   bindings:
-    lines:
-      released-12:
-        source_dir: cuda_bindings_12
+    package_roots:
+      cuda_bindings_12:
         toolkit_version: "12.9.1"
-      released-13:
-        source_dir: cuda_bindings
+        release_status: maintenance
+      cuda_bindings:
         toolkit_version: "13.3.0"
-    roles:
-      current: released-13
-      maintenance: released-12
+        release_status: current

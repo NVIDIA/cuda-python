@@ -23,15 +23,16 @@ because its standard workflow behavior is enabled directly. Before enabling a
 customization elsewhere, document the repository-specific prerequisites and
 verification procedure in that repository's own documentation.
 
-## CUDA Bindings Line Registry
+## CUDA Bindings Package-Root Registry
 
 `ci/versions.yml` is the authoritative public registry for CUDA bindings
-release lines. Each line declares its source directory and exact toolkit
-build/test pin. The scalar `current` and `maintenance` roles select the two
-public lines. A source directory's `[tool.setuptools_scm].tag_regex` defines
-its accepted tag syntax and release family. Update that SCM metadata together
-with the toolkit pin when a source root moves to a new toolkit minor; registry
-validation rejects a configuration where the two disagree.
+package roots. Each mapping key is a repository-relative package root; its
+record declares an exact toolkit build/test pin and a `release_status` of
+`current` or `maintenance`. A package root's
+`[tool.setuptools_scm].tag_regex` defines its accepted tag syntax and release
+family. Update that SCM metadata together with the toolkit pin when a package
+moves to a new toolkit minor; registry validation rejects a configuration
+where the two disagree.
 
 The Python helpers are modules in the `ci.tools` package. Use
 `ci.tools.bindings_config` instead of reading the YAML directly. It validates
@@ -40,9 +41,9 @@ source SCM tag regex and derived CTK target and CUDA ABI major/variant:
 
 ```console
 python -m ci.tools.bindings_config
-python -m ci.tools.bindings_config --lines
-python -m ci.tools.bindings_config --role current
+python -m ci.tools.bindings_config --package-roots
+python -m ci.tools.bindings_config --release-status current
 ```
 
-The public wheel builder requires one `current` line and one `maintenance`
-line with different CUDA ABI majors.
+The public wheel builder requires one `current` package root and one
+`maintenance` package root with different CUDA ABI majors.

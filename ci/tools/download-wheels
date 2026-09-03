@@ -11,13 +11,13 @@ set -euo pipefail
 
 # Check required arguments
 if [[ $# -lt 3 ]]; then
-    echo "Usage: $0 <run-id> <component> <repository> [output-dir] [git-tag] [bindings-line-json]" >&2
+    echo "Usage: $0 <run-id> <component> <repository> [output-dir] [git-tag] [bindings-package-json]" >&2
     echo "  run-id: The GitHub Actions run ID containing the artifacts" >&2
     echo "  component: The component name pattern to download (e.g., cuda-core, cuda-bindings)" >&2
     echo "  repository: The GitHub repository (e.g., NVIDIA/cuda-python)" >&2
     echo "  output-dir: Optional output directory (default: ./dist)" >&2
-    echo "  git-tag: Optional release tag used to select its configured bindings line" >&2
-    echo "  bindings-line-json: Resolved line JSON; required for bindings/python release tags" >&2
+    echo "  git-tag: Optional release tag used to select its configured bindings package" >&2
+    echo "  bindings-package-json: Resolved package JSON; required for bindings/python release tags" >&2
     exit 1
 fi
 
@@ -26,7 +26,7 @@ COMPONENT="$2"
 REPOSITORY="$3"
 OUTPUT_DIR="${4:-./dist}"
 GIT_TAG="${5:-}"
-RESOLVED_BINDINGS_LINE_JSON="${6:-}"
+RESOLVED_BINDINGS_PACKAGE_JSON="${6:-}"
 
 # Ensure we have a GitHub token
 if [[ -z "${GH_TOKEN:-}" ]]; then
@@ -58,8 +58,8 @@ if [[ "$COMPONENT" != "all" \
 fi
 
 if [[ "$IS_BINDINGS_RELEASE" == true ]]; then
-    if [[ -z "$RESOLVED_BINDINGS_LINE_JSON" ]]; then
-        echo "Error: resolved bindings-line JSON is required for $COMPONENT release tag $GIT_TAG" >&2
+    if [[ -z "$RESOLVED_BINDINGS_PACKAGE_JSON" ]]; then
+        echo "Error: resolved bindings-package JSON is required for $COMPONENT release tag $GIT_TAG" >&2
         exit 1
     fi
     if ! command -v jq >/dev/null 2>&1; then
@@ -67,18 +67,18 @@ if [[ "$IS_BINDINGS_RELEASE" == true ]]; then
         exit 1
     fi
     if ! TOOLKIT_VERSION="$(jq -er '.toolkit_version | select(type == "string")' \
-        <<< "$RESOLVED_BINDINGS_LINE_JSON")"; then
-        echo "Error: resolved bindings-line JSON has no string toolkit_version" >&2
+        <<< "$RESOLVED_BINDINGS_PACKAGE_JSON")"; then
+        echo "Error: resolved bindings-package JSON has no string toolkit_version" >&2
         exit 1
     fi
     if [[ ! "$TOOLKIT_VERSION" =~ ^[1-9][0-9]*\.[0-9]+\.[0-9]+([.-][A-Za-z0-9]+)*$ ]]; then
-        echo "Error: invalid toolkit_version in resolved bindings-line JSON: $TOOLKIT_VERSION" >&2
+        echo "Error: invalid toolkit_version in resolved bindings-package JSON: $TOOLKIT_VERSION" >&2
         exit 1
     fi
     if ! RELEASE_REGISTRY_ORIGIN="$(jq -er \
         '.release_registry_origin | select(. == "tag" or . == "control")' \
-        <<< "$RESOLVED_BINDINGS_LINE_JSON")"; then
-        echo "Error: resolved bindings-line JSON has invalid release_registry_origin" >&2
+        <<< "$RESOLVED_BINDINGS_PACKAGE_JSON")"; then
+        echo "Error: resolved bindings-package JSON has invalid release_registry_origin" >&2
         exit 1
     fi
 fi

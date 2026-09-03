@@ -70,7 +70,7 @@ env:
 jobs:
   # ── PR guard: CPU-only build + import + placement smoke ──
   build-smoke:
-    name: "build smoke (selected CUDA lines, linux-64, CPU)"
+    name: "build smoke (selected CUDA packages, linux-64, CPU)"
     if: >-
       github.repository_owner == 'nvidia' &&
       (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
@@ -103,25 +103,25 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           REQUESTED_CUDA_ENV: ${{ inputs.cuda-env || '' }}
         run: |
-          bindings_lines=$(python3 -m ci.tools.bindings_config --lines)
-          selected_lines='[]'
-          docs_lines='[]'
+          bindings_packages=$(python3 -m ci.tools.bindings_config --package-roots)
+          selected_packages='[]'
+          docs_packages='[]'
 
-          merge_lines() {
+          merge_packages() {
             jq -cn --argjson left "$1" --argjson right "$2" \
-              '$left + $right | unique_by(.line_id)'
+              '$left + $right | unique_by(.package_root)'
           }
 
           if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
             if [[ -n "${REQUESTED_CUDA_ENV}" ]]; then
-              selected_lines=$(jq -c --arg cuda_env "${REQUESTED_CUDA_ENV}" \
-                '[.[] | select(.cuda_variant == $cuda_env)]' <<< "${bindings_lines}")
+              selected_packages=$(jq -c --arg cuda_env "${REQUESTED_CUDA_ENV}" \
+                '[.[] | select(.cuda_variant == $cuda_env)]' <<< "${bindings_packages}")
             else
-              selected_lines=$(jq -c '[.[] | select(.role == "current")]' \
-                <<< "${bindings_lines}")
+              selected_packages=$(jq -c '[.[] | select(.release_status == "current")]' \
+                <<< "${bindings_packages}")
             fi
-            if [[ "${selected_lines}" == '[]' ]]; then
-              registered_envs=$(jq -r '[.[].cuda_variant] | unique | join(", ")' <<< "${bindings_lines}")
+            if [[ "${selected_packages}" == '[]' ]]; then
+              registered_envs=$(jq -r '[.[].cuda_variant] | unique | join(", ")' <<< "${bindings_packages}")
               echo "::error::cuda-env must be a registered pixi environment: ${registered_envs}"
               exit 1
             fi
@@ -131,88 +131,87 @@ jobs:
               --merge-base "${merge_base}" \
               --baseline-run-id pixi-source)
 
-            # Keep line-specific work line-specific. If only ABI-level work is
-            # selected, use the current line for that ABI when available.
-            selected_lines=$(jq -cn \
-              --argjson registry "${bindings_lines}" \
+            # Keep package-specific work package-specific. If only ABI-level
+            # work is selected, use the current package for that ABI when available.
+            selected_packages=$(jq -cn \
+              --argjson registry "${bindings_packages}" \
               --argjson plan "${workplan}" '
                 $registry
-                | map(. as $line | select(
-                    ($plan.modules.bindings.lines[$line.line_id].needs_build // false)
-                    or ($plan.modules.bindings.lines[$line.line_id].needs_test // false)
-                    or ($plan.modules.python.lines[$line.line_id].needs_build // false)
-                    or ($plan.modules.python.lines[$line.line_id].needs_test // false)
+                | map(. as $package | select(
+                    ($plan.modules.bindings.package_roots[$package.package_root].needs_build // false)
+                    or ($plan.modules.bindings.package_roots[$package.package_root].needs_test // false)
+                    or ($plan.modules.python.package_roots[$package.package_root].needs_build // false)
+                    or ($plan.modules.python.package_roots[$package.package_root].needs_test // false)
                   ))
               ')
             while IFS= read -r cuda_variant; do
               if jq -e --arg cuda_variant "${cuda_variant}" \
-                'any(.[]; .cuda_variant == $cuda_variant)' <<< "${selected_lines}" > /dev/null; then
+                'any(.[]; .cuda_variant == $cuda_variant)' <<< "${selected_packages}" > /dev/null; then
                 continue
               fi
               representative=$(jq -c --arg cuda_variant "${cuda_variant}" '
                 ([.[] | select(
                     .cuda_variant == $cuda_variant
-                    and .role == "current"
+                    and .release_status == "current"
                   )]
                   + [.[] | select(.cuda_variant == $cuda_variant)])
                 | first // empty
-              ' <<< "${bindings_lines}")
+              ' <<< "${bindings_packages}")
               if [[ -z "${representative}" ]]; then
                 echo "::error::workplan selected unregistered CUDA variant ${cuda_variant}"
                 exit 1
               fi
-              selected_lines=$(merge_lines "${selected_lines}" "[${representative}]")
+              selected_packages=$(merge_packages "${selected_packages}" "[${representative}]")
             done < <(jq -r '.jobs.test_cuda_majors | to_entries[] | select(.value) | .key' <<< "${workplan}")
 
             # Pixi manifests are deliberately ignored by the wheel planner.
             # Add their package-local impact to its source/test decisions. The
             # wheel planner also deliberately ignores documentation changes.
             while IFS= read -r -d '' path; do
-              manifest_lines=$(jq -c --arg path "${path}" '
-                [.[] as $line
+              manifest_packages=$(jq -c --arg path "${path}" '
+                [.[] as $package
                   | select(
-                      $path == ($line.source_dir + "/pixi.toml")
-                      or $path == ($line.source_dir + "/pixi.lock")
+                      $path == ($package.package_root + "/pixi.toml")
+                      or $path == ($package.package_root + "/pixi.lock")
                     )
-                  | $line]
-              ' <<< "${bindings_lines}")
-              if [[ "${manifest_lines}" != '[]' ]]; then
-                selected_lines=$(merge_lines "${selected_lines}" "${manifest_lines}")
+                  | $package]
+              ' <<< "${bindings_packages}")
+              if [[ "${manifest_packages}" != '[]' ]]; then
+                selected_packages=$(merge_packages "${selected_packages}" "${manifest_packages}")
               else
                 case "${path}" in
                 */pixi.toml|*/pixi.lock|pixi.toml|pixi.lock)
-                  selected_lines=$(merge_lines "${selected_lines}" "${bindings_lines}")
+                  selected_packages=$(merge_packages "${selected_packages}" "${bindings_packages}")
                   ;;
                 esac
               fi
 
-              changed_docs_lines=$(jq -c --arg path "${path}" '
-                [.[] as $line
-                  | select($path | startswith($line.source_dir + "/docs/"))
-                  | $line]
-              ' <<< "${bindings_lines}")
-              if [[ "${changed_docs_lines}" != '[]' ]]; then
-                selected_lines=$(merge_lines "${selected_lines}" "${changed_docs_lines}")
-                docs_lines=$(merge_lines "${docs_lines}" "${changed_docs_lines}")
+              changed_docs_packages=$(jq -c --arg path "${path}" '
+                [.[] as $package
+                  | select($path | startswith($package.package_root + "/docs/"))
+                  | $package]
+              ' <<< "${bindings_packages}")
+              if [[ "${changed_docs_packages}" != '[]' ]]; then
+                selected_packages=$(merge_packages "${selected_packages}" "${changed_docs_packages}")
+                docs_packages=$(merge_packages "${docs_packages}" "${changed_docs_packages}")
               fi
             done < <(git diff --no-renames --name-only -z "${merge_base}" HEAD)
           fi
 
-          if [[ "${selected_lines}" == '[]' ]]; then
-            echo "::error::no bindings line selected for source-build smoke tests"
+          if [[ "${selected_packages}" == '[]' ]]; then
+            echo "::error::no bindings package selected for source-build smoke tests"
             exit 1
           fi
-          echo "BINDINGS_LINES=${selected_lines}" | tee -a "$GITHUB_ENV"
-          echo "BINDINGS_DOC_LINES=${docs_lines}" | tee -a "$GITHUB_ENV"
+          echo "BINDINGS_PACKAGES=${selected_packages}" | tee -a "$GITHUB_ENV"
+          echo "BINDINGS_DOC_PACKAGES=${docs_packages}" | tee -a "$GITHUB_ENV"
 
       - name: Source-build + import + cython-placement smoke
         run: |
-          while IFS= read -r bindings_line; do
-            BINDINGS_ROOT=$(jq -r '.source_dir' <<< "${bindings_line}")
-            CUDA_ENV=$(jq -r '.cuda_variant' <<< "${bindings_line}")
-            LINE_ID=$(jq -r '.line_id' <<< "${bindings_line}")
-            echo "::group::Source-build ${LINE_ID} (${CUDA_ENV})"
-            # Avoid carrying Cython outputs between bindings lines or CUDA ABIs.
+          while IFS= read -r bindings_package; do
+            BINDINGS_ROOT=$(jq -r '.package_root' <<< "${bindings_package}")
+            CUDA_ENV=$(jq -r '.cuda_variant' <<< "${bindings_package}")
+            echo "::group::Source-build ${BINDINGS_ROOT} (${CUDA_ENV})"
+            # Avoid carrying Cython outputs between bindings packages or CUDA ABIs.
             rm -rf cuda_core/build/cython cuda_core/cython_debug
             find cuda_core/cuda/core -type f -name '*.so' -delete
             find "${BINDINGS_ROOT}/tests/cython" cuda_core/tests/cython \
@@ -239,16 +238,16 @@ jobs:
               fi
             done
             echo "::endgroup::"
-          done < <(jq -c '.[]' <<< "${BINDINGS_LINES}")
+          done < <(jq -c '.[]' <<< "${BINDINGS_PACKAGES}")
           echo "cython test extensions placed correctly"
 
       - name: Build changed bindings documentation
-        if: ${{ env.BINDINGS_DOC_LINES != '[]' }}
+        if: ${{ env.BINDINGS_DOC_PACKAGES != '[]' }}
         run: |
-          while IFS= read -r bindings_line; do
-            bindings_root=$(jq -r '.source_dir' <<< "${bindings_line}")
+          while IFS= read -r bindings_package; do
+            bindings_root=$(jq -r '.package_root' <<< "${bindings_package}")
             pixi run --manifest-path "${bindings_root}" -e docs build-docs
-          done < <(jq -c '.[]' <<< "${BINDINGS_DOC_LINES}")
+          done < <(jq -c '.[]' <<< "${BINDINGS_DOC_PACKAGES}")
 
   # ── Nightly guard: build artifacts must be CUDA-major aware ──
   #
@@ -261,7 +260,7 @@ jobs:
   # The round trip is what catches the second half: coming back to the current
   # ABI must not silently reuse the other ABI's extension.
   #
-  # cuda_core only: not every bindings line can be source-built in every ABI
+  # cuda_core only: not every bindings package can be source-built in every ABI
   # environment, for reasons unrelated to stale artifacts.
   build-identity-roundtrip:
     name: "current -> maintenance -> current round trip (linux-64, CPU)"
@@ -290,13 +289,13 @@ jobs:
 
       - name: Build current, another ABI, then current again in one checkout
         run: |
-          current_line=$(python3 -m ci.tools.bindings_config --role current)
-          bindings_lines=$(python3 -m ci.tools.bindings_config --lines)
-          current_env=$(jq -r '.cuda_variant' <<< "${current_line}")
-          current_major=$(jq -r '.cuda_major' <<< "${current_line}")
+          current_package=$(python3 -m ci.tools.bindings_config --release-status current)
+          bindings_packages=$(python3 -m ci.tools.bindings_config --package-roots)
+          current_env=$(jq -r '.cuda_variant' <<< "${current_package}")
+          current_major=$(jq -r '.cuda_major' <<< "${current_package}")
           other_env=$(jq -r --arg current_env "${current_env}" \
             '[.[] | select(.cuda_variant != $current_env) | .cuda_variant] | first // empty' \
-            <<< "${bindings_lines}")
+            <<< "${bindings_packages}")
           if [[ -z "${other_env}" ]]; then
             echo "::error::the build-identity round trip requires two registered CUDA ABI environments"
             exit 1
@@ -360,17 +359,17 @@ jobs:
           REQUESTED_CUDA_ENV: ${{ inputs.cuda-env || '' }}
         run: |
           if [[ -n "${REQUESTED_CUDA_ENV}" ]]; then
-            bindings_lines=$(python3 -m ci.tools.bindings_config --lines)
+            bindings_packages=$(python3 -m ci.tools.bindings_config --package-roots)
             if ! jq -e --arg cuda_env "${REQUESTED_CUDA_ENV}" \
-              'any(.[]; .cuda_variant == $cuda_env)' <<< "${bindings_lines}" > /dev/null; then
-              registered_envs=$(jq -r '[.[].cuda_variant] | unique | join(", ")' <<< "${bindings_lines}")
+              'any(.[]; .cuda_variant == $cuda_env)' <<< "${bindings_packages}" > /dev/null; then
+              registered_envs=$(jq -r '[.[].cuda_variant] | unique | join(", ")' <<< "${bindings_packages}")
               echo "::error::cuda-env must be a registered pixi environment: ${registered_envs}"
               exit 1
             fi
             cuda_env="${REQUESTED_CUDA_ENV}"
           else
-            current_line=$(python3 -m ci.tools.bindings_config --role current)
-            cuda_env=$(jq -r '.cuda_variant' <<< "${current_line}")
+            current_package=$(python3 -m ci.tools.bindings_config --release-status current)
+            cuda_env=$(jq -r '.cuda_variant' <<< "${current_package}")
           fi
           echo "CUDA_ENV=${cuda_env}" | tee -a "$GITHUB_ENV"
 

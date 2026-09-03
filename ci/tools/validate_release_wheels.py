@@ -45,9 +45,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("component", choices=sorted(COMPONENT_TO_DISTRIBUTIONS.keys()))
     parser.add_argument("wheel_dir", help="Directory containing wheel files")
     parser.add_argument(
-        "--bindings-line",
+        "--bindings-package",
         default="",
-        help="normalized CUDA bindings release-line JSON from the release resolver",
+        help="normalized CUDA bindings package JSON from the release resolver",
     )
     return parser.parse_args()
 
@@ -55,7 +55,7 @@ def parse_args() -> argparse.Namespace:
 def version_from_tag(
     tag: str,
     component: str,
-    bindings_line: Mapping[str, object] | None = None,
+    bindings_package: Mapping[str, object] | None = None,
 ) -> str:
     versions = {
         version
@@ -64,7 +64,7 @@ def version_from_tag(
             version := parse_version_from_tag(
                 tag,
                 tag_component,
-                bindings_line if tag_component == "cuda-bindings" else None,
+                bindings_package if tag_component == "cuda-bindings" else None,
             )
         )
         is not None
@@ -89,10 +89,10 @@ def parse_wheel_dist_and_version(path: Path) -> tuple[str, str]:
 def main() -> int:
     args = parse_args()
     try:
-        bindings_line = json.loads(args.bindings_line) if args.bindings_line else None
-        if bindings_line is not None and not isinstance(bindings_line, dict):
-            raise ValueError("resolved CUDA bindings line must be a JSON object")
-        expected_version = version_from_tag(args.git_tag, args.component, bindings_line)
+        bindings_package = json.loads(args.bindings_package) if args.bindings_package else None
+        if bindings_package is not None and not isinstance(bindings_package, dict):
+            raise ValueError("resolved CUDA bindings package must be a JSON object")
+        expected_version = version_from_tag(args.git_tag, args.component, bindings_package)
     except (json.JSONDecodeError, ValueError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1

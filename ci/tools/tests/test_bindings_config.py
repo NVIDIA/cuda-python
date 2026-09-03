@@ -14,15 +14,16 @@ from ci.tools.bindings_config import (
     BindingsConfigError,
     load_config,
     main,
-    resolve_release_bindings_line,
+    package_from_dict,
+    resolve_release_bindings_package,
     validate_config,
 )
 
 
-def line(source_dir, toolkit_version):
+def package(toolkit_version, release_status):
     return {
-        "source_dir": source_dir,
         "toolkit_version": toolkit_version,
+        "release_status": release_status,
     }
 
 
@@ -31,18 +32,17 @@ def valid_config():
         "schema_version": 2,
         "cuda": {
             "bindings": {
-                "lines": {
-                    "released-12": line("cuda_bindings_12", "12.9.1"),
-                    "released-13": line("cuda_bindings", "13.3.0"),
+                "package_roots": {
+                    "cuda_bindings_12": package("12.9.1", "maintenance"),
+                    "cuda_bindings": package("13.3.0", "current"),
                 },
-                "roles": {"current": "released-13", "maintenance": "released-12"},
             }
         },
     }
 
 
-def write_scm_config(root: Path, source_dir: str, tag_regex: str) -> None:
-    path = root / source_dir / "pyproject.toml"
+def write_scm_config(root: Path, package_root: str, tag_regex: str) -> None:
+    path = root / package_root / "pyproject.toml"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(f"[tool.setuptools_scm]\ntag_regex = '{tag_regex}'\n", encoding="utf-8")
 
@@ -53,42 +53,43 @@ def write_yaml(path: Path, data: object) -> None:
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_live_registry_has_ordered_lines_and_roles():
+def test_live_registry_has_ordered_package_roots_and_release_statuses():
     config = load_config()
 
-    assert [line.line_id for line in config.lines] == ["released-12", "released-13"]
-    assert config.line_for_role("current").line_id == "released-13"
-    assert config.line_for_role("maintenance").line_id == "released-12"
-    assert config.get_line("released-12").source_dir == "cuda_bindings_12"
-    assert config.get_line("released-12").ctk_target == "12.9"
-    assert config.get_line("released-12").tag_regex.startswith("^(?P<version>v12")
-    assert config.get_line("released-12").cuda_major == "12"
-    assert config.get_line("released-12").cuda_variant == "cu12"
+    assert [package.package_root for package in config.package_roots] == ["cuda_bindings_12", "cuda_bindings"]
+    assert config.package_for_release_status("current").package_root == "cuda_bindings"
+    assert config.package_for_release_status("maintenance").package_root == "cuda_bindings_12"
+    assert config.get_package("cuda_bindings_12").ctk_target == "12.9"
+    assert config.get_package("cuda_bindings_12").tag_regex.startswith("^(?P<version>v12")
+    assert config.get_package("cuda_bindings_12").cuda_major == "12"
+    assert config.get_package("cuda_bindings_12").cuda_variant == "cu12"
     normalized = config.to_dict()
-    assert normalized["roles"] == {"current": "released-13", "maintenance": "released-12"}
+    assert [package["release_status"] for package in normalized["package_roots"]] == [
+        "maintenance",
+        "current",
+    ]
     assert json.loads(config.to_json()) == normalized
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_tag_matching_uses_each_source_lines_scm_regex():
+def test_tag_matching_uses_each_packages_scm_regex():
     config = validate_config(valid_config())
-    assert config.match_tag("v12.9.8").line_id == "released-12"
+    assert config.match_tag("v12.9.8").package_root == "cuda_bindings_12"
     assert config.match_tag("v12.9.8a1") is None
-    assert config.match_tag("v13.3.0b1").line_id == "released-13"
-    assert config.match_tag("v13.3.0rc1").line_id == "released-13"
-    assert config.match_tag("v13.3.0.dev1").line_id == "released-13"
-    assert config.match_tag("v13.3.2.post1").line_id == "released-13"
+    assert config.match_tag("v13.3.0b1").package_root == "cuda_bindings"
+    assert config.match_tag("v13.3.0rc1").package_root == "cuda_bindings"
+    assert config.match_tag("v13.3.0.dev1").package_root == "cuda_bindings"
+    assert config.match_tag("v13.3.2.post1").package_root == "cuda_bindings"
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_public_registry_requires_distinct_cuda_abi_majors(tmp_path):
     raw = valid_config()
     bindings = raw["cuda"]["bindings"]
-    bindings["lines"] = {
-        "released-11-7": line("cuda_bindings_11_7", "11.7.1"),
-        "released-11-8": line("cuda_bindings_11_8", "11.8.0"),
+    bindings["package_roots"] = {
+        "cuda_bindings_11_7": package("11.7.1", "maintenance"),
+        "cuda_bindings_11_8": package("11.8.0", "current"),
     }
-    bindings["roles"] = {"current": "released-11-8", "maintenance": "released-11-7"}
     write_scm_config(tmp_path, "cuda_bindings_11_7", r"^(?P<version>v11\.7\.\d+)$")
     write_scm_config(tmp_path, "cuda_bindings_11_8", r"^(?P<version>v11\.8\.\d+)$")
 
@@ -97,18 +98,28 @@ def test_public_registry_requires_distinct_cuda_abi_majors(tmp_path):
 
 
 @pytest.mark.parametrize(
-    ("field", "value", "message"),
+    ("package_root", "message"),
     [
-        ("toolkit_version", "12.9", "toolkit_version has invalid format"),
-        ("source_dir", "../cuda_bindings_12", "normalized repository-relative POSIX path"),
-        ("source_dir", "cuda_bindings_12\nINJECTED=value", "source_dir has invalid format"),
+        ("../cuda_bindings_12", "normalized repository-relative POSIX path"),
+        ("cuda_bindings_12\nINJECTED=value", "package root has invalid format"),
     ],
 )
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_invalid_registry_is_rejected(field, value, message):
+def test_invalid_package_root_is_rejected(package_root, message):
     data = copy.deepcopy(valid_config())
-    data["cuda"]["bindings"]["lines"]["released-12"][field] = value
+    packages = data["cuda"]["bindings"]["package_roots"]
+    maintenance = packages.pop("cuda_bindings_12")
+    packages[package_root] = maintenance
     with pytest.raises(BindingsConfigError, match=message):
+        validate_config(data)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_invalid_toolkit_version_is_rejected():
+    data = copy.deepcopy(valid_config())
+    data["cuda"]["bindings"]["package_roots"]["cuda_bindings_12"]["toolkit_version"] = "12.9"
+
+    with pytest.raises(BindingsConfigError, match="toolkit_version has invalid format"):
         validate_config(data)
 
 
@@ -122,80 +133,83 @@ def test_load_wraps_yaml_errors(tmp_path):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_cli_emits_full_registry_lines_and_one_role(capsys):
+def test_cli_emits_full_registry_and_selected_package(capsys):
     assert main([]) == 0
     registry = json.loads(capsys.readouterr().out)
-    assert registry["roles"]["current"] == "released-13"
+    assert [package["package_root"] for package in registry["package_roots"]] == [
+        "cuda_bindings_12",
+        "cuda_bindings",
+    ]
 
-    assert main(["--lines"]) == 0
-    lines = json.loads(capsys.readouterr().out)
-    assert [line["line_id"] for line in lines] == ["released-12", "released-13"]
+    assert main(["--package-roots"]) == 0
+    packages = json.loads(capsys.readouterr().out)
+    assert [package["package_root"] for package in packages] == ["cuda_bindings_12", "cuda_bindings"]
 
-    assert main(["--role", "current"]) == 0
+    assert main(["--release-status", "current"]) == 0
     current = json.loads(capsys.readouterr().out)
-    assert current["line_id"] == "released-13"
+    assert current["package_root"] == "cuda_bindings"
     assert current["cuda_variant"] == "cu13"
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_cli_writes_selected_line_directly_to_github_env(tmp_path, capsys):
+def test_cli_writes_selected_package_directly_to_github_env(tmp_path, capsys):
     output = tmp_path / "github-env"
 
-    assert main(["--role", "current", "--github-env", str(output)]) == 0
+    assert main(["--release-status", "current", "--github-env", str(output)]) == 0
 
     assert capsys.readouterr().out == ""
     assert output.read_text(encoding="utf-8").splitlines() == [
         "BUILD_CTK_VER=13.3.0",
-        "BINDINGS_COMPONENT_DIR=cuda_bindings",
+        "BINDINGS_PACKAGE_ROOT=cuda_bindings",
         "BINDINGS_REGISTRY_ORIGIN=tag",
     ]
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_list_valued_role_is_rejected():
+def test_list_valued_release_status_is_rejected():
     data = valid_config()
-    data["cuda"]["bindings"]["roles"]["maintenance"] = ["released-12"]
+    data["cuda"]["bindings"]["package_roots"]["cuda_bindings_12"]["release_status"] = ["maintenance"]
 
-    with pytest.raises(BindingsConfigError, match="maintenance must be a non-empty, trimmed string"):
+    with pytest.raises(BindingsConfigError, match="release_status must be a non-empty, trimmed string"):
         validate_config(data)
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_normalized_package_rejects_unknown_release_status():
+    config = load_config()
+    normalized = config.package_for_release_status("current").to_dict()
+    normalized["release_status"] = "unknown"
+
+    with pytest.raises(BindingsConfigError, match="must be one of current, maintenance"):
+        package_from_dict(normalized)
+
+
 @pytest.mark.parametrize(
-    ("roles", "message"),
+    ("release_statuses", "message"),
     (
-        ({"current": "released-13"}, "exactly current and maintenance"),
-        (
-            {"current": "released-13", "maintenance": "released-13"},
-            "select each configured line exactly once",
-        ),
+        (("current",), "exactly one current and one maintenance"),
+        (("current", "current"), "exactly one current and one maintenance"),
     ),
 )
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_public_roles_must_cover_both_lines_once(roles, message):
+def test_public_release_statuses_must_cover_two_packages_once(release_statuses, message):
     data = valid_config()
-    data["cuda"]["bindings"]["roles"] = roles
+    roots_and_versions = (("cuda_bindings_12", "12.9.1"), ("cuda_bindings", "13.3.0"))
+    data["cuda"]["bindings"]["package_roots"] = {
+        package_root: package(toolkit_version, release_status)
+        for (package_root, toolkit_version), release_status in zip(
+            roots_and_versions[: len(release_statuses)],
+            release_statuses,
+            strict=True,
+        )
+    }
 
     with pytest.raises(BindingsConfigError, match=message):
         validate_config(data)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_public_roles_must_select_two_distinct_configured_lines():
-    data = valid_config()
-    data["cuda"]["bindings"]["lines"] = {
-        "released-13": line("cuda_bindings", "13.3.0"),
-    }
-    data["cuda"]["bindings"]["roles"] = {
-        "current": "released-13",
-        "maintenance": "released-13",
-    }
-
-    with pytest.raises(BindingsConfigError, match="select each configured line exactly once"):
-        validate_config(data)
-
-
-@pytest.mark.agent_authored(model="gpt-5.6")
-def test_scm_regex_must_match_the_lines_toolkit_release(tmp_path):
+def test_scm_regex_must_match_the_packages_toolkit_release(tmp_path):
     data = valid_config()
     write_scm_config(tmp_path, "cuda_bindings_12", r"^(?P<version>v13\.\d+\.\d+)$")
     write_scm_config(tmp_path, "cuda_bindings", r"^(?P<version>v13\.\d+\.\d+)$")
@@ -206,8 +220,11 @@ def test_scm_regex_must_match_the_lines_toolkit_release(tmp_path):
 
 def release_registry(*, current_dir: str = "cuda_bindings", maintenance_dir: str = "cuda_bindings_12"):
     data = valid_config()
-    data["cuda"]["bindings"]["lines"]["released-12"]["source_dir"] = maintenance_dir
-    data["cuda"]["bindings"]["lines"]["released-13"]["source_dir"] = current_dir
+    package_roots = data["cuda"]["bindings"]["package_roots"]
+    maintenance = package_roots.pop("cuda_bindings_12")
+    current = package_roots.pop("cuda_bindings")
+    package_roots[maintenance_dir] = maintenance
+    package_roots[current_dir] = current
     return data
 
 
@@ -217,14 +234,14 @@ def write_release_scm_configs(root: Path, *, current_dir: str, maintenance_dir: 
 
 
 @pytest.mark.parametrize(
-    ("release_tag", "expected_line", "expected_dir"),
+    ("release_tag", "expected_root"),
     (
-        ("v13.3.2", "released-13", "tag-current"),
-        ("v12.9.8", "released-12", "tag-maintenance"),
+        ("v13.3.2", "tag-current"),
+        ("v12.9.8", "tag-maintenance"),
     ),
 )
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_release_cli_uses_authoritative_tag_tree(tmp_path, capsys, release_tag, expected_line, expected_dir):
+def test_release_cli_uses_authoritative_tag_tree(tmp_path, capsys, release_tag, expected_root):
     release_root = tmp_path / "release"
     tagged_config = release_root / "ci" / "versions.yml"
     control_config = tmp_path / "control" / "ci" / "versions.yml"
@@ -247,8 +264,8 @@ def test_release_cli_uses_authoritative_tag_tree(tmp_path, capsys, release_tag, 
     )
 
     resolved = json.loads(capsys.readouterr().out)
-    assert resolved["line_id"] == expected_line
-    assert resolved["release_source_dir"] == expected_dir
+    assert resolved["package_root"] == expected_root
+    assert resolved["release_package_root"] == expected_root
     assert resolved["release_registry_origin"] == "tag"
     assert resolved["release_version"] == release_tag.removeprefix("v")
 
@@ -264,11 +281,11 @@ def test_legacy_tag_tree_uses_control_registry_and_legacy_layout(tmp_path):
     write_yaml(control_config, release_registry())
     write_release_scm_configs(control_root, current_dir="cuda_bindings", maintenance_dir="cuda_bindings_12")
 
-    resolved = resolve_release_bindings_line("v12.9.8", release_root, control_config)
+    resolved = resolve_release_bindings_package("v12.9.8", release_root, control_config)
 
-    assert resolved["line_id"] == "legacy"
-    assert resolved["source_dir"] == "cuda_bindings"
-    assert resolved["release_source_dir"] == "cuda_bindings"
+    assert resolved["package_root"] == "cuda_bindings"
+    assert resolved["release_status"] is None
+    assert resolved["release_package_root"] == "cuda_bindings"
     assert resolved["release_registry_origin"] == "control"
     assert resolved["release_version"] == "12.9.8"
     assert resolved["toolkit_version"] == "12.9.1"
@@ -280,7 +297,7 @@ def test_legacy_prerelease_preserves_tagged_tree_toolkit_and_scm_semantics(tmp_p
     write_yaml(release_root / "ci" / "versions.yml", {"cuda": {"build": {"version": "13.1.0"}}})
     write_scm_config(release_root, "cuda_bindings", r"^(?P<version>v\d+\.\d+\.\d+)")
 
-    resolved = resolve_release_bindings_line(
+    resolved = resolve_release_bindings_package(
         "v13.2.0rc1",
         release_root,
         tmp_path / "unused-control.yml",
@@ -288,7 +305,7 @@ def test_legacy_prerelease_preserves_tagged_tree_toolkit_and_scm_semantics(tmp_p
 
     assert resolved["release_version"] == "13.2.0"
     assert resolved["toolkit_version"] == "13.1.0"
-    assert resolved["release_source_dir"] == "cuda_bindings"
+    assert resolved["release_package_root"] == "cuda_bindings"
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -298,7 +315,7 @@ def test_legacy_release_requires_source_scm_metadata(tmp_path):
     (release_root / "cuda_bindings").mkdir(parents=True)
 
     with pytest.raises(BindingsConfigError, match=r"could not read .*cuda_bindings/pyproject\.toml"):
-        resolve_release_bindings_line("v12.9.8", release_root, tmp_path / "unused-control.yml")
+        resolve_release_bindings_package("v12.9.8", release_root, tmp_path / "unused-control.yml")
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -311,7 +328,7 @@ def test_legacy_release_requires_an_authoritative_toolkit_pin(tmp_path):
     write_release_scm_configs(control_root, current_dir="cuda_bindings", maintenance_dir="cuda_bindings_12")
 
     with pytest.raises(BindingsConfigError, match="exactly one toolkit pin for legacy CUDA 11.8; found 0"):
-        resolve_release_bindings_line("v11.8.0", release_root, control_config)
+        resolve_release_bindings_package("v11.8.0", release_root, control_config)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -322,7 +339,7 @@ def test_invalid_modern_tag_config_does_not_fall_back(tmp_path):
     write_yaml(control_config, release_registry())
 
     with pytest.raises(BindingsConfigError, match="invalid schema-2 tagged config"):
-        resolve_release_bindings_line("v13.3.0", release_root, control_config)
+        resolve_release_bindings_package("v13.3.0", release_root, control_config)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -335,7 +352,7 @@ def test_unknown_release_tag_fails_closed(tmp_path):
     write_release_scm_configs(control_root, current_dir="cuda_bindings", maintenance_dir="cuda_bindings_12")
 
     with pytest.raises(BindingsConfigError, match="does not match release tag"):
-        resolve_release_bindings_line("v14.0.0", release_root, control_config)
+        resolve_release_bindings_package("v14.0.0", release_root, control_config)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -345,5 +362,5 @@ def test_modern_release_tag_must_match_the_configured_toolkit_minor(tmp_path):
     write_yaml(release_root / "ci" / "versions.yml", release_registry())
     write_release_scm_configs(release_root, current_dir="cuda_bindings", maintenance_dir="cuda_bindings_12")
 
-    with pytest.raises(BindingsConfigError, match="no CUDA bindings line"):
-        resolve_release_bindings_line("v13.4.0", release_root, control_config)
+    with pytest.raises(BindingsConfigError, match="no CUDA bindings package root"):
+        resolve_release_bindings_package("v13.4.0", release_root, control_config)

@@ -12,14 +12,14 @@ from pathlib import Path
 
 import pytest
 
-from ci.tools.bindings_config import BindingsConfig, BindingsLine, load_config
+from ci.tools.bindings_config import BindingsConfig, BindingsPackage, load_config
 from ci.tools.compute_ci_plan import _expand_linked_paths, compute_workplan, main
 
 ALL_MODULES = {"pathfinder", "bindings", "core", "python"}
 ALL_PLATFORMS = {"linux", "windows"}
 VARIANT_MODULES = {"bindings", "core", "python"}
 DEFAULT_BINDINGS_CONFIG = load_config()
-CUDA_VARIANTS = {line.cuda_variant for line in DEFAULT_BINDINGS_CONFIG.lines}
+CUDA_VARIANTS = {package.cuda_variant for package in DEFAULT_BINDINGS_CONFIG.package_roots}
 
 
 def plan_for(
@@ -64,13 +64,13 @@ def selected_variants(plan: dict[str, object], module: str, key: str) -> set[str
     modules = as_dict(plan["modules"])
     if module == "core":
         return enabled(as_dict(as_dict(modules[module])["cuda_majors"]), key)
-    lines = as_dict(as_dict(modules[module])["lines"])
-    return {str(as_dict(decision)["cuda_variant"]) for decision in lines.values() if as_dict(decision)[key]}
+    packages = as_dict(as_dict(modules[module])["package_roots"])
+    return {str(as_dict(decision)["cuda_variant"]) for decision in packages.values() if as_dict(decision)[key]}
 
 
-def selected_lines(plan: dict[str, object], module: str, key: str) -> set[str]:
+def selected_package_roots(plan: dict[str, object], module: str, key: str) -> set[str]:
     module_plan = as_dict(as_dict(plan["modules"])[module])
-    return enabled(as_dict(module_plan["lines"]), key)
+    return enabled(as_dict(module_plan["package_roots"]), key)
 
 
 def selected_core_majors(plan: dict[str, object], key: str) -> set[str]:
@@ -87,32 +87,26 @@ def selected_cuda_majors(plan: dict[str, object], key: str) -> set[str]:
 
 def selected_sdist_variants(plan: dict[str, object]) -> set[str]:
     jobs = as_dict(plan["jobs"])
-    selected_line_ids = enabled(as_dict(jobs["sdist_lines"]))
-    lines = as_dict(as_dict(as_dict(plan["modules"])["bindings"])["lines"])
-    return {str(as_dict(lines[line_id])["cuda_variant"]) for line_id in selected_line_ids}
+    selected_roots = enabled(as_dict(jobs["sdist_package_roots"]))
+    packages = as_dict(as_dict(as_dict(plan["modules"])["bindings"])["package_roots"])
+    return {str(as_dict(packages[root])["cuda_variant"]) for root in selected_roots}
 
 
-def synthetic_line(line_id: str, source_dir: str, ctk_target: str) -> BindingsLine:
-    return BindingsLine(
-        line_id=line_id,
-        source_dir=source_dir,
+def synthetic_package(package_root: str, ctk_target: str, release_status: str) -> BindingsPackage:
+    return BindingsPackage(
+        package_root=package_root,
         toolkit_version=f"{ctk_target}.0",
+        release_status=release_status,
         tag_regex=rf"^(?P<version>v{re.escape(ctk_target)}\.\d+)$",
     )
 
 
 def synthetic_config(
-    *lines: BindingsLine,
-    current: str,
-    maintenance: str = "",
+    *packages: BindingsPackage,
 ) -> BindingsConfig:
-    roles = {"current": current}
-    if maintenance:
-        roles["maintenance"] = maintenance
     return BindingsConfig(
         schema_version=2,
-        lines=lines,
-        roles=roles,
+        package_roots=packages,
     )
 
 
@@ -226,23 +220,23 @@ class ComputeWorkplanTest(unittest.TestCase):
                 assert selected_sdist_variants(plan) == sdist_majors
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_release_tags_select_only_the_matching_line(self) -> None:
-        for release_tag, line_id, variant in (
-            ("v12.9.9", "released-12", "cu12"),
-            ("v13.3.0", "released-13", "cu13"),
-            ("v13.3.0b1", "released-13", "cu13"),
-            ("v13.3.0rc1", "released-13", "cu13"),
-            ("v13.3.0.dev1", "released-13", "cu13"),
-            ("v12.9.9.post1", "released-12", "cu12"),
-            ("v13.3.0.post1", "released-13", "cu13"),
+    def test_release_tags_select_only_the_matching_package(self) -> None:
+        for release_tag, package_root, variant in (
+            ("v12.9.9", "cuda_bindings_12", "cu12"),
+            ("v13.3.0", "cuda_bindings", "cu13"),
+            ("v13.3.0b1", "cuda_bindings", "cu13"),
+            ("v13.3.0rc1", "cuda_bindings", "cu13"),
+            ("v13.3.0.dev1", "cuda_bindings", "cu13"),
+            ("v12.9.9.post1", "cuda_bindings_12", "cu12"),
+            ("v13.3.0.post1", "cuda_bindings", "cu13"),
         ):
             with self.subTest(release_tag=release_tag):
                 plan = plan_for(baseline=False, release_tag=release_tag)
                 assert selected(plan, "needs_build") == {"bindings", "python"}
                 assert selected(plan, "needs_test") == {"bindings", "python"}
                 for module in ("bindings", "python"):
-                    assert selected_lines(plan, module, "needs_build") == {line_id}
-                    assert selected_lines(plan, module, "needs_test") == {line_id}
+                    assert selected_package_roots(plan, module, "needs_build") == {package_root}
+                    assert selected_package_roots(plan, module, "needs_test") == {package_root}
                     assert selected_variants(plan, module, "needs_build") == {variant}
                     assert selected_variants(plan, module, "needs_test") == {variant}
                 assert not selected_variants(plan, "core", "needs_build")
@@ -331,7 +325,7 @@ class ComputeWorkplanTest(unittest.TestCase):
         for release_tag in ("v12.8.1", "v13.4.0", "v14.0.0"):
             with (
                 self.subTest(release_tag=release_tag),
-                pytest.raises(ValueError, match="no configured CUDA bindings line"),
+                pytest.raises(ValueError, match="no configured CUDA bindings package root"),
             ):
                 plan_for(baseline=False, release_tag=release_tag)
 
@@ -375,14 +369,12 @@ class ComputeWorkplanTest(unittest.TestCase):
             assert selected_variants(linked_plan, "python", "needs_test") == CUDA_VARIANTS
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_same_major_release_lines_remain_independently_selectable(self) -> None:
-        line_11_7 = synthetic_line("released-11-7", "cuda_bindings_11_7", "11.7")
-        line_11_8 = synthetic_line("released-11-8", "cuda_bindings_11_8", "11.8")
+    def test_same_major_packages_remain_independently_selectable(self) -> None:
+        package_11_7 = synthetic_package("cuda_bindings_11_7", "11.7", "maintenance")
+        package_11_8 = synthetic_package("cuda_bindings_11_8", "11.8", "current")
         config = synthetic_config(
-            line_11_7,
-            line_11_8,
-            current=line_11_8.line_id,
-            maintenance=line_11_7.line_id,
+            package_11_7,
+            package_11_8,
         )
 
         plan = plan_for(
@@ -390,40 +382,40 @@ class ComputeWorkplanTest(unittest.TestCase):
             bindings_config=config,
         )
 
-        assert selected_lines(plan, "bindings", "needs_build") == {line_11_7.line_id}
-        assert selected_lines(plan, "bindings", "needs_test") == {line_11_7.line_id}
-        assert selected_lines(plan, "python", "needs_build") == {line_11_7.line_id}
-        assert selected_lines(plan, "python", "needs_test") == {line_11_7.line_id}
+        assert selected_package_roots(plan, "bindings", "needs_build") == {package_11_7.package_root}
+        assert selected_package_roots(plan, "bindings", "needs_test") == {package_11_7.package_root}
+        assert selected_package_roots(plan, "python", "needs_build") == {package_11_7.package_root}
+        assert selected_package_roots(plan, "python", "needs_test") == {package_11_7.package_root}
         assert selected_core_majors(plan, "needs_build") == {"cu11"}
         assert selected_core_majors(plan, "needs_test") == {"cu11"}
         assert selected_variants(plan, "bindings", "needs_build") == {"cu11"}
         assert selected_sdist_variants(plan) == {"cu11"}
-        assert {line_id for line_id, enabled in plan["jobs"]["sdist_lines"].items() if enabled} == {line_11_7.line_id}
+        assert {root for root, enabled in plan["jobs"]["sdist_package_roots"].items() if enabled} == {
+            package_11_7.package_root
+        }
 
-        line_decision = plan["modules"]["bindings"]["lines"][line_11_7.line_id]
-        assert line_decision["source_dir"] == line_11_7.source_dir
-        assert line_decision["ctk_target"] == line_11_7.ctk_target
-        assert line_decision["cuda_major"] == "11"
-        assert line_decision["cuda_variant"] == "cu11"
-        assert line_decision["role"] == "maintenance"
+        package_decision = plan["modules"]["bindings"]["package_roots"][package_11_7.package_root]
+        assert package_decision["package_root"] == package_11_7.package_root
+        assert package_decision["ctk_target"] == package_11_7.ctk_target
+        assert package_decision["cuda_major"] == "11"
+        assert package_decision["cuda_variant"] == "cu11"
+        assert package_decision["release_status"] == "maintenance"
 
         release_plan = plan_for(
             baseline=False,
             release_tag="v11.8.1",
             bindings_config=config,
         )
-        assert selected_lines(release_plan, "bindings", "needs_build") == {line_11_8.line_id}
-        assert selected_lines(release_plan, "python", "needs_build") == {line_11_8.line_id}
+        assert selected_package_roots(release_plan, "bindings", "needs_build") == {package_11_8.package_root}
+        assert selected_package_roots(release_plan, "python", "needs_build") == {package_11_8.package_root}
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_current_line_can_move_to_a_new_cuda_major(self) -> None:
-        line_11 = synthetic_line("released-11", "cuda_bindings_11", "11.8")
-        line_12 = synthetic_line("released-12", "cuda_bindings_12", "12.0")
+    def test_current_package_can_move_to_a_new_cuda_major(self) -> None:
+        package_11 = synthetic_package("cuda_bindings_11", "11.8", "maintenance")
+        package_12 = synthetic_package("cuda_bindings_12", "12.0", "current")
         config = synthetic_config(
-            line_11,
-            line_12,
-            current=line_12.line_id,
-            maintenance=line_11.line_id,
+            package_11,
+            package_12,
         )
 
         plan = plan_for(
@@ -431,8 +423,8 @@ class ComputeWorkplanTest(unittest.TestCase):
             bindings_config=config,
         )
 
-        assert selected_lines(plan, "bindings", "needs_build") == {line_12.line_id}
-        assert selected_lines(plan, "python", "needs_build") == {line_12.line_id}
+        assert selected_package_roots(plan, "bindings", "needs_build") == {package_12.package_root}
+        assert selected_package_roots(plan, "python", "needs_build") == {package_12.package_root}
         assert selected_core_majors(plan, "needs_build") == {"cu11", "cu12"}
         assert selected_core_majors(plan, "needs_test") == {"cu12"}
         assert selected_cuda_majors(plan, "test_cuda_majors") == {"cu12"}
@@ -440,9 +432,9 @@ class ComputeWorkplanTest(unittest.TestCase):
 
         core_plan = plan_for("cuda_core/cuda/core/_device.py", bindings_config=config)
         assert selected_core_majors(core_plan, "needs_build") == {"cu11", "cu12"}
-        assert selected_lines(core_plan, "python", "needs_test") == {
-            line_11.line_id,
-            line_12.line_id,
+        assert selected_package_roots(core_plan, "python", "needs_test") == {
+            package_11.package_root,
+            package_12.package_root,
         }
 
 
@@ -464,10 +456,14 @@ def test_github_outputs_are_emitted_without_shell_json_transforms(tmp_path: Path
 
     records = dict(line.split("=", maxsplit=1) for line in output.read_text(encoding="utf-8").splitlines())
     assert set(records) == {"bindings-config", "workplan"}
-    assert json.loads(records["bindings-config"])["roles"]["current"] == "released-13"
-    assert json.loads(records["workplan"])["jobs"]["sdist_lines"] == {
-        "released-12": False,
-        "released-13": True,
+    registry = json.loads(records["bindings-config"])
+    assert [package["package_root"] for package in registry["package_roots"]] == [
+        "cuda_bindings_12",
+        "cuda_bindings",
+    ]
+    assert json.loads(records["workplan"])["jobs"]["sdist_package_roots"] == {
+        "cuda_bindings_12": False,
+        "cuda_bindings": True,
     }
     assert "### CI workplan" in summary.read_text(encoding="utf-8")
 

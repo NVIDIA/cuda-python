@@ -23,8 +23,8 @@ on:
         type: boolean
         required: false
         default: false
-      bindings-line:
-        description: "Resolved CUDA bindings release-line JSON"
+      bindings-package:
+        description: "Resolved CUDA bindings package JSON"
         type: string
         required: false
         default: ""
@@ -97,7 +97,7 @@ jobs:
 
       - name: Download and Validate Wheels
         env:
-          BINDINGS_LINE: ${{ inputs.bindings-line }}
+          BINDINGS_PACKAGE: ${{ inputs.bindings-package }}
           GH_TOKEN: ${{ github.token }}
         run: |
           # Use the shared script to download wheels
@@ -107,14 +107,14 @@ jobs:
             "$RELEASE_REPOSITORY" \
             "release/wheels" \
             "$RELEASE_GIT_TAG" \
-            "$BINDINGS_LINE"
+            "$BINDINGS_PACKAGE"
 
           # Validate that release wheels match the expected version from tag.
           python -m ci.tools.validate_release_wheels \
             "$RELEASE_GIT_TAG" \
             "$RELEASE_COMPONENT" \
             "release/wheels" \
-            --bindings-line "$BINDINGS_LINE"
+            --bindings-package "$BINDINGS_PACKAGE"
 
       - name: Upload Wheels
         if: ${{ !inputs.dry-run }}

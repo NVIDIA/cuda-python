@@ -20,7 +20,6 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     outputs:
-      BINDINGS_LINE_ID: ${{ steps.get-vars.outputs.bindings_line_id }}
       BINDINGS_ROOT: ${{ steps.get-vars.outputs.bindings_root }}
       CUDA_VER: ${{ steps.get-vars.outputs.cuda_ver }}
     steps:
@@ -28,14 +27,13 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
       - name: Install CI tool dependencies
         run: python3 -m pip install -r ci/tools/requirements.txt
-      - name: Resolve CUDA bindings lines
+      - name: Resolve current CUDA bindings package
         id: get-vars
         run: |
           set -euo pipefail
-          current=$(python3 -m ci.tools.bindings_config --role current)
+          current=$(python3 -m ci.tools.bindings_config --release-status current)
           {
-            echo "bindings_line_id=$(jq -r '.line_id' <<< "$current")"
-            echo "bindings_root=$(jq -r '.source_dir' <<< "$current")"
+            echo "bindings_root=$(jq -r '.package_root' <<< "$current")"
             echo "cuda_ver=$(jq -r '.toolkit_version' <<< "$current")"
           } >> "$GITHUB_OUTPUT"
 
@@ -52,7 +50,6 @@ jobs:
     env:
       HOST_PLATFORM: "linux-64"
       ARCH: "x86_64"
-      BINDINGS_LINE_ID: ${{ needs.coverage-vars.outputs.BINDINGS_LINE_ID }}
       BINDINGS_ROOT: ${{ needs.coverage-vars.outputs.BINDINGS_ROOT }}
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     # Our self-hosted runners require a container
@@ -101,7 +98,6 @@ jobs:
       - name: Set environment variables
         env:
           BINDINGS_SOURCE: local
-          BINDINGS_LINE_ID: ${{ env.BINDINGS_LINE_ID }}
           BINDINGS_SOURCE_DIR: ${{ env.BINDINGS_ROOT }}
           DEFAULT_BINDINGS_SOURCE_DIR: ${{ env.BINDINGS_ROOT }}
           CUDA_VER: ${{ env.CUDA_VER }}

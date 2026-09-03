@@ -59,11 +59,11 @@ def fake_gh(tmp_path):
     return fake_bin
 
 
-def resolved_line(*, toolkit_version="13.3.0", origin="tag"):
+def resolved_package(*, toolkit_version="13.3.0", origin="tag"):
     return json.dumps({"toolkit_version": toolkit_version, "release_registry_origin": origin})
 
 
-def run_download(tmp_path, fake_gh, artifacts, component, *, tag="", line=None):
+def run_download(tmp_path, fake_gh, artifacts, component, *, tag="", package=None):
     log = tmp_path / "gh.log"
     env = os.environ.copy()
     env.update(
@@ -75,10 +75,10 @@ def run_download(tmp_path, fake_gh, artifacts, component, *, tag="", line=None):
         }
     )
     args = [str(DOWNLOAD_WHEELS), "123", component, "NVIDIA/cuda-python", str(tmp_path / "dist")]
-    if tag or line is not None:
+    if tag or package is not None:
         args.append(tag)
-    if line is not None:
-        args.append(line)
+    if package is not None:
+        args.append(package)
     result = subprocess.run(  # noqa: S603
         args,
         cwd=tmp_path,
@@ -107,7 +107,7 @@ class TestDownloadWheels:
             artifacts,
             "cuda-python",
             tag="v13.3.1",
-            line=resolved_line(origin=origin),
+            package=resolved_package(origin=origin),
         )
 
         assert result.returncode == 0, result.stderr
@@ -120,7 +120,7 @@ class TestDownloadWheels:
             ["cuda-python-wheel"],
             "cuda-python",
             tag="v13.3.1",
-            line=resolved_line(),
+            package=resolved_package(),
         )
 
         assert result.returncode == 1
@@ -134,7 +134,7 @@ class TestDownloadWheels:
             ["cuda-bindings-python312-cuda13.2.0-linux-64-sha", exact, f"{exact}-tests"],
             "cuda-bindings",
             tag="v13.3.1",
-            line=resolved_line(),
+            package=resolved_package(),
         )
 
         assert result.returncode == 0, result.stderr
@@ -142,7 +142,7 @@ class TestDownloadWheels:
         assert downloads == [exact]
         assert [path.name for path in (tmp_path / "dist").glob("*.whl")] == [f"{exact}.whl"]
 
-    def test_release_routing_requires_resolved_line(self, tmp_path, fake_gh):
+    def test_release_routing_requires_resolved_package(self, tmp_path, fake_gh):
         result, commands = run_download(
             tmp_path,
             fake_gh,
@@ -162,7 +162,7 @@ class TestDownloadWheels:
             [artifact],
             "cuda-bindings",
             tag="v13.3.1",
-            line=resolved_line(),
+            package=resolved_package(),
         )
 
         assert result.returncode == 1

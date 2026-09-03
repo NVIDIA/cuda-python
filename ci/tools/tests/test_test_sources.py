@@ -79,7 +79,7 @@ def _run_env_vars(
         "SKIP_BINDINGS_TEST_OVERRIDE": "0",
     }
     if bindings_source == "local":
-        env.update(BINDINGS_LINE_ID="released-13", BINDINGS_SOURCE_DIR="cuda_bindings")
+        env["BINDINGS_SOURCE_DIR"] = "cuda_bindings"
     else:
         env["DEFAULT_BINDINGS_SOURCE_DIR"] = "cuda_bindings"
     return subprocess.run(  # noqa: S603 - invokes the repository script under test

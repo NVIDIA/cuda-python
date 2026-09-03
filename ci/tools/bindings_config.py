@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Load and validate the CUDA bindings release-line registry."""
+"""Load and validate the CUDA bindings package-root registry."""
 
 from __future__ import annotations
 
@@ -11,7 +11,6 @@ import sys
 from argparse import ArgumentParser
 from dataclasses import dataclass
 from pathlib import Path
-from types import MappingProxyType
 from typing import Any, Mapping
 
 import tomllib
@@ -21,9 +20,10 @@ from packaging.version import InvalidVersion, Version
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG = REPO_ROOT / "ci" / "versions.yml"
 SCHEMA_VERSION = 2
+RELEASE_STATUSES = frozenset({"current", "maintenance"})
 
 _NAME_PATTERN = re.compile(r"[a-z][a-z0-9]*(?:-[a-z0-9]+)*")
-_SOURCE_DIR_PATTERN = re.compile(r"[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*")
+_PACKAGE_ROOT_PATTERN = re.compile(r"[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*")
 _TOOLKIT_VERSION_PATTERN = re.compile(r"[1-9][0-9]*\.[0-9]+\.[0-9]+")
 _RELEASE_VERSION_PATTERN = re.compile(
     r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)"
@@ -34,7 +34,7 @@ _RELEASE_VERSION_PATTERN = re.compile(
 
 
 class BindingsConfigError(ValueError):
-    """The CUDA bindings release-line registry is invalid."""
+    """The CUDA bindings package-root registry is invalid."""
 
 
 def parse_pep440_version(value: str, label: str = "version") -> Version:
@@ -72,10 +72,10 @@ def _compile_tag_regex(pattern: str, label: str) -> re.Pattern[str]:
 
 
 @dataclass(frozen=True)
-class BindingsLine:
-    line_id: str
-    source_dir: str
+class BindingsPackage:
+    package_root: str
     toolkit_version: str
+    release_status: str | None
     tag_regex: str
 
     @property
@@ -92,8 +92,8 @@ class BindingsLine:
         return f"cu{self.cuda_major}"
 
     def scm_version_from_tag(self, tag: str, *, fullmatch: bool = True) -> Version | None:
-        """Return the PEP 440 version captured by this source line's SCM regex."""
-        regex = _compile_tag_regex(self.tag_regex, f"{self.source_dir} setuptools-scm tag_regex")
+        """Return the PEP 440 version captured by this package root's SCM regex."""
+        regex = _compile_tag_regex(self.tag_regex, f"{self.package_root} setuptools-scm tag_regex")
         match = regex.fullmatch(tag) if fullmatch else regex.match(tag)
         if match is None:
             return None
@@ -104,9 +104,9 @@ class BindingsLine:
         return None if version.local is not None else version
 
     def version_from_tag(self, tag: str) -> Version | None:
-        """Return a matching release version for this configured CTK line."""
+        """Return a matching release version for this configured package root."""
         version = self.scm_version_from_tag(tag)
-        toolkit = parse_pep440_version(self.toolkit_version, f"{self.line_id}.toolkit_version")
+        toolkit = parse_pep440_version(self.toolkit_version, f"{self.package_root}.toolkit_version")
         if version is None or version.release[:2] != toolkit.release[:2]:
             return None
         return version
@@ -116,9 +116,9 @@ class BindingsLine:
 
     def to_dict(self) -> dict[str, object]:
         return {
-            "line_id": self.line_id,
-            "source_dir": self.source_dir,
+            "package_root": self.package_root,
             "toolkit_version": self.toolkit_version,
+            "release_status": self.release_status,
             "tag_regex": self.tag_regex,
             "ctk_target": self.ctk_target,
             "cuda_major": self.cuda_major,
@@ -129,38 +129,33 @@ class BindingsLine:
 @dataclass(frozen=True)
 class BindingsConfig:
     schema_version: int
-    lines: tuple[BindingsLine, ...]
-    roles: Mapping[str, str]
+    package_roots: tuple[BindingsPackage, ...]
 
-    def get_line(self, line_id: str) -> BindingsLine:
-        line = next((line for line in self.lines if line.line_id == line_id), None)
-        if line is None:
-            raise BindingsConfigError(f"unknown CUDA bindings line: {line_id!r}")
-        return line
+    def get_package(self, package_root: str) -> BindingsPackage:
+        package = next((package for package in self.package_roots if package.package_root == package_root), None)
+        if package is None:
+            raise BindingsConfigError(f"unknown CUDA bindings package root: {package_root!r}")
+        return package
 
-    def line_for_role(self, role: str) -> BindingsLine:
-        try:
-            return self.get_line(self.roles[role])
-        except KeyError as error:
-            raise BindingsConfigError(f"unknown CUDA bindings role: {role!r}") from error
+    def package_for_release_status(self, release_status: str) -> BindingsPackage:
+        matches = [package for package in self.package_roots if package.release_status == release_status]
+        if len(matches) != 1:
+            raise BindingsConfigError(
+                f"CUDA bindings release status {release_status!r} selects {len(matches)} package roots"
+            )
+        return matches[0]
 
-    def match_tag(self, tag: str) -> BindingsLine | None:
-        matches = [line for line in self.lines if line.matches_tag(tag)]
+    def match_tag(self, tag: str) -> BindingsPackage | None:
+        matches = [package for package in self.package_roots if package.matches_tag(tag)]
         if len(matches) > 1:
-            line_ids = ", ".join(line.line_id for line in matches)
-            raise BindingsConfigError(f"release tag {tag!r} matches multiple CUDA bindings lines: {line_ids}")
+            roots = ", ".join(package.package_root for package in matches)
+            raise BindingsConfigError(f"release tag {tag!r} matches multiple CUDA bindings package roots: {roots}")
         return matches[0] if matches else None
-
-    def line_to_dict(self, line: BindingsLine) -> dict[str, object]:
-        normalized: dict[str, object] = line.to_dict()
-        normalized["role"] = next(role for role, line_id in self.roles.items() if line.line_id == line_id)
-        return normalized
 
     def to_dict(self) -> dict[str, object]:
         return {
             "schema_version": self.schema_version,
-            "lines": [self.line_to_dict(line) for line in self.lines],
-            "roles": dict(self.roles),
+            "package_roots": [package.to_dict() for package in self.package_roots],
         }
 
     def to_json(self) -> str:
@@ -183,15 +178,15 @@ def _text(value: Any, label: str, pattern: re.Pattern[str]) -> str:
     return value
 
 
-def _source_dir(value: Any, label: str) -> str:
-    source_dir = _text(value, label, _SOURCE_DIR_PATTERN)
-    if any(part in (".", "..") for part in source_dir.split("/")):
-        raise BindingsConfigError(f"{label} must be a normalized repository-relative POSIX path: {source_dir!r}")
-    return source_dir
+def _package_root(value: Any, label: str) -> str:
+    package_root = _text(value, label, _PACKAGE_ROOT_PATTERN)
+    if any(part in (".", "..") for part in package_root.split("/")):
+        raise BindingsConfigError(f"{label} must be a normalized repository-relative POSIX path: {package_root!r}")
+    return package_root
 
 
-def _read_tag_regex(repo_root: Path, source_dir: str) -> str:
-    path = repo_root / source_dir / "pyproject.toml"
+def _read_tag_regex(repo_root: Path, package_root: str) -> str:
+    path = repo_root / package_root / "pyproject.toml"
     try:
         with path.open("rb") as stream:
             pyproject = tomllib.load(stream)
@@ -204,67 +199,73 @@ def _read_tag_regex(repo_root: Path, source_dir: str) -> str:
     return pattern
 
 
-def _line(line_id: str, raw: Any, repo_root: Path) -> BindingsLine:
-    _text(line_id, "CUDA bindings line ID", _NAME_PATTERN)
+def _package(package_root: str, raw: Any, repo_root: Path) -> BindingsPackage:
+    package_root = _package_root(package_root, "CUDA bindings package root")
     data = _mapping(
         raw,
-        f"CUDA bindings line {line_id!r}",
-        {"source_dir", "toolkit_version"},
+        f"CUDA bindings package root {package_root!r}",
+        {"toolkit_version", "release_status"},
     )
-    source_dir = _source_dir(data["source_dir"], f"{line_id}.source_dir")
-    return BindingsLine(
-        line_id,
-        source_dir,
-        _text(data["toolkit_version"], f"{line_id}.toolkit_version", _TOOLKIT_VERSION_PATTERN),
-        _read_tag_regex(repo_root, source_dir),
+    return BindingsPackage(
+        package_root=package_root,
+        toolkit_version=_text(
+            data["toolkit_version"],
+            f"{package_root}.toolkit_version",
+            _TOOLKIT_VERSION_PATTERN,
+        ),
+        release_status=_text(
+            data["release_status"],
+            f"{package_root}.release_status",
+            _NAME_PATTERN,
+        ),
+        tag_regex=_read_tag_regex(repo_root, package_root),
     )
 
 
-def line_from_dict(data: Mapping[str, object]) -> BindingsLine:
-    """Validate a normalized line record passed between release jobs."""
-    line_id = _text(data.get("line_id"), "resolved line_id", _NAME_PATTERN)
-    source_dir = _source_dir(data.get("source_dir"), "resolved source_dir")
+def package_from_dict(data: Mapping[str, object]) -> BindingsPackage:
+    """Validate a normalized package record passed between release jobs."""
+    package_root = _package_root(data.get("package_root"), "resolved package_root")
     toolkit_version = _text(
         data.get("toolkit_version"),
         "resolved toolkit_version",
         _TOOLKIT_VERSION_PATTERN,
     )
+    release_status_value = data.get("release_status")
+    release_status = (
+        None if release_status_value is None else _text(release_status_value, "resolved release_status", _NAME_PATTERN)
+    )
+    if release_status is not None and release_status not in RELEASE_STATUSES:
+        raise BindingsConfigError(
+            f"resolved release_status must be one of {', '.join(sorted(RELEASE_STATUSES))}: {release_status!r}"
+        )
     tag_regex = data.get("tag_regex")
     if not isinstance(tag_regex, str) or not tag_regex:
         raise BindingsConfigError("resolved tag_regex must be a non-empty string")
     _compile_tag_regex(tag_regex, "resolved tag_regex")
-    line = BindingsLine(line_id, source_dir, toolkit_version, tag_regex)
-    expected = line.to_dict()
+    package = BindingsPackage(package_root, toolkit_version, release_status, tag_regex)
+    expected = package.to_dict()
     for key in ("ctk_target", "cuda_major", "cuda_variant"):
         if key in data and data[key] != expected[key]:
             raise BindingsConfigError(f"resolved {key} is inconsistent with toolkit_version")
-    return line
+    return package
 
 
-def _roles(raw: Any, line_ids: set[str]) -> Mapping[str, str]:
-    roles: dict[str, str] = {}
-    for role, value in _mapping(raw, "cuda.bindings.roles").items():
-        _text(role, "CUDA bindings role", _NAME_PATTERN)
-        line_id = _text(value, f"cuda.bindings.roles.{role}", _NAME_PATTERN)
-        if line_id not in line_ids:
-            raise BindingsConfigError(f"cuda.bindings.roles.{role} references unknown line: {line_id}")
-        roles[role] = line_id
-    if set(roles) != {"current", "maintenance"}:
-        raise BindingsConfigError("cuda.bindings.roles must contain exactly current and maintenance")
-    selected_line_ids = tuple(roles.values())
-    if len(line_ids) != 2 or len(set(selected_line_ids)) != 2 or set(selected_line_ids) != line_ids:
-        raise BindingsConfigError("current and maintenance must select each configured line exactly once")
-    return MappingProxyType(roles)
+def _validate_release_statuses(packages: tuple[BindingsPackage, ...]) -> None:
+    release_statuses = [package.release_status for package in packages]
+    if len(packages) != 2 or set(release_statuses) != RELEASE_STATUSES:
+        raise BindingsConfigError(
+            "cuda.bindings.package_roots must contain exactly one current and one maintenance release status"
+        )
 
 
-def _validate_scm_conformance(lines: tuple[BindingsLine, ...]) -> None:
-    for line in lines:
-        tag = f"v{line.toolkit_version}"
-        version = line.version_from_tag(tag)
-        expected = parse_pep440_version(line.toolkit_version, f"{line.line_id}.toolkit_version")
+def _validate_scm_conformance(packages: tuple[BindingsPackage, ...]) -> None:
+    for package in packages:
+        tag = f"v{package.toolkit_version}"
+        version = package.version_from_tag(tag)
+        expected = parse_pep440_version(package.toolkit_version, f"{package.package_root}.toolkit_version")
         if version != expected:
             raise BindingsConfigError(
-                f"{line.source_dir} setuptools-scm tag_regex must match its configured toolkit release tag {tag!r}"
+                f"{package.package_root} setuptools-scm tag_regex must match its configured toolkit release tag {tag!r}"
             )
 
 
@@ -273,20 +274,20 @@ def validate_config(raw: Any, repo_root: Path = REPO_ROOT) -> BindingsConfig:
     if type(root["schema_version"]) is not int or root["schema_version"] != SCHEMA_VERSION:
         raise BindingsConfigError(f"schema_version must be {SCHEMA_VERSION}")
     cuda = _mapping(root["cuda"], "cuda", {"bindings"})
-    bindings = _mapping(cuda["bindings"], "cuda.bindings", {"lines", "roles"})
-    raw_lines = _mapping(bindings["lines"], "cuda.bindings.lines")
-    if not raw_lines:
-        raise BindingsConfigError("cuda.bindings.lines must not be empty")
-    lines = tuple(_line(line_id, value, repo_root) for line_id, value in raw_lines.items())
-    for attribute in ("source_dir", "toolkit_version", "ctk_target", "cuda_major"):
-        values = [getattr(line, attribute) for line in lines]
+    bindings = _mapping(cuda["bindings"], "cuda.bindings", {"package_roots"})
+    raw_package_roots = _mapping(bindings["package_roots"], "cuda.bindings.package_roots")
+    if not raw_package_roots:
+        raise BindingsConfigError("cuda.bindings.package_roots must not be empty")
+    packages = tuple(_package(package_root, value, repo_root) for package_root, value in raw_package_roots.items())
+    for attribute in ("toolkit_version", "ctk_target", "cuda_major"):
+        values = [getattr(package, attribute) for package in packages]
         if len(set(values)) != len(values):
             raise BindingsConfigError(f"CUDA bindings {attribute} values must be unique")
-    _validate_scm_conformance(lines)
+    _validate_release_statuses(packages)
+    _validate_scm_conformance(packages)
     return BindingsConfig(
         schema_version=SCHEMA_VERSION,
-        lines=lines,
-        roles=_roles(bindings["roles"], {line.line_id for line in lines}),
+        package_roots=packages,
     )
 
 
@@ -331,9 +332,9 @@ def _legacy_toolkit_version(raw: Any, release_version: Version, control_config_p
     if len(target) != 2:
         raise BindingsConfigError(f"legacy release version has no CUDA minor: {release_version}")
     matches = [
-        line.toolkit_version
-        for line in control.lines
-        if parse_pep440_version(line.toolkit_version).release[:2] == target
+        package.toolkit_version
+        for package in control.package_roots
+        if parse_pep440_version(package.toolkit_version).release[:2] == target
     ]
     if len(matches) != 1:
         raise BindingsConfigError(
@@ -343,40 +344,39 @@ def _legacy_toolkit_version(raw: Any, release_version: Version, control_config_p
     return matches[0]
 
 
-def _legacy_release_line(
+def _legacy_release_package(
     release_tag: str,
     release_source_root: Path,
     control_config_path: Path,
     raw: Any,
 ) -> dict[str, object]:
     """Resolve a release tree from before the schema-2 registry existed."""
-    source_dir = "cuda_bindings"
-    if not (release_source_root / source_dir).is_dir():
-        raise BindingsConfigError(f"legacy release source directory is missing: {source_dir}")
+    package_root = "cuda_bindings"
+    if not (release_source_root / package_root).is_dir():
+        raise BindingsConfigError(f"legacy release package root is missing: {package_root}")
 
-    tag_regex = _read_tag_regex(release_source_root, source_dir)
+    tag_regex = _read_tag_regex(release_source_root, package_root)
 
-    probe = BindingsLine("legacy", source_dir, "1.0.0", tag_regex)
+    probe = BindingsPackage(package_root, "1.0.0", None, tag_regex)
     release_version = probe.scm_version_from_tag(release_tag, fullmatch=False)
     if release_version is None:
         raise BindingsConfigError(f"legacy source SCM metadata does not match release tag: {release_tag!r}")
-    line = BindingsLine(
-        "legacy",
-        source_dir,
-        _legacy_toolkit_version(raw, release_version, control_config_path),
-        tag_regex,
+    package = BindingsPackage(
+        package_root=package_root,
+        toolkit_version=_legacy_toolkit_version(raw, release_version, control_config_path),
+        release_status=None,
+        tag_regex=tag_regex,
     )
-    normalized = line.to_dict()
+    normalized = package.to_dict()
     normalized.update(
-        role=None,
         release_version=str(release_version),
-        release_source_dir=source_dir,
+        release_package_root=package_root,
         release_registry_origin="control",
     )
     return normalized
 
 
-def resolve_release_bindings_line(
+def resolve_release_bindings_package(
     release_tag: str,
     release_source_root: Path,
     control_config_path: Path,
@@ -389,75 +389,82 @@ def resolve_release_bindings_line(
     config, raw = _tag_tree_config(tagged_config_path, release_source_root)
     config_source = f"tagged config {tagged_config_path}"
     if config is None:
-        return _legacy_release_line(release_tag, release_source_root, control_config_path, raw)
+        return _legacy_release_package(release_tag, release_source_root, control_config_path, raw)
 
-    line = config.match_tag(release_tag)
-    if line is None:
-        raise BindingsConfigError(f"no CUDA bindings line in {config_source} matches release tag: {release_tag!r}")
+    package = config.match_tag(release_tag)
+    if package is None:
+        raise BindingsConfigError(
+            f"no CUDA bindings package root in {config_source} matches release tag: {release_tag!r}"
+        )
 
-    normalized = config.line_to_dict(line)
-    version = line.version_from_tag(release_tag)
+    normalized = package.to_dict()
+    version = package.version_from_tag(release_tag)
     assert version is not None
     normalized["release_version"] = str(version)
-    normalized["release_source_dir"] = line.source_dir
+    normalized["release_package_root"] = package.package_root
     normalized["release_registry_origin"] = "tag"
     return normalized
 
 
 def write_github_env(data: Mapping[str, object], path: Path) -> None:
     """Append the bindings build environment consumed by documentation jobs."""
-    line = line_from_dict(data)
-    source_dir = _source_dir(data.get("release_source_dir", line.source_dir), "release source_dir")
+    package = package_from_dict(data)
+    package_root = _package_root(
+        data.get("release_package_root", package.package_root),
+        "release package_root",
+    )
     origin = data.get("release_registry_origin", "tag")
     if origin not in {"tag", "control"}:
         raise BindingsConfigError("release_registry_origin must be tag or control")
     with path.open("a", encoding="utf-8") as stream:
-        stream.write(f"BUILD_CTK_VER={line.toolkit_version}\n")
-        stream.write(f"BINDINGS_COMPONENT_DIR={source_dir}\n")
+        stream.write(f"BUILD_CTK_VER={package.toolkit_version}\n")
+        stream.write(f"BINDINGS_PACKAGE_ROOT={package_root}\n")
         stream.write(f"BINDINGS_REGISTRY_ORIGIN={origin}\n")
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Emit normalized registry or release-line JSON for CI consumers."""
+    """Emit normalized registry or release-package JSON for CI consumers."""
     parser = ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     output = parser.add_mutually_exclusive_group()
-    output.add_argument("--lines", action="store_true", help="print normalized line records")
-    output.add_argument("--role", help="print the normalized line for this role")
+    output.add_argument("--package-roots", action="store_true", help="print normalized package-root records")
+    output.add_argument("--release-status", help="print the package root with this release status")
     output.add_argument("--release-tag", help="resolve a release tag against its source tree")
-    output.add_argument("--line-json", help="consume an already normalized line record")
+    output.add_argument("--package-json", help="consume an already normalized package record")
     parser.add_argument("--release-source-root", type=Path)
     parser.add_argument("--control-config", type=Path)
-    parser.add_argument("--github-env", type=Path, help="append one selected line as GitHub environment variables")
+    parser.add_argument("--github-env", type=Path, help="append one selected package as GitHub environment variables")
     args = parser.parse_args(argv)
 
     try:
         if args.release_tag:
             if args.release_source_root is None or args.control_config is None:
                 parser.error("--release-tag requires --release-source-root and --control-config")
-            value: object = resolve_release_bindings_line(
+            value: object = resolve_release_bindings_package(
                 args.release_tag,
                 args.release_source_root,
                 args.control_config,
             )
-        elif args.line_json:
-            value = json.loads(args.line_json)
+        elif args.package_json:
+            value = json.loads(args.package_json)
             if not isinstance(value, dict):
-                raise BindingsConfigError("--line-json must contain a JSON object")
+                raise BindingsConfigError("--package-json must contain a JSON object")
         else:
             if args.release_source_root is not None or args.control_config is not None:
                 parser.error("--release-source-root and --control-config require --release-tag")
             config = load_config(args.config, args.repo_root)
-            if args.lines:
-                value = [config.line_to_dict(line) for line in config.lines]
-            elif args.role:
-                value = config.line_to_dict(config.line_for_role(args.role))
+            if args.package_roots:
+                value = [package.to_dict() for package in config.package_roots]
+            elif args.release_status:
+                value = config.package_for_release_status(args.release_status).to_dict()
             else:
                 value = config.to_dict()
         if args.github_env is not None:
-            if not isinstance(value, dict) or (not args.role and not args.release_tag and not args.line_json):
-                parser.error("--github-env requires --role, --release-tag, or --line-json")
+            if not isinstance(value, dict) or (
+                not args.release_status and not args.release_tag and not args.package_json
+            ):
+                parser.error("--github-env requires --release-status, --release-tag, or --package-json")
             write_github_env(value, args.github_env)
         else:
             print(json.dumps(value, separators=(",", ":"), sort_keys=True))

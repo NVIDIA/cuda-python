@@ -97,7 +97,7 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
   TEST_CUDA_MAJOR_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
 
   # Resolve bindings based on BINDINGS_SOURCE (set by env-vars):
-  #   local         → matching configured-line wheel from this run
+  #   local         → matching configured-package wheel from this run
   #   published     → install from PyPI by version
   BINDINGS_ARGS=()
   if [[ "${BINDINGS_SOURCE}" == "published" ]]; then

@@ -46,25 +46,25 @@ def test_release_package_scm_regex_preserves_post_suffix(package, tag, version):
 
 
 @pytest.mark.parametrize(
-    ("line_id", "tag", "expected"),
+    ("package_root", "tag", "expected"),
     (
-        ("released-13", "v13.3.1", "13.3.1"),
-        ("released-13", "v13.3.1a2", "13.3.1a2"),
-        ("released-13", "v13.3.1b2", "13.3.1b2"),
-        ("released-13", "v13.3.1rc2", "13.3.1rc2"),
-        ("released-13", "v13.3.1.post2", "13.3.1.post2"),
-        ("released-13", "v13.3.1.dev2", "13.3.1.dev2"),
-        ("released-13", "v13.3.1rc2.dev3", "13.3.1rc2.dev3"),
-        ("released-12", "v12.9.8", "12.9.8"),
-        ("released-12", "v12.9.8.post2", "12.9.8.post2"),
-        ("released-12", "v12.9.8a2", None),
-        ("released-12", "v12.9.8rc2", None),
-        ("released-12", "v12.9.8.dev2", None),
+        ("cuda_bindings", "v13.3.1", "13.3.1"),
+        ("cuda_bindings", "v13.3.1a2", "13.3.1a2"),
+        ("cuda_bindings", "v13.3.1b2", "13.3.1b2"),
+        ("cuda_bindings", "v13.3.1rc2", "13.3.1rc2"),
+        ("cuda_bindings", "v13.3.1.post2", "13.3.1.post2"),
+        ("cuda_bindings", "v13.3.1.dev2", "13.3.1.dev2"),
+        ("cuda_bindings", "v13.3.1rc2.dev3", "13.3.1rc2.dev3"),
+        ("cuda_bindings_12", "v12.9.8", "12.9.8"),
+        ("cuda_bindings_12", "v12.9.8.post2", "12.9.8.post2"),
+        ("cuda_bindings_12", "v12.9.8a2", None),
+        ("cuda_bindings_12", "v12.9.8rc2", None),
+        ("cuda_bindings_12", "v12.9.8.dev2", None),
     ),
 )
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_bindings_registry_uses_each_source_scm_regex(line_id, tag, expected):
-    version = load_config().get_line(line_id).version_from_tag(tag)
+def test_bindings_registry_uses_each_package_scm_regex(package_root, tag, expected):
+    version = load_config().get_package(package_root).version_from_tag(tag)
 
     assert (str(version) if version is not None else None) == expected
 

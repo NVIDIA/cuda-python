@@ -43,23 +43,21 @@ if [[ "${1}" == "build" ]]; then
   # platform is handled by the default value of platform (`auto`) in cibuildwheel
   # here we only need to specify the python version we want
   echo "CIBW_BUILD=cp${PYTHON_VERSION_FORMATTED}-*" >> $GITHUB_ENV
-  CURRENT_LINE_JSON="$(python -m ci.tools.bindings_config --role current)"
-  MAINTENANCE_LINE_JSON="$(python -m ci.tools.bindings_config --role maintenance)"
+  CURRENT_PACKAGE_JSON="$(python -m ci.tools.bindings_config --release-status current)"
+  MAINTENANCE_PACKAGE_JSON="$(python -m ci.tools.bindings_config --release-status maintenance)"
   json_field() {
     python -c 'import json, sys; print(json.load(sys.stdin)[sys.argv[1]])' "$1"
   }
-  CURRENT_LINE_ID="$(json_field line_id <<< "${CURRENT_LINE_JSON}")"
-  CURRENT_BINDINGS_ROOT="$(json_field source_dir <<< "${CURRENT_LINE_JSON}")"
-  CURRENT_CUDA_VERSION="$(json_field toolkit_version <<< "${CURRENT_LINE_JSON}")"
-  CURRENT_CUDA_MAJOR="$(json_field cuda_major <<< "${CURRENT_LINE_JSON}")"
-  CURRENT_CUDA_VARIANT="$(json_field cuda_variant <<< "${CURRENT_LINE_JSON}")"
-  MAINTENANCE_LINE_ID="$(json_field line_id <<< "${MAINTENANCE_LINE_JSON}")"
-  MAINTENANCE_BINDINGS_ROOT="$(json_field source_dir <<< "${MAINTENANCE_LINE_JSON}")"
-  MAINTENANCE_CUDA_VERSION="$(json_field toolkit_version <<< "${MAINTENANCE_LINE_JSON}")"
-  MAINTENANCE_CUDA_MAJOR="$(json_field cuda_major <<< "${MAINTENANCE_LINE_JSON}")"
-  MAINTENANCE_CUDA_VARIANT="$(json_field cuda_variant <<< "${MAINTENANCE_LINE_JSON}")"
+  CURRENT_BINDINGS_ROOT="$(json_field package_root <<< "${CURRENT_PACKAGE_JSON}")"
+  CURRENT_CUDA_VERSION="$(json_field toolkit_version <<< "${CURRENT_PACKAGE_JSON}")"
+  CURRENT_CUDA_MAJOR="$(json_field cuda_major <<< "${CURRENT_PACKAGE_JSON}")"
+  CURRENT_CUDA_VARIANT="$(json_field cuda_variant <<< "${CURRENT_PACKAGE_JSON}")"
+  MAINTENANCE_BINDINGS_ROOT="$(json_field package_root <<< "${MAINTENANCE_PACKAGE_JSON}")"
+  MAINTENANCE_CUDA_VERSION="$(json_field toolkit_version <<< "${MAINTENANCE_PACKAGE_JSON}")"
+  MAINTENANCE_CUDA_MAJOR="$(json_field cuda_major <<< "${MAINTENANCE_PACKAGE_JSON}")"
+  MAINTENANCE_CUDA_VARIANT="$(json_field cuda_variant <<< "${MAINTENANCE_PACKAGE_JSON}")"
   if [[ "${CURRENT_CUDA_MAJOR}" == "${MAINTENANCE_CUDA_MAJOR}" ]]; then
-    echo "Error: the monolithic wheel builder requires current and maintenance lines with distinct CUDA ABI majors" >&2
+    echo "Error: the monolithic wheel builder requires current and maintenance packages with distinct CUDA ABI majors" >&2
     exit 1
   fi
 
@@ -70,7 +68,7 @@ if [[ "${1}" == "build" ]]; then
   CUDA_BINDINGS_CYTHON_TESTS_DIR="$(realpath "${REPO_DIR}/${CURRENT_BINDINGS_ROOT}/tests/cython")"
   MAINTENANCE_SCM_VERSION="$(python -m ci.tools.bindings_scm_version \
     --repo-root "${REPO_DIR}" \
-    --line-id "${MAINTENANCE_LINE_ID}" \
+    --package-root "${MAINTENANCE_BINDINGS_ROOT}" \
     --sha "${SHA}")"
   MAINTENANCE_SCM_ENV=""
   if [[ -n "${MAINTENANCE_SCM_VERSION}" ]]; then
@@ -78,12 +76,10 @@ if [[ "${1}" == "build" ]]; then
   fi
 
   {
-    echo "CURRENT_LINE_ID=${CURRENT_LINE_ID}"
     echo "CURRENT_BINDINGS_ROOT=${CURRENT_BINDINGS_ROOT}"
     echo "CURRENT_CUDA_VERSION=${CURRENT_CUDA_VERSION}"
     echo "CURRENT_CUDA_MAJOR=${CURRENT_CUDA_MAJOR}"
     echo "CURRENT_CUDA_VARIANT=${CURRENT_CUDA_VARIANT}"
-    echo "MAINTENANCE_LINE_ID=${MAINTENANCE_LINE_ID}"
     echo "MAINTENANCE_BINDINGS_ROOT=${MAINTENANCE_BINDINGS_ROOT}"
     echo "MAINTENANCE_CUDA_VERSION=${MAINTENANCE_CUDA_VERSION}"
     echo "MAINTENANCE_CUDA_MAJOR=${MAINTENANCE_CUDA_MAJOR}"
@@ -108,7 +104,7 @@ elif [[ "${1}" == "test" ]]; then
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< "${CUDA_VER}")"
 
   # BINDINGS_SOURCE controls which cuda-bindings to install at test time:
-  #   local     — use the matching configured-line wheel from this CI run
+  #   local     — use the matching configured-package wheel from this CI run
   #   published — install from PyPI (cuda-bindings==${TEST_CUDA_MAJOR}.${TEST_CUDA_MINOR}.*)
   #
   # SKIP_CUDA_BINDINGS_TEST / SKIP_CYTHON_TEST control which *tests* to run
@@ -122,7 +118,6 @@ elif [[ "${1}" == "test" ]]; then
   fi
 
   if [[ "${BINDINGS_SOURCE}" == "local" ]]; then
-    : "${BINDINGS_LINE_ID:?BINDINGS_LINE_ID is required for local bindings}"
     : "${BINDINGS_SOURCE_DIR:?BINDINGS_SOURCE_DIR is required for local bindings}"
     BINDINGS_BUILD_CUDA_VER="${CUDA_VER}"
     CUDA_BINDINGS_ROOT="${BINDINGS_SOURCE_DIR}"

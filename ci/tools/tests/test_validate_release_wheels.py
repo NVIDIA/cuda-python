@@ -11,13 +11,13 @@ from pathlib import Path
 import pytest
 
 
-def resolved_line() -> str:
+def resolved_package() -> str:
     return json.dumps(
         {
-            "line_id": "alternate-12-8",
-            "source_dir": "alternate_bindings_12_8",
-            "release_source_dir": "alternate_bindings_12_8",
+            "package_root": "alternate_bindings_12_8",
+            "release_package_root": "alternate_bindings_12_8",
             "toolkit_version": "12.8.0",
+            "release_status": "maintenance",
             "tag_regex": r"^(?P<version>v12\.8\.\d+(?:\.post\d+)?)$",
             "release_version": "12.8.0",
             "release_registry_origin": "tag",
@@ -44,27 +44,27 @@ def run_validator(wheel_dir: Path, *extra_args: str) -> subprocess.CompletedProc
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_tag_authoritative_line_validates_after_control_registry_moves_on(tmp_path):
+def test_tag_authoritative_package_validates_after_control_registry_moves_on(tmp_path):
     (tmp_path / "cuda_bindings-12.8.0-cp312-cp312-manylinux.whl").touch()
 
-    without_resolved_line = run_validator(tmp_path)
-    with_resolved_line = run_validator(
+    without_resolved_package = run_validator(tmp_path)
+    with_resolved_package = run_validator(
         tmp_path,
-        "--bindings-line",
-        resolved_line(),
+        "--bindings-package",
+        resolved_package(),
     )
 
-    assert without_resolved_line.returncode == 1
-    assert with_resolved_line.returncode == 0, with_resolved_line.stderr
+    assert without_resolved_package.returncode == 1
+    assert with_resolved_package.returncode == 0, with_resolved_package.stderr
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_resolved_line_must_match_the_release_tag(tmp_path):
+def test_resolved_package_must_match_the_release_tag(tmp_path):
     (tmp_path / "cuda_bindings-12.8.0-cp312-cp312-manylinux.whl").touch()
-    line = json.loads(resolved_line())
-    line["tag_regex"] = r"^(?P<version>v12\.9\.\d+)$"
+    package = json.loads(resolved_package())
+    package["tag_regex"] = r"^(?P<version>v12\.9\.\d+)$"
 
-    result = run_validator(tmp_path, "--bindings-line", json.dumps(line))
+    result = run_validator(tmp_path, "--bindings-package", json.dumps(package))
 
     assert result.returncode == 1
     assert "does not match release tag" in result.stderr
@@ -76,7 +76,7 @@ def test_unexpected_distribution_is_rejected(tmp_path):
     unexpected_wheel = "cuda_core-12.8.0-py3-none-any.whl"
     (tmp_path / unexpected_wheel).touch()
 
-    result = run_validator(tmp_path, "--bindings-line", resolved_line())
+    result = run_validator(tmp_path, "--bindings-package", resolved_package())
 
     assert result.returncode == 1
     assert f"{unexpected_wheel}: unexpected distribution 'cuda_core'" in result.stderr

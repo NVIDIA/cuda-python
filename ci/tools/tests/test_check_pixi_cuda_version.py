@@ -33,17 +33,15 @@ cuda-version = [{variants}]
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_main_checks_every_registered_bindings_line(tmp_path, monkeypatch, capsys):
-    lines = (
+def test_main_checks_every_registered_bindings_package(tmp_path, monkeypatch, capsys):
+    packages = (
         SimpleNamespace(
-            line_id="released-12",
-            source_dir="cuda_bindings_12",
+            package_root="cuda_bindings_12",
             toolkit_version="12.9.1",
             cuda_variant="cu12",
         ),
         SimpleNamespace(
-            line_id="released-14",
-            source_dir="cuda_bindings_14",
+            package_root="cuda_bindings_14",
             toolkit_version="14.1.2",
             cuda_variant="cu14",
         ),
@@ -55,23 +53,22 @@ def test_main_checks_every_registered_bindings_line(tmp_path, monkeypatch, capsy
     monkeypatch.setattr(
         check_pixi_cuda_version.bindings_config,
         "load_config",
-        lambda: SimpleNamespace(lines=lines),
+        lambda: SimpleNamespace(package_roots=packages),
     )
     monkeypatch.setattr(check_pixi_cuda_version, "ROOT", tmp_path)
 
     assert check_pixi_cuda_version.main() == 0
     output = capsys.readouterr().out
-    assert "cuda_bindings_12/pixi.toml: released-12" in output
-    assert "cuda_bindings_14/pixi.toml: released-14" in output
-    assert "cuda_core/pixi.toml: released-12" in output
-    assert "cuda_core/pixi.toml: released-14" in output
+    assert "cuda_bindings_12/pixi.toml: cuda_bindings_12" in output
+    assert "cuda_bindings_14/pixi.toml: cuda_bindings_14" in output
+    assert "cuda_core/pixi.toml: cuda_bindings_12" in output
+    assert "cuda_core/pixi.toml: cuda_bindings_14" in output
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_main_reports_maintenance_bindings_pin_drift(tmp_path, monkeypatch, capsys):
-    line = SimpleNamespace(
-        line_id="released-12",
-        source_dir="cuda_bindings_12",
+    package = SimpleNamespace(
+        package_root="cuda_bindings_12",
         toolkit_version="12.9.1",
         cuda_variant="cu12",
     )
@@ -80,21 +77,20 @@ def test_main_reports_maintenance_bindings_pin_drift(tmp_path, monkeypatch, caps
     monkeypatch.setattr(
         check_pixi_cuda_version.bindings_config,
         "load_config",
-        lambda: SimpleNamespace(lines=(line,)),
+        lambda: SimpleNamespace(package_roots=(package,)),
     )
     monkeypatch.setattr(check_pixi_cuda_version, "ROOT", tmp_path)
 
     assert check_pixi_cuda_version.main() == 1
     error = capsys.readouterr().err
     assert "cuda_bindings_12/pixi.toml" in error
-    assert "does not cover registered line 'released-12' toolkit_version='12.9.1'" in error
+    assert "does not cover registered package root 'cuda_bindings_12' toolkit_version='12.9.1'" in error
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_main_reports_core_variant_pin_drift(tmp_path, monkeypatch, capsys):
-    line = SimpleNamespace(
-        line_id="released-14",
-        source_dir="cuda_bindings_14",
+    package = SimpleNamespace(
+        package_root="cuda_bindings_14",
         toolkit_version="14.1.2",
         cuda_variant="cu14",
     )
@@ -103,14 +99,14 @@ def test_main_reports_core_variant_pin_drift(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(
         check_pixi_cuda_version.bindings_config,
         "load_config",
-        lambda: SimpleNamespace(lines=(line,)),
+        lambda: SimpleNamespace(package_roots=(package,)),
     )
     monkeypatch.setattr(check_pixi_cuda_version, "ROOT", tmp_path)
 
     assert check_pixi_cuda_version.main() == 1
     error = capsys.readouterr().err
     assert "cuda_core/pixi.toml" in error
-    assert "does not cover registered line 'released-14' toolkit_version='14.1.2'" in error
+    assert "does not cover registered package root 'cuda_bindings_14' toolkit_version='14.1.2'" in error
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")

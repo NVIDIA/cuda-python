@@ -67,12 +67,12 @@ jobs:
   #
   # Dependency graph (verified in pyproject.toml files):
   #   cuda_pathfinder   -> (no internal deps)
-  #   each registered cuda.bindings line -> cuda_pathfinder
+  #   each registered cuda.bindings package -> cuda_pathfinder
   #   cuda_core         -> cuda_pathfinder, cuda_bindings
   #   cuda_python       -> cuda_pathfinder, cuda_bindings, cuda_core (meta package)
   #
   # A change to cuda_pathfinder (or shared infra) forces a rebuild of every
-  # downstream module. A change to either bindings line rebuilds cuda_core
+  # downstream module. A change to either bindings package rebuilds cuda_core
   # against both majors, but rebuilds only the matching bindings package.
   # A change to cuda_core alone skips rebuilding/retesting cuda_bindings and
   # cuda_pathfinder, but still retests the downstream cuda-python metapackage.
@@ -81,7 +81,7 @@ jobs:
   # On pushes to main, schedule, workflow_dispatch, or non-bindings release
   # tags we unconditionally run everything because there is no meaningful
   # "changed paths" baseline for those events. Bare bindings tags select the
-  # corresponding registered cuda.bindings and cuda-python release line.
+  # corresponding registered cuda.bindings package root and cuda-python build.
   detect-changes:
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
@@ -181,7 +181,7 @@ jobs:
             unavailable
           fi
           if ! cuda_versions_json=$(jq -ce '
-            [.lines[].toolkit_version]
+            [.package_roots[].toolkit_version]
             | if length > 0 then . else error("bindings registry has no toolkit versions") end
           ' <<< "$bindings_config"); then
             unavailable
@@ -348,7 +348,7 @@ jobs:
       matrix:
         host-platform:
           - linux-64
-    name: Build ${{ matrix.host-platform }} (registered bindings lines)
+    name: Build ${{ matrix.host-platform }} (registered bindings packages)
     if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
     permissions:
       actions: read
@@ -370,7 +370,7 @@ jobs:
       matrix:
         host-platform:
           - linux-aarch64
-    name: Build ${{ matrix.host-platform }} (registered bindings lines)
+    name: Build ${{ matrix.host-platform }} (registered bindings packages)
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -395,7 +395,7 @@ jobs:
       matrix:
         host-platform:
           - win-64
-    name: Build ${{ matrix.host-platform }} (registered bindings lines)
+    name: Build ${{ matrix.host-platform }} (registered bindings packages)
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -420,12 +420,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        line: ${{ fromJSON(needs.detect-changes.outputs.bindings-config).lines }}
+        package: ${{ fromJSON(needs.detect-changes.outputs.bindings-config).package_roots }}
     needs:
       - should-skip
       - detect-changes
       - build-linux-64
-    name: Test sdist linux-64 (${{ matrix.line.line_id }})
+    name: Test sdist linux-64 (${{ matrix.package.package_root }})
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -437,7 +437,7 @@ jobs:
     uses: ./.github/workflows/test-sdist-linux.yml
     with:
       host-platform: linux-64
-      bindings-line: ${{ toJSON(matrix.line) }}
+      bindings-package: ${{ toJSON(matrix.package) }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See test-sdist-linux for why sdist test jobs are split by platform.
@@ -445,13 +445,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        line: ${{ fromJSON(needs.detect-changes.outputs.bindings-config).lines }}
+        package: ${{ fromJSON(needs.detect-changes.outputs.bindings-config).package_roots }}
     needs:
       - should-skip
       - detect-changes
       - build-linux-64
       - build-windows
-    name: Test sdist win-64 (${{ matrix.line.line_id }})
+    name: Test sdist win-64 (${{ matrix.package.package_root }})
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -463,7 +463,7 @@ jobs:
     uses: ./.github/workflows/test-sdist-windows.yml
     with:
       host-platform: win-64
-      bindings-line: ${{ toJSON(matrix.line) }}
+      bindings-package: ${{ toJSON(matrix.package) }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # NOTE: Test jobs are split by platform for the same reason as build jobs (see

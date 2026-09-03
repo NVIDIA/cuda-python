@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Check pixi cuda-version pins track every registered CUDA bindings line."""
+"""Check pixi cuda-version pins track every registered CUDA bindings package."""
 
 from __future__ import annotations
 
@@ -54,32 +54,33 @@ def _pin_covers_toolkit(cuda_pin: str, toolkit_version: str) -> bool:
     return toolkit_version.split(".")[: len(prefix)] == prefix
 
 
-def _check_pixi_line(
+def _check_pixi_package(
     path: Path,
     data: dict[str, Any],
-    line: bindings_config.BindingsLine,
+    package: bindings_config.BindingsPackage,
     errors: list[str],
     checked: list[str],
 ) -> None:
     rel = path.relative_to(ROOT)
-    variants, cuda_pin = _cuda_pins(data, path, line.cuda_variant)
-    context = f"registered line {line.line_id!r} toolkit_version={line.toolkit_version!r}"
+    variants, cuda_pin = _cuda_pins(data, path, package.cuda_variant)
+    context = f"registered package root {package.package_root!r} toolkit_version={package.toolkit_version!r}"
     if cuda_pin not in variants:
         errors.append(
             f"{rel}: workspace.build-variants.cuda-version={variants!r} does not include "
-            f"feature.{line.cuda_variant} pin {cuda_pin!r} ({context})"
+            f"feature.{package.cuda_variant} pin {cuda_pin!r} ({context})"
         )
-    if not _pin_covers_toolkit(cuda_pin, line.toolkit_version):
+    if not _pin_covers_toolkit(cuda_pin, package.toolkit_version):
         errors.append(
-            f"{rel}: feature.{line.cuda_variant}.dependencies.cuda-version={cuda_pin!r} does not cover {context}"
+            f"{rel}: feature.{package.cuda_variant}.dependencies.cuda-version={cuda_pin!r} does not cover {context}"
         )
     checked.append(
-        f"{rel}: {line.line_id} uses feature.{line.cuda_variant}={cuda_pin!r} (workspace variants={variants!r})"
+        f"{rel}: {package.package_root} uses feature.{package.cuda_variant}={cuda_pin!r} "
+        f"(workspace variants={variants!r})"
     )
 
 
 def main() -> int:
-    """Verify bindings and core pixi pins match all lines in ci/versions.yml."""
+    """Verify bindings and core pixi pins match all packages in ci/versions.yml."""
     try:
         config = bindings_config.load_config()
     except bindings_config.BindingsConfigError as error:
@@ -91,10 +92,10 @@ def main() -> int:
     try:
         core_path = ROOT / "cuda_core" / "pixi.toml"
         core_data = _load_pixi(core_path)
-        for line in config.lines:
-            source_path = ROOT / line.source_dir / "pixi.toml"
-            _check_pixi_line(source_path, _load_pixi(source_path), line, errors, checked)
-            _check_pixi_line(core_path, core_data, line, errors, checked)
+        for package in config.package_roots:
+            source_path = ROOT / package.package_root / "pixi.toml"
+            _check_pixi_package(source_path, _load_pixi(source_path), package, errors, checked)
+            _check_pixi_package(core_path, core_data, package, errors, checked)
     except PixiConfigError as error:
         print(f"error: invalid pixi configuration: {error}", file=sys.stderr)
         return 2
@@ -102,14 +103,14 @@ def main() -> int:
     if errors:
         print(
             "error: cuda_bindings/cuda_core pixi cuda-version pins are out of sync "
-            "with registered CUDA bindings lines:",
+            "with registered CUDA bindings package roots:",
             file=sys.stderr,
         )
         for err in errors:
             print(f"  - {err}", file=sys.stderr)
         return 1
 
-    print("OK: pixi cuda-version pins cover every registered CUDA bindings line:")
+    print("OK: pixi cuda-version pins cover every registered CUDA bindings package root:")
     for item in checked:
         print(f"  - {item}")
     return 0

@@ -349,7 +349,7 @@ flowchart TD
 #### Main Branch
 - **Build** → **Test** → **Documentation** → **Potential Release**
 - CUDA 12.9 bindings are maintained in `cuda_bindings_12/`; CUDA 13 bindings are maintained in `cuda_bindings/`
-- The conditional workplan builds the changed bindings line and reuses the unaffected line's baseline artifacts
+- The conditional workplan builds the changed bindings package root and reuses the unaffected root's baseline artifacts
 - Artifacts include their Python version, CUDA Toolkit version, platform, and source SHA where applicable
 - Shared dependency changes and scheduled runs cover both CUDA majors across all supported platforms
 

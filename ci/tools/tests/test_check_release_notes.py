@@ -18,12 +18,12 @@ def write_notes(root: Path, package: str, version: str, content: str = "Release 
     return path
 
 
-def resolved_12_line(release_source_dir: str = "cuda_bindings") -> dict[str, object]:
+def resolved_12_package(release_package_root: str = "cuda_bindings") -> dict[str, object]:
     return {
-        "line_id": "released-12",
-        "source_dir": "cuda_bindings_12",
-        "release_source_dir": release_source_dir,
+        "package_root": "cuda_bindings_12",
+        "release_package_root": release_package_root,
         "toolkit_version": "12.9.1",
+        "release_status": "maintenance",
         "tag_regex": r"^(?P<version>v12\.9\.\d+(?:\.post\d+)?)$",
         "release_version": "12.9.8",
         "release_registry_origin": "control",
@@ -73,21 +73,21 @@ def test_parse_version_rejects_invalid_or_mismatched_tags(tag, component):
     ),
 )
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_bindings_notes_follow_current_and_maintenance_lines(tmp_path, tag, package, version):
+def test_bindings_notes_follow_current_and_maintenance_packages(tmp_path, tag, package, version):
     write_notes(tmp_path, package, version)
 
     assert check_release_notes(tag, "cuda-bindings", tmp_path) == []
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_resolved_legacy_line_uses_legacy_source_directory(tmp_path):
+def test_resolved_legacy_package_uses_legacy_package_root(tmp_path):
     write_notes(tmp_path, "cuda_bindings", "12.9.8")
 
     problems = check_release_notes(
         "v12.9.8",
         "cuda-bindings",
         tmp_path,
-        resolved_12_line(),
+        resolved_12_package(),
     )
 
     assert problems == []
@@ -112,8 +112,8 @@ def test_post_release_needs_no_notes(tmp_path):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_main_accepts_resolved_line_and_reports_missing_notes(tmp_path, capsys):
-    line = resolved_12_line()
+def test_main_accepts_resolved_package_and_reports_missing_notes(tmp_path, capsys):
+    package = resolved_12_package()
     args = [
         "--git-tag",
         "v12.9.8",
@@ -121,8 +121,8 @@ def test_main_accepts_resolved_line_and_reports_missing_notes(tmp_path, capsys):
         "cuda-bindings",
         "--repo-root",
         str(tmp_path),
-        "--bindings-line",
-        json.dumps(line),
+        "--bindings-package",
+        json.dumps(package),
     ]
 
     assert main(args) == 1
@@ -133,7 +133,7 @@ def test_main_accepts_resolved_line_and_reports_missing_notes(tmp_path, capsys):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_main_rejects_unsafe_resolved_source_directory(tmp_path, capsys):
+def test_main_rejects_unsafe_resolved_package_root(tmp_path, capsys):
     args = [
         "--git-tag",
         "v12.9.8",
@@ -141,8 +141,8 @@ def test_main_rejects_unsafe_resolved_source_directory(tmp_path, capsys):
         "cuda-bindings",
         "--repo-root",
         str(tmp_path),
-        "--bindings-line",
-        json.dumps(resolved_12_line("../outside")),
+        "--bindings-package",
+        json.dumps(resolved_12_package("../outside")),
     ]
 
     assert main(args) == 2

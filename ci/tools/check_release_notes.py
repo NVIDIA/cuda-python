@@ -39,76 +39,78 @@ COMPONENT_TO_TAG_PREFIX: dict[str, str] = {
 }
 
 
-def _resolved_bindings_line(
+def _resolved_bindings_package(
     data: Mapping[str, object], git_tag: str
-) -> tuple[bindings_config.BindingsLine, str, Version]:
+) -> tuple[bindings_config.BindingsPackage, str, Version]:
     """Validate the release resolver fields consumed by this script."""
-    line = bindings_config.line_from_dict(data)
+    package = bindings_config.package_from_dict(data)
     raw_version = data.get("release_version")
     if not isinstance(raw_version, str):
-        raise bindings_config.BindingsConfigError("resolved CUDA bindings line has no release_version")
+        raise bindings_config.BindingsConfigError("resolved CUDA bindings package has no release_version")
     version = bindings_config.parse_pep440_version(raw_version, "resolved release_version")
     origin = data.get("release_registry_origin", "tag")
     if origin not in {"tag", "control"}:
-        raise bindings_config.BindingsConfigError("resolved CUDA bindings line has invalid release_registry_origin")
-    matched = line.scm_version_from_tag(git_tag, fullmatch=origin != "control")
-    if matched != version or (origin != "control" and line.version_from_tag(git_tag) != version):
-        raise bindings_config.BindingsConfigError(f"resolved CUDA bindings line does not match release tag {git_tag!r}")
+        raise bindings_config.BindingsConfigError("resolved CUDA bindings package has invalid release_registry_origin")
+    matched = package.scm_version_from_tag(git_tag, fullmatch=origin != "control")
+    if matched != version or (origin != "control" and package.version_from_tag(git_tag) != version):
+        raise bindings_config.BindingsConfigError(
+            f"resolved CUDA bindings package does not match release tag {git_tag!r}"
+        )
 
-    source_dir = data.get("release_source_dir", line.source_dir)
-    if not isinstance(source_dir, str) or not source_dir:
-        raise bindings_config.BindingsConfigError("resolved CUDA bindings line has invalid release_source_dir")
-    path = PurePosixPath(source_dir)
+    package_root = data.get("release_package_root", package.package_root)
+    if not isinstance(package_root, str) or not package_root:
+        raise bindings_config.BindingsConfigError("resolved CUDA bindings package has invalid release_package_root")
+    path = PurePosixPath(package_root)
     if (
-        "\\" in source_dir
-        or PureWindowsPath(source_dir).drive
+        "\\" in package_root
+        or PureWindowsPath(package_root).drive
         or path.is_absolute()
-        or path.as_posix() != source_dir
+        or path.as_posix() != package_root
         or any(part in (".", "..") for part in path.parts)
     ):
         raise bindings_config.BindingsConfigError(
-            f"resolved CUDA bindings release_source_dir is not repository-relative: {source_dir!r}"
+            f"resolved CUDA bindings release_package_root is not repository-relative: {package_root!r}"
         )
-    return line, source_dir, version
+    return package, package_root, version
 
 
 def _release_target_from_tag(
     git_tag: str,
     component: str,
-    bindings_line: Mapping[str, object] | None = None,
+    bindings_package: Mapping[str, object] | None = None,
 ) -> tuple[str, str] | None:
     """Return the release version and source tree selected by a component tag."""
     prefix = COMPONENT_TO_TAG_PREFIX.get(component)
     if prefix is None:
         return None
     if component == "cuda-bindings":
-        if bindings_line is None:
-            line = bindings_config.load_config().match_tag(git_tag)
-            if line is None:
+        if bindings_package is None:
+            package = bindings_config.load_config().match_tag(git_tag)
+            if package is None:
                 return None
-            source_dir: object = line.source_dir
-            version = line.version_from_tag(git_tag)
+            package_root: object = package.package_root
+            version = package.version_from_tag(git_tag)
         else:
-            line, source_dir, version = _resolved_bindings_line(bindings_line, git_tag)
+            package, package_root, version = _resolved_bindings_package(bindings_package, git_tag)
     else:
         version = bindings_config.parse_prefixed_version(git_tag, prefix)
     if version is None:
         return None
-    return str(version), source_dir if component == "cuda-bindings" else COMPONENT_TO_PACKAGE[component]
+    return str(version), package_root if component == "cuda-bindings" else COMPONENT_TO_PACKAGE[component]
 
 
 def parse_version_from_tag(
     git_tag: str,
     component: str,
-    bindings_line: Mapping[str, object] | None = None,
+    bindings_package: Mapping[str, object] | None = None,
 ) -> str | None:
     """Extract the version string from a tag, given the target component.
 
     Returns None if the tag does not match the component's expected prefix,
     contains characters outside the allowed version set, or (for bindings)
-    does not select a configured release line.
+    does not select a configured package root.
     """
-    target = _release_target_from_tag(git_tag, component, bindings_line)
+    target = _release_target_from_tag(git_tag, component, bindings_package)
     return target[0] if target is not None else None
 
 
@@ -124,7 +126,7 @@ def check_release_notes(
     git_tag: str,
     component: str,
     repo_root: Path = Path("."),
-    bindings_line: Mapping[str, object] | None = None,
+    bindings_package: Mapping[str, object] | None = None,
 ) -> list[tuple[str | Path, str]]:
     """Return a list of (path, reason) for missing or empty release notes.
 
@@ -137,7 +139,7 @@ def check_release_notes(
     if component not in COMPONENT_TO_PACKAGE:
         return [("<component>", f"unknown component '{component}'")]
 
-    target = _release_target_from_tag(git_tag, component, bindings_line)
+    target = _release_target_from_tag(git_tag, component, bindings_package)
     if target is None:
         return [("<tag>", f"cannot parse version from tag '{git_tag}' for component '{component}'")]
     version, package = target
@@ -160,17 +162,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--component", required=True, choices=list(COMPONENT_TO_PACKAGE))
     parser.add_argument("--repo-root", default=Path("."), type=Path)
     parser.add_argument(
-        "--bindings-line",
+        "--bindings-package",
         default="",
-        help="normalized CUDA bindings release-line JSON from the release resolver",
+        help="normalized CUDA bindings package JSON from the release resolver",
     )
     args = parser.parse_args(argv)
 
     try:
-        bindings_line = json.loads(args.bindings_line) if args.bindings_line else None
-        if bindings_line is not None and not isinstance(bindings_line, dict):
-            raise ValueError("resolved CUDA bindings line must be a JSON object")
-        version = parse_version_from_tag(args.git_tag, args.component, bindings_line)
+        bindings_package = json.loads(args.bindings_package) if args.bindings_package else None
+        if bindings_package is not None and not isinstance(bindings_package, dict):
+            raise ValueError("resolved CUDA bindings package must be a JSON object")
+        version = parse_version_from_tag(args.git_tag, args.component, bindings_package)
     except (bindings_config.BindingsConfigError, json.JSONDecodeError, ValueError) as error:
         print(f"ERROR: invalid CUDA bindings configuration: {error}", file=sys.stderr)
         return 2
@@ -185,7 +187,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Post-release tag ({args.git_tag}), skipping release-notes check.")
         return 0
 
-    problems = check_release_notes(args.git_tag, args.component, args.repo_root, bindings_line)
+    problems = check_release_notes(args.git_tag, args.component, args.repo_root, bindings_package)
 
     if not problems:
         print(f"Release notes present for tag {args.git_tag}, component {args.component}.")
