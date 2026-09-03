@@ -30,12 +30,12 @@ def plan_for(
     bindings_config: BindingsConfig | None = None,
 ) -> dict[str, object]:
     return compute_workplan(
-        list(paths),
+        bindings_config=bindings_config if bindings_config is not None else DEFAULT_BINDINGS_CONFIG,
+        paths=list(paths),
+        linked_paths=linked_paths if linked_paths is not None else set(),
         merge_base="base",
         baseline_run_id="123" if baseline else "",
-        linked_paths=linked_paths,
         release_tag=release_tag,
-        bindings_config=bindings_config,
     )
 
 
@@ -308,7 +308,14 @@ class ComputeWorkplanTest(unittest.TestCase):
             plan_for(".github/actions/doc_preview/action.yml"),
             plan_for("ci/ci-pipeline.svg"),
             plan_for("cuda_core/docs/index.rst", baseline=False),
-            compute_workplan([], merge_base="", baseline_run_id="123"),
+            compute_workplan(
+                bindings_config=DEFAULT_BINDINGS_CONFIG,
+                paths=[],
+                linked_paths=set(),
+                merge_base="",
+                baseline_run_id="123",
+                release_tag="",
+            ),
             plan_for(baseline=False, release_tag="cuda-core-v1.3.0"),
         ):
             assert selected(plan, "needs_build") == ALL_MODULES

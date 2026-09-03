@@ -56,17 +56,16 @@ Target = tuple[str, str | None]
 
 
 def compute_workplan(
-    paths: list[str],
     *,
+    bindings_config: BindingsConfig,
+    paths: list[str],
+    linked_paths: set[str],
     merge_base: str,
     baseline_run_id: str,
-    linked_paths: set[str] | None = None,
-    release_tag: str = "",
-    bindings_config: BindingsConfig | None = None,
+    release_tag: str,
 ) -> dict[str, object]:
     """Return the final CI decisions for the supplied changed paths."""
-    config = bindings_config or load_config()
-    packages = config.package_roots
+    packages = bindings_config.package_roots
     package_roots = tuple(package.package_root for package in packages)
     cuda_variants = tuple(dict.fromkeys(package.cuda_variant for package in packages))
     packages_by_variant = {
@@ -113,11 +112,10 @@ def compute_workplan(
         },
     }
 
-    linked_paths = linked_paths or set()
     source_changes: set[tuple[str, str | None]] = set()
     test_changes: set[tuple[str, str | None]] = set()
     test_platforms: set[str] = set()
-    release_package = config.match_tag(release_tag) if release_tag else None
+    release_package = bindings_config.match_tag(release_tag) if release_tag else None
     if release_tag.startswith("v") and release_package is None:
         raise BindingsConfigError(f"no configured CUDA bindings package root matches release tag: {release_tag!r}")
     force_all = release_package is None and (bool(release_tag) or not merge_base or not baseline_run_id)
@@ -341,12 +339,12 @@ def main(argv: list[str] | None = None) -> None:
     paths, linked_paths = _changed_paths(args.merge_base) if reusable_baseline else ([], set())
     try:
         plan = compute_workplan(
-            paths,
+            bindings_config=config,
+            paths=paths,
+            linked_paths=linked_paths,
             merge_base=args.merge_base,
             baseline_run_id=args.baseline_run_id,
-            linked_paths=linked_paths,
             release_tag=args.release_tag,
-            bindings_config=config,
         )
     except BindingsConfigError as error:
         parser.error(str(error))
