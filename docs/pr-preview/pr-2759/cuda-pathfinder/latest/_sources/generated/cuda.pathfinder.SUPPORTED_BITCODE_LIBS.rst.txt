@@ -1,0 +1,6 @@
+﻿cuda.pathfinder.SUPPORTED\_BITCODE\_LIBS
+========================================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autodata:: SUPPORTED_BITCODE_LIBS
