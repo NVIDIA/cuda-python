@@ -245,7 +245,14 @@ def main():
 
         # Blur image on GPU using cuda.core (returns zero-copy view + buffers)
         print("Blurring image on GPU...")
-        blurred_result, src_buf, dst_buf = blur_image_unified_memory(host_np, device, stream, kernel)
+        try:
+            blurred_result, src_buf, dst_buf = blur_image_unified_memory(host_np, device, stream, kernel)
+        except Exception as e:
+            if "CUDA_ERROR_NOT_SUPPORTED" in str(e):
+                print(f"ManagedMemoryResource is not supported on this device/platform: {e}")
+                print("Waiving this sample.")
+                sys.exit(EXIT_WAIVED)
+            raise
         try:
             # Save images (use zero-copy view before releasing buffers)
             print("\nSaving results...")
