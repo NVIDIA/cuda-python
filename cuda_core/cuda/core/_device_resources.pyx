@@ -225,7 +225,7 @@ cdef inline unsigned int _to_sm_count(object value) except? 0:
     return <unsigned int>(value)
 
 
-IF CUDA_CORE_BUILD_MAJOR >= 13:
+IF CUDA_CORE_BUILD_MAJOR > 13 or (CUDA_CORE_BUILD_MAJOR == 13 and CUDA_CORE_BUILD_MINOR >= 1):
     from cuda.core._resource_handles cimport sm_resource_split, has_sm_resource_split
 
 cdef int _structured_split_checked = 0
@@ -235,7 +235,7 @@ cdef inline bint _can_use_structured_sm_split():
     global _structured_split_checked
     if _structured_split_checked != 0:
         return _structured_split_checked == 1
-    IF CUDA_CORE_BUILD_MAJOR >= 13:
+    IF CUDA_CORE_BUILD_MAJOR > 13 or (CUDA_CORE_BUILD_MAJOR == 13 and CUDA_CORE_BUILD_MINOR >= 1):
         if (has_sm_resource_split()
                 and cy_driver_version() >= (13, 1, 0)
                 and cy_binding_version() >= (13, 1, 0)):
@@ -273,7 +273,7 @@ cdef object _resolve_split_by_count_request(SMResourceOptions options):
     return n_groups, min_count
 
 
-IF CUDA_CORE_BUILD_MAJOR >= 13:
+IF CUDA_CORE_BUILD_MAJOR > 13 or (CUDA_CORE_BUILD_MAJOR == 13 and CUDA_CORE_BUILD_MINOR >= 1):
     cdef inline int _fill_group_params(
         cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS* params,
         int n_groups,
@@ -354,7 +354,8 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
 ELSE:
     cdef object _split_with_general_api(SMResource sm, SMResourceOptions options, bint dry_run):
         raise RuntimeError(
-            "SMResource.split() requires cuda.core to be built with CUDA 13.x bindings"
+            "SMResource.split() with structured parameters requires cuda.core "
+            "to be built with CUDA 13.1+ bindings"
         )
 
 
@@ -437,7 +438,10 @@ cdef class SMResource:
         IF CUDA_CORE_BUILD_MAJOR >= 13:
             self._min_partition_size = res.sm.minSmPartitionSize
             self._coscheduled_alignment = res.sm.smCoscheduledAlignment
-            self._flags = res.sm.flags
+            IF CUDA_CORE_BUILD_MINOR >= 1 or CUDA_CORE_BUILD_MAJOR > 13:
+                self._flags = res.sm.flags
+            ELSE:
+                self._flags = 0
         ELSE:
             self._min_partition_size = _sm_resource_granularity(device_id)
             self._coscheduled_alignment = self._min_partition_size
@@ -459,7 +463,10 @@ cdef class SMResource:
                 res.sm.smCoscheduledAlignment,
                 parent._coscheduled_alignment,
             )
-            self._flags = res.sm.flags
+            IF CUDA_CORE_BUILD_MINOR >= 1 or CUDA_CORE_BUILD_MAJOR > 13:
+                self._flags = res.sm.flags
+            ELSE:
+                self._flags = parent._flags
         ELSE:
             self._min_partition_size = parent._min_partition_size
             self._coscheduled_alignment = parent._coscheduled_alignment
@@ -565,7 +572,7 @@ cdef class WorkqueueResource:
         :meth:`configure` with
         :attr:`WorkqueueResourceOptions.sharing_scope`.
         """
-        IF CUDA_CORE_BUILD_MAJOR >= 13:
+        IF CUDA_CORE_BUILD_MAJOR > 13 or (CUDA_CORE_BUILD_MAJOR == 13 and CUDA_CORE_BUILD_MINOR >= 1):
             from cuda.core.typing import WorkqueueSharingScopeType
             cdef object scope = self._wq_config_resource.wqConfig.sharingScope
             if scope == cydriver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_DEVICE_CTX:
@@ -575,7 +582,7 @@ cdef class WorkqueueResource:
             raise RuntimeError(f"Unknown sharing scope enum value: {scope}")
         ELSE:
             raise RuntimeError(
-                "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
+                "WorkqueueResource requires cuda.core to be built with CUDA 13.1+ bindings"
             )
 
     @property
@@ -588,22 +595,22 @@ cdef class WorkqueueResource:
         via :meth:`configure` with
         :attr:`WorkqueueResourceOptions.concurrency_limit`.
         """
-        IF CUDA_CORE_BUILD_MAJOR >= 13:
+        IF CUDA_CORE_BUILD_MAJOR > 13 or (CUDA_CORE_BUILD_MAJOR == 13 and CUDA_CORE_BUILD_MINOR >= 1):
             return self._wq_config_resource.wqConfig.wqConcurrencyLimit
         ELSE:
             raise RuntimeError(
-                "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
+                "WorkqueueResource requires cuda.core to be built with CUDA 13.1+ bindings"
             )
 
     @property
     def device(self) -> Device:
         """The :class:`~cuda.core.Device` this workqueue resource is available on."""
-        IF CUDA_CORE_BUILD_MAJOR >= 13:
+        IF CUDA_CORE_BUILD_MAJOR > 13 or (CUDA_CORE_BUILD_MAJOR == 13 and CUDA_CORE_BUILD_MINOR >= 1):
             from cuda.core._device import Device  # avoid circular import
             return Device(int(self._wq_config_resource.wqConfig.device))
         ELSE:
             raise RuntimeError(
-                "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
+                "WorkqueueResource requires cuda.core to be built with CUDA 13.1+ bindings"
             )
 
     def configure(self, options: WorkqueueResourceOptions) -> None:
@@ -622,7 +629,7 @@ cdef class WorkqueueResource:
         if opts.sharing_scope is None and opts.concurrency_limit is None:
             return None
 
-        IF CUDA_CORE_BUILD_MAJOR >= 13:
+        IF CUDA_CORE_BUILD_MAJOR > 13 or (CUDA_CORE_BUILD_MAJOR == 13 and CUDA_CORE_BUILD_MINOR >= 1):
             if opts.concurrency_limit is not None:
                 self._wq_config_resource.wqConfig.wqConcurrencyLimit = (
                     <unsigned int>opts.concurrency_limit
@@ -637,7 +644,7 @@ cdef class WorkqueueResource:
                 )
         ELSE:
             raise RuntimeError(
-                "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
+                "WorkqueueResource requires cuda.core to be built with CUDA 13.1+ bindings"
             )
 
 
@@ -711,7 +718,7 @@ cdef class DeviceResources:
         cdef cydriver.CUdevResource _wq_config
         cdef cydriver.CUdevResource _wq
 
-        IF CUDA_CORE_BUILD_MAJOR >= 13:
+        IF CUDA_CORE_BUILD_MAJOR > 13 or (CUDA_CORE_BUILD_MAJOR == 13 and CUDA_CORE_BUILD_MINOR >= 1):
             cdef GreenCtxHandle h_green
             if self._h_context:
                 h_green = get_context_green_ctx(self._h_context)
@@ -757,5 +764,5 @@ cdef class DeviceResources:
             return WorkqueueResource._from_dev_resources(_wq_config, _wq)
         ELSE:
             raise RuntimeError(
-                "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
+                "WorkqueueResource requires cuda.core to be built with CUDA 13.1+ bindings"
             )
