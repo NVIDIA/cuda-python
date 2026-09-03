@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=148ca036"></script>
+    <script src="../_static/documentation_options.js?v=69a16151"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev130';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev6';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -65,7 +65,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="cuda.core.checkpoint.Process" href="cuda.core.checkpoint.Process.html" />
-    <link rel="prev" title="cuda.core.texture.SurfaceObject" href="cuda.core.texture.SurfaceObject.html" />
+    <link rel="prev" title="cuda.core.texture.TextureObjectOptions" href="cuda.core.texture.TextureObjectOptions.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -661,6 +661,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
@@ -782,9 +785,10 @@
 <dd><p>Warning issued when <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> hits a CUDA error it cannot raise.</p>
 <p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> raises exceptions for failures in ordinary calls. Some failures
 happen where no exception can propagate: while a resource is released by the
-garbage collector or by a CUDA callback, or while a context switch is undone
-after the requested operation already succeeded. Those failures are reported
-as this warning instead, and the affected resource may have leaked.</p>
+garbage collector or by a CUDA callback, including the driver calls that
+switch and restore the CUDA context around such a release. Those failures
+are reported as this warning instead, and the affected resource may have
+leaked.</p>
 <p>Filter on this category to make such failures fatal in tests:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">"error"</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">cuda</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">CUDAWarning</span><span class="p">)</span>
 </pre></div>
@@ -810,12 +814,12 @@ raised into user code; it is delivered through <a class="reference external" hre
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.texture.SurfaceObject.html"
+       href="cuda.core.texture.TextureObjectOptions.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.texture.SurfaceObject</p>
+        <p class="prev-next-title">cuda.core.texture.TextureObjectOptions</p>
       </div>
     </a>
     <a class="right-next"

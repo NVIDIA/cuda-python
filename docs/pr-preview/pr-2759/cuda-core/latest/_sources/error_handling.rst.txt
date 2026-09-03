@@ -35,9 +35,14 @@ When a ``cuda.core`` call raises, the following hold:
   documentation says so where it applies (for example the graph mutation
   methods that add several driver edges).
 
-``cuda.core`` does not swallow driver errors. A failure that would otherwise be
-hidden, for example because it occurred while another exception was already
-propagating, is reported as described in the next section.
+``cuda.core`` does not swallow driver errors. When a second failure occurs
+while an exception is being raised, for example the caller's context cannot be
+restored after a failed call, or the rollback of a partially built graph node
+fails, the second failure is attached to the exception as a note
+(:meth:`BaseException.add_note`), which appears in the traceback and in
+``__notes__``. Python 3.10 has no exception notes; there the information is
+appended to the message when ``cuda.core`` constructs the exception, and
+reported as described in the next section otherwise.
 
 Failures that cannot be raised
 ------------------------------
@@ -45,10 +50,9 @@ Failures that cannot be raised
 Some ``cuda.core`` code runs where no Python exception can propagate:
 
 - resources released by the garbage collector or by the deferred cleanup of
-  CUDA graphs, and the CUDA driver calls those releases make;
-- callbacks invoked by CUDA;
-- cleanup performed after an operation has already failed, such as rolling back
-  a partially built graph node or restoring the caller's CUDA context.
+  CUDA graphs, and the CUDA driver calls those releases make, including the
+  context switch and restoration around such a release;
+- callbacks invoked by CUDA.
 
 A CUDA error in one of these places is reported as a :class:`CUDAWarning`. The
 message names the failed driver call and the CUDA error. The warning means the
@@ -86,8 +90,10 @@ earlier, unrecoverable kernel fault (see `Sticky errors`_). None of these can
 be fixed by retrying, so ``cuda.core`` does not retry.
 
 When restoration fails in an ordinary call, the resource created by the call is
-destroyed and a ``CUDAError`` is raised whose message states that the caller's
-context could not be restored and which context is now current. Call
+destroyed and a ``CUDAError`` is raised for the failed ``cuCtxSetCurrent``,
+with a note stating that the caller's context could not be restored and which
+context is now current. If the call itself failed as well, its own error is
+raised and the restoration failure is the note. Call
 :meth:`Device.set_current` before issuing further CUDA work on that thread.
 
 When restoration fails inside a destructor or callback, a :class:`CUDAWarning`
@@ -124,4 +130,4 @@ Process termination
 ``cuda.core`` does not abort the process in response to a CUDA error, including
 errors that cannot be raised, and including failures to restore the caller's
 context. Aborting is reserved for an internal invariant violation where
-continuing could corrupt memory, and no such code path exists in this release.
+continuing could corrupt memory.

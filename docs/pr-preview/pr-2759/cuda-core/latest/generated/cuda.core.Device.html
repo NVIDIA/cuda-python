@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=148ca036"></script>
+    <script src="../_static/documentation_options.js?v=69a16151"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev130';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev6';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -661,6 +661,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
@@ -931,7 +934,7 @@ device and the specified peer device.</p>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MipmappedArrayOptions</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html#cuda.core.texture.MipmappedArrayOptions" title="cuda.core.texture.MipmappedArrayOptions"><span class="pre">MipmappedArrayOptions</span></a></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.texture.MipmappedArray.html#cuda.core.texture.MipmappedArray" title="cuda.core.texture.MipmappedArray"><span class="pre">MipmappedArray</span></a></span></span><a class="headerlink" href="#cuda.core.Device.create_mipmapped_array" title="Link to this definition">#</a></dt>
@@ -944,7 +947,7 @@ levels.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>options</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">MipmappedArrayOptions</span></code>) – Allocation options (shape, format, channels, levels, surface flag).</p>
+<dd class="field-odd"><p><strong>options</strong> (<a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html#cuda.core.texture.MipmappedArrayOptions" title="cuda.core.texture.MipmappedArrayOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MipmappedArrayOptions</span></code></a>) – Allocation options (shape, format, channels, levels, surface flag).</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
@@ -962,7 +965,7 @@ levels.</p>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">OpaqueArrayOptions</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.texture.OpaqueArrayOptions.html#cuda.core.texture.OpaqueArrayOptions" title="cuda.core.texture.OpaqueArrayOptions"><span class="pre">OpaqueArrayOptions</span></a></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><span class="pre">OpaqueArray</span></a></span></span><a class="headerlink" href="#cuda.core.Device.create_opaque_array" title="Link to this definition">#</a></dt>
@@ -975,7 +978,7 @@ access.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>options</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">OpaqueArrayOptions</span></code>) – Allocation options (shape, format, channels, surface flag).</p>
+<dd class="field-odd"><p><strong>options</strong> (<a class="reference internal" href="cuda.core.texture.OpaqueArrayOptions.html#cuda.core.texture.OpaqueArrayOptions" title="cuda.core.texture.OpaqueArrayOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OpaqueArrayOptions</span></code></a>) – Allocation options (shape, format, channels, surface flag).</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
@@ -1069,7 +1072,7 @@ with <code class="docutils literal notranslate"><span class="pre">is_surface_loa
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">resource</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor" title="cuda.core.texture.ResourceDescriptor"><span class="pre">ResourceDescriptor</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TextureObjectOptions</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html#cuda.core.texture.TextureObjectOptions" title="cuda.core.texture.TextureObjectOptions"><span class="pre">TextureObjectOptions</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><span class="pre">TextureObject</span></a></span></span><a class="headerlink" href="#cuda.core.Device.create_texture_object" title="Link to this definition">#</a></dt>
@@ -1087,7 +1090,7 @@ kernel-side sampled reads. The resource must belong to this device.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>resource</strong> (<a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor" title="cuda.core.texture.ResourceDescriptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResourceDescriptor</span></code></a>) – The memory backing the texture.</p></li>
-<li><p><strong>options</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">TextureObjectOptions</span></code>) – Sampling state (address/filter/read modes, normalization, etc.).</p></li>
+<li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html#cuda.core.texture.TextureObjectOptions" title="cuda.core.texture.TextureObjectOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TextureObjectOptions</span></code></a>) – Sampling state (address/filter/read modes, normalization, etc.).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

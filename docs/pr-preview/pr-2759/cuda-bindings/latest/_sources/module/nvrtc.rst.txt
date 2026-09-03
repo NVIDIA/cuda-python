@@ -3,7 +3,7 @@
 
 .. This code was automatically generated with version 13.3.0. Do not modify it directly.
 
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c324889e2f86a6302cc610b49d290d545483f3fc0fa05d62ee47eb8aed781ae1
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c0aad81d1be715fcef6b97fc6fa560c100a9c66fd9a67306e78653884618047c
 -----
 nvrtc
 -----
@@ -122,6 +122,7 @@ Bundled Headers Installation
 
 NVRTC defines the following types and functions for bundled headers installation and management.
 
+.. autoclass:: cuda.bindings.nvrtc.nvrtcBundledHeadersInfo
 .. autoclass:: cuda.bindings.nvrtc.nvrtcBundledHeadersInfo
 .. autofunction:: cuda.bindings.nvrtc.nvrtcInstallBundledHeaders
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetBundledHeadersInfo

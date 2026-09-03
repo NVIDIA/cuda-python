@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=148ca036"></script>
+    <script src="_static/documentation_options.js?v=69a16151"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev130';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev6';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -661,6 +661,9 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
@@ -798,7 +801,7 @@ including:</p>
 <section id="example-compiling-and-launching-a-cuda-kernel">
 <h2>Example: Compiling and Launching a CUDA kernel<a class="headerlink" href="#example-compiling-and-launching-a-cuda-kernel" title="Link to this heading">#</a></h2>
 <p>To get a taste for <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>, let’s walk through a simple example that compiles and launches a vector addition kernel.
-You can find the complete example in <a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/5e8f7e943271aee4faf39e6bf5cb33a2244be619/cuda_core/examples/vector_add.py">vector_add.py</a>
+You can find the complete example in <a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/7a632bb709b8e166dc25a6b902d501045e821b0b/cuda_core/examples/vector_add.py">vector_add.py</a>
 and browse the <a class="reference internal" href="examples.html"><span class="doc">examples page</span></a> for the rest of the shipped
 workflows.</p>
 <p>First, we define a string containing the CUDA C++ kernel. Note that this is a templated kernel:</p>
@@ -839,7 +842,7 @@ Note the use of the <code class="docutils literal notranslate"><span class="pre"
 <p>Next, we retrieve the compiled kernel from the CUBIN and prepare the arguments and kernel configuration.
 We’re using <a class="reference external" href="https://cupy.dev/">CuPy</a> arrays as inputs for this example, but
 you can use PyTorch tensors too (see
-<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/5e8f7e943271aee4faf39e6bf5cb33a2244be619/cuda_core/examples/pytorch_example.py">pytorch_example.py</a>
+<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/7a632bb709b8e166dc25a6b902d501045e821b0b/cuda_core/examples/pytorch_example.py">pytorch_example.py</a>
 and the <a class="reference internal" href="examples.html"><span class="doc">examples page</span></a>).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ker</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">get_kernel</span><span class="p">(</span><span class="s2">"vector_add&lt;float&gt;"</span><span class="p">)</span>
 

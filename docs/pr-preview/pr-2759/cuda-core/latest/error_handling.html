@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=148ca036"></script>
+    <script src="_static/documentation_options.js?v=69a16151"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev130';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev6';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -661,6 +661,9 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
@@ -799,19 +802,23 @@ consistent, but some operations do not have an all-or-nothing outcome. Their
 documentation says so where it applies (for example the graph mutation
 methods that add several driver edges).</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> does not swallow driver errors. A failure that would otherwise be
-hidden, for example because it occurred while another exception was already
-propagating, is reported as described in the next section.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> does not swallow driver errors. When a second failure occurs
+while an exception is being raised, for example the caller’s context cannot be
+restored after a failed call, or the rollback of a partially built graph node
+fails, the second failure is attached to the exception as a note
+(<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#BaseException.add_note" title="(in Python v3.14)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseException.add_note()</span></code></a>), which appears in the traceback and in
+<code class="docutils literal notranslate"><span class="pre">__notes__</span></code>. Python 3.10 has no exception notes; there the information is
+appended to the message when <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> constructs the exception, and
+reported as described in the next section otherwise.</p>
 </section>
 <section id="failures-that-cannot-be-raised">
 <h2>Failures that cannot be raised<a class="headerlink" href="#failures-that-cannot-be-raised" title="Link to this heading">#</a></h2>
 <p>Some <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> code runs where no Python exception can propagate:</p>
 <ul class="simple">
 <li><p>resources released by the garbage collector or by the deferred cleanup of
-CUDA graphs, and the CUDA driver calls those releases make;</p></li>
-<li><p>callbacks invoked by CUDA;</p></li>
-<li><p>cleanup performed after an operation has already failed, such as rolling back
-a partially built graph node or restoring the caller’s CUDA context.</p></li>
+CUDA graphs, and the CUDA driver calls those releases make, including the
+context switch and restoration around such a release;</p></li>
+<li><p>callbacks invoked by CUDA.</p></li>
 </ul>
 <p>A CUDA error in one of these places is reported as a <a class="reference internal" href="generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a>. The
 message names the failed driver call and the CUDA error. The warning means the
@@ -845,8 +852,10 @@ meantime (<code class="docutils literal notranslate"><span class="pre">CUDA_ERRO
 earlier, unrecoverable kernel fault (see <a class="reference internal" href="#sticky-errors">Sticky errors</a>). None of these can
 be fixed by retrying, so <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> does not retry.</p>
 <p>When restoration fails in an ordinary call, the resource created by the call is
-destroyed and a <code class="docutils literal notranslate"><span class="pre">CUDAError</span></code> is raised whose message states that the caller’s
-context could not be restored and which context is now current. Call
+destroyed and a <code class="docutils literal notranslate"><span class="pre">CUDAError</span></code> is raised for the failed <code class="docutils literal notranslate"><span class="pre">cuCtxSetCurrent</span></code>,
+with a note stating that the caller’s context could not be restored and which
+context is now current. If the call itself failed as well, its own error is
+raised and the restoration failure is the note. Call
 <a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.set_current()</span></code></a> before issuing further CUDA work on that thread.</p>
 <p>When restoration fails inside a destructor or callback, a <a class="reference internal" href="generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a>
 is issued and the thread keeps the context that the cleanup used.</p>
@@ -878,7 +887,7 @@ release matters.</p>
 <p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> does not abort the process in response to a CUDA error, including
 errors that cannot be raised, and including failures to restore the caller’s
 context. Aborting is reserved for an internal invariant violation where
-continuing could corrupt memory, and no such code path exists in this release.</p>
+continuing could corrupt memory.</p>
 </section>
 </section>
 

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=148ca036"></script>
+    <script src="../_static/documentation_options.js?v=69a16151"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev130';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev6';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -660,6 +660,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
@@ -805,10 +808,12 @@ shutting down) is not reported. Test code that matched the old <code class="docu
 text uses <code class="docutils literal notranslate"><span class="pre">pytest.warns(CUDAWarning)</span></code> instead.</p></li>
 <li><p>When a <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> method has to run in the device’s context and the
 caller’s context cannot be restored afterwards, the created resource is
-destroyed and the raised <code class="docutils literal notranslate"><span class="pre">CUDAError</span></code> now states that the caller’s context
-could not be restored and which context is current. Previously the error
-named only the driver status of the failed <code class="docutils literal notranslate"><span class="pre">cuCtxSetCurrent</span></code> call. A
-restoration failure during resource cleanup is reported as
+destroyed and the raised <code class="docutils literal notranslate"><span class="pre">CUDAError</span></code> now carries a note (Python 3.11+;
+appended to the message on 3.10) stating that the caller’s context could not
+be restored and which context is current. Previously the error named only
+the driver status of the failed <code class="docutils literal notranslate"><span class="pre">cuCtxSetCurrent</span></code> call. If the call itself
+failed as well, its error is raised and the restoration failure is the note.
+A restoration failure during resource cleanup is reported as
 <a class="reference internal" href="../generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a>.</p></li>
 <li><p>Updating a memcpy or memset graph node whose context differs from the current
 one no longer risks a dangling node parameter when the caller’s context
@@ -818,10 +823,11 @@ parameters are now retained before the restoration failure is raised.</p></li>
 contexts with a single driver call, so a failure leaves the previous context
 current instead of leaving the thread with no context. It also works when no
 context is current, returning <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
-<li><p>Failed rollbacks of a partially embedded child graph node and failed
-<code class="docutils literal notranslate"><span class="pre">cuStreamEndCapture</span></code> calls made when a still-building
-<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> is garbage collected are now reported as
-<a class="reference internal" href="../generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a>; both were silent.</p></li>
+<li><p>A failed rollback of a partially embedded child graph node is now attached
+as a note to the exception that triggered the rollback (reported as
+<a class="reference internal" href="../generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a> on Python 3.10), and a failed <code class="docutils literal notranslate"><span class="pre">cuStreamEndCapture</span></code>
+made when a still-building <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> is garbage collected
+is now reported as <a class="reference internal" href="../generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a>; both were silent.</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.Stream.html#cuda.core.Stream.device" title="cuda.core.Stream.device"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Stream.device</span></code></a> and related queries on a stream whose context is not
 current now restore the caller’s context even when the device query fails.</p></li>
 </ul>

@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=148ca036"></script>
+    <script src="_static/documentation_options.js?v=69a16151"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev130';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev6';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -661,6 +661,9 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
@@ -894,7 +897,7 @@ Use <a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.cor
 closing the buffer. Changing the recorded stream does not synchronize streams;
 the caller must order allocation and every access before the deallocation,
 using events or other CUDA synchronization mechanisms as needed. See
-<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/5e8f7e943271aee4faf39e6bf5cb33a2244be619/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
+<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/7a632bb709b8e166dc25a6b902d501045e821b0b/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
 for a complete example.</p>
 </section>
 <section id="cuda-compilation-toolchain">
@@ -1160,9 +1163,24 @@ DLPack zero-copy interop. Data is moved in and out only by copying — use
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.texture.SurfaceObject.html#cuda.core.texture.SurfaceObject" title="cuda.core.texture.SurfaceObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SurfaceObject</span></code></a>(*args, **kwargs)</p></td>
 <td><p>A bindless surface handle for kernel-side typed load/store.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.texture.OpaqueArrayOptions.html#cuda.core.texture.OpaqueArrayOptions" title="cuda.core.texture.OpaqueArrayOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OpaqueArrayOptions</span></code></a>(shape, format, num_channels)</p></td>
+<td><p>Options for <a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device.create_opaque_array" title="cuda.core.Device.create_opaque_array"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cuda.core.Device.create_opaque_array()</span></code></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.texture.MipmappedArrayOptions.html#cuda.core.texture.MipmappedArrayOptions" title="cuda.core.texture.MipmappedArrayOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MipmappedArrayOptions</span></code></a>(shape, format, ...[, ...])</p></td>
+<td><p>Options for <a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device.create_mipmapped_array" title="cuda.core.Device.create_mipmapped_array"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cuda.core.Device.create_mipmapped_array()</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.texture.TextureObjectOptions.html#cuda.core.texture.TextureObjectOptions" title="cuda.core.texture.TextureObjectOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TextureObjectOptions</span></code></a>([address_mode, ...])</p></td>
+<td><p>Sampling state for a <a class="reference internal" href="generated/cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextureObject</span></code></a> (mirrors <code class="docutils literal notranslate"><span class="pre">CUDA_TEXTURE_DESC</span></code>).</p></td>
+</tr>
 </tbody>
 </table>
 </div>
+<p>The associated enumerations —
+<a class="reference internal" href="generated/cuda.core.typing.ArrayFormatType.html#cuda.core.typing.ArrayFormatType" title="cuda.core.typing.ArrayFormatType"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArrayFormatType</span></code></a>,
+<a class="reference internal" href="generated/cuda.core.typing.AddressModeType.html#cuda.core.typing.AddressModeType" title="cuda.core.typing.AddressModeType"><code class="xref py py-class docutils literal notranslate"><span class="pre">AddressModeType</span></code></a>,
+<a class="reference internal" href="generated/cuda.core.typing.FilterModeType.html#cuda.core.typing.FilterModeType" title="cuda.core.typing.FilterModeType"><code class="xref py py-class docutils literal notranslate"><span class="pre">FilterModeType</span></code></a>, and
+<a class="reference internal" href="generated/cuda.core.typing.ReadModeType.html#cuda.core.typing.ReadModeType" title="cuda.core.typing.ReadModeType"><code class="xref py py-class docutils literal notranslate"><span class="pre">ReadModeType</span></code></a> — live in <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.typing</span></code>
+alongside the other <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> enumerations.</p>
 </section>
 <section id="errors-and-warnings">
 <h2>Errors and warnings<a class="headerlink" href="#errors-and-warnings" title="Link to this heading">#</a></h2>
@@ -1177,12 +1195,6 @@ reported as a warning instead.</p>
 </tbody>
 </table>
 </div>
-<p>The associated enumerations —
-<a class="reference internal" href="generated/cuda.core.typing.ArrayFormatType.html#cuda.core.typing.ArrayFormatType" title="cuda.core.typing.ArrayFormatType"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArrayFormatType</span></code></a>,
-<a class="reference internal" href="generated/cuda.core.typing.AddressModeType.html#cuda.core.typing.AddressModeType" title="cuda.core.typing.AddressModeType"><code class="xref py py-class docutils literal notranslate"><span class="pre">AddressModeType</span></code></a>,
-<a class="reference internal" href="generated/cuda.core.typing.FilterModeType.html#cuda.core.typing.FilterModeType" title="cuda.core.typing.FilterModeType"><code class="xref py py-class docutils literal notranslate"><span class="pre">FilterModeType</span></code></a>, and
-<a class="reference internal" href="generated/cuda.core.typing.ReadModeType.html#cuda.core.typing.ReadModeType" title="cuda.core.typing.ReadModeType"><code class="xref py py-class docutils literal notranslate"><span class="pre">ReadModeType</span></code></a> — live in <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.typing</span></code>
-alongside the other <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> enumerations.</p>
 </section>
 <section id="cuda-process-checkpointing">
 <h2>CUDA process checkpointing<a class="headerlink" href="#cuda-process-checkpointing" title="Link to this heading">#</a></h2>
