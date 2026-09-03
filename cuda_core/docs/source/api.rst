@@ -298,6 +298,19 @@ DLPack zero-copy interop. Data is moved in and out only by copying — use
    TextureObject
    SurfaceObject
 
+   :template: dataclass.rst
+
+   OpaqueArrayOptions
+   MipmappedArrayOptions
+   TextureObjectOptions
+
+The associated enumerations —
+:class:`~cuda.core.typing.ArrayFormatType`,
+:class:`~cuda.core.typing.AddressModeType`,
+:class:`~cuda.core.typing.FilterModeType`, and
+:class:`~cuda.core.typing.ReadModeType` — live in :mod:`cuda.core.typing`
+alongside the other ``cuda.core`` enumerations.
+
 
 Errors and warnings
 -------------------
@@ -312,19 +325,6 @@ reported as a warning instead.
    :toctree: generated/
 
    CUDAWarning
-
-   :template: dataclass.rst
-
-   OpaqueArrayOptions
-   MipmappedArrayOptions
-   TextureObjectOptions
-
-The associated enumerations —
-:class:`~cuda.core.typing.ArrayFormatType`,
-:class:`~cuda.core.typing.AddressModeType`,
-:class:`~cuda.core.typing.FilterModeType`, and
-:class:`~cuda.core.typing.ReadModeType` — live in :mod:`cuda.core.typing`
-alongside the other ``cuda.core`` enumerations.
 
 
 CUDA process checkpointing
