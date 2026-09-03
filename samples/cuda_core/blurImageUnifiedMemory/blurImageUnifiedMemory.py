@@ -243,16 +243,20 @@ def main():
         print("Creating sample image...")
         host_np = make_test_image(H, W, dtype=np.uint8)
 
+        # Managed memory pools require concurrent managed access on all devices.
+        # Per CUDA docs: cuMemPoolCreate returns CUDA_ERROR_NOT_SUPPORTED when
+        # concurrentManagedAccess is 0.
+        if not device.properties.concurrent_managed_access:
+            print(
+                "This platform does not support concurrent managed memory access "
+                f"(device.properties.concurrent_managed_access=False on {device.name}). "
+                "Waiving this sample."
+            )
+            sys.exit(EXIT_WAIVED)
+
         # Blur image on GPU using cuda.core (returns zero-copy view + buffers)
         print("Blurring image on GPU...")
-        try:
-            blurred_result, src_buf, dst_buf = blur_image_unified_memory(host_np, device, stream, kernel)
-        except Exception as e:
-            if "CUDA_ERROR_NOT_SUPPORTED" in str(e):
-                print(f"ManagedMemoryResource is not supported on this device/platform: {e}")
-                print("Waiving this sample.")
-                sys.exit(EXIT_WAIVED)
-            raise
+        blurred_result, src_buf, dst_buf = blur_image_unified_memory(host_np, device, stream, kernel)
         try:
             # Save images (use zero-copy view before releasing buffers)
             print("\nSaving results...")
