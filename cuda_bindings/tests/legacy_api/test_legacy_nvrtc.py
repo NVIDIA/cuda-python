@@ -35,3 +35,21 @@ def test_nvrtcGetLoweredName_failure():
     err, name = nvrtc.nvrtcGetLoweredName(0, b"I'm another elevated name!")
     assert err == nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM
     assert name is None
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5")
+@pytest.mark.skipif(nvrtcVersionLessThan(13, 3), reason="When nvrtcGetBundledHeadersInfo was introduced")
+def test_nvrtcGetBundledHeadersInfo():
+    info = nvrtc.nvrtcBundledHeadersInfo()
+    assert isinstance(info, nvrtc.nvrtcBundledHeadersInfo)
+
+    err, info, errorLog = nvrtc.nvrtcGetBundledHeadersInfo()
+    ASSERT_DRV(err)
+    assert isinstance(info, nvrtc.nvrtcBundledHeadersInfo)
+    assert info.available in (0, 1)
+    assert info.compressedSize >= 0
+    assert info.uncompressedSize >= 0
+    assert info.cudaVersionMajor >= 0
+    assert info.cudaVersionMinor >= 0
+    assert info.numFiles >= 0
+    assert errorLog is None
