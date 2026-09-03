@@ -40,6 +40,7 @@ Demonstrates how to analyze signal frequencies using Fast Fourier Transform (FFT
 Uses cuda.core APIs for device management and timing.
 """
 
+import os
 import sys
 import time
 from pathlib import Path
@@ -56,6 +57,16 @@ except ImportError as e:
     print(f"Error: Required package not found: {e}")
     print("Install with: pip install -r requirements.txt")
     sys.exit(1)
+
+# Probe cuFFT availability before running the sample.  CuPy's FFT backend
+# requires libcufft, which is not bundled in the cuda-13x wheels.  Exit with
+# the runner waiver code so the test is reported as SKIPPED rather than FAILED.
+try:
+    import cupy.cuda.cufft  # noqa: F401
+except ImportError as _e:
+    _waiver_code = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "77"))
+    print(f"cuFFT library not available ({_e}); skipping sample.")
+    sys.exit(_waiver_code)
 
 
 def generate_composite_signal(
