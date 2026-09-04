@@ -1,0 +1,38 @@
+﻿cuda.bindings.nvml.EccSramUniqueUncorrectedErrorEntry\_v1
+=========================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: EccSramUniqueUncorrectedErrorEntry_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EccSramUniqueUncorrectedErrorEntry_v1.__init__
+      ~EccSramUniqueUncorrectedErrorEntry_v1.from_buffer
+      ~EccSramUniqueUncorrectedErrorEntry_v1.from_data
+      ~EccSramUniqueUncorrectedErrorEntry_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~EccSramUniqueUncorrectedErrorEntry_v1.address
+      ~EccSramUniqueUncorrectedErrorEntry_v1.count
+      ~EccSramUniqueUncorrectedErrorEntry_v1.extlocation
+      ~EccSramUniqueUncorrectedErrorEntry_v1.is_parity
+      ~EccSramUniqueUncorrectedErrorEntry_v1.location
+      ~EccSramUniqueUncorrectedErrorEntry_v1.ptr
+      ~EccSramUniqueUncorrectedErrorEntry_v1.sublocation
+      ~EccSramUniqueUncorrectedErrorEntry_v1.unit
+   
+   
