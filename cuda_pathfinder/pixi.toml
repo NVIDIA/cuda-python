@@ -32,9 +32,8 @@ pyclibrary = "*"
 pydata-sphinx-theme = "*"
 pytest = "*"
 scipy = "*"
-sphinx = "<8.2.0"
+sphinx = ">=9,<10"
 sphinx-copybutton = "*"
-sphinx-toolbox = "*"
 
 [feature.cu12.system-requirements]
 cuda = "12"
@@ -56,6 +55,7 @@ docs = { features = ["docs"], solve-group = "docs" }
 
 [feature.docs.pypi-dependencies]
 nvidia-sphinx-theme = "*"
+sphinx-toolbox = ">=4.2.0"
 
 # TODO: check if these can be extracted from pyproject.toml
 [package]
