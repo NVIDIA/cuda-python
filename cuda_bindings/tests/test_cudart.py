@@ -1285,12 +1285,12 @@ def test_cudart_eglFrame():
     assert int(frame.frame.pArray[0]) == 0
     assert int(frame.frame.pArray[1]) == 0
     assert int(frame.frame.pArray[2]) == 0
-    frame.frame.pArray = [1, 2, 3]
+    frame.frame.pArray = [cudart.cudaArray_t(x) for x in (1, 2, 3)]
     # [<cudaArray_t 0x1>, <cudaArray_t 0x2>, <cudaArray_t 0x3>]
     assert int(frame.frame.pArray[0]) == 1
     assert int(frame.frame.pArray[1]) == 2
     assert int(frame.frame.pArray[2]) == 3
-    frame.frame.pArray = [1, 2, cudart.cudaArray_t(4)]
+    frame.frame.pArray = [cudart.cudaArray_t(x) for x in (1, 2, 4)]
     # [<cudaArray_t 0x1>, <cudaArray_t 0x2>, <cudaArray_t 0x4>]
     assert int(frame.frame.pArray[0]) == 1
     assert int(frame.frame.pArray[1]) == 2
