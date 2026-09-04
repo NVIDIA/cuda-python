@@ -362,6 +362,11 @@ def main():
 
     device = Device(args.device)
     device.set_current()
+
+    if not device.properties.concurrent_managed_access:
+        print("concurrent_managed_access=False on this device; waiving this sample.")
+        sys.exit(EXIT_WAIVED)
+
     print_gpu_info(device)
 
     stream = device.create_stream()

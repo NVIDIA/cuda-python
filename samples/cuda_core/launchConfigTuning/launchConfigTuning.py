@@ -362,6 +362,10 @@ def main():
     device = Device(0)
     device.set_current()
 
+    if not device.properties.concurrent_managed_access:
+        print("concurrent_managed_access=False on this device; waiving this sample.")
+        sys.exit(EXIT_WAIVED)
+
     # Print GPU information
     print_gpu_info(device)
 
