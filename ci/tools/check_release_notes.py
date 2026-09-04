@@ -24,28 +24,34 @@ from packaging.version import Version
 
 from . import bindings_config
 
-COMPONENT_TO_PACKAGE: dict[str, str] = {
-    "cuda-core": "cuda_core",
-    "cuda-bindings": "cuda_bindings",
-    "cuda-pathfinder": "cuda_pathfinder",
-    "cuda-python": "cuda_python",
-}
-
-COMPONENT_TO_TAG_PREFIX: dict[str, str] = {
-    "cuda-bindings": "v",
-    "cuda-python": "v",
-    "cuda-core": "cuda-core-v",
-    "cuda-pathfinder": "cuda-pathfinder-v",
+COMPONENTS: dict[str, tuple[str, str]] = {
+    "cuda-core": ("cuda_core", "cuda-core-v"),
+    "cuda-bindings": ("cuda_bindings", "v"),
+    "cuda-pathfinder": ("cuda_pathfinder", "cuda-pathfinder-v"),
+    "cuda-python": ("cuda_python", "v"),
 }
 
 
-def _resolved_bindings_target(data: Mapping[str, object]) -> tuple[str, Version]:
+def _resolved_bindings_target(data: Mapping[str, object], git_tag: str) -> tuple[str, Version]:
     """Read the release resolver fields consumed by this script."""
     package_root = bindings_config.parse_package_root(data.get("package_root"), "resolved package_root")
     raw_version = data.get("release_version")
     if not isinstance(raw_version, str):
         raise bindings_config.BindingsConfigError("resolved CUDA bindings package has no release_version")
     version = bindings_config.parse_pep440_version(raw_version, "resolved release_version")
+    origin = data.get("release_registry_origin")
+    if origin not in {"tag", "control"}:
+        raise bindings_config.BindingsConfigError("resolved CUDA bindings package has invalid release_registry_origin")
+    tag_version = bindings_config.parse_prefixed_version(git_tag, "v")
+    matches_tag = (
+        tag_version == version
+        if origin == "tag"
+        else tag_version is not None and tag_version.release == version.release
+    )
+    if not matches_tag:
+        raise bindings_config.BindingsConfigError(
+            f"resolved CUDA bindings package does not match release tag {git_tag!r}"
+        )
     return package_root, version
 
 
@@ -55,9 +61,10 @@ def _release_target_from_tag(
     bindings_package: Mapping[str, object] | None = None,
 ) -> tuple[str, str] | None:
     """Return the release version and source tree selected by a component tag."""
-    prefix = COMPONENT_TO_TAG_PREFIX.get(component)
-    if prefix is None:
+    metadata = COMPONENTS.get(component)
+    if metadata is None:
         return None
+    package_dir, prefix = metadata
     if component == "cuda-bindings":
         if bindings_package is None:
             package = bindings_config.load_config().match_tag(git_tag)
@@ -66,12 +73,12 @@ def _release_target_from_tag(
             package_root = package.package_root
             version = package.version_from_tag(git_tag)
         else:
-            package_root, version = _resolved_bindings_target(bindings_package)
+            package_root, version = _resolved_bindings_target(bindings_package, git_tag)
     else:
         version = bindings_config.parse_prefixed_version(git_tag, prefix)
     if version is None:
         return None
-    return str(version), package_root if component == "cuda-bindings" else COMPONENT_TO_PACKAGE[component]
+    return str(version), package_root if component == "cuda-bindings" else package_dir
 
 
 def parse_version_from_tag(
@@ -124,7 +131,7 @@ def check_release_notes(
     Returns an empty list when notes are present and non-empty, or when the
     tag is a .post release (no new notes required).
     """
-    if component not in COMPONENT_TO_PACKAGE:
+    if component not in COMPONENTS:
         return [("<component>", f"unknown component '{component}'")]
 
     target = _release_target_from_tag(git_tag, component, bindings_package)
@@ -137,7 +144,7 @@ def check_release_notes(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--git-tag", required=True)
-    parser.add_argument("--component", required=True, choices=list(COMPONENT_TO_PACKAGE))
+    parser.add_argument("--component", required=True, choices=list(COMPONENTS))
     parser.add_argument("--repo-root", default=Path("."), type=Path)
     parser.add_argument(
         "--bindings-package",

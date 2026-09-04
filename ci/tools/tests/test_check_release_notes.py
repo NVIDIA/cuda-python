@@ -90,6 +90,16 @@ def test_resolved_legacy_package_uses_legacy_package_root(tmp_path):
     assert problems == []
 
 
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_resolved_legacy_prerelease_uses_the_scm_release_version(tmp_path):
+    package = resolved_12_package()
+    package["toolkit_version"] = "13.1.0"
+    package["release_version"] = "13.2.0"
+    write_notes(tmp_path, "cuda_bindings", "13.2.0")
+
+    assert check_release_notes("v13.2.0rc1", "cuda-bindings", tmp_path, package) == []
+
+
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_present_missing_and_empty_notes(tmp_path):
     write_notes(tmp_path, "cuda_core", "1.1.1")

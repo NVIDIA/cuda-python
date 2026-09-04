@@ -55,6 +55,18 @@ def test_tag_authoritative_package_validates_after_control_registry_moves_on(tmp
     assert with_resolved_package.returncode == 0, with_resolved_package.stderr
 
 
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_resolved_package_must_match_the_release_tag(tmp_path):
+    (tmp_path / "cuda_bindings-12.8.0-cp312-cp312-manylinux.whl").touch()
+    package = json.loads(resolved_package())
+    package["release_version"] = "12.9.0"
+
+    result = run_validator(tmp_path, "--bindings-package", json.dumps(package))
+
+    assert result.returncode == 1
+    assert "does not match release tag" in result.stderr
+
+
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_unexpected_distribution_is_rejected(tmp_path):
     (tmp_path / "cuda_bindings-12.8.0-cp312-cp312-manylinux.whl").touch()

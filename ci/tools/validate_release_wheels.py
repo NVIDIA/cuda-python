@@ -14,23 +14,7 @@ import sys
 from pathlib import Path
 from typing import Mapping
 
-from .check_release_notes import parse_version_from_tag
-
-COMPONENT_TO_DISTRIBUTIONS: dict[str, set[str]] = {
-    "cuda-core": {"cuda_core"},
-    "cuda-bindings": {"cuda_bindings"},
-    "cuda-pathfinder": {"cuda_pathfinder"},
-    "cuda-python": {"cuda_python"},
-    "all": {"cuda_core", "cuda_bindings", "cuda_pathfinder", "cuda_python"},
-}
-
-COMPONENT_TO_TAG_COMPONENTS: dict[str, tuple[str, ...]] = {
-    "cuda-core": ("cuda-core",),
-    "cuda-bindings": ("cuda-bindings",),
-    "cuda-pathfinder": ("cuda-pathfinder",),
-    "cuda-python": ("cuda-python",),
-    "all": ("cuda-core", "cuda-bindings", "cuda-pathfinder", "cuda-python"),
-}
+from .check_release_notes import COMPONENTS, parse_version_from_tag
 
 
 def parse_args() -> argparse.Namespace:
@@ -41,7 +25,7 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument("git_tag", help="Release git tag (for example: v13.0.0)")
-    parser.add_argument("component", choices=sorted(COMPONENT_TO_DISTRIBUTIONS.keys()))
+    parser.add_argument("component", choices=[*sorted(COMPONENTS), "all"])
     parser.add_argument("wheel_dir", help="Directory containing wheel files")
     parser.add_argument(
         "--bindings-package",
@@ -58,7 +42,7 @@ def version_from_tag(
 ) -> str:
     versions = {
         version
-        for tag_component in COMPONENT_TO_TAG_COMPONENTS[component]
+        for tag_component in (COMPONENTS if component == "all" else (component,))
         if (
             version := parse_version_from_tag(
                 tag,
@@ -96,7 +80,9 @@ def main() -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
 
-    expected_distributions = COMPONENT_TO_DISTRIBUTIONS[args.component]
+    expected_distributions = (
+        {package for package, _ in COMPONENTS.values()} if args.component == "all" else {COMPONENTS[args.component][0]}
+    )
     wheel_dir = Path(args.wheel_dir)
 
     wheels = sorted(wheel_dir.glob("*.whl"))
