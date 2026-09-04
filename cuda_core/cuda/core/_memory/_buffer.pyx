@@ -404,16 +404,24 @@ cdef class Buffer:
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
     @property
-    @cython.critical_section
     def ipc_descriptor(self) -> IPCBufferDescriptor:
         """Descriptor for sharing this buffer with other processes."""
         Buffer_check_open(self)
         cdef object ipc_data
-        if self._ipc_data is None:
+        # The critical section only protects the cdef-level check-and-set of
+        # self._ipc_data; the Python-level IPCDataForBuffer construction and
+        # .ipc_descriptor read happen outside the lock (Cython 3.3 warns that
+        # Python attribute access is not usefully protected by critical_section).
+        with cython.critical_section(self):
+            ipc_data = self._ipc_data
+        if ipc_data is None:
             ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
-            if self._ipc_data is None:
-                self._ipc_data = ipc_data
-        return self._ipc_data.ipc_descriptor
+            with cython.critical_section(self):
+                if self._ipc_data is None:
+                    self._ipc_data = ipc_data
+                else:
+                    ipc_data = self._ipc_data
+        return ipc_data.ipc_descriptor
 
     def close(self, stream: Stream | GraphBuilder | None = None) -> None:
         """Deallocate this buffer asynchronously on the given stream.

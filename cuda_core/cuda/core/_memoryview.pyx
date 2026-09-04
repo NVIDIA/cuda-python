@@ -560,7 +560,6 @@ cdef class StridedMemoryView:
                 self._layout = layout
         return self._layout
 
-    @cython.critical_section
     cdef inline object get_buffer(self):
         """
         Returns Buffer instance with the underlying data.
@@ -568,20 +567,29 @@ cdef class StridedMemoryView:
         Otherwise, it will create a new instance with owner set to the exporting object.
         """
         cdef object buffer
-        if self._buffer is None:
+        with cython.critical_section(self):
+            buffer = self._buffer
+        if buffer is None:
             if isinstance(self.exporting_obj, Buffer):
                 buffer = self.exporting_obj
             else:
                 buffer = Buffer.from_handle(self.ptr, 0, owner=self.exporting_obj)
-            if self._buffer is None:
-                self._buffer = buffer
-        return self._buffer
+            # The critical section only protects the cdef-level check-and-set
+            # of self._buffer; the Python-level Buffer construction above
+            # happens outside the lock (Cython 3.3 warns that Python attribute
+            # access is not usefully protected by critical_section).
+            with cython.critical_section(self):
+                if self._buffer is None:
+                    self._buffer = buffer
+                else:
+                    buffer = self._buffer
+        return buffer
 
-    @cython.critical_section
     cdef inline object get_dtype(self):
         cdef object dtype
-        if self._dtype is None:
-            dtype = None
+        with cython.critical_section(self):
+            dtype = self._dtype
+        if dtype is None:
             if self.dl_tensor != NULL:
                 dtype = dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
             elif isinstance(self.metadata, int):
@@ -590,9 +598,16 @@ cdef class StridedMemoryView:
                     self.metadata)
             elif self.metadata is not None:
                 dtype = _typestr2dtype(self.metadata["typestr"])
-            if self._dtype is None:
-                self._dtype = dtype
-        return self._dtype
+            # The critical section only protects the cdef-level check-and-set
+            # of self._dtype; the Python-level dtype resolution above happens
+            # outside the lock (Cython 3.3 warns that Python attribute access
+            # is not usefully protected by critical_section).
+            with cython.critical_section(self):
+                if self._dtype is None:
+                    self._dtype = dtype
+                else:
+                    dtype = self._dtype
+        return dtype
 
 
 cdef void _smv_pycapsule_deleter(object capsule) noexcept:
