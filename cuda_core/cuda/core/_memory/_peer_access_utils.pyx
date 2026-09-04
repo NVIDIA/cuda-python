@@ -6,7 +6,9 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Iterator, MutableSet, Set
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeVar
+
+_S = TypeVar("_S")
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._device_memory_resource cimport DeviceMemoryResource
@@ -235,7 +237,7 @@ class PeerAccessibleBySetProxy(MutableSet["Device"]):
         self._mr = mr
 
     @classmethod
-    def _from_iterable(cls, it: Iterable[Device]) -> set[Device]:  # type: ignore[override]
+    def _from_iterable(cls, it: Iterable[_S]) -> set[_S]:
         # Binary set operators (&, |, -, ^) collect their result through
         # _from_iterable. Returning a plain set lets the user reason about
         # the result independently of any pool's driver state.
@@ -354,7 +356,7 @@ class PeerAccessibleBySetProxy(MutableSet["Device"]):
         if to_add or to_remove:
             self._apply(to_add, to_remove)
 
-    def __ior__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:
+    def __ior__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:  # type: ignore[misc]
         self.update(other)
         return self
 
@@ -369,7 +371,7 @@ class PeerAccessibleBySetProxy(MutableSet["Device"]):
             self.difference_update(other)
         return self
 
-    def __ixor__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:
+    def __ixor__(self, other: Set[Any]) -> PeerAccessibleBySetProxy:  # type: ignore[misc]
         self.symmetric_difference_update(other)
         return self
 
