@@ -39,7 +39,7 @@ echo "Creating environment '${ENV_NAME}'…"
 #            cuda_python/docs/environment-docs.yml. Please KEEP THEM IN SYNC!
 conda create -y -n "${ENV_NAME}" \
     "python=${PYVER}" \
-    "cython>=3.2.5,<3.3" \
+    "cython>=3.3,<3.4" \
     myst-parser \
     numpy \
     numpydoc \
