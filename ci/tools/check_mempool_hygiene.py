@@ -53,11 +53,50 @@ def _dict_is_capped(node: ast.Dict) -> bool:
     return False
 
 
-def _opted_out(lines: list[str], node: ast.AST) -> bool:
-    """True if the call, or the line above it, carries the opt-out marker."""
-    start = max(node.lineno - 2, 0)  # -1 for 0-based, -1 more for a preceding comment
+def _iter_calls(tree: ast.AST):
+    """Yield ``(call, statements)`` for every call in ``tree``.
+
+    ``statements`` is the chain of ``ast.stmt`` ancestors, outermost first, so
+    ``statements[-1]`` is the statement the call belongs to. The chain is what
+    bounds an opt-out marker: a marker annotates the statement it sits in (or a
+    statement containing it), not whatever the next line happens to construct.
+    """
+    stack: list[tuple[ast.AST, tuple[ast.stmt, ...]]] = [(tree, ())]
+    while stack:
+        node, stmts = stack.pop()
+        if isinstance(node, ast.stmt):
+            stmts = (*stmts, node)
+        if isinstance(node, ast.Call):
+            yield node, stmts
+        stack.extend((child, stmts) for child in ast.iter_child_nodes(node))
+
+
+def _opted_out(lines: list[str], node: ast.Call, stmts: tuple[ast.stmt, ...]) -> bool:
+    """True if an opt-out marker annotates ``node``.
+
+    A marker counts when it is on a line belonging to the call's own statement
+    (including continuation lines of a multi-line construction), on the header
+    line of a compound statement containing the call, or on a dedicated comment
+    line immediately above the call's statement.
+
+    A marker anywhere else does not count. Previously the whole line above was
+    accepted unconditionally, so a trailing marker annotating the *previous*
+    statement silently exempted the next one, and a marker appearing inside an
+    unrelated string literal exempted whatever followed it.
+    """
+    nearest = stmts[-1] if stmts else node
+    first = nearest.lineno - 1  # 0-based index of the statement's first line
     end = getattr(node, "end_lineno", node.lineno)
-    return any(OPT_OUT_MARKER in line for line in lines[start:end])
+    if any(OPT_OUT_MARKER in line for line in lines[first:end]):
+        return True
+    # Headers of the compound statements containing the call ("with", "for",
+    # "def", ...): a marker there annotates a block this call is part of.
+    if any(OPT_OUT_MARKER in lines[s.lineno - 1] for s in stmts[:-1]):
+        return True
+    if first == 0:
+        return False
+    above = lines[first - 1].strip()
+    return above.startswith("#") and OPT_OUT_MARKER in above
 
 
 def violations_in(path: Path) -> list[str]:
@@ -65,9 +104,7 @@ def violations_in(path: Path) -> list[str]:
     source = path.read_text(encoding="utf-8")
     lines = source.splitlines()
     found = []
-    for node in ast.walk(ast.parse(source, filename=str(path))):
-        if not isinstance(node, ast.Call):
-            continue
+    for node, stmts in _iter_calls(ast.parse(source, filename=str(path))):
         name = _callee_name(node)
         if name in CAPPABLE_OPTIONS:
             uncapped = not _is_capped(node)
@@ -77,7 +114,7 @@ def violations_in(path: Path) -> list[str]:
             uncapped = any(not _dict_is_capped(d) for d in dicts)
         else:
             continue
-        if uncapped and not _opted_out(lines, node):
+        if uncapped and not _opted_out(lines, node, stmts):
             found.append(f"{path.as_posix()}:{node.lineno}: {name} without max_size")
     return found
 

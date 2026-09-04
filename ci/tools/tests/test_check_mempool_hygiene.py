@@ -94,3 +94,63 @@ def test_the_live_test_suite_is_clean():
     # violation could ride in on a rename or a merge.
     assert DEFAULT_TREE.is_dir()
     assert main([]) == 0
+
+
+UNCAPPED_CALL = "DeviceMemoryResource(dev, DeviceMemoryResourceOptions())"
+
+# Placements where the marker does NOT annotate the offending call. Accepting
+# the whole preceding line let each of these silence a real violation.
+MARKER_DOES_NOT_CARRY = [
+    pytest.param(
+        f"{UNCAPPED_CALL}  # uncapped-pool-ok: annotates THIS line\n{UNCAPPED_CALL}\n",
+        id="trailing-marker-on-previous-statement",
+    ),
+    pytest.param(
+        'msg = "see uncapped-pool-ok in AGENTS.md"\n' + UNCAPPED_CALL + "\n",
+        id="marker-inside-an-unrelated-string",
+    ),
+    pytest.param(
+        f"# uncapped-pool-ok: detached by a blank line\n\n{UNCAPPED_CALL}\n",
+        id="blank-line-between-comment-and-call",
+    ),
+]
+
+# Placements where the marker does annotate the call and must keep working.
+MARKER_CARRIES = [
+    pytest.param(f"# uncapped-pool-ok: reason\n{UNCAPPED_CALL}\n", id="comment-line-above"),
+    pytest.param(f"def test_x():\n    # uncapped-pool-ok: reason\n    {UNCAPPED_CALL}\n", id="indented-comment-above"),
+    pytest.param(f"{UNCAPPED_CALL}  # uncapped-pool-ok: reason\n", id="inline-on-the-call"),
+    pytest.param(
+        "DeviceMemoryResource(\n    dev,  # uncapped-pool-ok: reason\n    DeviceMemoryResourceOptions(),\n)\n",
+        id="continuation-line-of-the-same-call",
+    ),
+    pytest.param(
+        "mr = DeviceMemoryResource(  # uncapped-pool-ok: reason\n    dev,\n    DeviceMemoryResourceOptions(),\n)\n",
+        id="first-line-of-a-multiline-statement",
+    ),
+    # The documented use is pytest.raises, so a marker on the block header has
+    # to keep annotating the calls inside the block.
+    pytest.param(
+        f"with pytest.raises(RuntimeError):  # uncapped-pool-ok: reason\n    {UNCAPPED_CALL}\n",
+        id="containing-with-header",
+    ),
+    pytest.param(f"def test_x():  # uncapped-pool-ok: reason\n    {UNCAPPED_CALL}\n", id="containing-def-header"),
+]
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("source", MARKER_DOES_NOT_CARRY)
+def test_marker_that_does_not_annotate_the_call_does_not_suppress_it(tmp_path, source):
+    """An opt-out must be attached to the call it exempts.
+
+    A trailing marker annotating one statement used to exempt the statement on
+    the next line as well -- the shape a reviewer is least likely to notice,
+    since both lines look correctly annotated.
+    """
+    assert violations_in(write(tmp_path, source))
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("source", MARKER_CARRIES)
+def test_marker_attached_to_the_call_still_suppresses_it(tmp_path, source):
+    assert violations_in(write(tmp_path, source)) == []
