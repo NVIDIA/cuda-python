@@ -38,9 +38,12 @@
 import colorsys
 import ctypes
 import math
+import os
 import random
 import sys
 import time
+
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
 
 import numpy as np
 
@@ -403,6 +406,10 @@ def create_window():
     except ImportError:
         print("This example requires pyglet >= 2.0:  pip install pyglet", file=sys.stderr)
         sys.exit(1)
+    except OSError as e:
+        # OpenGL runtime not available (e.g. headless CI runner without opengl32.dll).
+        print(f"OpenGL unavailable on this system ({e}); waiving this sample.")
+        sys.exit(EXIT_WAIVED)
     window = pyglet.window.Window(WIDTH, HEIGHT, caption="numba-cuda - Stable Fluids", vsync=False)
     return window, _gl, pyglet
 

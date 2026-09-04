@@ -131,6 +131,10 @@ def create_window():
             file=sys.stderr,
         )
         sys.exit(1)
+    except OSError as e:
+        # OpenGL runtime not available (e.g. headless CI runner without opengl32.dll).
+        print(f"OpenGL unavailable on this system ({e}); waiving this sample.")
+        sys.exit(EXIT_WAIVED)
 
     window = pyglet.window.Window(
         WIDTH,
