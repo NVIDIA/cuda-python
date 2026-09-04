@@ -66,12 +66,8 @@ jobs:
           IFS=$'\t\r' read -r \
             current_root maintenance_root current_variant maintenance_variant < <(
               jq -er '
-                (.package_roots
-                 | map(select(.release_status == "current"))
-                 | if length == 1 then .[0] else error("expected one current package root") end) as $current
-                | (.package_roots
-                   | map(select(.release_status == "maintenance"))
-                   | if length == 1 then .[0] else error("expected one maintenance package root") end) as $maintenance
+                (.package_roots[] | select(.release_status == "current")) as $current
+                | (.package_roots[] | select(.release_status == "maintenance")) as $maintenance
                 | [$current.package_root, $maintenance.package_root,
                    $current.cuda_variant, $maintenance.cuda_variant]
                 | @tsv

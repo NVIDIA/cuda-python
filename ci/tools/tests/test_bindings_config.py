@@ -97,6 +97,15 @@ def test_public_registry_requires_distinct_cuda_abi_majors(tmp_path):
         validate_config(raw, tmp_path)
 
 
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_public_registry_requires_unique_toolkit_versions():
+    raw = valid_config()
+    raw["cuda"]["bindings"]["package_roots"]["cuda_bindings_12"]["toolkit_version"] = "13.3.0"
+
+    with pytest.raises(BindingsConfigError, match="toolkit_version values must be unique"):
+        validate_config(raw)
+
+
 @pytest.mark.parametrize(
     ("package_root", "message"),
     [

@@ -56,11 +56,6 @@ if [[ "${1}" == "build" ]]; then
   MAINTENANCE_CUDA_VERSION="$(json_field toolkit_version <<< "${MAINTENANCE_PACKAGE_JSON}")"
   MAINTENANCE_CUDA_MAJOR="$(json_field cuda_major <<< "${MAINTENANCE_PACKAGE_JSON}")"
   MAINTENANCE_CUDA_VARIANT="$(json_field cuda_variant <<< "${MAINTENANCE_PACKAGE_JSON}")"
-  if [[ "${CURRENT_CUDA_MAJOR}" == "${MAINTENANCE_CUDA_MAJOR}" ]]; then
-    echo "Error: the monolithic wheel builder requires current and maintenance packages with distinct CUDA ABI majors" >&2
-    exit 1
-  fi
-
   CURRENT_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${CURRENT_CUDA_VERSION}-${HOST_PLATFORM}"
   MAINTENANCE_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${MAINTENANCE_CUDA_VERSION}-${HOST_PLATFORM}"
   CUDA_BINDINGS_ARTIFACT_BASENAME="${CURRENT_BINDINGS_ARTIFACT_BASENAME}"

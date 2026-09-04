@@ -67,7 +67,7 @@ def compute_workplan(
     """Return the final CI decisions for the supplied changed paths."""
     packages = bindings_config.package_roots
     package_roots = tuple(package.package_root for package in packages)
-    cuda_variants = tuple(dict.fromkeys(package.cuda_variant for package in packages))
+    cuda_variants = tuple(package.cuda_variant for package in packages)
     packages_by_variant = {
         variant: tuple(package for package in packages if package.cuda_variant == variant) for variant in cuda_variants
     }

@@ -180,10 +180,7 @@ jobs:
           if ! bindings_config=$(python3 -m ci.tools.bindings_config); then
             unavailable
           fi
-          if ! cuda_versions_json=$(jq -ce '
-            [.package_roots[].toolkit_version]
-            | if length > 0 then . else error("bindings registry has no toolkit versions") end
-          ' <<< "$bindings_config"); then
+          if ! cuda_versions_json=$(jq -ce '[.package_roots[].toolkit_version]' <<< "$bindings_config"); then
             unavailable
           fi
           mapfile -t cuda_versions < <(jq -r '.[]' <<< "$cuda_versions_json")
