@@ -218,6 +218,13 @@ class ProgramOptions:
     include_path : str | list[str], optional
         Add the directory or directories to the list of directories to be searched for headers.
         Default: None
+    use_bundled_headers : bool, optional
+        Use the CUDA and CCCL headers bundled with NVRTC, installed into a per-user cache
+        directory, instead of requiring a full CUDA Toolkit installation. Implemented via NVRTC's
+        ``--use-bundled-headers=<dir>`` compiler option, which installs the headers into the cache
+        directory (skipping installation if already present and up to date) and adds that
+        directory to the include search path. NVRTC only.
+        Default: False
     pre_include : str | list[str], optional
         Preinclude one or more headers during preprocessing. Can be either a string or a list of strings.
         Default: None
@@ -350,6 +357,7 @@ class ProgramOptions:
     define_macro: str | tuple[str, str] | list[str | tuple[str, str]] | tuple[str | tuple[str, str], ...] | None = None
     undefine_macro: str | list[str] | tuple[str] | None = None
     include_path: str | list[str] | tuple[str] | None = None
+    use_bundled_headers: bool | None = None
     pre_include: str | list[str] | tuple[str] | None = None
     no_source_include: bool | None = None
     std: str | None = None

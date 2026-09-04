@@ -168,3 +168,12 @@ def test_runtime_explanations_module_skips_fallback_import_when_docstrings_avail
 
     assert "cuda.core._utils.runtime_cuda_error_explanations_frozen" not in sys.modules
     assert isinstance(runtime_explanations.RUNTIME_CUDA_ERROR_EXPLANATIONS, DocstringBackedExplanations)
+
+
+@pytest.mark.human_authored
+def test_frozen_driver_table_covers_all_curesult_members():
+    from cuda.bindings import driver
+    from cuda.core._utils.driver_cu_result_explanations_frozen import _FALLBACK_EXPLANATIONS
+
+    missing = [m.name for m in driver.CUresult if int(m) not in _FALLBACK_EXPLANATIONS]
+    assert not missing, f"Missing frozen fallback explanations for: {missing}"
