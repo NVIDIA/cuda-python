@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/_v2/nvrtc.pyx: 46.98%</title>
+    <title>Coverage for cuda/bindings/_v2/nvrtc.pyx: 52.13%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
@@ -35,8 +35,9 @@
   "z": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_80]|setup",
   "A": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_90]|setup",
   "B": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_100]|setup",
-  "C": "tests/test_nvrtc.py::test_get_lowered_name_failure|run",
-  "D": "tests/test_nvrtc.py::test_get_supported_archs|run"
+  "C": "tests/test_nvrtc.py::test_get_bundled_headers_info|run",
+  "D": "tests/test_nvrtc.py::test_get_lowered_name_failure|run",
+  "E": "tests/test_nvrtc.py::test_get_supported_archs|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -46,7 +47,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>bindings<span class="sep">/</span>_v2<span class="sep">/</span>nvrtc.pyx</b>:
-            <span class="pc_cov">46.98%</span>
+            <span class="pc_cov">52.13%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -89,8 +90,8 @@
         </aside>
         <h2>
             <span class="text">447 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">210<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">237<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">233<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">214<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -99,7 +100,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cudla_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
-            created at 2026-09-03 02:41 +0000
+            created at 2026-09-04 01:32 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -249,9 +250,9 @@
     <p class="pln"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">class NvrtcError(Exception):</span>&nbsp;</span><span class="r"><label for="ctxs134" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">    def __init__(self, status):</span>&nbsp;</span><span class="r"><label for="ctxs135" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">        self.status = status</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">        s = get_error_string(status)</span>&nbsp;</span><input type="checkbox" id="ctxs137"><span class="r"><label for="ctxs137" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">        super(NvrtcError, self).__init__(s)</span>&nbsp;</span><input type="checkbox" id="ctxs138"><span class="r"><label for="ctxs138" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">        self.status = status</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">        s = get_error_string(status)</span>&nbsp;</span><input type="checkbox" id="ctxs137"><span class="r"><label for="ctxs137" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">        super(NvrtcError, self).__init__(s)</span>&nbsp;</span><input type="checkbox" id="ctxs138"><span class="r"><label for="ctxs138" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
     <p class="pln"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">    def __reduce__(self):</span>&nbsp;</span><span class="r"><label for="ctxs140" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">        return (type(self), (self.status,))</span>&nbsp;</span><span class="r"></span></p>
@@ -293,15 +294,15 @@
     <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">class BusyError(NvrtcError):</span>&nbsp;</span><span class="r"><label for="ctxs177" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">    pass</span>&nbsp;</span><span class="r"><label for="ctxs178" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">cdef object _nvrtc_error_factory(int status):</span>&nbsp;</span><span class="r"><label for="ctxs179" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">    cdef object pystatus = status</span>&nbsp;</span><input type="checkbox" id="ctxs180"><span class="r"><label for="ctxs180" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">    if status == 1:</span>&nbsp;</span><input type="checkbox" id="ctxs181"><span class="r"><label for="ctxs181" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">    cdef object pystatus = status</span>&nbsp;</span><input type="checkbox" id="ctxs180"><span class="r"><label for="ctxs180" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">    if status == 1:</span>&nbsp;</span><input type="checkbox" id="ctxs181"><span class="r"><label for="ctxs181" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
     <p class="mis show_mis"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">        return OutOfMemoryError(pystatus)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t"><span class="txt">    elif status == 2:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t"><span class="txt">        return ProgramCreationFailureError(pystatus)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t"><span class="txt">    elif status == 3:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">        return InvalidInputError(pystatus)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">    elif status == 4:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">        return InvalidProgramError(pystatus)</span>&nbsp;</span><input type="checkbox" id="ctxs188"><span class="r"><label for="ctxs188" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">        return InvalidProgramError(pystatus)</span>&nbsp;</span><input type="checkbox" id="ctxs188"><span class="r"><label for="ctxs188" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
     <p class="pln"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">    elif status == 5:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">        return InvalidOptionError(pystatus)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">    elif status == 6:</span>&nbsp;</span><span class="r"></span></p>
@@ -337,10 +338,10 @@
     <p class="pln"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">@cython.profile(False)</span>&nbsp;</span><span class="r"><label for="ctxs222" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">cdef int check_status(int status) except 1 nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t"><span class="txt">    if status != 0:</span>&nbsp;</span><input type="checkbox" id="ctxs224"><span class="r"><label for="ctxs224" class="ctx">30 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCD</span></p>
-    <p class="run"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><input type="checkbox" id="ctxs225"><span class="r"><label for="ctxs225" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">            raise _nvrtc_error_factory(status)</span>&nbsp;</span><input type="checkbox" id="ctxs226"><span class="r"><label for="ctxs226" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">    return status</span>&nbsp;</span><input type="checkbox" id="ctxs227"><span class="r"><label for="ctxs227" class="ctx">29 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABD</span></p>
+    <p class="run"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t"><span class="txt">    if status != 0:</span>&nbsp;</span><input type="checkbox" id="ctxs224"><span class="r"><label for="ctxs224" class="ctx">31 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDE</span></p>
+    <p class="run"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><input type="checkbox" id="ctxs225"><span class="r"><label for="ctxs225" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">            raise _nvrtc_error_factory(status)</span>&nbsp;</span><input type="checkbox" id="ctxs226"><span class="r"><label for="ctxs226" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">    return status</span>&nbsp;</span><input type="checkbox" id="ctxs227"><span class="r"><label for="ctxs227" class="ctx">30 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCE</span></p>
     <p class="pln"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">###############################################################################</span>&nbsp;</span><span class="r"></span></p>
@@ -378,19 +379,19 @@
     <p class="pln"><span class="n"><a id="t262" href="#t262">262</a></span><span class="t"><span class="txt">        bint _readonly</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t263" href="#t263">263</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t264" href="#t264">264</a></span><span class="t"><span class="txt">    def __init__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t265" href="#t265">265</a></span><span class="t"><span class="txt">        self._ptr = &lt;nvrtcBundledHeadersInfo *&gt;_cyb_calloc(1, sizeof(nvrtcBundledHeadersInfo))</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t266" href="#t266">266</a></span><span class="t"><span class="txt">        if self._ptr == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t265" href="#t265">265</a></span><span class="t"><span class="txt">        self._ptr = &lt;nvrtcBundledHeadersInfo *&gt;_cyb_calloc(1, sizeof(nvrtcBundledHeadersInfo))</span>&nbsp;</span><input type="checkbox" id="ctxs265"><span class="r"><label for="ctxs265" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t266" href="#t266">266</a></span><span class="t"><span class="txt">        if self._ptr == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs266"><span class="r"><label for="ctxs266" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
     <p class="mis show_mis"><span class="n"><a id="t267" href="#t267">267</a></span><span class="t"><span class="txt">            raise MemoryError(&quot;Error allocating BundledHeadersInfo&quot;)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t268" href="#t268">268</a></span><span class="t"><span class="txt">        self._owner = None</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t269" href="#t269">269</a></span><span class="t"><span class="txt">        self._owned = True</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t270" href="#t270">270</a></span><span class="t"><span class="txt">        self._readonly = False</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t268" href="#t268">268</a></span><span class="t"><span class="txt">        self._owner = None</span>&nbsp;</span><input type="checkbox" id="ctxs268"><span class="r"><label for="ctxs268" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t269" href="#t269">269</a></span><span class="t"><span class="txt">        self._owned = True</span>&nbsp;</span><input type="checkbox" id="ctxs269"><span class="r"><label for="ctxs269" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t270" href="#t270">270</a></span><span class="t"><span class="txt">        self._readonly = False</span>&nbsp;</span><input type="checkbox" id="ctxs270"><span class="r"><label for="ctxs270" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
     <p class="pln"><span class="n"><a id="t271" href="#t271">271</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">        cdef nvrtcBundledHeadersInfo *ptr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">        if self._owned and self._ptr != NULL:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">            ptr = self._ptr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">            self._ptr = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">            _cyb_free(ptr)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">        if self._owned and self._ptr != NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs274"><span class="r"><label for="ctxs274" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">            ptr = self._ptr</span>&nbsp;</span><input type="checkbox" id="ctxs275"><span class="r"><label for="ctxs275" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">            self._ptr = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs276"><span class="r"><label for="ctxs276" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">            _cyb_free(ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs277"><span class="r"><label for="ctxs277" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
     <p class="pln"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">        return f&quot;&lt;{__name__}.BundledHeadersInfo object at {hex(id(self))}&gt;&quot;</span>&nbsp;</span><span class="r"></span></p>
@@ -401,7 +402,7 @@
     <p class="mis show_mis"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">        return &lt;intptr_t&gt;(self._ptr)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t"><span class="txt">    cdef intptr_t _get_ptr(self):</span>&nbsp;</span><span class="r"><label for="ctxs287" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t"><span class="txt">        return &lt;intptr_t&gt;(self._ptr)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t"><span class="txt">        return &lt;intptr_t&gt;(self._ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs288"><span class="r"><label for="ctxs288" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
     <p class="pln"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t"><span class="txt">    def __int__(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t"><span class="txt">        return &lt;intptr_t&gt;(self._ptr)</span>&nbsp;</span><span class="r"></span></p>
@@ -434,7 +435,7 @@
     <p class="pln"><span class="n"><a id="t318" href="#t318">318</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t319" href="#t319">319</a></span><span class="t"><span class="txt">    def available(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t320" href="#t320">320</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;int: Non-zero if bundled headers are available&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t321" href="#t321">321</a></span><span class="t"><span class="txt">        return self._ptr[0].available</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t321" href="#t321">321</a></span><span class="t"><span class="txt">        return self._ptr[0].available</span>&nbsp;</span><input type="checkbox" id="ctxs321"><span class="r"><label for="ctxs321" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
     <p class="pln"><span class="n"><a id="t322" href="#t322">322</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t323" href="#t323">323</a></span><span class="t"><span class="txt">    @available.setter</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t324" href="#t324">324</a></span><span class="t"><span class="txt">    def available(self, val):</span>&nbsp;</span><span class="r"></span></p>
@@ -445,7 +446,7 @@
     <p class="pln"><span class="n"><a id="t329" href="#t329">329</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t"><span class="txt">    def compressed_size(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t331" href="#t331">331</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;int: Size of compressed archive in bytes&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t"><span class="txt">        return self._ptr[0].compressedSize</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t"><span class="txt">        return self._ptr[0].compressedSize</span>&nbsp;</span><input type="checkbox" id="ctxs332"><span class="r"><label for="ctxs332" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
     <p class="pln"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t"><span class="txt">    @compressed_size.setter</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t335" href="#t335">335</a></span><span class="t"><span class="txt">    def compressed_size(self, val):</span>&nbsp;</span><span class="r"></span></p>
@@ -456,7 +457,7 @@
     <p class="pln"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t"><span class="txt">    def uncompressed_size(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;int: Estimated size when extracted in bytes&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t"><span class="txt">        return self._ptr[0].uncompressedSize</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t"><span class="txt">        return self._ptr[0].uncompressedSize</span>&nbsp;</span><input type="checkbox" id="ctxs343"><span class="r"><label for="ctxs343" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
     <p class="pln"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t"><span class="txt">    @uncompressed_size.setter</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t"><span class="txt">    def uncompressed_size(self, val):</span>&nbsp;</span><span class="r"></span></p>
@@ -467,7 +468,7 @@
     <p class="pln"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t"><span class="txt">    def cuda_version_major(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;int: CUDA major version of bundled headers&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t"><span class="txt">        return self._ptr[0].cudaVersionMajor</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t"><span class="txt">        return self._ptr[0].cudaVersionMajor</span>&nbsp;</span><input type="checkbox" id="ctxs354"><span class="r"><label for="ctxs354" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
     <p class="pln"><span class="n"><a id="t355" href="#t355">355</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t"><span class="txt">    @cuda_version_major.setter</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t"><span class="txt">    def cuda_version_major(self, val):</span>&nbsp;</span><span class="r"></span></p>
@@ -478,7 +479,7 @@
     <p class="pln"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t"><span class="txt">    def cuda_version_minor(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t364" href="#t364">364</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;int: CUDA minor version of bundled headers&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t365" href="#t365">365</a></span><span class="t"><span class="txt">        return self._ptr[0].cudaVersionMinor</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t365" href="#t365">365</a></span><span class="t"><span class="txt">        return self._ptr[0].cudaVersionMinor</span>&nbsp;</span><input type="checkbox" id="ctxs365"><span class="r"><label for="ctxs365" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
     <p class="pln"><span class="n"><a id="t366" href="#t366">366</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t367" href="#t367">367</a></span><span class="t"><span class="txt">    @cuda_version_minor.setter</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t368" href="#t368">368</a></span><span class="t"><span class="txt">    def cuda_version_minor(self, val):</span>&nbsp;</span><span class="r"></span></p>
@@ -489,7 +490,7 @@
     <p class="pln"><span class="n"><a id="t373" href="#t373">373</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t374" href="#t374">374</a></span><span class="t"><span class="txt">    def num_files(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t375" href="#t375">375</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;int: Number of header files in the bundle&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t376" href="#t376">376</a></span><span class="t"><span class="txt">        return self._ptr[0].numFiles</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t376" href="#t376">376</a></span><span class="t"><span class="txt">        return self._ptr[0].numFiles</span>&nbsp;</span><input type="checkbox" id="ctxs376"><span class="r"><label for="ctxs376" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
     <p class="pln"><span class="n"><a id="t377" href="#t377">377</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t378" href="#t378">378</a></span><span class="t"><span class="txt">    @num_files.setter</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t379" href="#t379">379</a></span><span class="t"><span class="txt">    def num_files(self, val):</span>&nbsp;</span><span class="r"></span></p>
@@ -651,11 +652,11 @@
     <p class="pln"><span class="n"><a id="t535" href="#t535">535</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t536" href="#t536">536</a></span><span class="t"><span class="txt">    .. seealso:: `nvrtcGetLoweredName`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t537" href="#t537">537</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t538" href="#t538">538</a></span><span class="t"><span class="txt">    cdef const char* c_name_expression = name_expression</span>&nbsp;</span><input type="checkbox" id="ctxs538"><span class="r"><label for="ctxs538" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t539" href="#t539">539</a></span><span class="t"><span class="txt">    cdef const char* lowered_name = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs539"><span class="r"><label for="ctxs539" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t540" href="#t540">540</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs540"><span class="r"><label for="ctxs540" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t541" href="#t541">541</a></span><span class="t"><span class="txt">        __status__ = nvrtcGetLoweredName(&lt;Program&gt;prog, c_name_expression, &amp;lowered_name)</span>&nbsp;</span><input type="checkbox" id="ctxs541"><span class="r"><label for="ctxs541" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t542" href="#t542">542</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs542"><span class="r"><label for="ctxs542" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t538" href="#t538">538</a></span><span class="t"><span class="txt">    cdef const char* c_name_expression = name_expression</span>&nbsp;</span><input type="checkbox" id="ctxs538"><span class="r"><label for="ctxs538" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t539" href="#t539">539</a></span><span class="t"><span class="txt">    cdef const char* lowered_name = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs539"><span class="r"><label for="ctxs539" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t540" href="#t540">540</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs540"><span class="r"><label for="ctxs540" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t541" href="#t541">541</a></span><span class="t"><span class="txt">        __status__ = nvrtcGetLoweredName(&lt;Program&gt;prog, c_name_expression, &amp;lowered_name)</span>&nbsp;</span><input type="checkbox" id="ctxs541"><span class="r"><label for="ctxs541" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t542" href="#t542">542</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs542"><span class="r"><label for="ctxs542" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
     <p class="mis show_mis"><span class="n"><a id="t543" href="#t543">543</a></span><span class="t"><span class="txt">    return &lt;bytes&gt;lowered_name if lowered_name != NULL else None</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t544" href="#t544">544</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t545" href="#t545">545</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -700,13 +701,13 @@
     <p class="pln"><span class="n"><a id="t584" href="#t584">584</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t585" href="#t585">585</a></span><span class="t"><span class="txt">    .. seealso:: `nvrtcGetBundledHeadersInfo`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t586" href="#t586">586</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t587" href="#t587">587</a></span><span class="t"><span class="txt">    cdef BundledHeadersInfo info = BundledHeadersInfo()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t588" href="#t588">588</a></span><span class="t"><span class="txt">    cdef nvrtcBundledHeadersInfo* c_info = &lt;nvrtcBundledHeadersInfo*&gt;&lt;intptr_t&gt;(info._get_ptr())</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t589" href="#t589">589</a></span><span class="t"><span class="txt">    cdef const char* error_log = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t590" href="#t590">590</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t591" href="#t591">591</a></span><span class="t"><span class="txt">        __status__ = nvrtcGetBundledHeadersInfo(c_info, &amp;error_log)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t592" href="#t592">592</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t593" href="#t593">593</a></span><span class="t"><span class="txt">    return info, (&lt;bytes&gt;error_log if error_log != NULL else None)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t587" href="#t587">587</a></span><span class="t"><span class="txt">    cdef BundledHeadersInfo info = BundledHeadersInfo()</span>&nbsp;</span><input type="checkbox" id="ctxs587"><span class="r"><label for="ctxs587" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t588" href="#t588">588</a></span><span class="t"><span class="txt">    cdef nvrtcBundledHeadersInfo* c_info = &lt;nvrtcBundledHeadersInfo*&gt;&lt;intptr_t&gt;(info._get_ptr())</span>&nbsp;</span><input type="checkbox" id="ctxs588"><span class="r"><label for="ctxs588" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t589" href="#t589">589</a></span><span class="t"><span class="txt">    cdef const char* error_log = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs589"><span class="r"><label for="ctxs589" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t590" href="#t590">590</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs590"><span class="r"><label for="ctxs590" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t591" href="#t591">591</a></span><span class="t"><span class="txt">        __status__ = nvrtcGetBundledHeadersInfo(c_info, &amp;error_log)</span>&nbsp;</span><input type="checkbox" id="ctxs591"><span class="r"><label for="ctxs591" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t592" href="#t592">592</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs592"><span class="r"><label for="ctxs592" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t593" href="#t593">593</a></span><span class="t"><span class="txt">    return info, (&lt;bytes&gt;error_log if error_log != NULL else None)</span>&nbsp;</span><input type="checkbox" id="ctxs593"><span class="r"><label for="ctxs593" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
     <p class="pln"><span class="n"><a id="t594" href="#t594">594</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t595" href="#t595">595</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t596" href="#t596">596</a></span><span class="t"><span class="txt">cpdef remove_bundled_headers(bytes install_path):</span>&nbsp;</span><span class="r"><label for="ctxs596" class="ctx">(empty)</label></span></p>
@@ -745,10 +746,10 @@
     <p class="pln"><span class="n"><a id="t629" href="#t629">629</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t630" href="#t630">630</a></span><span class="t"><span class="txt">    cdef const char *_output_cstr_</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t631" href="#t631">631</a></span><span class="t"><span class="txt">    cdef bytes _output_</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t632" href="#t632">632</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs632"><span class="r"><label for="ctxs632" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t633" href="#t633">633</a></span><span class="t"><span class="txt">        _output_cstr_ = nvrtcGetErrorString(&lt;_Result&gt;result)</span>&nbsp;</span><input type="checkbox" id="ctxs633"><span class="r"><label for="ctxs633" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t634" href="#t634">634</a></span><span class="t"><span class="txt">    _output_ = _output_cstr_</span>&nbsp;</span><input type="checkbox" id="ctxs634"><span class="r"><label for="ctxs634" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
-    <p class="run"><span class="n"><a id="t635" href="#t635">635</a></span><span class="t"><span class="txt">    return _output_.decode()</span>&nbsp;</span><input type="checkbox" id="ctxs635"><span class="r"><label for="ctxs635" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t632" href="#t632">632</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs632"><span class="r"><label for="ctxs632" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t633" href="#t633">633</a></span><span class="t"><span class="txt">        _output_cstr_ = nvrtcGetErrorString(&lt;_Result&gt;result)</span>&nbsp;</span><input type="checkbox" id="ctxs633"><span class="r"><label for="ctxs633" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t634" href="#t634">634</a></span><span class="t"><span class="txt">    _output_ = _output_cstr_</span>&nbsp;</span><input type="checkbox" id="ctxs634"><span class="r"><label for="ctxs634" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t635" href="#t635">635</a></span><span class="t"><span class="txt">    return _output_.decode()</span>&nbsp;</span><input type="checkbox" id="ctxs635"><span class="r"><label for="ctxs635" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
     <p class="pln"><span class="n"><a id="t636" href="#t636">636</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t637" href="#t637">637</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t638" href="#t638">638</a></span><span class="t"><span class="txt">cpdef tuple version():</span>&nbsp;</span><span class="r"><label for="ctxs638" class="ctx">(empty)</label></span></p>
@@ -794,17 +795,17 @@
     <p class="pln"><span class="n"><a id="t678" href="#t678">678</a></span><span class="t"><span class="txt">    .. seealso:: `nvrtcGetSupportedArchs`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t679" href="#t679">679</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t680" href="#t680">680</a></span><span class="t"><span class="txt">    cdef int numArchs</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t681" href="#t681">681</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs681"><span class="r"><label for="ctxs681" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
-    <p class="run"><span class="n"><a id="t682" href="#t682">682</a></span><span class="t"><span class="txt">        __status__ = nvrtcGetNumSupportedArchs(&amp;numArchs)</span>&nbsp;</span><input type="checkbox" id="ctxs682"><span class="r"><label for="ctxs682" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
-    <p class="run"><span class="n"><a id="t683" href="#t683">683</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs683"><span class="r"><label for="ctxs683" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
-    <p class="run"><span class="n"><a id="t684" href="#t684">684</a></span><span class="t"><span class="txt">    if numArchs == 0:</span>&nbsp;</span><input type="checkbox" id="ctxs684"><span class="r"><label for="ctxs684" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t681" href="#t681">681</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs681"><span class="r"><label for="ctxs681" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
+    <p class="run"><span class="n"><a id="t682" href="#t682">682</a></span><span class="t"><span class="txt">        __status__ = nvrtcGetNumSupportedArchs(&amp;numArchs)</span>&nbsp;</span><input type="checkbox" id="ctxs682"><span class="r"><label for="ctxs682" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
+    <p class="run"><span class="n"><a id="t683" href="#t683">683</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs683"><span class="r"><label for="ctxs683" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
+    <p class="run"><span class="n"><a id="t684" href="#t684">684</a></span><span class="t"><span class="txt">    if numArchs == 0:</span>&nbsp;</span><input type="checkbox" id="ctxs684"><span class="r"><label for="ctxs684" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
     <p class="mis show_mis"><span class="n"><a id="t685" href="#t685">685</a></span><span class="t"><span class="txt">        return _cyb_view.array(shape=(1,), itemsize=sizeof(int), format=&quot;i&quot;, mode=&quot;c&quot;)[:0]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t686" href="#t686">686</a></span><span class="t"><span class="txt">    cdef _cyb_view.array supported_archs = _cyb_view.array(shape=(numArchs,), itemsize=sizeof(int), format=&quot;i&quot;, mode=&quot;c&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs686"><span class="r"><label for="ctxs686" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
-    <p class="run"><span class="n"><a id="t687" href="#t687">687</a></span><span class="t"><span class="txt">    cdef int *supported_archs_ptr = &lt;int *&gt;(supported_archs.data)</span>&nbsp;</span><input type="checkbox" id="ctxs687"><span class="r"><label for="ctxs687" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
-    <p class="run"><span class="n"><a id="t688" href="#t688">688</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs688"><span class="r"><label for="ctxs688" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
-    <p class="run"><span class="n"><a id="t689" href="#t689">689</a></span><span class="t"><span class="txt">        __status__ = nvrtcGetSupportedArchs(supported_archs_ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs689"><span class="r"><label for="ctxs689" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
-    <p class="run"><span class="n"><a id="t690" href="#t690">690</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs690"><span class="r"><label for="ctxs690" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
-    <p class="run"><span class="n"><a id="t691" href="#t691">691</a></span><span class="t"><span class="txt">    return supported_archs</span>&nbsp;</span><input type="checkbox" id="ctxs691"><span class="r"><label for="ctxs691" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t686" href="#t686">686</a></span><span class="t"><span class="txt">    cdef _cyb_view.array supported_archs = _cyb_view.array(shape=(numArchs,), itemsize=sizeof(int), format=&quot;i&quot;, mode=&quot;c&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs686"><span class="r"><label for="ctxs686" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
+    <p class="run"><span class="n"><a id="t687" href="#t687">687</a></span><span class="t"><span class="txt">    cdef int *supported_archs_ptr = &lt;int *&gt;(supported_archs.data)</span>&nbsp;</span><input type="checkbox" id="ctxs687"><span class="r"><label for="ctxs687" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
+    <p class="run"><span class="n"><a id="t688" href="#t688">688</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs688"><span class="r"><label for="ctxs688" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
+    <p class="run"><span class="n"><a id="t689" href="#t689">689</a></span><span class="t"><span class="txt">        __status__ = nvrtcGetSupportedArchs(supported_archs_ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs689"><span class="r"><label for="ctxs689" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
+    <p class="run"><span class="n"><a id="t690" href="#t690">690</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs690"><span class="r"><label for="ctxs690" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
+    <p class="run"><span class="n"><a id="t691" href="#t691">691</a></span><span class="t"><span class="txt">    return supported_archs</span>&nbsp;</span><input type="checkbox" id="ctxs691"><span class="r"><label for="ctxs691" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
     <p class="pln"><span class="n"><a id="t692" href="#t692">692</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t693" href="#t693">693</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t694" href="#t694">694</a></span><span class="t"><span class="txt">cpdef destroy_program(intptr_t prog):</span>&nbsp;</span><span class="r"><label for="ctxs694" class="ctx">(empty)</label></span></p>
@@ -1173,7 +1174,7 @@
             <a class="nav" href="z_bb8e88d71740c463_cudla_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
-            created at 2026-09-03 02:41 +0000
+            created at 2026-09-04 01:32 +0000
         </p>
     </div>
 </footer>

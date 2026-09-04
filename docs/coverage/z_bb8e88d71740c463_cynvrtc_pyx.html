@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/cynvrtc.pyx: 81.36%</title>
+    <title>Coverage for cuda/bindings/cynvrtc.pyx: 83.05%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
@@ -495,8 +495,8 @@
   "Of": "tests/test_program.py::test_nvrtc_debug_keeps_file_the_caller_named[True]|run",
   "Pf": "tests/test_program.py::test_nvrtc_debug_materializes_source_to_temp_file|run",
   "Qf": "tests/test_program.py::test_nvrtc_debug_preserves_quoted_include_resolution|run",
-  "Rf": "tests/test_program.py::test_ptx_program_numba_debug_unset_or_false_does_not_warn[False]|setup",
-  "Sf": "tests/test_program.py::test_ptx_program_with_various_options[options5]|setup",
+  "Rf": "tests/test_program.py::test_ptx_program_handle_is_linker_handle|setup",
+  "Sf": "tests/test_program.py::test_ptx_program_numba_debug_unset_or_false_does_not_warn[False]|setup",
   "Tf": "tests/test_program_cache.py::test_cache_roundtrip_with_real_compilation|run",
   "Uf": "tests/test_program_compile_cache.py::test_cache_kwarg_roundtrip_across_reopen|run",
   "Vf": "tests/test_program_compile_cache.py::test_filestream_hit_returns_byte_equal_object_code|run",
@@ -731,15 +731,16 @@
   "ji": "tests/test_object_protocols.py::test_repr_format[sample_program_nvrtc-\u003cProgram backend='NVRTC'\u003e]|setup",
   "ki": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_program_nvrtc]|setup",
   "li": "tests/test_object_protocols.py::test_weakref_supported[sample_program_nvrtc]|setup",
-  "mi": "tests/test_helpers.py::test_oom_diagnostics_probe_basics_is_live_and_cheap|teardown",
-  "ni": "tests/test_object_protocols.py::test_closeable_object_state_and_safe_inspection[sample_program_nvrtc]|run",
-  "oi": "tests/test_object_protocols.py::test_repr_format[sample_program_nvrtc-\u003cProgram backend='NVRTC'\u003e]|teardown",
-  "pi": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_program_nvrtc]|teardown",
-  "qi": "tests/test_object_protocols.py::test_weakref_supported[sample_program_nvrtc]|teardown",
-  "ri": "tests/test_program.py::test_program_compile_valid_target_type|teardown",
-  "si": "tests/test_program_compile_cache.py::test_cache_kwarg_roundtrip_across_reopen|teardown",
-  "ti": "tests/test_program_compile_cache.py::test_filestream_hit_returns_byte_equal_object_code|teardown",
-  "ui": "tests/legacy_api/test_legacy_nvrtc.py::test_nvrtcGetLoweredName_failure|run"
+  "mi": "tests/test_object_protocols.py::test_closeable_object_state_and_safe_inspection[sample_program_nvrtc]|run",
+  "ni": "tests/test_object_protocols.py::test_repr_format[sample_program_nvrtc-\u003cProgram backend='NVRTC'\u003e]|teardown",
+  "oi": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_program_nvrtc]|teardown",
+  "pi": "tests/test_object_protocols.py::test_weakref_supported[sample_program_nvrtc]|teardown",
+  "qi": "tests/test_program.py::test_program_compile_valid_target_type|teardown",
+  "ri": "tests/test_program_compile_cache.py::test_cache_kwarg_roundtrip_across_reopen|teardown",
+  "si": "tests/test_program_compile_cache.py::test_filestream_hit_returns_byte_equal_object_code|teardown",
+  "ti": "tests/legacy_api/test_legacy_nvrtc.py::test_nvrtcGetLoweredName_failure|run",
+  "ui": "tests/legacy_api/test_legacy_nvrtc.py::test_nvrtcGetBundledHeadersInfo|run",
+  "vi": "tests/test_nvrtc.py::test_get_bundled_headers_info|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -749,7 +750,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>bindings<span class="sep">/</span>cynvrtc.pyx</b>:
-            <span class="pc_cov">81.36%</span>
+            <span class="pc_cov">83.05%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -792,8 +793,8 @@
         </aside>
         <h2>
             <span class="text">59 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">48<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">11<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">49<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">10<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -802,7 +803,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cynvvm_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
-            created at 2026-09-03 02:41 +0000
+            created at 2026-09-04 01:32 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -847,7 +848,7 @@
     <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcDestroyProgram(nvrtcProgram* prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs30" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcDestroyProgram(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs31"><span class="r"><label for="ctxs31" class="ctx">647 ctx</label></span><span class="ctxs">2E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'bXfYfZf0f1f2f3f4f5f6f7f8f9f!f#f$f%f'f(f)f0e*f+f,f-f.f/f:fmi;f=f(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvc1e2e3e4e5e6e7e8e9e!e#e$e%e'e(e)e*e+e,e-e.e/e:e;e=e?e@e[e]e^e_e`e{e?f|e}ewcxcyczcAcBcCcDc@fEcFcGcHcIcJcKcLcMcNcOcPc[fQcRcScTcb c d UcVcWcf g h ]f^fXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydnizd_fAd`f{fBd|fCd}fDdEdFd~fGdagHdIdJdKdLdMdNdOdPdQdbgRdcgSddgTdegUdVdWdfgXdggYdZd0dhg1digjgkglgmgngogpgqg2drgsgtgugvg3d4d5d6d7d8d9d!d#d$d%d'dwg(dxg)d*dyg+dzgAgBgCgDgEgFgGgHgIg,dJgKgLgMgNg-d.d/dOg:dPg;dQg=dRg?d@d[dSg]dTg^d_d`d{d|d}d~daebeceUgdeVgeeWgfeXggeheieYgjeZgkeleme0gne1g2g3g4g5g6g7g8g9goe!g#g$g%g'gpeqereseteuevewexeyezeAe(gBe)gCeDe*gEe+g,g-g.g/g:g;g=g?g@gFe[g]g^g_g`gGeHeIe{gJe|g}g~gKeahLebhchoiMedhNeehOefhPeghQehhReihSejhTekhUelhVemhWenhXeohpiYephZeqhqiUhB ~eC afbfcfdfefffgfhfifjfkflfmfnfofpfqfrfsftfufvfwfxfyfzfAfBfCfDfEfFfGfHfD IfJfKfj i LfMfNfOfPfQfVhWhXhriYhZhRfSfe TfJhKhLhMhUfsiNhOh0h1h2h3h4hVfti5h</span></p>
+    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcDestroyProgram(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs31"><span class="r"><label for="ctxs31" class="ctx">646 ctx</label></span><span class="ctxs">2E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'bXfYfZf0f1f2f3f4f5f6f7f8f9f!f#f$f%f'f(f)f0e*f+f,f-f.f/f:f;f=f(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvc1e2e3e4e5e6e7e8e9e!e#e$e%e'e(e)e*e+e,e-e.e/e:e;e=e?e@e[e]e^e_e`e{e?f|e}ewcxcyczcAcBcCcDc@fEcFcGcHcIcJcKcLcMcNcOcPc[fQcRcScTcb c d UcVcWcf g h ]f^fXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydmizd_fAd`f{fBd|fCd}fDdEdFd~fGdagHdIdJdKdLdMdNdOdPdQdbgRdcgSddgTdegUdVdWdfgXdggYdZd0dhg1digjgkglgmgngogpgqg2drgsgtgugvg3d4d5d6d7d8d9d!d#d$d%d'dwg(dxg)d*dyg+dzgAgBgCgDgEgFgGgHgIg,dJgKgLgMgNg-d.d/dOg:dPg;dQg=dRg?d@d[dSg]dTg^d_d`d{d|d}d~daebeceUgdeVgeeWgfeXggeheieYgjeZgkeleme0gne1g2g3g4g5g6g7g8g9goe!g#g$g%g'gpeqereseteuevewexeyezeAe(gBe)gCeDe*gEe+g,g-g.g/g:g;g=g?g@gFe[g]g^g_g`gGeHeIe{gJe|g}g~gKeahLebhchniMedhNeehOefhPeghQehhReihSejhTekhUelhVemhWenhXeohoiYephZeqhpiUhB ~eC afbfcfdfefffgfhfifjfkflfmfnfofpfqfrfsftfufvfwfxfyfzfAfBfCfDfEfFfGfHfD IfJfKfj i LfMfNfOfPfQfVhWhXhqiYhZhRfSfe TfJhKhLhMhUfriNhOh0h1h2h3h4hVfsi5h</span></p>
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs34" class="ctx">(empty)</label></span></p>
@@ -899,7 +900,7 @@
     <p class="pln"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs82" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetLoweredName(prog, name_expression, lowered_name)</span>&nbsp;</span><input type="checkbox" id="ctxs83"><span class="r"><label for="ctxs83" class="ctx">386 ctx</label></span><span class="ctxs">2E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'bui(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcb c d UcVcWcf g h XcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydPhzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdSdTdUdVdWdXdYdZd0d1d2d3d4d5d6d7d8d9d!d#d$d%d'd(d)d*d+d,d-d.d/d:d;d=d?d@d[d]d^d_d`d{d|d}d~daebecedeeefegeheiejekelemeneoepeqereseteuevewexeyezeAeBeCeDeEeFeGeHeIeJeKeLeMeNeOePeQeReSeTeUeVeWeXeYeZe</span></p>
+    <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetLoweredName(prog, name_expression, lowered_name)</span>&nbsp;</span><input type="checkbox" id="ctxs83"><span class="r"><label for="ctxs83" class="ctx">386 ctx</label></span><span class="ctxs">2E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'bti(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcb c d UcVcWcf g h XcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydPhzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdSdTdUdVdWdXdYdZd0d1d2d3d4d5d6d7d8d9d!d#d$d%d'd(d)d*d+d,d-d.d/d:d;d=d?d@d[d]d^d_d`d{d|d}d~daebecedeeefegeheiejekelemeneoepeqereseteuevewexeyezeAeBeCeDeEeFeGeHeIeJeKeLeMeNeOePeQeReSeTeUeVeWeXeYeZe</span></p>
     <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetPCHHeapSize(size_t* ret) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs86" class="ctx">(empty)</label></span></p>
@@ -935,7 +936,7 @@
     <p class="pln"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetBundledHeadersInfo(nvrtcBundledHeadersInfo* info, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs118" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetBundledHeadersInfo(info, errorLog)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetBundledHeadersInfo(info, errorLog)</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">2 ctx</label></span><span class="ctxs">2uivi</span></p>
     <p class="pln"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcRemoveBundledHeaders(const char* installPath, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs122" class="ctx">(empty)</label></span></p>
@@ -949,7 +950,7 @@
             <a class="nav" href="z_bb8e88d71740c463_cynvvm_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
-            created at 2026-09-03 02:41 +0000
+            created at 2026-09-04 01:32 +0000
         </p>
     </div>
 </footer>
