@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
-import os.path
 import shutil
 import subprocess
 import sys
 import textwrap
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -1289,7 +1289,7 @@ def test_array_setter_no_double_free_after_clearing_with_empty_list():
         params.attrs = [cuda.CUlaunchAttribute() for _ in range(8)]
         """
     )
-    proc = subprocess.run([sys.executable, "-c", code], capture_output=True, cwd=os.path.dirname(__file__))  # noqa: S603
+    proc = subprocess.run([sys.executable, "-c", code], capture_output=True, cwd=Path(__file__).parent)  # noqa: S603
     assert proc.returncode == 0, (
         f"reproducer subprocess exited with code {proc.returncode}; stderr: {proc.stderr.decode(errors='replace')}"
     )
