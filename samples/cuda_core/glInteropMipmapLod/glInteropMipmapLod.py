@@ -93,8 +93,6 @@ import platform
 import sys
 import time
 
-EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
-
 import numpy as np
 
 from cuda.core import (
