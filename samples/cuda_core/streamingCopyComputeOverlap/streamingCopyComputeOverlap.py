@@ -41,8 +41,11 @@ Uses pure cuda.core APIs:
     - Program, LaunchConfig, launch for kernel compilation and execution
 """
 
+import os
 import sys
 from pathlib import Path
+
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "Utilities"))
 
@@ -98,6 +101,11 @@ def main():
     # Initialize device
     device = Device(0)
     device.set_current()
+
+    if not device.properties.memory_pools_supported:
+        print("PinnedMemoryResource requires CUDA memory pools, which are not supported on this device. Waiving.")
+        sys.exit(EXIT_WAIVED)
+
     print()
     print_gpu_info(device)
 
