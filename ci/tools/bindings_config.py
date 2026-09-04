@@ -138,19 +138,10 @@ class BindingsConfig:
         return package
 
     def package_for_release_status(self, release_status: str) -> BindingsPackage:
-        matches = [package for package in self.package_roots if package.release_status == release_status]
-        if len(matches) != 1:
-            raise BindingsConfigError(
-                f"CUDA bindings release status {release_status!r} selects {len(matches)} package roots"
-            )
-        return matches[0]
+        return next(package for package in self.package_roots if package.release_status == release_status)
 
     def match_tag(self, tag: str) -> BindingsPackage | None:
-        matches = [package for package in self.package_roots if package.matches_tag(tag)]
-        if len(matches) > 1:
-            roots = ", ".join(package.package_root for package in matches)
-            raise BindingsConfigError(f"release tag {tag!r} matches multiple CUDA bindings package roots: {roots}")
-        return matches[0] if matches else None
+        return next((package for package in self.package_roots if package.matches_tag(tag)), None)
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -276,14 +267,11 @@ def validate_config(raw: Any, repo_root: Path = REPO_ROOT) -> BindingsConfig:
     cuda = _mapping(root["cuda"], "cuda", {"bindings"})
     bindings = _mapping(cuda["bindings"], "cuda.bindings", {"package_roots"})
     raw_package_roots = _mapping(bindings["package_roots"], "cuda.bindings.package_roots")
-    if not raw_package_roots:
-        raise BindingsConfigError("cuda.bindings.package_roots must not be empty")
     packages = tuple(_package(package_root, value, repo_root) for package_root, value in raw_package_roots.items())
-    for attribute in ("toolkit_version", "ctk_target", "cuda_major"):
-        values = [getattr(package, attribute) for package in packages]
-        if len(set(values)) != len(values):
-            raise BindingsConfigError(f"CUDA bindings {attribute} values must be unique")
     _validate_release_statuses(packages)
+    cuda_majors = [package.cuda_major for package in packages]
+    if len(set(cuda_majors)) != len(cuda_majors):
+        raise BindingsConfigError("CUDA bindings cuda_major values must be unique")
     _validate_scm_conformance(packages)
     return BindingsConfig(
         schema_version=SCHEMA_VERSION,
@@ -429,7 +417,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     output = parser.add_mutually_exclusive_group()
     output.add_argument("--package-roots", action="store_true", help="print normalized package-root records")
-    output.add_argument("--release-status", help="print the package root with this release status")
+    output.add_argument(
+        "--release-status",
+        choices=sorted(RELEASE_STATUSES),
+        help="print the package root with this release status",
+    )
     output.add_argument("--release-tag", help="resolve a release tag against its source tree")
     parser.add_argument("--release-source-root", type=Path)
     parser.add_argument("--control-config", type=Path)

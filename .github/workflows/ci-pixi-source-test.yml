@@ -131,8 +131,8 @@ jobs:
               --merge-base "${merge_base}" \
               --baseline-run-id pixi-source)
 
-            # Keep package-specific work package-specific. If only ABI-level
-            # work is selected, use the current package for that ABI when available.
+            # Keep package-specific work package-specific, while selecting the
+            # registered package for any ABI-level work.
             selected_packages=$(jq -cn \
               --argjson registry "${bindings_packages}" \
               --argjson plan "${workplan}" '
@@ -142,22 +142,9 @@ jobs:
                     or ($plan.modules.bindings.package_roots[$package.package_root].needs_test // false)
                     or ($plan.modules.python.package_roots[$package.package_root].needs_build // false)
                     or ($plan.modules.python.package_roots[$package.package_root].needs_test // false)
+                    or ($plan.jobs.test_cuda_majors[$package.cuda_variant] // false)
                   ))
               ')
-            while IFS= read -r cuda_variant; do
-              if jq -e --arg cuda_variant "${cuda_variant}" \
-                'any(.[]; .cuda_variant == $cuda_variant)' <<< "${selected_packages}" > /dev/null; then
-                continue
-              fi
-              representative=$(jq -c --arg cuda_variant "${cuda_variant}" '
-                [.[] | select(.cuda_variant == $cuda_variant)] | first // empty
-              ' <<< "${bindings_packages}")
-              if [[ -z "${representative}" ]]; then
-                echo "::error::workplan selected unregistered CUDA variant ${cuda_variant}"
-                exit 1
-              fi
-              selected_packages=$(merge_packages "${selected_packages}" "[${representative}]")
-            done < <(jq -r '.jobs.test_cuda_majors | to_entries[] | select(.value) | .key' <<< "${workplan}")
 
             # Pixi manifests are deliberately ignored by the wheel planner.
             # Add their package-local impact to its source/test decisions. The

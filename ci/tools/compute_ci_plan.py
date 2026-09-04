@@ -68,9 +68,6 @@ def compute_workplan(
     packages = bindings_config.package_roots
     package_roots = tuple(package.package_root for package in packages)
     cuda_variants = tuple(package.cuda_variant for package in packages)
-    packages_by_variant = {
-        variant: tuple(package for package in packages if package.cuda_variant == variant) for variant in cuda_variants
-    }
 
     bindings_targets = frozenset(("bindings", package_root) for package_root in package_roots)
     core_targets = frozenset(("core", variant) for variant in cuda_variants)
@@ -220,26 +217,13 @@ def compute_workplan(
 
     modules: dict[str, dict[str, object]] = {"pathfinder": flags("pathfinder", (None,))}
     for module in ("bindings", "python"):
-        package_decisions = {
-            package.package_root: {
-                **package.to_dict(),
-                **flags(module, (package.package_root,)),
-            }
-            for package in packages
-        }
+        package_decisions = {package.package_root: flags(module, (package.package_root,)) for package in packages}
         modules[module] = {
             **flags(module, package_roots),
             "package_roots": package_decisions,
         }
 
-    cuda_major_decisions = {
-        variant: {
-            "cuda_major": variant.removeprefix("cu"),
-            "cuda_variant": variant,
-            **flags("core", (variant,)),
-        }
-        for variant in cuda_variants
-    }
+    cuda_major_decisions = {variant: flags("core", (variant,)) for variant in cuda_variants}
     modules["core"] = {
         **flags("core", cuda_variants),
         "cuda_majors": cuda_major_decisions,
@@ -247,13 +231,11 @@ def compute_workplan(
 
     pathfinder_test = ("pathfinder", None) in tests
     test_cuda_variants = {
-        variant
-        for variant, variant_packages in packages_by_variant.items()
+        package.cuda_variant
+        for package in packages
         if pathfinder_test
-        or ("core", variant) in tests
-        or any(
-            (module, package.package_root) in tests for module in ("bindings", "python") for package in variant_packages
-        )
+        or ("core", package.cuda_variant) in tests
+        or any((module, package.package_root) in tests for module in ("bindings", "python"))
     }
     return {
         "modules": modules,

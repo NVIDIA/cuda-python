@@ -20,6 +20,7 @@ ALL_PLATFORMS = {"linux", "windows"}
 VARIANT_MODULES = {"bindings", "core", "python"}
 DEFAULT_BINDINGS_CONFIG = load_config()
 CUDA_VARIANTS = {package.cuda_variant for package in DEFAULT_BINDINGS_CONFIG.package_roots}
+PACKAGE_VARIANTS = {package.package_root: package.cuda_variant for package in DEFAULT_BINDINGS_CONFIG.package_roots}
 
 
 def plan_for(
@@ -65,7 +66,7 @@ def selected_variants(plan: dict[str, object], module: str, key: str) -> set[str
     if module == "core":
         return enabled(as_dict(as_dict(modules[module])["cuda_majors"]), key)
     packages = as_dict(as_dict(modules[module])["package_roots"])
-    return {str(as_dict(decision)["cuda_variant"]) for decision in packages.values() if as_dict(decision)[key]}
+    return {PACKAGE_VARIANTS[root] for root in enabled(packages, key)}
 
 
 def selected_package_roots(plan: dict[str, object], module: str, key: str) -> set[str]:
@@ -88,8 +89,7 @@ def selected_cuda_majors(plan: dict[str, object], key: str) -> set[str]:
 def selected_sdist_variants(plan: dict[str, object]) -> set[str]:
     jobs = as_dict(plan["jobs"])
     selected_roots = enabled(as_dict(jobs["sdist_package_roots"]))
-    packages = as_dict(as_dict(as_dict(plan["modules"])["bindings"])["package_roots"])
-    return {str(as_dict(packages[root])["cuda_variant"]) for root in selected_roots}
+    return {PACKAGE_VARIANTS[root] for root in selected_roots}
 
 
 def synthetic_package(package_root: str, ctk_target: str, release_status: str) -> BindingsPackage:
@@ -374,47 +374,6 @@ class ComputeWorkplanTest(unittest.TestCase):
             for module in ("bindings", "python"):
                 assert selected_variants(linked_plan, module, "needs_build") == CUDA_VARIANTS
             assert selected_variants(linked_plan, "python", "needs_test") == CUDA_VARIANTS
-
-    @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_same_major_packages_remain_independently_selectable(self) -> None:
-        package_11_7 = synthetic_package("cuda_bindings_11_7", "11.7", "maintenance")
-        package_11_8 = synthetic_package("cuda_bindings_11_8", "11.8", "current")
-        config = synthetic_config(
-            package_11_7,
-            package_11_8,
-        )
-
-        plan = plan_for(
-            "cuda_bindings_11_7/cuda/bindings/driver.pyx",
-            bindings_config=config,
-        )
-
-        assert selected_package_roots(plan, "bindings", "needs_build") == {package_11_7.package_root}
-        assert selected_package_roots(plan, "bindings", "needs_test") == {package_11_7.package_root}
-        assert selected_package_roots(plan, "python", "needs_build") == {package_11_7.package_root}
-        assert selected_package_roots(plan, "python", "needs_test") == {package_11_7.package_root}
-        assert selected_core_majors(plan, "needs_build") == {"cu11"}
-        assert selected_core_majors(plan, "needs_test") == {"cu11"}
-        assert selected_variants(plan, "bindings", "needs_build") == {"cu11"}
-        assert selected_sdist_variants(plan) == {"cu11"}
-        assert {root for root, enabled in plan["jobs"]["sdist_package_roots"].items() if enabled} == {
-            package_11_7.package_root
-        }
-
-        package_decision = plan["modules"]["bindings"]["package_roots"][package_11_7.package_root]
-        assert package_decision["package_root"] == package_11_7.package_root
-        assert package_decision["ctk_target"] == package_11_7.ctk_target
-        assert package_decision["cuda_major"] == "11"
-        assert package_decision["cuda_variant"] == "cu11"
-        assert package_decision["release_status"] == "maintenance"
-
-        release_plan = plan_for(
-            baseline=False,
-            release_tag="v11.8.1",
-            bindings_config=config,
-        )
-        assert selected_package_roots(release_plan, "bindings", "needs_build") == {package_11_8.package_root}
-        assert selected_package_roots(release_plan, "python", "needs_build") == {package_11_8.package_root}
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_current_package_can_move_to_a_new_cuda_major(self) -> None:
