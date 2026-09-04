@@ -3,7 +3,8 @@
 
 """Check that tests do not create uncapped CUDA memory pools.
 
-A pool created without ``max_size`` reserves an address-space window sized from
+A pool created without ``max_size`` -- or with ``max_size=0``, which is the
+same request expressed explicitly -- reserves an address-space window sized from
 installed device memory rather than from what the test allocates, and the whole
 cuda_core suite shares one process. Enough of those reservations exhaust the
 address space, after which the rest of the session fails with
@@ -39,18 +40,42 @@ def _callee_name(node: ast.Call) -> str:
     return ""
 
 
-def _is_capped(node: ast.Call) -> bool:
+MISSING_CAP = "without max_size"
+ZERO_CAP = "with max_size=0, which is the uncapped default"
+
+
+def _is_zero_literal(node: ast.expr) -> bool:
+    """True for a literal ``0``.
+
+    ``CUmemPoolProps.maxSize == 0`` asks the driver for its system-dependent
+    default, which is the uncapped pool this check exists to prevent -- see
+    "When set to 0, defaults to a system-dependent value" in the
+    ``DeviceMemoryResourceOptions`` / ``PinnedMemoryResourceOptions``
+    docstrings. Only literals are inspected: a named constant may well be the
+    suite-wide POOL_SIZE, and this checker does not guess.
+    """
+    return isinstance(node, ast.Constant) and node.value == 0
+
+
+def _cap_problem(node: ast.Call) -> str | None:
+    """Describe why ``node``'s options leave the pool uncapped, else ``None``."""
     # ``**kwargs`` (arg is None) may carry max_size; do not guess.
-    return any(kw.arg is None or kw.arg == "max_size" for kw in node.keywords)
+    if any(kw.arg is None for kw in node.keywords):
+        return None
+    for kw in node.keywords:
+        if kw.arg == "max_size":
+            return ZERO_CAP if _is_zero_literal(kw.value) else None
+    return MISSING_CAP
 
 
-def _dict_is_capped(node: ast.Dict) -> bool:
-    for key in node.keys:
-        if key is None:  # ``**other`` inside the literal
-            return True
+def _dict_cap_problem(node: ast.Dict) -> str | None:
+    """``_cap_problem`` for options given as a dict literal."""
+    if any(key is None for key in node.keys):  # ``**other`` inside the literal
+        return None
+    for key, value in zip(node.keys, node.values):
         if isinstance(key, ast.Constant) and key.value == "max_size":
-            return True
-    return False
+            return ZERO_CAP if _is_zero_literal(value) else None
+    return MISSING_CAP
 
 
 def _opted_out(lines: list[str], node: ast.AST) -> bool:
@@ -70,15 +95,16 @@ def violations_in(path: Path) -> list[str]:
             continue
         name = _callee_name(node)
         if name in CAPPABLE_OPTIONS:
-            uncapped = not _is_capped(node)
+            problem = _cap_problem(node)
         elif name in CAPPABLE_RESOURCES:
             # The options may also be given as a dict literal.
             dicts = [arg for arg in [*node.args, *(kw.value for kw in node.keywords)] if isinstance(arg, ast.Dict)]
-            uncapped = any(not _dict_is_capped(d) for d in dicts)
+            problems = [p for p in (_dict_cap_problem(d) for d in dicts) if p is not None]
+            problem = problems[0] if problems else None
         else:
             continue
-        if uncapped and not _opted_out(lines, node):
-            found.append(f"{path.as_posix()}:{node.lineno}: {name} without max_size")
+        if problem is not None and not _opted_out(lines, node):
+            found.append(f"{path.as_posix()}:{node.lineno}: {name} {problem}")
     return found
 
 
@@ -97,7 +123,7 @@ def main(argv: list[str] | None = None) -> int:
     if not violations:
         return 0
 
-    print("error: memory pools created by tests must set max_size:", file=sys.stderr)
+    print("error: memory pools created by tests must set max_size to a non-zero value:", file=sys.stderr)
     for violation in violations:
         print(f"  - {violation}", file=sys.stderr)
     print(
