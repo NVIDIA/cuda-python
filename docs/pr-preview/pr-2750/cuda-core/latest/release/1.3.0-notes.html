@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=81bbc293"></script>
+    <script src="../_static/documentation_options.js?v=8225bfc3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev9';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev10';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -775,6 +775,13 @@ context created on a different device than the receiver now delegates to
 that device’s own <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_current()</span></code></a> instead of raising, so a
 context this method returns can always be pushed back through any
 <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> object.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2311">#2311</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.Stream.html#cuda.core.Stream.wait" title="cuda.core.Stream.wait"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Stream.wait()</span></code></a> given a stream now works when that stream belongs to a
+device that is not current. The temporary ordering event is created in the
+waited-on stream’s context rather than the current one, which
+<code class="docutils literal notranslate"><span class="pre">cuEventRecord</span></code> rejects when the two differ. The stream ordering applied
+when importing foreign arrays and tensors uses the producer stream’s context
+the same way.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2311">#2311</a>)</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.LegacyPinnedMemoryResource.html#cuda.core.LegacyPinnedMemoryResource.device_id" title="cuda.core.LegacyPinnedMemoryResource.device_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource.device_id</span></code></a> now returns <code class="docutils literal notranslate"><span class="pre">-1</span></code>, as
 documented for memory that is not bound to a device and as
