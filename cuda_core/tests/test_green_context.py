@@ -2,11 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-
-import contextlib
-
 import numpy as np
 import pytest
+from helpers.contexts import assert_device_operations_use_bound_context, use_context
 
 from cuda.core import (
     ContextOptions,
@@ -152,16 +150,6 @@ def _find_backfill_only_two_group_split(sm):
     return None
 
 
-@contextlib.contextmanager
-def _use_green_ctx(dev, ctx):
-    """Context manager: set green ctx current, restore previous on exit."""
-    prev = dev.set_current(ctx)
-    try:
-        yield
-    finally:
-        dev.set_current(prev)
-
-
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_memory_node_updates_preserve_green_context(
     init_cuda,
@@ -173,7 +161,7 @@ def test_memory_node_updates_preserve_green_context(
     memory_resource = LegacyPinnedMemoryResource()
     src = memory_resource.allocate(4)
     dst = memory_resource.allocate(4)
-    with _use_green_ctx(init_cuda, green_ctx):
+    with use_context(init_cuda, green_ctx):
         graph_def = GraphDefinition()
         memset_node = graph_def.memset(dst, 0, 4)
         memcpy_node = graph_def.memcpy(dst, src, 4)
@@ -528,16 +516,45 @@ class TestGreenContextLifecycle:
         stream.sync()
         event.sync()
 
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_device_receiver_targets_stored_green_context(self, init_cuda, green_ctx):
+        primary_ctx = init_cuda.context
+
+        with use_context(init_cuda, green_ctx):
+            handle_return(driver.cuCtxSetCurrent(primary_ctx.handle))
+            assert_device_operations_use_bound_context(init_cuda)
+
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_texture_rejects_resource_from_other_context(self, init_cuda, green_ctx):
+        from cuda.core.texture import (
+            OpaqueArrayOptions,
+            ResourceDescriptor,
+        )
+        from cuda.core.typing import ArrayFormatType
+
+        with (
+            init_cuda.create_opaque_array(
+                OpaqueArrayOptions(
+                    shape=(8, 8),
+                    format=ArrayFormatType.UINT8,
+                    num_channels=4,
+                )
+            ) as array,
+            use_context(init_cuda, green_ctx),
+            pytest.raises(ValueError, match="resource is not compatible with this Device object"),
+        ):
+            init_cuda.create_texture_object(resource=ResourceDescriptor.from_opaque_array(array))
+
     def test_close_while_current_raises(self, init_cuda, green_ctx):
         """close() on a current context raises — test via set_current."""
         dev = init_cuda
-        with _use_green_ctx(dev, green_ctx), pytest.raises(RuntimeError, match="while it is current"):
+        with use_context(dev, green_ctx), pytest.raises(RuntimeError, match="while it is current"):
             green_ctx.close()
 
     def test_set_current_swap_regression(self, init_cuda, green_ctx):
         """set_current still works (backward compat) and preserves identity."""
         dev = init_cuda
-        with _use_green_ctx(dev, green_ctx):
+        with use_context(dev, green_ctx):
             pass  # just verify push/pop works
         # Swap again and check identity round-trip
         prev = dev.set_current(green_ctx)

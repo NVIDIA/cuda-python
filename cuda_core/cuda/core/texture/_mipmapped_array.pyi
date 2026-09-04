@@ -2,6 +2,8 @@
 
 from dataclasses import dataclass
 
+from cuda.core._context import Context
+
 
 @dataclass
 class MipmappedArrayOptions:
@@ -105,8 +107,8 @@ class MipmappedArray:
     def __exit__(self, exc_type, exc, tb): ...
     def __repr__(self): ...
 
-def _create_mipmapped_array(options):
-    """Allocate a new :class:`MipmappedArray` on the current device.
+def _create_mipmapped_array(options, ctx: Context, device_id: int):
+    """Allocate a new :class:`MipmappedArray` on the specified device.
 
     Backs :meth:`cuda.core.Device.create_mipmapped_array`. ``options`` is a
     :class:`MipmappedArrayOptions` (or a mapping accepted by it); its fields are

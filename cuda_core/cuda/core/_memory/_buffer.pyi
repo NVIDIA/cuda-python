@@ -250,7 +250,7 @@ class Buffer:
     def __release_buffer__(self, buffer: memoryview, /) -> None: ...
     @property
     def device_id(self) -> int:
-        """Return the device ordinal of this buffer."""
+        """Return the device ordinal of this buffer, or -1 for memory not bound to a device."""
     @property
     def handle(self) -> int:
         """Return the buffer handle object.

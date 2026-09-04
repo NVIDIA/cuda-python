@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import numpy
 from cuda.bindings import cydriver
+from cuda.core._context import Context
 from cuda.core.typing import ArrayFormatType
 
 _ARRAYFORMAT_TO_CU = {ArrayFormatType.UINT8: int(cydriver.CU_AD_FORMAT_UNSIGNED_INT8), ArrayFormatType.UINT16: int(cydriver.CU_AD_FORMAT_UNSIGNED_INT16), ArrayFormatType.UINT32: int(cydriver.CU_AD_FORMAT_UNSIGNED_INT32), ArrayFormatType.INT8: int(cydriver.CU_AD_FORMAT_SIGNED_INT8), ArrayFormatType.INT16: int(cydriver.CU_AD_FORMAT_SIGNED_INT16), ArrayFormatType.INT32: int(cydriver.CU_AD_FORMAT_SIGNED_INT32), ArrayFormatType.FLOAT16: int(cydriver.CU_AD_FORMAT_HALF), ArrayFormatType.FLOAT32: int(cydriver.CU_AD_FORMAT_FLOAT)}
@@ -162,8 +163,8 @@ def _validate_format_channels(format, num_channels):
 def _validate_array_shape(shape):
     """Coerce ``shape`` to a tuple of ints and validate rank (1-3) and that
     every extent is >= 1. Returns the normalized tuple."""
-def _create_opaque_array(options):
-    """Allocate a new :class:`OpaqueArray` on the current device.
+def _create_opaque_array(options, ctx: Context, device_id: int):
+    """Allocate a new :class:`OpaqueArray` on the specified device.
 
     Backs :meth:`cuda.core.Device.create_opaque_array`. ``options`` is an
     :class:`OpaqueArrayOptions` (or a mapping accepted by it); it is validated

@@ -583,13 +583,16 @@ class Device:
     def memory_resource(self, mr: MemoryResource) -> None: ...
     @property
     def default_stream(self) -> Stream:
-        """Return default CUDA :obj:`~_stream.Stream` associated with this device.
+        """Return a default CUDA :obj:`~_stream.Stream` token.
 
         The type of default stream returned depends on if the environment
         variable CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM is set.
 
         If set, returns a per-thread default stream. Otherwise returns
         the legacy stream.
+
+        A default-stream token uses the device that is current when the token
+        is used.
 
         """
     def __int__(self) -> int:
@@ -607,6 +610,12 @@ class Device:
 
         Providing a `ctx` causes the previous set context to be popped and returned.
 
+        If `ctx` was created on a different device than this receiver, the call
+        is delegated to that device's own :meth:`set_current`. This keeps the
+        owning device's bookkeeping consistent and lets a context this method
+        handed out for a foreign device be pushed back through any ``Device``
+        object, matching the CUDA context stack's own thread-wide semantics.
+
         Parameters
         ----------
         ctx : :obj:`~_context.Context`, optional
@@ -615,7 +624,9 @@ class Device:
         Returns
         -------
         :obj:`~_context.Context`, optional
-            Popped context.
+            The previous context, or ``None`` if no context was current. When
+            returned, its ``device_id`` identifies the device that was
+            previously current.
 
         Examples
         --------
@@ -647,7 +658,7 @@ class Device:
 
         """
     def create_stream(self, obj: IsStreamType | None=None, options: StreamOptions | None=None) -> Stream:
-        """Create a :obj:`~_stream.Stream` object.
+        """Create or wrap a :obj:`~_stream.Stream` object.
 
         New stream objects can be created in two different ways:
 
@@ -659,7 +670,7 @@ class Device:
 
         Note
         ----
-        Device must be initialized.
+        Device must be initialized. New streams are created on this device.
 
         Parameters
         ----------
@@ -675,7 +686,7 @@ class Device:
 
         """
     def create_event(self, options: EventOptions | None=None) -> Event:
-        """Create an :obj:`~_event.Event` object without recording it to a :obj:`~_stream.Stream`.
+        """Create an :obj:`~_event.Event` on this device without recording it to a :obj:`~_stream.Stream`.
 
         Note
         ----
@@ -718,7 +729,12 @@ class Device:
 
         """
     def sync(self) -> None:
-        """Synchronize the device.
+        """Synchronize this device's bound context.
+
+        Waits for all preceding work in this device's bound :obj:`~_context.Context`
+        to complete. Only that context is synchronized, not the device as a
+        whole; work queued in a different context on the same device (e.g. a
+        green context) is unaffected.
 
         Note
         ----
@@ -726,7 +742,7 @@ class Device:
 
         """
     def create_graph_builder(self) -> GraphBuilder:
-        """Create a new :obj:`~graph.GraphBuilder` object.
+        """Create a new :obj:`~graph.GraphBuilder` on this device.
 
         Returns
         -------
@@ -735,12 +751,10 @@ class Device:
 
         """
     def create_opaque_array(self, options: OpaqueArrayOptions) -> OpaqueArray:
-        """Create an :obj:`~cuda.core.texture.OpaqueArray` on the current device.
+        """Create an :obj:`~cuda.core.texture.OpaqueArray` on this device.
 
         Allocates an opaque, hardware-laid-out CUDA array for texture/surface
-        access. The array is created in the current CUDA context, so make this
-        device current with :meth:`set_current` before calling (mirroring
-        :meth:`create_stream` / :meth:`create_event`).
+        access.
 
         Note
         ----
@@ -759,12 +773,10 @@ class Device:
         .. versionadded:: 1.1.0
         """
     def create_mipmapped_array(self, options: MipmappedArrayOptions) -> MipmappedArray:
-        """Create a :obj:`~cuda.core.texture.MipmappedArray` on the current device.
+        """Create a :obj:`~cuda.core.texture.MipmappedArray` on this device.
 
         Allocates a mipmapped CUDA array for texture/surface access across
-        levels. The array is created in the current CUDA context, so make this
-        device current with :meth:`set_current` before calling (mirroring
-        :meth:`create_stream` / :meth:`create_event`).
+        levels.
 
         Note
         ----
@@ -783,15 +795,13 @@ class Device:
         .. versionadded:: 1.1.0
         """
     def create_texture_object(self, *, resource: ResourceDescriptor, options: TextureObjectOptions | None=None) -> TextureObject:
-        """Create a :obj:`~cuda.core.texture.TextureObject` on the current device.
+        """Create a :obj:`~cuda.core.texture.TextureObject` on this device.
 
         Binds a resource (an :obj:`~cuda.core.texture.OpaqueArray` /
         :obj:`~cuda.core.texture.MipmappedArray` / linear or pitch2d
         :obj:`~cuda.core.Buffer`, wrapped in a
         :obj:`~cuda.core.texture.ResourceDescriptor`) as a bindless texture for
-        kernel-side sampled reads. The object is created in the current CUDA
-        context, so make this device current with :meth:`set_current` before
-        calling (mirroring :meth:`create_stream` / :meth:`create_event`).
+        kernel-side sampled reads. The resource must belong to this device.
 
         Note
         ----
@@ -812,15 +822,12 @@ class Device:
         .. versionadded:: 1.1.0
         """
     def create_surface_object(self, *, resource: ResourceDescriptor) -> SurfaceObject:
-        """Create a :obj:`~cuda.core.texture.SurfaceObject` on the current device.
+        """Create a :obj:`~cuda.core.texture.SurfaceObject` on this device.
 
         Binds an :obj:`~cuda.core.texture.OpaqueArray` (via a
         :obj:`~cuda.core.texture.ResourceDescriptor`) as a bindless surface for
         kernel-side typed load/store. The backing array must have been created
-        with ``is_surface_load_store=True``. The object is created in the
-        current CUDA context, so make this device current with
-        :meth:`set_current` before calling (mirroring :meth:`create_stream` /
-        :meth:`create_event`).
+        with ``is_surface_load_store=True`` and must belong to this device.
 
         Note
         ----

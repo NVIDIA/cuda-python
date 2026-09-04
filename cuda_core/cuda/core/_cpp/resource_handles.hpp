@@ -64,10 +64,15 @@ void clear_last_error() noexcept;
 // function pointers extracted from cuda.bindings.cydriver.__pyx_capi__.
 // ============================================================================
 
+extern decltype(&cuGetErrorName) p_cuGetErrorName;
+extern decltype(&cuGetErrorString) p_cuGetErrorString;
+
 extern decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain;
 extern decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease;
 extern decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent;
 extern decltype(&cuCtxSetCurrent) p_cuCtxSetCurrent;
+extern decltype(&cuCtxSynchronize) p_cuCtxSynchronize;
+extern decltype(&cuCtxGetStreamPriorityRange) p_cuCtxGetStreamPriorityRange;
 extern decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate;
 extern decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy;
 extern decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx;
@@ -77,6 +82,7 @@ extern decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate;
 
 extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
 extern decltype(&cuStreamDestroy) p_cuStreamDestroy;
+extern decltype(&cuStreamGetCtx) p_cuStreamGetCtx;
 
 extern decltype(&cuEventCreate) p_cuEventCreate;
 extern decltype(&cuEventDestroy) p_cuEventDestroy;
@@ -246,6 +252,17 @@ ContextHandle get_primary_context(int device_id);
 // Returns empty handle if no context is current (caller must check)
 ContextHandle get_current_context();
 
+// Synchronize the provided context. Releases the GIL around the driver call.
+// Returns CUDA_ERROR_INVALID_CONTEXT for an empty handle.
+CUresult context_synchronize(const ContextHandle& h_context) noexcept;
+
+// Query the stream priority range for the provided context.
+// Returns CUDA_ERROR_INVALID_CONTEXT for an empty handle.
+CUresult context_get_stream_priority_range(
+    const ContextHandle& h_context,
+    int* least_priority,
+    int* greatest_priority) noexcept;
+
 // ============================================================================
 // Stream handle functions
 // ============================================================================
@@ -287,6 +304,14 @@ StreamHandle get_legacy_stream();
 // Note: Per-thread stream has no specific context dependency.
 StreamHandle get_per_thread_stream();
 
+// Wrap CU_STREAM_LEGACY with an explicit context, bypassing the "bind to
+// whatever is current" resolution that a bare default-stream token uses (see
+// make_deallocation_stream). Lets a resource that always operates in one
+// known context (e.g. a synchronous, non-pooled allocator) record a correct
+// deallocation context without requiring that context to be current when the
+// token is created. Returns an empty handle for an empty h_context.
+StreamHandle create_context_bound_legacy_stream(const ContextHandle& h_context);
+
 // ============================================================================
 // Event handle functions
 // ============================================================================
@@ -300,11 +325,14 @@ EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
                                 bool timing_enabled, bool is_blocking_sync,
                                 bool ipc_enabled, int device_id);
 
-// Create an owning event handle without context dependency.
-// Use for temporary events that are created and destroyed in the same scope.
+// Create an owning event in the context that owns `stream`, so it can be
+// recorded on that stream regardless of which context is current. Default-
+// stream tokens resolve to the current context (cuStreamGetCtx semantics).
+// Use for temporary ordering events that are created and destroyed in the
+// same scope; the handle carries no device id.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle_noctx(unsigned int flags);
+EventHandle create_event_handle_for_stream(CUstream stream, unsigned int flags);
 
 // Create an owning event handle from an IPC handle.
 // The originating process owns the event and its context.
@@ -371,10 +399,11 @@ DevicePtrHandle deviceptr_alloc_from_pool(
 // Returns empty handle on error (caller must check).
 DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream);
 
-// Allocate device memory synchronously via cuMemAlloc.
-// When the last reference is released, cuMemFree is called.
-// Returns empty handle on error (caller must check).
-DevicePtrHandle deviceptr_alloc(size_t size);
+// Allocate device memory synchronously via cuMemAlloc with the provided
+// context current. The caller owns the pointer and releases it with cuMemFree.
+// Returns CUDA_ERROR_INVALID_CONTEXT for an empty handle.
+CUresult deviceptr_alloc_raw(CUdeviceptr* ptr, size_t size,
+                             const ContextHandle& h_context) noexcept;
 
 // Allocate pinned host memory via cuMemAllocHost.
 // When the last reference is released, cuMemFreeHost is called.
@@ -739,7 +768,7 @@ FileDescriptorHandle create_fd_handle_ref(int fd);
 // Create an owning CUDA array via cuArray3DCreate.
 // When the last reference is released, cuArrayDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-OpaqueArrayHandle create_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc);
+OpaqueArrayHandle create_array_handle(const ContextHandle& h_context, const CUDA_ARRAY3D_DESCRIPTOR& desc);
 
 // Create a non-owning array handle (references an existing CUarray).
 // Use for arrays owned elsewhere (e.g. graphics interop). Never destroyed here.
@@ -748,6 +777,9 @@ OpaqueArrayHandle create_array_handle_ref(CUarray arr);
 // Create an owning array handle adopting an existing CUarray.
 // When the last reference is released, cuArrayDestroy is called automatically.
 OpaqueArrayHandle create_array_handle_owning(CUarray arr);
+
+// Return the context dependency associated with an array, if known.
+ContextHandle get_array_context(const OpaqueArrayHandle& h) noexcept;
 
 // Create a non-owning handle to a mipmap level via cuMipmappedArrayGetLevel.
 // The level CUarray is owned by the mipmap; the parent MipmappedArrayHandle is
@@ -758,27 +790,35 @@ OpaqueArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, u
 // Create an owning mipmapped array via cuMipmappedArrayCreate.
 // When the last reference is released, cuMipmappedArrayDestroy is called.
 // Returns empty handle on error (caller must check).
-MipmappedArrayHandle create_mipmapped_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc,
+MipmappedArrayHandle create_mipmapped_array_handle(const ContextHandle& h_context,
+                                                   const CUDA_ARRAY3D_DESCRIPTOR& desc,
                                                    unsigned int num_levels);
+
+// Return the context dependency associated with a mipmapped array, if known.
+ContextHandle get_mipmapped_array_context(const MipmappedArrayHandle& h) noexcept;
 
 // Create an owning texture object via cuTexObjectCreate, embedding the backing
 // resource handle (array / mipmapped array / linear-or-pitch2d device pointer)
 // so the backing always outlives the texture. cuTexObjectDestroy runs in the
 // deleter. Returns empty handle on error (caller must check).
-TexObjectHandle create_tex_object_handle_array(const CUDA_RESOURCE_DESC& res,
+TexObjectHandle create_tex_object_handle_array(const ContextHandle& h_context,
+                                               const CUDA_RESOURCE_DESC& res,
                                                const CUDA_TEXTURE_DESC& tex,
                                                const OpaqueArrayHandle& h_backing);
-TexObjectHandle create_tex_object_handle_mipmap(const CUDA_RESOURCE_DESC& res,
+TexObjectHandle create_tex_object_handle_mipmap(const ContextHandle& h_context,
+                                                const CUDA_RESOURCE_DESC& res,
                                                 const CUDA_TEXTURE_DESC& tex,
                                                 const MipmappedArrayHandle& h_backing);
-TexObjectHandle create_tex_object_handle_linear(const CUDA_RESOURCE_DESC& res,
+TexObjectHandle create_tex_object_handle_linear(const ContextHandle& h_context,
+                                                const CUDA_RESOURCE_DESC& res,
                                                 const CUDA_TEXTURE_DESC& tex,
                                                 const DevicePtrHandle& h_backing);
 
 // Create an owning surface object via cuSurfObjectCreate, embedding the backing
 // array handle so it outlives the surface. cuSurfObjectDestroy runs in the
 // deleter. Returns empty handle on error (caller must check).
-SurfObjectHandle create_surf_object_handle(const CUDA_RESOURCE_DESC& res,
+SurfObjectHandle create_surf_object_handle(const ContextHandle& h_context,
+                                           const CUDA_RESOURCE_DESC& res,
                                            const OpaqueArrayHandle& h_backing);
 
 // ============================================================================
