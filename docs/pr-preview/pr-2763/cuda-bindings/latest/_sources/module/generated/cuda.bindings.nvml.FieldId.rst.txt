@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.FieldId
-==========================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: FieldId

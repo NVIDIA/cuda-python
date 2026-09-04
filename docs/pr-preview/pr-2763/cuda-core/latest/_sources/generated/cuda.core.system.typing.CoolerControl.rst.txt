@@ -1,6 +1,0 @@
-﻿cuda.core.system.typing.CoolerControl
-=====================================
-
-.. currentmodule:: cuda.core.system.typing
-
-.. autoenum:: CoolerControl
