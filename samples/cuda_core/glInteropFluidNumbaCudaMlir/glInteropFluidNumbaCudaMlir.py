@@ -406,7 +406,7 @@ def create_window():
     except ImportError:
         print("This example requires pyglet >= 2.0:  pip install pyglet", file=sys.stderr)
         sys.exit(1)
-    except OSError as e:
+    except (OSError, AttributeError) as e:
         # OpenGL runtime not available (e.g. headless CI runner without opengl32.dll).
         print(f"OpenGL unavailable on this system ({e}); waiving this sample.")
         sys.exit(EXIT_WAIVED)
