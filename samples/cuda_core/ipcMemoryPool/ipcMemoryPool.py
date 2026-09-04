@@ -90,6 +90,13 @@ def check_ipc_support(device) -> bool:
     if platform.system() != "Linux":
         print(f"IPC via POSIX file descriptors is only supported on Linux (detected {platform.system()}).")
         return False
+    try:
+        with open("/proc/sys/kernel/osrelease") as _f:
+            if "microsoft" in _f.read().lower():
+                print("IPC memory pools are not supported on WSL.")
+                return False
+    except OSError:
+        pass
     if not device.properties.memory_pools_supported:
         print("Device does not support CUDA memory pools.")
         return False
