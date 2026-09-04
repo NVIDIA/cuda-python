@@ -81,8 +81,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         const ContextHandle& h_ctx, unsigned int flags,
         bint timing_enabled, bint is_blocking_sync,
         bint ipc_enabled, int device_id) except+ nogil
-    EventHandle create_event_handle_noctx "cuda_core::create_event_handle_noctx" (
-        unsigned int flags) except+ nogil
+    EventHandle create_event_handle_for_stream "cuda_core::create_event_handle_for_stream" (
+        cydriver.CUstream stream, unsigned int flags) except+ nogil
     EventHandle create_event_handle_ref "cuda_core::create_event_handle_ref" (
         cydriver.CUevent event) except+ nogil
     EventHandle create_event_handle_ipc "cuda_core::create_event_handle_ipc" (
@@ -332,6 +332,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Stream
     void* p_cuStreamCreateWithPriority "reinterpret_cast<void*&>(cuda_core::p_cuStreamCreateWithPriority)"
     void* p_cuStreamDestroy "reinterpret_cast<void*&>(cuda_core::p_cuStreamDestroy)"
+    void* p_cuStreamGetCtx "reinterpret_cast<void*&>(cuda_core::p_cuStreamGetCtx)"
 
     # Event
     void* p_cuEventCreate "reinterpret_cast<void*&>(cuda_core::p_cuEventCreate)"
@@ -434,7 +435,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     global p_cuCtxSetCurrent, p_cuCtxSynchronize, p_cuCtxGetStreamPriorityRange
     global p_cuGreenCtxCreate, p_cuGreenCtxDestroy, p_cuCtxFromGreenCtx
     global p_cuDevResourceGenerateDesc, p_cuGreenCtxStreamCreate
-    global p_cuStreamCreateWithPriority, p_cuStreamDestroy
+    global p_cuStreamCreateWithPriority, p_cuStreamDestroy, p_cuStreamGetCtx
     global p_cuEventCreate, p_cuEventDestroy, p_cuIpcOpenEventHandle
     global p_cuDeviceGetCount
     global p_cuMemPoolSetAccess, p_cuMemPoolDestroy, p_cuMemPoolCreate
@@ -477,6 +478,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     # Stream
     p_cuStreamCreateWithPriority = _get_driver_fn("cuStreamCreateWithPriority")
     p_cuStreamDestroy = _get_driver_fn("cuStreamDestroy")
+    p_cuStreamGetCtx = _get_driver_fn("cuStreamGetCtx")
 
     # Event
     p_cuEventCreate = _get_driver_fn("cuEventCreate")

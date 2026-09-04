@@ -32,7 +32,7 @@ from cuda.core._resource_handles cimport (
     EventHandle,
     StreamHandle,
     create_context_handle_ref,
-    create_event_handle_noctx,
+    create_event_handle_for_stream,
     create_stream_handle,
     create_stream_handle_with_owner,
     context_get_stream_priority_range,
@@ -367,9 +367,14 @@ cdef class Stream:
                     f" got {type(event_or_stream)}"
                 ) from e
 
-        # Wait on stream via temporary event
+        # Wait on stream via a temporary event created in that stream's own
+        # context; an event from the current context would be rejected by
+        # cuEventRecord when the streams live on different devices.
         with nogil:
-            h_event = create_event_handle_noctx(cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+            h_event = create_event_handle_for_stream(
+                as_cu(stream._h_stream), cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+            if not h_event:
+                HANDLE_RETURN(get_last_error())
             HANDLE_RETURN(cydriver.cuEventRecord(as_cu(h_event), as_cu(stream._h_stream)))
             # TODO: support flags other than 0?
             HANDLE_RETURN(cydriver.cuStreamWaitEvent(as_cu(self._h_stream), as_cu(h_event), 0))

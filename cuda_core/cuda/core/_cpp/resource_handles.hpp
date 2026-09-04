@@ -82,6 +82,7 @@ extern decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate;
 
 extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
 extern decltype(&cuStreamDestroy) p_cuStreamDestroy;
+extern decltype(&cuStreamGetCtx) p_cuStreamGetCtx;
 
 extern decltype(&cuEventCreate) p_cuEventCreate;
 extern decltype(&cuEventDestroy) p_cuEventDestroy;
@@ -324,11 +325,14 @@ EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
                                 bool timing_enabled, bool is_blocking_sync,
                                 bool ipc_enabled, int device_id);
 
-// Create an owning event handle without context dependency.
-// Use for temporary events that are created and destroyed in the same scope.
+// Create an owning event in the context that owns `stream`, so it can be
+// recorded on that stream regardless of which context is current. Default-
+// stream tokens resolve to the current context (cuStreamGetCtx semantics).
+// Use for temporary ordering events that are created and destroyed in the
+// same scope; the handle carries no device id.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle_noctx(unsigned int flags);
+EventHandle create_event_handle_for_stream(CUstream stream, unsigned int flags);
 
 // Create an owning event handle from an IPC handle.
 // The originating process owns the event and its context.

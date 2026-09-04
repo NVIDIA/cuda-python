@@ -74,6 +74,31 @@ def test_stream_wait_event(init_cuda):
     s2.sync()
 
 
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_stream_wait_stream_on_other_device(device_x2):
+    """Stream.wait(other_stream) must work when the streams live on different
+    devices and neither device is necessarily current: the temporary ordering
+    event has to be created in the *recorded* stream's context, since
+    cuEventRecord rejects an event from another context (#2311)."""
+    from helpers.contexts import current_context_handle
+
+    dev0, dev1 = device_x2
+    dev0.set_current()
+    s0 = dev0.create_stream()
+    dev1.set_current()
+    s1 = dev1.create_stream()
+    ambient = current_context_handle()
+    try:
+        s1.wait(s0)  # dev1 current: s0's device is not current
+        s0.wait(s1)  # dev1 current: self's device is not current
+        s0.sync()
+        s1.sync()
+        assert current_context_handle() == ambient
+    finally:
+        s0.close()
+        s1.close()
+
+
 def test_stream_wait_invalid_event(init_cuda):
     stream = Device().create_stream(options=StreamOptions())
     with pytest.raises(ValueError):

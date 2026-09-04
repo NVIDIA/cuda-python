@@ -54,6 +54,7 @@ decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate = nullptr;
 
 decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority = nullptr;
 decltype(&cuStreamDestroy) p_cuStreamDestroy = nullptr;
+decltype(&cuStreamGetCtx) p_cuStreamGetCtx = nullptr;
 
 decltype(&cuEventCreate) p_cuEventCreate = nullptr;
 decltype(&cuEventDestroy) p_cuEventDestroy = nullptr;
@@ -1099,8 +1100,23 @@ EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
     return h;
 }
 
-EventHandle create_event_handle_noctx(unsigned int flags) {
-    return create_event_handle(ContextHandle{}, flags, false, false, false, -1);
+EventHandle create_event_handle_for_stream(CUstream stream, unsigned int flags) {
+    // Resolve the stream's owning context (for default-stream tokens this is
+    // the current context, per cuStreamGetCtx) and create the event there, so
+    // it can be recorded on `stream` no matter which context is current.
+    CUcontext ctx = nullptr;
+    {
+        GILReleaseGuard gil;
+        err = p_cuStreamGetCtx(stream, &ctx);
+    }
+    if (err != CUDA_SUCCESS) {
+        return {};
+    }
+    if (!ctx) {
+        err = CUDA_ERROR_INVALID_CONTEXT;
+        return {};
+    }
+    return create_event_handle(create_context_handle_ref(ctx), flags, false, false, false, -1);
 }
 
 EventHandle create_event_handle_ref(CUevent event) {

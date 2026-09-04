@@ -203,7 +203,8 @@ cdef EventHandle create_event_handle(
     const ContextHandle& h_ctx, unsigned int flags,
     bint timing_enabled, bint is_blocking_sync,
     bint ipc_enabled, int device_id) except+ nogil
-cdef EventHandle create_event_handle_noctx(unsigned int flags) except+ nogil
+cdef EventHandle create_event_handle_for_stream(
+    cydriver.CUstream stream, unsigned int flags) except+ nogil
 cdef EventHandle create_event_handle_ref(cydriver.CUevent event) except+ nogil
 cdef EventHandle create_event_handle_ipc(
     const cydriver.CUipcEventHandle& ipc_handle, bint is_blocking_sync) except+ nogil
