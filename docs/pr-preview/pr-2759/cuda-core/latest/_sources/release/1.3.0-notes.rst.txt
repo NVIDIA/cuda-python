@@ -21,6 +21,33 @@ New features
 Fixes and enhancements
 ----------------------
 
+- :class:`Device` methods that create resources or synchronize now act on that
+  device's bound context, even when another device is current. They do not
+  change which device is current. For example, ``dev1.sync()`` synchronizes
+  device 1's bound context even when device 0 is current, and no longer
+  touches other contexts on device 1 (such as a green context). :meth:`Device.set_current`
+  now always returns a :class:`Context` with the correct device ID; passing a
+  context created on a different device than the receiver now delegates to
+  that device's own :meth:`~Device.set_current` instead of raising, so a
+  context this method returns can always be pushed back through any
+  :class:`Device` object.
+  (`#2311 <https://github.com/NVIDIA/cuda-python/issues/2311>`__)
+
+- :meth:`Stream.wait` given a stream now works when that stream belongs to a
+  device that is not current. The temporary ordering event is created in the
+  waited-on stream's context rather than the current one, which
+  ``cuEventRecord`` rejects when the two differ. The stream ordering applied
+  when importing foreign arrays and tensors uses the producer stream's context
+  the same way.
+  (`#2311 <https://github.com/NVIDIA/cuda-python/issues/2311>`__)
+
+- :attr:`LegacyPinnedMemoryResource.device_id` now returns ``-1``, as
+  documented for memory that is not bound to a device and as
+  :class:`PinnedMemoryResource` already does, instead of raising
+  ``RuntimeError``. :attr:`Buffer.device_id` on such a buffer returns ``-1``
+  as well, which also lets a pinned buffer back a linear or pitched texture
+  resource.
+
 - Cleanup failures are now reported as :class:`CUDAWarning` instead of being
   written to ``stderr`` with ``print`` or ``fprintf``, so they can be filtered,
   captured with :func:`warnings.catch_warnings`, and escalated. Failures of

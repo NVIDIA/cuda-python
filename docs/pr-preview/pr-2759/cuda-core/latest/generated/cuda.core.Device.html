@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=69a16151"></script>
+    <script src="../_static/documentation_options.js?v=7e54a564"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev6';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev14';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1132,6 +1132,11 @@ kernel-side sampled reads. The resource must belong to this device.</p>
 context. By default the primary context is used, but optional <cite>ctx</cite>
 parameter can be used to explicitly supply a <a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core._context.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a> object.</p>
 <p>Providing a <cite>ctx</cite> causes the previous set context to be popped and returned.</p>
+<p>If <cite>ctx</cite> was created on a different device than this receiver, the call
+is delegated to that device’s own <a class="reference internal" href="#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_current()</span></code></a>. This keeps the
+owning device’s bookkeeping consistent and lets a context this method
+handed out for a foreign device be pushed back through any <code class="docutils literal notranslate"><span class="pre">Device</span></code>
+object, matching the CUDA context stack’s own thread-wide semantics.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ctx</strong> (<a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core._context.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a>, optional) – Optional context to push onto this device’s current thread stack.</p>
@@ -1159,7 +1164,11 @@ calling this method, e.g.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Device.sync">
 <span class="sig-name descname"><span class="pre">sync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.Device.sync" title="Link to this definition">#</a></dt>
-<dd><p>Synchronize this device.</p>
+<dd><p>Synchronize this device’s bound context.</p>
+<p>Waits for all preceding work in this device’s bound <a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core._context.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a>
+to complete. Only that context is synchronized, not the device as a
+whole; work queued in a different context on the same device (e.g. a
+green context) is unaffected.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Device must be initialized.</p>

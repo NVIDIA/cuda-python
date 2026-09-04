@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=69a16151"></script>
+    <script src="../_static/documentation_options.js?v=7e54a564"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev6';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev14';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -794,6 +794,30 @@ sticky CUDA errors are handled.</p></li>
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p><a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> methods that create resources or synchronize now act on that
+device’s bound context, even when another device is current. They do not
+change which device is current. For example, <code class="docutils literal notranslate"><span class="pre">dev1.sync()</span></code> synchronizes
+device 1’s bound context even when device 0 is current, and no longer
+touches other contexts on device 1 (such as a green context). <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.set_current()</span></code></a>
+now always returns a <a class="reference internal" href="../generated/cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a> with the correct device ID; passing a
+context created on a different device than the receiver now delegates to
+that device’s own <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_current()</span></code></a> instead of raising, so a
+context this method returns can always be pushed back through any
+<a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> object.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2311">#2311</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.Stream.html#cuda.core.Stream.wait" title="cuda.core.Stream.wait"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Stream.wait()</span></code></a> given a stream now works when that stream belongs to a
+device that is not current. The temporary ordering event is created in the
+waited-on stream’s context rather than the current one, which
+<code class="docutils literal notranslate"><span class="pre">cuEventRecord</span></code> rejects when the two differ. The stream ordering applied
+when importing foreign arrays and tensors uses the producer stream’s context
+the same way.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2311">#2311</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.LegacyPinnedMemoryResource.html#cuda.core.LegacyPinnedMemoryResource.device_id" title="cuda.core.LegacyPinnedMemoryResource.device_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource.device_id</span></code></a> now returns <code class="docutils literal notranslate"><span class="pre">-1</span></code>, as
+documented for memory that is not bound to a device and as
+<a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> already does, instead of raising
+<code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>. <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.device_id" title="cuda.core.Buffer.device_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.device_id</span></code></a> on such a buffer returns <code class="docutils literal notranslate"><span class="pre">-1</span></code>
+as well, which also lets a pinned buffer back a linear or pitched texture
+resource.</p></li>
 <li><p>Cleanup failures are now reported as <a class="reference internal" href="../generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a> instead of being
 written to <code class="docutils literal notranslate"><span class="pre">stderr</span></code> with <code class="docutils literal notranslate"><span class="pre">print</span></code> or <code class="docutils literal notranslate"><span class="pre">fprintf</span></code>, so they can be filtered,
 captured with <code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.catch_warnings()</span></code>, and escalated. Failures of
