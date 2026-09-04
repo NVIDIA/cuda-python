@@ -74,7 +74,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history + tags so setuptools-scm derives the real (13.x)
           # package version; a shallow checkout yields 0.1.dev1, which trips
@@ -84,7 +84,7 @@ jobs:
       - name: Setup pixi
         # Pinned to a commit SHA; install logic lives in the action and is
         # auditable/pinned (vs. a curl|bash of an unverified installer).
-        uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
+        uses: prefix-dev/setup-pixi@d3f436a425481402e6a95a1d1fc10331c708cd9e # v0.10.2
         with:
           pixi-version: ${{ env.PIXI_VERSION }}
           run-install: false
@@ -135,7 +135,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history + tags so setuptools-scm derives the real (13.x)
           # package version; a shallow checkout yields 0.1.dev1, which trips
@@ -145,7 +145,7 @@ jobs:
       - name: Setup pixi
         # Pinned to a commit SHA; install logic lives in the action and is
         # auditable/pinned (vs. a curl|bash of an unverified installer).
-        uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
+        uses: prefix-dev/setup-pixi@d3f436a425481402e6a95a1d1fc10331c708cd9e # v0.10.2
         with:
           pixi-version: ${{ env.PIXI_VERSION }}
           run-install: false
@@ -196,7 +196,7 @@ jobs:
             ca-certificates git libgl1 libegl1
 
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history + tags so setuptools-scm derives the real (13.x)
           # package version; a shallow checkout yields 0.1.dev1, which trips
@@ -210,7 +210,7 @@ jobs:
       - name: Setup pixi
         # Pinned to a commit SHA; install logic lives in the action and is
         # auditable/pinned (vs. a curl|bash of an unverified installer).
-        uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
+        uses: prefix-dev/setup-pixi@d3f436a425481402e6a95a1d1fc10331c708cd9e # v0.10.2
         with:
           pixi-version: ${{ env.PIXI_VERSION }}
           run-install: false

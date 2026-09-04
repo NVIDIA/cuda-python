@@ -55,7 +55,7 @@ jobs:
         shell: bash -el {0}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ inputs.git-tag }}
@@ -348,7 +348,7 @@ jobs:
 
       - name: Deploy doc update
         if: ${{ inputs.deploy-docs && (github.ref_name == 'main' || inputs.is-release) }}
-        uses: JamesIves/github-pages-deploy-action@d92aa235d04922e8f08b40ce78cc5442fcfbfa2f  # v4.8.0
+        uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445  # v4.9.0
         with:
           git-config-name: cuda-python-bot
           git-config-email: cuda-python-bot@users.noreply.github.com
