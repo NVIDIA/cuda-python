@@ -89,7 +89,10 @@ def print_driver_info() -> None:
     else:
         print("NVML bindings are not compatible with this driver; device info will be limited.")
     if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-        print(f"Current process: {system.get_process_name(os.getpid())}")
+        try:
+            print(f"Current process: {system.get_process_name(os.getpid())}")
+        except system.NotFoundError:
+            print("Current process: N/A (process not found in NVML process list)")
 
 
 def print_device_info(device: "system.Device") -> None:
