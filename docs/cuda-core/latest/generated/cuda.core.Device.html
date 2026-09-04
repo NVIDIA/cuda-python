@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=fa216f22"></script>
+    <script src="../_static/documentation_options.js?v=69a16151"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev4';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev6';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -686,6 +686,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.3.0-notes.html">1.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.2.0-notes.html">1.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.1.1-notes.html">1.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.1.0-notes.html">1.1.0</a></li>
@@ -879,7 +880,7 @@ device and the specified peer device.</p>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><span class="pre">Event</span></a></span></span><a class="headerlink" href="#cuda.core.Device.create_event" title="Link to this definition">#</a></dt>
-<dd><p>Create an <a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a> object without recording it to a <a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>.</p>
+<dd><p>Create an <a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a> on this device without recording it to a <a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Device must be initialized.</p>
@@ -900,7 +901,7 @@ device and the specified peer device.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Device.create_graph_builder">
 <span class="sig-name descname"><span class="pre">create_graph_builder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></span><a class="headerlink" href="#cuda.core.Device.create_graph_builder" title="Link to this definition">#</a></dt>
-<dd><p>Create a new <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> object.</p>
+<dd><p>Create a new <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> on this device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Newly created graph builder object.</p>
@@ -921,11 +922,9 @@ device and the specified peer device.</p>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.texture.MipmappedArray.html#cuda.core.texture.MipmappedArray" title="cuda.core.texture.MipmappedArray"><span class="pre">MipmappedArray</span></a></span></span><a class="headerlink" href="#cuda.core.Device.create_mipmapped_array" title="Link to this definition">#</a></dt>
-<dd><p>Create a <a class="reference internal" href="cuda.core.texture.MipmappedArray.html#cuda.core.texture.MipmappedArray" title="cuda.core.texture.MipmappedArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MipmappedArray</span></code></a> on the current device.</p>
+<dd><p>Create a <a class="reference internal" href="cuda.core.texture.MipmappedArray.html#cuda.core.texture.MipmappedArray" title="cuda.core.texture.MipmappedArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MipmappedArray</span></code></a> on this device.</p>
 <p>Allocates a mipmapped CUDA array for texture/surface access across
-levels. The array is created in the current CUDA context, so make this
-device current with <a class="reference internal" href="#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_current()</span></code></a> before calling (mirroring
-<a class="reference internal" href="#cuda.core.Device.create_stream" title="cuda.core.Device.create_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_stream()</span></code></a> / <a class="reference internal" href="#cuda.core.Device.create_event" title="cuda.core.Device.create_event"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_event()</span></code></a>).</p>
+levels.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Device must be initialized.</p>
@@ -954,11 +953,9 @@ device current with <a class="reference internal" href="#cuda.core.Device.set_cu
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><span class="pre">OpaqueArray</span></a></span></span><a class="headerlink" href="#cuda.core.Device.create_opaque_array" title="Link to this definition">#</a></dt>
-<dd><p>Create an <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> on the current device.</p>
+<dd><p>Create an <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> on this device.</p>
 <p>Allocates an opaque, hardware-laid-out CUDA array for texture/surface
-access. The array is created in the current CUDA context, so make this
-device current with <a class="reference internal" href="#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_current()</span></code></a> before calling (mirroring
-<a class="reference internal" href="#cuda.core.Device.create_stream" title="cuda.core.Device.create_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_stream()</span></code></a> / <a class="reference internal" href="#cuda.core.Device.create_event" title="cuda.core.Device.create_event"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_event()</span></code></a>).</p>
+access.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Device must be initialized.</p>
@@ -988,7 +985,7 @@ device current with <a class="reference internal" href="#cuda.core.Device.set_cu
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a></span></span><a class="headerlink" href="#cuda.core.Device.create_stream" title="Link to this definition">#</a></dt>
-<dd><p>Create a <a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> object.</p>
+<dd><p>Create or wrap a <a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> object.</p>
 <p>New stream objects can be created in two different ways:</p>
 <ol class="arabic simple">
 <li><p>Create a new CUDA stream with customizable <code class="docutils literal notranslate"><span class="pre">options</span></code>.</p></li>
@@ -998,7 +995,7 @@ device current with <a class="reference internal" href="#cuda.core.Device.set_cu
 such that the lifetime is managed.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Device must be initialized.</p>
+<p>Device must be initialized. New streams are created on this device.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1027,14 +1024,11 @@ such that the lifetime is managed.</p>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.texture.SurfaceObject.html#cuda.core.texture.SurfaceObject" title="cuda.core.texture.SurfaceObject"><span class="pre">SurfaceObject</span></a></span></span><a class="headerlink" href="#cuda.core.Device.create_surface_object" title="Link to this definition">#</a></dt>
-<dd><p>Create a <a class="reference internal" href="cuda.core.texture.SurfaceObject.html#cuda.core.texture.SurfaceObject" title="cuda.core.texture.SurfaceObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SurfaceObject</span></code></a> on the current device.</p>
+<dd><p>Create a <a class="reference internal" href="cuda.core.texture.SurfaceObject.html#cuda.core.texture.SurfaceObject" title="cuda.core.texture.SurfaceObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SurfaceObject</span></code></a> on this device.</p>
 <p>Binds an <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> (via a
 <a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor" title="cuda.core.texture.ResourceDescriptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResourceDescriptor</span></code></a>) as a bindless surface for
 kernel-side typed load/store. The backing array must have been created
-with <code class="docutils literal notranslate"><span class="pre">is_surface_load_store=True</span></code>. The object is created in the
-current CUDA context, so make this device current with
-<a class="reference internal" href="#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_current()</span></code></a> before calling (mirroring <a class="reference internal" href="#cuda.core.Device.create_stream" title="cuda.core.Device.create_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_stream()</span></code></a> /
-<a class="reference internal" href="#cuda.core.Device.create_event" title="cuda.core.Device.create_event"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_event()</span></code></a>).</p>
+with <code class="docutils literal notranslate"><span class="pre">is_surface_load_store=True</span></code> and must belong to this device.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Device must be initialized.</p>
@@ -1066,14 +1060,12 @@ current CUDA context, so make this device current with
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><span class="pre">TextureObject</span></a></span></span><a class="headerlink" href="#cuda.core.Device.create_texture_object" title="Link to this definition">#</a></dt>
-<dd><p>Create a <a class="reference internal" href="cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TextureObject</span></code></a> on the current device.</p>
+<dd><p>Create a <a class="reference internal" href="cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TextureObject</span></code></a> on this device.</p>
 <p>Binds a resource (an <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> /
 <a class="reference internal" href="cuda.core.texture.MipmappedArray.html#cuda.core.texture.MipmappedArray" title="cuda.core.texture.MipmappedArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MipmappedArray</span></code></a> / linear or pitch2d
 <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code></a>, wrapped in a
 <a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor" title="cuda.core.texture.ResourceDescriptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResourceDescriptor</span></code></a>) as a bindless texture for
-kernel-side sampled reads. The object is created in the current CUDA
-context, so make this device current with <a class="reference internal" href="#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_current()</span></code></a> before
-calling (mirroring <a class="reference internal" href="#cuda.core.Device.create_stream" title="cuda.core.Device.create_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_stream()</span></code></a> / <a class="reference internal" href="#cuda.core.Device.create_event" title="cuda.core.Device.create_event"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_event()</span></code></a>).</p>
+kernel-side sampled reads. The resource must belong to this device.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Device must be initialized.</p>
@@ -1124,12 +1116,19 @@ calling (mirroring <a class="reference internal" href="#cuda.core.Device.create_
 context. By default the primary context is used, but optional <cite>ctx</cite>
 parameter can be used to explicitly supply a <a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core._context.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a> object.</p>
 <p>Providing a <cite>ctx</cite> causes the previous set context to be popped and returned.</p>
+<p>If <cite>ctx</cite> was created on a different device than this receiver, the call
+is delegated to that device’s own <a class="reference internal" href="#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_current()</span></code></a>. This keeps the
+owning device’s bookkeeping consistent and lets a context this method
+handed out for a foreign device be pushed back through any <code class="docutils literal notranslate"><span class="pre">Device</span></code>
+object, matching the CUDA context stack’s own thread-wide semantics.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ctx</strong> (<a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core._context.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a>, optional) – Optional context to push onto this device’s current thread stack.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Popped context.</p>
+<dd class="field-even"><p>The previous context, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no context was current. When
+returned, its <code class="docutils literal notranslate"><span class="pre">device_id</span></code> identifies the device that was
+previously current.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core._context.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a>, optional</p>
@@ -1149,7 +1148,11 @@ calling this method, e.g.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Device.sync">
 <span class="sig-name descname"><span class="pre">sync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.Device.sync" title="Link to this definition">#</a></dt>
-<dd><p>Synchronize the device.</p>
+<dd><p>Synchronize this device’s bound context.</p>
+<p>Waits for all preceding work in this device’s bound <a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core._context.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a>
+to complete. Only that context is synchronized, not the device as a
+whole; work queued in a different context on the same device (e.g. a
+green context) is unaffected.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Device must be initialized.</p>
@@ -1204,11 +1207,13 @@ for NVIDIA Management Library (NVML) access) for this
 <dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.Device.default_stream">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default_stream</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><span class="pre">Stream</span></a></em><a class="headerlink" href="#cuda.core.Device.default_stream" title="Link to this definition">#</a></dt>
-<dd><p>Return default CUDA <a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> associated with this device.</p>
+<dd><p>Return a default CUDA <a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> token.</p>
 <p>The type of default stream returned depends on if the environment
 variable CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM is set.</p>
 <p>If set, returns a per-thread default stream. Otherwise returns
 the legacy stream.</p>
+<p>A default-stream token uses the device that is current when the token
+is used.</p>
 </dd></dl>
 
 <dl class="py property">
