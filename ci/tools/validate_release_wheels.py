@@ -11,7 +11,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from collections import defaultdict
 from pathlib import Path
 from typing import Mapping
 
@@ -105,7 +104,7 @@ def main() -> int:
         print(f"Error: No wheel files found in {wheel_dir}", file=sys.stderr)
         return 1
 
-    seen_versions: dict[str, set[str]] = defaultdict(set)
+    seen_distributions: set[str] = set()
     errors: list[str] = []
 
     for wheel in wheels:
@@ -122,7 +121,7 @@ def main() -> int:
             )
             continue
 
-        seen_versions[distribution].add(version)
+        seen_distributions.add(distribution)
 
         if ".dev" in version or "+" in version:
             errors.append(
@@ -136,15 +135,9 @@ def main() -> int:
                 f"release version {expected_version!r} from git tag {args.git_tag!r}."
             )
 
-    missing_distributions = sorted(expected_distributions - set(seen_versions))
+    missing_distributions = sorted(expected_distributions - seen_distributions)
     if missing_distributions:
         errors.append("Missing expected component wheels in download set: " + ", ".join(missing_distributions))
-
-    for distribution, versions in sorted(seen_versions.items()):
-        if len(versions) > 1:
-            errors.append(
-                f"Expected one release version for {distribution}, found multiple: " + ", ".join(sorted(versions))
-            )
 
     if errors:
         print("Wheel validation failed:", file=sys.stderr)

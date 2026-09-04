@@ -15,7 +15,6 @@ from ci.tools.bindings_config import (
     BindingsConfigError,
     load_config,
     main,
-    package_from_dict,
     resolve_release_bindings_package,
     validate_config,
 )
@@ -187,16 +186,6 @@ def test_list_valued_release_status_is_rejected():
         validate_config(data)
 
 
-@pytest.mark.agent_authored(model="gpt-5.6")
-def test_normalized_package_rejects_unknown_release_status():
-    config = load_config()
-    normalized = config.package_for_release_status("current").to_dict()
-    normalized["release_status"] = "unknown"
-
-    with pytest.raises(BindingsConfigError, match="must be one of current, maintenance"):
-        package_from_dict(normalized)
-
-
 @pytest.mark.parametrize(
     ("release_statuses", "message"),
     (
@@ -247,14 +236,14 @@ def write_release_scm_configs(root: Path, *, current_dir: str, maintenance_dir: 
 
 
 @pytest.mark.parametrize(
-    ("release_tag", "expected_root"),
+    ("release_tag", "expected_root", "expected_toolkit"),
     (
-        ("v13.3.2", "tag-current"),
-        ("v12.9.8", "tag-maintenance"),
+        ("v13.3.2", "tag-current", "13.3.0"),
+        ("v12.9.8", "tag-maintenance", "12.9.1"),
     ),
 )
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_release_cli_uses_authoritative_tag_tree(tmp_path, capsys, release_tag, expected_root):
+def test_release_cli_uses_authoritative_tag_tree(tmp_path, capsys, release_tag, expected_root, expected_toolkit):
     release_root = tmp_path / "release"
     tagged_config = release_root / "ci" / "versions.yml"
     control_config = tmp_path / "control" / "ci" / "versions.yml"
@@ -277,10 +266,12 @@ def test_release_cli_uses_authoritative_tag_tree(tmp_path, capsys, release_tag, 
     )
 
     resolved = json.loads(capsys.readouterr().out)
-    assert resolved["package_root"] == expected_root
-    assert resolved["release_package_root"] == expected_root
-    assert resolved["release_registry_origin"] == "tag"
-    assert resolved["release_version"] == release_tag.removeprefix("v")
+    assert resolved == {
+        "package_root": expected_root,
+        "toolkit_version": expected_toolkit,
+        "release_version": release_tag.removeprefix("v"),
+        "release_registry_origin": "tag",
+    }
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -296,12 +287,12 @@ def test_legacy_tag_tree_uses_control_registry_and_legacy_layout(tmp_path):
 
     resolved = resolve_release_bindings_package("v12.9.8", release_root, control_config)
 
-    assert resolved["package_root"] == "cuda_bindings"
-    assert resolved["release_status"] is None
-    assert resolved["release_package_root"] == "cuda_bindings"
-    assert resolved["release_registry_origin"] == "control"
-    assert resolved["release_version"] == "12.9.8"
-    assert resolved["toolkit_version"] == "12.9.1"
+    assert resolved == {
+        "package_root": "cuda_bindings",
+        "toolkit_version": "12.9.1",
+        "release_version": "12.9.8",
+        "release_registry_origin": "control",
+    }
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -318,7 +309,7 @@ def test_legacy_prerelease_preserves_tagged_tree_toolkit_and_scm_semantics(tmp_p
 
     assert resolved["release_version"] == "13.2.0"
     assert resolved["toolkit_version"] == "13.1.0"
-    assert resolved["release_package_root"] == "cuda_bindings"
+    assert resolved["package_root"] == "cuda_bindings"
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")

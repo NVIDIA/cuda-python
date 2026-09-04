@@ -169,7 +169,8 @@ def _text(value: Any, label: str, pattern: re.Pattern[str]) -> str:
     return value
 
 
-def _package_root(value: Any, label: str) -> str:
+def parse_package_root(value: Any, label: str = "package_root") -> str:
+    """Validate a repository-relative package root."""
     package_root = _text(value, label, _PACKAGE_ROOT_PATTERN)
     if any(part in (".", "..") for part in package_root.split("/")):
         raise BindingsConfigError(f"{label} must be a normalized repository-relative POSIX path: {package_root!r}")
@@ -191,7 +192,7 @@ def _read_tag_regex(repo_root: Path, package_root: str) -> str:
 
 
 def _package(package_root: str, raw: Any, repo_root: Path) -> BindingsPackage:
-    package_root = _package_root(package_root, "CUDA bindings package root")
+    package_root = parse_package_root(package_root, "CUDA bindings package root")
     data = _mapping(
         raw,
         f"CUDA bindings package root {package_root!r}",
@@ -211,34 +212,6 @@ def _package(package_root: str, raw: Any, repo_root: Path) -> BindingsPackage:
         ),
         tag_regex=_read_tag_regex(repo_root, package_root),
     )
-
-
-def package_from_dict(data: Mapping[str, object]) -> BindingsPackage:
-    """Validate a normalized package record passed between release jobs."""
-    package_root = _package_root(data.get("package_root"), "resolved package_root")
-    toolkit_version = _text(
-        data.get("toolkit_version"),
-        "resolved toolkit_version",
-        _TOOLKIT_VERSION_PATTERN,
-    )
-    release_status_value = data.get("release_status")
-    release_status = (
-        None if release_status_value is None else _text(release_status_value, "resolved release_status", _NAME_PATTERN)
-    )
-    if release_status is not None and release_status not in RELEASE_STATUSES:
-        raise BindingsConfigError(
-            f"resolved release_status must be one of {', '.join(sorted(RELEASE_STATUSES))}: {release_status!r}"
-        )
-    tag_regex = data.get("tag_regex")
-    if not isinstance(tag_regex, str) or not tag_regex:
-        raise BindingsConfigError("resolved tag_regex must be a non-empty string")
-    _compile_tag_regex(tag_regex, "resolved tag_regex")
-    package = BindingsPackage(package_root, toolkit_version, release_status, tag_regex)
-    expected = package.to_dict()
-    for key in ("ctk_target", "cuda_major", "cuda_variant"):
-        if key in data and data[key] != expected[key]:
-            raise BindingsConfigError(f"resolved {key} is inconsistent with toolkit_version")
-    return package
 
 
 def _validate_release_statuses(packages: tuple[BindingsPackage, ...]) -> None:
@@ -355,13 +328,17 @@ def _legacy_release_package(
         release_status=None,
         tag_regex=tag_regex,
     )
-    normalized = package.to_dict()
-    normalized.update(
-        release_version=str(release_version),
-        release_package_root=package_root,
-        release_registry_origin="control",
-    )
-    return normalized
+    return _release_record(package, release_version, "control")
+
+
+def _release_record(package: BindingsPackage, version: Version, origin: str) -> dict[str, object]:
+    """Return the package fields consumed by release jobs."""
+    return {
+        "package_root": package.package_root,
+        "toolkit_version": package.toolkit_version,
+        "release_version": str(version),
+        "release_registry_origin": origin,
+    }
 
 
 def resolve_release_bindings_package(
@@ -385,27 +362,24 @@ def resolve_release_bindings_package(
             f"no CUDA bindings package root in {config_source} matches release tag: {release_tag!r}"
         )
 
-    normalized = package.to_dict()
     version = package.version_from_tag(release_tag)
     assert version is not None
-    normalized["release_version"] = str(version)
-    normalized["release_package_root"] = package.package_root
-    normalized["release_registry_origin"] = "tag"
-    return normalized
+    return _release_record(package, version, "tag")
 
 
 def write_github_env(data: Mapping[str, object], path: Path) -> None:
     """Append the bindings build environment consumed by documentation jobs."""
-    package = package_from_dict(data)
-    package_root = _package_root(
-        data.get("release_package_root", package.package_root),
-        "release package_root",
+    package_root = parse_package_root(data.get("package_root"), "resolved package_root")
+    toolkit_version = _text(
+        data.get("toolkit_version"),
+        "resolved toolkit_version",
+        _TOOLKIT_VERSION_PATTERN,
     )
     origin = data.get("release_registry_origin", "tag")
     if origin not in {"tag", "control"}:
         raise BindingsConfigError("release_registry_origin must be tag or control")
     with path.open("a", encoding="utf-8") as stream:
-        stream.write(f"BUILD_CTK_VER={package.toolkit_version}\n")
+        stream.write(f"BUILD_CTK_VER={toolkit_version}\n")
         stream.write(f"BINDINGS_PACKAGE_ROOT={package_root}\n")
         stream.write(f"BINDINGS_REGISTRY_ORIGIN={origin}\n")
 

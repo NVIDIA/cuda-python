@@ -18,13 +18,10 @@ def write_notes(root: Path, package: str, version: str, content: str = "Release 
     return path
 
 
-def resolved_12_package(release_package_root: str = "cuda_bindings") -> dict[str, object]:
+def resolved_12_package(package_root: str = "cuda_bindings") -> dict[str, object]:
     return {
-        "package_root": "cuda_bindings_12",
-        "release_package_root": release_package_root,
+        "package_root": package_root,
         "toolkit_version": "12.9.1",
-        "release_status": "maintenance",
-        "tag_regex": r"^(?P<version>v12\.9\.\d+(?:\.post\d+)?)$",
         "release_version": "12.9.8",
         "release_registry_origin": "control",
     }
@@ -146,4 +143,4 @@ def test_main_rejects_unsafe_resolved_package_root(tmp_path, capsys):
     ]
 
     assert main(args) == 2
-    assert "not repository-relative" in capsys.readouterr().err
+    assert "normalized repository-relative POSIX path" in capsys.readouterr().err

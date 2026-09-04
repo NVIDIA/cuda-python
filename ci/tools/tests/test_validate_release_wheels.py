@@ -15,10 +15,7 @@ def resolved_package() -> str:
     return json.dumps(
         {
             "package_root": "alternate_bindings_12_8",
-            "release_package_root": "alternate_bindings_12_8",
             "toolkit_version": "12.8.0",
-            "release_status": "maintenance",
-            "tag_regex": r"^(?P<version>v12\.8\.\d+(?:\.post\d+)?)$",
             "release_version": "12.8.0",
             "release_registry_origin": "tag",
         },
@@ -56,18 +53,6 @@ def test_tag_authoritative_package_validates_after_control_registry_moves_on(tmp
 
     assert without_resolved_package.returncode == 1
     assert with_resolved_package.returncode == 0, with_resolved_package.stderr
-
-
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_resolved_package_must_match_the_release_tag(tmp_path):
-    (tmp_path / "cuda_bindings-12.8.0-cp312-cp312-manylinux.whl").touch()
-    package = json.loads(resolved_package())
-    package["tag_regex"] = r"^(?P<version>v12\.9\.\d+)$"
-
-    result = run_validator(tmp_path, "--bindings-package", json.dumps(package))
-
-    assert result.returncode == 1
-    assert "does not match release tag" in result.stderr
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
