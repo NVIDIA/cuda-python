@@ -13,10 +13,9 @@ on:
         required: true
         type: string
       workplan:
-        description: JSON workplan. An empty value builds and tests everything.
-        required: false
+        description: JSON workplan.
+        required: true
         type: string
-        default: ""
 
 defaults:
   run:
@@ -29,8 +28,8 @@ permissions:
 jobs:
   build:
     env:
-      BASELINE_RUN_ID: ${{ inputs.workplan != '' && fromJSON(inputs.workplan).baseline.run_id || '' }}
-      BASELINE_SHA: ${{ inputs.workplan != '' && fromJSON(inputs.workplan).baseline.sha || '' }}
+      BASELINE_RUN_ID: ${{ fromJSON(inputs.workplan).baseline.run_id }}
+      BASELINE_SHA: ${{ fromJSON(inputs.workplan).baseline.sha }}
     strategy:
       fail-fast: false
       matrix:
@@ -74,52 +73,34 @@ jobs:
               ' <<< "$BINDINGS_CONFIG"
             )
 
-          if [[ -z "$WORKPLAN" ]]; then
-            pathfinder_source=artifact
-            build_pathfinder=true
-            build_bindings=true
-            build_bindings_current=true
-            build_bindings_maintenance=true
-            build_core=true
-            build_cuda_python=true
-            build_cuda_python_current=true
-            build_cuda_python_maintenance=true
-            test_bindings=true
-            test_bindings_current=true
-            test_bindings_maintenance=true
-            test_core=true
-            test_core_current=true
-            test_core_maintenance=true
-          else
-            IFS=$'\t\r' read -r \
-              pathfinder_source build_pathfinder build_bindings build_core build_cuda_python \
-              test_bindings test_core build_bindings_current build_bindings_maintenance \
-              build_cuda_python_current build_cuda_python_maintenance test_bindings_current \
-              test_bindings_maintenance test_core_current test_core_maintenance < <(
-                jq -er \
-                  --arg current "$current_root" \
-                  --arg maintenance "$maintenance_root" \
-                  --arg current_variant "$current_variant" \
-                  --arg maintenance_variant "$maintenance_variant" '
-                    [.sources.pathfinder,
-                     .modules.pathfinder.needs_build,
-                     .modules.bindings.needs_build,
-                     .modules.core.needs_build,
-                     .modules.python.needs_build,
-                     .modules.bindings.needs_test,
-                     .modules.core.needs_test,
-                     .modules.bindings.package_roots[$current].needs_build,
-                     .modules.bindings.package_roots[$maintenance].needs_build,
-                     .modules.python.package_roots[$current].needs_build,
-                     .modules.python.package_roots[$maintenance].needs_build,
-                     .modules.bindings.package_roots[$current].needs_test,
-                     .modules.bindings.package_roots[$maintenance].needs_test,
-                     .modules.core.cuda_majors[$current_variant].needs_test,
-                     .modules.core.cuda_majors[$maintenance_variant].needs_test]
-                    | @tsv
-                  ' <<< "$WORKPLAN"
-              )
-          fi
+          IFS=$'\t\r' read -r \
+            pathfinder_source build_pathfinder build_bindings build_core build_cuda_python \
+            test_bindings test_core build_bindings_current build_bindings_maintenance \
+            build_cuda_python_current build_cuda_python_maintenance test_bindings_current \
+            test_bindings_maintenance test_core_current test_core_maintenance < <(
+              jq -er \
+                --arg current "$current_root" \
+                --arg maintenance "$maintenance_root" \
+                --arg current_variant "$current_variant" \
+                --arg maintenance_variant "$maintenance_variant" '
+                  [.sources.pathfinder,
+                   .modules.pathfinder.needs_build,
+                   .modules.bindings.needs_build,
+                   .modules.core.needs_build,
+                   .modules.python.needs_build,
+                   .modules.bindings.needs_test,
+                   .modules.core.needs_test,
+                   .modules.bindings.package_roots[$current].needs_build,
+                   .modules.bindings.package_roots[$maintenance].needs_build,
+                   .modules.python.package_roots[$current].needs_build,
+                   .modules.python.package_roots[$maintenance].needs_build,
+                   .modules.bindings.package_roots[$current].needs_test,
+                   .modules.bindings.package_roots[$maintenance].needs_test,
+                   .modules.core.cuda_majors[$current_variant].needs_test,
+                   .modules.core.cuda_majors[$maintenance_variant].needs_test]
+                  | @tsv
+                ' <<< "$WORKPLAN"
+            )
 
           {
             echo "PATHFINDER_SOURCE=$pathfinder_source"

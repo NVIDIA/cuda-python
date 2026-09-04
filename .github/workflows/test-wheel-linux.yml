@@ -101,15 +101,8 @@ jobs:
             ' <<< "$BINDINGS_PACKAGES")
             PATHFINDER_SOURCE=artifact
           else
-            TEST_CUDA_MAJORS=$(jq -ce '
-              .jobs.test_cuda_majors
-              | if type == "object" then . else error("workplan test_cuda_majors must be an object") end
-            ' <<< "$WORKPLAN")
-            PATHFINDER_SOURCE=$(jq -er '
-              .sources.pathfinder
-              | select(. == "artifact" or . == "published")
-                // error("workplan has no valid cuda-pathfinder source")
-            ' <<< "$WORKPLAN")
+            TEST_CUDA_MAJORS=$(jq -c '.jobs.test_cuda_majors' <<< "$WORKPLAN")
+            PATHFINDER_SOURCE=$(jq -r '.sources.pathfinder' <<< "$WORKPLAN")
           fi
 
           jq -en \

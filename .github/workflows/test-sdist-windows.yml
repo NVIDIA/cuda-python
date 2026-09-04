@@ -19,9 +19,8 @@ on:
         required: true
         type: string
       workplan:
-        description: JSON workplan. An empty value builds everything.
-        required: false
-        default: ""
+        description: JSON workplan.
+        required: true
         type: string
 
 defaults:
@@ -35,21 +34,16 @@ permissions:
 jobs:
   test-sdist:
     name: Test sdist builds (${{ fromJSON(inputs.bindings-package).package_root }})
-    if: ${{ (inputs.workplan == '' || fromJSON(inputs.workplan).jobs.sdist_tests) &&
-            (inputs.workplan == '' ||
-             fromJSON(inputs.workplan).jobs.sdist_package_roots[fromJSON(inputs.bindings-package).package_root]) }}
+    if: ${{ fromJSON(inputs.workplan).jobs.sdist_package_roots[fromJSON(inputs.bindings-package).package_root] }}
     env:
       BINDINGS_ROOT: ${{ fromJSON(inputs.bindings-package).package_root }}
       CUDA_BUILD_VERSION: ${{ fromJSON(inputs.bindings-package).toolkit_version }}
       CUDA_PYTHON_BUILD_MAJOR: ${{ fromJSON(inputs.bindings-package).cuda_major }}
-      BUILD_PATHFINDER: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_build }}
-      BUILD_BINDINGS: ${{ inputs.workplan == '' ||
-                          fromJSON(inputs.workplan).modules.bindings.package_roots[fromJSON(inputs.bindings-package).package_root].needs_build }}
-      BUILD_CORE: ${{ inputs.workplan == '' ||
-                      fromJSON(inputs.workplan).modules.core.cuda_majors[fromJSON(inputs.bindings-package).cuda_variant].needs_build }}
-      BUILD_CUDA_PYTHON: ${{ inputs.workplan == '' ||
-                             fromJSON(inputs.workplan).modules.python.package_roots[fromJSON(inputs.bindings-package).package_root].needs_build }}
-      PATHFINDER_SOURCE: ${{ inputs.workplan == '' && 'artifact' || fromJSON(inputs.workplan).sources.pathfinder }}
+      BUILD_PATHFINDER: ${{ fromJSON(inputs.workplan).modules.pathfinder.needs_build }}
+      BUILD_BINDINGS: ${{ fromJSON(inputs.workplan).modules.bindings.package_roots[fromJSON(inputs.bindings-package).package_root].needs_build }}
+      BUILD_CORE: ${{ fromJSON(inputs.workplan).modules.core.cuda_majors[fromJSON(inputs.bindings-package).cuda_variant].needs_build }}
+      BUILD_CUDA_PYTHON: ${{ fromJSON(inputs.workplan).modules.python.package_roots[fromJSON(inputs.bindings-package).package_root].needs_build }}
+      PATHFINDER_SOURCE: ${{ fromJSON(inputs.workplan).sources.pathfinder }}
     timeout-minutes: 60
     runs-on: windows-2022
     steps:
