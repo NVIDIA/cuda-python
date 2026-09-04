@@ -41,10 +41,12 @@ Fixes and enhancements
   internal driver thread.
   (`#2371 <https://github.com/NVIDIA/cuda-python/pull/2371>`__)
 
-- The on-disk program cache directory is now created with owner-only
-  permissions (``0o700``) on POSIX systems, and those permissions are
-  re-asserted on each use.  This prevents other local users from reading or
-  injecting cached device code regardless of the process ``umask``.
+- Program cache entry files are now written with owner-only permissions
+  (``0o600``) on POSIX systems, and the ``tmp/`` staging directory is created
+  ``0o700``, so other local users cannot read cached device code regardless of
+  the process ``umask``.  The cache root and ``entries/`` inherit the umask and
+  a pre-existing cache directory is used as-is, so a deliberately shared cache
+  keeps working.
   (`#2399 <https://github.com/NVIDIA/cuda-python/pull/2399>`__)
 
 - DLPack: a ``NULL`` deleter in a ``DLManagedTensorVersioned`` capsule is now
