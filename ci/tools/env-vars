@@ -11,7 +11,13 @@ set -euo pipefail
 # Check if the script was called with exactly 1 argument
 if [[ ${#} -ne 1 ]]; then
   echo "Error: This script requires exactly 1 argument (the build mode). You provided ${#}"
-  echo "Usage: ${0} build_mode[build or test]"
+  echo "Usage: ${0} {build|test}"
+  exit 1
+fi
+BUILD_MODE=${1}
+if [[ "${BUILD_MODE}" != "build" && "${BUILD_MODE}" != "test" ]]; then
+  echo "Error: build mode must be build or test, got ${BUILD_MODE}" >&2
+  echo "Usage: ${0} {build|test}" >&2
   exit 1
 fi
 
@@ -39,7 +45,7 @@ CUDA_CORE_ARTIFACT_NAME="${CUDA_CORE_ARTIFACT_BASENAME}-${SHA}"
   echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}"
 } >> $GITHUB_ENV
 
-if [[ "${1}" == "build" ]]; then
+if [[ "${BUILD_MODE}" == "build" ]]; then
   # platform is handled by the default value of platform (`auto`) in cibuildwheel
   # here we only need to specify the python version we want
   echo "CIBW_BUILD=cp${PYTHON_VERSION_FORMATTED}-*" >> $GITHUB_ENV
@@ -89,12 +95,11 @@ if [[ "${1}" == "build" ]]; then
     echo "MAINTENANCE_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/${MAINTENANCE_BINDINGS_ROOT}/tests/cython")"
     echo "CURRENT_PYTHON_ARTIFACT_NAME=cuda-python-wheel-cuda${CURRENT_CUDA_VERSION}"
     echo "MAINTENANCE_PYTHON_ARTIFACT_NAME=cuda-python-wheel-cuda${MAINTENANCE_CUDA_VERSION}"
-    echo "CUDA_CORE_CYTHON_TEST_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_NAME}-cu${CURRENT_CUDA_MAJOR}-tests"
   } >> $GITHUB_ENV
   # Enforce an explicit cache dir so that we can reuse this path later
   echo "SCCACHE_DIR=${HOME}/.cache/sccache" >> $GITHUB_ENV
   echo "SCCACHE_CACHE_SIZE=1G" >> $GITHUB_ENV
-elif [[ "${1}" == "test" ]]; then
+else
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< "${CUDA_VER}")"
 
   # BINDINGS_SOURCE controls which cuda-bindings to install at test time:

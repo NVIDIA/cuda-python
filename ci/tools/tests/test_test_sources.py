@@ -98,6 +98,19 @@ def _read_github_env(path: Path) -> dict[str, str]:
     return dict(line.split("=", 1) for line in path.read_text(encoding="utf-8").splitlines())
 
 
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_env_vars_rejects_unknown_mode() -> None:
+    result = subprocess.run(  # noqa: S603 - invokes the repository script under test
+        [str(ENV_VARS), "unknown"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 1
+    assert "build mode must be build or test" in result.stderr
+
+
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_build_env_uses_registry_packages_without_generic_bindings_aliases(tmp_path: Path) -> None:
     github_env = tmp_path / "github-env"
