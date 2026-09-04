@@ -43,24 +43,22 @@ if [[ "${1}" == "build" ]]; then
   # platform is handled by the default value of platform (`auto`) in cibuildwheel
   # here we only need to specify the python version we want
   echo "CIBW_BUILD=cp${PYTHON_VERSION_FORMATTED}-*" >> $GITHUB_ENV
-  CURRENT_PACKAGE_JSON="$(python -m ci.tools.bindings_config --release-status current)"
-  MAINTENANCE_PACKAGE_JSON="$(python -m ci.tools.bindings_config --release-status maintenance)"
-  json_field() {
-    python -c 'import json, sys; print(json.load(sys.stdin)[sys.argv[1]])' "$1"
-  }
-  CURRENT_BINDINGS_ROOT="$(json_field package_root <<< "${CURRENT_PACKAGE_JSON}")"
-  CURRENT_CUDA_VERSION="$(json_field toolkit_version <<< "${CURRENT_PACKAGE_JSON}")"
-  CURRENT_CUDA_MAJOR="$(json_field cuda_major <<< "${CURRENT_PACKAGE_JSON}")"
-  CURRENT_CUDA_VARIANT="$(json_field cuda_variant <<< "${CURRENT_PACKAGE_JSON}")"
-  MAINTENANCE_BINDINGS_ROOT="$(json_field package_root <<< "${MAINTENANCE_PACKAGE_JSON}")"
-  MAINTENANCE_CUDA_VERSION="$(json_field toolkit_version <<< "${MAINTENANCE_PACKAGE_JSON}")"
-  MAINTENANCE_CUDA_MAJOR="$(json_field cuda_major <<< "${MAINTENANCE_PACKAGE_JSON}")"
-  MAINTENANCE_CUDA_VARIANT="$(json_field cuda_variant <<< "${MAINTENANCE_PACKAGE_JSON}")"
+  # Native jq on Windows emits CRLF, so treat CR as an input delimiter too.
+  IFS=$'\t\r' read -r \
+    CURRENT_BINDINGS_ROOT CURRENT_CUDA_VERSION CURRENT_CUDA_MAJOR CURRENT_CUDA_VARIANT \
+    MAINTENANCE_BINDINGS_ROOT MAINTENANCE_CUDA_VERSION MAINTENANCE_CUDA_MAJOR MAINTENANCE_CUDA_VARIANT < <(
+      python -m ci.tools.bindings_config --package-roots \
+        | jq -er '
+          (.[] | select(.release_status == "current")) as $current
+          | (.[] | select(.release_status == "maintenance")) as $maintenance
+          | [$current.package_root, $current.toolkit_version, $current.cuda_major, $current.cuda_variant,
+             $maintenance.package_root, $maintenance.toolkit_version, $maintenance.cuda_major,
+             $maintenance.cuda_variant]
+          | @tsv
+        '
+    )
   CURRENT_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${CURRENT_CUDA_VERSION}-${HOST_PLATFORM}"
   MAINTENANCE_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${MAINTENANCE_CUDA_VERSION}-${HOST_PLATFORM}"
-  CUDA_BINDINGS_ARTIFACT_BASENAME="${CURRENT_BINDINGS_ARTIFACT_BASENAME}"
-  CUDA_BINDINGS_ARTIFACTS_DIR="$(realpath "${REPO_DIR}/${CURRENT_BINDINGS_ROOT}/dist")"
-  CUDA_BINDINGS_CYTHON_TESTS_DIR="$(realpath "${REPO_DIR}/${CURRENT_BINDINGS_ROOT}/tests/cython")"
   MAINTENANCE_SCM_VERSION="$(python -m ci.tools.bindings_scm_version \
     --repo-root "${REPO_DIR}" \
     --package-root "${MAINTENANCE_BINDINGS_ROOT}" \
@@ -91,6 +89,7 @@ if [[ "${1}" == "build" ]]; then
     echo "MAINTENANCE_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/${MAINTENANCE_BINDINGS_ROOT}/tests/cython")"
     echo "CURRENT_PYTHON_ARTIFACT_NAME=cuda-python-wheel-cuda${CURRENT_CUDA_VERSION}"
     echo "MAINTENANCE_PYTHON_ARTIFACT_NAME=cuda-python-wheel-cuda${MAINTENANCE_CUDA_VERSION}"
+    echo "CUDA_CORE_CYTHON_TEST_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_NAME}-cu${CURRENT_CUDA_MAJOR}-tests"
   } >> $GITHUB_ENV
   # Enforce an explicit cache dir so that we can reuse this path later
   echo "SCCACHE_DIR=${HOME}/.cache/sccache" >> $GITHUB_ENV
@@ -168,15 +167,10 @@ elif [[ "${1}" == "test" ]]; then
     echo "SKIP_CYTHON_TEST=${SKIP_CYTHON_TEST}"
     echo "TEST_CUDA_MAJOR=${TEST_CUDA_MAJOR}"
     echo "TEST_CUDA_MINOR=${TEST_CUDA_MINOR}"
+    echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}"
+    echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${SHA}"
+    echo "CUDA_BINDINGS_ARTIFACTS_DIR=${CUDA_BINDINGS_ARTIFACTS_DIR}"
+    echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=${CUDA_BINDINGS_CYTHON_TESTS_DIR}"
+    echo "CUDA_CORE_CYTHON_TEST_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_NAME}-cu${TEST_CUDA_MAJOR}-tests"
   } >> $GITHUB_ENV
 fi
-
-: "${CUDA_BINDINGS_ARTIFACTS_DIR:?internal error: bindings artifact directory was not resolved}"
-: "${CUDA_BINDINGS_CYTHON_TESTS_DIR:?internal error: bindings Cython test directory was not resolved}"
-{
-  echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}"
-  echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${SHA}"
-  echo "CUDA_BINDINGS_ARTIFACTS_DIR=${CUDA_BINDINGS_ARTIFACTS_DIR}"
-  echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=${CUDA_BINDINGS_CYTHON_TESTS_DIR}"
-  echo "CUDA_CORE_CYTHON_TEST_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_NAME}-cu${TEST_CUDA_MAJOR:-${CURRENT_CUDA_MAJOR}}-tests"
-} >> $GITHUB_ENV

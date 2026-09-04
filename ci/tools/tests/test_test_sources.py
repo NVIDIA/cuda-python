@@ -10,6 +10,8 @@ from pathlib import Path
 
 import pytest
 
+from ci.tools.bindings_config import load_config
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 RUN_TESTS = REPO_ROOT / "ci" / "tools" / "run-tests"
 ENV_VARS = REPO_ROOT / "ci" / "tools" / "env-vars"
@@ -89,6 +91,54 @@ def _run_env_vars(
         check=False,
         capture_output=True,
         text=True,
+    )
+
+
+def _read_github_env(path: Path) -> dict[str, str]:
+    return dict(line.split("=", 1) for line in path.read_text(encoding="utf-8").splitlines())
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_build_env_uses_registry_packages_without_generic_bindings_aliases(tmp_path: Path) -> None:
+    github_env = tmp_path / "github-env"
+    env = {
+        **os.environ,
+        "GITHUB_ENV": str(github_env),
+        "GITHUB_PATH": str(tmp_path / "github-path"),
+        "HOST_PLATFORM": "linux-64",
+        "PY_VER": "3.13",
+        "SHA": "abcdef0",
+    }
+
+    result = subprocess.run(  # noqa: S603 - invokes the repository script under test
+        [str(ENV_VARS), "build"],
+        cwd=REPO_ROOT,
+        env=env,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    values = _read_github_env(github_env)
+    config = load_config()
+    for status in ("current", "maintenance"):
+        package = config.package_for_release_status(status)
+        prefix = status.upper()
+        assert values[f"{prefix}_BINDINGS_ROOT"] == package.package_root
+        assert values[f"{prefix}_CUDA_VERSION"] == package.toolkit_version
+        assert values[f"{prefix}_CUDA_MAJOR"] == package.cuda_major
+        assert values[f"{prefix}_CUDA_VARIANT"] == package.cuda_variant
+        assert values[f"{prefix}_BINDINGS_ARTIFACT_NAME"].endswith("-abcdef0")
+
+    assert (
+        not {
+            "CUDA_BINDINGS_ARTIFACT_BASENAME",
+            "CUDA_BINDINGS_ARTIFACT_NAME",
+            "CUDA_BINDINGS_ARTIFACTS_DIR",
+            "CUDA_BINDINGS_CYTHON_TESTS_DIR",
+        }
+        & values.keys()
     )
 
 
@@ -197,9 +247,15 @@ def test_cuda_python_artifact_name_exists_only_for_local_bindings(
     )
 
     assert result.returncode == 0, result.stderr
-    github_env = (tmp_path / "github-env").read_text(encoding="utf-8").splitlines()
-    artifact_lines = [line for line in github_env if line.startswith("CUDA_PYTHON_ARTIFACT_NAME=")]
+    github_env = _read_github_env(tmp_path / "github-env")
+    assert {
+        "CUDA_BINDINGS_ARTIFACT_BASENAME",
+        "CUDA_BINDINGS_ARTIFACT_NAME",
+        "CUDA_BINDINGS_ARTIFACTS_DIR",
+        "CUDA_BINDINGS_CYTHON_TESTS_DIR",
+        "CUDA_CORE_CYTHON_TEST_ARTIFACT_NAME",
+    } <= github_env.keys()
     if expected_artifact is None:
-        assert artifact_lines == []
+        assert "CUDA_PYTHON_ARTIFACT_NAME" not in github_env
     else:
-        assert artifact_lines == [f"CUDA_PYTHON_ARTIFACT_NAME={expected_artifact}"]
+        assert github_env["CUDA_PYTHON_ARTIFACT_NAME"] == expected_artifact
