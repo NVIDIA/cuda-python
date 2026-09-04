@@ -28,7 +28,7 @@ from cuda.core import (
     DeviceMemoryResourceOptions,
     LegacyPinnedMemoryResource,
 )
-from cuda.core._memory._device_memory_resource import _SynchronousMemoryResource
+from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
 from cuda.core._resource_handles import (
     _note_or_report_cuda_error_for_testing,
     _set_context_restore_fault_for_testing,

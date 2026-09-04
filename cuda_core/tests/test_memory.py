@@ -2264,8 +2264,9 @@ def test_synchronous_memory_resource_restores_context_after_failure(device_x2):
     assert current_context_handle() == current_context
 
 
+@pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 @pytest.mark.agent_authored(model="claude-sonnet-5")
-def test_synchronous_memory_resource_default_stream_deallocates_in_own_context(device_x2, capsys):
+def test_synchronous_memory_resource_default_stream_deallocates_in_own_context(device_x2):
     """Buffer teardown with no explicit stream frees in the resource's own
     context, not whatever context happens to be current at close() time."""
     from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
@@ -2280,13 +2281,14 @@ def test_synchronous_memory_resource_default_stream_deallocates_in_own_context(d
     buf = mr.allocate(64)  # no explicit stream: records a context-bound default token
     assert current_context_handle() == current_context
 
-    buf.close()  # no explicit stream: reuses the recorded token
+    with assert_no_cuda_warning():
+        buf.close()  # no explicit stream: reuses the recorded token
     assert current_context_handle() == current_context
-    assert capsys.readouterr().err == ""
 
 
+@pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 @pytest.mark.agent_authored(model="claude-sonnet-5")
-def test_synchronous_memory_resource_allocate_without_current_context(device_x2, capsys):
+def test_synchronous_memory_resource_allocate_without_current_context(device_x2):
     """allocate()/close() with no explicit stream succeed with no context
     current, instead of raising or leaking the allocation (#2311)."""
     from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
@@ -2296,13 +2298,11 @@ def test_synchronous_memory_resource_allocate_without_current_context(device_x2,
     mr = _SynchronousMemoryResource(alloc_dev.device_id, alloc_dev.context)
     current_dev.set_current()
 
-    with no_current_context():
+    with no_current_context(), assert_no_cuda_warning():
         buf = mr.allocate(64)
         assert current_context_handle() == 0
         buf.close()
         assert current_context_handle() == 0
-
-    assert capsys.readouterr().err == ""
 
 
 @pytest.mark.parametrize(

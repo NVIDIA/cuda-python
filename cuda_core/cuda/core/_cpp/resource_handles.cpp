@@ -270,6 +270,7 @@ void report_message(const char* message) noexcept {
         }
     }
     std::fprintf(stderr, "%s\n", message);
+    std::fflush(stderr);
 }
 
 // Report a failed non-CUDA call (NVRTC, NVVM, nvJitLink) from a path that
@@ -362,7 +363,10 @@ namespace {
 
 // Make a context current and record the state needed to restore it.
 // An empty handle is a no-op: the operation runs in the caller's current
-// context, and nothing is restored on exit.
+// context, and nothing is restored on exit. invoke_in_context and
+// invoke_in_context_or_undo reject empty handles before getting here; only
+// graph_node_set_params relies on the no-op (pre-13.2 node updates run in the
+// caller's context).
 CUresult enter_context(const ContextHandle& h_context, CUcontext* previous, int* changed) noexcept {
     *previous = nullptr;
     *changed = 0;
