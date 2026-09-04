@@ -35,8 +35,11 @@ This sample demonstrates how to copy image arrays between CPU and GPU memory
 using NVIDIA's CUDA Core Python API with optimal performance.
 """
 
+import os
 import sys
 from pathlib import Path
+
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
 
 # Add parent directory to path to import utilities
 sys.path.insert(0, str(Path(__file__).parent.parent / "Utilities"))
@@ -192,6 +195,11 @@ def main():
     # Step 1: Set up CUDA device and stream
     dev = Device()  # Get default CUDA device (GPU 0)
     dev.set_current()  # Make this device the active one
+
+    if not dev.properties.memory_pools_supported:
+        print("PinnedMemoryResource requires CUDA memory pools, which are not supported on this device. Waiving.")
+        sys.exit(EXIT_WAIVED)
+
     stream = dev.create_stream()  # Create stream for async operations
 
     print(f"Device: {dev.name}")
