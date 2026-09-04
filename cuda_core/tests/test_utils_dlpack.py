@@ -86,7 +86,7 @@ def test_dlpack_export_array_interface_reports_cpu(init_cuda):
     src = np.arange(6, dtype=np.int32)
     view = StridedMemoryView.from_array_interface(src)
     assert view.is_device_accessible is False
-    assert view.device_id == init_cuda.device_id
+    assert view.device_id == -1
     assert view.__dlpack_device__() == (int(DLDeviceType.kDLCPU), 0)
     assert np.array_equal(np.from_dlpack(view), src)
 

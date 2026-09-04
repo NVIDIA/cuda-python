@@ -1260,6 +1260,7 @@ def test_program_options_bad_define_macro_nested_list_invalid_element():
         {"define_macro": "M"},
         {"undefine_macro": "M"},
         {"include_path": "include-dir"},
+        pytest.param({"use_bundled_headers": True}, marks=bundled_headers_available),
         {"pre_include": "header.h"},
         {"no_source_include": True},
         {"std": "c++17"},

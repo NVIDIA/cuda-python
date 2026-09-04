@@ -660,7 +660,7 @@ def test_from_array_interface(x, init_cuda, expected_dtype):
     assert smv.dtype == np.dtype(expected_dtype)
     assert smv.shape == x.shape
     assert smv.ptr == x.ctypes.data
-    assert smv.device_id == init_cuda.device_id
+    assert smv.device_id == -1
     assert smv.is_device_accessible is False
     assert smv.exporting_obj is x
     assert smv.readonly is not x.flags.writeable
