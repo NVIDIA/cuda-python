@@ -37,15 +37,24 @@ New features
   (`#2456 <https://github.com/NVIDIA/cuda-python/pull/2456>`__,
   `#1334 <https://github.com/NVIDIA/cuda-python/issues/1334>`__)
 
+- Added :attr:`ProgramOptions.use_bundled_headers`, which lets NVRTC
+  resolve the CUDA and CCCL headers from the toolkit bundled with NVRTC
+  itself, installed into a per-user cache directory, instead of requiring
+  a full CUDA Toolkit installation on the compile host. NVRTC backend
+  only; requires NVRTC 13.3 or newer.
+  (`#2753 <https://github.com/NVIDIA/cuda-python/pull/2753>`__,
+  closes `#2363 <https://github.com/NVIDIA/cuda-python/issues/2363>`__)
+
+- When a :class:`Program` is compiled with ``debug`` or ``lineinfo``,
+  the NVRTC input source is now materialized as a temporary ``.cu`` file
+  so ``cuda-gdb`` can list the original source while stepping through
+  JIT-compiled kernels. ``#include "..."`` search still resolves against
+  the original source directory.
+  (`#2678 <https://github.com/NVIDIA/cuda-python/pull/2678>`__,
+  `#2679 <https://github.com/NVIDIA/cuda-python/pull/2679>`__)
+
 Fixes and enhancements
 ----------------------
-
-- :class:`Device` methods that create resources or synchronize now act on that
-  device, even when another device is current. They do not change which device
-  is current. For example, ``dev1.sync()`` synchronizes device 1 even when
-  device 0 is current. :meth:`Device.set_current` now always returns a
-  :class:`Context` with the correct device ID.
-  (`#2311 <https://github.com/NVIDIA/cuda-python/issues/2311>`__)
 
 - A :class:`Buffer` is now freed correctly even when the CUDA context current
   at teardown is not the one it was allocated in, or when no context is current
@@ -202,6 +211,39 @@ Fixes and enhancements
   NVML system-device count. This prevents non-CUDA accelerators, such as an NPU,
   from being treated as CUDA devices by :meth:`Device.get_all_devices`, examples,
   and tests.
+
+- :class:`PinnedMemoryResource` now rejects unsupported host memory pools
+  at construction with ``RuntimeError``, instead of letting a later
+  allocation or copy fail with ``CUDA_ERROR_INVALID_VALUE``.
+  (`#2487 <https://github.com/NVIDIA/cuda-python/pull/2487>`__)
+
+- :attr:`VirtualMemoryResource.is_host_accessible`, and by extension
+  :attr:`Buffer.is_host_accessible`, now correctly return ``True`` for a
+  resource configured with ``location_type="host_numa"`` or
+  ``"host_numa_current"``. Previously both properties reported ``False``
+  on those NUMA-located variants.
+  (`#2503 <https://github.com/NVIDIA/cuda-python/pull/2503>`__)
+
+- Graph predecessor and successor queries no longer truncate their results
+  on large graphs.
+  (`#2587 <https://github.com/NVIDIA/cuda-python/pull/2587>`__)
+
+- Per-domain clock queries in :mod:`cuda.core.system` treat each domain
+  (minimum, maximum, and current) as independently optional, so an
+  unsupported domain no longer fails the whole clock query for a device.
+  (`#2651 <https://github.com/NVIDIA/cuda-python/pull/2651>`__)
+
+- Temperature threshold checks in :mod:`cuda.core.system` are now
+  forward-compatible with GPU architectures newer than the generated
+  ``DeviceArch`` enum. An unrecognized architecture no longer raises
+  ``ValueError`` before the query runs.
+  (`#2488 <https://github.com/NVIDIA/cuda-python/pull/2488>`__)
+
+- The frozen fallback ``CUresult`` explanation table, used when the
+  driver's ``cuGetErrorName`` / ``cuGetErrorString`` are unavailable, is
+  refreshed for CUDA 13.3 and now recognizes
+  ``CUDA_ERROR_GRAPH_RECAPTURE_FAILURE``.
+  (`#2383 <https://github.com/NVIDIA/cuda-python/pull/2383>`__)
 
 Deprecation Notices
 -------------------
