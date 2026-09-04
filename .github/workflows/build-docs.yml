@@ -72,7 +72,7 @@ jobs:
           path: .ci-control
 
       - name: Install CI tool dependencies
-        run: python3 -m pip install -r .ci-control/ci/tools/requirements.txt
+        run: python3 -m pip install -e ./.ci-control/ci
 
       - name: Resolve CUDA bindings package
         env:

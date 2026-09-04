@@ -102,7 +102,7 @@ jobs:
           filter: blob:none
 
       - name: Install CI tool test dependencies
-        run: python3 -m pip install -r ci/tools/test-requirements.txt
+        run: python3 -m pip install -e './ci[test]'
 
       - name: Resolve PR merge base
         id: merge-base

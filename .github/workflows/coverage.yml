@@ -26,7 +26,7 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
       - name: Install CI tool dependencies
-        run: python3 -m pip install -r ci/tools/requirements.txt
+        run: python3 -m pip install -e ./ci
       - name: Resolve current CUDA bindings package
         id: get-vars
         run: |

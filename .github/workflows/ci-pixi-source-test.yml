@@ -46,7 +46,7 @@ on:
       - "cuda_core/tests/cython/**"
       - "ci/tools/bindings_config.py"
       - "ci/tools/compute_ci_plan.py"
-      - "ci/tools/requirements.txt"
+      - "ci/pyproject.toml"
       - "ci/versions.yml"
       - ".github/workflows/ci-pixi-source-test.yml"
   workflow_dispatch:
@@ -87,7 +87,7 @@ jobs:
           filter: blob:none
 
       - name: Install CI tool dependencies
-        run: python3 -m pip install -r ci/tools/requirements.txt
+        run: python3 -m pip install -e ./ci
 
       - name: Setup pixi
         # Pinned to a commit SHA; install logic lives in the action and is
@@ -272,7 +272,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install CI tool dependencies
-        run: python3 -m pip install -r ci/tools/requirements.txt
+        run: python3 -m pip install -e ./ci
 
       - name: Setup pixi
         # Pinned to a commit SHA; install logic lives in the action and is

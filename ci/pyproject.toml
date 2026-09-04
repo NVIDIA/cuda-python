@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+[build-system]
+requires = ["setuptools>=77.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cuda-python-ci-tools"
+version = "0.0.0"
+description = "Private CI support for the CUDA Python repository"
+authors = [{ name = "NVIDIA Corporation" }]
+license = "Apache-2.0"
+requires-python = ">=3.11"
+dependencies = [
+  "packaging==26.0",
+  "PyYAML==6.0.3",
+]
+
+[project.optional-dependencies]
+test = ["pytest==9.1.0"]
+
+[tool.setuptools]
+packages = ["ci", "ci.tools"]
+package-dir = { ci = "." }

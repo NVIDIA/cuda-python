@@ -75,7 +75,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install CI tool dependencies
-        run: python -m pip install -r ci/tools/requirements.txt
+        run: python -m pip install -e ./ci
 
       - name: Resolve bindings release package
         id: resolve
@@ -207,7 +207,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install CI tool dependencies
-        run: python -m pip install -r ci/tools/requirements.txt
+        run: python -m pip install -e ./ci
 
       - name: Check versioned release notes exist
         env:
@@ -289,7 +289,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install CI tool dependencies
-        run: python -m pip install -r ci/tools/requirements.txt
+        run: python -m pip install -e ./ci
 
       - name: Download component wheels
         env:
@@ -348,7 +348,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install CI tool dependencies
-        run: python -m pip install -r ci/tools/requirements.txt
+        run: python -m pip install -e ./ci
 
       - name: Download component wheels
         env:

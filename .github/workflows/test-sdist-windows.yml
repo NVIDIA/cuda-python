@@ -71,7 +71,7 @@ jobs:
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
 
       - name: Install build and CI tools
-        run: python -m pip install "pip>=25.3" build -r ci/tools/requirements.txt
+        run: python -m pip install "pip>=25.3" build -e ./ci
 
       - name: Set maintenance package development versions
         if: ${{ fromJSON(inputs.bindings-package).release_status == 'maintenance' }}

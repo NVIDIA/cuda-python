@@ -202,7 +202,7 @@ jobs:
           yq --version
 
       - name: Install CI tool dependencies
-        run: python -m pip install -r ci/tools/requirements.txt
+        run: python -m pip install -e ./ci
 
       - name: Set environment variables
         env:

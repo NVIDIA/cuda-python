@@ -34,15 +34,30 @@ family. Update that SCM metadata together with the toolkit pin when a package
 moves to a new toolkit minor; registry validation rejects a configuration
 where the two disagree.
 
-The Python helpers are modules in the `ci.tools` package. Use
-`ci.tools.bindings_config` instead of reading the YAML directly. It validates
-the registry and emits normalized JSON with the configured values plus the
-source SCM tag regex and derived CTK target and CUDA ABI major/variant:
+The Python helpers share registry parsing and validation, so they are modules
+in the repository-private `cuda-python-ci-tools` distribution rather than
+standalone scripts with repeated PEP 723 dependency metadata. Install the
+package in editable mode from the repository root:
+
+```console
+python -m pip install -e ./ci
+```
+
+Use `ci.tools.bindings_config` instead of reading the YAML directly. It
+validates the registry and emits normalized JSON with the configured values
+plus the source SCM tag regex and derived CTK target and CUDA ABI major/variant:
 
 ```console
 python -m ci.tools.bindings_config
 python -m ci.tools.bindings_config --package-roots
 python -m ci.tools.bindings_config --release-status current
+```
+
+Install the test extra to run the CI-tool tests:
+
+```console
+python -m pip install -e './ci[test]'
+python -m pytest --noconftest ci/tools/tests
 ```
 
 The public wheel builder requires one `current` package root and one
