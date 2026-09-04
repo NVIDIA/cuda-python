@@ -223,6 +223,13 @@ def main():
     print(f"\nDevice: {device.name}")
     print(f"Compute Capability: sm_{device.arch}")
 
+    # Managed memory pools require concurrent managed access on all devices.
+    # Per CUDA docs: cuMemPoolCreate returns CUDA_ERROR_NOT_SUPPORTED when
+    # concurrentManagedAccess is 0. Windows, WSL. 
+    if not device.properties.concurrent_managed_access:
+        print("concurrent_managed_access=False on this device; waiving this sample.")
+        sys.exit(EXIT_WAIVED)
+
     # Create stream for async operations
     stream = device.create_stream()
     try:
@@ -242,17 +249,6 @@ def main():
         # Create test image
         print("Creating sample image...")
         host_np = make_test_image(H, W, dtype=np.uint8)
-
-        # Managed memory pools require concurrent managed access on all devices.
-        # Per CUDA docs: cuMemPoolCreate returns CUDA_ERROR_NOT_SUPPORTED when
-        # concurrentManagedAccess is 0.
-        if not device.properties.concurrent_managed_access:
-            print(
-                "This platform does not support concurrent managed memory access "
-                f"(device.properties.concurrent_managed_access=False on {device.name}). "
-                "Waiving this sample."
-            )
-            sys.exit(EXIT_WAIVED)
 
         # Blur image on GPU using cuda.core (returns zero-copy view + buffers)
         print("Blurring image on GPU...")
