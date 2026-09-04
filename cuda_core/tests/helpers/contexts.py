@@ -26,8 +26,7 @@ def _assert_event_record_rejected_from_ambient_context(event):
     creates the probe stream in whatever context is currently ambient, so this
     is a live check that ``event`` was not actually recorded from there.
     """
-    err, ambient_stream = driver.cuStreamCreate(0)
-    handle_return(err)
+    ambient_stream = handle_return(driver.cuStreamCreate(0))
     try:
         (record_status,) = driver.cuEventRecord(event.handle, ambient_stream)
         assert record_status == driver.CUresult.CUDA_ERROR_INVALID_HANDLE, (
@@ -68,7 +67,7 @@ def assert_device_operations_use_bound_context(device):
         # a green context vs. the primary context) may resolve to the same
         # underlying device context for this check, so skip rather than
         # assert unverified driver behavior.
-        if ambient_context_handle and handle_return(driver.cuCtxGetDevice()) != device.device_id:
+        if ambient_context_handle and int(handle_return(driver.cuCtxGetDevice())) != device.device_id:
             _assert_event_record_rejected_from_ambient_context(event)
 
         builder = device.create_graph_builder()
