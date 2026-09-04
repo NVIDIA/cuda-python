@@ -423,7 +423,7 @@ def write_github_env(data: Mapping[str, object], path: Path) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Emit normalized registry or release-package JSON for CI consumers."""
+    """Emit normalized registry JSON or export one package for GitHub Actions."""
     parser = ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--repo-root", type=Path, default=REPO_ROOT)
@@ -431,13 +431,31 @@ def main(argv: list[str] | None = None) -> int:
     output.add_argument("--package-roots", action="store_true", help="print normalized package-root records")
     output.add_argument("--release-status", help="print the package root with this release status")
     output.add_argument("--release-tag", help="resolve a release tag against its source tree")
-    output.add_argument("--package-json", help="consume an already normalized package record")
     parser.add_argument("--release-source-root", type=Path)
     parser.add_argument("--control-config", type=Path)
-    parser.add_argument("--github-env", type=Path, help="append one selected package as GitHub environment variables")
+    commands = parser.add_subparsers(dest="command")
+    write_env = commands.add_parser(
+        "write-github-env",
+        help="append bindings build variables from package JSON on stdin",
+    )
+    write_env.add_argument("github_env", type=Path, metavar="GITHUB_ENV")
     args = parser.parse_args(argv)
 
     try:
+        if args.command == "write-github-env":
+            if (
+                args.package_roots
+                or args.release_status
+                or args.release_tag
+                or args.release_source_root is not None
+                or args.control_config is not None
+            ):
+                parser.error("write-github-env does not accept registry selectors")
+            value = json.load(sys.stdin)
+            if not isinstance(value, dict):
+                raise BindingsConfigError("stdin for write-github-env must contain a JSON object")
+            write_github_env(value, args.github_env)
+            return 0
         if args.release_tag:
             if args.release_source_root is None or args.control_config is None:
                 parser.error("--release-tag requires --release-source-root and --control-config")
@@ -446,10 +464,6 @@ def main(argv: list[str] | None = None) -> int:
                 args.release_source_root,
                 args.control_config,
             )
-        elif args.package_json:
-            value = json.loads(args.package_json)
-            if not isinstance(value, dict):
-                raise BindingsConfigError("--package-json must contain a JSON object")
         else:
             if args.release_source_root is not None or args.control_config is not None:
                 parser.error("--release-source-root and --control-config require --release-tag")
@@ -460,14 +474,7 @@ def main(argv: list[str] | None = None) -> int:
                 value = config.package_for_release_status(args.release_status).to_dict()
             else:
                 value = config.to_dict()
-        if args.github_env is not None:
-            if not isinstance(value, dict) or (
-                not args.release_status and not args.release_tag and not args.package_json
-            ):
-                parser.error("--github-env requires --release-status, --release-tag, or --package-json")
-            write_github_env(value, args.github_env)
-        else:
-            print(json.dumps(value, separators=(",", ":"), sort_keys=True))
+        print(json.dumps(value, separators=(",", ":"), sort_keys=True))
         return 0
     except (BindingsConfigError, json.JSONDecodeError) as error:
         parser.error(str(error))

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import copy
+import io
 import json
 from pathlib import Path
 
@@ -161,10 +162,12 @@ def test_cli_emits_full_registry_and_selected_package(capsys):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_cli_writes_selected_package_directly_to_github_env(tmp_path, capsys):
+def test_cli_writes_package_json_from_stdin_to_github_env(tmp_path, capsys, monkeypatch):
     output = tmp_path / "github-env"
+    package_json = load_config().package_for_release_status("current").to_dict()
+    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(package_json)))
 
-    assert main(["--release-status", "current", "--github-env", str(output)]) == 0
+    assert main(["write-github-env", str(output)]) == 0
 
     assert capsys.readouterr().out == ""
     assert output.read_text(encoding="utf-8").splitlines() == [
@@ -172,6 +175,16 @@ def test_cli_writes_selected_package_directly_to_github_env(tmp_path, capsys):
         "BINDINGS_PACKAGE_ROOT=cuda_bindings",
         "BINDINGS_REGISTRY_ORIGIN=tag",
     ]
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_cli_write_github_env_requires_json_object(tmp_path, capsys, monkeypatch):
+    monkeypatch.setattr("sys.stdin", io.StringIO("[]"))
+
+    with pytest.raises(SystemExit, match="2"):
+        main(["write-github-env", str(tmp_path / "github-env")])
+
+    assert "stdin for write-github-env must contain a JSON object" in capsys.readouterr().err
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")

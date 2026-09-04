@@ -82,20 +82,18 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -n "$BINDINGS_PACKAGE" ]]; then
-            (cd .ci-control && python3 -m ci.tools.bindings_config \
-              --package-json "$BINDINGS_PACKAGE" \
-              --github-env "$GITHUB_ENV")
+            resolved_bindings_package="$BINDINGS_PACKAGE"
           elif [[ "${IS_RELEASE}" == "true" && "$RELEASE_TAG" == v* ]]; then
-            (cd .ci-control && python3 -m ci.tools.bindings_config \
+            resolved_bindings_package=$(cd .ci-control && python3 -m ci.tools.bindings_config \
               --release-tag "$RELEASE_TAG" \
               --release-source-root .. \
-              --control-config ci/versions.yml \
-              --github-env "$GITHUB_ENV")
+              --control-config ci/versions.yml)
           else
-            (cd .ci-control && python3 -m ci.tools.bindings_config \
-              --release-status current \
-              --github-env "$GITHUB_ENV")
+            resolved_bindings_package=$(cd .ci-control && python3 -m ci.tools.bindings_config \
+              --release-status current)
           fi
+          (cd .ci-control && python3 -m ci.tools.bindings_config \
+            write-github-env "$GITHUB_ENV" <<< "$resolved_bindings_package")
 
       # TODO: This workflow runs on GH-hosted runner and cannot use the proxy cache
 
