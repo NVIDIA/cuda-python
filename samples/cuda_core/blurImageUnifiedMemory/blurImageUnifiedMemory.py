@@ -225,7 +225,7 @@ def main():
 
     # Managed memory pools require concurrent managed access on all devices.
     # Per CUDA docs: cuMemPoolCreate returns CUDA_ERROR_NOT_SUPPORTED when
-    # concurrentManagedAccess is 0. Windows, WSL. 
+    # concurrentManagedAccess is 0. Windows, WSL.
     if not device.properties.concurrent_managed_access:
         print("concurrent_managed_access=False on this device; waiving this sample.")
         sys.exit(EXIT_WAIVED)
