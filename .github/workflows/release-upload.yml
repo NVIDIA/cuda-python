@@ -23,6 +23,11 @@ on:
         type: boolean
         required: false
         default: false
+      bindings-package:
+        description: "Resolved CUDA bindings package JSON"
+        type: string
+        required: false
+        default: ""
 
 concurrency:
   # Concurrency group that uses the workflow name and PR number if available
@@ -44,12 +49,24 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ARCHIVE_NAME: ${{ github.event.repository.name }}-${{ inputs.git-tag }}
+      RELEASE_COMPONENT: ${{ inputs.component }}
+      RELEASE_GIT_TAG: ${{ inputs.git-tag }}
+      RELEASE_REPOSITORY: ${{ github.repository }}
+      RELEASE_RUN_ID: ${{ inputs.run-id }}
     steps:
-      - name: Checkout Source
+      - name: Checkout release control plane
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           fetch-depth: 1
-          ref: ${{ inputs.git-tag }}
+          fetch-tags: true
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        with:
+          python-version: "3.12"
+
+      - name: Install CI tool dependencies
+        run: python -m pip install -e ./ci
 
       - name: Create Release Directory
         run: mkdir -p release
@@ -58,15 +75,15 @@ jobs:
         run: >
           git archive
           --format=tar.gz
-          --prefix="${{ env.ARCHIVE_NAME }}/"
-          --output="release/${{ env.ARCHIVE_NAME }}.tar.gz"
-          ${{ inputs.git-tag }}
+          --prefix="$ARCHIVE_NAME/"
+          --output="release/$ARCHIVE_NAME.tar.gz"
+          "refs/tags/$RELEASE_GIT_TAG"
 
       - name: Compute Checksum
         run: >
-          sha256sum "release/${{ env.ARCHIVE_NAME }}.tar.gz"
+          sha256sum "release/$ARCHIVE_NAME.tar.gz"
           | awk '{print $1}'
-          > "release/${{ env.ARCHIVE_NAME }}.tar.gz.sha256sum"
+          > "release/$ARCHIVE_NAME.tar.gz.sha256sum"
 
       - name: Upload Archive
         if: ${{ !inputs.dry-run }}
@@ -74,19 +91,30 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: >
           gh release upload
-          --clobber "${{ inputs.git-tag }}"
-          --repo "${{ github.repository }}"
+          --clobber "$RELEASE_GIT_TAG"
+          --repo "$RELEASE_REPOSITORY"
           release/*
 
       - name: Download and Validate Wheels
         env:
+          BINDINGS_PACKAGE: ${{ inputs.bindings-package }}
           GH_TOKEN: ${{ github.token }}
         run: |
           # Use the shared script to download wheels
-          ./ci/tools/download-wheels "${{ inputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "release/wheels"
+          ./ci/tools/download-wheels \
+            "$RELEASE_RUN_ID" \
+            "$RELEASE_COMPONENT" \
+            "$RELEASE_REPOSITORY" \
+            "release/wheels" \
+            "$RELEASE_GIT_TAG" \
+            "$BINDINGS_PACKAGE"
 
           # Validate that release wheels match the expected version from tag.
-          ./ci/tools/validate-release-wheels "${{ inputs.git-tag }}" "${{ inputs.component }}" "release/wheels"
+          python -m ci.tools.validate_release_wheels \
+            "$RELEASE_GIT_TAG" \
+            "$RELEASE_COMPONENT" \
+            "release/wheels" \
+            --bindings-package "$BINDINGS_PACKAGE"
 
       - name: Upload Wheels
         if: ${{ !inputs.dry-run }}
@@ -94,8 +122,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           if [[ -d "release/wheels" && $(ls -A release/wheels 2>/dev/null | wc -l) -gt 0 ]]; then
-            echo "Uploading wheels to release ${{ inputs.git-tag }}"
-            gh release upload --clobber "${{ inputs.git-tag }}" --repo "${{ github.repository }}" release/wheels/*
+            echo "Uploading wheels to release $RELEASE_GIT_TAG"
+            gh release upload --clobber "$RELEASE_GIT_TAG" --repo "$RELEASE_REPOSITORY" release/wheels/*
           fi
 
       - name: Upload dry-run release artifacts

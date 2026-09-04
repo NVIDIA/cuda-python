@@ -43,6 +43,11 @@ on:
         required: false
         default: "gh-pages"
         type: string
+      bindings-package:
+        description: "Resolved CUDA bindings package JSON"
+        required: false
+        default: ""
+        type: string
 
 jobs:
   build:
@@ -60,21 +65,35 @@ jobs:
           fetch-depth: 1
           ref: ${{ inputs.git-tag }}
 
-      - name: Read build CTK version
+      - name: Checkout docs control plane
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          ref: ${{ github.sha }}
+          path: .ci-control
+
+      - name: Install CI tool dependencies
+        run: python3 -m pip install -e ./.ci-control/ci
+
+      - name: Resolve CUDA bindings package
+        env:
+          BINDINGS_PACKAGE: ${{ inputs.bindings-package }}
+          IS_RELEASE: ${{ inputs.is-release }}
+          RELEASE_TAG: ${{ inputs.git-tag }}
         run: |
-          if [[ -f ci/versions.yml ]]; then
-            BUILD_CTK_VER=$(yq '.cuda.build.version' ci/versions.yml)
-          elif [[ -f ci/versions.json ]]; then
-            BUILD_CTK_VER=$(jq -r '.cuda.build.version' ci/versions.json)
+          set -euo pipefail
+          if [[ -n "$BINDINGS_PACKAGE" ]]; then
+            resolved_bindings_package="$BINDINGS_PACKAGE"
+          elif [[ "${IS_RELEASE}" == "true" && "$RELEASE_TAG" == v* ]]; then
+            resolved_bindings_package=$(cd .ci-control && python3 -m ci.tools.bindings_config \
+              --release-tag "$RELEASE_TAG" \
+              --release-source-root .. \
+              --control-config ci/versions.yml)
           else
-            echo "error: cannot find ci/versions.yml or ci/versions.json" >&2
-            exit 1
+            resolved_bindings_package=$(cd .ci-control && python3 -m ci.tools.bindings_config \
+              --release-status current)
           fi
-          if [[ ! "${BUILD_CTK_VER}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "error: derived CTK build version ${BUILD_CTK_VER} does not match MAJOR.MINOR.MICRO" >&2
-            exit 1
-          fi
-          echo "BUILD_CTK_VER=${BUILD_CTK_VER}" >> "$GITHUB_ENV"
+          (cd .ci-control && python3 -m ci.tools.bindings_config \
+            write-github-env "$GITHUB_ENV" <<< "$resolved_bindings_package")
 
       # TODO: This workflow runs on GH-hosted runner and cannot use the proxy cache
 
@@ -82,7 +101,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@8ee1f361103df19b6f8c8655fd3967a8ecb162d5  # v4.0.1
         with:
           activate-environment: cuda-python-docs
-          environment-file: ./cuda_python/docs/environment-docs.yml
+          environment-file: ./.ci-control/cuda_python/docs/environment-docs.yml
           miniforge-version: latest
           conda-remove-defaults: "true"
           python-version: 3.12
@@ -102,13 +121,16 @@ jobs:
           cuda-version: ${{ env.BUILD_CTK_VER }}
 
       - name: Set environment variables
+        env:
+          IS_RELEASE: ${{ inputs.is-release }}
+          RELEASE_TAG: ${{ inputs.git-tag }}
         run: |
           PYTHON_VERSION_FORMATTED="312"  # see above
           REPO_DIR=$(pwd)
 
-          if [[ ${{ inputs.is-release }} == "true" ]]; then
+          if [[ "$IS_RELEASE" == "true" ]]; then
             FILE_HASH="*"
-            DOCS_GITHUB_REF="${{ inputs.git-tag }}"
+            DOCS_GITHUB_REF="$RELEASE_TAG"
             if [[ -z "${DOCS_GITHUB_REF}" ]]; then
               DOCS_GITHUB_REF="${GITHUB_REF_NAME}"
             fi
@@ -126,22 +148,31 @@ jobs:
           CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${BUILD_CTK_VER}-linux-64"
           echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/${BINDINGS_PACKAGE_ROOT}/dist")" >> $GITHUB_ENV
+          if [[ "$BINDINGS_REGISTRY_ORIGIN" == "control" ]]; then
+            CUDA_PYTHON_ARTIFACT_NAME="cuda-python-wheel"
+          else
+            CUDA_PYTHON_ARTIFACT_NAME="cuda-python-wheel-cuda${BUILD_CTK_VER}"
+          fi
+          echo "CUDA_PYTHON_ARTIFACT_NAME=${CUDA_PYTHON_ARTIFACT_NAME}" >> $GITHUB_ENV
 
       - name: Download cuda-python build artifacts
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-python' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
-          name: cuda-python-wheel
+          name: ${{ env.CUDA_PYTHON_ARTIFACT_NAME }}
           path: .
           run-id: ${{ inputs.run-id }}
           github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda-python artifacts
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-python' }}
         run: |
           pwd
           ls -lahR .
 
       - name: Download cuda-pathfinder build artifacts
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-pathfinder' || inputs.component == 'cuda-core' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-pathfinder-wheel
@@ -150,6 +181,7 @@ jobs:
           github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda-pathfinder artifacts
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-pathfinder' || inputs.component == 'cuda-core' }}
         run: |
           pwd
           ls -lahR cuda_pathfinder
@@ -162,7 +194,7 @@ jobs:
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
       - name: Download cuda.bindings build artifacts
-        if: ${{ inputs.is-release }}
+        if: ${{ inputs.is-release && (inputs.component == 'all' || inputs.component == 'cuda-bindings' || inputs.component == 'cuda-core') }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           pattern: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
@@ -172,6 +204,7 @@ jobs:
           github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda.bindings artifacts
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-bindings' || inputs.component == 'cuda-core' }}
         run: |
           pwd
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
@@ -184,7 +217,7 @@ jobs:
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: Download cuda.core build artifacts
-        if: ${{ inputs.is-release }}
+        if: ${{ inputs.is-release && (inputs.component == 'all' || inputs.component == 'cuda-core') }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           pattern: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
@@ -194,26 +227,37 @@ jobs:
           github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda.core build artifacts
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-core' }}
         run: |
           pwd
           ls -lahR $CUDA_CORE_ARTIFACTS_DIR
 
-      - name: Install all packages
+      - name: Install cuda-pathfinder
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-pathfinder' || inputs.component == 'cuda-core' }}
         run: |
           pushd cuda_pathfinder
           pip install *.whl
           popd
 
+      - name: Install cuda.bindings
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-bindings' || inputs.component == 'cuda-core' }}
+        run: |
           pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
           pip install *.whl
           popd
 
+      - name: Install cuda.core
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-core' }}
+        run: |
           pushd "${CUDA_CORE_ARTIFACTS_DIR}"
           pip install *.whl
           popd
 
-          # Subpackages are already installed from CI artifacts above.
-          # --no-deps avoids re-resolving cuda-core from PyPI during tag releases.
+      - name: Install cuda-python
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-python' }}
+        run: |
+          # Documentation builds do not exercise runtime dependencies.
+          # --no-deps also avoids resolving artifacts absent from focused tag runs.
           pip install --no-deps cuda_python*.whl
 
       # This step sets the PR_NUMBER/BUILD_LATEST/BUILD_PREVIEW env vars.
@@ -229,9 +273,11 @@ jobs:
 
       - name: Build all docs
         if: ${{ inputs.component == 'all' }}
+        env:
+          IS_RELEASE: ${{ inputs.is-release }}
         run: |
           pushd cuda_python/docs/
-          if [[ "${{ inputs.is-release }}" == "false" ]]; then
+          if [[ "$IS_RELEASE" == "false" ]]; then
             ./build_all_docs.sh latest-only
           else
             ./build_all_docs.sh
@@ -244,10 +290,20 @@ jobs:
 
       - name: Build component docs
         if: ${{ inputs.component != 'all' }}
+        env:
+          DOCS_COMPONENT: ${{ inputs.component }}
+          IS_RELEASE: ${{ inputs.is-release }}
         run: |
-          COMPONENT=$(echo "${{ inputs.component }}" | tr '-' '_')
-          pushd ${COMPONENT}/docs/
-          if [[ "${{ inputs.is-release }}" == "false" ]]; then
+          case "$DOCS_COMPONENT" in
+            cuda-bindings|cuda-core|cuda-pathfinder|cuda-python) ;;
+            *) echo "error: unsupported docs component: $DOCS_COMPONENT" >&2; exit 1 ;;
+          esac
+          COMPONENT="${DOCS_COMPONENT//-/_}"
+          if [[ "$DOCS_COMPONENT" == "cuda-bindings" ]]; then
+            COMPONENT="${BINDINGS_PACKAGE_ROOT}"
+          fi
+          pushd "${COMPONENT}/docs/"
+          if [[ "$IS_RELEASE" == "false" ]]; then
             ./build_docs.sh latest-only
           else
             ./build_docs.sh
@@ -256,13 +312,13 @@ jobs:
           fi
           ls -l build
           popd
-          if [[ "${{ inputs.component }}" != "cuda-python" ]]; then
-            TARGET="${{ inputs.component }}"
-            mkdir -p artifacts/docs/${TARGET}
+          if [[ "$DOCS_COMPONENT" != "cuda-python" ]]; then
+            TARGET="$DOCS_COMPONENT"
+            mkdir -p "artifacts/docs/${TARGET}"
           else
             TARGET=""
           fi
-          mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
+          mv "${COMPONENT}"/docs/build/html/* "artifacts/docs/${TARGET}"
 
       - name: Write rendered docs file list
         if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}

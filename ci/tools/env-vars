@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -11,7 +11,13 @@ set -euo pipefail
 # Check if the script was called with exactly 1 argument
 if [[ ${#} -ne 1 ]]; then
   echo "Error: This script requires exactly 1 argument (the build mode). You provided ${#}"
-  echo "Usage: ${0} build_mode[build or test]"
+  echo "Usage: ${0} {build|test}"
+  exit 1
+fi
+BUILD_MODE=${1}
+if [[ "${BUILD_MODE}" != "build" && "${BUILD_MODE}" != "test" ]]; then
+  echo "Error: build mode must be build or test, got ${BUILD_MODE}" >&2
+  echo "Usage: ${0} {build|test}" >&2
   exit 1
 fi
 
@@ -29,62 +35,120 @@ fi
 echo "${TOOLS_PATH}" >> $GITHUB_PATH
 echo "CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
 CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${HOST_PLATFORM}"
+CUDA_CORE_ARTIFACT_NAME="${CUDA_CORE_ARTIFACT_BASENAME}-${SHA}"
 {
   echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}"
-  echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${SHA}"
+  echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_NAME}"
   echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/cuda_core/dist")"
   echo "CUDA_CORE_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/cuda_core/tests/cython")"
   echo "CUDA_CORE_TEST_BINARIES_DIR=$(realpath "${REPO_DIR}/cuda_core/tests/test_binaries")"
   echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}"
 } >> $GITHUB_ENV
 
-if [[ "${1}" == "build" ]]; then
+if [[ "${BUILD_MODE}" == "build" ]]; then
   # platform is handled by the default value of platform (`auto`) in cibuildwheel
   # here we only need to specify the python version we want
   echo "CIBW_BUILD=cp${PYTHON_VERSION_FORMATTED}-*" >> $GITHUB_ENV
-  BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
-  echo "BUILD_CUDA_MAJOR=${BUILD_CUDA_MAJOR}" >> $GITHUB_ENV
-  echo "BUILD_PREV_CUDA_MAJOR=$((${BUILD_CUDA_MAJOR} - 1))" >> $GITHUB_ENV
-  CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${CUDA_VER}-${HOST_PLATFORM}"
+  # Native jq on Windows emits CRLF, so treat CR as an input delimiter too.
+  IFS=$'\t\r' read -r \
+    CURRENT_BINDINGS_ROOT CURRENT_CUDA_VERSION CURRENT_CUDA_MAJOR CURRENT_CUDA_VARIANT \
+    MAINTENANCE_BINDINGS_ROOT MAINTENANCE_CUDA_VERSION MAINTENANCE_CUDA_MAJOR MAINTENANCE_CUDA_VARIANT < <(
+      python -m ci.tools.bindings_config --package-roots \
+        | jq -er '
+          (.[] | select(.release_status == "current")) as $current
+          | (.[] | select(.release_status == "maintenance")) as $maintenance
+          | [$current.package_root, $current.toolkit_version, $current.cuda_major, $current.cuda_variant,
+             $maintenance.package_root, $maintenance.toolkit_version, $maintenance.cuda_major,
+             $maintenance.cuda_variant]
+          | @tsv
+        '
+    )
+  CURRENT_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${CURRENT_CUDA_VERSION}-${HOST_PLATFORM}"
+  MAINTENANCE_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${MAINTENANCE_CUDA_VERSION}-${HOST_PLATFORM}"
+  MAINTENANCE_SCM_VERSION="$(python -m ci.tools.bindings_scm_version \
+    --repo-root "${REPO_DIR}" \
+    --package-root "${MAINTENANCE_BINDINGS_ROOT}" \
+    --sha "${SHA}")"
+  MAINTENANCE_SCM_ENV=""
+  if [[ -n "${MAINTENANCE_SCM_VERSION}" ]]; then
+    MAINTENANCE_SCM_ENV="SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_BINDINGS=${MAINTENANCE_SCM_VERSION}"
+  fi
+
+  {
+    echo "CURRENT_BINDINGS_ROOT=${CURRENT_BINDINGS_ROOT}"
+    echo "CURRENT_CUDA_VERSION=${CURRENT_CUDA_VERSION}"
+    echo "CURRENT_CUDA_MAJOR=${CURRENT_CUDA_MAJOR}"
+    echo "CURRENT_CUDA_VARIANT=${CURRENT_CUDA_VARIANT}"
+    echo "MAINTENANCE_BINDINGS_ROOT=${MAINTENANCE_BINDINGS_ROOT}"
+    echo "MAINTENANCE_CUDA_VERSION=${MAINTENANCE_CUDA_VERSION}"
+    echo "MAINTENANCE_CUDA_MAJOR=${MAINTENANCE_CUDA_MAJOR}"
+    echo "MAINTENANCE_CUDA_VARIANT=${MAINTENANCE_CUDA_VARIANT}"
+    echo "MAINTENANCE_SCM_VERSION=${MAINTENANCE_SCM_VERSION}"
+    echo "MAINTENANCE_SCM_ENV=${MAINTENANCE_SCM_ENV}"
+    echo "CURRENT_BINDINGS_ARTIFACT_BASENAME=${CURRENT_BINDINGS_ARTIFACT_BASENAME}"
+    echo "CURRENT_BINDINGS_ARTIFACT_NAME=${CURRENT_BINDINGS_ARTIFACT_BASENAME}-${SHA}"
+    echo "CURRENT_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/${CURRENT_BINDINGS_ROOT}/dist")"
+    echo "CURRENT_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/${CURRENT_BINDINGS_ROOT}/tests/cython")"
+    echo "MAINTENANCE_BINDINGS_ARTIFACT_BASENAME=${MAINTENANCE_BINDINGS_ARTIFACT_BASENAME}"
+    echo "MAINTENANCE_BINDINGS_ARTIFACT_NAME=${MAINTENANCE_BINDINGS_ARTIFACT_BASENAME}-${SHA}"
+    echo "MAINTENANCE_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/${MAINTENANCE_BINDINGS_ROOT}/dist")"
+    echo "MAINTENANCE_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/${MAINTENANCE_BINDINGS_ROOT}/tests/cython")"
+    echo "CURRENT_PYTHON_ARTIFACT_NAME=cuda-python-wheel-cuda${CURRENT_CUDA_VERSION}"
+    echo "MAINTENANCE_PYTHON_ARTIFACT_NAME=cuda-python-wheel-cuda${MAINTENANCE_CUDA_VERSION}"
+  } >> $GITHUB_ENV
   # Enforce an explicit cache dir so that we can reuse this path later
   echo "SCCACHE_DIR=${HOME}/.cache/sccache" >> $GITHUB_ENV
   echo "SCCACHE_CACHE_SIZE=1G" >> $GITHUB_ENV
-elif [[ "${1}" == "test" ]]; then
-  BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${BUILD_CUDA_VER})"
-  TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
-  CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${BUILD_CUDA_VER}-${HOST_PLATFORM}"
+else
+  TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< "${CUDA_VER}")"
 
   # BINDINGS_SOURCE controls which cuda-bindings to install at test time:
-  #   main      — use the just-built bindings wheel from this CI run
-  #   backport  — fetch bindings from the prior (N-1) branch
+  #   local     — use the matching configured-package wheel from this CI run
   #   published — install from PyPI (cuda-bindings==${TEST_CUDA_MAJOR}.${TEST_CUDA_MINOR}.*)
   #
   # SKIP_CUDA_BINDINGS_TEST / SKIP_CYTHON_TEST control which *tests* to run
   # (they do NOT affect installation — that's BINDINGS_SOURCE's job).
 
-  BUILD_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${BUILD_CUDA_VER})"
   TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${CUDA_VER})"
 
-  if [[ ${BUILD_CUDA_MAJOR} != ${TEST_CUDA_MAJOR} ]]; then
-    # Major mismatch (e.g. build=13.x, test=12.x): use the backport branch.
-    BINDINGS_SOURCE=backport
-    SKIP_CUDA_BINDINGS_TEST=1
-    SKIP_CYTHON_TEST=1
-  elif [[ ${BUILD_CUDA_MINOR} != ${TEST_CUDA_MINOR} ]]; then
-    # Same major, minor mismatch (e.g. build=13.2, test=13.0): use published
-    # bindings from PyPI to test the real-world backward-compat scenario.
-    BINDINGS_SOURCE=published
+  if [[ "${PATHFINDER_SOURCE:-}" != "artifact" && "${PATHFINDER_SOURCE:-}" != "published" ]]; then
+    echo "Error: PATHFINDER_SOURCE must be artifact or published, got ${PATHFINDER_SOURCE:-<unset>}" >&2
+    exit 1
+  fi
+
+  if [[ "${BINDINGS_SOURCE}" == "local" ]]; then
+    : "${BINDINGS_SOURCE_DIR:?BINDINGS_SOURCE_DIR is required for local bindings}"
+    BINDINGS_BUILD_CUDA_VER="${CUDA_VER}"
+    CUDA_BINDINGS_ROOT="${BINDINGS_SOURCE_DIR}"
+  elif [[ "${BINDINGS_SOURCE}" == "published" ]]; then
+    # Older minors use published bindings to exercise the supported
+    # backward-compatibility path.
+    : "${DEFAULT_BINDINGS_SOURCE_DIR:?DEFAULT_BINDINGS_SOURCE_DIR is required for published bindings}"
+    CUDA_BINDINGS_ROOT="${DEFAULT_BINDINGS_SOURCE_DIR}"
     SKIP_CUDA_BINDINGS_TEST=1
     SKIP_CYTHON_TEST=1
   else
-    # Exact match: use the just-built bindings wheel.
-    BINDINGS_SOURCE=main
+    echo "Error: BINDINGS_SOURCE must be local or published, got ${BINDINGS_SOURCE}" >&2
+    exit 1
+  fi
+
+  if [[ "${BINDINGS_SOURCE}" == "local" ]]; then
     if [[ "${SKIP_BINDINGS_TEST_OVERRIDE:-0}" == "1" ]]; then
       SKIP_CUDA_BINDINGS_TEST=1
     else
       SKIP_CUDA_BINDINGS_TEST=0
     fi
     SKIP_CYTHON_TEST=0
+    CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${BINDINGS_BUILD_CUDA_VER}-${HOST_PLATFORM}"
+    CUDA_BINDINGS_ARTIFACTS_DIR="$(realpath "${REPO_DIR}/${CUDA_BINDINGS_ROOT}/dist")"
+    CUDA_BINDINGS_CYTHON_TESTS_DIR="$(realpath "${REPO_DIR}/${CUDA_BINDINGS_ROOT}/tests/cython")"
+    CUDA_PYTHON_ARTIFACT_NAME="cuda-python-wheel-cuda${BINDINGS_BUILD_CUDA_VER}"
+  else
+    # These are unused for published bindings, but deterministic paths make
+    # environment dumps and ad-hoc invocations easier to understand.
+    CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${CUDA_VER}-${HOST_PLATFORM}"
+    CUDA_BINDINGS_ARTIFACTS_DIR="$(realpath "${REPO_DIR}/${CUDA_BINDINGS_ROOT}/dist")"
+    CUDA_BINDINGS_CYTHON_TESTS_DIR="$(realpath "${REPO_DIR}/${CUDA_BINDINGS_ROOT}/tests/cython")"
   fi
   # We don't test compute-sanitizer on CTK<12 because backporting fixes is too much effort
   # We only test compute-sanitizer on python 3.12 arbitrarily; we don't need to use sanitizer on the entire matrix
@@ -99,16 +163,19 @@ elif [[ "${1}" == "test" ]]; then
   {
     echo "SETUP_SANITIZER=${SETUP_SANITIZER}"
     echo "BINDINGS_SOURCE=${BINDINGS_SOURCE}"
+    echo "CUDA_BINDINGS_ROOT=${CUDA_BINDINGS_ROOT}"
+    echo "PATHFINDER_SOURCE=${PATHFINDER_SOURCE}"
+    if [[ "${BINDINGS_SOURCE}" == "local" ]]; then
+      echo "CUDA_PYTHON_ARTIFACT_NAME=${CUDA_PYTHON_ARTIFACT_NAME}"
+    fi
     echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}"
     echo "SKIP_CYTHON_TEST=${SKIP_CYTHON_TEST}"
     echo "TEST_CUDA_MAJOR=${TEST_CUDA_MAJOR}"
     echo "TEST_CUDA_MINOR=${TEST_CUDA_MINOR}"
+    echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}"
+    echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${SHA}"
+    echo "CUDA_BINDINGS_ARTIFACTS_DIR=${CUDA_BINDINGS_ARTIFACTS_DIR}"
+    echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=${CUDA_BINDINGS_CYTHON_TESTS_DIR}"
+    echo "CUDA_CORE_CYTHON_TEST_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_NAME}-cu${TEST_CUDA_MAJOR}-tests"
   } >> $GITHUB_ENV
 fi
-
-{
-  echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}"
-  echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${SHA}"
-  echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/cuda_bindings/dist")"
-  echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/cuda_bindings/tests/cython")"
-} >> $GITHUB_ENV

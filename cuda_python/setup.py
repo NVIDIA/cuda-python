@@ -2,19 +2,47 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import ast
+import os
 
 from packaging.version import Version
 from setuptools import setup
 from setuptools_scm import get_version
 
-version = get_version(
-    root="..",
-    relative_to=__file__,
-    # Preserve a/b pre-release suffixes, but intentionally strip rc suffixes.
-    tag_regex="^(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)",
-    git_describe_command=["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"],
-)
+SCM_TAG_REGEX_BY_MAJOR = {
+    "12": r"^(?P<version>v12\.9\.\d+(?:\.post\d+)?)$",
+    "13": r"^(?P<version>v13\.3\.\d+(?:(?:a|b|rc)\d+)?(?:\.post\d+)?(?:\.dev\d+)?)$",
+}
+SCM_DESCRIBE_MATCH_BY_MAJOR = {
+    "12": "v12.9.[1-9]*",
+    "13": "v13.3.*",
+}
+
+build_major = os.environ.get("CUDA_PYTHON_BUILD_MAJOR", "13")
+if build_major not in {"12", "13"}:
+    raise ValueError(f"CUDA_PYTHON_BUILD_MAJOR must be 12 or 13, got {build_major!r}")
+
+version_options = {
+    "root": "..",
+    "relative_to": __file__,
+    "dist_name": "cuda-python",
+    # Keep metapackage tag selection identical to its bindings source line.
+    "tag_regex": SCM_TAG_REGEX_BY_MAJOR[build_major],
+    "git_describe_command": [
+        "git",
+        "describe",
+        "--dirty",
+        "--tags",
+        "--long",
+        "--match",
+        SCM_DESCRIBE_MATCH_BY_MAJOR[build_major],
+    ],
+}
+if build_major == "12":
+    # Main predates the active 12.9 tags. This fallback is used until the first
+    # post-migration v12.9 tag is reachable from main.
+    version_options["fallback_version"] = "12.9.8.dev0"
+
+version = get_version(**version_options)
 
 
 base_version = Version(version).base_version
@@ -27,14 +55,19 @@ else:
     # Pre-release version
     matcher = "=="
 
+install_requires = [f"cuda-bindings{matcher}{version}"]
+if build_major == "13":
+    install_requires.extend(
+        [
+            "cuda-core~=1.1.0",
+            "cuda-pathfinder~=1.1",
+        ]
+    )
+
 
 setup(
     version=version,
-    install_requires=[
-        f"cuda-bindings{matcher}{version}",
-        "cuda-core~=1.1.0",
-        "cuda-pathfinder~=1.1",
-    ],
+    install_requires=install_requires,
     extras_require={
         "all": [f"cuda-bindings[all]{matcher}{version}"],
     },

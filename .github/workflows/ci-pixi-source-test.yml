@@ -11,14 +11,14 @@
 # cython-test build mechanics drift (see #2182, #2183). This workflow is the
 # only thing that runs the pixi source build end to end.
 #
-# Two tiers, to spend GPU minutes deliberately (GPUs are scarce):
+# Three tiers, to spend GPU minutes deliberately (GPUs are scarce):
 #   - build-smoke (PRs): CPU-only. Source-builds bindings + core, imports them,
 #     builds the cython test extensions and checks placement. Catches the
 #     compile / ABI / .so-placement regressions WITHOUT a GPU.
-#   - build-identity-roundtrip (nightly + manual): CPU-only. cu13 -> cu12 ->
-#     cu13 in one checkout, so build artifacts cannot be reused across CUDA
-#     majors. Kept off PRs to avoid adding another job to the org's shared
-#     concurrent-job quota; the fast unit tests in
+#   - build-identity-roundtrip (nightly + manual): CPU-only. The current ABI ->
+#     another configured ABI -> current ABI in one checkout, so build artifacts
+#     cannot be reused across CUDA majors. Kept off PRs to avoid adding another
+#     job to the org's shared concurrent-job quota; the fast unit tests in
 #     cuda_core/tests/test_build_hooks.py cover the same intent per-PR.
 #   - full-test (nightly + manual): GPU runner, full `pixi run test`.
 
@@ -38,19 +38,23 @@ on:
     paths:
       - "**/pixi.toml"
       - "**/pixi.lock"
-      - "cuda_bindings/build_hooks.py"
+      - "cuda_bindings*/build_hooks.py"
       - "cuda_core/build_hooks.py"
-      - "cuda_bindings/cuda/bindings/**" # generated bindings sources
-      - "cuda_bindings/tests/cython/**"
+      - "cuda_bindings*/cuda/bindings/**" # generated bindings sources
+      - "cuda_bindings*/docs/**"
+      - "cuda_bindings*/tests/cython/**"
       - "cuda_core/tests/cython/**"
+      - "ci/tools/bindings_config.py"
+      - "ci/tools/compute_ci_plan.py"
+      - "ci/pyproject.toml"
       - "ci/versions.yml"
       - ".github/workflows/ci-pixi-source-test.yml"
   workflow_dispatch:
     inputs:
       cuda-env:
-        description: "pixi environment to test (cu13 or cu12)."
+        description: "Registered pixi CUDA ABI environment to test (empty selects current)."
         type: string
-        default: "cu13"
+        default: ""
 
 defaults:
   run:
@@ -66,7 +70,7 @@ env:
 jobs:
   # ── PR guard: CPU-only build + import + placement smoke ──
   build-smoke:
-    name: "build smoke (cu13, linux-64, CPU)"
+    name: "build smoke (selected CUDA packages, linux-64, CPU)"
     if: >-
       github.repository_owner == 'nvidia' &&
       (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
@@ -76,10 +80,14 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          # Full history + tags so setuptools-scm derives the real (13.x)
+          # Full history + tags so setuptools-scm derives the real
           # package version; a shallow checkout yields 0.1.dev1, which trips
-          # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
+          # cuda.core's supported cuda.bindings-version guard.
           fetch-depth: 0
+          filter: blob:none
+
+      - name: Install CI tool dependencies
+        run: python3 -m pip install -e ./ci
 
       - name: Setup pixi
         # Pinned to a commit SHA; install logic lives in the action and is
@@ -89,47 +97,155 @@ jobs:
           pixi-version: ${{ env.PIXI_VERSION }}
           run-install: false
 
-      - name: Source-build + import + cython-placement smoke
+      - name: Select CUDA environments
         env:
-          CUDA_ENV: ${{ inputs.cuda-env || 'cu13' }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_CUDA_ENV: ${{ inputs.cuda-env || '' }}
         run: |
-          # pathfinder: pure-Python, no GPU.
-          pixi run -e "${CUDA_ENV}" test-pathfinder
+          bindings_packages=$(python3 -m ci.tools.bindings_config --package-roots)
+          selected_packages='[]'
+          docs_packages='[]'
 
-          # bindings + core: force the source build (catches nvrtc/driver
-          # compile errors like #2182) and import them (catches ABI mismatches).
-          pixi run --manifest-path cuda_bindings -e "${CUDA_ENV}" \
-            python -c "import cuda.bindings.driver, cuda.bindings.nvrtc, cuda.bindings.runtime; print('bindings import OK')"
-          pixi run --manifest-path cuda_core -e "${CUDA_ENV}" \
-            python -c "import cuda.core; print('core import OK')"
+          merge_packages() {
+            jq -cn --argjson left "$1" --argjson right "$2" \
+              '$left + $right | unique_by(.package_root)'
+          }
 
-          # cython test extensions: build them and confirm each .so landed next
-          # to its .pyx in tests/cython (catches the placement regression #2180).
-          pixi run --manifest-path cuda_bindings -e "${CUDA_ENV}" build-cython-tests
-          pixi run --manifest-path cuda_core -e "${CUDA_ENV}" build-cython-tests
-          for d in cuda_bindings/tests/cython cuda_core/tests/cython; do
-            if ! compgen -G "${d}/*.cpython-*.so" > /dev/null; then
-              echo "::error::no compiled cython test .so in ${d} (placement regression)"
-              exit 1
+          if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
+            if [[ -n "${REQUESTED_CUDA_ENV}" ]]; then
+              selected_packages=$(jq -c --arg cuda_env "${REQUESTED_CUDA_ENV}" \
+                '[.[] | select(.cuda_variant == $cuda_env)]' <<< "${bindings_packages}")
+              if [[ "${selected_packages}" == '[]' ]]; then
+                registered_envs=$(jq -r '[.[].cuda_variant] | join(", ")' <<< "${bindings_packages}")
+                echo "::error::cuda-env must be a registered pixi environment: ${registered_envs}"
+                exit 1
+              fi
+            else
+              selected_packages=$(jq -c '[.[] | select(.release_status == "current")]' \
+                <<< "${bindings_packages}")
             fi
-          done
+          else
+            merge_base=$(git merge-base HEAD "${BASE_SHA}")
+            workplan=$(python3 -m ci.tools.compute_ci_plan \
+              --merge-base "${merge_base}" \
+              --baseline-run-id pixi-source)
+
+            # Keep package-specific work package-specific, while selecting the
+            # registered package for any ABI-level work.
+            selected_packages=$(jq -cn \
+              --argjson registry "${bindings_packages}" \
+              --argjson plan "${workplan}" '
+                $registry
+                | map(. as $package | select(
+                    ($plan.modules.bindings.package_roots[$package.package_root].needs_build // false)
+                    or ($plan.modules.bindings.package_roots[$package.package_root].needs_test // false)
+                    or ($plan.modules.python.package_roots[$package.package_root].needs_build // false)
+                    or ($plan.modules.python.package_roots[$package.package_root].needs_test // false)
+                    or ($plan.jobs.test_cuda_majors[$package.cuda_variant] // false)
+                  ))
+              ')
+
+            # Pixi manifests are deliberately ignored by the wheel planner.
+            # Add their package-local impact to its source/test decisions. The
+            # wheel planner also deliberately ignores documentation changes.
+            while IFS= read -r -d '' path; do
+              manifest_packages=$(jq -c --arg path "${path}" '
+                [.[] as $package
+                  | select(
+                      $path == ($package.package_root + "/pixi.toml")
+                      or $path == ($package.package_root + "/pixi.lock")
+                    )
+                  | $package]
+              ' <<< "${bindings_packages}")
+              if [[ "${manifest_packages}" != '[]' ]]; then
+                selected_packages=$(merge_packages "${selected_packages}" "${manifest_packages}")
+              else
+                case "${path}" in
+                */pixi.toml|*/pixi.lock|pixi.toml|pixi.lock)
+                  selected_packages=$(merge_packages "${selected_packages}" "${bindings_packages}")
+                  ;;
+                esac
+              fi
+
+              changed_docs_packages=$(jq -c --arg path "${path}" '
+                [.[] as $package
+                  | select($path | startswith($package.package_root + "/docs/"))
+                  | $package]
+              ' <<< "${bindings_packages}")
+              if [[ "${changed_docs_packages}" != '[]' ]]; then
+                selected_packages=$(merge_packages "${selected_packages}" "${changed_docs_packages}")
+                docs_packages=$(merge_packages "${docs_packages}" "${changed_docs_packages}")
+              fi
+            done < <(git diff --no-renames --name-only -z "${merge_base}" HEAD)
+          fi
+
+          if [[ "${selected_packages}" == '[]' ]]; then
+            echo "::error::no bindings package selected for source-build smoke tests"
+            exit 1
+          fi
+          echo "BINDINGS_PACKAGES=${selected_packages}" | tee -a "$GITHUB_ENV"
+          echo "BINDINGS_DOC_PACKAGES=${docs_packages}" | tee -a "$GITHUB_ENV"
+
+      - name: Source-build + import + cython-placement smoke
+        run: |
+          while IFS= read -r bindings_package; do
+            BINDINGS_ROOT=$(jq -r '.package_root' <<< "${bindings_package}")
+            CUDA_ENV=$(jq -r '.cuda_variant' <<< "${bindings_package}")
+            echo "::group::Source-build ${BINDINGS_ROOT} (${CUDA_ENV})"
+            # Avoid carrying Cython outputs between bindings packages or CUDA ABIs.
+            rm -rf cuda_core/build/cython cuda_core/cython_debug
+            find cuda_core/cuda/core -type f -name '*.so' -delete
+            find "${BINDINGS_ROOT}/tests/cython" cuda_core/tests/cython \
+              -maxdepth 1 -type f \( -name 'test_*.cpp' -o -name 'test_*.so' \) -delete
+
+            # pathfinder: pure-Python, no GPU.
+            pixi run -e "${CUDA_ENV}" test-pathfinder
+
+            # Force both source builds and import them to catch compile/ABI
+            # regressions such as #2182. cuda-core environments may use
+            # published bindings by design; wheel CI covers local pairing.
+            pixi run --manifest-path "${BINDINGS_ROOT}" -e "${CUDA_ENV}" \
+              python -c "import cuda.bindings.driver, cuda.bindings.nvrtc, cuda.bindings.runtime; print('bindings import OK')"
+            pixi run --manifest-path cuda_core -e "${CUDA_ENV}" \
+              python -c "import cuda.core; print('core import OK')"
+            pixi run --manifest-path "${BINDINGS_ROOT}" -e "${CUDA_ENV}" build-cython-tests
+            pixi run --manifest-path cuda_core -e "${CUDA_ENV}" build-cython-tests
+
+            # Confirm each extension landed next to its .pyx (catches #2180).
+            for d in "${BINDINGS_ROOT}/tests/cython" cuda_core/tests/cython; do
+              if ! compgen -G "${d}/*.cpython-*.so" > /dev/null; then
+                echo "::error::no compiled cython test .so in ${d} (placement regression)"
+                exit 1
+              fi
+            done
+            echo "::endgroup::"
+          done < <(jq -c '.[]' <<< "${BINDINGS_PACKAGES}")
           echo "cython test extensions placed correctly"
+
+      - name: Build changed bindings documentation
+        if: ${{ env.BINDINGS_DOC_PACKAGES != '[]' }}
+        run: |
+          while IFS= read -r bindings_package; do
+            bindings_root=$(jq -r '.package_root' <<< "${bindings_package}")
+            pixi run --manifest-path "${bindings_root}" -e docs build-docs
+          done < <(jq -c '.[]' <<< "${BINDINGS_DOC_PACKAGES}")
 
   # ── Nightly guard: build artifacts must be CUDA-major aware ──
   #
   # Neither Cython nor setuptools tracks the CUDA major in its own up-to-date
   # check: Cython does not hash `compile_time_env`, and an editable install's
   # .so is named by the Python ABI tag alone. Before build_hooks keyed them,
-  # a cu13 build followed by a cu12 build in the same checkout failed while
-  # compiling cu13-generated C++ against CUDA 12 headers.
+  # a build for one ABI followed by another in the same checkout failed while
+  # compiling generated C++ against headers from the second ABI.
   #
-  # The round trip (not just cu13 -> cu12) is what catches the second half:
-  # coming back to cu13 must not silently reuse the cu12 extension.
+  # The round trip is what catches the second half: coming back to the current
+  # ABI must not silently reuse the other ABI's extension.
   #
-  # cuda_core only: cuda_bindings cannot be source-built in its cu12
-  # environment at all, for reasons unrelated to stale artifacts.
+  # cuda_core only: not every bindings package can be source-built in every ABI
+  # environment, for reasons unrelated to stale artifacts.
   build-identity-roundtrip:
-    name: "cu13 -> cu12 -> cu13 round trip (linux-64, CPU)"
+    name: "current -> maintenance -> current round trip (linux-64, CPU)"
     if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -137,10 +253,13 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          # Full history + tags so setuptools-scm derives the real (13.x)
+          # Full history + tags so setuptools-scm derives the real
           # package version; a shallow checkout yields 0.1.dev1, which trips
-          # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
+          # cuda.core's supported cuda.bindings-version guard.
           fetch-depth: 0
+
+      - name: Install CI tool dependencies
+        run: python3 -m pip install -e ./ci
 
       - name: Setup pixi
         # Pinned to a commit SHA; install logic lives in the action and is
@@ -150,31 +269,39 @@ jobs:
           pixi-version: ${{ env.PIXI_VERSION }}
           run-install: false
 
-      - name: Build cu13, then cu12, then cu13 again in one checkout
+      - name: Build current, another ABI, then current again in one checkout
         run: |
-          for cuda_env in cu13 cu12 cu13; do
+          current_package=$(python3 -m ci.tools.bindings_config --release-status current)
+          bindings_packages=$(python3 -m ci.tools.bindings_config --package-roots)
+          current_env=$(jq -r '.cuda_variant' <<< "${current_package}")
+          current_major=$(jq -r '.cuda_major' <<< "${current_package}")
+          other_env=$(jq -r --arg current_env "${current_env}" \
+            '[.[] | select(.cuda_variant != $current_env) | .cuda_variant] | first // empty' \
+            <<< "${bindings_packages}")
+
+          for cuda_env in "${current_env}" "${other_env}" "${current_env}"; do
             echo "::group::${cuda_env}"
             pixi run --manifest-path cuda_core -e "${cuda_env}" \
               python -c "import cuda.core; print('core import OK')"
             echo "::endgroup::"
           done
-          # The last build was cu13, and each major must have kept its own
+          # The last build was current, and each ABI must have kept its own
           # generated sources rather than overwriting the other's.
           stamp=$(cat cuda_core/build/.build-cuda-major)
-          if [ "${stamp}" != "13" ]; then
-            echo "::error::build stamp is '${stamp}', expected 13"
+          if [ "${stamp}" != "${current_major}" ]; then
+            echo "::error::build stamp is '${stamp}', expected ${current_major}"
             exit 1
           fi
-          for major in cu12 cu13; do
-            if [ ! -d "cuda_core/build/cython/${major}" ]; then
-              echo "::error::no ${major} generated-source directory"
+          for cuda_env in "${other_env}" "${current_env}"; do
+            if [ ! -d "cuda_core/build/cython/${cuda_env}" ]; then
+              echo "::error::no ${cuda_env} generated-source directory"
               exit 1
             fi
           done
 
   # ── Nightly: full `pixi run test` on a GPU runner ──
   full-test:
-    name: "pixi run test (${{ inputs.cuda-env || 'cu13' }}, linux-64, GPU)"
+    name: "pixi run test (${{ inputs.cuda-env || 'current' }}, linux-64, GPU)"
     if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.repository_owner == 'nvidia' }}
     runs-on: "linux-amd64-gpu-l4-latest-1" # same label scheme as test-wheel-linux.yml
     timeout-minutes: 90
@@ -191,17 +318,38 @@ jobs:
         run: |
           apt-get update
           # ca-certificates + git for checkout; libgl1/libegl1 for pyglet
-          # (pulled in by the test env). pixi itself is installed by setup-pixi.
+          # (pulled in by the test env). PyYAML and packaging drive the
+          # bindings registry resolver; pixi itself is installed by setup-pixi.
           apt-get install -y --no-install-recommends \
-            ca-certificates git libgl1 libegl1
+            ca-certificates git jq libgl1 libegl1 python3 python3-packaging python3-yaml
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          # Full history + tags so setuptools-scm derives the real (13.x)
+          # Full history + tags so setuptools-scm derives the real
           # package version; a shallow checkout yields 0.1.dev1, which trips
-          # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
+          # cuda.core's supported cuda.bindings-version guard.
           fetch-depth: 0
+          filter: blob:none
+
+      - name: Select CUDA environment
+        env:
+          REQUESTED_CUDA_ENV: ${{ inputs.cuda-env || '' }}
+        run: |
+          if [[ -n "${REQUESTED_CUDA_ENV}" ]]; then
+            bindings_packages=$(python3 -m ci.tools.bindings_config --package-roots)
+            if ! jq -e --arg cuda_env "${REQUESTED_CUDA_ENV}" \
+              'any(.[]; .cuda_variant == $cuda_env)' <<< "${bindings_packages}" > /dev/null; then
+              registered_envs=$(jq -r '[.[].cuda_variant] | join(", ")' <<< "${bindings_packages}")
+              echo "::error::cuda-env must be a registered pixi environment: ${registered_envs}"
+              exit 1
+            fi
+            cuda_env="${REQUESTED_CUDA_ENV}"
+          else
+            current_package=$(python3 -m ci.tools.bindings_config --release-status current)
+            cuda_env=$(jq -r '.cuda_variant' <<< "${current_package}")
+          fi
+          echo "CUDA_ENV=${cuda_env}" | tee -a "$GITHUB_ENV"
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -216,4 +364,4 @@ jobs:
           run-install: false
 
       - name: pixi run test
-        run: pixi run -e "${{ inputs.cuda-env || 'cu13' }}" test
+        run: pixi run -e "${CUDA_ENV}" test

@@ -20,15 +20,22 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     outputs:
+      BINDINGS_ROOT: ${{ steps.get-vars.outputs.bindings_root }}
       CUDA_VER: ${{ steps.get-vars.outputs.cuda_ver }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
-      - name: Get CUDA version
+      - name: Install CI tool dependencies
+        run: python3 -m pip install -e ./ci
+      - name: Resolve current CUDA bindings package
         id: get-vars
         run: |
-          cuda_ver=$(yq '.cuda.build.version' ci/versions.yml)
-          echo "cuda_ver=$cuda_ver" >> $GITHUB_OUTPUT
+          set -euo pipefail
+          current=$(python3 -m ci.tools.bindings_config --release-status current)
+          {
+            echo "bindings_root=$(jq -r '.package_root' <<< "$current")"
+            echo "cuda_ver=$(jq -r '.toolkit_version' <<< "$current")"
+          } >> "$GITHUB_OUTPUT"
 
   coverage-linux:
     name: Coverage (Linux)
@@ -43,6 +50,7 @@ jobs:
     env:
       HOST_PLATFORM: "linux-64"
       ARCH: "x86_64"
+      BINDINGS_ROOT: ${{ needs.coverage-vars.outputs.BINDINGS_ROOT }}
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
@@ -89,10 +97,13 @@ jobs:
 
       - name: Set environment variables
         env:
-          BUILD_CUDA_VER: ${{ env.CUDA_VER }}
+          BINDINGS_SOURCE: local
+          BINDINGS_SOURCE_DIR: ${{ env.BINDINGS_ROOT }}
+          DEFAULT_BINDINGS_SOURCE_DIR: ${{ env.BINDINGS_ROOT }}
           CUDA_VER: ${{ env.CUDA_VER }}
           HOST_PLATFORM: ${{ env.HOST_PLATFORM }}
           LOCAL_CTK: ${{ env.LOCAL_CTK }}
+          PATHFINDER_SOURCE: artifact
           PY_VER: ${{ env.PY_VER }}
           SHA: ${{ github.sha }}
         run: |
@@ -140,8 +151,16 @@ jobs:
         run: |
           export PIP_BUILD_CONSTRAINT="$(pwd)/wheel-constraints/cuda-bindings.txt"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
-          .venv/bin/pip wheel -v --no-deps ./cuda_bindings -w ./wheels/
-          .venv/bin/pip install -v ./wheels/cuda_bindings*.whl --group ./cuda_bindings/pyproject.toml:test
+          .venv/bin/pip wheel -v --no-deps "./${BINDINGS_ROOT}" -w ./wheels/
+          bindings_wheels=(./wheels/cuda_bindings*.whl)
+          test "${#bindings_wheels[@]}" -eq 1
+          test -f "${bindings_wheels[0]}"
+          bindings_pyproject="./${BINDINGS_ROOT}/pyproject.toml"
+          if grep -q '^\[dependency-groups\][[:space:]]*$' "${bindings_pyproject}"; then
+            .venv/bin/python -m pip install "${bindings_wheels[0]}" --group "${bindings_pyproject}:test"
+          else
+            .venv/bin/python -m pip install "${bindings_wheels[0]}[test]"
+          fi
 
       - name: Constrain cuda-core to the local cuda-bindings wheel
         run: |
@@ -186,7 +205,7 @@ jobs:
         continue-on-error: true
         run: |
           cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-context=test --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_bindings/tests
+          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-context=test --cov-config=$REPO_ROOT/.coveragerc "$REPO_ROOT/${BINDINGS_ROOT}/tests"
 
       - name: Run cuda.core tests
         continue-on-error: true
@@ -230,6 +249,7 @@ jobs:
     env:
       HOST_PLATFORM: "win-64"
       CUDA_PYTHON_COVERAGE: "1"
+      BINDINGS_ROOT: ${{ needs.coverage-vars.outputs.BINDINGS_ROOT }}
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
@@ -277,8 +297,7 @@ jobs:
         run: |
           export PIP_BUILD_CONSTRAINT="$(cygpath -w "$(pwd)/wheel-constraints/cuda-bindings.txt")"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
-          cd cuda_bindings
-          ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
+          .venv/Scripts/pip wheel -v --no-deps "./${BINDINGS_ROOT}" -w ./wheels/
 
       - name: Constrain cuda.core to the local cuda.bindings wheel
         run: |
@@ -343,6 +362,7 @@ jobs:
       HOST_PLATFORM: "win-64"
       ARCH: "amd64"
       CUDA_PYTHON_COVERAGE: "1"
+      BINDINGS_ROOT: ${{ needs.coverage-vars.outputs.BINDINGS_ROOT }}
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     defaults:
       run:
@@ -413,7 +433,15 @@ jobs:
         run: |
           .venv/Scripts/pip install coverage pytest-cov Cython
           .venv/Scripts/pip install --group ./cuda_pathfinder/pyproject.toml:test
-          .venv/Scripts/pip install --group ./cuda_bindings/pyproject.toml:test
+          bindings_wheels=(./wheels/cuda_bindings*.whl)
+          test "${#bindings_wheels[@]}" -eq 1
+          test -f "${bindings_wheels[0]}"
+          bindings_pyproject="./${BINDINGS_ROOT}/pyproject.toml"
+          if grep -q '^\[dependency-groups\][[:space:]]*$' "${bindings_pyproject}"; then
+            .venv/Scripts/python -m pip install "${bindings_wheels[0]}" --group "${bindings_pyproject}:test"
+          else
+            .venv/Scripts/python -m pip install "${bindings_wheels[0]}[test]"
+          fi
           .venv/Scripts/pip install --group ./cuda_core/pyproject.toml:test
 
       - name: Get install root
@@ -438,7 +466,7 @@ jobs:
             --cwd "${{ steps.install-root.outputs.INSTALL_ROOT }}" \
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
-            "$GITHUB_WORKSPACE/cuda_bindings/tests"
+            "$GITHUB_WORKSPACE/${BINDINGS_ROOT}/tests"
 
       - name: Run cuda.core tests (with 8MB stack)
         continue-on-error: true

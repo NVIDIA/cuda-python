@@ -9,27 +9,12 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
-from collections import defaultdict
 from pathlib import Path
+from typing import Mapping
 
-from check_release_notes import parse_version_from_tag
-
-COMPONENT_TO_DISTRIBUTIONS: dict[str, set[str]] = {
-    "cuda-core": {"cuda_core"},
-    "cuda-bindings": {"cuda_bindings"},
-    "cuda-pathfinder": {"cuda_pathfinder"},
-    "cuda-python": {"cuda_python"},
-    "all": {"cuda_core", "cuda_bindings", "cuda_pathfinder", "cuda_python"},
-}
-
-COMPONENT_TO_TAG_COMPONENTS: dict[str, tuple[str, ...]] = {
-    "cuda-core": ("cuda-core",),
-    "cuda-bindings": ("cuda-bindings",),
-    "cuda-pathfinder": ("cuda-pathfinder",),
-    "cuda-python": ("cuda-python",),
-    "all": ("cuda-core", "cuda-bindings", "cuda-pathfinder", "cuda-python"),
-}
+from .check_release_notes import COMPONENTS, parse_version_from_tag
 
 
 def parse_args() -> argparse.Namespace:
@@ -40,16 +25,32 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument("git_tag", help="Release git tag (for example: v13.0.0)")
-    parser.add_argument("component", choices=sorted(COMPONENT_TO_DISTRIBUTIONS.keys()))
+    parser.add_argument("component", choices=[*sorted(COMPONENTS), "all"])
     parser.add_argument("wheel_dir", help="Directory containing wheel files")
+    parser.add_argument(
+        "--bindings-package",
+        default="",
+        help="normalized CUDA bindings package JSON from the release resolver",
+    )
     return parser.parse_args()
 
 
-def version_from_tag(tag: str, component: str) -> str:
+def version_from_tag(
+    tag: str,
+    component: str,
+    bindings_package: Mapping[str, object] | None = None,
+) -> str:
     versions = {
         version
-        for tag_component in COMPONENT_TO_TAG_COMPONENTS[component]
-        if (version := parse_version_from_tag(tag, tag_component)) is not None
+        for tag_component in (COMPONENTS if component == "all" else (component,))
+        if (
+            version := parse_version_from_tag(
+                tag,
+                tag_component,
+                bindings_package if tag_component == "cuda-bindings" else None,
+            )
+        )
+        is not None
     }
     if len(versions) == 1:
         return versions.pop()
@@ -71,12 +72,17 @@ def parse_wheel_dist_and_version(path: Path) -> tuple[str, str]:
 def main() -> int:
     args = parse_args()
     try:
-        expected_version = version_from_tag(args.git_tag, args.component)
-    except ValueError as exc:
+        bindings_package = json.loads(args.bindings_package) if args.bindings_package else None
+        if bindings_package is not None and not isinstance(bindings_package, dict):
+            raise ValueError("resolved CUDA bindings package must be a JSON object")
+        expected_version = version_from_tag(args.git_tag, args.component, bindings_package)
+    except (json.JSONDecodeError, ValueError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
 
-    expected_distributions = COMPONENT_TO_DISTRIBUTIONS[args.component]
+    expected_distributions = (
+        {package for package, _ in COMPONENTS.values()} if args.component == "all" else {COMPONENTS[args.component][0]}
+    )
     wheel_dir = Path(args.wheel_dir)
 
     wheels = sorted(wheel_dir.glob("*.whl"))
@@ -84,7 +90,7 @@ def main() -> int:
         print(f"Error: No wheel files found in {wheel_dir}", file=sys.stderr)
         return 1
 
-    seen_versions: dict[str, set[str]] = defaultdict(set)
+    seen_distributions: set[str] = set()
     errors: list[str] = []
 
     for wheel in wheels:
@@ -95,9 +101,13 @@ def main() -> int:
             continue
 
         if distribution not in expected_distributions:
+            errors.append(
+                f"{wheel.name}: unexpected distribution {distribution!r} for component "
+                f"{args.component!r}; expected one of: " + ", ".join(sorted(expected_distributions))
+            )
             continue
 
-        seen_versions[distribution].add(version)
+        seen_distributions.add(distribution)
 
         if ".dev" in version or "+" in version:
             errors.append(
@@ -111,15 +121,9 @@ def main() -> int:
                 f"release version {expected_version!r} from git tag {args.git_tag!r}."
             )
 
-    missing_distributions = sorted(expected_distributions - set(seen_versions))
+    missing_distributions = sorted(expected_distributions - seen_distributions)
     if missing_distributions:
         errors.append("Missing expected component wheels in download set: " + ", ".join(missing_distributions))
-
-    for distribution, versions in sorted(seen_versions.items()):
-        if len(versions) > 1:
-            errors.append(
-                f"Expected one release version for {distribution}, found multiple: " + ", ".join(sorted(versions))
-            )
 
     if errors:
         print("Wheel validation failed:", file=sys.stderr)

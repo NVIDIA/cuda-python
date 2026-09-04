@@ -21,9 +21,11 @@ fi
 test_module=${1}
 
 TEST_FT_GROUP=()
+TEST_FT_REQUIREMENT=()
 PYTEST_PARALLEL_ARGS=()
 if python -c 'import sys; assert not sys._is_gil_enabled()' 2> /dev/null; then
   TEST_FT_GROUP=(--group test-ft)
+  TEST_FT_REQUIREMENT=(pytest-run-parallel==0.10.0)
   PYTEST_PARALLEL_ARGS=(--parallel-threads=4)
 fi
 
@@ -32,8 +34,21 @@ fi
 # all wheels together in a single pip call further below.
 if [[ "${test_module}" != nightly-* ]]; then
   pushd ./cuda_pathfinder
-  echo "Installing pathfinder wheel"
-  pip install ./*.whl --group test "${TEST_FT_GROUP[@]}"
+  if [[ "${PATHFINDER_SOURCE:-}" == "artifact" ]]; then
+    echo "Installing pathfinder wheel from CI artifacts"
+    pathfinder_wheels=(./*.whl)
+    if [[ "${#pathfinder_wheels[@]}" -ne 1 || ! -f "${pathfinder_wheels[0]}" ]]; then
+      echo "Expected exactly one cuda-pathfinder wheel in $(pwd)" >&2
+      exit 1
+    fi
+    pip install "${pathfinder_wheels[0]}" --group test "${TEST_FT_GROUP[@]}"
+  elif [[ "${PATHFINDER_SOURCE:-}" == "published" && "${test_module}" == "bindings" ]]; then
+    echo "Installing published pathfinder for a focused bindings release"
+    pip install cuda-pathfinder --group test "${TEST_FT_GROUP[@]}"
+  else
+    echo "Error: PATHFINDER_SOURCE must be artifact, or published for bindings release tests; got ${PATHFINDER_SOURCE:-<unset>}" >&2
+    exit 1
+  fi
   popd
 fi
 
@@ -51,11 +66,24 @@ if [[ "${test_module}" == "pathfinder" ]]; then
   popd
 elif [[ "${test_module}" == "bindings" ]]; then
   echo "Installing bindings wheel"
-  pushd ./cuda_bindings
-  if [[ "${LOCAL_CTK}" == 1 ]]; then
-    pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl --group test "${TEST_FT_GROUP[@]}"
+  pushd "./${CUDA_BINDINGS_ROOT}"
+  bindings_wheels=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)
+  if [[ "${#bindings_wheels[@]}" -ne 1 || ! -f "${bindings_wheels[0]}" ]]; then
+    echo "Expected exactly one cuda-bindings wheel in ${CUDA_BINDINGS_ARTIFACTS_DIR}" >&2
+    exit 1
+  fi
+  bindings_requirement="${bindings_wheels[0]}"
+  if grep -q '^\[dependency-groups\][[:space:]]*$' pyproject.toml; then
+    if [[ "${LOCAL_CTK}" != 1 ]]; then
+      bindings_requirement+="[all]"
+    fi
+    python -m pip install "${bindings_requirement}" --group pyproject.toml:test "${TEST_FT_GROUP[@]}"
   else
-    pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group test "${TEST_FT_GROUP[@]}"
+    bindings_extras="test"
+    if [[ "${LOCAL_CTK}" != 1 ]]; then
+      bindings_extras="all,test"
+    fi
+    python -m pip install "${bindings_requirement}[${bindings_extras}]" "${TEST_FT_REQUIREMENT[@]}"
   fi
   echo "Running bindings tests"
   ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/
@@ -69,7 +97,7 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
   TEST_CUDA_MAJOR_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
 
   # Resolve bindings based on BINDINGS_SOURCE (set by env-vars):
-  #   main/backport → local wheel from artifacts dir
+  #   local         → matching configured-package wheel from this run
   #   published     → install from PyPI by version
   BINDINGS_ARGS=()
   if [[ "${BINDINGS_SOURCE}" == "published" ]]; then
@@ -89,10 +117,19 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
   fi
 
   if [[ "${test_module}" == nightly-* ]]; then
+    if [[ "${PATHFINDER_SOURCE:-}" != "artifact" ]]; then
+      echo "Error: nightly tests require PATHFINDER_SOURCE=artifact" >&2
+      exit 1
+    fi
     # Resolve pathfinder wheel to absolute path before pushd.
     # CUDA_BINDINGS_ARTIFACTS_DIR and CUDA_CORE_ARTIFACTS_DIR are already
     # absolute (set via realpath in env-vars).
-    PATHFINDER_WHL=($(realpath ./cuda_pathfinder/*.whl))
+    pathfinder_wheels=(./cuda_pathfinder/*.whl)
+    if [[ "${#pathfinder_wheels[@]}" -ne 1 || ! -f "${pathfinder_wheels[0]}" ]]; then
+      echo "Expected exactly one cuda-pathfinder wheel in ./cuda_pathfinder" >&2
+      exit 1
+    fi
+    PATHFINDER_WHL=("$(realpath "${pathfinder_wheels[0]}")")
   fi
 
   if [[ "${test_module}" == "core" ]]; then

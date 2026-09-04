@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Note: This name is referred to in the test job, so make sure any changes are sync'd up!
-# Further this is referencing a run in the backport branch to fetch old bindings.
 name: "CI"
 
 concurrency:
@@ -27,26 +26,6 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  ci-vars:
-    if: ${{ github.repository_owner == 'nvidia' }}
-    runs-on: ubuntu-latest
-    outputs:
-      CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
-      CUDA_PREV_BUILD_VER: ${{ steps.get-vars.outputs.cuda_prev_build_ver }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
-        with:
-          fetch-depth: 1
-      - name: Get CUDA build versions
-        id: get-vars
-        run: |
-          cuda_build_ver=$(yq '.cuda.build.version' ci/versions.yml)
-          echo "cuda_build_ver=$cuda_build_ver" >> $GITHUB_OUTPUT
-
-          cuda_prev_build_ver=$(yq '.cuda.prev_build.version' ci/versions.yml)
-          echo "cuda_prev_build_ver=$cuda_prev_build_ver" >> $GITHUB_OUTPUT
-
   should-skip:
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
@@ -88,19 +67,21 @@ jobs:
   #
   # Dependency graph (verified in pyproject.toml files):
   #   cuda_pathfinder   -> (no internal deps)
-  #   cuda_bindings     -> cuda_pathfinder
+  #   each registered cuda.bindings package -> cuda_pathfinder
   #   cuda_core         -> cuda_pathfinder, cuda_bindings
   #   cuda_python       -> cuda_pathfinder, cuda_bindings, cuda_core (meta package)
   #
   # A change to cuda_pathfinder (or shared infra) forces a rebuild of every
-  # downstream module. A change to cuda_bindings forces rebuild of cuda_core.
+  # downstream module. A change to either bindings package rebuilds cuda_core
+  # against both majors, but rebuilds only the matching bindings package.
   # A change to cuda_core alone skips rebuilding/retesting cuda_bindings and
   # cuda_pathfinder, but still retests the downstream cuda-python metapackage.
   # Shared build/orchestration changes run the full pipeline; test-only CI
   # infrastructure runs every test suite without rebuilding package wheels.
-  # On push to main, tag refs, schedule, or workflow_dispatch events we
-  # unconditionally run everything because there is no meaningful "changed
-  # paths" baseline for those events.
+  # On pushes to main, schedule, workflow_dispatch, or non-bindings release
+  # tags we unconditionally run everything because there is no meaningful
+  # "changed paths" baseline for those events. Bare bindings tags select the
+  # corresponding registered cuda.bindings package root and cuda-python build.
   detect-changes:
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
@@ -109,6 +90,7 @@ jobs:
       actions: read
       contents: read
     outputs:
+      bindings-config: ${{ steps.workplan.outputs.bindings-config }}
       workplan: ${{ steps.workplan.outputs.workplan }}
     steps:
       - name: Checkout repository
@@ -118,6 +100,9 @@ jobs:
           # base and classify its changed paths, but historical blobs aren't.
           fetch-depth: 0
           filter: blob:none
+
+      - name: Install CI tool test dependencies
+        run: python3 -m pip install -e './ci[test]'
 
       - name: Resolve PR merge base
         id: merge-base
@@ -190,11 +175,20 @@ jobs:
           }
 
           missing=()
-          for name in cuda-pathfinder-wheel cuda-python-wheel; do
+          has_artifact cuda-pathfinder-wheel || missing+=(cuda-pathfinder-wheel)
+
+          if ! bindings_config=$(python3 -m ci.tools.bindings_config); then
+            unavailable
+          fi
+          if ! cuda_versions_json=$(jq -ce '[.package_roots[].toolkit_version]' <<< "$bindings_config"); then
+            unavailable
+          fi
+          mapfile -t cuda_versions < <(jq -r '.[]' <<< "$cuda_versions_json")
+          for version in "${cuda_versions[@]}"; do
+            name="cuda-python-wheel-cuda${version}"
             has_artifact "$name" || missing+=("$name")
           done
 
-          cuda_version=$(yq '.cuda.build.version' ci/versions.yml)
           if ! python_versions=$(yq -r '.jobs.build.strategy.matrix."python-version"[]' .github/workflows/build-wheel.yml); then
             unavailable
           fi
@@ -207,9 +201,11 @@ jobs:
           while IFS= read -r python_version; do
             python=${python_version//./}
             while IFS= read -r platform; do
-              binding="cuda-bindings-python${python}-cuda${cuda_version}-${platform}-${merge_base}"
+              for version in "${cuda_versions[@]}"; do
+                binding="cuda-bindings-python${python}-cuda${version}-${platform}-${merge_base}"
+                has_artifact "$binding" || missing+=("$binding")
+              done
               core="cuda-core-python${python}-${platform}-${merge_base}"
-              has_artifact "$binding" || missing+=("$binding")
               has_artifact "$core" || missing+=("$core")
             done <<< "${platforms}"
           done <<< "${python_versions}"
@@ -226,26 +222,29 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Test CI workplan planner
-        run: python3 -m unittest ci/tools/tests/test_compute_ci_plan.py
+        run: >-
+          python3 -m pytest -q --noconftest
+          ci/tools/tests/test_bindings_config.py
+          ci/tools/tests/test_compute_ci_plan.py
 
       - name: Compute CI workplan
         id: workplan
         env:
           MERGE_BASE: ${{ steps.merge-base.outputs.sha }}
           BASELINE_RUN_ID: ${{ steps.baseline.outputs.run_id }}
+          RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
         run: |
           set -euo pipefail
-          workplan=$(python3 ci/tools/compute_ci_plan.py \
-            --merge-base "$MERGE_BASE" \
-            --baseline-run-id "$BASELINE_RUN_ID")
-          echo "workplan=$workplan" >> "$GITHUB_OUTPUT"
-          {
-            echo
-            echo "### CI workplan"
-            echo '```json'
-            jq . <<< "$workplan"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+          planner_args=(
+            --merge-base "$MERGE_BASE"
+            --baseline-run-id "$BASELINE_RUN_ID"
+          )
+          if [[ -n "$RELEASE_TAG" ]]; then
+            planner_args+=(--release-tag "$RELEASE_TAG")
+          fi
+          python3 -m ci.tools.compute_ci_plan "${planner_args[@]}" \
+            --github-output "$GITHUB_OUTPUT" \
+            --github-step-summary "$GITHUB_STEP_SUMMARY"
 
   api-check-core-vs-release:
     name: API check (cuda_core vs. latest release)
@@ -339,7 +338,6 @@ jobs:
   #   - if: condition (build-linux-64 omits doc-only check since it's needed for docs)
   build-linux-64:
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
     strategy:
@@ -347,7 +345,7 @@ jobs:
       matrix:
         host-platform:
           - linux-64
-    name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+    name: Build ${{ matrix.host-platform }} (registered bindings packages)
     if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
     permissions:
       actions: read
@@ -356,14 +354,12 @@ jobs:
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
-      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See build-linux-64 for why build jobs are split by platform.
   build-linux-aarch64:
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
     strategy:
@@ -371,7 +367,7 @@ jobs:
       matrix:
         host-platform:
           - linux-aarch64
-    name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+    name: Build ${{ matrix.host-platform }} (registered bindings packages)
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -383,14 +379,12 @@ jobs:
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
-      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See build-linux-64 for why build jobs are split by platform.
   build-windows:
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
     strategy:
@@ -398,7 +392,7 @@ jobs:
       matrix:
         host-platform:
           - win-64
-    name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+    name: Build ${{ matrix.host-platform }} (registered bindings packages)
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -410,8 +404,7 @@ jobs:
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
-      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # NOTE: test-sdist jobs are split by platform (mirroring build-* and test-wheel-*)
@@ -421,12 +414,15 @@ jobs:
   #   - host-platform value
   #   - uses: (test-sdist-linux.yml vs test-sdist-windows.yml)
   test-sdist-linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJSON(needs.detect-changes.outputs.bindings-config).package_roots }}
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
       - build-linux-64
-    name: Test sdist linux-64
+    name: Test sdist linux-64 (${{ matrix.package.package_root }})
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -438,18 +434,21 @@ jobs:
     uses: ./.github/workflows/test-sdist-linux.yml
     with:
       host-platform: linux-64
-      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      bindings-package: ${{ toJSON(matrix.package) }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See test-sdist-linux for why sdist test jobs are split by platform.
   test-sdist-windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJSON(needs.detect-changes.outputs.bindings-config).package_roots }}
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
       - build-linux-64
       - build-windows
-    name: Test sdist win-64
+    name: Test sdist win-64 (${{ matrix.package.package_root }})
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -461,7 +460,7 @@ jobs:
     uses: ./.github/workflows/test-sdist-windows.yml
     with:
       host-platform: win-64
-      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      bindings-package: ${{ toJSON(matrix.package) }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # NOTE: Test jobs are split by platform for the same reason as build jobs (see
@@ -483,7 +482,6 @@ jobs:
       actions: read
       contents: read  # This is required for actions/checkout
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
       - build-linux-64
@@ -492,7 +490,7 @@ jobs:
     with:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
-      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
@@ -511,7 +509,6 @@ jobs:
       actions: read
       contents: read  # This is required for actions/checkout
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
       - build-linux-64
@@ -521,7 +518,7 @@ jobs:
     with:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
-      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
@@ -540,7 +537,6 @@ jobs:
       actions: read
       contents: read  # This is required for actions/checkout
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
       - build-linux-64
@@ -550,7 +546,7 @@ jobs:
     with:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
-      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
@@ -563,11 +559,16 @@ jobs:
       contents: write
       pull-requests: write
     needs:
-      - ci-vars
       - build-linux-64
     secrets: inherit
     uses: ./.github/workflows/build-docs.yml
     with:
+      # Bare cuda.bindings tags intentionally produce only their matching
+      # cuda.bindings and cuda-python artifacts. Keep tag docs on that focused
+      # artifact set; component-specific release runs build the other docs.
+      component: ${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'v') && 'cuda-bindings' || 'all' }}
+      git-tag: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+      run-id: ${{ github.run_id }}
       is-release: ${{ github.ref_type == 'tag' }}
 
   precommit-windows:
@@ -607,7 +608,6 @@ jobs:
     if: ${{ always() && github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     needs:
-      - ci-vars
       - should-skip
       - detect-changes
       - build-linux-64
@@ -660,7 +660,6 @@ jobs:
 
           # Control jobs, the universal linux build, docs, and Windows
           # pre-commit checks always run.
-          check_result "ci-vars"           "success"
           check_result "should-skip"       "success"
           check_result "detect-changes"    "success"
           check_result "build-linux-64"    "success"

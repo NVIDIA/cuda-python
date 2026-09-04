@@ -1,10 +1,14 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-backport_branch: "12.9.x"  # keep in sync with target-branch in .github/dependabot.yml
+schema_version: 2
 
 cuda:
-  build:
-    version: "13.3.0"
-  prev_build:
-    version: "12.9.1"
+  bindings:
+    package_roots:
+      cuda_bindings_12:
+        toolkit_version: "12.9.1"
+        release_status: maintenance
+      cuda_bindings:
+        toolkit_version: "13.3.0"
+        release_status: current
