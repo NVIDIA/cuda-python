@@ -10,6 +10,7 @@ from helpers.contexts import (
     current_context_handle,
     no_current_context,
 )
+from helpers.nanosleep_kernel import NanosleepKernel
 
 import cuda.core
 from cuda.bindings import driver, runtime
@@ -145,6 +146,57 @@ def test_set_current_returns_previous_context_with_owning_device(device_x2):
     previous = dev0.set_current(ctx0)
     assert previous.handle == dev1.context.handle
     dev1.set_current(previous)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5")
+def test_set_current_round_trips_through_a_different_device(device_x2):
+    """The pre-#2311 idiom `prev = dev.set_current(ctx); ...; dev.set_current(prev)`
+    must keep working even when `prev` belongs to a different device than
+    `dev`: set_current() delegates to the context's owning device instead of
+    raising, so restoring through the original Device handle round-trips."""
+    dev0, dev1 = device_x2
+    dev0.set_current()
+    ctx0 = dev0.context
+
+    dev1.set_current()
+    ctx1 = dev1.context
+
+    dev0.set_current()  # dev0 current again; dev1.context is still ctx1
+
+    prev = dev1.set_current(ctx1)
+    assert prev.handle == ctx0.handle
+    assert current_context_handle() == int(ctx1.handle)
+
+    restored = dev1.set_current(prev)
+    assert restored.handle == ctx1.handle
+    assert current_context_handle() == int(ctx0.handle)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5")
+def test_device_sync_waits_for_bound_context_work(device_x2):
+    """dev0.sync() must wait for work queued on dev0's bound context even
+    while dev1 is ambient, not just preserve the ambient context (#2311)."""
+    dev0, dev1 = device_x2
+    if dev0.compute_capability.major < 7:
+        pytest.skip("__nanosleep is only available starting Volta (sm70)")
+    dev0.set_current()
+    stream = dev0.create_stream()
+    nanosleep = NanosleepKernel(dev0, sleep_duration_ms=20)
+    event = None
+    try:
+        nanosleep.launch(stream)
+        event = stream.record()
+
+        dev1.set_current()
+        ambient_context_handle = current_context_handle()
+
+        dev0.sync()
+        assert event.is_done
+        assert current_context_handle() == ambient_context_handle
+    finally:
+        if event is not None:
+            event.close()
+        stream.close()
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")

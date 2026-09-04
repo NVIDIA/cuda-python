@@ -270,6 +270,9 @@ ContextHandle deallocation_context(const DeallocationStream& stream) noexcept {
 template <typename Fn, typename... Args>
 CUresult invoke_in_context(const ContextHandle& h_context, Fn&& operation, Args&&... args) noexcept {
     ASSERT_NOTHROW_INVOCABLE(Fn&&, Args&&...);
+    if (!h_context) {
+        return CUDA_ERROR_INVALID_CONTEXT;
+    }
     CUcontext previous = nullptr;
     int changed = 0;
     CUresult status = enter_context(h_context, &previous, &changed);
@@ -288,6 +291,9 @@ CUresult invoke_in_context_or_undo(const ContextHandle& h_context, Fn&& operatio
                                    Undo&& undo, bool undo_requires_target_context) noexcept {
     ASSERT_NOTHROW_INVOCABLE(Fn&&);
     ASSERT_NOTHROW_INVOCABLE(Undo&&);
+    if (!h_context) {
+        return CUDA_ERROR_INVALID_CONTEXT;
+    }
     CUcontext previous = nullptr;
     int changed = 0;
     CUresult status = enter_context(h_context, &previous, &changed);
@@ -305,6 +311,11 @@ CUresult invoke_in_context_or_undo(const ContextHandle& h_context, Fn&& operatio
         }
         if (undo_ok) {
             std::invoke(std::forward<Undo>(undo));
+        } else {
+            warn_on_cuda_error(
+                "cuCtxSetCurrent (restoring the caller's context)", composite,
+                "failed; cleanup of the new resource skipped because its context "
+                "is no longer current (resource leaked)");
         }
     }
     return composite;
@@ -398,9 +409,7 @@ const WarnOnFailure<p_cuSurfObjectDestroy> pw_cuSurfObjectDestroy{"cuSurfObjectD
 
 // Synchronize the provided context.
 CUresult context_synchronize(const ContextHandle& h_context) noexcept {
-    if (!h_context) {
-        return CUDA_ERROR_INVALID_CONTEXT;
-    }
+    GILReleaseGuard gil;
     return invoke_in_context(h_context, []() noexcept {
         return p_cuCtxSynchronize();
     });
@@ -410,9 +419,7 @@ CUresult context_synchronize(const ContextHandle& h_context) noexcept {
 CUresult context_get_stream_priority_range(const ContextHandle& h_context,
                                            int* least_priority,
                                            int* greatest_priority) noexcept {
-    if (!h_context) {
-        return CUDA_ERROR_INVALID_CONTEXT;
-    }
+    GILReleaseGuard gil;
     return invoke_in_context(h_context, [&]() noexcept {
         return p_cuCtxGetStreamPriorityRange(least_priority, greatest_priority);
     });
@@ -954,6 +961,16 @@ StreamHandle get_per_thread_stream() {
     return handle;
 }
 
+StreamHandle create_context_bound_legacy_stream(const ContextHandle& h_context) {
+    if (!h_context) {
+        return {};
+    }
+    // Default deleter: this handle never owns CU_STREAM_LEGACY, so nothing
+    // needs to run when the last reference is released.
+    auto box = std::make_shared<const StreamBox>(StreamBox{CU_STREAM_LEGACY, h_context});
+    return StreamHandle(box, &box->resource);
+}
+
 // ============================================================================
 // Deallocation streams
 //
@@ -1301,9 +1318,6 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream)
 // Allocate device memory synchronously with the provided context current.
 CUresult deviceptr_alloc_raw(CUdeviceptr* ptr, size_t size,
                              const ContextHandle& h_context) noexcept {
-    if (!h_context) {
-        return CUDA_ERROR_INVALID_CONTEXT;
-    }
     GILReleaseGuard gil;
     return invoke_in_context_or_undo(
         h_context,
@@ -2837,14 +2851,14 @@ struct SurfObjectBox {
 };
 
 // Recover an array's owning box from its aliased resource pointer.
-const ArrayBox* get_array_box(const OpaqueArrayHandle& h) noexcept {
+const ArrayBox* get_box(const OpaqueArrayHandle& h) noexcept {
     const CUarray* p = h.get();
     return reinterpret_cast<const ArrayBox*>(
         reinterpret_cast<const char*>(p) - offsetof(ArrayBox, resource));
 }
 
 // Recover a mipmapped array's owning box from its aliased resource pointer.
-const MipmappedArrayBox* get_mipmapped_array_box(const MipmappedArrayHandle& h) noexcept {
+const MipmappedArrayBox* get_box(const MipmappedArrayHandle& h) noexcept {
     const CUmipmappedArray* p = h.get();
     return reinterpret_cast<const MipmappedArrayBox*>(
         reinterpret_cast<const char*>(p)
@@ -2897,13 +2911,13 @@ OpaqueArrayHandle create_array_handle_owning(CUarray arr) {
 
 // Return the context retained by an array handle.
 ContextHandle get_array_context(const OpaqueArrayHandle& h) noexcept {
-    return h ? get_array_box(h)->h_context : ContextHandle{};
+    return h ? get_box(h)->h_context : ContextHandle{};
 }
 
 OpaqueArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigned int level) {
     GILReleaseGuard gil;
     CUarray arr;
-    ContextHandle h_context = h_mip ? get_mipmapped_array_box(h_mip)->h_context : ContextHandle{};
+    ContextHandle h_context = h_mip ? get_box(h_mip)->h_context : ContextHandle{};
     if (CUDA_SUCCESS != (err = p_cuMipmappedArrayGetLevel(&arr, as_cu(h_mip), level))) {
         return {};
     }
@@ -2942,7 +2956,7 @@ MipmappedArrayHandle create_mipmapped_array_handle(const ContextHandle& h_contex
 
 // Return the context retained by a mipmapped array handle.
 ContextHandle get_mipmapped_array_context(const MipmappedArrayHandle& h) noexcept {
-    return h ? get_mipmapped_array_box(h)->h_context : ContextHandle{};
+    return h ? get_box(h)->h_context : ContextHandle{};
 }
 
 namespace {

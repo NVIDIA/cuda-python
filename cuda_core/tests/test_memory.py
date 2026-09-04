@@ -2157,16 +2157,15 @@ def test_legacy_pinned_allocate_zero_size(init_cuda):
     assert int(buf.handle) == 0
 
 
-def test_legacy_pinned_device_id_raises():
-    """LegacyPinnedMemoryResource.device_id raises; pinned memory is not bound to a GPU."""
+def test_legacy_pinned_device_id_is_not_applicable():
+    """LegacyPinnedMemoryResource.device_id is -1, as documented for memory not bound to a device."""
     mr = LegacyPinnedMemoryResource()
-    with pytest.raises(RuntimeError, match="not bound to any GPU"):
-        _ = mr.device_id
+    assert mr.device_id == -1
 
 
 def test_synchronous_memory_resource_basic(init_cuda):
     """_SynchronousMemoryResource exercises properties and allocate paths (zero, non-zero, with-stream)."""
-    from cuda.core._memory._device_memory_resource import _SynchronousMemoryResource
+    from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
 
     dev = Device()
     mr = _SynchronousMemoryResource(dev.device_id)
@@ -2199,7 +2198,7 @@ def test_synchronous_memory_resource_basic(init_cuda):
 
 def test_synchronous_memory_resource_deallocate_accepts_stream(init_cuda):
     """_SynchronousMemoryResource.deallocate accepts an explicit stream."""
-    from cuda.core._memory._device_memory_resource import _SynchronousMemoryResource
+    from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
 
     dev = Device()
     mr = _SynchronousMemoryResource(dev.device_id)
@@ -2212,7 +2211,7 @@ def test_synchronous_memory_resource_deallocate_accepts_stream(init_cuda):
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_synchronous_memory_resource_uses_its_context(device_x2):
     """Synchronous allocation targets its stored context and restores the current one."""
-    from cuda.core._memory._device_memory_resource import _SynchronousMemoryResource
+    from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
 
     alloc_dev, current_dev = device_x2
     alloc_dev.set_current()
@@ -2249,7 +2248,7 @@ def test_synchronous_memory_resource_uses_its_context(device_x2):
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_synchronous_memory_resource_restores_context_after_failure(device_x2):
     """A failed synchronous allocation restores the context that was current."""
-    from cuda.core._memory._device_memory_resource import _SynchronousMemoryResource
+    from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
 
     alloc_dev, current_dev = device_x2
     alloc_dev.set_current()
@@ -2261,6 +2260,47 @@ def test_synchronous_memory_resource_restores_context_after_failure(device_x2):
         mr.allocate(sys.maxsize)
 
     assert current_context_handle() == current_context
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5")
+def test_synchronous_memory_resource_default_stream_deallocates_in_own_context(device_x2, capsys):
+    """Buffer teardown with no explicit stream frees in the resource's own
+    context, not whatever context happens to be current at close() time."""
+    from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
+
+    alloc_dev, current_dev = device_x2
+    alloc_dev.set_current()
+    mr = _SynchronousMemoryResource(alloc_dev.device_id, alloc_dev.context)
+
+    current_dev.set_current()
+    current_context = current_context_handle()
+
+    buf = mr.allocate(64)  # no explicit stream: records a context-bound default token
+    assert current_context_handle() == current_context
+
+    buf.close()  # no explicit stream: reuses the recorded token
+    assert current_context_handle() == current_context
+    assert capsys.readouterr().err == ""
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5")
+def test_synchronous_memory_resource_allocate_without_current_context(device_x2, capsys):
+    """allocate()/close() with no explicit stream succeed with no context
+    current, instead of raising or leaking the allocation (#2311)."""
+    from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
+
+    alloc_dev, current_dev = device_x2
+    alloc_dev.set_current()
+    mr = _SynchronousMemoryResource(alloc_dev.device_id, alloc_dev.context)
+    current_dev.set_current()
+
+    with no_current_context():
+        buf = mr.allocate(64)
+        assert current_context_handle() == 0
+        buf.close()
+        assert current_context_handle() == 0
+
+    assert capsys.readouterr().err == ""
 
 
 @pytest.mark.parametrize(

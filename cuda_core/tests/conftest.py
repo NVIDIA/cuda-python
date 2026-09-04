@@ -116,6 +116,8 @@ def _wrap_worker_cuda_test(func):
                 kwargs["mempool_device_x2"] = _mempool_device_impl(2)
             if "mempool_device_x3" in kwargs:
                 kwargs["mempool_device_x3"] = _mempool_device_impl(3)
+            if "device_x2" in kwargs:
+                kwargs["device_x2"] = _device_x2_impl()
 
             # These are used by test_green_context.py.  The original fixtures include
             # pytest.skip() but that should have correctly fired by this time.
@@ -212,13 +214,22 @@ def deinit_cuda():
     _ = _device_unset_current()
 
 
-@pytest.fixture
-def device_x2(deinit_cuda):
-    """Provide two CUDA devices, or skip when fewer are available."""
+def _device_x2_impl():
     devices = Device.get_all_devices()
     if len(devices) < 2:
         pytest.skip("Test requires at least 2 CUDA devices")
     return devices[:2]
+
+
+@pytest.fixture
+def device_x2(init_cuda):
+    """Provide two CUDA devices, or skip when fewer are available.
+
+    Depends on ``init_cuda`` so that, under pytest-run-parallel, the test is
+    wrapped by ``_wrap_worker_cuda_test`` and the devices are re-fetched on the
+    worker thread (Device objects are thread-local).
+    """
+    return _device_x2_impl()
 
 
 @pytest.fixture

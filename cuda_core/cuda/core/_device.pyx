@@ -1206,7 +1206,7 @@ class Device:
                 from cuda.core._memory import DeviceMemoryResource
                 self._memory_resource = DeviceMemoryResource(self._device_id)
             else:
-                from cuda.core._memory._device_memory_resource import (
+                from cuda.core._memory._synchronous_memory_resource import (
                     _SynchronousMemoryResource,
                 )
                 self._memory_resource = _SynchronousMemoryResource(
@@ -1263,6 +1263,12 @@ class Device:
 
         Providing a `ctx` causes the previous set context to be popped and returned.
 
+        If `ctx` was created on a different device than this receiver, the call
+        is delegated to that device's own :meth:`set_current`. This keeps the
+        owning device's bookkeeping consistent and lets a context this method
+        handed out for a foreign device be pushed back through any ``Device``
+        object, matching the CUDA context stack's own thread-wide semantics.
+
         Parameters
         ----------
         ctx : :obj:`~_context.Context`, optional
@@ -1296,10 +1302,11 @@ class Device:
             assert_type(ctx, Context)
             Context_check_open(ctx)
             if ctx._device_id != self._device_id:
-                raise RuntimeError(
-                    "the provided context was created on the device with"
-                    f" id={ctx._device_id}, which is different from the target id={self._device_id}"
-                )
+                # The CUDA context stack is per-thread, not per-Device-object,
+                # so pushing/popping a foreign-device context is delegated to
+                # the device that owns it; its own bookkeeping (_context,
+                # _has_inited) is what should track this push, not ours.
+                return Device(ctx._device_id).set_current(ctx)
             if self._has_inited and self._context is not None:
                 prev_owned = self._context
             curr_ctx = as_cu(ctx._h_context)
@@ -1478,7 +1485,12 @@ class Device:
         return self.memory_resource.allocate(size, stream=stream)
 
     def sync(self) -> None:
-        """Synchronize this device.
+        """Synchronize this device's bound context.
+
+        Waits for all preceding work in this device's bound :obj:`~_context.Context`
+        to complete. Only that context is synchronized, not the device as a
+        whole; work queued in a different context on the same device (e.g. a
+        green context) is unaffected.
 
         Note
         ----
@@ -1487,10 +1499,7 @@ class Device:
         """
         self._check_context_initialized()
         cdef Context ctx = self._context
-        cdef cydriver.CUresult status
-        with nogil:
-            status = context_synchronize(ctx._h_context)
-        HANDLE_RETURN(status)
+        HANDLE_RETURN(context_synchronize(ctx._h_context))
 
     def create_graph_builder(self) -> GraphBuilder:
         """Create a new :obj:`~graph.GraphBuilder` on this device.

@@ -24,7 +24,7 @@ from cuda.core import (
     StreamOptions,
     launch,
 )
-from cuda.core._memory._device_memory_resource import _SynchronousMemoryResource
+from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.typing import ObjectCodeFormatType, SourceCodeType
 

@@ -160,9 +160,7 @@ cdef class Stream:
         # TODO: we might want to consider memoizing high/low per CUDA context and avoid this call
         cdef int high, low
         cdef cydriver.CUresult res_code
-        with nogil:
-            res_code = context_get_stream_priority_range(
-                context._h_context, &high, &low)
+        res_code = context_get_stream_priority_range(context._h_context, &high, &low)
         HANDLE_RETURN(res_code)
         cdef int prio
         if priority is not None:

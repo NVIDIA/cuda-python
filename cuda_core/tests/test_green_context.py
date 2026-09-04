@@ -532,21 +532,18 @@ class TestGreenContextLifecycle:
         )
         from cuda.core.typing import ArrayFormatType
 
-        array = init_cuda.create_opaque_array(
-            OpaqueArrayOptions(
-                shape=(8, 8),
-                format=ArrayFormatType.UINT8,
-                num_channels=4,
-            )
-        )
-        try:
-            with (
-                use_context(init_cuda, green_ctx),
-                pytest.raises(ValueError, match="resource is not compatible with this Device object"),
-            ):
-                init_cuda.create_texture_object(resource=ResourceDescriptor.from_opaque_array(array))
-        finally:
-            array.close()
+        with (
+            init_cuda.create_opaque_array(
+                OpaqueArrayOptions(
+                    shape=(8, 8),
+                    format=ArrayFormatType.UINT8,
+                    num_channels=4,
+                )
+            ) as array,
+            use_context(init_cuda, green_ctx),
+            pytest.raises(ValueError, match="resource is not compatible with this Device object"),
+        ):
+            init_cuda.create_texture_object(resource=ResourceDescriptor.from_opaque_array(array))
 
     def test_close_while_current_raises(self, init_cuda, green_ctx):
         """close() on a current context raises — test via set_current."""

@@ -606,6 +606,12 @@ class Device:
 
         Providing a `ctx` causes the previous set context to be popped and returned.
 
+        If `ctx` was created on a different device than this receiver, the call
+        is delegated to that device's own :meth:`set_current`. This keeps the
+        owning device's bookkeeping consistent and lets a context this method
+        handed out for a foreign device be pushed back through any ``Device``
+        object, matching the CUDA context stack's own thread-wide semantics.
+
         Parameters
         ----------
         ctx : :obj:`~_context.Context`, optional
@@ -719,7 +725,12 @@ class Device:
 
         """
     def sync(self) -> None:
-        """Synchronize this device.
+        """Synchronize this device's bound context.
+
+        Waits for all preceding work in this device's bound :obj:`~_context.Context`
+        to complete. Only that context is synchronized, not the device as a
+        whole; work queued in a different context on the same device (e.g. a
+        green context) is unaffected.
 
         Note
         ----

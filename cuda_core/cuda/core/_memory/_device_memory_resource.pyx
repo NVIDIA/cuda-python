@@ -4,26 +4,14 @@
 
 from __future__ import annotations
 
-from libc.stdint cimport uintptr_t
-
 from cuda.bindings cimport cydriver
-from cuda.core._context cimport Context
-from cuda.core._memory._buffer cimport Buffer, MemoryResource
 from cuda.core._memory._location cimport cumemlocation_from_id
 from cuda.core._memory._memory_pool cimport (
     _MemPool, MP_check_open, MP_init_create_pool, MP_raise_release_threshold,
 )
 from cuda.core._memory cimport _ipc
 from cuda.core._memory._ipc cimport IPCAllocationHandle
-from cuda.core._resource_handles cimport (
-    ContextHandle,
-    as_cu,
-    deviceptr_alloc_raw,
-    get_device_mempool,
-    get_last_error,
-    get_primary_context,
-)
-from cuda.core._stream cimport Stream, Stream_accept
+from cuda.core._resource_handles cimport as_cu, get_device_mempool, get_last_error
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
@@ -42,8 +30,6 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from cuda.core._device import Device
-    from cuda.core.graph import GraphBuilder
-    from cuda.core.typing import DevicePointerType
 
 __all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']
 
@@ -65,68 +51,6 @@ cdef class DeviceMemoryResourceOptions:
     """
     ipc_enabled : bool = False
     max_size : int = 0
-
-
-class _SynchronousMemoryResource(MemoryResource):
-    __slots__ = ("_context", "_device_id")
-
-    def __init__(self, device_id: int, context=None) -> None:
-        cdef ContextHandle h_context
-        from .._device import Device
-
-        self._device_id = Device(device_id).device_id
-        if context is None:
-            h_context = get_primary_context(self._device_id)
-            if not h_context:
-                HANDLE_RETURN(get_last_error())
-            context = Context._from_handle(
-                Context, h_context, self._device_id)
-        self._context = context
-
-    def allocate(
-        self,
-        size_t size,
-        *,
-        stream: Stream | GraphBuilder | None = None,
-    ) -> Buffer:
-        # cuMemAlloc is synchronous; stream is accepted (and validated)
-        # for interface conformance but not used.
-        if stream is not None:
-            Stream_accept(stream)
-
-        cdef Context context = self._context
-        cdef cydriver.CUdeviceptr ptr = 0
-        if size:
-            with nogil:
-                HANDLE_RETURN(deviceptr_alloc_raw(&ptr, size, context._h_context))
-        return Buffer._init(<uintptr_t>ptr, size, self)
-
-    def deallocate(
-        self,
-        ptr: DevicePointerType,
-        size_t size,
-        *,
-        stream: Stream | GraphBuilder | None = None,
-    ) -> None:
-        if stream is not None:
-            Stream_accept(stream).sync()
-        cdef cydriver.CUdeviceptr devptr
-        if size:
-            devptr = <cydriver.CUdeviceptr><uintptr_t>int(ptr)
-            with nogil:
-                HANDLE_RETURN(cydriver.cuMemFree(devptr))
-
-    @property
-    def is_device_accessible(self) -> bool:
-        return True
-
-    @property
-    def is_host_accessible(self) -> bool:
-        return False
-
-    @property
-    def device_id(self) -> int:
-        return self._device_id
 
 
 cdef class DeviceMemoryResource(_MemPool):

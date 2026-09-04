@@ -521,7 +521,7 @@ def _create_texture_object(
     elif resource.kind == "linear":
         buf = <Buffer>resource.source
         Buffer_check_open(buf)
-        resource_device_id = buf.device_id
+        resource_device_id = buf.device_id  # -1 for memory not bound to a device
         devptr = int(buf.handle)
         res_desc.resType = cydriver.CU_RESOURCE_TYPE_LINEAR
         res_desc.res.linear.devPtr = <cydriver.CUdeviceptr>devptr
@@ -531,7 +531,7 @@ def _create_texture_object(
     elif resource.kind == "pitch2d":
         buf = <Buffer>resource.source
         Buffer_check_open(buf)
-        resource_device_id = buf.device_id
+        resource_device_id = buf.device_id  # -1 for memory not bound to a device
         devptr = int(buf.handle)
         res_desc.resType = cydriver.CU_RESOURCE_TYPE_PITCH2D
         res_desc.res.pitch2D.devPtr = <cydriver.CUdeviceptr>devptr

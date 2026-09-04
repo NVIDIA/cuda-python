@@ -195,6 +195,8 @@ cdef void retry_deferred_cleanup() noexcept
 cdef ContextHandle get_stream_context(const StreamHandle& h) noexcept nogil
 cdef StreamHandle get_legacy_stream() except+ nogil
 cdef StreamHandle get_per_thread_stream() except+ nogil
+cdef StreamHandle create_context_bound_legacy_stream(
+    const ContextHandle& h_context) except+ nogil
 
 # Event handles
 cdef EventHandle create_event_handle(

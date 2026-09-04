@@ -10,6 +10,7 @@ from helpers.contexts import current_context_handle, no_current_context
 import cuda.core
 from cuda.core import (
     Device,
+    LegacyPinnedMemoryResource,
 )
 from cuda.core.texture import (
     MipmappedArrayOptions,
@@ -54,44 +55,37 @@ def test_texture_resources_target_receiver_context(device_x2):
     dev1.set_current()
     ctx1_handle = current_context_handle()
 
-    array = dev0.create_opaque_array(
+    with dev0.create_opaque_array(
         OpaqueArrayOptions(
             shape=(8, 8),
             format=ArrayFormatType.UINT8,
             num_channels=4,
             is_surface_load_store=True,
         )
-    )
-    assert array.device == dev0
-    assert current_context_handle() == ctx1_handle
-
-    mipmap = dev0.create_mipmapped_array(
-        MipmappedArrayOptions(
-            shape=(8, 8),
-            format=ArrayFormatType.UINT8,
-            num_channels=4,
-            num_levels=2,
-        )
-    )
-    assert mipmap.device == dev0
-    assert current_context_handle() == ctx1_handle
-
-    level = mipmap.get_level(0)
-    assert level.device == dev0
-    assert current_context_handle() == ctx1_handle
-
-    resource = ResourceDescriptor.from_opaque_array(array)
-    texture = dev0.create_texture_object(resource=resource, options=TextureObjectOptions())
-    surface = dev0.create_surface_object(resource=resource)
-    assert texture.device == dev0
-    assert surface.device == dev0
-    assert current_context_handle() == ctx1_handle
-
-    surface.close()
-    texture.close()
-    level.close()
-    mipmap.close()
-    array.close()
+    ) as array:
+        assert array.device == dev0
+        assert current_context_handle() == ctx1_handle
+        with dev0.create_mipmapped_array(
+            MipmappedArrayOptions(
+                shape=(8, 8),
+                format=ArrayFormatType.UINT8,
+                num_channels=4,
+                num_levels=2,
+            )
+        ) as mipmap:
+            assert mipmap.device == dev0
+            assert current_context_handle() == ctx1_handle
+            with mipmap.get_level(0) as level:
+                assert level.device == dev0
+                assert current_context_handle() == ctx1_handle
+                resource = ResourceDescriptor.from_opaque_array(array)
+                with (
+                    dev0.create_texture_object(resource=resource, options=TextureObjectOptions()) as texture,
+                    dev0.create_surface_object(resource=resource) as surface,
+                ):
+                    assert texture.device == dev0
+                    assert surface.device == dev0
+                    assert current_context_handle() == ctx1_handle
     assert current_context_handle() == ctx1_handle
     assert int(ctx0.handle) != ctx1_handle
 
@@ -101,53 +95,57 @@ def test_texture_resources_restore_no_current_context(deinit_cuda):
     device = Device(0)
     device.set_current()
 
-    array = texture = None
-    try:
-        with no_current_context():
-            array = device.create_opaque_array(
+    with no_current_context():
+        with (
+            device.create_opaque_array(
                 OpaqueArrayOptions(
                     shape=(8, 8),
                     format=ArrayFormatType.UINT8,
                     num_channels=4,
                 )
-            )
-            texture = device.create_texture_object(resource=ResourceDescriptor.from_opaque_array(array))
+            ) as array,
+            device.create_texture_object(resource=ResourceDescriptor.from_opaque_array(array)) as texture,
+        ):
+            assert array.device == device
+            assert texture.device == device
             assert current_context_handle() == 0
-
-            texture.close()
-            texture = None
-            array.close()
-            array = None
-            assert current_context_handle() == 0
-    finally:
-        if texture is not None:
-            texture.close()
-        if array is not None:
-            array.close()
+        assert current_context_handle() == 0
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_texture_creation_rejects_mismatched_receiver(device_x2):
     dev0, dev1 = device_x2
     dev0.set_current()
-    array = dev0.create_opaque_array(
+    with dev0.create_opaque_array(
         OpaqueArrayOptions(
             shape=(8, 8),
             format=ArrayFormatType.UINT8,
             num_channels=4,
             is_surface_load_store=True,
         )
-    )
-    resource = ResourceDescriptor.from_opaque_array(array)
-    dev1.set_current()
-    ctx1_handle = current_context_handle()
+    ) as array:
+        resource = ResourceDescriptor.from_opaque_array(array)
+        dev1.set_current()
+        ctx1_handle = current_context_handle()
+        with pytest.raises(ValueError, match="resource belongs to device 0"):
+            dev1.create_texture_object(resource=resource)
+        with pytest.raises(ValueError, match="resource belongs to device 0"):
+            dev1.create_surface_object(resource=resource)
+        assert current_context_handle() == ctx1_handle
 
-    with pytest.raises(ValueError, match="resource belongs to device 0"):
-        dev1.create_texture_object(resource=resource)
-    with pytest.raises(ValueError, match="resource belongs to device 0"):
-        dev1.create_surface_object(resource=resource)
-    assert current_context_handle() == ctx1_handle
-    array.close()
+
+@pytest.mark.agent_authored(model="claude-sonnet-5")
+def test_texture_linear_accepts_pinned_buffer(init_cuda):
+    """Pinned memory is device-accessible and not bound to any device, so a
+    pinned buffer is a valid linear texture backing whose device check is
+    skipped (device_id == -1) rather than failed (#2311)."""
+    mr = LegacyPinnedMemoryResource()
+    with mr.allocate(256) as buf:
+        assert buf.device_id == -1
+
+        resource = ResourceDescriptor.from_linear(buf, format=ArrayFormatType.UINT8, num_channels=1)
+        with init_cuda.create_texture_object(resource=resource) as texture:
+            assert texture.device == init_cuda
 
 
 def test_array_2d_create_and_properties(init_cuda):

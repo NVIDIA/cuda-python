@@ -73,6 +73,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         const StreamHandle& h) noexcept nogil
     StreamHandle get_legacy_stream "cuda_core::get_legacy_stream" () except+ nogil
     StreamHandle get_per_thread_stream "cuda_core::get_per_thread_stream" () except+ nogil
+    StreamHandle create_context_bound_legacy_stream "cuda_core::create_context_bound_legacy_stream" (
+        const ContextHandle& h_context) except+ nogil
 
     # Event handles (note: _create_event_handle* are internal due to C++ overloading)
     EventHandle create_event_handle "cuda_core::create_event_handle" (

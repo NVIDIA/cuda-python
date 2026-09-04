@@ -40,13 +40,6 @@ New features
 Fixes and enhancements
 ----------------------
 
-- :class:`Device` methods that create resources or synchronize now act on that
-  device, even when another device is current. They do not change which device
-  is current. For example, ``dev1.sync()`` synchronizes device 1 even when
-  device 0 is current. :meth:`Device.set_current` now always returns a
-  :class:`Context` with the correct device ID.
-  (`#2311 <https://github.com/NVIDIA/cuda-python/issues/2311>`__)
-
 - A :class:`Buffer` is now freed correctly even when the CUDA context current
   at teardown is not the one it was allocated in, or when no context is current
   at all. This happens routinely when a buffer is released by the garbage

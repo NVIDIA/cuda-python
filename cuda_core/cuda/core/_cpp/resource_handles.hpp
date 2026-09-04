@@ -251,7 +251,7 @@ ContextHandle get_primary_context(int device_id);
 // Returns empty handle if no context is current (caller must check)
 ContextHandle get_current_context();
 
-// Synchronize the provided context.
+// Synchronize the provided context. Releases the GIL around the driver call.
 // Returns CUDA_ERROR_INVALID_CONTEXT for an empty handle.
 CUresult context_synchronize(const ContextHandle& h_context) noexcept;
 
@@ -302,6 +302,14 @@ StreamHandle get_legacy_stream();
 // Get non-owning handle to the per-thread default stream (CU_STREAM_PER_THREAD)
 // Note: Per-thread stream has no specific context dependency.
 StreamHandle get_per_thread_stream();
+
+// Wrap CU_STREAM_LEGACY with an explicit context, bypassing the "bind to
+// whatever is current" resolution that a bare default-stream token uses (see
+// make_deallocation_stream). Lets a resource that always operates in one
+// known context (e.g. a synchronous, non-pooled allocator) record a correct
+// deallocation context without requiring that context to be current when the
+// token is created. Returns an empty handle for an empty h_context.
+StreamHandle create_context_bound_legacy_stream(const ContextHandle& h_context);
 
 // ============================================================================
 // Event handle functions

@@ -94,5 +94,5 @@ class LegacyPinnedMemoryResource(MemoryResource):
 
     @property
     def device_id(self) -> int:
-        """This memory resource is not bound to any GPU."""
-        raise RuntimeError("a pinned memory resource is not bound to any GPU")
+        """Return -1. Pinned memory is host memory and is not bound to a specific device."""
+        return -1
