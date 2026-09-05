@@ -22,6 +22,7 @@ from cuda.core.graph import (
     ChildGraphNode,
     EventRecordNode,
     EventWaitNode,
+    ExecutableGraphNode,
     GraphDefinition,
     HostCallbackNode,
     KernelNode,
@@ -1223,3 +1224,99 @@ def test_closing_executable_during_launch_defers_owner_release(init_cuda):
         stream.sync()
 
     _wait_until(lambda: not inflight_weak)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_memory_node_update_validates_owners_and_noops(init_cuda):
+    """Memory-node updates validate owners, preserve no-ops, and update geometry."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    memory_resource = LegacyPinnedMemoryResource()
+    with memory_resource.allocate(16) as src, memory_resource.allocate(16) as dst:
+        graph_def = GraphDefinition()
+        memset_node = graph_def.memset(dst, 0x11, 8)
+        memcpy_node = graph_def.memcpy(dst, src, 8)
+
+        with pytest.raises(ValueError, match=r"^dst_owner requires dst$"):
+            memset_node.update(dst_owner=dst)
+        memset_node.update()
+        assert memset_node.value == 0x11
+        assert memset_node.width == 8
+
+        memset_node.update(width=4, height=2, pitch=8)
+        assert memset_node.width == 4
+        assert memset_node.height == 2
+        assert memset_node.pitch == 8
+
+        with pytest.raises(ValueError, match=r"^dst_owner requires dst$"):
+            memcpy_node.update(dst_owner=dst)
+        with pytest.raises(ValueError, match=r"^src_owner requires src$"):
+            memcpy_node.update(src_owner=src)
+        memcpy_node.update()
+        assert memcpy_node.size == 8
+        assert memcpy_node.dst == int(dst.handle)
+        assert memcpy_node.src == int(src.handle)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_executable_graph_node_cannot_be_constructed_directly():
+    """Executable-node views are factory-only and fail before any CUDA call."""
+    with pytest.raises(RuntimeError, match=r"^directly constructing an executable graph node is not supported$"):
+        ExecutableGraphNode()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_executable_node_repr_reports_graph_and_node(init_cuda):
+    """An executable-node view reprs its subclass name and both handles."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    kernel = compile_common_kernels().get_kernel("empty_kernel")
+    graph_def = GraphDefinition()
+    node = graph_def.launch(LaunchConfig(grid=1, block=1), kernel)
+    graph = graph_def.instantiate()
+
+    assert repr(graph[node]) == f"<ExecutableKernelNode graph=0x{int(graph.handle):x} node=0x{int(node.handle):x}>"
+
+
+@pytest.mark.parametrize("config_kind", ["clustered", "cooperative"])
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_executable_kernel_update_rejects_unsupported_config(init_cuda, config_kind):
+    """Executable kernel updates reject clustered and cooperative launches."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    kernel = compile_common_kernels().get_kernel("empty_kernel")
+    graph_def = GraphDefinition()
+    node = graph_def.launch(LaunchConfig(grid=1, block=1), kernel)
+    view = graph_def.instantiate()[node]
+
+    config = LaunchConfig(grid=1, block=1)
+    if config_kind == "clustered":
+        config.cluster = (1, 1, 1)
+    else:
+        config.is_cooperative = True
+    with pytest.raises(
+        NotImplementedError,
+        match=r"^updating clustered or cooperative kernel nodes is not supported$",
+    ):
+        view.update(config=config, kernel=kernel, args=())
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_ctypes_host_callback_repr(init_cuda):
+    """A ctypes host callback repr reports its node and function addresses."""
+    callback_type = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+
+    @callback_type
+    def host_fn(_user_data):
+        return None
+
+    graph_def = GraphDefinition()
+    node = graph_def.callback(host_fn)
+    assert isinstance(node, HostCallbackNode)
+    assert node.callback is None
+    cfunc = ctypes.cast(host_fn, ctypes.c_void_p).value
+    assert cfunc is not None
+    assert repr(node) == f"<HostCallbackNode handle=0x{int(node.handle):x} cfunc=0x{cfunc:x}>"

@@ -180,6 +180,51 @@ def test_buffer_initialization():
         buffer_initialization(MemoryResource())
 
 
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_buffer_direct_init_forbidden():
+    """Buffers must come from a MemoryResource, never from ``Buffer()``."""
+    with pytest.raises(RuntimeError, match=r"^Buffer objects cannot be instantiated directly\."):
+        Buffer()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_buffer_context_manager_closes_on_exit():
+    """``with buf`` yields the buffer, closes it on exit, and does not swallow inner exceptions."""
+    device = Device()
+    device.set_current()
+    mr = DummyDeviceMemoryResource(device)
+    buf = mr.allocate(size=64, stream=device.default_stream)
+    with buf as entered:
+        assert entered is buf
+        assert buf.handle != 0
+    assert buf.handle == 0
+    assert buf.memory_resource is None
+
+    buf = mr.allocate(size=64, stream=device.default_stream)
+    with pytest.raises(RuntimeError, match="^boom$"), buf:
+        raise RuntimeError("boom")
+    assert buf.handle == 0
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_memory_resource_abstract_stubs():
+    """Every abstract MemoryResource member reports itself as unimplemented."""
+    device = Device()
+    device.set_current()
+    mr = MemoryResource()
+    stream = device.default_stream
+    with pytest.raises(TypeError, match=r"^MemoryResource\.allocate must be implemented"):
+        mr.allocate(1, stream=stream)
+    with pytest.raises(TypeError, match=r"^MemoryResource\.deallocate must be implemented"):
+        mr.deallocate(0, 1, stream=stream)
+    with pytest.raises(TypeError, match=r"^MemoryResource\.is_device_accessible must be implemented"):
+        _ = mr.is_device_accessible
+    with pytest.raises(TypeError, match=r"^MemoryResource\.is_host_accessible must be implemented"):
+        _ = mr.is_host_accessible
+    with pytest.raises(TypeError, match=r"^MemoryResource\.device_id must be implemented"):
+        _ = mr.device_id
+
+
 def buffer_copy_to(dummy_mr: MemoryResource, device: Device, check=False):
     src_buffer = dummy_mr.allocate(size=1024)
     dst_buffer = dummy_mr.allocate(size=1024)
@@ -270,6 +315,20 @@ def test_buffer_copy_from_size_mismatch_raises():
 
     dst_buffer.close()
     src_buffer.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_copy_to_auto_dst_requires_memory_resource():
+    """``copy_to()`` cannot mint a destination without a memory resource."""
+    device = Device()
+    device.set_current()
+    owner = (ctypes.c_byte * 32)()
+    buf = Buffer.from_handle(ctypes.addressof(owner), 32, owner=owner)
+    try:
+        with pytest.raises(ValueError, match="does not have a memory_resource"):
+            buf.copy_to(stream=device.default_stream)
+    finally:
+        buf.close()
 
 
 def _bytes_repeat(pattern: bytes, size: int) -> bytes:
@@ -393,6 +452,7 @@ def test_buffer_external_host():
     a = (ctypes.c_byte * 20)()
     ptr = ctypes.addressof(a)
     buffer = Buffer.from_handle(ptr, 20, owner=a)
+    assert buffer.owner is a
     assert not buffer.is_device_accessible
     assert buffer.is_host_accessible
     assert buffer.device_id == -1

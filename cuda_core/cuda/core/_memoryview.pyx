@@ -1267,7 +1267,7 @@ cpdef StridedMemoryView view_as_array_interface(obj, view=None):
     buf.get_layout()
     buf.ptr, buf.readonly = data["data"]
     buf.is_device_accessible = False
-    buf.device_id = handle_return(driver.cuCtxGetDevice())
+    buf.device_id = -1
     return buf
 
 

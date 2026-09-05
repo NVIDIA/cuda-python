@@ -7,6 +7,10 @@ import pytest
 from cuda.core import _linker, _program
 from cuda.pathfinder import DynamicLibNotFoundError
 
+# The autouse fixture below resets module-level import state for every test in this
+# file, so the whole module is thread-unsafe -- not just the tests that monkeypatch.
+pytestmark = pytest.mark.thread_unsafe(reason="resets cuda.core._program / _linker optional-import globals")
+
 
 @pytest.fixture(autouse=True)
 def restore_optional_import_state():
@@ -29,6 +33,25 @@ def restore_optional_import_state():
     _linker._driver = saved_driver
     _linker._inited = saved_inited
     _linker._use_nvjitlink_backend = saved_use_nvjitlink
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_get_nvvm_module_rejects_old_bindings(monkeypatch):
+    """NVVM import requires cuda-bindings >= 12.9.0 and caches a failed attempt."""
+    calls = 0
+
+    def old_binding_version():
+        nonlocal calls
+        calls += 1
+        return (12, 8, 0)
+
+    monkeypatch.setattr(_program, "binding_version", old_binding_version)
+
+    with pytest.raises(RuntimeError, match="cuda-bindings >= 12.9.0"):
+        _program._get_nvvm_module()
+    with pytest.raises(RuntimeError, match="previous import attempt failed"):
+        _program._get_nvvm_module()
+    assert calls == 1
 
 
 def test_get_nvvm_module_reraises_nested_module_not_found(monkeypatch):

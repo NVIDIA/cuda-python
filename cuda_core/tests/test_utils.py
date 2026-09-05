@@ -660,7 +660,7 @@ def test_from_array_interface(x, init_cuda, expected_dtype):
     assert smv.dtype == np.dtype(expected_dtype)
     assert smv.shape == x.shape
     assert smv.ptr == x.ctypes.data
-    assert smv.device_id == init_cuda.device_id
+    assert smv.device_id == -1
     assert smv.is_device_accessible is False
     assert smv.exporting_obj is x
     assert smv.readonly is not x.flags.writeable
@@ -1021,6 +1021,29 @@ def test_strided_memory_view_proxy_cai_only_has_dlpack_false():
     proxy = _StridedMemoryViewProxy(obj)
     assert proxy.has_dlpack is False
     assert proxy.obj is obj
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_strided_memory_view_proxy_cai_view(init_cuda):
+    """A CAI-only proxy materializes its view through the CAI branch."""
+    from cuda.core._memoryview import _StridedMemoryViewProxy
+
+    obj = _make_cuda_array_interface_obj(shape=(2,), strides=None)
+    view = _StridedMemoryViewProxy(obj).view(-1)
+    assert view.exporting_obj is obj
+    assert view.shape == (2,)
+    assert view.is_device_accessible is True
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_strided_memory_view_view_rejects_dtype_itemsize_mismatch():
+    """Changing dtype cannot change the existing layout's element size."""
+    view = StridedMemoryView.from_any_interface(
+        np.arange(4, dtype=np.int16),
+        stream_ptr=-1,
+    )
+    with pytest.raises(ValueError, match="dtype's itemsize"):
+        view.view(dtype=np.int8)
 
 
 def test_view_as_cai_device_pointer_and_stream_ordering(init_cuda):

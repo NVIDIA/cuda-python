@@ -819,14 +819,6 @@ def test_program_options_as_bytes_invalid_backend():
 
 
 @nvvm_available
-def test_program_options_as_bytes_nvvm_unsupported_option():
-    """Test that unsupported options raise CUDAError for NVVM backend"""
-    options = ProgramOptions(arch="sm_80", lineinfo=True)
-    with pytest.raises(CUDAError, match="not supported by NVVM backend"):
-        options.as_bytes("nvvm")
-
-
-@nvvm_available
 def test_nvvm_program_options_as_bytes_numba_debug():
     """numba_debug must be plumbed through to libNVVM as -numba-debug
     (see #1287, #2570). libNVVM rejects the double-dashed spelling."""
@@ -1243,3 +1235,162 @@ def test_nvrtc_compile_with_logs_capture(init_cuda):
     assert isinstance(result, ObjectCode)
     assert logs.getvalue(), "Expected non-empty compilation log from #warning directive"
     program.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_program_options_bad_define_macro_nested_list_invalid_element():
+    """Nested define_macro list with a non-processable element raises at the element."""
+    # [("MACRO", "1")] makes is_nested_sequence True; 42 fails the inner processor.
+    opts = ProgramOptions(name="test", arch="sm_80", define_macro=[("MACRO", "1"), 42])
+    with pytest.raises(RuntimeError, match=r"Expected define_macro.*got 42"):
+        opts.as_bytes("nvrtc")
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"relocatable_device_code": True},
+        {"extensible_whole_program": True},
+        {"lineinfo": True},
+        {"ptxas_options": "-v"},
+        {"max_register_count": 32},
+        {"use_fast_math": True},
+        {"extra_device_vectorization": True},
+        {"gen_opt_lto": True},
+        {"define_macro": "M"},
+        {"undefine_macro": "M"},
+        {"include_path": "include-dir"},
+        pytest.param({"use_bundled_headers": True}, marks=bundled_headers_available),
+        {"pre_include": "header.h"},
+        {"no_source_include": True},
+        {"std": "c++17"},
+        {"builtin_move_forward": False},
+        {"builtin_initializer_list": False},
+        {"disable_warnings": True},
+        {"restrict": True},
+        {"device_as_default_execution_space": True},
+        {"device_int128": True},
+        {"optimization_info": "inline"},
+        {"no_display_error_number": True},
+        {"diag_error": 1},
+        {"diag_suppress": 1},
+        {"diag_warn": 1},
+        {"brief_diagnostics": True},
+        {"time": "timing.csv"},
+        {"split_compile": 2},
+        {"fdevice_syntax_only": True},
+        {"minimal": True},
+    ],
+    ids=lambda kw: next(iter(kw)),
+)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_nvvm_options_reject_each_unsupported_flag(kwargs):
+    """Every NVVM-unsupported option is rejected, named, and reported alone."""
+    # This table mirrors _prepare_nvvm_options_impl's rejection list one-for-one.
+    options = ProgramOptions(arch="sm_80", **kwargs)
+    name = next(iter(kwargs))
+    with pytest.raises(CUDAError, match=rf"^The following options are not supported by NVVM backend: {name}$"):
+        options.as_bytes("nvvm")
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_nvrtc_as_bytes_emits_sequence_and_uncommon_flags():
+    """as_bytes emits the NVRTC spellings that compile-option tests do not hit."""
+    options = ProgramOptions(
+        arch="sm_80",
+        ptxas_options="-v",
+        pre_include=["a.h", "b.h"],
+        device_float128=True,
+        diag_warn=[1000, 1001],
+        time="timing.csv",
+        split_compile=2,
+        pch_dir="pch-cache",
+    )
+    flags = [opt.decode() for opt in options.as_bytes("nvrtc")]
+    assert "--ptxas-options=-v" in flags
+    assert "--pre-include=a.h" in flags
+    assert "--pre-include=b.h" in flags
+    assert "--device-float128" in flags
+    assert "--diag-warn=1000" in flags
+    assert "--diag-warn=1001" in flags
+    assert "--time=timing.csv" in flags
+    assert "--split-compile=2" in flags
+    assert "--pch-dir=pch-cache" in flags
+
+    single_pre = ProgramOptions(arch="sm_80", pre_include="only.h")
+    assert "--pre-include=only.h" in [opt.decode() for opt in single_pre.as_bytes("nvrtc")]
+
+
+@pytest.mark.thread_unsafe(reason="patches the process-global os.fdopen and tempfile.mkstemp")
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_nvrtc_debug_falls_back_when_temp_file_write_fails(init_cuda, monkeypatch):
+    """A write failure removes the temporary source and falls back to the default name."""
+    import contextlib
+    import os
+
+    from cuda.core import _program
+
+    real_fdopen = os.fdopen
+    real_mkstemp = _program.tempfile.mkstemp
+    temp_paths = []
+
+    class _FailingWriter:
+        def write(self, _code):
+            raise OSError("No space left on device")
+
+    @contextlib.contextmanager
+    def _write_fails(fd, *args, **kwargs):
+        with real_fdopen(fd, *args, **kwargs):
+            yield _FailingWriter()
+
+    def _record_mkstemp(*args, **kwargs):
+        fd, path = real_mkstemp(*args, **kwargs)
+        temp_paths.append(path)
+        return fd, path
+
+    monkeypatch.setattr(_program.os, "fdopen", _write_fails)
+    monkeypatch.setattr(_program.tempfile, "mkstemp", _record_mkstemp)
+
+    code = 'extern "C" __global__ void matmul() {}'
+    prog = Program(code, "c++", ProgramOptions(debug=True, arch="sm_80"))
+    try:
+        assert len(temp_paths) == 1
+        assert not os.path.exists(temp_paths[0])
+        assert prog.compile("ptx").name == "default_program"
+    finally:
+        prog.close()
+
+
+@nvvm_available
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_nvvm_compile_with_libdevice(nvvm_ir):
+    """use_libdevice resolves a referenced libdevice function into the generated PTX."""
+    store = "  store i32 %call, i32* %data, align 4"
+    declaration = "declare i32 @llvm.nvvm.read.ptx.sreg.ctaid.x()"
+    assert store in nvvm_ir and declaration in nvvm_ir
+    libdevice_ir = nvvm_ir.replace(
+        store,
+        """  %arg = sitofp i32 %call to double
+  %result = call double @__nv_sin(double %arg)
+  %converted = fptosi double %result to i32
+  store i32 %converted, i32* %data, align 4""",
+    ).replace(
+        declaration,
+        """declare double @__nv_sin(double)
+
+declare i32 @llvm.nvvm.read.ptx.sreg.ctaid.x()""",
+    )
+    from cuda.pathfinder import BitcodeLibNotFoundError
+
+    program = Program(libdevice_ir, "nvvm", ProgramOptions(use_libdevice=True, arch="sm_80"))
+    try:
+        try:
+            obj = program.compile("ptx")
+        except BitcodeLibNotFoundError:
+            pytest.skip("libdevice bitcode not found")
+        assert isinstance(obj, ObjectCode)
+        assert obj.code
+        # Without libdevice, NVVM leaves an external __nv_sin declaration in PTX.
+        assert not any(b".extern" in line and b"__nv_sin" in line for line in obj.code.splitlines())
+    finally:
+        program.close()
