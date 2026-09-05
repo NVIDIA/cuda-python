@@ -2,9 +2,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from libc.stdint cimport intptr_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t
+from libc.stdint cimport intptr_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, uintptr_t
 from libc.stddef cimport size_t
+from libcpp cimport bool as cpp_bool
+from libcpp.atomic cimport (
+    atomic as std_atomic,
+    memory_order_acquire,
+    memory_order_relaxed,
+    memory_order_release,
+)
+from cpython.pycapsule cimport PyCapsule_GetName, PyCapsule_GetPointer
 from cuda.bindings cimport cydriver
+from cuda.core._tensor_map_cccl cimport make_tma_descriptor_tiled_t
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._dlpack cimport kDLInt, kDLUInt, kDLFloat, kDLBfloat, _kDLCUDA
 
@@ -15,32 +24,10 @@ from typing import TYPE_CHECKING
 import numpy
 
 from cuda.core._memoryview import StridedMemoryView
-from cuda.core._utils.cuda_utils import check_or_create_options
+from cuda.core._utils.cuda_utils import CUDAError, check_or_create_options
 
 if TYPE_CHECKING:
     from cuda.core._device import Device
-
-cdef extern from "_cpp/tensor_map_cccl.h":
-    int cuda_core_cccl_make_tma_descriptor_tiled(
-        void* out_tensor_map,
-        void* data,
-        int device_type,
-        int device_id,
-        int ndim,
-        const int64_t* shape,
-        const int64_t* strides,
-        uint8_t dtype_code,
-        uint8_t dtype_bits,
-        uint16_t dtype_lanes,
-        const int* box_sizes,
-        const int* elem_strides,
-        int interleave_layout,
-        int swizzle,
-        int l2_fetch_size,
-        int oob_fill,
-        char* err,
-        size_t err_cap) nogil
-
 
 try:
     from ml_dtypes import bfloat16 as ml_bfloat16
@@ -48,6 +35,61 @@ except ImportError:
     ml_bfloat16 = None
 
 __all__ = ['TensorMapDescriptor', 'TensorMapDescriptorOptions']
+
+# CCCL's make_tma_descriptor lives in the optional ``_tensor_map_cccl``
+# extension, which deliberately leaves ``cudaGetErrorString`` (pulled in by
+# CCCL's exception formatting) unresolved. Shared cudart must therefore be in
+# the process global namespace before that extension is dlopen'ed, which means
+# it must not be imported at ``cuda.core`` package import time -- same
+# bootstrap shape as ``_memoryview._get_tensor_bridge``.
+#
+# The pointer is fetched through ``__pyx_capi__`` (see
+# ``_resource_handles._get_driver_fn`` / ``_cpp/DESIGN.md``). Only the getter is
+# resolved by name: cimporting it would make Cython import the optional
+# extension when ``_tensor_map`` loads, defeating the deferral above.
+ctypedef make_tma_descriptor_tiled_t (*cccl_get_make_tma_t)() noexcept nogil
+
+# The resolved pointer is published to other threads the way
+# Buffer._mem_attrs_inited is: stored before the flag with release ordering,
+# read after the flag with acquire ordering. Threads may race through the slow
+# path (resolution is idempotent), so the pointer is atomic as well.
+cdef std_atomic[uintptr_t] _cccl_make_tma_fn
+cdef std_atomic[cpp_bool] _cccl_tma_resolved
+
+
+cdef make_tma_descriptor_tiled_t _resolve_cccl_make_tma_fn() except? NULL:
+    """Import the optional CCCL extension and return its function pointer.
+
+    Returns NULL when the CCCL path is unusable on this system, so that callers
+    encode the descriptor through the driver API instead: the extension is only
+    built with a working CCCL ``<cuda/tma>``, and importing it requires shared
+    cudart, which cuda.core does not otherwise depend on.
+    """
+    cdef cccl_get_make_tma_t get_fn
+    from cuda.pathfinder import DynamicLibNotFoundError, load_nvidia_dynamic_lib
+
+    try:
+        # pathfinder loads with RTLD_GLOBAL, putting cudaGetErrorString in the
+        # global namespace before the extension below is dlopen'ed.
+        load_nvidia_dynamic_lib("cudart")
+        import cuda.core._tensor_map_cccl as cccl_mod
+    except (DynamicLibNotFoundError, ImportError):
+        return NULL
+
+    capsule = cccl_mod.__pyx_capi__["get_make_tma_descriptor_tiled"]
+    get_fn = <cccl_get_make_tma_t>PyCapsule_GetPointer(
+        capsule, PyCapsule_GetName(capsule))
+    return get_fn()
+
+
+cdef make_tma_descriptor_tiled_t _get_cccl_make_tma_fn() except? NULL:
+    """Return the CCCL helper function pointer, or NULL if unavailable."""
+    if _cccl_tma_resolved.load(memory_order_acquire):
+        return <make_tma_descriptor_tiled_t>_cccl_make_tma_fn.load(memory_order_relaxed)
+    cdef make_tma_descriptor_tiled_t fn = _resolve_cccl_make_tma_fn()
+    _cccl_make_tma_fn.store(<uintptr_t>fn, memory_order_relaxed)
+    _cccl_tma_resolved.store(True, memory_order_release)
+    return fn
 
 
 class TensorMapDataType(enum.IntEnum):
@@ -617,8 +659,8 @@ cdef class TensorMapDescriptor:
         cdef bint elem_strides_provided = element_strides is not None
         element_strides = _validate_element_strides(element_strides, rank)
 
-        # Reuse CCCL/libcu++'s DLPack -> CUtensorMap conversion when possible.
-        # This avoids maintaining a second, independent validation/encoding implementation.
+        # Reuse CCCL/libcu++'s DLPack -> CUtensorMap conversion when possible,
+        # otherwise encode through the driver API further below.
         cdef uint8_t dl_code
         cdef uint8_t dl_bits
         cdef uint16_t dl_lanes
@@ -632,15 +674,25 @@ cdef class TensorMapDescriptor:
         cdef int i_cccl
         cdef int device_type
         cdef int c_device_id
-        cdef int dl_device_type
-        cdef int dl_device_id
         cdef int c_cccl_interleave_int
         cdef int c_cccl_swizzle_int
         cdef int c_cccl_l2_promotion_int
         cdef int c_cccl_oob_fill_int
         cdef int rc
-        if _tma_dtype_to_dlpack(tma_dt, &dl_code, &dl_bits, &dl_lanes):
-            c_strides_ptr = NULL
+        cdef int64_t contig_stride
+        cdef make_tma_descriptor_tiled_t make_tma = NULL
+        device_type, c_device_id = view.__dlpack_device__()
+        # Resolve the optional CCCL extension (after loading cudart).
+        # TODO(seberg): CCCL has various limitations as of writing, see:
+        # https://github.com/NVIDIA/cccl/issues/10511.
+        # Because of this, the path is only taken in _very_ narrow conditions.
+        # We should probably use it broadly as soon as the fix is available in
+        # CCCL 3.5.0 (and likely just not bother with these narrow conditions).
+        make_tma = _get_cccl_make_tma_fn()
+        if (make_tma != NULL
+                and device_type == _kDLCUDA
+                and box_dim[0] == box_dim[rank - 1]
+                and _tma_dtype_to_dlpack(tma_dt, &dl_code, &dl_bits, &dl_lanes)):
             c_elem_strides_ptr = NULL
             errbuf[0] = 0
 
@@ -650,24 +702,27 @@ cdef class TensorMapDescriptor:
                 if elem_strides_provided:
                     c_elem_strides[i_cccl] = <int>element_strides[i_cccl]
 
+            # CCCL rejects NULL strides; synthesize C-contiguous if omitted.
             if view.strides is not None:
                 for i_cccl in range(rank):
                     c_strides[i_cccl] = <int64_t>view.strides[i_cccl]
-                c_strides_ptr = &c_strides[0]
+            else:
+                contig_stride = 1
+                for i_cccl in range(rank - 1, -1, -1):
+                    c_strides[i_cccl] = contig_stride
+                    contig_stride *= <int64_t>shape[i_cccl]
+            c_strides_ptr = &c_strides[0]
 
             if elem_strides_provided:
                 c_elem_strides_ptr = &c_elem_strides[0]
 
-            dl_device_type, dl_device_id = view.__dlpack_device__()
-            device_type = dl_device_type
-            c_device_id = dl_device_id
             c_cccl_interleave_int = int(interleave)
             c_cccl_swizzle_int = int(swizzle)
             c_cccl_l2_promotion_int = int(l2_promotion)
             c_cccl_oob_fill_int = int(oob_fill)
 
             with nogil:
-                rc = cuda_core_cccl_make_tma_descriptor_tiled(
+                rc = make_tma(
                     <void*>&desc._tensor_map,
                     <void*>global_address,
                     device_type,
@@ -697,11 +752,12 @@ cdef class TensorMapDescriptor:
                 }
                 return desc
 
+            # CUDAError, as for the cuTensorMapEncodeTiled failures the driver
+            # path below reports: anything reaching either backend has already
+            # passed this class' own validation, so which one encoded the
+            # descriptor stays an implementation detail.
             msg = errbuf[:].split(b"\0", 1)[0].decode("utf-8", errors="replace")
-            # If CCCL isn't available at build time, fall back to the direct
-            # driver API path to preserve functionality on older toolchains.
-            if "not available at build time" not in msg:
-                raise ValueError(f"Failed to build TMA descriptor via CCCL: {msg}")
+            raise CUDAError(f"Failed to build TMA descriptor via CCCL: {msg}")
 
         cdef int elem_size = _TMA_DATA_TYPE_SIZE[tma_dt]
         byte_strides = _compute_byte_strides(shape, view.strides, elem_size)

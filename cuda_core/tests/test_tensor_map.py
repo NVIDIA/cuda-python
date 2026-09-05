@@ -251,6 +251,27 @@ class TestTensorMapDescriptorCreation:
         )
         assert desc is not None
 
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    @pytest.mark.parametrize(
+        "data_type",
+        [
+            TensorMapDataType.FLOAT32_FTZ,
+            TensorMapDataType.TFLOAT32,
+            TensorMapDataType.TFLOAT32_FTZ,
+        ],
+        ids=lambda data_type: data_type.name,
+    )
+    def test_from_tiled_data_types_without_dlpack_spelling(self, dev, skip_if_no_tma, data_type):
+        # These have no DLPack spelling, so they are encoded through the driver
+        # API rather than CCCL's make_tma_descriptor.
+        buf = dev.allocate(64 * 64 * 4, stream=dev.default_stream)
+        tensor = _DeviceArray(buf, (64, 64))
+        desc = _as_view(tensor).as_tensor_map(
+            box_dim=(32, 32),
+            data_type=data_type,
+        )
+        assert desc is not None
+
 
 class TestTensorMapDescriptorValidation:
     """Test validation in TensorMapDescriptor factory methods."""

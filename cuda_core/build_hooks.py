@@ -239,12 +239,23 @@ def _build_cuda_core(debug=False):
 
         return sources
 
-    all_include_dirs = [os.path.join(cuda_path, "include")]
+    # Match nvcc: CCCL lives under include/cccl (e.g. <cuda/tma>).
+    cuda_include = os.path.join(cuda_path, "include")
+    cccl_include = os.path.join(cuda_include, "cccl")
+    all_include_dirs = [
+        cccl_include,
+        cuda_include,
+    ]
+    # <cuda/tma> is what enables the CCCL descriptor path in _tensor_map_cccl.
+    # CCCL versions predating it make that path compile out silently, leaving
+    # tensor maps to be encoded through the driver API, so report which we get.
+    print("CCCL <cuda/tma> found:", os.path.exists(os.path.join(cccl_include, "cuda", "tma")))
     extra_compile_args = []
     extra_link_args = []
     extra_cythonize_kwargs = {}
     if sys.platform == "win32":
-        extra_compile_args += ["/std:c++17"]
+        # CCCL headers #error without the conforming MSVC preprocessor.
+        extra_compile_args += ["/std:c++17", "/Zc:preprocessor"]
         if debug:
             raise RuntimeError("Debuggable builds are not supported on Windows.")
     else:
