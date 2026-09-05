@@ -69,6 +69,7 @@ def _do_single_prefetch_py(buf: Buffer, location: Device | Host | None, stream: 
     Uses cuMemPrefetchAsync (works on CUDA 12 and 13).
     """
 def _read_preferred_location_v2(buf: Buffer) -> Device | Host | None: ...
+def _read_last_prefetch_location_v2(buf: Buffer) -> Device | Host | None: ...
 def discard_prefetch_batch(stream: Stream | GraphBuilder, buffers: Sequence[Buffer], locations: Device | Host | Sequence[Device | Host]) -> None:
     """Discard a batch of managed-memory ranges and prefetch them to target locations.
 

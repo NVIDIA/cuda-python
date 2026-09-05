@@ -9,7 +9,6 @@ from helpers.memory import create_managed_memory_resource_or_skip
 
 from cuda.bindings import driver
 from cuda.core import Device, Host, ManagedBuffer
-from cuda.core._memory._managed_buffer import _get_int_attr
 
 # Managed-memory prefetch and CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION
 # operate at physical-page granularity. Test buffers must each occupy a full
@@ -20,14 +19,7 @@ from cuda.core._memory._managed_buffer import _get_int_attr
 _PAGE_SIZE = mmap.PAGESIZE
 _MANAGED_TEST_ALLOCATION_SIZE = _PAGE_SIZE
 _READ_MOSTLY_ENABLED = 1
-_HOST_LOCATION_ID = -1
 _INVALID_HOST_DEVICE_ORDINAL = 0
-
-
-# TODO(#2109): replace with ``buf.last_prefetch_location`` once
-# ``ManagedBuffer`` exposes mem-range attributes directly.
-def _last_prefetch_location(buf):
-    return _get_int_attr(buf, driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION)
 
 
 def _page_base(buf):
@@ -224,8 +216,7 @@ class TestPrefetchBatch:
         stream.sync()
 
         for buf in bufs:
-            last = _last_prefetch_location(buf)
-            assert last == device.device_id
+            assert buf.last_prefetch_location == device
             buf.close()
 
     def test_per_buffer_location(self, location_ops_device, location_ops_mr):
@@ -242,10 +233,8 @@ class TestPrefetchBatch:
         prefetch_batch(stream, bufs, [Host(), device])
         stream.sync()
 
-        last0 = _last_prefetch_location(bufs[0])
-        last1 = _last_prefetch_location(bufs[1])
-        assert last0 == _HOST_LOCATION_ID
-        assert last1 == device.device_id
+        assert bufs[0].last_prefetch_location == Host()
+        assert bufs[1].last_prefetch_location == device
         for buf in bufs:
             buf.close()
 
@@ -285,8 +274,7 @@ class TestDiscardPrefetchBatch:
         discard_prefetch_batch(stream, bufs, device)
         stream.sync()
         for buf in bufs:
-            last = _last_prefetch_location(buf)
-            assert last == device.device_id
+            assert buf.last_prefetch_location == device
             buf.close()
 
 
@@ -365,6 +353,23 @@ class TestManagedBuffer:
             assert mbuf.size == plain.size
         finally:
             plain.close()
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_last_prefetch_location_initially_none(self, external_managed_buffer):
+        assert external_managed_buffer.last_prefetch_location is None
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_last_prefetch_location_roundtrip_host_numa(self, location_ops_device, managed_buffer):
+        from cuda.core._utils.version import binding_version, driver_version
+
+        if binding_version() < (13, 0, 0) or driver_version() < (13, 0, 0):
+            pytest.skip("Host NUMA last-prefetch location requires CUDA 13")
+
+        stream = location_ops_device.create_stream()
+        location = Host(numa_id=0)
+        managed_buffer.prefetch(location, stream=stream)
+        stream.sync()
+        assert managed_buffer.last_prefetch_location == location
 
     @pytest.mark.thread_unsafe(reason="external_managed_buffer is shared between threads")
     def test_read_mostly_roundtrip(self, external_managed_buffer):
@@ -478,7 +483,7 @@ class TestManagedBuffer:
         stream = device.create_stream()
         buf.prefetch(device, stream=stream)
         stream.sync()
-        assert _last_prefetch_location(buf) == device.device_id
+        assert buf.last_prefetch_location == device
 
     def test_instance_discard(self, location_ops_device, managed_buffer):
         if not hasattr(driver, "cuMemDiscardBatchAsync"):
@@ -501,7 +506,7 @@ class TestManagedBuffer:
             stream.sync()
             buf.discard_prefetch(device, stream=stream)
             stream.sync()
-            assert _last_prefetch_location(buf) == device.device_id
+            assert buf.last_prefetch_location == device
         finally:
             buf.close()
 

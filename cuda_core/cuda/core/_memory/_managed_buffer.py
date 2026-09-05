@@ -15,6 +15,7 @@ from cuda.core._memory._managed_memory_ops import (
     _do_single_discard_prefetch_py,
     _do_single_discard_py,
     _do_single_prefetch_py,
+    _read_last_prefetch_location_v2,
     _read_preferred_location_v2,
 )
 from cuda.core._utils.cuda_utils import driver, handle_return
@@ -43,6 +44,7 @@ _RANGE = driver.CUmem_range_attribute
 _ATTR_READ_MOSTLY = _RANGE.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY
 _ATTR_PREFERRED = _RANGE.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION
 _ATTR_ACCESSED_BY = _RANGE.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY
+_ATTR_LAST_PREFETCH = _RANGE.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION
 
 
 def _check_open(buf: Buffer) -> None:
@@ -147,11 +149,12 @@ class ManagedBuffer(Buffer):
 
     Note
     ----
-    On CUDA 13 builds, ``preferred_location`` round-trips full NUMA
-    information. On CUDA 12 builds, ``Host(numa_id=...)`` and
-    ``Host.numa_current()`` are rejected with ``TypeError`` at the call
-    boundary — only ``Device(...)`` and the generic ``Host()`` are
-    accepted. Use ``Host()`` to target the host on CUDA 12.
+    On CUDA 13 builds, ``preferred_location`` and
+    ``last_prefetch_location`` round-trip full NUMA information. On CUDA 12
+    builds, ``Host(numa_id=...)`` and ``Host.numa_current()`` are rejected
+    with ``TypeError`` at the call boundary — only ``Device(...)`` and the
+    generic ``Host()`` are accepted. Use ``Host()`` to target the host on
+    CUDA 12.
     """
 
     @classmethod
@@ -168,7 +171,8 @@ class ManagedBuffer(Buffer):
 
         Use this when you have an externally-allocated managed pointer
         and want the property-style advice API (:attr:`read_mostly`,
-        :attr:`preferred_location`, :attr:`accessed_by`).
+        :attr:`preferred_location`, :attr:`last_prefetch_location`,
+        :attr:`accessed_by`).
 
         Parameters
         ----------
@@ -231,6 +235,28 @@ class ManagedBuffer(Buffer):
             _advise_one(self, _UNSET_PREFERRED, None)
         else:
             _advise_one(self, _SET_PREFERRED, value)
+
+    @property
+    def last_prefetch_location(self) -> Device | Host | None:
+        """Location targeted by the most recent explicit prefetch.
+
+        Returns ``None`` if any page in the range has never been prefetched,
+        or if the pages do not share one last-prefetch location. This reports
+        the application's requested destination, not current residency or
+        completion of the asynchronous prefetch operation.
+
+        On CUDA 13 builds, fully round-trips ``Host(numa_id=N)``. On CUDA 12,
+        the legacy attribute carries only a device ordinal (or ``-1`` for
+        host), so host NUMA details are unavailable.
+        """
+        if binding_version() >= (13, 0, 0) and driver_version() >= (13, 0, 0):
+            return _read_last_prefetch_location_v2(self)
+        loc_id = _get_int_attr(self, _ATTR_LAST_PREFETCH)
+        if loc_id == -2:
+            return None
+        if loc_id == -1:
+            return Host()
+        return Device(loc_id)
 
     @property
     def accessed_by(self) -> AccessedBySetProxy:
