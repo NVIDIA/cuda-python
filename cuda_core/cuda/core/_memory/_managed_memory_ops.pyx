@@ -281,15 +281,13 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
     ) except ?cydriver.CUDA_ERROR_NOT_FOUND nogil
 
 
-    def _read_preferred_location_v2(Buffer buf) -> Device | Host | None:
-        """Internal: read preferred_location with full NUMA detail.
-
-        Bypasses cuda.bindings.driver.cuMemRangeGetAttribute (whose
-        attribute allowlist doesn't yet include the cu13 _TYPE / _ID
-        attributes) by calling cydriver directly.
-
-        Returns Device | Host | None.
-        """
+    cdef object _read_location_v2(
+        Buffer buf,
+        cydriver.CUmem_range_attribute type_attribute,
+        cydriver.CUmem_range_attribute id_attribute,
+    ):
+        # cuda.bindings.driver.cuMemRangeGetAttribute does not yet accept the
+        # CUDA 13 _TYPE / _ID attributes, so query them through cydriver.
         Buffer_check_open(buf)
         cdef cydriver.CUdeviceptr cu_ptr = as_cu(buf._h_ptr)
         cdef size_t nbytes = buf._size
@@ -298,12 +296,12 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
         with nogil:
             HANDLE_RETURN(cydriver.cuMemRangeGetAttribute(
                 <void*>&loc_type, sizeof(int),
-                cydriver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_TYPE,
+                type_attribute,
                 cu_ptr, nbytes,
             ))
             HANDLE_RETURN(cydriver.cuMemRangeGetAttribute(
                 <void*>&loc_id, sizeof(int),
-                cydriver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_ID,
+                id_attribute,
                 cu_ptr, nbytes,
             ))
         if loc_type == <int>cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE:
@@ -315,7 +313,25 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
             return Host(numa_id=loc_id)
         if loc_type == <int>cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT:
             return Host.numa_current()
-        return None  # CU_MEM_LOCATION_TYPE_INVALID — no preferred location
+        return None  # CU_MEM_LOCATION_TYPE_INVALID
+
+
+    def _read_preferred_location_v2(Buffer buf) -> Device | Host | None:
+        """Internal: read preferred_location with full NUMA detail."""
+        return _read_location_v2(
+            buf,
+            cydriver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_TYPE,
+            cydriver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_ID,
+        )
+
+
+    def _read_last_prefetch_location_v2(Buffer buf) -> Device | Host | None:
+        """Internal: read last_prefetch_location with full NUMA detail."""
+        return _read_location_v2(
+            buf,
+            cydriver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_TYPE,
+            cydriver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_ID,
+        )
 
 
     cdef void _do_batch_prefetch_op(tuple bufs, tuple locs, Stream s, _BatchPrefetchFn fn):
@@ -348,13 +364,18 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
             ))
 ELSE:
     def _read_preferred_location_v2(Buffer buf) -> Device | Host | None:
-        # Symbol exists so _managed_buffer.py can `from ... import
-        # _read_preferred_location_v2` unconditionally at module top.
-        # `ManagedBuffer.preferred_location` gates on both
-        # binding_version() and driver_version() >= (13, 0, 0) before
-        # calling, so this path is unreachable on a cu12 build.
+        # Symbols exist so _managed_buffer.py can import the v2 readers
+        # unconditionally. Their properties gate on both binding_version()
+        # and driver_version() >= (13, 0, 0), so these paths are unreachable
+        # on a CUDA 12 build.
         raise NotImplementedError(
             "_read_preferred_location_v2 requires a CUDA 13 build of cuda.core"
+        )
+
+
+    def _read_last_prefetch_location_v2(Buffer buf) -> Device | Host | None:
+        raise NotImplementedError(
+            "_read_last_prefetch_location_v2 requires a CUDA 13 build of cuda.core"
         )
 
 
