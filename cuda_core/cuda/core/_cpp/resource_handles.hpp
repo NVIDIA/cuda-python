@@ -58,6 +58,49 @@ CUresult peek_last_error() noexcept;
 void clear_last_error() noexcept;
 
 // ============================================================================
+// Non-propagating error reporting
+//
+// Paths that cannot raise (shared_ptr deleters, CUDA callbacks, __dealloc__)
+// report failures through these functions instead of discarding them. They
+// emit a cuda.core.CUDAWarning when the interpreter can be used and write to
+// stderr otherwise; they never raise. See docs/source/error_handling.rst.
+// ============================================================================
+
+// Register the Python warning category used by report_* (cuda.core.CUDAWarning).
+void register_warning_category(PyObject* category) noexcept;
+
+// Report a failed CUDA call. `detail` replaces the default "failed" wording,
+// e.g. "skipped (context activation failed; resource leaked)".
+// CUDA_ERROR_DEINITIALIZED (driver shutting down) is never reported.
+void report_cuda_error(const char* operation, CUresult status, const char* detail = nullptr) noexcept;
+
+// Report a message that is not tied to a CUresult.
+void report_message(const char* message) noexcept;
+
+// Report a failed NVRTC/NVVM/nvJitLink call by raw status code.
+void report_status_code(const char* operation, long code) noexcept;
+
+// Attach a failed CUDA call to the Python exception currently being handled
+// (PEP 678 note, Python 3.11+): for rollback failures inside `except` blocks
+// whose original exception is about to be re-raised. When no exception is
+// being handled or notes are unavailable, falls back to report_cuda_error().
+void note_or_report_cuda_error(const char* operation, CUresult status, const char* detail = nullptr) noexcept;
+
+// Detail recorded by a context-scoped helper for the CUresult it is about to
+// return, e.g. that the caller's context could not be restored. The Cython
+// error path attaches it to the raised CUDAError as a note. Thread-local and
+// keyed by status: take_ returns the detail (valid until the next take on this
+// thread) and clears it when `status` is the CUresult it was recorded for, and
+// returns nullptr otherwise, so a detail whose status was never raised cannot
+// attach to an unrelated error.
+const char* take_last_error_detail(CUresult status) noexcept;
+void clear_last_error_detail() noexcept;
+
+// Tests only: make the next context restoration on this thread fail with
+// `status`, leaving the target context current as a real failure would.
+void set_context_restore_fault_for_testing(CUresult status) noexcept;
+
+// ============================================================================
 // CUDA driver function pointers
 //
 // These are populated by _resource_handles.pyx at module import time using
@@ -73,6 +116,8 @@ extern decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent;
 extern decltype(&cuCtxSetCurrent) p_cuCtxSetCurrent;
 extern decltype(&cuCtxSynchronize) p_cuCtxSynchronize;
 extern decltype(&cuCtxGetStreamPriorityRange) p_cuCtxGetStreamPriorityRange;
+extern decltype(&cuCtxGetDevice) p_cuCtxGetDevice;
+extern decltype(&cuGraphNodeSetParams) p_cuGraphNodeSetParams;
 extern decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate;
 extern decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy;
 extern decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx;
@@ -262,6 +307,21 @@ CUresult context_get_stream_priority_range(
     const ContextHandle& h_context,
     int* least_priority,
     int* greatest_priority) noexcept;
+
+// Query the device of the provided context.
+// Returns CUDA_ERROR_INVALID_CONTEXT for an empty handle.
+CUresult context_get_device(const ContextHandle& h_context, CUdevice* device) noexcept;
+
+// Call cuGraphNodeSetParams with h_context current (empty handle: the caller's
+// context). Returns the update status; *restore_status receives a failure to
+// restore the caller's context after a successful update, which the caller
+// raises only after publishing the metadata that depends on the update.
+// Returns CUDA_ERROR_NOT_SUPPORTED when the driver lacks cuGraphNodeSetParams.
+CUresult graph_node_set_params(
+    CUgraphNode node,
+    CUgraphNodeParams* params,
+    const ContextHandle& h_context,
+    CUresult* restore_status) noexcept;
 
 // ============================================================================
 // Stream handle functions

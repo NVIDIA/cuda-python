@@ -23,7 +23,7 @@ from helpers.buffers import (
     thread_unsafe_on_windows,
 )
 from helpers.constants import POOL_SIZE
-from helpers.contexts import current_context_handle, no_current_context
+from helpers.contexts import assert_no_cuda_warning, current_context_handle, no_current_context
 from helpers.memory import (
     create_managed_memory_resource_or_skip,
     create_pinned_memory_resource_or_xfail,
@@ -33,6 +33,7 @@ from helpers.memory import (
 
 from cuda.core import (
     Buffer,
+    CUDAWarning,
     Device,
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
@@ -779,23 +780,25 @@ def test_from_handle_mr_explicit_stream_without_current_context(buffer_type):
     assert telemetry["deallocations"][-1]["stream"].handle == stream.handle
 
 
+@pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_mr_deallocation_failure_warns(capfd):
-    """Destructor-path MR failures are contained and reported."""
+def test_mr_deallocation_failure_warns():
+    """Destructor-path MR failures are contained and reported as CUDAWarning."""
     device = Device()
     device.set_current()
     FailingMR, _ = make_instrumented_memory_resource(deallocate_error=RuntimeError("expected deallocation failure"))
     buf = Buffer.from_handle(1, 1024, mr=FailingMR(device))
-    buf.close()
 
-    assert (
-        "Warning: mr.deallocate() failed during Buffer destruction: expected deallocation failure"
-    ) in capfd.readouterr().err
+    with pytest.warns(
+        CUDAWarning, match=r"mr\.deallocate\(\) failed during Buffer destruction.*expected deallocation failure"
+    ):
+        buf.close()
 
 
+@pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
 @pytest.mark.parametrize("replace_stream", [False, True])
-def test_mr_deallocation_without_current_context(init_cuda, capsys, replace_stream):
+def test_mr_deallocation_without_current_context(init_cuda, replace_stream):
     """MR-backed Buffer teardown activates the recorded context when none is current."""
     TrackingMR, telemetry = make_instrumented_memory_resource(DummyDeviceMemoryResource, track_active=True)
     mr = TrackingMR(init_cuda)
@@ -806,16 +809,17 @@ def test_mr_deallocation_without_current_context(init_cuda, capsys, replace_stre
     with no_current_context():
         assert current_context_handle() == 0
 
-        buf.close(stream)
+        with assert_no_cuda_warning():
+            buf.close(stream)
 
         assert len(telemetry["active"]) == 0
         assert current_context_handle() == 0
-        assert "mr.deallocate() failed" not in capsys.readouterr().err
 
 
+@pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
 @pytest.mark.parametrize("replace_stream", [False, True])
-def test_mr_deallocation_with_foreign_context(device_x2, capsys, replace_stream):
+def test_mr_deallocation_with_foreign_context(device_x2, replace_stream):
     """MR-backed Buffer teardown switches away from an unrelated current context."""
     alloc_dev, foreign_dev = device_x2
     alloc_dev.set_current()
@@ -832,11 +836,11 @@ def test_mr_deallocation_with_foreign_context(device_x2, capsys, replace_stream)
     assert foreign_ctx != alloc_ctx
 
     try:
-        buf.close(stream)
+        with assert_no_cuda_warning():
+            buf.close(stream)
 
         assert len(telemetry["active"]) == 0
         assert current_context_handle() == foreign_ctx
-        assert "mr.deallocate() failed" not in capsys.readouterr().err
     finally:
         alloc_dev.set_current()
 
@@ -856,8 +860,9 @@ def test_mr_deallocate_raises_on_driver_error(mempool_device):
         mr.deallocate(0xDEADBEEF, 256, stream=stream)
 
 
+@pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
-def test_pool_buffer_deallocates_without_current_context(mempool_device, capfd):
+def test_pool_buffer_deallocates_without_current_context(mempool_device):
     """Pool Buffer.close frees on the recorded stream with no current context."""
     dev = mempool_device
     stream = dev.create_stream()
@@ -870,18 +875,17 @@ def test_pool_buffer_deallocates_without_current_context(mempool_device, capfd):
     with no_current_context():
         assert current_context_handle() == 0
 
-        buf.close()
+        with assert_no_cuda_warning():
+            buf.close()
         stream.sync()
 
         assert mr.attributes.used_mem_current < used_after_alloc
         assert current_context_handle() == 0
-        err = capfd.readouterr().err
-        assert "cuMemFreeAsync failed" not in err
-        assert "mr.deallocate() failed" not in err
 
 
+@pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
-def test_pool_buffer_deallocates_with_foreign_context(mempool_device_x2, capfd):
+def test_pool_buffer_deallocates_with_foreign_context(mempool_device_x2):
     """Pool Buffer.close frees under the recorded context while another is current."""
     alloc_dev, foreign_dev = mempool_device_x2
     alloc_dev.set_current()
@@ -899,7 +903,8 @@ def test_pool_buffer_deallocates_with_foreign_context(mempool_device_x2, capfd):
     assert foreign_ctx != alloc_ctx
 
     try:
-        buf.close()
+        with assert_no_cuda_warning():
+            buf.close()
         assert current_context_handle() == foreign_ctx
 
         # Observe the free on the allocation device, then restore the foreign context.
@@ -907,9 +912,6 @@ def test_pool_buffer_deallocates_with_foreign_context(mempool_device_x2, capfd):
         stream.sync()
         assert mr.attributes.used_mem_current < used_after_alloc
         foreign_dev.set_current()
-
-        err = capfd.readouterr().err
-        assert "cuMemFreeAsync failed" not in err
     finally:
         alloc_dev.set_current()
 
@@ -2262,8 +2264,9 @@ def test_synchronous_memory_resource_restores_context_after_failure(device_x2):
     assert current_context_handle() == current_context
 
 
+@pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 @pytest.mark.agent_authored(model="claude-sonnet-5")
-def test_synchronous_memory_resource_default_stream_deallocates_in_own_context(device_x2, capsys):
+def test_synchronous_memory_resource_default_stream_deallocates_in_own_context(device_x2):
     """Buffer teardown with no explicit stream frees in the resource's own
     context, not whatever context happens to be current at close() time."""
     from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
@@ -2278,13 +2281,14 @@ def test_synchronous_memory_resource_default_stream_deallocates_in_own_context(d
     buf = mr.allocate(64)  # no explicit stream: records a context-bound default token
     assert current_context_handle() == current_context
 
-    buf.close()  # no explicit stream: reuses the recorded token
+    with assert_no_cuda_warning():
+        buf.close()  # no explicit stream: reuses the recorded token
     assert current_context_handle() == current_context
-    assert capsys.readouterr().err == ""
 
 
+@pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 @pytest.mark.agent_authored(model="claude-sonnet-5")
-def test_synchronous_memory_resource_allocate_without_current_context(device_x2, capsys):
+def test_synchronous_memory_resource_allocate_without_current_context(device_x2):
     """allocate()/close() with no explicit stream succeed with no context
     current, instead of raising or leaking the allocation (#2311)."""
     from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
@@ -2294,13 +2298,11 @@ def test_synchronous_memory_resource_allocate_without_current_context(device_x2,
     mr = _SynchronousMemoryResource(alloc_dev.device_id, alloc_dev.context)
     current_dev.set_current()
 
-    with no_current_context():
+    with no_current_context(), assert_no_cuda_warning():
         buf = mr.allocate(64)
         assert current_context_handle() == 0
         buf.close()
         assert current_context_handle() == 0
-
-    assert capsys.readouterr().err == ""
 
 
 @pytest.mark.parametrize(

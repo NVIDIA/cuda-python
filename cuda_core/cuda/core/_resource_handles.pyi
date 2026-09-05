@@ -41,3 +41,18 @@ PreparedAttachmentDeleter: TypeAlias = Incomplete
 PreparedChildGraphUpdateState: TypeAlias = Incomplete
 PreparedExecAttachmentState: TypeAlias = Incomplete
 PreparedExecAttachmentDeleter: TypeAlias = Incomplete
+
+def _set_context_restore_fault_for_testing(status: int):
+    """Make the next context restoration on this thread fail with ``status``.
+
+    Test hook for the context save/restore paths in the handle layer. The
+    injected failure leaves the target context current, exactly as a failing
+    ``cuCtxSetCurrent`` would, so callers must restore the context themselves.
+    """
+def _note_or_report_cuda_error_for_testing(status: int):
+    """Attach a failed CUDA call to the exception being handled, or report it.
+
+    Test hook for ``note_or_report_cuda_error()``. Called inside an ``except``
+    block it adds a note to the exception being handled (Python 3.11+); anywhere
+    else it emits a ``CUDAWarning``.
+    """

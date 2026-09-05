@@ -36,11 +36,12 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
 from cuda.core._stream cimport Stream, Stream_accept, Stream_is_legacy_default_token, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
-import sys
+import warnings
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from cuda.core._memory._copy_enums import CopyOptions, _reject_unsupported_during_api_call
+from cuda.core._utils.cuda_utils import CUDAWarning
 from cuda.core._utils.pycompat import BufferProtocol
 from cuda.core._dlpack import classify_dl_device, make_py_capsule
 from cuda.core._device import Device
@@ -59,25 +60,33 @@ cdef void _mr_dealloc_callback(
     size_t size,
     const StreamHandle& h_stream,
 ) noexcept:
-    """Called by the C++ deleter to deallocate via MemoryResource.deallocate."""
+    """Called by the C++ deleter to deallocate via MemoryResource.deallocate.
+
+    Runs from a destructor, so nothing can be raised here; failures are reported
+    as :class:`~cuda.core.CUDAWarning` (see the error handling policy).
+    """
     cdef Stream stream
     try:
         if not h_stream:
-            print(
-                "Warning: no deallocation stream was recorded; falling back to "
+            warnings.warn(
+                "no deallocation stream was recorded; falling back to "
                 "the default stream for mr.deallocate() during Buffer "
                 "destruction. This is an internal cuda-core error; please "
                 "report it with your CUDA driver, CUDA Toolkit, and "
                 "cuda-python versions.",
-                file=sys.stderr,
+                CUDAWarning,
+                stacklevel=2,
             )
             stream = default_stream()
         else:
             stream = Stream._from_handle(Stream, h_stream)
         mr.deallocate(int(ptr), size, stream=stream)
     except Exception as exc:
-        print(f"Warning: mr.deallocate() failed during Buffer destruction: {exc}",
-              file=sys.stderr)
+        warnings.warn(
+            f"mr.deallocate() failed during Buffer destruction; the allocation may have leaked: {exc}",
+            CUDAWarning,
+            stacklevel=2,
+        )
 
 register_mr_dealloc_callback(_mr_dealloc_callback)
 
