@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3c177b7a0328c0f6f16067c8c9f4e5a002bd019e8c17c017ba9f77af21da8d75
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6448344915220edf6a2a1f4aee3377cee10c3c0a05db19c5ce37c6595bb52a5c
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -1804,9 +1804,10 @@ cpdef module_unload(intptr_t h_module, uint32_t flags):
     check_status(__status__)
 
 
-cpdef submit_task(intptr_t dev_handle, intptr_t ptr_to_tasks, uint32_t num_tasks, intptr_t stream, uint32_t flags):
+cpdef submit_task(intptr_t dev_handle, ptr_to_tasks, uint32_t num_tasks, intptr_t stream, uint32_t flags):
+    cdef intptr_t _ptr_to_tasks_ptr_ = int(ptr_to_tasks)
     with nogil:
-        __status__ = cudlaSubmitTask(<const DevHandle>dev_handle, <const cudlaTask* const>ptr_to_tasks, <const uint32_t>num_tasks, <void* const>stream, <const uint32_t>flags)
+        __status__ = cudlaSubmitTask(<const DevHandle>dev_handle, <const cudlaTask* const>_ptr_to_tasks_ptr_, <const uint32_t>num_tasks, <void* const>stream, <const uint32_t>flags)
     check_status(__status__)
 
 
