@@ -97,10 +97,10 @@
   "}": "tests/test_program.py::test_bitcode_format[bitcode_static]|setup",
   "~": "tests/test_program.py::test_bitcode_format[txt]|setup",
   "ab": "tests/test_nvvm.py::test_get_error_string|run",
-  "bb": "tests/test_program.py::test_nvvm_program_options[options2-ptx]|setup",
-  "cb": "tests/test_program.py::test_nvvm_program_options[options3-ltoir]|teardown",
-  "db": "tests/test_program.py::test_cpp_program_with_various_options[options35]|teardown",
-  "eb": "tests/test_program.py::test_nvvm_compile_invalid_target|setup"
+  "bb": "tests/test_program.py::test_cpp_program_with_various_options[options13]|teardown",
+  "cb": "tests/test_program.py::test_nvvm_program_options[options1-ptx]|setup",
+  "db": "tests/test_program.py::test_nvvm_program_creation_compilation|setup",
+  "eb": "tests/test_program.py::test_nvvm_program_options[options3-ltoir]|teardown"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -163,7 +163,7 @@
             <a id="nextFileLink" class="nav" href="z_1c6fa6fde3f60f5e_runtime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
-            created at 2026-09-04 01:32 +0000
+            created at 2026-09-05 01:30 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -315,7 +315,7 @@
     <p class="mis show_mis"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">            __nvvmLazyAddModuleToProgram = _cyb_dlsym(handle, &#x27;nvvmLazyAddModuleToProgram&#x27;)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">        global __nvvmCompileProgram</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">        __nvvmCompileProgram = _cyb_dlsym(_cyb_RTLD_DEFAULT, &#x27;nvvmCompileProgram&#x27;)</span>&nbsp;</span><input type="checkbox" id="ctxs138"><span class="r"><label for="ctxs138" class="ctx">92 ctx</label></span><span class="ctxs">2a 1 2 C ' D ( E ) F * G H X 0 b + c , d - e . f / g : h ; i = 3 Q P ab? @ % R [ S ] T ^ U _ V ` W { 4 | l } m ~ dbY I Z ebJ n o p q r s t u v w x y z A B j k 5 6 7 8 9 ! # $ K L M N O </span></p>
+    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">        __nvvmCompileProgram = _cyb_dlsym(_cyb_RTLD_DEFAULT, &#x27;nvvmCompileProgram&#x27;)</span>&nbsp;</span><input type="checkbox" id="ctxs138"><span class="r"><label for="ctxs138" class="ctx">92 ctx</label></span><span class="ctxs">2a 1 2 C ' D ( E ) F * G H X 0 b + c , d - e . f / g : h ; i = 3 Q P ab? @ % R [ S ] T ^ U _ V ` W { 4 | l } m ~ Y I Z J dbn o p q r s t u ebv w x y z A B j k 5 6 7 8 9 ! # $ K L M N O </span></p>
     <p class="run"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">        if __nvvmCompileProgram == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs139" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs140" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
@@ -367,8 +367,8 @@
     <p class="run"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><span class="r"><label for="ctxs187" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">cdef inline int _check_or_init_nvvm() except -1 nogil:</span>&nbsp;</span><span class="r"><label for="ctxs189" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">    if _cyb_atomic_int_load(&lt;int *&gt;&amp;_cyb___py_nvvm_init):</span>&nbsp;</span><input type="checkbox" id="ctxs190"><span class="r"><label for="ctxs190" class="ctx">92 ctx</label></span><span class="ctxs">2a 1 2 C ' D ( E ) F * G H X 0 b + c , d - e . f / g : h ; i = 3 Q P ab? @ % R [ S ] T ^ U _ V ` W { 4 | l } m ~ Y I Z J n o p q r s t bbu cbv w x y z A B j k 5 6 7 8 9 ! # $ K L M N O </span></p>
-    <p class="run"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs191"><span class="r"><label for="ctxs191" class="ctx">92 ctx</label></span><span class="ctxs">2a 1 2 C ' D ( E ) F * G H X 0 b + c , d - e . f / g : h ; i = 3 Q P ab? @ % R [ S ] T ^ U _ V ` W { 4 | l } m ~ Y I Z J n o p q r s t bbu cbv w x y z A B j k 5 6 7 8 9 ! # $ K L M N O </span></p>
+    <p class="run"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">    if _cyb_atomic_int_load(&lt;int *&gt;&amp;_cyb___py_nvvm_init):</span>&nbsp;</span><input type="checkbox" id="ctxs190"><span class="r"><label for="ctxs190" class="ctx">92 ctx</label></span><span class="ctxs">2a 1 2 C ' D ( E ) F * G H X 0 b + c , d - e . f / g : h ; i = 3 Q P ab? @ % R [ S ] T ^ U _ V ` W { 4 | l } m ~ bbY I Z J n o p q r cbs t u v w x y z A B j k 5 6 7 8 9 ! # $ K L M N O </span></p>
+    <p class="run"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs191"><span class="r"><label for="ctxs191" class="ctx">92 ctx</label></span><span class="ctxs">2a 1 2 C ' D ( E ) F * G H X 0 b + c , d - e . f / g : h ; i = 3 Q P ab? @ % R [ S ] T ^ U _ V ` W { 4 | l } m ~ bbY I Z J n o p q r cbs t u v w x y z A B j k 5 6 7 8 9 ! # $ K L M N O </span></p>
     <p class="pln"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t"><span class="txt">    return _init_nvvm()</span>&nbsp;</span><span class="r"><label for="ctxs193" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -411,7 +411,7 @@
     <p class="run"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">    data[&quot;__nvvmGetCompiledResultSize&quot;] = &lt;intptr_t&gt;__nvvmGetCompiledResultSize</span>&nbsp;</span><span class="r"><label for="ctxs231" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">    global __nvvmGetCompiledResult</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">    data[&quot;__nvvmGetCompiledResult&quot;] = &lt;intptr_t&gt;__nvvmGetCompiledResult</span>&nbsp;</span><input type="checkbox" id="ctxs234"><span class="r"><label for="ctxs234" class="ctx">38 ctx</label></span><span class="ctxs">2a ' ( ) * + , - . / : ; = ? [ ] ^ _ ` { } ~ ebj k 5 6 7 8 9 ! # $ K L M N O </span></p>
+    <p class="run"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">    data[&quot;__nvvmGetCompiledResult&quot;] = &lt;intptr_t&gt;__nvvmGetCompiledResult</span>&nbsp;</span><input type="checkbox" id="ctxs234"><span class="r"><label for="ctxs234" class="ctx">38 ctx</label></span><span class="ctxs">2a ' ( ) * + , - . / : ; = ? [ ] ^ _ ` { } ~ dbj k 5 6 7 8 9 ! # $ K L M N O </span></p>
     <p class="pln"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">    global __nvvmGetProgramLogSize</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">    data[&quot;__nvvmGetProgramLogSize&quot;] = &lt;intptr_t&gt;__nvvmGetProgramLogSize</span>&nbsp;</span><span class="r"><label for="ctxs237" class="ctx">(empty)</label></span></p>
@@ -435,7 +435,7 @@
     <p class="pln"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">cdef void* load_library() except* with gil:</span>&nbsp;</span><span class="r"><label for="ctxs257" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">    cdef uintptr_t handle = load_nvidia_dynamic_lib(&quot;nvvm&quot;)._handle_uint</span>&nbsp;</span><input type="checkbox" id="ctxs258"><span class="r"><label for="ctxs258" class="ctx">57 ctx</label></span><span class="ctxs">2a 1 2 C D E F G H X 0 b c d e f g h i 3 Q P R S T U V W | l m dbY I Z n o p q r s t u v w x y z A B j k K L M N O </span></p>
+    <p class="run"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">    cdef uintptr_t handle = load_nvidia_dynamic_lib(&quot;nvvm&quot;)._handle_uint</span>&nbsp;</span><input type="checkbox" id="ctxs258"><span class="r"><label for="ctxs258" class="ctx">57 ctx</label></span><span class="ctxs">2a 1 2 C D E F G H X 0 b c d e f g h i 3 Q P R S T U V W | l m Y I Z n o p q r s t u ebv w x y z A B j k K L M N O </span></p>
     <p class="run"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">    return &lt;void*&gt;handle</span>&nbsp;</span><span class="r"><label for="ctxs259" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -465,11 +465,11 @@
     <p class="pln"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">cdef nvvmResult _nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs286" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t"><span class="txt">    global __nvvmIRVersion</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t"><span class="txt">    _check_or_init_nvvm()</span>&nbsp;</span><input type="checkbox" id="ctxs288"><span class="r"><label for="ctxs288" class="ctx">68 ctx</label></span><span class="ctxs">2a C ' ( E ) * G X b + c , d - e . f / g : h ; i = ? [ ] ^ _ ` { l } m ~ J n o p q r s t bbu v w x y z A B j k 5 6 7 8 9 ! # $ K L M N O </span></p>
-    <p class="run"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t"><span class="txt">    if __nvvmIRVersion == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs289"><span class="r"><label for="ctxs289" class="ctx">38 ctx</label></span><span class="ctxs">2a ' ( ) * + , - . / : ; = ? [ ] ^ _ ` { } ~ bbj k 5 6 7 8 9 ! # $ K L M N O </span></p>
+    <p class="run"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t"><span class="txt">    _check_or_init_nvvm()</span>&nbsp;</span><input type="checkbox" id="ctxs288"><span class="r"><label for="ctxs288" class="ctx">68 ctx</label></span><span class="ctxs">2a C ' ( E ) * G X b + c , d - e . f / g : h ; i = ? [ ] ^ _ ` { l } m ~ J n o p q r cbs t u v w x y z A B j k 5 6 7 8 9 ! # $ K L M N O </span></p>
+    <p class="run"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t"><span class="txt">    if __nvvmIRVersion == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs289"><span class="r"><label for="ctxs289" class="ctx">38 ctx</label></span><span class="ctxs">2a ' ( ) * + , - . / : ; = ? [ ] ^ _ ` { } ~ cbj k 5 6 7 8 9 ! # $ K L M N O </span></p>
     <p class="mis show_mis"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError(&quot;function nvvmIRVersion is not found&quot;)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">    return (&lt;nvvmResult (*)(int*, int*, int*, int*) noexcept nogil&gt;__nvvmIRVersion)(</span>&nbsp;</span><input type="checkbox" id="ctxs292"><span class="r"><label for="ctxs292" class="ctx">38 ctx</label></span><span class="ctxs">2a ' ( ) * + , - . / : ; = ? [ ] ^ _ ` { } ~ bbj k 5 6 7 8 9 ! # $ K L M N O </span></p>
+    <p class="run"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">    return (&lt;nvvmResult (*)(int*, int*, int*, int*) noexcept nogil&gt;__nvvmIRVersion)(</span>&nbsp;</span><input type="checkbox" id="ctxs292"><span class="r"><label for="ctxs292" class="ctx">38 ctx</label></span><span class="ctxs">2a ' ( ) * + , - . / : ; = ? [ ] ^ _ ` { } ~ cbj k 5 6 7 8 9 ! # $ K L M N O </span></p>
     <p class="pln"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t"><span class="txt">        majorIR, minorIR, majorDbg, minorDbg)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -485,11 +485,11 @@
     <p class="pln"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">cdef nvvmResult _nvvmDestroyProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs306" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">    global __nvvmDestroyProgram</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t"><span class="txt">    _check_or_init_nvvm()</span>&nbsp;</span><input type="checkbox" id="ctxs308"><span class="r"><label for="ctxs308" class="ctx">58 ctx</label></span><span class="ctxs">2a 1 2 C D E F G H X 0 b c d e f g h i 3 Q P R S T U V W | l m Y I Z J n o p q r s t u cbv w x y z A B j k K L M N O </span></p>
-    <p class="run"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t"><span class="txt">    if __nvvmDestroyProgram == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs309"><span class="r"><label for="ctxs309" class="ctx">57 ctx</label></span><span class="ctxs">2a 1 2 C D E F G H X 0 b c d e f g h i 3 Q P R S T U V W | l m Y I Z n o p q r s t u cbv w x y z A B j k K L M N O </span></p>
+    <p class="run"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t"><span class="txt">    _check_or_init_nvvm()</span>&nbsp;</span><input type="checkbox" id="ctxs308"><span class="r"><label for="ctxs308" class="ctx">58 ctx</label></span><span class="ctxs">2a 1 2 C D E F G H X 0 b c d e f g h i 3 Q P R S T U V W | l m bbY I Z J n o p q r s t u v w x y z A B j k K L M N O </span></p>
+    <p class="run"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t"><span class="txt">    if __nvvmDestroyProgram == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs309"><span class="r"><label for="ctxs309" class="ctx">57 ctx</label></span><span class="ctxs">2a 1 2 C D E F G H X 0 b c d e f g h i 3 Q P R S T U V W | l m bbY I Z n o p q r s t u v w x y z A B j k K L M N O </span></p>
     <p class="mis show_mis"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError(&quot;function nvvmDestroyProgram is not found&quot;)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">    return (&lt;nvvmResult (*)(nvvmProgram*) noexcept nogil&gt;__nvvmDestroyProgram)(</span>&nbsp;</span><input type="checkbox" id="ctxs312"><span class="r"><label for="ctxs312" class="ctx">57 ctx</label></span><span class="ctxs">2a 1 2 C D E F G H X 0 b c d e f g h i 3 Q P R S T U V W | l m Y I Z n o p q r s t u cbv w x y z A B j k K L M N O </span></p>
+    <p class="run"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">    return (&lt;nvvmResult (*)(nvvmProgram*) noexcept nogil&gt;__nvvmDestroyProgram)(</span>&nbsp;</span><input type="checkbox" id="ctxs312"><span class="r"><label for="ctxs312" class="ctx">57 ctx</label></span><span class="ctxs">2a 1 2 C D E F G H X 0 b c d e f g h i 3 Q P R S T U V W | l m bbY I Z n o p q r s t u v w x y z A B j k K L M N O </span></p>
     <p class="pln"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t"><span class="txt">        prog)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t315" href="#t315">315</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -590,7 +590,7 @@
             <a class="nav" href="z_1c6fa6fde3f60f5e_runtime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
-            created at 2026-09-04 01:32 +0000
+            created at 2026-09-05 01:30 +0000
         </p>
     </div>
 </footer>
