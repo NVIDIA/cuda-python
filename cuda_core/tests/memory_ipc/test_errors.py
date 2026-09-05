@@ -116,6 +116,10 @@ class ChildErrorHarness:
         self.device = ipc_device
         self.mr = ipc_memory_resource
         self._extra_mrs = []
+        # Clear stale 'buffer' left by a previous flaky-rerun attempt.
+        # Its backing DeviceMemoryResource may already be closed, which causes
+        # process.start() to fail when pickling self for spawn-mode IPC.
+        self.__dict__.pop("buffer", None)
 
         try:
             # Start a child process to generate error info.
