@@ -666,7 +666,7 @@ cdef class Buffer:
 
     @property
     def device_id(self) -> int:
-        """Return the device ordinal of this buffer."""
+        """Return the device ordinal of this buffer, or -1 for memory not bound to a device."""
         Buffer_check_open(self)
         if self._memory_resource is not None:
             return self._memory_resource.device_id

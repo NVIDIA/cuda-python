@@ -2,12 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import contextlib
+from concurrent.futures import ThreadPoolExecutor
 
 import pytest
+from helpers.contexts import (
+    assert_device_operations_use_bound_context,
+    current_context_handle,
+    no_current_context,
+)
+from helpers.nanosleep_kernel import NanosleepKernel
 
 import cuda.core
 from cuda.bindings import driver, runtime
-from cuda.core import Device
+from cuda.core import Device, StreamOptions
 from cuda.core._utils.cuda_utils import ComputeCapability, handle_return
 from cuda.core._utils.version import driver_version
 
@@ -98,6 +105,131 @@ def test_device_create_event(init_cuda):
     event = device.create_event()
     assert event is not None
     assert event.handle
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_device_operations_target_receiver_and_restore_current(device_x2):
+    dev0, dev1 = device_x2
+    dev0.set_current()
+    dev1.set_current()
+    assert_device_operations_use_bound_context(dev0)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_device_operations_restore_no_current_context(deinit_cuda):
+    device = Device(0)
+    device.set_current()
+
+    with no_current_context():
+        assert_device_operations_use_bound_context(device)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_device_create_stream_restores_context_after_failure(device_x2):
+    dev0, dev1 = device_x2
+    dev0.set_current()
+    dev1.set_current()
+    ctx1_handle = current_context_handle()
+
+    with pytest.raises(ValueError, match="priority=.*out of range"):
+        dev0.create_stream(options=StreamOptions(priority=2**30))
+    assert current_context_handle() == ctx1_handle
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_set_current_returns_previous_context_with_owning_device(device_x2):
+    dev0, dev1 = device_x2
+    dev0.set_current()
+    ctx0 = dev0.context
+    dev1.set_current()
+
+    previous = dev0.set_current(ctx0)
+    assert previous.handle == dev1.context.handle
+    dev1.set_current(previous)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5")
+def test_set_current_round_trips_through_a_different_device(device_x2):
+    """The pre-#2311 idiom `prev = dev.set_current(ctx); ...; dev.set_current(prev)`
+    must keep working even when `prev` belongs to a different device than
+    `dev`: set_current() delegates to the context's owning device instead of
+    raising, so restoring through the original Device handle round-trips."""
+    dev0, dev1 = device_x2
+    dev0.set_current()
+    ctx0 = dev0.context
+
+    dev1.set_current()
+    ctx1 = dev1.context
+
+    dev0.set_current()  # dev0 current again; dev1.context is still ctx1
+
+    prev = dev1.set_current(ctx1)
+    assert prev.handle == ctx0.handle
+    assert current_context_handle() == int(ctx1.handle)
+
+    restored = dev1.set_current(prev)
+    assert restored.handle == ctx1.handle
+    assert current_context_handle() == int(ctx0.handle)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5")
+def test_device_sync_waits_for_bound_context_work(device_x2):
+    """dev0.sync() must wait for work queued on dev0's bound context even
+    while dev1 is ambient, not just preserve the ambient context (#2311)."""
+    dev0, dev1 = device_x2
+    if dev0.compute_capability.major < 7:
+        pytest.skip("__nanosleep is only available starting Volta (sm70)")
+    dev0.set_current()
+    stream = dev0.create_stream()
+    nanosleep = NanosleepKernel(dev0, sleep_duration_ms=20)
+    event = None
+    try:
+        nanosleep.launch(stream)
+        event = stream.record()
+
+        dev1.set_current()
+        ambient_context_handle = current_context_handle()
+
+        dev0.sync()
+        assert event.is_done
+        assert current_context_handle() == ambient_context_handle
+    finally:
+        if event is not None:
+            event.close()
+        stream.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_device_receiver_switching_is_thread_local(device_x2):
+    dev0, dev1 = device_x2
+    dev0.set_current()
+    main_context = current_context_handle()
+
+    def worker():
+        worker_dev0 = Device(dev0.device_id)
+        worker_dev0.set_current()
+        target_context = current_context_handle()
+        worker_dev1 = Device(dev1.device_id)
+        worker_dev1.set_current()
+        foreign_context = current_context_handle()
+
+        stream = None
+        try:
+            stream = worker_dev0.create_stream()
+            resource_context = int(stream.context.handle)
+        finally:
+            if stream is not None:
+                stream.close()
+
+        return resource_context, target_context, current_context_handle(), foreign_context
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        worker_result = executor.submit(worker).result()
+
+    resource_context, target_context, restored_context, foreign_context = worker_result
+    assert resource_context == target_context
+    assert restored_context == foreign_context
+    assert current_context_handle() == main_context
 
 
 def test_pci_bus_id():
