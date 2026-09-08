@@ -186,15 +186,6 @@ The repository checks in a `pixi.lock` next to each `pixi.toml`. Those lockfiles
 pin the solved dependency graph used by local pixi workflows and by CI, so they
 must stay in sync with their manifests and easy to review.
 
-Manifests and lockfiles currently live at:
-
-- `pixi.toml` / `pixi.lock`
-- `cuda_pathfinder/pixi.toml` / `cuda_pathfinder/pixi.lock`
-- `cuda_bindings/pixi.toml` / `cuda_bindings/pixi.lock`
-- `cuda_core/pixi.toml` / `cuda_core/pixi.lock`
-- `benchmarks/cuda_bindings/pixi.toml` / `benchmarks/cuda_bindings/pixi.lock`
-- `benchmarks/cuda_core/pixi.toml` / `benchmarks/cuda_core/pixi.lock`
-
 Contributor expectations:
 
 - If a PR changes a `pixi.toml`, update the corresponding `pixi.lock` in the
