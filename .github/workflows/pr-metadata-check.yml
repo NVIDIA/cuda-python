@@ -32,7 +32,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IS_BOT: ${{ github.actor == 'dependabot[bot]' || github.actor == 'pre-commit-ci[bot]' || github.actor == 'copy-pr-bot[bot]' }}
+          IS_BOT: ${{ github.actor == 'dependabot[bot]' || github.actor == 'pre-commit-ci[bot]' || github.actor == 'copy-pr-bot[bot]' || github.actor == 'github-actions[bot]' }}
           IS_DRAFT: ${{ github.event.pull_request.draft }}
         run: |
           if [ "$IS_BOT" = "true" ] || [ "$IS_DRAFT" = "true" ]; then

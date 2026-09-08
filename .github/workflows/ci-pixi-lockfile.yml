@@ -1,0 +1,81 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Fails when a committed pixi.lock is out of date with its pixi.toml.
+# Remediation: regenerate and commit the stale lockfile, e.g.
+#   pixi lock --manifest-path <path>
+# See #2298.
+
+name: "CI: pixi lockfile freshness"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    paths:
+      - "**/pixi.toml"
+      - "**/pixi.lock"
+      - ".github/workflows/ci-pixi-lockfile.yml"
+  push:
+    branches:
+      - "pull-request/[0-9]+"
+      - "main"
+    paths:
+      - "**/pixi.toml"
+      - "**/pixi.lock"
+      - ".github/workflows/ci-pixi-lockfile.yml"
+  workflow_dispatch: {}
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+
+env:
+  # Keep in sync with ci-pixi-source-test.yml. Must be >=0.71.0 so the
+  # committed lockfile format (v7) matches what this job checks against.
+  PIXI_VERSION: "v0.73.0"
+
+permissions: {}
+
+jobs:
+  lockfile-fresh:
+    name: "pixi lock --check (${{ matrix.manifest }})"
+    if: ${{ github.repository_owner == 'nvidia' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        manifest:
+          - .
+          - cuda_pathfinder
+          - cuda_bindings
+          - cuda_core
+          - benchmarks/cuda_bindings
+          - benchmarks/cuda_core
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup pixi
+        # Pinned to a commit SHA; install logic lives in the action and is
+        # auditable/pinned (vs. a curl|bash of an unverified installer).
+        uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
+        with:
+          pixi-version: ${{ env.PIXI_VERSION }}
+          run-install: false
+
+      - name: Check lockfile is current with its manifest
+        run: |
+          if ! pixi lock --check --manifest-path "${{ matrix.manifest }}"; then
+            echo "::error::Lockfile is stale for '${{ matrix.manifest }}'. Regenerate with: pixi lock --manifest-path ${{ matrix.manifest }}"
+            exit 1
+          fi

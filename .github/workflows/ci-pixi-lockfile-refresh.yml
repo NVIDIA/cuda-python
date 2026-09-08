@@ -1,0 +1,148 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Monthly (and on-demand) pixi lockfile refresh. Each workspace gets its own
+# PR so a benchmark or docs environment cannot drag unrelated package churn
+# into review. See #2298.
+
+name: "CI: pixi lockfile refresh"
+
+on:
+  schedule:
+    # 08:17 UTC on the 1st of each month. Offset from hour-start load and
+    # from the daily CI / pixi source-test windows.
+    - cron: "17 8 1 * *"
+  workflow_dispatch:
+    inputs:
+      package:
+        description: "Pixi workspace to refresh"
+        type: choice
+        default: all
+        options:
+          - all
+          - root
+          - cuda_pathfinder
+          - cuda_bindings
+          - cuda_core
+          - benchmarks/cuda_bindings
+          - benchmarks/cuda_core
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+
+env:
+  # Keep in sync with ci-pixi-source-test.yml.
+  PIXI_VERSION: "v0.73.0"
+
+permissions: {}
+
+jobs:
+  # Job-level `if` cannot use `matrix` (evaluated before expansion). Filter
+  # the workspace list here and pass it to refresh as a dynamic matrix.
+  plan:
+    name: Select workspaces
+    if: ${{ github.repository_owner == 'nvidia' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.select.outputs.matrix }}
+    steps:
+      - name: Select workspaces to refresh
+        id: select
+        env:
+          PACKAGE: ${{ inputs.package || 'all' }}
+        run: |
+          all='[
+            {"id":"root","manifest":".","lockfile":"pixi.lock"},
+            {"id":"cuda_pathfinder","manifest":"cuda_pathfinder","lockfile":"cuda_pathfinder/pixi.lock"},
+            {"id":"cuda_bindings","manifest":"cuda_bindings","lockfile":"cuda_bindings/pixi.lock"},
+            {"id":"cuda_core","manifest":"cuda_core","lockfile":"cuda_core/pixi.lock"},
+            {"id":"benchmarks/cuda_bindings","manifest":"benchmarks/cuda_bindings","lockfile":"benchmarks/cuda_bindings/pixi.lock"},
+            {"id":"benchmarks/cuda_core","manifest":"benchmarks/cuda_core","lockfile":"benchmarks/cuda_core/pixi.lock"}
+          ]'
+          if [ "${PACKAGE}" = "all" ]; then
+            selected="${all}"
+          else
+            selected="$(jq -c --arg id "${PACKAGE}" '[.[] | select(.id == $id)]' <<<"${all}")"
+            if [ "${selected}" = "[]" ]; then
+              echo "::error::Unknown package '${PACKAGE}'"
+              exit 1
+            fi
+          fi
+          echo "matrix=$(jq -c '{include:.}' <<<"${selected}")" >> "${GITHUB_OUTPUT}"
+
+  refresh:
+    name: "pixi update (${{ matrix.id }})"
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
+    concurrency:
+      group: pixi-lock-refresh-${{ matrix.id }}
+      cancel-in-progress: false
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Setup pixi
+        # Pinned to a commit SHA; install logic lives in the action and is
+        # auditable/pinned (vs. a curl|bash of an unverified installer).
+        uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
+        with:
+          pixi-version: ${{ env.PIXI_VERSION }}
+          run-install: false
+
+      - name: Update lockfile without installing
+        run: pixi update --no-install --manifest-path "${{ matrix.manifest }}"
+
+      - name: Open or update a lockfile-only PR
+        id: cpr
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          token: ${{ github.token }}
+          add-paths: ${{ matrix.lockfile }}
+          commit-message: |
+            chore: refresh pixi.lock for ${{ matrix.id }}
+
+            Scheduled pixi update --no-install for this workspace only.
+          signoff: true
+          sign-commits: true
+          branch: ci/pixi-lock-refresh/${{ matrix.id }}
+          delete-branch: true
+          title: "chore: refresh pixi.lock (${{ matrix.id }})"
+          labels: |
+            CI/CD
+            dependencies
+          body: |
+            Automated lockfile refresh for `${{ matrix.id }}` (`pixi update --no-install --manifest-path ${{ matrix.manifest }}`).
+
+            This PR is workspace-scoped so other packages are not forced to review unrelated solver churn. See #2298.
+
+            If the diff looks wrong, close this PR and leave the branch deleted; the next scheduled run will open a fresh one if an update is still needed.
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+
+      - name: Summarize
+        run: |
+          {
+            echo "### pixi lock refresh (${{ matrix.id }})"
+            echo ""
+            echo "- Manifest: \`${{ matrix.manifest }}\`"
+            echo "- Lockfile: \`${{ matrix.lockfile }}\`"
+            echo "- Operation: \`${{ steps.cpr.outputs.pull-request-operation }}\`"
+            if [ -n "${{ steps.cpr.outputs.pull-request-url }}" ]; then
+              echo "- PR: ${{ steps.cpr.outputs.pull-request-url }}"
+            else
+              echo "- No lockfile diff; PR not opened."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

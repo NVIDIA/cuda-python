@@ -26,6 +26,7 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
     - [Pre-commit on Windows](#pre-commit-on-windows)
+  - [Pixi lockfiles](#pixi-lockfiles)
   - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
@@ -178,6 +179,49 @@ commit` workflow.  To resolve this, you can either:
 
 2. Skip it by setting the environment variable `SKIP` to `lychee`.  This would
    be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
+
+## Pixi lockfiles
+
+The repository checks in a `pixi.lock` next to each `pixi.toml`. Those lockfiles
+pin the solved dependency graph used by local pixi workflows and by CI, so they
+must stay in sync with their manifests and easy to review.
+
+Manifests and lockfiles currently live at:
+
+- `pixi.toml` / `pixi.lock`
+- `cuda_pathfinder/pixi.toml` / `cuda_pathfinder/pixi.lock`
+- `cuda_bindings/pixi.toml` / `cuda_bindings/pixi.lock`
+- `cuda_core/pixi.toml` / `cuda_core/pixi.lock`
+- `benchmarks/cuda_bindings/pixi.toml` / `benchmarks/cuda_bindings/pixi.lock`
+- `benchmarks/cuda_core/pixi.toml` / `benchmarks/cuda_core/pixi.lock`
+
+Contributor expectations:
+
+- If a PR changes a `pixi.toml`, update the corresponding `pixi.lock` in the
+  same PR. Regenerating one lockfile:
+
+  ```console
+  $ pixi lock --manifest-path cuda_core
+  ```
+
+  Use `--manifest-path .` for the repository-root environment.
+- If a PR does not intentionally change pixi dependencies or metadata, do not
+  include unrelated lockfile churn. `pixi run` can refresh a stale lockfile
+  implicitly; revert that noise unless the refresh is the point of the change.
+- If a lockfile changes, the PR description should briefly say why.
+- Isolate large dependency refreshes from feature work when possible. Prefer a
+  dedicated lockfile-only PR over mixing solver churn into an unrelated change.
+
+CI enforces the contract: `pixi lock --check` fails when a committed lockfile is
+stale, and pixi source-build jobs run with `PIXI_LOCKED=1` so they install from
+the committed lock rather than updating it during the job. If either check
+fails, regenerate and commit the affected lockfile.
+
+A monthly scheduled workflow (`CI: pixi lockfile refresh`) runs
+`pixi update --no-install` per workspace and opens a dedicated PR when that
+lockfile changes, so broad dependency churn is reviewed as maintenance rather
+than landing inside unrelated feature work. The workflow can also be dispatched
+manually for one package or for all of them.
 
 ## Secret Scanning
 
