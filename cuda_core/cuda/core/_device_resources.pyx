@@ -110,11 +110,6 @@ cdef class SMResourceOptions:
     backfill: bool | SequenceABC[bool] = False
 
 
-# init=False: Cython 3.3 wraps the dataclass-generated __init__ in a
-# critical_section and then warns (promoted to an error by our
-# warning_errors=True build) that the __post_init__ call inside it is
-# unprotected Python attribute access. A hand-written __init__ sidesteps
-# that; construction of a not-yet-shared object needs no lock anyway.
 @dataclass(init=False)
 cdef class WorkqueueResourceOptions:
     """Customizable :obj:`WorkqueueResource.configure` options.
