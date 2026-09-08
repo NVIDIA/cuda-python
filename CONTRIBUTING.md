@@ -217,8 +217,8 @@ stale, and pixi source-build jobs run with `PIXI_LOCKED=1` so they install from
 the committed lock rather than updating it during the job. If either check
 fails, regenerate and commit the affected lockfile.
 
-A monthly scheduled workflow (`CI: pixi lockfile refresh`) runs
-`pixi update --no-install` per workspace and opens a dedicated PR when that
+A scheduled workflow (`CI: pixi lockfile refresh`)
+runs `pixi update --no-install` per workspace and opens a dedicated PR when that
 lockfile changes, so broad dependency churn is reviewed as maintenance rather
 than landing inside unrelated feature work. The workflow can also be dispatched
 manually for one package or for all of them.

@@ -61,7 +61,8 @@ env:
   # older pixi re-ran the editable source build on every `pixi run`, recompiling
   # all Cython extensions (#2138). The fix (content-addressed source-build cache,
   # prefix-dev/pixi#6285 + #6123) also bumps the pixi.lock format to v7.
-  # Keep in sync with ci-pixi-lockfile-refresh.yml and ci-pixi-lockfile.yml.
+  # Keep in sync with ci-pixi-lockfile-refresh.yml and 
+  # ci-pixi-lockfile-freshness-check.yml.
   PIXI_VERSION: "v0.73.0"
   # Install from the committed lockfile only. Covers nested `pixi run` calls
   # from root pixi.toml tasks; a stale lock must fail rather than being

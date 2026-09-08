@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Monthly (and on-demand) pixi lockfile refresh. Each workspace gets its own
+# Scheduled (and on-demand) pixi lockfile refresh. Each workspace gets its own
 # PR so a benchmark or docs environment cannot drag unrelated package churn
 # into review. See #2298.
 
@@ -10,9 +10,9 @@ name: "CI: pixi lockfile refresh"
 
 on:
   schedule:
-    # 08:17 UTC on the 1st of each month. Offset from hour-start load and
-    # from the daily CI / pixi source-test windows.
-    - cron: "17 8 1 * *"
+    # 08:00 UTC every Monday = 03:00 EST. GitHub cron is UTC-only, so this
+    # stays 03:00 EST year-round and is 04:00 EDT during daylight saving.
+    - cron: "0 8 * * 1"
   workflow_dispatch:
     inputs:
       package:

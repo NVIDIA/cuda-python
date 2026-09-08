@@ -7,7 +7,7 @@
 #   pixi lock --manifest-path <path>
 # See #2298.
 
-name: "CI: pixi lockfile freshness"
+name: "CI: pixi lockfile freshness check"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
