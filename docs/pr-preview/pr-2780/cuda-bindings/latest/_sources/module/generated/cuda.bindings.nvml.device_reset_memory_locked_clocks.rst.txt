@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_reset\_memory\_locked\_clocks
+========================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_reset_memory_locked_clocks
