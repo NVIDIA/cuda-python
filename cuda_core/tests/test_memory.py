@@ -824,9 +824,10 @@ _HOST_ONLY_MRS = [
 ]
 
 
+@pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.parametrize("mr_cls", _HOST_ONLY_MRS)
-def test_from_handle_host_only_mr_without_current_context(mr_cls, capfd):
+def test_from_handle_host_only_mr_without_current_context(mr_cls):
     """Host-only memory needs no current context to create or free a Buffer."""
     device = Device()
     device.set_current()
@@ -836,28 +837,30 @@ def test_from_handle_host_only_mr_without_current_context(mr_cls, capfd):
     assert int(previous) != 0
     try:
         assert int(handle_return(driver.cuCtxGetCurrent())) == 0
-        buf = mr.allocate(64)
-        assert buf.is_host_accessible
-        buf.close()
+        with assert_no_cuda_warning():
+            buf = mr.allocate(64)
+            assert buf.is_host_accessible
+            buf.close()
         assert int(handle_return(driver.cuCtxGetCurrent())) == 0
     finally:
         handle_return(driver.cuCtxSetCurrent(previous))
 
-    assert "Warning" not in capfd.readouterr().err
-
 
 def _host_only_child_main(mr_cls):
     """Allocate and free host-only memory in a process that never initialized CUDA."""
-    buf = mr_cls().allocate(64)
-    assert buf.is_host_accessible
-    buf.close()
+    # Warnings do not cross processes: check for a CUDAWarning here, where a
+    # failed assertion becomes a non-zero exit code for the parent to see.
+    with assert_no_cuda_warning():
+        buf = mr_cls().allocate(64)
+        assert buf.is_host_accessible
+        buf.close()
     err, _ = driver.cuCtxGetCurrent()
     assert err == driver.CUresult.CUDA_ERROR_NOT_INITIALIZED, err
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.parametrize("mr_cls", _HOST_ONLY_MRS)
-def test_from_handle_host_only_mr_without_cuda_init(mr_cls, capfd):
+def test_from_handle_host_only_mr_without_cuda_init(mr_cls):
     """Host-only buffers work in a spawned process that never initializes CUDA."""
     process = mp.Process(target=_host_only_child_main, args=(mr_cls,))
     process.start()
@@ -865,7 +868,6 @@ def test_from_handle_host_only_mr_without_cuda_init(mr_cls, capfd):
     survivors = kill_subprocesses(process)
     assert not survivors, "child did not exit within timeout"
     assert process.exitcode == 0, f"child exited with {process.exitcode}"
-    assert "Warning" not in capfd.readouterr().err
 
 
 @pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
