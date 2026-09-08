@@ -29,6 +29,13 @@ name: "CI: Release"
 # Leave run-id blank so determine-run-id is exercised. For exhaustive coverage,
 # add a mainline cuda-python dry-run when changes could affect metapackage
 # artifact validation, docs routing, or component-specific release behavior.
+#
+# To dry-run before a tag exists, set dry-run-commit to the commit/branch you
+# would tag. git-tag still names the tag you *would* create: it drives
+# version-string validation (release notes, wheel versions) but, with
+# dry-run-commit set, is no longer resolved as a ref for checkout/archival.
+# Because no tag-triggered CI run exists yet, run-id must be supplied
+# explicitly in this mode.
 
 on:
   workflow_dispatch:
@@ -66,6 +73,11 @@ on:
         default: ""
       dry-run-docs-branch:
         description: "Dry-run only: optional gh-pages-* branch to receive generated docs, for example gh-pages-dry-run"
+        required: false
+        type: string
+        default: ""
+      dry-run-commit:
+        description: "Dry-run only: commit or ref to check out and validate instead of git-tag, so you can dry-run before the tag exists. Leave blank to use git-tag. Requires an explicit run-id (auto-detection needs a tag-triggered CI run)."
         required: false
         type: string
         default: ""
@@ -120,9 +132,14 @@ jobs:
           RELEASE_ACTION: ${{ inputs.release-action }}
           RELEASE_GIT_TAG: ${{ inputs.git-tag }}
           DRY_RUN_DOCS_BRANCH: ${{ inputs.dry-run-docs-branch }}
+          DRY_RUN_COMMIT: ${{ inputs.dry-run-commit }}
         run: |
           if [[ "$RELEASE_ACTION" == "full-release" && -n "$DRY_RUN_DOCS_BRANCH" ]]; then
             echo "error: dry-run-docs-branch is only valid with release-action=dry-run" >&2
+            exit 1
+          fi
+          if [[ "$RELEASE_ACTION" == "full-release" && -n "$DRY_RUN_COMMIT" ]]; then
+            echo "error: dry-run-commit is only valid with release-action=dry-run" >&2
             exit 1
           fi
           if [[ "$RELEASE_ACTION" == "dry-run" && -n "$DRY_RUN_DOCS_BRANCH" && ! "$DRY_RUN_DOCS_BRANCH" =~ ^gh-pages-[[:alnum:]._/-]+$ ]]; then
@@ -130,7 +147,16 @@ jobs:
             exit 1
           fi
           if [[ "$RELEASE_ACTION" == "dry-run" ]]; then
-            git rev-parse --verify "${RELEASE_GIT_TAG}^{commit}"
+            if [[ -n "$DRY_RUN_COMMIT" ]]; then
+              # dry-run-commit may be a commit not reachable from the shallow
+              # checkout above (it need not be the tip of the triggering ref),
+              # so fetch it explicitly rather than relying on local history.
+              git fetch --depth=1 origin "$DRY_RUN_COMMIT"
+              git rev-parse --verify FETCH_HEAD^{commit}
+              echo "Dry-run selected against commit $DRY_RUN_COMMIT; not requiring tag $RELEASE_GIT_TAG to exist."
+            else
+              git rev-parse --verify "${RELEASE_GIT_TAG}^{commit}"
+            fi
             echo "Dry-run selected; not checking or creating a GitHub release draft."
             exit 0
           fi
@@ -162,7 +188,7 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          ref: ${{ inputs.git-tag }}
+          ref: ${{ (inputs.release-action == 'dry-run' && inputs.dry-run-commit) || inputs.git-tag }}
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
@@ -193,6 +219,7 @@ jobs:
     with:
       component: ${{ inputs.component }}
       git-tag: ${{ inputs.git-tag }}
+      checkout-ref: ${{ (inputs.release-action == 'dry-run' && inputs.dry-run-commit) || '' }}
       run-id: ${{ needs.determine-run-id.outputs.run-id }}
       is-release: true
       deploy-docs: ${{ inputs.release-action == 'full-release' || inputs.dry-run-docs-branch != '' }}
@@ -211,6 +238,7 @@ jobs:
     uses: ./.github/workflows/release-upload.yml
     with:
       git-tag: ${{ inputs.git-tag }}
+      checkout-ref: ${{ (inputs.release-action == 'dry-run' && inputs.dry-run-commit) || '' }}
       run-id: ${{ needs.determine-run-id.outputs.run-id }}
       component: ${{ inputs.component }}
       dry-run: ${{ inputs.release-action == 'dry-run' }}

@@ -23,6 +23,11 @@ on:
         required: false
         default: ""
         type: string
+      checkout-ref:
+        description: "Ref or commit to check out (defaults to git-tag); lets a release dry-run target an untagged commit"
+        required: false
+        default: ""
+        type: string
       run-id:
         description: "The GHA run ID that generated validated artifacts"
         required: false
@@ -58,7 +63,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
-          ref: ${{ inputs.git-tag }}
+          ref: ${{ inputs.checkout-ref || inputs.git-tag }}
 
       - name: Read build CTK version
         run: |

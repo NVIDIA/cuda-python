@@ -10,6 +10,11 @@ on:
       git-tag:
         type: string
         required: true
+      checkout-ref:
+        description: "Ref or commit to check out and archive (defaults to git-tag); lets a release dry-run target an untagged commit"
+        type: string
+        required: false
+        default: ""
       run-id:
         description: "The GHA run ID that generated validated artifacts"
         type: string
@@ -49,18 +54,20 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
-          ref: ${{ inputs.git-tag }}
+          ref: ${{ inputs.checkout-ref || inputs.git-tag }}
 
       - name: Create Release Directory
         run: mkdir -p release
 
       - name: Archive Source
+        # Archive HEAD (the just-checked-out ref/commit) rather than git-tag by
+        # name, since a dry-run checkout-ref may not have a local tag for git-tag.
         run: >
           git archive
           --format=tar.gz
           --prefix="${{ env.ARCHIVE_NAME }}/"
           --output="release/${{ env.ARCHIVE_NAME }}.tar.gz"
-          ${{ inputs.git-tag }}
+          HEAD
 
       - name: Compute Checksum
         run: >
