@@ -42,7 +42,9 @@ class Buffer:
         is provided, the owner is kept alive but no deallocation is performed.
         When ``mr`` is provided, a deallocation stream is recorded at creation
         (``stream`` if given, otherwise ``default_stream()``). Recording a
-        default-stream token requires a CUDA context to be current.
+        default-stream token requires a CUDA context to be current. Host-only
+        resources (``mr.is_device_accessible`` is ``False``) record no stream
+        and need no context.
         """
     @staticmethod
     def _reduce_helper(mr, ipc_descriptor): ...
@@ -69,7 +71,9 @@ class Buffer:
             Keyword-only. The stream used to order the buffer's deallocation
             when ``mr`` owns the pointer. Defaults to ``default_stream()``.
             Recording a default-stream token requires a CUDA context to be
-            current. If the buffer may be freed from a different host thread,
+            current. Host-only resources (``mr.is_device_accessible`` is
+            ``False``) record no stream and need no context. If the buffer may
+            be freed from a different host thread,
             pass a stream other than the per-thread default stream, which
             refers to a different stream on each thread.
 

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import multiprocessing as mp
 import sys
 
 from cuda.bindings import driver
@@ -17,11 +18,14 @@ import pytest
 from helpers import supports_ipc_mempool
 from helpers.buffers import (
     DummyDeviceMemoryResource,
+    DummyHostMemoryResource,
     DummyUnifiedMemoryResource,
+    NumpyHostMemoryResource,
     StubMemoryResource,
     make_instrumented_memory_resource,
     thread_unsafe_on_windows,
 )
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.constants import POOL_SIZE
 from helpers.contexts import assert_no_cuda_warning, current_context_handle, no_current_context
 from helpers.memory import (
@@ -63,6 +67,8 @@ from cuda.core.typing import (
 from cuda.core.utils import StridedMemoryView
 from cuda_python_test_helpers import IS_WINDOWS
 
+CHILD_TIMEOUT_SEC = child_timeout_sec()
+
 
 def _allocate_pinned_buffer_or_xfail(mr, size, *, device):
     try:
@@ -75,34 +81,6 @@ def _allocate_pinned_buffer_or_xfail(mr, size, *, device):
         if "Failed to allocate memory from pool" in str(exc):
             pytest.xfail("TODO(#9999): Resolve Failed to allocate memory from pool")
         raise
-
-
-class DummyHostMemoryResource(MemoryResource):
-    # Pure-host ctypes allocation; stream is accepted for interface
-    # conformance but ignored.
-    def __init__(self):
-        pass
-
-    def allocate(self, size, *, stream=None) -> Buffer:
-        # Allocate a ctypes buffer of size `size`
-        ptr = (ctypes.c_byte * size)()
-        self._ptr = ptr
-        return Buffer.from_handle(ptr=ctypes.addressof(ptr), size=size, mr=self)
-
-    def deallocate(self, ptr, size, *, stream=None):
-        del self._ptr
-
-    @property
-    def is_device_accessible(self) -> bool:
-        return False
-
-    @property
-    def is_host_accessible(self) -> bool:
-        return True
-
-    @property
-    def device_id(self) -> int:
-        raise RuntimeError("the pinned memory resource is not bound to any GPU")
 
 
 class DummyPinnedMemoryResource(MemoryResource):
@@ -179,6 +157,51 @@ def test_buffer_initialization():
     buffer_initialization(DummyPinnedMemoryResource(device))
     with pytest.raises(TypeError):
         buffer_initialization(MemoryResource())
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_buffer_direct_init_forbidden():
+    """Buffers must come from a MemoryResource, never from ``Buffer()``."""
+    with pytest.raises(RuntimeError, match=r"^Buffer objects cannot be instantiated directly\."):
+        Buffer()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_buffer_context_manager_closes_on_exit():
+    """``with buf`` yields the buffer, closes it on exit, and does not swallow inner exceptions."""
+    device = Device()
+    device.set_current()
+    mr = DummyDeviceMemoryResource(device)
+    buf = mr.allocate(size=64, stream=device.default_stream)
+    with buf as entered:
+        assert entered is buf
+        assert buf.handle != 0
+    assert buf.handle == 0
+    assert buf.memory_resource is None
+
+    buf = mr.allocate(size=64, stream=device.default_stream)
+    with pytest.raises(RuntimeError, match="^boom$"), buf:
+        raise RuntimeError("boom")
+    assert buf.handle == 0
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_memory_resource_abstract_stubs():
+    """Every abstract MemoryResource member reports itself as unimplemented."""
+    device = Device()
+    device.set_current()
+    mr = MemoryResource()
+    stream = device.default_stream
+    with pytest.raises(TypeError, match=r"^MemoryResource\.allocate must be implemented"):
+        mr.allocate(1, stream=stream)
+    with pytest.raises(TypeError, match=r"^MemoryResource\.deallocate must be implemented"):
+        mr.deallocate(0, 1, stream=stream)
+    with pytest.raises(TypeError, match=r"^MemoryResource\.is_device_accessible must be implemented"):
+        _ = mr.is_device_accessible
+    with pytest.raises(TypeError, match=r"^MemoryResource\.is_host_accessible must be implemented"):
+        _ = mr.is_host_accessible
+    with pytest.raises(TypeError, match=r"^MemoryResource\.device_id must be implemented"):
+        _ = mr.device_id
 
 
 def buffer_copy_to(dummy_mr: MemoryResource, device: Device, check=False):
@@ -271,6 +294,20 @@ def test_buffer_copy_from_size_mismatch_raises():
 
     dst_buffer.close()
     src_buffer.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_copy_to_auto_dst_requires_memory_resource():
+    """``copy_to()`` cannot mint a destination without a memory resource."""
+    device = Device()
+    device.set_current()
+    owner = (ctypes.c_byte * 32)()
+    buf = Buffer.from_handle(ctypes.addressof(owner), 32, owner=owner)
+    try:
+        with pytest.raises(ValueError, match="does not have a memory_resource"):
+            buf.copy_to(stream=device.default_stream)
+    finally:
+        buf.close()
 
 
 def _bytes_repeat(pattern: bytes, size: int) -> bytes:
@@ -394,6 +431,7 @@ def test_buffer_external_host():
     a = (ctypes.c_byte * 20)()
     ptr = ctypes.addressof(a)
     buffer = Buffer.from_handle(ptr, 20, owner=a)
+    assert buffer.owner is a
     assert not buffer.is_device_accessible
     assert buffer.is_host_accessible
     assert buffer.device_id == -1
@@ -778,6 +816,56 @@ def test_from_handle_mr_explicit_stream_without_current_context(buffer_type):
         assert current_context_handle() == 0
 
     assert telemetry["deallocations"][-1]["stream"].handle == stream.handle
+
+
+_HOST_ONLY_MRS = [
+    DummyHostMemoryResource,
+    pytest.param(NumpyHostMemoryResource, marks=pytest.mark.skipif(np is None, reason="numpy is not installed")),
+]
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.parametrize("mr_cls", _HOST_ONLY_MRS)
+def test_from_handle_host_only_mr_without_current_context(mr_cls, capfd):
+    """Host-only memory needs no current context to create or free a Buffer."""
+    device = Device()
+    device.set_current()
+    mr = mr_cls()
+
+    previous = handle_return(driver.cuCtxPopCurrent())
+    assert int(previous) != 0
+    try:
+        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+        buf = mr.allocate(64)
+        assert buf.is_host_accessible
+        buf.close()
+        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+    finally:
+        handle_return(driver.cuCtxSetCurrent(previous))
+
+    assert "Warning" not in capfd.readouterr().err
+
+
+def _host_only_child_main(mr_cls):
+    """Allocate and free host-only memory in a process that never initialized CUDA."""
+    buf = mr_cls().allocate(64)
+    assert buf.is_host_accessible
+    buf.close()
+    err, _ = driver.cuCtxGetCurrent()
+    assert err == driver.CUresult.CUDA_ERROR_NOT_INITIALIZED, err
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.parametrize("mr_cls", _HOST_ONLY_MRS)
+def test_from_handle_host_only_mr_without_cuda_init(mr_cls, capfd):
+    """Host-only buffers work in a spawned process that never initializes CUDA."""
+    process = mp.Process(target=_host_only_child_main, args=(mr_cls,))
+    process.start()
+    process.join(timeout=CHILD_TIMEOUT_SEC)
+    survivors = kill_subprocesses(process)
+    assert not survivors, "child did not exit within timeout"
+    assert process.exitcode == 0, f"child exited with {process.exitcode}"
+    assert "Warning" not in capfd.readouterr().err
 
 
 @pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")

@@ -4,6 +4,7 @@
 import multiprocessing
 import os
 import pickle
+import platform
 import re
 import uuid
 
@@ -42,6 +43,15 @@ def test_outer_timeout_marker_is_applied(request):
     marker = request.node.get_closest_marker("timeout")
     assert marker is not None, "memory_ipc/conftest.py did not apply a timeout marker"
     assert marker.args == (expected,), f"unexpected timeout value: {marker.args!r}"
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_ipc_types_cannot_be_constructed_directly():
+    """Factory-only IPC types reject direct construction."""
+    with pytest.raises(RuntimeError, match=r"^IPCBufferDescriptor objects cannot be instantiated directly\."):
+        IPCBufferDescriptor()
+    with pytest.raises(RuntimeError, match=r"^IPCAllocationHandle objects cannot be instantiated directly\."):
+        IPCAllocationHandle()
 
 
 def test_import_truncated_buffer_descriptor(ipc_device, ipc_memory_resource):
@@ -254,3 +264,87 @@ class TestDanglingBuffer(ChildErrorHarness):
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is RuntimeError
         assert re.match(r"Memory resource [a-z0-9-]+ was not found", exc_msg)
+
+
+@pytest.mark.skipif(platform.system() != "Linux", reason="CUDA mempool IPC is Linux-only")
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_from_allocation_handle_raw_fd_imports_mapped_pool(ipc_device):
+    """from_allocation_handle accepts a raw int fd and constructs an unregistered mapped MR."""
+    from helpers.buffers import PatternGen
+
+    device = ipc_device
+    stream = device.default_stream
+    exporter = DeviceMemoryResource(device, DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True))
+    try:
+        dup_fd = os.dup(exporter.allocation_handle.handle)
+        try:
+            imported = DeviceMemoryResource.from_allocation_handle(device, dup_fd)
+        finally:
+            # The int overload dups the fd internally, so the imported pool must
+            # outlive the caller's copy: everything below runs without it.
+            os.close(dup_fd)
+        try:
+            assert imported.is_mapped
+            assert imported.is_ipc_enabled
+            assert imported.device_id == device.device_id
+            # No uuid was supplied, so the pool never entered the registry.
+            assert imported.uuid is None
+            # Mapped pools cannot allocate; import a peer buffer instead.
+            with exporter.allocate(NBYTES, stream=stream) as exported:
+                descriptor = exported.ipc_descriptor
+                with Buffer.from_ipc_descriptor(imported, descriptor, stream=stream) as mapped_buf:
+                    pgen = PatternGen(device, NBYTES, stream=stream)
+                    pgen.fill_buffer(mapped_buf, seed=1)
+                    pgen.verify_buffer(exported, seed=1)
+        finally:
+            imported.close()
+    finally:
+        exporter.close()
+
+
+@pytest.mark.skipif(platform.system() != "Linux", reason="CUDA mempool IPC is Linux-only")
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_allocation_handle_forking_pickler_roundtrip(ipc_device):
+    """ForkingPickler transfers an IPCAllocationHandle by duplicating its fd."""
+    from multiprocessing.reduction import ForkingPickler
+
+    device = ipc_device
+    mr = DeviceMemoryResource(device, DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True))
+    try:
+        handle = mr.allocation_handle
+        restored = ForkingPickler.loads(ForkingPickler.dumps(handle))
+        try:
+            assert isinstance(restored, IPCAllocationHandle)
+            # DupFd must hand back a real duplicate: a shared fd number would mean
+            # restored.close() also clobbers the exporter's handle. The number
+            # itself is unpredictable, so only check validity and distinctness.
+            assert restored.handle > 0
+            assert restored.handle != handle.handle
+            assert restored.uuid == handle.uuid
+        finally:
+            restored.close()
+    finally:
+        mr.close()
+
+
+@pytest.mark.skipif(platform.system() != "Linux", reason="CUDA mempool IPC is Linux-only")
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_ipc_registry_dedups_repeated_imports(ipc_device):
+    """from_allocation_handle registers the mapped pool; later imports hit the cache."""
+    device = ipc_device
+    exporter = DeviceMemoryResource(device, DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True))
+    mapped = None
+    try:
+        key = exporter.uuid
+        mapped = DeviceMemoryResource.from_allocation_handle(device, exporter.allocation_handle)
+        assert mapped.is_mapped
+        assert DeviceMemoryResource.from_registry(key) is mapped
+        mapped2 = DeviceMemoryResource.from_allocation_handle(device, exporter.allocation_handle)
+        assert mapped2 is mapped
+        # Registering under a key that is already taken hands back the existing
+        # entry, so the exporter itself never enters the registry.
+        assert exporter.register(key) is mapped
+    finally:
+        if mapped is not None:
+            mapped.close()
+        exporter.close()
