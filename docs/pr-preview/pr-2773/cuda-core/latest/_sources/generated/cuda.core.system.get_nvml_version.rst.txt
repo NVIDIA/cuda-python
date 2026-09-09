@@ -1,6 +1,0 @@
-﻿cuda.core.system.get\_nvml\_version
-===================================
-
-.. currentmodule:: cuda.core.system
-
-.. autofunction:: get_nvml_version
