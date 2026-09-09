@@ -2,11 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.4.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.4.1. Do not modify it directly.
 
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=19b54696d673ac6a15251d0a9fb4d23d19a3ed87a31a38a1727cf89a4a1a8383
-from libc.stdint cimport intptr_t, uint32_t
 
 
 ###############################################################################
@@ -14,6 +11,15 @@ from libc.stdint cimport intptr_t, uint32_t
 ###############################################################################
 
 # enums
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7bd3a5876758225a37a98b496a1423047d3a446a4a0956ebc11b17f0abe2128a
+
+# <<<< PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport uint32_t
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
 ctypedef enum nvJitLinkResult "nvJitLinkResult":
     NVJITLINK_SUCCESS "NVJITLINK_SUCCESS" = 0
     NVJITLINK_ERROR_UNRECOGNIZED_OPTION "NVJITLINK_ERROR_UNRECOGNIZED_OPTION"

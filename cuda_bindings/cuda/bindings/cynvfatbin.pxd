@@ -2,11 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.4.1 to 13.4.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.4.1. Do not modify it directly.
 
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=350ce092394c88b497887fcb76999a31e960cb7c395fbc50aadd7d5ce174ffc7
-from libc.stdint cimport intptr_t, uint32_t
 
 
 ###############################################################################
@@ -14,6 +11,7 @@ from libc.stdint cimport intptr_t, uint32_t
 ###############################################################################
 
 # enums
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4eaac7021af14308210cbd9dd8bf938f0b09d395ef079368750627da493fa06e
 ctypedef enum nvFatbinResult "nvFatbinResult":
     NVFATBIN_SUCCESS "NVFATBIN_SUCCESS" = 0
     NVFATBIN_ERROR_INTERNAL "NVFATBIN_ERROR_INTERNAL"

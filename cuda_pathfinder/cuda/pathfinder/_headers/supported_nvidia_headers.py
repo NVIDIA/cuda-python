@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from typing import Final
 
+from cuda.pathfinder._headers.header_descriptor import system_install_dir_patterns
 from cuda.pathfinder._headers.header_descriptor_catalog import HEADER_DESCRIPTOR_CATALOG
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
@@ -77,5 +78,5 @@ SUPPORTED_SITE_PACKAGE_HEADER_DIRS_NON_CTK: Final[dict[str, tuple[str, ...]]] = 
 }
 
 SUPPORTED_INSTALL_DIRS_NON_CTK: Final[dict[str, tuple[str, ...]]] = {
-    desc.name: desc.system_install_dirs for desc in _NON_CTK_DESCRIPTORS if desc.system_install_dirs
+    desc.name: patterns for desc in _NON_CTK_DESCRIPTORS if (patterns := system_install_dir_patterns(desc))
 }

@@ -7,14 +7,17 @@ import gc
 import time
 import weakref
 
+import helpers
 import numpy as np
 import pytest
+from cuda_python_test_helpers.marks import requires_module, skipif_need_cuda_headers
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
-from helpers.marks import requires_module
 from helpers.misc import try_create_condition
+from packaging.version import Version
 
-from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
-from cuda.core.graph import GraphBuilder, GraphDefinition
+import cuda.bindings
+from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, Program, ProgramOptions, StreamOptions, launch
+from cuda.core.graph import Graph, GraphBuilder, GraphCompleteOptions, GraphDefinition
 from cuda.core.graph._graph_builder import (
     _capture_callback_with_tail_failure_for_testing,
 )
@@ -27,6 +30,13 @@ def _wait_until(predicate, timeout=5.0):
             raise AssertionError(f"condition not satisfied within {timeout}s")
         gc.collect()
         time.sleep(0.02)
+
+
+def _skip_if_conditional_handles_unsupported():
+    from cuda.core._utils.version import binding_version, driver_version
+
+    if driver_version() < (12, 3, 0) or binding_version() < (12, 3, 0):
+        pytest.skip("conditional handles require CUDA driver and bindings 12.3+")
 
 
 def test_graph_is_building(init_cuda):
@@ -213,7 +223,7 @@ def test_graph_complete_after_close_forked(init_cuda):
 
     # join() closes the non-root builder (right); it must now be rejected, not crash.
     GraphBuilder.join(left, right)
-    with pytest.raises(RuntimeError, match="^Graph builder has been closed."):
+    with pytest.raises(RuntimeError, match="^GraphBuilder has been closed"):
         right.complete()
 
 
@@ -231,7 +241,7 @@ def test_graph_update_after_source_close(init_cuda):
     source.end_building()
     source.close()
 
-    with pytest.raises(ValueError, match="^Source graph builder has been closed."):
+    with pytest.raises(RuntimeError, match="^GraphBuilder has been closed"):
         graph.update(source)
 
 
@@ -304,6 +314,21 @@ def test_graph_capture_callback_ctypes(init_cuda):
     launch_stream.sync()
 
     assert result[0] == 0xAB
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.5")
+def test_graph_capture_callback_ctypes_rejects_incompatible_signature(init_cuda):
+    """Stream-capture host callbacks use the same ctypes ABI check."""
+    import ctypes
+
+    bad_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
+    launch_stream = Device().create_stream()
+    gb = launch_stream.create_graph_builder().begin_building()
+    try:
+        with pytest.raises(TypeError, match="CUhostFn"):
+            gb.callback(bad_type(0))
+    finally:
+        gb.end_building()
 
 
 @pytest.mark.agent_authored(model="claude-opus-4.8")
@@ -447,6 +472,46 @@ def test_graph_close_is_idempotent(init_cuda):
     graph.close()
     graph.close()
     assert int(graph.handle) == 0
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_graph_and_builder_rejected_before_operations(init_cuda):
+    device = Device()
+    stream = device.create_stream()
+    graph_def = GraphDefinition()
+    node = graph_def.empty()
+    graph = graph_def.instantiate()
+    graph.close()
+
+    assert graph.is_closed
+    assert bool(graph) is True  # Preserve backward-compatible truthiness after close.
+    for operation in (
+        lambda: graph[node],
+        lambda: graph.update(graph_def),
+        lambda: graph.upload(stream),
+        lambda: graph.launch(stream),
+    ):
+        with pytest.raises(RuntimeError, match="Graph has been closed"):
+            operation()
+
+    builder = device.create_graph_builder()
+    other = device.create_graph_builder()
+    builder.close()
+    assert builder.is_closed
+    assert bool(builder) is True  # Preserve backward-compatible truthiness after close.
+    with pytest.raises(RuntimeError, match="GraphBuilder has been closed"):
+        GraphBuilder.join(builder, other)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_graph_instantiation_rejects_closed_upload_stream(init_cuda):
+    graph_def = GraphDefinition()
+    graph_def.empty()
+    stream = Device().create_stream()
+    stream.close()
+
+    with pytest.raises(RuntimeError, match="Stream has been closed"):
+        graph_def.instantiate(GraphCompleteOptions(upload_stream=stream))
 
 
 def test_graph_stream_lifetime(init_cuda):
@@ -694,3 +759,264 @@ def test_graph_definition_conditional_body_during_capture_raises(init_cuda):
     finally:
         body_gb.end_building()
         gb.end_building()
+
+
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
+def test_pdl_launch_graph_capture(init_cuda):
+    """PDL LaunchConfig is graph-compatible via GraphBuilder stream capture.
+
+    Captures a first then a secondary launch with
+    ``programmatic_stream_serialization=True``, instantiates, and launches.
+    Asserts functional correctness and that capture maps to a programmatic
+    dependency edge (see Programming Guide, Programmatic Dependent Launch) —
+    not kernel overlap.
+    """
+
+    def _assert_programmatic_dependency_edge(graph_definition):
+        """Assert capture of ProgrammaticStreamSerialization produced a programmatic edge.
+
+        Per Programming Guide (Programmatic Dependent Launch): stream-capturing a
+        secondary launch with ``cudaLaunchAttributeProgrammaticStreamSerialization``
+        maps to a programmatic dependency edge from the programmatic kernel port.
+        """
+        from cuda.bindings import driver
+
+        # cuda.bindings before 13.3.0 (before 12.9.7 on the 12.x branch) returned
+        # CUgraphEdgeData wrappers backed by a scratch buffer that was freed before the
+        # call returned, so every field reads back as freed heap memory (#1804).
+        version = Version(cuda.bindings.__version__)
+        if version < Version("13.3.0" if version.major >= 13 else "12.9.7"):
+            pytest.skip(f"cuda.bindings {version} returns dangling graph edge data (#1804)")
+
+        h_graph = graph_definition.handle
+        if driver.CUDA_VERSION >= 13000:
+            get_edges = driver.cuGraphGetEdges
+        else:
+            get_edges = driver.cuGraphGetEdges_v2
+
+        err, _, _, _, num_edges = get_edges(h_graph)
+        assert err == driver.CUresult.CUDA_SUCCESS, err
+        err, _, _, edge_data, num_edges = get_edges(h_graph, num_edges)
+        assert err == driver.CUresult.CUDA_SUCCESS, err
+        assert num_edges == 1, f"expected 1 edge, got {num_edges}"
+        ed = edge_data[0]
+        # Driver (cuda.h) ↔ Runtime / Programming Guide (driver_types.h):
+        #   CU_GRAPH_DEPENDENCY_TYPE_PROGRAMMATIC  ↔ cudaGraphDependencyTypeProgrammatic
+        #   CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC ↔ cudaGraphKernelNodePortProgrammatic
+        assert ed.type == driver.CUgraphDependencyType.CU_GRAPH_DEPENDENCY_TYPE_PROGRAMMATIC, ed.type
+        assert ed.from_port == driver.CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC, ed.from_port
+
+    mod = compile_common_kernels()
+    dummy_kernel = mod.get_kernel("add_one")
+
+    stream = Device().create_stream()
+    mr = LegacyPinnedMemoryResource()
+    buf = mr.allocate(4)
+    arr = np.from_dlpack(buf).view(np.int32)
+    arr[0] = 0
+
+    cfg = LaunchConfig(grid=1, block=1)
+    pdl = LaunchConfig(grid=1, block=1, programmatic_stream_serialization=True)
+
+    gb = stream.create_graph_builder().begin_building()
+    launch(gb, cfg, dummy_kernel, arr.ctypes.data)
+    launch(gb, pdl, dummy_kernel, arr.ctypes.data)
+    gb.end_building()
+    _assert_programmatic_dependency_edge(gb.graph_definition)
+    graph = gb.complete()
+
+    graph.launch(stream)
+    stream.sync()
+    assert arr[0] == 2
+
+    buf.close()
+    stream.close()
+
+
+@skipif_need_cuda_headers
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
+def test_pdl_same_stream_primary_secondary_overlap_via_graph(init_cuda):
+    """Same-stream PDL overlap via GraphBuilder stream capture on Hopper+."""
+    dev = Device()
+    if dev.compute_capability < (9, 0):
+        pytest.skip("Programmatic Dependent Launch requires compute capability >= 9.0")
+
+    code = r"""
+    #include <cuda_device_runtime_api.h>
+
+    extern "C" __global__ void primary_kernel(int* secondary_started, int* overlapped) {
+        cudaTriggerProgrammaticLaunchCompletion();
+
+        const long long deadline = clock64() + 100000000LL;  // ~50ms @ ~2GHz
+        if (threadIdx.x == 0 && blockIdx.x == 0) {
+            while (clock64() < deadline) {
+                if (atomicAdd(secondary_started, 0) != 0) {
+                    atomicExch(overlapped, 1);
+                    return;
+                }
+                __nanosleep(1000);
+            }
+        }
+    }
+
+    extern "C" __global__ void secondary_kernel(int* secondary_started) {
+        if (threadIdx.x == 0 && blockIdx.x == 0) {
+            atomicExch(secondary_started, 1);
+        }
+    }
+    """
+
+    arch = "".join(f"{i}" for i in dev.compute_capability)
+    options = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=helpers.CUDA_INCLUDE_PATH)
+    module = Program(code, code_type="c++", options=options).compile("cubin")
+    primary = module.get_kernel("primary_kernel")
+    secondary = module.get_kernel("secondary_kernel")
+
+    stream = dev.create_stream(options=StreamOptions(nonblocking=True))
+    mr = LegacyPinnedMemoryResource()
+    secondary_started = np.from_dlpack(mr.allocate(4)).view(np.int32)
+    overlapped = np.from_dlpack(mr.allocate(4)).view(np.int32)
+    primary_cfg = LaunchConfig(grid=1, block=1)
+    secondary_cfg = LaunchConfig(grid=1, block=1, programmatic_stream_serialization=True)
+
+    saw_overlap = False
+    for _ in range(5):
+        secondary_started[0] = 0
+        overlapped[0] = 0
+
+        gb = stream.create_graph_builder().begin_building()
+        launch(gb, primary_cfg, primary, secondary_started.ctypes.data, overlapped.ctypes.data)
+        launch(gb, secondary_cfg, secondary, secondary_started.ctypes.data)
+        graph = gb.end_building().complete()
+        graph.launch(stream)
+        stream.sync()
+        graph.close()
+        gb.close()
+
+        if overlapped[0] == 1:
+            saw_overlap = True
+            break
+
+    if not saw_overlap:
+        pytest.xfail(
+            "PDL (Programmatic Dependent Launch) graph overlap was not observed. "
+            "If this keeps xfailing in CI, manually re-check on a quiet Hopper+ GPU."
+        )
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_join_rejects_non_builder(init_cuda):
+    """join() type-checks its arguments before looking at capture state."""
+    gb = Device().create_graph_builder()
+    with pytest.raises(TypeError, match="All arguments must be GraphBuilder"):
+        GraphBuilder.join(gb, object())
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_builder_cuda_stream_protocol(init_cuda):
+    """The builder exports its underlying stream, and stops doing so once closed."""
+    gb = Device().create_graph_builder()
+    protocol = gb.__cuda_stream__()
+    assert protocol[0] == 0
+    assert int(protocol[1]) == int(gb.stream.handle)
+    gb.close()
+    with pytest.raises(RuntimeError, match="GraphBuilder has been closed"):
+        gb.__cuda_stream__()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_end_building_requires_active_capture(init_cuda):
+    """end_building() on a builder that never started capturing is rejected."""
+    gb = Device().create_graph_builder()
+    with pytest.raises(RuntimeError, match="Graph builder is not building"):
+        gb.end_building()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_debug_dot_print_requires_finished_build(init_cuda, tmp_path):
+    """debug_dot_print() needs a completed capture, both before and during building."""
+    gb = Device().create_graph_builder()
+    with pytest.raises(RuntimeError, match="Graph has not finished building"):
+        gb.debug_dot_print(str(tmp_path / "unfinished.dot"))
+    gb.begin_building()
+    try:
+        with pytest.raises(RuntimeError, match="Graph has not finished building"):
+            gb.debug_dot_print(str(tmp_path / "capturing.dot"))
+    finally:
+        gb.end_building()
+    gb.debug_dot_print(str(tmp_path / "finished.dot"))
+    assert (tmp_path / "finished.dot").exists()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_callback_requires_active_capture(init_cuda):
+    """callback() is rejected outside an active capture."""
+    gb = Device().create_graph_builder()
+    with pytest.raises(RuntimeError, match="Cannot add callback when graph is not being built"):
+        gb.callback(lambda: None)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_create_condition_requires_active_capture(init_cuda):
+    """create_condition() is rejected outside an active capture."""
+    _skip_if_conditional_handles_unsupported()
+    gb = Device().create_graph_builder()
+    with pytest.raises(RuntimeError, match="Cannot create a condition when graph is not being built"):
+        gb.create_condition()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_embed_requires_finished_child_and_capturing_parent(init_cuda):
+    """embed() rejects an unfinished child and a parent that is not capturing."""
+    parent = Device().create_graph_builder()
+    # embed() checks the child before the parent, so the child must already be
+    # ended for the parent guard to be the one that fires here.
+    child = Device().create_graph_builder().begin_building().end_building()
+    with pytest.raises(ValueError, match="Parent graph is not being built"):
+        parent.embed(child)
+
+    unfinished = Device().create_graph_builder().begin_building()
+    capturing = Device().create_graph_builder().begin_building()
+    try:
+        with pytest.raises(ValueError, match="Child graph has not finished building"):
+            capturing.embed(unfinished)
+    finally:
+        capturing.end_building()
+        unfinished.end_building()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_graph_builder_and_graph_cannot_be_constructed_directly():
+    """Both types are factory-only; the guards run before any CUDA call."""
+    with pytest.raises(NotImplementedError, match="directly creating"):
+        GraphBuilder()
+    with pytest.raises(RuntimeError, match="directly constructing"):
+        Graph()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_graph_builder_close_ends_active_capture(init_cuda):
+    """close() during capture ends it and hands the stream back usable."""
+    empty = compile_common_kernels().get_kernel("empty_kernel")
+    stream = Device().create_stream()
+    gb = stream.create_graph_builder().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), empty)
+    assert gb.is_building
+    gb.close()
+    with pytest.raises(RuntimeError, match="has been closed"):
+        _ = gb.is_building
+    # Ending capture via close() must leave the stream usable.
+    launch(stream, LaunchConfig(grid=1, block=1), empty)
+    stream.sync()
+    stream.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_if_then_requires_active_capture(init_cuda):
+    """Conditional nodes cannot be added once capture has ended."""
+    _skip_if_conditional_handles_unsupported()
+    gb = Device().create_graph_builder().begin_building()
+    condition = try_create_condition(gb)
+    gb.end_building()
+    with pytest.raises(RuntimeError, match="Cannot add conditional node when not actively capturing"):
+        gb.if_then(condition)

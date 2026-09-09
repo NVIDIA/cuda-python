@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 from libc.stdint cimport intptr_t, uint64_t
 from libc.math cimport ceil
 

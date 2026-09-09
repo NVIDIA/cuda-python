@@ -7,10 +7,11 @@ import ctypes
 
 import numpy as np
 import pytest
+from helpers.graph_kernels import skip_if_nvrtc_lacks_conditional_handle
+from helpers.memory import xfail_on_graph_mempool_oom
 
-from conftest import xfail_on_graph_mempool_oom
 from cuda.core import Device, EventOptions, LaunchConfig, Program, ProgramOptions
-from cuda.core._utils.cuda_utils import driver, handle_return
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core.graph import GraphDefinition
 
 SIZEOF_FLOAT = 4
@@ -128,8 +129,9 @@ def _compile_heat_kernels():
             "cubin",
             name_expressions=("heat_step", "countdown"),
         )
-    except Exception:
-        pytest.skip("NVRTC does not support cudaGraphConditionalHandle")
+    except CUDAError as exc:
+        skip_if_nvrtc_lacks_conditional_handle(exc)
+        raise
     return mod.get_kernel("heat_step"), mod.get_kernel("countdown")
 
 
@@ -145,8 +147,9 @@ def _compile_bisect_kernels():
     prog = Program(_BISECT_KERNEL_SOURCE, code_type="c++", options=_nvrtc_opts())
     try:
         mod = prog.compile("cubin", name_expressions=names)
-    except Exception:
-        pytest.skip("NVRTC does not support cudaGraphConditionalHandle")
+    except CUDAError as exc:
+        skip_if_nvrtc_lacks_conditional_handle(exc)
+        raise
     return tuple(mod.get_kernel(n) for n in names)
 
 

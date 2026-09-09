@@ -1,14 +1,22 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated across versions from 1.5.0 to 13.4.0. Do not modify it directly.
+# This code was automatically generated across versions from 1.5.0 to 13.4.1. Do not modify it directly.
 # This layer exposes the C header to Cython as-is.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f769acaca3dada01ba364b7053e43bcc2439f912fee376ebf3f2139fd8786203
 
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f24f3dc6fe7d137fe1753e5eb4ebb613d631f984996f6dbb859befed8211c73b
-from libc.stdint cimport int8_t, int16_t, int32_t, int64_t
-from libc.stdint cimport uint8_t, uint16_t, uint32_t, uint64_t
-from libc.stdint cimport intptr_t, uintptr_t
+
+# <<<< PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport (
+    uint32_t,
+    uint64_t,
+    uint8_t,
+)
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
 from libc.stddef cimport size_t
 
 
@@ -79,6 +87,11 @@ ctypedef enum cudlaAccessPermissionFlags "cudlaAccessPermissionFlags":
 ctypedef enum cudlaDevAttributeType "cudlaDevAttributeType":
     CUDLA_UNIFIED_ADDRESSING "CUDLA_UNIFIED_ADDRESSING" = 0
     CUDLA_DEVICE_VERSION "CUDLA_DEVICE_VERSION" = 1
+
+ctypedef enum cudlaScratchMemoryConfig "cudlaScratchMemoryConfig":
+    CUDLA_SCRATCH_MEMORY_DEFAULT "CUDLA_SCRATCH_MEMORY_DEFAULT" = (0U << 1)
+    CUDLA_SCRATCH_MEMORY_SHARED_STATIC "CUDLA_SCRATCH_MEMORY_SHARED_STATIC" = (1U << 1)
+    CUDLA_SCRATCH_MEMORY_CONFIG_MAX "CUDLA_SCRATCH_MEMORY_CONFIG_MAX" = 0x7FFFFFFF
 
 # types
 ctypedef void* cudlaDevHandle 'cudlaDevHandle'

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -20,3 +20,10 @@ cdef class Event:
     cdef Event _from_handle(EventHandle h_event)
 
     cpdef close(self)
+
+
+cdef Event Event_accept(object arg)
+cdef inline int Event_check_open(Event self) except -1:
+    if not self._h_event:
+        raise RuntimeError("Event has been closed")
+    return 0

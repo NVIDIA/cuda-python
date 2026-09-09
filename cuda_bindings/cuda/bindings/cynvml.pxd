@@ -2,11 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
 
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6cd5217ee9e8afc03e6cce40801c8b2ad5f105d1fb2a1528910955e91e3cc570
-from libc.stdint cimport int64_t
 
 
 ###############################################################################
@@ -14,6 +11,7 @@ from libc.stdint cimport int64_t
 ###############################################################################
 
 # enums
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=60a5b20aeb8f2f1b807c72675995ed6bf5943e58f3b9ab24933f51d4a7246f6f
 ctypedef enum nvmlBridgeChipType_t "nvmlBridgeChipType_t":
     NVML_BRIDGE_CHIP_PLX "NVML_BRIDGE_CHIP_PLX" = 0
     NVML_BRIDGE_CHIP_BRO4 "NVML_BRIDGE_CHIP_BRO4" = 1
@@ -1742,13 +1740,23 @@ ctypedef struct nvmlAdaptiveTgpModeInfo_v1_t 'nvmlAdaptiveTgpModeInfo_v1_t':
     nvmlEnableState_t enablementStatus
     unsigned int adjustedLimitMw
 
-ctypedef struct nvmlOperationalEventContextInfo_v1_t 'nvmlOperationalEventContextInfo_v1_t':
+ctypedef struct nvmlEventSetGetContextCount_v1_t 'nvmlEventSetGetContextCount_v1_t':
+    unsigned int count
+
+ctypedef struct nvmlEventSetGetContextInfo_v1_t 'nvmlEventSetGetContextInfo_v1_t':
+    unsigned int index
     unsigned int nvmlGpuOperationalEventContextType
     unsigned int sourceEventContextType
     unsigned int dataSize
     unsigned short dataFormatVersion
 
-ctypedef struct nvmlGpuOperationalEventContextLegacyXid_v1_t 'nvmlGpuOperationalEventContextLegacyXid_v1_t':
+ctypedef struct nvmlEventSetGetContextData_v1_t 'nvmlEventSetGetContextData_v1_t':
+    void* data
+    unsigned int index
+    unsigned int dataSize
+
+ctypedef struct nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t 'nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t':
+    unsigned int index
     unsigned int xidCode
 
 ctypedef struct nvmlGpuFabricClique_v1_t 'nvmlGpuFabricClique_v1_t':
@@ -1760,7 +1768,9 @@ ctypedef struct nvmlGpuOperationalEventConfig_v1_t 'nvmlGpuOperationalEventConfi
     unsigned int minLogLevel
     unsigned int minSeverity
 
-ctypedef struct nvmlEventData_v2_t 'nvmlEventData_v2_t':
+ctypedef struct nvmlEventSetWait_v3_t 'nvmlEventSetWait_v3_t':
+    unsigned int timeoutMs
+    unsigned int dataType
     char uuid[96]
     char sourceModule[16]
     unsigned long long eventType
@@ -1769,7 +1779,6 @@ ctypedef struct nvmlEventData_v2_t 'nvmlEventData_v2_t':
     unsigned long long instanceId
     unsigned long long timestampUsec
     unsigned long long traceId
-    unsigned int dataType
     unsigned int gpuInstanceId
     unsigned int computeInstanceId
     unsigned int severity
@@ -2735,9 +2744,9 @@ cdef nvmlReturn_t nvmlDevicePerfMetricsGetSamples_v1(nvmlDevice_t device, nvmlPe
 cdef nvmlReturn_t nvmlDeviceSetNvlinkBwModeAsync_v1(nvmlDevice_t device, nvmlNvlinkSetBwModeAsync_v1_t* setBwModeAsync) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetNvLinkTelemetrySamples_v1(nvmlDevice_t device, nvmlNvlinkTelemetrySamples_v1_t* samples) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlEventSetRegisterGpuOperationalEvents_v1(nvmlEventSet_t eventSet, const nvmlGpuOperationalEventConfig_v1_t* config) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
-cdef nvmlReturn_t nvmlEventSetWait_v3(nvmlEventSet_t set, nvmlEventData_v2_t* data, unsigned int timeoutms) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
-cdef nvmlReturn_t nvmlEventSetGetContextCount_v1(nvmlEventSet_t set, unsigned int* count) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
-cdef nvmlReturn_t nvmlEventSetGetContextInfo_v1(nvmlEventSet_t set, unsigned int index, nvmlOperationalEventContextInfo_v1_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
-cdef nvmlReturn_t nvmlEventSetGetContextData_v1(nvmlEventSet_t set, unsigned int index, void* data, unsigned int* dataSize) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
-cdef nvmlReturn_t nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1(nvmlEventSet_t set, unsigned int index, nvmlGpuOperationalEventContextLegacyXid_v1_t* xid) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlEventSetWait_v3(nvmlEventSet_t set, nvmlEventSetWait_v3_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlEventSetGetContextCount_v1(nvmlEventSet_t set, nvmlEventSetGetContextCount_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlEventSetGetContextInfo_v1(nvmlEventSet_t set, nvmlEventSetGetContextInfo_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlEventSetGetContextData_v1(nvmlEventSet_t set, nvmlEventSetGetContextData_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1(nvmlEventSet_t set, nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetBankRemapperStatus_v1(nvmlDevice_t device, nvmlEccBankRemapperStatus_v1_t* pBankRemapperStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil

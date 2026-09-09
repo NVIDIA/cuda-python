@@ -7,6 +7,8 @@ cdef class DeviceAttributes:
     """
     Various device attributes.
     """
+    cdef object _attributes
+
     def __init__(self, attributes: nvml.DeviceAttributes):
         self._attributes = attributes
 

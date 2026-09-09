@@ -33,6 +33,16 @@ from cuda.core.typing import (
 
 __all__ = ["VirtualMemoryResource", "VirtualMemoryResourceOptions"]
 
+# Location types whose physical backing lives in host memory. Shared by
+# VirtualMemoryResource.__init__ and is_host_accessible so the two cannot drift.
+_HOST_LOCATION_TYPES = frozenset(
+    {
+        VirtualMemoryLocationType.HOST,
+        VirtualMemoryLocationType.HOST_NUMA,
+        VirtualMemoryLocationType.HOST_NUMA_CURRENT,
+    }
+)
+
 
 @dataclass
 class VirtualMemoryResourceOptions:
@@ -46,10 +56,9 @@ class VirtualMemoryResourceOptions:
     location_type: :obj:`~_memory.VirtualMemoryLocationType` | str
         Controls the location of the allocation.
     handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str
-        Export handle type for the physical allocation. Use
-        ``"posix_fd"`` on Linux if you plan to
-        import/export the allocation (required for cuMemRetainAllocationHandle).
-        Use `None` if you don't need an exportable handle.
+        Export handle type for the physical allocation. Use ``"posix_fd"`` on
+        Linux if you plan to import/export the allocation. Use `None` if you
+        don't need an exportable handle.
     gpu_direct_rdma: bool
         Hint that the allocation should be GDR-capable (if supported).
     granularity: :obj:`~_memory.VirtualMemoryGranularityType` | str
@@ -170,8 +179,7 @@ class VirtualMemoryResource(MemoryResource):
         self.config: VirtualMemoryResourceOptions = check_or_create_options(  # type: ignore[assignment]
             VirtualMemoryResourceOptions, config, "VirtualMemoryResource options", keep_none=False
         )
-        # Matches ("host", "host_numa", "host_numa_current")
-        if "host" in self.config.location_type:
+        if self.config.location_type in _HOST_LOCATION_TYPES:
             self.device = None
 
         if not self.device and self.config.location_type == "device":
@@ -221,6 +229,10 @@ class VirtualMemoryResource(MemoryResource):
         Buffer
             The same buffer with updated size and properties, preserving the original pointer
         """
+        if not isinstance(buf, Buffer):
+            raise TypeError(f"buf must be a Buffer, got {type(buf).__name__}")
+        if buf.is_closed:
+            raise RuntimeError("Buffer has been closed")
         if config is not None:
             self.config = config
 
@@ -342,10 +354,9 @@ class VirtualMemoryResource(MemoryResource):
             # All succeeded, cancel undo actions
             trans.commit()
 
-        # Update the buffer size (pointer stays the same)
-        # TODO: #2049 This is a real bug, accessing _size which doesn't exist.
-        # Fix bug and remove the "type: ignore[attr-defined]" comment.
-        buf._size = new_size  # type: ignore[attr-defined]
+        # Update the buffer size (pointer stays the same). `Buffer.size` has
+        # no public setter, so this reaches into the private attribute.
+        buf._size = new_size
         return buf
 
     def _grow_allocation_slow_path(
@@ -610,7 +621,7 @@ class VirtualMemoryResource(MemoryResource):
         """
         Indicates whether the allocated memory is accessible from the host.
         """
-        return self.config.location_type == "host"
+        return self.config.location_type in _HOST_LOCATION_TYPES
 
     @property
     def device_id(self) -> int:

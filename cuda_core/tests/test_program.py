@@ -2,18 +2,22 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import contextlib
 import re
+import shutil
+import subprocess
+import sys
 import warnings
 
 import pytest
 
+from cuda.bindings._internal.utils import FunctionNotFoundError
 from cuda.core import _linker
 from cuda.core._device import Device
 from cuda.core._module import Kernel, ObjectCode
 from cuda.core._program import Program, ProgramOptions
-from cuda.core._utils.cuda_utils import CUDAError, handle_return
+from cuda.core._utils.cuda_utils import CUDAError, handle_return, nvrtc
 from cuda.core.typing import CompilerBackendType, PCHStatusType
+from cuda.pathfinder import DynamicLibNotFoundError
 
 pytest_plugins = ("cuda_python_test_helpers.nvvm_bitcode",)
 
@@ -35,9 +39,6 @@ nvvm_available = pytest.mark.skipif(
     not _is_nvvm_available(), reason="NVVM not available (libNVVM not found or cuda-bindings < 12.9.0)"
 )
 
-with contextlib.suppress(Exception):
-    from cuda.core._utils.cuda_utils import nvrtc
-
 
 def _get_nvrtc_version_for_tests():
     """
@@ -49,10 +50,11 @@ def _get_nvrtc_version_for_tests():
     """
     try:
         nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
-        version = nvrtc_major * 1000 + nvrtc_minor * 100
-        return version
-    except Exception:
+        return nvrtc_major * 1000 + nvrtc_minor * 100
+    except (DynamicLibNotFoundError, FunctionNotFoundError):
+        # libnvrtc not loadable, or nvrtcVersion symbol missing.
         return None
+    # CUDAError from a successfully loaded library propagates (real bug).
 
 
 def _has_nvrtc_pch_apis_for_tests():
@@ -68,6 +70,11 @@ def _has_nvrtc_pch_apis_for_tests():
 nvrtc_pch_available = pytest.mark.skipif(
     (_get_nvrtc_version_for_tests() or 0) < 12800 or not _has_nvrtc_pch_apis_for_tests(),
     reason="PCH runtime APIs require NVRTC >= 12.8 bindings",
+)
+
+bundled_headers_available = pytest.mark.skipif(
+    (_get_nvrtc_version_for_tests() or 0) < 13300,
+    reason="use_bundled_headers requires NVRTC >= 13.3",
 )
 
 
@@ -93,12 +100,16 @@ def _check_nvvm_arch(arch: str) -> bool:
 
 
 def _check_nvvm_supports_numba_debug() -> bool:
-    """Check if the installed libNVVM recognizes --numba-debug (CTK 13.2+)."""
+    """Check if the installed libNVVM recognizes -numba-debug.
+
+    libNVVM only accepts single-dashed options, so the double-dashed spelling
+    used by NVRTC is rejected by every libNVVM version.
+    """
     if not _has_check_nvvm_compiler_options():
         return False
     from cuda.bindings.utils import check_nvvm_compiler_options
 
-    return check_nvvm_compiler_options(["--numba-debug"])
+    return check_nvvm_compiler_options(["-numba-debug"])
 
 
 @pytest.fixture(scope="session")
@@ -296,6 +307,48 @@ def test_cpp_program_pch_auto_creates(init_cuda, tmp_path):
     program.close()
 
 
+@bundled_headers_available
+@pytest.mark.agent_authored(model="claude-sonnet-5")
+def test_use_bundled_headers_installs_and_compiles(init_cuda, tmp_path, monkeypatch):
+    """``use_bundled_headers`` should install NVRTC's bundled CUDA/CCCL headers into the
+    (monkeypatched) cache directory and make them available on the include path, without
+    a CUDA Toolkit or any user-supplied ``include_path``."""
+    import cuda.core._program as _program_module
+
+    cache_root = tmp_path / "cache-root"
+    monkeypatch.setattr(_program_module, "_default_cache_dir", lambda: cache_root)
+
+    code = """
+#include <cuda/std/type_traits>
+extern "C" __global__ void my_kernel(int *out) {
+    *out = cuda::std::is_integral<int>::value;
+}
+"""
+    headers_dir = cache_root / "nvrtc-bundled-headers"
+    assert not headers_dir.exists()
+
+    # Sanity check: without use_bundled_headers, the CCCL header isn't found (proves the
+    # option -- not some ambient CUDA Toolkit install -- is what makes the compile below work).
+    program = Program(code, "c++")
+    try:
+        with pytest.raises(CUDAError, match="could not open source file"):
+            program.compile("ptx")
+    finally:
+        program.close()
+
+    program = Program(code, "c++", ProgramOptions(use_bundled_headers=True))
+    try:
+        object_code = program.compile("ptx")
+    finally:
+        program.close()
+    assert isinstance(object_code, ObjectCode)
+
+    assert headers_dir.is_dir()
+    assert (headers_dir / ".nvrtc_headers_version").is_file()
+    assert (headers_dir / "cccl").is_dir()
+    assert (headers_dir / "cccl" / "cuda" / "std" / "type_traits").is_file()
+
+
 def test_cpp_program_pch_status_none_without_pch(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++")
@@ -312,8 +365,10 @@ options = [
     ProgramOptions(prec_div=True),
     ProgramOptions(prec_sqrt=True),
     ProgramOptions(fma=True),
-    # Plumb-through; no-op at link time. See #1287.
-    ProgramOptions(debug=True, numba_debug=True),
+    # ``numba_debug`` is deliberately absent: it was listed here as a link-time
+    # no-op (#1287), but no linker backend accepts it, so it was dropped
+    # silently (#2640). The PTX path now warns; see
+    # test_ptx_program_numba_debug_warns_and_is_ignored.
 ]
 if not is_culink_backend:
     options += [
@@ -351,10 +406,20 @@ def test_program_init_invalid_code_format():
         Program(code, "c++")
 
 
+# arch is passed explicitly so the current device is not queried.
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("name", [None, "my_program"])
+def test_program_options_name_accepts_none(name):
+    options = ProgramOptions(name=name, arch="sm_90")
+    expected = "default_program" if name is None else name
+    assert options.name == expected
+    assert options._name == expected.encode()
+
+
 # This is tested against the current device's arch
 def test_program_compile_valid_target_type(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
-    program = Program(code, "c++", options={"name": "42"})
+    program = Program(code, "c++", options=ProgramOptions(name="42"))
 
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
@@ -366,7 +431,7 @@ def test_program_compile_valid_target_type(init_cuda):
         ptx_kernel = ptx_object_code.get_kernel("my_kernel")
         assert isinstance(ptx_kernel, Kernel)
 
-    program = Program(ptx_object_code.code.decode(), "ptx", options={"name": "24"})
+    program = Program(ptx_object_code.code.decode(), "ptx", options=ProgramOptions(name="24"))
     cubin_object_code = program.compile("cubin")
     assert isinstance(cubin_object_code, ObjectCode)
     assert cubin_object_code.name == "24"
@@ -412,6 +477,17 @@ def test_program_close():
     program.close()
     # close() is idempotent
     program.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_program_rejects_compile():
+    program = Program('extern "C" __global__ void my_kernel() {}', "c++")
+    assert not program.is_closed
+    program.close()
+
+    assert program.is_closed
+    with pytest.raises(RuntimeError, match="Program has been closed"):
+        program.compile("ptx")
 
 
 @nvvm_available
@@ -743,27 +819,54 @@ def test_program_options_as_bytes_invalid_backend():
 
 
 @nvvm_available
-def test_program_options_as_bytes_nvvm_unsupported_option():
-    """Test that unsupported options raise CUDAError for NVVM backend"""
-    options = ProgramOptions(arch="sm_80", lineinfo=True)
-    with pytest.raises(CUDAError, match="not supported by NVVM backend"):
-        options.as_bytes("nvvm")
+def test_nvvm_program_options_as_bytes_numba_debug():
+    """numba_debug must be plumbed through to libNVVM as -numba-debug
+    (see #1287, #2570). libNVVM rejects the double-dashed spelling."""
+    options = ProgramOptions(arch="sm_80", debug=True, numba_debug=True)
+    nvvm_bytes = options.as_bytes("nvvm")
+    assert b"-numba-debug" in nvvm_bytes
+    assert b"--numba-debug" not in nvvm_bytes
+    assert b"-g" in nvvm_bytes
+
+
+@pytest.mark.agent_authored(model="claude-opus-5[1m]")
+def test_nvvm_options_reject_double_dash():
+    """The guard must name a double-dashed option rather than let libNVVM
+    reject it with an opaque error (see #2570)."""
+    from cuda.core._program import _assert_single_dashed_nvvm_options
+
+    _assert_single_dashed_nvvm_options(["-arch=compute_80", "-g", "-numba-debug"])
+
+    with pytest.raises(RuntimeError, match=r"--numba-debug.*double-dashed"):
+        _assert_single_dashed_nvvm_options(["-arch=compute_80", "--numba-debug"])
 
 
 @nvvm_available
-def test_nvvm_program_options_as_bytes_numba_debug():
-    """numba_debug must be plumbed through to libNVVM as --numba-debug
-    (see #1287)."""
-    options = ProgramOptions(arch="sm_80", debug=True, numba_debug=True)
+@pytest.mark.agent_authored(model="claude-opus-5[1m]")
+def test_nvvm_program_options_as_bytes_all_single_dashed():
+    """Every option cuda.core emits to libNVVM must be single-dashed, because
+    libNVVM rejects the double-dashed spelling of all of them (see #2570).
+    This covers every NVVM-supported field of ProgramOptions."""
+    options = ProgramOptions(
+        arch="sm_80",
+        debug=True,
+        numba_debug=True,
+        device_code_optimize=True,
+        ftz=True,
+        prec_sqrt=True,
+        prec_div=True,
+        fma=True,
+    )
     nvvm_bytes = options.as_bytes("nvvm")
-    assert b"--numba-debug" in nvvm_bytes
-    assert b"-g" in nvvm_bytes
+    assert nvvm_bytes, "expected at least one emitted option"
+    offenders = [o for o in nvvm_bytes if o.startswith(b"--")]
+    assert not offenders, f"double-dashed options are rejected by libNVVM: {offenders}"
 
 
 @nvvm_available
 @pytest.mark.skipif(
     not _check_nvvm_supports_numba_debug(),
-    reason="installed libNVVM does not recognize --numba-debug (needs CTK 13.2+)",
+    reason="installed libNVVM does not recognize -numba-debug",
 )
 def test_nvvm_program_numba_debug(init_cuda, nvvm_ir):
     options = ProgramOptions(arch="sm_80", debug=True, numba_debug=True)
@@ -819,6 +922,34 @@ def test_ptx_program_extra_sources_unsupported(ptx_code_object):
     options = ProgramOptions(extra_sources=[("module1", b"data")])
     with pytest.raises(ValueError, match="extra_sources is not supported by the PTX backend"):
         Program(ptx_code_object.code.decode(), "ptx", options)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_ptx_program_numba_debug_warns_and_is_ignored(init_cuda, ptx_code_object):
+    """PTX inputs go to the linker, which cannot honor numba_debug (#2640).
+
+    It used to be forwarded into ``LinkerOptions`` and dropped without a word,
+    so the compile appeared to succeed with the option applied. It is still
+    ignored -- no linker can do anything with it -- but no longer silently.
+
+    ``UserWarning``, not ``DeprecationWarning``: ``ProgramOptions.numba_debug``
+    is not deprecated, it is supported on NVVM/NVRTC and merely inapplicable to
+    this backend.
+    """
+    with pytest.warns(UserWarning, match="numba_debug is ignored for code_type='ptx'"):
+        program = Program(ptx_code_object.code.decode(), "ptx", ProgramOptions(numba_debug=True))
+    assert program.compile("cubin") is not None
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("value", [None, False])
+def test_ptx_program_numba_debug_unset_or_false_does_not_warn(init_cuda, ptx_code_object, value):
+    """The gate is truthiness: only an enabled ``numba_debug`` asks for
+    something the PTX path cannot deliver, so ``False`` is not worth a warning."""
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", UserWarning)
+        program = Program(ptx_code_object.code.decode(), "ptx", ProgramOptions(numba_debug=value))
+    assert program.compile("cubin") is not None
 
 
 def test_ptx_program_handle_is_linker_handle(init_cuda, ptx_code_object):
@@ -910,6 +1041,188 @@ def test_find_libdevice_path_delegates_to_pathfinder(monkeypatch):
     assert captured == ["device"]
 
 
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_nvrtc_debug_materializes_source_to_temp_file(init_cuda, tmp_path):
+    """debug/lineinfo writes NVRTC source to a real path; off and explicit name= do not."""
+    import os
+
+    code = 'extern "C" __global__ void matmul() {}'
+
+    # case 1: (debug=False, lineinfo=False)
+    off = Program(code, "c++", ProgramOptions(arch="sm_80"))
+    assert off.compile("ptx").name == "default_program"
+    off.close()
+
+    # case 2: (debug=True or lineinfo=True) and explicit_name is provided
+    explicit_name = str(tmp_path / "user_kernel.cu")
+    named = Program(code, "c++", ProgramOptions(name=explicit_name, debug=True, arch="sm_80"))
+    assert named.compile("ptx").name == explicit_name
+    assert not os.path.isfile(explicit_name)
+    named.close()
+
+    # case 3: (debug=True or lineinfo=True) and explicit_name is not provided
+    default_named = Program(code, "c++", ProgramOptions(debug=True, arch="sm_80"))
+    implicit_name = default_named.compile("ptx").name
+    try:
+        assert os.path.isfile(implicit_name)
+        assert re.fullmatch(r"test_program_matmul_[a-z0-9_]{8}\.cu", os.path.basename(implicit_name))
+        with open(implicit_name, encoding="utf-8") as fh:
+            assert fh.read() == code
+    finally:
+        default_named.close()
+    assert not os.path.isfile(implicit_name)
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+@pytest.mark.thread_unsafe(reason="monkeypatches tempfile.mkstemp on the Program module")
+def test_nvrtc_debug_falls_back_when_tmp_not_writable(init_cuda, monkeypatch):
+    """debug=True still compiles if the temp dir cannot be written (issue #2422)."""
+    from cuda.core import _program
+
+    def _denied(*_args, **_kwargs):
+        raise OSError(30, "Read-only file system")
+
+    monkeypatch.setattr(_program.tempfile, "mkstemp", _denied)
+
+    code = 'extern "C" __global__ void matmul() {}'
+    prog = Program(code, "c++", ProgramOptions(debug=True, arch="sm_80"))
+    try:
+        assert prog.compile("ptx").name == "default_program"
+    finally:
+        prog.close()
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_nvrtc_debug_concurrent_compile_uses_unique_temp_files(init_cuda):
+    """Same kernel compiled concurrently gets distinct mkstemp paths (issue #2422)."""
+    import os
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+
+    code = 'extern "C" __global__ void matmul() {}'
+    n = 2
+    barrier = threading.Barrier(n)
+
+    def _compile_one():
+        Device().set_current()
+        barrier.wait()
+        prog = Program(code, "c++", ProgramOptions(debug=True, arch="sm_80"))
+        name = prog.compile("ptx").name
+        return prog, name
+
+    with ThreadPoolExecutor(max_workers=n) as pool:
+        futures = [pool.submit(_compile_one) for _ in range(n)]
+        results = [fut.result() for fut in futures]
+
+    progs, names = zip(*results)
+    try:
+        assert len(set(names)) == n
+        for name in names:
+            assert os.path.isfile(name)
+            assert re.fullmatch(r"test_program_matmul_[a-z0-9_]{8}\.cu", os.path.basename(name))
+            with open(name, encoding="utf-8") as fh:
+                assert fh.read() == code
+    finally:
+        for prog in progs:
+            prog.close()
+    for name in names:
+        assert not os.path.isfile(name)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_nvrtc_debug_preserves_quoted_include_resolution(init_cuda, tmp_path, monkeypatch):
+    """A quoted #include keeps resolving once debug redirects the NVRTC name (issue #2422).
+
+    NVRTC looks for #include "..." in the directory of the name it was handed, so
+    pointing that name at a temp .cu moves the search away from where the header
+    lives and turning debug on alone breaks a compile that worked without it.
+    """
+    import os
+
+    (tmp_path / "local.h").write_text("#define BUMP 7\n", encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    code = '#include "local.h"\nextern "C" __global__ void matmul(int* out) { *out = BUMP; }\n'
+
+    for debug in (False, True):
+        prog = Program(code, "c++", ProgramOptions(arch="sm_80", debug=debug))
+        try:
+            name = prog.compile("ptx").name
+        finally:
+            prog.close()
+        if debug:
+            # Only a regression test while the name really does move out of the
+            # directory holding local.h; otherwise it would pass for free.
+            assert os.path.dirname(os.path.realpath(name)) != os.path.realpath(tmp_path)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("debug", [False, True])
+def test_nvrtc_debug_keeps_file_the_caller_named(init_cuda, tmp_path, debug):
+    """Program only unlinks a temp file it wrote itself (issue #2422).
+
+    The name handed to NVRTC doubled as the cleanup target, so a name pointing at
+    a file that already existed made teardown delete the caller's own source.
+    """
+    import gc
+
+    source = tmp_path / "matmul.cu"
+    contents = "// the caller's own file\n"
+    source.write_text(contents, encoding="utf-8")
+    code = 'extern "C" __global__ void matmul() {}'
+    options = ProgramOptions(arch="sm_80", name=str(source), debug=debug)
+
+    prog = Program(code, "c++", options)
+    prog.compile("ptx")
+    prog.close()
+    assert source.is_file(), "close() deleted a file the caller owns"
+
+    # __dealloc__ runs the same cleanup, so collection must spare it too.
+    prog = Program(code, "c++", options)
+    prog.compile("ptx")
+    del prog
+    gc.collect()
+    assert source.is_file(), "collection deleted a file the caller owns"
+    assert source.read_text(encoding="utf-8") == contents
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_cuda_gdb_shows_nvrtc_debug_source_lines(init_cuda):
+    import pathlib
+
+    cuda_gdb = shutil.which("cuda-gdb")
+    if cuda_gdb is None:
+        pytest.skip("cuda-gdb is not on PATH")
+
+    child = pathlib.Path(__file__).resolve().parent / "helpers" / "cuda_gdb_src.py"
+    proc = subprocess.run(  # noqa: S603 - trusted argv: cuda-gdb + this interpreter + in-tree helper
+        [
+            cuda_gdb,
+            "--batch",
+            "-ex",
+            "set cuda break_on_launch application",
+            "-ex",
+            "run",
+            "-ex",
+            "list",
+            "--args",
+            sys.executable,
+            "-u",
+            str(child),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    output = (proc.stdout or "") + (proc.stderr or "")
+    lowered = output.lower()
+    if "operation not permitted" in lowered or "ptrace" in lowered or "debugging is not possible" in lowered:
+        pytest.xfail("cuda-gdb is not usable for debugging on this machine: " + output)
+    assert re.search(r"cuda_gdb_src_kernel_\w+\.cu", output), output
+    assert "ISSUE_2422_SOURCE_LINE" in output, output
+    assert "No such file or directory" not in output, output
+
+
 def test_nvrtc_compile_with_logs_capture(init_cuda):
     """Program.compile with logs= exercises the NVRTC program-log reading path."""
     import io
@@ -922,3 +1235,162 @@ def test_nvrtc_compile_with_logs_capture(init_cuda):
     assert isinstance(result, ObjectCode)
     assert logs.getvalue(), "Expected non-empty compilation log from #warning directive"
     program.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_program_options_bad_define_macro_nested_list_invalid_element():
+    """Nested define_macro list with a non-processable element raises at the element."""
+    # [("MACRO", "1")] makes is_nested_sequence True; 42 fails the inner processor.
+    opts = ProgramOptions(name="test", arch="sm_80", define_macro=[("MACRO", "1"), 42])
+    with pytest.raises(RuntimeError, match=r"Expected define_macro.*got 42"):
+        opts.as_bytes("nvrtc")
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"relocatable_device_code": True},
+        {"extensible_whole_program": True},
+        {"lineinfo": True},
+        {"ptxas_options": "-v"},
+        {"max_register_count": 32},
+        {"use_fast_math": True},
+        {"extra_device_vectorization": True},
+        {"gen_opt_lto": True},
+        {"define_macro": "M"},
+        {"undefine_macro": "M"},
+        {"include_path": "include-dir"},
+        pytest.param({"use_bundled_headers": True}, marks=bundled_headers_available),
+        {"pre_include": "header.h"},
+        {"no_source_include": True},
+        {"std": "c++17"},
+        {"builtin_move_forward": False},
+        {"builtin_initializer_list": False},
+        {"disable_warnings": True},
+        {"restrict": True},
+        {"device_as_default_execution_space": True},
+        {"device_int128": True},
+        {"optimization_info": "inline"},
+        {"no_display_error_number": True},
+        {"diag_error": 1},
+        {"diag_suppress": 1},
+        {"diag_warn": 1},
+        {"brief_diagnostics": True},
+        {"time": "timing.csv"},
+        {"split_compile": 2},
+        {"fdevice_syntax_only": True},
+        {"minimal": True},
+    ],
+    ids=lambda kw: next(iter(kw)),
+)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_nvvm_options_reject_each_unsupported_flag(kwargs):
+    """Every NVVM-unsupported option is rejected, named, and reported alone."""
+    # This table mirrors _prepare_nvvm_options_impl's rejection list one-for-one.
+    options = ProgramOptions(arch="sm_80", **kwargs)
+    name = next(iter(kwargs))
+    with pytest.raises(CUDAError, match=rf"^The following options are not supported by NVVM backend: {name}$"):
+        options.as_bytes("nvvm")
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_nvrtc_as_bytes_emits_sequence_and_uncommon_flags():
+    """as_bytes emits the NVRTC spellings that compile-option tests do not hit."""
+    options = ProgramOptions(
+        arch="sm_80",
+        ptxas_options="-v",
+        pre_include=["a.h", "b.h"],
+        device_float128=True,
+        diag_warn=[1000, 1001],
+        time="timing.csv",
+        split_compile=2,
+        pch_dir="pch-cache",
+    )
+    flags = [opt.decode() for opt in options.as_bytes("nvrtc")]
+    assert "--ptxas-options=-v" in flags
+    assert "--pre-include=a.h" in flags
+    assert "--pre-include=b.h" in flags
+    assert "--device-float128" in flags
+    assert "--diag-warn=1000" in flags
+    assert "--diag-warn=1001" in flags
+    assert "--time=timing.csv" in flags
+    assert "--split-compile=2" in flags
+    assert "--pch-dir=pch-cache" in flags
+
+    single_pre = ProgramOptions(arch="sm_80", pre_include="only.h")
+    assert "--pre-include=only.h" in [opt.decode() for opt in single_pre.as_bytes("nvrtc")]
+
+
+@pytest.mark.thread_unsafe(reason="patches the process-global os.fdopen and tempfile.mkstemp")
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_nvrtc_debug_falls_back_when_temp_file_write_fails(init_cuda, monkeypatch):
+    """A write failure removes the temporary source and falls back to the default name."""
+    import contextlib
+    import os
+
+    from cuda.core import _program
+
+    real_fdopen = os.fdopen
+    real_mkstemp = _program.tempfile.mkstemp
+    temp_paths = []
+
+    class _FailingWriter:
+        def write(self, _code):
+            raise OSError("No space left on device")
+
+    @contextlib.contextmanager
+    def _write_fails(fd, *args, **kwargs):
+        with real_fdopen(fd, *args, **kwargs):
+            yield _FailingWriter()
+
+    def _record_mkstemp(*args, **kwargs):
+        fd, path = real_mkstemp(*args, **kwargs)
+        temp_paths.append(path)
+        return fd, path
+
+    monkeypatch.setattr(_program.os, "fdopen", _write_fails)
+    monkeypatch.setattr(_program.tempfile, "mkstemp", _record_mkstemp)
+
+    code = 'extern "C" __global__ void matmul() {}'
+    prog = Program(code, "c++", ProgramOptions(debug=True, arch="sm_80"))
+    try:
+        assert len(temp_paths) == 1
+        assert not os.path.exists(temp_paths[0])
+        assert prog.compile("ptx").name == "default_program"
+    finally:
+        prog.close()
+
+
+@nvvm_available
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_nvvm_compile_with_libdevice(nvvm_ir):
+    """use_libdevice resolves a referenced libdevice function into the generated PTX."""
+    store = "  store i32 %call, i32* %data, align 4"
+    declaration = "declare i32 @llvm.nvvm.read.ptx.sreg.ctaid.x()"
+    assert store in nvvm_ir and declaration in nvvm_ir
+    libdevice_ir = nvvm_ir.replace(
+        store,
+        """  %arg = sitofp i32 %call to double
+  %result = call double @__nv_sin(double %arg)
+  %converted = fptosi double %result to i32
+  store i32 %converted, i32* %data, align 4""",
+    ).replace(
+        declaration,
+        """declare double @__nv_sin(double)
+
+declare i32 @llvm.nvvm.read.ptx.sreg.ctaid.x()""",
+    )
+    from cuda.pathfinder import BitcodeLibNotFoundError
+
+    program = Program(libdevice_ir, "nvvm", ProgramOptions(use_libdevice=True, arch="sm_80"))
+    try:
+        try:
+            obj = program.compile("ptx")
+        except BitcodeLibNotFoundError:
+            pytest.skip("libdevice bitcode not found")
+        assert isinstance(obj, ObjectCode)
+        assert obj.code
+        # Without libdevice, NVVM leaves an external __nv_sin declaration in PTX.
+        assert not any(b".extern" in line and b"__nv_sin" in line for line in obj.code.splitlines())
+    finally:
+        program.close()

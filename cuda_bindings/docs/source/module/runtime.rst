@@ -1,10 +1,9 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-.. This code was automatically generated with version 13.4.0. Do not modify it directly.
+.. This code was automatically generated with version 13.4.1. Do not modify it directly.
 
-.. !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1db68a52c789dfc40b5b9e8f58768e090e2668500bed69cf25d90013bdfaef43
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=408acc02ad695c94ce3060966b62863084ed3f1ac77da7e731e37b3cf7cf9b27
 -------
 runtime
 -------

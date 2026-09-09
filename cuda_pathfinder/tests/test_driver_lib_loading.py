@@ -9,14 +9,15 @@ conda, CUDA_HOME, and the canary probe.
 """
 
 import os
+from pathlib import Path
 
 import pytest
 from child_load_nvidia_dynamic_lib_helper import (
     build_child_process_failed_for_libname_message,
     run_load_nvidia_dynamic_lib_in_subprocess,
 )
-
 from conftest import skip_if_missing_libnvcudla_so
+
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
@@ -157,7 +158,7 @@ def test_real_load_driver_lib(info_summary_append, libname):
         abs_path = payload.abs_path
         assert abs_path is not None
         info_summary_append(f"abs_path={quote_for_shell(abs_path)}")
-        assert os.path.isfile(abs_path)
+        assert Path(abs_path).is_file()
 
 
 def test_real_query_driver_cuda_version(info_summary_append):

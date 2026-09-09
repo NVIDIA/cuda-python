@@ -26,6 +26,7 @@ set -u
 # cuda_pathfinder/pyproject.toml.
 cpkgs=(
     "cuquantum"
+    "cudnn"
     "cusparselt-dev"
     "cutensor"
     "cutlass"
@@ -34,6 +35,7 @@ cpkgs=(
     "libcufftmp-dev"
     "libcusolvermp-dev"
     "libmathdx-dev"
+    "nccl"
     "libnvshmem3"
     "libnvshmem-dev"
 )

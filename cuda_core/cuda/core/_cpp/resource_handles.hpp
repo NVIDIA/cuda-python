@@ -64,9 +64,15 @@ void clear_last_error() noexcept;
 // function pointers extracted from cuda.bindings.cydriver.__pyx_capi__.
 // ============================================================================
 
+extern decltype(&cuGetErrorName) p_cuGetErrorName;
+extern decltype(&cuGetErrorString) p_cuGetErrorString;
+
 extern decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain;
 extern decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease;
 extern decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent;
+extern decltype(&cuCtxSetCurrent) p_cuCtxSetCurrent;
+extern decltype(&cuCtxSynchronize) p_cuCtxSynchronize;
+extern decltype(&cuCtxGetStreamPriorityRange) p_cuCtxGetStreamPriorityRange;
 extern decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate;
 extern decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy;
 extern decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx;
@@ -76,6 +82,7 @@ extern decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate;
 
 extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
 extern decltype(&cuStreamDestroy) p_cuStreamDestroy;
+extern decltype(&cuStreamGetCtx) p_cuStreamGetCtx;
 
 extern decltype(&cuEventCreate) p_cuEventCreate;
 extern decltype(&cuEventDestroy) p_cuEventDestroy;
@@ -108,6 +115,8 @@ extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
 
 // Graph
 extern decltype(&cuGraphDestroy) p_cuGraphDestroy;
+extern decltype(&cuGraphInstantiateWithParams) p_cuGraphInstantiateWithParams;
+extern decltype(&cuGraphExecUpdate) p_cuGraphExecUpdate;
 extern decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy;
 extern decltype(&cuUserObjectCreate) p_cuUserObjectCreate;
 extern decltype(&cuUserObjectRelease) p_cuUserObjectRelease;
@@ -141,6 +150,15 @@ extern decltype(&cuDevSmResourceSplit) p_cuDevSmResourceSplit;
 // cuDevSmResourceSplit doesn't exist in CUDA < 13.1 headers, so use a
 // void* placeholder. The pointer is always null when built against 12.x.
 extern void* p_cuDevSmResourceSplit;
+#endif
+
+// cuMemcpyWithAttributesAsync (13.2+ — may be null on older drivers/bindings)
+#if CUDA_VERSION >= 13020
+extern decltype(&cuMemcpyWithAttributesAsync) p_cuMemcpyWithAttributesAsync;
+#else
+// cuMemcpyWithAttributesAsync doesn't exist in CUDA < 13.2 headers, so use a
+// void* placeholder. The pointer is always null when built against older CUDA.
+extern void* p_cuMemcpyWithAttributesAsync;
 #endif
 
 // ============================================================================
@@ -234,6 +252,17 @@ ContextHandle get_primary_context(int device_id);
 // Returns empty handle if no context is current (caller must check)
 ContextHandle get_current_context();
 
+// Synchronize the provided context. Releases the GIL around the driver call.
+// Returns CUDA_ERROR_INVALID_CONTEXT for an empty handle.
+CUresult context_synchronize(const ContextHandle& h_context) noexcept;
+
+// Query the stream priority range for the provided context.
+// Returns CUDA_ERROR_INVALID_CONTEXT for an empty handle.
+CUresult context_get_stream_priority_range(
+    const ContextHandle& h_context,
+    int* least_priority,
+    int* greatest_priority) noexcept;
+
 // ============================================================================
 // Stream handle functions
 // ============================================================================
@@ -275,6 +304,14 @@ StreamHandle get_legacy_stream();
 // Note: Per-thread stream has no specific context dependency.
 StreamHandle get_per_thread_stream();
 
+// Wrap CU_STREAM_LEGACY with an explicit context, bypassing the "bind to
+// whatever is current" resolution that a bare default-stream token uses (see
+// make_deallocation_stream). Lets a resource that always operates in one
+// known context (e.g. a synchronous, non-pooled allocator) record a correct
+// deallocation context without requiring that context to be current when the
+// token is created. Returns an empty handle for an empty h_context.
+StreamHandle create_context_bound_legacy_stream(const ContextHandle& h_context);
+
 // ============================================================================
 // Event handle functions
 // ============================================================================
@@ -288,11 +325,14 @@ EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
                                 bool timing_enabled, bool is_blocking_sync,
                                 bool ipc_enabled, int device_id);
 
-// Create an owning event handle without context dependency.
-// Use for temporary events that are created and destroyed in the same scope.
+// Create an owning event in the context that owns `stream`, so it can be
+// recorded on that stream regardless of which context is current. Default-
+// stream tokens resolve to the current context (cuStreamGetCtx semantics).
+// Use for temporary ordering events that are created and destroyed in the
+// same scope; the handle carries no device id.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle_noctx(unsigned int flags);
+EventHandle create_event_handle_for_stream(CUstream stream, unsigned int flags);
 
 // Create an owning event handle from an IPC handle.
 // The originating process owns the event and its context.
@@ -359,10 +399,11 @@ DevicePtrHandle deviceptr_alloc_from_pool(
 // Returns empty handle on error (caller must check).
 DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream);
 
-// Allocate device memory synchronously via cuMemAlloc.
-// When the last reference is released, cuMemFree is called.
-// Returns empty handle on error (caller must check).
-DevicePtrHandle deviceptr_alloc(size_t size);
+// Allocate device memory synchronously via cuMemAlloc with the provided
+// context current. The caller owns the pointer and releases it with cuMemFree.
+// Returns CUDA_ERROR_INVALID_CONTEXT for an empty handle.
+CUresult deviceptr_alloc_raw(CUdeviceptr* ptr, size_t size,
+                             const ContextHandle& h_context) noexcept;
 
 // Allocate pinned host memory via cuMemAllocHost.
 // When the last reference is released, cuMemFreeHost is called.
@@ -421,7 +462,10 @@ DevicePtrHandle deviceptr_import_ipc(
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept;
 
 // Set the deallocation stream for a device pointer handle.
-void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept;
+// Returns CUDA_ERROR_INVALID_CONTEXT when a default-stream token cannot be
+// bound because no CUDA context is current.
+CUresult set_deallocation_stream(
+    const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept;
 
 // ============================================================================
 // Library handle functions
@@ -516,6 +560,27 @@ struct PreparedAttachmentDeleter {
 using PreparedAttachment =
     std::unique_ptr<PreparedAttachmentState, PreparedAttachmentDeleter>;
 
+struct PreparedChildGraphUpdateState;
+// Opaque unpublished hierarchy transaction; releasing it discards staged
+// metadata unless graph_commit_child_graph_update publishes the replacement.
+using PreparedChildGraphUpdate =
+    std::shared_ptr<PreparedChildGraphUpdateState>;
+
+struct PreparedExecAttachmentState;
+using PreparedExecAttachmentRollback =
+    void (*)(PreparedExecAttachmentState*) noexcept;
+struct PreparedExecAttachmentDeleter {
+    PreparedExecAttachmentRollback rollback = nullptr;
+
+    void operator()(PreparedExecAttachmentState* state) const noexcept {
+        rollback(state);
+    }
+};
+// Opaque append transaction. Releasing it rolls back newly appended owners
+// unless graph_commit_exec_attachment has kept them.
+using PreparedExecAttachment =
+    std::unique_ptr<PreparedExecAttachmentState, PreparedExecAttachmentDeleter>;
+
 // Copy requested owners from node's current attachment. Pass nullptr to ignore
 // either owner; a missing attachment produces empty handles.
 CUresult graph_get_attachment(
@@ -543,6 +608,21 @@ CUresult graph_clone_attachments(
     const GraphHandle& h_clone,
     const GraphHandle& h_source);
 
+// Stage a complete metadata replacement before CUDA replaces an embedded
+// graph. Dropping the prepared state leaves the current hierarchy unchanged.
+CUresult graph_prepare_child_graph_update(
+    const GraphHandle& h_parent,
+    const GraphHandle& h_old_child,
+    CUgraphNode owner_node,
+    const GraphHandle& h_source,
+    PreparedChildGraphUpdate* out_prepared);
+
+// Rekey staged metadata to CUDA's replacement clone, retire the old embedded
+// hierarchy, and publish the replacement handle.
+CUresult graph_commit_child_graph_update(
+    PreparedChildGraphUpdate& prepared,
+    GraphHandle* out_child);
+
 // Invalidate cuda.core state for child graphs CUDA destroyed with owner_node.
 void invalidate_child_graph_state(
     const GraphHandle& h_parent,
@@ -552,9 +632,39 @@ void invalidate_child_graph_state(
 // Graph exec handle functions
 // ============================================================================
 
-// Wrap an externally-created CUgraphExec with RAII cleanup.
-// When the last reference is released, cuGraphExecDestroy is called automatically.
-GraphExecHandle create_graph_exec_handle(CUgraphExec graph_exec);
+// Create an owning exec handle by calling cuGraphInstantiateWithParams.
+// A fresh attachment accumulator is retained on h_source first, because CUDA
+// propagates user object references only at instantiation; an exec cannot
+// receive them afterwards. The exec is the sole owner once this returns.
+// When the last reference is released, cuGraphExecDestroy is called
+// automatically.
+// Returns empty handle on error (caller must check). The caller reads
+// params->result_out for the specific instantiation failure and
+// get_last_error() for a driver status.
+GraphExecHandle create_graph_exec_handle(
+    const GraphHandle& h_source,
+    CUDA_GRAPH_INSTANTIATE_PARAMS* params);
+
+// Update h_exec in place by calling cuGraphExecUpdate, and publish a fresh
+// accumulator when CUDA accepts the update. Writes result_info for the caller.
+CUresult graph_exec_update(
+    const GraphExecHandle& h_exec,
+    const GraphHandle& h_source,
+    CUgraphExecUpdateResultInfo* result_info);
+
+// Append owners before an executable-node mutation. The accumulator grows
+// because CUDA cannot attach user objects to an exec after instantiation, so
+// old owners stay reachable. Dropping the transaction restores the accumulator
+// to its original size.
+CUresult graph_prepare_exec_attachment(
+    const GraphExecHandle& h_exec,
+    OpaqueHandle owner0,
+    OpaqueHandle owner1,
+    PreparedExecAttachment* out_prepared);
+
+// Keep the owners added by graph_prepare_exec_attachment.
+void graph_commit_exec_attachment(
+    PreparedExecAttachment& prepared) noexcept;
 
 // ============================================================================
 // Graph node handle functions
@@ -658,7 +768,7 @@ FileDescriptorHandle create_fd_handle_ref(int fd);
 // Create an owning CUDA array via cuArray3DCreate.
 // When the last reference is released, cuArrayDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-OpaqueArrayHandle create_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc);
+OpaqueArrayHandle create_array_handle(const ContextHandle& h_context, const CUDA_ARRAY3D_DESCRIPTOR& desc);
 
 // Create a non-owning array handle (references an existing CUarray).
 // Use for arrays owned elsewhere (e.g. graphics interop). Never destroyed here.
@@ -667,6 +777,9 @@ OpaqueArrayHandle create_array_handle_ref(CUarray arr);
 // Create an owning array handle adopting an existing CUarray.
 // When the last reference is released, cuArrayDestroy is called automatically.
 OpaqueArrayHandle create_array_handle_owning(CUarray arr);
+
+// Return the context dependency associated with an array, if known.
+ContextHandle get_array_context(const OpaqueArrayHandle& h) noexcept;
 
 // Create a non-owning handle to a mipmap level via cuMipmappedArrayGetLevel.
 // The level CUarray is owned by the mipmap; the parent MipmappedArrayHandle is
@@ -677,27 +790,35 @@ OpaqueArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, u
 // Create an owning mipmapped array via cuMipmappedArrayCreate.
 // When the last reference is released, cuMipmappedArrayDestroy is called.
 // Returns empty handle on error (caller must check).
-MipmappedArrayHandle create_mipmapped_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc,
+MipmappedArrayHandle create_mipmapped_array_handle(const ContextHandle& h_context,
+                                                   const CUDA_ARRAY3D_DESCRIPTOR& desc,
                                                    unsigned int num_levels);
+
+// Return the context dependency associated with a mipmapped array, if known.
+ContextHandle get_mipmapped_array_context(const MipmappedArrayHandle& h) noexcept;
 
 // Create an owning texture object via cuTexObjectCreate, embedding the backing
 // resource handle (array / mipmapped array / linear-or-pitch2d device pointer)
 // so the backing always outlives the texture. cuTexObjectDestroy runs in the
 // deleter. Returns empty handle on error (caller must check).
-TexObjectHandle create_tex_object_handle_array(const CUDA_RESOURCE_DESC& res,
+TexObjectHandle create_tex_object_handle_array(const ContextHandle& h_context,
+                                               const CUDA_RESOURCE_DESC& res,
                                                const CUDA_TEXTURE_DESC& tex,
                                                const OpaqueArrayHandle& h_backing);
-TexObjectHandle create_tex_object_handle_mipmap(const CUDA_RESOURCE_DESC& res,
+TexObjectHandle create_tex_object_handle_mipmap(const ContextHandle& h_context,
+                                                const CUDA_RESOURCE_DESC& res,
                                                 const CUDA_TEXTURE_DESC& tex,
                                                 const MipmappedArrayHandle& h_backing);
-TexObjectHandle create_tex_object_handle_linear(const CUDA_RESOURCE_DESC& res,
+TexObjectHandle create_tex_object_handle_linear(const ContextHandle& h_context,
+                                                const CUDA_RESOURCE_DESC& res,
                                                 const CUDA_TEXTURE_DESC& tex,
                                                 const DevicePtrHandle& h_backing);
 
 // Create an owning surface object via cuSurfObjectCreate, embedding the backing
 // array handle so it outlives the surface. cuSurfObjectDestroy runs in the
 // deleter. Returns empty handle on error (caller must check).
-SurfObjectHandle create_surf_object_handle(const CUDA_RESOURCE_DESC& res,
+SurfObjectHandle create_surf_object_handle(const ContextHandle& h_context,
+                                           const CUDA_RESOURCE_DESC& res,
                                            const OpaqueArrayHandle& h_backing);
 
 // ============================================================================
@@ -731,6 +852,10 @@ inline CUdeviceptr as_cu(const DevicePtrHandle& h) noexcept {
 
 inline CUlibrary as_cu(const LibraryHandle& h) noexcept {
     return h ? *h : nullptr;
+}
+
+inline CUmodule as_cu(const CUmodule& h) noexcept {
+    return h;
 }
 
 inline CUkernel as_cu(const KernelHandle& h) noexcept {
@@ -814,6 +939,10 @@ inline std::intptr_t as_intptr(const DevicePtrHandle& h) noexcept {
 }
 
 inline std::intptr_t as_intptr(const LibraryHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const CUmodule& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
@@ -947,6 +1076,10 @@ inline PyObject* as_py(const LibraryHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUlibrary", as_intptr(h));
 }
 
+inline PyObject* as_py(const CUmodule& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUmodule", as_intptr(h));
+}
+
 inline PyObject* as_py(const KernelHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUkernel", as_intptr(h));
 }
@@ -1025,5 +1158,22 @@ CUresult sm_resource_split(CUdevResource* result, unsigned int nbGroups,
 
 // Returns true if the cuDevSmResourceSplit function pointer is available.
 bool has_sm_resource_split() noexcept;
+
+// ============================================================================
+// cuMemcpyWithAttributesAsync wrapper (13.2+)
+//
+// Calls through p_cuMemcpyWithAttributesAsync if available, otherwise returns
+// CUDA_ERROR_NOT_SUPPORTED. This avoids a direct Cython cimport of the
+// cydriver cdef function, which would fail at module init on cuda-bindings
+// < 13.2 (see https://github.com/NVIDIA/cuda-python/issues/2063).
+// ============================================================================
+
+// attr is void* so the Cython declaration doesn't reference CUmemcpyAttributes
+// (absent from cuda-bindings built against CUDA < 12.8). The C++ side casts it.
+CUresult memcpy_with_attributes_async(CUdeviceptr dst, CUdeviceptr src, size_t size,
+                                       void* attr, CUstream hStream);
+
+// Returns true if the cuMemcpyWithAttributesAsync function pointer is available.
+bool has_memcpy_with_attributes_async() noexcept;
 
 }  // namespace cuda_core

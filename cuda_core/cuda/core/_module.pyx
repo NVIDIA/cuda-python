@@ -6,7 +6,7 @@ from __future__ import annotations
 
 cimport cython
 from libc.stddef cimport size_t
-from libc.stdint cimport intptr_t
+from libcpp.mutex cimport py_safe_call_once
 
 from collections import namedtuple
 from os import fsencode, fspath, PathLike
@@ -300,7 +300,7 @@ cdef class KernelOccupancy:
 
         Parameters
         ----------
-            dynamic_shared_memory_needed: Union[int, driver.CUoccupancyB2DSize]
+            dynamic_shared_memory_needed: int | driver.CUoccupancyB2DSize
                 The amount of dynamic shared memory in bytes needed by block.
                 Use `0` if block does not need shared memory. Use C-callable
                 represented by :obj:`~driver.CUoccupancyB2DSize` to encode
@@ -459,8 +459,11 @@ cdef class Kernel:
     @cython.critical_section
     def attributes(self) -> KernelAttributes:
         """Get the read-only attributes of this kernel."""
+        cdef KernelAttributes attributes
         if self._attributes is None:
-            self._attributes = KernelAttributes._init(self._h_kernel)
+            attributes = KernelAttributes._init(self._h_kernel)
+            if self._attributes is None:
+                self._attributes = attributes
         return self._attributes
 
     cdef tuple _get_arguments_info(self, bint param_info=False):
@@ -507,8 +510,11 @@ cdef class Kernel:
     @cython.critical_section
     def occupancy(self) -> KernelOccupancy:
         """Get the occupancy information for launching this kernel."""
+        cdef KernelOccupancy occupancy
         if self._occupancy is None:
-            self._occupancy = KernelOccupancy._init(self._h_kernel)
+            occupancy = KernelOccupancy._init(self._h_kernel)
+            if self._occupancy is None:
+                self._occupancy = occupancy
         return self._occupancy
 
     @property
@@ -584,6 +590,31 @@ CodeTypeT = bytes | bytearray | str
 
 cdef tuple _supported_code_type = tuple(ObjectCodeFormatType.__members__.values())
 
+
+cdef void _lazy_load_module_once(void *self_v) except *:
+    # Call-once helper for the lazy module loading, we want to avoid unloading
+    # a module in case of threads racing, so use `call_once`.
+    cdef ObjectCode self = <ObjectCode>self_v
+    cdef LibraryHandle h_library
+    cdef bytes path_bytes
+    module = self._module
+    if isinstance(module, str):
+        path_bytes = module.encode()
+        h_library = create_library_handle_from_file(<const char*>path_bytes)
+    elif isinstance(module, (bytes, bytearray)):
+        h_library = create_library_handle_from_data(<const void*><char*>module)
+    elif isinstance(module, PathLike):
+        path_bytes = fsencode(module)
+        h_library = create_library_handle_from_file(<const char*>path_bytes)
+    else:
+        assert_type_str_or_bytes_like(module)
+        raise_code_path_meant_to_be_unreachable()
+        return
+    if not h_library:
+        HANDLE_RETURN(get_last_error())
+    self._h_library = h_library
+
+
 cdef class ObjectCode:
     """Represent a compiled program to be loaded onto the device.
 
@@ -638,13 +669,13 @@ cdef class ObjectCode:
 
         Parameters
         ----------
-        module : Union[bytes, str, os.PathLike]
+        module : bytes | str | os.PathLike
             Either a bytes object containing the in-memory cubin to load, or
             a file path object (or its string representation) pointing to the
             on-disk cubin to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -657,13 +688,13 @@ cdef class ObjectCode:
 
         Parameters
         ----------
-        module : Union[bytes, str, os.PathLike]
+        module : bytes | str | os.PathLike
             Either a bytes object containing the in-memory ptx code to load, or
             a file path object (or its string representation) pointing to the
             on-disk ptx file to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -676,13 +707,13 @@ cdef class ObjectCode:
 
         Parameters
         ----------
-        module : Union[bytes, str, os.PathLike]
+        module : bytes | str | os.PathLike
             Either a bytes object containing the in-memory ltoir code to load,
             or a file path object (or its string representation) pointing to the
             on-disk ltoir file to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -695,13 +726,13 @@ cdef class ObjectCode:
 
         Parameters
         ----------
-        module : Union[bytes, str, os.PathLike]
+        module : bytes | str | os.PathLike
             Either a bytes object containing the in-memory fatbin to load, or
             or a file path object (or its string representation) pointing to the
             on-disk fatbin to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -714,12 +745,12 @@ cdef class ObjectCode:
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : bytes | str
             Either a bytes object containing the in-memory object code to load, or
             a file path string pointing to the on-disk object code to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -732,12 +763,12 @@ cdef class ObjectCode:
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : bytes | str
             Either a bytes object containing the in-memory library to load, or
             a file path string pointing to the on-disk library to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -746,26 +777,8 @@ cdef class ObjectCode:
 
     # TODO: do we want to unload in a finalizer? Probably not..
 
-    @cython.critical_section
     cdef int _lazy_load_module(self) except -1:
-        if self._h_library:
-            return 0
-        module = self._module
-        cdef bytes path_bytes
-        if isinstance(module, str):
-            path_bytes = module.encode()
-            self._h_library = create_library_handle_from_file(<const char*>path_bytes)
-        elif isinstance(module, (bytes, bytearray)):
-            self._h_library = create_library_handle_from_data(<const void*><char*>module)
-        elif isinstance(module, PathLike):
-            path_bytes = fsencode(module)
-            self._h_library = create_library_handle_from_file(<const char*>path_bytes)
-        else:
-            assert_type_str_or_bytes_like(module)
-            raise_code_path_meant_to_be_unreachable()
-            return -1
-        if not self._h_library:
-            HANDLE_RETURN(get_last_error())
+        py_safe_call_once(self._load_once, _lazy_load_module_once, <void *>self)
         return 0
 
     def get_kernel(self, name: str | bytes) -> Kernel:
@@ -797,7 +810,7 @@ cdef class ObjectCode:
             HANDLE_RETURN(get_last_error())
         return Kernel._from_handle(h_kernel)
 
-    def get_module(self) -> object:
+    def get_module(self) -> driver.CUmodule:
         """Return a context-dependent :obj:`~driver.CUmodule` for legacy interop.
 
         Bridges the native :obj:`~driver.CUlibrary` (see :attr:`handle`) to a
@@ -814,7 +827,7 @@ cdef class ObjectCode:
         cdef cydriver.CUmodule mod
         with nogil:
             HANDLE_RETURN(cydriver.cuLibraryGetModule(&mod, as_cu(self._h_library)))
-        return driver.CUmodule(<intptr_t>mod)
+        return as_py(mod)
 
     @property
     def code(self) -> CodeTypeT:

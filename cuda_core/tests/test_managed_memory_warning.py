@@ -11,9 +11,10 @@ These tests only run on affected platforms (concurrent_managed_access is False).
 import warnings
 
 import pytest
+from cuda_python_test_helpers.mempool import xfail_if_mempool_oom
+from helpers.memory import create_managed_memory_resource_or_skip
 
 import cuda.bindings
-from conftest import create_managed_memory_resource_or_skip, xfail_if_mempool_oom
 from cuda.core import Device, ManagedMemoryResource, ManagedMemoryResourceOptions
 from cuda.core._memory._managed_memory_resource import reset_concurrent_access_warning
 from cuda.core._utils.cuda_utils import CUDAError

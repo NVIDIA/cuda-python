@@ -56,8 +56,9 @@ from cuda.core._layout cimport _StridedLayout
 from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport (
     EventHandle,
-    create_event_handle_noctx,
+    create_event_handle_for_stream,
     as_cu,
+    get_last_error,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
@@ -318,8 +319,12 @@ cpdef int sync_torch_stream(int32_t device_index,
                b"aoti_torch_get_current_cuda_stream")
     if <intptr_t>producer_s != consumer_s:
         with nogil:
-            h_event = create_event_handle_noctx(
-                cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+            # The event must belong to the producer stream's context to be
+            # recorded on it, whatever context is current here.
+            h_event = create_event_handle_for_stream(
+                <cydriver.CUstream>producer_s, cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+            if not h_event:
+                HANDLE_RETURN(get_last_error())
             HANDLE_RETURN(cydriver.cuEventRecord(
                 as_cu(h_event), <cydriver.CUstream>producer_s))
             HANDLE_RETURN(cydriver.cuStreamWaitEvent(
@@ -361,9 +366,7 @@ def view_as_torch_tensor(
     cdef int32_t dtype_code
     cdef int32_t device_type, device_index
     cdef StridedMemoryView buf
-    cdef int itemsize
     cdef intptr_t _stream_ptr_int
-    cdef _StridedLayout layout
 
     # Note: we intentionally skip PyTorch's Python-level __dlpack__ guards
     # (requires_grad, is_conj, is_neg, non-strided layout, wrong-device)
@@ -436,8 +439,8 @@ def view_as_torch_tensor(
 
     # Build _StridedLayout.  init_from_ptr copies shape/strides so we are
     # safe even though they are borrowed pointers.
-    itemsize = _get_aoti_itemsize(dtype_code)
-    layout = _StridedLayout.__new__(_StridedLayout)
+    cdef int itemsize = _get_aoti_itemsize(dtype_code)
+    cdef _StridedLayout layout = _StridedLayout.__new__(_StridedLayout)
     layout.init_from_ptr(
         <int>ndim,
         sizes_ptr,

@@ -2,11 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-
-import contextlib
-
 import numpy as np
 import pytest
+from helpers.contexts import assert_device_operations_use_bound_context, use_context
 
 from cuda.core import (
     ContextOptions,
@@ -21,7 +19,9 @@ from cuda.core import (
     WorkqueueResourceOptions,
     launch,
 )
-from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
+from cuda.core._utils.version import binding_version, driver_version
+from cuda.core.graph import GraphDefinition
 from cuda.core.typing import WorkqueueSharingScopeType
 
 # ---------------------------------------------------------------------------
@@ -150,14 +150,36 @@ def _find_backfill_only_two_group_split(sm):
     return None
 
 
-@contextlib.contextmanager
-def _use_green_ctx(dev, ctx):
-    """Context manager: set green ctx current, restore previous on exit."""
-    prev = dev.set_current(ctx)
-    try:
-        yield
-    finally:
-        dev.set_current(prev)
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_memory_node_updates_preserve_green_context(
+    init_cuda,
+    green_ctx,
+):
+    if driver_version() < (13, 2, 0) or binding_version() < (13, 2, 0):
+        pytest.skip("generic graph node parameter queries require CUDA 13.2+")
+
+    memory_resource = LegacyPinnedMemoryResource()
+    src = memory_resource.allocate(4)
+    dst = memory_resource.allocate(4)
+    with use_context(init_cuda, green_ctx):
+        graph_def = GraphDefinition()
+        memset_node = graph_def.memset(dst, 0, 4)
+        memcpy_node = graph_def.memcpy(dst, src, 4)
+        original_memset = handle_return(driver.cuGraphNodeGetParams(memset_node.handle))
+        original_memcpy = handle_return(driver.cuGraphNodeGetParams(memcpy_node.handle))
+
+    memset_node.update(value=1)
+    memcpy_node.update(size=2)
+    updated_memset = handle_return(driver.cuGraphNodeGetParams(memset_node.handle))
+    updated_memcpy = handle_return(driver.cuGraphNodeGetParams(memcpy_node.handle))
+
+    assert int(updated_memset.memset.ctx) == int(original_memset.memset.ctx)
+    assert int(updated_memcpy.memcpy.copyCtx) == int(original_memcpy.memcpy.copyCtx)
+
+    memset_node.destroy()
+    memcpy_node.destroy()
+    src.close()
+    dst.close()
 
 
 # ---------------------------------------------------------------------------
@@ -181,6 +203,36 @@ def test_create_context_requires_resources(init_cuda):
         init_cuda.create_context(ContextOptions(resources=None))
     with pytest.raises(TypeError):
         init_cuda.create_context(object())
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_context_handle_alias_and_closed_queries(init_cuda, sm_resource):
+    """``Context._handle`` mirrors ``.handle``; after a (non-current) green
+    context is closed its handle-backed queries degrade gracefully: ``handle`` is
+    ``None``, ``is_green`` is ``False``, and ``resources`` raises."""
+    groups, _ = sm_resource.split(SMResourceOptions(count=None))
+    ctx = init_cuda.create_context(ContextOptions(resources=[groups[0]]))
+    # `_handle` is a thin alias of the public `handle` property.
+    assert ctx._handle == ctx.handle
+    assert ctx.handle is not None
+
+    ctx.close()
+    assert ctx.handle is None
+    assert ctx.is_green is False
+    with pytest.raises(RuntimeError, match="Context has been closed"):
+        _ = ctx.resources
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_set_current_rejects_closed_context(init_cuda, sm_resource):
+    groups, _ = sm_resource.split(SMResourceOptions(count=None))
+    ctx = init_cuda.create_context(ContextOptions(resources=[groups[0]]))
+    ctx.close()
+
+    assert ctx.is_closed
+    assert bool(ctx) is True  # Preserve backward-compatible truthiness after close.
+    with pytest.raises(RuntimeError, match="Context has been closed"):
+        init_cuda.set_current(ctx)
 
 
 # ---------------------------------------------------------------------------
@@ -239,12 +291,12 @@ class TestWorkqueueResource:
         assert wq_resource.sharing_scope is scope
 
     def test_device_id_matches_source_multi_gpu(self):
-        from cuda.core import Device, system
+        from cuda.core import Device
 
-        if system.get_num_devices() < 2:
+        devices = Device.get_all_devices()
+        if len(devices) < 2:
             pytest.skip("requires 2+ GPUs")
-        dev0 = Device(0)
-        dev1 = Device(1)
+        dev0, dev1 = devices[:2]
         try:
             wq0 = dev0.resources.workqueue
             wq1 = dev1.resources.workqueue
@@ -308,6 +360,20 @@ class TestSMResourceSplitValidation:
         with pytest.raises(ValueError, match="count must be non-negative"):
             sm_resource.split(SMResourceOptions(count=-1))
 
+    @pytest.mark.agent_authored(model="claude-opus-4.8")
+    def test_empty_count_sequence_raises(self, sm_resource):
+        """An empty ``count`` sequence has no groups to split into."""
+        with pytest.raises(ValueError, match="count sequence must not be empty"):
+            sm_resource.split(SMResourceOptions(count=[]))
+
+    @pytest.mark.agent_authored(model="claude-opus-4.8")
+    @pytest.mark.parametrize("bad_count", [3.5, object()])
+    def test_count_wrong_type_raises(self, sm_resource, bad_count):
+        """``count`` that is neither int, Sequence, nor None is rejected before
+        any driver call."""
+        with pytest.raises(TypeError, match="count must be int, Sequence, or None"):
+            sm_resource.split(SMResourceOptions(count=bad_count))
+
     def test_dry_run_cannot_create_context(self, init_cuda, sm_resource):
         groups, _ = sm_resource.split(SMResourceOptions(count=None), dry_run=True)
         assert len(groups) == 1
@@ -339,11 +405,37 @@ class TestSMResourceSplit:
         assert len(groups) == 1
         assert groups[0].sm_count >= sm_resource.min_partition_size
 
-    def test_discovery_respects_alignment(self, sm_resource):
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_by_count_discovery_respects_alignment(self, sm_resource):
+        """CUDA 12 SplitByCount discovery returns an aligned SM count."""
+        if binding_version()[0] != 12:
+            pytest.skip("test covers the CUDA 12 SplitByCount path")
+
         groups, _ = sm_resource.split(SMResourceOptions(count=None))
 
-        if sm_resource.coscheduled_alignment > 0:
-            assert groups[0].sm_count % sm_resource.coscheduled_alignment == 0
+        assert groups[0].sm_count % sm_resource.coscheduled_alignment == 0
+
+    def test_discovery_respects_explicit_coscheduled_sm_count(self, sm_resource):
+        """Constrain discovery explicitly because unconstrained discovery may use all SMs."""
+        if driver_version() < (13, 1, 0):
+            pytest.skip("explicit co-scheduled SM discovery requires CUDA 13.1+")
+
+        alignment = sm_resource.coscheduled_alignment
+        try:
+            groups, _ = sm_resource.split(
+                SMResourceOptions(
+                    count=None,
+                    coscheduled_sm_count=alignment,
+                )
+            )
+        except RuntimeError as exc:
+            pytest.skip(str(exc))
+        except CUDAError as exc:
+            if _is_invalid_resource_configuration(exc):
+                pytest.skip(str(exc))
+            raise
+
+        assert groups[0].sm_count % alignment == 0
 
     def test_two_groups(self, sm_resource):
         """Two-group split succeeds for a supported explicit request."""
@@ -424,16 +516,45 @@ class TestGreenContextLifecycle:
         stream.sync()
         event.sync()
 
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_device_receiver_targets_stored_green_context(self, init_cuda, green_ctx):
+        primary_ctx = init_cuda.context
+
+        with use_context(init_cuda, green_ctx):
+            handle_return(driver.cuCtxSetCurrent(primary_ctx.handle))
+            assert_device_operations_use_bound_context(init_cuda)
+
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_texture_rejects_resource_from_other_context(self, init_cuda, green_ctx):
+        from cuda.core.texture import (
+            OpaqueArrayOptions,
+            ResourceDescriptor,
+        )
+        from cuda.core.typing import ArrayFormatType
+
+        with (
+            init_cuda.create_opaque_array(
+                OpaqueArrayOptions(
+                    shape=(8, 8),
+                    format=ArrayFormatType.UINT8,
+                    num_channels=4,
+                )
+            ) as array,
+            use_context(init_cuda, green_ctx),
+            pytest.raises(ValueError, match="resource is not compatible with this Device object"),
+        ):
+            init_cuda.create_texture_object(resource=ResourceDescriptor.from_opaque_array(array))
+
     def test_close_while_current_raises(self, init_cuda, green_ctx):
         """close() on a current context raises — test via set_current."""
         dev = init_cuda
-        with _use_green_ctx(dev, green_ctx), pytest.raises(RuntimeError, match="while it is current"):
+        with use_context(dev, green_ctx), pytest.raises(RuntimeError, match="while it is current"):
             green_ctx.close()
 
     def test_set_current_swap_regression(self, init_cuda, green_ctx):
         """set_current still works (backward compat) and preserves identity."""
         dev = init_cuda
-        with _use_green_ctx(dev, green_ctx):
+        with use_context(dev, green_ctx):
             pass  # just verify push/pop works
         # Swap again and check identity round-trip
         prev = dev.set_current(green_ctx)
@@ -497,6 +618,19 @@ class TestContextResources:
             assert ctx_wq.handle != 0
         except (RuntimeError, ValueError, CUDAError):
             pass  # workqueue not available on this driver/build
+
+    @pytest.mark.agent_authored(model="claude-opus-4.8")
+    def test_primary_context_stream_sm_resources(self, init_cuda, sm_resource):
+        """A stream on the *primary* (non-green) context queries SM resources via
+        the plain ``cuCtxGetDevResource`` path (distinct from the green-context
+        path exercised elsewhere): the stream carries a context handle but it is
+        not a green context, so the whole device is reported."""
+        stream = init_cuda.create_stream()
+        try:
+            stream_sm = stream.resources.sm
+            assert stream_sm.sm_count == sm_resource.sm_count
+        finally:
+            stream.close()
 
 
 # ---------------------------------------------------------------------------

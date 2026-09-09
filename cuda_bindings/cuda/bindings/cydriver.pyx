@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.4.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
 
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=66aba9b58abd5c5ae210ca5ca8ac01676cb64b9f4059c17623b68146e30381ac
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=99b0dd6a5b631fb108b5d2422c62f8fd4660630dda543978357a03d96c5dc201
 from ._internal cimport driver as _driver
 
 cdef CUresult cuGetErrorString(CUresult error, const char** pStr) except ?CUDA_ERROR_NOT_FOUND nogil:

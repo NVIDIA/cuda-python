@@ -2,10 +2,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.4.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3abd933ead70f75181084a0ac8ea01c523839c18b93820a2c560e9b945de6d3e
 
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f91e9f01600d3933b3489ae1d9963b33f8095779168d3b27949645eb41926ec3
+
+# <<<< PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport uint32_t
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
 from ._internal cimport nvjitlink as _nvjitlink
 
 

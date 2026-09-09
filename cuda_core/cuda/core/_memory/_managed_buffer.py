@@ -25,6 +25,8 @@ if TYPE_CHECKING:
     from cuda.core._stream import Stream
     from cuda.core.graph import GraphBuilder
 
+__all__ = ["ManagedBuffer"]
+
 
 _INT_SIZE = 4
 
@@ -43,7 +45,13 @@ _ATTR_PREFERRED = _RANGE.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION
 _ATTR_ACCESSED_BY = _RANGE.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY
 
 
+def _check_open(buf: Buffer) -> None:
+    if buf.is_closed:
+        raise RuntimeError("Buffer has been closed")
+
+
 def _get_int_attr(buf: Buffer, attribute: Any) -> int:
+    _check_open(buf)
     return int(handle_return(driver.cuMemRangeGetAttribute(_INT_SIZE, attribute, buf.handle, buf.size)))
 
 
@@ -53,6 +61,7 @@ def _query_accessed_by(buf: Buffer) -> list[Device | Host]:
     Driver fills an int32 array: device id, ``-1`` = host, ``-2`` = empty.
     Sized to ``cuDeviceGetCount() + 1`` (every visible device plus host).
     """
+    _check_open(buf)
     num_devices = handle_return(driver.cuDeviceGetCount())
     n = num_devices + 1
     raw = handle_return(driver.cuMemRangeGetAttribute(n * _INT_SIZE, _ATTR_ACCESSED_BY, buf.handle, buf.size))
@@ -152,6 +161,8 @@ class ManagedBuffer(Buffer):
         size: int,
         mr: MemoryResource | None = None,
         owner: object | None = None,
+        *,
+        stream: Stream | GraphBuilder | None = None,
     ) -> Buffer:
         """Wrap an existing managed-memory pointer in a :class:`ManagedBuffer`.
 
@@ -171,8 +182,15 @@ class ManagedBuffer(Buffer):
         owner : object, optional
             An object that keeps the underlying allocation alive.
             ``owner`` and ``mr`` cannot both be specified.
+        stream : Stream | GraphBuilder, optional
+            Keyword-only. The stream used to order the buffer's deallocation
+            when ``mr`` owns the pointer. Defaults to ``default_stream()``.
+            Recording a default-stream token requires a CUDA context to be
+            current. If the buffer may be freed from a different host thread,
+            pass a stream other than the per-thread default stream, which
+            refers to a different stream on each thread.
         """
-        return cls._init(ptr, size, mr=mr, owner=owner)
+        return cls._init(ptr, size, mr=mr, owner=owner, stream=stream)
 
     @property
     def read_mostly(self) -> bool:
@@ -217,10 +235,12 @@ class ManagedBuffer(Buffer):
     @property
     def accessed_by(self) -> AccessedBySetProxy:
         """Live set-like view of ``set_accessed_by`` locations."""
+        _check_open(self)
         return AccessedBySetProxy(self)
 
     @accessed_by.setter
     def accessed_by(self, locations: Iterable[Device | Host]) -> None:
+        _check_open(self)
         # Validate every target before issuing any cuMemAdvise so an invalid
         # element can't leave accessed_by partially mutated.
         target: set[Device | Host] = set()

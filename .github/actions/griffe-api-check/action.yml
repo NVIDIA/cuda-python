@@ -1,0 +1,44 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: griffe API check
+
+description: >-
+  Check a package's public API (as defined by `__all__`) for changes using
+  griffe.
+
+inputs:
+  package-name:
+    description: "Importable package name to check, e.g. cuda.core"
+    required: true
+  package-dir:
+    description: "Directory to search for the package sources, e.g. cuda_core"
+    required: true
+  merge-base:
+    description: >-
+      Git ref/sha to compare the current code against, typically the PR's
+      merge-base with its target branch.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install uv
+      uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39  # v8.2.0
+      with:
+        enable-cache: false
+
+    - name: Check API
+      shell: bash --noprofile --norc -euo pipefail {0}
+      env:
+        PACKAGE_NAME: ${{ inputs.package-name }}
+        PACKAGE_DIR: ${{ inputs.package-dir }}
+        MERGE_BASE: ${{ inputs.merge-base }}
+      run: |
+        uvx griffe check "$PACKAGE_NAME" \
+          --search "$PACKAGE_DIR" \
+          --find-stubs-packages \
+          --against "$MERGE_BASE" \
+          --format github \
+          2>&1

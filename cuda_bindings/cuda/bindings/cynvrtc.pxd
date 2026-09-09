@@ -2,14 +2,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.4.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
 
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a5984ec05eaf04c2ac41c7771b8f7b364aeab3379ee9785f1b24be8d3cf54996
-from libc.stdint cimport uint32_t, uint64_t
 
 
 # ENUMS
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a5c9499b37f9bbb764b0cac167daeae7f4539de7093938c95d2fdc83fe70e8f6
 cdef extern from 'nvrtc.h':
     ctypedef enum nvrtcResult "nvrtcResult":
         NVRTC_SUCCESS

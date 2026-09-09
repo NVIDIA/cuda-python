@@ -64,6 +64,44 @@ platforms as appropriate for each release.
 Review `cuda_core/pyproject.toml` and verify that all dependency
 requirements are current.
 
+Update the cuda_core dependency in `cuda_python/setup.py`.
+
+---
+
+## Sweep deprecations whose removal version has arrived
+
+Deprecated APIs are marked in the source with a Sphinx `deprecated`
+directive naming the version that introduced the deprecation, and their
+docstrings state the version in which they will be removed. Find them all
+with:
+
+```console
+$ grep -rn 'deprecated::' cuda_core/cuda
+```
+
+For each hit, check the stated removal version against the version being
+released. If the release has reached or passed it, remove the API, its
+runtime `DeprecationWarning`, and any tests asserting that warning.
+
+This must happen *before* the release tag is cut. Removals are breaking
+changes, so they are only permitted at a major-version boundary per the
+[support policy](https://nvidia.github.io/cuda-python/cuda-core/latest/support.html).
+
+---
+
+## Refresh frozen fallback explanation tables
+
+When this release adds support for a new CUDA Toolkit version, check
+whether the CTK release added any new `CUresult` or `cudaError_t` codes.
+If so, update the frozen fallback tables so error messages stay
+informative for consumers on older `cuda-bindings` versions:
+
+- `cuda_core/cuda/core/_utils/driver_cu_result_explanations_frozen.py`
+- `cuda_core/cuda/core/_utils/runtime_cuda_error_explanations_frozen.py`
+
+The corresponding tests in `test_utils_enum_explanations_helpers.py`
+will fail if an entry is missing.
+
 ---
 
 ## Finalize the doc update, including release notes
