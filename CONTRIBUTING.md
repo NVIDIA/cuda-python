@@ -48,7 +48,7 @@ correct.** Each package matches its own tag prefix:
 
 | Package | Tag pattern |
 | --- | --- |
-| `cuda-bindings`, `cuda-python` | `v*` (e.g. `v13.3.1`) |
+| `cuda-bindings`, `cuda-python` | `v*` (e.g. `v13.4.1`) |
 | `cuda-core` | `cuda-core-v*` (e.g. `cuda-core-v1.1.0`) |
 | `cuda-pathfinder` | `cuda-pathfinder-v*` (e.g. `cuda-pathfinder-v1.6.0`) |
 
@@ -109,7 +109,7 @@ version-check failure:
    `cuda-bindings` to that same bogus version.
 2. **Stale tags** (a fork that has not fetched upstream in a while): you get a
    plausible-looking but wrong version, e.g. `13.0.4.dev650+g0d22cb44` when the
-   real latest tag is `v13.3.1`. Nothing warns you. Note there is no leading
+   real latest tag is `v13.4.1`. Nothing warns you. Note there is no leading
    `v` — the tag prefix is stripped by `tag_regex`.
 3. **No git metadata** (source zip): the build fails with
    `LookupError: setuptools-scm was unable to detect version`.
