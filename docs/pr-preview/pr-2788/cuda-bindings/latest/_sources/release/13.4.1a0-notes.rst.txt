@@ -3,7 +3,7 @@
 
 .. module:: cuda.bindings
 
-``cuda-bindings`` 13.4.1b1 Release notes
+``cuda-bindings`` 13.4.1a0 Release notes
 ========================================
 
 New APIs
