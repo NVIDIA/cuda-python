@@ -56,6 +56,11 @@ jobs:
           - "3.14t"
           - "3.15"
           - "3.15t"
+        exclude:
+          # CPython 3.10 has no official Windows ARM64 build (neither
+          # nuget-cpython nor actions/setup-python's manifest carries one),
+          # so it cannot be built or tested on win-arm64.
+          - python-version: ${{ (inputs.host-platform == 'win-arm64' && '3.10') || '' }}
     name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
