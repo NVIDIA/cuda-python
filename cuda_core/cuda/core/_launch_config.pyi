@@ -5,10 +5,10 @@ from typing import Any
 from cuda.core._utils.cuda_utils import driver
 
 _LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative', 'programmatic_stream_serialization', 'cluster_scheduling_policy_preference')
-_CLUSTER_SCHED_POLICY_TO_DRIVER = {'DEFAULT': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_DEFAULT, 'SPREAD': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD, 'LOAD_BALANCING': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING}
 __all__ = ['LaunchConfig']
 
 class LaunchConfig:
+    _CLUSTER_SCHED_POLICY_TO_DRIVER = {'DEFAULT': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_DEFAULT, 'SPREAD': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD, 'LOAD_BALANCING': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING}
     """Customizable launch options.
 
     Note
@@ -44,8 +44,11 @@ class LaunchConfig:
         signals completion via programmatic means.
     cluster_scheduling_policy_preference : str, optional
         Cluster scheduling policy for the launch. One of ``"DEFAULT"``,
-        ``"SPREAD"``, or ``"LOAD_BALANCING"``. When omitted, the driver uses
-        the kernel function's default policy.
+        ``"SPREAD"``, or ``"LOAD_BALANCING"``.
+        When ``None`` (default), the launch attribute is omitted and the
+        driver applies the kernel function's default policy.
+        Passing ``"DEFAULT"`` explicitly sets the driver default via the
+        launch attribute.
     """
     grid: tuple[Any, ...]
     cluster: tuple[Any, ...]
@@ -74,7 +77,9 @@ class LaunchConfig:
             Whether to allow programmatic stream serialization / PDL (default: False)
         cluster_scheduling_policy_preference : str, optional
             Cluster scheduling policy for the launch: ``"DEFAULT"``,
-            ``"SPREAD"``, or ``"LOAD_BALANCING"`` (default: None)
+            ``"SPREAD"``, or ``"LOAD_BALANCING"``.
+            ``None`` (default) omits the launch attribute; ``"DEFAULT"``
+            sets the driver default explicitly.
         """
     def _identity(self) -> tuple[Any, ...]: ...
     def __repr__(self) -> str:

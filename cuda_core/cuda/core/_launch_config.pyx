@@ -24,16 +24,15 @@ _LAUNCH_CONFIG_ATTRS = (
     'cluster_scheduling_policy_preference',
 )
 
-_CLUSTER_SCHED_POLICY_TO_DRIVER = {
-    "DEFAULT": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_DEFAULT,
-    "SPREAD": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD,
-    "LOAD_BALANCING": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING,
-}
-
 __all__ = ['LaunchConfig']
 
 
 cdef class LaunchConfig:
+    _CLUSTER_SCHED_POLICY_TO_DRIVER = {
+        "DEFAULT": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_DEFAULT,
+        "SPREAD": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD,
+        "LOAD_BALANCING": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING,
+    }
     """Customizable launch options.
 
     Note
@@ -69,8 +68,11 @@ cdef class LaunchConfig:
         signals completion via programmatic means.
     cluster_scheduling_policy_preference : str, optional
         Cluster scheduling policy for the launch. One of ``"DEFAULT"``,
-        ``"SPREAD"``, or ``"LOAD_BALANCING"``. When omitted, the driver uses
-        the kernel function's default policy.
+        ``"SPREAD"``, or ``"LOAD_BALANCING"``.
+        When ``None`` (default), the launch attribute is omitted and the
+        driver applies the kernel function's default policy.
+        Passing ``"DEFAULT"`` explicitly sets the driver default via the
+        launch attribute.
     """
 
     # TODO: expand LaunchConfig to include other attributes
@@ -104,29 +106,30 @@ cdef class LaunchConfig:
             Whether to allow programmatic stream serialization / PDL (default: False)
         cluster_scheduling_policy_preference : str, optional
             Cluster scheduling policy for the launch: ``"DEFAULT"``,
-            ``"SPREAD"``, or ``"LOAD_BALANCING"`` (default: None)
+            ``"SPREAD"``, or ``"LOAD_BALANCING"``.
+            ``None`` (default) omits the launch attribute; ``"DEFAULT"``
+            sets the driver default explicitly.
         """
         # Convert and validate grid and block dimensions
         self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)
         self.block = cast_to_3_tuple("LaunchConfig.block", block)
 
-        validated_policy = self._validate_cluster_scheduling_policy_preference(
-            cluster_scheduling_policy_preference
+        self.cluster_scheduling_policy_preference = (
+            self._validate_cluster_scheduling_policy_preference(
+                cluster_scheduling_policy_preference
+            )
         )
 
         # FIXME: Calling Device() strictly speaking is not quite right; we should instead
         # look up the device from stream. We probably need to defer the checks related to
         # device compute capability or attributes.
         # thread block clusters are supported starting H100
-        cc = None
-        if cluster is not None or validated_policy is not None:
+        if cluster is not None:
             cc = Device().compute_capability
             if cc < (9, 0):
                 raise CUDAError(
-                    "cluster launch attributes are not supported on devices with "
-                    f"compute capability < 9.0 (got {cc})"
+                    f"thread block clusters are not supported on devices with compute capability < 9.0 (got {cc})"
                 )
-        if cluster is not None:
             self.cluster = cast_to_3_tuple("LaunchConfig.cluster", cluster)
         else:
             self.cluster = None
@@ -139,7 +142,6 @@ cdef class LaunchConfig:
 
         self.is_cooperative = is_cooperative
         self.programmatic_stream_serialization = programmatic_stream_serialization
-        self.cluster_scheduling_policy_preference = validated_policy
 
         if self.is_cooperative and not Device().properties.cooperative_launch:
             raise CUDAError("cooperative kernels are not supported on this device")
@@ -163,7 +165,7 @@ cdef class LaunchConfig:
     def _validate_cluster_scheduling_policy_preference(self, value):
         if value is None:
             return None
-        if isinstance(value, str) and value in _CLUSTER_SCHED_POLICY_TO_DRIVER:
+        if isinstance(value, str) and value in LaunchConfig._CLUSTER_SCHED_POLICY_TO_DRIVER:
             cc = Device().compute_capability
             if cc < (9, 0):
                 raise CUDAError(
@@ -171,13 +173,15 @@ cdef class LaunchConfig:
                     f"compute capability < 9.0 (got {cc})"
                 )
             return value
-        valid = format_or_list(_CLUSTER_SCHED_POLICY_TO_DRIVER.keys())
+        valid = format_or_list(LaunchConfig._CLUSTER_SCHED_POLICY_TO_DRIVER.keys())
         raise ValueError(
             f"{value!r} is not a valid cluster_scheduling_policy_preference. Must be {valid}"
         )
 
     def _cluster_sched_policy_driver_value(self):
-        return _CLUSTER_SCHED_POLICY_TO_DRIVER[self.cluster_scheduling_policy_preference]
+        return LaunchConfig._CLUSTER_SCHED_POLICY_TO_DRIVER[
+            self.cluster_scheduling_policy_preference
+        ]
 
     cdef cydriver.CUlaunchConfig _to_native_launch_config(self):
         cdef cydriver.CUlaunchConfig drv_cfg
@@ -283,7 +287,6 @@ cpdef object _to_native_launch_config(LaunchConfig config):
     if config.cluster_scheduling_policy_preference is not None:
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
-        # 13.0.2 setter reads .value; pass FastEnum, not a raw int.
         attr.value.clusterSchedulingPolicyPreference = config._cluster_sched_policy_driver_value()
         attrs.append(attr)
 

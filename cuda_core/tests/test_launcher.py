@@ -369,7 +369,7 @@ def test_launch_config_cluster_scheduling_policy(monkeypatch):
     """Ctor, getter/setter, and native attrs for all policy strings."""
     from cuda.bindings import driver
     from cuda.core import _launch_config as _lc_mod
-    from cuda.core._launch_config import _CLUSTER_SCHED_POLICY_TO_DRIVER, _to_native_launch_config
+    from cuda.core._launch_config import _to_native_launch_config
 
     class _FakeDev:
         compute_capability = (9, 0)
@@ -377,7 +377,7 @@ def test_launch_config_cluster_scheduling_policy(monkeypatch):
     monkeypatch.setattr(_lc_mod, "Device", lambda: _FakeDev())
     pref = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
 
-    for policy in _CLUSTER_SCHED_POLICY_TO_DRIVER:
+    for policy in LaunchConfig._CLUSTER_SCHED_POLICY_TO_DRIVER:
         cfg = LaunchConfig(grid=1, block=1)
         assert cfg.cluster_scheduling_policy_preference is None
         cfg.cluster_scheduling_policy_preference = policy
@@ -432,8 +432,6 @@ def test_launch_config_cluster_scheduling_policy_rejected(monkeypatch):
 @pytest.mark.agent_authored(model="cursor-grok-4.6")
 def test_launch_cluster_scheduling_policy_smoke(init_cuda):
     """launch() accepts each policy on Hopper+ (skip on CC < 9.0)."""
-    from cuda.core._launch_config import _CLUSTER_SCHED_POLICY_TO_DRIVER
-
     dev = Device()
     if dev.compute_capability < (9, 0):
         pytest.skip("Cluster scheduling policy requires compute capability >= 9.0")
@@ -441,7 +439,7 @@ def test_launch_cluster_scheduling_policy_smoke(init_cuda):
     prog = Program('extern "C" __global__ void noop() {}', SourceCodeType.CXX)
     kernel = prog.compile(ObjectCodeFormatType.CUBIN).get_kernel("noop")
     stream = dev.default_stream
-    for policy in _CLUSTER_SCHED_POLICY_TO_DRIVER:
+    for policy in LaunchConfig._CLUSTER_SCHED_POLICY_TO_DRIVER:
         launch(
             stream,
             LaunchConfig(
