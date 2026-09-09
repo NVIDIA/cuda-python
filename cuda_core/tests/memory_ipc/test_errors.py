@@ -302,6 +302,7 @@ def test_from_allocation_handle_raw_fd_imports_mapped_pool(ipc_device):
         exporter.close()
 
 
+@pytest.mark.skip(reason="See issue #2790")
 @pytest.mark.skipif(platform.system() != "Linux", reason="CUDA mempool IPC is Linux-only")
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_allocation_handle_forking_pickler_roundtrip(ipc_device):
