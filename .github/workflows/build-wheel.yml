@@ -19,6 +19,11 @@ on:
         required: false
         type: string
         default: ""
+      single-cuda-major:
+        description: "Build wheels for only the current CUDA major; skip the prior-major build and wheel merge"
+        required: false
+        type: boolean
+        default: false
 
 defaults:
   run:
@@ -54,7 +59,8 @@ jobs:
     name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
-                 (inputs.host-platform == 'win-64' && 'windows-2022') }}
+                 (inputs.host-platform == 'win-64' && 'windows-2022') ||
+                 (inputs.host-platform == 'win-arm64' && 'windows-11-arm') }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -87,7 +93,7 @@ jobs:
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
         # Skip cache on GitHub-hosted Windows runners.
-        if: ${{ inputs.host-platform != 'win-64' }}
+        if: ${{ !startsWith(inputs.host-platform, 'win') }}
         with:
           enable-apt: true
 
@@ -98,10 +104,13 @@ jobs:
           # WAR: setup-python is not relocatable, and cibuildwheel hard-wires to 3.12...
           # see https://github.com/actions/setup-python/issues/871
           python-version: "3.12"
+          architecture: ${{ ((inputs.host-platform == 'linux-aarch64' || inputs.host-platform == 'win-arm64') && 'arm64') || 'x64' }}
 
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' || env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true') }}
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
+        with:
+          arch: ${{ (inputs.host-platform == 'win-arm64' && 'arm64') || 'x64' }}
 
       - name: Set up yq
         # GitHub made an unprofessional decision to not provide it in their Windows VMs,
@@ -109,11 +118,12 @@ jobs:
         if: ${{ startsWith(inputs.host-platform, 'win') && env.BUILD_CORE == 'true' }}
         env:
           YQ_VERSION: v4.52.5
-          YQ_SHA256: 47594981f3848a4b4447494adeca9555f908f7cf0a89c4da3fd0243a4631da1c
+          YQ_ARCH: ${{ (inputs.host-platform == 'win-arm64' && 'arm64') || 'amd64' }}
+          YQ_SHA256: ${{ (inputs.host-platform == 'win-arm64' && '236867affa7f18701d4c763cf16b6df962cf4f7e89a8570a5954cf94a38f41c7') || '47594981f3848a4b4447494adeca9555f908f7cf0a89c4da3fd0243a4631da1c' }}
           YQ_DIR: yq
         shell: pwsh -command ". '{0}'"
         run: |
-          $yqUrl = "https://github.com/mikefarah/yq/releases/download/${env:YQ_VERSION}/yq_windows_amd64.exe"
+          $yqUrl = "https://github.com/mikefarah/yq/releases/download/${env:YQ_VERSION}/yq_windows_${env:YQ_ARCH}.exe"
           mkdir -Force -ErrorAction SilentlyContinue "${env:YQ_DIR}" | Out-Null
           Invoke-WebRequest -UseBasicParsing -OutFile "${env:YQ_DIR}/yq.exe" -Uri "$yqUrl"
           $hash = (Get-FileHash -Algorithm SHA256 "${env:YQ_DIR}/yq.exe").Hash.ToLower()
@@ -253,7 +263,7 @@ jobs:
             echo "ok!"
 
       - name: Report sccache stats (cuda.bindings)
-        if: ${{ env.BUILD_BINDINGS == 'true' && inputs.host-platform != 'win-64' }}
+        if: ${{ env.BUILD_BINDINGS == 'true' && !startsWith(inputs.host-platform, 'win') }}
         uses: ./.github/actions/sccache-summary
         with:
           json-file: sccache_bindings.json
@@ -362,7 +372,7 @@ jobs:
             echo "ok!"
 
       - name: Report sccache stats (cuda.core)
-        if: ${{ env.BUILD_CORE == 'true' && inputs.host-platform != 'win-64' }}
+        if: ${{ env.BUILD_CORE == 'true' && !startsWith(inputs.host-platform, 'win') }}
         uses: ./.github/actions/sccache-summary
         with:
           json-file: sccache_core.json
@@ -524,7 +534,7 @@ jobs:
 
       # Note: This overwrites CUDA_PATH etc
       - name: Set up mini CTK
-        if: ${{ env.BUILD_CORE == 'true' || env.TEST_CORE == 'true' }}
+        if: ${{ !inputs.single-cuda-major && (env.BUILD_CORE == 'true' || env.TEST_CORE == 'true') }}
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
@@ -533,13 +543,13 @@ jobs:
           cuda-path: "./cuda_toolkit_prev"
 
       - name: Build cuda.core test binaries
-        if: ${{ env.TEST_CORE == 'true' }}
+        if: ${{ !inputs.single-cuda-major && env.TEST_CORE == 'true' }}
         run: |
           nvcc --version
           python "${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/build_test_binaries.py"
 
       - name: Upload cuda.core test binaries
-        if: ${{ env.TEST_CORE == 'true' }}
+        if: ${{ !inputs.single-cuda-major && env.TEST_CORE == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-test-binaries
@@ -550,7 +560,7 @@ jobs:
           if-no-files-found: error
 
       - name: Download cuda.bindings build artifacts from the prior branch
-        if: ${{ env.BUILD_CORE == 'true' }}
+        if: ${{ !inputs.single-cuda-major && env.BUILD_CORE == 'true' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -586,7 +596,7 @@ jobs:
           rmdir "${OLD_ARTIFACT_DIR}"
 
       - name: Constrain previous cuda.core to the downloaded cuda.bindings wheel
-        if: ${{ env.BUILD_CORE == 'true' }}
+        if: ${{ !inputs.single-cuda-major && env.BUILD_CORE == 'true' }}
         run: |
           pathfinder_wheels=(cuda_pathfinder/cuda_pathfinder-*.whl)
           bindings_wheels=(cuda_bindings/dist-prev/cuda_bindings-"${BUILD_PREV_CUDA_MAJOR}".*.whl)
@@ -608,7 +618,7 @@ jobs:
           } | tee wheel-constraints/cuda-core-prev.txt
 
       - name: Build cuda.core wheel
-        if: ${{ env.BUILD_CORE == 'true' }}
+        if: ${{ !inputs.single-cuda-major && env.BUILD_CORE == 'true' }}
         uses: pypa/cibuildwheel@1828c10ab37f080699c7b81cea34097c684a7074  # v4.2.0
         with:
           package-dir: ./cuda_core/
@@ -656,7 +666,7 @@ jobs:
             echo "ok!"
 
       - name: Report sccache stats (cuda.core prev)
-        if: ${{ env.BUILD_CORE == 'true' && inputs.host-platform != 'win-64' }}
+        if: ${{ !inputs.single-cuda-major && env.BUILD_CORE == 'true' && !startsWith(inputs.host-platform, 'win') }}
         uses: ./.github/actions/sccache-summary
         with:
           json-file: sccache_core_prev.json
@@ -664,7 +674,7 @@ jobs:
           build-step: "Build cuda.core wheel"
 
       - name: List the cuda.core artifacts directory and rename
-        if: ${{ env.BUILD_CORE == 'true' }}
+        if: ${{ !inputs.single-cuda-major && env.BUILD_CORE == 'true' }}
         run: |
           if [[ "${{ inputs.host-platform }}" == win* ]]; then
             export CHOWN=chown
@@ -688,13 +698,22 @@ jobs:
           ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: Merge cuda.core wheels
-        if: ${{ env.BUILD_CORE == 'true' }}
+        if: ${{ !inputs.single-cuda-major && env.BUILD_CORE == 'true' }}
         run: |
           pip install wheel
           python ci/tools/merge_cuda_core_wheels.py \
             "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_CUDA_MAJOR}"/cuda_core*.whl \
             "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_PREV_CUDA_MAJOR}"/cuda_core*.whl \
             --output-dir "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"
+
+      - name: Finalize single-major cuda.core wheel
+        if: ${{ inputs.single-cuda-major && env.BUILD_CORE == 'true' }}
+        run: |
+          for wheel in "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_CUDA_MAJOR}"/*.cu"${BUILD_CUDA_MAJOR}".whl; do
+            base_name=$(basename "${wheel}" ".cu${BUILD_CUDA_MAJOR}.whl")
+            mv "${wheel}" "${{ env.CUDA_CORE_ARTIFACTS_DIR }}/${base_name}.whl"
+          done
+          ls -lahR "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"
 
       - name: Check cuda.core wheel
         if: ${{ env.BUILD_CORE == 'true' }}
