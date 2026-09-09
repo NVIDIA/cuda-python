@@ -2182,24 +2182,68 @@ stored</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcBundledHeadersInfo">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcBundledHeadersInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcBundledHeadersInfo" title="Link to this definition">#</a></dt>
-<dd><dl class="py attribute">
+<dd><p>Structure containing information about bundled headers.</p>
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcBundledHeadersInfo.available">
 <span class="sig-name descname"><span class="pre">available</span></span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcBundledHeadersInfo.available" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Non-zero if bundled headers are available</p>
+<dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
 
-<p>compressedSize : size_t</p>
-<p>uncompressedSize : size_t</p>
-<p>cudaVersionMajor : int</p>
-<p>cudaVersionMinor : int</p>
-<p>numFiles : unsigned int</p>
+<dl class="simple">
+<dt>compressedSize<span class="classifier">size_t</span></dt><dd><p>Size of compressed archive in bytes</p>
+</dd>
+<dt>uncompressedSize<span class="classifier">size_t</span></dt><dd><p>Estimated size when extracted in bytes</p>
+</dd>
+<dt>cudaVersionMajor<span class="classifier">int</span></dt><dd><p>CUDA major version of bundled headers</p>
+</dd>
+<dt>cudaVersionMinor<span class="classifier">int</span></dt><dd><p>CUDA minor version of bundled headers</p>
+</dd>
+<dt>numFiles<span class="classifier">unsigned int</span></dt><dd><p>Number of header files in the bundle</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcBundledHeadersInfo.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcBundledHeadersInfo.getPtr" title="Link to this definition">#</a></dt>
+<dd><p>Get memory address of class instance</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcBundledHeadersInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
+<dd><p>Structure containing information about bundled headers.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">available</span></span><a class="headerlink" href="#id1" title="Link to this definition">#</a></dt>
+<dd><p>Non-zero if bundled headers are available</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="simple">
+<dt>compressedSize<span class="classifier">size_t</span></dt><dd><p>Size of compressed archive in bytes</p>
+</dd>
+<dt>uncompressedSize<span class="classifier">size_t</span></dt><dd><p>Estimated size when extracted in bytes</p>
+</dd>
+<dt>cudaVersionMajor<span class="classifier">int</span></dt><dd><p>CUDA major version of bundled headers</p>
+</dd>
+<dt>cudaVersionMinor<span class="classifier">int</span></dt><dd><p>CUDA minor version of bundled headers</p>
+</dd>
+<dt>numFiles<span class="classifier">unsigned int</span></dt><dd><p>Number of header files in the bundle</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id2" title="Link to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
 </dd></dl>
 
@@ -2276,7 +2320,7 @@ nvrtcInstallBundledHeaders.</p>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_BUILTIN_OPERATION_FAILURE</span></code></a> (failed to query bundled headers)</p></li>
 </ul>
 </li>
-<li><p><strong>info</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcBundledHeadersInfo" title="cuda.bindings.nvrtc.nvrtcBundledHeadersInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcBundledHeadersInfo</span></code></a>) – Pointer to structure to receive header information.</p></li>
+<li><p><strong>info</strong> (<a class="reference internal" href="#id0" title="cuda.bindings.nvrtc.nvrtcBundledHeadersInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcBundledHeadersInfo</span></code></a>) – Pointer to structure to receive header information.</p></li>
 <li><p><strong>errorLog</strong> (<em>bytes</em>) – Optional pointer to receive detailed error message on failure. If
 non-NULL, <cite>*errorLog</cite> will be set to point to a string describing
 the error cause. Note: subsequent API calls from the same thread
@@ -2884,6 +2928,11 @@ needed.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcBundledHeadersInfo"><code class="docutils literal notranslate"><span class="pre">nvrtcBundledHeadersInfo</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcBundledHeadersInfo.available"><code class="docutils literal notranslate"><span class="pre">nvrtcBundledHeadersInfo.available</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcBundledHeadersInfo.getPtr"><code class="docutils literal notranslate"><span class="pre">nvrtcBundledHeadersInfo.getPtr()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id0"><code class="docutils literal notranslate"><span class="pre">nvrtcBundledHeadersInfo</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id1"><code class="docutils literal notranslate"><span class="pre">nvrtcBundledHeadersInfo.available</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id2"><code class="docutils literal notranslate"><span class="pre">nvrtcBundledHeadersInfo.getPtr()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcInstallBundledHeaders"><code class="docutils literal notranslate"><span class="pre">nvrtcInstallBundledHeaders()</span></code></a></li>
