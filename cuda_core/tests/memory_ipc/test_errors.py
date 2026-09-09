@@ -125,7 +125,7 @@ class ChildErrorHarness:
         # from PARENT_ACTION.
         self.device = ipc_device
         self.mr = ipc_memory_resource
-        self._extra_mrs = []
+        extra_mrs = []
 
         try:
             # Start a child process to generate error info.
@@ -134,7 +134,7 @@ class ChildErrorHarness:
             process.start()
 
             # Interact.
-            self.PARENT_ACTION(pipe[0])
+            self.PARENT_ACTION(pipe[0], extra_mrs)
 
             # Check the error.
             exc_type, exc_msg = pipe[1].get(timeout=CHILD_TIMEOUT_SEC)
@@ -146,7 +146,7 @@ class ChildErrorHarness:
             assert not survivors, "child did not exit within timeout"
             assert process.exitcode == 0
         finally:
-            for mr in self._extra_mrs:
+            for mr in extra_mrs:
                 mr.close()
 
     def child_main(self, pipe, device, mr):
@@ -166,7 +166,7 @@ class ChildErrorHarness:
 class TestImportOversizedBufferDescriptorSize(ChildErrorHarness):
     """Reject peer-supplied sizes larger than the mapped allocation extent."""
 
-    def PARENT_ACTION(self, queue):
+    def PARENT_ACTION(self, queue, extra_mrs):
         stream = self.device.default_stream
         self.buffer = self.mr.allocate(NBYTES, stream=stream)
         payload, _ = self.buffer.ipc_descriptor.__reduce__()[1]
@@ -187,7 +187,7 @@ class TestImportOversizedBufferDescriptorSize(ChildErrorHarness):
 class TestAllocFromImportedMr(ChildErrorHarness):
     """Error when attempting to allocate from an import memory resource."""
 
-    def PARENT_ACTION(self, queue):
+    def PARENT_ACTION(self, queue, extra_mrs):
         queue.put(self.mr)
 
     def CHILD_ACTION(self, queue):
@@ -202,10 +202,10 @@ class TestAllocFromImportedMr(ChildErrorHarness):
 class TestImportWrongMR(ChildErrorHarness):
     """Error when importing a buffer from the wrong memory resource."""
 
-    def PARENT_ACTION(self, queue):
+    def PARENT_ACTION(self, queue, extra_mrs):
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mr2 = DeviceMemoryResource(self.device, options=options)
-        self._extra_mrs.append(mr2)
+        extra_mrs.append(mr2)
         stream = self.device.default_stream
         self.buffer = mr2.allocate(NBYTES, stream=stream)
         stream.sync()
@@ -223,7 +223,7 @@ class TestImportWrongMR(ChildErrorHarness):
 class TestImportBuffer(ChildErrorHarness):
     """Error when using a buffer as a buffer descriptor."""
 
-    def PARENT_ACTION(self, queue):
+    def PARENT_ACTION(self, queue, extra_mrs):
         # Note: if the buffer is not attached to something to prolong its life,
         # CUDA_ERROR_INVALID_CONTEXT is raised from Buffer.__del__
         stream = self.device.default_stream
@@ -246,10 +246,10 @@ class TestDanglingBuffer(ChildErrorHarness):
     resource.
     """
 
-    def PARENT_ACTION(self, queue):
+    def PARENT_ACTION(self, queue, extra_mrs):
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mr2 = DeviceMemoryResource(self.device, options=options)
-        self._extra_mrs.append(mr2)
+        extra_mrs.append(mr2)
         stream = self.device.default_stream
         self.buffer = mr2.allocate(NBYTES, stream=stream)
         buffer_s = pickle.dumps(self.buffer)
