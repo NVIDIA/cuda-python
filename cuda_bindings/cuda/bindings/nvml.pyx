@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1730dafacd3986543947dcb1f707adae9303704c87e80008414f65b48d2bf445
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7447d022b0937ff32b98e8a8a6f0a3e0564884c4a217b51e9312290015c7a406
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -848,7 +848,7 @@ class GpmMetricId(_cyb_FastEnum):
     GPM_METRIC_HMMA_TENSOR_UTIL = (NVML_GPM_METRIC_HMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing HMMA tensor operations. 0.0 - 100.0.")
     GPM_METRIC_DMMA_TENSOR_UTIL = (NVML_GPM_METRIC_DMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DMMA tensor operations. 0.0 - 100.0.")
     GPM_METRIC_IMMA_TENSOR_UTIL = (NVML_GPM_METRIC_IMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing IMMA tensor operations. 0.0 - 100.0.")
-    GPM_METRIC_DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. 0.0 - 100.0 *\u200d/.')
+    GPM_METRIC_DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. `0.0 - 100.0 */`.')
     GPM_METRIC_FP64_UTIL = (NVML_GPM_METRIC_FP64_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP64 math. 0.0 - 100.0.")
     GPM_METRIC_FP32_UTIL = (NVML_GPM_METRIC_FP32_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP32 math. 0.0 - 100.0.")
     GPM_METRIC_FP16_UTIL = (NVML_GPM_METRIC_FP16_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP16 math. 0.0 - 100.0.")
