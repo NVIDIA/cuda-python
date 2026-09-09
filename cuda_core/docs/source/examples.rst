@@ -39,6 +39,13 @@ Linking and graphs
 - :cuda-core-example:`cuda_graphs.py <cuda_graphs.py>`
   captures and replays a multi-kernel CUDA graph to reduce launch overhead.
 
+Memory management
+-----------------
+
+- :cuda-core-example:`buffer_deallocation_stream.py <buffer_deallocation_stream.py>`
+  transfers a buffer between streams and safely changes the stream that orders
+  its deallocation.
+
 Interoperability and memory access
 ----------------------------------
 

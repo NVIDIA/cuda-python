@@ -2,9 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e6637452fb185e3d30ab3d126d11f1f4de18b77785d64948b4ee580f4ddf03fe
+# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7447d022b0937ff32b98e8a8a6f0a3e0564884c4a217b51e9312290015c7a406
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -13,6 +12,7 @@ cimport cpython as _cyb_cpython
 cimport cpython.buffer as _cyb_cpython_buffer
 cimport cpython.memoryview as _cyb_cpython_memoryview
 from cython cimport view as _cyb_view
+from libc.stdint cimport intptr_t
 from libc.stdlib cimport (
     calloc as _cyb_calloc,
     free as _cyb_free,
@@ -73,7 +73,7 @@ from cython cimport view
 cimport cpython
 from libc.string cimport memcpy
 
-from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
+from ._internal.utils cimport (get_nested_resource_ptr,
                                nested_resource)
 
 from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
@@ -848,7 +848,7 @@ class GpmMetricId(_cyb_FastEnum):
     GPM_METRIC_HMMA_TENSOR_UTIL = (NVML_GPM_METRIC_HMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing HMMA tensor operations. 0.0 - 100.0.")
     GPM_METRIC_DMMA_TENSOR_UTIL = (NVML_GPM_METRIC_DMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DMMA tensor operations. 0.0 - 100.0.")
     GPM_METRIC_IMMA_TENSOR_UTIL = (NVML_GPM_METRIC_IMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing IMMA tensor operations. 0.0 - 100.0.")
-    GPM_METRIC_DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. 0.0 - 100.0 *\u200d/.')
+    GPM_METRIC_DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. `0.0 - 100.0 */`.')
     GPM_METRIC_FP64_UTIL = (NVML_GPM_METRIC_FP64_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP64 math. 0.0 - 100.0.")
     GPM_METRIC_FP32_UTIL = (NVML_GPM_METRIC_FP32_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP32 math. 0.0 - 100.0.")
     GPM_METRIC_FP16_UTIL = (NVML_GPM_METRIC_FP16_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP16 math. 0.0 - 100.0.")
@@ -1392,10 +1392,10 @@ class CPERType(_cyb_FastEnum):
 
 class GpuOperationalEventLogLevel(_cyb_FastEnum):
     """
-    Log-level values used by GPU Operational Events.These values are used
-    both for event reporting in `nvmlEventData_v2_t` and for subscription
-    filtering in `nvmlGpuOperationalEventConfig_v1_t`. Higher numeric
-    values represent more selective log levels.
+    Log-level values used by GPU Operational Events.  These values are used
+    both for event reporting in `nvmlEventSetWait_v3_t` and for
+    subscription filtering in `nvmlGpuOperationalEventConfig_v1_t`. Higher
+    numeric values represent more selective log levels.
     `NVML_GPU_OPERATIONAL_EVENT_LOG_LEVEL_ALL` disables log-level filtering
     when used as a subscription threshold. Event data may contain newer
     log-level values that are not named in this header; clients should
@@ -1412,8 +1412,8 @@ class GpuOperationalEventLogLevel(_cyb_FastEnum):
 
 class OperationalEventSeverity(_cyb_FastEnum):
     """
-    Severity values used by Operational Events.These values are used both
-    for event reporting in `nvmlEventData_v2_t` and for subscription
+    Severity values used by Operational Events.  These values are used both
+    for event reporting in `nvmlEventSetWait_v3_t` and for subscription
     filtering in `nvmlGpuOperationalEventConfig_v1_t`. Higher numeric
     values represent more selective severities.
     `NVML_OPERATIONAL_EVENT_SEVERITY_ALL` disables severity filtering when
@@ -1440,10 +1440,10 @@ class EventDataType(_cyb_FastEnum):
 
 class GpuOperationalEventContextType(_cyb_FastEnum):
     """
-    NVML-defined GPU Operational Event context classifications.These values
-    describe the NVML public interpretation of a context payload. The
-    original source-defined context type is returned separately in
-    `nvmlOperationalEventContextInfo_v1_t.sourceEventContextType`.
+    NVML-defined GPU Operational Event context classifications.  These
+    values describe the NVML public interpretation of a context payload.
+    The original source-defined context type is returned separately in
+    `nvmlEventSetGetContextInfo_v1_t.sourceEventContextType`.
 
     See `nvmlGpuOperationalEventContextType_t`.
     """
@@ -14943,7 +14943,7 @@ cdef class DevicePowerMizerModes_v1:
 
     @property
     def supported_power_mizer_modes(self):
-        """int: OUT: Bitmask of supported powermizer modes. The bitmask of supported power mizer modes on this device. The supported modes can be combined using the bitwise OR operator '|'. For example, if a device supports all PowerMizer modes, the bitmask would be: supportedPowerMizerModes = ((1 << NVML_POWER_MIZER_MODE_ADAPTIVE) | (1 << NVML_POWER_MIZER_MODE_PREFER_MAXIMUM_PERFORMANCE) | (1 << NVML_POWER_MIZER_MODE_AUTO) | (1 << NVML_POWER_MIZER_MODE_PREFER_CONSISTENT_PERFORMANCE));  This bitmask can be used to check which power mizer modes are available on the device by performing a bitwise AND operation with the specific mode you want to check."""
+        """int: OUT: Bitmask of supported powermizer modes.   The bitmask of supported power mizer modes on this device. The supported modes can be combined using the bitwise OR operator '|'. For example, if a device supports all PowerMizer modes, the bitmask would be: supportedPowerMizerModes = ((1 << NVML_POWER_MIZER_MODE_ADAPTIVE) | (1 << NVML_POWER_MIZER_MODE_PREFER_MAXIMUM_PERFORMANCE) | (1 << NVML_POWER_MIZER_MODE_AUTO) | (1 << NVML_POWER_MIZER_MODE_PREFER_CONSISTENT_PERFORMANCE));  This bitmask can be used to check which power mizer modes are available on the device by performing a bitwise AND operation with the specific mode you want to check."""
         return self._ptr[0].supportedPowerMizerModes
 
     @supported_power_mizer_modes.setter
@@ -18423,51 +18423,48 @@ cdef class AdaptiveTgpModeInfo_v1:
         return obj
 
 
-cdef _get_operational_event_context_info_v1_dtype_offsets():
-    cdef nvmlOperationalEventContextInfo_v1_t pod
+cdef _get_event_set_get_context_count_v1_dtype_offsets():
+    cdef nvmlEventSetGetContextCount_v1_t pod
     return _numpy.dtype({
-        'names': ['nvml_gpu_operational_event_context_type', 'source_event_context_type', 'data_size', 'data_format_version'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint16],
+        'names': ['count'],
+        'formats': [_numpy.uint32],
         'offsets': [
-            (<intptr_t>&(pod.nvmlGpuOperationalEventContextType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sourceEventContextType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dataSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dataFormatVersion)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(nvmlOperationalEventContextInfo_v1_t),
+        'itemsize': sizeof(nvmlEventSetGetContextCount_v1_t),
     })
 
-operational_event_context_info_v1_dtype = _get_operational_event_context_info_v1_dtype_offsets()
+event_set_get_context_count_v1_dtype = _get_event_set_get_context_count_v1_dtype_offsets()
 
-cdef class OperationalEventContextInfo_v1:
-    """Empty-initialize an instance of `nvmlOperationalEventContextInfo_v1_t`.
+cdef class EventSetGetContextCount_v1:
+    """Empty-initialize an instance of `nvmlEventSetGetContextCount_v1_t`.
 
 
-    .. seealso:: `nvmlOperationalEventContextInfo_v1_t`
+    .. seealso:: `nvmlEventSetGetContextCount_v1_t`
     """
     cdef:
-        nvmlOperationalEventContextInfo_v1_t *_ptr
+        nvmlEventSetGetContextCount_v1_t *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlOperationalEventContextInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlOperationalEventContextInfo_v1_t))
+        self._ptr = <nvmlEventSetGetContextCount_v1_t *>_cyb_calloc(1, sizeof(nvmlEventSetGetContextCount_v1_t))
         if self._ptr == NULL:
-            raise MemoryError("Error allocating OperationalEventContextInfo_v1")
+            raise MemoryError("Error allocating EventSetGetContextCount_v1")
         self._owner = None
         self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
-        cdef nvmlOperationalEventContextInfo_v1_t *ptr
+        cdef nvmlEventSetGetContextCount_v1_t *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
 
     def __repr__(self):
-        return f"<{__name__}.OperationalEventContextInfo_v1 object at {hex(id(self))}>"
+        return f"<{__name__}.EventSetGetContextCount_v1 object at {hex(id(self))}>"
 
     @property
     def ptr(self):
@@ -18481,24 +18478,24 @@ cdef class OperationalEventContextInfo_v1:
         return <intptr_t>(self._ptr)
 
     def __eq__(self, other):
-        cdef OperationalEventContextInfo_v1 other_
-        if not isinstance(other, OperationalEventContextInfo_v1):
+        cdef EventSetGetContextCount_v1 other_
+        if not isinstance(other, EventSetGetContextCount_v1):
             return False
         other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlOperationalEventContextInfo_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlEventSetGetContextCount_v1_t)) == 0)
 
     def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlOperationalEventContextInfo_v1_t), self._readonly)
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlEventSetGetContextCount_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlOperationalEventContextInfo_v1_t *>_cyb_malloc(sizeof(nvmlOperationalEventContextInfo_v1_t))
+            self._ptr = <nvmlEventSetGetContextCount_v1_t *>_cyb_malloc(sizeof(nvmlEventSetGetContextCount_v1_t))
             if self._ptr == NULL:
-                raise MemoryError("Error allocating OperationalEventContextInfo_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlOperationalEventContextInfo_v1_t))
+                raise MemoryError("Error allocating EventSetGetContextCount_v1")
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEventSetGetContextCount_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -18506,66 +18503,33 @@ cdef class OperationalEventContextInfo_v1:
             setattr(self, key, val)
 
     @property
-    def nvml_gpu_operational_event_context_type(self):
-        """int: """
-        return self._ptr[0].nvmlGpuOperationalEventContextType
+    def count(self):
+        """int: [out] Number of context records associated with the most recent event."""
+        return self._ptr[0].count
 
-    @nvml_gpu_operational_event_context_type.setter
-    def nvml_gpu_operational_event_context_type(self, val):
+    @count.setter
+    def count(self, val):
         if self._readonly:
-            raise ValueError("This OperationalEventContextInfo_v1 instance is read-only")
-        self._ptr[0].nvmlGpuOperationalEventContextType = val
-
-    @property
-    def source_event_context_type(self):
-        """int: """
-        return self._ptr[0].sourceEventContextType
-
-    @source_event_context_type.setter
-    def source_event_context_type(self, val):
-        if self._readonly:
-            raise ValueError("This OperationalEventContextInfo_v1 instance is read-only")
-        self._ptr[0].sourceEventContextType = val
-
-    @property
-    def data_size(self):
-        """int: """
-        return self._ptr[0].dataSize
-
-    @data_size.setter
-    def data_size(self, val):
-        if self._readonly:
-            raise ValueError("This OperationalEventContextInfo_v1 instance is read-only")
-        self._ptr[0].dataSize = val
-
-    @property
-    def data_format_version(self):
-        """int: """
-        return self._ptr[0].dataFormatVersion
-
-    @data_format_version.setter
-    def data_format_version(self, val):
-        if self._readonly:
-            raise ValueError("This OperationalEventContextInfo_v1 instance is read-only")
-        self._ptr[0].dataFormatVersion = val
+            raise ValueError("This EventSetGetContextCount_v1 instance is read-only")
+        self._ptr[0].count = val
 
     @staticmethod
     def from_buffer(buffer):
-        """Create an OperationalEventContextInfo_v1 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(nvmlOperationalEventContextInfo_v1_t), OperationalEventContextInfo_v1)
+        """Create an EventSetGetContextCount_v1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlEventSetGetContextCount_v1_t), EventSetGetContextCount_v1)
 
     @staticmethod
     def from_data(data):
-        """Create an OperationalEventContextInfo_v1 instance wrapping the given NumPy array.
+        """Create an EventSetGetContextCount_v1 instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a single-element array of dtype `operational_event_context_info_v1_dtype` holding the data.
+            data (_numpy.ndarray): a single-element array of dtype `event_set_get_context_count_v1_dtype` holding the data.
         """
-        return _cyb_from_data(data, "operational_event_context_info_v1_dtype", operational_event_context_info_v1_dtype, OperationalEventContextInfo_v1)
+        return _cyb_from_data(data, "event_set_get_context_count_v1_dtype", event_set_get_context_count_v1_dtype, EventSetGetContextCount_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an OperationalEventContextInfo_v1 instance wrapping the given pointer.
+        """Create an EventSetGetContextCount_v1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
@@ -18574,64 +18538,68 @@ cdef class OperationalEventContextInfo_v1:
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
-        cdef OperationalEventContextInfo_v1 obj = OperationalEventContextInfo_v1.__new__(OperationalEventContextInfo_v1)
+        cdef EventSetGetContextCount_v1 obj = EventSetGetContextCount_v1.__new__(EventSetGetContextCount_v1)
         if owner is None:
-            obj._ptr = <nvmlOperationalEventContextInfo_v1_t *>_cyb_malloc(sizeof(nvmlOperationalEventContextInfo_v1_t))
+            obj._ptr = <nvmlEventSetGetContextCount_v1_t *>_cyb_malloc(sizeof(nvmlEventSetGetContextCount_v1_t))
             if obj._ptr == NULL:
-                raise MemoryError("Error allocating OperationalEventContextInfo_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlOperationalEventContextInfo_v1_t))
+                raise MemoryError("Error allocating EventSetGetContextCount_v1")
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEventSetGetContextCount_v1_t))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <nvmlOperationalEventContextInfo_v1_t *>ptr
+            obj._ptr = <nvmlEventSetGetContextCount_v1_t *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
         return obj
 
 
-cdef _get_gpu_operational_event_context_legacy_xid_v1_dtype_offsets():
-    cdef nvmlGpuOperationalEventContextLegacyXid_v1_t pod
+cdef _get_event_set_get_context_info_v1_dtype_offsets():
+    cdef nvmlEventSetGetContextInfo_v1_t pod
     return _numpy.dtype({
-        'names': ['xid_code'],
-        'formats': [_numpy.uint32],
+        'names': ['index', 'nvml_gpu_operational_event_context_type', 'source_event_context_type', 'data_size', 'data_format_version'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint16],
         'offsets': [
-            (<intptr_t>&(pod.xidCode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.index)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.nvmlGpuOperationalEventContextType)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sourceEventContextType)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.dataSize)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.dataFormatVersion)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(nvmlGpuOperationalEventContextLegacyXid_v1_t),
+        'itemsize': sizeof(nvmlEventSetGetContextInfo_v1_t),
     })
 
-gpu_operational_event_context_legacy_xid_v1_dtype = _get_gpu_operational_event_context_legacy_xid_v1_dtype_offsets()
+event_set_get_context_info_v1_dtype = _get_event_set_get_context_info_v1_dtype_offsets()
 
-cdef class GpuOperationalEventContextLegacyXid_v1:
-    """Empty-initialize an instance of `nvmlGpuOperationalEventContextLegacyXid_v1_t`.
+cdef class EventSetGetContextInfo_v1:
+    """Empty-initialize an instance of `nvmlEventSetGetContextInfo_v1_t`.
 
 
-    .. seealso:: `nvmlGpuOperationalEventContextLegacyXid_v1_t`
+    .. seealso:: `nvmlEventSetGetContextInfo_v1_t`
     """
     cdef:
-        nvmlGpuOperationalEventContextLegacyXid_v1_t *_ptr
+        nvmlEventSetGetContextInfo_v1_t *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlGpuOperationalEventContextLegacyXid_v1_t *>_cyb_calloc(1, sizeof(nvmlGpuOperationalEventContextLegacyXid_v1_t))
+        self._ptr = <nvmlEventSetGetContextInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlEventSetGetContextInfo_v1_t))
         if self._ptr == NULL:
-            raise MemoryError("Error allocating GpuOperationalEventContextLegacyXid_v1")
+            raise MemoryError("Error allocating EventSetGetContextInfo_v1")
         self._owner = None
         self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
-        cdef nvmlGpuOperationalEventContextLegacyXid_v1_t *ptr
+        cdef nvmlEventSetGetContextInfo_v1_t *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
 
     def __repr__(self):
-        return f"<{__name__}.GpuOperationalEventContextLegacyXid_v1 object at {hex(id(self))}>"
+        return f"<{__name__}.EventSetGetContextInfo_v1 object at {hex(id(self))}>"
 
     @property
     def ptr(self):
@@ -18645,24 +18613,24 @@ cdef class GpuOperationalEventContextLegacyXid_v1:
         return <intptr_t>(self._ptr)
 
     def __eq__(self, other):
-        cdef GpuOperationalEventContextLegacyXid_v1 other_
-        if not isinstance(other, GpuOperationalEventContextLegacyXid_v1):
+        cdef EventSetGetContextInfo_v1 other_
+        if not isinstance(other, EventSetGetContextInfo_v1):
             return False
         other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuOperationalEventContextLegacyXid_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlEventSetGetContextInfo_v1_t)) == 0)
 
     def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuOperationalEventContextLegacyXid_v1_t), self._readonly)
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlEventSetGetContextInfo_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGpuOperationalEventContextLegacyXid_v1_t *>_cyb_malloc(sizeof(nvmlGpuOperationalEventContextLegacyXid_v1_t))
+            self._ptr = <nvmlEventSetGetContextInfo_v1_t *>_cyb_malloc(sizeof(nvmlEventSetGetContextInfo_v1_t))
             if self._ptr == NULL:
-                raise MemoryError("Error allocating GpuOperationalEventContextLegacyXid_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuOperationalEventContextLegacyXid_v1_t))
+                raise MemoryError("Error allocating EventSetGetContextInfo_v1")
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEventSetGetContextInfo_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -18670,33 +18638,77 @@ cdef class GpuOperationalEventContextLegacyXid_v1:
             setattr(self, key, val)
 
     @property
-    def xid_code(self):
-        """int: """
-        return self._ptr[0].xidCode
+    def index(self):
+        """int: [in] Zero-based context index."""
+        return self._ptr[0].index
 
-    @xid_code.setter
-    def xid_code(self, val):
+    @index.setter
+    def index(self, val):
         if self._readonly:
-            raise ValueError("This GpuOperationalEventContextLegacyXid_v1 instance is read-only")
-        self._ptr[0].xidCode = val
+            raise ValueError("This EventSetGetContextInfo_v1 instance is read-only")
+        self._ptr[0].index = val
+
+    @property
+    def nvml_gpu_operational_event_context_type(self):
+        """int: [out] `nvmlGpuOperationalEventContextType_t` value describing the NVML public interpretation of the context payload."""
+        return self._ptr[0].nvmlGpuOperationalEventContextType
+
+    @nvml_gpu_operational_event_context_type.setter
+    def nvml_gpu_operational_event_context_type(self, val):
+        if self._readonly:
+            raise ValueError("This EventSetGetContextInfo_v1 instance is read-only")
+        self._ptr[0].nvmlGpuOperationalEventContextType = val
+
+    @property
+    def source_event_context_type(self):
+        """int: [out] Source-defined context payload type identifier carried by the event."""
+        return self._ptr[0].sourceEventContextType
+
+    @source_event_context_type.setter
+    def source_event_context_type(self, val):
+        if self._readonly:
+            raise ValueError("This EventSetGetContextInfo_v1 instance is read-only")
+        self._ptr[0].sourceEventContextType = val
+
+    @property
+    def data_size(self):
+        """int: [out] Context payload size in bytes, excluding alignment padding."""
+        return self._ptr[0].dataSize
+
+    @data_size.setter
+    def data_size(self, val):
+        if self._readonly:
+            raise ValueError("This EventSetGetContextInfo_v1 instance is read-only")
+        self._ptr[0].dataSize = val
+
+    @property
+    def data_format_version(self):
+        """int: [out] Payload format version for `sourceEventContextType`."""
+        return self._ptr[0].dataFormatVersion
+
+    @data_format_version.setter
+    def data_format_version(self, val):
+        if self._readonly:
+            raise ValueError("This EventSetGetContextInfo_v1 instance is read-only")
+        self._ptr[0].dataFormatVersion = val
 
     @staticmethod
     def from_buffer(buffer):
-        """Create an GpuOperationalEventContextLegacyXid_v1 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(nvmlGpuOperationalEventContextLegacyXid_v1_t), GpuOperationalEventContextLegacyXid_v1)
+        """Create an EventSetGetContextInfo_v1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlEventSetGetContextInfo_v1_t), EventSetGetContextInfo_v1)
 
     @staticmethod
     def from_data(data):
-        """Create an GpuOperationalEventContextLegacyXid_v1 instance wrapping the given NumPy array.
+        """Create an EventSetGetContextInfo_v1 instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a single-element array of dtype `gpu_operational_event_context_legacy_xid_v1_dtype` holding the data.
+            data (_numpy.ndarray): a single-element array of dtype `event_set_get_context_info_v1_dtype` holding the data.
         """
-        return _cyb_from_data(data, "gpu_operational_event_context_legacy_xid_v1_dtype", gpu_operational_event_context_legacy_xid_v1_dtype, GpuOperationalEventContextLegacyXid_v1)
+        return _cyb_from_data(data, "event_set_get_context_info_v1_dtype", event_set_get_context_info_v1_dtype, EventSetGetContextInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an GpuOperationalEventContextLegacyXid_v1 instance wrapping the given pointer.
+        """Create an EventSetGetContextInfo_v1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
@@ -18705,16 +18717,159 @@ cdef class GpuOperationalEventContextLegacyXid_v1:
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
-        cdef GpuOperationalEventContextLegacyXid_v1 obj = GpuOperationalEventContextLegacyXid_v1.__new__(GpuOperationalEventContextLegacyXid_v1)
+        cdef EventSetGetContextInfo_v1 obj = EventSetGetContextInfo_v1.__new__(EventSetGetContextInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlGpuOperationalEventContextLegacyXid_v1_t *>_cyb_malloc(sizeof(nvmlGpuOperationalEventContextLegacyXid_v1_t))
+            obj._ptr = <nvmlEventSetGetContextInfo_v1_t *>_cyb_malloc(sizeof(nvmlEventSetGetContextInfo_v1_t))
             if obj._ptr == NULL:
-                raise MemoryError("Error allocating GpuOperationalEventContextLegacyXid_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuOperationalEventContextLegacyXid_v1_t))
+                raise MemoryError("Error allocating EventSetGetContextInfo_v1")
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEventSetGetContextInfo_v1_t))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <nvmlGpuOperationalEventContextLegacyXid_v1_t *>ptr
+            obj._ptr = <nvmlEventSetGetContextInfo_v1_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_event_set_get_gpu_operational_event_context_legacy_xid_v1_dtype_offsets():
+    cdef nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t pod
+    return _numpy.dtype({
+        'names': ['index', 'xid_code'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.index)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.xidCode)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t),
+    })
+
+event_set_get_gpu_operational_event_context_legacy_xid_v1_dtype = _get_event_set_get_gpu_operational_event_context_legacy_xid_v1_dtype_offsets()
+
+cdef class EventSetGetGpuOperationalEventContextLegacyXid_v1:
+    """Empty-initialize an instance of `nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t`.
+
+
+    .. seealso:: `nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t`
+    """
+    cdef:
+        nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t *>_cyb_calloc(1, sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating EventSetGetGpuOperationalEventContextLegacyXid_v1")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            _cyb_free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.EventSetGetGpuOperationalEventContextLegacyXid_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef EventSetGetGpuOperationalEventContextLegacyXid_v1 other_
+        if not isinstance(other, EventSetGetGpuOperationalEventContextLegacyXid_v1):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t *>_cyb_malloc(sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating EventSetGetGpuOperationalEventContextLegacyXid_v1")
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def index(self):
+        """int: [in] Zero-based context index."""
+        return self._ptr[0].index
+
+    @index.setter
+    def index(self, val):
+        if self._readonly:
+            raise ValueError("This EventSetGetGpuOperationalEventContextLegacyXid_v1 instance is read-only")
+        self._ptr[0].index = val
+
+    @property
+    def xid_code(self):
+        """int: [out] Legacy Xid code carried in a GPU Operational Event context."""
+        return self._ptr[0].xidCode
+
+    @xid_code.setter
+    def xid_code(self, val):
+        if self._readonly:
+            raise ValueError("This EventSetGetGpuOperationalEventContextLegacyXid_v1 instance is read-only")
+        self._ptr[0].xidCode = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an EventSetGetGpuOperationalEventContextLegacyXid_v1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t), EventSetGetGpuOperationalEventContextLegacyXid_v1)
+
+    @staticmethod
+    def from_data(data):
+        """Create an EventSetGetGpuOperationalEventContextLegacyXid_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `event_set_get_gpu_operational_event_context_legacy_xid_v1_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "event_set_get_gpu_operational_event_context_legacy_xid_v1_dtype", event_set_get_gpu_operational_event_context_legacy_xid_v1_dtype, EventSetGetGpuOperationalEventContextLegacyXid_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an EventSetGetGpuOperationalEventContextLegacyXid_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef EventSetGetGpuOperationalEventContextLegacyXid_v1 obj = EventSetGetGpuOperationalEventContextLegacyXid_v1.__new__(EventSetGetGpuOperationalEventContextLegacyXid_v1)
+        if owner is None:
+            obj._ptr = <nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t *>_cyb_malloc(sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating EventSetGetGpuOperationalEventContextLegacyXid_v1")
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -19023,12 +19178,14 @@ cdef class GpuOperationalEventConfig_v1:
         return obj
 
 
-cdef _get_event_data_v2_dtype_offsets():
-    cdef nvmlEventData_v2_t pod
+cdef _get_event_set_wait_v3_dtype_offsets():
+    cdef nvmlEventSetWait_v3_t pod
     return _numpy.dtype({
-        'names': ['uuid', 'source_module', 'event_type', 'event_data', 'group_cursor', 'instance_id', 'timestamp_usec', 'trace_id', 'data_type', 'gpu_instance_id', 'compute_instance_id', 'severity', 'category_id', 'module_event_code', 'scope', 'originator', 'module_instance', 'chiplet_id', 'log_level', 'attributes', 'group_cper_size', 'group_attributes', 'group_size', 'group_index'],
-        'formats': [(_numpy.int8, 96), (_numpy.int8, 16), _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint8, _numpy.uint8],
+        'names': ['timeout_ms', 'data_type', 'uuid', 'source_module', 'event_type', 'event_data', 'group_cursor', 'instance_id', 'timestamp_usec', 'trace_id', 'gpu_instance_id', 'compute_instance_id', 'severity', 'category_id', 'module_event_code', 'scope', 'originator', 'module_instance', 'chiplet_id', 'log_level', 'attributes', 'group_cper_size', 'group_attributes', 'group_size', 'group_index'],
+        'formats': [_numpy.uint32, _numpy.uint32, (_numpy.int8, 96), (_numpy.int8, 16), _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint8, _numpy.uint8],
         'offsets': [
+            (<intptr_t>&(pod.timeoutMs)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.dataType)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.uuid)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.sourceModule)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.eventType)) - (<intptr_t>&pod),
@@ -19037,7 +19194,6 @@ cdef _get_event_data_v2_dtype_offsets():
             (<intptr_t>&(pod.instanceId)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.timestampUsec)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.traceId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dataType)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.gpuInstanceId)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.computeInstanceId)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.severity)) - (<intptr_t>&pod),
@@ -19054,40 +19210,40 @@ cdef _get_event_data_v2_dtype_offsets():
             (<intptr_t>&(pod.groupSize)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.groupIndex)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(nvmlEventData_v2_t),
+        'itemsize': sizeof(nvmlEventSetWait_v3_t),
     })
 
-event_data_v2_dtype = _get_event_data_v2_dtype_offsets()
+event_set_wait_v3_dtype = _get_event_set_wait_v3_dtype_offsets()
 
-cdef class EventData_v2:
-    """Empty-initialize an instance of `nvmlEventData_v2_t`.
+cdef class EventSetWait_v3:
+    """Empty-initialize an instance of `nvmlEventSetWait_v3_t`.
 
 
-    .. seealso:: `nvmlEventData_v2_t`
+    .. seealso:: `nvmlEventSetWait_v3_t`
     """
     cdef:
-        nvmlEventData_v2_t *_ptr
+        nvmlEventSetWait_v3_t *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlEventData_v2_t *>_cyb_calloc(1, sizeof(nvmlEventData_v2_t))
+        self._ptr = <nvmlEventSetWait_v3_t *>_cyb_calloc(1, sizeof(nvmlEventSetWait_v3_t))
         if self._ptr == NULL:
-            raise MemoryError("Error allocating EventData_v2")
+            raise MemoryError("Error allocating EventSetWait_v3")
         self._owner = None
         self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
-        cdef nvmlEventData_v2_t *ptr
+        cdef nvmlEventSetWait_v3_t *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
 
     def __repr__(self):
-        return f"<{__name__}.EventData_v2 object at {hex(id(self))}>"
+        return f"<{__name__}.EventSetWait_v3 object at {hex(id(self))}>"
 
     @property
     def ptr(self):
@@ -19101,24 +19257,24 @@ cdef class EventData_v2:
         return <intptr_t>(self._ptr)
 
     def __eq__(self, other):
-        cdef EventData_v2 other_
-        if not isinstance(other, EventData_v2):
+        cdef EventSetWait_v3 other_
+        if not isinstance(other, EventSetWait_v3):
             return False
         other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlEventData_v2_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlEventSetWait_v3_t)) == 0)
 
     def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlEventData_v2_t), self._readonly)
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlEventSetWait_v3_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlEventData_v2_t *>_cyb_malloc(sizeof(nvmlEventData_v2_t))
+            self._ptr = <nvmlEventSetWait_v3_t *>_cyb_malloc(sizeof(nvmlEventSetWait_v3_t))
             if self._ptr == NULL:
-                raise MemoryError("Error allocating EventData_v2")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEventData_v2_t))
+                raise MemoryError("Error allocating EventSetWait_v3")
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEventSetWait_v3_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -19126,14 +19282,36 @@ cdef class EventData_v2:
             setattr(self, key, val)
 
     @property
+    def timeout_ms(self):
+        """int: [in] Maximum amount of time to wait, in milliseconds."""
+        return self._ptr[0].timeoutMs
+
+    @timeout_ms.setter
+    def timeout_ms(self, val):
+        if self._readonly:
+            raise ValueError("This EventSetWait_v3 instance is read-only")
+        self._ptr[0].timeoutMs = val
+
+    @property
+    def data_type(self):
+        """int: [out] `nvmlEventDataType_t` value indicating which event-data format is populated."""
+        return self._ptr[0].dataType
+
+    @data_type.setter
+    def data_type(self, val):
+        if self._readonly:
+            raise ValueError("This EventSetWait_v3 instance is read-only")
+        self._ptr[0].dataType = val
+
+    @property
     def uuid(self):
-        """~_numpy.int8: (array of length 96)."""
+        """~_numpy.int8: (array of length 96).[out] UUID for the GPU where the event occurred. Empty if unavailable."""
         return _cyb_cpython.PyUnicode_FromString(self._ptr[0].uuid)
 
     @uuid.setter
     def uuid(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         cdef bytes buf = val.encode()
         if len(buf) >= 96:
             raise ValueError("String too long for field uuid, max length is 95")
@@ -19142,13 +19320,13 @@ cdef class EventData_v2:
 
     @property
     def source_module(self):
-        """~_numpy.int8: (array of length 16)."""
+        """~_numpy.int8: (array of length 16).[out] Source module signature for structured events. Not guaranteed to be NULL-terminated. Empty for NVML event-bit events."""
         return _cyb_cpython.PyUnicode_FromString(self._ptr[0].sourceModule)
 
     @source_module.setter
     def source_module(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         cdef bytes buf = val.encode()
         if len(buf) >= 16:
             raise ValueError("String too long for field source_module, max length is 15")
@@ -19157,263 +19335,252 @@ cdef class EventData_v2:
 
     @property
     def event_type(self):
-        """int: """
+        """int: [out] NVML event bit for `NVML_EVENT_DATA_TYPE_NVML_EVENT` events; `nvmlEventTypeNone` for structured events."""
         return self._ptr[0].eventType
 
     @event_type.setter
     def event_type(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].eventType = val
 
     @property
     def event_data(self):
-        """int: """
+        """int: [out] Xid code for `nvmlEventTypeXidCriticalError`, or 0 when not applicable."""
         return self._ptr[0].eventData
 
     @event_data.setter
     def event_data(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].eventData = val
 
     @property
     def group_cursor(self):
-        """int: """
+        """int: [out] Structured event group identifier. 0 for NVML event-bit events."""
         return self._ptr[0].groupCursor
 
     @group_cursor.setter
     def group_cursor(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].groupCursor = val
 
     @property
     def instance_id(self):
-        """int: """
+        """int: [out] Structured event sequence identifier. 0 for NVML event-bit events."""
         return self._ptr[0].instanceId
 
     @instance_id.setter
     def instance_id(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].instanceId = val
 
     @property
     def timestamp_usec(self):
-        """int: """
+        """int: [out] Event timestamp in microseconds. 0 if unavailable."""
         return self._ptr[0].timestampUsec
 
     @timestamp_usec.setter
     def timestamp_usec(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].timestampUsec = val
 
     @property
     def trace_id(self):
-        """int: """
+        """int: [out] Structured event trace identifier. 0 for NVML event-bit events."""
         return self._ptr[0].traceId
 
     @trace_id.setter
     def trace_id(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].traceId = val
 
     @property
-    def data_type(self):
-        """int: """
-        return self._ptr[0].dataType
-
-    @data_type.setter
-    def data_type(self, val):
-        if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
-        self._ptr[0].dataType = val
-
-    @property
     def gpu_instance_id(self):
-        """int: """
+        """int: [out] MIG GPU instance ID for NVML event-bit data, or `NVML_GPU_INSTANCE_ID_ANY` when not applicable."""
         return self._ptr[0].gpuInstanceId
 
     @gpu_instance_id.setter
     def gpu_instance_id(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].gpuInstanceId = val
 
     @property
     def compute_instance_id(self):
-        """int: """
+        """int: [out] MIG compute instance ID for NVML event-bit data, or `NVML_COMPUTE_INSTANCE_ID_ANY` when not applicable."""
         return self._ptr[0].computeInstanceId
 
     @compute_instance_id.setter
     def compute_instance_id(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].computeInstanceId = val
 
     @property
     def severity(self):
-        """int: """
+        """int: [out] `nvmlOperationalEventSeverity_t` value for structured events. May contain newer severity values not named in this header. `NVML_OPERATIONAL_EVENT_SEVERITY_ALL` for NVML event-bit events."""
         return self._ptr[0].severity
 
     @severity.setter
     def severity(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].severity = val
 
     @property
     def category_id(self):
-        """int: """
+        """int: [out] Source-defined structured event category identifier. 0 for NVML event-bit events."""
         return self._ptr[0].categoryId
 
     @category_id.setter
     def category_id(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].categoryId = val
 
     @property
     def module_event_code(self):
-        """int: """
+        """int: [out] Source-module-defined event code. Interpret with `sourceModule`. 0 for NVML event-bit events."""
         return self._ptr[0].moduleEventCode
 
     @module_event_code.setter
     def module_event_code(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].moduleEventCode = val
 
     @property
     def scope(self):
-        """int: """
+        """int: [out] Structured event scope identifier. 0 for NVML event-bit events."""
         return self._ptr[0].scope
 
     @scope.setter
     def scope(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].scope = val
 
     @property
     def originator(self):
-        """int: """
+        """int: [out] Structured event originator identifier. 0 for NVML event-bit events."""
         return self._ptr[0].originator
 
     @originator.setter
     def originator(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].originator = val
 
     @property
     def module_instance(self):
-        """int: """
+        """int: [out] Structured event module instance identifier. 0 for NVML event-bit events."""
         return self._ptr[0].moduleInstance
 
     @module_instance.setter
     def module_instance(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].moduleInstance = val
 
     @property
     def chiplet_id(self):
-        """int: """
+        """int: [out] Structured event chiplet identifier. 0 for NVML event-bit events."""
         return self._ptr[0].chipletId
 
     @chiplet_id.setter
     def chiplet_id(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].chipletId = val
 
     @property
     def log_level(self):
-        """int: """
+        """int: [out] `nvmlGpuOperationalEventLogLevel_t` value for structured GPU Operational Events. May contain newer log-level values not named in this header. `NVML_GPU_OPERATIONAL_EVENT_LOG_LEVEL_ALL` for NVML event-bit events."""
         return self._ptr[0].logLevel
 
     @log_level.setter
     def log_level(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].logLevel = val
 
     @property
     def attributes(self):
-        """int: """
+        """int: [out] Bitmask of `NVML_OPERATIONAL_EVENT_ATTR_*` values for structured events. May contain newer bits not named in this header. 0 for NVML event-bit events. May include `NVML_OPERATIONAL_EVENT_ATTR_OVERFLOW` if events or associated payloads were dropped."""
         return self._ptr[0].attributes
 
     @attributes.setter
     def attributes(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].attributes = val
 
     @property
     def group_cper_size(self):
-        """int: """
+        """int: [out] Associated CPER record size in bytes. 0 when unavailable."""
         return self._ptr[0].groupCperSize
 
     @group_cper_size.setter
     def group_cper_size(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].groupCperSize = val
 
     @property
     def group_attributes(self):
-        """int: """
+        """int: [out] Bitmask of `NVML_OPERATIONAL_EVENT_GROUP_ATTR_*` values for structured events. May contain newer bits not named in this header. 0 for NVML event-bit events."""
         return self._ptr[0].groupAttributes
 
     @group_attributes.setter
     def group_attributes(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].groupAttributes = val
 
     @property
     def group_size(self):
-        """int: """
+        """int: [out] Total number of events in the structured event group. 0 for NVML event-bit events."""
         return self._ptr[0].groupSize
 
     @group_size.setter
     def group_size(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].groupSize = val
 
     @property
     def group_index(self):
-        """int: """
+        """int: [out] Zero-based index within the structured event group. 0 for NVML event-bit events."""
         return self._ptr[0].groupIndex
 
     @group_index.setter
     def group_index(self, val):
         if self._readonly:
-            raise ValueError("This EventData_v2 instance is read-only")
+            raise ValueError("This EventSetWait_v3 instance is read-only")
         self._ptr[0].groupIndex = val
 
     @staticmethod
     def from_buffer(buffer):
-        """Create an EventData_v2 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(nvmlEventData_v2_t), EventData_v2)
+        """Create an EventSetWait_v3 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlEventSetWait_v3_t), EventSetWait_v3)
 
     @staticmethod
     def from_data(data):
-        """Create an EventData_v2 instance wrapping the given NumPy array.
+        """Create an EventSetWait_v3 instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a single-element array of dtype `event_data_v2_dtype` holding the data.
+            data (_numpy.ndarray): a single-element array of dtype `event_set_wait_v3_dtype` holding the data.
         """
-        return _cyb_from_data(data, "event_data_v2_dtype", event_data_v2_dtype, EventData_v2)
+        return _cyb_from_data(data, "event_set_wait_v3_dtype", event_set_wait_v3_dtype, EventSetWait_v3)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an EventData_v2 instance wrapping the given pointer.
+        """Create an EventSetWait_v3 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
@@ -19422,16 +19589,16 @@ cdef class EventData_v2:
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
-        cdef EventData_v2 obj = EventData_v2.__new__(EventData_v2)
+        cdef EventSetWait_v3 obj = EventSetWait_v3.__new__(EventSetWait_v3)
         if owner is None:
-            obj._ptr = <nvmlEventData_v2_t *>_cyb_malloc(sizeof(nvmlEventData_v2_t))
+            obj._ptr = <nvmlEventSetWait_v3_t *>_cyb_malloc(sizeof(nvmlEventSetWait_v3_t))
             if obj._ptr == NULL:
-                raise MemoryError("Error allocating EventData_v2")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEventData_v2_t))
+                raise MemoryError("Error allocating EventSetWait_v3")
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEventSetWait_v3_t))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <nvmlEventData_v2_t *>ptr
+            obj._ptr = <nvmlEventSetWait_v3_t *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -33833,29 +34000,7 @@ cpdef event_set_register_gpu_operational_events_v1(intptr_t event_set, intptr_t 
     check_status(__status__)
 
 
-cpdef object event_set_wait_v3(intptr_t set, unsigned int timeoutms):
-    """Waits on an event set and returns the next event in the extended event format.
-
-    Args:
-        set (intptr_t): Reference to set of events to wait on.
-        timeoutms (unsigned int): Maximum amount of wait time in
-            milliseconds for registered event.
-
-    Returns:
-        nvmlEventData_v2_t: Reference in which to return extended
-            event data.
-
-    .. seealso:: `nvmlEventSetWait_v3`
-    """
-    cdef EventData_v2 data_py = EventData_v2()
-    cdef nvmlEventData_v2_t *data = <nvmlEventData_v2_t *><intptr_t>(data_py._get_ptr())
-    with nogil:
-        __status__ = nvmlEventSetWait_v3(<EventSet>set, data, timeoutms)
-    check_status(__status__)
-    return data_py
-
-
-cpdef unsigned int event_set_get_context_count_v1(intptr_t set) except? 0:
+cpdef object event_set_get_context_count_v1(intptr_t set):
     """Gets the number of context records for the most recent event returned by ``nvmlEventSetWait_v3`` on this event set.
 
     Args:
@@ -33863,60 +34008,17 @@ cpdef unsigned int event_set_get_context_count_v1(intptr_t set) except? 0:
             ``nvmlEventSetWait_v3``.
 
     Returns:
-        unsigned int: Reference in which to return the number of
-            context records.
+        nvmlEventSetGetContextCount_v1_t: Parameters in which to
+            return the number of context records.
 
     .. seealso:: `nvmlEventSetGetContextCount_v1`
     """
-    cdef unsigned int count
+    cdef EventSetGetContextCount_v1 params_py = EventSetGetContextCount_v1()
+    cdef nvmlEventSetGetContextCount_v1_t *params = <nvmlEventSetGetContextCount_v1_t *><intptr_t>(params_py._get_ptr())
     with nogil:
-        __status__ = nvmlEventSetGetContextCount_v1(<EventSet>set, &count)
+        __status__ = nvmlEventSetGetContextCount_v1(<EventSet>set, params)
     check_status(__status__)
-    return count
-
-
-cpdef object event_set_get_context_info_v1(intptr_t set, unsigned int index):
-    """Gets metadata for a context record from the most recent event returned by ``nvmlEventSetWait_v3``.
-
-    Args:
-        set (intptr_t): Event set previously used with
-            ``nvmlEventSetWait_v3``.
-        index (unsigned int): Zero-based context index.
-
-    Returns:
-        nvmlOperationalEventContextInfo_v1_t: Reference in which to
-            return context metadata.
-
-    .. seealso:: `nvmlEventSetGetContextInfo_v1`
-    """
-    cdef OperationalEventContextInfo_v1 info_py = OperationalEventContextInfo_v1()
-    cdef nvmlOperationalEventContextInfo_v1_t *info = <nvmlOperationalEventContextInfo_v1_t *><intptr_t>(info_py._get_ptr())
-    with nogil:
-        __status__ = nvmlEventSetGetContextInfo_v1(<EventSet>set, index, info)
-    check_status(__status__)
-    return info_py
-
-
-cpdef object event_set_get_gpu_operational_event_context_legacy_xid_v1(intptr_t set, unsigned int index):
-    """Gets decoded GPU legacy-Xid context data for a context record from the most recent event returned by ``nvmlEventSetWait_v3``.
-
-    Args:
-        set (intptr_t): Event set previously used with
-            ``nvmlEventSetWait_v3``.
-        index (unsigned int): Zero-based context index.
-
-    Returns:
-        nvmlGpuOperationalEventContextLegacyXid_v1_t: Reference in
-            which to return legacy-Xid context data.
-
-    .. seealso:: `nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1`
-    """
-    cdef GpuOperationalEventContextLegacyXid_v1 xid_py = GpuOperationalEventContextLegacyXid_v1()
-    cdef nvmlGpuOperationalEventContextLegacyXid_v1_t *xid = <nvmlGpuOperationalEventContextLegacyXid_v1_t *><intptr_t>(xid_py._get_ptr())
-    with nogil:
-        __status__ = nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1(<EventSet>set, index, xid)
-    check_status(__status__)
-    return xid_py
+    return params_py
 
 
 cpdef object device_get_bank_remapper_status_v1(intptr_t device):
@@ -34278,7 +34380,7 @@ cpdef object device_get_field_values(intptr_t device, values):
         __status__ = nvmlDeviceGetFieldValues(<Device>device, valuesCount, ptr)
     check_status(__status__)
 
-    values_._data.resize((valuesCount,))
+    values_._data = values_._data[:valuesCount]
     return values_
 
 
@@ -34922,7 +35024,7 @@ cpdef object system_event_set_wait(intptr_t event_set, unsigned int timeout_ms, 
         request[0].dataSize = buffer_size
         __status__ = nvmlSystemEventSetWait(<nvmlSystemEventSetWaitRequest_t*>request)
     check_status(__status__)
-    event_data._data.resize((request[0].numEvent,))
+    event_data._data = event_data._data[:request[0].numEvent]
     return event_data
 
 
@@ -35622,6 +35724,84 @@ cpdef str vgpu_type_get_name(unsigned int vgpu_type_id):
     return cpython.PyUnicode_FromStringAndSize(vgpu_type_name, size[0])
 
 
+cpdef object event_set_wait_v3(intptr_t set, unsigned int timeout_ms):
+    """Wait for events of the specified type to occur for any device in the set,
+    returning a structured event record.
+
+    For Turing™ or newer fully supported devices.
+
+    For Linux only.
+
+    Args:
+        set (EventSet): Handle to the event set.
+        timeout_ms (unsigned int): Maximum time to wait, in milliseconds.
+
+    Returns:
+        EventSetWait_v3: Structured event data record.
+
+    .. seealso:: `nvmlEventSetWait_v3`
+    """
+    cdef EventSetWait_v3 params = EventSetWait_v3()
+    cdef nvmlEventSetWait_v3_t *ptr = <nvmlEventSetWait_v3_t *>params._get_ptr()
+    ptr.timeoutMs = timeout_ms
+    with nogil:
+        __status__ = nvmlEventSetWait_v3(<EventSet>set, ptr)
+    check_status(__status__)
+    return params
+
+
+cpdef object event_set_get_context_info_v1(intptr_t set, unsigned int index):
+    """Retrieve context metadata for a context record from the most recent event
+    returned by :func:`event_set_wait_v3`.
+
+    For Turing™ or newer fully supported devices.
+
+    For Linux only.
+
+    Args:
+        set (EventSet): Handle to the event set.
+        index (unsigned int): Zero-based index of the context record.
+
+    Returns:
+        EventSetGetContextInfo_v1: Context metadata record.
+
+    .. seealso:: `nvmlEventSetGetContextInfo_v1`
+    """
+    cdef EventSetGetContextInfo_v1 params = EventSetGetContextInfo_v1()
+    cdef nvmlEventSetGetContextInfo_v1_t *ptr = <nvmlEventSetGetContextInfo_v1_t *>params._get_ptr()
+    ptr.index = index
+    with nogil:
+        __status__ = nvmlEventSetGetContextInfo_v1(<EventSet>set, ptr)
+    check_status(__status__)
+    return params
+
+
+cpdef object event_set_get_gpu_operational_event_context_legacy_xid_v1(intptr_t set, unsigned int index):
+    """Retrieve the decoded legacy-Xid context data for a context record from the
+    most recent event returned by :func:`event_set_wait_v3`.
+
+    For Turing™ or newer fully supported devices.
+
+    For Linux only.
+
+    Args:
+        set (EventSet): Handle to the event set.
+        index (unsigned int): Zero-based index of the context record.
+
+    Returns:
+        EventSetGetGpuOperationalEventContextLegacyXid_v1: Decoded Xid context record.
+
+    .. seealso:: `nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1`
+    """
+    cdef EventSetGetGpuOperationalEventContextLegacyXid_v1 params = EventSetGetGpuOperationalEventContextLegacyXid_v1()
+    cdef nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t *ptr = <nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t *>params._get_ptr()
+    ptr.index = index
+    with nogil:
+        __status__ = nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1(<EventSet>set, ptr)
+    check_status(__status__)
+    return params
+
+
 cpdef bytes event_set_get_context_data_v1(intptr_t set, unsigned int index):
     """Copies the raw payload for a context record from the most recent event returned by
     :func:`event_set_wait_v3`.
@@ -35639,14 +35819,17 @@ cpdef bytes event_set_get_context_data_v1(intptr_t set, unsigned int index):
 
     .. seealso:: `nvmlEventSetGetContextData_v1`
     """
-    cdef unsigned int data_size
+    cdef nvmlEventSetGetContextData_v1_t params
+    params.index = index
+    params.data = NULL
+    params.dataSize = 0
     with nogil:
-        __status__ = nvmlEventSetGetContextData_v1(<EventSet>set, index, NULL, &data_size)
+        __status__ = nvmlEventSetGetContextData_v1(<EventSet>set, &params)
     check_status_size(__status__)
-    cdef bytes data = bytes(data_size)
-    cdef void *_data_ = <char*>data
+    cdef bytes data = bytes(params.dataSize)
+    params.data = <char*>data
     with nogil:
-        __status__ = nvmlEventSetGetContextData_v1(<EventSet>set, index, _data_, &data_size)
+        __status__ = nvmlEventSetGetContextData_v1(<EventSet>set, &params)
     check_status(__status__)
     return data
 del _cyb_FastEnum

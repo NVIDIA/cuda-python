@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.4.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
 
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=688a31f40f86e60ac9bab47ed3c6c11f0762c60016d8167d3a57f3b3dc61c7cf
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d40a4f5510e4271a0984232f64fe01ac712187b248fb15167fbc8e40f024d512
 from ._internal cimport runtime as _runtime
 
 cdef cudaError_t cudaDeviceReset() except ?cudaErrorCallRequiresNewerDriver nogil:

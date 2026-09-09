@@ -11,6 +11,9 @@ import ctypes as _ctypes
 cimport cuda.bindings.cydriver as cydriver
 cimport cuda.bindings._lib.param_packer as param_packer
 
+# Import-time init so feed() is a pure read under free threading.
+param_packer.init_param_packer()
+
 cdef void* _callocWrapper(length, size):
     cdef void* out = calloc(length, size)
     if out is NULL:

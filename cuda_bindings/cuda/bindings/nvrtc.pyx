@@ -1,9 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated with version 13.4.0. Do not modify it directly.
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9dcd9e24a5962a3fa156378497290ef95c84fb433d2c31c6e2a5da5528391fe8
+# This code was automatically generated with version 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=014131536ed098f8c76a069b25d8ff44edd3f2554ae23b127e1b686ae2d6a69d
 from typing import Any, Optional
 import cython
 import ctypes
@@ -45,8 +44,10 @@ ctypedef unsigned long long float_ptr
 ctypedef unsigned long long double_ptr
 ctypedef unsigned long long void_ptr
 
-#: Flags for nvrtcInstallBundledHeaders.Skip installation if version marker
-#: exists and version matches. This is the default behavior when flags=0.
+#: Flags for nvrtcInstallBundledHeaders.
+#:
+#: Skip installation if version marker exists and version matches. This is
+#: the default behavior when flags=0.
 NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS = cynvrtc.NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS
 
 #: Clear existing directory contents before installation. Guarantees
@@ -140,33 +141,35 @@ cdef class nvrtcProgram:
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
 
-cdef class anon_struct0:
+cdef class nvrtcBundledHeadersInfo:
     """
+    Structure containing information about bundled headers.
+
     Attributes
     ----------
 
     available : int
-
+        Non-zero if bundled headers are available
 
 
     compressedSize : size_t
-
+        Size of compressed archive in bytes
 
 
     uncompressedSize : size_t
-
+        Estimated size when extracted in bytes
 
 
     cudaVersionMajor : int
-
+        CUDA major version of bundled headers
 
 
     cudaVersionMinor : int
-
+        CUDA minor version of bundled headers
 
 
     numFiles : unsigned int
-
+        Number of header files in the bundle
 
 
     Methods
@@ -174,10 +177,12 @@ cdef class anon_struct0:
     getPtr()
         Get memory address of class instance
     """
-    def __cinit__(self, void_ptr _ptr):
-        self._pvt_ptr = <cynvrtc.nvrtcBundledHeadersInfo *>_ptr
-
-    def __init__(self, void_ptr _ptr):
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+        else:
+            self._pvt_ptr = <cynvrtc.nvrtcBundledHeadersInfo *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
         pass
@@ -273,49 +278,6 @@ cdef class anon_struct0:
     def numFiles(self, unsigned int numFiles):
         self._pvt_ptr[0].numFiles = numFiles
 
-
-cdef class nvrtcBundledHeadersInfo(anon_struct0):
-    """
-    Attributes
-    ----------
-
-    available : int
-
-
-
-    compressedSize : size_t
-
-
-
-    uncompressedSize : size_t
-
-
-
-    cudaVersionMajor : int
-
-
-
-    cudaVersionMinor : int
-
-
-
-    numFiles : unsigned int
-
-
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    def __cinit__(self, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._pvt_ptr = <cynvrtc.nvrtcBundledHeadersInfo *>&self._pvt_val
-        else:
-            self._pvt_ptr = <cynvrtc.nvrtcBundledHeadersInfo *>_ptr
-
-    def __init__(self, void_ptr _ptr = 0):
-        pass
 
 @cython.embedsignature(True)
 def nvrtcGetErrorString(result not None : nvrtcResult):

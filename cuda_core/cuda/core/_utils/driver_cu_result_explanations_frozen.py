@@ -1,6 +1,13 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Like the runtime counterpart, this fallback is a deliberately frozen
+# compatibility snapshot, not a release-maintained mirror of CUDA's enums.
+# Do not update it past CUDA Toolkit v13.1.1. Bindings releases new enough to
+# define later codes provide explanations through enum-member docstrings; if an
+# older binding receives one from a newer driver, it falls through to
+# cuGetErrorString(). Synchronizing this table with later Toolkit releases would
+# restore the duplicate maintenance burden removed by PR #1860.
 # CUDA Toolkit v13.1.1
 _FALLBACK_EXPLANATIONS = {
     0: (

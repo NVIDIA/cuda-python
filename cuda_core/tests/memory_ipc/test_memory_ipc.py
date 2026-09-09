@@ -26,7 +26,8 @@ class TestIpcMempool:
         device = ipc_device
         mr = ipc_memory_resource
         assert not mr.is_mapped
-        pgen = PatternGen(device, NBYTES)
+        stream = device.default_stream
+        pgen = PatternGen(device, NBYTES, stream=stream)
 
         # Start the child process.
         queue = mp.Queue()
@@ -34,9 +35,10 @@ class TestIpcMempool:
         process.start()
 
         # Allocate and fill memory.
-        buffer = mr.allocate(NBYTES, stream=device.default_stream)
+        buffer = mr.allocate(NBYTES, stream=stream)
         assert not buffer.is_mapped
         pgen.fill_buffer(buffer, seed=False)
+        stream.sync()
 
         # Export the buffer via IPC.
         queue.put(buffer)
@@ -50,16 +52,19 @@ class TestIpcMempool:
         # Verify that the buffer was modified.
         pgen.verify_buffer(buffer, seed=True)
         buffer.close()
+        stream.sync()
 
     def child_main(self, device, mr, queue):
         device.set_current()
         assert mr.is_mapped
         buffer = queue.get(timeout=CHILD_TIMEOUT_SEC)
         assert buffer.is_mapped
-        pgen = PatternGen(device, NBYTES)
+        stream = device.default_stream
+        pgen = PatternGen(device, NBYTES, stream=stream)
         pgen.verify_buffer(buffer, seed=False)
         pgen.fill_buffer(buffer, seed=True)
         buffer.close()
+        stream.sync()
 
 
 class TestIPCMempoolMultiple:
@@ -70,14 +75,16 @@ class TestIPCMempoolMultiple:
         device = ipc_device
         mr = ipc_memory_resource
         q1, q2 = (mp.Queue() for _ in range(2))
+        stream = device.default_stream
 
         # Allocate memory buffers and export them to each child.
-        buffer1 = mr.allocate(NBYTES, stream=device.default_stream)
+        buffer1 = mr.allocate(NBYTES, stream=stream)
         q1.put(buffer1)
         q2.put(buffer1)
-        buffer2 = mr.allocate(NBYTES, stream=device.default_stream)
+        buffer2 = mr.allocate(NBYTES, stream=stream)
         q1.put(buffer2)
         q2.put(buffer2)
+        stream.sync()
 
         # Start the child processes.
         p1 = mp.Process(target=self.child_main, args=(device, mr, 1, q1))
@@ -94,11 +101,12 @@ class TestIPCMempoolMultiple:
         assert p2.exitcode == 0
 
         # Verify that the buffers were modified.
-        pgen = PatternGen(device, NBYTES)
+        pgen = PatternGen(device, NBYTES, stream=stream)
         pgen.verify_buffer(buffer1, seed=1)
         pgen.verify_buffer(buffer2, seed=2)
         buffer1.close()
         buffer2.close()
+        stream.sync()
 
     def child_main(self, device, mr, seed, queue):
         # Note: passing the mr registers it so that buffers can be passed
@@ -106,13 +114,15 @@ class TestIPCMempoolMultiple:
         device.set_current()
         buffer1 = queue.get(timeout=CHILD_TIMEOUT_SEC)
         buffer2 = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        pgen = PatternGen(device, NBYTES)
+        stream = device.default_stream
+        pgen = PatternGen(device, NBYTES, stream=stream)
         if seed == 1:
             pgen.fill_buffer(buffer1, seed=1)
         elif seed == 2:
             pgen.fill_buffer(buffer2, seed=2)
         buffer1.close()
         buffer2.close()
+        stream.sync()
 
 
 class TestIPCSharedAllocationHandleAndBufferDescriptors:
@@ -126,6 +136,7 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         device = ipc_device
         mr = ipc_memory_resource
         alloc_handle = mr.allocation_handle
+        stream = device.default_stream
 
         # Start children.
         q1, q2 = (mp.Queue() for _ in range(2))
@@ -135,8 +146,9 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         p2.start()
 
         # Allocate and share memory.
-        buffer1 = mr.allocate(NBYTES, stream=device.default_stream)
-        buffer2 = mr.allocate(NBYTES, stream=device.default_stream)
+        buffer1 = mr.allocate(NBYTES, stream=stream)
+        buffer2 = mr.allocate(NBYTES, stream=stream)
+        stream.sync()
         q1.put(buffer1.ipc_descriptor)
         q2.put(buffer2.ipc_descriptor)
 
@@ -149,11 +161,12 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         assert p2.exitcode == 0
 
         # Verify results.
-        pgen = PatternGen(device, NBYTES)
+        pgen = PatternGen(device, NBYTES, stream=stream)
         pgen.verify_buffer(buffer1, seed=False)
         pgen.verify_buffer(buffer2, seed=True)
         buffer1.close()
         buffer2.close()
+        stream.sync()
 
     def child_main(self, device, alloc_handle, seed, queue):
         """Fills a shared memory buffer."""
@@ -162,10 +175,12 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         device.set_current()
         mr = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
         buffer_descriptor = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        buffer = Buffer.from_ipc_descriptor(mr, buffer_descriptor, stream=device.default_stream)
-        pgen = PatternGen(device, NBYTES)
+        stream = device.default_stream
+        buffer = Buffer.from_ipc_descriptor(mr, buffer_descriptor, stream=stream)
+        pgen = PatternGen(device, NBYTES, stream=stream)
         pgen.fill_buffer(buffer, seed=seed)
         buffer.close()
+        stream.sync()
 
 
 class TestIPCSharedAllocationHandleAndBufferObjects:
@@ -178,6 +193,7 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
         device = ipc_device
         mr = ipc_memory_resource
         alloc_handle = mr.allocation_handle
+        stream = device.default_stream
 
         # Start children.
         q1, q2 = (mp.Queue() for _ in range(2))
@@ -187,8 +203,9 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
         p2.start()
 
         # Allocate and share memory.
-        buffer1 = mr.allocate(NBYTES, stream=device.default_stream)
-        buffer2 = mr.allocate(NBYTES, stream=device.default_stream)
+        buffer1 = mr.allocate(NBYTES, stream=stream)
+        buffer2 = mr.allocate(NBYTES, stream=stream)
+        stream.sync()
         q1.put(buffer1)
         q2.put(buffer2)
 
@@ -201,11 +218,12 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
         assert p2.exitcode == 0
 
         # Verify results.
-        pgen = PatternGen(device, NBYTES)
+        pgen = PatternGen(device, NBYTES, stream=stream)
         pgen.verify_buffer(buffer1, seed=False)
         pgen.verify_buffer(buffer2, seed=True)
         buffer1.close()
         buffer2.close()
+        stream.sync()
 
     def child_main(self, device, alloc_handle, seed, queue):
         """Fills a shared memory buffer."""
@@ -216,6 +234,8 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
 
         # Now get buffers.
         buffer = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        pgen = PatternGen(device, NBYTES)
+        stream = device.default_stream
+        pgen = PatternGen(device, NBYTES, stream=stream)
         pgen.fill_buffer(buffer, seed=seed)
         buffer.close()
+        stream.sync()

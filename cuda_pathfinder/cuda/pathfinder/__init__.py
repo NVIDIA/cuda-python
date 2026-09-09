@@ -20,9 +20,7 @@ from cuda.pathfinder._dynamic_libs.load_dl_common import (
 )
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL as LoadedDL
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib
-from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
-    SUPPORTED_LIBNAMES as SUPPORTED_NVIDIA_LIBNAMES,
-)
+from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import SUPPORTED_LIBNAMES as _SUPPORTED_NVIDIA_LIBNAMES
 from cuda.pathfinder._headers.find_nvidia_headers import LocatedHeaderDir as LocatedHeaderDir
 from cuda.pathfinder._headers.find_nvidia_headers import find_nvidia_header_directory as find_nvidia_header_directory
 from cuda.pathfinder._headers.find_nvidia_headers import (
@@ -60,6 +58,7 @@ from cuda.pathfinder._static_libs.find_static_lib import (
     locate_static_lib as locate_static_lib,
 )
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home as get_cuda_path_or_home
+from cuda.pathfinder._utils.windows_arch import UnsupportedArchError as UnsupportedArchError
 
 from cuda.pathfinder._version import __version__  # isort: skip
 
@@ -75,6 +74,11 @@ SUPPORTED_HEADERS_CTK = _SUPPORTED_HEADERS_CTK
 #: utilities may be available only on Linux or Windows).
 #: Example utilities: ``"nvdisasm"``, ``"cuobjdump"``, ``"nvcc"``.
 SUPPORTED_BINARY_UTILITIES = _SUPPORTED_BINARIES
+
+#: Tuple of CUDA Toolkit dynamic library names supported by
+#: :func:`load_nvidia_dynamic_lib` for the current operating system and
+#: interpreter architecture.
+SUPPORTED_NVIDIA_LIBNAMES = _SUPPORTED_NVIDIA_LIBNAMES
 
 #: Tuple of supported bitcode library names that can be resolved
 #: via ``locate_bitcode_lib()`` and ``find_bitcode_lib()``.

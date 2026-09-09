@@ -13,7 +13,6 @@ from cuda.core import Buffer, Device, DeviceMemoryResource, PinnedMemoryResource
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
-POOL_SIZE = 2097152
 
 # these tests spawn new processes and files which fails for very many threads
 pytestmark = pytest.mark.parallel_threads_limit(4)
@@ -31,6 +30,7 @@ class TestObjectSerializationDirect:
     def test_main(self, ipc_device, ipc_memory_resource):
         device = ipc_device
         mr = ipc_memory_resource
+        stream = device.default_stream
 
         # Start the child process.
         parent_conn, child_conn = mp.Pipe()
@@ -42,10 +42,11 @@ class TestObjectSerializationDirect:
         mp.reduction.send_handle(parent_conn, alloc_handle.handle, process.pid)
 
         # Send a buffer.
-        buffer1 = mr.allocate(NBYTES, stream=device.default_stream)
+        buffer1 = mr.allocate(NBYTES, stream=stream)
         parent_conn.send(buffer1)  # directly
 
-        buffer2 = mr.allocate(NBYTES, stream=device.default_stream)
+        buffer2 = mr.allocate(NBYTES, stream=stream)
+        stream.sync()
         parent_conn.send(buffer2.ipc_descriptor)  # by descriptor
 
         # Wait for the child process.
@@ -55,11 +56,12 @@ class TestObjectSerializationDirect:
         assert process.exitcode == 0
 
         # Confirm buffers were modified.
-        pgen = PatternGen(device, NBYTES)
+        pgen = PatternGen(device, NBYTES, stream=stream)
         pgen.verify_buffer(buffer1, seed=True)
         pgen.verify_buffer(buffer2, seed=True)
         buffer1.close()
         buffer2.close()
+        stream.sync()
 
     def child_main(self, conn):
         # Set up the device.
@@ -74,14 +76,16 @@ class TestObjectSerializationDirect:
         # Receive the buffers.
         buffer1 = conn.recv()  # directly
         buffer_desc = conn.recv()
-        buffer2 = Buffer.from_ipc_descriptor(mr, buffer_desc, stream=device.default_stream)  # by descriptor
+        stream = device.default_stream
+        buffer2 = Buffer.from_ipc_descriptor(mr, buffer_desc, stream=stream)  # by descriptor
 
         # Modify the buffers.
-        pgen = PatternGen(device, NBYTES)
+        pgen = PatternGen(device, NBYTES, stream=stream)
         pgen.fill_buffer(buffer1, seed=True)
         pgen.fill_buffer(buffer2, seed=True)
         buffer1.close()
         buffer2.close()
+        stream.sync()
 
 
 class TestObjectSerializationWithMR:
@@ -90,6 +94,7 @@ class TestObjectSerializationWithMR:
         """Test sending IPC memory objects to a child through a queue."""
         device = ipc_device
         mr = ipc_memory_resource
+        stream = device.default_stream
 
         # Start the child process. Sending the memory resource registers it so
         # that buffers can be handled automatically.
@@ -104,7 +109,8 @@ class TestObjectSerializationWithMR:
         assert uuid == mr.uuid
 
         # Send a buffer.
-        buffer = mr.allocate(NBYTES, stream=device.default_stream)
+        buffer = mr.allocate(NBYTES, stream=stream)
+        stream.sync()
         pipe[0].put(buffer)
 
         # Wait for the child process.
@@ -114,9 +120,10 @@ class TestObjectSerializationWithMR:
         assert process.exitcode == 0
 
         # Confirm buffer was modified.
-        pgen = PatternGen(device, NBYTES)
+        pgen = PatternGen(device, NBYTES, stream=stream)
         pgen.verify_buffer(buffer, seed=True)
         buffer.close()
+        stream.sync()
 
     def child_main(self, pipe, _):
         device = Device()
@@ -129,9 +136,11 @@ class TestObjectSerializationWithMR:
         # Buffer.
         buffer = pipe[0].get(timeout=CHILD_TIMEOUT_SEC)
         assert buffer.memory_resource.handle == mr.handle
-        pgen = PatternGen(device, NBYTES)
+        stream = device.default_stream
+        pgen = PatternGen(device, NBYTES, stream=stream)
         pgen.fill_buffer(buffer, seed=True)
         buffer.close()
+        stream.sync()
 
 
 class TestObjectPassing:
@@ -149,11 +158,13 @@ class TestObjectPassing:
         device = ipc_device
         mr = ipc_memory_resource
         alloc_handle = mr.allocation_handle
-        buffer = mr.allocate(NBYTES, stream=device.default_stream)
+        stream = device.default_stream
+        buffer = mr.allocate(NBYTES, stream=stream)
         buffer_desc = buffer.ipc_descriptor
 
-        pgen = PatternGen(device, NBYTES)
+        pgen = PatternGen(device, NBYTES, stream=stream)
         pgen.fill_buffer(buffer, seed=False)
+        stream.sync()
 
         # Start the child process.
         process = mp.Process(target=self.child_main, args=(alloc_handle, mr, buffer_desc, buffer))
@@ -165,6 +176,7 @@ class TestObjectPassing:
 
         pgen.verify_buffer(buffer, seed=True)
         buffer.close()
+        stream.sync()
 
     def child_main(self, alloc_handle, mr1, buffer_desc, buffer):
         device = Device()
@@ -177,7 +189,8 @@ class TestObjectPassing:
             with pytest.raises(TypeError):
                 PinnedMemoryResource.from_allocation_handle(alloc_handle)
             mr2 = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
-        pgen = PatternGen(device, NBYTES)
+        stream = device.default_stream
+        pgen = PatternGen(device, NBYTES, stream=stream)
 
         # Verify initial content
         pgen.verify_buffer(buffer, seed=False)
@@ -190,3 +203,4 @@ class TestObjectPassing:
 
         # Clean up - only ONE free
         buffer.close()
+        stream.sync()

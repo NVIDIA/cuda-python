@@ -47,6 +47,8 @@ try:
 except ImportError:
     ml_bfloat16 = None
 
+__all__ = ['TensorMapDescriptor', 'TensorMapDescriptorOptions']
+
 
 class TensorMapDataType(enum.IntEnum):
     """Data types for tensor map descriptors.
@@ -130,19 +132,19 @@ ELSE:
         W128 = 1
 
 
-_TMA_DT_UINT8 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT8)
-_TMA_DT_UINT16 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT16)
-_TMA_DT_UINT32 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT32)
-_TMA_DT_INT32 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_INT32)
-_TMA_DT_UINT64 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT64)
-_TMA_DT_INT64 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_INT64)
-_TMA_DT_FLOAT16 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_FLOAT16)
-_TMA_DT_FLOAT32 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_FLOAT32)
-_TMA_DT_FLOAT64 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_FLOAT64)
-_TMA_DT_BFLOAT16 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_BFLOAT16)
-_TMA_DT_FLOAT32_FTZ = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_FLOAT32_FTZ)
-_TMA_DT_TFLOAT32 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_TFLOAT32)
-_TMA_DT_TFLOAT32_FTZ = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_TFLOAT32_FTZ)
+_TMA_DT_UINT8: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT8)
+_TMA_DT_UINT16: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT16)
+_TMA_DT_UINT32: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT32)
+_TMA_DT_INT32: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_INT32)
+_TMA_DT_UINT64: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT64)
+_TMA_DT_INT64: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_INT64)
+_TMA_DT_FLOAT16: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_FLOAT16)
+_TMA_DT_FLOAT32: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_FLOAT32)
+_TMA_DT_FLOAT64: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_FLOAT64)
+_TMA_DT_BFLOAT16: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_BFLOAT16)
+_TMA_DT_FLOAT32_FTZ: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_FLOAT32_FTZ)
+_TMA_DT_TFLOAT32: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_TFLOAT32)
+_TMA_DT_TFLOAT32_FTZ: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_TFLOAT32_FTZ)
 
 
 def _normalize_tensor_map_data_type(data_type):
@@ -485,7 +487,6 @@ cdef class TensorMapDescriptor:
     cdef int _check_context_compat(self) except -1:
         cdef cydriver.CUcontext current_ctx
         cdef cydriver.CUdevice current_dev
-        cdef int current_dev_id
         if self._context == 0 and self._device_id < 0:
             return 0
         with nogil:
@@ -497,7 +498,7 @@ cdef class TensorMapDescriptor:
                 "TensorMapDescriptor was created in a different CUDA context")
         with nogil:
             HANDLE_RETURN(cydriver.cuCtxGetDevice(&current_dev))
-        current_dev_id = <int>current_dev
+        cdef int current_dev_id = <int>current_dev
         if self._device_id >= 0 and current_dev_id != self._device_id:
             raise RuntimeError(
                 f"TensorMapDescriptor belongs to device {self._device_id}, "

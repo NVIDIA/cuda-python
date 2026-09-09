@@ -1,9 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated with version 13.4.0. Do not modify it directly.
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=315bc7e377beef4b6e7e6dbb58c18dd44c06655387f58ccdfacd96a4fa464c60
+# This code was automatically generated with version 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ba23f6c3908c2fa6496002f8def30ec166cec8643e4de22c1741040b2c4b2965
 cimport cuda.bindings.cynvrtc as cynvrtc
 
 include "_lib/utils.pxd"
@@ -22,69 +21,35 @@ cdef class nvrtcProgram:
     cdef cynvrtc.nvrtcProgram  _pvt_val
     cdef cynvrtc.nvrtcProgram* _pvt_ptr
 
-cdef class anon_struct0:
+cdef class nvrtcBundledHeadersInfo:
     """
+    Structure containing information about bundled headers.
+
     Attributes
     ----------
 
     available : int
-
-
-
-    compressedSize : size_t
-
-
-
-    uncompressedSize : size_t
-
-
-
-    cudaVersionMajor : int
-
-
-
-    cudaVersionMinor : int
-
-
-
-    numFiles : unsigned int
-
-
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    cdef cynvrtc.nvrtcBundledHeadersInfo* _pvt_ptr
-
-cdef class nvrtcBundledHeadersInfo(anon_struct0):
-    """
-    Attributes
-    ----------
-
-    available : int
-
+        Non-zero if bundled headers are available
 
 
     compressedSize : size_t
-
+        Size of compressed archive in bytes
 
 
     uncompressedSize : size_t
-
+        Estimated size when extracted in bytes
 
 
     cudaVersionMajor : int
-
+        CUDA major version of bundled headers
 
 
     cudaVersionMinor : int
-
+        CUDA minor version of bundled headers
 
 
     numFiles : unsigned int
-
+        Number of header files in the bundle
 
 
     Methods
@@ -93,3 +58,4 @@ cdef class nvrtcBundledHeadersInfo(anon_struct0):
         Get memory address of class instance
     """
     cdef cynvrtc.nvrtcBundledHeadersInfo _pvt_val
+    cdef cynvrtc.nvrtcBundledHeadersInfo* _pvt_ptr

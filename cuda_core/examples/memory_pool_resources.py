@@ -89,13 +89,13 @@ def main():
 
         managed_buffer = managed_mr.allocate(nbytes, stream=stream)
         pinned_buffer = pinned_mr.allocate(nbytes, stream=stream)
+        stream.sync()
 
         managed_array = np.from_dlpack(managed_buffer).view(np.float32)
         pinned_array = np.from_dlpack(pinned_buffer).view(np.float32)
 
         managed_array[:] = np.arange(size, dtype=dtype)
         managed_original = managed_array.copy()
-        stream.sync()
 
         managed_buffer.copy_to(pinned_buffer, stream=stream)
         stream.sync()

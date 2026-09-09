@@ -7,8 +7,7 @@ import subprocess
 import sys
 
 import pytest
-
-from cuda.bindings._test_helpers.pep723 import has_package_requirements_or_skip
+from cuda_python_test_helpers.pep723 import has_package_requirements_or_skip
 
 examples_path = os.path.join(os.path.dirname(__file__), "..", "examples")
 examples_files = glob.glob(os.path.join(examples_path, "**/*.py"), recursive=True)
@@ -20,6 +19,7 @@ def test_example(example):
 
     env = os.environ.copy()
     env["CUDA_BINDINGS_SKIP_EXAMPLE"] = "100"
+    env["MPLBACKEND"] = "Agg"  # avoid plt.show() from blocking
 
     process = subprocess.run([sys.executable, example], capture_output=True, env=env)  # noqa: S603
     # returncode is a special value used in the examples to indicate that system requirements are not met.

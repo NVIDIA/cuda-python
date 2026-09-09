@@ -51,6 +51,13 @@ def _build_aoti_shim_lib(compiler, plat_name):
 
 
 class build_ext(_build_ext):  # noqa: N801
+    def finalize_options(self):
+        super().finalize_options()
+        # A cu13 .so in the source tree looks perfectly fresh to a cu12 build;
+        # see build_hooks._check_build_major().
+        if build_hooks.force_build_ext:
+            self.force = True
+
     def _configure_windows_tensor_bridge(self):
         if os.name != "nt" or getattr(self.compiler, "compiler_type", None) != "msvc":
             return
@@ -74,6 +81,7 @@ class build_ext(_build_ext):  # noqa: N801
         self.parallel = nthreads
         self._configure_windows_tensor_bridge()
         super().build_extensions()
+        build_hooks.record_build_major()
 
 
 class build_py(_build_py):  # noqa: N801
@@ -84,11 +92,14 @@ class build_py(_build_py):  # noqa: N801
             self.package_data[""] += ["*.pxi", "*.pyx", "*.cpp"]
 
 
-setup(
-    ext_modules=build_hooks._extensions,
-    cmdclass={
-        "build_ext": build_ext,
-        "build_py": build_py,
-    },
-    zip_safe=False,
-)
+# Guarded so tests can import the command classes above. setuptools always
+# runs this file as __main__, so real builds are unaffected.
+if __name__ == "__main__":
+    setup(
+        ext_modules=build_hooks._extensions,
+        cmdclass={
+            "build_ext": build_ext,
+            "build_py": build_py,
+        },
+        zip_safe=False,
+    )

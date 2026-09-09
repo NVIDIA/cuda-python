@@ -2,14 +2,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f665ca316ab6166959a5f3338c901e698617b31146000a9d99422dcf9849d3fc
+# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=331732354093d8b2560607ca720e2d2a8a4531704b11582ac7c5811f14261273
 
 
 # <<<< PREAMBLE CONTENT >>>>
 
 cimport cython as _cyb_cython
+from libcpp cimport bool as _cyb_bool
 
 
 # <<<< END OF PREAMBLE CONTENT >>>>
@@ -67,7 +67,7 @@ cdef CUfileError_t cuFileDriverGetProperties(CUfileDrvProps_t* props) except?<CU
     return _cufile._cuFileDriverGetProperties(props)
 
 
-cdef CUfileError_t cuFileDriverSetPollMode(cpp_bool poll, size_t poll_threshold_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+cdef CUfileError_t cuFileDriverSetPollMode(_cyb_bool poll, size_t poll_threshold_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     return _cufile._cuFileDriverSetPollMode(poll, poll_threshold_size)
 
 
@@ -128,7 +128,7 @@ cdef CUfileError_t cuFileGetParameterSizeT(CUFileSizeTConfigParameter_t param, s
     return _cufile._cuFileGetParameterSizeT(param, value)
 
 
-cdef CUfileError_t cuFileGetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool* value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+cdef CUfileError_t cuFileGetParameterBool(CUFileBoolConfigParameter_t param, _cyb_bool* value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     return _cufile._cuFileGetParameterBool(param, value)
 
 
@@ -140,7 +140,7 @@ cdef CUfileError_t cuFileSetParameterSizeT(CUFileSizeTConfigParameter_t param, s
     return _cufile._cuFileSetParameterSizeT(param, value)
 
 
-cdef CUfileError_t cuFileSetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+cdef CUfileError_t cuFileSetParameterBool(CUFileBoolConfigParameter_t param, _cyb_bool value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     return _cufile._cuFileSetParameterBool(param, value)
 
 

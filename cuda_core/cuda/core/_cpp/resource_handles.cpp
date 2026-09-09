@@ -9,13 +9,18 @@
 #include <atomic>
 #include <array>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <functional>
 #include <list>
 #include <map>
 #include <mutex>
 #include <stdexcept>
+#include <thread>
+#include <type_traits>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #ifndef _WIN32
@@ -31,9 +36,15 @@ namespace cuda_core {
 // function pointers extracted from cuda.bindings.cydriver.__pyx_capi__.
 // ============================================================================
 
+decltype(&cuGetErrorName) p_cuGetErrorName = nullptr;
+decltype(&cuGetErrorString) p_cuGetErrorString = nullptr;
+
 decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain = nullptr;
 decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease = nullptr;
 decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent = nullptr;
+decltype(&cuCtxSetCurrent) p_cuCtxSetCurrent = nullptr;
+decltype(&cuCtxSynchronize) p_cuCtxSynchronize = nullptr;
+decltype(&cuCtxGetStreamPriorityRange) p_cuCtxGetStreamPriorityRange = nullptr;
 decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate = nullptr;
 decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy = nullptr;
 decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx = nullptr;
@@ -43,6 +54,7 @@ decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate = nullptr;
 
 decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority = nullptr;
 decltype(&cuStreamDestroy) p_cuStreamDestroy = nullptr;
+decltype(&cuStreamGetCtx) p_cuStreamGetCtx = nullptr;
 
 decltype(&cuEventCreate) p_cuEventCreate = nullptr;
 decltype(&cuEventDestroy) p_cuEventDestroy = nullptr;
@@ -74,6 +86,8 @@ decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel = nullptr;
 
 // Graph
 decltype(&cuGraphDestroy) p_cuGraphDestroy = nullptr;
+decltype(&cuGraphInstantiateWithParams) p_cuGraphInstantiateWithParams = nullptr;
+decltype(&cuGraphExecUpdate) p_cuGraphExecUpdate = nullptr;
 decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy = nullptr;
 decltype(&cuUserObjectCreate) p_cuUserObjectCreate = nullptr;
 decltype(&cuUserObjectRelease) p_cuUserObjectRelease = nullptr;
@@ -106,6 +120,13 @@ decltype(&cuDevSmResourceSplit) p_cuDevSmResourceSplit = nullptr;
 void* p_cuDevSmResourceSplit = nullptr;
 #endif
 
+// cuMemcpyWithAttributesAsync (13.2+ — may be null on older drivers/bindings)
+#if CUDA_VERSION >= 13020
+decltype(&cuMemcpyWithAttributesAsync) p_cuMemcpyWithAttributesAsync = nullptr;
+#else
+void* p_cuMemcpyWithAttributesAsync = nullptr;
+#endif
+
 // NVRTC function pointers
 decltype(&nvrtcDestroyProgram) p_nvrtcDestroyProgram = nullptr;
 
@@ -116,46 +137,34 @@ NvvmDestroyProgramFn p_nvvmDestroyProgram = nullptr;
 NvJitLinkDestroyFn p_nvJitLinkDestroy = nullptr;
 
 // ============================================================================
-// GIL management helpers
+// GIL and scoped-context management helpers
 // ============================================================================
 
 namespace {
 
-// Helper to release the GIL while calling into the CUDA driver.
-// This guard is *conditional*: if the caller already dropped the GIL,
-// we avoid calling PyEval_SaveThread (which requires holding the GIL).
-// It also handles the case where Python is finalizing and GIL operations
-// are no longer safe.
+// Conditionally release the GIL while calling into the CUDA driver.
 class GILReleaseGuard {
 public:
-    GILReleaseGuard() : tstate_(nullptr), released_(false) {
-        // Don't try to manipulate GIL if Python is finalizing
+    GILReleaseGuard() noexcept {
         if (!Py_IsInitialized() || py_is_finalizing()) {
             return;
         }
-        // PyGILState_Check() returns 1 if the GIL is held by this thread.
         if (PyGILState_Check()) {
             tstate_ = PyEval_SaveThread();
-            released_ = true;
         }
-        // Note: If the GIL is not released (finalizing, or not held):
-        // - Reduces parallelism (other Python threads remain blocked)
-        // - No deadlock risk as long as the guarded code doesn't call back into Python
     }
 
     ~GILReleaseGuard() {
-        if (released_) {
+        if (tstate_) {
             PyEval_RestoreThread(tstate_);
         }
     }
 
-    // Non-copyable, non-movable
     GILReleaseGuard(const GILReleaseGuard&) = delete;
     GILReleaseGuard& operator=(const GILReleaseGuard&) = delete;
 
 private:
-    PyThreadState* tstate_;
-    bool released_;
+    PyThreadState* tstate_ = nullptr;
 };
 
 // Helper to acquire the GIL when we might not hold it.
@@ -188,7 +197,234 @@ private:
     bool acquired_;
 };
 
+void warn_on_cuda_error(const char* operation, CUresult status, const char* detail = nullptr) noexcept;
+
+// Make a context current and record the state needed to restore it.
+// An empty handle is a no-op: the operation runs in the caller's current
+// context, and nothing is restored on exit.
+CUresult enter_context(const ContextHandle& h_context, CUcontext* previous, int* changed) noexcept {
+    *previous = nullptr;
+    *changed = 0;
+    CUcontext target = as_cu(h_context);
+    if (!target) {
+        return CUDA_SUCCESS;
+    }
+
+    GILReleaseGuard gil;
+    CUresult status = p_cuCtxGetCurrent(previous);
+    if (status != CUDA_SUCCESS || *previous == target) {
+        return status;
+    }
+    status = p_cuCtxSetCurrent(target);
+    *changed = status == CUDA_SUCCESS;
+    return status;
+}
+
+// Restore the previous context and preserve an earlier operation error.
+CUresult exit_context(CUcontext previous, int changed, CUresult operation_status) noexcept {
+    CUresult restore_status = CUDA_SUCCESS;
+    if (changed) {
+        GILReleaseGuard gil;
+        restore_status = p_cuCtxSetCurrent(previous);
+    }
+    if (operation_status != CUDA_SUCCESS && restore_status != CUDA_SUCCESS) {
+        warn_on_cuda_error("cuCtxSetCurrent (restoring the caller's context)", restore_status);
+    }
+    return operation_status != CUDA_SUCCESS ? operation_status : restore_status;
+}
+
+// Require a callable to be invocable without throwing.
+#define ASSERT_NOTHROW_INVOCABLE(...) \
+    static_assert(std::is_nothrow_invocable_v<__VA_ARGS__>, "operation must be noexcept")
+
+// Store a stream and any state needed to preserve deallocation ordering.
+struct DeallocationStream {
+    StreamHandle h_stream;
+    std::thread::id ptds_tid{};
+};
+
+// Return whether a stream handle needs a current context to resolve it.
+bool is_default_stream(CUstream stream) noexcept {
+    return stream == nullptr || stream == CU_STREAM_LEGACY || stream == CU_STREAM_PER_THREAD;
+}
+
+// Return the context a deallocation-stream token must run under. Real streams
+// resolve their own context; default-stream tokens use the context bound at
+// allocation time. Warn when PTDS deallocation crosses host threads.
+ContextHandle deallocation_context(const DeallocationStream& stream) noexcept {
+    if (!is_default_stream(as_cu(stream.h_stream))) {
+        return {};
+    }
+    if (stream.ptds_tid != std::thread::id{}
+            && stream.ptds_tid != std::this_thread::get_id()) {
+        std::fprintf(
+            stderr,
+            "Warning: Buffer deallocation for a per-thread default stream "
+            "is running on a different host thread than the one that recorded "
+            "the deallocation stream; ordering relative to the allocating "
+            "thread's PTDS is not preserved\n");
+    }
+    return get_stream_context(stream.h_stream);
+}
+
+// Run an operation with the requested context current.
+template <typename Fn, typename... Args>
+CUresult invoke_in_context(const ContextHandle& h_context, Fn&& operation, Args&&... args) noexcept {
+    ASSERT_NOTHROW_INVOCABLE(Fn&&, Args&&...);
+    if (!h_context) {
+        return CUDA_ERROR_INVALID_CONTEXT;
+    }
+    CUcontext previous = nullptr;
+    int changed = 0;
+    CUresult status = enter_context(h_context, &previous, &changed);
+    if (status == CUDA_SUCCESS) {
+        status = std::invoke(std::forward<Fn>(operation), std::forward<Args>(args)...);
+    }
+    return exit_context(previous, changed, status);
+}
+
+// Run a creation operation and undo it if context restoration fails.
+// Context-independent undo always runs. Context-sensitive undo runs only
+// after verifying that the target context remains current; otherwise the
+// resource leaks rather than risking cleanup in the wrong context.
+template <typename Fn, typename Undo>
+CUresult invoke_in_context_or_undo(const ContextHandle& h_context, Fn&& operation,
+                                   Undo&& undo, bool undo_requires_target_context) noexcept {
+    ASSERT_NOTHROW_INVOCABLE(Fn&&);
+    ASSERT_NOTHROW_INVOCABLE(Undo&&);
+    if (!h_context) {
+        return CUDA_ERROR_INVALID_CONTEXT;
+    }
+    CUcontext previous = nullptr;
+    int changed = 0;
+    CUresult status = enter_context(h_context, &previous, &changed);
+    if (status != CUDA_SUCCESS) {
+        return status;
+    }
+    status = std::invoke(std::forward<Fn>(operation));
+    CUresult composite = exit_context(previous, changed, status);
+    if (status == CUDA_SUCCESS && composite != CUDA_SUCCESS) {
+        bool undo_ok = true;
+        if (undo_requires_target_context) {
+            CUcontext current = nullptr;
+            undo_ok = p_cuCtxGetCurrent(&current) == CUDA_SUCCESS
+                      && current == as_cu(h_context);
+        }
+        if (undo_ok) {
+            std::invoke(std::forward<Undo>(undo));
+        } else {
+            warn_on_cuda_error(
+                "cuCtxSetCurrent (restoring the caller's context)", composite,
+                "failed; cleanup of the new resource skipped because its context "
+                "is no longer current (resource leaked)");
+        }
+    }
+    return composite;
+}
+
+// Write a warning that includes the CUDA error name and description.
+void warn_on_cuda_error(const char* operation, CUresult status, const char* detail) noexcept {
+    const char* error_name = nullptr;
+    const char* error_description = nullptr;
+    CUresult name_status = p_cuGetErrorName(status, &error_name);
+    CUresult description_status = p_cuGetErrorString(status, &error_description);
+
+    if (name_status == CUDA_SUCCESS && description_status == CUDA_SUCCESS) {
+        if (detail) {
+            std::fprintf(stderr, "Warning: %s %s: %s: %s\n",
+                         operation, detail, error_name, error_description);
+        } else {
+            std::fprintf(stderr, "Warning: %s failed: %s: %s\n",
+                         operation, error_name, error_description);
+        }
+    } else {
+        if (detail) {
+            std::fprintf(stderr, "Warning: %s %s (CUDA error %d)\n",
+                         operation, detail, static_cast<int>(status));
+        } else {
+            std::fprintf(stderr, "Warning: %s failed (CUDA error %d)\n",
+                         operation, static_cast<int>(status));
+        }
+    }
+}
+
+// Run cleanup with the requested context current. Warn and skip the operation
+// if activation fails, and independently warn on operation or restoration
+// failure. Return the operation or activation status; restoration never
+// changes the return value.
+template <typename Fn, typename... Args>
+CUresult cleanup_in_context(const ContextHandle& h_context, const char* name,
+                            Fn&& operation, Args&&... args) noexcept {
+    ASSERT_NOTHROW_INVOCABLE(Fn&&, Args&&...);
+    CUcontext previous = nullptr;
+    int changed = 0;
+    CUresult status = enter_context(h_context, &previous, &changed);
+    if (status != CUDA_SUCCESS) {
+        warn_on_cuda_error(name, status,
+                           "skipped (context activation failed; resource leaked)");
+    } else {
+        status = std::invoke(std::forward<Fn>(operation), std::forward<Args>(args)...);
+        if (status != CUDA_SUCCESS) {
+            warn_on_cuda_error(name, status);
+        }
+    }
+    CUresult restore = exit_context(previous, changed, CUDA_SUCCESS);
+    if (restore != CUDA_SUCCESS) {
+        warn_on_cuda_error(name, restore, "failed while restoring the caller's context");
+    }
+    return status;
+}
+
+#undef ASSERT_NOTHROW_INVOCABLE
+
+// Decorate a CUDA operation to warn whenever it returns an error.
+template <auto& Function>
+class WarnOnFailure {
+public:
+    explicit WarnOnFailure(const char* operation) noexcept : operation_(operation) {}
+
+    template <typename... Args>
+    CUresult operator()(Args&&... args) const noexcept {
+        CUresult status = Function(std::forward<Args>(args)...);
+        if (status != CUDA_SUCCESS) {
+            warn_on_cuda_error(operation_, status);
+        }
+        return status;
+    }
+
+private:
+    const char* operation_;
+};
+
+// Warning-decorated CUDA operations used by non-throwing cleanup paths.
+const WarnOnFailure<p_cuStreamDestroy> pw_cuStreamDestroy{"cuStreamDestroy"};
+const WarnOnFailure<p_cuEventDestroy> pw_cuEventDestroy{"cuEventDestroy"};
+const WarnOnFailure<p_cuMemFree> pw_cuMemFree{"cuMemFree"};
+const WarnOnFailure<p_cuMemFreeAsync> pw_cuMemFreeAsync{"cuMemFreeAsync"};
+const WarnOnFailure<p_cuArrayDestroy> pw_cuArrayDestroy{"cuArrayDestroy"};
+const WarnOnFailure<p_cuMipmappedArrayDestroy> pw_cuMipmappedArrayDestroy{"cuMipmappedArrayDestroy"};
+const WarnOnFailure<p_cuTexObjectDestroy> pw_cuTexObjectDestroy{"cuTexObjectDestroy"};
+const WarnOnFailure<p_cuSurfObjectDestroy> pw_cuSurfObjectDestroy{"cuSurfObjectDestroy"};
+
 }  // namespace
+
+// Synchronize the provided context.
+CUresult context_synchronize(const ContextHandle& h_context) noexcept {
+    GILReleaseGuard gil;
+    return invoke_in_context(h_context, []() noexcept {
+        return p_cuCtxSynchronize();
+    });
+}
+
+// Query the stream priority range for the provided context.
+CUresult context_get_stream_priority_range(const ContextHandle& h_context,
+                                           int* least_priority,
+                                           int* greatest_priority) noexcept {
+    GILReleaseGuard gil;
+    return invoke_in_context(h_context, [&]() noexcept {
+        return p_cuCtxGetStreamPriorityRange(least_priority, greatest_priority);
+    });
+}
 
 // ============================================================================
 // CUDA user-object deferred cleanup
@@ -361,6 +597,15 @@ public:
         map_.erase(key);
     }
 
+    void register_handles(const std::vector<Handle>& handles) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        for (const Handle& h : handles) {
+            if (h) {
+                map_[*h] = h;
+            }
+        }
+    }
+
     Handle lookup(const Key& key) {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = map_.find(key);
@@ -410,12 +655,14 @@ private:
 // Thread-local status of the most recent CUDA API call in this module.
 static thread_local CUresult err = CUDA_SUCCESS;
 
+// Return and clear the calling thread's most recent CUDA error.
 CUresult get_last_error() noexcept {
     CUresult e = err;
     err = CUDA_SUCCESS;
     return e;
 }
 
+// Return the calling thread's most recent CUDA error without clearing it.
 CUresult peek_last_error() noexcept {
     return err;
 }
@@ -608,22 +855,21 @@ static HandleRegistry<CUstream, StreamHandle> stream_registry;
 
 StreamHandle create_stream_handle(const ContextHandle& h_ctx, unsigned int flags, int priority) {
     GILReleaseGuard gil;
-    CUstream stream;
-
-    // Dispatch: green context uses cuGreenCtxStreamCreate, primary uses cuStreamCreateWithPriority
+    CUstream stream = nullptr;
     GreenCtxHandle h_green = get_context_green_ctx(h_ctx);
     if (h_green) {
-        if (!p_cuGreenCtxStreamCreate) {
-            err = CUDA_ERROR_NOT_SUPPORTED;
-            return {};
-        }
-        if (CUDA_SUCCESS != (err = p_cuGreenCtxStreamCreate(&stream, as_cu(h_green), flags, priority))) {
-            return {};
-        }
+        err = p_cuGreenCtxStreamCreate
+            ? p_cuGreenCtxStreamCreate(&stream, as_cu(h_green), flags, priority)
+            : CUDA_ERROR_NOT_SUPPORTED;
     } else {
-        if (CUDA_SUCCESS != (err = p_cuStreamCreateWithPriority(&stream, flags, priority))) {
-            return {};
-        }
+        err = invoke_in_context_or_undo(
+            h_ctx,
+            [&]() noexcept { return p_cuStreamCreateWithPriority(&stream, flags, priority); },
+            [&]() noexcept { pw_cuStreamDestroy(stream); },
+            /*undo_requires_target_context=*/false);
+    }
+    if (err != CUDA_SUCCESS) {
+        return {};
     }
 
     auto box = std::shared_ptr<const StreamBox>(
@@ -631,7 +877,7 @@ StreamHandle create_stream_handle(const ContextHandle& h_ctx, unsigned int flags
         [](const StreamBox* b) {
             stream_registry.unregister_handle(b->resource);
             GILReleaseGuard gil;
-            p_cuStreamDestroy(b->resource);
+            pw_cuStreamDestroy(b->resource);
             delete b;
         }
     );
@@ -701,6 +947,7 @@ void py_object_user_object_destroy(void* py_object) noexcept {
     Py_DECREF(reinterpret_cast<PyObject*>(py_object));
 }
 
+// Return the context retained by a stream handle.
 ContextHandle get_stream_context(const StreamHandle& h) noexcept {
     return h ? get_box(h)->h_context : ContextHandle{};
 }
@@ -713,6 +960,70 @@ StreamHandle get_legacy_stream() {
 StreamHandle get_per_thread_stream() {
     static StreamHandle handle = create_stream_handle_ref(CU_STREAM_PER_THREAD);
     return handle;
+}
+
+StreamHandle create_context_bound_legacy_stream(const ContextHandle& h_context) {
+    if (!h_context) {
+        return {};
+    }
+    // Default deleter: this handle never owns CU_STREAM_LEGACY, so nothing
+    // needs to run when the last reference is released.
+    auto box = std::make_shared<const StreamBox>(StreamBox{CU_STREAM_LEGACY, h_context});
+    return StreamHandle(box, &box->resource);
+}
+
+// ============================================================================
+// Deallocation streams
+//
+// A DeallocationStream is a StreamHandle used for ordering frees. It differs
+// from an ordinary StreamHandle only for default-stream tokens, for which it
+// stores the (de)allocation context. Ordinarily, the LEGACY and PER_THREAD
+// default streams resolve to whichever context is active at the time they are
+// used, but for storing deallocation recipes we need to pin the context. With
+// the PER_THREAD token, it is not possible to restore the original stream when
+// deallocation runs on a different thread. Therefore, in that case the
+// allocating host thread id is also stored so that cross-thread frees can be
+// detected and warnings can be issued.
+// ============================================================================
+
+// Real streams are copied unchanged. Default-stream tokens without an embedded
+// context are bound to the current context. Returns false (and sets err) when a
+// default-stream token cannot be bound because no context is current.
+static bool make_deallocation_stream(
+        const StreamHandle& h, DeallocationStream& out) noexcept {
+    out = {};
+    if (!h) {
+        return true;
+    }
+
+    const CUstream stream = as_cu(h);
+    if (!is_default_stream(stream)) {
+        out = DeallocationStream{h, {}};
+        return true;
+    }
+
+    StreamHandle h_bound = h;
+    if (!get_stream_context(h)) {
+        ContextHandle h_ctx = get_current_context();
+        if (!h_ctx) {
+            if (err == CUDA_SUCCESS) {
+                err = CUDA_ERROR_INVALID_CONTEXT;
+            }
+            return false;
+        }
+        // Do not register in stream_registry: the token value alone is not
+        // a unique stream identity (context is part of the meaning).
+        auto box = std::shared_ptr<const StreamBox>(
+            new StreamBox{stream, h_ctx});
+        h_bound = StreamHandle(box, &box->resource);
+    }
+
+    std::thread::id ptds_tid{};
+    if (stream == CU_STREAM_PER_THREAD) {
+        ptds_tid = std::this_thread::get_id();
+    }
+    out = DeallocationStream{std::move(h_bound), ptds_tid};
+    return true;
 }
 
 // ============================================================================
@@ -753,6 +1064,7 @@ int get_event_device_id(const EventHandle& h) noexcept {
     return h ? get_box(h)->device_id : -1;
 }
 
+// Return the context retained by an event handle.
 ContextHandle get_event_context(const EventHandle& h) noexcept {
     return h ? get_box(h)->h_context : ContextHandle{};
 }
@@ -764,17 +1076,22 @@ EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
                                 bool timing_enabled, bool is_blocking_sync,
                                 bool ipc_enabled, int device_id) {
     GILReleaseGuard gil;
-    CUevent event;
-    if (CUDA_SUCCESS != (err = p_cuEventCreate(&event, flags))) {
+    CUevent event = nullptr;
+    err = invoke_in_context_or_undo(
+        h_ctx,
+        [&]() noexcept { return p_cuEventCreate(&event, flags); },
+        [&]() noexcept { pw_cuEventDestroy(event); },
+        /*undo_requires_target_context=*/false);
+    if (err != CUDA_SUCCESS) {
         return {};
     }
 
     auto box = std::shared_ptr<const EventBox>(
         new EventBox{event, timing_enabled, is_blocking_sync, ipc_enabled, device_id, h_ctx},
-        [h_ctx](const EventBox* b) {
+        [](const EventBox* b) {
             event_registry.unregister_handle(b->resource);
             GILReleaseGuard gil;
-            p_cuEventDestroy(b->resource);
+            pw_cuEventDestroy(b->resource);
             delete b;
         }
     );
@@ -783,8 +1100,23 @@ EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
     return h;
 }
 
-EventHandle create_event_handle_noctx(unsigned int flags) {
-    return create_event_handle(ContextHandle{}, flags, false, false, false, -1);
+EventHandle create_event_handle_for_stream(CUstream stream, unsigned int flags) {
+    // Resolve the stream's owning context (for default-stream tokens this is
+    // the current context, per cuStreamGetCtx) and create the event there, so
+    // it can be recorded on `stream` no matter which context is current.
+    CUcontext ctx = nullptr;
+    {
+        GILReleaseGuard gil;
+        err = p_cuStreamGetCtx(stream, &ctx);
+    }
+    if (err != CUDA_SUCCESS) {
+        return {};
+    }
+    if (!ctx) {
+        err = CUDA_ERROR_INVALID_CONTEXT;
+        return {};
+    }
+    return create_event_handle(create_context_handle_ref(ctx), flags, false, false, false, -1);
 }
 
 EventHandle create_event_handle_ref(CUevent event) {
@@ -808,7 +1140,7 @@ EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
         [](const EventBox* b) {
             event_registry.unregister_handle(b->resource);
             GILReleaseGuard gil;
-            p_cuEventDestroy(b->resource);
+            pw_cuEventDestroy(b->resource);
             delete b;
         }
     );
@@ -902,10 +1234,10 @@ MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType han
 namespace {
 struct DevicePtrBox {
     CUdeviceptr resource;
-    // Mutable to allow set_deallocation_stream() to update the stream
-    // through a const DevicePtrHandle. The stream can be changed after
-    // allocation (e.g., to synchronize deallocation with a different stream).
-    mutable StreamHandle h_stream;
+    // Mutable so set_deallocation_stream() can update free ordering through a
+    // const DevicePtrHandle. Built with make_deallocation_stream so default-
+    // stream tokens carry a bound context.
+    mutable DeallocationStream deallocation;
 };
 }  // namespace
 
@@ -913,7 +1245,7 @@ struct DevicePtrBox {
 // This works because DevicePtrHandle is a shared_ptr alias pointing to
 // &box->resource, so we can compute the containing struct using offsetof.
 // The const_cast is safe because we only use this to access the mutable
-// h_stream member or in the deleter (where the box is being destroyed).
+// deallocation member or in the deleter (where the box is being destroyed).
 static DevicePtrBox* get_box(const DevicePtrHandle& h) {
     const CUdeviceptr* p = h.get();
     return reinterpret_cast<DevicePtrBox*>(
@@ -921,12 +1253,22 @@ static DevicePtrBox* get_box(const DevicePtrHandle& h) {
     );
 }
 
+// Return the stream that orders a device pointer's deallocation.
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept {
-    return get_box(h)->h_stream;
+    return get_box(h)->deallocation.h_stream;
 }
 
-void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept {
-    get_box(h)->h_stream = h_stream;
+// Replace the stream that orders a device pointer's deallocation.
+CUresult set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept {
+    if (!h) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    DeallocationStream ds;
+    if (!make_deallocation_stream(h_stream, ds)) {
+        return err != CUDA_SUCCESS ? err : CUDA_ERROR_INVALID_CONTEXT;
+    }
+    get_box(h)->deallocation = std::move(ds);
+    return CUDA_SUCCESS;
 }
 
 DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h_pool, const StreamHandle& h_stream) {
@@ -936,11 +1278,23 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h
         return {};
     }
 
+    DeallocationStream ds;
+    if (!make_deallocation_stream(h_stream, ds)) {
+        pw_cuMemFreeAsync(ptr, as_cu(h_stream));
+        return {};
+    }
+
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, h_stream},
+        new DevicePtrBox{ptr, std::move(ds)},
         [h_pool](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
+            const DeallocationStream& stream = b->deallocation;
+            cleanup_in_context(
+                deallocation_context(stream), "cuMemFreeAsync",
+                [&]() noexcept {
+                    return p_cuMemFreeAsync(
+                        b->resource, as_cu(stream.h_stream));
+                });
             delete b;
         }
     );
@@ -954,33 +1308,38 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream)
         return {};
     }
 
+    DeallocationStream ds;
+    if (!make_deallocation_stream(h_stream, ds)) {
+        pw_cuMemFreeAsync(ptr, as_cu(h_stream));
+        return {};
+    }
+
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, h_stream},
+        new DevicePtrBox{ptr, std::move(ds)},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
+            const DeallocationStream& stream = b->deallocation;
+            cleanup_in_context(
+                deallocation_context(stream), "cuMemFreeAsync",
+                [&]() noexcept {
+                    return p_cuMemFreeAsync(
+                        b->resource, as_cu(stream.h_stream));
+                });
             delete b;
         }
     );
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_alloc(size_t size) {
+// Allocate device memory synchronously with the provided context current.
+CUresult deviceptr_alloc_raw(CUdeviceptr* ptr, size_t size,
+                             const ContextHandle& h_context) noexcept {
     GILReleaseGuard gil;
-    CUdeviceptr ptr;
-    if (CUDA_SUCCESS != (err = p_cuMemAlloc(&ptr, size))) {
-        return {};
-    }
-
-    auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, StreamHandle{}},
-        [](DevicePtrBox* b) {
-            GILReleaseGuard gil;
-            p_cuMemFree(b->resource);
-            delete b;
-        }
-    );
-    return DevicePtrHandle(box, &box->resource);
+    return invoke_in_context_or_undo(
+        h_context,
+        [&]() noexcept { return p_cuMemAlloc(ptr, size); },
+        [&]() noexcept { pw_cuMemFree(*ptr); },
+        /*undo_requires_target_context=*/false);
 }
 
 DevicePtrHandle deviceptr_alloc_host(size_t size) {
@@ -991,7 +1350,7 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), StreamHandle{}},
+        new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), DeallocationStream{}},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
             p_cuMemFreeHost(reinterpret_cast<void*>(b->resource));
@@ -1002,7 +1361,7 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
 }
 
 DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr) {
-    auto box = std::make_shared<DevicePtrBox>(DevicePtrBox{ptr, StreamHandle{}});
+    auto box = std::make_shared<DevicePtrBox>(DevicePtrBox{ptr, DeallocationStream{}});
     return DevicePtrHandle(box, &box->resource);
 }
 
@@ -1018,7 +1377,7 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
     }
     Py_INCREF(owner);
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, StreamHandle{}},
+        new DevicePtrBox{ptr, DeallocationStream{}},
         [owner](DevicePtrBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
@@ -1035,12 +1394,22 @@ DevicePtrHandle deviceptr_create_mapped_graphics(
     const GraphicsResourceHandle& h_resource,
     const StreamHandle& h_stream
 ) {
+    DeallocationStream ds;
+    if (!make_deallocation_stream(h_stream, ds)) {
+        return {};
+    }
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, h_stream},
+        new DevicePtrBox{ptr, std::move(ds)},
         [h_resource](DevicePtrBox* b) {
             GILReleaseGuard gil;
             CUgraphicsResource resource = as_cu(h_resource);
-            p_cuGraphicsUnmapResources(1, &resource, as_cu(b->h_stream));
+            const DeallocationStream& stream = b->deallocation;
+            cleanup_in_context(
+                deallocation_context(stream), "cuGraphicsUnmapResources",
+                [&]() noexcept {
+                    return p_cuGraphicsUnmapResources(
+                        1, &resource, as_cu(stream.h_stream));
+                });
             delete b;
         }
     );
@@ -1068,12 +1437,18 @@ DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject*
     }
     Py_INCREF(mr);
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, StreamHandle{}},
+        new DevicePtrBox{ptr, DeallocationStream{}},
         [mr, size](DevicePtrBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
                 if (mr_dealloc_cb) {
-                    mr_dealloc_cb(mr, b->resource, size, b->h_stream);
+                    const DeallocationStream& stream = b->deallocation;
+                    cleanup_in_context(
+                        deallocation_context(stream), "MemoryResource.deallocate",
+                        [&]() noexcept {
+                            mr_dealloc_cb(mr, b->resource, size, stream.h_stream);
+                            return CUDA_SUCCESS;
+                        });
                 }
                 Py_DECREF(mr);
             }
@@ -1161,12 +1536,24 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
             return {};
         }
 
+        DeallocationStream ds;
+        if (!make_deallocation_stream(h_stream, ds)) {
+            pw_cuMemFreeAsync(ptr, as_cu(h_stream));
+            return {};
+        }
+
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, h_stream},
+            new DevicePtrBox{ptr, std::move(ds)},
             [h_pool, key](DevicePtrBox* b) {
                 ipc_ptr_cache.unregister_handle(key);
                 GILReleaseGuard gil;
-                p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
+                const DeallocationStream& stream = b->deallocation;
+                cleanup_in_context(
+                    deallocation_context(stream), "cuMemFreeAsync",
+                    [&]() noexcept {
+                        return p_cuMemFreeAsync(
+                            b->resource, as_cu(stream.h_stream));
+                    });
                 delete b;
             }
         );
@@ -1181,11 +1568,23 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
             return {};
         }
 
+        DeallocationStream ds;
+        if (!make_deallocation_stream(h_stream, ds)) {
+            pw_cuMemFreeAsync(ptr, as_cu(h_stream));
+            return {};
+        }
+
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, h_stream},
+            new DevicePtrBox{ptr, std::move(ds)},
             [h_pool](DevicePtrBox* b) {
                 GILReleaseGuard gil;
-                p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
+                const DeallocationStream& stream = b->deallocation;
+                cleanup_in_context(
+                    deallocation_context(stream), "cuMemFreeAsync",
+                    [&]() noexcept {
+                        return p_cuMemFreeAsync(
+                            b->resource, as_cu(stream.h_stream));
+                    });
                 delete b;
             }
         );
@@ -1341,7 +1740,8 @@ struct GraphHierarchy {
 };
 
 // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
-static HandleRegistry<CUgraph, GraphHandle> graph_registry;
+using GraphRegistry = HandleRegistry<CUgraph, GraphHandle>;
+static GraphRegistry graph_registry;
 
 // Immutable resource owners for one version of a graph node's parameters.
 // Inheriting DeferredCleanupItem lets CUDA's user-object destructor enqueue
@@ -1404,52 +1804,71 @@ CUresult rekey_attachments(
     return CUDA_SUCCESS;
 }
 
-// Recursively copy and rekey attachments for a cloned graph hierarchy.
-// The caller must release the GIL before calling this function.
-CUresult copy_attachments(
+struct StagedGraphMetadata {
+    const GraphBox* source;
+    GraphBox* clone;
+    GraphAttachmentMap* attachments;
+};
+using StagedGraphMetadataList = std::vector<StagedGraphMetadata>;
+
+// Copy a source hierarchy into detached metadata before CUDA mutation.
+void stage_graph_metadata(
         const GraphBox& source,
         GraphBox& clone,
         GraphAttachmentMap& attachments,
-        std::list<GraphBox>& subgraphs) {
-    if (!p_cuGraphNodeFindInClone || !p_cuGraphChildGraphNodeGetGraph) {
-        return CUDA_ERROR_NOT_SUPPORTED;
-    }
-
+        std::list<GraphBox>& subgraphs,
+        StagedGraphMetadataList& staged) {
     attachments = source.attachments;
-    CUresult status = rekey_attachments(attachments, clone.resource);
-    if (status != CUDA_SUCCESS) {
-        return status;
-    }
+    staged.push_back({&source, &clone, &attachments});
 
     for (const GraphBox& source_child : source.hierarchy->graphs) {
         if (source_child.parent != &source || !source_child.resource) {
             continue;
         }
-
-        CUgraphNode cloned_owner = nullptr;
-        status = p_cuGraphNodeFindInClone(
-            &cloned_owner, source_child.owner_node, clone.resource);
-        if (status != CUDA_SUCCESS) {
-            return status;
-        }
-
-        CUgraph cloned_graph = nullptr;
-        status = p_cuGraphChildGraphNodeGetGraph(
-            cloned_owner, &cloned_graph);
-        if (status != CUDA_SUCCESS) {
-            return status;
-        }
-
         GraphBox& cloned_child = subgraphs.emplace_back(
-            cloned_graph,
+            nullptr,
             clone.hierarchy,
             &clone,
-            cloned_owner);
-        status = copy_attachments(
+            nullptr);
+        stage_graph_metadata(
             source_child,
             cloned_child,
             cloned_child.attachments,
-            subgraphs);
+            subgraphs,
+            staged);
+    }
+}
+
+// Bind staged metadata to a CUDA-cloned hierarchy. The root clone resource
+// must be populated before entry. The caller must release the GIL.
+CUresult rekey_graph_metadata(
+        StagedGraphMetadataList& staged) {
+    if (!p_cuGraphNodeFindInClone || !p_cuGraphChildGraphNodeGetGraph) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+
+    CUresult status;
+    for (size_t i = 0; i < staged.size(); ++i) {
+        const GraphBox& source = *staged[i].source;
+        GraphBox& clone = *staged[i].clone;
+        if (i != 0) {
+            CUgraphNode cloned_owner = nullptr;
+            status = p_cuGraphNodeFindInClone(
+                &cloned_owner,
+                source.owner_node,
+                clone.parent->resource);
+            if (status == CUDA_SUCCESS) {
+                status = p_cuGraphChildGraphNodeGetGraph(
+                    cloned_owner, &clone.resource);
+            }
+            if (status != CUDA_SUCCESS) {
+                return status;
+            }
+            clone.owner_node = cloned_owner;
+        }
+
+        status = rekey_attachments(
+            *staged[i].attachments, clone.resource);
         if (status != CUDA_SUCCESS) {
             return status;
         }
@@ -1497,6 +1916,29 @@ void rollback_prepared_attachment(
     delete state;
 }
 
+// Detached metadata for a replacement embedded graph hierarchy. Preparation
+// copies every attachment map and allocates every GraphBox before CUDA destroys
+// the old embedded graph. Commit only rekeys and publishes it.
+struct PreparedChildGraphUpdateState {
+    GraphHandle h_parent;
+    GraphHandle h_source;
+    GraphBox* old_root = nullptr;
+    CUgraphNode owner_node = nullptr;
+    std::list<GraphBox> replacement;
+    StagedGraphMetadataList staged;
+    std::vector<GraphHandle> handles;
+
+    PreparedChildGraphUpdateState(
+            GraphHandle h_parent_,
+            GraphHandle h_source_,
+            GraphBox* old_root_,
+            CUgraphNode owner_node_)
+        : h_parent(std::move(h_parent_)),
+          h_source(std::move(h_source_)),
+          old_root(old_root_),
+          owner_node(owner_node_) {}
+};
+
 GraphHandle create_graph_handle(CUgraph graph) {
     if (!graph) {
         return {};
@@ -1543,13 +1985,110 @@ GraphHandle create_child_graph_handle(
         child_graph, hierarchy, parent, owner_node);
 
     GraphHandle h_child(h_parent, &child.resource);
-    try {
-        graph_registry.register_handle(child_graph, h_child);
-    } catch (...) {
-        hierarchy->graphs.pop_back();
-        throw;
-    }
+    graph_registry.register_handle(child_graph, h_child);
     return h_child;
+}
+
+CUresult graph_prepare_child_graph_update(
+        const GraphHandle& h_parent,
+        const GraphHandle& h_old_child,
+        CUgraphNode owner_node,
+        const GraphHandle& h_source,
+        PreparedChildGraphUpdate* out_prepared) {
+    if (!h_parent || !h_old_child || !owner_node ||
+        !h_source || !out_prepared) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    out_prepared->reset();
+
+    GraphBox* parent = get_box(h_parent);
+    GraphBox* old_root = get_box(h_old_child);
+    GraphBox* source = get_box(h_source);
+    // A source from the destination hierarchy can include the old embedded
+    // subtree whose raw node keys CUDA destroys during replacement.
+    if (!parent->resource || !old_root->resource || !source->resource ||
+        old_root->parent != parent ||
+        old_root->owner_node != owner_node ||
+        source->hierarchy == parent->hierarchy) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    PreparedChildGraphUpdate prepared =
+        std::make_shared<PreparedChildGraphUpdateState>(
+            h_parent, h_source, old_root, owner_node);
+
+    GraphBox& replacement_root =
+        prepared->replacement.emplace_back(
+            nullptr, parent->hierarchy, parent, owner_node);
+    stage_graph_metadata(
+        *source,
+        replacement_root,
+        replacement_root.attachments,
+        prepared->replacement,
+        prepared->staged);
+
+    const size_t graph_count = prepared->staged.size();
+    prepared->handles.reserve(graph_count);
+    for (const StagedGraphMetadata& graph : prepared->staged) {
+        prepared->handles.emplace_back(
+            h_parent, &graph.clone->resource);
+    }
+
+    *out_prepared = std::move(prepared);
+    return CUDA_SUCCESS;
+}
+
+void publish_child_graph_update(
+        PreparedChildGraphUpdateState& state,
+        GraphHandle* out_child) {
+    GraphBox* parent = get_box(state.h_parent);
+    parent->hierarchy->graphs.splice(
+        parent->hierarchy->graphs.end(), state.replacement);
+    *out_child = state.handles.front();
+    graph_registry.register_handles(state.handles);
+}
+
+CUresult graph_commit_child_graph_update(
+        PreparedChildGraphUpdate& prepared,
+        GraphHandle* out_child) {
+    if (!prepared || !out_child) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    out_child->reset();
+
+    PreparedChildGraphUpdateState& state = *prepared;
+    GraphBox* parent = get_box(state.h_parent);
+    if (!parent->resource || !state.old_root->resource) {
+        prepared.reset();
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    CUresult status = CUDA_ERROR_NOT_SUPPORTED;
+    CUgraph cloned_root = nullptr;
+    if (p_cuGraphChildGraphNodeGetGraph) {
+        GILReleaseGuard gil;
+        status = p_cuGraphChildGraphNodeGetGraph(
+            state.owner_node, &cloned_root);
+        if (status == CUDA_SUCCESS) {
+            state.staged.front().clone->resource = cloned_root;
+            status = rekey_graph_metadata(state.staged);
+        }
+    }
+
+    // CUDA has already destroyed the old embedded graph. No replacement
+    // metadata is visible yet, so this selects only the old generation.
+    invalidate_child_graph_state(
+        state.h_parent, state.owner_node);
+
+    if (status != CUDA_SUCCESS) {
+        prepared.reset();
+        throw std::runtime_error(
+            "failed to update graph metadata after child graph replacement");
+    }
+
+    publish_child_graph_update(state, out_child);
+    prepared.reset();
+    return status;
 }
 
 CUresult graph_get_attachment(
@@ -1727,13 +2266,22 @@ CUresult graph_clone_attachments(
 
     // Build and rekey the clone metadata off-hierarchy so a CUDA mapping error
     // cannot partially publish it.
-    GraphAttachmentMap attachments = source->attachments;
+    GraphAttachmentMap attachments;
     std::list<GraphBox> subgraphs;
+    StagedGraphMetadataList staged;
+    stage_graph_metadata(
+        *source, *clone, attachments, subgraphs, staged);
+
+    std::vector<GraphHandle> handles;
+    handles.reserve(subgraphs.size());
+    for (GraphBox& graph : subgraphs) {
+        handles.emplace_back(h_clone, &graph.resource);
+    }
+
     CUresult status;
     {
         GILReleaseGuard gil;
-        status = copy_attachments(
-            *source, *clone, attachments, subgraphs);
+        status = rekey_graph_metadata(staged);
     }
     if (status != CUDA_SUCCESS) {
         return status;
@@ -1744,13 +2292,9 @@ CUresult graph_clone_attachments(
         return CUDA_SUCCESS;
     }
 
-    auto first = subgraphs.begin();
     clone->hierarchy->graphs.splice(
         clone->hierarchy->graphs.end(), subgraphs);
-    for (auto it = first; it != clone->hierarchy->graphs.end(); ++it) {
-        GraphHandle h_graph(h_clone, &it->resource);
-        graph_registry.register_handle(it->resource, h_graph);
-    }
+    graph_registry.register_handles(handles);
     return CUDA_SUCCESS;
 }
 
@@ -1759,24 +2303,272 @@ CUresult graph_clone_attachments(
 // ============================================================================
 
 namespace {
-struct GraphExecBox {
-    CUgraphExec resource;
-};
-}  // namespace
 
-GraphExecHandle create_graph_exec_handle(CUgraphExec graph_exec) {
-    auto box = std::shared_ptr<const GraphExecBox>(
-        new GraphExecBox{graph_exec},
-        [](const GraphExecBox* b) {
-            {
+// Append-only owners introduced by individual executable-node updates. CUDA
+// owns this payload through a user object propagated into the CUgraphExec.
+struct ExecAttachments : DeferredCleanupItem {
+    CUuserObject object = nullptr;
+    std::vector<OpaqueHandle> owners;
+};
+
+struct GraphExecBox {
+    CUgraphExec resource = nullptr;
+    ExecAttachments* attachments = nullptr;  // Non-owning.
+
+    ~GraphExecBox() noexcept {
+        if (resource) {
+            GILReleaseGuard gil;
+            p_cuGraphExecDestroy(resource);
+        }
+        // The accumulator fields may be dangling after exec destruction.
+        retry_deferred_cleanup();
+    }
+};
+
+GraphExecBox* get_exec_box(const GraphExecHandle& h) noexcept {
+    return const_cast<GraphExecBox*>(
+        reinterpret_cast<const GraphExecBox*>(h.get()));
+}
+
+GraphExecHandle make_graph_exec_handle(
+        CUgraphExec graph_exec, ExecAttachments* attachments) {
+    struct RawGraphExecGuard {
+        CUgraphExec resource;
+
+        ~RawGraphExecGuard() noexcept {
+            if (resource) {
                 GILReleaseGuard gil;
-                p_cuGraphExecDestroy(b->resource);
+                p_cuGraphExecDestroy(resource);
             }
             retry_deferred_cleanup();
-            delete b;
         }
-    );
+    } guard{graph_exec};
+
+    auto box = std::make_shared<GraphExecBox>();
+    box->resource = graph_exec;
+    box->attachments = attachments;
+    guard.resource = nullptr;
     return GraphExecHandle(box, &box->resource);
+}
+
+// Holds a fresh accumulator retained on the source graph across a CUDA call
+// that propagates user objects into an exec. Releasing drops the source's
+// reference: after successful propagation the exec keeps the accumulator
+// alive, and otherwise this drops its last reference.
+struct ExecAttachmentStaging {
+    GraphHandle h_source;
+    ExecAttachments* accumulator = nullptr;
+
+    ~ExecAttachmentStaging() noexcept {
+        release();
+    }
+
+    CUresult release() noexcept {
+        if (!h_source || !accumulator) {
+            return CUDA_SUCCESS;
+        }
+        const CUuserObject object = accumulator->object;
+        const GraphHandle source = std::move(h_source);
+        accumulator = nullptr;
+        GILReleaseGuard gil;
+        return p_cuGraphReleaseUserObject(*source, object, 1);
+    }
+};
+
+// Create an accumulator and retain it on h_source, so that a following
+// instantiation or whole-graph update propagates a reference into the exec.
+CUresult stage_exec_attachments(
+        const GraphHandle& h_source, ExecAttachmentStaging* out_staging) {
+    if (!p_cuUserObjectCreate || !p_cuUserObjectRelease ||
+        !p_cuGraphRetainUserObject || !p_cuGraphReleaseUserObject) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+
+    ensure_deferred_cleanup_ready();
+    auto* accumulator = new ExecAttachments;
+
+    CUuserObject object = nullptr;
+    CUresult status;
+    {
+        GILReleaseGuard gil;
+        status = p_cuUserObjectCreate(
+            &object,
+            static_cast<DeferredCleanupItem*>(accumulator),
+            reinterpret_cast<CUhostFn>(enqueue_cleanup),
+            1,
+            CU_USER_OBJECT_NO_DESTRUCTOR_SYNC);
+        if (status != CUDA_SUCCESS) {
+            delete accumulator;
+            return status;
+        }
+        accumulator->object = object;
+        status = p_cuGraphRetainUserObject(
+            *h_source, object, 1, CU_GRAPH_USER_OBJECT_MOVE);
+        if (status != CUDA_SUCCESS) {
+            // Dropping the last reference retires the accumulator.
+            p_cuUserObjectRelease(object, 1);
+            return status;
+        }
+    }
+
+    out_staging->h_source = h_source;
+    out_staging->accumulator = accumulator;
+    return CUDA_SUCCESS;
+}
+
+}  // namespace
+
+// State held by PreparedExecAttachment between preparation and commit. It keeps
+// the exec alive and remembers the accumulator size before the append, so that
+// rollback can drop owners staged for a mutation that CUDA rejected.
+struct PreparedExecAttachmentState {
+    GraphExecHandle h_exec;
+    ExecAttachments* attachments = nullptr;
+    size_t original_size = 0;
+
+    PreparedExecAttachmentState(
+            GraphExecHandle h_exec_,
+            ExecAttachments* attachments_,
+            size_t original_size_)
+        : h_exec(std::move(h_exec_)),
+          attachments(attachments_),
+          original_size(original_size_) {}
+};
+
+void rollback_prepared_exec_attachment(
+        PreparedExecAttachmentState* state) noexcept {
+    if (!state) {
+        return;
+    }
+    if (state->attachments) {
+        while (state->attachments->owners.size() > state->original_size) {
+            state->attachments->owners.pop_back();
+        }
+    }
+    delete state;
+}
+
+GraphExecHandle create_graph_exec_handle(
+        const GraphHandle& h_source,
+        CUDA_GRAPH_INSTANTIATE_PARAMS* params) {
+    if (!h_source || !*h_source || !params) {
+        err = CUDA_ERROR_INVALID_VALUE;
+        return {};
+    }
+    if (!p_cuGraphInstantiateWithParams) {
+        err = CUDA_ERROR_NOT_SUPPORTED;
+        return {};
+    }
+
+    ExecAttachmentStaging staging;
+    if (CUDA_SUCCESS != (err = stage_exec_attachments(h_source, &staging))) {
+        return {};
+    }
+
+    CUgraphExec graph_exec = nullptr;
+    {
+        GILReleaseGuard gil;
+        err = p_cuGraphInstantiateWithParams(&graph_exec, *h_source, params);
+    }
+    if (err != CUDA_SUCCESS) {
+        return {};
+    }
+    // CUDA can report a specific failure while returning success. The exec is
+    // then unusable, so it stays unadopted for the caller to diagnose from
+    // params->result_out.
+    if (params->result_out != CUDA_GRAPH_INSTANTIATE_SUCCESS) {
+        return {};
+    }
+    if (!graph_exec) {
+        err = CUDA_ERROR_INVALID_VALUE;
+        return {};
+    }
+
+    GraphExecHandle h_exec = make_graph_exec_handle(
+        graph_exec, staging.accumulator);
+    if (CUDA_SUCCESS != (err = staging.release())) {
+        return {};
+    }
+    return h_exec;
+}
+
+CUresult graph_exec_update(
+        const GraphExecHandle& h_exec,
+        const GraphHandle& h_source,
+        CUgraphExecUpdateResultInfo* result_info) {
+    if (!h_exec || !h_source || !*h_source || !result_info) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    if (!p_cuGraphExecUpdate) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+
+    GraphExecBox* box = get_exec_box(h_exec);
+    if (!box->resource) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    ExecAttachmentStaging staging;
+    CUresult status = stage_exec_attachments(h_source, &staging);
+    if (status != CUDA_SUCCESS) {
+        return status;
+    }
+
+    {
+        GILReleaseGuard gil;
+        status = p_cuGraphExecUpdate(box->resource, *h_source, result_info);
+    }
+    if (status != CUDA_SUCCESS) {
+        return status;
+    }
+
+    // CUDA may already have retired the old accumulator. Publish the new one
+    // before releasing the source graph's temporary reference.
+    box->attachments = staging.accumulator;
+    return staging.release();
+}
+
+CUresult graph_prepare_exec_attachment(
+        const GraphExecHandle& h_exec,
+        OpaqueHandle owner0,
+        OpaqueHandle owner1,
+        PreparedExecAttachment* out_prepared) {
+    if (!out_prepared) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    out_prepared->reset();
+    if (!h_exec) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    GraphExecBox* box = get_exec_box(h_exec);
+    if (!box->resource || !box->attachments) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    ExecAttachments* attachments = box->attachments;
+    const size_t original_size = attachments->owners.size();
+    const size_t additions =
+        static_cast<size_t>(static_cast<bool>(owner0)) +
+        static_cast<size_t>(static_cast<bool>(owner1));
+    // Reserve before staging so that rollback and commit cannot allocate.
+    attachments->owners.reserve(original_size + additions);
+    PreparedExecAttachment prepared(
+        new PreparedExecAttachmentState(h_exec, attachments, original_size),
+        PreparedExecAttachmentDeleter{rollback_prepared_exec_attachment});
+    if (owner0) {
+        attachments->owners.emplace_back(std::move(owner0));
+    }
+    if (owner1) {
+        attachments->owners.emplace_back(std::move(owner1));
+    }
+    *out_prepared = std::move(prepared);
+    return CUDA_SUCCESS;
+}
+
+void graph_commit_exec_attachment(
+        PreparedExecAttachment& prepared) noexcept {
+    delete prepared.release();
 }
 
 namespace {
@@ -2045,12 +2837,18 @@ struct ArrayBox {
     // Non-null only for a mipmap-level view: keeps the parent mipmap (the real
     // owner of the level's storage) alive for as long as the level is held.
     MipmappedArrayHandle h_parent;
+    ContextHandle h_context;
 };
 
 struct MipmappedArrayBox {
     CUmipmappedArray resource;
+    ContextHandle h_context;
 };
 
+// Texture and surface objects are per-context pool indices. Destroying one
+// with the wrong context current can silently succeed without freeing it or
+// can free an unrelated object, so destruction must enter the creating
+// context. Handle-based resources resolve their own context and must not.
 struct TexObjectBox {
     // Tagged so TexObjectHandle is a distinct C++ type from DevicePtrHandle /
     // SurfObjectHandle (all wrap `unsigned long long`).
@@ -2059,31 +2857,64 @@ struct TexObjectBox {
     // DevicePtrHandle). The texture's resource is a union; we only need to keep
     // whichever backing it was built from alive, never to dereference it.
     std::shared_ptr<const void> h_backing;
+    ContextHandle h_context;
 };
 
 struct SurfObjectBox {
     SurfObjectValue resource;
     OpaqueArrayHandle h_array;  // surfaces are always array-backed
+    ContextHandle h_context;
 };
+
+// Recover an array's owning box from its aliased resource pointer.
+const ArrayBox* get_box(const OpaqueArrayHandle& h) noexcept {
+    const CUarray* p = h.get();
+    return reinterpret_cast<const ArrayBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(ArrayBox, resource));
+}
+
+// Recover a mipmapped array's owning box from its aliased resource pointer.
+const MipmappedArrayBox* get_box(const MipmappedArrayHandle& h) noexcept {
+    const CUmipmappedArray* p = h.get();
+    return reinterpret_cast<const MipmappedArrayBox*>(
+        reinterpret_cast<const char*>(p)
+        - offsetof(MipmappedArrayBox, resource));
+}
+
+// Wrap an array with shared owning-destruction behavior.
+static OpaqueArrayHandle wrap_array_owned(CUarray arr, ContextHandle h_context) {
+    auto box = std::shared_ptr<const ArrayBox>(
+        new ArrayBox{arr, {}, std::move(h_context)},
+        [](const ArrayBox* b) {
+            GILReleaseGuard gil;
+            pw_cuArrayDestroy(b->resource);
+            delete b;
+        }
+    );
+    return OpaqueArrayHandle(box, &box->resource);
+}
+
 }  // namespace
 
-OpaqueArrayHandle create_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc) {
+OpaqueArrayHandle create_array_handle(const ContextHandle& h_context, const CUDA_ARRAY3D_DESCRIPTOR& desc) {
     GILReleaseGuard gil;
-    CUarray arr;
-    if (CUDA_SUCCESS != (err = p_cuArray3DCreate(&arr, &desc))) {
+    CUarray arr = nullptr;
+    err = invoke_in_context_or_undo(
+        h_context,
+        [&]() noexcept { return p_cuArray3DCreate(&arr, &desc); },
+        [&]() noexcept { pw_cuArrayDestroy(arr); },
+        /*undo_requires_target_context=*/false);
+    if (err != CUDA_SUCCESS) {
         return {};
     }
-    // Allocation and adoption share the same owning lifetime; the only
-    // difference is who calls cuArray3DCreate. Delegate so the owning box and
-    // its destroy-on-last-ref deleter are defined in exactly one place.
-    return create_array_handle_owning(arr);
+    return wrap_array_owned(arr, h_context);
 }
 
 OpaqueArrayHandle create_array_handle_ref(CUarray arr) {
     if (!arr) {
         return {};
     }
-    auto box = std::make_shared<const ArrayBox>(ArrayBox{arr, {}});
+    auto box = std::make_shared<const ArrayBox>(ArrayBox{arr, {}, {}});
     return OpaqueArrayHandle(box, &box->resource);
 }
 
@@ -2091,64 +2922,81 @@ OpaqueArrayHandle create_array_handle_owning(CUarray arr) {
     if (!arr) {
         return {};
     }
-    auto box = std::shared_ptr<const ArrayBox>(
-        new ArrayBox{arr, {}},
-        [](const ArrayBox* b) {
-            GILReleaseGuard gil;
-            p_cuArrayDestroy(b->resource);
-            delete b;
-        }
-    );
-    return OpaqueArrayHandle(box, &box->resource);
+    return wrap_array_owned(arr, {});
+}
+
+// Return the context retained by an array handle.
+ContextHandle get_array_context(const OpaqueArrayHandle& h) noexcept {
+    return h ? get_box(h)->h_context : ContextHandle{};
 }
 
 OpaqueArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigned int level) {
     GILReleaseGuard gil;
     CUarray arr;
+    ContextHandle h_context = h_mip ? get_box(h_mip)->h_context : ContextHandle{};
     if (CUDA_SUCCESS != (err = p_cuMipmappedArrayGetLevel(&arr, as_cu(h_mip), level))) {
         return {};
     }
     // Non-owning level view: storage belongs to the mipmap. Embed the mipmap
     // handle so the parent outlives this level; the deleter does not destroy.
     auto box = std::shared_ptr<const ArrayBox>(
-        new ArrayBox{arr, h_mip},
+        new ArrayBox{arr, h_mip, h_context},
         [](const ArrayBox* b) { delete b; }
     );
     return OpaqueArrayHandle(box, &box->resource);
 }
 
-MipmappedArrayHandle create_mipmapped_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc,
+MipmappedArrayHandle create_mipmapped_array_handle(const ContextHandle& h_context,
+                                                   const CUDA_ARRAY3D_DESCRIPTOR& desc,
                                                    unsigned int num_levels) {
     GILReleaseGuard gil;
-    CUmipmappedArray mip;
-    if (CUDA_SUCCESS != (err = p_cuMipmappedArrayCreate(&mip, &desc, num_levels))) {
+    CUmipmappedArray mip = nullptr;
+    err = invoke_in_context_or_undo(
+        h_context,
+        [&]() noexcept { return p_cuMipmappedArrayCreate(&mip, &desc, num_levels); },
+        [&]() noexcept { pw_cuMipmappedArrayDestroy(mip); },
+        /*undo_requires_target_context=*/false);
+    if (err != CUDA_SUCCESS) {
         return {};
     }
     auto box = std::shared_ptr<const MipmappedArrayBox>(
-        new MipmappedArrayBox{mip},
+        new MipmappedArrayBox{mip, h_context},
         [](const MipmappedArrayBox* b) {
             GILReleaseGuard gil;
-            p_cuMipmappedArrayDestroy(b->resource);
+            pw_cuMipmappedArrayDestroy(b->resource);
             delete b;
         }
     );
     return MipmappedArrayHandle(box, &box->resource);
 }
 
+// Return the context retained by a mipmapped array handle.
+ContextHandle get_mipmapped_array_context(const MipmappedArrayHandle& h) noexcept {
+    return h ? get_box(h)->h_context : ContextHandle{};
+}
+
 namespace {
 TexObjectHandle make_tex_object_handle(const CUDA_RESOURCE_DESC& res,
                                        const CUDA_TEXTURE_DESC& tex,
-                                       std::shared_ptr<const void> h_backing) {
+                                       std::shared_ptr<const void> h_backing,
+                                       const ContextHandle& h_context) {
     GILReleaseGuard gil;
-    CUtexObject obj;
-    if (CUDA_SUCCESS != (err = p_cuTexObjectCreate(&obj, &res, &tex, nullptr))) {
+    CUtexObject obj = 0;
+    err = invoke_in_context_or_undo(
+        h_context,
+        [&]() noexcept { return p_cuTexObjectCreate(&obj, &res, &tex, nullptr); },
+        [&]() noexcept { pw_cuTexObjectDestroy(obj); },
+        /*undo_requires_target_context=*/true);
+    if (err != CUDA_SUCCESS) {
         return {};
     }
     auto box = std::shared_ptr<const TexObjectBox>(
-        new TexObjectBox{TexObjectValue{obj}, std::move(h_backing)},
+        new TexObjectBox{TexObjectValue{obj}, std::move(h_backing), h_context},
         [](const TexObjectBox* b) {
             GILReleaseGuard gil;
-            p_cuTexObjectDestroy(b->resource.raw);
+            cleanup_in_context(b->h_context, "cuTexObjectDestroy", [&]() noexcept {
+                return p_cuTexObjectDestroy(b->resource.raw);
+            });
             delete b;
         }
     );
@@ -2156,36 +3004,47 @@ TexObjectHandle make_tex_object_handle(const CUDA_RESOURCE_DESC& res,
 }
 }  // namespace
 
-TexObjectHandle create_tex_object_handle_array(const CUDA_RESOURCE_DESC& res,
+TexObjectHandle create_tex_object_handle_array(const ContextHandle& h_context,
+                                               const CUDA_RESOURCE_DESC& res,
                                                const CUDA_TEXTURE_DESC& tex,
                                                const OpaqueArrayHandle& h_backing) {
-    return make_tex_object_handle(res, tex, h_backing);
+    return make_tex_object_handle(res, tex, h_backing, h_context);
 }
 
-TexObjectHandle create_tex_object_handle_mipmap(const CUDA_RESOURCE_DESC& res,
+TexObjectHandle create_tex_object_handle_mipmap(const ContextHandle& h_context,
+                                                const CUDA_RESOURCE_DESC& res,
                                                 const CUDA_TEXTURE_DESC& tex,
                                                 const MipmappedArrayHandle& h_backing) {
-    return make_tex_object_handle(res, tex, h_backing);
+    return make_tex_object_handle(res, tex, h_backing, h_context);
 }
 
-TexObjectHandle create_tex_object_handle_linear(const CUDA_RESOURCE_DESC& res,
+TexObjectHandle create_tex_object_handle_linear(const ContextHandle& h_context,
+                                                const CUDA_RESOURCE_DESC& res,
                                                 const CUDA_TEXTURE_DESC& tex,
                                                 const DevicePtrHandle& h_backing) {
-    return make_tex_object_handle(res, tex, h_backing);
+    return make_tex_object_handle(res, tex, h_backing, h_context);
 }
 
-SurfObjectHandle create_surf_object_handle(const CUDA_RESOURCE_DESC& res,
+SurfObjectHandle create_surf_object_handle(const ContextHandle& h_context,
+                                           const CUDA_RESOURCE_DESC& res,
                                            const OpaqueArrayHandle& h_backing) {
     GILReleaseGuard gil;
-    CUsurfObject obj;
-    if (CUDA_SUCCESS != (err = p_cuSurfObjectCreate(&obj, &res))) {
+    CUsurfObject obj = 0;
+    err = invoke_in_context_or_undo(
+        h_context,
+        [&]() noexcept { return p_cuSurfObjectCreate(&obj, &res); },
+        [&]() noexcept { pw_cuSurfObjectDestroy(obj); },
+        /*undo_requires_target_context=*/true);
+    if (err != CUDA_SUCCESS) {
         return {};
     }
     auto box = std::shared_ptr<const SurfObjectBox>(
-        new SurfObjectBox{SurfObjectValue{obj}, h_backing},
+        new SurfObjectBox{SurfObjectValue{obj}, h_backing, h_context},
         [](const SurfObjectBox* b) {
             GILReleaseGuard gil;
-            p_cuSurfObjectDestroy(b->resource.raw);
+            cleanup_in_context(b->h_context, "cuSurfObjectDestroy", [&]() noexcept {
+                return p_cuSurfObjectDestroy(b->resource.raw);
+            });
             delete b;
         }
     );
@@ -2213,6 +3072,27 @@ CUresult sm_resource_split(CUdevResource* result, unsigned int nbGroups,
 
 bool has_sm_resource_split() noexcept {
     return p_cuDevSmResourceSplit != nullptr;
+}
+
+// ============================================================================
+// cuMemcpyWithAttributesAsync wrapper
+// ============================================================================
+
+CUresult memcpy_with_attributes_async(CUdeviceptr dst, CUdeviceptr src, size_t size,
+                                       void* attr, CUstream hStream) {
+#if CUDA_VERSION >= 13020
+    if (!p_cuMemcpyWithAttributesAsync) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+    return p_cuMemcpyWithAttributesAsync(
+        dst, src, size, static_cast<CUmemcpyAttributes*>(attr), hStream);
+#else
+    return CUDA_ERROR_NOT_SUPPORTED;
+#endif
+}
+
+bool has_memcpy_with_attributes_async() noexcept {
+    return p_cuMemcpyWithAttributesAsync != nullptr;
 }
 
 }  // namespace cuda_core

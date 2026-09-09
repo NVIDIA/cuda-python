@@ -1,9 +1,9 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .conftest import skip_if_nvml_unsupported
+from cuda_python_test_helpers.arch_check import skip_if_nvml_unsupported
 
 pytestmark = skip_if_nvml_unsupported
 

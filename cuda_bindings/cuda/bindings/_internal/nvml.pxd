@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
 
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=11f3b1735ed60584030439236109205020cc620c548d63cce0c15615e6334e4a
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=25a9a64fc7aed96ba4ab9be2bd7b2c8c2b464e7d8fb7dab7b2dd85b32da0efe3
 from ..cynvml cimport *
 
 
@@ -377,9 +376,9 @@ cdef nvmlReturn_t _nvmlDevicePerfMetricsGetSamples_v1(nvmlDevice_t device, nvmlP
 cdef nvmlReturn_t _nvmlDeviceSetNvlinkBwModeAsync_v1(nvmlDevice_t device, nvmlNvlinkSetBwModeAsync_v1_t* setBwModeAsync) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t _nvmlDeviceGetNvLinkTelemetrySamples_v1(nvmlDevice_t device, nvmlNvlinkTelemetrySamples_v1_t* samples) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t _nvmlEventSetRegisterGpuOperationalEvents_v1(nvmlEventSet_t eventSet, const nvmlGpuOperationalEventConfig_v1_t* config) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
-cdef nvmlReturn_t _nvmlEventSetWait_v3(nvmlEventSet_t set, nvmlEventData_v2_t* data, unsigned int timeoutms) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
-cdef nvmlReturn_t _nvmlEventSetGetContextCount_v1(nvmlEventSet_t set, unsigned int* count) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
-cdef nvmlReturn_t _nvmlEventSetGetContextInfo_v1(nvmlEventSet_t set, unsigned int index, nvmlOperationalEventContextInfo_v1_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
-cdef nvmlReturn_t _nvmlEventSetGetContextData_v1(nvmlEventSet_t set, unsigned int index, void* data, unsigned int* dataSize) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
-cdef nvmlReturn_t _nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1(nvmlEventSet_t set, unsigned int index, nvmlGpuOperationalEventContextLegacyXid_v1_t* xid) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlEventSetWait_v3(nvmlEventSet_t set, nvmlEventSetWait_v3_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlEventSetGetContextCount_v1(nvmlEventSet_t set, nvmlEventSetGetContextCount_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlEventSetGetContextInfo_v1(nvmlEventSet_t set, nvmlEventSetGetContextInfo_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlEventSetGetContextData_v1(nvmlEventSet_t set, nvmlEventSetGetContextData_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1(nvmlEventSet_t set, nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t _nvmlDeviceGetBankRemapperStatus_v1(nvmlDevice_t device, nvmlEccBankRemapperStatus_v1_t* pBankRemapperStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil

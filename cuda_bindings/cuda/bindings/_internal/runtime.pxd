@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.4.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
 
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=cd46e65c8b1ec45ff0541a157eeb974a3258f0540645a5616759d23b17e1bc10
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0ffe9d8d30b5d068a7a7a368d66ca9f4904fbc62224f8617c3968dd73f017e25
 from ..cyruntime cimport *
 
 # EGL/GL/VDPAU helper declarations (implementations included in runtime_linux/windows.pyx)

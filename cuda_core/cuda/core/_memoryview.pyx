@@ -16,15 +16,19 @@ import functools
 import sys
 import warnings
 from collections.abc import Callable  # no-cython-lint  # used in string annotations below
-from typing import Any  # no-cython-lint  # used in string annotations below
+from typing import TYPE_CHECKING, Any  # no-cython-lint  # used in string annotations below
+
+if TYPE_CHECKING:
+    from cuda.core._tensor_map import TensorMapDescriptorOptions
 
 import numpy
 
 from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport (
     EventHandle,
-    create_event_handle_noctx,
+    create_event_handle_for_stream,
     as_cu,
+    get_last_error,
 )
 
 from cuda.core._utils.cuda_utils import handle_return, driver
@@ -32,6 +36,7 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 
 from cuda.core._memory import Buffer
+from cuda.core._memory._buffer cimport Buffer as cyBuffer, Buffer_check_open
 
 
 # ---------------------------------------------------------------------------
@@ -377,7 +382,7 @@ cdef class StridedMemoryView:
         self,
         box_dim: tuple[int, ...] | None = None,
         *,
-        options: object = None,
+        options: TensorMapDescriptorOptions | None = None,
         element_strides: tuple[int, ...] | None = None,
         data_type: object = None,
         interleave: object = None,
@@ -544,13 +549,16 @@ cdef class StridedMemoryView:
 
     @cython.critical_section
     cdef inline _StridedLayout get_layout(self):
+        cdef _StridedLayout layout
         if self._layout is None:
             if self.dl_tensor:
-                self._layout = layout_from_dlpack(self.dl_tensor)
+                layout = layout_from_dlpack(self.dl_tensor)
             elif self.metadata is not None:
-                self._layout = layout_from_cai(self.metadata)
+                layout = layout_from_cai(self.metadata)
             else:
                 raise ValueError("Cannot infer layout from the exporting object")
+            if self._layout is None:
+                self._layout = layout
         return self._layout
 
     @cython.critical_section
@@ -560,24 +568,31 @@ cdef class StridedMemoryView:
         If the SMV was created from a Buffer, it will return the same Buffer instance.
         Otherwise, it will create a new instance with owner set to the exporting object.
         """
+        cdef object buffer
         if self._buffer is None:
             if isinstance(self.exporting_obj, Buffer):
-                self._buffer = self.exporting_obj
+                buffer = self.exporting_obj
             else:
-                self._buffer = Buffer.from_handle(self.ptr, 0, owner=self.exporting_obj)
+                buffer = Buffer.from_handle(self.ptr, 0, owner=self.exporting_obj)
+            if self._buffer is None:
+                self._buffer = buffer
         return self._buffer
 
     @cython.critical_section
     cdef inline object get_dtype(self):
+        cdef object dtype
         if self._dtype is None:
+            dtype = None
             if self.dl_tensor != NULL:
-                self._dtype = dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
+                dtype = dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
             elif isinstance(self.metadata, int):
                 # AOTI dtype code stored by the torch tensor bridge
-                self._dtype = _get_tensor_bridge().resolve_aoti_dtype(
+                dtype = _get_tensor_bridge().resolve_aoti_dtype(
                     self.metadata)
             elif self.metadata is not None:
-                self._dtype = _typestr2dtype(self.metadata["typestr"])
+                dtype = _typestr2dtype(self.metadata["typestr"])
+            if self._dtype is None:
+                self._dtype = dtype
         return self._dtype
 
 
@@ -1092,7 +1107,7 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
     buf.dl_tensor = dl_tensor
     buf.metadata = capsule
-    buf.ptr = <intptr_t>(dl_tensor.data)
+    buf.ptr = <intptr_t>(dl_tensor.data) + <intptr_t>(dl_tensor.byte_offset)
     buf.device_id = device_id
     buf.is_device_accessible = is_device_accessible
     buf.readonly = is_readonly
@@ -1213,7 +1228,12 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
             # establish stream order
             if producer_s != consumer_s:
                 with nogil:
-                    h_event = create_event_handle_noctx(cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+                    # The event must belong to the producer stream's context to
+                    # be recorded on it, whatever context is current here.
+                    h_event = create_event_handle_for_stream(
+                        <cydriver.CUstream>producer_s, cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+                    if not h_event:
+                        HANDLE_RETURN(get_last_error())
                     HANDLE_RETURN(cydriver.cuEventRecord(
                         as_cu(h_event), <cydriver.CUstream>producer_s))
                     HANDLE_RETURN(cydriver.cuStreamWaitEvent(
@@ -1247,7 +1267,7 @@ cpdef StridedMemoryView view_as_array_interface(obj, view=None):
     buf.get_layout()
     buf.ptr, buf.readonly = data["data"]
     buf.is_device_accessible = False
-    buf.device_id = handle_return(driver.cuCtxGetDevice())
+    buf.device_id = -1
     return buf
 
 
@@ -1322,6 +1342,8 @@ cdef inline int view_buffer_strided(
     object dtype,
     bint is_readonly,
 ) except -1:
+    if isinstance(buffer, Buffer):
+        Buffer_check_open(<cyBuffer>buffer)
     if dtype is not None:
         dtype = numpy.dtype(dtype)
         if dtype.itemsize != layout.itemsize:

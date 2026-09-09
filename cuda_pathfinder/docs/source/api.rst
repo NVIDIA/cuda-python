@@ -24,6 +24,7 @@ CUDA bitcode and static libraries.
    DynamicLibNotFoundError
    DynamicLibUnknownError
    DynamicLibNotAvailableError
+   UnsupportedArchError
 
    SUPPORTED_HEADERS_CTK
    find_nvidia_header_directory

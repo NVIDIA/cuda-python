@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.4.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.4.1. Do not modify it directly.
 
 
 ###############################################################################
@@ -10,8 +10,7 @@
 ###############################################################################
 
 # enums
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a12951d46579f8e61f9db52baac664267a20686d4817cd73fca72880384938c8
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=060a4e1d735676d6239664555a8a07b292481085ca0f5b5f362ce5289f20ca6d
 ctypedef enum nvvmResult "nvvmResult":
     NVVM_SUCCESS "NVVM_SUCCESS" = 0
     NVVM_ERROR_OUT_OF_MEMORY "NVVM_ERROR_OUT_OF_MEMORY" = 1

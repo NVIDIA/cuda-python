@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -27,10 +27,9 @@ import sys
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import List
 
 
-def run_command(cmd: List[str], cwd: Path | None = None, env: dict = os.environ) -> subprocess.CompletedProcess:
+def run_command(cmd: list[str], cwd: Path | None = None, env: dict = os.environ) -> subprocess.CompletedProcess:
     """Run a command with error handling."""
     print(f"Running: {' '.join(cmd)}")
     if cwd:
@@ -78,7 +77,7 @@ def print_wheel_directory_structure(wheel_path: Path, filter_prefix: str = "cuda
         print(f"Warning: Could not list wheel contents: {e}", file=sys.stderr)
 
 
-def merge_wheels(wheels: List[Path], output_dir: Path, show_wheel_contents: bool = True) -> Path:
+def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool = True) -> Path:
     """Merge multiple wheels into a single wheel with version-specific binaries."""
     print("\n=== Merging wheels ===", file=sys.stderr)
     print(f"Input wheels: {[w.name for w in wheels]}", file=sys.stderr)

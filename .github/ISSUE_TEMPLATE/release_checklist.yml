@@ -20,6 +20,7 @@ body:
         - label: File an internal nvbug to communicate test plan & release schedule with QA
         - label: Ensure all pending PRs are reviewed, tested, and merged
         - label: Check (or update if needed) the dependency requirements
+        - label: Sweep deprecations whose stated removal version has arrived (`grep -rn 'deprecated::' cuda_core/cuda`) and remove any that are due
         - label: "Finalize the doc update, including release notes (\"Note: Touching docstrings/type annotations in code is OK during code freeze, apply your best judgement!\")"
         - label: Update the docs for the new version
         - label: Create a public release tag

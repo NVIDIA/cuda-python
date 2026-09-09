@@ -2,11 +2,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=635b329217b9c57fce06de4ffd743372a120b5039eb247f49205bd4d2baf663c
 
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f699a98280e825837b6ddf7fb083deca9f51318e2406acefd67481a68b43a165
+
+
+# <<<< PREAMBLE CONTENT >>>>
+
 from libc.stdint cimport intptr_t
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
 
 from .cynvml cimport *
 
@@ -446,8 +452,5 @@ cpdef object device_perf_metrics_get_samples_v1(intptr_t device)
 cpdef object device_set_nvlink_bw_mode_async_v1(intptr_t device)
 cpdef object device_get_nv_link_telemetry_samples_v1(intptr_t device)
 cpdef event_set_register_gpu_operational_events_v1(intptr_t event_set, intptr_t config)
-cpdef object event_set_wait_v3(intptr_t set, unsigned int timeoutms)
-cpdef unsigned int event_set_get_context_count_v1(intptr_t set) except? 0
-cpdef object event_set_get_context_info_v1(intptr_t set, unsigned int index)
-cpdef object event_set_get_gpu_operational_event_context_legacy_xid_v1(intptr_t set, unsigned int index)
+cpdef object event_set_get_context_count_v1(intptr_t set)
 cpdef object device_get_bank_remapper_status_v1(intptr_t device)

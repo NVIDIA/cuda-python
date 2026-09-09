@@ -12,8 +12,10 @@ from typing import TYPE_CHECKING
 
 __all__ = [
     "CUDA_BINDINGS_NVML_IS_COMPATIBLE",
+    "get_driver_branch",
     "get_kernel_mode_driver_version",
     "get_num_devices",
+    "get_nvml_version",
     "get_process_name",
     "get_user_mode_driver_version",
 ]
@@ -40,7 +42,6 @@ elif CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from .exceptions import *
     from .exceptions import __all__ as _exceptions_all
 
-    __all__.append("get_nvml_version")
     __all__.extend(_device_all)
     __all__.extend(_system_events_all)
     __all__.extend(_exceptions_all)

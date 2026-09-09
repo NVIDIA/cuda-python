@@ -1,10 +1,21 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated across versions from 1.5.0 to 13.4.0. Do not modify it directly.
+# This code was automatically generated across versions from 1.5.0 to 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6866708da9b12dc99b597cd56196b66a1f2645198821b572326bb0858b5906d3
 
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=496ca23b9a84c00538bab7ea91ea3789a1caece491349843387a706509454f43
+
+# <<<< PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport (
+    uint32_t,
+    uint64_t,
+    uint8_t,
+)
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
 from ..cycudla cimport *
 
 

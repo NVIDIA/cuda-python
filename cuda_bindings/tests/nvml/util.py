@@ -2,28 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import functools
-import platform
-from pathlib import Path
-
 from cuda.bindings import nvml
-
-current_os = platform.system()
-if current_os == "VMkernel":
-    current_os = "Linux"  # Treat VMkernel as Linux
-
-
-def is_windows(os=current_os):
-    return os == "Windows"
-
-
-def is_linux(os=current_os):
-    return os == "Linux"
-
-
-@functools.cache
-def is_wsl(os=current_os):
-    return os == "Linux" and "microsoft" in Path("/proc/version").read_text().lower()
 
 
 def is_vgpu(device):
@@ -43,5 +22,5 @@ def supports_ecc(device):
 
 def supports_nvlink(device):
     fields = nvml.FieldValue(1)
-    fields[0].field_id = nvml.FI.DEV_NVLINK_GET_STATE
+    fields[0].field_id = nvml.FieldId.DEV_NVLINK_GET_STATE
     return nvml.device_get_field_values(device, fields)[0].nvml_return == nvml.Return.SUCCESS

@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from libcpp.mutex cimport py_safe_once_flag
+
 from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport LibraryHandle, KernelHandle
 
@@ -32,6 +34,7 @@ cdef class ObjectCode:
         object _module      # bytes/str source
         dict _sym_map
         str _name
+        py_safe_once_flag _load_once
         object __weakref__
 
     cdef int _lazy_load_module(self) except -1

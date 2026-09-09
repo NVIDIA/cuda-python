@@ -34,6 +34,7 @@ from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
     build_dynamic_lib_subprocess_command,
     parse_dynamic_lib_subprocess_payload,
 )
+from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import ALL_AVAILABLE_LIBNAMES
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 if TYPE_CHECKING:
@@ -42,9 +43,6 @@ if TYPE_CHECKING:
 # All libnames recognized by load_nvidia_dynamic_lib, across all categories
 # (CTK, third-party, driver).
 _ALL_KNOWN_LIBNAMES: frozenset[str] = frozenset(LIB_DESCRIPTORS)
-_ALL_SUPPORTED_LIBNAMES: frozenset[str] = frozenset(
-    name for name, desc in LIB_DESCRIPTORS.items() if (desc.windows_dlls if IS_WINDOWS else desc.linux_sonames)
-)
 _PLATFORM_NAME = "Windows" if IS_WINDOWS else "Linux"
 _CANARY_PROBE_TIMEOUT_SECONDS = 10.0
 
@@ -62,7 +60,7 @@ def _load_driver_lib_no_cache(desc: LibDescriptor) -> LoadedDL:
     native loader mechanisms, so the full CTK search cascade (site-packages,
     conda, CUDA_PATH, canary) is unnecessary.
     """
-    loaded = LOADER.check_if_already_loaded_from_elsewhere(desc, False)
+    loaded = LOADER.check_if_already_loaded_from_elsewhere(desc)
     if loaded is not None:
         return loaded
     loaded = LOADER.load_with_system_search(desc)
@@ -176,9 +174,7 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
     find = run_find_steps(ctx, EARLY_FIND_STEPS)
 
     # Phase 2: Cross-cutting — already-loaded check and dependency loading.
-    # The already-loaded check on Windows uses the "have we found a path?"
-    # flag to decide whether to apply AddDllDirectory side-effects.
-    loaded = LOADER.check_if_already_loaded_from_elsewhere(desc, find is not None)
+    loaded = LOADER.check_if_already_loaded_from_elsewhere(desc)
     load_dependencies(desc, load_nvidia_dynamic_lib)
     if loaded is not None:
         return loaded
@@ -233,6 +229,15 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         DynamicLibNotFoundError: If the library cannot be found or loaded.
         RuntimeError: If Python is not 64-bit.
 
+    Windows on ARM (WoA) Note:
+        On Windows, this API aims to load a dynamic library whose architecture
+        matches the Python interpreter architecture. For example, x64 Python
+        running on an Arm64 machine targets an x64 DLL, while native Arm64 Python
+        targets an Arm64 DLL. A library loaded into the Python process must be
+        compatible with that process. This differs from
+        ``find_nvidia_binary_utility``, which targets the native machine
+        architecture when selecting architecture-specific executables.
+
     Search order:
         0. **Already loaded in the current process**
 
@@ -268,12 +273,21 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
 
         4. **Environment variables**
 
-           - If set, use ``CUDA_PATH`` or ``CUDA_HOME`` (in that order).
-             On Windows, this is the typical way system-installed CTK DLLs are
-             located. Note that the NVIDIA CTK installer automatically
+           - First search library-specific roots declared by the descriptor,
+             such as ``CUDNN_PATH`` and ``NCCL_HOME``, using their
+             platform-specific product layouts. Then use ``CUDA_PATH`` or
+             ``CUDA_HOME`` (in that order).
+             On Windows, ``CUDA_PATH`` is the typical way system-installed CTK
+             DLLs are located. Note that the NVIDIA CTK installer automatically
              adds ``CUDA_PATH`` to the system-wide environment.
 
-        5. **CTK root canary probe (discoverable libs only)**
+        5. **Windows Program Files (configured libraries only)**
+
+           - Search descriptor-configured standalone installation roots, such
+             as versioned x64 cuDNN directories under ``ProgramFiles``, using
+             the general per-library anchor layout.
+
+        6. **CTK root canary probe (discoverable libs only)**
 
            - For selected libraries whose shared object doesn't reside on the
              standard linker path (currently ``nvvm``), attempt to derive CTK
@@ -291,8 +305,8 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         0. Already loaded in the current process
         1. OS default mechanisms (``dlopen`` / ``LoadLibraryExW``)
 
-        The CTK-specific steps (site-packages, conda, ``CUDA_PATH``, canary
-        probe) are skipped entirely.
+        The non-driver steps (site-packages, conda, environment roots,
+        ``ProgramFiles``, and canary probe) are skipped entirely.
 
     Notes:
         The search is performed **per library**. There is currently no mechanism to
@@ -308,9 +322,9 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         )
     if libname not in _ALL_KNOWN_LIBNAMES:
         raise DynamicLibUnknownError(f"Unknown library name: {libname!r}. Known names: {sorted(_ALL_KNOWN_LIBNAMES)}")
-    if libname not in _ALL_SUPPORTED_LIBNAMES:
+    if libname not in ALL_AVAILABLE_LIBNAMES:
         raise DynamicLibNotAvailableError(
             f"Library name {libname!r} is known but not available on {_PLATFORM_NAME}. "
-            f"Supported names on {_PLATFORM_NAME}: {sorted(_ALL_SUPPORTED_LIBNAMES)}"
+            f"Supported names on {_PLATFORM_NAME}: {sorted(ALL_AVAILABLE_LIBNAMES)}"
         )
     return _load_lib_no_cache(libname)

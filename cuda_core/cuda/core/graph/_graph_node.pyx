@@ -17,12 +17,17 @@ from libcpp.vector cimport vector
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._event cimport Event
+from cuda.core._event cimport Event, Event_check_open
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
-from cuda.core._memory._buffer cimport Buffer
+from cuda.core._memory._buffer cimport Buffer, Buffer_check_open
+from cuda.core._memory._location cimport cumemlocation_from_id
 from cuda.core._module cimport Kernel
-from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
+from cuda.core.graph._graph_definition cimport (
+    GraphCondition,
+    GraphDefinition,
+    GD_check_valid,
+)
 from cuda.core.graph._subclasses cimport (
     AllocNode,
     ChildGraphNode,
@@ -101,7 +106,9 @@ cdef class GraphNode:
     def __repr__(self) -> str:
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
         if node == NULL:
-            return "<GraphNode entry>"
+            if self._is_entry and self.is_valid:
+                return "<GraphNode entry>"
+            return "<GraphNode destroyed>"
         return f"<GraphNode handle=0x{<uintptr_t>node:x}>"
 
     def __eq__(self, other: object) -> bool:
@@ -149,11 +156,14 @@ cdef class GraphNode:
 
     @property
     def is_valid(self) -> bool:
-        """Whether this node is valid (not destroyed).
+        """Whether this node and its graph definition remain valid.
 
         Returns ``False`` after :meth:`destroy` has been called.
         """
-        return as_intptr(self._h_node) != 0
+        return (
+            as_intptr(graph_node_get_graph(self._h_node)) != 0
+            and (self._is_entry or as_intptr(self._h_node) != 0)
+        )
 
     def destroy(self) -> None:
         """Destroy this node and remove all its edges from the parent graph.
@@ -163,13 +173,11 @@ cdef class GraphNode:
         already-destroyed node (no-op).
         """
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
-        cdef GraphHandle h_graph
-        cdef cydriver.CUresult cleanup_status
         cdef PreparedAttachment prepared
-        if node == NULL:
+        if self._is_entry or node == NULL:
             return
 
-        h_graph = graph_node_get_graph(self._h_node)
+        cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
         # Allocate the cleanup transaction before asking CUDA to destroy the
         # node. A failed CUDA call leaves metadata and wrappers unchanged.
         HANDLE_RETURN(graph_prepare_attachment(
@@ -178,7 +186,7 @@ cdef class GraphNode:
             HANDLE_RETURN(cydriver.cuGraphDestroyNode(node))
 
         # Publish attachment removal before invalidating graph and node aliases.
-        cleanup_status = graph_commit_attachment(prepared, node)
+        cdef cydriver.CUresult cleanup_status = graph_commit_attachment(prepared, node)
         invalidate_child_graph_state(h_graph, node)
         _node_registry.pop(<uintptr_t>self._h_node.get(), None)
         invalidate_graph_node(self._h_node)
@@ -209,6 +217,9 @@ cdef class GraphNode:
     def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
         """Add a kernel launch node depending on this node.
 
+        Clustered and cooperative launch configurations are not currently
+        supported for graph kernel nodes.
+
         .. warning::
 
             Use caution when a retained kernel argument directly or indirectly
@@ -230,6 +241,7 @@ cdef class GraphNode:
         KernelNode
             A new KernelNode representing the kernel launch.
         """
+        GN_check_valid(self)
         return GN_launch(self, config, <Kernel>kernel, ParamHolder(args))
 
     def join(self, *nodes: GraphNode) -> EmptyNode:
@@ -357,11 +369,12 @@ cdef class GraphNode:
         ValueError
             If ``dst_owner`` is given together with a :class:`Buffer` ``dst``.
         """
+        GN_check_valid(self)
         cdef cydriver.CUdeviceptr c_dst
         cdef unsigned int val
         cdef unsigned int elem_size
-        cdef OpaqueHandle dst_attachment_owner
-        dst_attachment_owner = _resolve_memcpy_operand(dst, dst_owner, "dst", &c_dst)
+        cdef OpaqueHandle dst_attachment_owner = _resolve_memcpy_operand(
+            dst, dst_owner, "dst", &c_dst)
         val, elem_size = _parse_fill_value(value)
         return GN_memset(
             self, c_dst, dst_attachment_owner,
@@ -421,11 +434,13 @@ cdef class GraphNode:
             If ``dst_owner`` or ``src_owner`` is given together with a
             :class:`Buffer` ``dst`` or ``src`` respectively.
         """
+        GN_check_valid(self)
         cdef cydriver.CUdeviceptr c_dst
         cdef cydriver.CUdeviceptr c_src
-        cdef OpaqueHandle dst_attachment_owner, src_attachment_owner
-        dst_attachment_owner = _resolve_memcpy_operand(dst, dst_owner, "dst", &c_dst)
-        src_attachment_owner = _resolve_memcpy_operand(src, src_owner, "src", &c_src)
+        cdef OpaqueHandle dst_attachment_owner = _resolve_memcpy_operand(
+            dst, dst_owner, "dst", &c_dst)
+        cdef OpaqueHandle src_attachment_owner = _resolve_memcpy_operand(
+            src, src_owner, "src", &c_src)
         return GN_memcpy(
             self, c_dst, dst_attachment_owner,
             c_src, src_attachment_owner, size)
@@ -488,10 +503,12 @@ cdef class GraphNode:
         - **Python callable**: Pass any callable. The GIL is acquired
           automatically. The callable must take no arguments; use closures
           or ``functools.partial`` to bind state.
-        - **ctypes function pointer**: Pass a ``ctypes.CFUNCTYPE`` instance.
-          The function receives a single ``void*`` argument (the
-          ``user_data``). The caller must keep the ctypes wrapper alive
-          for the lifetime of the graph.
+        - **ctypes function pointer**: The function receives a single
+          ``void*`` argument (the ``user_data``), and the caller must keep
+          the ctypes wrapper alive for the lifetime of the graph. Its
+          declared prototype must match the driver's ``CUhostFn``
+          (``void (*)(void*)``): ``ctypes.CFUNCTYPE(None, ctypes.c_void_p)``,
+          or ``ctypes.WINFUNCTYPE(None, ctypes.c_void_p)`` on Windows.
 
         .. warning::
 
@@ -516,6 +533,14 @@ cdef class GraphNode:
         -------
         HostCallbackNode
             A new HostCallbackNode representing the callback.
+
+        Raises
+        ------
+        TypeError
+            If ``fn`` is a ctypes function pointer whose declared prototype
+            does not match ``CUhostFn``.
+        ValueError
+            If ``user_data`` is given for a Python callable.
         """
         return GN_callback(self, fn, user_data)
 
@@ -609,6 +634,7 @@ cdef inline ConditionalNode _make_conditional_node(
         cydriver.CUgraphConditionalNodeType cond_type,
         unsigned int size,
         type node_cls):
+    GN_check_valid(pred)
     if not isinstance(condition, GraphCondition):
         raise TypeError(
             f"condition must be a GraphCondition object (from "
@@ -669,6 +695,7 @@ cdef inline GraphNode GN_create(GraphHandle h_graph, cydriver.CUgraphNode node):
     if node == NULL:
         n = GraphNode.__new__(GraphNode)
         (<GraphNode>n)._h_node = h_node
+        (<GraphNode>n)._is_entry = True
         return n
 
     # Return a registered object or create and register a new one.
@@ -711,37 +738,42 @@ cdef inline GraphNode GN_create_impl(GraphNodeHandle h_node):
         (<GraphNode>n)._h_node = h_node
         return n
 
-
 cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, ParamHolder ker_args):
-    cdef cydriver.CUDA_KERNEL_NODE_PARAMS node_params
     cdef cydriver.CUgraphNode new_node = NULL
     cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
-    cdef OpaqueHandle kernel_owner, args_owner
+    cdef OpaqueHandle args_owner
     cdef PreparedAttachment prepared
+
+    GN_check_valid(self)
+    if conf.cluster is not None or conf.is_cooperative:
+        raise NotImplementedError(
+            "clustered or cooperative graph kernel nodes are not supported")
 
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
 
-    node_params.kern = as_cu(ker._h_kernel)
-    node_params.func = <cydriver.CUfunction>NULL
-    node_params.gridDimX = conf.grid[0]
-    node_params.gridDimY = conf.grid[1]
-    node_params.gridDimZ = conf.grid[2]
-    node_params.blockDimX = conf.block[0]
-    node_params.blockDimY = conf.block[1]
-    node_params.blockDimZ = conf.block[2]
-    node_params.sharedMemBytes = conf.shmem_size
-    node_params.kernelParams = <void**><uintptr_t>(ker_args.ptr)
-    node_params.extra = NULL
-    node_params.ctx = <cydriver.CUcontext>NULL
+    cdef cydriver.CUDA_KERNEL_NODE_PARAMS node_params = cydriver.CUDA_KERNEL_NODE_PARAMS(
+        kern=as_cu(ker._h_kernel),
+        func=<cydriver.CUfunction>NULL,
+        gridDimX=conf.grid[0],
+        gridDimY=conf.grid[1],
+        gridDimZ=conf.grid[2],
+        blockDimX=conf.block[0],
+        blockDimY=conf.block[1],
+        blockDimZ=conf.block[2],
+        sharedMemBytes=conf.shmem_size,
+        kernelParams=<void**><uintptr_t>(ker_args.ptr),
+        extra=NULL,
+        ctx=<cydriver.CUcontext>NULL,
+    )
 
     # Keep the kernel and argument objects alive because CUDA copies argument
     # values but does not retain the resources they reference.
-    kernel_owner = ker._h_kernel
+    cdef OpaqueHandle kernel_owner = ker._h_kernel
     kernel_args = ker_args.kernel_args
     if kernel_args is not None:
         args_owner = make_opaque_py(kernel_args)
@@ -769,9 +801,11 @@ cdef inline EmptyNode GN_join(GraphNode self, tuple nodes):
     cdef size_t num_deps = 0
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
 
+    GN_check_valid(self)
     if pred_node != NULL:
         deps.push_back(pred_node)
     for other in nodes:
+        GN_check_valid(other)
         if as_cu((<GraphNode>other)._h_node) != NULL:
             deps.push_back(as_cu((<GraphNode>other)._h_node))
 
@@ -791,6 +825,7 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object device,
     cdef int device_id
     cdef cydriver.CUdevice dev
 
+    GN_check_valid(self)
     if device is None:
         with nogil:
             HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
@@ -810,6 +845,7 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object device,
         num_deps = 1
 
     cdef vector[cydriver.CUmemAccessDesc] access_descs
+    cdef cydriver.CUmemAccessDesc access_desc
     cdef int peer_id
     cdef list peer_ids = []
 
@@ -817,13 +853,10 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object device,
         for peer_dev in peer_access:
             peer_id = getattr(peer_dev, 'device_id', peer_dev)
             peer_ids.append(peer_id)
-            access_descs.push_back(cydriver.CUmemAccessDesc_st(
-                cydriver.CUmemLocation_st(
-                    cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
-                    peer_id
-                ),
-                cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
-            ))
+            access_desc.location = cumemlocation_from_id(
+                cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE, peer_id)
+            access_desc.flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+            access_descs.push_back(access_desc)
 
     cdef str memory_type_str = "device" if memory_type is None else str(memory_type)
 
@@ -868,6 +901,7 @@ cdef inline FreeNode GN_free(GraphNode self, cydriver.CUdeviceptr c_dptr):
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
 
+    GN_check_valid(self)
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
@@ -881,15 +915,16 @@ cdef inline FreeNode GN_free(GraphNode self, cydriver.CUdeviceptr c_dptr):
 
 cdef inline OpaqueHandle _buffer_attachment_owner(Buffer buf, str label):
     """Copy a Buffer's device-pointer handle into an attachment owner."""
-    cdef OpaqueHandle attachment_owner
-    if not buf._h_ptr:
-        raise ValueError(f"{label} Buffer has no active allocation")
-    attachment_owner = buf._h_ptr
+    Buffer_check_open(buf)
+    # The local is required: Cython permits the DevicePtrHandle -> OpaqueHandle
+    # conversion on assignment, but not directly in a return statement.
+    cdef OpaqueHandle attachment_owner = buf._h_ptr
     return attachment_owner
 
 
 cdef inline OpaqueHandle _resolve_memcpy_operand(
-        object operand, object owner, str side, cydriver.CUdeviceptr* out_ptr):
+        object operand, object owner, str side,
+        cydriver.CUdeviceptr* out_ptr) except *:
     """Resolve an operand to a pointer and optional attachment owner.
 
     ``operand`` is a :class:`Buffer` or a raw integer address; its device
@@ -928,7 +963,6 @@ cdef inline MemsetNode GN_memset(
         GraphNode self, cydriver.CUdeviceptr c_dst, OpaqueHandle dst_owner,
         unsigned int val, unsigned int elem_size,
         size_t width, size_t height, size_t pitch):
-    cdef cydriver.CUDA_MEMSET_NODE_PARAMS memset_params
     cdef cydriver.CUgraphNode new_node = NULL
     cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
@@ -936,6 +970,7 @@ cdef inline MemsetNode GN_memset(
     cdef size_t num_deps = 0
     cdef PreparedAttachment prepared
 
+    GN_check_valid(self)
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
@@ -944,13 +979,14 @@ cdef inline MemsetNode GN_memset(
     with nogil:
         HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
 
-    c_memset(&memset_params, 0, sizeof(memset_params))
-    memset_params.dst = c_dst
-    memset_params.value = val
-    memset_params.elementSize = elem_size
-    memset_params.width = width
-    memset_params.height = height
-    memset_params.pitch = pitch
+    cdef cydriver.CUDA_MEMSET_NODE_PARAMS memset_params = cydriver.CUDA_MEMSET_NODE_PARAMS(
+        dst=c_dst,
+        pitch=pitch,
+        value=val,
+        elementSize=elem_size,
+        width=width,
+        height=height,
+    )
 
     if dst_owner:
         HANDLE_RETURN(graph_prepare_attachment(
@@ -969,45 +1005,51 @@ cdef inline MemsetNode GN_memset(
         val, elem_size, width, height, pitch))
 
 
-cdef inline MemcpyNode GN_memcpy(
-        GraphNode self, cydriver.CUdeviceptr c_dst, OpaqueHandle dst_owner,
-        cydriver.CUdeviceptr c_src, OpaqueHandle src_owner, size_t size):
-    cdef unsigned int dst_mem_type = cydriver.CU_MEMORYTYPE_DEVICE
-    cdef unsigned int src_mem_type = cydriver.CU_MEMORYTYPE_DEVICE
+cdef cydriver.CUmemorytype _get_memcpy_memory_type(
+        cydriver.CUdeviceptr ptr) except *:
+    cdef unsigned int memory_type = cydriver.CU_MEMORYTYPE_DEVICE
     cdef cydriver.CUresult ret
     with nogil:
         ret = cydriver.cuPointerGetAttribute(
-            &dst_mem_type,
+            &memory_type,
             cydriver.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
-            c_dst)
-        if ret != cydriver.CUDA_SUCCESS and ret != cydriver.CUDA_ERROR_INVALID_VALUE:
-            HANDLE_RETURN(ret)
-        ret = cydriver.cuPointerGetAttribute(
-            &src_mem_type,
-            cydriver.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
-            c_src)
-        if ret != cydriver.CUDA_SUCCESS and ret != cydriver.CUDA_ERROR_INVALID_VALUE:
-            HANDLE_RETURN(ret)
+            ptr)
+    if ret != cydriver.CUDA_SUCCESS and ret != cydriver.CUDA_ERROR_INVALID_VALUE:
+        HANDLE_RETURN(ret)
+    return <cydriver.CUmemorytype>memory_type
 
-    cdef cydriver.CUmemorytype c_dst_type = <cydriver.CUmemorytype>dst_mem_type
-    cdef cydriver.CUmemorytype c_src_type = <cydriver.CUmemorytype>src_mem_type
 
-    cdef cydriver.CUDA_MEMCPY3D params
-    c_memset(&params, 0, sizeof(params))
+cdef void _init_memcpy_params(
+        cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src, size_t size,
+        cydriver.CUDA_MEMCPY3D* params, cydriver.CUmemorytype* dst_type,
+        cydriver.CUmemorytype* src_type) except *:
+    dst_type[0] = _get_memcpy_memory_type(dst)
+    src_type[0] = _get_memcpy_memory_type(src)
 
-    params.srcMemoryType = c_src_type
-    params.dstMemoryType = c_dst_type
-    if c_src_type == cydriver.CU_MEMORYTYPE_HOST:
-        params.srcHost = <const void*><uintptr_t>c_src
+    c_memset(params, 0, sizeof(params[0]))
+    params.srcMemoryType = src_type[0]
+    params.dstMemoryType = dst_type[0]
+    if src_type[0] == cydriver.CU_MEMORYTYPE_HOST:
+        params.srcHost = <void*><uintptr_t>src
     else:
-        params.srcDevice = c_src
-    if c_dst_type == cydriver.CU_MEMORYTYPE_HOST:
-        params.dstHost = <void*><uintptr_t>c_dst
+        params.srcDevice = src
+    if dst_type[0] == cydriver.CU_MEMORYTYPE_HOST:
+        params.dstHost = <void*><uintptr_t>dst
     else:
-        params.dstDevice = c_dst
+        params.dstDevice = dst
     params.WidthInBytes = size
     params.Height = 1
     params.Depth = 1
+
+
+cdef inline MemcpyNode GN_memcpy(
+        GraphNode self, cydriver.CUdeviceptr c_dst, OpaqueHandle dst_owner,
+        cydriver.CUdeviceptr c_src, OpaqueHandle src_owner, size_t size):
+    cdef cydriver.CUDA_MEMCPY3D params
+    cdef cydriver.CUmemorytype c_dst_type
+    cdef cydriver.CUmemorytype c_src_type
+    _init_memcpy_params(
+        c_dst, c_src, size, &params, &c_dst_type, &c_src_type)
 
     cdef cydriver.CUgraphNode new_node = NULL
     cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
@@ -1016,6 +1058,7 @@ cdef inline MemcpyNode GN_memcpy(
     cdef size_t num_deps = 0
     cdef PreparedAttachment prepared
 
+    GN_check_valid(self)
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
@@ -1046,6 +1089,8 @@ cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDefinition child_def):
     cdef size_t num_deps = 0
     cdef cydriver.CUresult rollback_status
 
+    GN_check_valid(self)
+    GD_check_valid(child_def)
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
@@ -1076,19 +1121,20 @@ cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDefinition child_def):
 
 
 cdef inline EventRecordNode GN_record_event(GraphNode self, Event ev):
+    GN_check_valid(self)
+    Event_check_open(ev)
     cdef cydriver.CUgraphNode new_node = NULL
     cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
-    cdef OpaqueHandle owner
     cdef PreparedAttachment prepared
 
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
 
-    owner = ev._h_event
+    cdef OpaqueHandle owner = ev._h_event
     HANDLE_RETURN(graph_prepare_attachment(
         h_graph, owner, OpaqueHandle(), &prepared))
 
@@ -1103,19 +1149,20 @@ cdef inline EventRecordNode GN_record_event(GraphNode self, Event ev):
 
 
 cdef inline EventWaitNode GN_wait_event(GraphNode self, Event ev):
+    GN_check_valid(self)
+    Event_check_open(ev)
     cdef cydriver.CUgraphNode new_node = NULL
     cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
-    cdef OpaqueHandle owner
     cdef PreparedAttachment prepared
 
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
 
-    owner = ev._h_event
+    cdef OpaqueHandle owner = ev._h_event
     HANDLE_RETURN(graph_prepare_attachment(
         h_graph, owner, OpaqueHandle(), &prepared))
 
@@ -1139,6 +1186,7 @@ cdef inline HostCallbackNode GN_callback(GraphNode self, object fn, object user_
     cdef OpaqueHandle fn_owner, data_owner
     cdef PreparedAttachment prepared
 
+    GN_check_valid(self)
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
