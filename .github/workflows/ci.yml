@@ -697,8 +697,8 @@ jobs:
           if [[ "$run_core_api_check" == "true" ]]; then expected="success"; fi
           check_result "api-check-core-vs-release" "$expected"
 
-          expected="skipped"
-          if [[ "$is_pr" == "true" && "$run_core_api_check" == "true" ]]; then expected="success"; fi
-          check_result "api-check-core-vs-base" "$expected"
+          # API compatibility checks against the merge base (api-check-core-vs-base)
+          # are purely informational, since it is fine for API to drift during development
+          # when it hasn't been released yet.
 
           [[ "$status" == "success" ]]
