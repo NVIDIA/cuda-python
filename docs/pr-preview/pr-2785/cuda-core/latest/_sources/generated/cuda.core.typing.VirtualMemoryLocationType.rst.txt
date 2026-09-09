@@ -1,0 +1,6 @@
+﻿cuda.core.typing.VirtualMemoryLocationType
+==========================================
+
+.. currentmodule:: cuda.core.typing
+
+.. autoenum:: VirtualMemoryLocationType
