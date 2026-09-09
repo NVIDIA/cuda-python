@@ -156,7 +156,10 @@ runs:
         cp -r $CACHE_TMP_DIR/* $CUDA_PATH
         rm -rf $CACHE_TMP_DIR $CTK_CACHE_FILENAME
         ls -l $CUDA_PATH
-        if [ ! -d "$CUDA_PATH/include" ]; then
+        # Every cache created above contains redistrib.json, even when the
+        # selected components do not provide a top-level include/ directory.
+        if [[ ! -f "$CUDA_PATH/redistrib.json" ]]; then
+          echo "CTK restore appears incomplete: missing $CUDA_PATH/redistrib.json" >&2
           exit 1
         fi
 
