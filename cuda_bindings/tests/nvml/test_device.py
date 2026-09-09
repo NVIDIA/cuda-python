@@ -159,7 +159,7 @@ def test_set_power_management_limit(all_devices, subtests):
     for device in all_devices:
         with (
             subtests.test(device_index=nvml.device_get_index(device)),
-            unsupported_before(device, nvml.DeviceArch.KEPLER),
+            unsupported_before(device, None),
         ):
             try:
                 nvml.device_set_power_management_limit_v2(device, nvml.PowerScope.GPU, 10000)
