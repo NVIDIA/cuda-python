@@ -1,7 +1,14 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# CUDA Toolkit v13.4
+# Like the runtime counterpart, this fallback is a deliberately frozen
+# compatibility snapshot, not a release-maintained mirror of CUDA's enums.
+# Do not update it past CUDA Toolkit v13.1.1. Bindings releases new enough to
+# define later codes provide explanations through enum-member docstrings; if an
+# older binding receives one from a newer driver, it falls through to
+# cuGetErrorString(). Synchronizing this table with later Toolkit releases would
+# restore the duplicate maintenance burden removed by PR #1860.
+# CUDA Toolkit v13.1.1
 _FALLBACK_EXPLANATIONS = {
     0: (
         "The API call returned with no errors. In the case of query calls, this"
@@ -53,10 +60,6 @@ _FALLBACK_EXPLANATIONS = {
         "This indicates that requested CUDA device is unavailable at the current"
         " time. Devices are often unavailable due to use of"
         " ::CU_COMPUTEMODE_EXCLUSIVE_PROCESS or ::CU_COMPUTEMODE_PROHIBITED."
-    ),
-    47: (
-        "The API call failed because of a hardware resource required to bind memory"
-        " to a multicast object is unavailable."
     ),
     100: ("This indicates that no CUDA-capable devices were detected by the installed CUDA driver."),
     101: (
@@ -123,7 +126,6 @@ _FALLBACK_EXPLANATIONS = {
         " work will return the same error. To continue using CUDA, the process must"
         " be terminated and relaunched."
     ),
-    227: "This indicates that the Loader version is insufficient for fatbin",
     300: (
         "This indicates that the device kernel source is invalid. This includes"
         " compilation/linker errors encountered in device code or user error."
@@ -350,14 +352,6 @@ _FALLBACK_EXPLANATIONS = {
         "This error indicates that the requested operation is not permitted because the"
         " stream is in a detached state. This can occur if the green context associated"
         " with the stream has been destroyed, limiting the stream's operational capabilities."
-    ),
-    918: "This error indicates that a graph recapture failed and had to be terminated.",
-    919: (
-        "The GPU fabric is not ready within the bounded wait while the fabric"
-        " manager probe is still in progress (or not converging in time)."
-        " Applications may retry after a delay; for the initialization wait budget,"
-        " see environment variables such as CUDA_FABRIC_INIT_TIMEOUT_MS. The CUDA"
-        " Runtime uses the same value as cudaErrorFabricNotReady."
     ),
     999: "This indicates that an unknown internal error has occurred.",
 }
