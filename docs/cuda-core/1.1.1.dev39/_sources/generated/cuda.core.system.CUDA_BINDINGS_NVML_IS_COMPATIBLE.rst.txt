@@ -1,0 +1,6 @@
+﻿cuda.core.system.CUDA\_BINDINGS\_NVML\_IS\_COMPATIBLE
+=====================================================
+
+.. currentmodule:: cuda.core.system
+
+.. autodata:: CUDA_BINDINGS_NVML_IS_COMPATIBLE
