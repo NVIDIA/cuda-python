@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_supported\_vgpus
+================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_supported_vgpus
