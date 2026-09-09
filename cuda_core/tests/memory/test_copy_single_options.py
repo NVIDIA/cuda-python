@@ -4,7 +4,7 @@
 """CopyOptions support for Buffer.copy_to / Buffer.copy_from (issue #2365)."""
 
 import pytest
-from helpers.buffers import compare_equal_buffers, make_scratch_buffer, set_buffer
+from helpers.buffers import compare_equal_buffers, make_scratch_buffer, set_buffer, thread_unsafe_on_windows
 from helpers.copy_batch import assert_managed_holds
 from helpers.memory import create_managed_memory_resource_or_skip
 
@@ -47,6 +47,7 @@ def pinned_mr():
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+@thread_unsafe_on_windows
 def test_options_none_copy_to_data_correct(single_copy_device, single_copy_stream, pinned_mr):
     """options=None (default) continues to copy the right bytes."""
     src = make_scratch_buffer(single_copy_device, 0x55, SIZE)
@@ -63,6 +64,7 @@ def test_options_none_copy_to_data_correct(single_copy_device, single_copy_strea
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+@thread_unsafe_on_windows
 def test_options_none_copy_from_data_correct(single_copy_device, single_copy_stream, pinned_mr):
     """copy_from with options=None copies the right bytes."""
     src = make_scratch_buffer(single_copy_device, 0xAA, SIZE)
@@ -86,6 +88,7 @@ def test_options_none_copy_from_data_correct(single_copy_device, single_copy_str
         (MemcpySrcAccessOrder.ANY, 0x33),
     ],
 )
+@thread_unsafe_on_windows
 def test_src_access_order_copy_to(single_copy_device, single_copy_stream, pinned_mr, order, marker):
     """STREAM and ANY are accepted and never corrupt copy_to.
 
@@ -118,6 +121,7 @@ def test_src_access_order_copy_to(single_copy_device, single_copy_stream, pinned
         (MemcpySrcAccessOrder.ANY, 0x43),
     ],
 )
+@thread_unsafe_on_windows
 def test_src_access_order_copy_from(single_copy_device, single_copy_stream, pinned_mr, order, marker):
     """STREAM and ANY are accepted and never corrupt copy_from. See
     test_src_access_order_copy_to for why DURING_API_CALL is tested
@@ -138,6 +142,7 @@ def test_src_access_order_copy_from(single_copy_device, single_copy_stream, pinn
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+@thread_unsafe_on_windows
 def test_during_api_call_copy_to(single_copy_device, single_copy_stream, pinned_mr):
     """DURING_API_CALL is honored on the native (CUDA 13.2+) path.
 
@@ -166,6 +171,7 @@ def test_during_api_call_copy_to(single_copy_device, single_copy_stream, pinned_
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+@thread_unsafe_on_windows
 def test_during_api_call_copy_from(single_copy_device, single_copy_stream, pinned_mr):
     """Same as test_during_api_call_copy_to, exercising copy_from instead."""
     src = make_scratch_buffer(single_copy_device, 0x42, SIZE)
@@ -186,6 +192,7 @@ def test_during_api_call_copy_from(single_copy_device, single_copy_stream, pinne
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+@thread_unsafe_on_windows
 def test_overlap_mode_copies_correctly(single_copy_device, single_copy_stream, pinned_mr):
     """The overlap hint is advisory and must not change the bytes copied."""
     src = make_scratch_buffer(single_copy_device, 0x77, SIZE)
@@ -232,6 +239,7 @@ def test_legacy_default_stream_token_rejected_with_options(single_copy_device):
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+@thread_unsafe_on_windows
 def test_per_thread_default_stream_token_accepted_with_options(single_copy_device):
     """PER_THREAD_DEFAULT_STREAM is a real stream to the driver, so options are
     honored on it just like an explicit stream (subject to the usual CUDA
@@ -257,6 +265,7 @@ def test_per_thread_default_stream_token_accepted_with_options(single_copy_devic
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+@thread_unsafe_on_windows
 def test_location_hints_do_not_corrupt_copy(single_copy_device, single_copy_stream):
     """Device and host location hints are accepted and leave the bytes intact.
 
@@ -288,6 +297,7 @@ def test_location_hints_do_not_corrupt_copy(single_copy_device, single_copy_stre
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+@thread_unsafe_on_windows
 def test_host_numa_location_hint(single_copy_device, single_copy_stream):
     """A NUMA-specific host hint is accepted and does not corrupt the copy."""
     dev = single_copy_device
@@ -312,6 +322,7 @@ def test_host_numa_location_hint(single_copy_device, single_copy_stream):
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+@thread_unsafe_on_windows
 def test_host_numa_current_location_hint(single_copy_device, single_copy_stream):
     """Host.numa_current() as a location hint is accepted and does not corrupt the copy."""
     dev = single_copy_device
@@ -335,6 +346,7 @@ def test_host_numa_current_location_hint(single_copy_device, single_copy_stream)
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+@thread_unsafe_on_windows
 def test_options_copy_to_data_correct(single_copy_device, single_copy_stream, pinned_mr):
     """copy_to with non-None options copies the right bytes on all driver versions."""
     src = make_scratch_buffer(single_copy_device, 0x77, SIZE)
@@ -352,6 +364,7 @@ def test_options_copy_to_data_correct(single_copy_device, single_copy_stream, pi
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+@thread_unsafe_on_windows
 def test_options_copy_from_data_correct(single_copy_device, single_copy_stream, pinned_mr):
     """copy_from with non-None options copies the right bytes on all driver versions."""
     src = make_scratch_buffer(single_copy_device, 0x33, SIZE)
@@ -369,7 +382,7 @@ def test_options_copy_from_data_correct(single_copy_device, single_copy_stream, 
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-def test_options_copy_to_rejected_under_graph_capture(single_copy_stream, pinned_mr):
+def test_options_copy_to_rejected_under_graph_capture(single_copy_device, pinned_mr):
     """copy_to with options raises TypeError when the stream is capturing,
     matching copy_batch. Use GraphNode.memcpy to build attributed copies
     into a graph instead; options=None keeps working under capture as it
@@ -378,57 +391,64 @@ def test_options_copy_to_rejected_under_graph_capture(single_copy_stream, pinned
     src = pinned_mr.allocate(SIZE)
     dst = pinned_mr.allocate(SIZE)
     opts = CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY)
+    stream = single_copy_device.create_stream()
 
-    gb = single_copy_stream.create_graph_builder().begin_building()
+    gb = stream.create_graph_builder().begin_building()
     try:
         with pytest.raises(TypeError, match="graph capture"):
             src.copy_to(dst, stream=gb, options=opts)
     finally:
         gb.end_building()
         gb.close()
+        stream.close()
 
     src.close()
     dst.close()
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-def test_options_copy_from_rejected_under_graph_capture(single_copy_stream, pinned_mr):
+def test_options_copy_from_rejected_under_graph_capture(single_copy_device, pinned_mr):
     """Same as the copy_to variant, exercising copy_from instead."""
     src = pinned_mr.allocate(SIZE)
     dst = pinned_mr.allocate(SIZE)
     opts = CopyOptions(src_access_order=MemcpySrcAccessOrder.STREAM)
+    stream = single_copy_device.create_stream()
 
-    gb = single_copy_stream.create_graph_builder().begin_building()
+    gb = stream.create_graph_builder().begin_building()
     try:
         with pytest.raises(TypeError, match="graph capture"):
             dst.copy_from(src, stream=gb, options=opts)
     finally:
         gb.end_building()
         gb.close()
+        stream.close()
 
     src.close()
     dst.close()
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-def test_options_none_copy_to_still_works_under_graph_capture(single_copy_stream, pinned_mr):
+@thread_unsafe_on_windows
+def test_options_none_copy_to_still_works_under_graph_capture(single_copy_device, pinned_mr):
     """options=None never touches the attributes path, so copy_to keeps
     working under graph capture exactly as it did before options existed.
     """
     src = pinned_mr.allocate(SIZE)
     set_buffer(src, 0xBB)
     dst = pinned_mr.allocate(SIZE)
+    stream = single_copy_device.create_stream()
 
-    gb = single_copy_stream.create_graph_builder().begin_building()
+    gb = stream.create_graph_builder().begin_building()
     src.copy_to(dst, stream=gb)
     graph = gb.end_building().complete()
-    graph.launch(single_copy_stream)
-    single_copy_stream.sync()
+    graph.launch(stream)
+    stream.sync()
 
     assert compare_equal_buffers(src, dst)
 
     src.close()
     dst.close()
+    stream.close()
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 5")
@@ -451,6 +471,7 @@ def test_copy_to_rejects_invalid_options_type(single_copy_stream, pinned_mr, bad
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+@thread_unsafe_on_windows
 def test_dst_none_with_options(single_copy_device, single_copy_stream, pinned_mr):
     """dst=None auto-allocation works correctly with options on all driver versions."""
     mr = single_copy_device.memory_resource

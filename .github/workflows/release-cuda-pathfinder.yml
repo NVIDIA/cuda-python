@@ -60,7 +60,7 @@ jobs:
             echo "version=${version}"
           } >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           # lookup-run-id resolves the git tag to a SHA; we need tags but not history.
           fetch-depth: 1
@@ -162,7 +162,7 @@ jobs:
       TAG: ${{ needs.prepare.outputs.tag }}
       RUN_ID: ${{ needs.prepare.outputs.run-id }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ needs.prepare.outputs.tag }}
@@ -234,7 +234,7 @@ jobs:
           ls -la dist
 
       - name: Publish to TestPyPI
-        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b  # v1.14.0
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # v1.14.2
         with:
           repository-url: https://test.pypi.org/legacy/
 
@@ -311,7 +311,7 @@ jobs:
           ls -la dist
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b  # v1.14.0
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # v1.14.2
 
   # --------------------------------------------------------------------------
   # Verify the PyPI package installs and imports correctly.

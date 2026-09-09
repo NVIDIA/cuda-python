@@ -7,6 +7,7 @@ import pytest
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
 
 from cuda.core import Device, LaunchConfig, launch
+from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.graph import GraphBuilder, GraphCompleteOptions, GraphDebugPrintOptions
 
 
@@ -63,6 +64,20 @@ def test_graph_complete_options(init_cuda):
     gb.complete(options).close()
     options = GraphCompleteOptions(use_node_priority=True)
     gb.complete(options).close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_graph_complete_invalid_options_raise_cuda_error(init_cuda):
+    mod = compile_common_kernels()
+    empty_kernel = mod.get_kernel("empty_kernel")
+
+    gb = Device().create_graph_builder().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    gb.end_building()
+
+    options = GraphCompleteOptions(auto_free_on_launch=True, device_launch=True)
+    with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
+        gb.complete(options)
 
 
 def test_graph_build_mode(init_cuda):

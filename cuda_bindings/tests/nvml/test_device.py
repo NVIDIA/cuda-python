@@ -63,11 +63,15 @@ def test_grid_licensable_features(all_devices):
             nvml.GridLicenseExpiry(feature.license_expiry)
 
 
-def test_get_handle_by_uuidv(all_devices):
+def test_get_handle_by_uuidv(all_devices, subtests):
     for device in all_devices:
-        uuid = nvml.device_get_uuid(device)
-        new_handle = nvml.device_get_handle_by_uuidv(nvml.UUIDType.ASCII, uuid.encode("ascii"))
-        assert new_handle == device
+        with subtests.test(device_index=nvml.device_get_index(device)):
+            uuid = nvml.device_get_uuid(device)
+            if "Orin" in nvml.device_get_name(device) and len(uuid) == 36:
+                pytest.skip("UUID lookup is unsupported on Orin, which reports a UUID without a GPU- prefix")
+            with unsupported_before(device, None):
+                new_handle = nvml.device_get_handle_by_uuidv(nvml.UUIDType.ASCII, uuid.encode("ascii"))
+            assert new_handle == device
 
 
 def test_get_nv_link_supported_bw_modes(all_devices, subtests):

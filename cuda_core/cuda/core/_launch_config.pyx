@@ -7,6 +7,7 @@ from libc.string cimport memset
 from typing import Any
 
 from cuda.core._device import Device
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils import (
     CUDAError,
     cast_to_3_tuple,
@@ -22,6 +23,7 @@ _LAUNCH_CONFIG_ATTRS = (
     'is_cooperative',
     'programmatic_stream_serialization',
     'cluster_scheduling_policy_preference',
+    'priority',
 )
 
 __all__ = ['LaunchConfig']
@@ -73,6 +75,15 @@ cdef class LaunchConfig:
         driver applies the kernel function's default policy.
         Passing ``"DEFAULT"`` explicitly sets the driver default via the
         launch attribute.
+    priority : int, optional
+        Execution priority of the kernel. Lower numbers represent higher
+        priorities. The meaningful range of values is device-specific,
+        given by ``[greatestPriority, leastPriority]`` as returned by
+        ``cuCtxGetStreamPriorityRange`` (the same range used by
+        :attr:`~cuda.core.StreamOptions.priority`); both bounds are 0 on
+        a device that does not support multiple stream priorities. A
+        nonzero value outside this range raises :class:`ValueError`.
+        When omitted (or 0), the launch uses the stream's priority.
     """
 
     # TODO: expand LaunchConfig to include other attributes
@@ -87,6 +98,7 @@ cdef class LaunchConfig:
         is_cooperative: bool = False,
         programmatic_stream_serialization: bool = False,
         cluster_scheduling_policy_preference: str | None = None,
+        priority: int | None = None,
     ) -> None:
         """Initialize LaunchConfig with validation.
 
@@ -109,6 +121,15 @@ cdef class LaunchConfig:
             ``"SPREAD"``, or ``"LOAD_BALANCING"``.
             ``None`` (default) omits the launch attribute; ``"DEFAULT"``
             sets the driver default explicitly.
+        priority : int, optional
+            Execution priority of the kernel. Lower numbers represent higher
+            priorities. The meaningful range of values is device-specific,
+            given by ``[greatestPriority, leastPriority]`` as returned by
+            ``cuCtxGetStreamPriorityRange`` (the same range used by
+            :attr:`~cuda.core.StreamOptions.priority`); both bounds are 0 on
+            a device that does not support multiple stream priorities. A
+            nonzero value outside this range raises :class:`ValueError`.
+            When omitted (or 0), the launch uses the stream's priority.
         """
         # Convert and validate grid and block dimensions
         self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)
@@ -142,6 +163,26 @@ cdef class LaunchConfig:
 
         self.is_cooperative = is_cooperative
         self.programmatic_stream_serialization = programmatic_stream_serialization
+
+        # priority=0 is treated the same as an unset priority (see
+        # _to_native_launch_config), so only nonzero values need validating
+        # against the device's stream priority range.
+        cdef int high, low
+        cdef cydriver.CUresult res_code
+        cdef int prio
+        if priority:
+            with nogil:
+                res_code = cydriver.cuCtxGetStreamPriorityRange(&high, &low)
+            if res_code != cydriver.CUresult.CUDA_SUCCESS:
+                if res_code == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
+                    raise RuntimeError(
+                        "No current CUDA context. Call dev.set_current() before creating a LaunchConfig with a priority."
+                    )
+                HANDLE_RETURN(res_code)
+            prio = priority
+            if not (low <= prio <= high):
+                raise ValueError(f"{priority=} is out of range {[low, high]}")
+            self.priority = prio
 
         if self.is_cooperative and not Device().properties.cooperative_launch:
             raise CUDAError("cooperative kernels are not supported on this device")
@@ -223,6 +264,11 @@ cdef class LaunchConfig:
             )
             self._attrs.push_back(attr)
 
+        if self.priority:
+            attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PRIORITY
+            attr.value.priority = self.priority
+            self._attrs.push_back(attr)
+
         drv_cfg.numAttrs = self._attrs.size()
         drv_cfg.attrs = self._attrs.data()
 
@@ -288,6 +334,12 @@ cpdef object _to_native_launch_config(LaunchConfig config):
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
         attr.value.clusterSchedulingPolicyPreference = config._cluster_sched_policy_driver_value()
+        attrs.append(attr)
+
+    if config.priority:
+        attr = driver.CUlaunchAttribute()
+        attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PRIORITY
+        attr.value.priority = config.priority
         attrs.append(attr)
 
     drv_cfg.numAttrs = len(attrs)

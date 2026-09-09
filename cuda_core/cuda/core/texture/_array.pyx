@@ -9,6 +9,7 @@ from libc.stdint cimport intptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
+from cuda.core._context cimport Context
 from cuda.core._memory._buffer cimport Buffer, Buffer_check_open
 from cuda.core._resource_handles cimport (
     OpaqueArrayHandle,
@@ -515,8 +516,8 @@ cdef OpaqueArray _array_from_handle(OpaqueArrayHandle h, int device_id):
     return self
 
 
-def _create_opaque_array(options):
-    """Allocate a new :class:`OpaqueArray` on the current device.
+def _create_opaque_array(options, Context ctx, int device_id):
+    """Allocate a new :class:`OpaqueArray` on the specified device.
 
     Backs :meth:`cuda.core.Device.create_opaque_array`. ``options`` is an
     :class:`OpaqueArrayOptions` (or a mapping accepted by it); it is validated
@@ -545,7 +546,7 @@ def _create_opaque_array(options):
         Flags=flags,
     )
 
-    cdef OpaqueArrayHandle h = create_array_handle(desc3d)
+    cdef OpaqueArrayHandle h = create_array_handle(ctx._h_context, desc3d)
     if not h:
         HANDLE_RETURN(get_last_error())
 
@@ -555,5 +556,5 @@ def _create_opaque_array(options):
     self._format = c_format
     self._num_channels = opts.num_channels
     self._surface_load_store = bool(opts.is_surface_load_store)
-    self._device_id = _get_current_device_id()
+    self._device_id = device_id
     return self

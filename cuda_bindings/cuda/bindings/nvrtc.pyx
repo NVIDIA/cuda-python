@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5d36f91a9f04660caaf0a8a7afa443d43899bc6eb70e61a26415485d9a39475a
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9c30b7a3d79561c6721e7df7b758eaee6afdd2763d9692ff638815abb64417e0
 from typing import Any, Optional
 import cython
 import ctypes
@@ -141,33 +141,35 @@ cdef class nvrtcProgram:
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
 
-cdef class anon_struct0:
+cdef class nvrtcBundledHeadersInfo:
     """
+    Structure containing information about bundled headers.
+
     Attributes
     ----------
 
     available : int
-
+        Non-zero if bundled headers are available
 
 
     compressedSize : size_t
-
+        Size of compressed archive in bytes
 
 
     uncompressedSize : size_t
-
+        Estimated size when extracted in bytes
 
 
     cudaVersionMajor : int
-
+        CUDA major version of bundled headers
 
 
     cudaVersionMinor : int
-
+        CUDA minor version of bundled headers
 
 
     numFiles : unsigned int
-
+        Number of header files in the bundle
 
 
     Methods
@@ -175,10 +177,12 @@ cdef class anon_struct0:
     getPtr()
         Get memory address of class instance
     """
-    def __cinit__(self, void_ptr _ptr):
-        self._pvt_ptr = <cynvrtc.nvrtcBundledHeadersInfo *>_ptr
-
-    def __init__(self, void_ptr _ptr):
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+        else:
+            self._pvt_ptr = <cynvrtc.nvrtcBundledHeadersInfo *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
         pass
@@ -274,49 +278,6 @@ cdef class anon_struct0:
     def numFiles(self, unsigned int numFiles):
         self._pvt_ptr[0].numFiles = numFiles
 
-
-cdef class nvrtcBundledHeadersInfo(anon_struct0):
-    """
-    Attributes
-    ----------
-
-    available : int
-
-
-
-    compressedSize : size_t
-
-
-
-    uncompressedSize : size_t
-
-
-
-    cudaVersionMajor : int
-
-
-
-    cudaVersionMinor : int
-
-
-
-    numFiles : unsigned int
-
-
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    def __cinit__(self, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._pvt_ptr = <cynvrtc.nvrtcBundledHeadersInfo *>&self._pvt_val
-        else:
-            self._pvt_ptr = <cynvrtc.nvrtcBundledHeadersInfo *>_ptr
-
-    def __init__(self, void_ptr _ptr = 0):
-        pass
 
 @cython.embedsignature(True)
 def nvrtcGetErrorString(result not None : nvrtcResult):

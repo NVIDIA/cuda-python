@@ -55,6 +55,9 @@ test = [
     "pytest-randomly==4.1.0",
     "pyglet==2.1.14",
 ]
+test-ft = [
+    "pytest-run-parallel==0.10.0",
+]
 
 [project.urls]
 Repository = "https://github.com/NVIDIA/cuda-python"

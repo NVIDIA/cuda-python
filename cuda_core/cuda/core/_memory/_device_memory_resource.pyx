@@ -11,15 +11,13 @@ from cuda.core._memory._memory_pool cimport (
 )
 from cuda.core._memory cimport _ipc
 from cuda.core._memory._ipc cimport IPCAllocationHandle
-from cuda.core._resource_handles cimport (
-    as_cu,
-    get_device_mempool,
-    get_last_error,
-)
+from cuda.core._resource_handles cimport as_cu, get_device_mempool, get_last_error
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
 )
+
+import cython
 from dataclasses import dataclass
 import multiprocessing
 import platform  # no-cython-lint
@@ -146,6 +144,7 @@ cdef class DeviceMemoryResource(_MemPool):
     def __cinit__(self, *args, **kwargs) -> None:
         self._dev_id = cydriver.CU_DEVICE_INVALID
 
+    @cython.annotation_typing(False)
     def __init__(
         self,
         device_id: Device | int,

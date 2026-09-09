@@ -47,6 +47,7 @@ from cuda.core._utils.cuda_utils import (
     is_sequence,
 )
 from cuda.core._utils.version import binding_version, driver_version
+from cuda.core.utils._cache_dir import _default_cache_dir
 from cuda.core.typing import ObjectCodeFormatType, CompilerBackendType, PCHStatusType, SourceCodeType
 
 __all__ = ["Program", "ProgramOptions"]
@@ -103,8 +104,12 @@ cdef class Program:
         self._cleanup_debug_source()
 
     def _cleanup_debug_source(self):
-        path = self._nvrtc_name.decode()
-        self._unlink_debug_source(path)
+        # Only a temp file this Program wrote may be removed, and the name having
+        # moved off options.name is what says one was written. Without that test
+        # the caller's own file is deleted whenever options.name happens to match
+        # something on disk, since the unredirected name is just that path.
+        if self._nvrtc_name is not None and self._nvrtc_name != self._options._name:
+            self._unlink_debug_source(self._nvrtc_name.decode())
 
     def _unlink_debug_source(self, path: str) -> None:
         try:
@@ -426,6 +431,13 @@ class ProgramOptions:
     include_path : str | list[str], optional
         Add the directory or directories to the list of directories to be searched for headers.
         Default: None
+    use_bundled_headers : bool, optional
+        Use the CUDA and CCCL headers bundled with NVRTC, installed into a per-user cache
+        directory, instead of requiring a full CUDA Toolkit installation. Implemented via NVRTC's
+        ``--use-bundled-headers=<dir>`` compiler option, which installs the headers into the cache
+        directory (skipping installation if already present and up to date) and adds that
+        directory to the include search path. NVRTC only.
+        Default: False
     pre_include : str | list[str], optional
         Preinclude one or more headers during preprocessing. Can be either a string or a list of strings.
         Default: None
@@ -559,6 +571,7 @@ class ProgramOptions:
     define_macro: str | tuple[str, str] | list[str | tuple[str, str]] | tuple[str | tuple[str, str], ...] | None = None
     undefine_macro: str | list[str] | tuple[str] | None = None
     include_path: str | list[str] | tuple[str] | None = None
+    use_bundled_headers: bool | None = None
     pre_include: str | list[str] | tuple[str] | None = None
     no_source_include: bool | None = None
     std: str | None = None
@@ -602,6 +615,16 @@ class ProgramOptions:
         # Set arch to default if not provided
         if self.arch is None:
             self.arch = f"sm_{Device().arch}"
+        if self.use_bundled_headers:
+            # --use-bundled-headers (and the bundled CUDA/CCCL headers themselves) were
+            # introduced in NVRTC 13.3.
+            nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
+            if (nvrtc_major, nvrtc_minor) < (13, 3):
+                raise RuntimeError(
+                    "use_bundled_headers requires NVRTC >= 13.3, but found "
+                    f"{nvrtc_major}.{nvrtc_minor}. Upgrade the CUDA Toolkit / driver providing "
+                    "libnvrtc, or set use_bundled_headers=False and supply include_path manually."
+                )
         if self.extra_sources is not None:
             if not is_sequence(self.extra_sources):
                 raise TypeError(
@@ -761,8 +784,6 @@ def _find_libdevice_path() -> object:
     return find_bitcode_lib("device")
 
 
-
-
 cdef inline bint _process_define_macro_inner(list options, object macro) except? -1:
     """Process a single define macro, returning True if successful."""
     if isinstance(macro, str):
@@ -852,6 +873,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
 
     self._pch_status = None
     self._nvrtc_name = options._name
+    self._extra_options = []
 
     if code_type == "c++":
         assert_type(code, str)
@@ -862,6 +884,16 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
             debug_path = self._try_materialize_nvrtc_debug_source(code)
             if debug_path is not None:
                 self._nvrtc_name = debug_path.encode()
+                # NVRTC resolves #include "..." against the directory of the name it
+                # is given, so moving the name into the temp dir would otherwise stop
+                # every quoted include from resolving where it did before.
+                try:
+                    include_dir = os.path.dirname(os.path.abspath(options.name))
+                except OSError:
+                    # abspath needs a cwd; with none there is no directory to restore.
+                    pass
+                else:
+                    self._extra_options = [b"--include-path=" + include_dir.encode()]
 
         # TODO: support pre-loaded headers & include names
         code_bytes = code.encode()
@@ -1035,7 +1067,7 @@ cdef object _read_pch_status(cynvrtc.nvrtcProgram prog):
 cdef object Program_compile_nvrtc(Program self, str target_type, object name_expressions, object logs):
     """Compile using NVRTC backend and return ObjectCode."""
     cdef cynvrtc.nvrtcProgram prog = as_cu(self._h_nvrtc)
-    cdef list options_list = self._options.as_bytes("nvrtc", target_type)
+    cdef list options_list = self._options.as_bytes("nvrtc", target_type) + self._extra_options
 
     result = _nvrtc_compile_and_extract(
         prog, target_type, name_expressions, logs, options_list, self._nvrtc_name.decode(),
@@ -1219,6 +1251,8 @@ cdef inline list _prepare_nvrtc_options_impl(object opts):
         elif is_sequence(opts.undefine_macro):
             for macro in opts.undefine_macro:
                 options.append(f"--undefine-macro={macro}")
+    if opts.use_bundled_headers:
+        options.append(f"--use-bundled-headers={_default_cache_dir() / 'nvrtc-bundled-headers'}")
     if opts.include_path is not None:
         if isinstance(opts.include_path, str):
             options.append(f"--include-path={opts.include_path}")
@@ -1383,6 +1417,8 @@ cdef inline object _prepare_nvvm_options_impl(object opts, bint as_bytes):
         unsupported.append("undefine_macro")
     if opts.include_path is not None:
         unsupported.append("include_path")
+    if opts.use_bundled_headers:
+        unsupported.append("use_bundled_headers")
     if opts.pre_include is not None:
         unsupported.append("pre_include")
     if opts.no_source_include is not None and opts.no_source_include:
