@@ -118,6 +118,12 @@ class ChildErrorHarness:
     """Test harness for checking errors in child processes. Subclasses override
     PARENT_ACTION, CHILD_ACTION, and ASSERT (see below for examples)."""
 
+    @pytest.mark.thread_unsafe(
+        reason=(
+            "pytest-run-parallel reuses the same instance and ipc fixtures across "
+            "workers; Process(target=self.child_main) pickles that shared state (#2784)"
+        )
+    )
     @pytest.mark.flaky(reruns=2)
     def test_main(self, ipc_device, ipc_memory_resource):
         """Parent process that checks child errors."""
@@ -267,6 +273,9 @@ class TestDanglingBuffer(ChildErrorHarness):
 
 
 @pytest.mark.skipif(platform.system() != "Linux", reason="CUDA mempool IPC is Linux-only")
+@pytest.mark.thread_unsafe(
+    reason="serialize the affected IPC mempool import/destroy path under pytest-run-parallel (#2784)"
+)
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_from_allocation_handle_raw_fd_imports_mapped_pool(ipc_device):
     """from_allocation_handle accepts a raw int fd and constructs an unregistered mapped MR."""
@@ -303,6 +312,9 @@ def test_from_allocation_handle_raw_fd_imports_mapped_pool(ipc_device):
 
 
 @pytest.mark.skipif(platform.system() != "Linux", reason="CUDA mempool IPC is Linux-only")
+@pytest.mark.thread_unsafe(
+    reason="concurrent IPC mempool export/destroy SEGV in cuMemPoolDestroy under pytest-run-parallel (#2784)"
+)
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_allocation_handle_forking_pickler_roundtrip(ipc_device):
     """ForkingPickler transfers an IPCAllocationHandle by duplicating its fd."""
@@ -328,6 +340,9 @@ def test_allocation_handle_forking_pickler_roundtrip(ipc_device):
 
 
 @pytest.mark.skipif(platform.system() != "Linux", reason="CUDA mempool IPC is Linux-only")
+@pytest.mark.thread_unsafe(
+    reason="concurrent IPC mempool import/destroy SEGV in cuMemPoolDestroy under pytest-run-parallel (#2784)"
+)
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_ipc_registry_dedups_repeated_imports(ipc_device):
     """from_allocation_handle registers the mapped pool; later imports hit the cache."""
