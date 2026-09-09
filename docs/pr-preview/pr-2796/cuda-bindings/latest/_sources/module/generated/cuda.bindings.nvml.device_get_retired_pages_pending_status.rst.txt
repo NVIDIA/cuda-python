@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_retired\_pages\_pending\_status
-===============================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_retired_pages_pending_status

@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.SizeTConfigParameter
-=========================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autoenum:: SizeTConfigParameter
