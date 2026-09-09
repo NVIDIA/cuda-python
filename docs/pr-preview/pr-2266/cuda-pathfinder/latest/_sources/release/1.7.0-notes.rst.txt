@@ -1,0 +1,68 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. py:currentmodule:: cuda.pathfinder
+
+``cuda-pathfinder`` 1.7.0 Release notes
+=======================================
+
+Highlights
+----------
+
+* Add cuDNN 9 dynamic-library loading on Linux and Windows through
+  :func:`load_nvidia_dynamic_lib`. Discovery supports NVIDIA Python wheels and
+  Conda environments, adds ``CUDNN_PATH``, and recognizes versioned x64
+  installations under Program Files alongside existing native and CUDA-root
+  searches. Loading cuDNN preloads the required cuBLASLt dependency and NVRTC
+  when available.
+  (`PR #2680 <https://github.com/NVIDIA/cuda-python/pull/2680>`_)
+
+* Add native Windows Arm64 cuDNN loading through the verified standalone
+  archive layout at ``CUDNN_PATH/bin/arm64``. Windows Arm64 wheel, Conda,
+  ``CUDA_PATH``, and Program Files dynamic-library layouts remain outside the
+  supported scope; those routes remain x64-only.
+  (`PR #2680 <https://github.com/NVIDIA/cuda-python/pull/2680>`_)
+
+* Add cuDNN header discovery on Linux and Windows through NVIDIA Python
+  wheels, Conda environments, ``CUDNN_PATH``, common Linux system and
+  multiarch include directories, and versioned Windows Program Files
+  installations.
+  (`PR #2680 <https://github.com/NVIDIA/cuda-python/pull/2680>`_)
+
+* Add NCCL header discovery on Linux through NVIDIA Python wheels, Conda
+  environments, ``NCCL_HOME``, common system include directories, and NCCL
+  source-build layouts. ``NCCL_HOME`` also participates in the existing NCCL
+  dynamic-library search through ``lib``, ``lib64``, and ``build/lib``.
+  (`PR #2680 <https://github.com/NVIDIA/cuda-python/pull/2680>`_)
+
+Bugfixes
+--------
+
+* Make Windows filesystem DLL matching exact by default, preventing similarly
+  named libraries and component DLLs from being selected for the wrong
+  descriptor. CUPTI retains forward-compatible discovery through the explicit
+  ``cupti64_*.dll`` fallback. Known names take precedence over fallback
+  matches, and each group is searched newest-first.
+  (`PR #2680 <https://github.com/NVIDIA/cuda-python/pull/2680>`_)
+
+* When an already-loaded Windows library requires dependent-DLL directory
+  registration, register the directory of the actual loaded module regardless
+  of whether an earlier filesystem search found another candidate. Also make
+  already-loaded lookup prefer the newest known DLL name, matching native
+  system loading.
+  (`PR #2680 <https://github.com/NVIDIA/cuda-python/pull/2680>`_)
+
+* Continue through every configured dynamic-library directory when an earlier
+  directory exists but does not contain the requested library. Use
+  numeric-aware ordering for versioned installation roots and Windows fallback
+  DLL matches so, for example, ``v9.10`` is preferred over ``v9.9``.
+  (`PR #2680 <https://github.com/NVIDIA/cuda-python/pull/2680>`_)
+
+Internal maintenance
+--------------------
+
+* Extend the dynamic-library and header descriptor metadata and platform
+  search abstractions for product-specific installation roots, optional
+  dependencies, architecture-specific Windows layouts, and opt-in fallback
+  globs. Public function signatures remain unchanged.
+  (`PR #2680 <https://github.com/NVIDIA/cuda-python/pull/2680>`_)
