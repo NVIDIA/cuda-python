@@ -9,262 +9,263 @@
         contexts = {
   "a": "tests/test_memory.py::test_synchronous_memory_resource_basic|run",
   "b": "tests/test_memory.py::test_synchronous_memory_resource_deallocate_accepts_stream|run",
-  "c": "tests/test_utils.py::test_from_buffer[False-C-int8-(2, 3)]|run",
-  "d": "tests/test_utils.py::test_from_buffer[False-C-int8-(10, 13, 11)]|run",
-  "e": "tests/test_utils.py::test_from_buffer[False-C-uint32-(10, 10)]|run",
-  "f": "tests/test_utils.py::test_from_buffer[False-C-uint32-(10, 13, 11)]|run",
-  "g": "tests/test_utils.py::test_from_buffer[False-F-int8-(2, 3)]|run",
-  "h": "tests/test_utils.py::test_from_buffer[False-F-int8-(10, 13, 11)]|run",
-  "i": "tests/test_utils.py::test_from_buffer[False-F-uint32-(2, 3)]|run",
-  "j": "tests/test_utils.py::test_from_buffer[False-F-uint32-(10, 13, 11)]|run",
-  "k": "tests/test_utils.py::test_from_buffer[True-C-int8-(10, 10)]|run",
-  "l": "tests/test_utils.py::test_from_buffer[True-C-int8-(10, 13, 11)]|run",
-  "m": "tests/test_utils.py::test_from_buffer[True-C-int8-()]|run",
-  "n": "tests/test_utils.py::test_from_buffer[True-C-uint32-(10, 10)]|run",
-  "o": "tests/test_utils.py::test_from_buffer[True-C-uint32-(10, 13, 11)]|run",
-  "p": "tests/test_utils.py::test_from_buffer[True-C-uint32-()]|run",
-  "q": "tests/test_utils.py::test_from_buffer[True-F-int8-(2, 3)]|run",
-  "r": "tests/test_utils.py::test_from_buffer[True-F-int8-(10, 10)]|run",
-  "s": "tests/test_utils.py::test_from_buffer[True-F-int8-(10, 13, 11)]|run",
-  "t": "tests/test_utils.py::test_from_buffer[True-F-uint32-(2, 3)]|run",
-  "u": "tests/test_utils.py::test_from_buffer_sliced[C]|run",
-  "v": "tests/test_utils.py::test_from_buffer_sliced[F]|run",
-  "w": "tests/test_utils.py::test_from_buffer_with_non_power_of_two_itemsize|run",
-  "x": "tests/test_utils.py::test_strided_memory_view_dlpack_export_requires_dtype|run",
-  "y": "tests/test_utils.py::test_strided_memory_view_repr_with_none_dtype|run",
-  "z": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_per_thread_default_stream_token_is_accepted|run",
-  "A": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_options_on_per_thread_default_stream|run",
-  "B": "tests/test_device.py::test_device_alloc|run",
-  "C": "tests/test_texture_surface.py::test_texture_object_from_linear|run",
-  "D": "tests/test_texture_surface.py::test_texture_object_from_pitch2d|run",
-  "E": "tests/test_memory.py::test_buffer_external_device[False]|run",
-  "F": "tests/test_memory.py::test_buffer_external_device[True]|run",
-  "G": "tests/test_texture_surface.py::test_array_copy_rejects_undersized_device_buffer|run",
-  "H": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_defaults_size|run",
-  "I": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_rejects_bad_channels|run",
-  "J": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_rejects_non_multiple|run",
-  "K": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_rejects_oversize|run",
-  "L": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_rejects_zero_size|run",
-  "M": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_size_override|run",
-  "N": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_rejects_bad_channels|run",
-  "O": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_rejects_bad_format|run",
-  "P": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_rejects_zero_dims|run",
-  "Q": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_validates_buffer_size|run",
-  "R": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_validates_pitch|run",
-  "S": "tests/test_texture_surface.py::test_surface_rejects_linear_and_pitch2d|run",
-  "T": "tests/test_utils.py::test_dlpack_export_device_accessible_cai_view|run",
-  "U": "tests/test_utils.py::test_view_as_cai_device_pointer_and_stream_ordering|run",
-  "V": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_single_element_batch|run",
-  "W": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_various_sizes|run",
-  "X": "tests/test_utils.py::test_from_buffer[False-C-int8-(10, 10)]|run",
-  "Y": "tests/test_utils.py::test_from_buffer[False-C-int8-()]|run",
-  "Z": "tests/test_utils.py::test_from_buffer[False-C-uint32-(2, 3)]|run",
-  "0": "tests/test_utils.py::test_from_buffer[False-C-uint32-()]|run",
-  "1": "tests/test_utils.py::test_from_buffer[False-F-int8-(10, 10)]|run",
-  "2": "tests/test_utils.py::test_from_buffer[False-F-int8-()]|run",
-  "3": "tests/test_utils.py::test_from_buffer[False-F-uint32-(10, 10)]|run",
-  "4": "tests/test_utils.py::test_from_buffer[False-F-uint32-()]|run",
-  "5": "tests/test_utils.py::test_from_buffer[True-C-int8-(2, 3)]|run",
-  "6": "tests/test_utils.py::test_from_buffer[True-C-uint32-(2, 3)]|run",
-  "7": "tests/test_utils.py::test_from_buffer[True-F-int8-()]|run",
-  "8": "tests/test_utils.py::test_from_buffer[True-F-uint32-(10, 10)]|run",
-  "9": "tests/test_utils.py::test_from_buffer[True-F-uint32-(10, 13, 11)]|run",
-  "!": "tests/test_utils.py::test_from_buffer[True-F-uint32-()]|run",
-  "#": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_varied_sizes|run",
-  "$": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_size_mismatch[1024-2048]|run",
-  "%": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_size_mismatch[2048-1024]|run",
-  "'": "tests/memory/test_copy_single_options.py::test_dst_none_with_options|run",
-  "(": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_launch_and_verify|run",
-  ")": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_two_green_contexts_independent|run",
-  "*": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_with_workqueue_resource|run",
-  "+": "tests/test_module.py::test_kernel_keeps_library_alive|run",
-  ",": "tests/test_texture_surface.py::test_array_copy_accepts_graph_builder|run",
-  "-": "tests/test_utils.py::test_from_buffer_disallowed_negative_offset|run",
-  ".": "tests/test_utils.py::test_from_buffer_incompatible_dtype_and_itemsize[None-None-itemsize or dtype must be specified]|run",
-  "/": "tests/test_utils.py::test_from_buffer_incompatible_dtype_and_itemsize[dtype0-1-itemsize .+ does not match dtype.itemsize .+]|run",
-  ":": "tests/test_utils.py::test_from_buffer_too_small|run",
-  ";": "(empty)",
+  "c": "tests/test_utils_dlpack.py::test_dlpack_view_of_buffer_reuses_exporting_buffer|run",
+  "d": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_per_thread_default_stream_token_is_accepted|run",
+  "e": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_options_on_per_thread_default_stream|run",
+  "f": "tests/test_device.py::test_device_alloc|run",
+  "g": "tests/test_texture_surface.py::test_texture_object_from_linear|run",
+  "h": "tests/test_texture_surface.py::test_texture_object_from_pitch2d|run",
+  "i": "tests/test_utils.py::test_from_buffer[False-C-int8-(2, 3)]|run",
+  "j": "tests/test_utils.py::test_from_buffer[False-C-int8-(10, 10)]|run",
+  "k": "tests/test_utils.py::test_from_buffer[False-C-int8-(10, 13, 11)]|run",
+  "l": "tests/test_utils.py::test_from_buffer[False-C-int8-()]|run",
+  "m": "tests/test_utils.py::test_from_buffer[False-C-uint32-(2, 3)]|run",
+  "n": "tests/test_utils.py::test_from_buffer[False-C-uint32-()]|run",
+  "o": "tests/test_utils.py::test_from_buffer[False-F-int8-(10, 10)]|run",
+  "p": "tests/test_utils.py::test_from_buffer[False-F-int8-(10, 13, 11)]|run",
+  "q": "tests/test_utils.py::test_from_buffer[False-F-int8-()]|run",
+  "r": "tests/test_utils.py::test_from_buffer[False-F-uint32-(10, 10)]|run",
+  "s": "tests/test_utils.py::test_from_buffer[True-C-int8-(10, 10)]|run",
+  "t": "tests/test_utils.py::test_from_buffer[True-C-int8-()]|run",
+  "u": "tests/test_utils.py::test_from_buffer[True-C-uint32-(2, 3)]|run",
+  "v": "tests/test_utils.py::test_from_buffer[True-C-uint32-(10, 10)]|run",
+  "w": "tests/test_utils.py::test_from_buffer[True-C-uint32-()]|run",
+  "x": "tests/test_utils.py::test_from_buffer[True-F-int8-()]|run",
+  "y": "tests/test_utils.py::test_from_buffer[True-F-uint32-(2, 3)]|run",
+  "z": "tests/test_utils.py::test_from_buffer[True-F-uint32-()]|run",
+  "A": "tests/test_utils.py::test_from_buffer_sliced[C]|run",
+  "B": "tests/test_utils.py::test_from_buffer_sliced[F]|run",
+  "C": "tests/test_utils.py::test_strided_memory_view_dlpack_export_requires_dtype|run",
+  "D": "tests/test_memory.py::test_buffer_external_device[False]|run",
+  "E": "tests/test_memory.py::test_buffer_external_device[True]|run",
+  "F": "tests/test_texture_surface.py::test_array_copy_rejects_undersized_device_buffer|run",
+  "G": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_defaults_size|run",
+  "H": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_rejects_bad_channels|run",
+  "I": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_rejects_non_multiple|run",
+  "J": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_rejects_oversize|run",
+  "K": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_rejects_zero_size|run",
+  "L": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_size_override|run",
+  "M": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_rejects_bad_channels|run",
+  "N": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_rejects_bad_format|run",
+  "O": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_rejects_zero_dims|run",
+  "P": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_validates_buffer_size|run",
+  "Q": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_validates_pitch|run",
+  "R": "tests/test_texture_surface.py::test_surface_rejects_linear_and_pitch2d|run",
+  "S": "tests/test_utils.py::test_dlpack_export_device_accessible_cai_view|run",
+  "T": "tests/test_utils.py::test_from_buffer_disallowed_negative_offset|run",
+  "U": "tests/test_utils.py::test_from_buffer_incompatible_dtype_and_itemsize[None-None-itemsize or dtype must be specified]|run",
+  "V": "tests/test_utils.py::test_from_buffer_incompatible_dtype_and_itemsize[dtype0-1-itemsize .+ does not match dtype.itemsize .+]|run",
+  "W": "tests/test_utils.py::test_from_buffer_too_small|run",
+  "X": "tests/test_utils.py::test_view_as_cai_device_pointer_and_stream_ordering|run",
+  "Y": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_single_element_batch|run",
+  "Z": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_various_sizes|run",
+  "0": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_varied_sizes|run",
+  "1": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_size_mismatch[1024-2048]|run",
+  "2": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_size_mismatch[2048-1024]|run",
+  "3": "tests/memory/test_copy_single_options.py::test_dst_none_with_options|run",
+  "4": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_launch_and_verify|run",
+  "5": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_two_green_contexts_independent|run",
+  "6": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_with_workqueue_resource|run",
+  "7": "tests/test_module.py::test_kernel_keeps_library_alive|run",
+  "8": "tests/test_texture_surface.py::test_array_copy_accepts_graph_builder|run",
+  "9": "tests/test_utils.py::test_from_buffer[False-C-uint32-(10, 10)]|run",
+  "!": "tests/test_utils.py::test_from_buffer[False-C-uint32-(10, 13, 11)]|run",
+  "#": "tests/test_utils.py::test_from_buffer[False-F-int8-(2, 3)]|run",
+  "$": "tests/test_utils.py::test_from_buffer[False-F-uint32-(2, 3)]|run",
+  "%": "tests/test_utils.py::test_from_buffer[False-F-uint32-(10, 13, 11)]|run",
+  "'": "tests/test_utils.py::test_from_buffer[False-F-uint32-()]|run",
+  "(": "tests/test_utils.py::test_from_buffer[True-C-int8-(2, 3)]|run",
+  ")": "tests/test_utils.py::test_from_buffer[True-C-int8-(10, 13, 11)]|run",
+  "*": "tests/test_utils.py::test_from_buffer[True-C-uint32-(10, 13, 11)]|run",
+  "+": "tests/test_utils.py::test_from_buffer[True-F-int8-(2, 3)]|run",
+  ",": "tests/test_utils.py::test_from_buffer[True-F-int8-(10, 10)]|run",
+  "-": "tests/test_utils.py::test_from_buffer[True-F-int8-(10, 13, 11)]|run",
+  ".": "tests/test_utils.py::test_from_buffer[True-F-uint32-(10, 10)]|run",
+  "/": "tests/test_utils.py::test_from_buffer[True-F-uint32-(10, 13, 11)]|run",
+  ":": "tests/test_utils.py::test_from_buffer_with_non_power_of_two_itemsize|run",
+  ";": "tests/test_utils.py::test_strided_memory_view_repr_with_none_dtype|run",
   "=": "tests/test_device.py::test_device_alloc_zero_bytes|run",
-  "?": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_copy_to|run",
-  "@": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_d2d|run",
-  "[": "tests/test_object_protocols.py::test_closeable_object_state_and_safe_inspection[sample_buffer]|setup",
-  "]": "tests/test_object_protocols.py::test_equality_basic[sample_buffer]|setup",
-  "^": "tests/test_object_protocols.py::test_equality_same_handle[sample_buffer-\u003clambda\u003e]|setup",
-  "_": "tests/test_object_protocols.py::test_hash_consistency[sample_buffer]|setup",
-  "`": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_alloc_node]|setup",
-  "{": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_child_graph_node]|setup",
-  "|": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_condition]|setup",
-  "}": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_empty_node]|setup",
-  "~": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_event_record_node]|setup",
-  "ab": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_event_wait_node]|setup",
-  "bb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_free_node]|setup",
-  "cb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_graphdef]|setup",
-  "db": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_host_callback_node]|setup",
-  "eb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_if_else_node]|setup",
-  "fb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_if_node]|setup",
-  "gb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel]|setup",
-  "hb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel_node]|setup",
-  "ib": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_launch_config]|setup",
-  "jb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_memcpy_node]|setup",
-  "kb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_memset_node]|setup",
-  "lb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_object_code_cubin]|setup",
-  "mb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_root_node]|setup",
-  "nb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_switch_node]|setup",
-  "ob": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_while_node]|setup",
-  "pb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_buffer]|setup",
-  "qb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_buffer]|setup",
-  "rb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_buffer]|setup",
-  "sb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_buffer]|setup",
-  "tb": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_buffer-sample_buffer_alt]|setup",
-  "ub": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_alloc_node]|setup",
-  "vb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_child_graph_node]|setup",
-  "wb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_condition]|setup",
-  "xb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_empty_node]|setup",
-  "yb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_event_record_node]|setup",
-  "zb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_event_wait_node]|setup",
-  "Ab": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_free_node]|setup",
-  "Bb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_graphdef]|setup",
-  "Cb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_host_callback_node]|setup",
-  "Db": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_if_else_node]|setup",
-  "Eb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_if_node]|setup",
-  "Fb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel]|setup",
-  "Gb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel_node]|setup",
-  "Hb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_launch_config]|setup",
-  "Ib": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_memcpy_node]|setup",
-  "Jb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_memset_node]|setup",
-  "Kb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_object_code_cubin]|setup",
-  "Lb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_root_node]|setup",
-  "Mb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_switch_node]|setup",
-  "Nb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_while_node]|setup",
-  "Ob": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_buffer]|setup",
-  "Pb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_buffer]|setup",
-  "Qb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_buffer]|setup",
-  "Rb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_buffer]|setup",
-  "Sb": "tests/test_object_protocols.py::test_repr_format[sample_buffer-\u003cBuffer ptr=0x[0-9a-f]+ size=\\\\d+\u003e]|setup",
-  "Tb": "tests/test_object_protocols.py::test_same_type_inequality[sample_buffer-sample_buffer_alt]|setup",
-  "Ub": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_buffer]|setup",
-  "Vb": "tests/test_object_protocols.py::test_usable_in_set[sample_buffer]|setup",
-  "Wb": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_buffer]|setup",
-  "Xb": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_buffer]|setup",
-  "Yb": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_buffer]|setup",
-  "Zb": "tests/test_object_protocols.py::test_weakref_supported[sample_buffer]|setup",
-  "0b": "tests/graph/test_graph_node_update.py::test_memcpy_update_between_host_and_device[device-to-host]|run",
-  "1b": "tests/graph/test_graph_node_update.py::test_memcpy_update_between_host_and_device[host-to-device]|run",
-  "2b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2d_batch|setup",
-  "3b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2h_batch|setup",
-  "4b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_h2d_batch|setup",
-  "5b": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_copy_to|setup",
-  "6b": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_d2d|setup",
-  "7b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_capturing_stream_is_rejected|setup",
-  "8b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_graph_builder_is_rejected|setup",
-  "9b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_legacy_default_stream_token_is_rejected|setup",
-  "!b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_ordered_between_prior_and_later_stream_work|setup",
-  "#b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_default_overlap_mode_does_not_warn|setup",
-  "$b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_during_api_call|setup",
-  "%b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_overlap_mode_copies_correctly|setup",
-  "'b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_per_copy_options|setup",
-  "(b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[any-33]|setup",
-  ")b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[stream-31]|setup",
-  "*b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_length_mismatch|setup",
-  "+b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_options_length_mismatch|setup",
-  ",b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_element|setup",
-  "-b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_type|setup",
-  ".b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_empty_sequence|setup",
-  "/b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_buffer_element|setup",
-  ":b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_sequence|setup",
-  ";b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_single_buffer|setup",
-  "=b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2d_batch|teardown",
-  "?b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2h_batch|teardown",
-  "@b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_h2d_batch|teardown",
-  "[b": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_copy_to|teardown",
-  "]b": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_d2d|teardown",
-  "^b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_capturing_stream_is_rejected|teardown",
-  "_b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_graph_builder_is_rejected|teardown",
-  "`b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_legacy_default_stream_token_is_rejected|teardown",
-  "{b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_ordered_between_prior_and_later_stream_work|teardown",
-  "|b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_default_overlap_mode_does_not_warn|teardown",
-  "}b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_during_api_call|teardown",
-  "~b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_overlap_mode_copies_correctly|teardown",
-  "ac": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_per_copy_options|teardown",
-  "bc": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[any-33]|teardown",
-  "cc": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[stream-31]|teardown",
-  "dc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_length_mismatch|teardown",
-  "ec": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_options_length_mismatch|teardown",
-  "fc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_element|teardown",
-  "gc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_type|teardown",
-  "hc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_empty_sequence|teardown",
-  "ic": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_buffer_element|teardown",
-  "jc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_sequence|teardown",
-  "kc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_single_buffer|teardown",
-  "lc": "tests/test_object_protocols.py::test_closeable_object_state_and_safe_inspection[sample_buffer]|run",
-  "mc": "tests/test_object_protocols.py::test_equality_basic[sample_buffer]|teardown",
-  "nc": "tests/test_object_protocols.py::test_equality_same_handle[sample_buffer-\u003clambda\u003e]|teardown",
-  "oc": "tests/test_object_protocols.py::test_hash_consistency[sample_buffer]|teardown",
-  "pc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_alloc_node]|teardown",
-  "qc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_child_graph_node]|teardown",
-  "rc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_condition]|teardown",
-  "sc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_empty_node]|teardown",
-  "tc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_event_record_node]|teardown",
-  "uc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_event_wait_node]|teardown",
-  "vc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_free_node]|teardown",
-  "wc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_graphdef]|teardown",
-  "xc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_host_callback_node]|teardown",
-  "yc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_if_else_node]|teardown",
-  "zc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_if_node]|teardown",
-  "Ac": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel]|teardown",
-  "Bc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel_node]|teardown",
-  "Cc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_launch_config]|teardown",
-  "Dc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_memcpy_node]|teardown",
-  "Ec": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_memset_node]|teardown",
-  "Fc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_object_code_cubin]|teardown",
-  "Gc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_root_node]|teardown",
-  "Hc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_switch_node]|teardown",
-  "Ic": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_while_node]|teardown",
-  "Jc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_buffer]|teardown",
-  "Kc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_buffer]|teardown",
-  "Lc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_buffer]|teardown",
-  "Mc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_buffer]|teardown",
-  "Nc": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_buffer-sample_buffer_alt]|teardown",
-  "Oc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_alloc_node]|teardown",
-  "Pc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_child_graph_node]|teardown",
-  "Qc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_condition]|teardown",
-  "Rc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_empty_node]|teardown",
-  "Sc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_event_record_node]|teardown",
-  "Tc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_event_wait_node]|teardown",
-  "Uc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_free_node]|teardown",
-  "Vc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_graphdef]|teardown",
-  "Wc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_host_callback_node]|teardown",
-  "Xc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_if_else_node]|teardown",
-  "Yc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_if_node]|teardown",
-  "Zc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel]|teardown",
-  "0c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel_node]|teardown",
-  "1c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_launch_config]|teardown",
-  "2c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_memcpy_node]|teardown",
-  "3c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_memset_node]|teardown",
-  "4c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_object_code_cubin]|teardown",
-  "5c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_root_node]|teardown",
-  "6c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_switch_node]|teardown",
-  "7c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_while_node]|teardown",
-  "8c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_buffer]|teardown",
-  "9c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_buffer]|teardown",
-  "!c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_buffer]|teardown",
-  "#c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_buffer]|teardown",
-  "$c": "tests/test_object_protocols.py::test_repr_format[sample_buffer-\u003cBuffer ptr=0x[0-9a-f]+ size=\\\\d+\u003e]|teardown",
-  "%c": "tests/test_object_protocols.py::test_same_type_inequality[sample_buffer-sample_buffer_alt]|teardown",
-  "'c": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_buffer]|teardown",
-  "(c": "tests/test_object_protocols.py::test_usable_in_set[sample_buffer]|teardown",
-  ")c": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_buffer]|teardown",
-  "*c": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_buffer]|teardown",
-  "+c": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_buffer]|teardown",
-  ",c": "tests/test_object_protocols.py::test_weakref_supported[sample_buffer]|teardown",
-  "-c": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2d_batch|run",
-  ".c": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_h2d_batch|run",
-  "/c": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_ordered_between_prior_and_later_stream_work|run",
-  ":c": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_during_api_call|run",
-  ";c": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_overlap_mode_copies_correctly|run",
-  "=c": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_per_copy_options|run",
-  "?c": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[any-33]|run",
-  "@c": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[stream-31]|run"
+  "?": "(empty)",
+  "@": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_copy_to|run",
+  "[": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_d2d|run",
+  "]": "tests/test_object_protocols.py::test_closeable_object_state_and_safe_inspection[sample_buffer]|setup",
+  "^": "tests/test_object_protocols.py::test_equality_basic[sample_buffer]|setup",
+  "_": "tests/test_object_protocols.py::test_equality_same_handle[sample_buffer-\u003clambda\u003e]|setup",
+  "`": "tests/test_object_protocols.py::test_hash_consistency[sample_buffer]|setup",
+  "{": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_alloc_node]|setup",
+  "|": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_child_graph_node]|setup",
+  "}": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_condition]|setup",
+  "~": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_empty_node]|setup",
+  "ab": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_event_record_node]|setup",
+  "bb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_event_wait_node]|setup",
+  "cb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_free_node]|setup",
+  "db": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_graphdef]|setup",
+  "eb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_host_callback_node]|setup",
+  "fb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_if_else_node]|setup",
+  "gb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_if_node]|setup",
+  "hb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel]|setup",
+  "ib": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel_node]|setup",
+  "jb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_launch_config]|setup",
+  "kb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_memcpy_node]|setup",
+  "lb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_memset_node]|setup",
+  "mb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_object_code_cubin]|setup",
+  "nb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_root_node]|setup",
+  "ob": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_switch_node]|setup",
+  "pb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_while_node]|setup",
+  "qb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_buffer]|setup",
+  "rb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_buffer]|setup",
+  "sb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_buffer]|setup",
+  "tb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_buffer]|setup",
+  "ub": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_buffer-sample_buffer_alt]|setup",
+  "vb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_alloc_node]|setup",
+  "wb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_child_graph_node]|setup",
+  "xb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_condition]|setup",
+  "yb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_empty_node]|setup",
+  "zb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_event_record_node]|setup",
+  "Ab": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_event_wait_node]|setup",
+  "Bb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_free_node]|setup",
+  "Cb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_graphdef]|setup",
+  "Db": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_host_callback_node]|setup",
+  "Eb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_if_else_node]|setup",
+  "Fb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_if_node]|setup",
+  "Gb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel]|setup",
+  "Hb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel_node]|setup",
+  "Ib": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_launch_config]|setup",
+  "Jb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_memcpy_node]|setup",
+  "Kb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_memset_node]|setup",
+  "Lb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_object_code_cubin]|setup",
+  "Mb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_root_node]|setup",
+  "Nb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_switch_node]|setup",
+  "Ob": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_while_node]|setup",
+  "Pb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_buffer]|setup",
+  "Qb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_buffer]|setup",
+  "Rb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_buffer]|setup",
+  "Sb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_buffer]|setup",
+  "Tb": "tests/test_object_protocols.py::test_repr_format[sample_buffer-\u003cBuffer ptr=0x[0-9a-f]+ size=\\\\d+\u003e]|setup",
+  "Ub": "tests/test_object_protocols.py::test_same_type_inequality[sample_buffer-sample_buffer_alt]|setup",
+  "Vb": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_buffer]|setup",
+  "Wb": "tests/test_object_protocols.py::test_usable_in_set[sample_buffer]|setup",
+  "Xb": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_buffer]|setup",
+  "Yb": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_buffer]|setup",
+  "Zb": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_buffer]|setup",
+  "0b": "tests/test_object_protocols.py::test_weakref_supported[sample_buffer]|setup",
+  "1b": "tests/graph/test_graph_node_update.py::test_memcpy_update_between_host_and_device[device-to-host]|run",
+  "2b": "tests/graph/test_graph_node_update.py::test_memcpy_update_between_host_and_device[host-to-device]|run",
+  "3b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2d_batch|setup",
+  "4b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2h_batch|setup",
+  "5b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_h2d_batch|setup",
+  "6b": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_copy_to|setup",
+  "7b": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_d2d|setup",
+  "8b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_capturing_stream_is_rejected|setup",
+  "9b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_graph_builder_is_rejected|setup",
+  "!b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_legacy_default_stream_token_is_rejected|setup",
+  "#b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_ordered_between_prior_and_later_stream_work|setup",
+  "$b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_default_overlap_mode_does_not_warn|setup",
+  "%b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_during_api_call|setup",
+  "'b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_overlap_mode_copies_correctly|setup",
+  "(b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_per_copy_options|setup",
+  ")b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[any-33]|setup",
+  "*b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[stream-31]|setup",
+  "+b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_length_mismatch|setup",
+  ",b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_options_length_mismatch|setup",
+  "-b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_element|setup",
+  ".b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_type|setup",
+  "/b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_empty_sequence|setup",
+  ":b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_buffer_element|setup",
+  ";b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_sequence|setup",
+  "=b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_single_buffer|setup",
+  "?b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2d_batch|teardown",
+  "@b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2h_batch|teardown",
+  "[b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_h2d_batch|teardown",
+  "]b": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_copy_to|teardown",
+  "^b": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_d2d|teardown",
+  "_b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_capturing_stream_is_rejected|teardown",
+  "`b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_graph_builder_is_rejected|teardown",
+  "{b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_legacy_default_stream_token_is_rejected|teardown",
+  "|b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_ordered_between_prior_and_later_stream_work|teardown",
+  "}b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_default_overlap_mode_does_not_warn|teardown",
+  "~b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_during_api_call|teardown",
+  "ac": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_overlap_mode_copies_correctly|teardown",
+  "bc": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_per_copy_options|teardown",
+  "cc": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[any-33]|teardown",
+  "dc": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[stream-31]|teardown",
+  "ec": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_length_mismatch|teardown",
+  "fc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_options_length_mismatch|teardown",
+  "gc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_element|teardown",
+  "hc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_type|teardown",
+  "ic": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_empty_sequence|teardown",
+  "jc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_buffer_element|teardown",
+  "kc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_sequence|teardown",
+  "lc": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_single_buffer|teardown",
+  "mc": "tests/test_object_protocols.py::test_closeable_object_state_and_safe_inspection[sample_buffer]|run",
+  "nc": "tests/test_object_protocols.py::test_equality_basic[sample_buffer]|teardown",
+  "oc": "tests/test_object_protocols.py::test_equality_same_handle[sample_buffer-\u003clambda\u003e]|teardown",
+  "pc": "tests/test_object_protocols.py::test_hash_consistency[sample_buffer]|teardown",
+  "qc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_alloc_node]|teardown",
+  "rc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_child_graph_node]|teardown",
+  "sc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_condition]|teardown",
+  "tc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_empty_node]|teardown",
+  "uc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_event_record_node]|teardown",
+  "vc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_event_wait_node]|teardown",
+  "wc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_free_node]|teardown",
+  "xc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_graphdef]|teardown",
+  "yc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_host_callback_node]|teardown",
+  "zc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_if_else_node]|teardown",
+  "Ac": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_if_node]|teardown",
+  "Bc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel]|teardown",
+  "Cc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel_node]|teardown",
+  "Dc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_launch_config]|teardown",
+  "Ec": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_memcpy_node]|teardown",
+  "Fc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_memset_node]|teardown",
+  "Gc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_object_code_cubin]|teardown",
+  "Hc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_root_node]|teardown",
+  "Ic": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_switch_node]|teardown",
+  "Jc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_while_node]|teardown",
+  "Kc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_buffer]|teardown",
+  "Lc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_buffer]|teardown",
+  "Mc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_buffer]|teardown",
+  "Nc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_buffer]|teardown",
+  "Oc": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_buffer-sample_buffer_alt]|teardown",
+  "Pc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_alloc_node]|teardown",
+  "Qc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_child_graph_node]|teardown",
+  "Rc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_condition]|teardown",
+  "Sc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_empty_node]|teardown",
+  "Tc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_event_record_node]|teardown",
+  "Uc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_event_wait_node]|teardown",
+  "Vc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_free_node]|teardown",
+  "Wc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_graphdef]|teardown",
+  "Xc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_host_callback_node]|teardown",
+  "Yc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_if_else_node]|teardown",
+  "Zc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_if_node]|teardown",
+  "0c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel]|teardown",
+  "1c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel_node]|teardown",
+  "2c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_launch_config]|teardown",
+  "3c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_memcpy_node]|teardown",
+  "4c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_memset_node]|teardown",
+  "5c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_object_code_cubin]|teardown",
+  "6c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_root_node]|teardown",
+  "7c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_switch_node]|teardown",
+  "8c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_while_node]|teardown",
+  "9c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_buffer]|teardown",
+  "!c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_buffer]|teardown",
+  "#c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_buffer]|teardown",
+  "$c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_buffer]|teardown",
+  "%c": "tests/test_object_protocols.py::test_repr_format[sample_buffer-\u003cBuffer ptr=0x[0-9a-f]+ size=\\\\d+\u003e]|teardown",
+  "'c": "tests/test_object_protocols.py::test_same_type_inequality[sample_buffer-sample_buffer_alt]|teardown",
+  "(c": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_buffer]|teardown",
+  ")c": "tests/test_object_protocols.py::test_usable_in_set[sample_buffer]|teardown",
+  "*c": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_buffer]|teardown",
+  "+c": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_buffer]|teardown",
+  ",c": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_buffer]|teardown",
+  "-c": "tests/test_object_protocols.py::test_weakref_supported[sample_buffer]|teardown",
+  ".c": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2d_batch|run",
+  "/c": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_h2d_batch|run",
+  ":c": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_ordered_between_prior_and_later_stream_work|run",
+  ";c": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_during_api_call|run",
+  "=c": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_overlap_mode_copies_correctly|run",
+  "?c": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_per_copy_options|run",
+  "@c": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[any-33]|run",
+  "[c": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[stream-31]|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -327,7 +328,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__memoryview_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
-            created at 2026-09-08 01:21 +0000
+            created at 2026-09-09 02:20 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -376,23 +377,23 @@
     <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">    __slots__ = (&quot;_context&quot;, &quot;_device_id&quot;)</span>&nbsp;</span><span class="r"><label for="ctxs32" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    def __init__(self, device_id: int, context=None) -&gt; None:</span>&nbsp;</span><span class="r"><label for="ctxs34" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">        from .._device import Device</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">146 ctx</label></span><span class="ctxs">2; 0b1b2b3b4bV W 5b6b# 7b8b9b!bz #b$bA %b'b(b)b*b+b,b-b.b/b:b;b$ % ' = B ( ) * E F a b + [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb, G H I J K L M N O P Q R S C D T c d e f g h i j k l m n o p q r s t u v w x y U </span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">        from .._device import Device</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">149 ctx</label></span><span class="ctxs">2? 1b2b3b4b5bY Z 6b7b0 8b9b!b#bd $b%be 'b(b)b*b+b,b-b.b/b:b;b=b1 2 3 = f 4 5 6 D E a b 7 ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b8 F G H I J K L M N O P Q R g h S i j k l m n o p q r s t u v w x y z T U V A B W C X c </span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">        self._device_id = Device(device_id).device_id</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">145 ctx</label></span><span class="ctxs">20b1b2b3b4bV W 5b6b# 7b8b9b!bz #b$bA %b'b(b)b*b+b,b-b.b/b:b;b$ % ' = B ( ) * E F a b + [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb, G H I J K L M N O P Q R S C D T c d e f g h i j k l m n o p q r s t u v w x y U </span></p>
+    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">        self._device_id = Device(device_id).device_id</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">148 ctx</label></span><span class="ctxs">21b2b3b4b5bY Z 6b7b0 8b9b!b#bd $b%be 'b(b)b*b+b,b-b.b/b:b;b=b1 2 3 = f 4 5 6 D E a b 7 ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b8 F G H I J K L M N O P Q R g h S i j k l m n o p q r s t u v w x y z T U V A B W C X c </span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">        # Resolved lazily (in _resolve_context) so that construction with</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">        # context=None does no CUDA work; the primary context is retained</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">        # only once actually needed, on the first allocate()/deallocate().</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">        self._context = context</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">145 ctx</label></span><span class="ctxs">20b1b2b3b4bV W 5b6b# 7b8b9b!bz #b$bA %b'b(b)b*b+b,b-b.b/b:b;b$ % ' = B ( ) * E F a b + [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb, G H I J K L M N O P Q R S C D T c d e f g h i j k l m n o p q r s t u v w x y U </span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">        self._context = context</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">148 ctx</label></span><span class="ctxs">21b2b3b4b5bY Z 6b7b0 8b9b!b#bd $b%be 'b(b)b*b+b,b-b.b/b:b;b=b1 2 3 = f 4 5 6 D E a b 7 ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b8 F G H I J K L M N O P Q R g h S i j k l m n o p q r s t u v w x y z T U V A B W C X c </span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    def _resolve_context(self) -&gt; Context:</span>&nbsp;</span><span class="r"><label for="ctxs43" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">        cdef ContextHandle h_context</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">        if self._context is None:</span>&nbsp;</span><input type="checkbox" id="ctxs45"><span class="r"><label for="ctxs45" class="ctx">165 ctx</label></span><span class="ctxs">20b1b2b3b4bV W ? 5b@ 6b# 7b8b9b!bz #b$bA %b'b(b)b*b+b,b-b.b/b:b;b$ % ' = B ( ) * E F a b + [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
+    <p class="run"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">        if self._context is None:</span>&nbsp;</span><input type="checkbox" id="ctxs45"><span class="r"><label for="ctxs45" class="ctx">166 ctx</label></span><span class="ctxs">21b2b3b4b5bY Z @ 6b[ 7b0 8b9b!b#bd $b%be 'b(b)b*b+b,b-b.b/b:b;b=b1 2 3 = f 4 5 6 D E a b 7 ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
     <p class="run"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">            h_context = get_primary_context(self._device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs46"><span class="r"><label for="ctxs46" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
     <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">            if not h_context:</span>&nbsp;</span><input type="checkbox" id="ctxs47"><span class="r"><label for="ctxs47" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
     <p class="mis show_mis"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">                HANDLE_RETURN(get_last_error())</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">            self._context = Context._from_handle(</span>&nbsp;</span><input type="checkbox" id="ctxs49"><span class="r"><label for="ctxs49" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
     <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">                Context, h_context, self._device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs50"><span class="r"><label for="ctxs50" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
-    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">        return self._context</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">165 ctx</label></span><span class="ctxs">20b1b2b3b4bV W ? 5b@ 6b# 7b8b9b!bz #b$bA %b'b(b)b*b+b,b-b.b/b:b;b$ % ' = B ( ) * E F a b + [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
+    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">        return self._context</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">166 ctx</label></span><span class="ctxs">21b2b3b4b5bY Z @ 6b[ 7b0 8b9b!b#bd $b%be 'b(b)b*b+b,b-b.b/b:b;b=b1 2 3 = f 4 5 6 D E a b 7 ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
     <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">    def allocate(</span>&nbsp;</span><span class="r"><label for="ctxs53" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">        self,</span>&nbsp;</span><span class="r"></span></p>
@@ -403,11 +404,11 @@
     <p class="pln"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">        # cuMemAlloc/cuMemFree are synchronous; a caller-supplied stream is</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">        # accepted (and validated) for interface conformance and, if it is a</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">        # real stream, recorded as the stream that orders deallocation.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">        cdef Context context = self._resolve_context()</span>&nbsp;</span><input type="checkbox" id="ctxs62"><span class="r"><label for="ctxs62" class="ctx">165 ctx</label></span><span class="ctxs">20b1b2b3b4bV W ? 5b@ 6b# 7b8b9b!bz #b$bA %b'b(b)b*b+b,b-b.b/b:b;b$ % ' = B ( ) * E F a b + [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
-    <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">        cdef Stream dealloc_stream = None</span>&nbsp;</span><input type="checkbox" id="ctxs63"><span class="r"><label for="ctxs63" class="ctx">165 ctx</label></span><span class="ctxs">20b1b2b3b4bV W ? 5b@ 6b# 7b8b9b!bz #b$bA %b'b(b)b*b+b,b-b.b/b:b;b$ % ' = B ( ) * E F a b + [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
-    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">        if stream is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs64"><span class="r"><label for="ctxs64" class="ctx">165 ctx</label></span><span class="ctxs">20b1b2b3b4bV W ? 5b@ 6b# 7b8b9b!bz #b$bA %b'b(b)b*b+b,b-b.b/b:b;b$ % ' = B ( ) * E F a b + [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
-    <p class="run"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">            dealloc_stream = Stream_accept(stream)</span>&nbsp;</span><input type="checkbox" id="ctxs65"><span class="r"><label for="ctxs65" class="ctx">164 ctx</label></span><span class="ctxs">20b1b2b3b4bV W ? 5b@ 6b# 7b8b9b!bz #b$bA %b'b(b)b*b+b,b-b.b/b:b;b$ % ' = B ( ) * E F a + [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
-    <p class="run"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">        if dealloc_stream is None or Stream_is_default_token(dealloc_stream):</span>&nbsp;</span><input type="checkbox" id="ctxs66"><span class="r"><label for="ctxs66" class="ctx">165 ctx</label></span><span class="ctxs">20b1b2b3b4bV W ? 5b@ 6b# 7b8b9b!bz #b$bA %b'b(b)b*b+b,b-b.b/b:b;b$ % ' = B ( ) * E F a b + [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
+    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">        cdef Context context = self._resolve_context()</span>&nbsp;</span><input type="checkbox" id="ctxs62"><span class="r"><label for="ctxs62" class="ctx">166 ctx</label></span><span class="ctxs">21b2b3b4b5bY Z @ 6b[ 7b0 8b9b!b#bd $b%be 'b(b)b*b+b,b-b.b/b:b;b=b1 2 3 = f 4 5 6 D E a b 7 ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
+    <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">        cdef Stream dealloc_stream = None</span>&nbsp;</span><input type="checkbox" id="ctxs63"><span class="r"><label for="ctxs63" class="ctx">166 ctx</label></span><span class="ctxs">21b2b3b4b5bY Z @ 6b[ 7b0 8b9b!b#bd $b%be 'b(b)b*b+b,b-b.b/b:b;b=b1 2 3 = f 4 5 6 D E a b 7 ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
+    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">        if stream is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs64"><span class="r"><label for="ctxs64" class="ctx">166 ctx</label></span><span class="ctxs">21b2b3b4b5bY Z @ 6b[ 7b0 8b9b!b#bd $b%be 'b(b)b*b+b,b-b.b/b:b;b=b1 2 3 = f 4 5 6 D E a b 7 ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
+    <p class="run"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">            dealloc_stream = Stream_accept(stream)</span>&nbsp;</span><input type="checkbox" id="ctxs65"><span class="r"><label for="ctxs65" class="ctx">165 ctx</label></span><span class="ctxs">21b2b3b4b5bY Z @ 6b[ 7b0 8b9b!b#bd $b%be 'b(b)b*b+b,b-b.b/b:b;b=b1 2 3 = f 4 5 6 D E a 7 ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
+    <p class="run"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">        if dealloc_stream is None or Stream_is_default_token(dealloc_stream):</span>&nbsp;</span><input type="checkbox" id="ctxs66"><span class="r"><label for="ctxs66" class="ctx">166 ctx</label></span><span class="ctxs">21b2b3b4b5bY Z @ 6b[ 7b0 8b9b!b#bd $b%be 'b(b)b*b+b,b-b.b/b:b;b=b1 2 3 = f 4 5 6 D E a b 7 ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
     <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">            # A default-stream token carries no context of its own; Buffer._init</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">            # would bind it to whichever context is current when it records the</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">            # deallocation stream (and fail if none is). Bind it to this</span>&nbsp;</span><span class="r"></span></p>
@@ -415,14 +416,14 @@
     <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">            # context no matter what is current then. Always the legacy token:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">            # a per-thread token would also arm the cross-thread PTDS warning,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">            # which is noise for a synchronous resource.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">            dealloc_stream = Stream._from_handle(</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">127 ctx</label></span><span class="ctxs">2z A = B E F a b [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZbG H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
-    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">                Stream, create_context_bound_legacy_stream(context._h_context))</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">127 ctx</label></span><span class="ctxs">2z A = B E F a b [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZbG H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
+    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">            dealloc_stream = Stream._from_handle(</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">128 ctx</label></span><span class="ctxs">2d e = f D E a b ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0bF G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
+    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">                Stream, create_context_bound_legacy_stream(context._h_context))</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">128 ctx</label></span><span class="ctxs">2d e = f D E a b ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0bF G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">        cdef cydriver.CUdeviceptr ptr = 0</span>&nbsp;</span><input type="checkbox" id="ctxs77"><span class="r"><label for="ctxs77" class="ctx">165 ctx</label></span><span class="ctxs">20b1b2b3b4bV W ? 5b@ 6b# 7b8b9b!bz #b$bA %b'b(b)b*b+b,b-b.b/b:b;b$ % ' = B ( ) * E F a b + [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
-    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">        if size:</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">166 ctx</label></span><span class="ctxs">2; 0b1b2b3b4bV W ? 5b@ 6b# 7b8b9b!bz #b$bA %b'b(b)b*b+b,b-b.b/b:b;b$ % ' = B ( ) * E F a b + [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
-    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">            with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">164 ctx</label></span><span class="ctxs">20b1b2b3b4bV W ? 5b@ 6b# 7b8b9b!bz #b$bA %b'b(b)b*b+b,b-b.b/b:b;b$ % ' B ( ) * E F a b + [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
-    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">                HANDLE_RETURN(deviceptr_alloc_raw(&amp;ptr, size, context._h_context))</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">164 ctx</label></span><span class="ctxs">20b1b2b3b4bV W ? 5b@ 6b# 7b8b9b!bz #b$bA %b'b(b)b*b+b,b-b.b/b:b;b$ % ' B ( ) * E F a b + [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
-    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">        return Buffer._init(&lt;uintptr_t&gt;ptr, size, self, stream=dealloc_stream)</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">165 ctx</label></span><span class="ctxs">20b1b2b3b4bV W ? 5b@ 6b# 7b8b9b!bz #b$bA %b'b(b)b*b+b,b-b.b/b:b;b$ % ' = B ( ) * E F a b + [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
+    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">        cdef cydriver.CUdeviceptr ptr = 0</span>&nbsp;</span><input type="checkbox" id="ctxs77"><span class="r"><label for="ctxs77" class="ctx">166 ctx</label></span><span class="ctxs">21b2b3b4b5bY Z @ 6b[ 7b0 8b9b!b#bd $b%be 'b(b)b*b+b,b-b.b/b:b;b=b1 2 3 = f 4 5 6 D E a b 7 ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">        if size:</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">167 ctx</label></span><span class="ctxs">2? 1b2b3b4b5bY Z @ 6b[ 7b0 8b9b!b#bd $b%be 'b(b)b*b+b,b-b.b/b:b;b=b1 2 3 = f 4 5 6 D E a b 7 ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
+    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">            with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">165 ctx</label></span><span class="ctxs">21b2b3b4b5bY Z @ 6b[ 7b0 8b9b!b#bd $b%be 'b(b)b*b+b,b-b.b/b:b;b=b1 2 3 f 4 5 6 D E a b 7 ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
+    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">                HANDLE_RETURN(deviceptr_alloc_raw(&amp;ptr, size, context._h_context))</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">165 ctx</label></span><span class="ctxs">21b2b3b4b5bY Z @ 6b[ 7b0 8b9b!b#bd $b%be 'b(b)b*b+b,b-b.b/b:b;b=b1 2 3 f 4 5 6 D E a b 7 ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
+    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">        return Buffer._init(&lt;uintptr_t&gt;ptr, size, self, stream=dealloc_stream)</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">166 ctx</label></span><span class="ctxs">21b2b3b4b5bY Z @ 6b[ 7b0 8b9b!b#bd $b%be 'b(b)b*b+b,b-b.b/b:b;b=b1 2 3 = f 4 5 6 D E a b 7 ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">    def deallocate(</span>&nbsp;</span><span class="r"><label for="ctxs83" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">        self,</span>&nbsp;</span><span class="r"></span></p>
@@ -431,8 +432,8 @@
     <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">        *,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">        stream: Stream | GraphBuilder | None = None,</span>&nbsp;</span><span class="r"><label for="ctxs88" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">    ) -&gt; None:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">        if stream is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs90"><span class="r"><label for="ctxs90" class="ctx">163 ctx</label></span><span class="ctxs">2=b?b@bV W ? [b@ ]b# ^b_b`b{bz |b}bA ~bacbcccdcecfcgchcicjckc$ % ' = B ( ) * E F a b + lcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
-    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">            Stream_accept(stream).sync()</span>&nbsp;</span><input type="checkbox" id="ctxs91"><span class="r"><label for="ctxs91" class="ctx">163 ctx</label></span><span class="ctxs">2=b?b@bV W ? [b@ ]b# ^b_b`b{bz |b}bA ~bacbcccdcecfcgchcicjckc$ % ' = B ( ) * E F a b + lcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
+    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">        if stream is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs90"><span class="r"><label for="ctxs90" class="ctx">164 ctx</label></span><span class="ctxs">2?b@b[bY Z @ ]b[ ^b0 _b`b{b|bd }b~be acbcccdcecfcgchcicjckclc1 2 3 = f 4 5 6 D E a b 7 mcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
+    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">            Stream_accept(stream).sync()</span>&nbsp;</span><input type="checkbox" id="ctxs91"><span class="r"><label for="ctxs91" class="ctx">164 ctx</label></span><span class="ctxs">2?b@b[bY Z @ ]b[ ^b0 _b`b{b|bd }b~be acbcccdcecfcgchcicjckclc1 2 3 = f 4 5 6 D E a b 7 mcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
     <p class="pln"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">        # No context switch here, by design (settled in the review of #2750):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">        # cuMemFree does not need a current context. The driver resolves the</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">        # allocation&#x27;s owning context from the pointer through unified</span>&nbsp;</span><span class="r"></span></p>
@@ -441,22 +442,22 @@
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">        # teardown path the C++ deleter has additionally already made the</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">        # recorded deallocation context, bound by allocate() above, current.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">        cdef cydriver.CUdeviceptr devptr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">        if size:</span>&nbsp;</span><input type="checkbox" id="ctxs100"><span class="r"><label for="ctxs100" class="ctx">163 ctx</label></span><span class="ctxs">2=b?b@bV W ? [b@ ]b# ^b_b`b{bz |b}bA ~bacbcccdcecfcgchcicjckc$ % ' = B ( ) * E F a b + lcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
-    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">            devptr = &lt;cydriver.CUdeviceptr&gt;&lt;uintptr_t&gt;int(ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs101"><span class="r"><label for="ctxs101" class="ctx">162 ctx</label></span><span class="ctxs">2=b?b@bV W ? [b@ ]b# ^b_b`b{bz |b}bA ~bacbcccdcecfcgchcicjckc$ % ' B ( ) * E F a b + lcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
-    <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">            with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs102"><span class="r"><label for="ctxs102" class="ctx">162 ctx</label></span><span class="ctxs">2=b?b@bV W ? [b@ ]b# ^b_b`b{bz |b}bA ~bacbcccdcecfcgchcicjckc$ % ' B ( ) * E F a b + lcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
-    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">                HANDLE_RETURN(cydriver.cuMemFree(devptr))</span>&nbsp;</span><input type="checkbox" id="ctxs103"><span class="r"><label for="ctxs103" class="ctx">162 ctx</label></span><span class="ctxs">2=b?b@bV W ? [b@ ]b# ^b_b`b{bz |b}bA ~bacbcccdcecfcgchcicjckc$ % ' B ( ) * E F a b + lcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c, G H I J K L M N O P Q R S C D T c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! - . / u v : w x y U </span></p>
+    <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">        if size:</span>&nbsp;</span><input type="checkbox" id="ctxs100"><span class="r"><label for="ctxs100" class="ctx">164 ctx</label></span><span class="ctxs">2?b@b[bY Z @ ]b[ ^b0 _b`b{b|bd }b~be acbcccdcecfcgchcicjckclc1 2 3 = f 4 5 6 D E a b 7 mcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
+    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">            devptr = &lt;cydriver.CUdeviceptr&gt;&lt;uintptr_t&gt;int(ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs101"><span class="r"><label for="ctxs101" class="ctx">163 ctx</label></span><span class="ctxs">2?b@b[bY Z @ ]b[ ^b0 _b`b{b|bd }b~be acbcccdcecfcgchcicjckclc1 2 3 f 4 5 6 D E a b 7 mcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
+    <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">            with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs102"><span class="r"><label for="ctxs102" class="ctx">163 ctx</label></span><span class="ctxs">2?b@b[bY Z @ ]b[ ^b0 _b`b{b|bd }b~be acbcccdcecfcgchcicjckclc1 2 3 f 4 5 6 D E a b 7 mcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
+    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">                HANDLE_RETURN(cydriver.cuMemFree(devptr))</span>&nbsp;</span><input type="checkbox" id="ctxs103"><span class="r"><label for="ctxs103" class="ctx">163 ctx</label></span><span class="ctxs">2?b@b[bY Z @ ]b[ ^b0 _b`b{b|bd }b~be acbcccdcecfcgchcicjckclc1 2 3 f 4 5 6 D E a b 7 mcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
     <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"><label for="ctxs105" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">    def is_device_accessible(self) -&gt; bool:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">        return True</span>&nbsp;</span><input type="checkbox" id="ctxs107"><span class="r"><label for="ctxs107" class="ctx">38 ctx</label></span><span class="ctxs">1acXdYZef0g1h2i3j45klm6nopqrs7t89!uvwxy</span></p>
+    <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">        return True</span>&nbsp;</span><input type="checkbox" id="ctxs107"><span class="r"><label for="ctxs107" class="ctx">166 ctx</label></span><span class="ctxs">21b2b3b4b5bY Z @ 6b[ 7b0 8b9b!b#bd $b%be 'b(b)b*b+b,b-b.b/b:b;b=b1 2 3 = f 4 5 6 D E a b 7 ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b8 F G H I J K L M N O P Q R g h S i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z T U V A B W : C ; X c </span></p>
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"><label for="ctxs109" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">    def is_host_accessible(self) -&gt; bool:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">        return False</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">        return False</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">2 ctx</label></span><span class="ctxs">1ac</span></p>
     <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"><label for="ctxs113" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">    def device_id(self) -&gt; int:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">        return self._device_id</span>&nbsp;</span><input type="checkbox" id="ctxs115"><span class="r"><label for="ctxs115" class="ctx">55 ctx</label></span><span class="ctxs">2; -c.cV W /cz :cA ;c=c?c@c= B a C D c X d Y Z e f 0 g 1 h 2 i 3 j 4 5 k l m 6 n o p q r s 7 t 8 9 ! u v w x y </span></p>
+    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">        return self._device_id</span>&nbsp;</span><input type="checkbox" id="ctxs115"><span class="r"><label for="ctxs115" class="ctx">56 ctx</label></span><span class="ctxs">2? .c/cY Z :cd ;ce =c?c@c[c= f a g h i j k l m 9 ! n # o p q $ r % ' ( s ) t u v * w + , - x y . / z A B : C ; c </span></p>
 </main>
 <footer>
     <div class="content">
@@ -466,7 +467,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__memoryview_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
-            created at 2026-09-08 01:21 +0000
+            created at 2026-09-09 02:20 +0000
         </p>
     </div>
 </footer>
