@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.GpuInstancePlacement
+=======================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GpuInstancePlacement
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GpuInstancePlacement.__init__
+      ~GpuInstancePlacement.from_buffer
+      ~GpuInstancePlacement.from_data
+      ~GpuInstancePlacement.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GpuInstancePlacement.ptr
+      ~GpuInstancePlacement.size_
+      ~GpuInstancePlacement.start
+   
+   

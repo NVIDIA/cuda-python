@@ -1,0 +1,25 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. py:currentmodule:: cuda.pathfinder
+
+``cuda-pathfinder`` 1.5.5 Release notes
+=======================================
+
+Highlights
+----------
+
+* Add support for the Windows CUDA 13.3 CUPTI DLL name
+  ``cupti64_2026.2.0.dll`` so
+  ``load_nvidia_dynamic_lib("cupti")`` can recognize CTK 13.3 installations.
+  (`PR #2139 <https://github.com/NVIDIA/cuda-python/pull/2139>`_)
+
+Bugfixes
+--------
+
+* On Windows, find ``cudadevrt`` in both CUDA 13 and CUDA 12 conda static-library
+  layouts. This lets ``locate_static_lib("cudadevrt")`` and
+  ``find_static_lib("cudadevrt")`` resolve CUDA 12 conda environments under
+  ``Library/lib`` instead of falling through to ``CUDA_PATH`` and reporting a
+  misleading missing-library error.
+  (`PR #2015 <https://github.com/NVIDIA/cuda-python/pull/2015>`_)
