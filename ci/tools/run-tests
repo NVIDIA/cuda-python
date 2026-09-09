@@ -55,7 +55,11 @@ elif [[ "${test_module}" == "bindings" ]]; then
   if [[ "${LOCAL_CTK}" == 1 ]]; then
     pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl --group test "${TEST_FT_GROUP[@]}"
   else
-    pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group test "${TEST_FT_GROUP[@]}"
+    TEST_CUDA_MAJOR_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
+    # Keep the wheel-installed Toolkit aligned with the matrix-selected minor;
+    # newer minors can grow ABI structs beyond the size compiled into this wheel.
+    pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group test "${TEST_FT_GROUP[@]}" \
+      "cuda-toolkit==${TEST_CUDA_MAJOR_MINOR}.*"
   fi
   echo "Running bindings tests"
   ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/
