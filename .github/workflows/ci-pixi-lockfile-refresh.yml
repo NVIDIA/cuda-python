@@ -10,23 +10,19 @@ name: "CI: pixi lockfile refresh"
 
 on:
   schedule:
-    # 08:00 UTC every Monday = 03:00 EST. GitHub cron is UTC-only, so this
-    # stays 03:00 EST year-round and is 04:00 EDT during daylight saving.
-    - cron: "0 8 * * 1"
+    # Monday 03:17 Eastern. GitHub handles the DST offset for the IANA zone,
+    # and a non-zero minute avoids the start-of-hour window where GitHub
+    # documents scheduled runs being delayed or dropped.
+    - cron: "17 3 * * 1"
+      timezone: "America/New_York"
   workflow_dispatch:
     inputs:
       package:
-        description: "Pixi workspace to refresh"
-        type: choice
+        description: >
+          Pixi workspace id to refresh, or "all". Valid ids come from
+          ci/tools/list_pixi_workspaces.py; an unknown id fails the run.
+        type: string
         default: all
-        options:
-          - all
-          - root
-          - cuda_pathfinder
-          - cuda_bindings
-          - cuda_core
-          - benchmarks/cuda_bindings
-          - benchmarks/cuda_core
 
 defaults:
   run:
@@ -39,39 +35,32 @@ env:
 permissions: {}
 
 jobs:
-  # Job-level `if` cannot use `matrix` (evaluated before expansion). Filter
-  # the workspace list here and pass it to refresh as a dynamic matrix.
+  # Job-level `if` cannot use `matrix` (evaluated before expansion), and the
+  # workspace list must not drift from the committed manifests, so resolve the
+  # requested workspaces here and pass them to refresh as a dynamic matrix.
   plan:
     name: Select workspaces
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
     outputs:
       matrix: ${{ steps.select.outputs.matrix }}
     steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
       - name: Select workspaces to refresh
         id: select
         env:
           PACKAGE: ${{ inputs.package || 'all' }}
         run: |
-          all='[
-            {"id":"root","manifest":".","lockfile":"pixi.lock"},
-            {"id":"cuda_pathfinder","manifest":"cuda_pathfinder","lockfile":"cuda_pathfinder/pixi.lock"},
-            {"id":"cuda_bindings","manifest":"cuda_bindings","lockfile":"cuda_bindings/pixi.lock"},
-            {"id":"cuda_core","manifest":"cuda_core","lockfile":"cuda_core/pixi.lock"},
-            {"id":"benchmarks/cuda_bindings","manifest":"benchmarks/cuda_bindings","lockfile":"benchmarks/cuda_bindings/pixi.lock"},
-            {"id":"benchmarks/cuda_core","manifest":"benchmarks/cuda_core","lockfile":"benchmarks/cuda_core/pixi.lock"}
-          ]'
-          if [ "${PACKAGE}" = "all" ]; then
-            selected="${all}"
-          else
-            selected="$(jq -c --arg id "${PACKAGE}" '[.[] | select(.id == $id)]' <<<"${all}")"
-            if [ "${selected}" = "[]" ]; then
-              echo "::error::Unknown package '${PACKAGE}'"
-              exit 1
-            fi
-          fi
-          echo "matrix=$(jq -c '{include:.}' <<<"${selected}")" >> "${GITHUB_OUTPUT}"
+          workspaces="$(python3 ci/tools/list_pixi_workspaces.py --select "${PACKAGE}")"
+          echo "matrix=$(jq -c '{include: .}' <<<"${workspaces}")" >> "${GITHUB_OUTPUT}"
 
   refresh:
     name: "pixi update (${{ matrix.id }})"
@@ -94,6 +83,19 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.repository.default_branch }}
 
+      # GitHub suppresses workflow-triggering events for pushes and PRs made
+      # with GITHUB_TOKEN, so a refresh PR opened with the default token cannot
+      # reach a green required-check state on its own. An App token restores
+      # normal event delivery; without one the PR needs a manual nudge, which
+      # the PR body and a run warning spell out.
+      - name: Mint App token for the refresh PR
+        id: app-token
+        if: ${{ vars.PIXI_LOCK_REFRESH_APP_ID != '' }}
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
+        with:
+          app-id: ${{ vars.PIXI_LOCK_REFRESH_APP_ID }}
+          private-key: ${{ secrets.PIXI_LOCK_REFRESH_APP_PRIVATE_KEY }}
+
       - name: Setup pixi
         # Pinned to a commit SHA; install logic lives in the action and is
         # auditable/pinned (vs. a curl|bash of an unverified installer).
@@ -105,11 +107,43 @@ jobs:
       - name: Update lockfile without installing
         run: pixi update --no-install --manifest-path "${{ matrix.manifest }}"
 
+      - name: Compose PR body
+        id: pr-body
+        env:
+          WORKSPACE_ID: ${{ matrix.id }}
+          MANIFEST: ${{ matrix.manifest }}
+          HAS_APP_TOKEN: ${{ steps.app-token.outputs.token != '' }}
+        run: |
+          body_path="${RUNNER_TEMP}/pixi-lock-refresh-body.md"
+          {
+            echo "Automated lockfile refresh for \`${WORKSPACE_ID}\`" \
+              "(\`pixi update --no-install --manifest-path ${MANIFEST}\`)."
+            echo
+            echo "This PR is workspace-scoped so other packages are not forced to review"
+            echo "unrelated solver churn. See #2298."
+            echo
+            if [ "${HAS_APP_TOKEN}" != "true" ]; then
+              echo "> [!IMPORTANT]"
+              echo "> No refresh App token is configured, so this PR was opened with"
+              echo "> \`GITHUB_TOKEN\` and GitHub will not deliver its \`pull_request\` events."
+              echo "> Required checks stay pending until a maintainer nudges the branch, by"
+              echo "> closing and reopening the PR or pushing an empty commit to it."
+              echo
+            fi
+            echo "If the diff looks wrong, close this PR and leave the branch deleted; the"
+            echo "next scheduled run opens a fresh one if an update is still needed."
+          } > "${body_path}"
+          echo "path=${body_path}" >> "${GITHUB_OUTPUT}"
+
+          if [ "${HAS_APP_TOKEN}" != "true" ]; then
+            echo "::warning::Opened with GITHUB_TOKEN; the refresh PR's checks must be triggered manually."
+          fi
+
       - name: Open or update a lockfile-only PR
         id: cpr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
-          token: ${{ github.token }}
+          token: ${{ steps.app-token.outputs.token || github.token }}
           add-paths: ${{ matrix.lockfile }}
           commit-message: |
             chore: refresh pixi.lock for ${{ matrix.id }}
@@ -123,12 +157,7 @@ jobs:
           labels: |
             CI/CD
             dependencies
-          body: |
-            Automated lockfile refresh for `${{ matrix.id }}` (`pixi update --no-install --manifest-path ${{ matrix.manifest }}`).
-
-            This PR is workspace-scoped so other packages are not forced to review unrelated solver churn. See #2298.
-
-            If the diff looks wrong, close this PR and leave the branch deleted; the next scheduled run will open a fresh one if an update is still needed.
+          body-path: ${{ steps.pr-body.outputs.path }}
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
 

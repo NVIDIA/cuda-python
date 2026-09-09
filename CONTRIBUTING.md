@@ -195,7 +195,12 @@ Contributor expectations:
   $ pixi lock --manifest-path cuda_core
   ```
 
-  Use `--manifest-path .` for the repository-root environment.
+  Use `--manifest-path .` for the repository-root environment. Regenerate with
+  the pixi version CI pins in `PIXI_VERSION` (see
+  `.github/workflows/ci-pixi-source-test.yml`): different pixi versions write
+  different canonical forms, such as the `pixi.lock` format version or the
+  generated platform alias names, and CI requires the committed bytes to match
+  what the pinned version produces.
 - If a PR does not intentionally change pixi dependencies or metadata, do not
   include unrelated lockfile churn. `pixi run` can refresh a stale lockfile
   implicitly; revert that noise unless the refresh is the point of the change.
@@ -204,15 +209,30 @@ Contributor expectations:
   dedicated lockfile-only PR over mixing solver churn into an unrelated change.
 
 CI enforces the contract: `pixi lock --check` fails when a committed lockfile is
-stale, and pixi source-build jobs run with `PIXI_LOCKED=1` so they install from
+stale, and pixi source-build jobs run with `PIXI_LOCKED=true` so they install from
 the committed lock rather than updating it during the job. If either check
 fails, regenerate and commit the affected lockfile.
+
+The freshness check additionally fails when the check itself rewrote a lockfile.
+`pixi lock --check` accepts a lock whose solution is current but whose bytes are
+not canonical for the pinned pixi version, quietly normalizing the file instead,
+which leaves every later pixi run rewriting the committed lockfile.
 
 A scheduled workflow (`CI: pixi lockfile refresh`)
 runs `pixi update --no-install` per workspace and opens a dedicated PR when that
 lockfile changes, so broad dependency churn is reviewed as maintenance rather
 than landing inside unrelated feature work. The workflow can also be dispatched
-manually for one package or for all of them.
+manually for one workspace or for all of them. Its dispatch input and every
+lockfile CI matrix resolve through `ci/tools/list_pixi_workspaces.py`, which
+derives the workspace list from the committed manifests, so a newly added
+workspace is picked up without editing any workflow.
+
+Those refresh PRs need an App token to pick up CI on their own: GitHub does not
+deliver workflow-triggering events for branches pushed with `GITHUB_TOKEN`. Set
+the `PIXI_LOCK_REFRESH_APP_ID` variable and `PIXI_LOCK_REFRESH_APP_PRIVATE_KEY`
+secret to enable that path. Until they are set, the workflow says so in the PR
+body and in a run warning, and required checks stay pending until a maintainer
+closes and reopens the PR or pushes to its branch.
 
 ## Secret Scanning
 

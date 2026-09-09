@@ -2,31 +2,40 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Fails when a committed pixi.lock is out of date with its pixi.toml.
-# Remediation: regenerate and commit the stale lockfile, e.g.
+# Fails when a committed pixi.lock is out of date with its pixi.toml, or when
+# its bytes are not what the pinned pixi version generates.
+# Remediation for both: regenerate and commit the lockfile with that pixi
+# version, e.g.
 #   pixi lock --manifest-path <path>
 # See #2298.
 
 name: "CI: pixi lockfile freshness check"
 
 concurrency:
+  # Keyed on the event as well as the ref so a manual dispatch and a push to
+  # the same branch do not cancel each other.
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 on:
   pull_request:
-    paths:
+    # `pyproject.toml` is a lockfile input too: the manifests consume sibling
+    # packages (including cuda_python_test_helpers) as path dependencies, so
+    # their metadata can stale a lock without any pixi.toml edit. Matched by
+    # glob rather than by name so the filter cannot drift as packages move.
+    paths: &lockfile_inputs
       - "**/pixi.toml"
       - "**/pixi.lock"
-      - ".github/workflows/ci-pixi-lockfile.yml"
+      - "**/pyproject.toml"
+      - "ci/tools/list_pixi_workspaces.py"
+      - ".github/workflows/ci-pixi-lockfile-freshness-check.yml"
   push:
+    # `pull_request` already covers PRs, including those from forks: this check
+    # needs no secrets or GPU runner. Watching copy-pr-bot's `pull-request/N`
+    # mirror too would run the whole matrix a second time per PR.
     branches:
-      - "pull-request/[0-9]+"
       - "main"
-    paths:
-      - "**/pixi.toml"
-      - "**/pixi.lock"
-      - ".github/workflows/ci-pixi-lockfile.yml"
+    paths: *lockfile_inputs
   workflow_dispatch: {}
 
 defaults:
@@ -41,23 +50,40 @@ env:
 permissions: {}
 
 jobs:
+  # The workspace list is derived from the committed manifests so this matrix
+  # cannot silently skip a newly added workspace (#2298).
+  plan:
+    name: Discover pixi workspaces
+    if: ${{ github.repository_owner == 'nvidia' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      matrix: ${{ steps.discover.outputs.matrix }}
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Discover workspaces
+        id: discover
+        run: |
+          workspaces="$(python3 ci/tools/list_pixi_workspaces.py)"
+          echo "matrix=$(jq -c '{include: .}' <<<"${workspaces}")" >> "${GITHUB_OUTPUT}"
+
   lockfile-fresh:
     name: "pixi lock --check (${{ matrix.manifest }})"
-    if: ${{ github.repository_owner == 'nvidia' }}
+    needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: read
     strategy:
       fail-fast: false
-      matrix:
-        manifest:
-          - .
-          - cuda_pathfinder
-          - cuda_bindings
-          - cuda_core
-          - benchmarks/cuda_bindings
-          - benchmarks/cuda_core
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -77,5 +103,17 @@ jobs:
         run: |
           if ! pixi lock --check --manifest-path "${{ matrix.manifest }}"; then
             echo "::error::Lockfile is stale for '${{ matrix.manifest }}'. Regenerate with: pixi lock --manifest-path ${{ matrix.manifest }}"
+            exit 1
+          fi
+
+      # `pixi lock --check` exits 0 on a semantically current lock even when it
+      # rewrites the file into the pinned version's canonical form (lockfile
+      # format upgrades, platform alias renames). Without this guard that drift
+      # is invisible: the check prints "Updated lock file" and still passes,
+      # while every later pixi run keeps rewriting the committed file (#2298).
+      - name: Check lockfile is byte-for-byte canonical
+        run: |
+          if ! git diff --exit-code -- "${{ matrix.lockfile }}"; then
+            echo "::error::pixi ${PIXI_VERSION} rewrote ${{ matrix.lockfile }} during the check, so the committed bytes are not what it generates. Regenerate with pixi ${PIXI_VERSION}: pixi lock --manifest-path ${{ matrix.manifest }}"
             exit 1
           fi
