@@ -9,6 +9,7 @@ from helpers.memory import create_managed_memory_resource_or_skip
 
 from cuda.bindings import driver
 from cuda.core import Device, Host, ManagedBuffer
+from cuda.core._utils.version import binding_version, driver_version
 
 # Managed-memory prefetch and CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION
 # operate at physical-page granularity. Test buffers must each occupy a full
@@ -358,13 +359,12 @@ class TestManagedBuffer:
     def test_last_prefetch_location_initially_none(self, external_managed_buffer):
         assert external_managed_buffer.last_prefetch_location is None
 
+    @pytest.mark.skipif(
+        binding_version() < (13, 0, 0) or driver_version() < (13, 0, 0),
+        reason="Host NUMA last-prefetch location requires CUDA 13",
+    )
     @pytest.mark.agent_authored(model="gpt-5")
     def test_last_prefetch_location_roundtrip_host_numa(self, location_ops_device, managed_buffer):
-        from cuda.core._utils.version import binding_version, driver_version
-
-        if binding_version() < (13, 0, 0) or driver_version() < (13, 0, 0):
-            pytest.skip("Host NUMA last-prefetch location requires CUDA 13")
-
         stream = location_ops_device.create_stream()
         location = Host(numa_id=0)
         managed_buffer.prefetch(location, stream=stream)
