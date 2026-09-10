@@ -313,7 +313,7 @@ jobs:
           mkdir -p wheels-repaired
           for whl in ./wheels/cuda_bindings-*.whl ./wheels/cuda_core-*.whl; do
             .venv/Scripts/delvewheel repair --namespace-pkg cuda \
-              --exclude "torch_cpu.dll;torch_python.dll" \
+              --exclude "torch_cpu.dll;torch_python.dll;cudart64_12.dll;cudart64_13.dll" \
               -w ./wheels-repaired "$whl"
           done
           mv -f ./wheels-repaired/*.whl ./wheels/
