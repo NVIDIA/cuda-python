@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e6b2e2f1456e0ba7ef3201063d4e670ba71db9334bb671005b63224aeecded0a
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8275412b45de9128c38361396400672f15e94a6f12436319f679a319c1f7cc2d
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -22921,8 +22921,7 @@ cpdef unsigned int unit_get_count() except? 0:
     """Retrieves the number of units in the system.
 
     Returns:
-        unsigned int: Reference in which to return the number of
-            units.
+        unsigned int: Reference in which to return the number of units.
 
     .. seealso:: `nvmlUnitGetCount`
     """
@@ -22959,8 +22958,7 @@ cpdef object unit_get_unit_info(intptr_t unit):
         unit (intptr_t): The identifier of the target unit.
 
     Returns:
-        nvmlUnitInfo_t: Reference in which to return the unit
-            information.
+        nvmlUnitInfo_t: Reference in which to return the unit information.
 
     .. seealso:: `nvmlUnitGetUnitInfo`
     """
@@ -22999,8 +22997,7 @@ cpdef object unit_get_psu_info(intptr_t unit):
         unit (intptr_t): The identifier of the target unit.
 
     Returns:
-        nvmlPSUInfo_t: Reference in which to return the PSU
-            information.
+        nvmlPSUInfo_t: Reference in which to return the PSU information.
 
     .. seealso:: `nvmlUnitGetPsuInfo`
     """
@@ -23020,8 +23017,7 @@ cpdef unsigned int unit_get_temperature(intptr_t unit, unsigned int type) except
         type (unsigned int): The type of reading to take.
 
     Returns:
-        unsigned int: Reference in which to return the intake
-            temperature.
+        unsigned int: Reference in which to return the intake temperature.
 
     .. seealso:: `nvmlUnitGetTemperature`
     """
@@ -23039,8 +23035,8 @@ cpdef object unit_get_fan_speed_info(intptr_t unit):
         unit (intptr_t): The identifier of the target unit.
 
     Returns:
-        nvmlUnitFanSpeeds_t: Reference in which to return the fan
-            speed information.
+        nvmlUnitFanSpeeds_t: Reference in which to return the fan speed
+            information.
 
     .. seealso:: `nvmlUnitGetFanSpeedInfo`
     """
@@ -23135,8 +23131,8 @@ cpdef intptr_t device_get_handle_by_uuid(uuid) except? 0:
         uuid (str): The UUID of the target GPU or MIG instance.
 
     Returns:
-        intptr_t: Reference in which to return the device handle or
-            MIG device handle.
+        intptr_t: Reference in which to return the device handle or MIG
+            device handle.
 
     .. seealso:: `nvmlDeviceGetHandleByUUID`
     """
@@ -23157,9 +23153,8 @@ cpdef intptr_t device_get_handle_by_pci_bus_id_v2(pci_bus_id) except? 0:
     Args:
         pci_bus_id (str): The PCI bus id of the target GPU Accept the
             following formats (all numbers in hexadecimal):
-            domain:bus:device.function in format x:x:x.x
-            domain:bus:device in format x:x:x bus:device.function in
-            format x:x.x.
+            domain:bus:device.function in format x:x:x.x domain:bus:device
+            in format x:x:x bus:device.function in format x:x.x.
 
     Returns:
         intptr_t: Reference in which to return the device handle.
@@ -23221,8 +23216,8 @@ cpdef unsigned int device_get_index(intptr_t device) except? 0:
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        unsigned int: Reference in which to return the NVML index of
-            the device.
+        unsigned int: Reference in which to return the NVML index of the
+            device.
 
     .. seealso:: `nvmlDeviceGetIndex`
     """
@@ -23240,8 +23235,7 @@ cpdef str device_get_serial(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Reference in which to return the board/module serial
-            number.
+        char: Reference in which to return the board/module serial number.
 
     .. seealso:: `nvmlDeviceGetSerial`
     """
@@ -23278,8 +23272,8 @@ cpdef object device_get_c2c_mode_info_v(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        nvmlC2cModeInfo_v1_t: Output struct containing the device's
-            C2C Mode info.
+        nvmlC2cModeInfo_v1_t: Output struct containing the device's C2C
+            Mode info.
 
     .. seealso:: `nvmlDeviceGetC2cModeInfoV`
     """
@@ -23296,14 +23290,14 @@ cpdef object device_get_memory_affinity(intptr_t device, unsigned int node_set_s
 
     Args:
         device (intptr_t): The identifier of the target device.
-        node_set_size (unsigned int): The size of the node_set array
-            that is safe to access.
+        node_set_size (unsigned int): The size of the node_set array that
+            is safe to access.
         scope (unsigned int): Scope that change the default behavior.
 
     Returns:
         unsigned long: Array reference in which to return a bitmask of
-            NODEs, 64 NODEs per unsigned long on 64-bit machines, 32
-            on 32-bit machines.
+            NODEs, 64 NODEs per unsigned long on 64-bit machines, 32 on
+            32-bit machines.
 
     .. seealso:: `nvmlDeviceGetMemoryAffinity`
     """
@@ -23322,8 +23316,8 @@ cpdef object device_get_cpu_affinity_within_scope(intptr_t device, unsigned int 
 
     Args:
         device (intptr_t): The identifier of the target device.
-        cpu_set_size (unsigned int): The size of the cpu_set array
-            that is safe to access.
+        cpu_set_size (unsigned int): The size of the cpu_set array that is
+            safe to access.
         scope (unsigned int): Scope that change the default behavior.
 
     Returns:
@@ -23348,8 +23342,8 @@ cpdef object device_get_cpu_affinity(intptr_t device, unsigned int cpu_set_size)
 
     Args:
         device (intptr_t): The identifier of the target device.
-        cpu_set_size (unsigned int): The size of the cpu_set array
-            that is safe to access.
+        cpu_set_size (unsigned int): The size of the cpu_set array that is
+            safe to access.
 
     Returns:
         unsigned long: Array reference in which to return a bitmask of
@@ -23437,12 +23431,12 @@ cpdef int device_get_p2p_status(intptr_t device1, intptr_t device2, int p2p_inde
     Args:
         device1 (intptr_t): The first device.
         device2 (intptr_t): The second device.
-        p2p_index (GpuP2PCapsIndex): p2p Capability Index being looked
-            for between ``device1`` and ``device2``.
+        p2p_index (GpuP2PCapsIndex): p2p Capability Index being looked for
+            between ``device1`` and ``device2``.
 
     Returns:
-        int: Reference in which to return the status of the
-            ``p2p_index`` between ``device1`` and ``device2``.
+        int: Reference in which to return the status of the ``p2p_index``
+            between ``device1`` and ``device2``.
 
     .. seealso:: `nvmlDeviceGetP2PStatus`
     """
@@ -23479,8 +23473,8 @@ cpdef unsigned int device_get_minor_number(intptr_t device) except? 0:
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        unsigned int: Reference in which to return the minor number
-            for the device.
+        unsigned int: Reference in which to return the minor number for
+            the device.
 
     .. seealso:: `nvmlDeviceGetMinorNumber`
     """
@@ -23589,7 +23583,6 @@ cpdef tuple device_get_last_bbx_flush_time(intptr_t device):
 
     Returns:
         A 2-tuple containing:
-
         - unsigned long long: The start timestamp of the last BBX Flush.
         - unsigned long: The duration (us) of the last BBX Flush.
 
@@ -23646,8 +23639,8 @@ cpdef int device_get_persistence_mode(intptr_t device) except? -1:
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        int: Reference in which to return the current driver
-            persistence mode.
+        int: Reference in which to return the current driver persistence
+            mode.
 
     .. seealso:: `nvmlDeviceGetPersistenceMode`
     """
@@ -23665,8 +23658,7 @@ cpdef object device_get_pci_info_ext(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        nvmlPciInfoExt_v1_t: Reference in which to return the PCI
-            info.
+        nvmlPciInfoExt_v1_t: Reference in which to return the PCI info.
 
     .. seealso:: `nvmlDeviceGetPciInfoExt`
     """
@@ -23762,8 +23754,8 @@ cpdef unsigned int device_get_curr_pcie_link_generation(intptr_t device) except?
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        unsigned int: Reference in which to return the current PCIe
-            link generation.
+        unsigned int: Reference in which to return the current PCIe link
+            generation.
 
     .. seealso:: `nvmlDeviceGetCurrPcieLinkGeneration`
     """
@@ -23781,8 +23773,8 @@ cpdef unsigned int device_get_curr_pcie_link_width(intptr_t device) except? 0:
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        unsigned int: Reference in which to return the current PCIe
-            link generation.
+        unsigned int: Reference in which to return the current PCIe link
+            generation.
 
     .. seealso:: `nvmlDeviceGetCurrPcieLinkWidth`
     """
@@ -23820,8 +23812,7 @@ cpdef unsigned int device_get_pcie_replay_counter(intptr_t device) except? 0:
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        unsigned int: Reference in which to return the counter's
-            value.
+        unsigned int: Reference in which to return the counter's value.
 
     .. seealso:: `nvmlDeviceGetPcieReplayCounter`
     """
@@ -23840,8 +23831,7 @@ cpdef unsigned int device_get_clock_info(intptr_t device, int type) except? 0:
         type (ClockType): Identify which clock domain to query.
 
     Returns:
-        unsigned int: Reference in which to return the clock speed in
-            MHz.
+        unsigned int: Reference in which to return the clock speed in MHz.
 
     .. seealso:: `nvmlDeviceGetClockInfo`
     """
@@ -23860,8 +23850,7 @@ cpdef unsigned int device_get_max_clock_info(intptr_t device, int type) except? 
         type (ClockType): Identify which clock domain to query.
 
     Returns:
-        unsigned int: Reference in which to return the clock speed in
-            MHz.
+        unsigned int: Reference in which to return the clock speed in MHz.
 
     .. seealso:: `nvmlDeviceGetMaxClockInfo`
     """
@@ -23896,8 +23885,7 @@ cpdef unsigned int device_get_clock(intptr_t device, int clock_type, int clock_i
     Args:
         device (intptr_t): The identifier of the target device.
         clock_type (ClockType): Identify which clock domain to query.
-        clock_id (ClockId): Identify which clock in the domain to
-            query.
+        clock_id (ClockId): Identify which clock in the domain to query.
 
     Returns:
         unsigned int: Reference in which to return the clock in MHz.
@@ -23960,8 +23948,8 @@ cpdef object device_get_supported_graphics_clocks(intptr_t device, unsigned int 
 
     Args:
         device (intptr_t): The identifier of the target device.
-        memory_clock_m_hz (unsigned int): Memory clock for which to
-            return possible graphics clocks.
+        memory_clock_m_hz (unsigned int): Memory clock for which to return
+            possible graphics clocks.
 
     Returns:
         unsigned int: Reference in which to return the clocks in MHz.
@@ -23990,12 +23978,11 @@ cpdef tuple device_get_auto_boosted_clocks_enabled(intptr_t device):
 
     Returns:
         A 2-tuple containing:
-
-        - int: Where to store the current state of Auto Boosted clocks
-            of the target device.
-        - int: Where to store the default Auto Boosted clocks behavior
-            of the target device that the device will revert to when
-            no applications are using the GPU.
+        - int: Where to store the current state of Auto Boosted clocks of
+                the target device.
+        - int: Where to store the default Auto Boosted clocks behavior of
+                the target device that the device will revert to when no
+                applications are using the GPU.
 
     .. seealso:: `nvmlDeviceGetAutoBoostedClocksEnabled`
     """
@@ -24074,7 +24061,6 @@ cpdef tuple device_get_min_max_fan_speed(intptr_t device):
 
     Returns:
         A 2-tuple containing:
-
         - unsigned int: The minimum speed allowed to set.
         - unsigned int: The maximum speed allowed to set.
 
@@ -24134,8 +24120,8 @@ cpdef object device_get_cooler_info(intptr_t device):
 
     Returns:
         nvmlCoolerInfo_v1_t: Structure specifying the cooler's control
-            signal characteristics (out) and the target that cooler
-            cools (out).
+            signal characteristics (out) and the target that cooler cools
+            (out).
 
     .. seealso:: `nvmlDeviceGetCoolerInfo`
     """
@@ -24177,8 +24163,8 @@ cpdef object device_get_thermal_settings(intptr_t device, unsigned int sensor_in
         sensor_index (unsigned int): The index of the thermal sensor.
 
     Returns:
-        nvmlGpuThermalSettings_t: Reference in which to return the
-            thermal sensor information.
+        nvmlGpuThermalSettings_t: Reference in which to return the thermal
+            sensor information.
 
     .. seealso:: `nvmlDeviceGetThermalSettings`
     """
@@ -24197,8 +24183,7 @@ cpdef int device_get_performance_state(intptr_t device) except? -1:
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        int: Reference in which to return the performance state
-            reading.
+        int: Reference in which to return the performance state reading.
 
     .. seealso:: `nvmlDeviceGetPerformanceState`
     """
@@ -24216,8 +24201,8 @@ cpdef unsigned long long device_get_current_clocks_event_reasons(intptr_t device
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        unsigned long long: Reference in which to return bitmask of
-            active clocks event reasons.
+        unsigned long long: Reference in which to return bitmask of active
+            clocks event reasons.
 
     .. seealso:: `nvmlDeviceGetCurrentClocksEventReasons`
     """
@@ -24254,8 +24239,7 @@ cpdef int device_get_power_state(intptr_t device) except? -1:
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        int: Reference in which to return the performance state
-            reading.
+        int: Reference in which to return the performance state reading.
 
     .. seealso:: `nvmlDeviceGetPowerState`
     """
@@ -24313,11 +24297,8 @@ cpdef tuple device_get_min_max_clock_of_p_state(intptr_t device, int type, int p
 
     Returns:
         A 2-tuple containing:
-
-        - unsigned int: Reference in which to return min clock
-            frequency.
-        - unsigned int: Reference in which to return max clock
-            frequency.
+        - unsigned int: Reference in which to return min clock frequency.
+        - unsigned int: Reference in which to return max clock frequency.
 
     .. seealso:: `nvmlDeviceGetMinMaxClockOfPState`
     """
@@ -24337,7 +24318,6 @@ cpdef tuple device_get_gpc_clk_min_max_vf_offset(intptr_t device):
 
     Returns:
         A 2-tuple containing:
-
         - int: The retrieved GPCCLK VF min offset value.
         - int: The retrieved GPCCLK VF max offset value.
 
@@ -24359,7 +24339,6 @@ cpdef tuple device_get_mem_clk_min_max_vf_offset(intptr_t device):
 
     Returns:
         A 2-tuple containing:
-
         - int: The retrieved MemClk VF min offset value.
         - int: The retrieved MemClk VF max offset value.
 
@@ -24378,8 +24357,8 @@ cpdef device_set_clock_offsets(intptr_t device, intptr_t info):
 
     Args:
         device (intptr_t): The identifier of the target device.
-        info (intptr_t): Structure specifying the clock type (input),
-            the pstate (input) and clock offset value (input).
+        info (intptr_t): Structure specifying the clock type (input), the
+            pstate (input) and clock offset value (input).
 
     .. seealso:: `nvmlDeviceSetClockOffsets`
     """
@@ -24395,8 +24374,8 @@ cpdef unsigned int device_get_power_management_limit(intptr_t device) except? 0:
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        unsigned int: Reference in which to return the power
-            management limit in milliwatts.
+        unsigned int: Reference in which to return the power management
+            limit in milliwatts.
 
     .. seealso:: `nvmlDeviceGetPowerManagementLimit`
     """
@@ -24415,11 +24394,10 @@ cpdef tuple device_get_power_management_limit_constraints(intptr_t device):
 
     Returns:
         A 2-tuple containing:
-
         - unsigned int: Reference in which to return the minimum power
-            management limit in milliwatts.
+                management limit in milliwatts.
         - unsigned int: Reference in which to return the maximum power
-            management limit in milliwatts.
+                management limit in milliwatts.
 
     .. seealso:: `nvmlDeviceGetPowerManagementLimitConstraints`
     """
@@ -24495,8 +24473,8 @@ cpdef unsigned int device_get_enforced_power_limit(intptr_t device) except? 0:
         device (intptr_t): The device to communicate with.
 
     Returns:
-        unsigned int: Reference in which to return the power
-            management limit in milliwatts.
+        unsigned int: Reference in which to return the power management
+            limit in milliwatts.
 
     .. seealso:: `nvmlDeviceGetEnforcedPowerLimit`
     """
@@ -24515,7 +24493,6 @@ cpdef tuple device_get_gpu_operation_mode(intptr_t device):
 
     Returns:
         A 2-tuple containing:
-
         - int: Reference in which to return the current GOM.
         - int: Reference in which to return the pending GOM.
 
@@ -24554,8 +24531,8 @@ cpdef int device_get_compute_mode(intptr_t device) except? -1:
     """Retrieves the current compute mode for the device or MIG device.
 
     Args:
-        device (intptr_t): The identifier of the target device handle
-            or MIG device handle.
+        device (intptr_t): The identifier of the target device handle or
+            MIG device handle.
 
     Returns:
         int: Reference in which to return the current compute mode.
@@ -24577,11 +24554,10 @@ cpdef tuple device_get_cuda_compute_capability(intptr_t device):
 
     Returns:
         A 2-tuple containing:
-
         - int: Reference in which to return the major CUDA compute
-            capability.
+                capability.
         - int: Reference in which to return the minor CUDA compute
-            capability.
+                capability.
 
     .. seealso:: `nvmlDeviceGetCudaComputeCapability`
     """
@@ -24601,7 +24577,6 @@ cpdef tuple device_get_ecc_mode(intptr_t device):
 
     Returns:
         A 2-tuple containing:
-
         - int: Reference in which to return the current ECC mode.
         - int: Reference in which to return the pending ECC mode.
 
@@ -24640,8 +24615,7 @@ cpdef unsigned int device_get_board_id(intptr_t device) except? 0:
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        unsigned int: Reference in which to return the device's board
-            ID.
+        unsigned int: Reference in which to return the device's board ID.
 
     .. seealso:: `nvmlDeviceGetBoardId`
     """
@@ -24660,8 +24634,7 @@ cpdef unsigned int device_get_multi_gpu_board(intptr_t device) except? 0:
 
     Returns:
         unsigned int: Reference in which to return a zero or non-zero
-            value to indicate whether the device is on a multi GPU
-            board.
+            value to indicate whether the device is on a multi GPU board.
 
     .. seealso:: `nvmlDeviceGetMultiGpuBoard`
     """
@@ -24677,14 +24650,14 @@ cpdef unsigned long long device_get_total_ecc_errors(intptr_t device, int error_
 
     Args:
         device (intptr_t): The identifier of the target device.
-        error_type (MemoryErrorType): Flag that specifies the type of
-            the errors.
-        counter_type (EccCounterType): Flag that specifies the
-            counter-type of the errors.
+        error_type (MemoryErrorType): Flag that specifies the type of the
+            errors.
+        counter_type (EccCounterType): Flag that specifies the counter-
+            type of the errors.
 
     Returns:
-        unsigned long long: Reference in which to return the specified
-            ECC errors.
+        unsigned long long: Reference in which to return the specified ECC
+            errors.
 
     .. seealso:: `nvmlDeviceGetTotalEccErrors`
     """
@@ -24702,14 +24675,13 @@ cpdef unsigned long long device_get_memory_error_counter(intptr_t device, int er
         device (intptr_t): The identifier of the target device.
         error_type (MemoryErrorType): Flag that specifies the type of
             error.
-        counter_type (EccCounterType): Flag that specifies the
-            counter-type of the errors.
+        counter_type (EccCounterType): Flag that specifies the counter-
+            type of the errors.
         location_type (MemoryLocation): Specifies the location of the
             counter.
 
     Returns:
-        unsigned long long: Reference in which to return the ECC
-            counter.
+        unsigned long long: Reference in which to return the ECC counter.
 
     .. seealso:: `nvmlDeviceGetMemoryErrorCounter`
     """
@@ -24727,8 +24699,8 @@ cpdef object device_get_utilization_rates(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        nvmlUtilization_t: Reference in which to return the
-            utilization information.
+        nvmlUtilization_t: Reference in which to return the utilization
+            information.
 
     .. seealso:: `nvmlDeviceGetUtilizationRates`
     """
@@ -24748,11 +24720,10 @@ cpdef tuple device_get_encoder_utilization(intptr_t device):
 
     Returns:
         A 2-tuple containing:
-
-        - unsigned int: Reference to an unsigned int for encoder
-            utilization info.
-        - unsigned int: Reference to an unsigned int for the sampling
-            period in US.
+        - unsigned int: Reference to an unsigned int for encoder utilization
+                info.
+        - unsigned int: Reference to an unsigned int for the sampling period
+                in US.
 
     .. seealso:: `nvmlDeviceGetEncoderUtilization`
     """
@@ -24792,13 +24763,12 @@ cpdef tuple device_get_encoder_stats(intptr_t device):
 
     Returns:
         A 3-tuple containing:
-
         - unsigned int: Reference to an unsigned int for count of active
-            encoder sessions.
-        - unsigned int: Reference to an unsigned int for trailing
-            average FPS of all active sessions.
-        - unsigned int: Reference to an unsigned int for encode latency
-            in microseconds.
+                encoder sessions.
+        - unsigned int: Reference to an unsigned int for trailing average
+                FPS of all active sessions.
+        - unsigned int: Reference to an unsigned int for encode latency in
+                microseconds.
 
     .. seealso:: `nvmlDeviceGetEncoderStats`
     """
@@ -24818,8 +24788,8 @@ cpdef object device_get_encoder_sessions(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        nvmlEncoderSessionInfo_t: Reference in which to return the
-            session information.
+        nvmlEncoderSessionInfo_t: Reference in which to return the session
+            information.
 
     .. seealso:: `nvmlDeviceGetEncoderSessions`
     """
@@ -24845,11 +24815,10 @@ cpdef tuple device_get_decoder_utilization(intptr_t device):
 
     Returns:
         A 2-tuple containing:
-
-        - unsigned int: Reference to an unsigned int for decoder
-            utilization info.
-        - unsigned int: Reference to an unsigned int for the sampling
-            period in US.
+        - unsigned int: Reference to an unsigned int for decoder utilization
+                info.
+        - unsigned int: Reference to an unsigned int for the sampling period
+                in US.
 
     .. seealso:: `nvmlDeviceGetDecoderUtilization`
     """
@@ -24869,11 +24838,10 @@ cpdef tuple device_get_jpg_utilization(intptr_t device):
 
     Returns:
         A 2-tuple containing:
-
         - unsigned int: Reference to an unsigned int for jpg utilization
-            info.
-        - unsigned int: Reference to an unsigned int for the sampling
-            period in US.
+                info.
+        - unsigned int: Reference to an unsigned int for the sampling period
+                in US.
 
     .. seealso:: `nvmlDeviceGetJpgUtilization`
     """
@@ -24893,11 +24861,10 @@ cpdef tuple device_get_ofa_utilization(intptr_t device):
 
     Returns:
         A 2-tuple containing:
-
         - unsigned int: Reference to an unsigned int for ofa utilization
-            info.
-        - unsigned int: Reference to an unsigned int for the sampling
-            period in US.
+                info.
+        - unsigned int: Reference to an unsigned int for the sampling period
+                in US.
 
     .. seealso:: `nvmlDeviceGetOfaUtilization`
     """
@@ -24963,7 +24930,6 @@ cpdef tuple device_get_driver_model_v2(intptr_t device):
 
     Returns:
         A 2-tuple containing:
-
         - int: Reference in which to return the current driver model.
         - int: Reference in which to return the pending driver model.
 
@@ -25003,8 +24969,8 @@ cpdef object device_get_bridge_chip_info(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        nvmlBridgeChipHierarchy_t: Reference to the returned bridge
-            chip Hierarchy.
+        nvmlBridgeChipHierarchy_t: Reference to the returned bridge chip
+            Hierarchy.
 
     .. seealso:: `nvmlDeviceGetBridgeChipInfo`
     """
@@ -25102,8 +25068,8 @@ cpdef int device_on_same_board(intptr_t device1, intptr_t device2) except? 0:
         device2 (intptr_t): The second GPU device.
 
     Returns:
-        int: Reference in which to return the status. Non-zero
-            indicates that the GPUs are on the same board.
+        int: Reference in which to return the status. Non-zero indicates
+            that the GPUs are on the same board.
 
     .. seealso:: `nvmlDeviceOnSameBoard`
     """
@@ -25124,8 +25090,8 @@ cpdef int device_get_api_restriction(intptr_t device, int api_type) except? -1:
     Returns:
         int: Reference in which to return the current restriction
             NVML_FEATURE_ENABLED indicates that the API is root-only
-            NVML_FEATURE_DISABLED indicates that the API is accessible
-            to all users.
+            NVML_FEATURE_DISABLED indicates that the API is accessible to
+            all users.
 
     .. seealso:: `nvmlDeviceGetAPIRestriction`
     """
@@ -25143,8 +25109,8 @@ cpdef object device_get_bar1_memory_info(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        nvmlBAR1Memory_t: Reference in which BAR1 memory information
-            is returned.
+        nvmlBAR1Memory_t: Reference in which BAR1 memory information is
+            returned.
 
     .. seealso:: `nvmlDeviceGetBAR1MemoryInfo`
     """
@@ -25163,8 +25129,8 @@ cpdef unsigned int device_get_irq_num(intptr_t device) except? 0:
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        unsigned int: The interrupt number associated with the
-            specified device.
+        unsigned int: The interrupt number associated with the specified
+            device.
 
     .. seealso:: `nvmlDeviceGetIrqNum`
     """
@@ -25342,8 +25308,7 @@ cpdef object device_get_conf_compute_mem_size_info(intptr_t device):
         device (intptr_t): Device handle.
 
     Returns:
-        nvmlConfComputeMemSizeInfo_t: Protected/Unprotected Memory
-            sizes.
+        nvmlConfComputeMemSizeInfo_t: Protected/Unprotected Memory sizes.
 
     .. seealso:: `nvmlDeviceGetConfComputeMemSizeInfo`
     """
@@ -25379,8 +25344,7 @@ cpdef object device_get_conf_compute_protected_memory_usage(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        nvmlMemory_t: Reference in which to return the memory
-            information.
+        nvmlMemory_t: Reference in which to return the memory information.
 
     .. seealso:: `nvmlDeviceGetConfComputeProtectedMemoryUsage`
     """
@@ -25399,8 +25363,8 @@ cpdef object device_get_conf_compute_gpu_certificate(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        nvmlConfComputeGpuCertificate_t: Reference in which to return
-            the gpu certificate information.
+        nvmlConfComputeGpuCertificate_t: Reference in which to return the
+            gpu certificate information.
 
     .. seealso:: `nvmlDeviceGetConfComputeGpuCertificate`
     """
@@ -25417,8 +25381,8 @@ cpdef device_set_conf_compute_unprotected_mem_size(intptr_t device, unsigned lon
 
     Args:
         device (intptr_t): Device Handle.
-        size_ki_b (unsigned long long): Unprotected Memory size to be
-            set in KiB.
+        size_ki_b (unsigned long long): Unprotected Memory size to be set
+            in KiB.
 
     .. seealso:: `nvmlDeviceSetConfComputeUnprotectedMemSize`
     """
@@ -25485,10 +25449,9 @@ cpdef tuple device_get_gsp_firmware_mode(intptr_t device):
 
     Returns:
         A 2-tuple containing:
-
         - unsigned int: Pointer to specify if GSP firmware is enabled.
-        - unsigned int: Pointer to specify if GSP firmware is supported
-            by default on ``device``.
+        - unsigned int: Pointer to specify if GSP firmware is supported by
+                default on ``device``.
 
     .. seealso:: `nvmlDeviceGetGspFirmwareMode`
     """
@@ -25547,8 +25510,8 @@ cpdef object device_get_accounting_stats(intptr_t device, unsigned int pid):
             stats for.
 
     Returns:
-        nvmlAccountingStats_t: Reference in which to return the
-            process's accounting stats.
+        nvmlAccountingStats_t: Reference in which to return the process's
+            accounting stats.
 
     .. seealso:: `nvmlDeviceGetAccountingStats`
     """
@@ -25567,8 +25530,7 @@ cpdef object device_get_accounting_pids(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        unsigned int: Reference in which to return list of process
-            ids.
+        unsigned int: Reference in which to return list of process ids.
 
     .. seealso:: `nvmlDeviceGetAccountingPids`
     """
@@ -25593,9 +25555,8 @@ cpdef unsigned int device_get_accounting_buffer_size(intptr_t device) except? 0:
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        unsigned int: Reference in which to provide the size (in
-            number of elements) of the circular buffer for accounting
-            stats.
+        unsigned int: Reference in which to provide the size (in number of
+            elements) of the circular buffer for accounting stats.
 
     .. seealso:: `nvmlDeviceGetAccountingBufferSize`
     """
@@ -25659,15 +25620,13 @@ cpdef tuple device_get_remapped_rows(intptr_t device):
 
     Returns:
         A 4-tuple containing:
-
         - unsigned int: Reference for number of rows remapped due to
-            correctable errors.
+                correctable errors.
         - unsigned int: Reference for number of rows remapped due to
-            uncorrectable errors.
-        - unsigned int: Reference for whether or not remappings are
-            pending.
-        - unsigned int: Reference that is set when a remapping has
-            failed in the past.
+                uncorrectable errors.
+        - unsigned int: Reference for whether or not remappings are pending.
+        - unsigned int: Reference that is set when a remapping has failed in
+                the past.
 
     .. seealso:: `nvmlDeviceGetRemappedRows`
     """
@@ -25707,8 +25666,8 @@ cpdef unsigned int device_get_architecture(intptr_t device) except? 0:
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        unsigned int: Reference where architecture is returned, if
-            call successful. Set to NVML_DEVICE_ARCH_* upon success.
+        unsigned int: Reference where architecture is returned, if call
+            successful. Set to NVML_DEVICE_ARCH_* upon success.
 
     .. seealso:: `nvmlDeviceGetArchitecture`
     """
@@ -25726,8 +25685,8 @@ cpdef object device_get_clk_mon_status(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        nvmlClkMonStatus_t: Reference in which to return the clkmon
-            fault status.
+        nvmlClkMonStatus_t: Reference in which to return the clkmon fault
+            status.
 
     .. seealso:: `nvmlDeviceGetClkMonStatus`
     """
@@ -25748,9 +25707,8 @@ cpdef object device_get_process_utilization(intptr_t device, unsigned long long 
             with timestamp greater than last_seen_time_stamp.
 
     Returns:
-        nvmlProcessUtilizationSample_t: Pointer to caller-supplied
-            buffer in which guest process utilization samples are
-            returned.
+        nvmlProcessUtilizationSample_t: Pointer to caller-supplied buffer
+            in which guest process utilization samples are returned.
 
     .. seealso:: `nvmlDeviceGetProcessUtilization`
     """
@@ -25800,8 +25758,8 @@ cpdef device_set_compute_mode(intptr_t device, int mode):
     """Set the compute mode for the device or MIG device.
 
     Args:
-        device (intptr_t): The identifier of the target device handle
-            or MIG device handle.
+        device (intptr_t): The identifier of the target device handle or
+            MIG device handle.
         mode (ComputeMode): The target compute mode.
 
     .. seealso:: `nvmlDeviceSetComputeMode`
@@ -25830,8 +25788,8 @@ cpdef device_clear_ecc_error_counts(intptr_t device, int counter_type):
 
     Args:
         device (intptr_t): The identifier of the target device.
-        counter_type (EccCounterType): Flag that indicates which type
-            of errors should be cleared.
+        counter_type (EccCounterType): Flag that indicates which type of
+            errors should be cleared.
 
     .. seealso:: `nvmlDeviceClearEccErrorCounts`
     """
@@ -25860,10 +25818,10 @@ cpdef device_set_gpu_locked_clocks(intptr_t device, unsigned int min_gpu_clock_m
 
     Args:
         device (intptr_t): The identifier of the target device.
-        min_gpu_clock_m_hz (unsigned int): Requested minimum gpu clock
-            in MHz.
-        max_gpu_clock_m_hz (unsigned int): Requested maximum gpu clock
-            in MHz.
+        min_gpu_clock_m_hz (unsigned int): Requested minimum gpu clock in
+            MHz.
+        max_gpu_clock_m_hz (unsigned int): Requested maximum gpu clock in
+            MHz.
 
     .. seealso:: `nvmlDeviceSetGpuLockedClocks`
     """
@@ -25890,10 +25848,10 @@ cpdef device_set_memory_locked_clocks(intptr_t device, unsigned int min_mem_cloc
 
     Args:
         device (intptr_t): The identifier of the target device.
-        min_mem_clock_m_hz (unsigned int): Requested minimum memory
-            clock in MHz.
-        max_mem_clock_m_hz (unsigned int): Requested maximum memory
-            clock in MHz.
+        min_mem_clock_m_hz (unsigned int): Requested minimum memory clock
+            in MHz.
+        max_mem_clock_m_hz (unsigned int): Requested maximum memory clock
+            in MHz.
 
     .. seealso:: `nvmlDeviceSetMemoryLockedClocks`
     """
@@ -26011,8 +25969,8 @@ cpdef device_set_fan_speed_v2(intptr_t device, unsigned int fan, unsigned int sp
     Args:
         device (intptr_t): The identifier of the target device.
         fan (unsigned int): The index of the fan, starting at zero.
-        speed (unsigned int): The target speed of the fan [0-100] in %
-            of max speed.
+        speed (unsigned int): The target speed of the fan [0-100] in % of
+            max speed.
 
     .. seealso:: `nvmlDeviceSetFanSpeed_v2`
     """
@@ -26056,9 +26014,9 @@ cpdef int device_get_nvlink_state(intptr_t device, unsigned int link) except? -1
         link (unsigned int): Specifies the NvLink link to be queried.
 
     Returns:
-        int: ``nvmlEnableState_t`` where NVML_FEATURE_ENABLED
-            indicates that the link is active and
-            NVML_FEATURE_DISABLED indicates it is inactive.
+        int: ``nvmlEnableState_t`` where NVML_FEATURE_ENABLED indicates
+            that the link is active and NVML_FEATURE_DISABLED indicates it
+            is inactive.
 
     .. seealso:: `nvmlDeviceGetNvLinkState`
     """
@@ -26099,8 +26057,8 @@ cpdef unsigned int device_get_nvlink_capability(intptr_t device, unsigned int li
             ``nvmlNvLinkCapability_t`` to be queried.
 
     Returns:
-        unsigned int: A boolean for the queried capability indicating
-            that feature is available.
+        unsigned int: A boolean for the queried capability indicating that
+            feature is available.
 
     .. seealso:: `nvmlDeviceGetNvLinkCapability`
     """
@@ -26138,8 +26096,8 @@ cpdef unsigned long long device_get_nvlink_error_counter(intptr_t device, unsign
     Args:
         device (intptr_t): The identifier of the target device.
         link (unsigned int): Specifies the NvLink link to be queried.
-        counter (NvLinkErrorCounter): Specifies the NvLink counter to
-            be queried.
+        counter (NvLinkErrorCounter): Specifies the NvLink counter to be
+            queried.
 
     Returns:
         unsigned long long: Returned counter value.
@@ -26175,8 +26133,7 @@ cpdef int device_get_nvlink_remote_device_type(intptr_t device, unsigned int lin
         link (unsigned int): The NVLink link index on the target GPU.
 
     Returns:
-        int: Pointer in which the output remote device type is
-            returned.
+        int: Pointer in which the output remote device type is returned.
 
     .. seealso:: `nvmlDeviceGetNvLinkRemoteDeviceType`
     """
@@ -26243,8 +26200,7 @@ cpdef object device_get_nvlink_bw_mode(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        nvmlNvlinkGetBwMode_v1_t: Reference to
-            ``nvmlNvlinkGetBwMode_t``.
+        nvmlNvlinkGetBwMode_v1_t: Reference to ``nvmlNvlinkGetBwMode_t``.
 
     .. seealso:: `nvmlDeviceGetNvlinkBwMode`
     """
@@ -26262,8 +26218,7 @@ cpdef device_set_nvlink_bw_mode(intptr_t device, intptr_t set_bw_mode):
 
     Args:
         device (intptr_t): The identifier of the target device.
-        set_bw_mode (intptr_t): Reference to
-            ``nvmlNvlinkSetBwMode_t``.
+        set_bw_mode (intptr_t): Reference to ``nvmlNvlinkSetBwMode_t``.
 
     .. seealso:: `nvmlDeviceSetNvlinkBwMode`
     """
@@ -26293,8 +26248,8 @@ cpdef device_register_events(intptr_t device, unsigned long long event_types, in
 
     Args:
         device (intptr_t): The identifier of the target device.
-        event_types (unsigned long long): Bitmask of ``Event Types``
-            to record.
+        event_types (unsigned long long): Bitmask of ``Event Types`` to
+            record.
         set (intptr_t): Set to which add new event types.
 
     .. seealso:: `nvmlDeviceRegisterEvents`
@@ -26361,10 +26316,10 @@ cpdef device_modify_drain_state(intptr_t pci_info, int new_state):
     """Modify the drain state of a GPU. This method forces a GPU to no longer accept new incoming requests. Any new NVML process will no longer see this GPU. Persistence mode for this GPU must be turned off before this call is made. Must be called as administrator. For Linux only.
 
     Args:
-        pci_info (intptr_t): The PCI address of the GPU drain state to
-            be modified.
-        new_state (EnableState): The drain state that should be
-            entered, see ``nvmlEnableState_t``.
+        pci_info (intptr_t): The PCI address of the GPU drain state to be
+            modified.
+        new_state (EnableState): The drain state that should be entered,
+            see ``nvmlEnableState_t``.
 
     .. seealso:: `nvmlDeviceModifyDrainState`
     """
@@ -26377,8 +26332,8 @@ cpdef int device_query_drain_state(intptr_t pci_info) except? -1:
     """Query the drain state of a GPU. This method is used to check if a GPU is in a currently draining state. For Linux only.
 
     Args:
-        pci_info (intptr_t): The PCI address of the GPU drain state to
-            be queried.
+        pci_info (intptr_t): The PCI address of the GPU drain state to be
+            queried.
 
     Returns:
         int: The current drain state for this GPU, see
@@ -26398,10 +26353,10 @@ cpdef device_remove_gpu_v2(intptr_t pci_info, int gpu_state, int link_state):
 
     Args:
         pci_info (intptr_t): The PCI address of the GPU to be removed.
-        gpu_state (DetachGpuState): Whether the GPU is to be removed,
-            from the OS see ``nvmlDetachGpuState_t``.
-        link_state (PcieLinkState): Requested upstream PCIe link
-            state, see ``nvmlPcieLinkState_t``.
+        gpu_state (DetachGpuState): Whether the GPU is to be removed, from
+            the OS see ``nvmlDetachGpuState_t``.
+        link_state (PcieLinkState): Requested upstream PCIe link state,
+            see ``nvmlPcieLinkState_t``.
 
     .. seealso:: `nvmlDeviceRemoveGpu_v2`
     """
@@ -26414,8 +26369,8 @@ cpdef device_discover_gpus(intptr_t pci_info):
     """Request the OS and the NVIDIA kernel driver to rediscover a portion of the PCI subsystem looking for GPUs that were previously removed. The portion of the PCI tree can be narrowed by specifying a domain, bus, and device. If all are zeroes then the entire PCI tree will be searched. Please note that for long-running NVML processes the enumeration will change based on how many GPUs are discovered and where they are inserted in bus order.
 
     Args:
-        pci_info (intptr_t): The PCI tree to be searched. Only the
-            domain, bus, and device fields are used in this call.
+        pci_info (intptr_t): The PCI tree to be searched. Only the domain,
+            bus, and device fields are used in this call.
 
     .. seealso:: `nvmlDeviceDiscoverGpus`
     """
@@ -26466,8 +26421,8 @@ cpdef device_set_virtualization_mode(intptr_t device, int virtual_mode):
 
     Args:
         device (intptr_t): Identifier of the target device.
-        virtual_mode (GpuVirtualizationMode): virtualization mode. One
-            of ``NVML_GPU_VIRTUALIZATION_?``.
+        virtual_mode (GpuVirtualizationMode): virtualization mode. One of
+            ``NVML_GPU_VIRTUALIZATION_?``.
 
     .. seealso:: `nvmlDeviceSetVirtualizationMode`
     """
@@ -26483,8 +26438,7 @@ cpdef unsigned long long vgpu_type_get_gsp_heap_size(unsigned int vgpu_type_id) 
         vgpu_type_id (unsigned int): Handle to vGPU type.
 
     Returns:
-        unsigned long long: Reference to return the GSP heap size
-            value.
+        unsigned long long: Reference to return the GSP heap size value.
 
     .. seealso:: `nvmlVgpuTypeGetGspHeapSize`
     """
@@ -26537,8 +26491,8 @@ cpdef object device_get_grid_licensable_features_v4(intptr_t device):
         device (intptr_t): Identifier of the target device.
 
     Returns:
-        nvmlGridLicensableFeatures_t: Pointer to structure in which
-            vGPU software licensable features are returned.
+        nvmlGridLicensableFeatures_t: Pointer to structure in which vGPU
+            software licensable features are returned.
 
     .. seealso:: `nvmlDeviceGetGridLicensableFeatures_v4`
     """
@@ -26558,8 +26512,8 @@ cpdef unsigned int get_vgpu_driver_capabilities(int capability) except? 0:
             ``nvmlVgpuDriverCapability_t`` to be queried.
 
     Returns:
-        unsigned int: A boolean for the queried capability indicating
-            that feature is supported.
+        unsigned int: A boolean for the queried capability indicating that
+            feature is supported.
 
     .. seealso:: `nvmlGetVgpuDriverCapabilities`
     """
@@ -26579,8 +26533,8 @@ cpdef unsigned int device_get_vgpu_capabilities(intptr_t device, int capability)
             ``nvmlDeviceVgpuCapability_t`` to be queried.
 
     Returns:
-        unsigned int: Specifies that the queried capability is
-            supported, and also returns capability's data.
+        unsigned int: Specifies that the queried capability is supported,
+            and also returns capability's data.
 
     .. seealso:: `nvmlDeviceGetVgpuCapabilities`
     """
@@ -26642,11 +26596,10 @@ cpdef tuple vgpu_type_get_device_id(unsigned int vgpu_type_id):
 
     Returns:
         A 2-tuple containing:
-
         - unsigned long long: Device ID and vendor ID of the device
-            contained in single 32 bit value.
-        - unsigned long long: Subsystem ID and subsystem vendor ID of
-            the device contained in single 32 bit value.
+                contained in single 32 bit value.
+        - unsigned long long: Subsystem ID and subsystem vendor ID of the
+                device contained in single 32 bit value.
 
     .. seealso:: `nvmlVgpuTypeGetDeviceID`
     """
@@ -26699,16 +26652,12 @@ cpdef tuple vgpu_type_get_resolution(unsigned int vgpu_type_id, unsigned int dis
 
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
-        display_index (unsigned int): Zero-based index of display
-            head.
+        display_index (unsigned int): Zero-based index of display head.
 
     Returns:
         A 2-tuple containing:
-
-        - unsigned int: Pointer to maximum number of pixels in X
-            dimension.
-        - unsigned int: Pointer to maximum number of pixels in Y
-            dimension.
+        - unsigned int: Pointer to maximum number of pixels in X dimension.
+        - unsigned int: Pointer to maximum number of pixels in Y dimension.
 
     .. seealso:: `nvmlVgpuTypeGetResolution`
     """
@@ -26765,8 +26714,8 @@ cpdef unsigned int vgpu_type_get_max_instances(intptr_t device, unsigned int vgp
         vgpu_type_id (unsigned int): Handle to vGPU type.
 
     Returns:
-        unsigned int: Pointer to get the max number of vGPU instances
-            that can be created on a deicve for given vgpu_type_id.
+        unsigned int: Pointer to get the max number of vGPU instances that
+            can be created on a deicve for given vgpu_type_id.
 
     .. seealso:: `nvmlVgpuTypeGetMaxInstances`
     """
@@ -26937,8 +26886,8 @@ cpdef int vgpu_instance_get_ecc_mode(unsigned int vgpu_instance) except? -1:
     """Retrieve the current ECC mode of vGPU instance.
 
     Args:
-        vgpu_instance (unsigned int): The identifier of the target
-            vGPU instance.
+        vgpu_instance (unsigned int): The identifier of the target vGPU
+            instance.
 
     Returns:
         int: Reference in which to return the current ECC mode.
@@ -26997,13 +26946,12 @@ cpdef tuple vgpu_instance_get_encoder_stats(unsigned int vgpu_instance):
 
     Returns:
         A 3-tuple containing:
-
         - unsigned int: Reference to an unsigned int for count of active
-            encoder sessions.
-        - unsigned int: Reference to an unsigned int for trailing
-            average FPS of all active sessions.
-        - unsigned int: Reference to an unsigned int for encode latency
-            in microseconds.
+                encoder sessions.
+        - unsigned int: Reference to an unsigned int for trailing average
+                FPS of all active sessions.
+        - unsigned int: Reference to an unsigned int for encode latency in
+                microseconds.
 
     .. seealso:: `nvmlVgpuInstanceGetEncoderStats`
     """
@@ -27024,8 +26972,8 @@ cpdef object vgpu_instance_get_encoder_sessions(unsigned int vgpu_instance):
             instance.
 
     Returns:
-        nvmlEncoderSessionInfo_t: Reference to caller supplied array
-            in which the list of session information us returned.
+        nvmlEncoderSessionInfo_t: Reference to caller supplied array in
+            which the list of session information us returned.
 
     .. seealso:: `nvmlVgpuInstanceGetEncoderSessions`
     """
@@ -27145,8 +27093,8 @@ cpdef unsigned int vgpu_type_get_capabilities(unsigned int vgpu_type_id, int cap
             ``nvmlVgpuCapability_t`` to be queried.
 
     Returns:
-        unsigned int: A boolean for the queried capability indicating
-            that feature is supported.
+        unsigned int: A boolean for the queried capability indicating that
+            feature is supported.
 
     .. seealso:: `nvmlVgpuTypeGetCapabilities`
     """
@@ -27182,8 +27130,8 @@ cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, intptr_t p_sc
 
     Args:
         gpu_instance (intptr_t): The GPU instance handle.
-        p_scheduler (intptr_t): Pointer to the caller-provided
-            structure of ``nvmlVgpuSchedulerState_t``.
+        p_scheduler (intptr_t): Pointer to the caller-provided structure
+            of ``nvmlVgpuSchedulerState_t``.
 
     .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState`
     """
@@ -27268,8 +27216,8 @@ cpdef object device_get_vgpu_scheduler_log(intptr_t device):
         device (intptr_t): The identifier of the target ``device``.
 
     Returns:
-        nvmlVgpuSchedulerLog_t: Reference in which ``p_scheduler_log``
-            is written.
+        nvmlVgpuSchedulerLog_t: Reference in which ``p_scheduler_log`` is
+            written.
 
     .. seealso:: `nvmlDeviceGetVgpuSchedulerLog`
     """
@@ -27326,8 +27274,7 @@ cpdef device_set_vgpu_scheduler_state(intptr_t device, intptr_t p_scheduler_stat
 
     Args:
         device (intptr_t): The identifier of the target ``device``.
-        p_scheduler_state (intptr_t): vGPU ``p_scheduler_state`` to
-            set.
+        p_scheduler_state (intptr_t): vGPU ``p_scheduler_state`` to set.
 
     .. seealso:: `nvmlDeviceSetVgpuSchedulerState`
     """
@@ -27360,12 +27307,11 @@ cpdef tuple device_get_vgpu_process_utilization(intptr_t device, unsigned long l
 
     Returns:
         A 2-tuple containing:
-
-        - unsigned int: Pointer to caller-supplied array size, and
-            returns number of processes running on vGPU instances.
+        - unsigned int: Pointer to caller-supplied array size, and returns
+                number of processes running on vGPU instances.
         - nvmlVgpuProcessUtilizationSample_t: Pointer to caller-supplied
-            buffer in which vGPU sub process utilization samples are
-            returned.
+                buffer in which vGPU sub process utilization samples are
+                returned.
 
     .. seealso:: `nvmlDeviceGetVgpuProcessUtilization`
     """
@@ -27381,8 +27327,8 @@ cpdef int vgpu_instance_get_accounting_mode(unsigned int vgpu_instance) except? 
     """Queries the state of per process accounting mode on vGPU.
 
     Args:
-        vgpu_instance (unsigned int): The identifier of the target
-            vGPU instance.
+        vgpu_instance (unsigned int): The identifier of the target vGPU
+            instance.
 
     Returns:
         int: Reference in which to return the current accounting mode.
@@ -27400,12 +27346,11 @@ cpdef object vgpu_instance_get_accounting_pids(unsigned int vgpu_instance):
     """Queries list of processes running on vGPU that can be queried for accounting stats. The list of processes returned can be in running or terminated state.
 
     Args:
-        vgpu_instance (unsigned int): The identifier of the target
-            vGPU instance.
+        vgpu_instance (unsigned int): The identifier of the target vGPU
+            instance.
 
     Returns:
-        unsigned int: Reference in which to return list of process
-            ids.
+        unsigned int: Reference in which to return list of process ids.
 
     .. seealso:: `nvmlVgpuInstanceGetAccountingPids`
     """
@@ -27427,14 +27372,14 @@ cpdef object vgpu_instance_get_accounting_stats(unsigned int vgpu_instance, unsi
     """Queries process's accounting stats.
 
     Args:
-        vgpu_instance (unsigned int): The identifier of the target
-            vGPU instance.
+        vgpu_instance (unsigned int): The identifier of the target vGPU
+            instance.
         pid (unsigned int): Process Id of the target process to query
             stats for.
 
     Returns:
-        nvmlAccountingStats_t: Reference in which to return the
-            process's accounting stats.
+        nvmlAccountingStats_t: Reference in which to return the process's
+            accounting stats.
 
     .. seealso:: `nvmlVgpuInstanceGetAccountingStats`
     """
@@ -27450,8 +27395,8 @@ cpdef vgpu_instance_clear_accounting_pids(unsigned int vgpu_instance):
     """Clears accounting information of the vGPU instance that have already terminated.
 
     Args:
-        vgpu_instance (unsigned int): The identifier of the target
-            vGPU instance.
+        vgpu_instance (unsigned int): The identifier of the target vGPU
+            instance.
 
     .. seealso:: `nvmlVgpuInstanceClearAccountingPids`
     """
@@ -27485,8 +27430,8 @@ cpdef unsigned int get_excluded_device_count() except? 0:
     """Retrieves the number of excluded GPU devices in the system.
 
     Returns:
-        unsigned int: Reference in which to return the number of
-            excluded devices.
+        unsigned int: Reference in which to return the number of excluded
+            devices.
 
     .. seealso:: `nvmlGetExcludedDeviceCount`
     """
@@ -27505,8 +27450,8 @@ cpdef object get_excluded_device_info_by_index(unsigned int index):
             ``deviceCount``.
 
     Returns:
-        nvmlExcludedDeviceInfo_t: Reference in which to return the
-            device information.
+        nvmlExcludedDeviceInfo_t: Reference in which to return the device
+            information.
 
     .. seealso:: `nvmlGetExcludedDeviceInfoByIndex`
     """
@@ -27546,11 +27491,10 @@ cpdef tuple device_get_mig_mode(intptr_t device):
 
     Returns:
         A 2-tuple containing:
-
         - unsigned int: Returns the current mode,
-            ``NVML_DEVICE_MIG_DISABLE`` or ``NVML_DEVICE_MIG_ENABLE``.
+                ``NVML_DEVICE_MIG_DISABLE`` or ``NVML_DEVICE_MIG_ENABLE``.
         - unsigned int: Returns the pending mode,
-            ``NVML_DEVICE_MIG_DISABLE`` or ``NVML_DEVICE_MIG_ENABLE``.
+                ``NVML_DEVICE_MIG_DISABLE`` or ``NVML_DEVICE_MIG_ENABLE``.
 
     .. seealso:: `nvmlDeviceGetMigMode`
     """
@@ -27572,10 +27516,9 @@ cpdef object device_get_gpu_instance_possible_placements_v2(intptr_t device, uns
 
     Returns:
         nvmlGpuInstancePlacement_t: Returns placements allowed for the
-            profile. Can be NULL to discover number of allowed
-            placements for this profile. If non-NULL must be large
-            enough to accommodate the placements supported by the
-            profile.
+            profile. Can be NULL to discover number of allowed placements
+            for this profile. If non-NULL must be large enough to
+            accommodate the placements supported by the profile.
 
     .. seealso:: `nvmlDeviceGetGpuInstancePossiblePlacements_v2`
     """
@@ -27602,8 +27545,7 @@ cpdef unsigned int device_get_gpu_instance_remaining_capacity(intptr_t device, u
             ``nvmlDeviceGetGpuInstanceProfileInfo``.
 
     Returns:
-        unsigned int: Returns remaining instance count for the profile
-            ID.
+        unsigned int: Returns remaining instance count for the profile ID.
 
     .. seealso:: `nvmlDeviceGetGpuInstanceRemainingCapacity`
     """
@@ -27739,12 +27681,11 @@ cpdef unsigned int gpu_instance_get_compute_instance_remaining_capacity(intptr_t
     Args:
         gpu_instance (intptr_t): The identifier of the target GPU
             instance.
-        profile_id (unsigned int): The compute instance profile ID.
-            See ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
+        profile_id (unsigned int): The compute instance profile ID. See
+            ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
 
     Returns:
-        unsigned int: Returns remaining instance count for the profile
-            ID.
+        unsigned int: Returns remaining instance count for the profile ID.
 
     .. seealso:: `nvmlGpuInstanceGetComputeInstanceRemainingCapacity`
     """
@@ -27761,15 +27702,14 @@ cpdef object gpu_instance_get_compute_instance_possible_placements(intptr_t gpu_
     Args:
         gpu_instance (intptr_t): The identifier of the target GPU
             instance.
-        profile_id (unsigned int): The compute instance profile ID.
-            See ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
+        profile_id (unsigned int): The compute instance profile ID. See
+            ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
 
     Returns:
-        nvmlComputeInstancePlacement_t: Returns placements allowed for
-            the profile. Can be NULL to discover number of allowed
-            placements for this profile. If non-NULL must be large
-            enough to accommodate the placements supported by the
-            profile.
+        nvmlComputeInstancePlacement_t: Returns placements allowed for the
+            profile. Can be NULL to discover number of allowed placements
+            for this profile. If non-NULL must be large enough to
+            accommodate the placements supported by the profile.
 
     .. seealso:: `nvmlGpuInstanceGetComputeInstancePossiblePlacements`
     """
@@ -27793,8 +27733,8 @@ cpdef intptr_t gpu_instance_create_compute_instance(intptr_t gpu_instance, unsig
     Args:
         gpu_instance (intptr_t): The identifier of the target GPU
             instance.
-        profile_id (unsigned int): The compute instance profile ID.
-            See ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
+        profile_id (unsigned int): The compute instance profile ID. See
+            ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
 
     Returns:
         intptr_t: Returns the compute instance handle.
@@ -27814,8 +27754,8 @@ cpdef intptr_t gpu_instance_create_compute_instance_with_placement(intptr_t gpu_
     Args:
         gpu_instance (intptr_t): The identifier of the target GPU
             instance.
-        profile_id (unsigned int): The compute instance profile ID.
-            See ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
+        profile_id (unsigned int): The compute instance profile ID. See
+            ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
         placement (intptr_t): The requested placement. See
             ``nvmlGpuInstanceGetComputeInstancePossiblePlacements``.
 
@@ -27871,8 +27811,7 @@ cpdef object compute_instance_get_info_v2(intptr_t compute_instance):
         compute_instance (intptr_t): The compute instance handle.
 
     Returns:
-        nvmlComputeInstanceInfo_t: Return compute instance
-            information.
+        nvmlComputeInstanceInfo_t: Return compute instance information.
 
     .. seealso:: `nvmlComputeInstanceGetInfo_v2`
     """
@@ -28000,8 +27939,8 @@ cpdef device_power_smoothing_activate_preset_profile(intptr_t device, intptr_t p
         device (intptr_t): The identifier of the target device.
         profile (intptr_t): Reference to
             ``nvmlPowerSmoothingProfile_v1_t``. Note that only
-            ``profile->profileId`` is used and the rest of the
-            structure is ignored.
+            ``profile->profileId`` is used and the rest of the structure
+            is ignored.
 
     .. seealso:: `nvmlDevicePowerSmoothingActivatePresetProfile`
     """
@@ -28030,8 +27969,7 @@ cpdef device_power_smoothing_set_state(intptr_t device, intptr_t state):
 
     Args:
         device (intptr_t): The identifier of the target device.
-        state (intptr_t): Reference to
-            ``nvmlPowerSmoothingState_v1_t``.
+        state (intptr_t): Reference to ``nvmlPowerSmoothingState_v1_t``.
 
     .. seealso:: `nvmlDevicePowerSmoothingSetState`
     """
@@ -28047,8 +27985,8 @@ cpdef object device_get_addressing_mode(intptr_t device):
         device (intptr_t): The device handle.
 
     Returns:
-        nvmlDeviceAddressingMode_v1_t: Pointer to addressing mode of
-            the device.
+        nvmlDeviceAddressingMode_v1_t: Pointer to addressing mode of the
+            device.
 
     .. seealso:: `nvmlDeviceGetAddressingMode`
     """
@@ -28088,8 +28026,8 @@ cpdef object device_get_power_mizer_mode_v1(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        nvmlDevicePowerMizerModes_v1_t: Reference in which to return
-            the power mizer mode.
+        nvmlDevicePowerMizerModes_v1_t: Reference in which to return the
+            power mizer mode.
 
     .. seealso:: `nvmlDeviceGetPowerMizerMode_v1`
     """
@@ -28106,8 +28044,8 @@ cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode)
 
     Args:
         device (intptr_t): The identifier of the target device.
-        power_mizer_mode (intptr_t): Reference in which to set the
-            power mizer mode.
+        power_mizer_mode (intptr_t): Reference in which to set the power
+            mizer mode.
 
     .. seealso:: `nvmlDeviceSetPowerMizerMode_v1`
     """
@@ -28214,8 +28152,7 @@ cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, intptr_t p_scheduler_s
 
     Args:
         device (intptr_t): The identifier of the target ``device``.
-        p_scheduler_state (intptr_t): vGPU ``p_scheduler_state`` to
-            set.
+        p_scheduler_state (intptr_t): vGPU ``p_scheduler_state`` to set.
 
     .. seealso:: `nvmlDeviceSetVgpuSchedulerState_v2`
     """
@@ -28243,12 +28180,11 @@ cpdef object system_get_cper_v1():
     """Retrieves Common Platform Error Record (CPER) data.
 
     Returns:
-        nvmlGetCPER_v1_t: Pointer to an ``nvmlGetCPER_v1_t``. On entry
-            set ``cursor.cperTypeMask``, ``cursor.uuid`` (empty string
-            for all), ``cursor.handle`` (to
-            ``NVML_CPER_CURSOR_HANDLE_INIT`` for first call),
-            ``buffer`` (or NULL), ``bufferSize``. On return
-            ``cursor.handle`` and ``bufferSize`` are updated.
+        nvmlGetCPER_v1_t: Pointer to an ``nvmlGetCPER_v1_t``. On entry set
+            ``cursor.cperTypeMask``, ``cursor.uuid`` (empty string for
+            all), ``cursor.handle`` (to ``NVML_CPER_CURSOR_HANDLE_INIT``
+            for first call), ``buffer`` (or NULL), ``bufferSize``. On
+            return ``cursor.handle`` and ``bufferSize`` are updated.
 
     .. seealso:: `nvmlSystemGetCPER_v1`
     """
@@ -28267,9 +28203,8 @@ cpdef object device_get_bbx_time_data_v1(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        nvmlBBXTimeData_v1_t: Reference in which to return the
-            cumulative number of seconds the GPU has had the driver
-            loaded.
+        nvmlBBXTimeData_v1_t: Reference in which to return the cumulative
+            number of seconds the GPU has had the driver loaded.
 
     .. seealso:: `nvmlDeviceGetBBXTimeData_v1`
     """

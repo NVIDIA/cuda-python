@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=bb890a59df1f24c75b658b283d480647d1201feb4e6b644edd4742022b7fbf8c
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=aa0375d2eb9e51178d31031d7883f198aa600935022ea82ac5190b2a0c3cc2ea
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -1948,13 +1948,13 @@ cdef extern from 'cuda.h':
         char bytes[16]
     ctypedef CUuuid_st CUuuid
 
-cdef extern from 'cuda.h':
-    ctypedef struct CUstreamMemOpFlushRemoteWritesParams_st 'CUstreamMemOpFlushRemoteWritesParams_st':
+cdef extern from 'cuda.h' namespace "CUstreamBatchMemOpParams_v1":
+    ctypedef struct CUstreamMemOpFlushRemoteWritesParams_st 'CUstreamBatchMemOpParams_v1::CUstreamMemOpFlushRemoteWritesParams_st':
         CUstreamBatchMemOpType operation
         unsigned int flags
 
-cdef extern from 'cuda.h':
-    ctypedef struct CUstreamMemOpMemoryBarrierParams_st 'CUstreamMemOpMemoryBarrierParams_st':
+cdef extern from 'cuda.h' namespace "CUstreamBatchMemOpParams_v1":
+    ctypedef struct CUstreamMemOpMemoryBarrierParams_st 'CUstreamBatchMemOpParams_v1::CUstreamMemOpMemoryBarrierParams_st':
         CUstreamBatchMemOpType operation
         unsigned int flags
 
@@ -2441,8 +2441,8 @@ cdef extern from 'cuda.h':
         CUgraph* phGraph_out
         CUcontext ctx
 
-cdef extern from 'cuda.h':
-    ctypedef struct CUstreamMemOpWaitValueParams_st 'CUstreamMemOpWaitValueParams_st':
+cdef extern from 'cuda.h' namespace "CUstreamBatchMemOpParams_v1":
+    ctypedef struct CUstreamMemOpWaitValueParams_st 'CUstreamBatchMemOpParams_v1::CUstreamMemOpWaitValueParams_st':
         CUstreamBatchMemOpType operation
         CUdeviceptr address
         cuuint32_t value
@@ -2450,8 +2450,8 @@ cdef extern from 'cuda.h':
         unsigned int flags
         CUdeviceptr alias
 
-cdef extern from 'cuda.h':
-    ctypedef struct CUstreamMemOpWriteValueParams_st 'CUstreamMemOpWriteValueParams_st':
+cdef extern from 'cuda.h' namespace "CUstreamBatchMemOpParams_v1":
+    ctypedef struct CUstreamMemOpWriteValueParams_st 'CUstreamBatchMemOpParams_v1::CUstreamMemOpWriteValueParams_st':
         CUstreamBatchMemOpType operation
         CUdeviceptr address
         cuuint32_t value
@@ -2459,8 +2459,8 @@ cdef extern from 'cuda.h':
         unsigned int flags
         CUdeviceptr alias
 
-cdef extern from 'cuda.h':
-    ctypedef struct CUstreamMemOpAtomicReductionParams_st 'CUstreamMemOpAtomicReductionParams_st':
+cdef extern from 'cuda.h' namespace "CUstreamBatchMemOpParams_v1":
+    ctypedef struct CUstreamMemOpAtomicReductionParams_st 'CUstreamBatchMemOpParams_v1::CUstreamMemOpAtomicReductionParams_st':
         CUstreamBatchMemOpType operation
         unsigned int flags
         CUstreamAtomicReductionOpType reductionOp
