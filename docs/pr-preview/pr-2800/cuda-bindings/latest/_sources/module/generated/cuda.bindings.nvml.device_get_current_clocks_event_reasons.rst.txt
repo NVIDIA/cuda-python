@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_current\_clocks\_event\_reasons
+===============================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_current_clocks_event_reasons

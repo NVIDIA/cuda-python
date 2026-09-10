@@ -1,0 +1,38 @@
+﻿cuda.bindings.nvml.PciInfo
+==========================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: PciInfo
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PciInfo.__init__
+      ~PciInfo.from_buffer
+      ~PciInfo.from_data
+      ~PciInfo.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PciInfo.bus
+      ~PciInfo.bus_id
+      ~PciInfo.bus_id_legacy
+      ~PciInfo.device_
+      ~PciInfo.domain
+      ~PciInfo.pci_device_id
+      ~PciInfo.pci_sub_system_id
+      ~PciInfo.ptr
+   
+   
