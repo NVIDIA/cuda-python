@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b82680ec867e23638b173760105c35030e0cba5c9a8b3bb536ce5bb3381ec1fb
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3b52467aafbb78d33c99d8be6d3acdd552c8aa0851758d01932080aebaec5213
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -55,7 +55,7 @@ cpdef intptr_t create_device(uint64_t device, uint32_t flags) except *
 cpdef intptr_t mem_register(intptr_t dev_handle, intptr_t ptr, size_t size, uint32_t flags) except *
 cpdef intptr_t module_load_from_memory(intptr_t dev_handle, p_module, size_t module_size, uint32_t flags) except *
 cpdef module_unload(intptr_t h_module, uint32_t flags)
-cpdef submit_task(intptr_t dev_handle, intptr_t ptr_to_tasks, uint32_t num_tasks, intptr_t stream, uint32_t flags)
+cpdef submit_task(intptr_t dev_handle, ptr_to_tasks, uint32_t num_tasks, intptr_t stream, uint32_t flags)
 cpdef object device_get_attribute(intptr_t dev_handle, int attrib)
 cpdef mem_unregister(intptr_t dev_handle, intptr_t dev_ptr)
 cpdef int get_last_error(intptr_t dev_handle) except? 0

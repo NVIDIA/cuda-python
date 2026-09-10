@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4f142d6dd069dd459052ff17e4e585b764e7a8b4298051df3c6c0d39e1c67ded
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fa774b6dac9d07a3603aade2da0c4ce2a51718017f77aa984c9cb6b73034ca83
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -152,14 +152,12 @@ cpdef intptr_t create(uint32_t num_options, options) except -1:
 
     Args:
         num_options (uint32_t): Number of options passed.
-        options (object): Array of size ``num_options`` of option
-            strings. It can be:
+        options (object): Array of size ``num_options`` of option strings. It can be:
 
             - an :class:`int` as the pointer address to the nested sequence, or
             - a Python sequence of :class:`int`\s, each of which is a pointer address
               to a valid sequence of 'char', or
             - a nested Python sequence of ``str``.
-
 
     Returns:
         intptr_t: Address of nvJitLink handle.
@@ -366,7 +364,6 @@ cpdef tuple version():
 
     Returns:
         A 2-tuple containing:
-
         - unsigned int: The major version.
         - unsigned int: The minor version.
 
