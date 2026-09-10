@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.DriverStatusFlags
-======================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autoenum:: DriverStatusFlags

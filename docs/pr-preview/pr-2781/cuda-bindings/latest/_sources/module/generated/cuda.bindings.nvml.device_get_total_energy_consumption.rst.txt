@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_total\_energy\_consumption
-==========================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_total_energy_consumption

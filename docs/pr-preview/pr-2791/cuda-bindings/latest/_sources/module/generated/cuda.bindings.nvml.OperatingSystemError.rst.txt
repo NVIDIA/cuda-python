@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.OperatingSystemError
-=======================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoexception:: OperatingSystemError
