@@ -313,7 +313,11 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
             return Host(numa_id=loc_id)
         if loc_type == <int>cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT:
             return Host.numa_current()
-        return None  # CU_MEM_LOCATION_TYPE_INVALID
+        if loc_type == <int>cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_INVALID:
+            return None
+        raise RuntimeError(
+            f"cuMemRangeGetAttribute returned unexpected location type: {loc_type}"
+        )
 
 
     def _read_preferred_location_v2(Buffer buf) -> Device | Host | None:
