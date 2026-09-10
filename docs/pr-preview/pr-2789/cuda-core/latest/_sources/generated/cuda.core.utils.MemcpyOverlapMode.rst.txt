@@ -1,0 +1,6 @@
+﻿cuda.core.utils.MemcpyOverlapMode
+=================================
+
+.. currentmodule:: cuda.core.utils
+
+.. autoenum:: MemcpyOverlapMode
