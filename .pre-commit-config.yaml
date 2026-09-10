@@ -88,7 +88,7 @@ repos:
         files: ^cuda_core/cuda/.*\.(pyx|pxd)$
         pass_filenames: false
         additional_dependencies:
-          - stubgen-pyx==0.2.19
+          - stubgen-pyx==0.2.22
           - Cython==3.2.9
 
   # Link checking for authored documentation files

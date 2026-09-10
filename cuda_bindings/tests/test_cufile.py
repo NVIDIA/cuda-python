@@ -1520,6 +1520,7 @@ def stats(driver):
     cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
 )
 @pytest.mark.usefixtures("stats")
+@pytest.mark.thread_unsafe(reason="cuFile stats level is process-global")
 def test_set_stats_level():
     """Test cuFile statistics level configuration."""
     # Test setting different statistics levels
