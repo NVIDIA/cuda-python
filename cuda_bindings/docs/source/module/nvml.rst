@@ -29,14 +29,18 @@ Functions
    device_get_accounting_mode
    device_get_accounting_pids
    device_get_accounting_stats
+   device_get_accounting_stats_v2
    device_get_active_vgpus
    device_get_adaptive_clock_info_status
+   device_get_adaptive_tgp_mode_info_v1
    device_get_addressing_mode
    device_get_api_restriction
    device_get_architecture
    device_get_attributes_v2
    device_get_auto_boosted_clocks_enabled
+   device_get_bank_remapper_status_v1
    device_get_bar1_memory_info
+   device_get_bbx_time_data_v1
    device_get_board_id
    device_get_board_part_number
    device_get_brand
@@ -89,6 +93,7 @@ Functions
    device_get_gpc_clk_min_max_vf_offset
    device_get_gpc_clk_vf_offset
    device_get_gpu_fabric_info_v
+   device_get_gpu_fabric_info_v4
    device_get_gpu_instance_by_id
    device_get_gpu_instance_id
    device_get_gpu_instance_possible_placements_v2
@@ -127,6 +132,7 @@ Functions
    device_get_memory_bus_width
    device_get_memory_error_counter
    device_get_memory_info_v2
+   device_get_memory_limits_v1
    device_get_mig_device_handle_by_index
    device_get_mig_mode
    device_get_min_max_clock_of_p_state
@@ -139,6 +145,7 @@ Functions
    device_get_num_fans
    device_get_num_gpu_cores
    device_get_numa_node_id
+   device_get_nv_link_telemetry_samples_v1
    device_get_nvlink_bw_mode
    device_get_nvlink_capability
    device_get_nvlink_error_counter
@@ -172,6 +179,7 @@ Functions
    device_get_process_utilization
    device_get_processes_utilization_info
    device_get_remapped_rows
+   device_get_remapped_rows_v2
    device_get_repair_status
    device_get_retired_pages
    device_get_retired_pages_pending_status
@@ -216,6 +224,7 @@ Functions
    device_is_mig_device_handle
    device_modify_drain_state
    device_on_same_board
+   device_perf_metrics_get_samples_v1
    device_power_smoothing_activate_preset_profile
    device_power_smoothing_set_state
    device_power_smoothing_update_preset_profile_param
@@ -228,6 +237,7 @@ Functions
    device_reset_memory_locked_clocks
    device_reset_nvlink_error_counters
    device_set_accounting_mode
+   device_set_adaptive_tgp_mode_v1
    device_set_api_restriction
    device_set_auto_boosted_clocks_enabled
    device_set_clock_offsets
@@ -244,9 +254,11 @@ Functions
    device_set_gpu_locked_clocks
    device_set_gpu_operation_mode
    device_set_hostname_v1
+   device_set_memory_limits_v1
    device_set_memory_locked_clocks
    device_set_mig_mode
    device_set_nvlink_bw_mode
+   device_set_nvlink_bw_mode_async_v1
    device_set_nvlink_device_low_power_threshold
    device_set_persistence_mode
    device_set_power_management_limit_v2
@@ -261,7 +273,13 @@ Functions
    error_string
    event_set_create
    event_set_free
+   event_set_get_context_count_v1
+   event_set_get_context_data_v1
+   event_set_get_context_info_v1
+   event_set_get_gpu_operational_event_context_legacy_xid_v1
+   event_set_register_gpu_operational_events_v1
    event_set_wait_v2
+   event_set_wait_v3
    get_excluded_device_count
    get_excluded_device_info_by_index
    get_vgpu_compatibility
@@ -296,6 +314,7 @@ Functions
    system_get_conf_compute_key_rotation_threshold_info
    system_get_conf_compute_settings
    system_get_conf_compute_state
+   system_get_cper_v1
    system_get_cuda_driver_version
    system_get_cuda_driver_version_v2
    system_get_driver_branch
@@ -487,11 +506,15 @@ Types
    :toctree: generated/
 
    AccountingStats
+   AccountingStats_v2
    ActiveVgpuInstanceInfo_v1
+   AdaptiveTgpModeInfo_v1
    BAR1Memory
+   BBXTimeData_v1
    BridgeChipHierarchy
    BridgeChipInfo
    C2cModeInfo_v1
+   CPERCursor_v1
    ClkMonFaultInfo
    ClkMonStatus
    ClockOffset_v1
@@ -505,22 +528,32 @@ Types
    ConfComputeSystemCaps
    ConfComputeSystemState
    CoolerInfo_v1
+   CoreRailMetrics
    DeviceAddressingMode_v1
    DeviceAttributes
    DevicePowerMizerModes_v1
    EccSramErrorStatus_v1
+   EccBankRemapperHistogram_v1
+   EccBankRemapperStatus_v1
    EccSramUniqueUncorrectedErrorCounts_v1
    EccSramUniqueUncorrectedErrorEntry_v1
    EncoderSessionInfo
    EventData
+   EventData_v2
    ExcludedDeviceInfo
    FBCSessionInfo
    FBCStats
    FieldValue
+   GetCPER_v1
+   GetMemoryLimits_v1
    GpuDynamicPstatesInfo
+   GpuFabricClique_v1
    GpuFabricInfo_v2
    GpuFabricInfo_v3
+   GpuFabricInfo_v4
    GpuInstanceInfo
+   GpuOperationalEventConfig_v1
+   GpuOperationalEventContextLegacyXid_v1
    GpuInstancePlacement
    GpuInstanceProfileInfo_v3
    GpuThermalSettings
@@ -535,17 +568,34 @@ Types
    NvlinkFirmwareVersion
    NvlinkGetBwMode_v1
    NvLinkInfo_v1
-   NvLinkInfo_v2   
+   NvLinkInfo_v2
    NvlinkSetBwMode_v1
+   NvlinkSetBwModeAsync_v1
    NvlinkSupportedBwModes_v1
+   NvlinkTelemetrySample_v1
+   NvlinkTelemetrySamples_v1
+   ObservedMetrics
+   OperationalEventContextInfo_v1
    PciInfo
    PciInfoExt_v1
+   PerfMetricControllerSample
+   PerfMetricsDlppc2xSample
+   PerfMetricsPfpp1xSample
+   PerfMetricsSample
+   PerfMetricsSamples_v1
    PlatformInfo_v1
    PlatformInfo_v2
+   PmgrPwrTuple
    PRMCounter_v1
    PRMCounterInput_v1
    PRMCounterValue_v1
    ProcessDetail_v1
+   PwrModelMetricsDlppm1x
+   PwrModelMetricsDlppm1xDramclkEstimates
+   PwrModelMetricsDlppm1xPerf
+   PwrModelMetricsPfpp1x
+   PwrModelMetricsSamplePfpp1x
+   PwrModelOperatingPointPfpp1x
    ProcessDetailList_v1
    ProcessesUtilizationInfo_v1
    ProcessInfo
@@ -553,8 +603,11 @@ Types
    ProcessUtilizationSample
    PSUInfo
    RepairStatus_v1
+   RailMetrics
+   RemappedRowsInfo_v2
    RowRemapperHistogramValues
    Sample
+   SetMemoryLimits_v1
    SystemConfComputeSettings_v1
    SystemEventData_v1
    UnitFanInfo
@@ -579,6 +632,7 @@ Types
    VgpuSchedulerLog
    VgpuSchedulerLogEntry
    VgpuSchedulerLogInfo_v1
+   VgpuSchedulerLogInfo_v2
    VgpuSchedulerParams
    VgpuSchedulerSetParams
    VgpuSchedulerState_v1

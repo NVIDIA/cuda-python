@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3c177b7a0328c0f6f16067c8c9f4e5a002bd019e8c17c017ba9f77af21da8d75
+# This code was automatically generated across versions from 1.5.0 to 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=27847299a8355597d74d78c538539764838b579ac5331197a0773132e9c1fc18
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -1727,6 +1727,14 @@ class DevAttributeType(_cyb_IntEnum):
     """
     UNIFIED_ADDRESSING = CUDLA_UNIFIED_ADDRESSING
     DEVICE_VERSION = CUDLA_DEVICE_VERSION
+
+class ScratchMemoryConfig(_cyb_IntEnum):
+    """
+    See `cudlaScratchMemoryConfig`.
+    """
+    SCRATCH_MEMORY_DEFAULT = CUDLA_SCRATCH_MEMORY_DEFAULT
+    SCRATCH_MEMORY_SHARED_STATIC = CUDLA_SCRATCH_MEMORY_SHARED_STATIC
+    MAX = CUDLA_SCRATCH_MEMORY_CONFIG_MAX
 
 
 ###############################################################################
