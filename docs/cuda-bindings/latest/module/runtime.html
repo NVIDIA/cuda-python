@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=57e46453"></script>
+    <script src="../_static/documentation_options.js?v=ee471ff7"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,13 +53,13 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.3.2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/13.4.1/module/runtime.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/runtime.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -119,6 +119,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -534,7 +537,6 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../release/13.4.1-notes.html">13.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.4.0-notes.html">13.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.3.1-notes.html">13.3.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.3.0-notes.html">13.3.0</a></li>
@@ -599,9 +601,7 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.buf_register.html">cuda.bindings.cufile.buf_register</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.buf_deregister.html">cuda.bindings.cufile.buf_deregister</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.read.html">cuda.bindings.cufile.read</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.readv.html">cuda.bindings.cufile.readv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.write.html">cuda.bindings.cufile.write</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.writev.html">cuda.bindings.cufile.writev</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.driver_open.html">cuda.bindings.cufile.driver_open</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.use_count.html">cuda.bindings.cufile.use_count</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.driver_get_properties.html">cuda.bindings.cufile.driver_get_properties</a></li>
@@ -628,7 +628,6 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.op_status_error.html">cuda.bindings.cufile.op_status_error</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.driver_close.html">cuda.bindings.cufile.driver_close</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.IOEvents.html">cuda.bindings.cufile.IOEvents</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.IOVec.html">cuda.bindings.cufile.IOVec</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.Descr.html">cuda.bindings.cufile.Descr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.IOParams.html">cuda.bindings.cufile.IOParams</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.OpError.html">cuda.bindings.cufile.OpError</a></li>
@@ -659,18 +658,14 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_accounting_mode.html">cuda.bindings.nvml.device_get_accounting_mode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_accounting_pids.html">cuda.bindings.nvml.device_get_accounting_pids</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_accounting_stats.html">cuda.bindings.nvml.device_get_accounting_stats</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_accounting_stats_v2.html">cuda.bindings.nvml.device_get_accounting_stats_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_active_vgpus.html">cuda.bindings.nvml.device_get_active_vgpus</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_adaptive_clock_info_status.html">cuda.bindings.nvml.device_get_adaptive_clock_info_status</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_adaptive_tgp_mode_info_v1.html">cuda.bindings.nvml.device_get_adaptive_tgp_mode_info_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_addressing_mode.html">cuda.bindings.nvml.device_get_addressing_mode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_api_restriction.html">cuda.bindings.nvml.device_get_api_restriction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_architecture.html">cuda.bindings.nvml.device_get_architecture</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_attributes_v2.html">cuda.bindings.nvml.device_get_attributes_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_auto_boosted_clocks_enabled.html">cuda.bindings.nvml.device_get_auto_boosted_clocks_enabled</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_bank_remapper_status_v1.html">cuda.bindings.nvml.device_get_bank_remapper_status_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_bar1_memory_info.html">cuda.bindings.nvml.device_get_bar1_memory_info</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_bbx_time_data_v1.html">cuda.bindings.nvml.device_get_bbx_time_data_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_board_id.html">cuda.bindings.nvml.device_get_board_id</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_board_part_number.html">cuda.bindings.nvml.device_get_board_part_number</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_brand.html">cuda.bindings.nvml.device_get_brand</a></li>
@@ -723,7 +718,6 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_gpc_clk_min_max_vf_offset.html">cuda.bindings.nvml.device_get_gpc_clk_min_max_vf_offset</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_gpc_clk_vf_offset.html">cuda.bindings.nvml.device_get_gpc_clk_vf_offset</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_gpu_fabric_info_v.html">cuda.bindings.nvml.device_get_gpu_fabric_info_v</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_gpu_fabric_info_v4.html">cuda.bindings.nvml.device_get_gpu_fabric_info_v4</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_gpu_instance_by_id.html">cuda.bindings.nvml.device_get_gpu_instance_by_id</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_gpu_instance_id.html">cuda.bindings.nvml.device_get_gpu_instance_id</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_gpu_instance_possible_placements_v2.html">cuda.bindings.nvml.device_get_gpu_instance_possible_placements_v2</a></li>
@@ -762,7 +756,6 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_memory_bus_width.html">cuda.bindings.nvml.device_get_memory_bus_width</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_memory_error_counter.html">cuda.bindings.nvml.device_get_memory_error_counter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_memory_info_v2.html">cuda.bindings.nvml.device_get_memory_info_v2</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_memory_limits_v1.html">cuda.bindings.nvml.device_get_memory_limits_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_mig_device_handle_by_index.html">cuda.bindings.nvml.device_get_mig_device_handle_by_index</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_mig_mode.html">cuda.bindings.nvml.device_get_mig_mode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_min_max_clock_of_p_state.html">cuda.bindings.nvml.device_get_min_max_clock_of_p_state</a></li>
@@ -775,7 +768,6 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_num_fans.html">cuda.bindings.nvml.device_get_num_fans</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_num_gpu_cores.html">cuda.bindings.nvml.device_get_num_gpu_cores</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_numa_node_id.html">cuda.bindings.nvml.device_get_numa_node_id</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_nv_link_telemetry_samples_v1.html">cuda.bindings.nvml.device_get_nv_link_telemetry_samples_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_nvlink_bw_mode.html">cuda.bindings.nvml.device_get_nvlink_bw_mode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_nvlink_capability.html">cuda.bindings.nvml.device_get_nvlink_capability</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_nvlink_error_counter.html">cuda.bindings.nvml.device_get_nvlink_error_counter</a></li>
@@ -809,7 +801,6 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_process_utilization.html">cuda.bindings.nvml.device_get_process_utilization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_processes_utilization_info.html">cuda.bindings.nvml.device_get_processes_utilization_info</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_remapped_rows.html">cuda.bindings.nvml.device_get_remapped_rows</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_remapped_rows_v2.html">cuda.bindings.nvml.device_get_remapped_rows_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_repair_status.html">cuda.bindings.nvml.device_get_repair_status</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_retired_pages.html">cuda.bindings.nvml.device_get_retired_pages</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_retired_pages_pending_status.html">cuda.bindings.nvml.device_get_retired_pages_pending_status</a></li>
@@ -854,7 +845,6 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_is_mig_device_handle.html">cuda.bindings.nvml.device_is_mig_device_handle</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_modify_drain_state.html">cuda.bindings.nvml.device_modify_drain_state</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_on_same_board.html">cuda.bindings.nvml.device_on_same_board</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_perf_metrics_get_samples_v1.html">cuda.bindings.nvml.device_perf_metrics_get_samples_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_power_smoothing_activate_preset_profile.html">cuda.bindings.nvml.device_power_smoothing_activate_preset_profile</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_power_smoothing_set_state.html">cuda.bindings.nvml.device_power_smoothing_set_state</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_power_smoothing_update_preset_profile_param.html">cuda.bindings.nvml.device_power_smoothing_update_preset_profile_param</a></li>
@@ -867,7 +857,6 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_reset_memory_locked_clocks.html">cuda.bindings.nvml.device_reset_memory_locked_clocks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_reset_nvlink_error_counters.html">cuda.bindings.nvml.device_reset_nvlink_error_counters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_accounting_mode.html">cuda.bindings.nvml.device_set_accounting_mode</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_adaptive_tgp_mode_v1.html">cuda.bindings.nvml.device_set_adaptive_tgp_mode_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_api_restriction.html">cuda.bindings.nvml.device_set_api_restriction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_auto_boosted_clocks_enabled.html">cuda.bindings.nvml.device_set_auto_boosted_clocks_enabled</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_clock_offsets.html">cuda.bindings.nvml.device_set_clock_offsets</a></li>
@@ -884,11 +873,9 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_gpu_locked_clocks.html">cuda.bindings.nvml.device_set_gpu_locked_clocks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_gpu_operation_mode.html">cuda.bindings.nvml.device_set_gpu_operation_mode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_hostname_v1.html">cuda.bindings.nvml.device_set_hostname_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_memory_limits_v1.html">cuda.bindings.nvml.device_set_memory_limits_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_memory_locked_clocks.html">cuda.bindings.nvml.device_set_memory_locked_clocks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_mig_mode.html">cuda.bindings.nvml.device_set_mig_mode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_nvlink_bw_mode.html">cuda.bindings.nvml.device_set_nvlink_bw_mode</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_nvlink_bw_mode_async_v1.html">cuda.bindings.nvml.device_set_nvlink_bw_mode_async_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_nvlink_device_low_power_threshold.html">cuda.bindings.nvml.device_set_nvlink_device_low_power_threshold</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_persistence_mode.html">cuda.bindings.nvml.device_set_persistence_mode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_power_management_limit_v2.html">cuda.bindings.nvml.device_set_power_management_limit_v2</a></li>
@@ -903,13 +890,7 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.error_string.html">cuda.bindings.nvml.error_string</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.event_set_create.html">cuda.bindings.nvml.event_set_create</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.event_set_free.html">cuda.bindings.nvml.event_set_free</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.event_set_get_context_count_v1.html">cuda.bindings.nvml.event_set_get_context_count_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.event_set_get_context_data_v1.html">cuda.bindings.nvml.event_set_get_context_data_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.event_set_get_context_info_v1.html">cuda.bindings.nvml.event_set_get_context_info_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.event_set_get_gpu_operational_event_context_legacy_xid_v1.html">cuda.bindings.nvml.event_set_get_gpu_operational_event_context_legacy_xid_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.event_set_register_gpu_operational_events_v1.html">cuda.bindings.nvml.event_set_register_gpu_operational_events_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.event_set_wait_v2.html">cuda.bindings.nvml.event_set_wait_v2</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.event_set_wait_v3.html">cuda.bindings.nvml.event_set_wait_v3</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.get_excluded_device_count.html">cuda.bindings.nvml.get_excluded_device_count</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.get_excluded_device_info_by_index.html">cuda.bindings.nvml.get_excluded_device_info_by_index</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.get_vgpu_compatibility.html">cuda.bindings.nvml.get_vgpu_compatibility</a></li>
@@ -944,7 +925,6 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.system_get_conf_compute_key_rotation_threshold_info.html">cuda.bindings.nvml.system_get_conf_compute_key_rotation_threshold_info</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.system_get_conf_compute_settings.html">cuda.bindings.nvml.system_get_conf_compute_settings</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.system_get_conf_compute_state.html">cuda.bindings.nvml.system_get_conf_compute_state</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.system_get_cper_v1.html">cuda.bindings.nvml.system_get_cper_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.system_get_cuda_driver_version.html">cuda.bindings.nvml.system_get_cuda_driver_version</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.system_get_cuda_driver_version_v2.html">cuda.bindings.nvml.system_get_cuda_driver_version_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.system_get_driver_branch.html">cuda.bindings.nvml.system_get_driver_branch</a></li>
@@ -1122,15 +1102,11 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.VgpuVmCompatibility.html">cuda.bindings.nvml.VgpuVmCompatibility</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.VgpuVmIdType.html">cuda.bindings.nvml.VgpuVmIdType</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.AccountingStats.html">cuda.bindings.nvml.AccountingStats</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.AccountingStats_v2.html">cuda.bindings.nvml.AccountingStats_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.ActiveVgpuInstanceInfo_v1.html">cuda.bindings.nvml.ActiveVgpuInstanceInfo_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.AdaptiveTgpModeInfo_v1.html">cuda.bindings.nvml.AdaptiveTgpModeInfo_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.BAR1Memory.html">cuda.bindings.nvml.BAR1Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.BBXTimeData_v1.html">cuda.bindings.nvml.BBXTimeData_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.BridgeChipHierarchy.html">cuda.bindings.nvml.BridgeChipHierarchy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.BridgeChipInfo.html">cuda.bindings.nvml.BridgeChipInfo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.C2cModeInfo_v1.html">cuda.bindings.nvml.C2cModeInfo_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.CPERCursor_v1.html">cuda.bindings.nvml.CPERCursor_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.ClkMonFaultInfo.html">cuda.bindings.nvml.ClkMonFaultInfo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.ClkMonStatus.html">cuda.bindings.nvml.ClkMonStatus</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.ClockOffset_v1.html">cuda.bindings.nvml.ClockOffset_v1</a></li>
@@ -1144,13 +1120,10 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.ConfComputeSystemCaps.html">cuda.bindings.nvml.ConfComputeSystemCaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.ConfComputeSystemState.html">cuda.bindings.nvml.ConfComputeSystemState</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.CoolerInfo_v1.html">cuda.bindings.nvml.CoolerInfo_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.CoreRailMetrics.html">cuda.bindings.nvml.CoreRailMetrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.DeviceAddressingMode_v1.html">cuda.bindings.nvml.DeviceAddressingMode_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.DeviceAttributes.html">cuda.bindings.nvml.DeviceAttributes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.DevicePowerMizerModes_v1.html">cuda.bindings.nvml.DevicePowerMizerModes_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.EccSramErrorStatus_v1.html">cuda.bindings.nvml.EccSramErrorStatus_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.EccBankRemapperHistogram_v1.html">cuda.bindings.nvml.EccBankRemapperHistogram_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.EccBankRemapperStatus_v1.html">cuda.bindings.nvml.EccBankRemapperStatus_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.EccSramUniqueUncorrectedErrorCounts_v1.html">cuda.bindings.nvml.EccSramUniqueUncorrectedErrorCounts_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.EccSramUniqueUncorrectedErrorEntry_v1.html">cuda.bindings.nvml.EccSramUniqueUncorrectedErrorEntry_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.EncoderSessionInfo.html">cuda.bindings.nvml.EncoderSessionInfo</a></li>
@@ -1159,15 +1132,10 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.FBCSessionInfo.html">cuda.bindings.nvml.FBCSessionInfo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.FBCStats.html">cuda.bindings.nvml.FBCStats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.FieldValue.html">cuda.bindings.nvml.FieldValue</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.GetCPER_v1.html">cuda.bindings.nvml.GetCPER_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.GetMemoryLimits_v1.html">cuda.bindings.nvml.GetMemoryLimits_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.GpuDynamicPstatesInfo.html">cuda.bindings.nvml.GpuDynamicPstatesInfo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.GpuFabricClique_v1.html">cuda.bindings.nvml.GpuFabricClique_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.GpuFabricInfo_v2.html">cuda.bindings.nvml.GpuFabricInfo_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.GpuFabricInfo_v3.html">cuda.bindings.nvml.GpuFabricInfo_v3</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.GpuFabricInfo_v4.html">cuda.bindings.nvml.GpuFabricInfo_v4</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.GpuInstanceInfo.html">cuda.bindings.nvml.GpuInstanceInfo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.GpuOperationalEventConfig_v1.html">cuda.bindings.nvml.GpuOperationalEventConfig_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.GpuInstancePlacement.html">cuda.bindings.nvml.GpuInstancePlacement</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.GpuInstanceProfileInfo_v3.html">cuda.bindings.nvml.GpuInstanceProfileInfo_v3</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.GpuThermalSettings.html">cuda.bindings.nvml.GpuThermalSettings</a></li>
@@ -1184,31 +1152,15 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.NvLinkInfo_v1.html">cuda.bindings.nvml.NvLinkInfo_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.NvLinkInfo_v2.html">cuda.bindings.nvml.NvLinkInfo_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.NvlinkSetBwMode_v1.html">cuda.bindings.nvml.NvlinkSetBwMode_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.NvlinkSetBwModeAsync_v1.html">cuda.bindings.nvml.NvlinkSetBwModeAsync_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.NvlinkSupportedBwModes_v1.html">cuda.bindings.nvml.NvlinkSupportedBwModes_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.NvlinkTelemetrySample_v1.html">cuda.bindings.nvml.NvlinkTelemetrySample_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.NvlinkTelemetrySamples_v1.html">cuda.bindings.nvml.NvlinkTelemetrySamples_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.ObservedMetrics.html">cuda.bindings.nvml.ObservedMetrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PciInfo.html">cuda.bindings.nvml.PciInfo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PciInfoExt_v1.html">cuda.bindings.nvml.PciInfoExt_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PerfMetricControllerSample.html">cuda.bindings.nvml.PerfMetricControllerSample</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PerfMetricsDlppc2xSample.html">cuda.bindings.nvml.PerfMetricsDlppc2xSample</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PerfMetricsPfpp1xSample.html">cuda.bindings.nvml.PerfMetricsPfpp1xSample</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PerfMetricsSample.html">cuda.bindings.nvml.PerfMetricsSample</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PerfMetricsSamples_v1.html">cuda.bindings.nvml.PerfMetricsSamples_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PlatformInfo_v1.html">cuda.bindings.nvml.PlatformInfo_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PlatformInfo_v2.html">cuda.bindings.nvml.PlatformInfo_v2</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PmgrPwrTuple.html">cuda.bindings.nvml.PmgrPwrTuple</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PRMCounter_v1.html">cuda.bindings.nvml.PRMCounter_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PRMCounterInput_v1.html">cuda.bindings.nvml.PRMCounterInput_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PRMCounterValue_v1.html">cuda.bindings.nvml.PRMCounterValue_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.ProcessDetail_v1.html">cuda.bindings.nvml.ProcessDetail_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PwrModelMetricsDlppm1x.html">cuda.bindings.nvml.PwrModelMetricsDlppm1x</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PwrModelMetricsDlppm1xDramclkEstimates.html">cuda.bindings.nvml.PwrModelMetricsDlppm1xDramclkEstimates</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PwrModelMetricsDlppm1xPerf.html">cuda.bindings.nvml.PwrModelMetricsDlppm1xPerf</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PwrModelMetricsPfpp1x.html">cuda.bindings.nvml.PwrModelMetricsPfpp1x</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PwrModelMetricsSamplePfpp1x.html">cuda.bindings.nvml.PwrModelMetricsSamplePfpp1x</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PwrModelOperatingPointPfpp1x.html">cuda.bindings.nvml.PwrModelOperatingPointPfpp1x</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.ProcessDetailList_v1.html">cuda.bindings.nvml.ProcessDetailList_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.ProcessesUtilizationInfo_v1.html">cuda.bindings.nvml.ProcessesUtilizationInfo_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.ProcessInfo.html">cuda.bindings.nvml.ProcessInfo</a></li>
@@ -1216,11 +1168,8 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.ProcessUtilizationSample.html">cuda.bindings.nvml.ProcessUtilizationSample</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.PSUInfo.html">cuda.bindings.nvml.PSUInfo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.RepairStatus_v1.html">cuda.bindings.nvml.RepairStatus_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.RailMetrics.html">cuda.bindings.nvml.RailMetrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.RemappedRowsInfo_v2.html">cuda.bindings.nvml.RemappedRowsInfo_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.RowRemapperHistogramValues.html">cuda.bindings.nvml.RowRemapperHistogramValues</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.Sample.html">cuda.bindings.nvml.Sample</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.SetMemoryLimits_v1.html">cuda.bindings.nvml.SetMemoryLimits_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.SystemConfComputeSettings_v1.html">cuda.bindings.nvml.SystemConfComputeSettings_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.SystemEventData_v1.html">cuda.bindings.nvml.SystemEventData_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.UnitFanInfo.html">cuda.bindings.nvml.UnitFanInfo</a></li>
@@ -1245,7 +1194,6 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.VgpuSchedulerLog.html">cuda.bindings.nvml.VgpuSchedulerLog</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.VgpuSchedulerLogEntry.html">cuda.bindings.nvml.VgpuSchedulerLogEntry</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.VgpuSchedulerLogInfo_v1.html">cuda.bindings.nvml.VgpuSchedulerLogInfo_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.VgpuSchedulerLogInfo_v2.html">cuda.bindings.nvml.VgpuSchedulerLogInfo_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.VgpuSchedulerParams.html">cuda.bindings.nvml.VgpuSchedulerParams</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.VgpuSchedulerSetParams.html">cuda.bindings.nvml.VgpuSchedulerSetParams</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.nvml.VgpuSchedulerState_v1.html">cuda.bindings.nvml.VgpuSchedulerState_v1</a></li>
@@ -1812,8 +1760,6 @@ STREAMING.</p>
 </dd>
 <dt>syncMode<span class="classifier">unsigned int</span></dt><dd><p>The synchronization mode to use for the host task</p>
 </dd>
-<dt>ctx<span class="classifier">cudaExecutionContext_t</span></dt><dd><p>CUDA Execution Context</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaHostNodeParamsV2.getPtr">
@@ -1924,7 +1870,6 @@ unregistered memory is allocated so this field may contain invalid
 pointer if an invalid pointer has been passed to CUDA.</p>
 </dd>
 </dl>
-<p>localityDomainOrdinal : int</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaPointerAttributes.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaPointerAttributes.getPtr" title="Link to this definition">#</a></dt>
@@ -1977,18 +1922,14 @@ with user specified option “-Xptxas –dlcm=ca” set.</p>
 </dd>
 <dt>maxDynamicSharedSizeBytes<span class="classifier">int</span></dt><dd><p>The maximum size in bytes of dynamic shared memory per block for
 this function. Any launch must have a dynamic shared memory size
-smaller than this value.  This attribute is ignored if the
-sharedMemoryMode function or launch attribute is set.  This
-attribute cannot be used to access oversized shared memory.
-Oversized shared memory can only be accessed by setting the shared
-memory mode.  See cudaFuncSetAttribute</p>
+smaller than this value.</p>
 </dd>
 <dt>preferredShmemCarveout<span class="classifier">int</span></dt><dd><p>On devices where the L1 cache and shared memory use the same
 hardware resources, this sets the shared memory carveout
 preference, in percent of the maximum shared memory. Refer to
 cudaDevAttrMaxSharedMemoryPerMultiprocessor. This is only a hint,
 and the driver can choose a different ratio if required to execute
-the function.  See cudaFuncSetAttribute</p>
+the function. See cudaFuncSetAttribute</p>
 </dd>
 <dt>clusterDimMustBeSet<span class="classifier">int</span></dt><dd><p>If this attribute is set, the kernel must launch with a valid
 cluster dimension specified.</p>
@@ -1997,15 +1938,14 @@ cluster dimension specified.</p>
 either all be 0 or all be positive. The validity of the cluster
 dimensions is otherwise checked at launch time.  If the value is
 set during compile time, it cannot be set at runtime. Setting it at
-runtime should return cudaErrorNotPermitted.  See
+runtime should return cudaErrorNotPermitted. See
 cudaFuncSetAttribute</p>
 </dd>
 </dl>
 <p>requiredClusterHeight : int</p>
 <p>requiredClusterDepth : int</p>
 <dl class="simple">
-<dt>clusterSchedulingPolicyPreference<span class="classifier">int</span></dt><dd><p>The block scheduling policy of a function.  See
-cudaFuncSetAttribute</p>
+<dt>clusterSchedulingPolicyPreference<span class="classifier">int</span></dt><dd><p>The block scheduling policy of a function. See cudaFuncSetAttribute</p>
 </dd>
 <dt>nonPortableClusterSizeAllowed<span class="classifier">int</span></dt><dd><p>Whether the function can be launched with non-portable cluster
 size. 1 is allowed, 0 is disallowed. A non-portable cluster size
@@ -2018,15 +1958,12 @@ is guaranteed to be functional on all compute capabilities higher
 than the target compute capability. The portable cluster size for
 sm_90 is 8 blocks per cluster. This value may increase for future
 compute capabilities.  The specific hardware unit may support
-higher cluster sizes that’s not guaranteed to be portable.  See
+higher cluster sizes that’s not guaranteed to be portable. See
 cudaFuncSetAttribute</p>
 </dd>
 <dt>deviceNodeUpdateStatus<span class="classifier">int</span></dt><dd><p>Whether the function can be updated on device. 1 means device node
 update is supported, 0 is unsupported or driver is too old to check
 the value.</p>
-</dd>
-<dt>sharedMemoryMode<span class="classifier">cudaSharedMemoryMode</span></dt><dd><p>This controls a kernel’s use of non-portable or oversized shared
-memory configurations.  See cudaFuncSetAttribute</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -2059,9 +1996,6 @@ set id = host NUMA node id.</p>
 <dt>id<span class="classifier">int</span></dt><dd><p>Identifier for cudaMemLocationType::cudaMemLocationTypeDevice,
 cudaMemLocationType::cudaMemLocationTypeHost, or
 cudaMemLocationType::cudaMemLocationTypeHostNuma.</p>
-</dd>
-<dt>localized<span class="classifier">anon_struct6</span></dt><dd><p>Identifier for
-cudaMemLocationType::cudaMemLocationTypeDeviceLocalityDomain.</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -2323,7 +2257,7 @@ cudaMemcpyFlags.</p>
 </dl>
 </dd></dl>
 
-<p>op : anon_union3</p>
+<p>op : anon_union2</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemcpy3DOperand.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemcpy3DOperand.getPtr" title="Link to this definition">#</a></dt>
@@ -2667,7 +2601,7 @@ multi-node system.</p>
 </dl>
 </dd></dl>
 
-<p>handle : anon_union4</p>
+<p>handle : anon_union3</p>
 <dl class="simple">
 <dt>size<span class="classifier">unsigned long long</span></dt><dd><p>Size of the memory allocation</p>
 </dd>
@@ -2761,7 +2695,7 @@ cudaMallocMipmappedArray</p>
 </dl>
 </dd></dl>
 
-<p>handle : anon_union5</p>
+<p>handle : anon_union4</p>
 <dl class="simple">
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Flags reserved for the future. Must be zero.</p>
 </dd>
@@ -2783,7 +2717,7 @@ cudaMallocMipmappedArray</p>
 <span class="sig-name descname"><span class="pre">params</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaExternalSemaphoreSignalParams.params" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>anon_struct13</p>
+<dd class="field-odd"><p>anon_struct12</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2816,7 +2750,7 @@ all other types of cudaExternalSemaphore_t, flags must be zero.</p>
 <span class="sig-name descname"><span class="pre">params</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaExternalSemaphoreWaitParams.params" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>anon_struct16</p>
+<dd class="field-odd"><p>anon_struct15</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2867,9 +2801,6 @@ is set.</p>
 </dd>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>The flags set on this SM resource. For available flags see
 cudaDevSmResourceGroup_flags.</p>
-</dd>
-<dt>localityDomainId<span class="classifier">unsigned int</span></dt><dd><p>Locality domain that the SM must be located on. Only valid if
-cudaDevSmResourceConstraintTypeLocalityDomainId is set in flags</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -2945,9 +2876,6 @@ groups of this size.</p>
 </dd>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Combination of <cite>cudaDevSmResourceGroup_flags</cite> values to indicate
 this this group is created.</p>
-</dd>
-<dt>localityDomainId<span class="classifier">unsigned int</span></dt><dd><p>Locality domain that the SM must be located on. Only valid if
-cudaDevSmResourceGroupLocalityDomainId is set in flags</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -3161,8 +3089,6 @@ paramsArray.</p>
 <dt>numExtSems<span class="classifier">unsigned int</span></dt><dd><p>Number of handles and parameters supplied in extSemArray and
 paramsArray.</p>
 </dd>
-<dt>ctx<span class="classifier">cudaExecutionContext_t</span></dt><dd><p>CUDA Execution Context</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaExternalSemaphoreSignalNodeParamsV2.getPtr">
@@ -3223,8 +3149,6 @@ paramsArray.</p>
 <dt>numExtSems<span class="classifier">unsigned int</span></dt><dd><p>Number of handles and parameters supplied in extSemArray and
 paramsArray.</p>
 </dd>
-<dt>ctx<span class="classifier">cudaExecutionContext_t</span></dt><dd><p>CUDA Execution Context</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaExternalSemaphoreWaitNodeParamsV2.getPtr">
@@ -3264,7 +3188,7 @@ following constraints:   - Allowed node types are kernel nodes,
 empty nodes, child graphs, memsets, memcopies, and conditionals.
 This applies recursively to child graphs and conditional bodies.
 - All kernels, including kernels in nested conditionals or child
-graphs at any level, must belong to the same device context.
+graphs at any level, must belong to the same CUDA context.
 These graphs may be populated using graph node creation APIs or
 cudaStreamBeginCaptureToGraph. cudaGraphCondTypeIf: phGraph_out[0]
 is executed when the condition is non-zero. If <cite>size</cite> == 2,
@@ -3331,10 +3255,6 @@ to the parent.</p>
 </dl>
 </dd></dl>
 
-<dl class="simple">
-<dt>ctx<span class="classifier">cudaExecutionContext_t</span></dt><dd><p>CUDA Execution Context</p>
-</dd>
-</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaEventRecordNodeParams.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaEventRecordNodeParams.getPtr" title="Link to this definition">#</a></dt>
@@ -3545,7 +3465,7 @@ array to ::cudaGraphKernelNodeUpdatesApply</p>
 <dt>field<span class="classifier">cudaGraphKernelNodeField</span></dt><dd><p>Which type of update to apply. Determines how updateData is
 interpreted</p>
 </dd>
-<dt>updateData<span class="classifier">anon_union11</span></dt><dd><p>Update data to apply. Which field is used depends on field’s value</p>
+<dt>updateData<span class="classifier">anon_union10</span></dt><dd><p>Update data to apply. Which field is used depends on field’s value</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -3612,7 +3532,7 @@ indicates a cooperative kernel (see cudaLaunchCooperativeKernel).</p>
 <dt>syncPolicy<span class="classifier">cudaSynchronizationPolicy</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
 cudaSynchronizationPolicy for work queued up in this stream.</p>
 </dd>
-<dt>clusterDim<span class="classifier">anon_struct18</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeClusterDimension that
+<dt>clusterDim<span class="classifier">anon_struct17</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeClusterDimension that
 represents the desired cluster dimensions for the kernel. Opaque
 type with the following fields: - <cite>x</cite> - The X dimension of the
 cluster, in blocks. Must be a divisor of the grid X dimension.    -
@@ -3627,7 +3547,7 @@ scheduling policy preference for the kernel.</p>
 <dt>programmaticStreamSerializationAllowed<span class="classifier">int</span></dt><dd><p>Value of launch attribute
 cudaLaunchAttributeProgrammaticStreamSerialization.</p>
 </dd>
-<dt>programmaticEvent<span class="classifier">anon_struct19</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
+<dt>programmaticEvent<span class="classifier">anon_struct18</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
 the following fields: - <cite>cudaEvent_t</cite> event - Event to fire when
 all blocks trigger it.    - <cite>int</cite> flags; - Event record flags, see
 cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
@@ -3643,7 +3563,7 @@ cudaLaunchMemSyncDomainMap.</p>
 <dt>memSyncDomain<span class="classifier">cudaLaunchMemSyncDomain</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
 cudaLaunchMemSyncDomain.</p>
 </dd>
-<dt>preferredClusterDim<span class="classifier">anon_struct20</span></dt><dd><p>Value of launch attribute
+<dt>preferredClusterDim<span class="classifier">anon_struct19</span></dt><dd><p>Value of launch attribute
 cudaLaunchAttributePreferredClusterDimension that represents the
 desired preferred cluster dimensions for the kernel. Opaque type
 with the following fields: - <cite>x</cite> - The X dimension of the preferred
@@ -3656,13 +3576,13 @@ cudaLaunchAttributeValue::clusterDim.    - <cite>z</cite> - The Z dimension of
 the preferred cluster, in blocks. Must be equal to the <cite>z</cite> field of
 cudaLaunchAttributeValue::clusterDim.</p>
 </dd>
-<dt>launchCompletionEvent<span class="classifier">anon_struct21</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
+<dt>launchCompletionEvent<span class="classifier">anon_struct20</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
 with the following fields: - <cite>cudaEvent_t</cite> event - Event to fire
 when the last block launches.    - <cite>int</cite> flags - Event record
 flags, see cudaEventRecordWithFlags. Does not accept
 cudaEventRecordExternal.</p>
 </dd>
-<dt>deviceUpdatableKernelNode<span class="classifier">anon_struct22</span></dt><dd><p>Value of launch attribute
+<dt>deviceUpdatableKernelNode<span class="classifier">anon_struct21</span></dt><dd><p>Value of launch attribute
 cudaLaunchAttributeDeviceUpdatableKernelNode with the following
 fields: - <cite>int</cite> deviceUpdatable - Whether or not the resulting
 kernel node should be device-updatable.    -
@@ -3733,7 +3653,7 @@ cudaSharedMemoryMode for acceptable values.</p>
 </dd></dl>
 
 <dl class="simple">
-<dt>info<span class="classifier">anon_union12</span></dt><dd><p>Information about the notification. <cite>typename</cite> must be checked in
+<dt>info<span class="classifier">anon_union11</span></dt><dd><p>Information about the notification. <cite>typename</cite> must be checked in
 order to interpret this field.</p>
 </dd>
 </dl>
@@ -3846,7 +3766,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <span class="sig-name descname"><span class="pre">frame</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaEglFrame_st.frame" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>anon_union13</p>
+<dd class="field-odd"><p>anon_union12</p>
 </dd>
 </dl>
 </dd></dl>
@@ -4328,12 +4248,6 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaError_t.cudaErrorInsufficientLoaderVersion">
-<span class="sig-name descname"><span class="pre">cudaErrorInsufficientLoaderVersion</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaError_t.cudaErrorInsufficientLoaderVersion:</span> <span class="pre">227&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInsufficientLoaderVersion" title="Link to this definition">#</a></dt>
-<dd><p>This indicates that loader version is insufficient for Fatbin</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidSource">
 <span class="sig-name descname"><span class="pre">cudaErrorInvalidSource</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaError_t.cudaErrorInvalidSource:</span> <span class="pre">300&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidSource" title="Link to this definition">#</a></dt>
 <dd><p>This indicates that the device kernel source is invalid.</p>
@@ -4697,12 +4611,6 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaError_t.cudaErrorGraphRecaptureFailure">
 <span class="sig-name descname"><span class="pre">cudaErrorGraphRecaptureFailure</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaError_t.cudaErrorGraphRecaptureFailure:</span> <span class="pre">918&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaError_t.cudaErrorGraphRecaptureFailure" title="Link to this definition">#</a></dt>
 <dd><p>This error indicates that a graph recapture failed and had to be terminated.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaError_t.cudaErrorFabricNotReady">
-<span class="sig-name descname"><span class="pre">cudaErrorFabricNotReady</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaError_t.cudaErrorFabricNotReady:</span> <span class="pre">919&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaError_t.cudaErrorFabricNotReady" title="Link to this definition">#</a></dt>
-<dd><p>This error indicates GPU fabric is not ready within the bounded wait while the fabric manager probe is still in progress. Applications may retry after a delay; for the initialization wait budget, see environment variables such as CUDA_FABRIC_INIT_TIMEOUT_MS.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -5212,11 +5120,6 @@ details see <a class="reference internal" href="#cuda.bindings.runtime.cudaStrea
 <dd><p>allow the hardware to load-balance the blocks in a cluster to the SMs</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyRubinDsmemLocality">
-<span class="sig-name descname"><span class="pre">cudaClusterSchedulingPolicyRubinDsmemLocality</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyRubinDsmemLocality:</span> <span class="pre">3&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyRubinDsmemLocality" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -5648,18 +5551,6 @@ details see <a class="reference internal" href="#cuda.bindings.runtime.cudaStrea
 <dd><p>Specifies that the shared memory size requested may be a non-portable size up to <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerBlockOptin" title="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerBlockOptin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrMaxSharedMemoryPerBlockOptin</span></code></a></p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowOversizedSharedMemory">
-<span class="sig-name descname"><span class="pre">cudaSharedMemoryModeAllowOversizedSharedMemory</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSharedMemoryMode.cudaSharedMemoryModeAllowOversizedSharedMemory:</span> <span class="pre">3&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowOversizedSharedMemory" title="Link to this definition">#</a></dt>
-<dd><p>Specifies that oversized shared memory configurations may be used (with the limitation of only 8kB L1 cache)</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModePreferOversizedSharedMemory">
-<span class="sig-name descname"><span class="pre">cudaSharedMemoryModePreferOversizedSharedMemory</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSharedMemoryMode.cudaSharedMemoryModePreferOversizedSharedMemory:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModePreferOversizedSharedMemory" title="Link to this definition">#</a></dt>
-<dd><p>Specifies that oversized shared memory configurations may be used (with the limitation of only 8kB L1 cache), and prefer an oversized shared memory configuration</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -5716,14 +5607,8 @@ details see <a class="reference internal" href="#cuda.bindings.runtime.cudaStrea
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeSharedMemoryMode">
-<span class="sig-name descname"><span class="pre">cudaFuncAttributeSharedMemoryMode</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaFuncAttribute.cudaFuncAttributeSharedMemoryMode:</span> <span class="pre">16&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeSharedMemoryMode" title="Link to this definition">#</a></dt>
-<dd><p>Setting that controls a kernel’s use of non-portable or oversized shared memory configurations</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeMax">
-<span class="sig-name descname"><span class="pre">cudaFuncAttributeMax</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaFuncAttribute.cudaFuncAttributeMax:</span> <span class="pre">17&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeMax" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cudaFuncAttributeMax</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaFuncAttribute.cudaFuncAttributeMax:</span> <span class="pre">16&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeMax" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -5878,12 +5763,6 @@ cudaFuncSetAttribute</p>
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaLimit.cudaLimitPersistingL2CacheSize">
 <span class="sig-name descname"><span class="pre">cudaLimitPersistingL2CacheSize</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaLimit.cudaLimitPersistingL2CacheSize:</span> <span class="pre">6&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaLimit.cudaLimitPersistingL2CacheSize" title="Link to this definition">#</a></dt>
 <dd><p>A size in bytes for L2 persisting lines cache size</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaLimit.cudaLimitPerBlockMemorySize">
-<span class="sig-name descname"><span class="pre">cudaLimitPerBlockMemorySize</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaLimit.cudaLimitPerBlockMemorySize:</span> <span class="pre">10&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaLimit.cudaLimitPerBlockMemorySize" title="Link to this definition">#</a></dt>
-<dd><p>Per-block memory size</p>
 </dd></dl>
 
 </dd></dl>
@@ -6876,32 +6755,14 @@ cudaFuncSetAttribute</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrLocalityDomainCount">
-<span class="sig-name descname"><span class="pre">cudaDevAttrLocalityDomainCount</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaDeviceAttr.cudaDevAttrLocalityDomainCount:</span> <span class="pre">149&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrLocalityDomainCount" title="Link to this definition">#</a></dt>
-<dd><p>Number of locality domains</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrOversizedSharedMemoryPerBlock">
-<span class="sig-name descname"><span class="pre">cudaDevAttrOversizedSharedMemoryPerBlock</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaDeviceAttr.cudaDevAttrOversizedSharedMemoryPerBlock:</span> <span class="pre">150&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrOversizedSharedMemoryPerBlock" title="Link to this definition">#</a></dt>
-<dd><p>The maximum oversized shared memory per block. This value may vary by chip. See <a class="reference internal" href="#cuda.bindings.runtime.cudaFuncSetAttribute" title="cuda.bindings.runtime.cudaFuncSetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code></a></p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrCigStreamsSupported">
 <span class="sig-name descname"><span class="pre">cudaDevAttrCigStreamsSupported</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaDeviceAttr.cudaDevAttrCigStreamsSupported:</span> <span class="pre">151&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrCigStreamsSupported" title="Link to this definition">#</a></dt>
 <dd><p>Device supports CIG streams</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrLocalityDomainMultiprocessorCount">
-<span class="sig-name descname"><span class="pre">cudaDevAttrLocalityDomainMultiprocessorCount</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaDeviceAttr.cudaDevAttrLocalityDomainMultiprocessorCount:</span> <span class="pre">157&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrLocalityDomainMultiprocessorCount" title="Link to this definition">#</a></dt>
-<dd><p>Number of multiprocessors on each locality domain</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMax">
-<span class="sig-name descname"><span class="pre">cudaDevAttrMax</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaDeviceAttr.cudaDevAttrMax:</span> <span class="pre">158&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMax" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cudaDevAttrMax</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaDeviceAttr.cudaDevAttrMax:</span> <span class="pre">152&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMax" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -6994,12 +6855,6 @@ cudaFuncSetAttribute</p>
 <dd><p>(value type = int) Indicates whether the pool has hardware compresssion enabled</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrLocalityDomainId">
-<span class="sig-name descname"><span class="pre">cudaMemPoolAttrLocalityDomainId</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaMemPoolAttr.cudaMemPoolAttrLocalityDomainId:</span> <span class="pre">15&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrLocalityDomainId" title="Link to this definition">#</a></dt>
-<dd><p>(value type = int) The locality domain id for the mempool, if the mempool is localized to a locality domain. A value of -1 indicates that the mempool is not localized to a locality domain.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -7045,12 +6900,6 @@ cudaFuncSetAttribute</p>
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeInvisible">
 <span class="sig-name descname"><span class="pre">cudaMemLocationTypeInvisible</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaMemLocationType.cudaMemLocationTypeInvisible:</span> <span class="pre">5&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeInvisible" title="Link to this definition">#</a></dt>
 <dd><p>Location is not visible but device is accessible, id is always cudaInvalidDeviceId</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain">
-<span class="sig-name descname"><span class="pre">cudaMemLocationTypeDeviceLocalityDomain</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain:</span> <span class="pre">6&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain" title="Link to this definition">#</a></dt>
-<dd><p>Location is a portion of device memory, specified by the locality domain ID</p>
 </dd></dl>
 
 </dd></dl>
@@ -7529,13 +7378,7 @@ individual copies specified in <a class="reference internal" href="#cuda.binding
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill">
 <span class="sig-name descname"><span class="pre">cudaDevSmResourceGroupBackfill</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill" title="Link to this definition">#</a></dt>
-<dd><p>Treats constraints as a hint, ignoring them if necessary to reach the requested smCount. Lets smCount be a non-multiple of coscheduledSmCount, filling the difference between SM count and already assigned co-scheduled groupings with other SMs. When used with cudaDevSmResourceGroupLocalityDomainId, backfill fills up to the requested smCount using the target locality domain first, then SMs not attributed to any locality domain, then SMs from other locality domains. If no SMs can be found in the requested locality domain, cudaErrorInvalidResourceConfiguration is returned.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupLocalityDomainId">
-<span class="sig-name descname"><span class="pre">cudaDevSmResourceGroupLocalityDomainId</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupLocalityDomainId:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupLocalityDomainId" title="Link to this definition">#</a></dt>
-<dd><p>The SMs must be located on a specific locality domain, specified by localityDomainId</p>
+<dd><p>Lets smCount be a non-multiple of minCoscheduledCount, filling the difference with other SMs.</p>
 </dd></dl>
 
 </dd></dl>
@@ -9648,9 +9491,6 @@ groups of this size.</p>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Combination of <cite>cudaDevSmResourceGroup_flags</cite> values to indicate
 this this group is created.</p>
 </dd>
-<dt>localityDomainId<span class="classifier">unsigned int</span></dt><dd><p>Locality domain that the SM must be located on. Only valid if
-cudaDevSmResourceGroupLocalityDomainId is set in flags</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDevSmResourceGroupParams.getPtr">
@@ -10055,7 +9895,7 @@ indicates a cooperative kernel (see cudaLaunchCooperativeKernel).</p>
 <dt>syncPolicy<span class="classifier">cudaSynchronizationPolicy</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
 cudaSynchronizationPolicy for work queued up in this stream.</p>
 </dd>
-<dt>clusterDim<span class="classifier">anon_struct18</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeClusterDimension that
+<dt>clusterDim<span class="classifier">anon_struct17</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeClusterDimension that
 represents the desired cluster dimensions for the kernel. Opaque
 type with the following fields: - <cite>x</cite> - The X dimension of the
 cluster, in blocks. Must be a divisor of the grid X dimension.    -
@@ -10070,7 +9910,7 @@ scheduling policy preference for the kernel.</p>
 <dt>programmaticStreamSerializationAllowed<span class="classifier">int</span></dt><dd><p>Value of launch attribute
 cudaLaunchAttributeProgrammaticStreamSerialization.</p>
 </dd>
-<dt>programmaticEvent<span class="classifier">anon_struct19</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
+<dt>programmaticEvent<span class="classifier">anon_struct18</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
 the following fields: - <cite>cudaEvent_t</cite> event - Event to fire when
 all blocks trigger it.    - <cite>int</cite> flags; - Event record flags, see
 cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
@@ -10086,7 +9926,7 @@ cudaLaunchMemSyncDomainMap.</p>
 <dt>memSyncDomain<span class="classifier">cudaLaunchMemSyncDomain</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
 cudaLaunchMemSyncDomain.</p>
 </dd>
-<dt>preferredClusterDim<span class="classifier">anon_struct20</span></dt><dd><p>Value of launch attribute
+<dt>preferredClusterDim<span class="classifier">anon_struct19</span></dt><dd><p>Value of launch attribute
 cudaLaunchAttributePreferredClusterDimension that represents the
 desired preferred cluster dimensions for the kernel. Opaque type
 with the following fields: - <cite>x</cite> - The X dimension of the preferred
@@ -10099,13 +9939,13 @@ cudaLaunchAttributeValue::clusterDim.    - <cite>z</cite> - The Z dimension of
 the preferred cluster, in blocks. Must be equal to the <cite>z</cite> field of
 cudaLaunchAttributeValue::clusterDim.</p>
 </dd>
-<dt>launchCompletionEvent<span class="classifier">anon_struct21</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
+<dt>launchCompletionEvent<span class="classifier">anon_struct20</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
 with the following fields: - <cite>cudaEvent_t</cite> event - Event to fire
 when the last block launches.    - <cite>int</cite> flags - Event record
 flags, see cudaEventRecordWithFlags. Does not accept
 cudaEventRecordExternal.</p>
 </dd>
-<dt>deviceUpdatableKernelNode<span class="classifier">anon_struct22</span></dt><dd><p>Value of launch attribute
+<dt>deviceUpdatableKernelNode<span class="classifier">anon_struct21</span></dt><dd><p>Value of launch attribute
 cudaLaunchAttributeDeviceUpdatableKernelNode with the following
 fields: - <cite>int</cite> deviceUpdatable - Whether or not the resulting
 kernel node should be device-updatable.    -
@@ -10188,7 +10028,7 @@ cudaSharedMemoryMode for acceptable values.</p>
 </dd></dl>
 
 <dl class="simple">
-<dt>info<span class="classifier">anon_union12</span></dt><dd><p>Information about the notification. <cite>typename</cite> must be checked in
+<dt>info<span class="classifier">anon_union11</span></dt><dd><p>Information about the notification. <cite>typename</cite> must be checked in
 order to interpret this field.</p>
 </dd>
 </dl>
@@ -10309,7 +10149,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <span class="sig-name descname"><span class="pre">frame</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaEglFrame.frame" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>anon_union13</p>
+<dd class="field-odd"><p>anon_union12</p>
 </dd>
 </dl>
 </dd></dl>
@@ -14438,7 +14278,7 @@ context.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream to enqueue function call in</p></li>
+<li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream to enqueue function call in</p></li>
 <li><p><strong>fn</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaHostFn_t" title="cuda.bindings.runtime.cudaHostFn_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaHostFn_t</span></code></a>) – The function to call once preceding stream operations are complete</p></li>
 <li><p><strong>userData</strong> (<em>Any</em>) – User-specified data to be passed to the function</p></li>
 </ul>
@@ -14497,7 +14337,7 @@ context.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream to enqueue function call in</p></li>
+<li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream to enqueue function call in</p></li>
 <li><p><strong>fn</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaHostFn_t" title="cuda.bindings.runtime.cudaHostFn_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaHostFn_t</span></code></a>) – The function to call once preceding stream operations are complete</p></li>
 <li><p><strong>userData</strong> (<em>Any</em>) – User-specified data to be passed to the function</p></li>
 <li><p><strong>syncMode</strong> (<em>unsigned int</em>) – Sync mode for the host function</p></li>
@@ -16507,7 +16347,7 @@ applied to copies starting from attrsIdxs[k] through attrsIdxs[k+1]
 - 1. Also attrs[numAttrs-1] will apply to copies starting from
 attrsIdxs[numAttrs-1] through count - 1.</p></li>
 <li><p><strong>numAttrs</strong> (<em>size_t</em>) – Size of <cite>attrs</cite> and <cite>attrsIdxs</cite> arrays.</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – The stream to enqueue the operations in. Must not be legacy NULL
+<li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – The stream to enqueue the operations in. Must not be legacy NULL
 stream.</p></li>
 </ul>
 </dd>
@@ -16603,7 +16443,7 @@ platform and other parameters of the copy.</p>
 <li><p><strong>numOps</strong> (<em>size_t</em>) – Total number of memcpy operations.</p></li>
 <li><p><strong>opList</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DBatchOp" title="cuda.bindings.runtime.cudaMemcpy3DBatchOp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DBatchOp</span></code></a>]) – Array of size <cite>numOps</cite> containing the actual memcpy operations.</p></li>
 <li><p><strong>flags</strong> (<em>unsigned long long</em>) – Flags for future use, must be zero now.</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – The stream to enqueue the operations in. Must not be default NULL
+<li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – The stream to enqueue the operations in. Must not be default NULL
 stream.</p></li>
 </ul>
 </dd>
@@ -16624,7 +16464,7 @@ attributes.</p>
 <p>Performs asynchronous memory copy operation where <cite>dst</cite> and <cite>src</cite> are
 the destination and source pointers respectively. <cite>size</cite> specifies the
 number of bytes to copy. <cite>attr</cite> specifies the attributes for the copy
-and <cite>stream</cite> specifies the stream to enqueue the operation in.</p>
+and <cite>hStream</cite> specifies the stream to enqueue the operation in.</p>
 <p>For more information regarding the attributes, please refer to
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpyAttributes" title="cuda.bindings.runtime.cudaMemcpyAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpyAttributes</span></code></a> and it’s usage desciption
 in::cudaMemcpyBatchAsync</p>
@@ -16635,7 +16475,7 @@ in::cudaMemcpyBatchAsync</p>
 <li><p><strong>src</strong> (<em>Any</em>) – Source device pointer</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – Number of bytes to copy</p></li>
 <li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpyAttributes" title="cuda.bindings.runtime.cudaMemcpyAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpyAttributes</span></code></a>) – Attributes for the copy</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream to enqueue the operation in</p></li>
+<li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream to enqueue the operation in</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -16656,7 +16496,7 @@ in::cudaMemcpyBatchAsync</p>
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemcpy3DWithAttributesAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cudaMemcpy3DBatchOp</span> <span class="pre">op:</span> <span class="pre">Optional[cudaMemcpy3DBatchOp],</span> <span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span> <span class="pre">flags,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemcpy3DWithAttributesAsync" title="Link to this definition">#</a></dt>
 <dd><p>Performs 3D asynchronous memory copy with the specified attributes.</p>
 <p>Performs the copy operation specified in <cite>op</cite>. <cite>flags</cite> specifies the
-flags for the copy and <cite>stream</cite> specifies the stream to enqueue the
+flags for the copy and <cite>hStream</cite> specifies the stream to enqueue the
 operation in.</p>
 <p>For more information regarding the operation, please refer to
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DBatchOp" title="cuda.bindings.runtime.cudaMemcpy3DBatchOp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DBatchOp</span></code></a> and it’s usage desciption
@@ -16666,7 +16506,7 @@ in::cudaMemcpy3DBatchAsync</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>op</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DBatchOp" title="cuda.bindings.runtime.cudaMemcpy3DBatchOp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DBatchOp</span></code></a>) – Operation to perform</p></li>
 <li><p><strong>flags</strong> (<em>unsigned long long</em>) – Flags for the copy, must be zero now.</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream to enqueue the operation in</p></li>
+<li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream to enqueue the operation in</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -17203,9 +17043,7 @@ specifying <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLoc
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocation.type" title="cuda.bindings.runtime.cudaMemLocation.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code></a> is etiher
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHost</span></code></a> OR
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNumaCurrent" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNumaCurrent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNumaCurrent</span></code></a>,
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">id</span></code> will be ignored. Prefetching to
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDeviceLocalityDomain</span></code></a> locations is not
-supported.</p>
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">id</span></code> will be ignored.</p>
 <p>The start address and end address of the memory range will be rounded
 down and rounded up respectively to be aligned to CPU page size before
 the prefetch operation is enqueued in the stream.</p>
@@ -17253,7 +17091,7 @@ all work on other devices.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorNotSupported" title="cuda.bindings.runtime.cudaError_t.cudaErrorNotSupported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotSupported</span></code></a></p>
+<dd class="field-even"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code></a></p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t" title="cuda.bindings.runtime.cudaError_t">cudaError_t</a></p>
@@ -17313,7 +17151,7 @@ prefetchLocs[numPrefetchLocs - 1] will apply to prefetches starting
 from prefetchLocIdxs[numPrefetchLocs - 1] through count - 1.</p></li>
 <li><p><strong>numPrefetchLocs</strong> (<em>size_t</em>) – Size of <cite>prefetchLocs</cite> and <cite>prefetchLocIdxs</cite> arrays.</p></li>
 <li><p><strong>flags</strong> (<em>unsigned long long</em>) – Flags reserved for future use. Must be zero.</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – The stream to enqueue the operations in. Must not be legacy NULL
+<li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – The stream to enqueue the operations in. Must not be legacy NULL
 stream.</p></li>
 </ul>
 </dd>
@@ -17358,7 +17196,7 @@ devices have a non-zero value for
 <li><p><strong>sizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – Array of sizes for memory discard operations.</p></li>
 <li><p><strong>count</strong> (<em>size_t</em>) – Size of <cite>dptrs</cite> and <cite>sizes</cite> arrays.</p></li>
 <li><p><strong>flags</strong> (<em>unsigned long long</em>) – Flags reserved for future use. Must be zero.</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – The stream to enqueue the operations in. Must not be legacy NULL
+<li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – The stream to enqueue the operations in. Must not be legacy NULL
 stream.</p></li>
 </ul>
 </dd>
@@ -17424,72 +17262,12 @@ prefetchLocs[numPrefetchLocs - 1] will apply to copies starting
 from prefetchLocIdxs[numPrefetchLocs - 1] through count - 1.</p></li>
 <li><p><strong>numPrefetchLocs</strong> (<em>size_t</em>) – Size of <cite>prefetchLocs</cite> and <cite>prefetchLocIdxs</cite> arrays.</p></li>
 <li><p><strong>flags</strong> (<em>unsigned long long</em>) – Flags reserved for future use. Must be zero.</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – The stream to enqueue the operations in. Must not be legacy NULL
+<li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – The stream to enqueue the operations in. Must not be legacy NULL
 stream.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t" title="cuda.bindings.runtime.cudaError_t">cudaError_t</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemGetLocationInfo">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemGetLocationInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">devPtr,</span> <span class="pre">size_t</span> <span class="pre">size,</span> <span class="pre">size_t</span> <span class="pre">summaryGranularity,</span> <span class="pre">size_t</span> <span class="pre">samplingGranularity,</span> <span class="pre">cudaMemLocation</span> <span class="pre">location_out:</span> <span class="pre">Optional[cudaMemLocation]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemGetLocationInfo" title="Link to this definition">#</a></dt>
-<dd><p>Gets location information for a memory address range.</p>
-<p>Retrieves memory location information for the specified address range
-starting at <cite>ptr</cite> with size <cite>size</cite>. The API determines the most common
-location by sampling memory at intervals defined by
-<cite>samplingGranularity</cite> within the whole interval.</p>
-<p>The location information is returned in the <cite>location_out</cite> array, with
-one entry per summary region. The total number of locations returned
-will be ceil(size/summaryGranularity). The user is expected to allocate
-the <cite>location_out</cite> array with sufficient memory.</p>
-<p>For example, with an address range of 1GB, a <cite>summaryGranularity</cite> of
-128MB, and a <cite>samplingGranularity</cite> of 2MB, the function will:</p>
-<ul class="simple">
-<li><p>Divide the 1GB range into 8 summary regions of 128MB each</p></li>
-<li><p>Within each 128MB region, sample every 2MB to determine the most
-common location. If there is a tie a random winner is chosen.</p></li>
-<li><p>Populate the <cite>location_out</cite> array with 8 entries, one for each 128MB
-region <cite>summaryGranularity</cite> should be less than or equal to <cite>size</cite>
-and greater than 0. <cite>samplingGranularity</cite> should be less than or
-equal to <cite>summaryGranularity</cite>. If the <cite>samplingGranularity</cite> is set to
-0 it is set to a system dependent default value. In all other cases,
-the call returns <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>.</p></li>
-</ul>
-<p>When the memory is not resident on any processor, the call returns
-<a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a> and the returned location type for that
-interval is <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeNone" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeNone"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeNone</span></code></a>.</p>
-<p>The memory range must refer to one of the following:</p>
-<ul class="simple">
-<li><p>Managed memory allocated via <a class="reference internal" href="#cuda.bindings.runtime.cudaMallocManaged" title="cuda.bindings.runtime.cudaMallocManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code></a>, via
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMallocFromPoolAsync" title="cuda.bindings.runtime.cudaMallocFromPoolAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code></a> from a managed memory pool or
-declared via managed variables.</p></li>
-<li><p>System-allocated pageable memory that is not registered via
-<a class="reference internal" href="#cuda.bindings.runtime.cudaHostRegister" title="cuda.bindings.runtime.cudaHostRegister"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaHostRegister</span></code></a>. If the memory range does not refer to
-one of the above, the call returns <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>.</p></li>
-</ul>
-<p>All devices on the system must have non-zero value for the device
-attribute <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrConcurrentManagedAccess" title="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrConcurrentManagedAccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code></a>. If not, this
-call returns <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorNotSupported" title="cuda.bindings.runtime.cudaError_t.cudaErrorNotSupported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotSupported</span></code></a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ptr</strong> (<em>Any</em>) – Starting address of the memory range to query</p></li>
-<li><p><strong>size</strong> (<em>size_t</em>) – Size in bytes of the memory range to query</p></li>
-<li><p><strong>summaryGranularity</strong> (<em>size_t</em>) – Granularity in bytes at which to summarize location information</p></li>
-<li><p><strong>samplingGranularity</strong> (<em>size_t</em>) – Granularity in bytes at which to sample memory within each summary
-region</p></li>
-<li><p><strong>location_out</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocation" title="cuda.bindings.runtime.cudaMemLocation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocation</span></code></a>) – Array to store location information, one entry per summary region</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorNotSupported" title="cuda.bindings.runtime.cudaError_t.cudaErrorNotSupported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotSupported</span></code></a></p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t" title="cuda.bindings.runtime.cudaError_t">cudaError_t</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -17674,7 +17452,7 @@ this call has no effect.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorNotSupported" title="cuda.bindings.runtime.cudaError_t.cudaErrorNotSupported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotSupported</span></code></a></p>
+<dd class="field-even"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code></a></p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t" title="cuda.bindings.runtime.cudaError_t">cudaError_t</a></p>
@@ -18187,10 +17965,6 @@ cudaMemLocationTypeInvisible then ID will be cudaInvalidDeviceId.</p></li>
 For imported memory pools where the device is not directly visible to
 the importing process or pools imported via fabric handles across
 nodes this will be cudaMemlocataionTypeInvisible.</p></li>
-<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrLocalityDomainId" title="cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrLocalityDomainId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPoolAttrLocalityDomainId</span></code></a>: (value type = int) The
-locality domain id for the mempool, if the mempool is localized to a
-locality domain. A value of -1 indicates that the mempool is not
-localized to a locality domain.</p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrMaxPoolSize" title="cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrMaxPoolSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPoolAttrMaxPoolSize</span></code></a>: (value type = cuuint64_t)
 Maximum size of the pool in bytes, this value may be higher than what
 was initially passed to cuMemPoolCreate due to alignment
@@ -18235,7 +18009,7 @@ to enable for a single gpu</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorNotSupported" title="cuda.bindings.runtime.cudaError_t.cudaErrorNotSupported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotSupported</span></code></a></p>
+<dd class="field-even"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t" title="cuda.bindings.runtime.cudaError_t">cudaError_t</a></p>
@@ -18297,19 +18071,9 @@ specific host NUMA node, applications must set
 ID of the host memory node. Specifying
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNumaCurrent" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNumaCurrent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNumaCurrent</span></code></a> as the
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code> will result in
-<a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>. To create a memory pool targeting a
-specific device locality domain, applications must set
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code> to
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDeviceLocalityDomain</span></code></a>,
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">localized</span></code>.deviceId must
-specify the device ID, and
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">localized</span></code>.localityDomainId
-must specify the locality domain ID. The locality domain ID must be a
-valid locality domain ID for the specified device. See also
-<a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceGetAttribute" title="cuda.bindings.runtime.cudaDeviceGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute</span></code></a> with the attribute
-<a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrLocalityDomainCount" title="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrLocalityDomainCount"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrLocalityDomainCount</span></code></a>. By default, the pool’s
-memory will be accessible from the device it is allocated on. In the
-case of pools created with <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a> or
+<a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>. By default, the pool’s memory will
+be accessible from the device it is allocated on. In the case of pools
+created with <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a> or
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHost</span></code></a>, their default accessibility will
 be from the host CPU. Applications can control the maximum size of the
 pool by specifying a non-zero value for
@@ -18402,17 +18166,14 @@ that device as the current mempool for that device.</p>
 <dd><p>Returns the default memory pool for a given location and allocation type.</p>
 <p>The memory location can be of one of
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDevice</span></code></a>,
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHost</span></code></a>,
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a>, or
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDeviceLocalityDomain</span></code></a>. The allocation
-type can be one of <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypePinned" title="cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypePinned"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationTypePinned</span></code></a> or
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHost</span></code></a>, or
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a>. The allocation type can be one
+of <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypePinned" title="cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypePinned"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationTypePinned</span></code></a> or
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged" title="cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationTypeManaged</span></code></a>. When the allocation type is
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged" title="cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationTypeManaged</span></code></a>, the location type can also be
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeNone" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeNone"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeNone</span></code></a> to indicate no preferred location
-for the managed memory pool. <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged" title="cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationTypeManaged</span></code></a>
-can not be used with
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDeviceLocalityDomain</span></code></a>. In all other
-cases, the call return <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p>
+for the managed memory pool. In all other cases, the call return
+<a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -18440,17 +18201,14 @@ cases, the call return <a class="reference internal" href="#cuda.bindings.runtim
 <dd><p>Gets the current memory pool for a given memory location and allocation type.</p>
 <p>The memory location can be of one of
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDevice</span></code></a>,
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHost</span></code></a>,
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a>, or
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDeviceLocalityDomain</span></code></a>. The allocation
-type can be one of <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypePinned" title="cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypePinned"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationTypePinned</span></code></a> or
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHost</span></code></a>, or
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a>. The allocation type can be one
+of <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypePinned" title="cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypePinned"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationTypePinned</span></code></a> or
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged" title="cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationTypeManaged</span></code></a>. When the allocation type is
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged" title="cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationTypeManaged</span></code></a>, the location type can also be
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeNone" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeNone"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeNone</span></code></a> to indicate no preferred location
-for the managed memory pool. <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged" title="cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationTypeManaged</span></code></a>
-can not be used with
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDeviceLocalityDomain</span></code></a>. In all other
-cases, the call return <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p>
+for the managed memory pool. In all other cases, the call return
+<a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p>
 <p>Returns the last pool provided to <a class="reference internal" href="#cuda.bindings.runtime.cudaMemSetMemPool" title="cuda.bindings.runtime.cudaMemSetMemPool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemSetMemPool</span></code></a> or
 <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceSetMemPool" title="cuda.bindings.runtime.cudaDeviceSetMemPool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceSetMemPool</span></code></a> for this location and allocation type
 or the location’s default memory pool if <a class="reference internal" href="#cuda.bindings.runtime.cudaMemSetMemPool" title="cuda.bindings.runtime.cudaMemSetMemPool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemSetMemPool</span></code></a>
@@ -18468,7 +18226,7 @@ with <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceSetMem
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorNotSupported" title="cuda.bindings.runtime.cudaError_t.cudaErrorNotSupported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotSupported</span></code></a></p></li>
+<li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
 <li><p><strong>memPool</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaMemPool_t" title="cuda.bindings.runtime.cudaMemPool_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPool_t</span></code></a>) – None</p></li>
 </ul>
 </p>
@@ -18486,17 +18244,14 @@ with <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceSetMem
 <dd><p>Sets the current memory pool for a memory location and allocation type.</p>
 <p>The memory location can be of one of
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDevice</span></code></a>,
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHost</span></code></a>
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a>, or
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDeviceLocalityDomain</span></code></a>. The allocation
-type can be one of <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypePinned" title="cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypePinned"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationTypePinned</span></code></a> or
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHost</span></code></a> or
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a>. The allocation type can be one
+of <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypePinned" title="cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypePinned"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationTypePinned</span></code></a> or
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged" title="cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationTypeManaged</span></code></a>. When the allocation type is
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged" title="cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationTypeManaged</span></code></a>, the location type can also be
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeNone" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeNone"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeNone</span></code></a> to indicate no preferred location
-for the managed memory pool. <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged" title="cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocationTypeManaged</span></code></a>
-can not be used with
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDeviceLocalityDomain</span></code></a>. In all other
-cases, the call return <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p>
+for the managed memory pool. In all other cases, the call return
+<a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p>
 <p>When a memory pool is set as the current memory pool, the location
 parameter should be the same as the location of the pool. If the
 location type or index don’t match, the call returns
@@ -18518,7 +18273,7 @@ please refer to the documentation for <a class="reference internal" href="#cuda.
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorNotSupported" title="cuda.bindings.runtime.cudaError_t.cudaErrorNotSupported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotSupported</span></code></a></p>
+<dd class="field-even"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t" title="cuda.bindings.runtime.cudaError_t">cudaError_t</a></p>
@@ -18536,7 +18291,7 @@ please refer to the documentation for <a class="reference internal" href="#cuda.
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMallocFromPoolAsync">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMallocFromPoolAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memPool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMallocFromPoolAsync" title="Link to this definition">#</a></dt>
 <dd><p>Allocates memory from a specified pool with stream ordered semantics.</p>
-<p>Inserts an allocation operation into <cite>stream</cite>. A pointer to the
+<p>Inserts an allocation operation into <cite>hStream</cite>. A pointer to the
 allocated memory is returned immediately in <a href="#id13"><span class="problematic" id="id14">*</span></a>dptr. The allocation must
 not be accessed until the the allocation operation completes. The
 allocation comes from the specified memory pool.</p>
@@ -18767,9 +18522,6 @@ directly by the current device then this is NULL.</p></li>
 memory referred to by <cite>ptr</cite> may be accessed on the host. If the
 memory referred to by <cite>ptr</cite> cannot be accessed directly by the host
 then this is NULL.</p></li>
-<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">localityDomainOrdinal</span></code> is the locality domain ordinal for
-device allocations localized to a locality domain, or -1 when the
-allocation is not localized to a locality domain.</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -20360,10 +20112,6 @@ minor). For example, CUDA 9.2 would be represented by 9020.</p>
 <p>As of CUDA 12.0, this function no longer initializes CUDA. The purpose
 of this API is solely to return a compile-time constant stating the
 CUDA Toolkit version in the above format.</p>
-<p>As of CUDA 13.0, on Windows, the <cite>runtimeVersion</cite> may not be the same
-as the CUDA Toolkit version the app was built with. Windows will use
-the CUDA Runtime packaged with the display driver, and that version
-will be reported.</p>
 <p>This function automatically returns <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>
 if the <cite>runtimeVersion</cite> argument is NULL.</p>
 <dl class="field-list simple">
@@ -23271,16 +23019,16 @@ constraints specific to instantiated graph update.</p>
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphUpload">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphUpload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graphExec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphUpload" title="Link to this definition">#</a></dt>
 <dd><p>Uploads an executable graph in a stream.</p>
-<p>Uploads <cite>graphExec</cite> to the device in <cite>stream</cite> without executing it.
-Uploads of the same <cite>graphExec</cite> will be serialized. Each upload is
-ordered behind both any previous work in <cite>stream</cite> and any previous
-launches of <cite>graphExec</cite>. Uses memory cached by <cite>stream</cite> to back the
+<p>Uploads <cite>hGraphExec</cite> to the device in <cite>hStream</cite> without executing it.
+Uploads of the same <cite>hGraphExec</cite> will be serialized. Each upload is
+ordered behind both any previous work in <cite>hStream</cite> and any previous
+launches of <cite>hGraphExec</cite>. Uses memory cached by <cite>stream</cite> to back the
 allocations owned by <cite>graphExec</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>graphExec</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraphExec" title="cuda.bindings.driver.CUgraphExec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphExec</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphExec_t" title="cuda.bindings.runtime.cudaGraphExec_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code></a>) – Executable graph to upload</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream in which to upload the graph</p></li>
+<li><p><strong>hGraphExec</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraphExec" title="cuda.bindings.driver.CUgraphExec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphExec</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphExec_t" title="cuda.bindings.runtime.cudaGraphExec_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code></a>) – Executable graph to upload</p></li>
+<li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream in which to upload the graph</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -24501,8 +24249,6 @@ block scheduling policy of a function. The value type is
 <li><p>On Volta+ MPS: When <code class="docutils literal notranslate"><span class="pre">CUDA_MPS_ACTIVE_THREAD_PERCENTAGE</span></code> is used, the set of SMs that are used for running kernels can be scaled up to the value of SMs used for the MPS client.</p></li>
 <li><p>On Compute Architecture 9.x: When a module with dynamic parallelism (CDP) is loaded, all future kernels running under green contexts may use and share an additional set of 2 SMs.</p></li>
 </ul>
-<p>Memory Copy Operations</p>
-<p>Green context restrictions apply to memory copy operations only when the copy is performed using a green context. For cross-device copies, green context restrictions may not be applied.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceGetDevResource">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceGetDevResource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typename:</span> <span class="pre">cudaDevResourceType</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceGetDevResource" title="Link to this definition">#</a></dt>
@@ -24687,18 +24433,11 @@ The default value is set to <cite>coscheduledSmCount</cite>.</p></li>
 <li><p><cite>flags:</cite></p></li>
 </ul>
 </li>
-<li><p><cite>cudaDevSmResourceGroupBackfill:</cite> Treats constraints as a hint,</p></li>
+<li><p><cite>cudaDevSmResourceGroupBackfill:</cite> lets <cite>smCount</cite> be a non-multiple of</p></li>
 </ul>
-<p>ignoring them if necessary to reach the requested <cite>smCount</cite>. Lets
-<cite>smCount</cite> be a non-multiple of <cite>coscheduledSmCount</cite>, filling the
-difference between SM count and already assigned co-scheduled groupings
-with other SMs. This lets any resulting group behave similar to the
-<cite>remainder</cite> group for example. When used with
-<cite>cudaDevSmResourceGroupLocalityDomainId</cite>, backfill fills up to the
-requested <cite>smCount</cite> using the target locality domain first, then SMs
-not attributed to any locality domain, then SMs from other locality
-domains. If no SMs can be found in the requested locality domain,
-<a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidResourceConfiguration" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidResourceConfiguration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidResourceConfiguration</span></code></a> is returned.</p>
+<p><cite>coscheduledSmCount</cite>, filling the difference between SM count and
+already assigned co-scheduled groupings with other SMs. This lets any
+resulting group behave similar to the <cite>remainder</cite> group for example.</p>
 <p>Example params and their effect:</p>
 <p>A groupParams array element is defined in the following order:</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
@@ -25782,7 +25521,6 @@ profiling to be done only on selective pieces of code.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorUnsupportedExecAffinity"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorUnsupportedExecAffinity</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorUnsupportedDevSideSync"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorUnsupportedDevSideSync</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorContained"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorContained</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInsufficientLoaderVersion"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorInsufficientLoaderVersion</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidSource"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorInvalidSource</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorFileNotFound"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorFileNotFound</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorSharedObjectSymbolNotFound"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorSharedObjectSymbolNotFound</span></code></a></li>
@@ -25844,7 +25582,6 @@ profiling to be done only on selective pieces of code.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidResourceConfiguration"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorInvalidResourceConfiguration</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorStreamDetached"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorStreamDetached</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorGraphRecaptureFailure"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorGraphRecaptureFailure</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorFabricNotReady"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorFabricNotReady</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorUnknown"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorUnknown</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaError_t.cudaErrorApiFailureBase"><code class="docutils literal notranslate"><span class="pre">cudaError_t.cudaErrorApiFailureBase</span></code></a></li>
 </ul>
@@ -25948,7 +25685,6 @@ profiling to be done only on selective pieces of code.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyDefault"><code class="docutils literal notranslate"><span class="pre">cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyDefault</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicySpread"><code class="docutils literal notranslate"><span class="pre">cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicySpread</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyLoadBalancing"><code class="docutils literal notranslate"><span class="pre">cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyLoadBalancing</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyRubinDsmemLocality"><code class="docutils literal notranslate"><span class="pre">cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyRubinDsmemLocality</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamUpdateCaptureDependenciesFlags"><code class="docutils literal notranslate"><span class="pre">cudaStreamUpdateCaptureDependenciesFlags</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -26041,8 +25777,6 @@ profiling to be done only on selective pieces of code.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeDefault"><code class="docutils literal notranslate"><span class="pre">cudaSharedMemoryMode.cudaSharedMemoryModeDefault</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable"><code class="docutils literal notranslate"><span class="pre">cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable"><code class="docutils literal notranslate"><span class="pre">cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowOversizedSharedMemory"><code class="docutils literal notranslate"><span class="pre">cudaSharedMemoryMode.cudaSharedMemoryModeAllowOversizedSharedMemory</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModePreferOversizedSharedMemory"><code class="docutils literal notranslate"><span class="pre">cudaSharedMemoryMode.cudaSharedMemoryModePreferOversizedSharedMemory</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaFuncAttribute"><code class="docutils literal notranslate"><span class="pre">cudaFuncAttribute</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -26054,7 +25788,6 @@ profiling to be done only on selective pieces of code.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeRequiredClusterDepth"><code class="docutils literal notranslate"><span class="pre">cudaFuncAttribute.cudaFuncAttributeRequiredClusterDepth</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeNonPortableClusterSizeAllowed"><code class="docutils literal notranslate"><span class="pre">cudaFuncAttribute.cudaFuncAttributeNonPortableClusterSizeAllowed</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeClusterSchedulingPolicyPreference"><code class="docutils literal notranslate"><span class="pre">cudaFuncAttribute.cudaFuncAttributeClusterSchedulingPolicyPreference</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeSharedMemoryMode"><code class="docutils literal notranslate"><span class="pre">cudaFuncAttribute.cudaFuncAttributeSharedMemoryMode</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeMax"><code class="docutils literal notranslate"><span class="pre">cudaFuncAttribute.cudaFuncAttributeMax</span></code></a></li>
 </ul>
 </li>
@@ -26092,7 +25825,6 @@ profiling to be done only on selective pieces of code.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaLimit.cudaLimitDevRuntimePendingLaunchCount"><code class="docutils literal notranslate"><span class="pre">cudaLimit.cudaLimitDevRuntimePendingLaunchCount</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaLimit.cudaLimitMaxL2FetchGranularity"><code class="docutils literal notranslate"><span class="pre">cudaLimit.cudaLimitMaxL2FetchGranularity</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaLimit.cudaLimitPersistingL2CacheSize"><code class="docutils literal notranslate"><span class="pre">cudaLimit.cudaLimitPersistingL2CacheSize</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaLimit.cudaLimitPerBlockMemorySize"><code class="docutils literal notranslate"><span class="pre">cudaLimit.cudaLimitPerBlockMemorySize</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemoryAdvise"><code class="docutils literal notranslate"><span class="pre">cudaMemoryAdvise</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -26274,10 +26006,7 @@ profiling to be done only on selective pieces of code.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved145"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrReserved145</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrOnlyPartialHostNativeAtomicSupported"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrOnlyPartialHostNativeAtomicSupported</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrAtomicReductionSupported"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrAtomicReductionSupported</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrLocalityDomainCount"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrLocalityDomainCount</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrOversizedSharedMemoryPerBlock"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrOversizedSharedMemoryPerBlock</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrCigStreamsSupported"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrCigStreamsSupported</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrLocalityDomainMultiprocessorCount"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrLocalityDomainMultiprocessorCount</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMax"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrMax</span></code></a></li>
 </ul>
 </li>
@@ -26296,7 +26025,6 @@ profiling to be done only on selective pieces of code.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrLocationType"><code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttr.cudaMemPoolAttrLocationType</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrMaxPoolSize"><code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttr.cudaMemPoolAttrMaxPoolSize</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrHwDecompressEnabled"><code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttr.cudaMemPoolAttrHwDecompressEnabled</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrLocalityDomainId"><code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttr.cudaMemPoolAttrLocalityDomainId</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemLocationType"><code class="docutils literal notranslate"><span class="pre">cudaMemLocationType</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -26307,7 +26035,6 @@ profiling to be done only on selective pieces of code.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="docutils literal notranslate"><span class="pre">cudaMemLocationType.cudaMemLocationTypeHostNuma</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNumaCurrent"><code class="docutils literal notranslate"><span class="pre">cudaMemLocationType.cudaMemLocationTypeHostNumaCurrent</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeInvisible"><code class="docutils literal notranslate"><span class="pre">cudaMemLocationType.cudaMemLocationTypeInvisible</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain"><code class="docutils literal notranslate"><span class="pre">cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemAccessFlags"><code class="docutils literal notranslate"><span class="pre">cudaMemAccessFlags</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -26418,7 +26145,6 @@ profiling to be done only on selective pieces of code.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDevSmResourceGroup_flags"><code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceGroup_flags</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupDefault"><code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupDefault</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill"><code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupLocalityDomainId"><code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupLocalityDomainId</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags"><code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplitByCount_flags</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -27260,7 +26986,6 @@ profiling to be done only on selective pieces of code.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemPrefetchBatchAsync"><code class="docutils literal notranslate"><span class="pre">cudaMemPrefetchBatchAsync()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemDiscardBatchAsync"><code class="docutils literal notranslate"><span class="pre">cudaMemDiscardBatchAsync()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemDiscardAndPrefetchBatchAsync"><code class="docutils literal notranslate"><span class="pre">cudaMemDiscardAndPrefetchBatchAsync()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemGetLocationInfo"><code class="docutils literal notranslate"><span class="pre">cudaMemGetLocationInfo()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemAdvise"><code class="docutils literal notranslate"><span class="pre">cudaMemAdvise()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemRangeGetAttribute"><code class="docutils literal notranslate"><span class="pre">cudaMemRangeGetAttribute()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemRangeGetAttributes"><code class="docutils literal notranslate"><span class="pre">cudaMemRangeGetAttributes()</span></code></a></li>

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4bdc5e70"></script>
+    <script src="../_static/documentation_options.js?v=da2c217d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,13 +53,13 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev39';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev15';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-core/1.1.1.dev39/generated/cuda.core.LaunchConfig.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-core/latest/generated/cuda.core.LaunchConfig.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -119,6 +119,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -775,6 +778,7 @@
 <dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">shmem_size:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">bool</span> <span class="pre">is_cooperative:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">bool</span> <span class="pre">programmatic_stream_serialization:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">priority:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.LaunchConfig" title="Link to this definition">#</a></dt>
@@ -862,6 +866,24 @@ signals completion via programmatic means.</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.LaunchConfig.priority">
+<span class="sig-name descname"><span class="pre">priority</span></span><a class="headerlink" href="#cuda.core.LaunchConfig.priority" title="Link to this definition">#</a></dt>
+<dd><p>Execution priority of the kernel. Lower numbers represent higher
+priorities. The meaningful range of values is device-specific,
+given by <code class="docutils literal notranslate"><span class="pre">[greatestPriority,</span> <span class="pre">leastPriority]</span></code> as returned by
+<code class="docutils literal notranslate"><span class="pre">cuCtxGetStreamPriorityRange</span></code> (the same range used by
+<a class="reference internal" href="cuda.core.StreamOptions.html#cuda.core.StreamOptions.priority" title="cuda.core.StreamOptions.priority"><code class="xref py py-attr docutils literal notranslate"><span class="pre">priority</span></code></a>); both bounds are 0 on
+a device that does not support multiple stream priorities. A
+nonzero value outside this range raises <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a>.
+When omitted (or 0), the launch uses the stream’s priority.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -922,6 +944,7 @@ signals completion via programmatic means.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.shmem_size"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.shmem_size</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.is_cooperative"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.is_cooperative</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.programmatic_stream_serialization"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.programmatic_stream_serialization</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.priority"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.priority</span></code></a></li>
 </ul>
 </li>
 </ul>

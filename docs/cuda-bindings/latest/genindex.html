@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=57e46453"></script>
+    <script src="_static/documentation_options.js?v=ee471ff7"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,13 +52,13 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.3.2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/13.4.1/genindex.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/genindex.html" />
     <link rel="icon" href="_static/favicon.png"/>
 
     <link rel="index" title="Index" href="#" />
@@ -116,6 +116,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -527,7 +530,6 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/13.4.1-notes.html">13.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.4.0-notes.html">13.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.3.1-notes.html">13.3.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.3.0-notes.html">13.3.0</a></li>
@@ -592,9 +594,7 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.buf_register.html">cuda.bindings.cufile.buf_register</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.buf_deregister.html">cuda.bindings.cufile.buf_deregister</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.read.html">cuda.bindings.cufile.read</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.readv.html">cuda.bindings.cufile.readv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.write.html">cuda.bindings.cufile.write</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.writev.html">cuda.bindings.cufile.writev</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_open.html">cuda.bindings.cufile.driver_open</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.use_count.html">cuda.bindings.cufile.use_count</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_get_properties.html">cuda.bindings.cufile.driver_get_properties</a></li>
@@ -621,7 +621,6 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.op_status_error.html">cuda.bindings.cufile.op_status_error</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_close.html">cuda.bindings.cufile.driver_close</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.IOEvents.html">cuda.bindings.cufile.IOEvents</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.IOVec.html">cuda.bindings.cufile.IOVec</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.Descr.html">cuda.bindings.cufile.Descr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.IOParams.html">cuda.bindings.cufile.IOParams</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.OpError.html">cuda.bindings.cufile.OpError</a></li>
@@ -652,18 +651,14 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_accounting_mode.html">cuda.bindings.nvml.device_get_accounting_mode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_accounting_pids.html">cuda.bindings.nvml.device_get_accounting_pids</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_accounting_stats.html">cuda.bindings.nvml.device_get_accounting_stats</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_accounting_stats_v2.html">cuda.bindings.nvml.device_get_accounting_stats_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_active_vgpus.html">cuda.bindings.nvml.device_get_active_vgpus</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_adaptive_clock_info_status.html">cuda.bindings.nvml.device_get_adaptive_clock_info_status</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_adaptive_tgp_mode_info_v1.html">cuda.bindings.nvml.device_get_adaptive_tgp_mode_info_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_addressing_mode.html">cuda.bindings.nvml.device_get_addressing_mode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_api_restriction.html">cuda.bindings.nvml.device_get_api_restriction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_architecture.html">cuda.bindings.nvml.device_get_architecture</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_attributes_v2.html">cuda.bindings.nvml.device_get_attributes_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_auto_boosted_clocks_enabled.html">cuda.bindings.nvml.device_get_auto_boosted_clocks_enabled</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_bank_remapper_status_v1.html">cuda.bindings.nvml.device_get_bank_remapper_status_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_bar1_memory_info.html">cuda.bindings.nvml.device_get_bar1_memory_info</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_bbx_time_data_v1.html">cuda.bindings.nvml.device_get_bbx_time_data_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_board_id.html">cuda.bindings.nvml.device_get_board_id</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_board_part_number.html">cuda.bindings.nvml.device_get_board_part_number</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_brand.html">cuda.bindings.nvml.device_get_brand</a></li>
@@ -716,7 +711,6 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_gpc_clk_min_max_vf_offset.html">cuda.bindings.nvml.device_get_gpc_clk_min_max_vf_offset</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_gpc_clk_vf_offset.html">cuda.bindings.nvml.device_get_gpc_clk_vf_offset</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_gpu_fabric_info_v.html">cuda.bindings.nvml.device_get_gpu_fabric_info_v</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_gpu_fabric_info_v4.html">cuda.bindings.nvml.device_get_gpu_fabric_info_v4</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_gpu_instance_by_id.html">cuda.bindings.nvml.device_get_gpu_instance_by_id</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_gpu_instance_id.html">cuda.bindings.nvml.device_get_gpu_instance_id</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_gpu_instance_possible_placements_v2.html">cuda.bindings.nvml.device_get_gpu_instance_possible_placements_v2</a></li>
@@ -755,7 +749,6 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_memory_bus_width.html">cuda.bindings.nvml.device_get_memory_bus_width</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_memory_error_counter.html">cuda.bindings.nvml.device_get_memory_error_counter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_memory_info_v2.html">cuda.bindings.nvml.device_get_memory_info_v2</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_memory_limits_v1.html">cuda.bindings.nvml.device_get_memory_limits_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_mig_device_handle_by_index.html">cuda.bindings.nvml.device_get_mig_device_handle_by_index</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_mig_mode.html">cuda.bindings.nvml.device_get_mig_mode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_min_max_clock_of_p_state.html">cuda.bindings.nvml.device_get_min_max_clock_of_p_state</a></li>
@@ -768,7 +761,6 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_num_fans.html">cuda.bindings.nvml.device_get_num_fans</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_num_gpu_cores.html">cuda.bindings.nvml.device_get_num_gpu_cores</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_numa_node_id.html">cuda.bindings.nvml.device_get_numa_node_id</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_nv_link_telemetry_samples_v1.html">cuda.bindings.nvml.device_get_nv_link_telemetry_samples_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_nvlink_bw_mode.html">cuda.bindings.nvml.device_get_nvlink_bw_mode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_nvlink_capability.html">cuda.bindings.nvml.device_get_nvlink_capability</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_nvlink_error_counter.html">cuda.bindings.nvml.device_get_nvlink_error_counter</a></li>
@@ -802,7 +794,6 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_process_utilization.html">cuda.bindings.nvml.device_get_process_utilization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_processes_utilization_info.html">cuda.bindings.nvml.device_get_processes_utilization_info</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_remapped_rows.html">cuda.bindings.nvml.device_get_remapped_rows</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_remapped_rows_v2.html">cuda.bindings.nvml.device_get_remapped_rows_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_repair_status.html">cuda.bindings.nvml.device_get_repair_status</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_retired_pages.html">cuda.bindings.nvml.device_get_retired_pages</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_get_retired_pages_pending_status.html">cuda.bindings.nvml.device_get_retired_pages_pending_status</a></li>
@@ -847,7 +838,6 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_is_mig_device_handle.html">cuda.bindings.nvml.device_is_mig_device_handle</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_modify_drain_state.html">cuda.bindings.nvml.device_modify_drain_state</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_on_same_board.html">cuda.bindings.nvml.device_on_same_board</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_perf_metrics_get_samples_v1.html">cuda.bindings.nvml.device_perf_metrics_get_samples_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_power_smoothing_activate_preset_profile.html">cuda.bindings.nvml.device_power_smoothing_activate_preset_profile</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_power_smoothing_set_state.html">cuda.bindings.nvml.device_power_smoothing_set_state</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_power_smoothing_update_preset_profile_param.html">cuda.bindings.nvml.device_power_smoothing_update_preset_profile_param</a></li>
@@ -860,7 +850,6 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_reset_memory_locked_clocks.html">cuda.bindings.nvml.device_reset_memory_locked_clocks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_reset_nvlink_error_counters.html">cuda.bindings.nvml.device_reset_nvlink_error_counters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_set_accounting_mode.html">cuda.bindings.nvml.device_set_accounting_mode</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_set_adaptive_tgp_mode_v1.html">cuda.bindings.nvml.device_set_adaptive_tgp_mode_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_set_api_restriction.html">cuda.bindings.nvml.device_set_api_restriction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_set_auto_boosted_clocks_enabled.html">cuda.bindings.nvml.device_set_auto_boosted_clocks_enabled</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_set_clock_offsets.html">cuda.bindings.nvml.device_set_clock_offsets</a></li>
@@ -877,11 +866,9 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_set_gpu_locked_clocks.html">cuda.bindings.nvml.device_set_gpu_locked_clocks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_set_gpu_operation_mode.html">cuda.bindings.nvml.device_set_gpu_operation_mode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_set_hostname_v1.html">cuda.bindings.nvml.device_set_hostname_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_set_memory_limits_v1.html">cuda.bindings.nvml.device_set_memory_limits_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_set_memory_locked_clocks.html">cuda.bindings.nvml.device_set_memory_locked_clocks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_set_mig_mode.html">cuda.bindings.nvml.device_set_mig_mode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_set_nvlink_bw_mode.html">cuda.bindings.nvml.device_set_nvlink_bw_mode</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_set_nvlink_bw_mode_async_v1.html">cuda.bindings.nvml.device_set_nvlink_bw_mode_async_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_set_nvlink_device_low_power_threshold.html">cuda.bindings.nvml.device_set_nvlink_device_low_power_threshold</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_set_persistence_mode.html">cuda.bindings.nvml.device_set_persistence_mode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.device_set_power_management_limit_v2.html">cuda.bindings.nvml.device_set_power_management_limit_v2</a></li>
@@ -896,13 +883,7 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.error_string.html">cuda.bindings.nvml.error_string</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.event_set_create.html">cuda.bindings.nvml.event_set_create</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.event_set_free.html">cuda.bindings.nvml.event_set_free</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.event_set_get_context_count_v1.html">cuda.bindings.nvml.event_set_get_context_count_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.event_set_get_context_data_v1.html">cuda.bindings.nvml.event_set_get_context_data_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.event_set_get_context_info_v1.html">cuda.bindings.nvml.event_set_get_context_info_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.event_set_get_gpu_operational_event_context_legacy_xid_v1.html">cuda.bindings.nvml.event_set_get_gpu_operational_event_context_legacy_xid_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.event_set_register_gpu_operational_events_v1.html">cuda.bindings.nvml.event_set_register_gpu_operational_events_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.event_set_wait_v2.html">cuda.bindings.nvml.event_set_wait_v2</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.event_set_wait_v3.html">cuda.bindings.nvml.event_set_wait_v3</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.get_excluded_device_count.html">cuda.bindings.nvml.get_excluded_device_count</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.get_excluded_device_info_by_index.html">cuda.bindings.nvml.get_excluded_device_info_by_index</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.get_vgpu_compatibility.html">cuda.bindings.nvml.get_vgpu_compatibility</a></li>
@@ -937,7 +918,6 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.system_get_conf_compute_key_rotation_threshold_info.html">cuda.bindings.nvml.system_get_conf_compute_key_rotation_threshold_info</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.system_get_conf_compute_settings.html">cuda.bindings.nvml.system_get_conf_compute_settings</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.system_get_conf_compute_state.html">cuda.bindings.nvml.system_get_conf_compute_state</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.system_get_cper_v1.html">cuda.bindings.nvml.system_get_cper_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.system_get_cuda_driver_version.html">cuda.bindings.nvml.system_get_cuda_driver_version</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.system_get_cuda_driver_version_v2.html">cuda.bindings.nvml.system_get_cuda_driver_version_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.system_get_driver_branch.html">cuda.bindings.nvml.system_get_driver_branch</a></li>
@@ -1115,15 +1095,11 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.VgpuVmCompatibility.html">cuda.bindings.nvml.VgpuVmCompatibility</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.VgpuVmIdType.html">cuda.bindings.nvml.VgpuVmIdType</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.AccountingStats.html">cuda.bindings.nvml.AccountingStats</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.AccountingStats_v2.html">cuda.bindings.nvml.AccountingStats_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.ActiveVgpuInstanceInfo_v1.html">cuda.bindings.nvml.ActiveVgpuInstanceInfo_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.AdaptiveTgpModeInfo_v1.html">cuda.bindings.nvml.AdaptiveTgpModeInfo_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.BAR1Memory.html">cuda.bindings.nvml.BAR1Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.BBXTimeData_v1.html">cuda.bindings.nvml.BBXTimeData_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.BridgeChipHierarchy.html">cuda.bindings.nvml.BridgeChipHierarchy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.BridgeChipInfo.html">cuda.bindings.nvml.BridgeChipInfo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.C2cModeInfo_v1.html">cuda.bindings.nvml.C2cModeInfo_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.CPERCursor_v1.html">cuda.bindings.nvml.CPERCursor_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.ClkMonFaultInfo.html">cuda.bindings.nvml.ClkMonFaultInfo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.ClkMonStatus.html">cuda.bindings.nvml.ClkMonStatus</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.ClockOffset_v1.html">cuda.bindings.nvml.ClockOffset_v1</a></li>
@@ -1137,13 +1113,10 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.ConfComputeSystemCaps.html">cuda.bindings.nvml.ConfComputeSystemCaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.ConfComputeSystemState.html">cuda.bindings.nvml.ConfComputeSystemState</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.CoolerInfo_v1.html">cuda.bindings.nvml.CoolerInfo_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.CoreRailMetrics.html">cuda.bindings.nvml.CoreRailMetrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.DeviceAddressingMode_v1.html">cuda.bindings.nvml.DeviceAddressingMode_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.DeviceAttributes.html">cuda.bindings.nvml.DeviceAttributes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.DevicePowerMizerModes_v1.html">cuda.bindings.nvml.DevicePowerMizerModes_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.EccSramErrorStatus_v1.html">cuda.bindings.nvml.EccSramErrorStatus_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.EccBankRemapperHistogram_v1.html">cuda.bindings.nvml.EccBankRemapperHistogram_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.EccBankRemapperStatus_v1.html">cuda.bindings.nvml.EccBankRemapperStatus_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.EccSramUniqueUncorrectedErrorCounts_v1.html">cuda.bindings.nvml.EccSramUniqueUncorrectedErrorCounts_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.EccSramUniqueUncorrectedErrorEntry_v1.html">cuda.bindings.nvml.EccSramUniqueUncorrectedErrorEntry_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.EncoderSessionInfo.html">cuda.bindings.nvml.EncoderSessionInfo</a></li>
@@ -1152,15 +1125,10 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.FBCSessionInfo.html">cuda.bindings.nvml.FBCSessionInfo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.FBCStats.html">cuda.bindings.nvml.FBCStats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.FieldValue.html">cuda.bindings.nvml.FieldValue</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.GetCPER_v1.html">cuda.bindings.nvml.GetCPER_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.GetMemoryLimits_v1.html">cuda.bindings.nvml.GetMemoryLimits_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.GpuDynamicPstatesInfo.html">cuda.bindings.nvml.GpuDynamicPstatesInfo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.GpuFabricClique_v1.html">cuda.bindings.nvml.GpuFabricClique_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.GpuFabricInfo_v2.html">cuda.bindings.nvml.GpuFabricInfo_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.GpuFabricInfo_v3.html">cuda.bindings.nvml.GpuFabricInfo_v3</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.GpuFabricInfo_v4.html">cuda.bindings.nvml.GpuFabricInfo_v4</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.GpuInstanceInfo.html">cuda.bindings.nvml.GpuInstanceInfo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.GpuOperationalEventConfig_v1.html">cuda.bindings.nvml.GpuOperationalEventConfig_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.GpuInstancePlacement.html">cuda.bindings.nvml.GpuInstancePlacement</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.GpuInstanceProfileInfo_v3.html">cuda.bindings.nvml.GpuInstanceProfileInfo_v3</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.GpuThermalSettings.html">cuda.bindings.nvml.GpuThermalSettings</a></li>
@@ -1177,31 +1145,15 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.NvLinkInfo_v1.html">cuda.bindings.nvml.NvLinkInfo_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.NvLinkInfo_v2.html">cuda.bindings.nvml.NvLinkInfo_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.NvlinkSetBwMode_v1.html">cuda.bindings.nvml.NvlinkSetBwMode_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.NvlinkSetBwModeAsync_v1.html">cuda.bindings.nvml.NvlinkSetBwModeAsync_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.NvlinkSupportedBwModes_v1.html">cuda.bindings.nvml.NvlinkSupportedBwModes_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.NvlinkTelemetrySample_v1.html">cuda.bindings.nvml.NvlinkTelemetrySample_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.NvlinkTelemetrySamples_v1.html">cuda.bindings.nvml.NvlinkTelemetrySamples_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.ObservedMetrics.html">cuda.bindings.nvml.ObservedMetrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PciInfo.html">cuda.bindings.nvml.PciInfo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PciInfoExt_v1.html">cuda.bindings.nvml.PciInfoExt_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PerfMetricControllerSample.html">cuda.bindings.nvml.PerfMetricControllerSample</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PerfMetricsDlppc2xSample.html">cuda.bindings.nvml.PerfMetricsDlppc2xSample</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PerfMetricsPfpp1xSample.html">cuda.bindings.nvml.PerfMetricsPfpp1xSample</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PerfMetricsSample.html">cuda.bindings.nvml.PerfMetricsSample</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PerfMetricsSamples_v1.html">cuda.bindings.nvml.PerfMetricsSamples_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PlatformInfo_v1.html">cuda.bindings.nvml.PlatformInfo_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PlatformInfo_v2.html">cuda.bindings.nvml.PlatformInfo_v2</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PmgrPwrTuple.html">cuda.bindings.nvml.PmgrPwrTuple</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PRMCounter_v1.html">cuda.bindings.nvml.PRMCounter_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PRMCounterInput_v1.html">cuda.bindings.nvml.PRMCounterInput_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PRMCounterValue_v1.html">cuda.bindings.nvml.PRMCounterValue_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.ProcessDetail_v1.html">cuda.bindings.nvml.ProcessDetail_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PwrModelMetricsDlppm1x.html">cuda.bindings.nvml.PwrModelMetricsDlppm1x</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PwrModelMetricsDlppm1xDramclkEstimates.html">cuda.bindings.nvml.PwrModelMetricsDlppm1xDramclkEstimates</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PwrModelMetricsDlppm1xPerf.html">cuda.bindings.nvml.PwrModelMetricsDlppm1xPerf</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PwrModelMetricsPfpp1x.html">cuda.bindings.nvml.PwrModelMetricsPfpp1x</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PwrModelMetricsSamplePfpp1x.html">cuda.bindings.nvml.PwrModelMetricsSamplePfpp1x</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PwrModelOperatingPointPfpp1x.html">cuda.bindings.nvml.PwrModelOperatingPointPfpp1x</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.ProcessDetailList_v1.html">cuda.bindings.nvml.ProcessDetailList_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.ProcessesUtilizationInfo_v1.html">cuda.bindings.nvml.ProcessesUtilizationInfo_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.ProcessInfo.html">cuda.bindings.nvml.ProcessInfo</a></li>
@@ -1209,11 +1161,8 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.ProcessUtilizationSample.html">cuda.bindings.nvml.ProcessUtilizationSample</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.PSUInfo.html">cuda.bindings.nvml.PSUInfo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.RepairStatus_v1.html">cuda.bindings.nvml.RepairStatus_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.RailMetrics.html">cuda.bindings.nvml.RailMetrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.RemappedRowsInfo_v2.html">cuda.bindings.nvml.RemappedRowsInfo_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.RowRemapperHistogramValues.html">cuda.bindings.nvml.RowRemapperHistogramValues</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.Sample.html">cuda.bindings.nvml.Sample</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.SetMemoryLimits_v1.html">cuda.bindings.nvml.SetMemoryLimits_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.SystemConfComputeSettings_v1.html">cuda.bindings.nvml.SystemConfComputeSettings_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.SystemEventData_v1.html">cuda.bindings.nvml.SystemEventData_v1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.UnitFanInfo.html">cuda.bindings.nvml.UnitFanInfo</a></li>
@@ -1238,7 +1187,6 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.VgpuSchedulerLog.html">cuda.bindings.nvml.VgpuSchedulerLog</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.VgpuSchedulerLogEntry.html">cuda.bindings.nvml.VgpuSchedulerLogEntry</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.VgpuSchedulerLogInfo_v1.html">cuda.bindings.nvml.VgpuSchedulerLogInfo_v1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.VgpuSchedulerLogInfo_v2.html">cuda.bindings.nvml.VgpuSchedulerLogInfo_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.VgpuSchedulerParams.html">cuda.bindings.nvml.VgpuSchedulerParams</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.VgpuSchedulerSetParams.html">cuda.bindings.nvml.VgpuSchedulerSetParams</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.nvml.VgpuSchedulerState_v1.html">cuda.bindings.nvml.VgpuSchedulerState_v1</a></li>
@@ -1358,19 +1306,11 @@
 </li>
         <li><a href="module/generated/cuda.bindings.cufile.IOParams.html#cuda.bindings.cufile.IOParams.__init__">(cuda.bindings.cufile.IOParams method)</a>
 </li>
-        <li><a href="module/generated/cuda.bindings.cufile.IOVec.html#cuda.bindings.cufile.IOVec.__init__">(cuda.bindings.cufile.IOVec method)</a>
-</li>
         <li><a href="module/generated/cuda.bindings.nvml.AccountingStats.html#cuda.bindings.nvml.AccountingStats.__init__">(cuda.bindings.nvml.AccountingStats method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.AccountingStats_v2.html#cuda.bindings.nvml.AccountingStats_v2.__init__">(cuda.bindings.nvml.AccountingStats_v2 method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.ActiveVgpuInstanceInfo_v1.html#cuda.bindings.nvml.ActiveVgpuInstanceInfo_v1.__init__">(cuda.bindings.nvml.ActiveVgpuInstanceInfo_v1 method)</a>
 </li>
-        <li><a href="module/generated/cuda.bindings.nvml.AdaptiveTgpModeInfo_v1.html#cuda.bindings.nvml.AdaptiveTgpModeInfo_v1.__init__">(cuda.bindings.nvml.AdaptiveTgpModeInfo_v1 method)</a>
-</li>
         <li><a href="module/generated/cuda.bindings.nvml.BAR1Memory.html#cuda.bindings.nvml.BAR1Memory.__init__">(cuda.bindings.nvml.BAR1Memory method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.BBXTimeData_v1.html#cuda.bindings.nvml.BBXTimeData_v1.__init__">(cuda.bindings.nvml.BBXTimeData_v1 method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.BridgeChipHierarchy.html#cuda.bindings.nvml.BridgeChipHierarchy.__init__">(cuda.bindings.nvml.BridgeChipHierarchy method)</a>
 </li>
@@ -1404,19 +1344,11 @@
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.CoolerInfo_v1.html#cuda.bindings.nvml.CoolerInfo_v1.__init__">(cuda.bindings.nvml.CoolerInfo_v1 method)</a>
 </li>
-        <li><a href="module/generated/cuda.bindings.nvml.CoreRailMetrics.html#cuda.bindings.nvml.CoreRailMetrics.__init__">(cuda.bindings.nvml.CoreRailMetrics method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.CPERCursor_v1.html#cuda.bindings.nvml.CPERCursor_v1.__init__">(cuda.bindings.nvml.CPERCursor_v1 method)</a>
-</li>
         <li><a href="module/generated/cuda.bindings.nvml.DeviceAddressingMode_v1.html#cuda.bindings.nvml.DeviceAddressingMode_v1.__init__">(cuda.bindings.nvml.DeviceAddressingMode_v1 method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.DeviceAttributes.html#cuda.bindings.nvml.DeviceAttributes.__init__">(cuda.bindings.nvml.DeviceAttributes method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.DevicePowerMizerModes_v1.html#cuda.bindings.nvml.DevicePowerMizerModes_v1.__init__">(cuda.bindings.nvml.DevicePowerMizerModes_v1 method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.EccBankRemapperHistogram_v1.html#cuda.bindings.nvml.EccBankRemapperHistogram_v1.__init__">(cuda.bindings.nvml.EccBankRemapperHistogram_v1 method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.EccBankRemapperStatus_v1.html#cuda.bindings.nvml.EccBankRemapperStatus_v1.__init__">(cuda.bindings.nvml.EccBankRemapperStatus_v1 method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.EccSramErrorStatus_v1.html#cuda.bindings.nvml.EccSramErrorStatus_v1.__init__">(cuda.bindings.nvml.EccSramErrorStatus_v1 method)</a>
 </li>
@@ -1436,27 +1368,17 @@
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.FieldValue.html#cuda.bindings.nvml.FieldValue.__init__">(cuda.bindings.nvml.FieldValue method)</a>
 </li>
-        <li><a href="module/generated/cuda.bindings.nvml.GetCPER_v1.html#cuda.bindings.nvml.GetCPER_v1.__init__">(cuda.bindings.nvml.GetCPER_v1 method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.GetMemoryLimits_v1.html#cuda.bindings.nvml.GetMemoryLimits_v1.__init__">(cuda.bindings.nvml.GetMemoryLimits_v1 method)</a>
-</li>
         <li><a href="module/generated/cuda.bindings.nvml.GpuDynamicPstatesInfo.html#cuda.bindings.nvml.GpuDynamicPstatesInfo.__init__">(cuda.bindings.nvml.GpuDynamicPstatesInfo method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.GpuFabricClique_v1.html#cuda.bindings.nvml.GpuFabricClique_v1.__init__">(cuda.bindings.nvml.GpuFabricClique_v1 method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.GpuFabricInfo_v2.html#cuda.bindings.nvml.GpuFabricInfo_v2.__init__">(cuda.bindings.nvml.GpuFabricInfo_v2 method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.GpuFabricInfo_v3.html#cuda.bindings.nvml.GpuFabricInfo_v3.__init__">(cuda.bindings.nvml.GpuFabricInfo_v3 method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.GpuFabricInfo_v4.html#cuda.bindings.nvml.GpuFabricInfo_v4.__init__">(cuda.bindings.nvml.GpuFabricInfo_v4 method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.GpuInstanceInfo.html#cuda.bindings.nvml.GpuInstanceInfo.__init__">(cuda.bindings.nvml.GpuInstanceInfo method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.GpuInstancePlacement.html#cuda.bindings.nvml.GpuInstancePlacement.__init__">(cuda.bindings.nvml.GpuInstancePlacement method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.GpuInstanceProfileInfo_v3.html#cuda.bindings.nvml.GpuInstanceProfileInfo_v3.__init__">(cuda.bindings.nvml.GpuInstanceProfileInfo_v3 method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.GpuOperationalEventConfig_v1.html#cuda.bindings.nvml.GpuOperationalEventConfig_v1.__init__">(cuda.bindings.nvml.GpuOperationalEventConfig_v1 method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.GpuThermalSettings.html#cuda.bindings.nvml.GpuThermalSettings.__init__">(cuda.bindings.nvml.GpuThermalSettings method)</a>
 </li>
@@ -1486,35 +1408,15 @@
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.NvlinkSetBwMode_v1.html#cuda.bindings.nvml.NvlinkSetBwMode_v1.__init__">(cuda.bindings.nvml.NvlinkSetBwMode_v1 method)</a>
 </li>
-        <li><a href="module/generated/cuda.bindings.nvml.NvlinkSetBwModeAsync_v1.html#cuda.bindings.nvml.NvlinkSetBwModeAsync_v1.__init__">(cuda.bindings.nvml.NvlinkSetBwModeAsync_v1 method)</a>
-</li>
         <li><a href="module/generated/cuda.bindings.nvml.NvlinkSupportedBwModes_v1.html#cuda.bindings.nvml.NvlinkSupportedBwModes_v1.__init__">(cuda.bindings.nvml.NvlinkSupportedBwModes_v1 method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.NvlinkTelemetrySample_v1.html#cuda.bindings.nvml.NvlinkTelemetrySample_v1.__init__">(cuda.bindings.nvml.NvlinkTelemetrySample_v1 method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.NvlinkTelemetrySamples_v1.html#cuda.bindings.nvml.NvlinkTelemetrySamples_v1.__init__">(cuda.bindings.nvml.NvlinkTelemetrySamples_v1 method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.ObservedMetrics.html#cuda.bindings.nvml.ObservedMetrics.__init__">(cuda.bindings.nvml.ObservedMetrics method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.PciInfo.html#cuda.bindings.nvml.PciInfo.__init__">(cuda.bindings.nvml.PciInfo method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.PciInfoExt_v1.html#cuda.bindings.nvml.PciInfoExt_v1.__init__">(cuda.bindings.nvml.PciInfoExt_v1 method)</a>
 </li>
-        <li><a href="module/generated/cuda.bindings.nvml.PerfMetricControllerSample.html#cuda.bindings.nvml.PerfMetricControllerSample.__init__">(cuda.bindings.nvml.PerfMetricControllerSample method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.PerfMetricsDlppc2xSample.html#cuda.bindings.nvml.PerfMetricsDlppc2xSample.__init__">(cuda.bindings.nvml.PerfMetricsDlppc2xSample method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.PerfMetricsPfpp1xSample.html#cuda.bindings.nvml.PerfMetricsPfpp1xSample.__init__">(cuda.bindings.nvml.PerfMetricsPfpp1xSample method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.PerfMetricsSample.html#cuda.bindings.nvml.PerfMetricsSample.__init__">(cuda.bindings.nvml.PerfMetricsSample method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.PerfMetricsSamples_v1.html#cuda.bindings.nvml.PerfMetricsSamples_v1.__init__">(cuda.bindings.nvml.PerfMetricsSamples_v1 method)</a>
-</li>
         <li><a href="module/generated/cuda.bindings.nvml.PlatformInfo_v1.html#cuda.bindings.nvml.PlatformInfo_v1.__init__">(cuda.bindings.nvml.PlatformInfo_v1 method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.PlatformInfo_v2.html#cuda.bindings.nvml.PlatformInfo_v2.__init__">(cuda.bindings.nvml.PlatformInfo_v2 method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.PmgrPwrTuple.html#cuda.bindings.nvml.PmgrPwrTuple.__init__">(cuda.bindings.nvml.PmgrPwrTuple method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.PRMCounter_v1.html#cuda.bindings.nvml.PRMCounter_v1.__init__">(cuda.bindings.nvml.PRMCounter_v1 method)</a>
 </li>
@@ -1536,29 +1438,11 @@
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.PSUInfo.html#cuda.bindings.nvml.PSUInfo.__init__">(cuda.bindings.nvml.PSUInfo method)</a>
 </li>
-        <li><a href="module/generated/cuda.bindings.nvml.PwrModelMetricsDlppm1x.html#cuda.bindings.nvml.PwrModelMetricsDlppm1x.__init__">(cuda.bindings.nvml.PwrModelMetricsDlppm1x method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.PwrModelMetricsDlppm1xDramclkEstimates.html#cuda.bindings.nvml.PwrModelMetricsDlppm1xDramclkEstimates.__init__">(cuda.bindings.nvml.PwrModelMetricsDlppm1xDramclkEstimates method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.PwrModelMetricsDlppm1xPerf.html#cuda.bindings.nvml.PwrModelMetricsDlppm1xPerf.__init__">(cuda.bindings.nvml.PwrModelMetricsDlppm1xPerf method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.PwrModelMetricsPfpp1x.html#cuda.bindings.nvml.PwrModelMetricsPfpp1x.__init__">(cuda.bindings.nvml.PwrModelMetricsPfpp1x method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.PwrModelMetricsSamplePfpp1x.html#cuda.bindings.nvml.PwrModelMetricsSamplePfpp1x.__init__">(cuda.bindings.nvml.PwrModelMetricsSamplePfpp1x method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.PwrModelOperatingPointPfpp1x.html#cuda.bindings.nvml.PwrModelOperatingPointPfpp1x.__init__">(cuda.bindings.nvml.PwrModelOperatingPointPfpp1x method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.RailMetrics.html#cuda.bindings.nvml.RailMetrics.__init__">(cuda.bindings.nvml.RailMetrics method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.RemappedRowsInfo_v2.html#cuda.bindings.nvml.RemappedRowsInfo_v2.__init__">(cuda.bindings.nvml.RemappedRowsInfo_v2 method)</a>
-</li>
         <li><a href="module/generated/cuda.bindings.nvml.RepairStatus_v1.html#cuda.bindings.nvml.RepairStatus_v1.__init__">(cuda.bindings.nvml.RepairStatus_v1 method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.RowRemapperHistogramValues.html#cuda.bindings.nvml.RowRemapperHistogramValues.__init__">(cuda.bindings.nvml.RowRemapperHistogramValues method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.Sample.html#cuda.bindings.nvml.Sample.__init__">(cuda.bindings.nvml.Sample method)</a>
-</li>
-        <li><a href="module/generated/cuda.bindings.nvml.SetMemoryLimits_v1.html#cuda.bindings.nvml.SetMemoryLimits_v1.__init__">(cuda.bindings.nvml.SetMemoryLimits_v1 method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.SystemConfComputeSettings_v1.html#cuda.bindings.nvml.SystemConfComputeSettings_v1.__init__">(cuda.bindings.nvml.SystemConfComputeSettings_v1 method)</a>
 </li>
@@ -1608,8 +1492,6 @@
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.VgpuSchedulerLogInfo_v1.html#cuda.bindings.nvml.VgpuSchedulerLogInfo_v1.__init__">(cuda.bindings.nvml.VgpuSchedulerLogInfo_v1 method)</a>
 </li>
-        <li><a href="module/generated/cuda.bindings.nvml.VgpuSchedulerLogInfo_v2.html#cuda.bindings.nvml.VgpuSchedulerLogInfo_v2.__init__">(cuda.bindings.nvml.VgpuSchedulerLogInfo_v2 method)</a>
-</li>
         <li><a href="module/generated/cuda.bindings.nvml.VgpuSchedulerParams.html#cuda.bindings.nvml.VgpuSchedulerParams.__init__">(cuda.bindings.nvml.VgpuSchedulerParams method)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.nvml.VgpuSchedulerSetParams.html#cuda.bindings.nvml.VgpuSchedulerSetParams.__init__">(cuda.bindings.nvml.VgpuSchedulerSetParams method)</a>
@@ -1635,13 +1517,9 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.AccountingStats.html#cuda.bindings.nvml.AccountingStats">AccountingStats (class in cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.AccountingStats_v2.html#cuda.bindings.nvml.AccountingStats_v2">AccountingStats_v2 (class in cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.ActiveVgpuInstanceInfo_v1.html#cuda.bindings.nvml.ActiveVgpuInstanceInfo_v1">ActiveVgpuInstanceInfo_v1 (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.AdaptiveClockingInfoStatus.html#cuda.bindings.nvml.AdaptiveClockingInfoStatus">AdaptiveClockingInfoStatus (class in cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.AdaptiveTgpModeInfo_v1.html#cuda.bindings.nvml.AdaptiveTgpModeInfo_v1">AdaptiveTgpModeInfo_v1 (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.add_cubin">add_cubin() (in module cuda.bindings.nvfatbin)</a>
 </li>
@@ -1657,10 +1535,10 @@
 </li>
       <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.add_reloc">add_reloc() (in module cuda.bindings.nvfatbin)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.add_tile_ir">add_tile_ir() (in module cuda.bindings.nvfatbin)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_TEXTURE_DESC.addressMode">addressMode (cuda.bindings.driver.CUDA_TEXTURE_DESC attribute)</a>
 
       <ul>
@@ -1721,12 +1599,10 @@
 </li>
       <li><a href="module/generated/cuda.bindings.cufile.BatchMode.html#cuda.bindings.cufile.BatchMode">BatchMode (class in cuda.bindings.cufile)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.BBXTimeData_v1.html#cuda.bindings.nvml.BBXTimeData_v1">BBXTimeData_v1 (class in cuda.bindings.nvml)</a>
+      <li><a href="module/generated/cuda.bindings.cufile.BoolConfigParameter.html#cuda.bindings.cufile.BoolConfigParameter">BoolConfigParameter (class in cuda.bindings.cufile)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="module/generated/cuda.bindings.cufile.BoolConfigParameter.html#cuda.bindings.cufile.BoolConfigParameter">BoolConfigParameter (class in cuda.bindings.cufile)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.BrandType.html#cuda.bindings.nvml.BrandType">BrandType (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.BridgeChipHierarchy.html#cuda.bindings.nvml.BridgeChipHierarchy">BridgeChipHierarchy (class in cuda.bindings.nvml)</a>
@@ -1841,11 +1717,7 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.CoolerTarget.html#cuda.bindings.nvml.CoolerTarget">CoolerTarget (class in cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.CoreRailMetrics.html#cuda.bindings.nvml.CoreRailMetrics">CoreRailMetrics (class in cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.CorruptedInforomError.html#cuda.bindings.nvml.CorruptedInforomError">CorruptedInforomError</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.CPERCursor_v1.html#cuda.bindings.nvml.CPERCursor_v1">CPERCursor_v1 (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.create">create() (in module cuda.bindings.nvfatbin)</a>
 
@@ -2057,19 +1929,9 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_XOR">CU_ATOMIC_OPERATION_XOR (cuda.bindings.driver.CUatomicOperation attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUcliqueType.CU_CLIQUE_TYPE_MULTICAST_LOGICAL_ENDPOINT">CU_CLIQUE_TYPE_MULTICAST_LOGICAL_ENDPOINT (cuda.bindings.driver.CUcliqueType attribute)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUcliqueType.CU_CLIQUE_TYPE_MULTICAST_POINTER">CU_CLIQUE_TYPE_MULTICAST_POINTER (cuda.bindings.driver.CUcliqueType attribute)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUcliqueType.CU_CLIQUE_TYPE_UNICAST_LOGICAL_ENDPOINT">CU_CLIQUE_TYPE_UNICAST_LOGICAL_ENDPOINT (cuda.bindings.driver.CUcliqueType attribute)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUcliqueType.CU_CLIQUE_TYPE_UNICAST_POINTER">CU_CLIQUE_TYPE_UNICAST_POINTER (cuda.bindings.driver.CUcliqueType attribute)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_DEFAULT">CU_CLUSTER_SCHEDULING_POLICY_DEFAULT (cuda.bindings.driver.CUclusterSchedulingPolicy attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING">CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING (cuda.bindings.driver.CUclusterSchedulingPolicy attribute)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_RUBIN_DSMEM_LOCALITY">CU_CLUSTER_SCHEDULING_POLICY_RUBIN_DSMEM_LOCALITY (cuda.bindings.driver.CUclusterSchedulingPolicy attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD">CU_CLUSTER_SCHEDULING_POLICY_SPREAD (cuda.bindings.driver.CUclusterSchedulingPolicy attribute)</a>
 </li>
@@ -2171,8 +2033,6 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_DEFAULT">CU_DEV_SM_RESOURCE_GROUP_DEFAULT (cuda.bindings.driver.CUdevSmResourceGroup_flags attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID">CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID (cuda.bindings.driver.CUdevSmResourceGroup_flags attribute)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS">CU_DEV_SM_RESOURCE_GROUP_PARAMS (class in cuda.bindings.driver)</a>, <a href="module/driver.html#id77">[1]</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st">CU_DEV_SM_RESOURCE_GROUP_PARAMS_st (class in cuda.bindings.driver)</a>
@@ -2249,8 +2109,6 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WITH_CUDA_VMM_SUPPORTED">CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WITH_CUDA_VMM_SUPPORTED (cuda.bindings.driver.CUdevice_attribute attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WITH_LOCALIZED_MEMORY_SUPPORTED">CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WITH_LOCALIZED_MEMORY_SUPPORTED (cuda.bindings.driver.CUdevice_attribute attribute)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WRITES_ORDERING">CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WRITES_ORDERING (cuda.bindings.driver.CUdevice_attribute attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_OVERLAP">CU_DEVICE_ATTRIBUTE_GPU_OVERLAP (cuda.bindings.driver.CUdevice_attribute attribute)</a>
@@ -2295,15 +2153,9 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOCAL_L1_CACHE_SUPPORTED">CU_DEVICE_ATTRIBUTE_LOCAL_L1_CACHE_SUPPORTED (cuda.bindings.driver.CUdevice_attribute attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_COUNT">CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_COUNT (cuda.bindings.driver.CUdevice_attribute attribute)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_MULTIPROCESSOR_COUNT">CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_MULTIPROCESSOR_COUNT (cuda.bindings.driver.CUdevice_attribute attribute)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_COUNTED_OPS_SUPPORTED">CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_COUNTED_OPS_SUPPORTED (cuda.bindings.driver.CUdevice_attribute attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_MULTICAST_SUPPORTED">CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_MULTICAST_SUPPORTED (cuda.bindings.driver.CUdevice_attribute attribute)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_SUPPORTED_HANDLE_TYPES">CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_SUPPORTED_HANDLE_TYPES (cuda.bindings.driver.CUdevice_attribute attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_ACCESS_ON_OWNER_DEVICE_SUPPORTED">CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_ACCESS_ON_OWNER_DEVICE_SUPPORTED (cuda.bindings.driver.CUdevice_attribute attribute)</a>
 </li>
@@ -2328,8 +2180,6 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Y">CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Y (cuda.bindings.driver.CUdevice_attribute attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Z">CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Z (cuda.bindings.driver.CUdevice_attribute attribute)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_OVERSIZED_SHARED_MEMORY_PER_BLOCK">CU_DEVICE_ATTRIBUTE_MAX_OVERSIZED_SHARED_MEMORY_PER_BLOCK (cuda.bindings.driver.CUdevice_attribute attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_PERSISTING_L2_CACHE_SIZE">CU_DEVICE_ATTRIBUTE_MAX_PERSISTING_L2_CACHE_SIZE (cuda.bindings.driver.CUdevice_attribute attribute)</a>
 </li>
@@ -2887,8 +2737,6 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH">CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH (cuda.bindings.driver.CUfunction_attribute attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_SHARED_MEMORY_MODE">CU_FUNC_ATTRIBUTE_SHARED_MEMORY_MODE (cuda.bindings.driver.CUfunction_attribute attribute)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES">CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES (cuda.bindings.driver.CUfunction_attribute attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUfunc_cache.CU_FUNC_CACHE_PREFER_EQUAL">CU_FUNC_CACHE_PREFER_EQUAL (cuda.bindings.driver.CUfunc_cache attribute)</a>
@@ -3271,8 +3119,6 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUlimit.CU_LIMIT_MAX_L2_FETCH_GRANULARITY">CU_LIMIT_MAX_L2_FETCH_GRANULARITY (cuda.bindings.driver.CUlimit attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUlimit.CU_LIMIT_PER_BLOCK_MEMORY_SIZE">CU_LIMIT_PER_BLOCK_MEMORY_SIZE (cuda.bindings.driver.CUlimit attribute)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUlimit.CU_LIMIT_PERSISTING_L2_CACHE_SIZE">CU_LIMIT_PERSISTING_L2_CACHE_SIZE (cuda.bindings.driver.CUlimit attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUlimit.CU_LIMIT_PRINTF_FIFO_SIZE">CU_LIMIT_PRINTF_FIFO_SIZE (cuda.bindings.driver.CUlimit attribute)</a>
@@ -3341,8 +3187,6 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUmemAttach_flags.CU_MEM_ATTACH_SINGLE">CU_MEM_ATTACH_SINGLE (cuda.bindings.driver.CUmemAttach_flags attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CU_MEM_CREATE_USAGE_GPU_DIRECT_RDMA_OVER_PCIE">CU_MEM_CREATE_USAGE_GPU_DIRECT_RDMA_OVER_PCIE (cuda.bindings.driver attribute)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CU_MEM_CREATE_USAGE_HW_DECOMPRESS">CU_MEM_CREATE_USAGE_HW_DECOMPRESS (cuda.bindings.driver attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CU_MEM_CREATE_USAGE_TILE_POOL">CU_MEM_CREATE_USAGE_TILE_POOL (cuda.bindings.driver attribute)</a>
@@ -3370,8 +3214,6 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_WIN32_KMT">CU_MEM_HANDLE_TYPE_WIN32_KMT (cuda.bindings.driver.CUmemAllocationHandleType attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE">CU_MEM_LOCATION_TYPE_DEVICE (cuda.bindings.driver.CUmemLocationType attribute)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN">CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN (cuda.bindings.driver.CUmemLocationType attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST">CU_MEM_LOCATION_TYPE_HOST (cuda.bindings.driver.CUmemLocationType attribute)</a>
 </li>
@@ -3463,8 +3305,6 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_HW_DECOMPRESS_ENABLED">CU_MEMPOOL_ATTR_HW_DECOMPRESS_ENABLED (cuda.bindings.driver.CUmemPool_attribute attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCALITY_DOMAIN_ID">CU_MEMPOOL_ATTR_LOCALITY_DOMAIN_ID (cuda.bindings.driver.CUmemPool_attribute attribute)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCATION_ID">CU_MEMPOOL_ATTR_LOCATION_ID (cuda.bindings.driver.CUmemPool_attribute attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCATION_TYPE">CU_MEMPOOL_ATTR_LOCATION_TYPE (cuda.bindings.driver.CUmemPool_attribute attribute)</a>
@@ -3529,8 +3369,6 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_MANAGED">CU_POINTER_ATTRIBUTE_IS_MANAGED (cuda.bindings.driver.CUpointer_attribute attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_LOCALITY_DOMAIN_ORDINAL">CU_POINTER_ATTRIBUTE_LOCALITY_DOMAIN_ORDINAL (cuda.bindings.driver.CUpointer_attribute attribute)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MAPPED">CU_POINTER_ATTRIBUTE_MAPPED (cuda.bindings.driver.CUpointer_attribute attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MAPPING_BASE_ADDR">CU_POINTER_ATTRIBUTE_MAPPING_BASE_ADDR (cuda.bindings.driver.CUpointer_attribute attribute)</a>
@@ -3557,13 +3395,9 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUprocessState.CU_PROCESS_STATE_CHECKPOINTED">CU_PROCESS_STATE_CHECKPOINTED (cuda.bindings.driver.CUprocessState attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUprocessState.CU_PROCESS_STATE_CHECKPOINTING">CU_PROCESS_STATE_CHECKPOINTING (cuda.bindings.driver.CUprocessState attribute)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUprocessState.CU_PROCESS_STATE_FAILED">CU_PROCESS_STATE_FAILED (cuda.bindings.driver.CUprocessState attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUprocessState.CU_PROCESS_STATE_LOCKED">CU_PROCESS_STATE_LOCKED (cuda.bindings.driver.CUprocessState attribute)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUprocessState.CU_PROCESS_STATE_RESTORING">CU_PROCESS_STATE_RESTORING (cuda.bindings.driver.CUprocessState attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUprocessState.CU_PROCESS_STATE_RUNNING">CU_PROCESS_STATE_RUNNING (cuda.bindings.driver.CUprocessState attribute)</a>
 </li>
@@ -3653,11 +3487,7 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUsharedMemoryMode.CU_SHARED_MEMORY_MODE_ALLOW_NON_PORTABLE">CU_SHARED_MEMORY_MODE_ALLOW_NON_PORTABLE (cuda.bindings.driver.CUsharedMemoryMode attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUsharedMemoryMode.CU_SHARED_MEMORY_MODE_ALLOW_OVERSIZED_SHARED_MEMORY">CU_SHARED_MEMORY_MODE_ALLOW_OVERSIZED_SHARED_MEMORY (cuda.bindings.driver.CUsharedMemoryMode attribute)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUsharedMemoryMode.CU_SHARED_MEMORY_MODE_DEFAULT">CU_SHARED_MEMORY_MODE_DEFAULT (cuda.bindings.driver.CUsharedMemoryMode attribute)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUsharedMemoryMode.CU_SHARED_MEMORY_MODE_PREFER_OVERSIZED_SHARED_MEMORY">CU_SHARED_MEMORY_MODE_PREFER_OVERSIZED_SHARED_MEMORY (cuda.bindings.driver.CUsharedMemoryMode attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUsharedMemoryMode.CU_SHARED_MEMORY_MODE_REQUIRE_PORTABLE">CU_SHARED_MEMORY_MODE_REQUIRE_PORTABLE (cuda.bindings.driver.CUsharedMemoryMode attribute)</a>
 </li>
@@ -3762,12 +3592,6 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_103A">CU_TARGET_COMPUTE_103A (cuda.bindings.driver.CUjit_target attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_103F">CU_TARGET_COMPUTE_103F (cuda.bindings.driver.CUjit_target attribute)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_107">CU_TARGET_COMPUTE_107 (cuda.bindings.driver.CUjit_target attribute)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_107A">CU_TARGET_COMPUTE_107A (cuda.bindings.driver.CUjit_target attribute)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_107F">CU_TARGET_COMPUTE_107F (cuda.bindings.driver.CUjit_target attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_110">CU_TARGET_COMPUTE_110 (cuda.bindings.driver.CUjit_target attribute)</a>
 </li>
@@ -3985,14 +3809,6 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCheckpointArgs_st">CUcheckpointCheckpointArgs_st (class in cuda.bindings.driver)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCustomStorageInfo">CUcheckpointCustomStorageInfo (class in cuda.bindings.driver)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCustomStorageInfo_st">CUcheckpointCustomStorageInfo_st (class in cuda.bindings.driver)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCustomStoragePerDeviceData">CUcheckpointCustomStoragePerDeviceData (class in cuda.bindings.driver)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCustomStoragePerDeviceData_st">CUcheckpointCustomStoragePerDeviceData_st (class in cuda.bindings.driver)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointGpuPair">CUcheckpointGpuPair (class in cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointGpuPair_st">CUcheckpointGpuPair_st (class in cuda.bindings.driver)</a>
@@ -4000,10 +3816,6 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointLockArgs">CUcheckpointLockArgs (class in cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointLockArgs_st">CUcheckpointLockArgs_st (class in cuda.bindings.driver)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.cuCheckpointOperationComplete">cuCheckpointOperationComplete() (in module cuda.bindings.driver)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointOperationHandle">CUcheckpointOperationHandle (class in cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuCheckpointProcessCheckpoint">cuCheckpointProcessCheckpoint() (in module cuda.bindings.driver)</a>
 </li>
@@ -4026,12 +3838,6 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointUnlockArgs_st">CUcheckpointUnlockArgs_st (class in cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUcigDataType">CUcigDataType (class in cuda.bindings.driver)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUcliqueInfo">CUcliqueInfo (class in cuda.bindings.driver)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUcliqueInfo_st">CUcliqueInfo_st (class in cuda.bindings.driver)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUcliqueType">CUcliqueType (class in cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUclusterSchedulingPolicy">CUclusterSchedulingPolicy (class in cuda.bindings.driver)</a>
 </li>
@@ -4256,8 +4062,6 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUresult.CUDA_ERROR_EXTERNAL_DEVICE">CUDA_ERROR_EXTERNAL_DEVICE (cuda.bindings.driver.CUresult attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUresult.CUDA_ERROR_FABRIC_NOT_READY">CUDA_ERROR_FABRIC_NOT_READY (cuda.bindings.driver.CUresult attribute)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUresult.CUDA_ERROR_FILE_NOT_FOUND">CUDA_ERROR_FILE_NOT_FOUND (cuda.bindings.driver.CUresult attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUresult.CUDA_ERROR_FUNCTION_NOT_LOADED">CUDA_ERROR_FUNCTION_NOT_LOADED (cuda.bindings.driver.CUresult attribute)</a>
@@ -4277,8 +4081,6 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUresult.CUDA_ERROR_ILLEGAL_INSTRUCTION">CUDA_ERROR_ILLEGAL_INSTRUCTION (cuda.bindings.driver.CUresult attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUresult.CUDA_ERROR_ILLEGAL_STATE">CUDA_ERROR_ILLEGAL_STATE (cuda.bindings.driver.CUresult attribute)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUresult.CUDA_ERROR_INSUFFICIENT_LOADER_VERSION">CUDA_ERROR_INSUFFICIENT_LOADER_VERSION (cuda.bindings.driver.CUresult attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_ADDRESS_SPACE">CUDA_ERROR_INVALID_ADDRESS_SPACE (cuda.bindings.driver.CUresult attribute)</a>
 </li>
@@ -4337,8 +4139,6 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUresult.CUDA_ERROR_MPS_RPC_FAILURE">CUDA_ERROR_MPS_RPC_FAILURE (cuda.bindings.driver.CUresult attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUresult.CUDA_ERROR_MPS_SERVER_NOT_READY">CUDA_ERROR_MPS_SERVER_NOT_READY (cuda.bindings.driver.CUresult attribute)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUresult.CUDA_ERROR_MULTICAST_RESOURCE_FULL">CUDA_ERROR_MULTICAST_RESOURCE_FULL (cuda.bindings.driver.CUresult attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUresult.CUDA_ERROR_NO_BINARY_FOR_GPU">CUDA_ERROR_NO_BINARY_FOR_GPU (cuda.bindings.driver.CUresult attribute)</a>
 </li>
@@ -4868,8 +4668,6 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyLoadBalancing">cudaClusterSchedulingPolicyLoadBalancing (cuda.bindings.runtime.cudaClusterSchedulingPolicy attribute)</a>
 </li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyRubinDsmemLocality">cudaClusterSchedulingPolicyRubinDsmemLocality (cuda.bindings.runtime.cudaClusterSchedulingPolicy attribute)</a>
-</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicySpread">cudaClusterSchedulingPolicySpread (cuda.bindings.runtime.cudaClusterSchedulingPolicy attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaComputeMode">cudaComputeMode (class in cuda.bindings.runtime)</a>
@@ -4979,10 +4777,6 @@
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrKernelExecTimeout">cudaDevAttrKernelExecTimeout (cuda.bindings.runtime.cudaDeviceAttr attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrL2CacheSize">cudaDevAttrL2CacheSize (cuda.bindings.runtime.cudaDeviceAttr attribute)</a>
-</li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrLocalityDomainCount">cudaDevAttrLocalityDomainCount (cuda.bindings.runtime.cudaDeviceAttr attribute)</a>
-</li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrLocalityDomainMultiprocessorCount">cudaDevAttrLocalityDomainMultiprocessorCount (cuda.bindings.runtime.cudaDeviceAttr attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrLocalL1CacheSupported">cudaDevAttrLocalL1CacheSupported (cuda.bindings.runtime.cudaDeviceAttr attribute)</a>
 </li>
@@ -5123,8 +4917,6 @@
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrNumaId">cudaDevAttrNumaId (cuda.bindings.runtime.cudaDeviceAttr attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrOnlyPartialHostNativeAtomicSupported">cudaDevAttrOnlyPartialHostNativeAtomicSupported (cuda.bindings.runtime.cudaDeviceAttr attribute)</a>
-</li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrOversizedSharedMemoryPerBlock">cudaDevAttrOversizedSharedMemoryPerBlock (cuda.bindings.runtime.cudaDeviceAttr attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrPageableMemoryAccess">cudaDevAttrPageableMemoryAccess (cuda.bindings.runtime.cudaDeviceAttr attribute)</a>
 </li>
@@ -5314,8 +5106,6 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupDefault">cudaDevSmResourceGroupDefault (cuda.bindings.runtime.cudaDevSmResourceGroup_flags attribute)</a>
 </li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupLocalityDomainId">cudaDevSmResourceGroupLocalityDomainId (cuda.bindings.runtime.cudaDevSmResourceGroup_flags attribute)</a>
-</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams">cudaDevSmResourceGroupParams (class in cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams_st">cudaDevSmResourceGroupParams_st (class in cuda.bindings.runtime)</a>
@@ -5324,8 +5114,6 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceSplitByCount">cudaDevSmResourceSplitByCount() (in module cuda.bindings.runtime)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags">cudaDevSmResourceSplitByCount_flags (class in cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags.cudaDevSmResourceSplitIgnoreSmCoscheduling">cudaDevSmResourceSplitIgnoreSmCoscheduling (cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags attribute)</a>
@@ -5352,6 +5140,8 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDriverGetVersion">cudaDriverGetVersion() (in module cuda.bindings.runtime)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat">cudaEglColorFormat (class in cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatA">cudaEglColorFormatA (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
@@ -5676,8 +5466,6 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaError_t.cudaErrorExternalDevice">cudaErrorExternalDevice (cuda.bindings.runtime.cudaError_t attribute)</a>
 </li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaError_t.cudaErrorFabricNotReady">cudaErrorFabricNotReady (cuda.bindings.runtime.cudaError_t attribute)</a>
-</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaError_t.cudaErrorFileNotFound">cudaErrorFileNotFound (cuda.bindings.runtime.cudaError_t attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaError_t.cudaErrorFunctionNotLoaded">cudaErrorFunctionNotLoaded (cuda.bindings.runtime.cudaError_t attribute)</a>
@@ -5703,8 +5491,6 @@
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaError_t.cudaErrorInitializationError">cudaErrorInitializationError (cuda.bindings.runtime.cudaError_t attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaError_t.cudaErrorInsufficientDriver">cudaErrorInsufficientDriver (cuda.bindings.runtime.cudaError_t attribute)</a>
-</li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaError_t.cudaErrorInsufficientLoaderVersion">cudaErrorInsufficientLoaderVersion (cuda.bindings.runtime.cudaError_t attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidAddressSpace">cudaErrorInvalidAddressSpace (cuda.bindings.runtime.cudaError_t attribute)</a>
 </li>
@@ -6107,8 +5893,6 @@
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeRequiredClusterWidth">cudaFuncAttributeRequiredClusterWidth (cuda.bindings.runtime.cudaFuncAttribute attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaFuncAttributes">cudaFuncAttributes (class in cuda.bindings.runtime)</a>
-</li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeSharedMemoryMode">cudaFuncAttributeSharedMemoryMode (cuda.bindings.runtime.cudaFuncAttribute attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaFuncCache">cudaFuncCache (class in cuda.bindings.runtime)</a>
 </li>
@@ -6862,8 +6646,6 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaLimit.cudaLimitMaxL2FetchGranularity">cudaLimitMaxL2FetchGranularity (cuda.bindings.runtime.cudaLimit attribute)</a>
 </li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaLimit.cudaLimitPerBlockMemorySize">cudaLimitPerBlockMemorySize (cuda.bindings.runtime.cudaLimit attribute)</a>
-</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaLimit.cudaLimitPersistingL2CacheSize">cudaLimitPersistingL2CacheSize (cuda.bindings.runtime.cudaLimit attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaLimit.cudaLimitPrintfFifoSize">cudaLimitPrintfFifoSize (cuda.bindings.runtime.cudaLimit attribute)</a>
@@ -7060,8 +6842,6 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemGetInfo">cudaMemGetInfo() (in module cuda.bindings.runtime)</a>
 </li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemGetLocationInfo">cudaMemGetLocationInfo() (in module cuda.bindings.runtime)</a>
-</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemGetMemPool">cudaMemGetMemPool() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemAllocationHandleType.cudaMemHandleTypeFabric">cudaMemHandleTypeFabric (cuda.bindings.runtime.cudaMemAllocationHandleType attribute)</a>
@@ -7079,8 +6859,6 @@
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemLocationType">cudaMemLocationType (class in cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice">cudaMemLocationTypeDevice (cuda.bindings.runtime.cudaMemLocationType attribute)</a>
-</li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain">cudaMemLocationTypeDeviceLocalityDomain (cuda.bindings.runtime.cudaMemLocationType attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost">cudaMemLocationTypeHost (cuda.bindings.runtime.cudaMemLocationType attribute)</a>
 </li>
@@ -7115,8 +6893,6 @@
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrExportHandleTypes">cudaMemPoolAttrExportHandleTypes (cuda.bindings.runtime.cudaMemPoolAttr attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrHwDecompressEnabled">cudaMemPoolAttrHwDecompressEnabled (cuda.bindings.runtime.cudaMemPoolAttr attribute)</a>
-</li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrLocalityDomainId">cudaMemPoolAttrLocalityDomainId (cuda.bindings.runtime.cudaMemPoolAttr attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrLocationId">cudaMemPoolAttrLocationId (cuda.bindings.runtime.cudaMemPoolAttr attribute)</a>
 </li>
@@ -7372,11 +7148,7 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable">cudaSharedMemoryModeAllowNonPortable (cuda.bindings.runtime.cudaSharedMemoryMode attribute)</a>
 </li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowOversizedSharedMemory">cudaSharedMemoryModeAllowOversizedSharedMemory (cuda.bindings.runtime.cudaSharedMemoryMode attribute)</a>
-</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeDefault">cudaSharedMemoryModeDefault (cuda.bindings.runtime.cudaSharedMemoryMode attribute)</a>
-</li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModePreferOversizedSharedMemory">cudaSharedMemoryModePreferOversizedSharedMemory (cuda.bindings.runtime.cudaSharedMemoryMode attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable">cudaSharedMemoryModeRequirePortable (cuda.bindings.runtime.cudaSharedMemoryMode attribute)</a>
 </li>
@@ -7574,10 +7346,6 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuDeviceGetByPCIBusId">cuDeviceGetByPCIBusId() (in module cuda.bindings.driver)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.cuDeviceGetCliqueCount">cuDeviceGetCliqueCount() (in module cuda.bindings.driver)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.cuDeviceGetCliqueInfo">cuDeviceGetCliqueInfo() (in module cuda.bindings.driver)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuDeviceGetCount">cuDeviceGetCount() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuDeviceGetDefaultMemPool">cuDeviceGetDefaultMemPool() (in module cuda.bindings.driver)</a>
@@ -7585,8 +7353,6 @@
       <li><a href="module/driver.html#cuda.bindings.driver.cuDeviceGetDevResource">cuDeviceGetDevResource() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuDeviceGetExecAffinitySupport">cuDeviceGetExecAffinitySupport() (in module cuda.bindings.driver)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.cuDeviceGetFabricClusterUuid">cuDeviceGetFabricClusterUuid() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuDeviceGetGraphMemAttribute">cuDeviceGetGraphMemAttribute() (in module cuda.bindings.driver)</a>
 </li>
@@ -7854,8 +7620,6 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphAddNode">cuGraphAddNode() (in module cuda.bindings.driver)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.cuGraphAddNode_v3">cuGraphAddNode_v3() (in module cuda.bindings.driver)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphBatchMemOpNodeGetParams">cuGraphBatchMemOpNodeGetParams() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphBatchMemOpNodeSetParams">cuGraphBatchMemOpNodeSetParams() (in module cuda.bindings.driver)</a>
@@ -8051,8 +7815,6 @@
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeSetEnabled">cuGraphNodeSetEnabled() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeSetParams">cuGraphNodeSetParams() (in module cuda.bindings.driver)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeSetParams_v2">cuGraphNodeSetParams_v2() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphNodeType">CUgraphNodeType (class in cuda.bindings.driver)</a>
 </li>
@@ -8452,8 +8214,6 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuMemGetInfo">cuMemGetInfo() (in module cuda.bindings.driver)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.cuMemGetLocationInfo">cuMemGetLocationInfo() (in module cuda.bindings.driver)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuMemGetMemPool">cuMemGetMemPool() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUmemHandleType">CUmemHandleType (class in cuda.bindings.driver)</a>
@@ -8682,12 +8442,6 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuSignalExternalSemaphoresAsync">cuSignalExternalSemaphoresAsync() (in module cuda.bindings.driver)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCheckpointArgs.customStorageInfo_out">customStorageInfo_out (cuda.bindings.driver.CUcheckpointCheckpointArgs attribute)</a>
-
-      <ul>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCheckpointArgs_st.customStorageInfo_out">(cuda.bindings.driver.CUcheckpointCheckpointArgs_st attribute)</a>
-</li>
-      </ul></li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUstream">CUstream (class in cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUstream_flags">CUstream_flags (class in cuda.bindings.driver)</a>
@@ -8962,13 +8716,9 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_accounting_stats.html#cuda.bindings.nvml.device_get_accounting_stats">device_get_accounting_stats() (in module cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.device_get_accounting_stats_v2.html#cuda.bindings.nvml.device_get_accounting_stats_v2">device_get_accounting_stats_v2() (in module cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_active_vgpus.html#cuda.bindings.nvml.device_get_active_vgpus">device_get_active_vgpus() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_adaptive_clock_info_status.html#cuda.bindings.nvml.device_get_adaptive_clock_info_status">device_get_adaptive_clock_info_status() (in module cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.device_get_adaptive_tgp_mode_info_v1.html#cuda.bindings.nvml.device_get_adaptive_tgp_mode_info_v1">device_get_adaptive_tgp_mode_info_v1() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_addressing_mode.html#cuda.bindings.nvml.device_get_addressing_mode">device_get_addressing_mode() (in module cuda.bindings.nvml)</a>
 </li>
@@ -8982,11 +8732,7 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_auto_boosted_clocks_enabled.html#cuda.bindings.nvml.device_get_auto_boosted_clocks_enabled">device_get_auto_boosted_clocks_enabled() (in module cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.device_get_bank_remapper_status_v1.html#cuda.bindings.nvml.device_get_bank_remapper_status_v1">device_get_bank_remapper_status_v1() (in module cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_bar1_memory_info.html#cuda.bindings.nvml.device_get_bar1_memory_info">device_get_bar1_memory_info() (in module cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.device_get_bbx_time_data_v1.html#cuda.bindings.nvml.device_get_bbx_time_data_v1">device_get_bbx_time_data_v1() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_board_id.html#cuda.bindings.nvml.device_get_board_id">device_get_board_id() (in module cuda.bindings.nvml)</a>
 </li>
@@ -9094,8 +8840,6 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_gpu_fabric_info_v.html#cuda.bindings.nvml.device_get_gpu_fabric_info_v">device_get_gpu_fabric_info_v() (in module cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.device_get_gpu_fabric_info_v4.html#cuda.bindings.nvml.device_get_gpu_fabric_info_v4">device_get_gpu_fabric_info_v4() (in module cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_gpu_instance_by_id.html#cuda.bindings.nvml.device_get_gpu_instance_by_id">device_get_gpu_instance_by_id() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_gpu_instance_id.html#cuda.bindings.nvml.device_get_gpu_instance_id">device_get_gpu_instance_id() (in module cuda.bindings.nvml)</a>
@@ -9172,8 +8916,6 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_memory_info_v2.html#cuda.bindings.nvml.device_get_memory_info_v2">device_get_memory_info_v2() (in module cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.device_get_memory_limits_v1.html#cuda.bindings.nvml.device_get_memory_limits_v1">device_get_memory_limits_v1() (in module cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_mig_device_handle_by_index.html#cuda.bindings.nvml.device_get_mig_device_handle_by_index">device_get_mig_device_handle_by_index() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_mig_mode.html#cuda.bindings.nvml.device_get_mig_mode">device_get_mig_mode() (in module cuda.bindings.nvml)</a>
@@ -9197,8 +8939,6 @@
       <li><a href="module/generated/cuda.bindings.nvml.device_get_num_gpu_cores.html#cuda.bindings.nvml.device_get_num_gpu_cores">device_get_num_gpu_cores() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_numa_node_id.html#cuda.bindings.nvml.device_get_numa_node_id">device_get_numa_node_id() (in module cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.device_get_nv_link_telemetry_samples_v1.html#cuda.bindings.nvml.device_get_nv_link_telemetry_samples_v1">device_get_nv_link_telemetry_samples_v1() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_nvlink_bw_mode.html#cuda.bindings.nvml.device_get_nvlink_bw_mode">device_get_nvlink_bw_mode() (in module cuda.bindings.nvml)</a>
 </li>
@@ -9267,8 +9007,6 @@
       <li><a href="module/generated/cuda.bindings.nvml.device_get_processes_utilization_info.html#cuda.bindings.nvml.device_get_processes_utilization_info">device_get_processes_utilization_info() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_remapped_rows.html#cuda.bindings.nvml.device_get_remapped_rows">device_get_remapped_rows() (in module cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.device_get_remapped_rows_v2.html#cuda.bindings.nvml.device_get_remapped_rows_v2">device_get_remapped_rows_v2() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_get_repair_status.html#cuda.bindings.nvml.device_get_repair_status">device_get_repair_status() (in module cuda.bindings.nvml)</a>
 </li>
@@ -9358,8 +9096,6 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_on_same_board.html#cuda.bindings.nvml.device_on_same_board">device_on_same_board() (in module cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.device_perf_metrics_get_samples_v1.html#cuda.bindings.nvml.device_perf_metrics_get_samples_v1">device_perf_metrics_get_samples_v1() (in module cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.device_power_smoothing_activate_preset_profile.html#cuda.bindings.nvml.device_power_smoothing_activate_preset_profile">device_power_smoothing_activate_preset_profile() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_power_smoothing_set_state.html#cuda.bindings.nvml.device_power_smoothing_set_state">device_power_smoothing_set_state() (in module cuda.bindings.nvml)</a>
@@ -9383,8 +9119,6 @@
       <li><a href="module/generated/cuda.bindings.nvml.device_reset_nvlink_error_counters.html#cuda.bindings.nvml.device_reset_nvlink_error_counters">device_reset_nvlink_error_counters() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_set_accounting_mode.html#cuda.bindings.nvml.device_set_accounting_mode">device_set_accounting_mode() (in module cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.device_set_adaptive_tgp_mode_v1.html#cuda.bindings.nvml.device_set_adaptive_tgp_mode_v1">device_set_adaptive_tgp_mode_v1() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_set_api_restriction.html#cuda.bindings.nvml.device_set_api_restriction">device_set_api_restriction() (in module cuda.bindings.nvml)</a>
 </li>
@@ -9418,15 +9152,11 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_set_hostname_v1.html#cuda.bindings.nvml.device_set_hostname_v1">device_set_hostname_v1() (in module cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.device_set_memory_limits_v1.html#cuda.bindings.nvml.device_set_memory_limits_v1">device_set_memory_limits_v1() (in module cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.device_set_memory_locked_clocks.html#cuda.bindings.nvml.device_set_memory_locked_clocks">device_set_memory_locked_clocks() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_set_mig_mode.html#cuda.bindings.nvml.device_set_mig_mode">device_set_mig_mode() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_set_nvlink_bw_mode.html#cuda.bindings.nvml.device_set_nvlink_bw_mode">device_set_nvlink_bw_mode() (in module cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.device_set_nvlink_bw_mode_async_v1.html#cuda.bindings.nvml.device_set_nvlink_bw_mode_async_v1">device_set_nvlink_bw_mode_async_v1() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.device_set_nvlink_device_low_power_threshold.html#cuda.bindings.nvml.device_set_nvlink_device_low_power_threshold">device_set_nvlink_device_low_power_threshold() (in module cuda.bindings.nvml)</a>
 </li>
@@ -9466,12 +9196,6 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.DeviceVgpuCapability.html#cuda.bindings.nvml.DeviceVgpuCapability">DeviceVgpuCapability (class in cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCustomStoragePerDeviceData.devPtr">devPtr (cuda.bindings.driver.CUcheckpointCustomStoragePerDeviceData attribute)</a>
-
-      <ul>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCustomStoragePerDeviceData_st.devPtr">(cuda.bindings.driver.CUcheckpointCustomStoragePerDeviceData_st attribute)</a>
-</li>
-      </ul></li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEM_FREE_NODE_PARAMS.dptr">dptr (cuda.bindings.driver.CUDA_MEM_FREE_NODE_PARAMS attribute)</a>
 
       <ul>
@@ -9524,10 +9248,6 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="module/generated/cuda.bindings.nvml.EccBankRemapperHistogram_v1.html#cuda.bindings.nvml.EccBankRemapperHistogram_v1">EccBankRemapperHistogram_v1 (class in cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.EccBankRemapperStatus_v1.html#cuda.bindings.nvml.EccBankRemapperStatus_v1">EccBankRemapperStatus_v1 (class in cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.EccCounterType.html#cuda.bindings.nvml.EccCounterType">EccCounterType (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.EccSramErrorStatus_v1.html#cuda.bindings.nvml.EccSramErrorStatus_v1">EccSramErrorStatus_v1 (class in cuda.bindings.nvml)</a>
@@ -9618,12 +9338,12 @@
 </li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_NVVM_COMPILE">ERROR_NVVM_COMPILE (cuda.bindings.nvjitlink.Result attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_OUT_OF_MEMORY">ERROR_OUT_OF_MEMORY (cuda.bindings.nvvm.Result attribute)</a>
 </li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_OUTDATED_LIBRARY">ERROR_OUTDATED_LIBRARY (cuda.bindings.nvjitlink.Result attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_PROGRAM_CREATION_FAILURE">ERROR_PROGRAM_CREATION_FAILURE (cuda.bindings.nvvm.Result attribute)</a>
 </li>
       <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_PTX_ARCH_MISMATCH">ERROR_PTX_ARCH_MISMATCH (cuda.bindings.nvfatbin.Result attribute)</a>
@@ -9664,19 +9384,7 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.event_set_free.html#cuda.bindings.nvml.event_set_free">event_set_free() (in module cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.event_set_get_context_count_v1.html#cuda.bindings.nvml.event_set_get_context_count_v1">event_set_get_context_count_v1() (in module cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.event_set_get_context_data_v1.html#cuda.bindings.nvml.event_set_get_context_data_v1">event_set_get_context_data_v1() (in module cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.event_set_get_context_info_v1.html#cuda.bindings.nvml.event_set_get_context_info_v1">event_set_get_context_info_v1() (in module cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.event_set_get_gpu_operational_event_context_legacy_xid_v1.html#cuda.bindings.nvml.event_set_get_gpu_operational_event_context_legacy_xid_v1">event_set_get_gpu_operational_event_context_legacy_xid_v1() (in module cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.event_set_register_gpu_operational_events_v1.html#cuda.bindings.nvml.event_set_register_gpu_operational_events_v1">event_set_register_gpu_operational_events_v1() (in module cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.event_set_wait_v2.html#cuda.bindings.nvml.event_set_wait_v2">event_set_wait_v2() (in module cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.event_set_wait_v3.html#cuda.bindings.nvml.event_set_wait_v3">event_set_wait_v3() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.EventData.html#cuda.bindings.nvml.EventData">EventData (class in cuda.bindings.nvml)</a>
 </li>
@@ -9928,11 +9636,7 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.get_vgpu_version.html#cuda.bindings.nvml.get_vgpu_version">get_vgpu_version() (in module cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.GetCPER_v1.html#cuda.bindings.nvml.GetCPER_v1">GetCPER_v1 (class in cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.getLocalRuntimeVersion">getLocalRuntimeVersion() (in module cuda.bindings.runtime)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.GetMemoryLimits_v1.html#cuda.bindings.nvml.GetMemoryLimits_v1">GetMemoryLimits_v1 (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS.getPtr">getPtr() (cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS method)</a>, <a href="module/driver.html#id79">[1]</a>
 
@@ -9965,14 +9669,6 @@
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCheckpointArgs_st.getPtr">(cuda.bindings.driver.CUcheckpointCheckpointArgs_st method)</a>
 </li>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCustomStorageInfo.getPtr">(cuda.bindings.driver.CUcheckpointCustomStorageInfo method)</a>
-</li>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCustomStorageInfo_st.getPtr">(cuda.bindings.driver.CUcheckpointCustomStorageInfo_st method)</a>
-</li>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCustomStoragePerDeviceData.getPtr">(cuda.bindings.driver.CUcheckpointCustomStoragePerDeviceData method)</a>
-</li>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCustomStoragePerDeviceData_st.getPtr">(cuda.bindings.driver.CUcheckpointCustomStoragePerDeviceData_st method)</a>
-</li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointGpuPair.getPtr">(cuda.bindings.driver.CUcheckpointGpuPair method)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointGpuPair_st.getPtr">(cuda.bindings.driver.CUcheckpointGpuPair_st method)</a>
@@ -9981,8 +9677,6 @@
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointLockArgs_st.getPtr">(cuda.bindings.driver.CUcheckpointLockArgs_st method)</a>
 </li>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointOperationHandle.getPtr">(cuda.bindings.driver.CUcheckpointOperationHandle method)</a>
-</li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointRestoreArgs.getPtr">(cuda.bindings.driver.CUcheckpointRestoreArgs method)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointRestoreArgs_st.getPtr">(cuda.bindings.driver.CUcheckpointRestoreArgs_st method)</a>
@@ -9990,10 +9684,6 @@
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointUnlockArgs.getPtr">(cuda.bindings.driver.CUcheckpointUnlockArgs method)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointUnlockArgs_st.getPtr">(cuda.bindings.driver.CUcheckpointUnlockArgs_st method)</a>
-</li>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUcliqueInfo.getPtr">(cuda.bindings.driver.CUcliqueInfo method)</a>
-</li>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUcliqueInfo_st.getPtr">(cuda.bindings.driver.CUcliqueInfo_st method)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcontext.getPtr">(cuda.bindings.driver.CUcontext method)</a>
 </li>
@@ -10776,8 +10466,6 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.GpuDynamicPstatesInfo.html#cuda.bindings.nvml.GpuDynamicPstatesInfo">GpuDynamicPstatesInfo (class in cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.GpuFabricClique_v1.html#cuda.bindings.nvml.GpuFabricClique_v1">GpuFabricClique_v1 (class in cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.GpuFabricHealthMaskAccessTimeout.html#cuda.bindings.nvml.GpuFabricHealthMaskAccessTimeout">GpuFabricHealthMaskAccessTimeout (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.GpuFabricHealthMaskDegradedBw.html#cuda.bindings.nvml.GpuFabricHealthMaskDegradedBw">GpuFabricHealthMaskDegradedBw (class in cuda.bindings.nvml)</a>
@@ -10794,8 +10482,6 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.GpuFabricInfo_v3.html#cuda.bindings.nvml.GpuFabricInfo_v3">GpuFabricInfo_v3 (class in cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.GpuFabricInfo_v4.html#cuda.bindings.nvml.GpuFabricInfo_v4">GpuFabricInfo_v4 (class in cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.GpuFabricState.html#cuda.bindings.nvml.GpuFabricState">GpuFabricState (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.GpuInstanceInfo.html#cuda.bindings.nvml.GpuInstanceInfo">GpuInstanceInfo (class in cuda.bindings.nvml)</a>
@@ -10811,8 +10497,6 @@
       <li><a href="module/generated/cuda.bindings.nvml.GpuIsLostError.html#cuda.bindings.nvml.GpuIsLostError">GpuIsLostError</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.GpuNotFoundError.html#cuda.bindings.nvml.GpuNotFoundError">GpuNotFoundError</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.GpuOperationalEventConfig_v1.html#cuda.bindings.nvml.GpuOperationalEventConfig_v1">GpuOperationalEventConfig_v1 (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.GpuOperationMode.html#cuda.bindings.nvml.GpuOperationMode">GpuOperationMode (class in cuda.bindings.nvml)</a>
 </li>
@@ -10866,20 +10550,16 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCustomStorageInfo.handle">handle (cuda.bindings.driver.CUcheckpointCustomStorageInfo attribute)</a>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS.handle">handle (cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS attribute)</a>, <a href="module/driver.html#id1">[1]</a>
 
       <ul>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCustomStorageInfo_st.handle">(cuda.bindings.driver.CUcheckpointCustomStorageInfo_st attribute)</a>
-</li>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS.handle">(cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS attribute)</a>, <a href="module/driver.html#id1">[1]</a>
-</li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaConditionalNodeParams.handle">(cuda.bindings.runtime.cudaConditionalNodeParams attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/generated/cuda.bindings.cufile.handle_deregister.html#cuda.bindings.cufile.handle_deregister">handle_deregister() (in module cuda.bindings.cufile)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/generated/cuda.bindings.cufile.handle_register.html#cuda.bindings.cufile.handle_register">handle_register() (in module cuda.bindings.cufile)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.HostVgpuMode.html#cuda.bindings.nvml.HostVgpuMode">HostVgpuMode (class in cuda.bindings.nvml)</a>
@@ -10914,10 +10594,10 @@
 </li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.InputType">InputType (class in cuda.bindings.nvjitlink)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.InsufficientPowerError.html#cuda.bindings.nvml.InsufficientPowerError">InsufficientPowerError</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module/generated/cuda.bindings.nvml.InsufficientPowerError.html#cuda.bindings.nvml.InsufficientPowerError">InsufficientPowerError</a>
+</li>
       <li><a href="module/generated/cuda.bindings.nvml.InsufficientResourcesError.html#cuda.bindings.nvml.InsufficientResourcesError">InsufficientResourcesError</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.InsufficientSizeError.html#cuda.bindings.nvml.InsufficientSizeError">InsufficientSizeError</a>
@@ -10933,8 +10613,6 @@
       <li><a href="module/generated/cuda.bindings.cufile.IOEvents.html#cuda.bindings.cufile.IOEvents">IOEvents (class in cuda.bindings.cufile)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.cufile.IOParams.html#cuda.bindings.cufile.IOParams">IOParams (class in cuda.bindings.cufile)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.cufile.IOVec.html#cuda.bindings.cufile.IOVec">IOVec (class in cuda.bindings.cufile)</a>
 </li>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.ir_version">ir_version() (in module cuda.bindings.nvvm)</a>
 </li>
@@ -11109,15 +10787,9 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.NvlinkSetBwMode_v1.html#cuda.bindings.nvml.NvlinkSetBwMode_v1">NvlinkSetBwMode_v1 (class in cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.NvlinkSetBwModeAsync_v1.html#cuda.bindings.nvml.NvlinkSetBwModeAsync_v1">NvlinkSetBwModeAsync_v1 (class in cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.NvlinkState.html#cuda.bindings.nvml.NvlinkState">NvlinkState (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.NvlinkSupportedBwModes_v1.html#cuda.bindings.nvml.NvlinkSupportedBwModes_v1">NvlinkSupportedBwModes_v1 (class in cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.NvlinkTelemetrySample_v1.html#cuda.bindings.nvml.NvlinkTelemetrySample_v1">NvlinkTelemetrySample_v1 (class in cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.NvlinkTelemetrySamples_v1.html#cuda.bindings.nvml.NvlinkTelemetrySamples_v1">NvlinkTelemetrySamples_v1 (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.NvLinkUtilizationCountPktTypes.html#cuda.bindings.nvml.NvLinkUtilizationCountPktTypes">NvLinkUtilizationCountPktTypes (class in cuda.bindings.nvml)</a>
 </li>
@@ -11139,12 +10811,12 @@
 </li>
       <li><a href="module/nvrtc.html#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT">NVRTC_ERROR_INVALID_INPUT (cuda.bindings.nvrtc.nvrtcResult attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/nvrtc.html#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION">NVRTC_ERROR_INVALID_OPTION (cuda.bindings.nvrtc.nvrtcResult attribute)</a>
 </li>
       <li><a href="module/nvrtc.html#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM">NVRTC_ERROR_INVALID_PROGRAM (cuda.bindings.nvrtc.nvrtcResult attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/nvrtc.html#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID">NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID (cuda.bindings.nvrtc.nvrtcResult attribute)</a>
 </li>
       <li><a href="module/nvrtc.html#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION">NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION (cuda.bindings.nvrtc.nvrtcResult attribute)</a>
@@ -11245,8 +10917,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.InputType.OBJECT">OBJECT (cuda.bindings.nvjitlink.InputType attribute)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.ObservedMetrics.html#cuda.bindings.nvml.ObservedMetrics">ObservedMetrics (class in cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC.offset">offset (cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC attribute)</a>
 
       <ul>
@@ -11265,14 +10935,14 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExternalMemoryMipmappedArrayDesc.offset">(cuda.bindings.runtime.cudaExternalMemoryMipmappedArrayDesc attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointGpuPair.oldUuid">oldUuid (cuda.bindings.driver.CUcheckpointGpuPair attribute)</a>
 
       <ul>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointGpuPair_st.oldUuid">(cuda.bindings.driver.CUcheckpointGpuPair_st attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/generated/cuda.bindings.cufile.op_status_error.html#cuda.bindings.cufile.op_status_error">op_status_error() (in module cuda.bindings.cufile)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUtensorMap.opaque">opaque (cuda.bindings.driver.CUtensorMap attribute)</a>
@@ -11357,25 +11027,13 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.PciInfoExt_v1.html#cuda.bindings.nvml.PciInfoExt_v1">PciInfoExt_v1 (class in cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.PerfMetricControllerSample.html#cuda.bindings.nvml.PerfMetricControllerSample">PerfMetricControllerSample (class in cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.PerfMetricsDlppc2xSample.html#cuda.bindings.nvml.PerfMetricsDlppc2xSample">PerfMetricsDlppc2xSample (class in cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.PerfMetricsPfpp1xSample.html#cuda.bindings.nvml.PerfMetricsPfpp1xSample">PerfMetricsPfpp1xSample (class in cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.PerfMetricsSample.html#cuda.bindings.nvml.PerfMetricsSample">PerfMetricsSample (class in cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.PerfMetricsSamples_v1.html#cuda.bindings.nvml.PerfMetricsSamples_v1">PerfMetricsSamples_v1 (class in cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.PerfPolicyType.html#cuda.bindings.nvml.PerfPolicyType">PerfPolicyType (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.PlatformInfo_v1.html#cuda.bindings.nvml.PlatformInfo_v1">PlatformInfo_v1 (class in cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.PlatformInfo_v2.html#cuda.bindings.nvml.PlatformInfo_v2">PlatformInfo_v2 (class in cuda.bindings.nvml)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="module/generated/cuda.bindings.nvml.PmgrPwrTuple.html#cuda.bindings.nvml.PmgrPwrTuple">PmgrPwrTuple (class in cuda.bindings.nvml)</a>
+      <li><a href="module/generated/cuda.bindings.nvml.PlatformInfo_v2.html#cuda.bindings.nvml.PlatformInfo_v2">PlatformInfo_v2 (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEM_ALLOC_NODE_PARAMS.poolProps">poolProps (cuda.bindings.driver.CUDA_MEM_ALLOC_NODE_PARAMS attribute)</a>
 
@@ -11433,33 +11091,15 @@
 </li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.InputType.PTX">PTX (cuda.bindings.nvjitlink.InputType attribute)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.PwrModelMetricsDlppm1x.html#cuda.bindings.nvml.PwrModelMetricsDlppm1x">PwrModelMetricsDlppm1x (class in cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.PwrModelMetricsDlppm1xDramclkEstimates.html#cuda.bindings.nvml.PwrModelMetricsDlppm1xDramclkEstimates">PwrModelMetricsDlppm1xDramclkEstimates (class in cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.PwrModelMetricsDlppm1xPerf.html#cuda.bindings.nvml.PwrModelMetricsDlppm1xPerf">PwrModelMetricsDlppm1xPerf (class in cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.PwrModelMetricsPfpp1x.html#cuda.bindings.nvml.PwrModelMetricsPfpp1x">PwrModelMetricsPfpp1x (class in cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.PwrModelMetricsSamplePfpp1x.html#cuda.bindings.nvml.PwrModelMetricsSamplePfpp1x">PwrModelMetricsSamplePfpp1x (class in cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.PwrModelOperatingPointPfpp1x.html#cuda.bindings.nvml.PwrModelOperatingPointPfpp1x">PwrModelOperatingPointPfpp1x (class in cuda.bindings.nvml)</a>
-</li>
   </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="module/generated/cuda.bindings.nvml.RailMetrics.html#cuda.bindings.nvml.RailMetrics">RailMetrics (class in cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.cufile.read.html#cuda.bindings.cufile.read">read() (in module cuda.bindings.cufile)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.cufile.read_async.html#cuda.bindings.cufile.read_async">read_async() (in module cuda.bindings.cufile)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.cufile.readv.html#cuda.bindings.cufile.readv">readv() (in module cuda.bindings.cufile)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.RemappedRowsInfo_v2.html#cuda.bindings.nvml.RemappedRowsInfo_v2">RemappedRowsInfo_v2 (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.RepairStatus_v1.html#cuda.bindings.nvml.RepairStatus_v1">RepairStatus_v1 (class in cuda.bindings.nvml)</a>
 </li>
@@ -11534,8 +11174,6 @@
       <li><a href="module/cudla.html#cuda.bindings.cudla.set_task_timeout_in_ms">set_task_timeout_in_ms() (in module cuda.bindings.cudla)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.set_vgpu_version.html#cuda.bindings.nvml.set_vgpu_version">set_vgpu_version() (in module cuda.bindings.nvml)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.nvml.SetMemoryLimits_v1.html#cuda.bindings.nvml.SetMemoryLimits_v1">SetMemoryLimits_v1 (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUctxCigParam.sharedDataType">sharedDataType (cuda.bindings.driver.CUctxCigParam attribute)</a>
 
@@ -11691,8 +11329,6 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.system_get_conf_compute_state.html#cuda.bindings.nvml.system_get_conf_compute_state">system_get_conf_compute_state() (in module cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.system_get_cper_v1.html#cuda.bindings.nvml.system_get_cper_v1">system_get_cper_v1() (in module cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.system_get_cuda_driver_version.html#cuda.bindings.nvml.system_get_cuda_driver_version">system_get_cuda_driver_version() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.system_get_cuda_driver_version_v2.html#cuda.bindings.nvml.system_get_cuda_driver_version_v2">system_get_cuda_driver_version_v2() (in module cuda.bindings.nvml)</a>
@@ -11763,10 +11399,6 @@
 
       <ul>
         <li><a href="module/driver.html#cuda.bindings.driver.CUasyncNotificationInfo_st.type">(cuda.bindings.driver.CUasyncNotificationInfo_st attribute)</a>
-</li>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUcliqueInfo.type">(cuda.bindings.driver.CUcliqueInfo attribute)</a>
-</li>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUcliqueInfo_st.type">(cuda.bindings.driver.CUcliqueInfo_st attribute)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.type">(cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC attribute)</a>
 </li>
@@ -11975,10 +11607,10 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.vgpu_type_get_gsp_heap_size.html#cuda.bindings.nvml.vgpu_type_get_gsp_heap_size">vgpu_type_get_gsp_heap_size() (in module cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.vgpu_type_get_license.html#cuda.bindings.nvml.vgpu_type_get_license">vgpu_type_get_license() (in module cuda.bindings.nvml)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module/generated/cuda.bindings.nvml.vgpu_type_get_license.html#cuda.bindings.nvml.vgpu_type_get_license">vgpu_type_get_license() (in module cuda.bindings.nvml)</a>
+</li>
       <li><a href="module/generated/cuda.bindings.nvml.vgpu_type_get_max_instances.html#cuda.bindings.nvml.vgpu_type_get_max_instances">vgpu_type_get_max_instances() (in module cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.vgpu_type_get_max_instances_per_gpu_instance.html#cuda.bindings.nvml.vgpu_type_get_max_instances_per_gpu_instance">vgpu_type_get_max_instances_per_gpu_instance() (in module cuda.bindings.nvml)</a>
@@ -12043,8 +11675,6 @@
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.VgpuSchedulerLogInfo_v1.html#cuda.bindings.nvml.VgpuSchedulerLogInfo_v1">VgpuSchedulerLogInfo_v1 (class in cuda.bindings.nvml)</a>
 </li>
-      <li><a href="module/generated/cuda.bindings.nvml.VgpuSchedulerLogInfo_v2.html#cuda.bindings.nvml.VgpuSchedulerLogInfo_v2">VgpuSchedulerLogInfo_v2 (class in cuda.bindings.nvml)</a>
-</li>
       <li><a href="module/generated/cuda.bindings.nvml.VgpuSchedulerParams.html#cuda.bindings.nvml.VgpuSchedulerParams">VgpuSchedulerParams (class in cuda.bindings.nvml)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.nvml.VgpuSchedulerPolicy.html#cuda.bindings.nvml.VgpuSchedulerPolicy">VgpuSchedulerPolicy (class in cuda.bindings.nvml)</a>
@@ -12089,6 +11719,8 @@
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_ARRAY_DESCRIPTOR_v2.Width">(cuda.bindings.driver.CUDA_ARRAY_DESCRIPTOR_v2 attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/driver.html#cuda.bindings.driver.CUextent3D.width">width (cuda.bindings.driver.CUextent3D attribute)</a>
 
       <ul>
@@ -12103,13 +11735,9 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExtent.width">(cuda.bindings.runtime.cudaExtent attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/generated/cuda.bindings.cufile.write.html#cuda.bindings.cufile.write">write() (in module cuda.bindings.cufile)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.cufile.write_async.html#cuda.bindings.cufile.write_async">write_async() (in module cuda.bindings.cufile)</a>
-</li>
-      <li><a href="module/generated/cuda.bindings.cufile.writev.html#cuda.bindings.cufile.writev">writev() (in module cuda.bindings.cufile)</a>
 </li>
   </ul></td>
 </tr></table>
