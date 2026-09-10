@@ -1,6 +1,0 @@
-﻿cuda.pathfinder.SUPPORTED\_NVIDIA\_LIBNAMES
-===========================================
-
-.. currentmodule:: cuda.pathfinder
-
-.. autodata:: SUPPORTED_NVIDIA_LIBNAMES
