@@ -42,12 +42,12 @@ if [[ "${1}" == "build" ]]; then
   # platform is handled by the default value of platform (`auto`) in cibuildwheel
   # here we only need to specify the python version we want
   echo "CIBW_BUILD=cp${PYTHON_VERSION_FORMATTED}-*" >> $GITHUB_ENV
-  if [[ "${HOST_PLATFORM}" == "win-arm64" ]]; then
-    # cibuildwheel's `auto` architecture detection resolves to AMD64 on the
-    # windows-11-arm hosted runner (the Actions runner process itself reports
-    # AMD64 via emulation), so the target arch must be forced explicitly.
-    echo "CIBW_ARCHS=ARM64" >> $GITHUB_ENV
-  fi
+  # if [[ "${HOST_PLATFORM}" == "win-arm64" ]]; then
+  #   # cibuildwheel's `auto` architecture detection resolves to AMD64 on the
+  #   # windows-11-arm hosted runner (the Actions runner process itself reports
+  #   # AMD64 via emulation), so the target arch must be forced explicitly.
+  #   echo "CIBW_ARCHS=ARM64" >> $GITHUB_ENV
+  # fi
   BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
   echo "BUILD_CUDA_MAJOR=${BUILD_CUDA_MAJOR}" >> $GITHUB_ENV
   echo "BUILD_PREV_CUDA_MAJOR=$((${BUILD_CUDA_MAJOR} - 1))" >> $GITHUB_ENV
