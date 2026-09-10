@@ -308,11 +308,12 @@ cdef class _HelperCUpointer_attribute:
         if self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_CONTEXT,):
             return self._ctx
         elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
-                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES,
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE,
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ACCESS_FLAGS,):
             return self._uint
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,):
+            return self._int
         elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_POINTER,
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_START_ADDR,):
             return self._devptr
