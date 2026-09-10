@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.GridLicensableFeatures
+=========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GridLicensableFeatures
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GridLicensableFeatures.__init__
+      ~GridLicensableFeatures.from_buffer
+      ~GridLicensableFeatures.from_data
+      ~GridLicensableFeatures.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GridLicensableFeatures.grid_licensable_features
+      ~GridLicensableFeatures.is_grid_license_supported
+      ~GridLicensableFeatures.ptr
+   
+   
