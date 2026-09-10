@@ -365,7 +365,7 @@ def test_launch_config_cluster_rejects_pre_hopper_cc(monkeypatch):
     looked_up = []
     monkeypatch.setattr(_lc_mod, "Device", lambda: looked_up.append(1) or _FakeDev())
 
-    with pytest.raises(CUDAError, match="cluster launch attributes are not supported"):
+    with pytest.raises(CUDAError, match="thread block clusters are not supported"):
         LaunchConfig(grid=2, cluster=2, block=32)
     assert looked_up, "Device was not looked up via the module global; mock did not take effect"
 
