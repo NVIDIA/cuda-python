@@ -1,0 +1,19 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 1.3.0 Release Notes
+=================================
+
+New features
+------------
+
+- Added the read-only :attr:`ManagedBuffer.last_prefetch_location` property,
+  which reports the destination requested by the most recent explicit
+  prefetch across the buffer. It returns a :class:`Device` or :class:`Host`,
+  including NUMA-specific host locations on CUDA 13, and ``None`` if any page
+  has never been prefetched or the pages do not share one last-prefetch
+  location. This reports the requested target, not current residency or
+  completion of the asynchronous prefetch operation.
+  (`#2109 <https://github.com/NVIDIA/cuda-python/issues/2109>`__)
