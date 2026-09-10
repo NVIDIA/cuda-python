@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_nv\_link\_telemetry\_samples\_v1
+================================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_nv_link_telemetry_samples_v1
