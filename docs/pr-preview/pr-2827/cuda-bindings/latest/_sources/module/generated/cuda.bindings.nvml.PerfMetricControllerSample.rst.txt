@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.PerfMetricControllerSample
+=============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: PerfMetricControllerSample
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PerfMetricControllerSample.__init__
+      ~PerfMetricControllerSample.from_buffer
+      ~PerfMetricControllerSample.from_data
+      ~PerfMetricControllerSample.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PerfMetricControllerSample.controller_type
+      ~PerfMetricControllerSample.data_
+      ~PerfMetricControllerSample.ptr
+   
+   
