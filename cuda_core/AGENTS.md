@@ -38,7 +38,7 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
 - **Cython tests**:
   - build: `tests/cython/build_tests.sh` (or platform equivalent)
   - run: `pytest tests/cython/`
-- **Examples**: validate affected examples in `examples/` when changing user
+- **Samples**: validate affected samples in `../samples/cuda_core/` when changing user
   workflows or public APIs.
 
 ## Runtime/build environment notes
@@ -54,7 +54,7 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
 
 ## Editing guidance
 
-- Keep user-facing behaviors coherent with docs and examples, especially around
+- Keep user-facing behaviors coherent with docs and samples, especially around
   stream semantics, memory ownership, and compile/link flows.
 - Reuse existing shared utilities in `cuda/core/_utils/` before adding new
   helpers.

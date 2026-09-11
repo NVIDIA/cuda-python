@@ -69,6 +69,8 @@ test = [
     "pytest-timeout==2.4.0",
     "cloudpickle==3.1.2",
     "psutil==7.2.2",
+    "packaging>=24",
+    "tomli>=2; python_version < '3.11'",
     "docutils==0.23",
     # Required by tests/test_graphics.py; pinned to match cuda_bindings.
     "pyglet==2.1.14",
