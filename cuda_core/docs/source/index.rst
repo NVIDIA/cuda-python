@@ -16,6 +16,7 @@ Welcome to the documentation for ``cuda.core``.
    examples
    interoperability
    concurrency
+   error_handling
    api
    api_nvml
    environment_variables

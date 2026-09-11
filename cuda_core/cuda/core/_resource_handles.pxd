@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from cpython.object cimport PyObject
 from libc.stddef cimport size_t
 from libc.stdint cimport intptr_t
 
@@ -168,6 +169,18 @@ cdef cydriver.CUresult get_last_error() noexcept nogil
 cdef cydriver.CUresult peek_last_error() noexcept nogil
 cdef void clear_last_error() noexcept nogil
 
+# Non-propagating error reporting (never raises; emits cuda.core.CUDAWarning
+# when possible, else writes to stderr)
+cdef void register_warning_category(PyObject* category) noexcept
+cdef void report_cuda_error(
+    const char* operation, cydriver.CUresult status, const char* detail) noexcept nogil
+cdef void report_message(const char* message) noexcept nogil
+cdef void report_status_code(const char* operation, long code) noexcept nogil
+cdef void note_or_report_cuda_error(
+    const char* operation, cydriver.CUresult status, const char* detail) noexcept nogil
+cdef const char* take_last_error_detail(cydriver.CUresult status) noexcept nogil
+cdef void clear_last_error_detail() noexcept nogil
+
 # Context handles
 cdef ContextHandle create_context_handle_ref(cydriver.CUcontext ctx) except+ nogil
 cdef ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green_ctx) except+ nogil
@@ -184,6 +197,11 @@ cdef cydriver.CUresult context_get_stream_priority_range(
     const ContextHandle& h_context,
     int* least_priority,
     int* greatest_priority) noexcept nogil
+cdef cydriver.CUresult context_get_device(
+    const ContextHandle& h_context, cydriver.CUdevice* device) noexcept nogil
+cdef cydriver.CUresult graph_node_set_params(
+    cydriver.CUgraphNode node, cydriver.CUgraphNodeParams* params,
+    const ContextHandle& h_context, cydriver.CUresult* restore_status) noexcept nogil
 
 # Stream handles
 cdef StreamHandle create_stream_handle(

@@ -101,6 +101,66 @@ and agents should flag violations.
   (kernel arguments, memcpy/memset operands, `dst_owner`/`src_owner`, and
   host-callback closures) inherit this contract.
 
+## Failure handling
+
+The user-facing contract lives in `docs/source/error_handling.rst`; the rules
+below are for contributors. Reviewers and agents should flag violations.
+
+- **Raise by default**: any failure on a path where an exception can propagate
+  raises. Driver statuses go through `HANDLE_RETURN` (Cython) or are returned as
+  `CUresult` from the C++ handle layer and then `HANDLE_RETURN`ed; never
+  replace a `CUresult` with a generic `RuntimeError`, and drain
+  `get_last_error()` immediately after a handle constructor returns empty so a
+  stale status cannot be misattributed later.
+- **Guarantees**: a call that creates a resource must create nothing when it
+  raises (undo the creation if a later step fails). Every call except
+  `Device.set_current` must leave the calling thread's current context as it
+  found it. Do not hand-roll `cuCtxPush/Pop/SetCurrent` sequences in Cython; use
+  the handle layer's scoped-context helpers (`invoke_in_context`,
+  `invoke_in_context_or_undo`, `cleanup_in_context`, `context_get_device`,
+  `graph_node_set_params`) so the failure handling exists in one place.
+- **Publish before you raise**: when a driver mutation has succeeded and a later
+  step can still fail, commit whatever keeps that mutation memory-safe (for
+  example the graph attachment that retains a node's new owners) before raising
+  the later error. Rolling back the retention of a live mutation creates a
+  dangling reference. When ownership cannot be established, retain the
+  resources anyway (leak) rather than release them; a leak is always preferred
+  to a use-after-free.
+- **Non-propagating paths never raise and never discard a status**: shared_ptr
+  deleters, `__dealloc__` and CUDA callbacks report through one channel, `report_cuda_error()` / `report_message()` in C++ (the
+  `pw_*` wrappers) or `warnings.warn(..., CUDAWarning)` in Cython and Python,
+  which emits `cuda.core.CUDAWarning`. No `print(file=sys.stderr)` and no
+  `fprintf` outside that helper. `CUDA_ERROR_DEINITIALIZED` is filtered by the
+  helper because it means the driver is shutting down.
+- **Rollback failure**: the original exception propagates; the failed rollback
+  is attached to it with `note_or_report_cuda_error()` (a PEP 678 note on
+  Python 3.11+, reported out-of-band on 3.10), or chained with
+  `raise ... from` when a second exception must be raised. Catching everything
+  (bare `except:` or `except BaseException:`) is acceptable only for
+  rollback-then-`raise` blocks, where the rollback must also run for
+  `KeyboardInterrupt`.
+- **Finalization**: once `py_is_finalizing()` is true, do no Python work from
+  destructors or callbacks and accept the leak (see
+  `_cpp/resource_handles.hpp` and `_cpp/GRAPH_ATTACHMENTS.md`).
+- **Never terminate the process**: no `std::abort`, `std::terminate`, `exit`,
+  `Py_FatalError`, or `assert` that survives into a release build, anywhere in
+  `cuda.core`. A failed CUDA call, including a failed context restoration, is
+  raised or reported. An internal invariant violation is handled the same way:
+  raise a `RuntimeError` that says "internal cuda.core error, please report"
+  where an exception can propagate, report through the channel above where it
+  cannot, and leak the affected resource rather than touch state that may be
+  inconsistent. Users who want fail-fast behavior get it with
+  `warnings.filterwarnings("error", category=CUDAWarning)` and
+  `PYTHONFAULTHANDLER`; the library does not make that choice for them. An
+  *implicit* abort (an exception escaping a `noexcept` function or a deleter,
+  including `std::bad_alloc` from an allocation inside `noexcept` code) is a
+  bug (#1489, #2417), not a policy choice: `noexcept` helpers must not
+  allocate, or must catch what they call.
+- **Testing**: inject restoration failures with
+  `cuda.core._resource_handles._set_context_restore_fault_for_testing`; assert
+  reports with `pytest.warns(CUDAWarning)` or `warnings.catch_warnings`, never
+  by matching stderr text.
+
 ## API design guidelines
 
 These are some API design guidelines we try to follow when adding new APIs to
