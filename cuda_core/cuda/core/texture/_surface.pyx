@@ -9,7 +9,7 @@ from libc.string cimport memset
 from cuda.bindings cimport cydriver
 from cuda.core._context cimport Context
 from cuda.core.texture._array cimport OpaqueArray, OpaqueArray_check_open
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     ContextHandle,
     SurfObjectHandle,
     as_cu,

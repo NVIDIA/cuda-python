@@ -5,7 +5,7 @@
 from libcpp.mutex cimport py_safe_once_flag
 
 from cuda.bindings cimport cydriver
-from cuda.core._resource_handles cimport LibraryHandle, KernelHandle
+from cuda.core._rt cimport LibraryHandle, KernelHandle
 
 cdef class ObjectCode
 cdef class Kernel

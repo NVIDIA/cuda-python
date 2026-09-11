@@ -5,7 +5,7 @@
 from libcpp cimport bool as cpp_bool
 from libcpp.atomic cimport atomic as std_atomic
 
-from cuda.core._resource_handles cimport DevicePtrHandle
+from cuda.core._rt cimport DevicePtrHandle
 
 
 cdef struct _MemAttrs:

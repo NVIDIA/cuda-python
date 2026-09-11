@@ -16,7 +16,7 @@ from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._launch_config import LaunchConfig
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._program import ObjectCodeFormatType
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     LibraryHandle,
     KernelHandle,
     create_library_handle_from_file,

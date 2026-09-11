@@ -106,37 +106,47 @@ return as_py(h_stream)  # cuda.bindings.driver.CUstream
 
 ```
 cuda/core/
-├── _resource_handles.pyx    # Cython module (compiles resource_handles.cpp)
-├── _resource_handles.pxd    # Cython declarations for consumer modules
-└── _cpp/
-    ├── resource_handles.hpp       # C++ API declarations
-    └── resource_handles.cpp       # C++ implementation
+├── _rt.pyx                  # Cython module (compiles everything under _cpp/rt/)
+├── _rt.pxd                  # Cython declarations for consumer modules
+└── _cpp/rt/
+    ├── rt.hpp               # Module umbrella, named only by _rt.pyx
+    ├── handles.hpp          # Consumer umbrella, named only by _rt.pxd
+    ├── types.hpp            # Handle aliases, tagged values, inline accessors
+    ├── api.hpp              # Prototypes of the handle factories and accessors
+    ├── driver_api.hpp/.cpp  # Driver function-pointer table, version-gated shims
+    ├── error.hpp/.cpp       # Thread-local error state, non-propagating reporting
+    ├── py.hpp               # The one header that includes <Python.h>
+    ├── context_scope.hpp    # Scoped-context helpers (namespace detail)
+    ├── internal.hpp         # Registry, cleanup wrappers, deferred-cleanup item (namespace detail)
+    ├── py_report.cpp, py_deferred_cleanup.cpp        # Python-coupled bodies
+    └── context.cpp, stream.cpp, event.cpp, memory.cpp, program.cpp,
+        graph.cpp, graph_exec.cpp, texture.cpp        # One resource family per file
 ```
 
 ### Build Implications
 
-The `_cpp/` subdirectory contains C++ source files that are compiled into the
-`_resource_handles` extension module. Other Cython modules in cuda.core do **not**
-link against this code directly—they `cimport` functions from
-`_resource_handles.pxd`, and calls go through `_resource_handles.so` at runtime.
+Every `.cpp` under `_cpp/rt/` is compiled into the one `_rt` extension module.
+Other Cython modules in cuda.core do **not** link against this code
+directly—they `cimport` functions from `_rt.pxd`, and calls go through
+`_rt.so` at runtime.
 
 ## Cross-Module Function Sharing
 
 **Problem**: Cython extension modules compile independently. If multiple modules
-(`_memory.pyx`, `_ipc.pyx`, etc.) each linked `resource_handles.cpp`, they would
+(`_memory.pyx`, `_ipc.pyx`, etc.) each linked the C++ under `_cpp/rt/`, they would
 each have their own copies of:
 
 - Static driver function pointers
 - Thread-local error state
 - Other static data, including global caches
 
-**Solution**: Only `_resource_handles.so` links the C++ code. The `.pyx` file
+**Solution**: Only `_rt.so` links the C++ code. The `.pyx` file
 uses `cdef extern from` to declare C++ functions with Cython-accessible names:
 
 ```cython
-# In _resource_handles.pyx
-cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
-    StreamHandle create_stream_handle "cuda_core::create_stream_handle" (
+# In _rt.pyx
+cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
+    StreamHandle create_stream_handle "cuda_core::rt::create_stream_handle" (
         ContextHandle h_ctx, unsigned int flags, int priority) nogil
     # ... other functions
 ```
@@ -144,18 +154,18 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 The `.pxd` file declares these same functions so other modules can `cimport` them:
 
 ```cython
-# In _resource_handles.pxd
+# In _rt.pxd
 cdef StreamHandle create_stream_handle(
     ContextHandle h_ctx, unsigned int flags, int priority) noexcept nogil
 ```
 
 The `cdef extern from` declaration in the `.pyx` satisfies the `.pxd` declaration
 directly—no wrapper functions are needed. When consumer modules `cimport` these
-functions, Cython generates calls through `_resource_handles.so` at runtime.
+functions, Cython generates calls through `_rt.so` at runtime.
 This ensures all static and thread-local state lives in a single shared library,
 avoiding the duplicate state problem.
 
-## CUDA Driver API Capsule (`_CUDA_DRIVER_API_V1`)
+## CUDA driver function pointers via cuda-bindings' `__pyx_capi__`
 
 **Problem**: cuda.core cannot directly call CUDA driver functions because:
 
@@ -165,13 +175,13 @@ avoiding the duplicate state problem.
 **Solution**: The C++ code declares extern function pointer variables:
 
 ```cpp
-// resource_handles.hpp
+// driver_api.hpp
 extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
 extern decltype(&cuMemPoolCreate) p_cuMemPoolCreate;
 // ... etc
 ```
 
-At module import time, `_resource_handles.pyx` populates these pointers by
+At module import time, `_rt.pyx` populates these pointers by
 extracting them from `cuda.bindings.cydriver.__pyx_capi__`:
 
 ```cython
@@ -275,10 +285,56 @@ Related functions:
 - `peek_last_error()`: Returns the error without clearing it
 - `clear_last_error()`: Clears the error state
 
+The C++ layer never raises Python exceptions: it runs `nogil` and `noexcept`,
+and is called from deleters, CUDA callbacks and GIL-released code where raising
+is impossible. Status is turned into `CUDAError` in one place, `HANDLE_RETURN`
+in the Cython layer. Which status convention a function uses is decided by its
+return value. Factories return the handle, so their status goes to thread-local
+`err` and is read with `get_last_error()`. Functions that do not produce a
+handle (`context_synchronize`, `context_get_device`, `graph_node_set_params`,
+the `graph_*_attachment` family, `deviceptr_alloc_raw`) return the `CUresult`
+directly and deliver results through out-parameters, mirroring the driver API;
+their callers `HANDLE_RETURN` the value. The two conventions never mix.
+
+### Context-scoped operations
+
+Operations that must run in a specific context use `invoke_in_context` /
+`invoke_in_context_or_undo` (propagating paths) and `cleanup_in_context`
+(deleters). They switch the current context, run the operation, and restore the
+caller's context. When restoration fails after the operation succeeded, the
+creation is undone and the restoration status is returned. When both fail, the
+operation status is returned. Either way the helper records a thread-local
+detail keyed to the returned status (`take_last_error_detail(status)`) that
+`_check_driver_error` attaches to the raised `CUDAError` as a PEP 678 note
+(appended to the message on Python 3.10), so the user learns that the caller's
+context was not restored, which context is current and, for a double failure,
+why restoration failed. Keying the detail to its status keeps it from attaching
+to an unrelated error if the caller never raises that status; `enter_context`
+clears any stale detail. Tests inject restoration failures with
+`set_context_restore_fault_for_testing()`.
+
+### Reporting from non-propagating paths
+
+Deleters and CUDA callbacks cannot raise. They report through
+`report_cuda_error()` / `report_message()` (the `pw_*` wrappers decorate
+destroy calls with it), which emit a `cuda.core.CUDAWarning` through
+the Python warnings machinery when the interpreter is usable, deliver an
+escalated warning as an unraisable exception, and fall back to stderr when the
+GIL cannot be taken (for example during finalization). `CUDA_ERROR_DEINITIALIZED`
+is never reported because it means the driver is shutting down. No status is
+discarded silently anywhere in this layer, and nothing in this layer terminates
+the process; see `docs/source/error_handling.rst` and the "Failure handling"
+section of `AGENTS.md` for the policy.
+
+A rollback that fails inside a Cython `except` block is not a non-propagating
+path: `note_or_report_cuda_error()` attaches it as a note to the exception being
+handled (`PyErr_GetHandledException`, Python 3.11+) and falls back to a report
+only when there is no such exception or notes are unavailable.
+
 ## Usage from Cython
 
 ```cython
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     StreamHandle,
     create_stream_handle,
     as_cu,
@@ -307,7 +363,7 @@ The resource handle design:
 2. **Encodes lifetimes structurally** via embedded handle dependencies.
 3. **Uses Cython's `cimport` mechanism** to share C++ code across modules without
    duplicate static/thread-local state.
-4. **Uses a capsule** to resolve CUDA driver symbols dynamically through cuda-bindings.
+4. **Resolves CUDA driver symbols** dynamically through cuda-bindings' `__pyx_capi__` capsules.
 5. **Provides overloaded accessors** (`as_cu`, `as_intptr`, `as_py`) since handles cannot
    have attributes without unnecessary Python object wrappers.
 

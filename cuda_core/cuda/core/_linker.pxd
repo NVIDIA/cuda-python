@@ -6,7 +6,7 @@ from libcpp.vector cimport vector
 
 from cuda.bindings cimport cydriver
 
-from ._resource_handles cimport NvJitLinkHandle, CuLinkHandle
+from ._rt cimport NvJitLinkHandle, CuLinkHandle
 
 
 cdef class Linker:
