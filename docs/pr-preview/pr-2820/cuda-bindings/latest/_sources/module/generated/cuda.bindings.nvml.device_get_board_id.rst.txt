@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_board\_id
+=========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_board_id

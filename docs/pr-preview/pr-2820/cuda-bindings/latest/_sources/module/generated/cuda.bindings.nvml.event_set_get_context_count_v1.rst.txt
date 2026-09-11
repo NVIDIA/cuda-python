@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.event\_set\_get\_context\_count\_v1
+======================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: event_set_get_context_count_v1
