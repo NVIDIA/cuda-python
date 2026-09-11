@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_set\_conf\_compute\_unprotected\_mem\_size
+=====================================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_set_conf_compute_unprotected_mem_size

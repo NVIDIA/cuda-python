@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_set\_memory\_limits\_v1
+==================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_set_memory_limits_v1
