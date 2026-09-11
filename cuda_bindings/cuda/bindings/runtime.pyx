@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=144b063e6665a8eda3633307d63f7bd708b343d3f3be6f61e0f39b5890fcc76e
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3ff83968470ed75fcb6f9869b1ea072055493376a761c571df614c041c70a869
 from typing import Any, Optional
 import cython
 import ctypes
@@ -31352,16 +31352,20 @@ def cudaGraphicsResourceGetMappedPointer(resource):
     Parameters
     ----------
     resource : :py:obj:`~.cudaGraphicsResource_t`
-        None
+        Mapped resource to access
 
     Returns
     -------
     cudaError_t
-
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorUnknown`
     devPtr : Any
-        None
+        Returned pointer through which `resource` may be accessed
     size : int
-        None
+        Returned size of the buffer accessible starting at `*devPtr`
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphicsMapResources`, :py:obj:`~.cudaGraphicsSubResourceGetMappedArray`, :py:obj:`~.cuGraphicsResourceGetMappedPointer`
     """
     cdef cyruntime.cudaGraphicsResource_t cyresource
     if resource is None:
@@ -34648,7 +34652,7 @@ def cudaGraphNodeGetToolsId(hNode):
     -------
     cudaError_t
         :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.cudaErrorInvalidValue`
-    *toolsNodeId : unsigned long long
+    toolsNodeId : unsigned long long
         Pointer to return the id used by tools
 
     See Also
