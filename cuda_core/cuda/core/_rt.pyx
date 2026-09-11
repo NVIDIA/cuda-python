@@ -95,8 +95,6 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
         cydriver.CUstream stream) except+ nogil
     StreamHandle create_stream_handle_with_owner "cuda_core::rt::create_stream_handle_with_owner" (
         cydriver.CUstream stream, object owner) except+ nogil
-    void py_object_user_object_destroy "cuda_core::rt::py_object_user_object_destroy" (
-        void* py_object) noexcept nogil
     void initialize_deferred_cleanup "cuda_core::rt::initialize_deferred_cleanup" () except+
     void retry_deferred_cleanup "cuda_core::rt::retry_deferred_cleanup" () noexcept
     ContextHandle get_stream_context "cuda_core::rt::get_stream_context" (
