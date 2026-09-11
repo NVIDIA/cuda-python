@@ -350,6 +350,19 @@ class ComputeWorkplanTest(unittest.TestCase):
         assert selected_sdist_variants(plan) == CUDA_VARIANTS
         assert plan["baseline"] == {"run_id": "123", "sha": "base"}
 
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_mixed_bindings_source_and_core_test_keep_line_specific_tests(self) -> None:
+        plan = plan_for(
+            "cuda_bindings_12/cuda/bindings/driver.pyx",
+            "cuda_core/tests/test_device.py",
+        )
+
+        assert selected(plan, "needs_test") == {"bindings", "core", "python"}
+        assert selected_package_roots(plan, "bindings", "needs_test") == {"cuda_bindings_12"}
+        assert selected_core_majors(plan, "needs_test") == CUDA_VARIANTS
+        assert selected_package_roots(plan, "python", "needs_test") == {"cuda_bindings_12"}
+        assert selected_cuda_majors(plan, "test_cuda_majors") == CUDA_VARIANTS
+
     def test_changed_symlink_targets_include_their_consumers(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

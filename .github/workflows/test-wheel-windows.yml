@@ -147,9 +147,9 @@ jobs:
   test:
     env:
       TEST_PATHFINDER: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_test }}
-      TEST_BINDINGS: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.needs_test }}
-      TEST_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_test }}
-      TEST_PYTHON: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_test }}
+      TEST_BINDINGS: ${{ inputs.workplan == '' || (matrix.BINDINGS_SOURCE == 'local' && fromJSON(inputs.workplan).modules.bindings.package_roots[matrix.BINDINGS_SOURCE_DIR].needs_test) }}
+      TEST_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.cuda_majors[matrix.CUDA_VARIANT].needs_test }}
+      TEST_PYTHON: ${{ inputs.workplan == '' || (matrix.BINDINGS_SOURCE == 'local' && fromJSON(inputs.workplan).modules.python.package_roots[matrix.BINDINGS_SOURCE_DIR].needs_test) }}
     name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }} (${{ matrix.DRIVER_MODE }})${{ matrix.ENV.TORCH_VER && format(', {0}+{1}', matrix.ENV.TORCH_VER, matrix.ENV.TORCH_CUDA) || '' }}${{ matrix.ENV.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
     timeout-minutes: 90
     # The build stage could fail but we want the CI to keep moving.
