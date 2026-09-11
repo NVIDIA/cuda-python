@@ -21,6 +21,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG = REPO_ROOT / "ci" / "versions.yml"
 SCHEMA_VERSION = 2
 RELEASE_STATUSES = frozenset({"current", "maintenance"})
+_DEPENDENT_RELEASE_TAG_PREFIXES = ("cuda-core-v", "cuda-pathfinder-v")
+_TAGGED_CONFIG_FILENAMES = ("versions.yml", "versions.json")
 
 _NAME_PATTERN = re.compile(r"[a-z][a-z0-9]*(?:-[a-z0-9]+)*")
 _PACKAGE_ROOT_PATTERN = re.compile(r"[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*")
@@ -260,21 +262,31 @@ def load_config(path: Path = DEFAULT_CONFIG, repo_root: Path = REPO_ROOT) -> Bin
     return validate_config(raw, repo_root)
 
 
-def _tag_tree_config(config_path: Path, release_source_root: Path) -> tuple[BindingsConfig | None, Any]:
+def _tag_tree_config(release_source_root: Path) -> tuple[BindingsConfig | None, Any, Path | None]:
     """Load a schema-2 tag-tree registry and retain legacy metadata."""
+    config_path = next(
+        (
+            release_source_root / "ci" / filename
+            for filename in _TAGGED_CONFIG_FILENAMES
+            if (release_source_root / "ci" / filename).is_file()
+        ),
+        None,
+    )
+    if config_path is None:
+        return None, None, None
+
     try:
-        raw: Any = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-    except FileNotFoundError:
-        return None, None
-    except (OSError, yaml.YAMLError) as error:
+        text = config_path.read_text(encoding="utf-8")
+        raw: Any = json.loads(text) if config_path.suffix == ".json" else yaml.safe_load(text)
+    except (OSError, json.JSONDecodeError, yaml.YAMLError) as error:
         raise BindingsConfigError(f"could not inspect tagged config {config_path}: {error}") from error
 
     if not isinstance(raw, dict):
-        raise BindingsConfigError(f"tagged config {config_path} must contain a YAML mapping")
+        raise BindingsConfigError(f"tagged config {config_path} must contain a mapping")
     if "schema_version" not in raw:
-        return None, raw
+        return None, raw, config_path
     try:
-        return validate_config(raw, release_source_root), raw
+        return validate_config(raw, release_source_root), raw, config_path
     except BindingsConfigError as error:
         raise BindingsConfigError(f"invalid schema-2 tagged config {config_path}: {error}") from error
 
@@ -331,6 +343,25 @@ def _legacy_release_package(
     return _release_record(package, release_version, "control")
 
 
+def _legacy_dependency_package(release_source_root: Path, raw: Any) -> dict[str, object]:
+    """Resolve the current bindings dependency from a legacy release tree."""
+    package_root = "cuda_bindings"
+    if not (release_source_root / package_root).is_dir():
+        raise BindingsConfigError(f"legacy release package root is missing: {package_root}")
+    try:
+        toolkit_version = raw["cuda"]["build"]["version"]
+    except (KeyError, TypeError):
+        toolkit_version = None
+    if toolkit_version is None:
+        raise BindingsConfigError("legacy tagged config has no cuda.build.version for the bindings dependency")
+    return {
+        "package_root": package_root,
+        "toolkit_version": _text(toolkit_version, "legacy cuda.build.version", _TOOLKIT_VERSION_PATTERN),
+        # Legacy CI used the unqualified cuda-python-wheel artifact name.
+        "release_registry_origin": "control",
+    }
+
+
 def _release_record(package: BindingsPackage, version: Version, origin: str) -> dict[str, object]:
     """Return the package fields consumed by release jobs."""
     return {
@@ -346,21 +377,36 @@ def resolve_release_bindings_package(
     release_source_root: Path,
     control_config_path: Path,
 ) -> dict[str, object]:
-    """Resolve a release tag using its tag tree, with legacy-layout fallback."""
+    """Resolve the bindings package needed by a release from its tag tree."""
     if not release_source_root.is_dir():
         raise BindingsConfigError(f"release source root is not a directory: {release_source_root}")
 
-    tagged_config_path = release_source_root / "ci" / "versions.yml"
-    config, raw = _tag_tree_config(tagged_config_path, release_source_root)
-    config_source = f"tagged config {tagged_config_path}"
+    config, raw, tagged_config_path = _tag_tree_config(release_source_root)
+    config_source = f"tagged config {tagged_config_path}" if tagged_config_path is not None else "tagged config"
+    bindings_version = parse_prefixed_version(release_tag, "v")
+    is_dependent_release = any(
+        parse_prefixed_version(release_tag, prefix) is not None for prefix in _DEPENDENT_RELEASE_TAG_PREFIXES
+    )
+    if bindings_version is None and not is_dependent_release:
+        raise BindingsConfigError(f"unsupported release tag: {release_tag!r}")
+
     if config is None:
+        if is_dependent_release:
+            return _legacy_dependency_package(release_source_root, raw)
         return _legacy_release_package(release_tag, release_source_root, control_config_path, raw)
 
-    package = config.match_tag(release_tag)
+    package = config.package_for_release_status("current") if is_dependent_release else config.match_tag(release_tag)
     if package is None:
         raise BindingsConfigError(
             f"no CUDA bindings package root in {config_source} matches release tag: {release_tag!r}"
         )
+
+    if is_dependent_release:
+        return {
+            "package_root": package.package_root,
+            "toolkit_version": package.toolkit_version,
+            "release_registry_origin": "tag",
+        }
 
     version = package.version_from_tag(release_tag)
     assert version is not None

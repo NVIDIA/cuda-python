@@ -52,6 +52,11 @@ def write_yaml(path: Path, data: object) -> None:
     path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
 
 
+def write_json(path: Path, data: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data), encoding="utf-8")
+
+
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_live_registry_has_ordered_package_roots_and_release_statuses():
     config = load_config()
@@ -291,6 +296,65 @@ def test_legacy_tag_tree_uses_control_registry_and_legacy_layout(tmp_path):
         "package_root": "cuda_bindings",
         "toolkit_version": "12.9.1",
         "release_version": "12.9.8",
+        "release_registry_origin": "control",
+    }
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_legacy_json_tag_tree_supplies_its_own_toolkit_pin(tmp_path):
+    release_root = tmp_path / "release"
+    write_json(release_root / "ci" / "versions.json", {"cuda": {"build": {"version": "12.9.1"}}})
+    write_scm_config(release_root, "cuda_bindings", r"^(?P<version>v\d+\.\d+\.\d+)")
+
+    resolved = resolve_release_bindings_package(
+        "v12.9.7",
+        release_root,
+        tmp_path / "control-config-must-not-be-used.yml",
+    )
+
+    assert resolved == {
+        "package_root": "cuda_bindings",
+        "toolkit_version": "12.9.1",
+        "release_version": "12.9.7",
+        "release_registry_origin": "control",
+    }
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_component_release_uses_current_bindings_dependency_from_modern_tag_tree(tmp_path):
+    release_root = tmp_path / "release"
+    tagged_config = release_root / "ci" / "versions.yml"
+    write_yaml(tagged_config, release_registry(current_dir="tag-current", maintenance_dir="tag-maintenance"))
+    write_release_scm_configs(release_root, current_dir="tag-current", maintenance_dir="tag-maintenance")
+
+    resolved = resolve_release_bindings_package(
+        "cuda-core-v1.2.0",
+        release_root,
+        tmp_path / "control-config-must-not-be-used.yml",
+    )
+
+    assert resolved == {
+        "package_root": "tag-current",
+        "toolkit_version": "13.4.1",
+        "release_registry_origin": "tag",
+    }
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_component_release_uses_bindings_dependency_from_legacy_json_tag_tree(tmp_path):
+    release_root = tmp_path / "release"
+    write_json(release_root / "ci" / "versions.json", {"cuda": {"build": {"version": "13.2.1"}}})
+    (release_root / "cuda_bindings").mkdir(parents=True)
+
+    resolved = resolve_release_bindings_package(
+        "cuda-core-v1.0.0",
+        release_root,
+        tmp_path / "control-config-must-not-be-used.yml",
+    )
+
+    assert resolved == {
+        "package_root": "cuda_bindings",
+        "toolkit_version": "13.2.1",
         "release_registry_origin": "control",
     }
 

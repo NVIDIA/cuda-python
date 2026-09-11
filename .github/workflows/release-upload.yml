@@ -60,6 +60,12 @@ jobs:
           fetch-depth: 1
           fetch-tags: true
 
+      - name: Checkout release source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ inputs.git-tag }}
+          path: release-source
+
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
@@ -114,7 +120,8 @@ jobs:
             "$RELEASE_GIT_TAG" \
             "$RELEASE_COMPONENT" \
             "release/wheels" \
-            --bindings-package "$BINDINGS_PACKAGE"
+            --bindings-package "$BINDINGS_PACKAGE" \
+            --release-source-root release-source
 
       - name: Upload Wheels
         if: ${{ !inputs.dry-run }}

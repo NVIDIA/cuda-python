@@ -80,18 +80,13 @@ jobs:
       - name: Resolve bindings release package
         id: resolve
         env:
-          RELEASE_COMPONENT: ${{ inputs.component }}
           RELEASE_TAG: ${{ inputs.git-tag }}
         run: |
-          if [[ "$RELEASE_COMPONENT" == "cuda-bindings" || "$RELEASE_COMPONENT" == "cuda-python" ]]; then
-            bindings_package=$(python -m ci.tools.bindings_config \
-              --release-tag "$RELEASE_TAG" \
-              --release-source-root release-source \
-              --control-config ci/versions.yml)
-            echo "bindings-package=${bindings_package}" >> "$GITHUB_OUTPUT"
-          else
-            echo "bindings-package=" >> "$GITHUB_OUTPUT"
-          fi
+          bindings_package=$(python -m ci.tools.bindings_config \
+            --release-tag "$RELEASE_TAG" \
+            --release-source-root release-source \
+            --control-config ci/versions.yml)
+          echo "bindings-package=${bindings_package}" >> "$GITHUB_OUTPUT"
 
   determine-run-id:
     if: ${{ github.repository_owner == 'nvidia' }}
@@ -283,6 +278,12 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
+      - name: Checkout release source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ inputs.git-tag }}
+          path: release-source
+
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
@@ -318,7 +319,8 @@ jobs:
             "$RELEASE_TAG" \
             "$RELEASE_COMPONENT" \
             "dist" \
-            --bindings-package "$BINDINGS_PACKAGE"
+            --bindings-package "$BINDINGS_PACKAGE" \
+            --release-source-root release-source
 
       - name: Publish package distributions to TestPyPI
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # v1.14.2
@@ -342,6 +344,12 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
+      - name: Checkout release source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ inputs.git-tag }}
+          path: release-source
+
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
@@ -377,7 +385,8 @@ jobs:
             "$RELEASE_TAG" \
             "$RELEASE_COMPONENT" \
             "dist" \
-            --bindings-package "$BINDINGS_PACKAGE"
+            --bindings-package "$BINDINGS_PACKAGE" \
+            --release-source-root release-source
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # v1.14.2

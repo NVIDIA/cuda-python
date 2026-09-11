@@ -83,7 +83,7 @@ jobs:
           set -euo pipefail
           if [[ -n "$BINDINGS_PACKAGE" ]]; then
             resolved_bindings_package="$BINDINGS_PACKAGE"
-          elif [[ "${IS_RELEASE}" == "true" && "$RELEASE_TAG" == v* ]]; then
+          elif [[ "${IS_RELEASE}" == "true" ]]; then
             resolved_bindings_package=$(cd .ci-control && python3 -m ci.tools.bindings_config \
               --release-tag "$RELEASE_TAG" \
               --release-source-root .. \
