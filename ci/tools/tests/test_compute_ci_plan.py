@@ -113,7 +113,7 @@ class ComputeWorkplanTest(unittest.TestCase):
             "cuda_core/tests/fixtures/pixi.toml",
             "benchmarks/cuda_bindings/pixi.toml",
             "benchmarks/cuda_bindings/AGENTS.md",
-            "cuda_core/cuda/core/_cpp/DESIGN.md",
+            "cuda_core/cuda/core/_cpp/rt/DESIGN.md",
             "cuda_bindings/README.md",
             "cuda_core/README.md",
             "new-area/pixi.toml",

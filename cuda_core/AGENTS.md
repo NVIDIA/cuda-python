@@ -19,8 +19,9 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   - system-level APIs: `cuda/core/system/`
   - compile/link path: `_program.pyx`, `_linker.pyx`, `_module.pyx`
   - execution path: `_launcher.pyx`, `_launch_config.pyx`, `_stream.pyx`
-- **C++ helpers**: module-specific C++ implementations live under
-  `cuda/core/_cpp/`.
+- **C++ helpers**: module-specific C++ lives under `cuda/core/_cpp/`, either as
+  one `_cpp/<name>.cpp` or as a directory `_cpp/<name>/` whose sources all
+  compile into the `_<name>` extension (`_cpp/rt/` for `_rt`).
 - **Build backend**: `build_hooks.py` handles Cython extension setup and build
   dependency wiring.
 
@@ -90,7 +91,7 @@ and agents should flag violations.
   objects that are not meant to be shared (e.g., the thread-local `Device`) do not
   need such guards (see #2321). Reference-count integrity is guaranteed; cache
   value-identity/idempotency is not.
-- **Entry points assume the GIL is held**: the helpers in `_cpp/resource_handles.*`
+- **Entry points assume the GIL is held**: the helpers in `_cpp/rt/`
   are called from Cython with the GIL held and do not re-acquire it. Driver and
   destructor callbacks run at arbitrary times, so they take the GIL (`with gil`)
   and probe for interpreter shutdown before touching Python objects.
@@ -141,7 +142,7 @@ below are for contributors. Reviewers and agents should flag violations.
   `KeyboardInterrupt`.
 - **Finalization**: once `py_is_finalizing()` is true, do no Python work from
   destructors or callbacks and accept the leak (see
-  `_cpp/resource_handles.hpp` and `_cpp/GRAPH_ATTACHMENTS.md`).
+  `_cpp/rt/py.hpp` and `_cpp/rt/GRAPH_ATTACHMENTS.md`).
 - **Aborting**: `std::abort` (or any process termination) is reserved for an
   internal invariant violation where continuing could corrupt memory or produce
   silently wrong results *and* no leak-based fallback exists. A failed CUDA
@@ -157,7 +158,7 @@ below are for contributors. Reviewers and agents should flag violations.
   an allocation inside `noexcept` code) is a bug (#1489, #2417), not a policy
   choice: `noexcept` helpers must not allocate, or must catch what they call.
 - **Testing**: inject restoration failures with
-  `cuda.core._resource_handles._set_context_restore_fault_for_testing`; assert
+  `cuda.core._rt._set_context_restore_fault_for_testing`; assert
   reports with `pytest.warns(CUDAWarning)` or `warnings.catch_warnings`, never
   by matching stderr text.
 

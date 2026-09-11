@@ -106,37 +106,47 @@ return as_py(h_stream)  # cuda.bindings.driver.CUstream
 
 ```
 cuda/core/
-├── _resource_handles.pyx    # Cython module (compiles resource_handles.cpp)
-├── _resource_handles.pxd    # Cython declarations for consumer modules
-└── _cpp/
-    ├── resource_handles.hpp       # C++ API declarations
-    └── resource_handles.cpp       # C++ implementation
+├── _rt.pyx                  # Cython module (compiles everything under _cpp/rt/)
+├── _rt.pxd                  # Cython declarations for consumer modules
+└── _cpp/rt/
+    ├── rt.hpp               # Module umbrella, named only by _rt.pyx
+    ├── handles.hpp          # Consumer umbrella, named only by _rt.pxd
+    ├── types.hpp            # Handle aliases, tagged values, inline accessors
+    ├── api.hpp              # Prototypes of the handle factories and accessors
+    ├── driver_api.hpp/.cpp  # Driver function-pointer table, version-gated shims
+    ├── error.hpp/.cpp       # Thread-local error state, non-propagating reporting
+    ├── py.hpp               # The one header that includes <Python.h>
+    ├── context_scope.hpp    # Scoped-context helpers (namespace detail)
+    ├── internal.hpp         # Registry, cleanup wrappers, deferred-cleanup item (namespace detail)
+    ├── py_report.cpp, py_deferred_cleanup.cpp        # Python-coupled bodies
+    └── context.cpp, stream.cpp, event.cpp, memory.cpp, program.cpp,
+        graph.cpp, graph_exec.cpp, texture.cpp        # One resource family per file
 ```
 
 ### Build Implications
 
-The `_cpp/` subdirectory contains C++ source files that are compiled into the
-`_resource_handles` extension module. Other Cython modules in cuda.core do **not**
-link against this code directly—they `cimport` functions from
-`_resource_handles.pxd`, and calls go through `_resource_handles.so` at runtime.
+Every `.cpp` under `_cpp/rt/` is compiled into the one `_rt` extension module.
+Other Cython modules in cuda.core do **not** link against this code
+directly—they `cimport` functions from `_rt.pxd`, and calls go through
+`_rt.so` at runtime.
 
 ## Cross-Module Function Sharing
 
 **Problem**: Cython extension modules compile independently. If multiple modules
-(`_memory.pyx`, `_ipc.pyx`, etc.) each linked `resource_handles.cpp`, they would
+(`_memory.pyx`, `_ipc.pyx`, etc.) each linked the C++ under `_cpp/rt/`, they would
 each have their own copies of:
 
 - Static driver function pointers
 - Thread-local error state
 - Other static data, including global caches
 
-**Solution**: Only `_resource_handles.so` links the C++ code. The `.pyx` file
+**Solution**: Only `_rt.so` links the C++ code. The `.pyx` file
 uses `cdef extern from` to declare C++ functions with Cython-accessible names:
 
 ```cython
-# In _resource_handles.pyx
-cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
-    StreamHandle create_stream_handle "cuda_core::create_stream_handle" (
+# In _rt.pyx
+cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
+    StreamHandle create_stream_handle "cuda_core::rt::create_stream_handle" (
         ContextHandle h_ctx, unsigned int flags, int priority) nogil
     # ... other functions
 ```
@@ -144,18 +154,18 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 The `.pxd` file declares these same functions so other modules can `cimport` them:
 
 ```cython
-# In _resource_handles.pxd
+# In _rt.pxd
 cdef StreamHandle create_stream_handle(
     ContextHandle h_ctx, unsigned int flags, int priority) noexcept nogil
 ```
 
 The `cdef extern from` declaration in the `.pyx` satisfies the `.pxd` declaration
 directly—no wrapper functions are needed. When consumer modules `cimport` these
-functions, Cython generates calls through `_resource_handles.so` at runtime.
+functions, Cython generates calls through `_rt.so` at runtime.
 This ensures all static and thread-local state lives in a single shared library,
 avoiding the duplicate state problem.
 
-## CUDA Driver API Capsule (`_CUDA_DRIVER_API_V1`)
+## CUDA driver function pointers via cuda-bindings' `__pyx_capi__`
 
 **Problem**: cuda.core cannot directly call CUDA driver functions because:
 
@@ -165,13 +175,13 @@ avoiding the duplicate state problem.
 **Solution**: The C++ code declares extern function pointer variables:
 
 ```cpp
-// resource_handles.hpp
+// driver_api.hpp
 extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
 extern decltype(&cuMemPoolCreate) p_cuMemPoolCreate;
 // ... etc
 ```
 
-At module import time, `_resource_handles.pyx` populates these pointers by
+At module import time, `_rt.pyx` populates these pointers by
 extracting them from `cuda.bindings.cydriver.__pyx_capi__`:
 
 ```cython
@@ -324,7 +334,7 @@ only when there is no such exception or notes are unavailable.
 ## Usage from Cython
 
 ```cython
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     StreamHandle,
     create_stream_handle,
     as_cu,
@@ -353,7 +363,7 @@ The resource handle design:
 2. **Encodes lifetimes structurally** via embedded handle dependencies.
 3. **Uses Cython's `cimport` mechanism** to share C++ code across modules without
    duplicate static/thread-local state.
-4. **Uses a capsule** to resolve CUDA driver symbols dynamically through cuda-bindings.
+4. **Resolves CUDA driver symbols** dynamically through cuda-bindings' `__pyx_capi__` capsules.
 5. **Provides overloaded accessors** (`as_cu`, `as_intptr`, `as_py`) since handles cannot
    have attributes without unnecessary Python object wrappers.
 
