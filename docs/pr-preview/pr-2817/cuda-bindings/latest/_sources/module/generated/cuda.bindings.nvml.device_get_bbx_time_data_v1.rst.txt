@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_bbx\_time\_data\_v1
+===================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_bbx_time_data_v1
