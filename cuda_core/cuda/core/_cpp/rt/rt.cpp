@@ -1188,17 +1188,6 @@ StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
     return StreamHandle(box, &box->resource);
 }
 
-void py_object_user_object_destroy(void* py_object) noexcept {
-    if (!py_object) {
-        return;
-    }
-    GILAcquireGuard gil;
-    if (!gil.acquired()) {
-        return;
-    }
-    Py_DECREF(reinterpret_cast<PyObject*>(py_object));
-}
-
 // Return the context retained by a stream handle.
 ContextHandle get_stream_context(const StreamHandle& h) noexcept {
     return h ? get_box(h)->h_context : ContextHandle{};

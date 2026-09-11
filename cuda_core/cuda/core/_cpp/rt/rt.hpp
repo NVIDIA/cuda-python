@@ -344,10 +344,6 @@ StreamHandle create_stream_handle_ref(CUstream stream);
 // The owner is responsible for keeping the stream's context alive.
 StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner);
 
-// Destroy a Python-backed CUDA user object by decref'ing it when safe.
-// If Python is finalized or finalizing, the object is intentionally leaked.
-void py_object_user_object_destroy(void* py_object) noexcept;
-
 // Initialize the process-lifetime CUDA user-object cleanup queue. Called once
 // from module initialization while Python is fully initialized.
 void initialize_deferred_cleanup();

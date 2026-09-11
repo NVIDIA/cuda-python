@@ -208,7 +208,6 @@ cdef StreamHandle create_stream_handle(
     const ContextHandle& h_ctx, unsigned int flags, int priority) except+ nogil
 cdef StreamHandle create_stream_handle_ref(cydriver.CUstream stream) except+ nogil
 cdef StreamHandle create_stream_handle_with_owner(cydriver.CUstream stream, object owner) except+ nogil
-cdef void py_object_user_object_destroy(void* py_object) noexcept nogil
 cdef void retry_deferred_cleanup() noexcept
 cdef ContextHandle get_stream_context(const StreamHandle& h) noexcept nogil
 cdef StreamHandle get_legacy_stream() except+ nogil
