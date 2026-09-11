@@ -22,6 +22,7 @@ Enhancements
   - ``nvjitlink.get_linked_ltoir`` (``ltoir``)
   - ``nvjitlink.get_linked_ptx`` (``ptx``)
   - ``nvvm.add_module_to_program``, ``nvvm.lazy_add_module_to_program``, ``nvvm.get_compiled_result``, ``nvvm.get_program_log`` (``buffer``)
+- For all ``cuda-bindings`` APIs, functions that accept a struct wrapper will accept the struct wrapper directly, rather than requiring getting the ``.ptr`` property.
 
 Behavior changes
 ----------------
