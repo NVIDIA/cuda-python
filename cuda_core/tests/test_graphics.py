@@ -12,7 +12,7 @@ import sys
 import numpy as np
 import pyglet
 import pytest
-from cuda_python_test_helpers.graphics import is_gl_context_unavailable
+from cuda_python_test_helpers.graphics import is_gl_context_unavailable, open_gl_window
 
 from cuda.core import (
     Buffer,
@@ -56,41 +56,6 @@ def _configure_pyglet_headless():
         if ctypes.util.find_library("EGL") is None:
             pytest.skip("No DISPLAY and no EGL runtime available for headless context.")
         pyglet.options["headless"] = True
-
-
-def _open_gl_window():
-    """Open a hidden window (or configure EGL headless). Returns the window or None.
-
-    Cleans up partial windows and restores the previous GL context if
-    construction fails. Closes the window if switch_to() fails.
-    """
-    if not pyglet.options.get("headless"):
-        from pyglet import gl
-
-        config = gl.Config(double_buffer=False)
-        previous_context = gl.current_context
-        previous_windows = set(pyglet.app.windows)
-        try:
-            win = pyglet.window.Window(visible=False, config=config)
-        except Exception:
-            for window in set(pyglet.app.windows) - previous_windows:
-                with contextlib.suppress(Exception):
-                    window.close()
-            if previous_context is not None:
-                with contextlib.suppress(Exception):
-                    previous_context.set_current()
-            raise
-        try:
-            win.switch_to()
-        except Exception:
-            with contextlib.suppress(Exception):
-                win.close()
-            raise
-        return win
-    else:
-        from pyglet.gl import headless  # noqa: F401
-
-        return None
 
 
 def _allocate_gl_buffer(win, nbytes):
@@ -144,7 +109,7 @@ def _gl_context_and_buffer(nbytes=1024):
     _configure_pyglet_headless()
 
     try:
-        win = _open_gl_window()
+        win = open_gl_window()
     except Exception as e:
         if is_gl_context_unavailable(e):
             pytest.skip(f"Could not create GL context: {type(e).__name__}: {e}")
@@ -172,7 +137,7 @@ def _gl_context_and_texture(width=16, height=16):
     _configure_pyglet_headless()
 
     try:
-        win = _open_gl_window()
+        win = open_gl_window()
     except Exception as e:
         if is_gl_context_unavailable(e):
             pytest.skip(f"Could not create GL context: {type(e).__name__}: {e}")
