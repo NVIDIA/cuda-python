@@ -2,7 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import os
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import build_hooks  # our build backend
@@ -77,10 +79,61 @@ class build_ext(_build_ext):  # noqa: N801
 
         raise RuntimeError(f"Failed to find extension {_TENSOR_BRIDGE_EXT_NAME!r} for Windows build.")
 
+    @contextlib.contextmanager
+    def _parallel_source_compilation(self):
+        """Compile the sources of every extension through one shared thread pool.
+
+        setuptools runs extensions in parallel (self.parallel) but compiles the
+        sources of one extension serially, so a multi-source extension such as
+        cuda.core._rt (a dozen .cpp files) becomes the critical path. This
+        mirrors CCompiler.compile() and fans its per-object _compile() calls out
+        to a pool shared by all extensions, so at most `nthreads` compiler
+        processes run at once. MSVC's compiler class has no _compile(); it keeps
+        the stock path.
+        """
+        compiler = self.compiler
+        if nthreads <= 1 or not hasattr(compiler, "_compile"):
+            yield
+            return
+        stock_compile = compiler.compile
+        with ThreadPoolExecutor(max_workers=nthreads) as pool:
+
+            def compile(
+                sources,
+                output_dir=None,
+                macros=None,
+                include_dirs=None,
+                debug=0,
+                extra_preargs=None,
+                extra_postargs=None,
+                depends=None,
+            ):
+                macros, objects, extra_postargs, pp_opts, build = compiler._setup_compile(
+                    output_dir, macros, include_dirs, sources, depends, extra_postargs
+                )
+                cc_args = compiler._get_cc_args(pp_opts, debug, extra_preargs)
+
+                def compile_one(obj):
+                    try:
+                        src, ext = build[obj]
+                    except KeyError:
+                        return  # up to date
+                    compiler._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
+
+                list(pool.map(compile_one, objects))  # re-raises the first failure
+                return objects
+
+            compiler.compile = compile
+            try:
+                yield
+            finally:
+                compiler.compile = stock_compile
+
     def build_extensions(self):
         self.parallel = nthreads
         self._configure_windows_tensor_bridge()
-        super().build_extensions()
+        with self._parallel_source_compilation():
+            super().build_extensions()
         build_hooks.record_build_major()
 
 
