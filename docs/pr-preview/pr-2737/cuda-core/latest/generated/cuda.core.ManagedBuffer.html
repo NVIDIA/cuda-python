@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=361ae235"></script>
+    <script src="../_static/documentation_options.js?v=1d1e2eac"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev54';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev110';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -686,6 +686,8 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.3.0-notes.html">1.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.2.1-notes.html">1.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.2.0-notes.html">1.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.1.1-notes.html">1.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.1.0-notes.html">1.1.0</a></li>
@@ -778,11 +780,12 @@ existing managed-memory pointer with <a class="reference internal" href="#cuda.c
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>On CUDA 13 builds, <code class="docutils literal notranslate"><span class="pre">preferred_location</span></code> round-trips full NUMA
-information. On CUDA 12 builds, <code class="docutils literal notranslate"><span class="pre">Host(numa_id=...)</span></code> and
-<code class="docutils literal notranslate"><span class="pre">Host.numa_current()</span></code> are rejected with <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> at the call
-boundary — only <code class="docutils literal notranslate"><span class="pre">Device(...)</span></code> and the generic <code class="docutils literal notranslate"><span class="pre">Host()</span></code> are
-accepted. Use <code class="docutils literal notranslate"><span class="pre">Host()</span></code> to target the host on CUDA 12.</p>
+<p>On CUDA 13 builds, <code class="docutils literal notranslate"><span class="pre">preferred_location</span></code> and
+<code class="docutils literal notranslate"><span class="pre">last_prefetch_location</span></code> round-trip full NUMA information. On CUDA 12
+builds, <code class="docutils literal notranslate"><span class="pre">Host(numa_id=...)</span></code> and <code class="docutils literal notranslate"><span class="pre">Host.numa_current()</span></code> are rejected
+with <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> at the call boundary — only <code class="docutils literal notranslate"><span class="pre">Device(...)</span></code> and the
+generic <code class="docutils literal notranslate"><span class="pre">Host()</span></code> are accepted. Use <code class="docutils literal notranslate"><span class="pre">Host()</span></code> to target the host on
+CUDA 12.</p>
 </div>
 <p class="rubric">Methods</p>
 <dl class="py method">
@@ -984,7 +987,8 @@ instead of silently downgrading its guarantee.</p></li>
 <dd><p>Wrap an existing managed-memory pointer in a <a class="reference internal" href="#cuda.core.ManagedBuffer" title="cuda.core.ManagedBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedBuffer</span></code></a>.</p>
 <p>Use this when you have an externally-allocated managed pointer
 and want the property-style advice API (<a class="reference internal" href="#cuda.core.ManagedBuffer.read_mostly" title="cuda.core.ManagedBuffer.read_mostly"><code class="xref py py-attr docutils literal notranslate"><span class="pre">read_mostly</span></code></a>,
-<a class="reference internal" href="#cuda.core.ManagedBuffer.preferred_location" title="cuda.core.ManagedBuffer.preferred_location"><code class="xref py py-attr docutils literal notranslate"><span class="pre">preferred_location</span></code></a>, <a class="reference internal" href="#cuda.core.ManagedBuffer.accessed_by" title="cuda.core.ManagedBuffer.accessed_by"><code class="xref py py-attr docutils literal notranslate"><span class="pre">accessed_by</span></code></a>).</p>
+<a class="reference internal" href="#cuda.core.ManagedBuffer.preferred_location" title="cuda.core.ManagedBuffer.preferred_location"><code class="xref py py-attr docutils literal notranslate"><span class="pre">preferred_location</span></code></a>, <a class="reference internal" href="#cuda.core.ManagedBuffer.last_prefetch_location" title="cuda.core.ManagedBuffer.last_prefetch_location"><code class="xref py py-attr docutils literal notranslate"><span class="pre">last_prefetch_location</span></code></a>,
+<a class="reference internal" href="#cuda.core.ManagedBuffer.accessed_by" title="cuda.core.ManagedBuffer.accessed_by"><code class="xref py py-attr docutils literal notranslate"><span class="pre">accessed_by</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1096,7 +1100,7 @@ is the caller’s responsibility.</p>
 <dt class="sig sig-object py" id="cuda.core.ManagedBuffer.device_id">
 <span class="sig-name descname"><span class="pre">device_id</span></span><a class="headerlink" href="#cuda.core.ManagedBuffer.device_id" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
-<p>Return the device ordinal of this buffer.</p>
+<p>Return the device ordinal of this buffer, or -1 for memory not bound to a device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Buffer.device_id</p>
@@ -1191,6 +1195,19 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
 <dd class="field-odd"><p>Buffer.is_mapped</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.ManagedBuffer.last_prefetch_location">
+<span class="sig-name descname"><span class="pre">last_prefetch_location</span></span><a class="headerlink" href="#cuda.core.ManagedBuffer.last_prefetch_location" title="Link to this definition">#</a></dt>
+<dd><p>Location targeted by the most recent explicit prefetch.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if any page in the range has never been prefetched,
+or if the pages do not share one last-prefetch location. This reports
+the application’s requested destination, not current residency or
+completion of the asynchronous prefetch operation.</p>
+<p>On CUDA 13 builds, fully round-trips <code class="docutils literal notranslate"><span class="pre">Host(numa_id=N)</span></code>. On CUDA 12,
+the legacy attribute carries only a device ordinal (or <code class="docutils literal notranslate"><span class="pre">-1</span></code> for
+host), so host NUMA details are unavailable.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1319,6 +1336,7 @@ as <code class="docutils literal notranslate"><span class="pre">Host()</span></c
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedBuffer.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">ManagedBuffer.is_host_accessible</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedBuffer.is_managed"><code class="docutils literal notranslate"><span class="pre">ManagedBuffer.is_managed</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedBuffer.is_mapped"><code class="docutils literal notranslate"><span class="pre">ManagedBuffer.is_mapped</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedBuffer.last_prefetch_location"><code class="docutils literal notranslate"><span class="pre">ManagedBuffer.last_prefetch_location</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedBuffer.memory_resource"><code class="docutils literal notranslate"><span class="pre">ManagedBuffer.memory_resource</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedBuffer.owner"><code class="docutils literal notranslate"><span class="pre">ManagedBuffer.owner</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedBuffer.preferred_location"><code class="docutils literal notranslate"><span class="pre">ManagedBuffer.preferred_location</span></code></a></li>
