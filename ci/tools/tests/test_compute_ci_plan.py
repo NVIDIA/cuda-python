@@ -11,6 +11,7 @@ import unittest
 from pathlib import Path
 
 import pytest
+import yaml
 
 from ci.tools.bindings_config import BindingsConfig, BindingsPackage, load_config
 from ci.tools.compute_ci_plan import _expand_linked_paths, compute_workplan, main
@@ -362,6 +363,31 @@ class ComputeWorkplanTest(unittest.TestCase):
         assert selected_core_majors(plan, "needs_test") == CUDA_VARIANTS
         assert selected_package_roots(plan, "python", "needs_test") == {"cuda_bindings_12"}
         assert selected_cuda_majors(plan, "test_cuda_majors") == CUDA_VARIANTS
+
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_wheel_workflows_consume_line_specific_test_gates(self) -> None:
+        expected_fragments = {
+            "TEST_BINDINGS": (
+                "matrix.BINDINGS_SOURCE == 'local'",
+                ".modules.bindings.package_roots[matrix.BINDINGS_SOURCE_DIR].needs_test",
+            ),
+            "TEST_CORE": (".modules.core.cuda_majors[matrix.CUDA_VARIANT].needs_test",),
+            "TEST_PYTHON": (
+                "matrix.BINDINGS_SOURCE == 'local'",
+                ".modules.python.package_roots[matrix.BINDINGS_SOURCE_DIR].needs_test",
+            ),
+        }
+
+        repo_root = Path(__file__).resolve().parents[3]
+        for platform in ("linux", "windows"):
+            with self.subTest(platform=platform):
+                workflow = yaml.safe_load(
+                    (repo_root / ".github" / "workflows" / f"test-wheel-{platform}.yml").read_text(encoding="utf-8")
+                )
+                gates = workflow["jobs"]["test"]["env"]
+                for name, fragments in expected_fragments.items():
+                    with self.subTest(platform=platform, gate=name):
+                        assert all(fragment in gates[name] for fragment in fragments)
 
     def test_changed_symlink_targets_include_their_consumers(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
