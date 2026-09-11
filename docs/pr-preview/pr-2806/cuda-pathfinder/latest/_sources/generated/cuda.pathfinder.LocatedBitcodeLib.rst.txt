@@ -1,0 +1,31 @@
+﻿cuda.pathfinder.LocatedBitcodeLib
+=================================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autoclass:: LocatedBitcodeLib
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LocatedBitcodeLib.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LocatedBitcodeLib.name
+      ~LocatedBitcodeLib.abs_path
+      ~LocatedBitcodeLib.filename
+      ~LocatedBitcodeLib.found_via
+   
+   

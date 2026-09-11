@@ -1,0 +1,37 @@
+﻿cuda.bindings.nvml.VgpuSchedulerLogEntry
+========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: VgpuSchedulerLogEntry
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VgpuSchedulerLogEntry.__init__
+      ~VgpuSchedulerLogEntry.from_buffer
+      ~VgpuSchedulerLogEntry.from_data
+      ~VgpuSchedulerLogEntry.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VgpuSchedulerLogEntry.cumulative_preemption_time
+      ~VgpuSchedulerLogEntry.ptr
+      ~VgpuSchedulerLogEntry.sw_runlist_id
+      ~VgpuSchedulerLogEntry.target_time_slice
+      ~VgpuSchedulerLogEntry.time_run
+      ~VgpuSchedulerLogEntry.time_run_total
+      ~VgpuSchedulerLogEntry.timestamp
+   
+   
