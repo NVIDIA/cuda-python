@@ -193,6 +193,21 @@ def _read_tag_regex(repo_root: Path, package_root: str) -> str:
     return pattern
 
 
+def _legacy_tag_regex(repo_root: Path, package_root: str) -> str | None:
+    """Return legacy SCM metadata, or None for pre-setuptools-scm trees."""
+    path = repo_root / package_root / "pyproject.toml"
+    try:
+        with path.open("rb") as stream:
+            pyproject = tomllib.load(stream)
+    except (OSError, tomllib.TOMLDecodeError) as error:
+        raise BindingsConfigError(f"could not inspect legacy package metadata {path}: {error}") from error
+
+    tool = pyproject.get("tool")
+    if not isinstance(tool, dict) or "setuptools_scm" not in tool:
+        return None
+    return _read_tag_regex(repo_root, package_root)
+
+
 def _package(package_root: str, raw: Any, repo_root: Path) -> BindingsPackage:
     package_root = parse_package_root(package_root, "CUDA bindings package root")
     data = _mapping(
@@ -328,19 +343,20 @@ def _legacy_release_package(
     if not (release_source_root / package_root).is_dir():
         raise BindingsConfigError(f"legacy release package root is missing: {package_root}")
 
-    tag_regex = _read_tag_regex(release_source_root, package_root)
-
-    probe = BindingsPackage(package_root, "1.0.0", None, tag_regex)
-    release_version = probe.scm_version_from_tag(release_tag, fullmatch=False)
+    tag_regex = _legacy_tag_regex(release_source_root, package_root)
+    if tag_regex is None:
+        release_version = parse_prefixed_version(release_tag, "v")
+    else:
+        probe = BindingsPackage(package_root, "1.0.0", None, tag_regex)
+        release_version = probe.scm_version_from_tag(release_tag, fullmatch=False)
     if release_version is None:
-        raise BindingsConfigError(f"legacy source SCM metadata does not match release tag: {release_tag!r}")
-    package = BindingsPackage(
-        package_root=package_root,
-        toolkit_version=_legacy_toolkit_version(raw, release_version, control_config_path),
-        release_status=None,
-        tag_regex=tag_regex,
-    )
-    return _release_record(package, release_version, "control")
+        raise BindingsConfigError(f"legacy source metadata does not match release tag: {release_tag!r}")
+    return {
+        "package_root": package_root,
+        "toolkit_version": _legacy_toolkit_version(raw, release_version, control_config_path),
+        "release_version": str(release_version),
+        "release_registry_origin": "control",
+    }
 
 
 def _legacy_dependency_package(release_source_root: Path, raw: Any) -> dict[str, object]:

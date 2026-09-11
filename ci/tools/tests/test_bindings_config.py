@@ -321,6 +321,39 @@ def test_legacy_json_tag_tree_supplies_its_own_toolkit_pin(tmp_path):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_pre_setuptools_scm_tag_uses_legacy_json_and_bare_tag_version(tmp_path):
+    release_root = tmp_path / "release"
+    write_json(
+        release_root / "ci" / "versions.json",
+        {
+            "cuda": {
+                "build": {"version": "13.0.2"},
+                "prev_build": {"version": "12.9.1"},
+            }
+        },
+    )
+    package_root = release_root / "cuda_bindings"
+    package_root.mkdir(parents=True)
+    (package_root / "pyproject.toml").write_text(
+        '[project]\nname = "cuda-bindings"\ndynamic = ["version"]\n',
+        encoding="utf-8",
+    )
+
+    resolved = resolve_release_bindings_package(
+        "v13.0.3",
+        release_root,
+        tmp_path / "control-config-must-not-be-used.yml",
+    )
+
+    assert resolved == {
+        "package_root": "cuda_bindings",
+        "toolkit_version": "13.0.2",
+        "release_version": "13.0.3",
+        "release_registry_origin": "control",
+    }
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_component_release_uses_current_bindings_dependency_from_modern_tag_tree(tmp_path):
     release_root = tmp_path / "release"
     tagged_config = release_root / "ci" / "versions.yml"
@@ -376,13 +409,13 @@ def test_legacy_prerelease_preserves_tagged_tree_toolkit_and_scm_semantics(tmp_p
     assert resolved["package_root"] == "cuda_bindings"
 
 
-@pytest.mark.agent_authored(model="gpt-5.6")
-def test_legacy_release_requires_source_scm_metadata(tmp_path):
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_legacy_release_requires_package_metadata(tmp_path):
     release_root = tmp_path / "release"
     write_yaml(release_root / "ci" / "versions.yml", {"cuda": {"build": {"version": "12.9.1"}}})
     (release_root / "cuda_bindings").mkdir(parents=True)
 
-    with pytest.raises(BindingsConfigError, match=r"could not read .*cuda_bindings/pyproject\.toml"):
+    with pytest.raises(BindingsConfigError, match=r"could not inspect .*cuda_bindings/pyproject\.toml"):
         resolve_release_bindings_package("v12.9.8", release_root, tmp_path / "unused-control.yml")
 
 
