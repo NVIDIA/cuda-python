@@ -1,0 +1,6 @@
+﻿cuda.core.texture.TextureObjectOptions
+======================================
+
+.. currentmodule:: cuda.core.texture
+
+.. autoclass:: TextureObjectOptions
