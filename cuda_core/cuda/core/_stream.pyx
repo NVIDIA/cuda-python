@@ -27,8 +27,8 @@ from cuda.core._context cimport (
 from cuda.core._device_resources cimport DeviceResources
 from cuda.core._event import Event, EventOptions
 
-from cuda.core._resource_handles cimport context_get_device
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport context_get_device
+from cuda.core._rt cimport (
     ContextHandle,
     EventHandle,
     StreamHandle,

@@ -27,7 +27,7 @@ from cuda.bindings.nvjitlink import nvJitLinkError
 from cpython.buffer cimport PyObject_GetBuffer, PyBuffer_Release, Py_buffer, PyBUF_SIMPLE
 
 from cuda.bindings cimport cynvrtc, cynvvm, cynvjitlink
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     register_warning_category,
     take_last_error_detail,
 )

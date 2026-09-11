@@ -4,7 +4,7 @@
 
 #include <Python.h>
 
-#include "resource_handles.hpp"
+#include "rt.hpp"
 #include <cuda.h>
 #include <atomic>
 #include <array>
@@ -27,12 +27,12 @@
 #include <unistd.h>
 #endif
 
-namespace cuda_core {
+namespace cuda_core::rt {
 
 // ============================================================================
 // CUDA driver function pointers
 //
-// These are populated by _resource_handles.pyx at module import time using
+// These are populated by _rt.pyx at module import time using
 // function pointers extracted from cuda.bindings.cydriver.__pyx_capi__.
 // ============================================================================
 
@@ -208,7 +208,7 @@ private:
 // otherwise. See docs/source/error_handling.rst for the policy.
 // ----------------------------------------------------------------------------
 
-// Warning category registered by _resource_handles.pyx (cuda.core.CUDAWarning).
+// Warning category registered by _utils/cuda_utils.pyx (cuda.core.CUDAWarning).
 std::atomic<PyObject*> warning_category{nullptr};
 
 // Thread-local detail attached to the next raised CUDAError with a matching
@@ -3357,4 +3357,4 @@ bool has_memcpy_with_attributes_async() noexcept {
     return p_cuMemcpyWithAttributesAsync != nullptr;
 }
 
-}  // namespace cuda_core
+}  // namespace cuda_core::rt

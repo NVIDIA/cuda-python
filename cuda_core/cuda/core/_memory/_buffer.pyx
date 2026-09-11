@@ -13,7 +13,7 @@ from cuda.core._memory._device_memory_resource import DeviceMemoryResource
 from cuda.core._memory._pinned_memory_resource import PinnedMemoryResource
 from cuda.core._memory._ipc cimport IPCBufferDescriptor, IPCDataForBuffer
 from cuda.core._memory cimport _ipc
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     DevicePtrHandle,
     StreamHandle,
     ContextHandle,
@@ -31,7 +31,7 @@ from cuda.core._memory._copy_attributes cimport _with_attributes_available
 from cuda.core._memory._copy_attributes cimport _to_cu_memcpy_attributes  # no-cython-lint
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
-    from cuda.core._resource_handles cimport memcpy_with_attributes_async
+    from cuda.core._rt cimport memcpy_with_attributes_async
 
 from cuda.core._stream cimport Stream, Stream_accept, Stream_is_legacy_default_token, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value

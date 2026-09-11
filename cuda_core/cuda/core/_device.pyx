@@ -18,7 +18,7 @@ from cuda.core._device_resources cimport DeviceResources, SMResource, WorkqueueR
 from cuda.core._event cimport Event as cyEvent
 from cuda.core._event import Event, EventOptions
 from cuda.core._memory._buffer cimport Buffer, MemoryResource
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     ContextHandle,
     GreenCtxHandle,
     create_context_handle_ref,

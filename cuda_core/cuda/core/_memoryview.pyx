@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 import numpy
 
 from cuda.bindings cimport cydriver
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     EventHandle,
     create_event_handle_for_stream,
     as_cu,

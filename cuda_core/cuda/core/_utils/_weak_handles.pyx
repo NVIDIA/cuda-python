@@ -24,7 +24,7 @@ Python owners via ``make_opaque_py`` are not covered here -- use
 
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core.graph._graph_definition cimport GraphDefinition
-from cuda.core._resource_handles cimport OpaqueHandle
+from cuda.core._rt cimport OpaqueHandle
 
 
 # Cython cannot spell ``weak_ptr[const void]`` inline (the ``const void``

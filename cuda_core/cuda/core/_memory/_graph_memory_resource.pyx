@@ -8,7 +8,7 @@ from libc.stdint cimport intptr_t
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     DevicePtrHandle,
     deviceptr_alloc_async,
     get_last_error,

@@ -45,8 +45,8 @@ from cuda.core.graph._subclasses cimport (
     SwitchNode,
     WhileNode,
 )
-from cuda.core._resource_handles cimport note_or_report_cuda_error
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport note_or_report_cuda_error
+from cuda.core._rt cimport (
     GraphHandle,
     GraphNodeHandle,
     OpaqueHandle,
