@@ -1,0 +1,6 @@
+﻿cuda.core.launch
+================
+
+.. currentmodule:: cuda.core
+
+.. autofunction:: launch
