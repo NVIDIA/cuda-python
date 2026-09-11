@@ -19,12 +19,12 @@ Starting from v12.8.0, `cuda-python` becomes a meta package which currently depe
 ## Installing from PyPI
 
 ```console
-$ pip install -U cuda-python
+$ pip install -U "cuda-python~=12.9.0"
 ```
 
 Install all optional dependencies with:
 ```{code-block} shell
-pip install -U cuda-python[all]
+pip install -U "cuda-python[all]~=12.9.0"
 ```
 
 Where the optional dependencies are:
@@ -37,7 +37,7 @@ Where the optional dependencies are:
 ## Installing from Conda
 
 ```console
-$ conda install -c conda-forge cuda-python
+$ conda install -c conda-forge cuda-python=12.9
 ```
 
 

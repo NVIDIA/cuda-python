@@ -33,7 +33,7 @@ API](https://docs.nvidia.com/cuda/cuda-driver-api/index.html) and
 [NVRTC](https://docs.nvidia.com/cuda/nvrtc/index.html) modules from the `cuda.bindings`
 package. Next, we consider how to store host data and pass it to the device. Different
 approaches can be used to accomplish this and are described in [Preparing kernel
-arguments](https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html#preparing-kernel-arguments).
+arguments](#preparing-kernel-arguments).
 In this example, we will use NumPy to store host data and pass it to the device, so let's
 import this dependency as well.
 
@@ -508,7 +508,7 @@ checkCudaErrors(cuda.cuLaunchKernel(
 
 ### CUDA objects
 
-Certain CUDA kernels use native CUDA types as their parameters such as `cudaTextureObject_t`. These types require special handling since they're neither a primitive ctype nor a custom user type. Since `cuda.bindings` exposes each of them as Python classes, they each implement `getPtr()` and `__int__()`. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under [Tips and Tricks](https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#).
+Certain CUDA kernels use native CUDA types as their parameters such as `cudaTextureObject_t`. These types require special handling since they're neither a primitive ctype nor a custom user type. Since `cuda.bindings` exposes each of them as Python classes, they each implement `getPtr()` and `__int__()`. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under [Tips and Tricks](tips_and_tricks.rst).
 
 For this example, lets use the `transformKernel` from [examples/0_Introduction/simpleCubemapTexture_test.py](https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings_12/examples/0_Introduction/simpleCubemapTexture_test.py):
 
