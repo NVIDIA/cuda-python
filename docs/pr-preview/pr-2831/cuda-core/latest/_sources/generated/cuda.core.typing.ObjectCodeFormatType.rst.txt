@@ -1,6 +1,0 @@
-﻿cuda.core.typing.ObjectCodeFormatType
-=====================================
-
-.. currentmodule:: cuda.core.typing
-
-.. autoenum:: ObjectCodeFormatType

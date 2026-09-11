@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.set\_parameter\_string
-===========================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: set_parameter_string
