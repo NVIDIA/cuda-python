@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=79336857bd6bf7884714e40db0ea94f28275fb08b283efa6bae52b1e93529c14
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6bd7ebe1b68edf32a3a0c2768c16c1383f942ddf1f5dc51cc06f8b1792eb9b5d
 from typing import Any, Optional
 import cython
 import ctypes
@@ -36431,16 +36431,24 @@ def cuMemPoolGetAttribute(pool, attr not None : CUmemPool_attribute):
     Parameters
     ----------
     pool : :py:obj:`~.CUmemoryPool` or :py:obj:`~.cudaMemPool_t`
-        None
+        The memory pool to get attributes of
     attr : :py:obj:`~.CUmemPool_attribute`
-        None
+        The attribute to get
 
     Returns
     -------
     CUresult
-
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
     value : Any
-        None
+        Retrieved value
+
+    See Also
+    --------
+    :py:obj:`~.cuMemAllocAsync`, :py:obj:`~.cuMemFreeAsync`, :py:obj:`~.cuDeviceGetDefaultMemPool`, :py:obj:`~.cuDeviceGetMemPool`, :py:obj:`~.cuMemPoolCreate`
+
+    Notes
+    -----
+    On devices with a single locality domain, mempools created with :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN` and localityDomainId 0 are equivalent to full-device mempools created with :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`. The value of this attribute will be -1 for such mempools.
     """
     cdef cydriver.CUmemoryPool cypool
     if pool is None:
@@ -47294,7 +47302,7 @@ def cuGraphNodeGetContainingGraph(hNode):
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
-    *phGraph : :py:obj:`~.CUgraph`
+    phGraph : :py:obj:`~.CUgraph`
         Pointer to return the containing graph
 
     See Also
@@ -47368,7 +47376,7 @@ def cuGraphNodeGetToolsId(hNode):
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
-    *toolsNodeId : unsigned long long
+    toolsNodeId : unsigned long long
         Pointer to return the id used by tools
 
     See Also
@@ -47406,7 +47414,7 @@ def cuGraphGetId(hGraph):
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
-    *graphId : unsigned int
+    graphId : unsigned int
         Pointer to return the graphId
 
     See Also
@@ -47444,7 +47452,7 @@ def cuGraphExecGetId(hGraphExec):
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
-    *graphId : unsigned int
+    graphId : unsigned int
         Pointer to return the graphId
 
     See Also
@@ -53946,16 +53954,20 @@ def cuGraphicsResourceGetMappedPointer(resource):
     Parameters
     ----------
     resource : :py:obj:`~.CUgraphicsResource`
-        None
+        Mapped resource to access
 
     Returns
     -------
     CUresult
-
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_NOT_MAPPED`, :py:obj:`~.CUDA_ERROR_NOT_MAPPED_AS_POINTER`
     pDevPtr : :py:obj:`~.CUdeviceptr`
-        None
+        Returned pointer through which `resource` may be accessed
     pSize : int
-        None
+        Returned size of the buffer accessible starting at `*pPointer`
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphicsMapResources`, :py:obj:`~.cuGraphicsSubResourceGetMappedArray`, :py:obj:`~.cudaGraphicsResourceGetMappedPointer`
     """
     cdef cydriver.CUgraphicsResource cyresource
     if resource is None:
@@ -57168,18 +57180,22 @@ def cuGraphicsResourceGetMappedEglFrame(resource, unsigned int index, unsigned i
     Parameters
     ----------
     resource : :py:obj:`~.CUgraphicsResource`
-        None
+        Registered resource to access.
     index : unsigned int
-        None
+        Index for cubemap surfaces.
     mipLevel : unsigned int
-        None
+        Mipmap level for the subresource to access.
 
     Returns
     -------
     CUresult
-
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_NOT_MAPPED`
     eglFrame : :py:obj:`~.CUeglFrame`
-        None
+        Returned eglFrame.
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphicsMapResources`, :py:obj:`~.cuGraphicsSubResourceGetMappedArray`, :py:obj:`~.cuGraphicsResourceGetMappedPointer`, :py:obj:`~.cudaGraphicsResourceGetMappedEglFrame`
     """
     cdef cydriver.CUgraphicsResource cyresource
     if resource is None:
