@@ -18,7 +18,7 @@ using nvvmProgram = void*;
 // Use void* to match cuda.bindings.cynvjitlink's typedef
 using nvJitLink_t = void*;
 
-namespace cuda_core {
+namespace cuda_core::rt {
 
 // ============================================================================
 // TaggedHandle - make void*-based handle types distinct for overloading
@@ -106,7 +106,7 @@ void set_context_restore_fault_for_testing(CUresult status) noexcept;
 // ============================================================================
 // CUDA driver function pointers
 //
-// These are populated by _resource_handles.pyx at module import time using
+// These are populated by _rt.pyx at module import time using
 // function pointers extracted from cuda.bindings.cydriver.__pyx_capi__.
 // ============================================================================
 
@@ -212,7 +212,7 @@ extern void* p_cuMemcpyWithAttributesAsync;
 // ============================================================================
 // NVRTC function pointers
 //
-// These are populated by _resource_handles.pyx at module import time using
+// These are populated by _rt.pyx at module import time using
 // function pointers extracted from cuda.bindings.cynvrtc.__pyx_capi__.
 // ============================================================================
 
@@ -221,7 +221,7 @@ extern decltype(&nvrtcDestroyProgram) p_nvrtcDestroyProgram;
 // ============================================================================
 // NVVM function pointers
 //
-// These are populated by _resource_handles.pyx at module import time using
+// These are populated by _rt.pyx at module import time using
 // function pointers extracted from cuda.bindings.cynvvm.__pyx_capi__.
 // Note: May be null if NVVM is not available at runtime.
 // ============================================================================
@@ -234,7 +234,7 @@ extern NvvmDestroyProgramFn p_nvvmDestroyProgram;
 // ============================================================================
 // nvJitLink function pointers
 //
-// These are populated by _resource_handles.pyx at module import time using
+// These are populated by _rt.pyx at module import time using
 // function pointers extracted from cuda.bindings.cynvjitlink.__pyx_capi__.
 // Note: May be null if nvJitLink is not available at runtime.
 // ============================================================================
@@ -1239,4 +1239,4 @@ CUresult memcpy_with_attributes_async(CUdeviceptr dst, CUdeviceptr src, size_t s
 // Returns true if the cuMemcpyWithAttributesAsync function pointer is available.
 bool has_memcpy_with_attributes_async() noexcept;
 
-}  // namespace cuda_core
+}  // namespace cuda_core::rt

@@ -30,7 +30,7 @@ from cuda.core import (
     LegacyPinnedMemoryResource,
 )
 from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
-from cuda.core._resource_handles import (
+from cuda.core._rt import (
     _attach_rollback_failure_for_testing,
     _set_context_restore_fault_for_testing,
 )

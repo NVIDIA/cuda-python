@@ -26,7 +26,7 @@ from cuda.pathfinder._optional_cuda_import import _optional_cuda_import
 
 from libcpp.vector cimport vector
 
-from ._resource_handles cimport (
+from ._rt cimport (
     as_cu,
     as_py,
     create_nvrtc_program_handle,

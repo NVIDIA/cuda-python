@@ -18,7 +18,7 @@ from cuda.bindings cimport cynvjitlink
 # Handle type aliases and inline helpers (declared from C++ header)
 # =============================================================================
 
-cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
+cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
     # Handle types
     ctypedef shared_ptr[const cydriver.CUcontext] ContextHandle
     ctypedef shared_ptr[const cydriver.CUgreenCtx] GreenCtxHandle
@@ -36,9 +36,9 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # NvvmProgramValue and NvJitLinkValue are TaggedHandle<void*, Tag>
     # instantiations that make each shared_ptr type distinct for overloading.
-    cppclass NvvmProgramValue "cuda_core::NvvmProgramValue":
+    cppclass NvvmProgramValue "cuda_core::rt::NvvmProgramValue":
         pass
-    cppclass NvJitLinkValue "cuda_core::NvJitLinkValue":
+    cppclass NvJitLinkValue "cuda_core::rt::NvJitLinkValue":
         pass
     ctypedef shared_ptr[const NvvmProgramValue] NvvmProgramHandle
     ctypedef shared_ptr[const NvJitLinkValue] NvJitLinkHandle
@@ -51,9 +51,9 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # CUtexObject / CUsurfObject are both `unsigned long long` (as is CUdeviceptr),
     # so they are wrapped in distinct tagged value types to keep each handle's
     # as_cu/as_intptr/as_py overloads distinct.
-    cppclass TexObjectValue "cuda_core::TexObjectValue":
+    cppclass TexObjectValue "cuda_core::rt::TexObjectValue":
         pass
-    cppclass SurfObjectValue "cuda_core::SurfObjectValue":
+    cppclass SurfObjectValue "cuda_core::rt::SurfObjectValue":
         pass
     ctypedef shared_ptr[const TexObjectValue] TexObjectHandle
     ctypedef shared_ptr[const SurfObjectValue] SurfObjectHandle
@@ -159,9 +159,9 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
 
 # =============================================================================
-# Wrapper function declarations (implemented in _resource_handles.pyx)
+# Wrapper function declarations (implemented in _rt.pyx)
 #
-# Consumer modules cimport these. Calls go through _resource_handles.so.
+# Consumer modules cimport these. Calls go through _rt.so.
 # =============================================================================
 
 # Thread-local error handling

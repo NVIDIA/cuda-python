@@ -45,8 +45,8 @@ from cuda.core.graph._subclasses cimport (
     SwitchNode,
     WhileNode,
 )
-from cuda.core._resource_handles cimport attach_rollback_failure
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport attach_rollback_failure
+from cuda.core._rt cimport (
     GraphHandle,
     GraphNodeHandle,
     OpaqueHandle,

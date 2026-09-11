@@ -16,7 +16,7 @@ from cuda.core._memory cimport _ipc
 # does not evaluate compile-time IF blocks, so it needs a pragma to be seen as used.
 from cuda.core._memory._location cimport cumemlocation_from_id  # no-cython-lint
 from cuda.core._stream cimport Stream_accept, Stream
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     MemoryPoolHandle,
     DevicePtrHandle,
     create_mempool_handle,
@@ -25,7 +25,7 @@ from cuda.core._resource_handles cimport (
     as_cu,
     as_py,
 )
-from cuda.core._resource_handles cimport create_mempool_handle_ref  # no-cython-lint
+from cuda.core._rt cimport create_mempool_handle_ref  # no-cython-lint
 
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,

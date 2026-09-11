@@ -11,7 +11,7 @@ from cuda.core._utils.version cimport cy_binding_version, cy_driver_version  # n
 
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
-    from cuda.core._resource_handles cimport has_memcpy_with_attributes_async
+    from cuda.core._rt cimport has_memcpy_with_attributes_async
 
     cdef inline bint _with_attributes_available():
         # has_memcpy_with_attributes_async() says whether the installed

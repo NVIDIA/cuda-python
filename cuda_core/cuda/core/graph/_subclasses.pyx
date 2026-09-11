@@ -29,12 +29,12 @@ from cuda.core.graph._graph_node cimport (
     _init_memcpy_params,
     _resolve_memcpy_operand,
 )
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     ContextHandle,
     create_context_handle_ref,
     graph_node_set_params,
 )
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     EventHandle,
     GraphExecHandle,
     GraphHandle,
