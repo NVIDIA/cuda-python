@@ -4,10 +4,9 @@
 
 #pragma once
 
-// Module umbrella, named only by _rt.pyx.
+// Consumer umbrella, named only by _rt.pxd: the handle types, the inline
+// accessors and the Python seam. Everything else reaches consumers through
+// __pyx_capi__, never through a header.
 
 #include "py.hpp"
 #include "types.hpp"
-#include "driver_api.hpp"
-#include "error.hpp"
-#include "api.hpp"

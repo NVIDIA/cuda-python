@@ -18,7 +18,7 @@ from cuda.bindings cimport cynvjitlink
 # Handle type aliases and inline helpers (declared from C++ header)
 # =============================================================================
 
-cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
+cdef extern from "_cpp/rt/handles.hpp" namespace "cuda_core::rt":
     # Handle types
     ctypedef shared_ptr[const cydriver.CUcontext] ContextHandle
     ctypedef shared_ptr[const cydriver.CUgreenCtx] GreenCtxHandle
