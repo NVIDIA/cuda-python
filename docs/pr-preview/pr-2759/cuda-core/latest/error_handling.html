@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=da2c217d"></script>
+    <script src="_static/documentation_options.js?v=44a8bb51"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev15';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev68';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -885,10 +885,18 @@ release matters.</p>
 </section>
 <section id="process-termination">
 <h2>Process termination<a class="headerlink" href="#process-termination" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> does not abort the process in response to a CUDA error, including
-errors that cannot be raised, and including failures to restore the caller’s
-context. Aborting is reserved for an internal invariant violation where
-continuing could corrupt memory.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> never terminates the process. A CUDA error is raised, or reported
+as a <a class="reference internal" href="generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a> where nothing can be raised; this includes errors in
+destructors and callbacks and failures to restore the caller’s context. An
+internal error in <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> itself is handled the same way: it raises a
+<code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> that asks you to report it, or is reported as a warning, and
+the affected resource is leaked rather than released in an inconsistent state.
+If you want such failures to stop your program, escalate the warning category:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">"error"</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">cuda</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">CUDAWarning</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A process exit caused by <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>, for example through an exception that
+escapes a destructor, is a bug; please report it.</p>
 </section>
 </section>
 
