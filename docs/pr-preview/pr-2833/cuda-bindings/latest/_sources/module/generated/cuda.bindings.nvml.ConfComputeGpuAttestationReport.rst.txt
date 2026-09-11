@@ -1,0 +1,35 @@
+﻿cuda.bindings.nvml.ConfComputeGpuAttestationReport
+==================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: ConfComputeGpuAttestationReport
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ConfComputeGpuAttestationReport.__init__
+      ~ConfComputeGpuAttestationReport.from_buffer
+      ~ConfComputeGpuAttestationReport.from_data
+      ~ConfComputeGpuAttestationReport.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ConfComputeGpuAttestationReport.attestation_report
+      ~ConfComputeGpuAttestationReport.cec_attestation_report
+      ~ConfComputeGpuAttestationReport.is_cec_attestation_report_present
+      ~ConfComputeGpuAttestationReport.nonce
+      ~ConfComputeGpuAttestationReport.ptr
+   
+   

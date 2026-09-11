@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.EccBankRemapperHistogram\_v1
+===============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: EccBankRemapperHistogram_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EccBankRemapperHistogram_v1.__init__
+      ~EccBankRemapperHistogram_v1.from_buffer
+      ~EccBankRemapperHistogram_v1.from_data
+      ~EccBankRemapperHistogram_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~EccBankRemapperHistogram_v1.max_spare_group_count
+      ~EccBankRemapperHistogram_v1.no_spare_group_count
+      ~EccBankRemapperHistogram_v1.ptr
+   
+   
