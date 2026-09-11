@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.DeprecatedError
-==================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoexception:: DeprecatedError
