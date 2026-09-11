@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=28643e63cf615e30409047a61ccc54e84bb0739fdec43d3e0ed10ef3759c013f
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=df140bcd5b3c6cfb01ff11bc6275a6048c37bee1db8d80a1da19b176df6af870
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -445,9 +445,10 @@ cdef class IOEvents:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -784,9 +785,10 @@ cdef class PerGpuStats:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -1247,9 +1249,10 @@ cdef class IOVec:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -1405,9 +1408,10 @@ cdef class Descr:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -2604,9 +2608,10 @@ cdef class IOParams:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -3324,7 +3329,7 @@ cdef int check_status(ReturnT status) except 1 nogil:
 # Wrapper functions
 ###############################################################################
 
-cpdef intptr_t handle_register(intptr_t descr) except? 0:
+cpdef intptr_t handle_register(descr) except? 0:
     """cuFileHandleRegister is required, and performs extra checking that is memoized to provide increased performance on later cuFile operations.
 
     Args:
@@ -3335,9 +3340,10 @@ cpdef intptr_t handle_register(intptr_t descr) except? 0:
 
     .. seealso:: `cuFileHandleRegister`
     """
+    cdef intptr_t _descr_ptr_ = int(descr)
     cdef Handle fh
     with nogil:
-        __status__ = cuFileHandleRegister(&fh, <CUfileDescr_t*>descr)
+        __status__ = cuFileHandleRegister(&fh, <CUfileDescr_t*>_descr_ptr_)
     check_status(__status__)
     return <intptr_t>fh
 
@@ -3480,15 +3486,17 @@ cpdef intptr_t batch_io_set_up(unsigned nr) except? 0:
     return <intptr_t>batch_idp
 
 
-cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, intptr_t iocbp, unsigned int flags):
+cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, iocbp, unsigned int flags):
+    cdef intptr_t _iocbp_ptr_ = int(iocbp)
     with nogil:
-        __status__ = cuFileBatchIOSubmit(<BatchHandle>batch_idp, nr, <CUfileIOParams_t*>iocbp, flags)
+        __status__ = cuFileBatchIOSubmit(<BatchHandle>batch_idp, nr, <CUfileIOParams_t*>_iocbp_ptr_, flags)
     check_status(__status__)
 
 
-cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, intptr_t iocbp, intptr_t timeout):
+cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, iocbp, intptr_t timeout):
+    cdef intptr_t _iocbp_ptr_ = int(iocbp)
     with nogil:
-        __status__ = cuFileBatchIOGetStatus(<BatchHandle>batch_idp, min_nr, <unsigned*>nr, <CUfileIOEvents_t*>iocbp, <timespec*>timeout)
+        __status__ = cuFileBatchIOGetStatus(<BatchHandle>batch_idp, min_nr, <unsigned*>nr, <CUfileIOEvents_t*>_iocbp_ptr_, <timespec*>timeout)
     check_status(__status__)
 
 
@@ -3666,7 +3674,7 @@ cpdef stats_reset():
     check_status(__status__)
 
 
-cpdef get_stats_l1(intptr_t stats):
+cpdef get_stats_l1(stats):
     """Get Level 1 cuFile statistics.
 
     Args:
@@ -3675,12 +3683,13 @@ cpdef get_stats_l1(intptr_t stats):
 
     .. seealso:: `cuFileGetStatsL1`
     """
+    cdef intptr_t _stats_ptr_ = int(stats)
     with nogil:
-        __status__ = cuFileGetStatsL1(<CUfileStatsLevel1_t*>stats)
+        __status__ = cuFileGetStatsL1(<CUfileStatsLevel1_t*>_stats_ptr_)
     check_status(__status__)
 
 
-cpdef get_stats_l2(intptr_t stats):
+cpdef get_stats_l2(stats):
     """Get Level 2 cuFile statistics.
 
     Args:
@@ -3689,12 +3698,13 @@ cpdef get_stats_l2(intptr_t stats):
 
     .. seealso:: `cuFileGetStatsL2`
     """
+    cdef intptr_t _stats_ptr_ = int(stats)
     with nogil:
-        __status__ = cuFileGetStatsL2(<CUfileStatsLevel2_t*>stats)
+        __status__ = cuFileGetStatsL2(<CUfileStatsLevel2_t*>_stats_ptr_)
     check_status(__status__)
 
 
-cpdef get_stats_l3(intptr_t stats):
+cpdef get_stats_l3(stats):
     """Get Level 3 cuFile statistics.
 
     Args:
@@ -3703,8 +3713,9 @@ cpdef get_stats_l3(intptr_t stats):
 
     .. seealso:: `cuFileGetStatsL3`
     """
+    cdef intptr_t _stats_ptr_ = int(stats)
     with nogil:
-        __status__ = cuFileGetStatsL3(<CUfileStatsLevel3_t*>stats)
+        __status__ = cuFileGetStatsL3(<CUfileStatsLevel3_t*>_stats_ptr_)
     check_status(__status__)
 
 
