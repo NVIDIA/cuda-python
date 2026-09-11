@@ -3,20 +3,21 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7bea42584683721061ad6a55d7580e0a95b588f56cce22e7cfcf985235b43f1b
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6fd79e7f27718c08c4521565c1e4f16afcbb4b6e58f45304dd40da1c8edba291
 
 
 # <<<< PREAMBLE CONTENT >>>>
 
 cimport cpython as _cyb_cpython
 cimport cpython.buffer as _cyb_cpython_buffer
+from cpython.buffer cimport (
+    PyBUF_SIMPLE as _cyb_PyBUF_SIMPLE,
+    PyBuffer_Release as _cyb_PyBuffer_Release,
+    PyObject_GetBuffer as _cyb_PyObject_GetBuffer,
+    Py_buffer as _cyb_Py_buffer,
+)
 from cython cimport view as _cyb_view
 from libc.stdint cimport intptr_t
-from libc.stdlib cimport (
-    calloc as _cyb_calloc,
-    free as _cyb_free,
-    malloc as _cyb_malloc,
-)
 from libc.string cimport (
     memcmp as _cyb_memcmp,
     memcpy as _cyb_memcpy,
@@ -256,25 +257,15 @@ cdef class BundledHeadersInfo:
     .. seealso:: `nvrtcBundledHeadersInfo`
     """
     cdef:
+        nvrtcBundledHeadersInfo _data
         nvrtcBundledHeadersInfo *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvrtcBundledHeadersInfo *>_cyb_calloc(1, sizeof(nvrtcBundledHeadersInfo))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating BundledHeadersInfo")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvrtcBundledHeadersInfo *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.BundledHeadersInfo object at {hex(id(self))}>"
@@ -304,14 +295,20 @@ cdef class BundledHeadersInfo:
         pass
 
     def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvrtcBundledHeadersInfo *>_cyb_malloc(sizeof(nvrtcBundledHeadersInfo))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating BundledHeadersInfo")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvrtcBundledHeadersInfo))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvrtcBundledHeadersInfo):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvrtcBundledHeadersInfo), view.len)
+                    )
+                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvrtcBundledHeadersInfo))
+                self._ptr = &self._data
+                self._owner = None
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
         else:
             setattr(self, key, val)
 
@@ -408,16 +405,12 @@ cdef class BundledHeadersInfo:
             raise ValueError("ptr must not be null (0)")
         cdef BundledHeadersInfo obj = BundledHeadersInfo.__new__(BundledHeadersInfo)
         if owner is None:
-            obj._ptr = <nvrtcBundledHeadersInfo *>_cyb_malloc(sizeof(nvrtcBundledHeadersInfo))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating BundledHeadersInfo")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvrtcBundledHeadersInfo))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvrtcBundledHeadersInfo))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvrtcBundledHeadersInfo *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 

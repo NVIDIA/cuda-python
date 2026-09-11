@@ -13,6 +13,7 @@ Enhancements
 - ``cuda-bindings`` docstrings now include the full documentation from the upstream CTK, not just the first paragraph.
 - For all ``cuda-bindings`` APIs, functions that accept a ``bytes`` object will also accept ``None``, which is treated as ``NULL``.
 - For all ``cuda-bindings`` APIs, functions that accept a struct wrapper will accept the struct wrapper directly, rather than requiring getting the ``.ptr`` property.
+- Creating wrapped structs (AUTO_LOWPP_CLASS) in ``cuda-bindings`` should now be faster in most cases, because it requires 1 heap allocation rather than 2.
 
 Bugfixes
 --------
