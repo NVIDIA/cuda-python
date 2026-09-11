@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=581469c1fadb5f72c43b478d73f2b905562136c8723a25e2f4240b5b681e2894
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8e5f9b5cdfa1966fc26d3fd6782a41f08bc8b6c24321b0fe5fd1ddd92393bea8
 """
 This is a replacement for the stdlib enum.IntEnum.
 
@@ -22,6 +22,7 @@ class FastEnumMetaclass(type):
 
         cls.__singletons__ = {}
         cls.__members__ = {}
+        aliases = {}
         for name, value in cls.__dict__.items():
             if name.startswith("__") and name.endswith("__"):
                 continue
@@ -33,6 +34,14 @@ class FastEnumMetaclass(type):
             else:
                 continue
 
+            # A name sharing a value with an already-processed member is an
+            # alias (e.g. a deprecated name kept for backward compatibility):
+            # it resolves to the same singleton, but isn't a distinct member
+            # (excluded from __members__, iteration, and len()).
+            if value in cls.__singletons__:
+                aliases[name] = cls.__singletons__[value]
+                continue
+
             singleton = int.__new__(cls, value)
             singleton.__doc__ = doc
             singleton._name = name
@@ -40,6 +49,8 @@ class FastEnumMetaclass(type):
             cls.__members__[name] = singleton
 
         for name, member in cls.__members__.items():
+            setattr(cls, name, member)
+        for name, member in aliases.items():
             setattr(cls, name, member)
 
     def __repr__(cls) -> str:

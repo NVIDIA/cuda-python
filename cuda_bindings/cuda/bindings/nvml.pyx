@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4d010f839da36550c1c10e3d22a111851674c07a6f0fa504131b531899a4c477
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=37c96b1f53dc6a30551c2a58b1f62dfb6c98af3e8fdcdf3fe4fd0a89fc6ea001
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -106,8 +106,10 @@ class BridgeChipType(_cyb_FastEnum):
 
     See `nvmlBridgeChipType_t`.
     """
-    BRIDGE_CHIP_PLX = NVML_BRIDGE_CHIP_PLX
-    BRIDGE_CHIP_BRO4 = NVML_BRIDGE_CHIP_BRO4
+    PLX = NVML_BRIDGE_CHIP_PLX
+    BRIDGE_CHIP_PLX = PLX  # backward-compat alias
+    BRO4 = NVML_BRIDGE_CHIP_BRO4
+    BRIDGE_CHIP_BRO4 = BRO4  # backward-compat alias
 
 class NvLinkUtilizationCountUnits(_cyb_FastEnum):
     """
@@ -115,11 +117,16 @@ class NvLinkUtilizationCountUnits(_cyb_FastEnum):
 
     See `nvmlNvLinkUtilizationCountUnits_t`.
     """
-    NVLINK_COUNTER_UNIT_CYCLES = NVML_NVLINK_COUNTER_UNIT_CYCLES
-    NVLINK_COUNTER_UNIT_PACKETS = NVML_NVLINK_COUNTER_UNIT_PACKETS
-    NVLINK_COUNTER_UNIT_BYTES = NVML_NVLINK_COUNTER_UNIT_BYTES
-    NVLINK_COUNTER_UNIT_RESERVED = NVML_NVLINK_COUNTER_UNIT_RESERVED
-    NVLINK_COUNTER_UNIT_COUNT = NVML_NVLINK_COUNTER_UNIT_COUNT
+    CYCLES = NVML_NVLINK_COUNTER_UNIT_CYCLES
+    NVLINK_COUNTER_UNIT_CYCLES = CYCLES  # backward-compat alias
+    PACKETS = NVML_NVLINK_COUNTER_UNIT_PACKETS
+    NVLINK_COUNTER_UNIT_PACKETS = PACKETS  # backward-compat alias
+    BYTES = NVML_NVLINK_COUNTER_UNIT_BYTES
+    NVLINK_COUNTER_UNIT_BYTES = BYTES  # backward-compat alias
+    RESERVED = NVML_NVLINK_COUNTER_UNIT_RESERVED
+    NVLINK_COUNTER_UNIT_RESERVED = RESERVED  # backward-compat alias
+    COUNT = NVML_NVLINK_COUNTER_UNIT_COUNT
+    NVLINK_COUNTER_UNIT_COUNT = COUNT  # backward-compat alias
 
 class NvLinkUtilizationCountPktTypes(_cyb_FastEnum):
     """
@@ -130,15 +137,24 @@ class NvLinkUtilizationCountPktTypes(_cyb_FastEnum):
 
     See `nvmlNvLinkUtilizationCountPktTypes_t`.
     """
-    NVLINK_COUNTER_PKTFILTER_NOP = NVML_NVLINK_COUNTER_PKTFILTER_NOP
-    NVLINK_COUNTER_PKTFILTER_READ = NVML_NVLINK_COUNTER_PKTFILTER_READ
-    NVLINK_COUNTER_PKTFILTER_WRITE = NVML_NVLINK_COUNTER_PKTFILTER_WRITE
-    NVLINK_COUNTER_PKTFILTER_RATOM = NVML_NVLINK_COUNTER_PKTFILTER_RATOM
-    NVLINK_COUNTER_PKTFILTER_NRATOM = NVML_NVLINK_COUNTER_PKTFILTER_NRATOM
-    NVLINK_COUNTER_PKTFILTER_FLUSH = NVML_NVLINK_COUNTER_PKTFILTER_FLUSH
-    NVLINK_COUNTER_PKTFILTER_RESPDATA = NVML_NVLINK_COUNTER_PKTFILTER_RESPDATA
-    NVLINK_COUNTER_PKTFILTER_RESPNODATA = NVML_NVLINK_COUNTER_PKTFILTER_RESPNODATA
-    NVLINK_COUNTER_PKTFILTER_ALL = NVML_NVLINK_COUNTER_PKTFILTER_ALL
+    NOP = NVML_NVLINK_COUNTER_PKTFILTER_NOP
+    NVLINK_COUNTER_PKTFILTER_NOP = NOP  # backward-compat alias
+    READ = NVML_NVLINK_COUNTER_PKTFILTER_READ
+    NVLINK_COUNTER_PKTFILTER_READ = READ  # backward-compat alias
+    WRITE = NVML_NVLINK_COUNTER_PKTFILTER_WRITE
+    NVLINK_COUNTER_PKTFILTER_WRITE = WRITE  # backward-compat alias
+    RATOM = NVML_NVLINK_COUNTER_PKTFILTER_RATOM
+    NVLINK_COUNTER_PKTFILTER_RATOM = RATOM  # backward-compat alias
+    NRATOM = NVML_NVLINK_COUNTER_PKTFILTER_NRATOM
+    NVLINK_COUNTER_PKTFILTER_NRATOM = NRATOM  # backward-compat alias
+    FLUSH = NVML_NVLINK_COUNTER_PKTFILTER_FLUSH
+    NVLINK_COUNTER_PKTFILTER_FLUSH = FLUSH  # backward-compat alias
+    RESPDATA = NVML_NVLINK_COUNTER_PKTFILTER_RESPDATA
+    NVLINK_COUNTER_PKTFILTER_RESPDATA = RESPDATA  # backward-compat alias
+    RESPNODATA = NVML_NVLINK_COUNTER_PKTFILTER_RESPNODATA
+    NVLINK_COUNTER_PKTFILTER_RESPNODATA = RESPNODATA  # backward-compat alias
+    ALL = NVML_NVLINK_COUNTER_PKTFILTER_ALL
+    NVLINK_COUNTER_PKTFILTER_ALL = ALL  # backward-compat alias
 
 class NvLinkCapability(_cyb_FastEnum):
     """
@@ -146,13 +162,20 @@ class NvLinkCapability(_cyb_FastEnum):
 
     See `nvmlNvLinkCapability_t`.
     """
-    NVLINK_CAP_P2P_SUPPORTED = NVML_NVLINK_CAP_P2P_SUPPORTED
-    NVLINK_CAP_SYSMEM_ACCESS = NVML_NVLINK_CAP_SYSMEM_ACCESS
-    NVLINK_CAP_P2P_ATOMICS = NVML_NVLINK_CAP_P2P_ATOMICS
-    NVLINK_CAP_SYSMEM_ATOMICS = NVML_NVLINK_CAP_SYSMEM_ATOMICS
-    NVLINK_CAP_SLI_BRIDGE = NVML_NVLINK_CAP_SLI_BRIDGE
-    NVLINK_CAP_VALID = NVML_NVLINK_CAP_VALID
-    NVLINK_CAP_COUNT = NVML_NVLINK_CAP_COUNT
+    P2P_SUPPORTED = NVML_NVLINK_CAP_P2P_SUPPORTED
+    NVLINK_CAP_P2P_SUPPORTED = P2P_SUPPORTED  # backward-compat alias
+    SYSMEM_ACCESS = NVML_NVLINK_CAP_SYSMEM_ACCESS
+    NVLINK_CAP_SYSMEM_ACCESS = SYSMEM_ACCESS  # backward-compat alias
+    P2P_ATOMICS = NVML_NVLINK_CAP_P2P_ATOMICS
+    NVLINK_CAP_P2P_ATOMICS = P2P_ATOMICS  # backward-compat alias
+    SYSMEM_ATOMICS = NVML_NVLINK_CAP_SYSMEM_ATOMICS
+    NVLINK_CAP_SYSMEM_ATOMICS = SYSMEM_ATOMICS  # backward-compat alias
+    SLI_BRIDGE = NVML_NVLINK_CAP_SLI_BRIDGE
+    NVLINK_CAP_SLI_BRIDGE = SLI_BRIDGE  # backward-compat alias
+    VALID = NVML_NVLINK_CAP_VALID
+    NVLINK_CAP_VALID = VALID  # backward-compat alias
+    COUNT = NVML_NVLINK_CAP_COUNT
+    NVLINK_CAP_COUNT = COUNT  # backward-compat alias
 
 class NvLinkErrorCounter(_cyb_FastEnum):
     """
@@ -160,12 +183,18 @@ class NvLinkErrorCounter(_cyb_FastEnum):
 
     See `nvmlNvLinkErrorCounter_t`.
     """
-    NVLINK_ERROR_DL_REPLAY = NVML_NVLINK_ERROR_DL_REPLAY
-    NVLINK_ERROR_DL_RECOVERY = NVML_NVLINK_ERROR_DL_RECOVERY
-    NVLINK_ERROR_DL_CRC_FLIT = NVML_NVLINK_ERROR_DL_CRC_FLIT
-    NVLINK_ERROR_DL_CRC_DATA = NVML_NVLINK_ERROR_DL_CRC_DATA
-    NVLINK_ERROR_DL_ECC_DATA = NVML_NVLINK_ERROR_DL_ECC_DATA
-    NVLINK_ERROR_COUNT = NVML_NVLINK_ERROR_COUNT
+    DL_REPLAY = NVML_NVLINK_ERROR_DL_REPLAY
+    NVLINK_ERROR_DL_REPLAY = DL_REPLAY  # backward-compat alias
+    DL_RECOVERY = NVML_NVLINK_ERROR_DL_RECOVERY
+    NVLINK_ERROR_DL_RECOVERY = DL_RECOVERY  # backward-compat alias
+    DL_CRC_FLIT = NVML_NVLINK_ERROR_DL_CRC_FLIT
+    NVLINK_ERROR_DL_CRC_FLIT = DL_CRC_FLIT  # backward-compat alias
+    DL_CRC_DATA = NVML_NVLINK_ERROR_DL_CRC_DATA
+    NVLINK_ERROR_DL_CRC_DATA = DL_CRC_DATA  # backward-compat alias
+    DL_ECC_DATA = NVML_NVLINK_ERROR_DL_ECC_DATA
+    NVLINK_ERROR_DL_ECC_DATA = DL_ECC_DATA  # backward-compat alias
+    COUNT = NVML_NVLINK_ERROR_COUNT
+    NVLINK_ERROR_COUNT = COUNT  # backward-compat alias
 
 class IntNvLinkDeviceType(_cyb_FastEnum):
     """
@@ -173,10 +202,14 @@ class IntNvLinkDeviceType(_cyb_FastEnum):
 
     See `nvmlIntNvLinkDeviceType_t`.
     """
-    NVLINK_DEVICE_TYPE_GPU = NVML_NVLINK_DEVICE_TYPE_GPU
-    NVLINK_DEVICE_TYPE_IBMNPU = NVML_NVLINK_DEVICE_TYPE_IBMNPU
-    NVLINK_DEVICE_TYPE_SWITCH = NVML_NVLINK_DEVICE_TYPE_SWITCH
-    NVLINK_DEVICE_TYPE_UNKNOWN = NVML_NVLINK_DEVICE_TYPE_UNKNOWN
+    GPU = NVML_NVLINK_DEVICE_TYPE_GPU
+    NVLINK_DEVICE_TYPE_GPU = GPU  # backward-compat alias
+    IBMNPU = NVML_NVLINK_DEVICE_TYPE_IBMNPU
+    NVLINK_DEVICE_TYPE_IBMNPU = IBMNPU  # backward-compat alias
+    SWITCH = NVML_NVLINK_DEVICE_TYPE_SWITCH
+    NVLINK_DEVICE_TYPE_SWITCH = SWITCH  # backward-compat alias
+    UNKNOWN = NVML_NVLINK_DEVICE_TYPE_UNKNOWN
+    NVLINK_DEVICE_TYPE_UNKNOWN = UNKNOWN  # backward-compat alias
 
 class GpuTopologyLevel(_cyb_FastEnum):
     """
@@ -185,37 +218,58 @@ class GpuTopologyLevel(_cyb_FastEnum):
 
     See `nvmlGpuTopologyLevel_t`.
     """
-    TOPOLOGY_INTERNAL = NVML_TOPOLOGY_INTERNAL
-    TOPOLOGY_SINGLE = NVML_TOPOLOGY_SINGLE
-    TOPOLOGY_MULTIPLE = NVML_TOPOLOGY_MULTIPLE
-    TOPOLOGY_HOSTBRIDGE = NVML_TOPOLOGY_HOSTBRIDGE
-    TOPOLOGY_NODE = NVML_TOPOLOGY_NODE
-    TOPOLOGY_SYSTEM = NVML_TOPOLOGY_SYSTEM
+    INTERNAL = NVML_TOPOLOGY_INTERNAL
+    TOPOLOGY_INTERNAL = INTERNAL  # backward-compat alias
+    SINGLE = NVML_TOPOLOGY_SINGLE
+    TOPOLOGY_SINGLE = SINGLE  # backward-compat alias
+    MULTIPLE = NVML_TOPOLOGY_MULTIPLE
+    TOPOLOGY_MULTIPLE = MULTIPLE  # backward-compat alias
+    HOSTBRIDGE = NVML_TOPOLOGY_HOSTBRIDGE
+    TOPOLOGY_HOSTBRIDGE = HOSTBRIDGE  # backward-compat alias
+    NODE = NVML_TOPOLOGY_NODE
+    TOPOLOGY_NODE = NODE  # backward-compat alias
+    SYSTEM = NVML_TOPOLOGY_SYSTEM
+    TOPOLOGY_SYSTEM = SYSTEM  # backward-compat alias
 
 class GpuP2PStatus(_cyb_FastEnum):
     """
     See `nvmlGpuP2PStatus_t`.
     """
-    P2P_STATUS_OK = NVML_P2P_STATUS_OK
-    P2P_STATUS_CHIPSET_NOT_SUPPORED = NVML_P2P_STATUS_CHIPSET_NOT_SUPPORED
-    P2P_STATUS_CHIPSET_NOT_SUPPORTED = NVML_P2P_STATUS_CHIPSET_NOT_SUPPORTED
-    P2P_STATUS_GPU_NOT_SUPPORTED = NVML_P2P_STATUS_GPU_NOT_SUPPORTED
-    P2P_STATUS_IOH_TOPOLOGY_NOT_SUPPORTED = NVML_P2P_STATUS_IOH_TOPOLOGY_NOT_SUPPORTED
-    P2P_STATUS_DISABLED_BY_REGKEY = NVML_P2P_STATUS_DISABLED_BY_REGKEY
-    P2P_STATUS_NOT_SUPPORTED = NVML_P2P_STATUS_NOT_SUPPORTED
-    P2P_STATUS_UNKNOWN = NVML_P2P_STATUS_UNKNOWN
+    OK = NVML_P2P_STATUS_OK
+    P2P_STATUS_OK = OK  # backward-compat alias
+    CHIPSET_NOT_SUPPORED = NVML_P2P_STATUS_CHIPSET_NOT_SUPPORED
+    P2P_STATUS_CHIPSET_NOT_SUPPORED = CHIPSET_NOT_SUPPORED  # backward-compat alias
+    CHIPSET_NOT_SUPPORTED = NVML_P2P_STATUS_CHIPSET_NOT_SUPPORTED
+    P2P_STATUS_CHIPSET_NOT_SUPPORTED = CHIPSET_NOT_SUPPORTED  # backward-compat alias
+    GPU_NOT_SUPPORTED = NVML_P2P_STATUS_GPU_NOT_SUPPORTED
+    P2P_STATUS_GPU_NOT_SUPPORTED = GPU_NOT_SUPPORTED  # backward-compat alias
+    IOH_TOPOLOGY_NOT_SUPPORTED = NVML_P2P_STATUS_IOH_TOPOLOGY_NOT_SUPPORTED
+    P2P_STATUS_IOH_TOPOLOGY_NOT_SUPPORTED = IOH_TOPOLOGY_NOT_SUPPORTED  # backward-compat alias
+    DISABLED_BY_REGKEY = NVML_P2P_STATUS_DISABLED_BY_REGKEY
+    P2P_STATUS_DISABLED_BY_REGKEY = DISABLED_BY_REGKEY  # backward-compat alias
+    NOT_SUPPORTED = NVML_P2P_STATUS_NOT_SUPPORTED
+    P2P_STATUS_NOT_SUPPORTED = NOT_SUPPORTED  # backward-compat alias
+    UNKNOWN = NVML_P2P_STATUS_UNKNOWN
+    P2P_STATUS_UNKNOWN = UNKNOWN  # backward-compat alias
 
 class GpuP2PCapsIndex(_cyb_FastEnum):
     """
     See `nvmlGpuP2PCapsIndex_t`.
     """
-    P2P_CAPS_INDEX_READ = NVML_P2P_CAPS_INDEX_READ
-    P2P_CAPS_INDEX_WRITE = NVML_P2P_CAPS_INDEX_WRITE
-    P2P_CAPS_INDEX_NVLINK = NVML_P2P_CAPS_INDEX_NVLINK
-    P2P_CAPS_INDEX_ATOMICS = NVML_P2P_CAPS_INDEX_ATOMICS
-    P2P_CAPS_INDEX_PCI = NVML_P2P_CAPS_INDEX_PCI
-    P2P_CAPS_INDEX_PROP = NVML_P2P_CAPS_INDEX_PROP
-    P2P_CAPS_INDEX_UNKNOWN = NVML_P2P_CAPS_INDEX_UNKNOWN
+    READ = NVML_P2P_CAPS_INDEX_READ
+    P2P_CAPS_INDEX_READ = READ  # backward-compat alias
+    WRITE = NVML_P2P_CAPS_INDEX_WRITE
+    P2P_CAPS_INDEX_WRITE = WRITE  # backward-compat alias
+    NVLINK = NVML_P2P_CAPS_INDEX_NVLINK
+    P2P_CAPS_INDEX_NVLINK = NVLINK  # backward-compat alias
+    ATOMICS = NVML_P2P_CAPS_INDEX_ATOMICS
+    P2P_CAPS_INDEX_ATOMICS = ATOMICS  # backward-compat alias
+    PCI = NVML_P2P_CAPS_INDEX_PCI
+    P2P_CAPS_INDEX_PCI = PCI  # backward-compat alias
+    PROP = NVML_P2P_CAPS_INDEX_PROP
+    P2P_CAPS_INDEX_PROP = PROP  # backward-compat alias
+    UNKNOWN = NVML_P2P_CAPS_INDEX_UNKNOWN
+    P2P_CAPS_INDEX_UNKNOWN = UNKNOWN  # backward-compat alias
 
 class SamplingType(_cyb_FastEnum):
     """
@@ -241,9 +295,12 @@ class PcieUtilCounter(_cyb_FastEnum):
 
     See `nvmlPcieUtilCounter_t`.
     """
-    PCIE_UTIL_TX_BYTES = NVML_PCIE_UTIL_TX_BYTES
-    PCIE_UTIL_RX_BYTES = NVML_PCIE_UTIL_RX_BYTES
-    PCIE_UTIL_COUNT = NVML_PCIE_UTIL_COUNT
+    TX_BYTES = NVML_PCIE_UTIL_TX_BYTES
+    PCIE_UTIL_TX_BYTES = TX_BYTES  # backward-compat alias
+    RX_BYTES = NVML_PCIE_UTIL_RX_BYTES
+    PCIE_UTIL_RX_BYTES = RX_BYTES  # backward-compat alias
+    COUNT = NVML_PCIE_UTIL_COUNT
+    PCIE_UTIL_COUNT = COUNT  # backward-compat alias
 
 class ValueType(_cyb_FastEnum):
     """
@@ -266,15 +323,24 @@ class PerfPolicyType(_cyb_FastEnum):
 
     See `nvmlPerfPolicyType_t`.
     """
-    PERF_POLICY_POWER = (NVML_PERF_POLICY_POWER, 'How long did power violations cause the GPU to be below application clocks.')
-    PERF_POLICY_THERMAL = (NVML_PERF_POLICY_THERMAL, 'How long did thermal violations cause the GPU to be below application clocks.')
-    PERF_POLICY_SYNC_BOOST = (NVML_PERF_POLICY_SYNC_BOOST, 'How long did sync boost cause the GPU to be below application clocks.')
-    PERF_POLICY_BOARD_LIMIT = (NVML_PERF_POLICY_BOARD_LIMIT, 'How long did the board limit cause the GPU to be below application clocks.')
-    PERF_POLICY_LOW_UTILIZATION = (NVML_PERF_POLICY_LOW_UTILIZATION, 'How long did low utilization cause the GPU to be below application clocks.')
-    PERF_POLICY_RELIABILITY = (NVML_PERF_POLICY_RELIABILITY, 'How long did the board reliability limit cause the GPU to be below application clocks.')
-    PERF_POLICY_TOTAL_APP_CLOCKS = (NVML_PERF_POLICY_TOTAL_APP_CLOCKS, 'Total time the GPU was held below application clocks by any limiter (0 - 5 above).')
-    PERF_POLICY_TOTAL_BASE_CLOCKS = (NVML_PERF_POLICY_TOTAL_BASE_CLOCKS, 'Total time the GPU was held below base clocks.')
-    PERF_POLICY_COUNT = NVML_PERF_POLICY_COUNT
+    POWER = (NVML_PERF_POLICY_POWER, 'How long did power violations cause the GPU to be below application clocks.')
+    PERF_POLICY_POWER = POWER  # backward-compat alias
+    THERMAL = (NVML_PERF_POLICY_THERMAL, 'How long did thermal violations cause the GPU to be below application clocks.')
+    PERF_POLICY_THERMAL = THERMAL  # backward-compat alias
+    SYNC_BOOST = (NVML_PERF_POLICY_SYNC_BOOST, 'How long did sync boost cause the GPU to be below application clocks.')
+    PERF_POLICY_SYNC_BOOST = SYNC_BOOST  # backward-compat alias
+    BOARD_LIMIT = (NVML_PERF_POLICY_BOARD_LIMIT, 'How long did the board limit cause the GPU to be below application clocks.')
+    PERF_POLICY_BOARD_LIMIT = BOARD_LIMIT  # backward-compat alias
+    LOW_UTILIZATION = (NVML_PERF_POLICY_LOW_UTILIZATION, 'How long did low utilization cause the GPU to be below application clocks.')
+    PERF_POLICY_LOW_UTILIZATION = LOW_UTILIZATION  # backward-compat alias
+    RELIABILITY = (NVML_PERF_POLICY_RELIABILITY, 'How long did the board reliability limit cause the GPU to be below application clocks.')
+    PERF_POLICY_RELIABILITY = RELIABILITY  # backward-compat alias
+    TOTAL_APP_CLOCKS = (NVML_PERF_POLICY_TOTAL_APP_CLOCKS, 'Total time the GPU was held below application clocks by any limiter (0 - 5 above).')
+    PERF_POLICY_TOTAL_APP_CLOCKS = TOTAL_APP_CLOCKS  # backward-compat alias
+    TOTAL_BASE_CLOCKS = (NVML_PERF_POLICY_TOTAL_BASE_CLOCKS, 'Total time the GPU was held below base clocks.')
+    PERF_POLICY_TOTAL_BASE_CLOCKS = TOTAL_BASE_CLOCKS  # backward-compat alias
+    COUNT = NVML_PERF_POLICY_COUNT
+    PERF_POLICY_COUNT = COUNT  # backward-compat alias
 
 class ThermalTarget(_cyb_FastEnum):
     """
@@ -325,10 +391,14 @@ class CoolerControl(_cyb_FastEnum):
 
     See `nvmlCoolerControl_t`.
     """
-    THERMAL_COOLER_SIGNAL_NONE = (NVML_THERMAL_COOLER_SIGNAL_NONE, 'This cooler has no control signal.')
-    THERMAL_COOLER_SIGNAL_TOGGLE = (NVML_THERMAL_COOLER_SIGNAL_TOGGLE, 'This cooler can only be toggled either ON or OFF (eg a switch).')
-    THERMAL_COOLER_SIGNAL_VARIABLE = (NVML_THERMAL_COOLER_SIGNAL_VARIABLE, "This cooler's level can be adjusted from some minimum to some maximum (eg a knob).")
-    THERMAL_COOLER_SIGNAL_COUNT = NVML_THERMAL_COOLER_SIGNAL_COUNT
+    NONE = (NVML_THERMAL_COOLER_SIGNAL_NONE, 'This cooler has no control signal.')
+    THERMAL_COOLER_SIGNAL_NONE = NONE  # backward-compat alias
+    TOGGLE = (NVML_THERMAL_COOLER_SIGNAL_TOGGLE, 'This cooler can only be toggled either ON or OFF (eg a switch).')
+    THERMAL_COOLER_SIGNAL_TOGGLE = TOGGLE  # backward-compat alias
+    VARIABLE = (NVML_THERMAL_COOLER_SIGNAL_VARIABLE, "This cooler's level can be adjusted from some minimum to some maximum (eg a knob).")
+    THERMAL_COOLER_SIGNAL_VARIABLE = VARIABLE  # backward-compat alias
+    COUNT = NVML_THERMAL_COOLER_SIGNAL_COUNT
+    THERMAL_COOLER_SIGNAL_COUNT = COUNT  # backward-compat alias
 
 class CoolerTarget(_cyb_FastEnum):
     """
@@ -336,11 +406,16 @@ class CoolerTarget(_cyb_FastEnum):
 
     See `nvmlCoolerTarget_t`.
     """
-    THERMAL_NONE = (NVML_THERMAL_COOLER_TARGET_NONE, 'This cooler cools nothing.')
-    THERMAL_GPU = (NVML_THERMAL_COOLER_TARGET_GPU, 'This cooler can cool the GPU.')
-    THERMAL_MEMORY = (NVML_THERMAL_COOLER_TARGET_MEMORY, 'This cooler can cool the memory.')
-    THERMAL_POWER_SUPPLY = (NVML_THERMAL_COOLER_TARGET_POWER_SUPPLY, 'This cooler can cool the power supply.')
-    THERMAL_GPU_RELATED = (NVML_THERMAL_COOLER_TARGET_GPU_RELATED, 'This cooler cools all of the components related to its target gpu. GPU_RELATED = GPU | MEMORY | POWER_SUPPLY.')
+    NONE = (NVML_THERMAL_COOLER_TARGET_NONE, 'This cooler cools nothing.')
+    THERMAL_NONE = NONE  # backward-compat alias
+    GPU = (NVML_THERMAL_COOLER_TARGET_GPU, 'This cooler can cool the GPU.')
+    THERMAL_GPU = GPU  # backward-compat alias
+    MEMORY = (NVML_THERMAL_COOLER_TARGET_MEMORY, 'This cooler can cool the memory.')
+    THERMAL_MEMORY = MEMORY  # backward-compat alias
+    POWER_SUPPLY = (NVML_THERMAL_COOLER_TARGET_POWER_SUPPLY, 'This cooler can cool the power supply.')
+    THERMAL_POWER_SUPPLY = POWER_SUPPLY  # backward-compat alias
+    GPU_RELATED = (NVML_THERMAL_COOLER_TARGET_GPU_RELATED, 'This cooler cools all of the components related to its target gpu. GPU_RELATED = GPU | MEMORY | POWER_SUPPLY.')
+    THERMAL_GPU_RELATED = GPU_RELATED  # backward-compat alias
 
 class UUIDType(_cyb_FastEnum):
     """
@@ -358,8 +433,10 @@ class EnableState(_cyb_FastEnum):
 
     See `nvmlEnableState_t`.
     """
-    FEATURE_DISABLED = (NVML_FEATURE_DISABLED, 'Feature disabled.')
-    FEATURE_ENABLED = (NVML_FEATURE_ENABLED, 'Feature enabled.')
+    DISABLED = (NVML_FEATURE_DISABLED, 'Feature disabled.')
+    FEATURE_DISABLED = DISABLED  # backward-compat alias
+    ENABLED = (NVML_FEATURE_ENABLED, 'Feature enabled.')
+    FEATURE_ENABLED = ENABLED  # backward-compat alias
 
 class BrandType(_cyb_FastEnum):
     """
@@ -367,28 +444,50 @@ class BrandType(_cyb_FastEnum):
 
     See `nvmlBrandType_t`.
     """
-    BRAND_UNKNOWN = NVML_BRAND_UNKNOWN
-    BRAND_QUADRO = NVML_BRAND_QUADRO
-    BRAND_TESLA = NVML_BRAND_TESLA
-    BRAND_NVS = NVML_BRAND_NVS
-    BRAND_GRID = NVML_BRAND_GRID
-    BRAND_GEFORCE = NVML_BRAND_GEFORCE
-    BRAND_TITAN = NVML_BRAND_TITAN
-    BRAND_NVIDIA_VAPPS = NVML_BRAND_NVIDIA_VAPPS
-    BRAND_NVIDIA_VPC = NVML_BRAND_NVIDIA_VPC
-    BRAND_NVIDIA_VCS = NVML_BRAND_NVIDIA_VCS
-    BRAND_NVIDIA_VWS = NVML_BRAND_NVIDIA_VWS
-    BRAND_NVIDIA_CLOUD_GAMING = NVML_BRAND_NVIDIA_CLOUD_GAMING
-    BRAND_NVIDIA_VGAMING = NVML_BRAND_NVIDIA_VGAMING
-    BRAND_QUADRO_RTX = NVML_BRAND_QUADRO_RTX
-    BRAND_NVIDIA_RTX = NVML_BRAND_NVIDIA_RTX
-    BRAND_NVIDIA = NVML_BRAND_NVIDIA
-    BRAND_GEFORCE_RTX = NVML_BRAND_GEFORCE_RTX
-    BRAND_TITAN_RTX = NVML_BRAND_TITAN_RTX
-    BRAND_NVIDIA_DLA = NVML_BRAND_NVIDIA_DLA
-    BRAND_NVIDIA_VGAMEDEV = NVML_BRAND_NVIDIA_VGAMEDEV
-    BRAND_NVIDIA_NPU = NVML_BRAND_NVIDIA_NPU
-    BRAND_COUNT = NVML_BRAND_COUNT
+    UNKNOWN = NVML_BRAND_UNKNOWN
+    BRAND_UNKNOWN = UNKNOWN  # backward-compat alias
+    QUADRO = NVML_BRAND_QUADRO
+    BRAND_QUADRO = QUADRO  # backward-compat alias
+    TESLA = NVML_BRAND_TESLA
+    BRAND_TESLA = TESLA  # backward-compat alias
+    NVS = NVML_BRAND_NVS
+    BRAND_NVS = NVS  # backward-compat alias
+    GRID = NVML_BRAND_GRID
+    BRAND_GRID = GRID  # backward-compat alias
+    GEFORCE = NVML_BRAND_GEFORCE
+    BRAND_GEFORCE = GEFORCE  # backward-compat alias
+    TITAN = NVML_BRAND_TITAN
+    BRAND_TITAN = TITAN  # backward-compat alias
+    NVIDIA_VAPPS = NVML_BRAND_NVIDIA_VAPPS
+    BRAND_NVIDIA_VAPPS = NVIDIA_VAPPS  # backward-compat alias
+    NVIDIA_VPC = NVML_BRAND_NVIDIA_VPC
+    BRAND_NVIDIA_VPC = NVIDIA_VPC  # backward-compat alias
+    NVIDIA_VCS = NVML_BRAND_NVIDIA_VCS
+    BRAND_NVIDIA_VCS = NVIDIA_VCS  # backward-compat alias
+    NVIDIA_VWS = NVML_BRAND_NVIDIA_VWS
+    BRAND_NVIDIA_VWS = NVIDIA_VWS  # backward-compat alias
+    NVIDIA_CLOUD_GAMING = NVML_BRAND_NVIDIA_CLOUD_GAMING
+    BRAND_NVIDIA_CLOUD_GAMING = NVIDIA_CLOUD_GAMING  # backward-compat alias
+    NVIDIA_VGAMING = NVML_BRAND_NVIDIA_VGAMING
+    BRAND_NVIDIA_VGAMING = NVIDIA_VGAMING  # backward-compat alias
+    QUADRO_RTX = NVML_BRAND_QUADRO_RTX
+    BRAND_QUADRO_RTX = QUADRO_RTX  # backward-compat alias
+    NVIDIA_RTX = NVML_BRAND_NVIDIA_RTX
+    BRAND_NVIDIA_RTX = NVIDIA_RTX  # backward-compat alias
+    NVIDIA = NVML_BRAND_NVIDIA
+    BRAND_NVIDIA = NVIDIA  # backward-compat alias
+    GEFORCE_RTX = NVML_BRAND_GEFORCE_RTX
+    BRAND_GEFORCE_RTX = GEFORCE_RTX  # backward-compat alias
+    TITAN_RTX = NVML_BRAND_TITAN_RTX
+    BRAND_TITAN_RTX = TITAN_RTX  # backward-compat alias
+    NVIDIA_DLA = NVML_BRAND_NVIDIA_DLA
+    BRAND_NVIDIA_DLA = NVIDIA_DLA  # backward-compat alias
+    NVIDIA_VGAMEDEV = NVML_BRAND_NVIDIA_VGAMEDEV
+    BRAND_NVIDIA_VGAMEDEV = NVIDIA_VGAMEDEV  # backward-compat alias
+    NVIDIA_NPU = NVML_BRAND_NVIDIA_NPU
+    BRAND_NVIDIA_NPU = NVIDIA_NPU  # backward-compat alias
+    COUNT = NVML_BRAND_COUNT
+    BRAND_COUNT = COUNT  # backward-compat alias
 
 class TemperatureThresholds(_cyb_FastEnum):
     """
@@ -396,15 +495,24 @@ class TemperatureThresholds(_cyb_FastEnum):
 
     See `nvmlTemperatureThresholds_t`.
     """
-    TEMPERATURE_THRESHOLD_SHUTDOWN = (NVML_TEMPERATURE_THRESHOLD_SHUTDOWN, 'Temperature at which the GPU will shut down for HW protection')
-    TEMPERATURE_THRESHOLD_SLOWDOWN = (NVML_TEMPERATURE_THRESHOLD_SLOWDOWN, 'Temperature at which the GPU will begin HW slowdown')
-    TEMPERATURE_THRESHOLD_MEM_MAX = (NVML_TEMPERATURE_THRESHOLD_MEM_MAX, 'Memory Temperature at which the GPU will begin SW slowdown')
-    TEMPERATURE_THRESHOLD_GPU_MAX = (NVML_TEMPERATURE_THRESHOLD_GPU_MAX, 'GPU Temperature at which the GPU can be throttled below base clock')
-    TEMPERATURE_THRESHOLD_ACOUSTIC_MIN = (NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_MIN, 'Minimum GPU Temperature that can be set as acoustic threshold')
-    TEMPERATURE_THRESHOLD_ACOUSTIC_CURR = (NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_CURR, 'Current temperature that is set as acoustic threshold.')
-    TEMPERATURE_THRESHOLD_ACOUSTIC_MAX = (NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_MAX, 'Maximum GPU temperature that can be set as acoustic threshold.')
-    TEMPERATURE_THRESHOLD_GPS_CURR = (NVML_TEMPERATURE_THRESHOLD_GPS_CURR, 'Current temperature that is set as gps threshold.')
-    TEMPERATURE_THRESHOLD_COUNT = NVML_TEMPERATURE_THRESHOLD_COUNT
+    SHUTDOWN = (NVML_TEMPERATURE_THRESHOLD_SHUTDOWN, 'Temperature at which the GPU will shut down for HW protection')
+    TEMPERATURE_THRESHOLD_SHUTDOWN = SHUTDOWN  # backward-compat alias
+    SLOWDOWN = (NVML_TEMPERATURE_THRESHOLD_SLOWDOWN, 'Temperature at which the GPU will begin HW slowdown')
+    TEMPERATURE_THRESHOLD_SLOWDOWN = SLOWDOWN  # backward-compat alias
+    MEM_MAX = (NVML_TEMPERATURE_THRESHOLD_MEM_MAX, 'Memory Temperature at which the GPU will begin SW slowdown')
+    TEMPERATURE_THRESHOLD_MEM_MAX = MEM_MAX  # backward-compat alias
+    GPU_MAX = (NVML_TEMPERATURE_THRESHOLD_GPU_MAX, 'GPU Temperature at which the GPU can be throttled below base clock')
+    TEMPERATURE_THRESHOLD_GPU_MAX = GPU_MAX  # backward-compat alias
+    ACOUSTIC_MIN = (NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_MIN, 'Minimum GPU Temperature that can be set as acoustic threshold')
+    TEMPERATURE_THRESHOLD_ACOUSTIC_MIN = ACOUSTIC_MIN  # backward-compat alias
+    ACOUSTIC_CURR = (NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_CURR, 'Current temperature that is set as acoustic threshold.')
+    TEMPERATURE_THRESHOLD_ACOUSTIC_CURR = ACOUSTIC_CURR  # backward-compat alias
+    ACOUSTIC_MAX = (NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_MAX, 'Maximum GPU temperature that can be set as acoustic threshold.')
+    TEMPERATURE_THRESHOLD_ACOUSTIC_MAX = ACOUSTIC_MAX  # backward-compat alias
+    GPS_CURR = (NVML_TEMPERATURE_THRESHOLD_GPS_CURR, 'Current temperature that is set as gps threshold.')
+    TEMPERATURE_THRESHOLD_GPS_CURR = GPS_CURR  # backward-compat alias
+    COUNT = NVML_TEMPERATURE_THRESHOLD_COUNT
+    TEMPERATURE_THRESHOLD_COUNT = COUNT  # backward-compat alias
 
 class TemperatureSensors(_cyb_FastEnum):
     """
@@ -412,9 +520,12 @@ class TemperatureSensors(_cyb_FastEnum):
 
     See `nvmlTemperatureSensors_t`.
     """
-    TEMPERATURE_GPU = (NVML_TEMPERATURE_GPU, 'Temperature sensor for the GPU die.')
-    TEMPERATURE_GPU_MAX = (NVML_TEMPERATURE_GPU_MAX, 'Temperature from the hottest part of the GPU die.')
-    TEMPERATURE_COUNT = NVML_TEMPERATURE_COUNT
+    GPU = (NVML_TEMPERATURE_GPU, 'Temperature sensor for the GPU die.')
+    TEMPERATURE_GPU = GPU  # backward-compat alias
+    GPU_MAX = (NVML_TEMPERATURE_GPU_MAX, 'Temperature from the hottest part of the GPU die.')
+    TEMPERATURE_GPU_MAX = GPU_MAX  # backward-compat alias
+    COUNT = NVML_TEMPERATURE_COUNT
+    TEMPERATURE_COUNT = COUNT  # backward-compat alias
 
 class ComputeMode(_cyb_FastEnum):
     """
@@ -424,11 +535,16 @@ class ComputeMode(_cyb_FastEnum):
 
     See `nvmlComputeMode_t`.
     """
-    COMPUTEMODE_DEFAULT = (NVML_COMPUTEMODE_DEFAULT, 'Default compute mode -- multiple contexts per device.')
-    COMPUTEMODE_EXCLUSIVE_THREAD = (NVML_COMPUTEMODE_EXCLUSIVE_THREAD, 'Support Removed.')
-    COMPUTEMODE_PROHIBITED = (NVML_COMPUTEMODE_PROHIBITED, 'Compute-prohibited mode -- no contexts per device.')
-    COMPUTEMODE_EXCLUSIVE_PROCESS = (NVML_COMPUTEMODE_EXCLUSIVE_PROCESS, 'Compute-exclusive-process mode -- only one context per device, usable from multiple threads at a time.')
-    COMPUTEMODE_COUNT = NVML_COMPUTEMODE_COUNT
+    DEFAULT = (NVML_COMPUTEMODE_DEFAULT, 'Default compute mode -- multiple contexts per device.')
+    COMPUTEMODE_DEFAULT = DEFAULT  # backward-compat alias
+    EXCLUSIVE_THREAD = (NVML_COMPUTEMODE_EXCLUSIVE_THREAD, 'Support Removed.')
+    COMPUTEMODE_EXCLUSIVE_THREAD = EXCLUSIVE_THREAD  # backward-compat alias
+    PROHIBITED = (NVML_COMPUTEMODE_PROHIBITED, 'Compute-prohibited mode -- no contexts per device.')
+    COMPUTEMODE_PROHIBITED = PROHIBITED  # backward-compat alias
+    EXCLUSIVE_PROCESS = (NVML_COMPUTEMODE_EXCLUSIVE_PROCESS, 'Compute-exclusive-process mode -- only one context per device, usable from multiple threads at a time.')
+    COMPUTEMODE_EXCLUSIVE_PROCESS = EXCLUSIVE_PROCESS  # backward-compat alias
+    COUNT = NVML_COMPUTEMODE_COUNT
+    COMPUTEMODE_COUNT = COUNT  # backward-compat alias
 
 class MemoryErrorType(_cyb_FastEnum):
     """
@@ -446,15 +562,24 @@ class NvlinkVersion(_cyb_FastEnum):
 
     See `nvmlNvlinkVersion_t`.
     """
-    VERSION_INVALID = (NVML_NVLINK_VERSION_INVALID, 'NVLink version is invalid.')
-    VERSION_1_0 = (NVML_NVLINK_VERSION_1_0, 'NVLink Version 1.0.')
-    VERSION_2_0 = (NVML_NVLINK_VERSION_2_0, 'NVLink Version 2.0.')
-    VERSION_2_2 = (NVML_NVLINK_VERSION_2_2, 'NVLink Version 2.2.')
-    VERSION_3_0 = (NVML_NVLINK_VERSION_3_0, 'NVLink Version 3.0.')
-    VERSION_3_1 = (NVML_NVLINK_VERSION_3_1, 'NVLink Version 3.1.')
-    VERSION_4_0 = (NVML_NVLINK_VERSION_4_0, 'NVLink Version 4.0.')
-    VERSION_5_0 = (NVML_NVLINK_VERSION_5_0, 'NVLink Version 5.0.')
-    VERSION_6_0 = (NVML_NVLINK_VERSION_6_0, 'NVLink Version 6.0.')
+    NVLINK_VERSION_INVALID = (NVML_NVLINK_VERSION_INVALID, 'NVLink version is invalid.')
+    VERSION_INVALID = NVLINK_VERSION_INVALID  # backward-compat alias
+    NVLINK_VERSION_1_0 = (NVML_NVLINK_VERSION_1_0, 'NVLink Version 1.0.')
+    VERSION_1_0 = NVLINK_VERSION_1_0  # backward-compat alias
+    NVLINK_VERSION_2_0 = (NVML_NVLINK_VERSION_2_0, 'NVLink Version 2.0.')
+    VERSION_2_0 = NVLINK_VERSION_2_0  # backward-compat alias
+    NVLINK_VERSION_2_2 = (NVML_NVLINK_VERSION_2_2, 'NVLink Version 2.2.')
+    VERSION_2_2 = NVLINK_VERSION_2_2  # backward-compat alias
+    NVLINK_VERSION_3_0 = (NVML_NVLINK_VERSION_3_0, 'NVLink Version 3.0.')
+    VERSION_3_0 = NVLINK_VERSION_3_0  # backward-compat alias
+    NVLINK_VERSION_3_1 = (NVML_NVLINK_VERSION_3_1, 'NVLink Version 3.1.')
+    VERSION_3_1 = NVLINK_VERSION_3_1  # backward-compat alias
+    NVLINK_VERSION_4_0 = (NVML_NVLINK_VERSION_4_0, 'NVLink Version 4.0.')
+    VERSION_4_0 = NVLINK_VERSION_4_0  # backward-compat alias
+    NVLINK_VERSION_5_0 = (NVML_NVLINK_VERSION_5_0, 'NVLink Version 5.0.')
+    VERSION_5_0 = NVLINK_VERSION_5_0  # backward-compat alias
+    NVLINK_VERSION_6_0 = (NVML_NVLINK_VERSION_6_0, 'NVLink Version 6.0.')
+    VERSION_6_0 = NVLINK_VERSION_6_0  # backward-compat alias
 
 class EccCounterType(_cyb_FastEnum):
     """
@@ -469,7 +594,8 @@ class EccCounterType(_cyb_FastEnum):
     """
     VOLATILE_ECC = (NVML_VOLATILE_ECC, 'Volatile counts are reset each time the driver loads.')
     AGGREGATE_ECC = (NVML_AGGREGATE_ECC, 'Aggregate counts persist across reboots (i.e. for the lifetime of the device).')
-    COUNT = (NVML_ECC_COUNTER_TYPE_COUNT, 'Count of memory counter types.')
+    ECC_COUNTER_TYPE_COUNT = (NVML_ECC_COUNTER_TYPE_COUNT, 'Count of memory counter types.')
+    COUNT = ECC_COUNTER_TYPE_COUNT  # backward-compat alias
 
 class ClockType(_cyb_FastEnum):
     """
@@ -477,11 +603,16 @@ class ClockType(_cyb_FastEnum):
 
     See `nvmlClockType_t`.
     """
-    CLOCK_GRAPHICS = (NVML_CLOCK_GRAPHICS, 'Graphics clock domain.')
-    CLOCK_SM = (NVML_CLOCK_SM, 'SM clock domain.')
-    CLOCK_MEM = (NVML_CLOCK_MEM, 'Memory clock domain.')
-    CLOCK_VIDEO = (NVML_CLOCK_VIDEO, 'Video encoder/decoder clock domain.')
-    CLOCK_COUNT = (NVML_CLOCK_COUNT, 'Count of clock types.')
+    GRAPHICS = (NVML_CLOCK_GRAPHICS, 'Graphics clock domain.')
+    CLOCK_GRAPHICS = GRAPHICS  # backward-compat alias
+    SM = (NVML_CLOCK_SM, 'SM clock domain.')
+    CLOCK_SM = SM  # backward-compat alias
+    MEM = (NVML_CLOCK_MEM, 'Memory clock domain.')
+    CLOCK_MEM = MEM  # backward-compat alias
+    VIDEO = (NVML_CLOCK_VIDEO, 'Video encoder/decoder clock domain.')
+    CLOCK_VIDEO = VIDEO  # backward-compat alias
+    COUNT = (NVML_CLOCK_COUNT, 'Count of clock types.')
+    CLOCK_COUNT = COUNT  # backward-compat alias
 
 class ClockId(_cyb_FastEnum):
     """
@@ -502,9 +633,12 @@ class DriverModel(_cyb_FastEnum):
 
     See `nvmlDriverModel_t`.
     """
-    DRIVER_WDDM = (NVML_DRIVER_WDDM, 'WDDM driver model -- GPU treated as a display device.')
-    DRIVER_WDM = (NVML_DRIVER_WDM, 'WDM (TCC) model (deprecated) -- GPU treated as a generic compute device.')
-    DRIVER_MCDM = (NVML_DRIVER_MCDM, 'MCDM driver model -- GPU treated as a Microsoft compute device.')
+    WDDM = (NVML_DRIVER_WDDM, 'WDDM driver model -- GPU treated as a display device.')
+    DRIVER_WDDM = WDDM  # backward-compat alias
+    WDM = (NVML_DRIVER_WDM, 'WDM (TCC) model (deprecated) -- GPU treated as a generic compute device.')
+    DRIVER_WDM = WDM  # backward-compat alias
+    MCDM = (NVML_DRIVER_MCDM, 'MCDM driver model -- GPU treated as a Microsoft compute device.')
+    DRIVER_MCDM = MCDM  # backward-compat alias
 
 class Pstates(_cyb_FastEnum):
     """
@@ -538,9 +672,12 @@ class GpuOperationMode(_cyb_FastEnum):
 
     See `nvmlGpuOperationMode_t`.
     """
-    GOM_ALL_ON = (NVML_GOM_ALL_ON, 'Everything is enabled and running at full speed.')
-    GOM_COMPUTE = (NVML_GOM_COMPUTE, 'Designed for running only compute tasks. Graphics operations are not allowed')
-    GOM_LOW_DP = (NVML_GOM_LOW_DP, "Designed for running graphics applications that don't require high bandwidth double precision")
+    ALL_ON = (NVML_GOM_ALL_ON, 'Everything is enabled and running at full speed.')
+    GOM_ALL_ON = ALL_ON  # backward-compat alias
+    COMPUTE = (NVML_GOM_COMPUTE, 'Designed for running only compute tasks. Graphics operations are not allowed')
+    GOM_COMPUTE = COMPUTE  # backward-compat alias
+    LOW_DP = (NVML_GOM_LOW_DP, "Designed for running graphics applications that don't require high bandwidth double precision")
+    GOM_LOW_DP = LOW_DP  # backward-compat alias
 
 class InforomObject(_cyb_FastEnum):
     """
@@ -548,11 +685,16 @@ class InforomObject(_cyb_FastEnum):
 
     See `nvmlInforomObject_t`.
     """
-    INFOROM_OEM = (NVML_INFOROM_OEM, 'An object defined by OEM.')
-    INFOROM_ECC = (NVML_INFOROM_ECC, 'The ECC object determining the level of ECC support.')
-    INFOROM_POWER = (NVML_INFOROM_POWER, 'The power management object.')
-    INFOROM_DEN = (NVML_INFOROM_DEN, 'DRAM Encryption object.')
-    INFOROM_COUNT = (NVML_INFOROM_COUNT, 'This counts the number of infoROM objects the driver knows about.')
+    OEM = (NVML_INFOROM_OEM, 'An object defined by OEM.')
+    INFOROM_OEM = OEM  # backward-compat alias
+    ECC = (NVML_INFOROM_ECC, 'The ECC object determining the level of ECC support.')
+    INFOROM_ECC = ECC  # backward-compat alias
+    POWER = (NVML_INFOROM_POWER, 'The power management object.')
+    INFOROM_POWER = POWER  # backward-compat alias
+    DEN = (NVML_INFOROM_DEN, 'DRAM Encryption object.')
+    INFOROM_DEN = DEN  # backward-compat alias
+    COUNT = (NVML_INFOROM_COUNT, 'This counts the number of infoROM objects the driver knows about.')
+    INFOROM_COUNT = COUNT  # backward-compat alias
 
 class Return(_cyb_FastEnum):
     """
@@ -636,10 +778,14 @@ class GpuUtilizationDomainId(_cyb_FastEnum):
 
     See `nvmlGpuUtilizationDomainId_t`.
     """
-    GPU_UTILIZATION_DOMAIN_GPU = (NVML_GPU_UTILIZATION_DOMAIN_GPU, 'Graphics engine domain.')
-    GPU_UTILIZATION_DOMAIN_FB = (NVML_GPU_UTILIZATION_DOMAIN_FB, 'Frame buffer domain.')
-    GPU_UTILIZATION_DOMAIN_VID = (NVML_GPU_UTILIZATION_DOMAIN_VID, 'Video engine domain.')
-    GPU_UTILIZATION_DOMAIN_BUS = (NVML_GPU_UTILIZATION_DOMAIN_BUS, 'Bus interface domain.')
+    GPU = (NVML_GPU_UTILIZATION_DOMAIN_GPU, 'Graphics engine domain.')
+    GPU_UTILIZATION_DOMAIN_GPU = GPU  # backward-compat alias
+    FB = (NVML_GPU_UTILIZATION_DOMAIN_FB, 'Frame buffer domain.')
+    GPU_UTILIZATION_DOMAIN_FB = FB  # backward-compat alias
+    VID = (NVML_GPU_UTILIZATION_DOMAIN_VID, 'Video engine domain.')
+    GPU_UTILIZATION_DOMAIN_VID = VID  # backward-compat alias
+    BUS = (NVML_GPU_UTILIZATION_DOMAIN_BUS, 'Bus interface domain.')
+    GPU_UTILIZATION_DOMAIN_BUS = BUS  # backward-compat alias
 
 class GpuVirtualizationMode(_cyb_FastEnum):
     """
@@ -668,8 +814,10 @@ class VgpuVmIdType(_cyb_FastEnum):
 
     See `nvmlVgpuVmIdType_t`.
     """
-    VGPU_VM_ID_DOMAIN_ID = (NVML_VGPU_VM_ID_DOMAIN_ID, 'VM ID represents DOMAIN ID.')
-    VGPU_VM_ID_UUID = (NVML_VGPU_VM_ID_UUID, 'VM ID represents UUID.')
+    DOMAIN_ID = (NVML_VGPU_VM_ID_DOMAIN_ID, 'VM ID represents DOMAIN ID.')
+    VGPU_VM_ID_DOMAIN_ID = DOMAIN_ID  # backward-compat alias
+    UUID = (NVML_VGPU_VM_ID_UUID, 'VM ID represents UUID.')
+    VGPU_VM_ID_UUID = UUID  # backward-compat alias
 
 class VgpuGuestInfoState(_cyb_FastEnum):
     """
@@ -677,8 +825,10 @@ class VgpuGuestInfoState(_cyb_FastEnum):
 
     See `nvmlVgpuGuestInfoState_t`.
     """
-    VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED = (NVML_VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED, 'Guest-dependent fields uninitialized.')
-    VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED = (NVML_VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED, 'Guest-dependent fields initialized.')
+    UNINITIALIZED = (NVML_VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED, 'Guest-dependent fields uninitialized.')
+    VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED = UNINITIALIZED  # backward-compat alias
+    INITIALIZED = (NVML_VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED, 'Guest-dependent fields initialized.')
+    VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED = INITIALIZED  # backward-compat alias
 
 class GridLicenseFeatureCode(_cyb_FastEnum):
     """
@@ -700,12 +850,18 @@ class VgpuCapability(_cyb_FastEnum):
 
     See `nvmlVgpuCapability_t`.
     """
-    VGPU_CAP_NVLINK_P2P = (NVML_VGPU_CAP_NVLINK_P2P, 'P2P over NVLink is supported.')
-    VGPU_CAP_GPUDIRECT = (NVML_VGPU_CAP_GPUDIRECT, 'GPUDirect capability is supported.')
-    VGPU_CAP_MULTI_VGPU_EXCLUSIVE = (NVML_VGPU_CAP_MULTI_VGPU_EXCLUSIVE, 'vGPU profile cannot be mixed with other vGPU profiles in same VM')
-    VGPU_CAP_EXCLUSIVE_TYPE = (NVML_VGPU_CAP_EXCLUSIVE_TYPE, 'vGPU profile cannot run on a GPU alongside other profiles of different type')
-    VGPU_CAP_EXCLUSIVE_SIZE = (NVML_VGPU_CAP_EXCLUSIVE_SIZE, 'vGPU profile cannot run on a GPU alongside other profiles of different size')
-    VGPU_CAP_COUNT = NVML_VGPU_CAP_COUNT
+    NVLINK_P2P = (NVML_VGPU_CAP_NVLINK_P2P, 'P2P over NVLink is supported.')
+    VGPU_CAP_NVLINK_P2P = NVLINK_P2P  # backward-compat alias
+    GPUDIRECT = (NVML_VGPU_CAP_GPUDIRECT, 'GPUDirect capability is supported.')
+    VGPU_CAP_GPUDIRECT = GPUDIRECT  # backward-compat alias
+    MULTI_VGPU_EXCLUSIVE = (NVML_VGPU_CAP_MULTI_VGPU_EXCLUSIVE, 'vGPU profile cannot be mixed with other vGPU profiles in same VM')
+    VGPU_CAP_MULTI_VGPU_EXCLUSIVE = MULTI_VGPU_EXCLUSIVE  # backward-compat alias
+    EXCLUSIVE_TYPE = (NVML_VGPU_CAP_EXCLUSIVE_TYPE, 'vGPU profile cannot run on a GPU alongside other profiles of different type')
+    VGPU_CAP_EXCLUSIVE_TYPE = EXCLUSIVE_TYPE  # backward-compat alias
+    EXCLUSIVE_SIZE = (NVML_VGPU_CAP_EXCLUSIVE_SIZE, 'vGPU profile cannot run on a GPU alongside other profiles of different size')
+    VGPU_CAP_EXCLUSIVE_SIZE = EXCLUSIVE_SIZE  # backward-compat alias
+    COUNT = NVML_VGPU_CAP_COUNT
+    VGPU_CAP_COUNT = COUNT  # backward-compat alias
 
 class VgpuDriverCapability(_cyb_FastEnum):
     """
@@ -713,9 +869,12 @@ class VgpuDriverCapability(_cyb_FastEnum):
 
     See `nvmlVgpuDriverCapability_t`.
     """
-    VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU = (NVML_VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU, 'Supports mixing of different vGPU profiles within one guest VM.')
-    VGPU_DRIVER_CAP_WARM_UPDATE = (NVML_VGPU_DRIVER_CAP_WARM_UPDATE, 'Supports FSR and warm update of vGPU host driver without terminating the running guest VM.')
-    VGPU_DRIVER_CAP_COUNT = NVML_VGPU_DRIVER_CAP_COUNT
+    HETEROGENEOUS_MULTI_VGPU = (NVML_VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU, 'Supports mixing of different vGPU profiles within one guest VM.')
+    VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU = HETEROGENEOUS_MULTI_VGPU  # backward-compat alias
+    WARM_UPDATE = (NVML_VGPU_DRIVER_CAP_WARM_UPDATE, 'Supports FSR and warm update of vGPU host driver without terminating the running guest VM.')
+    VGPU_DRIVER_CAP_WARM_UPDATE = WARM_UPDATE  # backward-compat alias
+    COUNT = NVML_VGPU_DRIVER_CAP_COUNT
+    VGPU_DRIVER_CAP_COUNT = COUNT  # backward-compat alias
 
 class DeviceVgpuCapability(_cyb_FastEnum):
     """
@@ -723,19 +882,32 @@ class DeviceVgpuCapability(_cyb_FastEnum):
 
     See `nvmlDeviceVgpuCapability_t`.
     """
-    DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU = (NVML_DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU, 'Query whether the fractional vGPU profiles on this GPU can be used in multi-vGPU configurations.')
-    DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES = (NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES, 'Query whether the GPU support concurrent execution of timesliced vGPU profiles of differing types.')
-    DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES = (NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES, 'Query whether the GPU support concurrent execution of timesliced vGPU profiles of differing framebuffer sizes.')
-    DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW = (NVML_DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW, "Query the GPU's read_device_buffer expected bandwidth capacity in megabytes per second.")
-    DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW = (NVML_DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW, "Query the GPU's write_device_buffer expected bandwidth capacity in megabytes per second.")
-    DEVICE_VGPU_CAP_DEVICE_STREAMING = (NVML_DEVICE_VGPU_CAP_DEVICE_STREAMING, 'Query whether the vGPU profiles on the GPU supports migration data streaming.')
-    DEVICE_VGPU_CAP_MINI_QUARTER_GPU = (NVML_DEVICE_VGPU_CAP_MINI_QUARTER_GPU, 'Set/Get support for mini-quarter vGPU profiles.')
-    DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU = (NVML_DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU, 'Set/Get support for compute media engine vGPU profiles.')
-    DEVICE_VGPU_CAP_WARM_UPDATE = (NVML_DEVICE_VGPU_CAP_WARM_UPDATE, 'Query whether the GPU supports FSR and warm update.')
-    DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS = (NVML_DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS, 'Query whether the GPU supports reporting of placements of timesliced vGPU profiles with identical framebuffer sizes.')
-    DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED = (NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED, 'Query whether the GPU supports timesliced vGPU on MIG.')
-    DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED = (NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED, 'Set/Get MIG timesliced mode reporting, without impacting the underlying functionality.')
-    DEVICE_VGPU_CAP_COUNT = NVML_DEVICE_VGPU_CAP_COUNT
+    FRACTIONAL_MULTI_VGPU = (NVML_DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU, 'Query whether the fractional vGPU profiles on this GPU can be used in multi-vGPU configurations.')
+    DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU = FRACTIONAL_MULTI_VGPU  # backward-compat alias
+    HETEROGENEOUS_TIMESLICE_PROFILES = (NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES, 'Query whether the GPU support concurrent execution of timesliced vGPU profiles of differing types.')
+    DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES = HETEROGENEOUS_TIMESLICE_PROFILES  # backward-compat alias
+    HETEROGENEOUS_TIMESLICE_SIZES = (NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES, 'Query whether the GPU support concurrent execution of timesliced vGPU profiles of differing framebuffer sizes.')
+    DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES = HETEROGENEOUS_TIMESLICE_SIZES  # backward-compat alias
+    READ_DEVICE_BUFFER_BW = (NVML_DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW, "Query the GPU's read_device_buffer expected bandwidth capacity in megabytes per second.")
+    DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW = READ_DEVICE_BUFFER_BW  # backward-compat alias
+    WRITE_DEVICE_BUFFER_BW = (NVML_DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW, "Query the GPU's write_device_buffer expected bandwidth capacity in megabytes per second.")
+    DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW = WRITE_DEVICE_BUFFER_BW  # backward-compat alias
+    DEVICE_STREAMING = (NVML_DEVICE_VGPU_CAP_DEVICE_STREAMING, 'Query whether the vGPU profiles on the GPU supports migration data streaming.')
+    DEVICE_VGPU_CAP_DEVICE_STREAMING = DEVICE_STREAMING  # backward-compat alias
+    MINI_QUARTER_GPU = (NVML_DEVICE_VGPU_CAP_MINI_QUARTER_GPU, 'Set/Get support for mini-quarter vGPU profiles.')
+    DEVICE_VGPU_CAP_MINI_QUARTER_GPU = MINI_QUARTER_GPU  # backward-compat alias
+    COMPUTE_MEDIA_ENGINE_GPU = (NVML_DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU, 'Set/Get support for compute media engine vGPU profiles.')
+    DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU = COMPUTE_MEDIA_ENGINE_GPU  # backward-compat alias
+    WARM_UPDATE = (NVML_DEVICE_VGPU_CAP_WARM_UPDATE, 'Query whether the GPU supports FSR and warm update.')
+    DEVICE_VGPU_CAP_WARM_UPDATE = WARM_UPDATE  # backward-compat alias
+    HOMOGENEOUS_PLACEMENTS = (NVML_DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS, 'Query whether the GPU supports reporting of placements of timesliced vGPU profiles with identical framebuffer sizes.')
+    DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS = HOMOGENEOUS_PLACEMENTS  # backward-compat alias
+    MIG_TIMESLICING_SUPPORTED = (NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED, 'Query whether the GPU supports timesliced vGPU on MIG.')
+    DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED = MIG_TIMESLICING_SUPPORTED  # backward-compat alias
+    MIG_TIMESLICING_ENABLED = (NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED, 'Set/Get MIG timesliced mode reporting, without impacting the underlying functionality.')
+    DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED = MIG_TIMESLICING_ENABLED  # backward-compat alias
+    COUNT = NVML_DEVICE_VGPU_CAP_COUNT
+    DEVICE_VGPU_CAP_COUNT = COUNT  # backward-compat alias
 
 class DeviceGpuRecoveryAction(_cyb_FastEnum):
     """
@@ -743,14 +915,22 @@ class DeviceGpuRecoveryAction(_cyb_FastEnum):
 
     See `nvmlDeviceGpuRecoveryAction_t`.
     """
-    GPU_RECOVERY_ACTION_NONE = (NVML_GPU_RECOVERY_ACTION_NONE, 'No action needed.')
-    GPU_RECOVERY_ACTION_GPU_RESET = (NVML_GPU_RECOVERY_ACTION_GPU_RESET, 'Reset Gpu.')
-    GPU_RECOVERY_ACTION_NODE_REBOOT = (NVML_GPU_RECOVERY_ACTION_NODE_REBOOT, 'Reboot Node.')
-    GPU_RECOVERY_ACTION_DRAIN_P2P = (NVML_GPU_RECOVERY_ACTION_DRAIN_P2P, 'Drain P2P.')
-    GPU_RECOVERY_ACTION_DRAIN_AND_RESET = (NVML_GPU_RECOVERY_ACTION_DRAIN_AND_RESET, 'Drain P2P and Reset Gpu.')
-    GPU_RECOVERY_ACTION_RECOVER_IMEX_DOMAIN = (NVML_GPU_RECOVERY_ACTION_RECOVER_IMEX_DOMAIN, 'Recover IMEX Domain.')
-    GPU_RECOVERY_ACTION_BUS_RESET = (NVML_GPU_RECOVERY_ACTION_BUS_RESET, "Reset the GPU's PCIe bus.")
-    GPU_RECOVERY_ACTION_SYSTEM_REBOOT = (NVML_GPU_RECOVERY_ACTION_SYSTEM_REBOOT, 'Reboot the system.')
+    NONE = (NVML_GPU_RECOVERY_ACTION_NONE, 'No action needed.')
+    GPU_RECOVERY_ACTION_NONE = NONE  # backward-compat alias
+    GPU_RESET = (NVML_GPU_RECOVERY_ACTION_GPU_RESET, 'Reset Gpu.')
+    GPU_RECOVERY_ACTION_GPU_RESET = GPU_RESET  # backward-compat alias
+    NODE_REBOOT = (NVML_GPU_RECOVERY_ACTION_NODE_REBOOT, 'Reboot Node.')
+    GPU_RECOVERY_ACTION_NODE_REBOOT = NODE_REBOOT  # backward-compat alias
+    DRAIN_P2P = (NVML_GPU_RECOVERY_ACTION_DRAIN_P2P, 'Drain P2P.')
+    GPU_RECOVERY_ACTION_DRAIN_P2P = DRAIN_P2P  # backward-compat alias
+    DRAIN_AND_RESET = (NVML_GPU_RECOVERY_ACTION_DRAIN_AND_RESET, 'Drain P2P and Reset Gpu.')
+    GPU_RECOVERY_ACTION_DRAIN_AND_RESET = DRAIN_AND_RESET  # backward-compat alias
+    RECOVER_IMEX_DOMAIN = (NVML_GPU_RECOVERY_ACTION_RECOVER_IMEX_DOMAIN, 'Recover IMEX Domain.')
+    GPU_RECOVERY_ACTION_RECOVER_IMEX_DOMAIN = RECOVER_IMEX_DOMAIN  # backward-compat alias
+    BUS_RESET = (NVML_GPU_RECOVERY_ACTION_BUS_RESET, "Reset the GPU's PCIe bus.")
+    GPU_RECOVERY_ACTION_BUS_RESET = BUS_RESET  # backward-compat alias
+    SYSTEM_REBOOT = (NVML_GPU_RECOVERY_ACTION_SYSTEM_REBOOT, 'Reboot the system.')
+    GPU_RECOVERY_ACTION_SYSTEM_REBOOT = SYSTEM_REBOOT  # backward-compat alias
 
 class FanState(_cyb_FastEnum):
     """
@@ -758,8 +938,10 @@ class FanState(_cyb_FastEnum):
 
     See `nvmlFanState_t`.
     """
-    FAN_NORMAL = (NVML_FAN_NORMAL, 'Fan is working properly.')
-    FAN_FAILED = (NVML_FAN_FAILED, 'Fan has failed.')
+    NORMAL = (NVML_FAN_NORMAL, 'Fan is working properly.')
+    FAN_NORMAL = NORMAL  # backward-compat alias
+    FAILED = (NVML_FAN_FAILED, 'Fan has failed.')
+    FAN_FAILED = FAILED  # backward-compat alias
 
 class LedColor(_cyb_FastEnum):
     """
@@ -776,10 +958,14 @@ class EncoderType(_cyb_FastEnum):
 
     See `nvmlEncoderType_t`.
     """
-    ENCODER_QUERY_H264 = (NVML_ENCODER_QUERY_H264, 'H264 encoder.')
-    ENCODER_QUERY_HEVC = (NVML_ENCODER_QUERY_HEVC, 'HEVC encoder.')
-    ENCODER_QUERY_AV1 = (NVML_ENCODER_QUERY_AV1, 'AV1 encoder.')
-    ENCODER_QUERY_UNKNOWN = (NVML_ENCODER_QUERY_UNKNOWN, 'Unknown encoder.')
+    H264 = (NVML_ENCODER_QUERY_H264, 'H264 encoder.')
+    ENCODER_QUERY_H264 = H264  # backward-compat alias
+    HEVC = (NVML_ENCODER_QUERY_HEVC, 'HEVC encoder.')
+    ENCODER_QUERY_HEVC = HEVC  # backward-compat alias
+    AV1 = (NVML_ENCODER_QUERY_AV1, 'AV1 encoder.')
+    ENCODER_QUERY_AV1 = AV1  # backward-compat alias
+    UNKNOWN = (NVML_ENCODER_QUERY_UNKNOWN, 'Unknown encoder.')
+    ENCODER_QUERY_UNKNOWN = UNKNOWN  # backward-compat alias
 
 class FBCSessionType(_cyb_FastEnum):
     """
@@ -800,8 +986,10 @@ class DetachGpuState(_cyb_FastEnum):
 
     See `nvmlDetachGpuState_t`.
     """
-    DETACH_GPU_KEEP = NVML_DETACH_GPU_KEEP
-    DETACH_GPU_REMOVE = NVML_DETACH_GPU_REMOVE
+    KEEP = NVML_DETACH_GPU_KEEP
+    DETACH_GPU_KEEP = KEEP  # backward-compat alias
+    REMOVE = NVML_DETACH_GPU_REMOVE
+    DETACH_GPU_REMOVE = REMOVE  # backward-compat alias
 
 class PcieLinkState(_cyb_FastEnum):
     """
@@ -809,8 +997,10 @@ class PcieLinkState(_cyb_FastEnum):
 
     See `nvmlPcieLinkState_t`.
     """
-    PCIE_LINK_KEEP = NVML_PCIE_LINK_KEEP
-    PCIE_LINK_SHUT_DOWN = NVML_PCIE_LINK_SHUT_DOWN
+    KEEP = NVML_PCIE_LINK_KEEP
+    PCIE_LINK_KEEP = KEEP  # backward-compat alias
+    SHUT_DOWN = NVML_PCIE_LINK_SHUT_DOWN
+    PCIE_LINK_SHUT_DOWN = SHUT_DOWN  # backward-compat alias
 
 class ClockLimitId(_cyb_FastEnum):
     """
@@ -838,11 +1028,16 @@ class VgpuPgpuCompatibilityLimitCode(_cyb_FastEnum):
 
     See `nvmlVgpuPgpuCompatibilityLimitCode_t`.
     """
-    VGPU_COMPATIBILITY_LIMIT_NONE = (NVML_VGPU_COMPATIBILITY_LIMIT_NONE, 'Compatibility is not limited.')
-    VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER = (NVML_VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER, 'ompatibility is limited by host driver version.')
-    VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER = (NVML_VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER, 'Compatibility is limited by guest driver version.')
-    VGPU_COMPATIBILITY_LIMIT_GPU = (NVML_VGPU_COMPATIBILITY_LIMIT_GPU, 'Compatibility is limited by GPU hardware.')
-    VGPU_COMPATIBILITY_LIMIT_OTHER = (NVML_VGPU_COMPATIBILITY_LIMIT_OTHER, 'Compatibility is limited by an undefined factor.')
+    NONE = (NVML_VGPU_COMPATIBILITY_LIMIT_NONE, 'Compatibility is not limited.')
+    VGPU_COMPATIBILITY_LIMIT_NONE = NONE  # backward-compat alias
+    HOST_DRIVER = (NVML_VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER, 'ompatibility is limited by host driver version.')
+    VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER = HOST_DRIVER  # backward-compat alias
+    GUEST_DRIVER = (NVML_VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER, 'Compatibility is limited by guest driver version.')
+    VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER = GUEST_DRIVER  # backward-compat alias
+    GPU = (NVML_VGPU_COMPATIBILITY_LIMIT_GPU, 'Compatibility is limited by GPU hardware.')
+    VGPU_COMPATIBILITY_LIMIT_GPU = GPU  # backward-compat alias
+    OTHER = (NVML_VGPU_COMPATIBILITY_LIMIT_OTHER, 'Compatibility is limited by an undefined factor.')
+    VGPU_COMPATIBILITY_LIMIT_OTHER = OTHER  # backward-compat alias
 
 class GpmMetricId(_cyb_FastEnum):
     """
@@ -850,484 +1045,957 @@ class GpmMetricId(_cyb_FastEnum):
 
     See `nvmlGpmMetricId_t`.
     """
-    GPM_METRIC_GRAPHICS_UTIL = (NVML_GPM_METRIC_GRAPHICS_UTIL, 'Percentage of time any compute/graphics app was active on the GPU. 0.0 - 100.0.')
-    GPM_METRIC_SM_UTIL = (NVML_GPM_METRIC_SM_UTIL, 'Percentage of SMs that were busy. 0.0 - 100.0.')
-    GPM_METRIC_SM_OCCUPANCY = (NVML_GPM_METRIC_SM_OCCUPANCY, 'Percentage of warps that were active vs theoretical maximum. 0.0 - 100.0.')
-    GPM_METRIC_INTEGER_UTIL = (NVML_GPM_METRIC_INTEGER_UTIL, "Percentage of time the GPU's SMs were doing integer operations. 0.0 - 100.0.")
-    GPM_METRIC_ANY_TENSOR_UTIL = (NVML_GPM_METRIC_ANY_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing ANY tensor operations. 0.0 - 100.0.")
-    GPM_METRIC_DFMA_TENSOR_UTIL = (NVML_GPM_METRIC_DFMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DFMA tensor operations. 0.0 - 100.0.")
-    GPM_METRIC_HMMA_TENSOR_UTIL = (NVML_GPM_METRIC_HMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing HMMA tensor operations. 0.0 - 100.0.")
-    GPM_METRIC_DMMA_TENSOR_UTIL = (NVML_GPM_METRIC_DMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DMMA tensor operations. 0.0 - 100.0.")
-    GPM_METRIC_IMMA_TENSOR_UTIL = (NVML_GPM_METRIC_IMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing IMMA tensor operations. 0.0 - 100.0.")
-    GPM_METRIC_DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. `0.0 - 100.0 */`.')
-    GPM_METRIC_FP64_UTIL = (NVML_GPM_METRIC_FP64_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP64 math. 0.0 - 100.0.")
-    GPM_METRIC_FP32_UTIL = (NVML_GPM_METRIC_FP32_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP32 math. 0.0 - 100.0.")
-    GPM_METRIC_FP16_UTIL = (NVML_GPM_METRIC_FP16_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP16 math. 0.0 - 100.0.")
-    GPM_METRIC_PCIE_TX_PER_SEC = (NVML_GPM_METRIC_PCIE_TX_PER_SEC, 'PCIe traffic from this GPU in MiB/sec.')
-    GPM_METRIC_PCIE_RX_PER_SEC = (NVML_GPM_METRIC_PCIE_RX_PER_SEC, 'PCIe traffic to this GPU in MiB/sec.')
-    GPM_METRIC_NVDEC_0_UTIL = (NVML_GPM_METRIC_NVDEC_0_UTIL, 'Percent utilization of NVDEC 0. 0.0 - 100.0.')
-    GPM_METRIC_NVDEC_1_UTIL = (NVML_GPM_METRIC_NVDEC_1_UTIL, 'Percent utilization of NVDEC 1. 0.0 - 100.0.')
-    GPM_METRIC_NVDEC_2_UTIL = (NVML_GPM_METRIC_NVDEC_2_UTIL, 'Percent utilization of NVDEC 2. 0.0 - 100.0.')
-    GPM_METRIC_NVDEC_3_UTIL = (NVML_GPM_METRIC_NVDEC_3_UTIL, 'Percent utilization of NVDEC 3. 0.0 - 100.0.')
-    GPM_METRIC_NVDEC_4_UTIL = (NVML_GPM_METRIC_NVDEC_4_UTIL, 'Percent utilization of NVDEC 4. 0.0 - 100.0.')
-    GPM_METRIC_NVDEC_5_UTIL = (NVML_GPM_METRIC_NVDEC_5_UTIL, 'Percent utilization of NVDEC 5. 0.0 - 100.0.')
-    GPM_METRIC_NVDEC_6_UTIL = (NVML_GPM_METRIC_NVDEC_6_UTIL, 'Percent utilization of NVDEC 6. 0.0 - 100.0.')
-    GPM_METRIC_NVDEC_7_UTIL = (NVML_GPM_METRIC_NVDEC_7_UTIL, 'Percent utilization of NVDEC 7. 0.0 - 100.0.')
-    GPM_METRIC_NVJPG_0_UTIL = (NVML_GPM_METRIC_NVJPG_0_UTIL, 'Percent utilization of NVJPG 0. 0.0 - 100.0.')
-    GPM_METRIC_NVJPG_1_UTIL = (NVML_GPM_METRIC_NVJPG_1_UTIL, 'Percent utilization of NVJPG 1. 0.0 - 100.0.')
-    GPM_METRIC_NVJPG_2_UTIL = (NVML_GPM_METRIC_NVJPG_2_UTIL, 'Percent utilization of NVJPG 2. 0.0 - 100.0.')
-    GPM_METRIC_NVJPG_3_UTIL = (NVML_GPM_METRIC_NVJPG_3_UTIL, 'Percent utilization of NVJPG 3. 0.0 - 100.0.')
-    GPM_METRIC_NVJPG_4_UTIL = (NVML_GPM_METRIC_NVJPG_4_UTIL, 'Percent utilization of NVJPG 4. 0.0 - 100.0.')
-    GPM_METRIC_NVJPG_5_UTIL = (NVML_GPM_METRIC_NVJPG_5_UTIL, 'Percent utilization of NVJPG 5. 0.0 - 100.0.')
-    GPM_METRIC_NVJPG_6_UTIL = (NVML_GPM_METRIC_NVJPG_6_UTIL, 'Percent utilization of NVJPG 6. 0.0 - 100.0.')
-    GPM_METRIC_NVJPG_7_UTIL = (NVML_GPM_METRIC_NVJPG_7_UTIL, 'Percent utilization of NVJPG 7. 0.0 - 100.0.')
-    GPM_METRIC_NVOFA_0_UTIL = (NVML_GPM_METRIC_NVOFA_0_UTIL, 'Percent utilization of NVOFA 0. 0.0 - 100.0.')
-    GPM_METRIC_NVOFA_1_UTIL = (NVML_GPM_METRIC_NVOFA_1_UTIL, 'Percent utilization of NVOFA 1. 0.0 - 100.0.')
-    GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC, 'NvLink read bandwidth for all links in MiB/sec.')
-    GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC, 'NvLink write bandwidth for all links in MiB/sec.')
-    GPM_METRIC_NVLINK_L0_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L0_RX_PER_SEC, 'NvLink read bandwidth for link 0 in MiB/sec.')
-    GPM_METRIC_NVLINK_L0_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L0_TX_PER_SEC, 'NvLink write bandwidth for link 0 in MiB/sec.')
-    GPM_METRIC_NVLINK_L1_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L1_RX_PER_SEC, 'NvLink read bandwidth for link 1 in MiB/sec.')
-    GPM_METRIC_NVLINK_L1_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L1_TX_PER_SEC, 'NvLink write bandwidth for link 1 in MiB/sec.')
-    GPM_METRIC_NVLINK_L2_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L2_RX_PER_SEC, 'NvLink read bandwidth for link 2 in MiB/sec.')
-    GPM_METRIC_NVLINK_L2_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L2_TX_PER_SEC, 'NvLink write bandwidth for link 2 in MiB/sec.')
-    GPM_METRIC_NVLINK_L3_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L3_RX_PER_SEC, 'NvLink read bandwidth for link 3 in MiB/sec.')
-    GPM_METRIC_NVLINK_L3_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L3_TX_PER_SEC, 'NvLink write bandwidth for link 3 in MiB/sec.')
-    GPM_METRIC_NVLINK_L4_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L4_RX_PER_SEC, 'NvLink read bandwidth for link 4 in MiB/sec.')
-    GPM_METRIC_NVLINK_L4_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L4_TX_PER_SEC, 'NvLink write bandwidth for link 4 in MiB/sec.')
-    GPM_METRIC_NVLINK_L5_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L5_RX_PER_SEC, 'NvLink read bandwidth for link 5 in MiB/sec.')
-    GPM_METRIC_NVLINK_L5_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L5_TX_PER_SEC, 'NvLink write bandwidth for link 5 in MiB/sec.')
-    GPM_METRIC_NVLINK_L6_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L6_RX_PER_SEC, 'NvLink read bandwidth for link 6 in MiB/sec.')
-    GPM_METRIC_NVLINK_L6_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L6_TX_PER_SEC, 'NvLink write bandwidth for link 6 in MiB/sec.')
-    GPM_METRIC_NVLINK_L7_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L7_RX_PER_SEC, 'NvLink read bandwidth for link 7 in MiB/sec.')
-    GPM_METRIC_NVLINK_L7_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L7_TX_PER_SEC, 'NvLink write bandwidth for link 7 in MiB/sec.')
-    GPM_METRIC_NVLINK_L8_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L8_RX_PER_SEC, 'NvLink read bandwidth for link 8 in MiB/sec.')
-    GPM_METRIC_NVLINK_L8_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L8_TX_PER_SEC, 'NvLink write bandwidth for link 8 in MiB/sec.')
-    GPM_METRIC_NVLINK_L9_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L9_RX_PER_SEC, 'NvLink read bandwidth for link 9 in MiB/sec.')
-    GPM_METRIC_NVLINK_L9_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L9_TX_PER_SEC, 'NvLink write bandwidth for link 9 in MiB/sec.')
-    GPM_METRIC_NVLINK_L10_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L10_RX_PER_SEC, 'NvLink read bandwidth for link 10 in MiB/sec.')
-    GPM_METRIC_NVLINK_L10_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L10_TX_PER_SEC, 'NvLink write bandwidth for link 10 in MiB/sec.')
-    GPM_METRIC_NVLINK_L11_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L11_RX_PER_SEC, 'NvLink read bandwidth for link 11 in MiB/sec.')
-    GPM_METRIC_NVLINK_L11_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L11_TX_PER_SEC, 'NvLink write bandwidth for link 11 in MiB/sec.')
-    GPM_METRIC_NVLINK_L12_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L12_RX_PER_SEC, 'NvLink read bandwidth for link 12 in MiB/sec.')
-    GPM_METRIC_NVLINK_L12_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L12_TX_PER_SEC, 'NvLink write bandwidth for link 12 in MiB/sec.')
-    GPM_METRIC_NVLINK_L13_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L13_RX_PER_SEC, 'NvLink read bandwidth for link 13 in MiB/sec.')
-    GPM_METRIC_NVLINK_L13_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L13_TX_PER_SEC, 'NvLink write bandwidth for link 13 in MiB/sec.')
-    GPM_METRIC_NVLINK_L14_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L14_RX_PER_SEC, 'NvLink read bandwidth for link 14 in MiB/sec.')
-    GPM_METRIC_NVLINK_L14_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L14_TX_PER_SEC, 'NvLink write bandwidth for link 14 in MiB/sec.')
-    GPM_METRIC_NVLINK_L15_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L15_RX_PER_SEC, 'NvLink read bandwidth for link 15 in MiB/sec.')
-    GPM_METRIC_NVLINK_L15_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L15_TX_PER_SEC, 'NvLink write bandwidth for link 15 in MiB/sec.')
-    GPM_METRIC_NVLINK_L16_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L16_RX_PER_SEC, 'NvLink read bandwidth for link 16 in MiB/sec.')
-    GPM_METRIC_NVLINK_L16_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L16_TX_PER_SEC, 'NvLink write bandwidth for link 16 in MiB/sec.')
-    GPM_METRIC_NVLINK_L17_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L17_RX_PER_SEC, 'NvLink read bandwidth for link 17 in MiB/sec.')
-    GPM_METRIC_NVLINK_L17_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L17_TX_PER_SEC, 'NvLink write bandwidth for link 17 in MiB/sec.')
-    GPM_METRIC_C2C_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_TOTAL_TX_PER_SEC, 'C2C total transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_TOTAL_RX_PER_SEC, 'C2C total receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_DATA_TX_PER_SEC, 'C2C data transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_DATA_RX_PER_SEC, 'C2C data receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK0_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK0_TOTAL_TX_PER_SEC, 'C2C link 0 total transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK0_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK0_TOTAL_RX_PER_SEC, 'C2C link 0 total receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK0_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK0_DATA_TX_PER_SEC, 'C2C link 0 data transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK0_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK0_DATA_RX_PER_SEC, 'C2C link 0 data receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK1_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK1_TOTAL_TX_PER_SEC, 'C2C link 1 total transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK1_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK1_TOTAL_RX_PER_SEC, 'C2C link 1 total receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK1_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK1_DATA_TX_PER_SEC, 'C2C link 1 data transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK1_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK1_DATA_RX_PER_SEC, 'C2C link 1 data receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK2_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK2_TOTAL_TX_PER_SEC, 'C2C link 2 total transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK2_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK2_TOTAL_RX_PER_SEC, 'C2C link 2 total receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK2_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK2_DATA_TX_PER_SEC, 'C2C link 2 data transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK2_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK2_DATA_RX_PER_SEC, 'C2C link 2 data receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK3_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK3_TOTAL_TX_PER_SEC, 'C2C link 3 total transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK3_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK3_TOTAL_RX_PER_SEC, 'C2C link 3 total receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK3_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK3_DATA_TX_PER_SEC, 'C2C link 3 data transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK3_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK3_DATA_RX_PER_SEC, 'C2C link 3 data receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK4_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK4_TOTAL_TX_PER_SEC, 'C2C link 4 total transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK4_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK4_TOTAL_RX_PER_SEC, 'C2C link 4 total receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK4_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK4_DATA_TX_PER_SEC, 'C2C link 4 data transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK4_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK4_DATA_RX_PER_SEC, 'C2C link 4 data receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK5_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK5_TOTAL_TX_PER_SEC, 'C2C link 5 total transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK5_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK5_TOTAL_RX_PER_SEC, 'C2C link 5 total receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK5_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK5_DATA_TX_PER_SEC, 'C2C link 5 data transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK5_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK5_DATA_RX_PER_SEC, 'C2C link 5 data receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK6_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK6_TOTAL_TX_PER_SEC, 'C2C link 6 total transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK6_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK6_TOTAL_RX_PER_SEC, 'C2C link 6 total receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK6_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK6_DATA_TX_PER_SEC, 'C2C link 6 data transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK6_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK6_DATA_RX_PER_SEC, 'C2C link 6 data receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK7_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK7_TOTAL_TX_PER_SEC, 'C2C link 7 total transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK7_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK7_TOTAL_RX_PER_SEC, 'C2C link 7 total receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK7_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK7_DATA_TX_PER_SEC, 'C2C link 7 data transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK7_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK7_DATA_RX_PER_SEC, 'C2C link 7 data receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK8_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK8_TOTAL_TX_PER_SEC, 'C2C link 8 total transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK8_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK8_TOTAL_RX_PER_SEC, 'C2C link 8 total receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK8_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK8_DATA_TX_PER_SEC, 'C2C link 8 data transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK8_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK8_DATA_RX_PER_SEC, 'C2C link 8 data receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK9_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK9_TOTAL_TX_PER_SEC, 'C2C link 9 total transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK9_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK9_TOTAL_RX_PER_SEC, 'C2C link 9 total receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK9_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK9_DATA_TX_PER_SEC, 'C2C link 9 data transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK9_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK9_DATA_RX_PER_SEC, 'C2C link 9 data receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK10_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK10_TOTAL_TX_PER_SEC, 'C2C link 10 total transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK10_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK10_TOTAL_RX_PER_SEC, 'C2C link 10 total receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK10_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK10_DATA_TX_PER_SEC, 'C2C link 10 data transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK10_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK10_DATA_RX_PER_SEC, 'C2C link 10 data receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK11_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK11_TOTAL_TX_PER_SEC, 'C2C link 11 total transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK11_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK11_TOTAL_RX_PER_SEC, 'C2C link 11 total receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK11_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK11_DATA_TX_PER_SEC, 'C2C link 11 data transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK11_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK11_DATA_RX_PER_SEC, 'C2C link 11 data receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK12_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK12_TOTAL_TX_PER_SEC, 'C2C link 12 total transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK12_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK12_TOTAL_RX_PER_SEC, 'C2C link 12 total receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK12_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK12_DATA_TX_PER_SEC, 'C2C link 12 data transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK12_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK12_DATA_RX_PER_SEC, 'C2C link 12 data receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK13_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK13_TOTAL_TX_PER_SEC, 'C2C link 13 total transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK13_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK13_TOTAL_RX_PER_SEC, 'C2C link 13 total receive bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK13_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK13_DATA_TX_PER_SEC, 'C2C link 13 data transmit bandwidth in MiB/sec.')
-    GPM_METRIC_C2C_LINK13_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK13_DATA_RX_PER_SEC, 'C2C link 13 data receive bandwidth in MiB/sec.')
-    GPM_METRIC_HOSTMEM_CACHE_HIT = (NVML_GPM_METRIC_HOSTMEM_CACHE_HIT, 'Percentage of host memory cache hits. 0.0 - 100.0.')
-    GPM_METRIC_HOSTMEM_CACHE_MISS = (NVML_GPM_METRIC_HOSTMEM_CACHE_MISS, 'Percentage of host memory cache misses. 0.0 - 100.0.')
-    GPM_METRIC_PEERMEM_CACHE_HIT = (NVML_GPM_METRIC_PEERMEM_CACHE_HIT, 'Percentage of peer memory cache hits. 0.0 - 100.0.')
-    GPM_METRIC_PEERMEM_CACHE_MISS = (NVML_GPM_METRIC_PEERMEM_CACHE_MISS, 'Percentage of peer memory cache misses. 0.0 - 100.0.')
-    GPM_METRIC_DRAM_CACHE_HIT = (NVML_GPM_METRIC_DRAM_CACHE_HIT, 'Percentage of DRAM cache hits. 0.0 - 100.0.')
-    GPM_METRIC_DRAM_CACHE_MISS = (NVML_GPM_METRIC_DRAM_CACHE_MISS, 'Percentage of DRAM cache misses. 0.0 - 100.0.')
-    GPM_METRIC_NVENC_0_UTIL = (NVML_GPM_METRIC_NVENC_0_UTIL, 'Percent utilization of NVENC 0. 0.0 - 100.0.')
-    GPM_METRIC_NVENC_1_UTIL = (NVML_GPM_METRIC_NVENC_1_UTIL, 'Percent utilization of NVENC 1. 0.0 - 100.0.')
-    GPM_METRIC_NVENC_2_UTIL = (NVML_GPM_METRIC_NVENC_2_UTIL, 'Percent utilization of NVENC 2. 0.0 - 100.0.')
-    GPM_METRIC_NVENC_3_UTIL = (NVML_GPM_METRIC_NVENC_3_UTIL, 'Percent utilization of NVENC 3. 0.0 - 100.0.')
-    GPM_METRIC_GR0_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR0_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 0.')
-    GPM_METRIC_GR0_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR0_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 0.')
-    GPM_METRIC_GR0_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR0_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 0.')
-    GPM_METRIC_GR0_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR0_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 0.')
-    GPM_METRIC_GR0_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR0_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 0 context switches were active. 0.0 - 100.0.')
-    GPM_METRIC_GR1_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR1_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 1.')
-    GPM_METRIC_GR1_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR1_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 1.')
-    GPM_METRIC_GR1_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR1_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 1.')
-    GPM_METRIC_GR1_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR1_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 1.')
-    GPM_METRIC_GR1_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR1_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 1 context switches were active. 0.0 - 100.0.')
-    GPM_METRIC_GR2_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR2_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 2.')
-    GPM_METRIC_GR2_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR2_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 2.')
-    GPM_METRIC_GR2_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR2_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 2.')
-    GPM_METRIC_GR2_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR2_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 2.')
-    GPM_METRIC_GR2_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR2_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 2 context switches were active. 0.0 - 100.0.')
-    GPM_METRIC_GR3_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR3_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 3.')
-    GPM_METRIC_GR3_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR3_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 3.')
-    GPM_METRIC_GR3_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR3_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 3.')
-    GPM_METRIC_GR3_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR3_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 3.')
-    GPM_METRIC_GR3_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR3_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 3 context switches were active. 0.0 - 100.0.')
-    GPM_METRIC_GR4_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR4_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 4.')
-    GPM_METRIC_GR4_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR4_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 4.')
-    GPM_METRIC_GR4_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR4_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 4.')
-    GPM_METRIC_GR4_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR4_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 4.')
-    GPM_METRIC_GR4_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR4_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 4 context switches were active. 0.0 - 100.0.')
-    GPM_METRIC_GR5_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR5_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 5.')
-    GPM_METRIC_GR5_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR5_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 5.')
-    GPM_METRIC_GR5_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR5_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 5.')
-    GPM_METRIC_GR5_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR5_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 5.')
-    GPM_METRIC_GR5_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR5_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 5 context switches were active. 0.0 - 100.0.')
-    GPM_METRIC_GR6_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR6_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 6.')
-    GPM_METRIC_GR6_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR6_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 6.')
-    GPM_METRIC_GR6_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR6_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 6.')
-    GPM_METRIC_GR6_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR6_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 6.')
-    GPM_METRIC_GR6_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR6_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 6 context switches were active. 0.0 - 100.0.')
-    GPM_METRIC_GR7_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR7_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 7.')
-    GPM_METRIC_GR7_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR7_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 7.')
-    GPM_METRIC_GR7_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR7_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 7.')
-    GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 7.')
-    GPM_METRIC_GR7_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR7_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 7 context switches were active. 0.0 - 100.0.')
-    GPM_METRIC_NVLINK_L18_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L18_RX_PER_SEC, 'NvLink read bandwidth for link 18 in MiB/sec.')
-    GPM_METRIC_NVLINK_L18_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L18_TX_PER_SEC, 'NvLink write bandwidth for link 18 in MiB/sec.')
-    GPM_METRIC_NVLINK_L19_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L19_RX_PER_SEC, 'NvLink read bandwidth for link 19 in MiB/sec.')
-    GPM_METRIC_NVLINK_L19_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L19_TX_PER_SEC, 'NvLink write bandwidth for link 19 in MiB/sec.')
-    GPM_METRIC_NVLINK_L20_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L20_RX_PER_SEC, 'NvLink read bandwidth for link 20 in MiB/sec.')
-    GPM_METRIC_NVLINK_L20_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L20_TX_PER_SEC, 'NvLink write bandwidth for link 20 in MiB/sec.')
-    GPM_METRIC_NVLINK_L21_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L21_RX_PER_SEC, 'NvLink read bandwidth for link 21 in MiB/sec.')
-    GPM_METRIC_NVLINK_L21_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L21_TX_PER_SEC, 'NvLink write bandwidth for link 21 in MiB/sec.')
-    GPM_METRIC_NVLINK_L22_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L22_RX_PER_SEC, 'NvLink read bandwidth for link 22 in MiB/sec.')
-    GPM_METRIC_NVLINK_L22_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L22_TX_PER_SEC, 'NvLink write bandwidth for link 22 in MiB/sec.')
-    GPM_METRIC_NVLINK_L23_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L23_RX_PER_SEC, 'NvLink read bandwidth for link 23 in MiB/sec.')
-    GPM_METRIC_NVLINK_L23_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L23_TX_PER_SEC, 'NvLink write bandwidth for link 23 in MiB/sec.')
-    GPM_METRIC_NVLINK_L24_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L24_RX_PER_SEC, 'NvLink read bandwidth for link 24 in MiB/sec.')
-    GPM_METRIC_NVLINK_L24_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L24_TX_PER_SEC, 'NvLink write bandwidth for link 24 in MiB/sec.')
-    GPM_METRIC_NVLINK_L25_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L25_RX_PER_SEC, 'NvLink read bandwidth for link 25 in MiB/sec.')
-    GPM_METRIC_NVLINK_L25_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L25_TX_PER_SEC, 'NvLink write bandwidth for link 25 in MiB/sec.')
-    GPM_METRIC_NVLINK_L26_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L26_RX_PER_SEC, 'NvLink read bandwidth for link 26 in MiB/sec.')
-    GPM_METRIC_NVLINK_L26_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L26_TX_PER_SEC, 'NvLink write bandwidth for link 26 in MiB/sec.')
-    GPM_METRIC_NVLINK_L27_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L27_RX_PER_SEC, 'NvLink read bandwidth for link 27 in MiB/sec.')
-    GPM_METRIC_NVLINK_L27_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L27_TX_PER_SEC, 'NvLink write bandwidth for link 27 in MiB/sec.')
-    GPM_METRIC_NVLINK_L28_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L28_RX_PER_SEC, 'NvLink read bandwidth for link 28 in MiB/sec.')
-    GPM_METRIC_NVLINK_L28_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L28_TX_PER_SEC, 'NvLink write bandwidth for link 28 in MiB/sec.')
-    GPM_METRIC_NVLINK_L29_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L29_RX_PER_SEC, 'NvLink read bandwidth for link 29 in MiB/sec.')
-    GPM_METRIC_NVLINK_L29_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L29_TX_PER_SEC, 'NvLink write bandwidth for link 29 in MiB/sec.')
-    GPM_METRIC_NVLINK_L30_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L30_RX_PER_SEC, 'NvLink read bandwidth for link 30 in MiB/sec.')
-    GPM_METRIC_NVLINK_L30_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L30_TX_PER_SEC, 'NvLink write bandwidth for link 30 in MiB/sec.')
-    GPM_METRIC_NVLINK_L31_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L31_RX_PER_SEC, 'NvLink read bandwidth for link 31 in MiB/sec.')
-    GPM_METRIC_NVLINK_L31_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L31_TX_PER_SEC, 'NvLink write bandwidth for link 31 in MiB/sec.')
-    GPM_METRIC_NVLINK_L32_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L32_RX_PER_SEC, 'NvLink read bandwidth for link 32 in MiB/sec.')
-    GPM_METRIC_NVLINK_L32_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L32_TX_PER_SEC, 'NvLink write bandwidth for link 32 in MiB/sec.')
-    GPM_METRIC_NVLINK_L33_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L33_RX_PER_SEC, 'NvLink read bandwidth for link 33 in MiB/sec.')
-    GPM_METRIC_NVLINK_L33_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L33_TX_PER_SEC, 'NvLink write bandwidth for link 33 in MiB/sec.')
-    GPM_METRIC_NVLINK_L34_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L34_RX_PER_SEC, 'NvLink read bandwidth for link 34 in MiB/sec.')
-    GPM_METRIC_NVLINK_L34_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L34_TX_PER_SEC, 'NvLink write bandwidth for link 34 in MiB/sec.')
-    GPM_METRIC_NVLINK_L35_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L35_RX_PER_SEC, 'NvLink read bandwidth for link 35 in MiB/sec.')
-    GPM_METRIC_NVLINK_L35_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L35_TX_PER_SEC, 'NvLink write bandwidth for link 35 in MiB/sec.')
-    GPM_METRIC_SM_CYCLES_ELAPSED = (NVML_GPM_METRIC_SM_CYCLES_ELAPSED, "The GPU's SM cycles elapsed since reboot.")
-    GPM_METRIC_SM_CYCLES_ACTIVE = (NVML_GPM_METRIC_SM_CYCLES_ACTIVE, "The GPU's SM activity since reboot.")
-    GPM_METRIC_MMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_MMA_CYCLES_ACTIVE, "The GPU's SM MMA tensor activity since reboot.")
-    GPM_METRIC_DMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_DMMA_CYCLES_ACTIVE, "The GPU's SM DMMA tensor activity since reboot.")
-    GPM_METRIC_HMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_HMMA_CYCLES_ACTIVE, "The GPU's SM HMMA tensor activity since reboot.")
-    GPM_METRIC_IMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_IMMA_CYCLES_ACTIVE, "The GPU's SM IMMA tensor activity since reboot.")
-    GPM_METRIC_DFMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_DFMA_CYCLES_ACTIVE, "The GPU's SM DFMA tensor activity since reboot.")
-    GPM_METRIC_PCIE_TX = (NVML_GPM_METRIC_PCIE_TX, 'The PCIe TX traffic since reboot.')
-    GPM_METRIC_PCIE_RX = (NVML_GPM_METRIC_PCIE_RX, 'The PCIe RX traffic since reboot.')
-    GPM_METRIC_INTEGER_CYCLES_ACTIVE = (NVML_GPM_METRIC_INTEGER_CYCLES_ACTIVE, "The GPU's SM integer activity since reboot.")
-    GPM_METRIC_FP64_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP64_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
-    GPM_METRIC_FP32_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP32_CYCLES_ACTIVE, "The GPU's SM FP32 activity since reboot.")
-    GPM_METRIC_FP16_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP16_CYCLES_ACTIVE, "The GPU's SM FP16 activity since reboot.")
-    GPM_METRIC_NVLINK_L0_RX = (NVML_GPM_METRIC_NVLINK_L0_RX, 'NvLink read for link 0 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L0_TX = (NVML_GPM_METRIC_NVLINK_L0_TX, 'NvLink write for link 0 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L1_RX = (NVML_GPM_METRIC_NVLINK_L1_RX, 'NvLink read for link 1 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L1_TX = (NVML_GPM_METRIC_NVLINK_L1_TX, 'NvLink write for link 1 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L2_RX = (NVML_GPM_METRIC_NVLINK_L2_RX, 'NvLink read for link 2 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L2_TX = (NVML_GPM_METRIC_NVLINK_L2_TX, 'NvLink write for link 2 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L3_RX = (NVML_GPM_METRIC_NVLINK_L3_RX, 'NvLink read for link 3 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L3_TX = (NVML_GPM_METRIC_NVLINK_L3_TX, 'NvLink write for link 3 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L4_RX = (NVML_GPM_METRIC_NVLINK_L4_RX, 'NvLink read for link 4 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L4_TX = (NVML_GPM_METRIC_NVLINK_L4_TX, 'NvLink write for link 4 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L5_RX = (NVML_GPM_METRIC_NVLINK_L5_RX, 'NvLink read for link 5 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L5_TX = (NVML_GPM_METRIC_NVLINK_L5_TX, 'NvLink write for link 5 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L6_RX = (NVML_GPM_METRIC_NVLINK_L6_RX, 'NvLink read for link 6 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L6_TX = (NVML_GPM_METRIC_NVLINK_L6_TX, 'NvLink write for link 6 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L7_RX = (NVML_GPM_METRIC_NVLINK_L7_RX, 'NvLink read for link 7 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L7_TX = (NVML_GPM_METRIC_NVLINK_L7_TX, 'NvLink write for link 7 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L8_RX = (NVML_GPM_METRIC_NVLINK_L8_RX, 'NvLink read for link 8 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L8_TX = (NVML_GPM_METRIC_NVLINK_L8_TX, 'NvLink write for link 8 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L9_RX = (NVML_GPM_METRIC_NVLINK_L9_RX, 'NvLink read for link 9 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L9_TX = (NVML_GPM_METRIC_NVLINK_L9_TX, 'NvLink write for link 9 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L10_RX = (NVML_GPM_METRIC_NVLINK_L10_RX, 'NvLink read for link 10 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L10_TX = (NVML_GPM_METRIC_NVLINK_L10_TX, 'NvLink write for link 10 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L11_RX = (NVML_GPM_METRIC_NVLINK_L11_RX, 'NvLink read for link 11 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L11_TX = (NVML_GPM_METRIC_NVLINK_L11_TX, 'NvLink write for link 11 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L12_RX = (NVML_GPM_METRIC_NVLINK_L12_RX, 'NvLink read for link 12 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L12_TX = (NVML_GPM_METRIC_NVLINK_L12_TX, 'NvLink write for link 12 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L13_RX = (NVML_GPM_METRIC_NVLINK_L13_RX, 'NvLink read for link 13 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L13_TX = (NVML_GPM_METRIC_NVLINK_L13_TX, 'NvLink write for link 13 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L14_RX = (NVML_GPM_METRIC_NVLINK_L14_RX, 'NvLink read for link 14 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L14_TX = (NVML_GPM_METRIC_NVLINK_L14_TX, 'NvLink write for link 14 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L15_RX = (NVML_GPM_METRIC_NVLINK_L15_RX, 'NvLink read for link 15 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L15_TX = (NVML_GPM_METRIC_NVLINK_L15_TX, 'NvLink write for link 15 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L16_RX = (NVML_GPM_METRIC_NVLINK_L16_RX, 'NvLink read for link 16 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L16_TX = (NVML_GPM_METRIC_NVLINK_L16_TX, 'NvLink write for link 16 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L17_RX = (NVML_GPM_METRIC_NVLINK_L17_RX, 'NvLink read for link 17 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L17_TX = (NVML_GPM_METRIC_NVLINK_L17_TX, 'NvLink write for link 17 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L18_RX = (NVML_GPM_METRIC_NVLINK_L18_RX, 'NvLink read for link 18 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L18_TX = (NVML_GPM_METRIC_NVLINK_L18_TX, 'NvLink write for link 18 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L19_RX = (NVML_GPM_METRIC_NVLINK_L19_RX, 'NvLink read for link 19 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L19_TX = (NVML_GPM_METRIC_NVLINK_L19_TX, 'NvLink write for link 19 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L20_RX = (NVML_GPM_METRIC_NVLINK_L20_RX, 'NvLink read for link 20 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L20_TX = (NVML_GPM_METRIC_NVLINK_L20_TX, 'NvLink write for link 20 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L21_RX = (NVML_GPM_METRIC_NVLINK_L21_RX, 'NvLink read for link 21 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L21_TX = (NVML_GPM_METRIC_NVLINK_L21_TX, 'NvLink write for link 21 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L22_RX = (NVML_GPM_METRIC_NVLINK_L22_RX, 'NvLink read for link 22 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L22_TX = (NVML_GPM_METRIC_NVLINK_L22_TX, 'NvLink write for link 22 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L23_RX = (NVML_GPM_METRIC_NVLINK_L23_RX, 'NvLink read for link 23 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L23_TX = (NVML_GPM_METRIC_NVLINK_L23_TX, 'NvLink write for link 23 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L24_RX = (NVML_GPM_METRIC_NVLINK_L24_RX, 'NvLink read for link 24 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L24_TX = (NVML_GPM_METRIC_NVLINK_L24_TX, 'NvLink write for link 24 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L25_RX = (NVML_GPM_METRIC_NVLINK_L25_RX, 'NvLink read for link 25 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L25_TX = (NVML_GPM_METRIC_NVLINK_L25_TX, 'NvLink write for link 25 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L26_RX = (NVML_GPM_METRIC_NVLINK_L26_RX, 'NvLink read for link 26 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L26_TX = (NVML_GPM_METRIC_NVLINK_L26_TX, 'NvLink write for link 26 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L27_RX = (NVML_GPM_METRIC_NVLINK_L27_RX, 'NvLink read for link 27 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L27_TX = (NVML_GPM_METRIC_NVLINK_L27_TX, 'NvLink write for link 27 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L28_RX = (NVML_GPM_METRIC_NVLINK_L28_RX, 'NvLink read for link 28 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L28_TX = (NVML_GPM_METRIC_NVLINK_L28_TX, 'NvLink write for link 28 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L29_RX = (NVML_GPM_METRIC_NVLINK_L29_RX, 'NvLink read for link 29 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L29_TX = (NVML_GPM_METRIC_NVLINK_L29_TX, 'NvLink write for link 29 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L30_RX = (NVML_GPM_METRIC_NVLINK_L30_RX, 'NvLink read for link 30 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L30_TX = (NVML_GPM_METRIC_NVLINK_L30_TX, 'NvLink write for link 30 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L31_RX = (NVML_GPM_METRIC_NVLINK_L31_RX, 'NvLink read for link 31 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L31_TX = (NVML_GPM_METRIC_NVLINK_L31_TX, 'NvLink write for link 31 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L32_RX = (NVML_GPM_METRIC_NVLINK_L32_RX, 'NvLink read for link 32 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L32_TX = (NVML_GPM_METRIC_NVLINK_L32_TX, 'NvLink write for link 32 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L33_RX = (NVML_GPM_METRIC_NVLINK_L33_RX, 'NvLink read for link 33 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L33_TX = (NVML_GPM_METRIC_NVLINK_L33_TX, 'NvLink write for link 33 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L34_RX = (NVML_GPM_METRIC_NVLINK_L34_RX, 'NvLink read for link 34 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L34_TX = (NVML_GPM_METRIC_NVLINK_L34_TX, 'NvLink write for link 34 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L35_RX = (NVML_GPM_METRIC_NVLINK_L35_RX, 'NvLink read for link 35 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L35_TX = (NVML_GPM_METRIC_NVLINK_L35_TX, 'NvLink write for link 35 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L36_RX = (NVML_GPM_METRIC_NVLINK_L36_RX, 'NvLink read for link 36 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L36_TX = (NVML_GPM_METRIC_NVLINK_L36_TX, 'NvLink write for link 36 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L37_RX = (NVML_GPM_METRIC_NVLINK_L37_RX, 'NvLink read for link 37 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L37_TX = (NVML_GPM_METRIC_NVLINK_L37_TX, 'NvLink write for link 37 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L38_RX = (NVML_GPM_METRIC_NVLINK_L38_RX, 'NvLink read for link 38 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L38_TX = (NVML_GPM_METRIC_NVLINK_L38_TX, 'NvLink write for link 38 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L39_RX = (NVML_GPM_METRIC_NVLINK_L39_RX, 'NvLink read for link 39 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L39_TX = (NVML_GPM_METRIC_NVLINK_L39_TX, 'NvLink write for link 39 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L40_RX = (NVML_GPM_METRIC_NVLINK_L40_RX, 'NvLink read for link 40 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L40_TX = (NVML_GPM_METRIC_NVLINK_L40_TX, 'NvLink write for link 40 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L41_RX = (NVML_GPM_METRIC_NVLINK_L41_RX, 'NvLink read for link 41 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L41_TX = (NVML_GPM_METRIC_NVLINK_L41_TX, 'NvLink write for link 41 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L42_RX = (NVML_GPM_METRIC_NVLINK_L42_RX, 'NvLink read for link 42 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L42_TX = (NVML_GPM_METRIC_NVLINK_L42_TX, 'NvLink write for link 42 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L43_RX = (NVML_GPM_METRIC_NVLINK_L43_RX, 'NvLink read for link 43 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L43_TX = (NVML_GPM_METRIC_NVLINK_L43_TX, 'NvLink write for link 43 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L44_RX = (NVML_GPM_METRIC_NVLINK_L44_RX, 'NvLink read for link 44 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L44_TX = (NVML_GPM_METRIC_NVLINK_L44_TX, 'NvLink write for link 44 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L45_RX = (NVML_GPM_METRIC_NVLINK_L45_RX, 'NvLink read for link 45 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L45_TX = (NVML_GPM_METRIC_NVLINK_L45_TX, 'NvLink write for link 45 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L46_RX = (NVML_GPM_METRIC_NVLINK_L46_RX, 'NvLink read for link 46 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L46_TX = (NVML_GPM_METRIC_NVLINK_L46_TX, 'NvLink write for link 46 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L47_RX = (NVML_GPM_METRIC_NVLINK_L47_RX, 'NvLink read for link 47 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L47_TX = (NVML_GPM_METRIC_NVLINK_L47_TX, 'NvLink write for link 47 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L48_RX = (NVML_GPM_METRIC_NVLINK_L48_RX, 'NvLink read for link 48 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L48_TX = (NVML_GPM_METRIC_NVLINK_L48_TX, 'NvLink write for link 48 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L49_RX = (NVML_GPM_METRIC_NVLINK_L49_RX, 'NvLink read for link 49 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L49_TX = (NVML_GPM_METRIC_NVLINK_L49_TX, 'NvLink write for link 49 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L50_RX = (NVML_GPM_METRIC_NVLINK_L50_RX, 'NvLink read for link 50 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L50_TX = (NVML_GPM_METRIC_NVLINK_L50_TX, 'NvLink write for link 50 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L51_RX = (NVML_GPM_METRIC_NVLINK_L51_RX, 'NvLink read for link 51 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L51_TX = (NVML_GPM_METRIC_NVLINK_L51_TX, 'NvLink write for link 51 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L52_RX = (NVML_GPM_METRIC_NVLINK_L52_RX, 'NvLink read for link 52 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L52_TX = (NVML_GPM_METRIC_NVLINK_L52_TX, 'NvLink write for link 52 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L53_RX = (NVML_GPM_METRIC_NVLINK_L53_RX, 'NvLink read for link 53 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L53_TX = (NVML_GPM_METRIC_NVLINK_L53_TX, 'NvLink write for link 53 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L54_RX = (NVML_GPM_METRIC_NVLINK_L54_RX, 'NvLink read for link 54 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L54_TX = (NVML_GPM_METRIC_NVLINK_L54_TX, 'NvLink write for link 54 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L55_RX = (NVML_GPM_METRIC_NVLINK_L55_RX, 'NvLink read for link 55 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L55_TX = (NVML_GPM_METRIC_NVLINK_L55_TX, 'NvLink write for link 55 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L56_RX = (NVML_GPM_METRIC_NVLINK_L56_RX, 'NvLink read for link 56 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L56_TX = (NVML_GPM_METRIC_NVLINK_L56_TX, 'NvLink write for link 56 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L57_RX = (NVML_GPM_METRIC_NVLINK_L57_RX, 'NvLink read for link 57 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L57_TX = (NVML_GPM_METRIC_NVLINK_L57_TX, 'NvLink write for link 57 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L58_RX = (NVML_GPM_METRIC_NVLINK_L58_RX, 'NvLink read for link 58 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L58_TX = (NVML_GPM_METRIC_NVLINK_L58_TX, 'NvLink write for link 58 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L59_RX = (NVML_GPM_METRIC_NVLINK_L59_RX, 'NvLink read for link 59 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L59_TX = (NVML_GPM_METRIC_NVLINK_L59_TX, 'NvLink write for link 59 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L60_RX = (NVML_GPM_METRIC_NVLINK_L60_RX, 'NvLink read for link 60 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L60_TX = (NVML_GPM_METRIC_NVLINK_L60_TX, 'NvLink write for link 60 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L61_RX = (NVML_GPM_METRIC_NVLINK_L61_RX, 'NvLink read for link 61 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L61_TX = (NVML_GPM_METRIC_NVLINK_L61_TX, 'NvLink write for link 61 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L62_RX = (NVML_GPM_METRIC_NVLINK_L62_RX, 'NvLink read for link 62 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L62_TX = (NVML_GPM_METRIC_NVLINK_L62_TX, 'NvLink write for link 62 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L63_RX = (NVML_GPM_METRIC_NVLINK_L63_RX, 'NvLink read for link 63 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L63_TX = (NVML_GPM_METRIC_NVLINK_L63_TX, 'NvLink write for link 63 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L64_RX = (NVML_GPM_METRIC_NVLINK_L64_RX, 'NvLink read for link 64 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L64_TX = (NVML_GPM_METRIC_NVLINK_L64_TX, 'NvLink write for link 64 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L65_RX = (NVML_GPM_METRIC_NVLINK_L65_RX, 'NvLink read for link 65 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L65_TX = (NVML_GPM_METRIC_NVLINK_L65_TX, 'NvLink write for link 65 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L66_RX = (NVML_GPM_METRIC_NVLINK_L66_RX, 'NvLink read for link 66 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L66_TX = (NVML_GPM_METRIC_NVLINK_L66_TX, 'NvLink write for link 66 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L67_RX = (NVML_GPM_METRIC_NVLINK_L67_RX, 'NvLink read for link 67 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L67_TX = (NVML_GPM_METRIC_NVLINK_L67_TX, 'NvLink write for link 67 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L68_RX = (NVML_GPM_METRIC_NVLINK_L68_RX, 'NvLink read for link 68 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L68_TX = (NVML_GPM_METRIC_NVLINK_L68_TX, 'NvLink write for link 68 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L69_RX = (NVML_GPM_METRIC_NVLINK_L69_RX, 'NvLink read for link 69 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L69_TX = (NVML_GPM_METRIC_NVLINK_L69_TX, 'NvLink write for link 69 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L70_RX = (NVML_GPM_METRIC_NVLINK_L70_RX, 'NvLink read for link 70 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L70_TX = (NVML_GPM_METRIC_NVLINK_L70_TX, 'NvLink write for link 70 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L71_RX = (NVML_GPM_METRIC_NVLINK_L71_RX, 'NvLink read for link 71 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L71_TX = (NVML_GPM_METRIC_NVLINK_L71_TX, 'NvLink write for link 71 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L36_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L36_RX_PER_SEC, 'NvLink read bandwidth for link 36 in MiB/sec.')
-    GPM_METRIC_NVLINK_L36_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L36_TX_PER_SEC, 'NvLink write bandwidth for link 36 in MiB/sec.')
-    GPM_METRIC_NVLINK_L37_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L37_RX_PER_SEC, 'NvLink read bandwidth for link 37 in MiB/sec.')
-    GPM_METRIC_NVLINK_L37_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L37_TX_PER_SEC, 'NvLink write bandwidth for link 37 in MiB/sec.')
-    GPM_METRIC_NVLINK_L38_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L38_RX_PER_SEC, 'NvLink read bandwidth for link 38 in MiB/sec.')
-    GPM_METRIC_NVLINK_L38_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L38_TX_PER_SEC, 'NvLink write bandwidth for link 38 in MiB/sec.')
-    GPM_METRIC_NVLINK_L39_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L39_RX_PER_SEC, 'NvLink read bandwidth for link 39 in MiB/sec.')
-    GPM_METRIC_NVLINK_L39_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L39_TX_PER_SEC, 'NvLink write bandwidth for link 39 in MiB/sec.')
-    GPM_METRIC_NVLINK_L40_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L40_RX_PER_SEC, 'NvLink read bandwidth for link 40 in MiB/sec.')
-    GPM_METRIC_NVLINK_L40_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L40_TX_PER_SEC, 'NvLink write bandwidth for link 40 in MiB/sec.')
-    GPM_METRIC_NVLINK_L41_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L41_RX_PER_SEC, 'NvLink read bandwidth for link 41 in MiB/sec.')
-    GPM_METRIC_NVLINK_L41_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L41_TX_PER_SEC, 'NvLink write bandwidth for link 41 in MiB/sec.')
-    GPM_METRIC_NVLINK_L42_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L42_RX_PER_SEC, 'NvLink read bandwidth for link 42 in MiB/sec.')
-    GPM_METRIC_NVLINK_L42_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L42_TX_PER_SEC, 'NvLink write bandwidth for link 42 in MiB/sec.')
-    GPM_METRIC_NVLINK_L43_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L43_RX_PER_SEC, 'NvLink read bandwidth for link 43 in MiB/sec.')
-    GPM_METRIC_NVLINK_L43_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L43_TX_PER_SEC, 'NvLink write bandwidth for link 43 in MiB/sec.')
-    GPM_METRIC_NVLINK_L44_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L44_RX_PER_SEC, 'NvLink read bandwidth for link 44 in MiB/sec.')
-    GPM_METRIC_NVLINK_L44_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L44_TX_PER_SEC, 'NvLink write bandwidth for link 44 in MiB/sec.')
-    GPM_METRIC_NVLINK_L45_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L45_RX_PER_SEC, 'NvLink read bandwidth for link 45 in MiB/sec.')
-    GPM_METRIC_NVLINK_L45_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L45_TX_PER_SEC, 'NvLink write bandwidth for link 45 in MiB/sec.')
-    GPM_METRIC_NVLINK_L46_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L46_RX_PER_SEC, 'NvLink read bandwidth for link 46 in MiB/sec.')
-    GPM_METRIC_NVLINK_L46_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L46_TX_PER_SEC, 'NvLink write bandwidth for link 46 in MiB/sec.')
-    GPM_METRIC_NVLINK_L47_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L47_RX_PER_SEC, 'NvLink read bandwidth for link 47 in MiB/sec.')
-    GPM_METRIC_NVLINK_L47_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L47_TX_PER_SEC, 'NvLink write bandwidth for link 47 in MiB/sec.')
-    GPM_METRIC_NVLINK_L48_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L48_RX_PER_SEC, 'NvLink read bandwidth for link 48 in MiB/sec.')
-    GPM_METRIC_NVLINK_L48_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L48_TX_PER_SEC, 'NvLink write bandwidth for link 48 in MiB/sec.')
-    GPM_METRIC_NVLINK_L49_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L49_RX_PER_SEC, 'NvLink read bandwidth for link 49 in MiB/sec.')
-    GPM_METRIC_NVLINK_L49_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L49_TX_PER_SEC, 'NvLink write bandwidth for link 49 in MiB/sec.')
-    GPM_METRIC_NVLINK_L50_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L50_RX_PER_SEC, 'NvLink read bandwidth for link 50 in MiB/sec.')
-    GPM_METRIC_NVLINK_L50_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L50_TX_PER_SEC, 'NvLink write bandwidth for link 50 in MiB/sec.')
-    GPM_METRIC_NVLINK_L51_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L51_RX_PER_SEC, 'NvLink read bandwidth for link 51 in MiB/sec.')
-    GPM_METRIC_NVLINK_L51_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L51_TX_PER_SEC, 'NvLink write bandwidth for link 51 in MiB/sec.')
-    GPM_METRIC_NVLINK_L52_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L52_RX_PER_SEC, 'NvLink read bandwidth for link 52 in MiB/sec.')
-    GPM_METRIC_NVLINK_L52_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L52_TX_PER_SEC, 'NvLink write bandwidth for link 52 in MiB/sec.')
-    GPM_METRIC_NVLINK_L53_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L53_RX_PER_SEC, 'NvLink read bandwidth for link 53 in MiB/sec.')
-    GPM_METRIC_NVLINK_L53_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L53_TX_PER_SEC, 'NvLink write bandwidth for link 53 in MiB/sec.')
-    GPM_METRIC_NVLINK_L54_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L54_RX_PER_SEC, 'NvLink read bandwidth for link 54 in MiB/sec.')
-    GPM_METRIC_NVLINK_L54_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L54_TX_PER_SEC, 'NvLink write bandwidth for link 54 in MiB/sec.')
-    GPM_METRIC_NVLINK_L55_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L55_RX_PER_SEC, 'NvLink read bandwidth for link 55 in MiB/sec.')
-    GPM_METRIC_NVLINK_L55_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L55_TX_PER_SEC, 'NvLink write bandwidth for link 55 in MiB/sec.')
-    GPM_METRIC_NVLINK_L56_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L56_RX_PER_SEC, 'NvLink read bandwidth for link 56 in MiB/sec.')
-    GPM_METRIC_NVLINK_L56_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L56_TX_PER_SEC, 'NvLink write bandwidth for link 56 in MiB/sec.')
-    GPM_METRIC_NVLINK_L57_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L57_RX_PER_SEC, 'NvLink read bandwidth for link 57 in MiB/sec.')
-    GPM_METRIC_NVLINK_L57_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L57_TX_PER_SEC, 'NvLink write bandwidth for link 57 in MiB/sec.')
-    GPM_METRIC_NVLINK_L58_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L58_RX_PER_SEC, 'NvLink read bandwidth for link 58 in MiB/sec.')
-    GPM_METRIC_NVLINK_L58_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L58_TX_PER_SEC, 'NvLink write bandwidth for link 58 in MiB/sec.')
-    GPM_METRIC_NVLINK_L59_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L59_RX_PER_SEC, 'NvLink read bandwidth for link 59 in MiB/sec.')
-    GPM_METRIC_NVLINK_L59_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L59_TX_PER_SEC, 'NvLink write bandwidth for link 59 in MiB/sec.')
-    GPM_METRIC_NVLINK_L60_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L60_RX_PER_SEC, 'NvLink read bandwidth for link 60 in MiB/sec.')
-    GPM_METRIC_NVLINK_L60_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L60_TX_PER_SEC, 'NvLink write bandwidth for link 60 in MiB/sec.')
-    GPM_METRIC_NVLINK_L61_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L61_RX_PER_SEC, 'NvLink read bandwidth for link 61 in MiB/sec.')
-    GPM_METRIC_NVLINK_L61_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L61_TX_PER_SEC, 'NvLink write bandwidth for link 61 in MiB/sec.')
-    GPM_METRIC_NVLINK_L62_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L62_RX_PER_SEC, 'NvLink read bandwidth for link 62 in MiB/sec.')
-    GPM_METRIC_NVLINK_L62_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L62_TX_PER_SEC, 'NvLink write bandwidth for link 62 in MiB/sec.')
-    GPM_METRIC_NVLINK_L63_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L63_RX_PER_SEC, 'NvLink read bandwidth for link 63 in MiB/sec.')
-    GPM_METRIC_NVLINK_L63_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L63_TX_PER_SEC, 'NvLink write bandwidth for link 63 in MiB/sec.')
-    GPM_METRIC_NVLINK_L64_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L64_RX_PER_SEC, 'NvLink read bandwidth for link 64 in MiB/sec.')
-    GPM_METRIC_NVLINK_L64_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L64_TX_PER_SEC, 'NvLink write bandwidth for link 64 in MiB/sec.')
-    GPM_METRIC_NVLINK_L65_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L65_RX_PER_SEC, 'NvLink read bandwidth for link 65 in MiB/sec.')
-    GPM_METRIC_NVLINK_L65_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L65_TX_PER_SEC, 'NvLink write bandwidth for link 65 in MiB/sec.')
-    GPM_METRIC_NVLINK_L66_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L66_RX_PER_SEC, 'NvLink read bandwidth for link 66 in MiB/sec.')
-    GPM_METRIC_NVLINK_L66_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L66_TX_PER_SEC, 'NvLink write bandwidth for link 66 in MiB/sec.')
-    GPM_METRIC_NVLINK_L67_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L67_RX_PER_SEC, 'NvLink read bandwidth for link 67 in MiB/sec.')
-    GPM_METRIC_NVLINK_L67_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L67_TX_PER_SEC, 'NvLink write bandwidth for link 67 in MiB/sec.')
-    GPM_METRIC_NVLINK_L68_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L68_RX_PER_SEC, 'NvLink read bandwidth for link 68 in MiB/sec.')
-    GPM_METRIC_NVLINK_L68_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L68_TX_PER_SEC, 'NvLink write bandwidth for link 68 in MiB/sec.')
-    GPM_METRIC_NVLINK_L69_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L69_RX_PER_SEC, 'NvLink read bandwidth for link 69 in MiB/sec.')
-    GPM_METRIC_NVLINK_L69_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L69_TX_PER_SEC, 'NvLink write bandwidth for link 69 in MiB/sec.')
-    GPM_METRIC_NVLINK_L70_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L70_RX_PER_SEC, 'NvLink read bandwidth for link 70 in MiB/sec.')
-    GPM_METRIC_NVLINK_L70_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L70_TX_PER_SEC, 'NvLink write bandwidth for link 70 in MiB/sec.')
-    GPM_METRIC_NVLINK_L71_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L71_RX_PER_SEC, 'NvLink read bandwidth for link 71 in MiB/sec.')
-    GPM_METRIC_NVLINK_L71_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L71_TX_PER_SEC, 'NvLink write bandwidth for link 71 in MiB/sec.')
-    GPM_METRIC_MAX = (NVML_GPM_METRIC_MAX, 'Maximum value above +1.')
+    GRAPHICS_UTIL = (NVML_GPM_METRIC_GRAPHICS_UTIL, 'Percentage of time any compute/graphics app was active on the GPU. 0.0 - 100.0.')
+    GPM_METRIC_GRAPHICS_UTIL = GRAPHICS_UTIL  # backward-compat alias
+    SM_UTIL = (NVML_GPM_METRIC_SM_UTIL, 'Percentage of SMs that were busy. 0.0 - 100.0.')
+    GPM_METRIC_SM_UTIL = SM_UTIL  # backward-compat alias
+    SM_OCCUPANCY = (NVML_GPM_METRIC_SM_OCCUPANCY, 'Percentage of warps that were active vs theoretical maximum. 0.0 - 100.0.')
+    GPM_METRIC_SM_OCCUPANCY = SM_OCCUPANCY  # backward-compat alias
+    INTEGER_UTIL = (NVML_GPM_METRIC_INTEGER_UTIL, "Percentage of time the GPU's SMs were doing integer operations. 0.0 - 100.0.")
+    GPM_METRIC_INTEGER_UTIL = INTEGER_UTIL  # backward-compat alias
+    ANY_TENSOR_UTIL = (NVML_GPM_METRIC_ANY_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing ANY tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_ANY_TENSOR_UTIL = ANY_TENSOR_UTIL  # backward-compat alias
+    DFMA_TENSOR_UTIL = (NVML_GPM_METRIC_DFMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DFMA tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_DFMA_TENSOR_UTIL = DFMA_TENSOR_UTIL  # backward-compat alias
+    HMMA_TENSOR_UTIL = (NVML_GPM_METRIC_HMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing HMMA tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_HMMA_TENSOR_UTIL = HMMA_TENSOR_UTIL  # backward-compat alias
+    DMMA_TENSOR_UTIL = (NVML_GPM_METRIC_DMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DMMA tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_DMMA_TENSOR_UTIL = DMMA_TENSOR_UTIL  # backward-compat alias
+    IMMA_TENSOR_UTIL = (NVML_GPM_METRIC_IMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing IMMA tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_IMMA_TENSOR_UTIL = IMMA_TENSOR_UTIL  # backward-compat alias
+    DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. `0.0 - 100.0 */`.')
+    GPM_METRIC_DRAM_BW_UTIL = DRAM_BW_UTIL  # backward-compat alias
+    FP64_UTIL = (NVML_GPM_METRIC_FP64_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP64 math. 0.0 - 100.0.")
+    GPM_METRIC_FP64_UTIL = FP64_UTIL  # backward-compat alias
+    FP32_UTIL = (NVML_GPM_METRIC_FP32_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP32 math. 0.0 - 100.0.")
+    GPM_METRIC_FP32_UTIL = FP32_UTIL  # backward-compat alias
+    FP16_UTIL = (NVML_GPM_METRIC_FP16_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP16 math. 0.0 - 100.0.")
+    GPM_METRIC_FP16_UTIL = FP16_UTIL  # backward-compat alias
+    PCIE_TX_PER_SEC = (NVML_GPM_METRIC_PCIE_TX_PER_SEC, 'PCIe traffic from this GPU in MiB/sec.')
+    GPM_METRIC_PCIE_TX_PER_SEC = PCIE_TX_PER_SEC  # backward-compat alias
+    PCIE_RX_PER_SEC = (NVML_GPM_METRIC_PCIE_RX_PER_SEC, 'PCIe traffic to this GPU in MiB/sec.')
+    GPM_METRIC_PCIE_RX_PER_SEC = PCIE_RX_PER_SEC  # backward-compat alias
+    NVDEC_0_UTIL = (NVML_GPM_METRIC_NVDEC_0_UTIL, 'Percent utilization of NVDEC 0. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_0_UTIL = NVDEC_0_UTIL  # backward-compat alias
+    NVDEC_1_UTIL = (NVML_GPM_METRIC_NVDEC_1_UTIL, 'Percent utilization of NVDEC 1. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_1_UTIL = NVDEC_1_UTIL  # backward-compat alias
+    NVDEC_2_UTIL = (NVML_GPM_METRIC_NVDEC_2_UTIL, 'Percent utilization of NVDEC 2. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_2_UTIL = NVDEC_2_UTIL  # backward-compat alias
+    NVDEC_3_UTIL = (NVML_GPM_METRIC_NVDEC_3_UTIL, 'Percent utilization of NVDEC 3. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_3_UTIL = NVDEC_3_UTIL  # backward-compat alias
+    NVDEC_4_UTIL = (NVML_GPM_METRIC_NVDEC_4_UTIL, 'Percent utilization of NVDEC 4. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_4_UTIL = NVDEC_4_UTIL  # backward-compat alias
+    NVDEC_5_UTIL = (NVML_GPM_METRIC_NVDEC_5_UTIL, 'Percent utilization of NVDEC 5. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_5_UTIL = NVDEC_5_UTIL  # backward-compat alias
+    NVDEC_6_UTIL = (NVML_GPM_METRIC_NVDEC_6_UTIL, 'Percent utilization of NVDEC 6. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_6_UTIL = NVDEC_6_UTIL  # backward-compat alias
+    NVDEC_7_UTIL = (NVML_GPM_METRIC_NVDEC_7_UTIL, 'Percent utilization of NVDEC 7. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_7_UTIL = NVDEC_7_UTIL  # backward-compat alias
+    NVJPG_0_UTIL = (NVML_GPM_METRIC_NVJPG_0_UTIL, 'Percent utilization of NVJPG 0. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_0_UTIL = NVJPG_0_UTIL  # backward-compat alias
+    NVJPG_1_UTIL = (NVML_GPM_METRIC_NVJPG_1_UTIL, 'Percent utilization of NVJPG 1. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_1_UTIL = NVJPG_1_UTIL  # backward-compat alias
+    NVJPG_2_UTIL = (NVML_GPM_METRIC_NVJPG_2_UTIL, 'Percent utilization of NVJPG 2. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_2_UTIL = NVJPG_2_UTIL  # backward-compat alias
+    NVJPG_3_UTIL = (NVML_GPM_METRIC_NVJPG_3_UTIL, 'Percent utilization of NVJPG 3. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_3_UTIL = NVJPG_3_UTIL  # backward-compat alias
+    NVJPG_4_UTIL = (NVML_GPM_METRIC_NVJPG_4_UTIL, 'Percent utilization of NVJPG 4. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_4_UTIL = NVJPG_4_UTIL  # backward-compat alias
+    NVJPG_5_UTIL = (NVML_GPM_METRIC_NVJPG_5_UTIL, 'Percent utilization of NVJPG 5. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_5_UTIL = NVJPG_5_UTIL  # backward-compat alias
+    NVJPG_6_UTIL = (NVML_GPM_METRIC_NVJPG_6_UTIL, 'Percent utilization of NVJPG 6. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_6_UTIL = NVJPG_6_UTIL  # backward-compat alias
+    NVJPG_7_UTIL = (NVML_GPM_METRIC_NVJPG_7_UTIL, 'Percent utilization of NVJPG 7. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_7_UTIL = NVJPG_7_UTIL  # backward-compat alias
+    NVOFA_0_UTIL = (NVML_GPM_METRIC_NVOFA_0_UTIL, 'Percent utilization of NVOFA 0. 0.0 - 100.0.')
+    GPM_METRIC_NVOFA_0_UTIL = NVOFA_0_UTIL  # backward-compat alias
+    NVOFA_1_UTIL = (NVML_GPM_METRIC_NVOFA_1_UTIL, 'Percent utilization of NVOFA 1. 0.0 - 100.0.')
+    GPM_METRIC_NVOFA_1_UTIL = NVOFA_1_UTIL  # backward-compat alias
+    NVLINK_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC, 'NvLink read bandwidth for all links in MiB/sec.')
+    GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC = NVLINK_TOTAL_RX_PER_SEC  # backward-compat alias
+    NVLINK_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC, 'NvLink write bandwidth for all links in MiB/sec.')
+    GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC = NVLINK_TOTAL_TX_PER_SEC  # backward-compat alias
+    NVLINK_L0_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L0_RX_PER_SEC, 'NvLink read bandwidth for link 0 in MiB/sec.')
+    GPM_METRIC_NVLINK_L0_RX_PER_SEC = NVLINK_L0_RX_PER_SEC  # backward-compat alias
+    NVLINK_L0_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L0_TX_PER_SEC, 'NvLink write bandwidth for link 0 in MiB/sec.')
+    GPM_METRIC_NVLINK_L0_TX_PER_SEC = NVLINK_L0_TX_PER_SEC  # backward-compat alias
+    NVLINK_L1_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L1_RX_PER_SEC, 'NvLink read bandwidth for link 1 in MiB/sec.')
+    GPM_METRIC_NVLINK_L1_RX_PER_SEC = NVLINK_L1_RX_PER_SEC  # backward-compat alias
+    NVLINK_L1_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L1_TX_PER_SEC, 'NvLink write bandwidth for link 1 in MiB/sec.')
+    GPM_METRIC_NVLINK_L1_TX_PER_SEC = NVLINK_L1_TX_PER_SEC  # backward-compat alias
+    NVLINK_L2_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L2_RX_PER_SEC, 'NvLink read bandwidth for link 2 in MiB/sec.')
+    GPM_METRIC_NVLINK_L2_RX_PER_SEC = NVLINK_L2_RX_PER_SEC  # backward-compat alias
+    NVLINK_L2_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L2_TX_PER_SEC, 'NvLink write bandwidth for link 2 in MiB/sec.')
+    GPM_METRIC_NVLINK_L2_TX_PER_SEC = NVLINK_L2_TX_PER_SEC  # backward-compat alias
+    NVLINK_L3_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L3_RX_PER_SEC, 'NvLink read bandwidth for link 3 in MiB/sec.')
+    GPM_METRIC_NVLINK_L3_RX_PER_SEC = NVLINK_L3_RX_PER_SEC  # backward-compat alias
+    NVLINK_L3_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L3_TX_PER_SEC, 'NvLink write bandwidth for link 3 in MiB/sec.')
+    GPM_METRIC_NVLINK_L3_TX_PER_SEC = NVLINK_L3_TX_PER_SEC  # backward-compat alias
+    NVLINK_L4_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L4_RX_PER_SEC, 'NvLink read bandwidth for link 4 in MiB/sec.')
+    GPM_METRIC_NVLINK_L4_RX_PER_SEC = NVLINK_L4_RX_PER_SEC  # backward-compat alias
+    NVLINK_L4_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L4_TX_PER_SEC, 'NvLink write bandwidth for link 4 in MiB/sec.')
+    GPM_METRIC_NVLINK_L4_TX_PER_SEC = NVLINK_L4_TX_PER_SEC  # backward-compat alias
+    NVLINK_L5_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L5_RX_PER_SEC, 'NvLink read bandwidth for link 5 in MiB/sec.')
+    GPM_METRIC_NVLINK_L5_RX_PER_SEC = NVLINK_L5_RX_PER_SEC  # backward-compat alias
+    NVLINK_L5_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L5_TX_PER_SEC, 'NvLink write bandwidth for link 5 in MiB/sec.')
+    GPM_METRIC_NVLINK_L5_TX_PER_SEC = NVLINK_L5_TX_PER_SEC  # backward-compat alias
+    NVLINK_L6_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L6_RX_PER_SEC, 'NvLink read bandwidth for link 6 in MiB/sec.')
+    GPM_METRIC_NVLINK_L6_RX_PER_SEC = NVLINK_L6_RX_PER_SEC  # backward-compat alias
+    NVLINK_L6_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L6_TX_PER_SEC, 'NvLink write bandwidth for link 6 in MiB/sec.')
+    GPM_METRIC_NVLINK_L6_TX_PER_SEC = NVLINK_L6_TX_PER_SEC  # backward-compat alias
+    NVLINK_L7_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L7_RX_PER_SEC, 'NvLink read bandwidth for link 7 in MiB/sec.')
+    GPM_METRIC_NVLINK_L7_RX_PER_SEC = NVLINK_L7_RX_PER_SEC  # backward-compat alias
+    NVLINK_L7_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L7_TX_PER_SEC, 'NvLink write bandwidth for link 7 in MiB/sec.')
+    GPM_METRIC_NVLINK_L7_TX_PER_SEC = NVLINK_L7_TX_PER_SEC  # backward-compat alias
+    NVLINK_L8_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L8_RX_PER_SEC, 'NvLink read bandwidth for link 8 in MiB/sec.')
+    GPM_METRIC_NVLINK_L8_RX_PER_SEC = NVLINK_L8_RX_PER_SEC  # backward-compat alias
+    NVLINK_L8_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L8_TX_PER_SEC, 'NvLink write bandwidth for link 8 in MiB/sec.')
+    GPM_METRIC_NVLINK_L8_TX_PER_SEC = NVLINK_L8_TX_PER_SEC  # backward-compat alias
+    NVLINK_L9_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L9_RX_PER_SEC, 'NvLink read bandwidth for link 9 in MiB/sec.')
+    GPM_METRIC_NVLINK_L9_RX_PER_SEC = NVLINK_L9_RX_PER_SEC  # backward-compat alias
+    NVLINK_L9_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L9_TX_PER_SEC, 'NvLink write bandwidth for link 9 in MiB/sec.')
+    GPM_METRIC_NVLINK_L9_TX_PER_SEC = NVLINK_L9_TX_PER_SEC  # backward-compat alias
+    NVLINK_L10_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L10_RX_PER_SEC, 'NvLink read bandwidth for link 10 in MiB/sec.')
+    GPM_METRIC_NVLINK_L10_RX_PER_SEC = NVLINK_L10_RX_PER_SEC  # backward-compat alias
+    NVLINK_L10_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L10_TX_PER_SEC, 'NvLink write bandwidth for link 10 in MiB/sec.')
+    GPM_METRIC_NVLINK_L10_TX_PER_SEC = NVLINK_L10_TX_PER_SEC  # backward-compat alias
+    NVLINK_L11_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L11_RX_PER_SEC, 'NvLink read bandwidth for link 11 in MiB/sec.')
+    GPM_METRIC_NVLINK_L11_RX_PER_SEC = NVLINK_L11_RX_PER_SEC  # backward-compat alias
+    NVLINK_L11_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L11_TX_PER_SEC, 'NvLink write bandwidth for link 11 in MiB/sec.')
+    GPM_METRIC_NVLINK_L11_TX_PER_SEC = NVLINK_L11_TX_PER_SEC  # backward-compat alias
+    NVLINK_L12_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L12_RX_PER_SEC, 'NvLink read bandwidth for link 12 in MiB/sec.')
+    GPM_METRIC_NVLINK_L12_RX_PER_SEC = NVLINK_L12_RX_PER_SEC  # backward-compat alias
+    NVLINK_L12_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L12_TX_PER_SEC, 'NvLink write bandwidth for link 12 in MiB/sec.')
+    GPM_METRIC_NVLINK_L12_TX_PER_SEC = NVLINK_L12_TX_PER_SEC  # backward-compat alias
+    NVLINK_L13_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L13_RX_PER_SEC, 'NvLink read bandwidth for link 13 in MiB/sec.')
+    GPM_METRIC_NVLINK_L13_RX_PER_SEC = NVLINK_L13_RX_PER_SEC  # backward-compat alias
+    NVLINK_L13_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L13_TX_PER_SEC, 'NvLink write bandwidth for link 13 in MiB/sec.')
+    GPM_METRIC_NVLINK_L13_TX_PER_SEC = NVLINK_L13_TX_PER_SEC  # backward-compat alias
+    NVLINK_L14_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L14_RX_PER_SEC, 'NvLink read bandwidth for link 14 in MiB/sec.')
+    GPM_METRIC_NVLINK_L14_RX_PER_SEC = NVLINK_L14_RX_PER_SEC  # backward-compat alias
+    NVLINK_L14_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L14_TX_PER_SEC, 'NvLink write bandwidth for link 14 in MiB/sec.')
+    GPM_METRIC_NVLINK_L14_TX_PER_SEC = NVLINK_L14_TX_PER_SEC  # backward-compat alias
+    NVLINK_L15_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L15_RX_PER_SEC, 'NvLink read bandwidth for link 15 in MiB/sec.')
+    GPM_METRIC_NVLINK_L15_RX_PER_SEC = NVLINK_L15_RX_PER_SEC  # backward-compat alias
+    NVLINK_L15_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L15_TX_PER_SEC, 'NvLink write bandwidth for link 15 in MiB/sec.')
+    GPM_METRIC_NVLINK_L15_TX_PER_SEC = NVLINK_L15_TX_PER_SEC  # backward-compat alias
+    NVLINK_L16_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L16_RX_PER_SEC, 'NvLink read bandwidth for link 16 in MiB/sec.')
+    GPM_METRIC_NVLINK_L16_RX_PER_SEC = NVLINK_L16_RX_PER_SEC  # backward-compat alias
+    NVLINK_L16_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L16_TX_PER_SEC, 'NvLink write bandwidth for link 16 in MiB/sec.')
+    GPM_METRIC_NVLINK_L16_TX_PER_SEC = NVLINK_L16_TX_PER_SEC  # backward-compat alias
+    NVLINK_L17_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L17_RX_PER_SEC, 'NvLink read bandwidth for link 17 in MiB/sec.')
+    GPM_METRIC_NVLINK_L17_RX_PER_SEC = NVLINK_L17_RX_PER_SEC  # backward-compat alias
+    NVLINK_L17_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L17_TX_PER_SEC, 'NvLink write bandwidth for link 17 in MiB/sec.')
+    GPM_METRIC_NVLINK_L17_TX_PER_SEC = NVLINK_L17_TX_PER_SEC  # backward-compat alias
+    C2C_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_TOTAL_TX_PER_SEC, 'C2C total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_TOTAL_TX_PER_SEC = C2C_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_TOTAL_RX_PER_SEC, 'C2C total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_TOTAL_RX_PER_SEC = C2C_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_DATA_TX_PER_SEC, 'C2C data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_DATA_TX_PER_SEC = C2C_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_DATA_RX_PER_SEC, 'C2C data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_DATA_RX_PER_SEC = C2C_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK0_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK0_TOTAL_TX_PER_SEC, 'C2C link 0 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK0_TOTAL_TX_PER_SEC = C2C_LINK0_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK0_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK0_TOTAL_RX_PER_SEC, 'C2C link 0 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK0_TOTAL_RX_PER_SEC = C2C_LINK0_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK0_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK0_DATA_TX_PER_SEC, 'C2C link 0 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK0_DATA_TX_PER_SEC = C2C_LINK0_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK0_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK0_DATA_RX_PER_SEC, 'C2C link 0 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK0_DATA_RX_PER_SEC = C2C_LINK0_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK1_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK1_TOTAL_TX_PER_SEC, 'C2C link 1 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK1_TOTAL_TX_PER_SEC = C2C_LINK1_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK1_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK1_TOTAL_RX_PER_SEC, 'C2C link 1 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK1_TOTAL_RX_PER_SEC = C2C_LINK1_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK1_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK1_DATA_TX_PER_SEC, 'C2C link 1 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK1_DATA_TX_PER_SEC = C2C_LINK1_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK1_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK1_DATA_RX_PER_SEC, 'C2C link 1 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK1_DATA_RX_PER_SEC = C2C_LINK1_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK2_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK2_TOTAL_TX_PER_SEC, 'C2C link 2 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK2_TOTAL_TX_PER_SEC = C2C_LINK2_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK2_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK2_TOTAL_RX_PER_SEC, 'C2C link 2 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK2_TOTAL_RX_PER_SEC = C2C_LINK2_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK2_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK2_DATA_TX_PER_SEC, 'C2C link 2 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK2_DATA_TX_PER_SEC = C2C_LINK2_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK2_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK2_DATA_RX_PER_SEC, 'C2C link 2 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK2_DATA_RX_PER_SEC = C2C_LINK2_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK3_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK3_TOTAL_TX_PER_SEC, 'C2C link 3 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK3_TOTAL_TX_PER_SEC = C2C_LINK3_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK3_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK3_TOTAL_RX_PER_SEC, 'C2C link 3 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK3_TOTAL_RX_PER_SEC = C2C_LINK3_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK3_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK3_DATA_TX_PER_SEC, 'C2C link 3 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK3_DATA_TX_PER_SEC = C2C_LINK3_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK3_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK3_DATA_RX_PER_SEC, 'C2C link 3 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK3_DATA_RX_PER_SEC = C2C_LINK3_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK4_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK4_TOTAL_TX_PER_SEC, 'C2C link 4 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK4_TOTAL_TX_PER_SEC = C2C_LINK4_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK4_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK4_TOTAL_RX_PER_SEC, 'C2C link 4 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK4_TOTAL_RX_PER_SEC = C2C_LINK4_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK4_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK4_DATA_TX_PER_SEC, 'C2C link 4 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK4_DATA_TX_PER_SEC = C2C_LINK4_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK4_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK4_DATA_RX_PER_SEC, 'C2C link 4 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK4_DATA_RX_PER_SEC = C2C_LINK4_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK5_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK5_TOTAL_TX_PER_SEC, 'C2C link 5 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK5_TOTAL_TX_PER_SEC = C2C_LINK5_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK5_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK5_TOTAL_RX_PER_SEC, 'C2C link 5 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK5_TOTAL_RX_PER_SEC = C2C_LINK5_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK5_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK5_DATA_TX_PER_SEC, 'C2C link 5 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK5_DATA_TX_PER_SEC = C2C_LINK5_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK5_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK5_DATA_RX_PER_SEC, 'C2C link 5 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK5_DATA_RX_PER_SEC = C2C_LINK5_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK6_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK6_TOTAL_TX_PER_SEC, 'C2C link 6 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK6_TOTAL_TX_PER_SEC = C2C_LINK6_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK6_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK6_TOTAL_RX_PER_SEC, 'C2C link 6 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK6_TOTAL_RX_PER_SEC = C2C_LINK6_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK6_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK6_DATA_TX_PER_SEC, 'C2C link 6 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK6_DATA_TX_PER_SEC = C2C_LINK6_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK6_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK6_DATA_RX_PER_SEC, 'C2C link 6 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK6_DATA_RX_PER_SEC = C2C_LINK6_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK7_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK7_TOTAL_TX_PER_SEC, 'C2C link 7 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK7_TOTAL_TX_PER_SEC = C2C_LINK7_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK7_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK7_TOTAL_RX_PER_SEC, 'C2C link 7 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK7_TOTAL_RX_PER_SEC = C2C_LINK7_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK7_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK7_DATA_TX_PER_SEC, 'C2C link 7 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK7_DATA_TX_PER_SEC = C2C_LINK7_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK7_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK7_DATA_RX_PER_SEC, 'C2C link 7 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK7_DATA_RX_PER_SEC = C2C_LINK7_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK8_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK8_TOTAL_TX_PER_SEC, 'C2C link 8 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK8_TOTAL_TX_PER_SEC = C2C_LINK8_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK8_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK8_TOTAL_RX_PER_SEC, 'C2C link 8 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK8_TOTAL_RX_PER_SEC = C2C_LINK8_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK8_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK8_DATA_TX_PER_SEC, 'C2C link 8 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK8_DATA_TX_PER_SEC = C2C_LINK8_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK8_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK8_DATA_RX_PER_SEC, 'C2C link 8 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK8_DATA_RX_PER_SEC = C2C_LINK8_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK9_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK9_TOTAL_TX_PER_SEC, 'C2C link 9 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK9_TOTAL_TX_PER_SEC = C2C_LINK9_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK9_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK9_TOTAL_RX_PER_SEC, 'C2C link 9 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK9_TOTAL_RX_PER_SEC = C2C_LINK9_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK9_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK9_DATA_TX_PER_SEC, 'C2C link 9 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK9_DATA_TX_PER_SEC = C2C_LINK9_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK9_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK9_DATA_RX_PER_SEC, 'C2C link 9 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK9_DATA_RX_PER_SEC = C2C_LINK9_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK10_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK10_TOTAL_TX_PER_SEC, 'C2C link 10 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK10_TOTAL_TX_PER_SEC = C2C_LINK10_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK10_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK10_TOTAL_RX_PER_SEC, 'C2C link 10 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK10_TOTAL_RX_PER_SEC = C2C_LINK10_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK10_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK10_DATA_TX_PER_SEC, 'C2C link 10 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK10_DATA_TX_PER_SEC = C2C_LINK10_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK10_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK10_DATA_RX_PER_SEC, 'C2C link 10 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK10_DATA_RX_PER_SEC = C2C_LINK10_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK11_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK11_TOTAL_TX_PER_SEC, 'C2C link 11 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK11_TOTAL_TX_PER_SEC = C2C_LINK11_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK11_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK11_TOTAL_RX_PER_SEC, 'C2C link 11 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK11_TOTAL_RX_PER_SEC = C2C_LINK11_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK11_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK11_DATA_TX_PER_SEC, 'C2C link 11 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK11_DATA_TX_PER_SEC = C2C_LINK11_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK11_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK11_DATA_RX_PER_SEC, 'C2C link 11 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK11_DATA_RX_PER_SEC = C2C_LINK11_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK12_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK12_TOTAL_TX_PER_SEC, 'C2C link 12 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK12_TOTAL_TX_PER_SEC = C2C_LINK12_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK12_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK12_TOTAL_RX_PER_SEC, 'C2C link 12 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK12_TOTAL_RX_PER_SEC = C2C_LINK12_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK12_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK12_DATA_TX_PER_SEC, 'C2C link 12 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK12_DATA_TX_PER_SEC = C2C_LINK12_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK12_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK12_DATA_RX_PER_SEC, 'C2C link 12 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK12_DATA_RX_PER_SEC = C2C_LINK12_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK13_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK13_TOTAL_TX_PER_SEC, 'C2C link 13 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK13_TOTAL_TX_PER_SEC = C2C_LINK13_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK13_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK13_TOTAL_RX_PER_SEC, 'C2C link 13 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK13_TOTAL_RX_PER_SEC = C2C_LINK13_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK13_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK13_DATA_TX_PER_SEC, 'C2C link 13 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK13_DATA_TX_PER_SEC = C2C_LINK13_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK13_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK13_DATA_RX_PER_SEC, 'C2C link 13 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK13_DATA_RX_PER_SEC = C2C_LINK13_DATA_RX_PER_SEC  # backward-compat alias
+    HOSTMEM_CACHE_HIT = (NVML_GPM_METRIC_HOSTMEM_CACHE_HIT, 'Percentage of host memory cache hits. 0.0 - 100.0.')
+    GPM_METRIC_HOSTMEM_CACHE_HIT = HOSTMEM_CACHE_HIT  # backward-compat alias
+    HOSTMEM_CACHE_MISS = (NVML_GPM_METRIC_HOSTMEM_CACHE_MISS, 'Percentage of host memory cache misses. 0.0 - 100.0.')
+    GPM_METRIC_HOSTMEM_CACHE_MISS = HOSTMEM_CACHE_MISS  # backward-compat alias
+    PEERMEM_CACHE_HIT = (NVML_GPM_METRIC_PEERMEM_CACHE_HIT, 'Percentage of peer memory cache hits. 0.0 - 100.0.')
+    GPM_METRIC_PEERMEM_CACHE_HIT = PEERMEM_CACHE_HIT  # backward-compat alias
+    PEERMEM_CACHE_MISS = (NVML_GPM_METRIC_PEERMEM_CACHE_MISS, 'Percentage of peer memory cache misses. 0.0 - 100.0.')
+    GPM_METRIC_PEERMEM_CACHE_MISS = PEERMEM_CACHE_MISS  # backward-compat alias
+    DRAM_CACHE_HIT = (NVML_GPM_METRIC_DRAM_CACHE_HIT, 'Percentage of DRAM cache hits. 0.0 - 100.0.')
+    GPM_METRIC_DRAM_CACHE_HIT = DRAM_CACHE_HIT  # backward-compat alias
+    DRAM_CACHE_MISS = (NVML_GPM_METRIC_DRAM_CACHE_MISS, 'Percentage of DRAM cache misses. 0.0 - 100.0.')
+    GPM_METRIC_DRAM_CACHE_MISS = DRAM_CACHE_MISS  # backward-compat alias
+    NVENC_0_UTIL = (NVML_GPM_METRIC_NVENC_0_UTIL, 'Percent utilization of NVENC 0. 0.0 - 100.0.')
+    GPM_METRIC_NVENC_0_UTIL = NVENC_0_UTIL  # backward-compat alias
+    NVENC_1_UTIL = (NVML_GPM_METRIC_NVENC_1_UTIL, 'Percent utilization of NVENC 1. 0.0 - 100.0.')
+    GPM_METRIC_NVENC_1_UTIL = NVENC_1_UTIL  # backward-compat alias
+    NVENC_2_UTIL = (NVML_GPM_METRIC_NVENC_2_UTIL, 'Percent utilization of NVENC 2. 0.0 - 100.0.')
+    GPM_METRIC_NVENC_2_UTIL = NVENC_2_UTIL  # backward-compat alias
+    NVENC_3_UTIL = (NVML_GPM_METRIC_NVENC_3_UTIL, 'Percent utilization of NVENC 3. 0.0 - 100.0.')
+    GPM_METRIC_NVENC_3_UTIL = NVENC_3_UTIL  # backward-compat alias
+    GR0_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR0_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 0.')
+    GPM_METRIC_GR0_CTXSW_CYCLES_ELAPSED = GR0_CTXSW_CYCLES_ELAPSED  # backward-compat alias
+    GR0_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR0_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 0.')
+    GPM_METRIC_GR0_CTXSW_CYCLES_ACTIVE = GR0_CTXSW_CYCLES_ACTIVE  # backward-compat alias
+    GR0_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR0_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 0.')
+    GPM_METRIC_GR0_CTXSW_REQUESTS = GR0_CTXSW_REQUESTS  # backward-compat alias
+    GR0_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR0_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 0.')
+    GPM_METRIC_GR0_CTXSW_CYCLES_PER_REQ = GR0_CTXSW_CYCLES_PER_REQ  # backward-compat alias
+    GR0_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR0_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 0 context switches were active. 0.0 - 100.0.')
+    GPM_METRIC_GR0_CTXSW_ACTIVE_PCT = GR0_CTXSW_ACTIVE_PCT  # backward-compat alias
+    GR1_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR1_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 1.')
+    GPM_METRIC_GR1_CTXSW_CYCLES_ELAPSED = GR1_CTXSW_CYCLES_ELAPSED  # backward-compat alias
+    GR1_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR1_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 1.')
+    GPM_METRIC_GR1_CTXSW_CYCLES_ACTIVE = GR1_CTXSW_CYCLES_ACTIVE  # backward-compat alias
+    GR1_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR1_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 1.')
+    GPM_METRIC_GR1_CTXSW_REQUESTS = GR1_CTXSW_REQUESTS  # backward-compat alias
+    GR1_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR1_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 1.')
+    GPM_METRIC_GR1_CTXSW_CYCLES_PER_REQ = GR1_CTXSW_CYCLES_PER_REQ  # backward-compat alias
+    GR1_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR1_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 1 context switches were active. 0.0 - 100.0.')
+    GPM_METRIC_GR1_CTXSW_ACTIVE_PCT = GR1_CTXSW_ACTIVE_PCT  # backward-compat alias
+    GR2_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR2_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 2.')
+    GPM_METRIC_GR2_CTXSW_CYCLES_ELAPSED = GR2_CTXSW_CYCLES_ELAPSED  # backward-compat alias
+    GR2_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR2_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 2.')
+    GPM_METRIC_GR2_CTXSW_CYCLES_ACTIVE = GR2_CTXSW_CYCLES_ACTIVE  # backward-compat alias
+    GR2_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR2_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 2.')
+    GPM_METRIC_GR2_CTXSW_REQUESTS = GR2_CTXSW_REQUESTS  # backward-compat alias
+    GR2_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR2_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 2.')
+    GPM_METRIC_GR2_CTXSW_CYCLES_PER_REQ = GR2_CTXSW_CYCLES_PER_REQ  # backward-compat alias
+    GR2_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR2_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 2 context switches were active. 0.0 - 100.0.')
+    GPM_METRIC_GR2_CTXSW_ACTIVE_PCT = GR2_CTXSW_ACTIVE_PCT  # backward-compat alias
+    GR3_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR3_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 3.')
+    GPM_METRIC_GR3_CTXSW_CYCLES_ELAPSED = GR3_CTXSW_CYCLES_ELAPSED  # backward-compat alias
+    GR3_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR3_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 3.')
+    GPM_METRIC_GR3_CTXSW_CYCLES_ACTIVE = GR3_CTXSW_CYCLES_ACTIVE  # backward-compat alias
+    GR3_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR3_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 3.')
+    GPM_METRIC_GR3_CTXSW_REQUESTS = GR3_CTXSW_REQUESTS  # backward-compat alias
+    GR3_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR3_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 3.')
+    GPM_METRIC_GR3_CTXSW_CYCLES_PER_REQ = GR3_CTXSW_CYCLES_PER_REQ  # backward-compat alias
+    GR3_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR3_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 3 context switches were active. 0.0 - 100.0.')
+    GPM_METRIC_GR3_CTXSW_ACTIVE_PCT = GR3_CTXSW_ACTIVE_PCT  # backward-compat alias
+    GR4_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR4_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 4.')
+    GPM_METRIC_GR4_CTXSW_CYCLES_ELAPSED = GR4_CTXSW_CYCLES_ELAPSED  # backward-compat alias
+    GR4_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR4_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 4.')
+    GPM_METRIC_GR4_CTXSW_CYCLES_ACTIVE = GR4_CTXSW_CYCLES_ACTIVE  # backward-compat alias
+    GR4_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR4_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 4.')
+    GPM_METRIC_GR4_CTXSW_REQUESTS = GR4_CTXSW_REQUESTS  # backward-compat alias
+    GR4_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR4_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 4.')
+    GPM_METRIC_GR4_CTXSW_CYCLES_PER_REQ = GR4_CTXSW_CYCLES_PER_REQ  # backward-compat alias
+    GR4_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR4_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 4 context switches were active. 0.0 - 100.0.')
+    GPM_METRIC_GR4_CTXSW_ACTIVE_PCT = GR4_CTXSW_ACTIVE_PCT  # backward-compat alias
+    GR5_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR5_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 5.')
+    GPM_METRIC_GR5_CTXSW_CYCLES_ELAPSED = GR5_CTXSW_CYCLES_ELAPSED  # backward-compat alias
+    GR5_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR5_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 5.')
+    GPM_METRIC_GR5_CTXSW_CYCLES_ACTIVE = GR5_CTXSW_CYCLES_ACTIVE  # backward-compat alias
+    GR5_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR5_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 5.')
+    GPM_METRIC_GR5_CTXSW_REQUESTS = GR5_CTXSW_REQUESTS  # backward-compat alias
+    GR5_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR5_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 5.')
+    GPM_METRIC_GR5_CTXSW_CYCLES_PER_REQ = GR5_CTXSW_CYCLES_PER_REQ  # backward-compat alias
+    GR5_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR5_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 5 context switches were active. 0.0 - 100.0.')
+    GPM_METRIC_GR5_CTXSW_ACTIVE_PCT = GR5_CTXSW_ACTIVE_PCT  # backward-compat alias
+    GR6_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR6_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 6.')
+    GPM_METRIC_GR6_CTXSW_CYCLES_ELAPSED = GR6_CTXSW_CYCLES_ELAPSED  # backward-compat alias
+    GR6_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR6_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 6.')
+    GPM_METRIC_GR6_CTXSW_CYCLES_ACTIVE = GR6_CTXSW_CYCLES_ACTIVE  # backward-compat alias
+    GR6_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR6_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 6.')
+    GPM_METRIC_GR6_CTXSW_REQUESTS = GR6_CTXSW_REQUESTS  # backward-compat alias
+    GR6_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR6_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 6.')
+    GPM_METRIC_GR6_CTXSW_CYCLES_PER_REQ = GR6_CTXSW_CYCLES_PER_REQ  # backward-compat alias
+    GR6_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR6_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 6 context switches were active. 0.0 - 100.0.')
+    GPM_METRIC_GR6_CTXSW_ACTIVE_PCT = GR6_CTXSW_ACTIVE_PCT  # backward-compat alias
+    GR7_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR7_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 7.')
+    GPM_METRIC_GR7_CTXSW_CYCLES_ELAPSED = GR7_CTXSW_CYCLES_ELAPSED  # backward-compat alias
+    GR7_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR7_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 7.')
+    GPM_METRIC_GR7_CTXSW_CYCLES_ACTIVE = GR7_CTXSW_CYCLES_ACTIVE  # backward-compat alias
+    GR7_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR7_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 7.')
+    GPM_METRIC_GR7_CTXSW_REQUESTS = GR7_CTXSW_REQUESTS  # backward-compat alias
+    GR7_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 7.')
+    GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ = GR7_CTXSW_CYCLES_PER_REQ  # backward-compat alias
+    GR7_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR7_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 7 context switches were active. 0.0 - 100.0.')
+    GPM_METRIC_GR7_CTXSW_ACTIVE_PCT = GR7_CTXSW_ACTIVE_PCT  # backward-compat alias
+    NVLINK_L18_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L18_RX_PER_SEC, 'NvLink read bandwidth for link 18 in MiB/sec.')
+    GPM_METRIC_NVLINK_L18_RX_PER_SEC = NVLINK_L18_RX_PER_SEC  # backward-compat alias
+    NVLINK_L18_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L18_TX_PER_SEC, 'NvLink write bandwidth for link 18 in MiB/sec.')
+    GPM_METRIC_NVLINK_L18_TX_PER_SEC = NVLINK_L18_TX_PER_SEC  # backward-compat alias
+    NVLINK_L19_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L19_RX_PER_SEC, 'NvLink read bandwidth for link 19 in MiB/sec.')
+    GPM_METRIC_NVLINK_L19_RX_PER_SEC = NVLINK_L19_RX_PER_SEC  # backward-compat alias
+    NVLINK_L19_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L19_TX_PER_SEC, 'NvLink write bandwidth for link 19 in MiB/sec.')
+    GPM_METRIC_NVLINK_L19_TX_PER_SEC = NVLINK_L19_TX_PER_SEC  # backward-compat alias
+    NVLINK_L20_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L20_RX_PER_SEC, 'NvLink read bandwidth for link 20 in MiB/sec.')
+    GPM_METRIC_NVLINK_L20_RX_PER_SEC = NVLINK_L20_RX_PER_SEC  # backward-compat alias
+    NVLINK_L20_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L20_TX_PER_SEC, 'NvLink write bandwidth for link 20 in MiB/sec.')
+    GPM_METRIC_NVLINK_L20_TX_PER_SEC = NVLINK_L20_TX_PER_SEC  # backward-compat alias
+    NVLINK_L21_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L21_RX_PER_SEC, 'NvLink read bandwidth for link 21 in MiB/sec.')
+    GPM_METRIC_NVLINK_L21_RX_PER_SEC = NVLINK_L21_RX_PER_SEC  # backward-compat alias
+    NVLINK_L21_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L21_TX_PER_SEC, 'NvLink write bandwidth for link 21 in MiB/sec.')
+    GPM_METRIC_NVLINK_L21_TX_PER_SEC = NVLINK_L21_TX_PER_SEC  # backward-compat alias
+    NVLINK_L22_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L22_RX_PER_SEC, 'NvLink read bandwidth for link 22 in MiB/sec.')
+    GPM_METRIC_NVLINK_L22_RX_PER_SEC = NVLINK_L22_RX_PER_SEC  # backward-compat alias
+    NVLINK_L22_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L22_TX_PER_SEC, 'NvLink write bandwidth for link 22 in MiB/sec.')
+    GPM_METRIC_NVLINK_L22_TX_PER_SEC = NVLINK_L22_TX_PER_SEC  # backward-compat alias
+    NVLINK_L23_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L23_RX_PER_SEC, 'NvLink read bandwidth for link 23 in MiB/sec.')
+    GPM_METRIC_NVLINK_L23_RX_PER_SEC = NVLINK_L23_RX_PER_SEC  # backward-compat alias
+    NVLINK_L23_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L23_TX_PER_SEC, 'NvLink write bandwidth for link 23 in MiB/sec.')
+    GPM_METRIC_NVLINK_L23_TX_PER_SEC = NVLINK_L23_TX_PER_SEC  # backward-compat alias
+    NVLINK_L24_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L24_RX_PER_SEC, 'NvLink read bandwidth for link 24 in MiB/sec.')
+    GPM_METRIC_NVLINK_L24_RX_PER_SEC = NVLINK_L24_RX_PER_SEC  # backward-compat alias
+    NVLINK_L24_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L24_TX_PER_SEC, 'NvLink write bandwidth for link 24 in MiB/sec.')
+    GPM_METRIC_NVLINK_L24_TX_PER_SEC = NVLINK_L24_TX_PER_SEC  # backward-compat alias
+    NVLINK_L25_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L25_RX_PER_SEC, 'NvLink read bandwidth for link 25 in MiB/sec.')
+    GPM_METRIC_NVLINK_L25_RX_PER_SEC = NVLINK_L25_RX_PER_SEC  # backward-compat alias
+    NVLINK_L25_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L25_TX_PER_SEC, 'NvLink write bandwidth for link 25 in MiB/sec.')
+    GPM_METRIC_NVLINK_L25_TX_PER_SEC = NVLINK_L25_TX_PER_SEC  # backward-compat alias
+    NVLINK_L26_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L26_RX_PER_SEC, 'NvLink read bandwidth for link 26 in MiB/sec.')
+    GPM_METRIC_NVLINK_L26_RX_PER_SEC = NVLINK_L26_RX_PER_SEC  # backward-compat alias
+    NVLINK_L26_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L26_TX_PER_SEC, 'NvLink write bandwidth for link 26 in MiB/sec.')
+    GPM_METRIC_NVLINK_L26_TX_PER_SEC = NVLINK_L26_TX_PER_SEC  # backward-compat alias
+    NVLINK_L27_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L27_RX_PER_SEC, 'NvLink read bandwidth for link 27 in MiB/sec.')
+    GPM_METRIC_NVLINK_L27_RX_PER_SEC = NVLINK_L27_RX_PER_SEC  # backward-compat alias
+    NVLINK_L27_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L27_TX_PER_SEC, 'NvLink write bandwidth for link 27 in MiB/sec.')
+    GPM_METRIC_NVLINK_L27_TX_PER_SEC = NVLINK_L27_TX_PER_SEC  # backward-compat alias
+    NVLINK_L28_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L28_RX_PER_SEC, 'NvLink read bandwidth for link 28 in MiB/sec.')
+    GPM_METRIC_NVLINK_L28_RX_PER_SEC = NVLINK_L28_RX_PER_SEC  # backward-compat alias
+    NVLINK_L28_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L28_TX_PER_SEC, 'NvLink write bandwidth for link 28 in MiB/sec.')
+    GPM_METRIC_NVLINK_L28_TX_PER_SEC = NVLINK_L28_TX_PER_SEC  # backward-compat alias
+    NVLINK_L29_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L29_RX_PER_SEC, 'NvLink read bandwidth for link 29 in MiB/sec.')
+    GPM_METRIC_NVLINK_L29_RX_PER_SEC = NVLINK_L29_RX_PER_SEC  # backward-compat alias
+    NVLINK_L29_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L29_TX_PER_SEC, 'NvLink write bandwidth for link 29 in MiB/sec.')
+    GPM_METRIC_NVLINK_L29_TX_PER_SEC = NVLINK_L29_TX_PER_SEC  # backward-compat alias
+    NVLINK_L30_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L30_RX_PER_SEC, 'NvLink read bandwidth for link 30 in MiB/sec.')
+    GPM_METRIC_NVLINK_L30_RX_PER_SEC = NVLINK_L30_RX_PER_SEC  # backward-compat alias
+    NVLINK_L30_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L30_TX_PER_SEC, 'NvLink write bandwidth for link 30 in MiB/sec.')
+    GPM_METRIC_NVLINK_L30_TX_PER_SEC = NVLINK_L30_TX_PER_SEC  # backward-compat alias
+    NVLINK_L31_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L31_RX_PER_SEC, 'NvLink read bandwidth for link 31 in MiB/sec.')
+    GPM_METRIC_NVLINK_L31_RX_PER_SEC = NVLINK_L31_RX_PER_SEC  # backward-compat alias
+    NVLINK_L31_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L31_TX_PER_SEC, 'NvLink write bandwidth for link 31 in MiB/sec.')
+    GPM_METRIC_NVLINK_L31_TX_PER_SEC = NVLINK_L31_TX_PER_SEC  # backward-compat alias
+    NVLINK_L32_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L32_RX_PER_SEC, 'NvLink read bandwidth for link 32 in MiB/sec.')
+    GPM_METRIC_NVLINK_L32_RX_PER_SEC = NVLINK_L32_RX_PER_SEC  # backward-compat alias
+    NVLINK_L32_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L32_TX_PER_SEC, 'NvLink write bandwidth for link 32 in MiB/sec.')
+    GPM_METRIC_NVLINK_L32_TX_PER_SEC = NVLINK_L32_TX_PER_SEC  # backward-compat alias
+    NVLINK_L33_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L33_RX_PER_SEC, 'NvLink read bandwidth for link 33 in MiB/sec.')
+    GPM_METRIC_NVLINK_L33_RX_PER_SEC = NVLINK_L33_RX_PER_SEC  # backward-compat alias
+    NVLINK_L33_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L33_TX_PER_SEC, 'NvLink write bandwidth for link 33 in MiB/sec.')
+    GPM_METRIC_NVLINK_L33_TX_PER_SEC = NVLINK_L33_TX_PER_SEC  # backward-compat alias
+    NVLINK_L34_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L34_RX_PER_SEC, 'NvLink read bandwidth for link 34 in MiB/sec.')
+    GPM_METRIC_NVLINK_L34_RX_PER_SEC = NVLINK_L34_RX_PER_SEC  # backward-compat alias
+    NVLINK_L34_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L34_TX_PER_SEC, 'NvLink write bandwidth for link 34 in MiB/sec.')
+    GPM_METRIC_NVLINK_L34_TX_PER_SEC = NVLINK_L34_TX_PER_SEC  # backward-compat alias
+    NVLINK_L35_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L35_RX_PER_SEC, 'NvLink read bandwidth for link 35 in MiB/sec.')
+    GPM_METRIC_NVLINK_L35_RX_PER_SEC = NVLINK_L35_RX_PER_SEC  # backward-compat alias
+    NVLINK_L35_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L35_TX_PER_SEC, 'NvLink write bandwidth for link 35 in MiB/sec.')
+    GPM_METRIC_NVLINK_L35_TX_PER_SEC = NVLINK_L35_TX_PER_SEC  # backward-compat alias
+    SM_CYCLES_ELAPSED = (NVML_GPM_METRIC_SM_CYCLES_ELAPSED, "The GPU's SM cycles elapsed since reboot.")
+    GPM_METRIC_SM_CYCLES_ELAPSED = SM_CYCLES_ELAPSED  # backward-compat alias
+    SM_CYCLES_ACTIVE = (NVML_GPM_METRIC_SM_CYCLES_ACTIVE, "The GPU's SM activity since reboot.")
+    GPM_METRIC_SM_CYCLES_ACTIVE = SM_CYCLES_ACTIVE  # backward-compat alias
+    MMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_MMA_CYCLES_ACTIVE, "The GPU's SM MMA tensor activity since reboot.")
+    GPM_METRIC_MMA_CYCLES_ACTIVE = MMA_CYCLES_ACTIVE  # backward-compat alias
+    DMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_DMMA_CYCLES_ACTIVE, "The GPU's SM DMMA tensor activity since reboot.")
+    GPM_METRIC_DMMA_CYCLES_ACTIVE = DMMA_CYCLES_ACTIVE  # backward-compat alias
+    HMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_HMMA_CYCLES_ACTIVE, "The GPU's SM HMMA tensor activity since reboot.")
+    GPM_METRIC_HMMA_CYCLES_ACTIVE = HMMA_CYCLES_ACTIVE  # backward-compat alias
+    IMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_IMMA_CYCLES_ACTIVE, "The GPU's SM IMMA tensor activity since reboot.")
+    GPM_METRIC_IMMA_CYCLES_ACTIVE = IMMA_CYCLES_ACTIVE  # backward-compat alias
+    DFMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_DFMA_CYCLES_ACTIVE, "The GPU's SM DFMA tensor activity since reboot.")
+    GPM_METRIC_DFMA_CYCLES_ACTIVE = DFMA_CYCLES_ACTIVE  # backward-compat alias
+    PCIE_TX = (NVML_GPM_METRIC_PCIE_TX, 'The PCIe TX traffic since reboot.')
+    GPM_METRIC_PCIE_TX = PCIE_TX  # backward-compat alias
+    PCIE_RX = (NVML_GPM_METRIC_PCIE_RX, 'The PCIe RX traffic since reboot.')
+    GPM_METRIC_PCIE_RX = PCIE_RX  # backward-compat alias
+    INTEGER_CYCLES_ACTIVE = (NVML_GPM_METRIC_INTEGER_CYCLES_ACTIVE, "The GPU's SM integer activity since reboot.")
+    GPM_METRIC_INTEGER_CYCLES_ACTIVE = INTEGER_CYCLES_ACTIVE  # backward-compat alias
+    FP64_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP64_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
+    GPM_METRIC_FP64_CYCLES_ACTIVE = FP64_CYCLES_ACTIVE  # backward-compat alias
+    FP32_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP32_CYCLES_ACTIVE, "The GPU's SM FP32 activity since reboot.")
+    GPM_METRIC_FP32_CYCLES_ACTIVE = FP32_CYCLES_ACTIVE  # backward-compat alias
+    FP16_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP16_CYCLES_ACTIVE, "The GPU's SM FP16 activity since reboot.")
+    GPM_METRIC_FP16_CYCLES_ACTIVE = FP16_CYCLES_ACTIVE  # backward-compat alias
+    NVLINK_L0_RX = (NVML_GPM_METRIC_NVLINK_L0_RX, 'NvLink read for link 0 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L0_RX = NVLINK_L0_RX  # backward-compat alias
+    NVLINK_L0_TX = (NVML_GPM_METRIC_NVLINK_L0_TX, 'NvLink write for link 0 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L0_TX = NVLINK_L0_TX  # backward-compat alias
+    NVLINK_L1_RX = (NVML_GPM_METRIC_NVLINK_L1_RX, 'NvLink read for link 1 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L1_RX = NVLINK_L1_RX  # backward-compat alias
+    NVLINK_L1_TX = (NVML_GPM_METRIC_NVLINK_L1_TX, 'NvLink write for link 1 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L1_TX = NVLINK_L1_TX  # backward-compat alias
+    NVLINK_L2_RX = (NVML_GPM_METRIC_NVLINK_L2_RX, 'NvLink read for link 2 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L2_RX = NVLINK_L2_RX  # backward-compat alias
+    NVLINK_L2_TX = (NVML_GPM_METRIC_NVLINK_L2_TX, 'NvLink write for link 2 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L2_TX = NVLINK_L2_TX  # backward-compat alias
+    NVLINK_L3_RX = (NVML_GPM_METRIC_NVLINK_L3_RX, 'NvLink read for link 3 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L3_RX = NVLINK_L3_RX  # backward-compat alias
+    NVLINK_L3_TX = (NVML_GPM_METRIC_NVLINK_L3_TX, 'NvLink write for link 3 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L3_TX = NVLINK_L3_TX  # backward-compat alias
+    NVLINK_L4_RX = (NVML_GPM_METRIC_NVLINK_L4_RX, 'NvLink read for link 4 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L4_RX = NVLINK_L4_RX  # backward-compat alias
+    NVLINK_L4_TX = (NVML_GPM_METRIC_NVLINK_L4_TX, 'NvLink write for link 4 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L4_TX = NVLINK_L4_TX  # backward-compat alias
+    NVLINK_L5_RX = (NVML_GPM_METRIC_NVLINK_L5_RX, 'NvLink read for link 5 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L5_RX = NVLINK_L5_RX  # backward-compat alias
+    NVLINK_L5_TX = (NVML_GPM_METRIC_NVLINK_L5_TX, 'NvLink write for link 5 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L5_TX = NVLINK_L5_TX  # backward-compat alias
+    NVLINK_L6_RX = (NVML_GPM_METRIC_NVLINK_L6_RX, 'NvLink read for link 6 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L6_RX = NVLINK_L6_RX  # backward-compat alias
+    NVLINK_L6_TX = (NVML_GPM_METRIC_NVLINK_L6_TX, 'NvLink write for link 6 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L6_TX = NVLINK_L6_TX  # backward-compat alias
+    NVLINK_L7_RX = (NVML_GPM_METRIC_NVLINK_L7_RX, 'NvLink read for link 7 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L7_RX = NVLINK_L7_RX  # backward-compat alias
+    NVLINK_L7_TX = (NVML_GPM_METRIC_NVLINK_L7_TX, 'NvLink write for link 7 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L7_TX = NVLINK_L7_TX  # backward-compat alias
+    NVLINK_L8_RX = (NVML_GPM_METRIC_NVLINK_L8_RX, 'NvLink read for link 8 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L8_RX = NVLINK_L8_RX  # backward-compat alias
+    NVLINK_L8_TX = (NVML_GPM_METRIC_NVLINK_L8_TX, 'NvLink write for link 8 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L8_TX = NVLINK_L8_TX  # backward-compat alias
+    NVLINK_L9_RX = (NVML_GPM_METRIC_NVLINK_L9_RX, 'NvLink read for link 9 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L9_RX = NVLINK_L9_RX  # backward-compat alias
+    NVLINK_L9_TX = (NVML_GPM_METRIC_NVLINK_L9_TX, 'NvLink write for link 9 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L9_TX = NVLINK_L9_TX  # backward-compat alias
+    NVLINK_L10_RX = (NVML_GPM_METRIC_NVLINK_L10_RX, 'NvLink read for link 10 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L10_RX = NVLINK_L10_RX  # backward-compat alias
+    NVLINK_L10_TX = (NVML_GPM_METRIC_NVLINK_L10_TX, 'NvLink write for link 10 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L10_TX = NVLINK_L10_TX  # backward-compat alias
+    NVLINK_L11_RX = (NVML_GPM_METRIC_NVLINK_L11_RX, 'NvLink read for link 11 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L11_RX = NVLINK_L11_RX  # backward-compat alias
+    NVLINK_L11_TX = (NVML_GPM_METRIC_NVLINK_L11_TX, 'NvLink write for link 11 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L11_TX = NVLINK_L11_TX  # backward-compat alias
+    NVLINK_L12_RX = (NVML_GPM_METRIC_NVLINK_L12_RX, 'NvLink read for link 12 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L12_RX = NVLINK_L12_RX  # backward-compat alias
+    NVLINK_L12_TX = (NVML_GPM_METRIC_NVLINK_L12_TX, 'NvLink write for link 12 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L12_TX = NVLINK_L12_TX  # backward-compat alias
+    NVLINK_L13_RX = (NVML_GPM_METRIC_NVLINK_L13_RX, 'NvLink read for link 13 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L13_RX = NVLINK_L13_RX  # backward-compat alias
+    NVLINK_L13_TX = (NVML_GPM_METRIC_NVLINK_L13_TX, 'NvLink write for link 13 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L13_TX = NVLINK_L13_TX  # backward-compat alias
+    NVLINK_L14_RX = (NVML_GPM_METRIC_NVLINK_L14_RX, 'NvLink read for link 14 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L14_RX = NVLINK_L14_RX  # backward-compat alias
+    NVLINK_L14_TX = (NVML_GPM_METRIC_NVLINK_L14_TX, 'NvLink write for link 14 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L14_TX = NVLINK_L14_TX  # backward-compat alias
+    NVLINK_L15_RX = (NVML_GPM_METRIC_NVLINK_L15_RX, 'NvLink read for link 15 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L15_RX = NVLINK_L15_RX  # backward-compat alias
+    NVLINK_L15_TX = (NVML_GPM_METRIC_NVLINK_L15_TX, 'NvLink write for link 15 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L15_TX = NVLINK_L15_TX  # backward-compat alias
+    NVLINK_L16_RX = (NVML_GPM_METRIC_NVLINK_L16_RX, 'NvLink read for link 16 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L16_RX = NVLINK_L16_RX  # backward-compat alias
+    NVLINK_L16_TX = (NVML_GPM_METRIC_NVLINK_L16_TX, 'NvLink write for link 16 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L16_TX = NVLINK_L16_TX  # backward-compat alias
+    NVLINK_L17_RX = (NVML_GPM_METRIC_NVLINK_L17_RX, 'NvLink read for link 17 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L17_RX = NVLINK_L17_RX  # backward-compat alias
+    NVLINK_L17_TX = (NVML_GPM_METRIC_NVLINK_L17_TX, 'NvLink write for link 17 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L17_TX = NVLINK_L17_TX  # backward-compat alias
+    NVLINK_L18_RX = (NVML_GPM_METRIC_NVLINK_L18_RX, 'NvLink read for link 18 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L18_RX = NVLINK_L18_RX  # backward-compat alias
+    NVLINK_L18_TX = (NVML_GPM_METRIC_NVLINK_L18_TX, 'NvLink write for link 18 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L18_TX = NVLINK_L18_TX  # backward-compat alias
+    NVLINK_L19_RX = (NVML_GPM_METRIC_NVLINK_L19_RX, 'NvLink read for link 19 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L19_RX = NVLINK_L19_RX  # backward-compat alias
+    NVLINK_L19_TX = (NVML_GPM_METRIC_NVLINK_L19_TX, 'NvLink write for link 19 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L19_TX = NVLINK_L19_TX  # backward-compat alias
+    NVLINK_L20_RX = (NVML_GPM_METRIC_NVLINK_L20_RX, 'NvLink read for link 20 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L20_RX = NVLINK_L20_RX  # backward-compat alias
+    NVLINK_L20_TX = (NVML_GPM_METRIC_NVLINK_L20_TX, 'NvLink write for link 20 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L20_TX = NVLINK_L20_TX  # backward-compat alias
+    NVLINK_L21_RX = (NVML_GPM_METRIC_NVLINK_L21_RX, 'NvLink read for link 21 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L21_RX = NVLINK_L21_RX  # backward-compat alias
+    NVLINK_L21_TX = (NVML_GPM_METRIC_NVLINK_L21_TX, 'NvLink write for link 21 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L21_TX = NVLINK_L21_TX  # backward-compat alias
+    NVLINK_L22_RX = (NVML_GPM_METRIC_NVLINK_L22_RX, 'NvLink read for link 22 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L22_RX = NVLINK_L22_RX  # backward-compat alias
+    NVLINK_L22_TX = (NVML_GPM_METRIC_NVLINK_L22_TX, 'NvLink write for link 22 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L22_TX = NVLINK_L22_TX  # backward-compat alias
+    NVLINK_L23_RX = (NVML_GPM_METRIC_NVLINK_L23_RX, 'NvLink read for link 23 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L23_RX = NVLINK_L23_RX  # backward-compat alias
+    NVLINK_L23_TX = (NVML_GPM_METRIC_NVLINK_L23_TX, 'NvLink write for link 23 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L23_TX = NVLINK_L23_TX  # backward-compat alias
+    NVLINK_L24_RX = (NVML_GPM_METRIC_NVLINK_L24_RX, 'NvLink read for link 24 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L24_RX = NVLINK_L24_RX  # backward-compat alias
+    NVLINK_L24_TX = (NVML_GPM_METRIC_NVLINK_L24_TX, 'NvLink write for link 24 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L24_TX = NVLINK_L24_TX  # backward-compat alias
+    NVLINK_L25_RX = (NVML_GPM_METRIC_NVLINK_L25_RX, 'NvLink read for link 25 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L25_RX = NVLINK_L25_RX  # backward-compat alias
+    NVLINK_L25_TX = (NVML_GPM_METRIC_NVLINK_L25_TX, 'NvLink write for link 25 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L25_TX = NVLINK_L25_TX  # backward-compat alias
+    NVLINK_L26_RX = (NVML_GPM_METRIC_NVLINK_L26_RX, 'NvLink read for link 26 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L26_RX = NVLINK_L26_RX  # backward-compat alias
+    NVLINK_L26_TX = (NVML_GPM_METRIC_NVLINK_L26_TX, 'NvLink write for link 26 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L26_TX = NVLINK_L26_TX  # backward-compat alias
+    NVLINK_L27_RX = (NVML_GPM_METRIC_NVLINK_L27_RX, 'NvLink read for link 27 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L27_RX = NVLINK_L27_RX  # backward-compat alias
+    NVLINK_L27_TX = (NVML_GPM_METRIC_NVLINK_L27_TX, 'NvLink write for link 27 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L27_TX = NVLINK_L27_TX  # backward-compat alias
+    NVLINK_L28_RX = (NVML_GPM_METRIC_NVLINK_L28_RX, 'NvLink read for link 28 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L28_RX = NVLINK_L28_RX  # backward-compat alias
+    NVLINK_L28_TX = (NVML_GPM_METRIC_NVLINK_L28_TX, 'NvLink write for link 28 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L28_TX = NVLINK_L28_TX  # backward-compat alias
+    NVLINK_L29_RX = (NVML_GPM_METRIC_NVLINK_L29_RX, 'NvLink read for link 29 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L29_RX = NVLINK_L29_RX  # backward-compat alias
+    NVLINK_L29_TX = (NVML_GPM_METRIC_NVLINK_L29_TX, 'NvLink write for link 29 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L29_TX = NVLINK_L29_TX  # backward-compat alias
+    NVLINK_L30_RX = (NVML_GPM_METRIC_NVLINK_L30_RX, 'NvLink read for link 30 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L30_RX = NVLINK_L30_RX  # backward-compat alias
+    NVLINK_L30_TX = (NVML_GPM_METRIC_NVLINK_L30_TX, 'NvLink write for link 30 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L30_TX = NVLINK_L30_TX  # backward-compat alias
+    NVLINK_L31_RX = (NVML_GPM_METRIC_NVLINK_L31_RX, 'NvLink read for link 31 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L31_RX = NVLINK_L31_RX  # backward-compat alias
+    NVLINK_L31_TX = (NVML_GPM_METRIC_NVLINK_L31_TX, 'NvLink write for link 31 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L31_TX = NVLINK_L31_TX  # backward-compat alias
+    NVLINK_L32_RX = (NVML_GPM_METRIC_NVLINK_L32_RX, 'NvLink read for link 32 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L32_RX = NVLINK_L32_RX  # backward-compat alias
+    NVLINK_L32_TX = (NVML_GPM_METRIC_NVLINK_L32_TX, 'NvLink write for link 32 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L32_TX = NVLINK_L32_TX  # backward-compat alias
+    NVLINK_L33_RX = (NVML_GPM_METRIC_NVLINK_L33_RX, 'NvLink read for link 33 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L33_RX = NVLINK_L33_RX  # backward-compat alias
+    NVLINK_L33_TX = (NVML_GPM_METRIC_NVLINK_L33_TX, 'NvLink write for link 33 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L33_TX = NVLINK_L33_TX  # backward-compat alias
+    NVLINK_L34_RX = (NVML_GPM_METRIC_NVLINK_L34_RX, 'NvLink read for link 34 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L34_RX = NVLINK_L34_RX  # backward-compat alias
+    NVLINK_L34_TX = (NVML_GPM_METRIC_NVLINK_L34_TX, 'NvLink write for link 34 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L34_TX = NVLINK_L34_TX  # backward-compat alias
+    NVLINK_L35_RX = (NVML_GPM_METRIC_NVLINK_L35_RX, 'NvLink read for link 35 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L35_RX = NVLINK_L35_RX  # backward-compat alias
+    NVLINK_L35_TX = (NVML_GPM_METRIC_NVLINK_L35_TX, 'NvLink write for link 35 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L35_TX = NVLINK_L35_TX  # backward-compat alias
+    NVLINK_L36_RX = (NVML_GPM_METRIC_NVLINK_L36_RX, 'NvLink read for link 36 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L36_RX = NVLINK_L36_RX  # backward-compat alias
+    NVLINK_L36_TX = (NVML_GPM_METRIC_NVLINK_L36_TX, 'NvLink write for link 36 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L36_TX = NVLINK_L36_TX  # backward-compat alias
+    NVLINK_L37_RX = (NVML_GPM_METRIC_NVLINK_L37_RX, 'NvLink read for link 37 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L37_RX = NVLINK_L37_RX  # backward-compat alias
+    NVLINK_L37_TX = (NVML_GPM_METRIC_NVLINK_L37_TX, 'NvLink write for link 37 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L37_TX = NVLINK_L37_TX  # backward-compat alias
+    NVLINK_L38_RX = (NVML_GPM_METRIC_NVLINK_L38_RX, 'NvLink read for link 38 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L38_RX = NVLINK_L38_RX  # backward-compat alias
+    NVLINK_L38_TX = (NVML_GPM_METRIC_NVLINK_L38_TX, 'NvLink write for link 38 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L38_TX = NVLINK_L38_TX  # backward-compat alias
+    NVLINK_L39_RX = (NVML_GPM_METRIC_NVLINK_L39_RX, 'NvLink read for link 39 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L39_RX = NVLINK_L39_RX  # backward-compat alias
+    NVLINK_L39_TX = (NVML_GPM_METRIC_NVLINK_L39_TX, 'NvLink write for link 39 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L39_TX = NVLINK_L39_TX  # backward-compat alias
+    NVLINK_L40_RX = (NVML_GPM_METRIC_NVLINK_L40_RX, 'NvLink read for link 40 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L40_RX = NVLINK_L40_RX  # backward-compat alias
+    NVLINK_L40_TX = (NVML_GPM_METRIC_NVLINK_L40_TX, 'NvLink write for link 40 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L40_TX = NVLINK_L40_TX  # backward-compat alias
+    NVLINK_L41_RX = (NVML_GPM_METRIC_NVLINK_L41_RX, 'NvLink read for link 41 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L41_RX = NVLINK_L41_RX  # backward-compat alias
+    NVLINK_L41_TX = (NVML_GPM_METRIC_NVLINK_L41_TX, 'NvLink write for link 41 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L41_TX = NVLINK_L41_TX  # backward-compat alias
+    NVLINK_L42_RX = (NVML_GPM_METRIC_NVLINK_L42_RX, 'NvLink read for link 42 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L42_RX = NVLINK_L42_RX  # backward-compat alias
+    NVLINK_L42_TX = (NVML_GPM_METRIC_NVLINK_L42_TX, 'NvLink write for link 42 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L42_TX = NVLINK_L42_TX  # backward-compat alias
+    NVLINK_L43_RX = (NVML_GPM_METRIC_NVLINK_L43_RX, 'NvLink read for link 43 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L43_RX = NVLINK_L43_RX  # backward-compat alias
+    NVLINK_L43_TX = (NVML_GPM_METRIC_NVLINK_L43_TX, 'NvLink write for link 43 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L43_TX = NVLINK_L43_TX  # backward-compat alias
+    NVLINK_L44_RX = (NVML_GPM_METRIC_NVLINK_L44_RX, 'NvLink read for link 44 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L44_RX = NVLINK_L44_RX  # backward-compat alias
+    NVLINK_L44_TX = (NVML_GPM_METRIC_NVLINK_L44_TX, 'NvLink write for link 44 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L44_TX = NVLINK_L44_TX  # backward-compat alias
+    NVLINK_L45_RX = (NVML_GPM_METRIC_NVLINK_L45_RX, 'NvLink read for link 45 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L45_RX = NVLINK_L45_RX  # backward-compat alias
+    NVLINK_L45_TX = (NVML_GPM_METRIC_NVLINK_L45_TX, 'NvLink write for link 45 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L45_TX = NVLINK_L45_TX  # backward-compat alias
+    NVLINK_L46_RX = (NVML_GPM_METRIC_NVLINK_L46_RX, 'NvLink read for link 46 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L46_RX = NVLINK_L46_RX  # backward-compat alias
+    NVLINK_L46_TX = (NVML_GPM_METRIC_NVLINK_L46_TX, 'NvLink write for link 46 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L46_TX = NVLINK_L46_TX  # backward-compat alias
+    NVLINK_L47_RX = (NVML_GPM_METRIC_NVLINK_L47_RX, 'NvLink read for link 47 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L47_RX = NVLINK_L47_RX  # backward-compat alias
+    NVLINK_L47_TX = (NVML_GPM_METRIC_NVLINK_L47_TX, 'NvLink write for link 47 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L47_TX = NVLINK_L47_TX  # backward-compat alias
+    NVLINK_L48_RX = (NVML_GPM_METRIC_NVLINK_L48_RX, 'NvLink read for link 48 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L48_RX = NVLINK_L48_RX  # backward-compat alias
+    NVLINK_L48_TX = (NVML_GPM_METRIC_NVLINK_L48_TX, 'NvLink write for link 48 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L48_TX = NVLINK_L48_TX  # backward-compat alias
+    NVLINK_L49_RX = (NVML_GPM_METRIC_NVLINK_L49_RX, 'NvLink read for link 49 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L49_RX = NVLINK_L49_RX  # backward-compat alias
+    NVLINK_L49_TX = (NVML_GPM_METRIC_NVLINK_L49_TX, 'NvLink write for link 49 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L49_TX = NVLINK_L49_TX  # backward-compat alias
+    NVLINK_L50_RX = (NVML_GPM_METRIC_NVLINK_L50_RX, 'NvLink read for link 50 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L50_RX = NVLINK_L50_RX  # backward-compat alias
+    NVLINK_L50_TX = (NVML_GPM_METRIC_NVLINK_L50_TX, 'NvLink write for link 50 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L50_TX = NVLINK_L50_TX  # backward-compat alias
+    NVLINK_L51_RX = (NVML_GPM_METRIC_NVLINK_L51_RX, 'NvLink read for link 51 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L51_RX = NVLINK_L51_RX  # backward-compat alias
+    NVLINK_L51_TX = (NVML_GPM_METRIC_NVLINK_L51_TX, 'NvLink write for link 51 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L51_TX = NVLINK_L51_TX  # backward-compat alias
+    NVLINK_L52_RX = (NVML_GPM_METRIC_NVLINK_L52_RX, 'NvLink read for link 52 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L52_RX = NVLINK_L52_RX  # backward-compat alias
+    NVLINK_L52_TX = (NVML_GPM_METRIC_NVLINK_L52_TX, 'NvLink write for link 52 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L52_TX = NVLINK_L52_TX  # backward-compat alias
+    NVLINK_L53_RX = (NVML_GPM_METRIC_NVLINK_L53_RX, 'NvLink read for link 53 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L53_RX = NVLINK_L53_RX  # backward-compat alias
+    NVLINK_L53_TX = (NVML_GPM_METRIC_NVLINK_L53_TX, 'NvLink write for link 53 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L53_TX = NVLINK_L53_TX  # backward-compat alias
+    NVLINK_L54_RX = (NVML_GPM_METRIC_NVLINK_L54_RX, 'NvLink read for link 54 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L54_RX = NVLINK_L54_RX  # backward-compat alias
+    NVLINK_L54_TX = (NVML_GPM_METRIC_NVLINK_L54_TX, 'NvLink write for link 54 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L54_TX = NVLINK_L54_TX  # backward-compat alias
+    NVLINK_L55_RX = (NVML_GPM_METRIC_NVLINK_L55_RX, 'NvLink read for link 55 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L55_RX = NVLINK_L55_RX  # backward-compat alias
+    NVLINK_L55_TX = (NVML_GPM_METRIC_NVLINK_L55_TX, 'NvLink write for link 55 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L55_TX = NVLINK_L55_TX  # backward-compat alias
+    NVLINK_L56_RX = (NVML_GPM_METRIC_NVLINK_L56_RX, 'NvLink read for link 56 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L56_RX = NVLINK_L56_RX  # backward-compat alias
+    NVLINK_L56_TX = (NVML_GPM_METRIC_NVLINK_L56_TX, 'NvLink write for link 56 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L56_TX = NVLINK_L56_TX  # backward-compat alias
+    NVLINK_L57_RX = (NVML_GPM_METRIC_NVLINK_L57_RX, 'NvLink read for link 57 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L57_RX = NVLINK_L57_RX  # backward-compat alias
+    NVLINK_L57_TX = (NVML_GPM_METRIC_NVLINK_L57_TX, 'NvLink write for link 57 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L57_TX = NVLINK_L57_TX  # backward-compat alias
+    NVLINK_L58_RX = (NVML_GPM_METRIC_NVLINK_L58_RX, 'NvLink read for link 58 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L58_RX = NVLINK_L58_RX  # backward-compat alias
+    NVLINK_L58_TX = (NVML_GPM_METRIC_NVLINK_L58_TX, 'NvLink write for link 58 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L58_TX = NVLINK_L58_TX  # backward-compat alias
+    NVLINK_L59_RX = (NVML_GPM_METRIC_NVLINK_L59_RX, 'NvLink read for link 59 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L59_RX = NVLINK_L59_RX  # backward-compat alias
+    NVLINK_L59_TX = (NVML_GPM_METRIC_NVLINK_L59_TX, 'NvLink write for link 59 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L59_TX = NVLINK_L59_TX  # backward-compat alias
+    NVLINK_L60_RX = (NVML_GPM_METRIC_NVLINK_L60_RX, 'NvLink read for link 60 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L60_RX = NVLINK_L60_RX  # backward-compat alias
+    NVLINK_L60_TX = (NVML_GPM_METRIC_NVLINK_L60_TX, 'NvLink write for link 60 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L60_TX = NVLINK_L60_TX  # backward-compat alias
+    NVLINK_L61_RX = (NVML_GPM_METRIC_NVLINK_L61_RX, 'NvLink read for link 61 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L61_RX = NVLINK_L61_RX  # backward-compat alias
+    NVLINK_L61_TX = (NVML_GPM_METRIC_NVLINK_L61_TX, 'NvLink write for link 61 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L61_TX = NVLINK_L61_TX  # backward-compat alias
+    NVLINK_L62_RX = (NVML_GPM_METRIC_NVLINK_L62_RX, 'NvLink read for link 62 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L62_RX = NVLINK_L62_RX  # backward-compat alias
+    NVLINK_L62_TX = (NVML_GPM_METRIC_NVLINK_L62_TX, 'NvLink write for link 62 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L62_TX = NVLINK_L62_TX  # backward-compat alias
+    NVLINK_L63_RX = (NVML_GPM_METRIC_NVLINK_L63_RX, 'NvLink read for link 63 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L63_RX = NVLINK_L63_RX  # backward-compat alias
+    NVLINK_L63_TX = (NVML_GPM_METRIC_NVLINK_L63_TX, 'NvLink write for link 63 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L63_TX = NVLINK_L63_TX  # backward-compat alias
+    NVLINK_L64_RX = (NVML_GPM_METRIC_NVLINK_L64_RX, 'NvLink read for link 64 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L64_RX = NVLINK_L64_RX  # backward-compat alias
+    NVLINK_L64_TX = (NVML_GPM_METRIC_NVLINK_L64_TX, 'NvLink write for link 64 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L64_TX = NVLINK_L64_TX  # backward-compat alias
+    NVLINK_L65_RX = (NVML_GPM_METRIC_NVLINK_L65_RX, 'NvLink read for link 65 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L65_RX = NVLINK_L65_RX  # backward-compat alias
+    NVLINK_L65_TX = (NVML_GPM_METRIC_NVLINK_L65_TX, 'NvLink write for link 65 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L65_TX = NVLINK_L65_TX  # backward-compat alias
+    NVLINK_L66_RX = (NVML_GPM_METRIC_NVLINK_L66_RX, 'NvLink read for link 66 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L66_RX = NVLINK_L66_RX  # backward-compat alias
+    NVLINK_L66_TX = (NVML_GPM_METRIC_NVLINK_L66_TX, 'NvLink write for link 66 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L66_TX = NVLINK_L66_TX  # backward-compat alias
+    NVLINK_L67_RX = (NVML_GPM_METRIC_NVLINK_L67_RX, 'NvLink read for link 67 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L67_RX = NVLINK_L67_RX  # backward-compat alias
+    NVLINK_L67_TX = (NVML_GPM_METRIC_NVLINK_L67_TX, 'NvLink write for link 67 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L67_TX = NVLINK_L67_TX  # backward-compat alias
+    NVLINK_L68_RX = (NVML_GPM_METRIC_NVLINK_L68_RX, 'NvLink read for link 68 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L68_RX = NVLINK_L68_RX  # backward-compat alias
+    NVLINK_L68_TX = (NVML_GPM_METRIC_NVLINK_L68_TX, 'NvLink write for link 68 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L68_TX = NVLINK_L68_TX  # backward-compat alias
+    NVLINK_L69_RX = (NVML_GPM_METRIC_NVLINK_L69_RX, 'NvLink read for link 69 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L69_RX = NVLINK_L69_RX  # backward-compat alias
+    NVLINK_L69_TX = (NVML_GPM_METRIC_NVLINK_L69_TX, 'NvLink write for link 69 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L69_TX = NVLINK_L69_TX  # backward-compat alias
+    NVLINK_L70_RX = (NVML_GPM_METRIC_NVLINK_L70_RX, 'NvLink read for link 70 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L70_RX = NVLINK_L70_RX  # backward-compat alias
+    NVLINK_L70_TX = (NVML_GPM_METRIC_NVLINK_L70_TX, 'NvLink write for link 70 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L70_TX = NVLINK_L70_TX  # backward-compat alias
+    NVLINK_L71_RX = (NVML_GPM_METRIC_NVLINK_L71_RX, 'NvLink read for link 71 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L71_RX = NVLINK_L71_RX  # backward-compat alias
+    NVLINK_L71_TX = (NVML_GPM_METRIC_NVLINK_L71_TX, 'NvLink write for link 71 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L71_TX = NVLINK_L71_TX  # backward-compat alias
+    NVLINK_L36_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L36_RX_PER_SEC, 'NvLink read bandwidth for link 36 in MiB/sec.')
+    GPM_METRIC_NVLINK_L36_RX_PER_SEC = NVLINK_L36_RX_PER_SEC  # backward-compat alias
+    NVLINK_L36_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L36_TX_PER_SEC, 'NvLink write bandwidth for link 36 in MiB/sec.')
+    GPM_METRIC_NVLINK_L36_TX_PER_SEC = NVLINK_L36_TX_PER_SEC  # backward-compat alias
+    NVLINK_L37_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L37_RX_PER_SEC, 'NvLink read bandwidth for link 37 in MiB/sec.')
+    GPM_METRIC_NVLINK_L37_RX_PER_SEC = NVLINK_L37_RX_PER_SEC  # backward-compat alias
+    NVLINK_L37_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L37_TX_PER_SEC, 'NvLink write bandwidth for link 37 in MiB/sec.')
+    GPM_METRIC_NVLINK_L37_TX_PER_SEC = NVLINK_L37_TX_PER_SEC  # backward-compat alias
+    NVLINK_L38_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L38_RX_PER_SEC, 'NvLink read bandwidth for link 38 in MiB/sec.')
+    GPM_METRIC_NVLINK_L38_RX_PER_SEC = NVLINK_L38_RX_PER_SEC  # backward-compat alias
+    NVLINK_L38_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L38_TX_PER_SEC, 'NvLink write bandwidth for link 38 in MiB/sec.')
+    GPM_METRIC_NVLINK_L38_TX_PER_SEC = NVLINK_L38_TX_PER_SEC  # backward-compat alias
+    NVLINK_L39_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L39_RX_PER_SEC, 'NvLink read bandwidth for link 39 in MiB/sec.')
+    GPM_METRIC_NVLINK_L39_RX_PER_SEC = NVLINK_L39_RX_PER_SEC  # backward-compat alias
+    NVLINK_L39_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L39_TX_PER_SEC, 'NvLink write bandwidth for link 39 in MiB/sec.')
+    GPM_METRIC_NVLINK_L39_TX_PER_SEC = NVLINK_L39_TX_PER_SEC  # backward-compat alias
+    NVLINK_L40_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L40_RX_PER_SEC, 'NvLink read bandwidth for link 40 in MiB/sec.')
+    GPM_METRIC_NVLINK_L40_RX_PER_SEC = NVLINK_L40_RX_PER_SEC  # backward-compat alias
+    NVLINK_L40_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L40_TX_PER_SEC, 'NvLink write bandwidth for link 40 in MiB/sec.')
+    GPM_METRIC_NVLINK_L40_TX_PER_SEC = NVLINK_L40_TX_PER_SEC  # backward-compat alias
+    NVLINK_L41_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L41_RX_PER_SEC, 'NvLink read bandwidth for link 41 in MiB/sec.')
+    GPM_METRIC_NVLINK_L41_RX_PER_SEC = NVLINK_L41_RX_PER_SEC  # backward-compat alias
+    NVLINK_L41_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L41_TX_PER_SEC, 'NvLink write bandwidth for link 41 in MiB/sec.')
+    GPM_METRIC_NVLINK_L41_TX_PER_SEC = NVLINK_L41_TX_PER_SEC  # backward-compat alias
+    NVLINK_L42_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L42_RX_PER_SEC, 'NvLink read bandwidth for link 42 in MiB/sec.')
+    GPM_METRIC_NVLINK_L42_RX_PER_SEC = NVLINK_L42_RX_PER_SEC  # backward-compat alias
+    NVLINK_L42_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L42_TX_PER_SEC, 'NvLink write bandwidth for link 42 in MiB/sec.')
+    GPM_METRIC_NVLINK_L42_TX_PER_SEC = NVLINK_L42_TX_PER_SEC  # backward-compat alias
+    NVLINK_L43_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L43_RX_PER_SEC, 'NvLink read bandwidth for link 43 in MiB/sec.')
+    GPM_METRIC_NVLINK_L43_RX_PER_SEC = NVLINK_L43_RX_PER_SEC  # backward-compat alias
+    NVLINK_L43_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L43_TX_PER_SEC, 'NvLink write bandwidth for link 43 in MiB/sec.')
+    GPM_METRIC_NVLINK_L43_TX_PER_SEC = NVLINK_L43_TX_PER_SEC  # backward-compat alias
+    NVLINK_L44_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L44_RX_PER_SEC, 'NvLink read bandwidth for link 44 in MiB/sec.')
+    GPM_METRIC_NVLINK_L44_RX_PER_SEC = NVLINK_L44_RX_PER_SEC  # backward-compat alias
+    NVLINK_L44_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L44_TX_PER_SEC, 'NvLink write bandwidth for link 44 in MiB/sec.')
+    GPM_METRIC_NVLINK_L44_TX_PER_SEC = NVLINK_L44_TX_PER_SEC  # backward-compat alias
+    NVLINK_L45_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L45_RX_PER_SEC, 'NvLink read bandwidth for link 45 in MiB/sec.')
+    GPM_METRIC_NVLINK_L45_RX_PER_SEC = NVLINK_L45_RX_PER_SEC  # backward-compat alias
+    NVLINK_L45_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L45_TX_PER_SEC, 'NvLink write bandwidth for link 45 in MiB/sec.')
+    GPM_METRIC_NVLINK_L45_TX_PER_SEC = NVLINK_L45_TX_PER_SEC  # backward-compat alias
+    NVLINK_L46_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L46_RX_PER_SEC, 'NvLink read bandwidth for link 46 in MiB/sec.')
+    GPM_METRIC_NVLINK_L46_RX_PER_SEC = NVLINK_L46_RX_PER_SEC  # backward-compat alias
+    NVLINK_L46_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L46_TX_PER_SEC, 'NvLink write bandwidth for link 46 in MiB/sec.')
+    GPM_METRIC_NVLINK_L46_TX_PER_SEC = NVLINK_L46_TX_PER_SEC  # backward-compat alias
+    NVLINK_L47_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L47_RX_PER_SEC, 'NvLink read bandwidth for link 47 in MiB/sec.')
+    GPM_METRIC_NVLINK_L47_RX_PER_SEC = NVLINK_L47_RX_PER_SEC  # backward-compat alias
+    NVLINK_L47_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L47_TX_PER_SEC, 'NvLink write bandwidth for link 47 in MiB/sec.')
+    GPM_METRIC_NVLINK_L47_TX_PER_SEC = NVLINK_L47_TX_PER_SEC  # backward-compat alias
+    NVLINK_L48_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L48_RX_PER_SEC, 'NvLink read bandwidth for link 48 in MiB/sec.')
+    GPM_METRIC_NVLINK_L48_RX_PER_SEC = NVLINK_L48_RX_PER_SEC  # backward-compat alias
+    NVLINK_L48_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L48_TX_PER_SEC, 'NvLink write bandwidth for link 48 in MiB/sec.')
+    GPM_METRIC_NVLINK_L48_TX_PER_SEC = NVLINK_L48_TX_PER_SEC  # backward-compat alias
+    NVLINK_L49_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L49_RX_PER_SEC, 'NvLink read bandwidth for link 49 in MiB/sec.')
+    GPM_METRIC_NVLINK_L49_RX_PER_SEC = NVLINK_L49_RX_PER_SEC  # backward-compat alias
+    NVLINK_L49_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L49_TX_PER_SEC, 'NvLink write bandwidth for link 49 in MiB/sec.')
+    GPM_METRIC_NVLINK_L49_TX_PER_SEC = NVLINK_L49_TX_PER_SEC  # backward-compat alias
+    NVLINK_L50_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L50_RX_PER_SEC, 'NvLink read bandwidth for link 50 in MiB/sec.')
+    GPM_METRIC_NVLINK_L50_RX_PER_SEC = NVLINK_L50_RX_PER_SEC  # backward-compat alias
+    NVLINK_L50_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L50_TX_PER_SEC, 'NvLink write bandwidth for link 50 in MiB/sec.')
+    GPM_METRIC_NVLINK_L50_TX_PER_SEC = NVLINK_L50_TX_PER_SEC  # backward-compat alias
+    NVLINK_L51_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L51_RX_PER_SEC, 'NvLink read bandwidth for link 51 in MiB/sec.')
+    GPM_METRIC_NVLINK_L51_RX_PER_SEC = NVLINK_L51_RX_PER_SEC  # backward-compat alias
+    NVLINK_L51_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L51_TX_PER_SEC, 'NvLink write bandwidth for link 51 in MiB/sec.')
+    GPM_METRIC_NVLINK_L51_TX_PER_SEC = NVLINK_L51_TX_PER_SEC  # backward-compat alias
+    NVLINK_L52_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L52_RX_PER_SEC, 'NvLink read bandwidth for link 52 in MiB/sec.')
+    GPM_METRIC_NVLINK_L52_RX_PER_SEC = NVLINK_L52_RX_PER_SEC  # backward-compat alias
+    NVLINK_L52_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L52_TX_PER_SEC, 'NvLink write bandwidth for link 52 in MiB/sec.')
+    GPM_METRIC_NVLINK_L52_TX_PER_SEC = NVLINK_L52_TX_PER_SEC  # backward-compat alias
+    NVLINK_L53_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L53_RX_PER_SEC, 'NvLink read bandwidth for link 53 in MiB/sec.')
+    GPM_METRIC_NVLINK_L53_RX_PER_SEC = NVLINK_L53_RX_PER_SEC  # backward-compat alias
+    NVLINK_L53_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L53_TX_PER_SEC, 'NvLink write bandwidth for link 53 in MiB/sec.')
+    GPM_METRIC_NVLINK_L53_TX_PER_SEC = NVLINK_L53_TX_PER_SEC  # backward-compat alias
+    NVLINK_L54_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L54_RX_PER_SEC, 'NvLink read bandwidth for link 54 in MiB/sec.')
+    GPM_METRIC_NVLINK_L54_RX_PER_SEC = NVLINK_L54_RX_PER_SEC  # backward-compat alias
+    NVLINK_L54_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L54_TX_PER_SEC, 'NvLink write bandwidth for link 54 in MiB/sec.')
+    GPM_METRIC_NVLINK_L54_TX_PER_SEC = NVLINK_L54_TX_PER_SEC  # backward-compat alias
+    NVLINK_L55_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L55_RX_PER_SEC, 'NvLink read bandwidth for link 55 in MiB/sec.')
+    GPM_METRIC_NVLINK_L55_RX_PER_SEC = NVLINK_L55_RX_PER_SEC  # backward-compat alias
+    NVLINK_L55_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L55_TX_PER_SEC, 'NvLink write bandwidth for link 55 in MiB/sec.')
+    GPM_METRIC_NVLINK_L55_TX_PER_SEC = NVLINK_L55_TX_PER_SEC  # backward-compat alias
+    NVLINK_L56_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L56_RX_PER_SEC, 'NvLink read bandwidth for link 56 in MiB/sec.')
+    GPM_METRIC_NVLINK_L56_RX_PER_SEC = NVLINK_L56_RX_PER_SEC  # backward-compat alias
+    NVLINK_L56_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L56_TX_PER_SEC, 'NvLink write bandwidth for link 56 in MiB/sec.')
+    GPM_METRIC_NVLINK_L56_TX_PER_SEC = NVLINK_L56_TX_PER_SEC  # backward-compat alias
+    NVLINK_L57_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L57_RX_PER_SEC, 'NvLink read bandwidth for link 57 in MiB/sec.')
+    GPM_METRIC_NVLINK_L57_RX_PER_SEC = NVLINK_L57_RX_PER_SEC  # backward-compat alias
+    NVLINK_L57_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L57_TX_PER_SEC, 'NvLink write bandwidth for link 57 in MiB/sec.')
+    GPM_METRIC_NVLINK_L57_TX_PER_SEC = NVLINK_L57_TX_PER_SEC  # backward-compat alias
+    NVLINK_L58_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L58_RX_PER_SEC, 'NvLink read bandwidth for link 58 in MiB/sec.')
+    GPM_METRIC_NVLINK_L58_RX_PER_SEC = NVLINK_L58_RX_PER_SEC  # backward-compat alias
+    NVLINK_L58_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L58_TX_PER_SEC, 'NvLink write bandwidth for link 58 in MiB/sec.')
+    GPM_METRIC_NVLINK_L58_TX_PER_SEC = NVLINK_L58_TX_PER_SEC  # backward-compat alias
+    NVLINK_L59_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L59_RX_PER_SEC, 'NvLink read bandwidth for link 59 in MiB/sec.')
+    GPM_METRIC_NVLINK_L59_RX_PER_SEC = NVLINK_L59_RX_PER_SEC  # backward-compat alias
+    NVLINK_L59_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L59_TX_PER_SEC, 'NvLink write bandwidth for link 59 in MiB/sec.')
+    GPM_METRIC_NVLINK_L59_TX_PER_SEC = NVLINK_L59_TX_PER_SEC  # backward-compat alias
+    NVLINK_L60_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L60_RX_PER_SEC, 'NvLink read bandwidth for link 60 in MiB/sec.')
+    GPM_METRIC_NVLINK_L60_RX_PER_SEC = NVLINK_L60_RX_PER_SEC  # backward-compat alias
+    NVLINK_L60_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L60_TX_PER_SEC, 'NvLink write bandwidth for link 60 in MiB/sec.')
+    GPM_METRIC_NVLINK_L60_TX_PER_SEC = NVLINK_L60_TX_PER_SEC  # backward-compat alias
+    NVLINK_L61_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L61_RX_PER_SEC, 'NvLink read bandwidth for link 61 in MiB/sec.')
+    GPM_METRIC_NVLINK_L61_RX_PER_SEC = NVLINK_L61_RX_PER_SEC  # backward-compat alias
+    NVLINK_L61_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L61_TX_PER_SEC, 'NvLink write bandwidth for link 61 in MiB/sec.')
+    GPM_METRIC_NVLINK_L61_TX_PER_SEC = NVLINK_L61_TX_PER_SEC  # backward-compat alias
+    NVLINK_L62_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L62_RX_PER_SEC, 'NvLink read bandwidth for link 62 in MiB/sec.')
+    GPM_METRIC_NVLINK_L62_RX_PER_SEC = NVLINK_L62_RX_PER_SEC  # backward-compat alias
+    NVLINK_L62_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L62_TX_PER_SEC, 'NvLink write bandwidth for link 62 in MiB/sec.')
+    GPM_METRIC_NVLINK_L62_TX_PER_SEC = NVLINK_L62_TX_PER_SEC  # backward-compat alias
+    NVLINK_L63_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L63_RX_PER_SEC, 'NvLink read bandwidth for link 63 in MiB/sec.')
+    GPM_METRIC_NVLINK_L63_RX_PER_SEC = NVLINK_L63_RX_PER_SEC  # backward-compat alias
+    NVLINK_L63_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L63_TX_PER_SEC, 'NvLink write bandwidth for link 63 in MiB/sec.')
+    GPM_METRIC_NVLINK_L63_TX_PER_SEC = NVLINK_L63_TX_PER_SEC  # backward-compat alias
+    NVLINK_L64_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L64_RX_PER_SEC, 'NvLink read bandwidth for link 64 in MiB/sec.')
+    GPM_METRIC_NVLINK_L64_RX_PER_SEC = NVLINK_L64_RX_PER_SEC  # backward-compat alias
+    NVLINK_L64_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L64_TX_PER_SEC, 'NvLink write bandwidth for link 64 in MiB/sec.')
+    GPM_METRIC_NVLINK_L64_TX_PER_SEC = NVLINK_L64_TX_PER_SEC  # backward-compat alias
+    NVLINK_L65_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L65_RX_PER_SEC, 'NvLink read bandwidth for link 65 in MiB/sec.')
+    GPM_METRIC_NVLINK_L65_RX_PER_SEC = NVLINK_L65_RX_PER_SEC  # backward-compat alias
+    NVLINK_L65_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L65_TX_PER_SEC, 'NvLink write bandwidth for link 65 in MiB/sec.')
+    GPM_METRIC_NVLINK_L65_TX_PER_SEC = NVLINK_L65_TX_PER_SEC  # backward-compat alias
+    NVLINK_L66_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L66_RX_PER_SEC, 'NvLink read bandwidth for link 66 in MiB/sec.')
+    GPM_METRIC_NVLINK_L66_RX_PER_SEC = NVLINK_L66_RX_PER_SEC  # backward-compat alias
+    NVLINK_L66_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L66_TX_PER_SEC, 'NvLink write bandwidth for link 66 in MiB/sec.')
+    GPM_METRIC_NVLINK_L66_TX_PER_SEC = NVLINK_L66_TX_PER_SEC  # backward-compat alias
+    NVLINK_L67_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L67_RX_PER_SEC, 'NvLink read bandwidth for link 67 in MiB/sec.')
+    GPM_METRIC_NVLINK_L67_RX_PER_SEC = NVLINK_L67_RX_PER_SEC  # backward-compat alias
+    NVLINK_L67_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L67_TX_PER_SEC, 'NvLink write bandwidth for link 67 in MiB/sec.')
+    GPM_METRIC_NVLINK_L67_TX_PER_SEC = NVLINK_L67_TX_PER_SEC  # backward-compat alias
+    NVLINK_L68_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L68_RX_PER_SEC, 'NvLink read bandwidth for link 68 in MiB/sec.')
+    GPM_METRIC_NVLINK_L68_RX_PER_SEC = NVLINK_L68_RX_PER_SEC  # backward-compat alias
+    NVLINK_L68_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L68_TX_PER_SEC, 'NvLink write bandwidth for link 68 in MiB/sec.')
+    GPM_METRIC_NVLINK_L68_TX_PER_SEC = NVLINK_L68_TX_PER_SEC  # backward-compat alias
+    NVLINK_L69_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L69_RX_PER_SEC, 'NvLink read bandwidth for link 69 in MiB/sec.')
+    GPM_METRIC_NVLINK_L69_RX_PER_SEC = NVLINK_L69_RX_PER_SEC  # backward-compat alias
+    NVLINK_L69_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L69_TX_PER_SEC, 'NvLink write bandwidth for link 69 in MiB/sec.')
+    GPM_METRIC_NVLINK_L69_TX_PER_SEC = NVLINK_L69_TX_PER_SEC  # backward-compat alias
+    NVLINK_L70_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L70_RX_PER_SEC, 'NvLink read bandwidth for link 70 in MiB/sec.')
+    GPM_METRIC_NVLINK_L70_RX_PER_SEC = NVLINK_L70_RX_PER_SEC  # backward-compat alias
+    NVLINK_L70_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L70_TX_PER_SEC, 'NvLink write bandwidth for link 70 in MiB/sec.')
+    GPM_METRIC_NVLINK_L70_TX_PER_SEC = NVLINK_L70_TX_PER_SEC  # backward-compat alias
+    NVLINK_L71_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L71_RX_PER_SEC, 'NvLink read bandwidth for link 71 in MiB/sec.')
+    GPM_METRIC_NVLINK_L71_RX_PER_SEC = NVLINK_L71_RX_PER_SEC  # backward-compat alias
+    NVLINK_L71_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L71_TX_PER_SEC, 'NvLink write bandwidth for link 71 in MiB/sec.')
+    GPM_METRIC_NVLINK_L71_TX_PER_SEC = NVLINK_L71_TX_PER_SEC  # backward-compat alias
+    MAX = (NVML_GPM_METRIC_MAX, 'Maximum value above +1.')
+    GPM_METRIC_MAX = MAX  # backward-compat alias
 
 class PowerProfileType(_cyb_FastEnum):
     """
     See `nvmlPowerProfileType_t`.
     """
-    POWER_PROFILE_MAX_P = NVML_POWER_PROFILE_MAX_P
-    POWER_PROFILE_MAX_Q = NVML_POWER_PROFILE_MAX_Q
-    POWER_PROFILE_COMPUTE = NVML_POWER_PROFILE_COMPUTE
-    POWER_PROFILE_MEMORY_BOUND = NVML_POWER_PROFILE_MEMORY_BOUND
-    POWER_PROFILE_NETWORK = NVML_POWER_PROFILE_NETWORK
-    POWER_PROFILE_BALANCED = NVML_POWER_PROFILE_BALANCED
-    POWER_PROFILE_LLM_INFERENCE = NVML_POWER_PROFILE_LLM_INFERENCE
-    POWER_PROFILE_LLM_TRAINING = NVML_POWER_PROFILE_LLM_TRAINING
-    POWER_PROFILE_RBM = NVML_POWER_PROFILE_RBM
-    POWER_PROFILE_DCPCIE = NVML_POWER_PROFILE_DCPCIE
-    POWER_PROFILE_HMMA_SPARSE = NVML_POWER_PROFILE_HMMA_SPARSE
-    POWER_PROFILE_HMMA_DENSE = NVML_POWER_PROFILE_HMMA_DENSE
-    POWER_PROFILE_SYNC_BALANCED = NVML_POWER_PROFILE_SYNC_BALANCED
-    POWER_PROFILE_HPC = NVML_POWER_PROFILE_HPC
-    POWER_PROFILE_MIG = NVML_POWER_PROFILE_MIG
-    POWER_PROFILE_MAX_Q_1 = NVML_POWER_PROFILE_MAX_Q_1
-    POWER_PROFILE_NETWORK_BOUND = NVML_POWER_PROFILE_NETWORK_BOUND
-    POWER_PROFILE_HIGH_THROUGHPUT_INFERENCE = NVML_POWER_PROFILE_HIGH_THROUGHPUT_INFERENCE
-    POWER_PROFILE_MEDIUM_THROUGHPUT_INFERENCE = NVML_POWER_PROFILE_MEDIUM_THROUGHPUT_INFERENCE
-    POWER_PROFILE_LOW_LATENCY_INFERENCE = NVML_POWER_PROFILE_LOW_LATENCY_INFERENCE
-    POWER_PROFILE_TRAINING = NVML_POWER_PROFILE_TRAINING
-    POWER_PROFILE_INFERENCE = NVML_POWER_PROFILE_INFERENCE
-    POWER_PROFILE_MAX_Q_2 = NVML_POWER_PROFILE_MAX_Q_2
-    POWER_PROFILE_MAX_Q_3 = NVML_POWER_PROFILE_MAX_Q_3
-    POWER_PROFILE_LOW_PRIORITY_BACKGROUND = NVML_POWER_PROFILE_LOW_PRIORITY_BACKGROUND
-    POWER_PROFILE_MAX = NVML_POWER_PROFILE_MAX
+    MAX_P = NVML_POWER_PROFILE_MAX_P
+    POWER_PROFILE_MAX_P = MAX_P  # backward-compat alias
+    MAX_Q = NVML_POWER_PROFILE_MAX_Q
+    POWER_PROFILE_MAX_Q = MAX_Q  # backward-compat alias
+    COMPUTE = NVML_POWER_PROFILE_COMPUTE
+    POWER_PROFILE_COMPUTE = COMPUTE  # backward-compat alias
+    MEMORY_BOUND = NVML_POWER_PROFILE_MEMORY_BOUND
+    POWER_PROFILE_MEMORY_BOUND = MEMORY_BOUND  # backward-compat alias
+    NETWORK = NVML_POWER_PROFILE_NETWORK
+    POWER_PROFILE_NETWORK = NETWORK  # backward-compat alias
+    BALANCED = NVML_POWER_PROFILE_BALANCED
+    POWER_PROFILE_BALANCED = BALANCED  # backward-compat alias
+    LLM_INFERENCE = NVML_POWER_PROFILE_LLM_INFERENCE
+    POWER_PROFILE_LLM_INFERENCE = LLM_INFERENCE  # backward-compat alias
+    LLM_TRAINING = NVML_POWER_PROFILE_LLM_TRAINING
+    POWER_PROFILE_LLM_TRAINING = LLM_TRAINING  # backward-compat alias
+    RBM = NVML_POWER_PROFILE_RBM
+    POWER_PROFILE_RBM = RBM  # backward-compat alias
+    DCPCIE = NVML_POWER_PROFILE_DCPCIE
+    POWER_PROFILE_DCPCIE = DCPCIE  # backward-compat alias
+    HMMA_SPARSE = NVML_POWER_PROFILE_HMMA_SPARSE
+    POWER_PROFILE_HMMA_SPARSE = HMMA_SPARSE  # backward-compat alias
+    HMMA_DENSE = NVML_POWER_PROFILE_HMMA_DENSE
+    POWER_PROFILE_HMMA_DENSE = HMMA_DENSE  # backward-compat alias
+    SYNC_BALANCED = NVML_POWER_PROFILE_SYNC_BALANCED
+    POWER_PROFILE_SYNC_BALANCED = SYNC_BALANCED  # backward-compat alias
+    HPC = NVML_POWER_PROFILE_HPC
+    POWER_PROFILE_HPC = HPC  # backward-compat alias
+    MIG = NVML_POWER_PROFILE_MIG
+    POWER_PROFILE_MIG = MIG  # backward-compat alias
+    MAX_Q_1 = NVML_POWER_PROFILE_MAX_Q_1
+    POWER_PROFILE_MAX_Q_1 = MAX_Q_1  # backward-compat alias
+    NETWORK_BOUND = NVML_POWER_PROFILE_NETWORK_BOUND
+    POWER_PROFILE_NETWORK_BOUND = NETWORK_BOUND  # backward-compat alias
+    HIGH_THROUGHPUT_INFERENCE = NVML_POWER_PROFILE_HIGH_THROUGHPUT_INFERENCE
+    POWER_PROFILE_HIGH_THROUGHPUT_INFERENCE = HIGH_THROUGHPUT_INFERENCE  # backward-compat alias
+    MEDIUM_THROUGHPUT_INFERENCE = NVML_POWER_PROFILE_MEDIUM_THROUGHPUT_INFERENCE
+    POWER_PROFILE_MEDIUM_THROUGHPUT_INFERENCE = MEDIUM_THROUGHPUT_INFERENCE  # backward-compat alias
+    LOW_LATENCY_INFERENCE = NVML_POWER_PROFILE_LOW_LATENCY_INFERENCE
+    POWER_PROFILE_LOW_LATENCY_INFERENCE = LOW_LATENCY_INFERENCE  # backward-compat alias
+    TRAINING = NVML_POWER_PROFILE_TRAINING
+    POWER_PROFILE_TRAINING = TRAINING  # backward-compat alias
+    INFERENCE = NVML_POWER_PROFILE_INFERENCE
+    POWER_PROFILE_INFERENCE = INFERENCE  # backward-compat alias
+    MAX_Q_2 = NVML_POWER_PROFILE_MAX_Q_2
+    POWER_PROFILE_MAX_Q_2 = MAX_Q_2  # backward-compat alias
+    MAX_Q_3 = NVML_POWER_PROFILE_MAX_Q_3
+    POWER_PROFILE_MAX_Q_3 = MAX_Q_3  # backward-compat alias
+    LOW_PRIORITY_BACKGROUND = NVML_POWER_PROFILE_LOW_PRIORITY_BACKGROUND
+    POWER_PROFILE_LOW_PRIORITY_BACKGROUND = LOW_PRIORITY_BACKGROUND  # backward-compat alias
+    MAX = NVML_POWER_PROFILE_MAX
+    POWER_PROFILE_MAX = MAX  # backward-compat alias
 
 class DeviceAddressingModeType(_cyb_FastEnum):
     """
@@ -1335,9 +2003,12 @@ class DeviceAddressingModeType(_cyb_FastEnum):
 
     See `nvmlDeviceAddressingModeType_t`.
     """
-    DEVICE_ADDRESSING_MODE_NONE = (NVML_DEVICE_ADDRESSING_MODE_NONE, 'No active mode.')
-    DEVICE_ADDRESSING_MODE_HMM = (NVML_DEVICE_ADDRESSING_MODE_HMM, 'Heterogeneous Memory Management mode.')
-    DEVICE_ADDRESSING_MODE_ATS = (NVML_DEVICE_ADDRESSING_MODE_ATS, 'Address Translation Services mode.')
+    NONE = (NVML_DEVICE_ADDRESSING_MODE_NONE, 'No active mode.')
+    DEVICE_ADDRESSING_MODE_NONE = NONE  # backward-compat alias
+    HMM = (NVML_DEVICE_ADDRESSING_MODE_HMM, 'Heterogeneous Memory Management mode.')
+    DEVICE_ADDRESSING_MODE_HMM = HMM  # backward-compat alias
+    ATS = (NVML_DEVICE_ADDRESSING_MODE_ATS, 'Address Translation Services mode.')
+    DEVICE_ADDRESSING_MODE_ATS = ATS  # backward-compat alias
 
 class PRMCounterId(_cyb_FastEnum):
     """
@@ -1446,7 +2117,8 @@ class EventDataType(_cyb_FastEnum):
 
     See `nvmlEventDataType_t`.
     """
-    EVENT = (NVML_EVENT_DATA_TYPE_NVML_EVENT, 'NVML event-bit data. `eventType` contains an NVML event bit.')
+    NVML_EVENT = (NVML_EVENT_DATA_TYPE_NVML_EVENT, 'NVML event-bit data. `eventType` contains an NVML event bit.')
+    EVENT = NVML_EVENT  # backward-compat alias
     GPU_OPERATIONAL_EVENT = (NVML_EVENT_DATA_TYPE_GPU_OPERATIONAL_EVENT, 'Structured GPU Operational Event data.')
 
 class GpuOperationalEventContextType(_cyb_FastEnum):
