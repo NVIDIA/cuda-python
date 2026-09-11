@@ -1,0 +1,6 @@
+﻿cuda.pathfinder.load\_nvidia\_dynamic\_lib
+==========================================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autofunction:: load_nvidia_dynamic_lib
