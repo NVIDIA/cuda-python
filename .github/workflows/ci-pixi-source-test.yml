@@ -38,6 +38,9 @@ on:
     paths:
       - "**/pixi.toml"
       - "**/pixi.lock"
+      # Path-dependency metadata (including cuda_python_test_helpers) feeds the
+      # solve, so it can break the source build without a pixi.toml edit.
+      - "**/pyproject.toml"
       - "cuda_bindings*/build_hooks.py"
       - "cuda_core/build_hooks.py"
       - "cuda_bindings*/cuda/bindings/**" # generated bindings sources
@@ -65,7 +68,13 @@ env:
   # older pixi re-ran the editable source build on every `pixi run`, recompiling
   # all Cython extensions (#2138). The fix (content-addressed source-build cache,
   # prefix-dev/pixi#6285 + #6123) also bumps the pixi.lock format to v7.
+  # Keep in sync with ci-pixi-lockfile-refresh.yml and
+  # ci-pixi-lockfile-freshness-check.yml.
   PIXI_VERSION: "v0.73.0"
+  # Install from the committed lockfile only. Covers nested `pixi run` calls
+  # from root pixi.toml tasks; a stale lock must fail rather than being
+  # refreshed in CI (#2298). Equivalent to `pixi run --locked`.
+  PIXI_LOCKED: "true"
 
 jobs:
   # ── PR guard: CPU-only build + import + placement smoke ──
@@ -78,7 +87,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history + tags so setuptools-scm derives the real
           # package version; a shallow checkout yields 0.1.dev1, which trips
@@ -251,7 +260,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history + tags so setuptools-scm derives the real
           # package version; a shallow checkout yields 0.1.dev1, which trips
@@ -324,7 +333,7 @@ jobs:
             ca-certificates git jq libgl1 libegl1 python3 python3-packaging python3-yaml
 
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history + tags so setuptools-scm derives the real
           # package version; a shallow checkout yields 0.1.dev1, which trips

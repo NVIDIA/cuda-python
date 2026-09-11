@@ -38,7 +38,7 @@ jobs:
       base-ref: ${{ steps.get-should-skip.outputs.base_ref }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Compute whether to skip builds and tests
         id: get-should-skip
         env:
@@ -90,11 +90,14 @@ jobs:
       actions: read
       contents: read
     outputs:
-      bindings-config: ${{ steps.workplan.outputs.bindings-config }}
+      bindings-config: ${{ steps.registry.outputs.bindings-config }}
+      current-cuda-version: ${{ steps.registry.outputs.current-cuda-version }}
+      windows-arm64-supported: ${{ steps.registry.outputs.windows-arm64-supported }}
+      windows-arm64-single-cuda-major: ${{ steps.registry.outputs.windows-arm64-single-cuda-major }}
       workplan: ${{ steps.workplan.outputs.workplan }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           # Treeless clone: the commit graph is needed to resolve the PR merge
           # base and classify its changed paths, but historical blobs aren't.
@@ -103,6 +106,46 @@ jobs:
 
       - name: Install CI tool test dependencies
         run: python3 -m pip install -e './ci[test]'
+
+      - name: Resolve registered build platforms
+        id: registry
+        run: |
+          set -euo pipefail
+          bindings_config=$(python3 -m ci.tools.bindings_config)
+          current_cuda_version=$(jq -er \
+            '.package_roots[] | select(.release_status == "current") | .toolkit_version' \
+            <<< "$bindings_config")
+
+          if [[ "$current_cuda_version" =~ ^([0-9]+)\.([0-9]+)(\.|$) ]]; then
+            current_cuda_major="${BASH_REMATCH[1]}"
+            current_cuda_minor="${BASH_REMATCH[2]}"
+          else
+            echo "Invalid current CUDA version: $current_cuda_version" >&2
+            exit 1
+          fi
+
+          # Windows ARM64 is available starting with CUDA 13.4.
+          if (( current_cuda_major > 13 || (current_cuda_major == 13 && current_cuda_minor >= 4) )); then
+            windows_arm64_supported=true
+          else
+            windows_arm64_supported=false
+          fi
+
+          # CUDA 13 introduced Windows ARM64 mid-release-line, so there is no
+          # CUDA 12 Windows ARM64 toolkit. Once current advances to CUDA 14,
+          # CUDA 13 can be built as the maintenance major on this platform.
+          if [[ "$current_cuda_major" == "13" ]]; then
+            windows_arm64_single_cuda_major=true
+          else
+            windows_arm64_single_cuda_major=false
+          fi
+
+          {
+            echo "bindings-config=$bindings_config"
+            echo "current-cuda-version=$current_cuda_version"
+            echo "windows-arm64-supported=$windows_arm64_supported"
+            echo "windows-arm64-single-cuda-major=$windows_arm64_single_cuda_major"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Resolve PR merge base
         id: merge-base
@@ -124,8 +167,12 @@ jobs:
         if: ${{ startsWith(github.ref_name, 'pull-request/') }}
         env:
           BASE_REF: ${{ needs.should-skip.outputs.base-ref }}
+          BINDINGS_CONFIG: ${{ steps.registry.outputs.bindings-config }}
+          CURRENT_CUDA_VERSION: ${{ steps.registry.outputs.current-cuda-version }}
           MERGE_BASE: ${{ steps.merge-base.outputs.sha }}
           GH_TOKEN: ${{ github.token }}
+          WINDOWS_ARM64_SUPPORTED: ${{ steps.registry.outputs.windows-arm64-supported }}
+          WINDOWS_ARM64_SINGLE_CUDA_MAJOR: ${{ steps.registry.outputs.windows-arm64-single-cuda-major }}
         run: |
           set -uo pipefail
 
@@ -177,10 +224,7 @@ jobs:
           missing=()
           has_artifact cuda-pathfinder-wheel || missing+=(cuda-pathfinder-wheel)
 
-          if ! bindings_config=$(python3 -m ci.tools.bindings_config); then
-            unavailable
-          fi
-          if ! cuda_versions_json=$(jq -ce '[.package_roots[].toolkit_version]' <<< "$bindings_config"); then
+          if ! cuda_versions_json=$(jq -ce '[.package_roots[].toolkit_version]' <<< "$BINDINGS_CONFIG"); then
             unavailable
           fi
           mapfile -t cuda_versions < <(jq -r '.[]' <<< "$cuda_versions_json")
@@ -195,13 +239,25 @@ jobs:
           if ! platforms=$(yq -r '.platforms[]' ci/test-matrix.yml); then
             unavailable
           fi
+          if [[ "$WINDOWS_ARM64_SUPPORTED" == "true" ]]; then
+            platforms+=$'\nwin-arm64'
+          fi
           if [[ -z "${python_versions}" || -z "${platforms}" ]]; then
             unavailable
           fi
           while IFS= read -r python_version; do
             python=${python_version//./}
             while IFS= read -r platform; do
+              # CPython 3.10 has no official Windows ARM64 build.
+              if [[ "$platform" == "win-arm64" && "$python_version" == "3.10" ]]; then
+                continue
+              fi
               for version in "${cuda_versions[@]}"; do
+                if [[ "$platform" == "win-arm64" &&
+                      "$WINDOWS_ARM64_SINGLE_CUDA_MAJOR" == "true" &&
+                      "$version" != "$CURRENT_CUDA_VERSION" ]]; then
+                  continue
+                fi
                 binding="cuda-bindings-python${python}-cuda${version}-${platform}-${merge_base}"
                 has_artifact "$binding" || missing+=("$binding")
               done
@@ -259,7 +315,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
           filter: blob:none
@@ -310,7 +366,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
           filter: blob:none
@@ -406,6 +462,29 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
+
+  # Windows ARM64 is available starting with CUDA 13.4. Build only the current
+  # CUDA major because no prior-major toolkit or wheel artifacts exist.
+  build-windows-arm64:
+    needs:
+      - should-skip
+      - detect-changes
+    name: Build win-arm64, CUDA ${{ needs.detect-changes.outputs.current-cuda-version }}
+    if: ${{ github.repository_owner == 'nvidia' &&
+            !fromJSON(needs.should-skip.outputs.skip) &&
+            !fromJSON(needs.should-skip.outputs.doc-only) &&
+            needs.detect-changes.outputs.windows-arm64-supported == 'true' &&
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows }}
+    permissions:
+      actions: read
+      contents: read
+    secrets: inherit
+    uses: ./.github/workflows/build-wheel.yml
+    with:
+      host-platform: win-arm64
+      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
+      single-cuda-major: ${{ needs.detect-changes.outputs.windows-arm64-single-cuda-major == 'true' }}
 
   # NOTE: test-sdist jobs are split by platform (mirroring build-* and test-wheel-*)
   # so platform-specific sources (e.g. cuda_bindings/*_windows.pyx selected by
@@ -581,13 +660,13 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
           persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: '3.13'
 
@@ -613,6 +692,7 @@ jobs:
       - build-linux-64
       - build-linux-aarch64
       - build-windows
+      - build-windows-arm64
       - test-sdist-linux
       - test-sdist-windows
       - test-linux-64
@@ -644,6 +724,7 @@ jobs:
           doc_only="${{ needs.should-skip.outputs.doc-only }}"
           linux_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux || false }}"
           windows_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows || false }}"
+          windows_arm64_supported="${{ needs.detect-changes.outputs.windows-arm64-supported }}"
           build_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.sdist_tests || false }}"
           run_core_api_check="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.core_api_checks || false }}"
           is_pr="${{ startsWith(github.ref_name, 'pull-request/') }}"
@@ -678,6 +759,12 @@ jobs:
           check_result "build-linux-aarch64" "$linux_expected"
           check_result "build-windows"       "$windows_expected"
 
+          windows_arm64_expected="skipped"
+          if [[ "$windows_arm64_supported" == "true" ]]; then
+            windows_arm64_expected="$windows_expected"
+          fi
+          check_result "build-windows-arm64" "$windows_arm64_expected"
+
           # Sdist tests follow build selection; wheel tests follow the platform plan.
           expected="skipped"
           if [[ "$doc_only" != "true" && "$build_selected" == "true" ]]; then
@@ -696,8 +783,8 @@ jobs:
           if [[ "$run_core_api_check" == "true" ]]; then expected="success"; fi
           check_result "api-check-core-vs-release" "$expected"
 
-          expected="skipped"
-          if [[ "$is_pr" == "true" && "$run_core_api_check" == "true" ]]; then expected="success"; fi
-          check_result "api-check-core-vs-base" "$expected"
+          # API compatibility checks against the merge base (api-check-core-vs-base)
+          # are purely informational, since it is fine for API to drift during development
+          # when it hasn't been released yet.
 
           [[ "$status" == "success" ]]

@@ -223,12 +223,12 @@ class ComputeWorkplanTest(unittest.TestCase):
     def test_release_tags_select_only_the_matching_package(self) -> None:
         for release_tag, package_root, variant in (
             ("v12.9.9", "cuda_bindings_12", "cu12"),
-            ("v13.3.0", "cuda_bindings", "cu13"),
-            ("v13.3.0b1", "cuda_bindings", "cu13"),
-            ("v13.3.0rc1", "cuda_bindings", "cu13"),
-            ("v13.3.0.dev1", "cuda_bindings", "cu13"),
+            ("v13.4.1", "cuda_bindings", "cu13"),
+            ("v13.4.1b1", "cuda_bindings", "cu13"),
+            ("v13.4.1rc1", "cuda_bindings", "cu13"),
+            ("v13.4.1.dev1", "cuda_bindings", "cu13"),
             ("v12.9.9.post1", "cuda_bindings_12", "cu12"),
-            ("v13.3.0.post1", "cuda_bindings", "cu13"),
+            ("v13.4.1.post1", "cuda_bindings", "cu13"),
         ):
             with self.subTest(release_tag=release_tag):
                 plan = plan_for(baseline=False, release_tag=release_tag)
@@ -329,7 +329,7 @@ class ComputeWorkplanTest(unittest.TestCase):
             assert selected_sdist_variants(plan) == CUDA_VARIANTS
             assert plan["baseline"] == {"run_id": "", "sha": ""}
 
-        for release_tag in ("v12.8.1", "v13.4.0", "v14.0.0"):
+        for release_tag in ("v12.8.1", "v13.5.0", "v14.0.0"):
             with (
                 self.subTest(release_tag=release_tag),
                 pytest.raises(ValueError, match="no configured CUDA bindings package root"),
@@ -412,7 +412,7 @@ def test_github_outputs_are_emitted_without_shell_json_transforms(tmp_path: Path
     main(
         [
             "--release-tag",
-            "v13.3.0",
+            "v13.4.1",
             "--github-output",
             str(output),
             "--github-step-summary",

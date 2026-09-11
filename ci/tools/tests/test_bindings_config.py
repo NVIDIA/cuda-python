@@ -34,7 +34,7 @@ def valid_config():
             "bindings": {
                 "package_roots": {
                     "cuda_bindings_12": package("12.9.1", "maintenance"),
-                    "cuda_bindings": package("13.3.0", "current"),
+                    "cuda_bindings": package("13.4.1", "current"),
                 },
             }
         },
@@ -76,10 +76,10 @@ def test_tag_matching_uses_each_packages_scm_regex():
     config = validate_config(valid_config())
     assert config.match_tag("v12.9.8").package_root == "cuda_bindings_12"
     assert config.match_tag("v12.9.8a1") is None
-    assert config.match_tag("v13.3.0b1").package_root == "cuda_bindings"
-    assert config.match_tag("v13.3.0rc1").package_root == "cuda_bindings"
-    assert config.match_tag("v13.3.0.dev1").package_root == "cuda_bindings"
-    assert config.match_tag("v13.3.2.post1").package_root == "cuda_bindings"
+    assert config.match_tag("v13.4.0b1").package_root == "cuda_bindings"
+    assert config.match_tag("v13.4.0rc1").package_root == "cuda_bindings"
+    assert config.match_tag("v13.4.0.dev1").package_root == "cuda_bindings"
+    assert config.match_tag("v13.4.2.post1").package_root == "cuda_bindings"
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -161,7 +161,7 @@ def test_cli_writes_package_json_from_stdin_to_github_env(tmp_path, capsys, monk
 
     assert capsys.readouterr().out == ""
     assert output.read_text(encoding="utf-8").splitlines() == [
-        "BUILD_CTK_VER=13.3.0",
+        "BUILD_CTK_VER=13.4.1",
         "BINDINGS_PACKAGE_ROOT=cuda_bindings",
         "BINDINGS_REGISTRY_ORIGIN=tag",
     ]
@@ -196,7 +196,7 @@ def test_list_valued_release_status_is_rejected():
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_public_release_statuses_must_cover_two_packages_once(release_statuses, message):
     data = valid_config()
-    roots_and_versions = (("cuda_bindings_12", "12.9.1"), ("cuda_bindings", "13.3.0"))
+    roots_and_versions = (("cuda_bindings_12", "12.9.1"), ("cuda_bindings", "13.4.1"))
     data["cuda"]["bindings"]["package_roots"] = {
         package_root: package(toolkit_version, release_status)
         for (package_root, toolkit_version), release_status in zip(
@@ -238,7 +238,7 @@ def write_release_scm_configs(root: Path, *, current_dir: str, maintenance_dir: 
 @pytest.mark.parametrize(
     ("release_tag", "expected_root", "expected_toolkit"),
     (
-        ("v13.3.2", "tag-current", "13.3.0"),
+        ("v13.4.2", "tag-current", "13.4.1"),
         ("v12.9.8", "tag-maintenance", "12.9.1"),
     ),
 )
@@ -343,7 +343,7 @@ def test_invalid_modern_tag_config_does_not_fall_back(tmp_path):
     write_yaml(control_config, release_registry())
 
     with pytest.raises(BindingsConfigError, match="invalid schema-2 tagged config"):
-        resolve_release_bindings_package("v13.3.0", release_root, control_config)
+        resolve_release_bindings_package("v13.4.0", release_root, control_config)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -367,4 +367,4 @@ def test_modern_release_tag_must_match_the_configured_toolkit_minor(tmp_path):
     write_release_scm_configs(release_root, current_dir="cuda_bindings", maintenance_dir="cuda_bindings_12")
 
     with pytest.raises(BindingsConfigError, match="no CUDA bindings package root"):
-        resolve_release_bindings_package("v13.4.0", release_root, control_config)
+        resolve_release_bindings_package("v13.5.0", release_root, control_config)

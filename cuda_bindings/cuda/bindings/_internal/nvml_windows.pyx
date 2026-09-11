@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=dfef5d61e23406c9104db88966dea7813becf53ad5e89fca63b78d618097e15a
+# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5e4dabf79550bbf99149a55b67542f1b6bf20a48f3dbfd922848c16115418f5e
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -419,6 +419,21 @@ cdef void* __nvmlSystemGetCPER_v1 = NULL
 cdef void* __nvmlDeviceGetBBXTimeData_v1 = NULL
 cdef void* __nvmlDeviceGetAccountingStats_v2 = NULL
 cdef void* __nvmlDeviceGetRemappedRows_v2 = NULL
+cdef void* __nvmlDeviceSetAdaptiveTgpMode_v1 = NULL
+cdef void* __nvmlDeviceGetAdaptiveTgpModeInfo_v1 = NULL
+cdef void* __nvmlDeviceSetMemoryLimits_v1 = NULL
+cdef void* __nvmlDeviceGetMemoryLimits_v1 = NULL
+cdef void* __nvmlDeviceGetGpuFabricInfo_v4 = NULL
+cdef void* __nvmlDevicePerfMetricsGetSamples_v1 = NULL
+cdef void* __nvmlDeviceSetNvlinkBwModeAsync_v1 = NULL
+cdef void* __nvmlDeviceGetNvLinkTelemetrySamples_v1 = NULL
+cdef void* __nvmlEventSetRegisterGpuOperationalEvents_v1 = NULL
+cdef void* __nvmlEventSetWait_v3 = NULL
+cdef void* __nvmlEventSetGetContextCount_v1 = NULL
+cdef void* __nvmlEventSetGetContextInfo_v1 = NULL
+cdef void* __nvmlEventSetGetContextData_v1 = NULL
+cdef void* __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1 = NULL
+cdef void* __nvmlDeviceGetBankRemapperStatus_v1 = NULL
 
 cdef int _init_nvml() except -1 nogil:
     global _cyb___py_nvml_init
@@ -1493,6 +1508,51 @@ cdef int _init_nvml() except -1 nogil:
 
         global __nvmlDeviceGetRemappedRows_v2
         __nvmlDeviceGetRemappedRows_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRemappedRows_v2')
+
+        global __nvmlDeviceSetAdaptiveTgpMode_v1
+        __nvmlDeviceSetAdaptiveTgpMode_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetAdaptiveTgpMode_v1')
+
+        global __nvmlDeviceGetAdaptiveTgpModeInfo_v1
+        __nvmlDeviceGetAdaptiveTgpModeInfo_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAdaptiveTgpModeInfo_v1')
+
+        global __nvmlDeviceSetMemoryLimits_v1
+        __nvmlDeviceSetMemoryLimits_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetMemoryLimits_v1')
+
+        global __nvmlDeviceGetMemoryLimits_v1
+        __nvmlDeviceGetMemoryLimits_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMemoryLimits_v1')
+
+        global __nvmlDeviceGetGpuFabricInfo_v4
+        __nvmlDeviceGetGpuFabricInfo_v4 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuFabricInfo_v4')
+
+        global __nvmlDevicePerfMetricsGetSamples_v1
+        __nvmlDevicePerfMetricsGetSamples_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDevicePerfMetricsGetSamples_v1')
+
+        global __nvmlDeviceSetNvlinkBwModeAsync_v1
+        __nvmlDeviceSetNvlinkBwModeAsync_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetNvlinkBwModeAsync_v1')
+
+        global __nvmlDeviceGetNvLinkTelemetrySamples_v1
+        __nvmlDeviceGetNvLinkTelemetrySamples_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvLinkTelemetrySamples_v1')
+
+        global __nvmlEventSetRegisterGpuOperationalEvents_v1
+        __nvmlEventSetRegisterGpuOperationalEvents_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetRegisterGpuOperationalEvents_v1')
+
+        global __nvmlEventSetWait_v3
+        __nvmlEventSetWait_v3 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetWait_v3')
+
+        global __nvmlEventSetGetContextCount_v1
+        __nvmlEventSetGetContextCount_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetGetContextCount_v1')
+
+        global __nvmlEventSetGetContextInfo_v1
+        __nvmlEventSetGetContextInfo_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetGetContextInfo_v1')
+
+        global __nvmlEventSetGetContextData_v1
+        __nvmlEventSetGetContextData_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetGetContextData_v1')
+
+        global __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1
+        __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1')
+
+        global __nvmlDeviceGetBankRemapperStatus_v1
+        __nvmlDeviceGetBankRemapperStatus_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetBankRemapperStatus_v1')
 
         _cyb_atomic_int_store(<int *>&_cyb___py_nvml_init, 1)
         return 0
@@ -2575,6 +2635,51 @@ cpdef dict _inspect_function_pointers():
 
     global __nvmlDeviceGetRemappedRows_v2
     data["__nvmlDeviceGetRemappedRows_v2"] = <intptr_t>__nvmlDeviceGetRemappedRows_v2
+
+    global __nvmlDeviceSetAdaptiveTgpMode_v1
+    data["__nvmlDeviceSetAdaptiveTgpMode_v1"] = <intptr_t>__nvmlDeviceSetAdaptiveTgpMode_v1
+
+    global __nvmlDeviceGetAdaptiveTgpModeInfo_v1
+    data["__nvmlDeviceGetAdaptiveTgpModeInfo_v1"] = <intptr_t>__nvmlDeviceGetAdaptiveTgpModeInfo_v1
+
+    global __nvmlDeviceSetMemoryLimits_v1
+    data["__nvmlDeviceSetMemoryLimits_v1"] = <intptr_t>__nvmlDeviceSetMemoryLimits_v1
+
+    global __nvmlDeviceGetMemoryLimits_v1
+    data["__nvmlDeviceGetMemoryLimits_v1"] = <intptr_t>__nvmlDeviceGetMemoryLimits_v1
+
+    global __nvmlDeviceGetGpuFabricInfo_v4
+    data["__nvmlDeviceGetGpuFabricInfo_v4"] = <intptr_t>__nvmlDeviceGetGpuFabricInfo_v4
+
+    global __nvmlDevicePerfMetricsGetSamples_v1
+    data["__nvmlDevicePerfMetricsGetSamples_v1"] = <intptr_t>__nvmlDevicePerfMetricsGetSamples_v1
+
+    global __nvmlDeviceSetNvlinkBwModeAsync_v1
+    data["__nvmlDeviceSetNvlinkBwModeAsync_v1"] = <intptr_t>__nvmlDeviceSetNvlinkBwModeAsync_v1
+
+    global __nvmlDeviceGetNvLinkTelemetrySamples_v1
+    data["__nvmlDeviceGetNvLinkTelemetrySamples_v1"] = <intptr_t>__nvmlDeviceGetNvLinkTelemetrySamples_v1
+
+    global __nvmlEventSetRegisterGpuOperationalEvents_v1
+    data["__nvmlEventSetRegisterGpuOperationalEvents_v1"] = <intptr_t>__nvmlEventSetRegisterGpuOperationalEvents_v1
+
+    global __nvmlEventSetWait_v3
+    data["__nvmlEventSetWait_v3"] = <intptr_t>__nvmlEventSetWait_v3
+
+    global __nvmlEventSetGetContextCount_v1
+    data["__nvmlEventSetGetContextCount_v1"] = <intptr_t>__nvmlEventSetGetContextCount_v1
+
+    global __nvmlEventSetGetContextInfo_v1
+    data["__nvmlEventSetGetContextInfo_v1"] = <intptr_t>__nvmlEventSetGetContextInfo_v1
+
+    global __nvmlEventSetGetContextData_v1
+    data["__nvmlEventSetGetContextData_v1"] = <intptr_t>__nvmlEventSetGetContextData_v1
+
+    global __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1
+    data["__nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1"] = <intptr_t>__nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1
+
+    global __nvmlDeviceGetBankRemapperStatus_v1
+    data["__nvmlDeviceGetBankRemapperStatus_v1"] = <intptr_t>__nvmlDeviceGetBankRemapperStatus_v1
     _cyb_func_ptrs = data
     return data
 
@@ -6144,3 +6249,153 @@ cdef nvmlReturn_t _nvmlDeviceGetRemappedRows_v2(nvmlDevice_t device, nvmlRemappe
             raise FunctionNotFoundError("function nvmlDeviceGetRemappedRows_v2 is not found")
     return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlRemappedRowsInfo_v2_t*) noexcept nogil>__nvmlDeviceGetRemappedRows_v2)(
         device, info)
+
+
+cdef nvmlReturn_t _nvmlDeviceSetAdaptiveTgpMode_v1(nvmlDevice_t device, nvmlEnableState_t mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceSetAdaptiveTgpMode_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceSetAdaptiveTgpMode_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceSetAdaptiveTgpMode_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlEnableState_t) noexcept nogil>__nvmlDeviceSetAdaptiveTgpMode_v1)(
+        device, mode)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetAdaptiveTgpModeInfo_v1(nvmlDevice_t device, nvmlAdaptiveTgpModeInfo_v1_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetAdaptiveTgpModeInfo_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceGetAdaptiveTgpModeInfo_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetAdaptiveTgpModeInfo_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlAdaptiveTgpModeInfo_v1_t*) noexcept nogil>__nvmlDeviceGetAdaptiveTgpModeInfo_v1)(
+        device, info)
+
+
+cdef nvmlReturn_t _nvmlDeviceSetMemoryLimits_v1(nvmlDevice_t device, nvmlSetMemoryLimits_v1_t* limits) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceSetMemoryLimits_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceSetMemoryLimits_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceSetMemoryLimits_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlSetMemoryLimits_v1_t*) noexcept nogil>__nvmlDeviceSetMemoryLimits_v1)(
+        device, limits)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetMemoryLimits_v1(nvmlDevice_t device, nvmlGetMemoryLimits_v1_t* limits) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetMemoryLimits_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceGetMemoryLimits_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetMemoryLimits_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlGetMemoryLimits_v1_t*) noexcept nogil>__nvmlDeviceGetMemoryLimits_v1)(
+        device, limits)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetGpuFabricInfo_v4(nvmlDevice_t device, nvmlGpuFabricInfo_v4_t* gpuFabricInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetGpuFabricInfo_v4
+    _check_or_init_nvml()
+    if __nvmlDeviceGetGpuFabricInfo_v4 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetGpuFabricInfo_v4 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlGpuFabricInfo_v4_t*) noexcept nogil>__nvmlDeviceGetGpuFabricInfo_v4)(
+        device, gpuFabricInfo)
+
+
+cdef nvmlReturn_t _nvmlDevicePerfMetricsGetSamples_v1(nvmlDevice_t device, nvmlPerfMetricsSamples_v1_t* samples) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDevicePerfMetricsGetSamples_v1
+    _check_or_init_nvml()
+    if __nvmlDevicePerfMetricsGetSamples_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDevicePerfMetricsGetSamples_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlPerfMetricsSamples_v1_t*) noexcept nogil>__nvmlDevicePerfMetricsGetSamples_v1)(
+        device, samples)
+
+
+cdef nvmlReturn_t _nvmlDeviceSetNvlinkBwModeAsync_v1(nvmlDevice_t device, nvmlNvlinkSetBwModeAsync_v1_t* setBwModeAsync) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceSetNvlinkBwModeAsync_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceSetNvlinkBwModeAsync_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceSetNvlinkBwModeAsync_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlNvlinkSetBwModeAsync_v1_t*) noexcept nogil>__nvmlDeviceSetNvlinkBwModeAsync_v1)(
+        device, setBwModeAsync)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetNvLinkTelemetrySamples_v1(nvmlDevice_t device, nvmlNvlinkTelemetrySamples_v1_t* samples) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetNvLinkTelemetrySamples_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceGetNvLinkTelemetrySamples_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetNvLinkTelemetrySamples_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlNvlinkTelemetrySamples_v1_t*) noexcept nogil>__nvmlDeviceGetNvLinkTelemetrySamples_v1)(
+        device, samples)
+
+
+cdef nvmlReturn_t _nvmlEventSetRegisterGpuOperationalEvents_v1(nvmlEventSet_t eventSet, const nvmlGpuOperationalEventConfig_v1_t* config) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlEventSetRegisterGpuOperationalEvents_v1
+    _check_or_init_nvml()
+    if __nvmlEventSetRegisterGpuOperationalEvents_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlEventSetRegisterGpuOperationalEvents_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlEventSet_t, const nvmlGpuOperationalEventConfig_v1_t*) noexcept nogil>__nvmlEventSetRegisterGpuOperationalEvents_v1)(
+        eventSet, config)
+
+
+cdef nvmlReturn_t _nvmlEventSetWait_v3(nvmlEventSet_t set, nvmlEventSetWait_v3_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlEventSetWait_v3
+    _check_or_init_nvml()
+    if __nvmlEventSetWait_v3 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlEventSetWait_v3 is not found")
+    return (<nvmlReturn_t (*)(nvmlEventSet_t, nvmlEventSetWait_v3_t*) noexcept nogil>__nvmlEventSetWait_v3)(
+        set, params)
+
+
+cdef nvmlReturn_t _nvmlEventSetGetContextCount_v1(nvmlEventSet_t set, nvmlEventSetGetContextCount_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlEventSetGetContextCount_v1
+    _check_or_init_nvml()
+    if __nvmlEventSetGetContextCount_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlEventSetGetContextCount_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlEventSet_t, nvmlEventSetGetContextCount_v1_t*) noexcept nogil>__nvmlEventSetGetContextCount_v1)(
+        set, params)
+
+
+cdef nvmlReturn_t _nvmlEventSetGetContextInfo_v1(nvmlEventSet_t set, nvmlEventSetGetContextInfo_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlEventSetGetContextInfo_v1
+    _check_or_init_nvml()
+    if __nvmlEventSetGetContextInfo_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlEventSetGetContextInfo_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlEventSet_t, nvmlEventSetGetContextInfo_v1_t*) noexcept nogil>__nvmlEventSetGetContextInfo_v1)(
+        set, params)
+
+
+cdef nvmlReturn_t _nvmlEventSetGetContextData_v1(nvmlEventSet_t set, nvmlEventSetGetContextData_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlEventSetGetContextData_v1
+    _check_or_init_nvml()
+    if __nvmlEventSetGetContextData_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlEventSetGetContextData_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlEventSet_t, nvmlEventSetGetContextData_v1_t*) noexcept nogil>__nvmlEventSetGetContextData_v1)(
+        set, params)
+
+
+cdef nvmlReturn_t _nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1(nvmlEventSet_t set, nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1
+    _check_or_init_nvml()
+    if __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlEventSet_t, nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t*) noexcept nogil>__nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1)(
+        set, params)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetBankRemapperStatus_v1(nvmlDevice_t device, nvmlEccBankRemapperStatus_v1_t* pBankRemapperStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetBankRemapperStatus_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceGetBankRemapperStatus_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetBankRemapperStatus_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlEccBankRemapperStatus_v1_t*) noexcept nogil>__nvmlDeviceGetBankRemapperStatus_v1)(
+        device, pBankRemapperStatus)

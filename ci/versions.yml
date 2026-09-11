@@ -10,5 +10,5 @@ cuda:
         toolkit_version: "12.9.1"
         release_status: maintenance
       cuda_bindings:
-        toolkit_version: "13.3.0"
+        toolkit_version: "13.4.1"
         release_status: current

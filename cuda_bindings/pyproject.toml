@@ -106,5 +106,5 @@ markers = [
 root = ".."
 version_file = "cuda/bindings/_version.py"
 # Accept the project's prerelease, post-release, and development suffixes.
-tag_regex = "^(?P<version>v13\\.3\\.\\d+(?:(?:a|b|rc)\\d+)?(?:\\.post\\d+)?(?:\\.dev\\d+)?)$"
-git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v13.3.*"]
+tag_regex = "^(?P<version>v13\\.4\\.\\d+(?:(?:a|b|rc)\\d+)?(?:\\.post\\d+)?(?:\\.dev\\d+)?)$"
+git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v13.4.*"]

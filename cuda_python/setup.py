@@ -10,11 +10,11 @@ from setuptools_scm import get_version
 
 SCM_TAG_REGEX_BY_MAJOR = {
     "12": r"^(?P<version>v12\.9\.\d+(?:\.post\d+)?)$",
-    "13": r"^(?P<version>v13\.3\.\d+(?:(?:a|b|rc)\d+)?(?:\.post\d+)?(?:\.dev\d+)?)$",
+    "13": r"^(?P<version>v13\.4\.\d+(?:(?:a|b|rc)\d+)?(?:\.post\d+)?(?:\.dev\d+)?)$",
 }
 SCM_DESCRIBE_MATCH_BY_MAJOR = {
     "12": "v12.9.[1-9]*",
-    "13": "v13.3.*",
+    "13": "v13.4.*",
 }
 
 build_major = os.environ.get("CUDA_PYTHON_BUILD_MAJOR", "13")
@@ -59,7 +59,7 @@ install_requires = [f"cuda-bindings{matcher}{version}"]
 if build_major == "13":
     install_requires.extend(
         [
-            "cuda-core~=1.1.0",
+            "cuda-core~=1.2.0",
             "cuda-pathfinder~=1.1",
         ]
     )

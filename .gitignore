@@ -161,7 +161,7 @@ celerybeat.pid
 
 # Environments
 .env
-.venv
+.venv*
 env/
 venv/
 ENV/
@@ -195,8 +195,10 @@ cython_debug/
 # Dont ignore
 !.github/actions/build/
 # pixi environments
-.pixi/*
-!.pixi/config.toml
+# Per-workspace commands such as `pixi lock --manifest-path cuda_bindings`
+# create a .pixi/ next to that manifest, so match at any depth.
+**/.pixi/*
+!**/.pixi/config.toml
 
 # Cursor
 .cursorrules

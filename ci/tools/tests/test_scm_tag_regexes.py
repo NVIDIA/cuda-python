@@ -30,7 +30,7 @@ def _literal_assignment(path: Path, name: str):
     (
         ("cuda_core", "cuda-core-v1.2.3.post1", "v1.2.3.post1"),
         ("cuda_pathfinder", "cuda-pathfinder-v1.2.3.post1", "v1.2.3.post1"),
-        ("cuda_bindings", "v13.3.1.post1", "v13.3.1.post1"),
+        ("cuda_bindings", "v13.4.1.post1", "v13.4.1.post1"),
         ("cuda_bindings_12", "v12.9.8.post1", "v12.9.8.post1"),
     ),
 )
@@ -48,13 +48,13 @@ def test_release_package_scm_regex_preserves_post_suffix(package, tag, version):
 @pytest.mark.parametrize(
     ("package_root", "tag", "expected"),
     (
-        ("cuda_bindings", "v13.3.1", "13.3.1"),
-        ("cuda_bindings", "v13.3.1a2", "13.3.1a2"),
-        ("cuda_bindings", "v13.3.1b2", "13.3.1b2"),
-        ("cuda_bindings", "v13.3.1rc2", "13.3.1rc2"),
-        ("cuda_bindings", "v13.3.1.post2", "13.3.1.post2"),
-        ("cuda_bindings", "v13.3.1.dev2", "13.3.1.dev2"),
-        ("cuda_bindings", "v13.3.1rc2.dev3", "13.3.1rc2.dev3"),
+        ("cuda_bindings", "v13.4.1", "13.4.1"),
+        ("cuda_bindings", "v13.4.1a2", "13.4.1a2"),
+        ("cuda_bindings", "v13.4.1b2", "13.4.1b2"),
+        ("cuda_bindings", "v13.4.1rc2", "13.4.1rc2"),
+        ("cuda_bindings", "v13.4.1.post2", "13.4.1.post2"),
+        ("cuda_bindings", "v13.4.1.dev2", "13.4.1.dev2"),
+        ("cuda_bindings", "v13.4.1rc2.dev3", "13.4.1rc2.dev3"),
         ("cuda_bindings_12", "v12.9.8", "12.9.8"),
         ("cuda_bindings_12", "v12.9.8.post2", "12.9.8.post2"),
         ("cuda_bindings_12", "v12.9.8a2", None),
@@ -74,9 +74,9 @@ def test_current_bindings_scm_metadata_is_minor_specific():
     with (REPO_ROOT / "cuda_bindings" / "pyproject.toml").open("rb") as stream:
         scm = tomllib.load(stream)["tool"]["setuptools_scm"]
 
-    assert re.fullmatch(scm["tag_regex"], "v13.3.2") is not None
-    assert re.fullmatch(scm["tag_regex"], "v13.4.0") is None
-    assert scm["git_describe_command"][-1] == "v13.3.*"
+    assert re.fullmatch(scm["tag_regex"], "v13.4.2") is not None
+    assert re.fullmatch(scm["tag_regex"], "v13.5.0") is None
+    assert scm["git_describe_command"][-1] == "v13.4.*"
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")

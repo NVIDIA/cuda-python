@@ -26,6 +26,7 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
     - [Pre-commit on Windows](#pre-commit-on-windows)
+  - [Pixi lockfiles](#pixi-lockfiles)
   - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
@@ -48,7 +49,7 @@ correct.** Each package matches its own tag prefix:
 
 | Package | Tag pattern |
 | --- | --- |
-| `cuda-bindings`, `cuda-python` | `v*` (e.g. `v13.3.1`) |
+| `cuda-bindings`, `cuda-python` | `v*` (e.g. `v13.4.1`) |
 | `cuda-core` | `cuda-core-v*` (e.g. `cuda-core-v1.1.0`) |
 | `cuda-pathfinder` | `cuda-pathfinder-v*` (e.g. `cuda-pathfinder-v1.6.0`) |
 
@@ -109,7 +110,7 @@ version-check failure:
    `cuda-bindings` to that same bogus version.
 2. **Stale tags** (a fork that has not fetched upstream in a while): you get a
    plausible-looking but wrong version, e.g. `13.0.4.dev650+g0d22cb44` when the
-   real latest tag is `v13.3.1`. Nothing warns you. Note there is no leading
+   real latest tag is `v13.4.1`. Nothing warns you. Note there is no leading
    `v` — the tag prefix is stripped by `tag_regex`.
 3. **No git metadata** (source zip): the build fails with
    `LookupError: setuptools-scm was unable to detect version`.
@@ -178,6 +179,60 @@ commit` workflow.  To resolve this, you can either:
 
 2. Skip it by setting the environment variable `SKIP` to `lychee`.  This would
    be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
+
+## Pixi lockfiles
+
+The repository checks in a `pixi.lock` next to each `pixi.toml`. Those lockfiles
+pin the solved dependency graph used by local pixi workflows and by CI, so they
+must stay in sync with their manifests and easy to review.
+
+Contributor expectations:
+
+- If a PR changes a `pixi.toml`, update the corresponding `pixi.lock` in the
+  same PR. Regenerating one lockfile:
+
+  ```console
+  $ pixi lock --manifest-path cuda_core
+  ```
+
+  Use `--manifest-path .` for the repository-root environment. Regenerate with
+  the pixi version CI pins in `PIXI_VERSION` (see
+  `.github/workflows/ci-pixi-source-test.yml`): different pixi versions write
+  different canonical forms, such as the `pixi.lock` format version or the
+  generated platform alias names, and CI requires the committed bytes to match
+  what the pinned version produces.
+- If a PR does not intentionally change pixi dependencies or metadata, do not
+  include unrelated lockfile churn. `pixi run` can refresh a stale lockfile
+  implicitly; revert that noise unless the refresh is the point of the change.
+- If a lockfile changes, the PR description should briefly say why.
+- Isolate large dependency refreshes from feature work when possible. Prefer a
+  dedicated lockfile-only PR over mixing solver churn into an unrelated change.
+
+CI enforces the contract: `pixi lock --check` fails when a committed lockfile is
+stale, and pixi source-build jobs run with `PIXI_LOCKED=true` so they install from
+the committed lock rather than updating it during the job. If either check
+fails, regenerate and commit the affected lockfile.
+
+The freshness check additionally fails when the check itself rewrote a lockfile.
+`pixi lock --check` accepts a lock whose solution is current but whose bytes are
+not canonical for the pinned pixi version, quietly normalizing the file instead,
+which leaves every later pixi run rewriting the committed lockfile.
+
+A scheduled workflow (`CI: pixi lockfile refresh`)
+runs `pixi update --no-install` per workspace and opens a dedicated PR when that
+lockfile changes, so broad dependency churn is reviewed as maintenance rather
+than landing inside unrelated feature work. The workflow can also be dispatched
+manually for one workspace or for all of them. Its dispatch input and every
+lockfile CI matrix resolve through `ci/tools/list_pixi_workspaces.py`, which
+derives the workspace list from the committed manifests, so a newly added
+workspace is picked up without editing any workflow.
+
+Those refresh PRs need an App token to pick up CI on their own: GitHub does not
+deliver workflow-triggering events for branches pushed with `GITHUB_TOKEN`. Set
+the `PIXI_LOCK_REFRESH_APP_ID` variable and `PIXI_LOCK_REFRESH_APP_PRIVATE_KEY`
+secret to enable that path. Until they are set, the workflow says so in the PR
+body and in a run warning, and required checks stay pending until a maintainer
+closes and reopens the PR or pushes to its branch.
 
 ## Secret Scanning
 

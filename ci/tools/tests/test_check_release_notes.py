@@ -30,9 +30,9 @@ def resolved_12_package(package_root: str = "cuda_bindings") -> dict[str, object
 @pytest.mark.parametrize(
     ("tag", "component", "version"),
     (
-        ("v13.3.0", "cuda-bindings", "13.3.0"),
-        ("v13.3.0rc1", "cuda-bindings", "13.3.0rc1"),
-        ("v13.3.0.dev1", "cuda-bindings", "13.3.0.dev1"),
+        ("v13.4.1", "cuda-bindings", "13.4.1"),
+        ("v13.4.1rc1", "cuda-bindings", "13.4.1rc1"),
+        ("v13.4.1.dev1", "cuda-bindings", "13.4.1.dev1"),
         ("v12.9.8.post1", "cuda-python", "12.9.8.post1"),
         ("cuda-core-v1.1.1", "cuda-core", "1.1.1"),
         ("cuda-pathfinder-v1.8.1", "cuda-pathfinder", "1.8.1"),
@@ -65,7 +65,7 @@ def test_parse_version_rejects_invalid_or_mismatched_tags(tag, component):
 @pytest.mark.parametrize(
     ("tag", "package", "version"),
     (
-        ("v13.3.0", "cuda_bindings", "13.3.0"),
+        ("v13.4.1", "cuda_bindings", "13.4.1"),
         ("v12.9.8", "cuda_bindings_12", "12.9.8"),
     ),
 )

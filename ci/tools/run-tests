@@ -73,17 +73,26 @@ elif [[ "${test_module}" == "bindings" ]]; then
     exit 1
   fi
   bindings_requirement="${bindings_wheels[0]}"
+  bindings_toolkit_requirement=()
+  if [[ "${LOCAL_CTK}" != 1 ]]; then
+    TEST_CUDA_MAJOR_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
+    # Keep the wheel-installed Toolkit aligned with the matrix-selected minor;
+    # newer minors can grow ABI structs beyond the size compiled into this wheel.
+    bindings_toolkit_requirement=("cuda-toolkit==${TEST_CUDA_MAJOR_MINOR}.*")
+  fi
   if grep -q '^\[dependency-groups\][[:space:]]*$' pyproject.toml; then
     if [[ "${LOCAL_CTK}" != 1 ]]; then
       bindings_requirement+="[all]"
     fi
-    python -m pip install "${bindings_requirement}" --group pyproject.toml:test "${TEST_FT_GROUP[@]}"
+    python -m pip install "${bindings_requirement}" --group pyproject.toml:test \
+      "${TEST_FT_GROUP[@]}" "${bindings_toolkit_requirement[@]}"
   else
     bindings_extras="test"
     if [[ "${LOCAL_CTK}" != 1 ]]; then
       bindings_extras="all,test"
     fi
-    python -m pip install "${bindings_requirement}[${bindings_extras}]" "${TEST_FT_REQUIREMENT[@]}"
+    python -m pip install "${bindings_requirement}[${bindings_extras}]" \
+      "${TEST_FT_REQUIREMENT[@]}" "${bindings_toolkit_requirement[@]}"
   fi
   echo "Running bindings tests"
   ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/
@@ -93,7 +102,7 @@ elif [[ "${test_module}" == "bindings" ]]; then
   popd
 elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
   # Shared setup for core and nightly modes.
-  TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
+  TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< "${CUDA_VER}")"
   TEST_CUDA_MAJOR_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
 
   # Resolve bindings based on BINDINGS_SOURCE (set by env-vars):
@@ -203,14 +212,11 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
       )
     elif [[ "${test_module}" == "nightly-numba-cuda-mlir" ]]; then
       echo "Installing pathfinder + bindings + core + numba-cuda-mlir + cupy"
-      # numpy<2.5: numba-cuda-mlir 0.4.0 registers np.row_stack, which was
-      # removed in NumPy 2.5. See NVIDIA/numba-cuda-mlir#154.
       # curand/cublas + cupy: some numba-cuda-mlir tests (e.g.
       # test_fortran_contiguous) call cp.random, which dlopens libcurand at
       # runtime. Mirror the numba-cuda branch, which installs the same libs.
       PIP_ARGS+=(
         "numba-cuda-mlir[cu${TEST_CUDA_MAJOR}]"
-        "numpy<2.5"
         "cuda-toolkit[curand,cublas]==${TEST_CUDA_MAJOR_MINOR}.*"
         "cupy-cuda${TEST_CUDA_MAJOR}x"
       )
