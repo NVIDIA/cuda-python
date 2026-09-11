@@ -312,8 +312,8 @@ the Python warnings machinery when the interpreter is usable, deliver an
 escalated warning as an unraisable exception, and fall back to stderr when the
 GIL cannot be taken (for example during finalization). `CUDA_ERROR_DEINITIALIZED`
 is never reported because it means the driver is shutting down. No status is
-discarded silently anywhere in this layer, and nothing in this layer terminates
-the process; see `docs/source/error_handling.rst` and the "Failure handling"
+discarded silently anywhere in this layer, and nothing in this layer may
+terminate the process; see `docs/source/error_handling.rst` and the "Failure handling"
 section of `AGENTS.md` for the policy.
 
 A rollback that fails inside a Cython `except` block is not a non-propagating

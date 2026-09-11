@@ -127,7 +127,15 @@ release matters.
 Process termination
 -------------------
 
-``cuda.core`` does not abort the process in response to a CUDA error, including
-errors that cannot be raised, and including failures to restore the caller's
-context. Aborting is reserved for an internal invariant violation where
-continuing could corrupt memory.
+``cuda.core`` never terminates the process. A CUDA error is raised, or reported
+as a :class:`CUDAWarning` where nothing can be raised; this includes errors in
+destructors and callbacks and failures to restore the caller's context. An
+internal error in ``cuda.core`` itself is handled the same way: it raises a
+``RuntimeError`` that asks you to report it, or is reported as a warning, and
+the affected resource is leaked rather than released in an inconsistent state.
+If you want such failures to stop your program, escalate the warning category::
+
+   warnings.filterwarnings("error", category=cuda.core.CUDAWarning)
+
+A process exit caused by ``cuda.core``, for example through an exception that
+escapes a destructor, is a bug; please report it.

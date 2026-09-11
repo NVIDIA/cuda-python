@@ -142,20 +142,20 @@ below are for contributors. Reviewers and agents should flag violations.
 - **Finalization**: once `py_is_finalizing()` is true, do no Python work from
   destructors or callbacks and accept the leak (see
   `_cpp/resource_handles.hpp` and `_cpp/GRAPH_ATTACHMENTS.md`).
-- **Aborting**: `std::abort` (or any process termination) is reserved for an
-  internal invariant violation where continuing could corrupt memory or produce
-  silently wrong results *and* no leak-based fallback exists. A failed CUDA
-  call, including a failed context restoration, never qualifies: raise or
-  report instead. There is currently no such path; if one is ever needed it
-  must go through a single helper that writes a diagnostic (call, CUDA error,
-  invariant, "please report") and a Python traceback of all threads to stderr
-  before aborting (as `faulthandler` does, via the GIL-free
-  `_Py_DumpTracebackThreads`; no Python-object work), must never trigger
-  during interpreter finalization or for driver-shutdown errors, and must be
-  called out in the docs and release notes. An *implicit* abort (an exception
-  escaping a `noexcept` function or a deleter, including `std::bad_alloc` from
-  an allocation inside `noexcept` code) is a bug (#1489, #2417), not a policy
-  choice: `noexcept` helpers must not allocate, or must catch what they call.
+- **Never terminate the process**: no `std::abort`, `std::terminate`, `exit`,
+  `Py_FatalError`, or `assert` that survives into a release build, anywhere in
+  `cuda.core`. A failed CUDA call, including a failed context restoration, is
+  raised or reported. An internal invariant violation is handled the same way:
+  raise a `RuntimeError` that says "internal cuda.core error, please report"
+  where an exception can propagate, report through the channel above where it
+  cannot, and leak the affected resource rather than touch state that may be
+  inconsistent. Users who want fail-fast behavior get it with
+  `warnings.filterwarnings("error", category=CUDAWarning)` and
+  `PYTHONFAULTHANDLER`; the library does not make that choice for them. An
+  *implicit* abort (an exception escaping a `noexcept` function or a deleter,
+  including `std::bad_alloc` from an allocation inside `noexcept` code) is a
+  bug (#1489, #2417), not a policy choice: `noexcept` helpers must not
+  allocate, or must catch what they call.
 - **Testing**: inject restoration failures with
   `cuda.core._resource_handles._set_context_restore_fault_for_testing`; assert
   reports with `pytest.warns(CUDAWarning)` or `warnings.catch_warnings`, never
