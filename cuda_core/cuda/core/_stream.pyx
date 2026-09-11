@@ -27,6 +27,7 @@ from cuda.core._context cimport (
 from cuda.core._device_resources cimport DeviceResources
 from cuda.core._event import Event, EventOptions
 
+from cuda.core._resource_handles cimport context_get_device
 from cuda.core._resource_handles cimport (
     ContextHandle,
     EventHandle,
@@ -36,7 +37,6 @@ from cuda.core._resource_handles cimport (
     create_stream_handle,
     create_stream_handle_with_owner,
     context_get_stream_priority_range,
-    get_current_context,
     get_last_error,
     get_legacy_stream,
     get_per_thread_stream,
@@ -564,10 +564,7 @@ cdef inline int Stream_get_ctx(Stream self, ContextHandle* h_context) except?-1 
 
 cdef inline int Stream_get_ctx_device(Stream self, ContextHandle* h_context, int* device_id) except?-1:
     """Resolve the stream's context handle and device ID."""
-    cdef cydriver.CUcontext ctx
     cdef cydriver.CUdevice target_dev
-    cdef ContextHandle current_context
-    cdef bint switch_context
     cdef bint is_default = Stream_is_default_token(self)
 
     with nogil:
@@ -575,14 +572,9 @@ cdef inline int Stream_get_ctx_device(Stream self, ContextHandle* h_context, int
         if self._device_id >= 0 and not is_default:
             device_id[0] = self._device_id
         else:
-            # Get device ID from context, switching context temporarily if needed
-            current_context = get_current_context()
-            switch_context = (as_cu(current_context) != as_cu(h_context[0]))
-            if switch_context:
-                HANDLE_RETURN(cydriver.cuCtxPushCurrent(as_cu(h_context[0])))
-            HANDLE_RETURN(cydriver.cuCtxGetDevice(&target_dev))
-            if switch_context:
-                HANDLE_RETURN(cydriver.cuCtxPopCurrent(&ctx))
+            # Query the device with the stream's context current. The handle
+            # layer restores the caller's context, including on failure.
+            HANDLE_RETURN(context_get_device(h_context[0], &target_dev))
             device_id[0] = <int>target_dev
             if not is_default:
                 self._device_id = device_id[0]

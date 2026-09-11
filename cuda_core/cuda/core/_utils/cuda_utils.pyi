@@ -14,6 +14,27 @@ _fork_warning_checked = False
 
 class CUDAError(Exception): ...
 
+class CUDAWarning(RuntimeWarning):
+    """Warning issued when ``cuda.core`` hits a CUDA error it cannot raise.
+
+    ``cuda.core`` raises exceptions for failures in ordinary calls. Some failures
+    happen where no exception can propagate: while a resource is released by the
+    garbage collector or by a CUDA callback, including the driver calls that
+    switch and restore the CUDA context around such a release. Those failures
+    are reported as this warning instead, and the affected resource may have
+    leaked.
+
+    Filter on this category to make such failures fatal in tests::
+
+        warnings.filterwarnings("error", category=cuda.core.CUDAWarning)
+
+    Because the report comes from a destructor, an escalated warning cannot be
+    raised into user code; it is delivered through :func:`sys.unraisablehook`
+    (which pytest surfaces as ``PytestUnraisableExceptionWarning``).
+
+    .. versionadded:: 1.3.0
+    """
+
 class NVRTCError(CUDAError): ...
 
 class ComputeCapability(NamedTuple):

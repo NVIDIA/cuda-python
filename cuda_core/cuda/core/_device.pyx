@@ -1315,8 +1315,12 @@ class Device:
                 HANDLE_RETURN(cydriver.cuCtxGetCurrent(&prev_ctx))
                 if prev_ctx != NULL:
                     HANDLE_RETURN(cydriver.cuCtxGetDevice(&prev_dev))
-                HANDLE_RETURN(cydriver.cuCtxPopCurrent(&prev_ctx))
-                HANDLE_RETURN(cydriver.cuCtxPushCurrent(curr_ctx))
+                # cuCtxSetCurrent replaces the top of the thread's context stack
+                # in one driver call (or binds ctx when nothing is current), so
+                # a failure leaves the previous context current instead of
+                # leaving the thread with no context, as a failed pop-then-push
+                # would.
+                HANDLE_RETURN(cydriver.cuCtxSetCurrent(curr_ctx))
             self._has_inited = True
             self._context = ctx  # Store owning context reference
             if prev_ctx != NULL:

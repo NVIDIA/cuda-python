@@ -10,6 +10,7 @@
 # The cdef extern from declarations below satisfy the .pxd declarations directly,
 # without needing separate wrapper functions.
 
+from cpython.object cimport PyObject
 from cpython.pycapsule cimport PyCapsule_GetName, PyCapsule_GetPointer
 from libc.stddef cimport size_t
 
@@ -36,6 +37,26 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     cydriver.CUresult peek_last_error "cuda_core::peek_last_error" () noexcept nogil
     void clear_last_error "cuda_core::clear_last_error" () noexcept nogil
 
+    # Non-propagating error reporting
+    void register_warning_category "cuda_core::register_warning_category" (
+        PyObject* category) noexcept
+    void report_cuda_error "cuda_core::report_cuda_error" (
+        const char* operation, cydriver.CUresult status, const char* detail) noexcept nogil
+    void report_message "cuda_core::report_message" (const char* message) noexcept nogil
+    void report_status_code "cuda_core::report_status_code" (
+        const char* operation, long code) noexcept nogil
+    void note_or_report_cuda_error "cuda_core::note_or_report_cuda_error" (
+        const char* operation, cydriver.CUresult status, const char* detail) noexcept nogil
+    # Alias for calls made from this module: calling the pxd-declared name here
+    # would make Cython emit a conflicting static prototype for it.
+    void _note_or_report_cuda_error_local "cuda_core::note_or_report_cuda_error" (
+        const char* operation, cydriver.CUresult status, const char* detail) noexcept nogil
+    const char* take_last_error_detail "cuda_core::take_last_error_detail" (
+        cydriver.CUresult status) noexcept nogil
+    void clear_last_error_detail "cuda_core::clear_last_error_detail" () noexcept nogil
+    void set_context_restore_fault_for_testing "cuda_core::set_context_restore_fault_for_testing" (
+        cydriver.CUresult status) noexcept nogil
+
     # Context handles
     ContextHandle create_context_handle_ref "cuda_core::create_context_handle_ref" (
         cydriver.CUcontext ctx) except+ nogil
@@ -57,6 +78,11 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         const ContextHandle& h_context,
         int* least_priority,
         int* greatest_priority) noexcept nogil
+    cydriver.CUresult context_get_device "cuda_core::context_get_device" (
+        const ContextHandle& h_context, cydriver.CUdevice* device) noexcept nogil
+    cydriver.CUresult graph_node_set_params "cuda_core::graph_node_set_params" (
+        cydriver.CUgraphNode node, cydriver.CUgraphNodeParams* params,
+        const ContextHandle& h_context, cydriver.CUresult* restore_status) noexcept nogil
 
     # Stream handles
     StreamHandle create_stream_handle "cuda_core::create_stream_handle" (
@@ -323,6 +349,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuCtxSetCurrent "reinterpret_cast<void*&>(cuda_core::p_cuCtxSetCurrent)"
     void* p_cuCtxSynchronize "reinterpret_cast<void*&>(cuda_core::p_cuCtxSynchronize)"
     void* p_cuCtxGetStreamPriorityRange "reinterpret_cast<void*&>(cuda_core::p_cuCtxGetStreamPriorityRange)"
+    void* p_cuCtxGetDevice "reinterpret_cast<void*&>(cuda_core::p_cuCtxGetDevice)"
+    void* p_cuGraphNodeSetParams "reinterpret_cast<void*&>(cuda_core::p_cuGraphNodeSetParams)"
     void* p_cuGreenCtxCreate "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxCreate)"
     void* p_cuGreenCtxDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxDestroy)"
     void* p_cuCtxFromGreenCtx "reinterpret_cast<void*&>(cuda_core::p_cuCtxFromGreenCtx)"
@@ -433,6 +461,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     global p_cuGetErrorName, p_cuGetErrorString
     global p_cuDevicePrimaryCtxRetain, p_cuDevicePrimaryCtxRelease, p_cuCtxGetCurrent
     global p_cuCtxSetCurrent, p_cuCtxSynchronize, p_cuCtxGetStreamPriorityRange
+    global p_cuCtxGetDevice, p_cuGraphNodeSetParams
     global p_cuGreenCtxCreate, p_cuGreenCtxDestroy, p_cuCtxFromGreenCtx
     global p_cuDevResourceGenerateDesc, p_cuGreenCtxStreamCreate
     global p_cuStreamCreateWithPriority, p_cuStreamDestroy, p_cuStreamGetCtx
@@ -469,6 +498,9 @@ cdef void _init_driver_fn_pointers() noexcept:
     p_cuCtxSetCurrent = _get_driver_fn("cuCtxSetCurrent")
     p_cuCtxSynchronize = _get_driver_fn("cuCtxSynchronize")
     p_cuCtxGetStreamPriorityRange = _get_driver_fn("cuCtxGetStreamPriorityRange")
+    p_cuCtxGetDevice = _get_driver_fn("cuCtxGetDevice")
+    # Graph node parameter updates need CUDA 12.2+ (checked again at the call site).
+    p_cuGraphNodeSetParams = _get_optional_driver_fn("cuGraphNodeSetParams")
     p_cuGreenCtxCreate = _get_optional_driver_fn("cuGreenCtxCreate")
     p_cuGreenCtxDestroy = _get_optional_driver_fn("cuGreenCtxDestroy")
     p_cuCtxFromGreenCtx = _get_optional_driver_fn("cuCtxFromGreenCtx")
@@ -553,6 +585,27 @@ cdef void _init_driver_fn_pointers() noexcept:
 
 _init_driver_fn_pointers()
 initialize_deferred_cleanup()
+
+
+def _set_context_restore_fault_for_testing(int status):
+    """Make the next context restoration on this thread fail with ``status``.
+
+    Test hook for the context save/restore paths in the handle layer. The
+    injected failure leaves the target context current, exactly as a failing
+    ``cuCtxSetCurrent`` would, so callers must restore the context themselves.
+    """
+    set_context_restore_fault_for_testing(<cydriver.CUresult>status)
+
+
+def _note_or_report_cuda_error_for_testing(int status):
+    """Attach a failed CUDA call to the exception being handled, or report it.
+
+    Test hook for ``note_or_report_cuda_error()``. Called inside an ``except``
+    block it adds a note to the exception being handled (Python 3.11+); anywhere
+    else it emits a ``CUDAWarning``.
+    """
+    _note_or_report_cuda_error_local(
+        b"cuTestOperation", <cydriver.CUresult>status, b"failed while testing")
 
 # =============================================================================
 # NVRTC function pointer initialization
