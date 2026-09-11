@@ -1,0 +1,35 @@
+﻿cuda.bindings.nvml.EccBankRemapperStatus\_v1
+============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: EccBankRemapperStatus_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EccBankRemapperStatus_v1.__init__
+      ~EccBankRemapperStatus_v1.from_buffer
+      ~EccBankRemapperStatus_v1.from_data
+      ~EccBankRemapperStatus_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~EccBankRemapperStatus_v1.active_remappings
+      ~EccBankRemapperStatus_v1.b_pending
+      ~EccBankRemapperStatus_v1.histogram
+      ~EccBankRemapperStatus_v1.inactive_remappings
+      ~EccBankRemapperStatus_v1.ptr
+   
+   

@@ -1,0 +1,36 @@
+﻿cuda.bindings.nvml.AdaptiveTgpModeInfo\_v1
+==========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: AdaptiveTgpModeInfo_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AdaptiveTgpModeInfo_v1.__init__
+      ~AdaptiveTgpModeInfo_v1.from_buffer
+      ~AdaptiveTgpModeInfo_v1.from_data
+      ~AdaptiveTgpModeInfo_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~AdaptiveTgpModeInfo_v1.adjusted_limit_mw
+      ~AdaptiveTgpModeInfo_v1.admin_override_enabled
+      ~AdaptiveTgpModeInfo_v1.enablement_status
+      ~AdaptiveTgpModeInfo_v1.feature_allowed_by_admin
+      ~AdaptiveTgpModeInfo_v1.in_band_enable_request
+      ~AdaptiveTgpModeInfo_v1.ptr
+   
+   
