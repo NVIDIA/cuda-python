@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9725757222bfc514253ab6a6113b4e6b1c33fab841fe2fff8ebb1012ecf7715b
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6f99f863837a6b8fb2da89dfe53cb7a4d42ae5e413c181bbfb8e557a1fec0bff
 from ._internal cimport nvrtc as _nvrtc
 
 cdef const char* nvrtcGetErrorString(nvrtcResult result) except?NULL nogil:

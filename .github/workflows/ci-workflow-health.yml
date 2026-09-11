@@ -13,6 +13,8 @@ on:
       - "CI: Coverage"
       - "CI: Nightly optional-deps"
       - "CI: pixi run test (source build)"
+      - "CI: pixi lockfile refresh"
+      - "CI: pixi lockfile freshness check"
       - "Security Suite (Pulse + CodeQL)"
       - "Static Analysis: Bandit Scan"
     types:
