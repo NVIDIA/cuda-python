@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.event\_set\_register\_gpu\_operational\_events\_v1
+=====================================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: event_set_register_gpu_operational_events_v1
