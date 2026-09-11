@@ -183,6 +183,22 @@ def _relativize_extension_sources(extensions) -> None:
         ]
 
 
+def _extension_sources(mod_name):
+    """The module's .pyx plus its C++, if any: every .cpp under
+    cuda/core/_cpp/<stem>/, or the single legacy file cuda/core/_cpp/<stem>.cpp.
+    Example: _tensor_map.pyx compiles _cpp/tensor_map.cpp."""
+    sources = [f"cuda/core/{mod_name}.pyx"]
+    cpp_stem = Path("cuda", "core", "_cpp", mod_name.lstrip("_"))
+    if cpp_stem.is_dir():
+        cpp_sources = sorted(str(path) for path in cpp_stem.rglob("*.cpp"))
+        if not cpp_sources:
+            raise RuntimeError(f"{cpp_stem}/ exists but contains no .cpp files")
+        sources.extend(cpp_sources)
+    elif cpp_stem.with_suffix(".cpp").is_file():
+        sources.append(str(cpp_stem.with_suffix(".cpp")))
+    return sources
+
+
 def _build_cuda_core(debug=False):
     # Customizing the build hooks is needed because we must defer cythonization until cuda-bindings,
     # now a required build-time dependency that's dynamically installed via the other hook below,
@@ -227,18 +243,6 @@ def _build_cuda_core(debug=False):
                 continue
             yield mod
 
-    def get_sources(mod_name):
-        """Get source files for a module, including any .cpp files."""
-        sources = [f"cuda/core/{mod_name}.pyx"]
-
-        # Add module-specific .cpp file from _cpp/ directory if it exists
-        # Example: _resource_handles.pyx finds _cpp/resource_handles.cpp.
-        cpp_file = f"cuda/core/_cpp/{mod_name.lstrip('_')}.cpp"
-        if os.path.exists(cpp_file):
-            sources.append(cpp_file)
-
-        return sources
-
     all_include_dirs = [os.path.join(cuda_path, "include")]
     extra_compile_args = []
     extra_link_args = []
@@ -264,7 +268,7 @@ def _build_cuda_core(debug=False):
     ext_modules = tuple(
         Extension(
             f"cuda.core.{mod.replace(os.path.sep, '.')}",
-            sources=get_sources(mod),
+            sources=_extension_sources(mod),
             include_dirs=[
                 "cuda/core/_include",
                 "cuda/core/_cpp",
