@@ -4,6 +4,7 @@
 import os
 import platform
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from child_load_nvidia_dynamic_lib_helper import (
@@ -123,10 +124,37 @@ IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
 def _is_expected_load_nvidia_dynamic_lib_failure(libname):
     if libname == "nvpl_fftw" and platform.machine().lower() != "aarch64":
         return True
+    if libname == "cutensorMg":
+        # cuTENSOR 2.8 removed cuTENSORMg in favor of cuTENSORMp.
+        return have_distribution(r"^cutensor-cu(?:12|13)$", minimum_version="2.8")
     dist_name_pattern = IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES.get(libname)
     if dist_name_pattern is not None:
         return not have_distribution(dist_name_pattern)
     return False
+
+
+@pytest.mark.parametrize(
+    ("installed_distributions", "expected"),
+    [
+        ([], False),
+        ([SimpleNamespace(metadata={"Name": "cutensor-cu13"}, version="2.7.0")], False),
+        ([SimpleNamespace(metadata={"Name": "cutensor-cu12"}, version="2.8.0")], True),
+        ([SimpleNamespace(metadata={"Name": "cutensor-cu13"}, version="2.9.0")], True),
+        ([SimpleNamespace(metadata={"Name": "unrelated-package"}, version="2.8.0")], False),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_cutensor_mg_expected_failure_follows_installed_cutensor_version(
+    mocker,
+    installed_distributions,
+    expected,
+):
+    mocker.patch("local_helpers.importlib.metadata.distributions", return_value=installed_distributions)
+    have_distribution.cache_clear()
+    try:
+        assert _is_expected_load_nvidia_dynamic_lib_failure("cutensorMg") is expected
+    finally:
+        have_distribution.cache_clear()
 
 
 @pytest.mark.parametrize(
