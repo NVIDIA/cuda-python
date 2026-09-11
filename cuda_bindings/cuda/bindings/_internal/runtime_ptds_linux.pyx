@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=33b0c77f7174d41189a91abfe73613b5ba48bd31b5da37d509da61c00b11a004
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0a50966ff0481d081895f8a962cedc08239c3637de07e4a554eec0cdf08d6670
 cdef extern from "":
     """
     #define CUDA_API_PER_THREAD_DEFAULT_STREAM
@@ -976,6 +976,9 @@ cdef extern from 'cuda_runtime_api.h' nogil:
 
 cdef extern from 'cuda_runtime_api.h' nogil:
     cudaError_t _static_cudaStreamBeginRecaptureToGraph "cudaStreamBeginRecaptureToGraph" (cudaStream_t stream, cudaStreamCaptureMode mode, cudaGraph_t graph, cudaGraphRecaptureCallbackData* callbackData) noexcept
+
+cdef extern from 'cuda_runtime_api.h' nogil:
+    cudaError_t _static_cudaMemGetLocationInfo "cudaMemGetLocationInfo" (void* devPtr, size_t size, size_t summaryGranularity, size_t samplingGranularity, cudaMemLocation* location_out) noexcept
 
 
 ###############################################################################
@@ -2260,3 +2263,7 @@ cdef cudaError_t _cudaGraphNodeGetParams(cudaGraphNode_t node, cudaGraphNodePara
 
 cdef cudaError_t _cudaStreamBeginRecaptureToGraph(cudaStream_t stream, cudaStreamCaptureMode mode, cudaGraph_t graph, cudaGraphRecaptureCallbackData* callbackData) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _static_cudaStreamBeginRecaptureToGraph(stream, mode, graph, callbackData)
+
+
+cdef cudaError_t _cudaMemGetLocationInfo(void* devPtr, size_t size, size_t summaryGranularity, size_t samplingGranularity, cudaMemLocation* location_out) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _static_cudaMemGetLocationInfo(devPtr, size, summaryGranularity, samplingGranularity, location_out)

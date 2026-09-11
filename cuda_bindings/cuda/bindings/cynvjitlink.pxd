@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.4.1. Do not modify it directly.
 
 
 
@@ -11,7 +11,7 @@
 ###############################################################################
 
 # enums
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d5650f46aa9baca8a379aa5dece6b9069474ad81e53b0af898fe89e0095f4e8f
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7bd3a5876758225a37a98b496a1423047d3a446a4a0956ebc11b17f0abe2128a
 
 # <<<< PREAMBLE CONTENT >>>>
 
