@@ -39,6 +39,61 @@ inline bool py_is_finalizing() noexcept {
 #endif
 }
 
+// Conditionally release the GIL while calling into the CUDA driver.
+class GILReleaseGuard {
+public:
+    GILReleaseGuard() noexcept {
+        if (!Py_IsInitialized() || py_is_finalizing()) {
+            return;
+        }
+        if (PyGILState_Check()) {
+            tstate_ = PyEval_SaveThread();
+        }
+    }
+
+    ~GILReleaseGuard() {
+        if (tstate_) {
+            PyEval_RestoreThread(tstate_);
+        }
+    }
+
+    GILReleaseGuard(const GILReleaseGuard&) = delete;
+    GILReleaseGuard& operator=(const GILReleaseGuard&) = delete;
+
+private:
+    PyThreadState* tstate_ = nullptr;
+};
+
+// Helper to acquire the GIL when we might not hold it.
+// Use in C++ destructors that need to manipulate Python objects.
+class GILAcquireGuard {
+public:
+    GILAcquireGuard() : acquired_(false) {
+        // Don't try to acquire GIL if Python is finalizing
+        if (!Py_IsInitialized() || py_is_finalizing()) {
+            return;
+        }
+        gstate_ = PyGILState_Ensure();
+        acquired_ = true;
+    }
+
+    ~GILAcquireGuard() {
+        if (acquired_) {
+            PyGILState_Release(gstate_);
+        }
+    }
+
+    bool acquired() const { return acquired_; }
+
+    // Non-copyable, non-movable
+    GILAcquireGuard(const GILAcquireGuard&) = delete;
+    GILAcquireGuard& operator=(const GILAcquireGuard&) = delete;
+
+private:
+    PyGILState_STATE gstate_;
+    bool acquired_;
+};
+
 // as_py() - convert handle to Python wrapper object (returns new reference)
 namespace detail {
 // n.b. class lookup is not cached to avoid deadlock hazard, see DESIGN.md

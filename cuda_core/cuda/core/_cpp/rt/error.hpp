@@ -21,6 +21,10 @@ CUresult peek_last_error() noexcept;
 // Explicitly clear the last error
 void clear_last_error() noexcept;
 
+// Thread-local status of the most recent CUDA API call in this module. Defined
+// in error.cpp; every family source writes it.
+extern thread_local CUresult err;
+
 // ============================================================================
 // Non-propagating error reporting
 //
