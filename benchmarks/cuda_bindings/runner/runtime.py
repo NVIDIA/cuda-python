@@ -30,7 +30,10 @@ def ensure_context() -> int:
     assert_drv(err)
     _device = device
 
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
+    if cuda.CUDA_VERSION < 13000:
+        err, ctx = cuda.cuCtxCreate(0, device)
+    else:
+        err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert_drv(err)
     _ctx = ctx
     return ctx

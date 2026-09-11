@@ -93,7 +93,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/virtualenv-21.7.9-pyh5ded981_0.conda
-      - conda_source: cuda-core[23592f13] @ ../../cuda_core
+      - conda_source: cuda-core[8ae17e81] @ ../../cuda_core
   wheel:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -1437,7 +1437,7 @@ packages:
   run_exports: {}
   size: 3895514
   timestamp: 1788948703859
-- conda_source: cuda-core[23592f13] @ ../../cuda_core
+- conda_source: cuda-core[8ae17e81] @ ../../cuda_core
   variants:
     c_stdlib: sysroot
     c_stdlib_version: '2.28'
@@ -1455,8 +1455,8 @@ packages:
   - libstdcxx >=16
   - __glibc >=2.28,<3.0.a0
   - python_abi 3.14.* *_cp314
-  - cuda-cudart >=13.4.49,<14.0a0
   - cuda-nvrtc >=13.4.59,<14.0a0
+  - cuda-cudart >=13.4.49,<14.0a0
   license: Apache-2.0
   build_packages:
   - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda

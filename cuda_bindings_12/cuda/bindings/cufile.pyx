@@ -1,0 +1,1586 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# This code was automatically generated with version 12.9.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3f4b1b8c4b79253c33c049ec2b53fc2e6cf7fe58912d71ec5505cb8b3cca6a98
+
+
+# <<<< PREAMBLE CONTENT >>>>
+
+cimport cpython as _cyb_cpython
+cimport cpython.buffer as _cyb_cpython_buffer
+cimport cpython.memoryview as _cyb_cpython_memoryview
+from libc.stdint cimport intptr_t
+from libc.stdlib cimport (
+    calloc as _cyb_calloc,
+    free as _cyb_free,
+    malloc as _cyb_malloc,
+)
+from libc.string cimport (
+    memcmp as _cyb_memcmp,
+    memcpy as _cyb_memcpy,
+)
+from libcpp cimport bool as _cyb_bool
+
+from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
+
+import numpy as _numpy
+
+cdef _cyb___getbuffer(object self, _cyb_cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
+    buffer.buf = <char *>ptr
+    buffer.format = 'b'
+    buffer.internal = NULL
+    buffer.itemsize = 1
+    buffer.len = size
+    buffer.ndim = 1
+    buffer.obj = self
+    buffer.readonly = readonly
+    buffer.shape = &buffer.len
+    buffer.strides = &buffer.itemsize
+    buffer.suboffsets = NULL
+
+cdef _cyb_from_buffer(buffer, size, lowpp_type):
+    cdef _cyb_cpython.Py_buffer view
+    if _cyb_cpython.PyObject_GetBuffer(buffer, &view, _cyb_cpython_buffer.PyBUF_SIMPLE) != 0:
+        raise TypeError("buffer argument does not support the buffer protocol")
+    try:
+        if view.itemsize != 1:
+            raise ValueError("buffer itemsize must be 1 byte")
+        if view.len != size:
+            raise ValueError(f"buffer length must be {size} bytes")
+        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
+    finally:
+        _cyb_cpython.PyBuffer_Release(&view)
+
+cdef _cyb_from_data(data, dtype_name, expected_dtype, lowpp_type):
+    # _numpy.recarray is a subclass of _numpy.ndarray, so implicitly handled here.
+    if isinstance(data, lowpp_type):
+        return data
+    if not isinstance(data, _numpy.ndarray):
+        raise TypeError("data argument must be a NumPy ndarray")
+    if data.size != 1:
+        raise ValueError("data array must have a size of 1")
+    if data.dtype != expected_dtype:
+        raise ValueError(f"data array must be of dtype {dtype_name}")
+    return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
+cimport cython  # NOQA
+from libc cimport errno
+from ._internal.utils cimport (get_nested_resource_ptr,
+                               nested_resource)
+
+import cython
+
+from cuda.bindings.driver import CUresult as pyCUresult
+
+###############################################################################
+# POD
+###############################################################################
+
+cdef _get__py_anon_pod1_dtype_offsets():
+    cdef cuda_bindings_cufile__anon_pod1 pod
+    return _numpy.dtype({
+        'names': ['fd', 'handle'],
+        'formats': [_numpy.int32, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.fd)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.handle)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof((<CUfileDescr_t*>NULL).handle),
+    })
+
+_py_anon_pod1_dtype = _get__py_anon_pod1_dtype_offsets()
+
+cdef class _py_anon_pod1:
+    """Empty-initialize an instance of `cuda_bindings_cufile__anon_pod1`.
+
+
+    .. seealso:: `cuda_bindings_cufile__anon_pod1`
+    """
+    cdef:
+        cuda_bindings_cufile__anon_pod1 *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_calloc(1, sizeof((<CUfileDescr_t*>NULL).handle))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating _py_anon_pod1")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef cuda_bindings_cufile__anon_pod1 *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            _cyb_free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}._py_anon_pod1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef _py_anon_pod1 other_
+        if not isinstance(other, _py_anon_pod1):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileDescr_t*>NULL).handle)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileDescr_t*>NULL).handle), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_malloc(sizeof((<CUfileDescr_t*>NULL).handle))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating _py_anon_pod1")
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileDescr_t*>NULL).handle))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def fd(self):
+        """int: """
+        return self._ptr[0].fd
+
+    @fd.setter
+    def fd(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod1 instance is read-only")
+        self._ptr[0].fd = val
+
+    @property
+    def handle(self):
+        """int: """
+        return <intptr_t>(self._ptr[0].handle)
+
+    @handle.setter
+    def handle(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod1 instance is read-only")
+        self._ptr[0].handle = <void *><intptr_t>val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an _py_anon_pod1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof((<CUfileDescr_t*>NULL).handle), _py_anon_pod1)
+
+    @staticmethod
+    def from_data(data):
+        """Create an _py_anon_pod1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod1_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "_py_anon_pod1_dtype", _py_anon_pod1_dtype, _py_anon_pod1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an _py_anon_pod1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef _py_anon_pod1 obj = _py_anon_pod1.__new__(_py_anon_pod1)
+        if owner is None:
+            obj._ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_malloc(sizeof((<CUfileDescr_t*>NULL).handle))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating _py_anon_pod1")
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileDescr_t*>NULL).handle))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <cuda_bindings_cufile__anon_pod1 *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get__py_anon_pod3_dtype_offsets():
+    cdef cuda_bindings_cufile__anon_pod3 pod
+    return _numpy.dtype({
+        'names': ['dev_ptr_base', 'file_offset', 'dev_ptr_offset', 'size_'],
+        'formats': [_numpy.intp, _numpy.int64, _numpy.int64, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.devPtr_base)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.file_offset)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.devPtr_offset)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof((<CUfileIOParams_t*>NULL).u.batch),
+    })
+
+_py_anon_pod3_dtype = _get__py_anon_pod3_dtype_offsets()
+
+cdef class _py_anon_pod3:
+    """Empty-initialize an instance of `cuda_bindings_cufile__anon_pod3`.
+
+
+    .. seealso:: `cuda_bindings_cufile__anon_pod3`
+    """
+    cdef:
+        cuda_bindings_cufile__anon_pod3 *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_calloc(1, sizeof((<CUfileIOParams_t*>NULL).u.batch))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating _py_anon_pod3")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef cuda_bindings_cufile__anon_pod3 *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            _cyb_free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}._py_anon_pod3 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef _py_anon_pod3 other_
+        if not isinstance(other, _py_anon_pod3):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileIOParams_t*>NULL).u.batch)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating _py_anon_pod3")
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def dev_ptr_base(self):
+        """int: """
+        return <intptr_t>(self._ptr[0].devPtr_base)
+
+    @dev_ptr_base.setter
+    def dev_ptr_base(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod3 instance is read-only")
+        self._ptr[0].devPtr_base = <void *><intptr_t>val
+
+    @property
+    def file_offset(self):
+        """int: """
+        return self._ptr[0].file_offset
+
+    @file_offset.setter
+    def file_offset(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod3 instance is read-only")
+        self._ptr[0].file_offset = val
+
+    @property
+    def dev_ptr_offset(self):
+        """int: """
+        return self._ptr[0].devPtr_offset
+
+    @dev_ptr_offset.setter
+    def dev_ptr_offset(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod3 instance is read-only")
+        self._ptr[0].devPtr_offset = val
+
+    @property
+    def size_(self):
+        """int: """
+        return self._ptr[0].size
+
+    @size_.setter
+    def size_(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod3 instance is read-only")
+        self._ptr[0].size = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an _py_anon_pod3 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof((<CUfileIOParams_t*>NULL).u.batch), _py_anon_pod3)
+
+    @staticmethod
+    def from_data(data):
+        """Create an _py_anon_pod3 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod3_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "_py_anon_pod3_dtype", _py_anon_pod3_dtype, _py_anon_pod3)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an _py_anon_pod3 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef _py_anon_pod3 obj = _py_anon_pod3.__new__(_py_anon_pod3)
+        if owner is None:
+            obj._ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating _py_anon_pod3")
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <cuda_bindings_cufile__anon_pod3 *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_io_events_dtype_offsets():
+    cdef CUfileIOEvents_t pod
+    return _numpy.dtype({
+        'names': ['cookie', 'status', 'ret'],
+        'formats': [_numpy.intp, _numpy.int32, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.cookie)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.status)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ret)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUfileIOEvents_t),
+    })
+
+io_events_dtype = _get_io_events_dtype_offsets()
+
+cdef class IOEvents:
+    """Empty-initialize an array of `CUfileIOEvents_t`.
+    The resulting object is of length `size` and of dtype `io_events_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `CUfileIOEvents_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=io_events_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(CUfileIOEvents_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileIOEvents_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.IOEvents_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.IOEvents object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, IOEvents)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def cookie(self):
+        """Union[~_numpy.intp, int]: """
+        if self._data.size == 1:
+            return int(self._data.cookie[0])
+        return self._data.cookie
+
+    @cookie.setter
+    def cookie(self, val):
+        self._data.cookie = val
+
+    @property
+    def status(self):
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data.status[0])
+        return self._data.status
+
+    @status.setter
+    def status(self, val):
+        self._data.status = val
+
+    @property
+    def ret(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.ret[0])
+        return self._data.ret
+
+    @ret.setter
+    def ret(self, val):
+        self._data.ret = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return IOEvents.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == io_events_dtype:
+            return IOEvents.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an IOEvents instance with the memory from the given buffer."""
+        return IOEvents.from_data(_numpy.frombuffer(buffer, dtype=io_events_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an IOEvents instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `io_events_dtype` holding the data.
+        """
+        cdef IOEvents obj = IOEvents.__new__(IOEvents)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != io_events_dtype:
+            raise ValueError("data array must be of dtype io_events_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an IOEvents instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef IOEvents obj = IOEvents.__new__(IOEvents)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUfileIOEvents_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=io_events_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        return obj
+
+
+cdef _get_descr_dtype_offsets():
+    cdef CUfileDescr_t pod
+    return _numpy.dtype({
+        'names': ['type', 'handle', 'fs_ops'],
+        'formats': [_numpy.int32, _py_anon_pod1_dtype, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.handle)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.fs_ops)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUfileDescr_t),
+    })
+
+descr_dtype = _get_descr_dtype_offsets()
+
+cdef class Descr:
+    """Empty-initialize an array of `CUfileDescr_t`.
+    The resulting object is of length `size` and of dtype `descr_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `CUfileDescr_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=descr_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(CUfileDescr_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileDescr_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.Descr_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.Descr object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, Descr)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def type(self):
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data.type[0])
+        return self._data.type
+
+    @type.setter
+    def type(self, val):
+        self._data.type = val
+
+    @property
+    def handle(self):
+        """_py_anon_pod1_dtype: """
+        return self._data.handle
+
+    @handle.setter
+    def handle(self, val):
+        self._data.handle = val
+
+    @property
+    def fs_ops(self):
+        """Union[~_numpy.intp, int]: """
+        if self._data.size == 1:
+            return int(self._data.fs_ops[0])
+        return self._data.fs_ops
+
+    @fs_ops.setter
+    def fs_ops(self, val):
+        self._data.fs_ops = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return Descr.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == descr_dtype:
+            return Descr.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an Descr instance with the memory from the given buffer."""
+        return Descr.from_data(_numpy.frombuffer(buffer, dtype=descr_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an Descr instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `descr_dtype` holding the data.
+        """
+        cdef Descr obj = Descr.__new__(Descr)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != descr_dtype:
+            raise ValueError("data array must be of dtype descr_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an Descr instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef Descr obj = Descr.__new__(Descr)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUfileDescr_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=descr_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        return obj
+
+
+cdef _get__py_anon_pod2_dtype_offsets():
+    cdef cuda_bindings_cufile__anon_pod2 pod
+    return _numpy.dtype({
+        'names': ['batch'],
+        'formats': [_py_anon_pod3_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.batch)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof((<CUfileIOParams_t*>NULL).u),
+    })
+
+_py_anon_pod2_dtype = _get__py_anon_pod2_dtype_offsets()
+
+cdef class _py_anon_pod2:
+    """Empty-initialize an instance of `cuda_bindings_cufile__anon_pod2`.
+
+
+    .. seealso:: `cuda_bindings_cufile__anon_pod2`
+    """
+    cdef:
+        cuda_bindings_cufile__anon_pod2 *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_calloc(1, sizeof((<CUfileIOParams_t*>NULL).u))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating _py_anon_pod2")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef cuda_bindings_cufile__anon_pod2 *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            _cyb_free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}._py_anon_pod2 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef _py_anon_pod2 other_
+        if not isinstance(other, _py_anon_pod2):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileIOParams_t*>NULL).u)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileIOParams_t*>NULL).u), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating _py_anon_pod2")
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def batch(self):
+        """_py_anon_pod3: """
+        return _py_anon_pod3.from_ptr(
+            <intptr_t>&(self._ptr[0].batch),
+            readonly=self._readonly,
+            owner=self,
+        )
+
+    @batch.setter
+    def batch(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod2 instance is read-only")
+        cdef _py_anon_pod3 val_ = val
+        _cyb_memcpy(<void *>&(self._ptr[0].batch), <void *>(val_._get_ptr()), sizeof(cuda_bindings_cufile__anon_pod3) * 1)
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an _py_anon_pod2 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof((<CUfileIOParams_t*>NULL).u), _py_anon_pod2)
+
+    @staticmethod
+    def from_data(data):
+        """Create an _py_anon_pod2 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod2_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "_py_anon_pod2_dtype", _py_anon_pod2_dtype, _py_anon_pod2)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an _py_anon_pod2 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef _py_anon_pod2 obj = _py_anon_pod2.__new__(_py_anon_pod2)
+        if owner is None:
+            obj._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating _py_anon_pod2")
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <cuda_bindings_cufile__anon_pod2 *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_io_params_dtype_offsets():
+    cdef CUfileIOParams_t pod
+    return _numpy.dtype({
+        'names': ['mode', 'u', 'fh', 'opcode', 'cookie'],
+        'formats': [_numpy.int32, _py_anon_pod2_dtype, _numpy.intp, _numpy.int32, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.mode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.u)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.fh)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.opcode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.cookie)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUfileIOParams_t),
+    })
+
+io_params_dtype = _get_io_params_dtype_offsets()
+
+cdef class IOParams:
+    """Empty-initialize an array of `CUfileIOParams_t`.
+    The resulting object is of length `size` and of dtype `io_params_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `CUfileIOParams_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=io_params_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(CUfileIOParams_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileIOParams_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.IOParams_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.IOParams object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, IOParams)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def mode(self):
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data.mode[0])
+        return self._data.mode
+
+    @mode.setter
+    def mode(self, val):
+        self._data.mode = val
+
+    @property
+    def u(self):
+        """_py_anon_pod2_dtype: """
+        return self._data.u
+
+    @u.setter
+    def u(self, val):
+        self._data.u = val
+
+    @property
+    def fh(self):
+        """Union[~_numpy.intp, int]: """
+        if self._data.size == 1:
+            return int(self._data.fh[0])
+        return self._data.fh
+
+    @fh.setter
+    def fh(self, val):
+        self._data.fh = val
+
+    @property
+    def opcode(self):
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data.opcode[0])
+        return self._data.opcode
+
+    @opcode.setter
+    def opcode(self, val):
+        self._data.opcode = val
+
+    @property
+    def cookie(self):
+        """Union[~_numpy.intp, int]: """
+        if self._data.size == 1:
+            return int(self._data.cookie[0])
+        return self._data.cookie
+
+    @cookie.setter
+    def cookie(self, val):
+        self._data.cookie = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return IOParams.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == io_params_dtype:
+            return IOParams.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an IOParams instance with the memory from the given buffer."""
+        return IOParams.from_data(_numpy.frombuffer(buffer, dtype=io_params_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an IOParams instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `io_params_dtype` holding the data.
+        """
+        cdef IOParams obj = IOParams.__new__(IOParams)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != io_params_dtype:
+            raise ValueError("data array must be of dtype io_params_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an IOParams instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef IOParams obj = IOParams.__new__(IOParams)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUfileIOParams_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=io_params_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        return obj
+
+
+###############################################################################
+# Enum
+###############################################################################
+
+class OpError(_cyb_FastEnum):
+    """
+    See `CUfileOpError`.
+    """
+    SUCCESS = CU_FILE_SUCCESS
+    DRIVER_NOT_INITIALIZED = CU_FILE_DRIVER_NOT_INITIALIZED
+    DRIVER_INVALID_PROPS = CU_FILE_DRIVER_INVALID_PROPS
+    DRIVER_UNSUPPORTED_LIMIT = CU_FILE_DRIVER_UNSUPPORTED_LIMIT
+    DRIVER_VERSION_MISMATCH = CU_FILE_DRIVER_VERSION_MISMATCH
+    DRIVER_VERSION_READ_ERROR = CU_FILE_DRIVER_VERSION_READ_ERROR
+    DRIVER_CLOSING = CU_FILE_DRIVER_CLOSING
+    PLATFORM_NOT_SUPPORTED = CU_FILE_PLATFORM_NOT_SUPPORTED
+    IO_NOT_SUPPORTED = CU_FILE_IO_NOT_SUPPORTED
+    DEVICE_NOT_SUPPORTED = CU_FILE_DEVICE_NOT_SUPPORTED
+    NVFS_DRIVER_ERROR = CU_FILE_NVFS_DRIVER_ERROR
+    CUDA_DRIVER_ERROR = CU_FILE_CUDA_DRIVER_ERROR
+    CUDA_POINTER_INVALID = CU_FILE_CUDA_POINTER_INVALID
+    CUDA_MEMORY_TYPE_INVALID = CU_FILE_CUDA_MEMORY_TYPE_INVALID
+    CUDA_POINTER_RANGE_ERROR = CU_FILE_CUDA_POINTER_RANGE_ERROR
+    CUDA_CONTEXT_MISMATCH = CU_FILE_CUDA_CONTEXT_MISMATCH
+    INVALID_MAPPING_SIZE = CU_FILE_INVALID_MAPPING_SIZE
+    INVALID_MAPPING_RANGE = CU_FILE_INVALID_MAPPING_RANGE
+    INVALID_FILE_TYPE = CU_FILE_INVALID_FILE_TYPE
+    INVALID_FILE_OPEN_FLAG = CU_FILE_INVALID_FILE_OPEN_FLAG
+    DIO_NOT_SET = CU_FILE_DIO_NOT_SET
+    INVALID_VALUE = CU_FILE_INVALID_VALUE
+    MEMORY_ALREADY_REGISTERED = CU_FILE_MEMORY_ALREADY_REGISTERED
+    MEMORY_NOT_REGISTERED = CU_FILE_MEMORY_NOT_REGISTERED
+    PERMISSION_DENIED = CU_FILE_PERMISSION_DENIED
+    DRIVER_ALREADY_OPEN = CU_FILE_DRIVER_ALREADY_OPEN
+    HANDLE_NOT_REGISTERED = CU_FILE_HANDLE_NOT_REGISTERED
+    HANDLE_ALREADY_REGISTERED = CU_FILE_HANDLE_ALREADY_REGISTERED
+    DEVICE_NOT_FOUND = CU_FILE_DEVICE_NOT_FOUND
+    INTERNAL_ERROR = CU_FILE_INTERNAL_ERROR
+    GETNEWFD_FAILED = CU_FILE_GETNEWFD_FAILED
+    NVFS_SETUP_ERROR = CU_FILE_NVFS_SETUP_ERROR
+    IO_DISABLED = CU_FILE_IO_DISABLED
+    BATCH_SUBMIT_FAILED = CU_FILE_BATCH_SUBMIT_FAILED
+    GPU_MEMORY_PINNING_FAILED = CU_FILE_GPU_MEMORY_PINNING_FAILED
+    BATCH_FULL = CU_FILE_BATCH_FULL
+    ASYNC_NOT_SUPPORTED = CU_FILE_ASYNC_NOT_SUPPORTED
+    IO_MAX_ERROR = CU_FILE_IO_MAX_ERROR
+
+class DriverStatusFlags(_cyb_FastEnum):
+    """
+    See `CUfileDriverStatusFlags_t`.
+    """
+    LUSTRE_SUPPORTED = (CU_FILE_LUSTRE_SUPPORTED, 'Support for DDN LUSTRE')
+    WEKAFS_SUPPORTED = (CU_FILE_WEKAFS_SUPPORTED, 'Support for WEKAFS')
+    NFS_SUPPORTED = (CU_FILE_NFS_SUPPORTED, 'Support for NFS')
+    GPFS_SUPPORTED = CU_FILE_GPFS_SUPPORTED
+    NVME_SUPPORTED = (CU_FILE_NVME_SUPPORTED, '< Support for GPFS Support for NVMe')
+    NVMEOF_SUPPORTED = (CU_FILE_NVMEOF_SUPPORTED, 'Support for NVMeOF')
+    SCSI_SUPPORTED = (CU_FILE_SCSI_SUPPORTED, 'Support for SCSI')
+    SCALEFLUX_CSD_SUPPORTED = (CU_FILE_SCALEFLUX_CSD_SUPPORTED, 'Support for Scaleflux CSD')
+    NVMESH_SUPPORTED = (CU_FILE_NVMESH_SUPPORTED, 'Support for NVMesh Block Dev')
+    BEEGFS_SUPPORTED = (CU_FILE_BEEGFS_SUPPORTED, 'Support for BeeGFS')
+    NVME_P2P_SUPPORTED = (CU_FILE_NVME_P2P_SUPPORTED, 'Support for NVMe using PCI P2PDMA')
+    SCATEFS_SUPPORTED = (CU_FILE_SCATEFS_SUPPORTED, 'Support for ScateFS')
+
+class DriverControlFlags(_cyb_FastEnum):
+    """
+    See `CUfileDriverControlFlags_t`.
+    """
+    USE_POLL_MODE = (CU_FILE_USE_POLL_MODE, 'use POLL mode. properties.use_poll_mode')
+    ALLOW_COMPAT_MODE = (CU_FILE_ALLOW_COMPAT_MODE, 'allow COMPATIBILITY mode. properties.allow_compat_mode')
+
+class FeatureFlags(_cyb_FastEnum):
+    """
+    See `CUfileFeatureFlags_t`.
+    """
+    DYN_ROUTING_SUPPORTED = (CU_FILE_DYN_ROUTING_SUPPORTED, 'Support for Dynamic routing to handle devices across the PCIe bridges')
+    BATCH_IO_SUPPORTED = (CU_FILE_BATCH_IO_SUPPORTED, 'Unsupported')
+    STREAMS_SUPPORTED = (CU_FILE_STREAMS_SUPPORTED, 'Unsupported')
+    PARALLEL_IO_SUPPORTED = (CU_FILE_PARALLEL_IO_SUPPORTED, 'Unsupported')
+
+class FileHandleType(_cyb_FastEnum):
+    """
+    See `CUfileFileHandleType`.
+    """
+    OPAQUE_FD = (CU_FILE_HANDLE_TYPE_OPAQUE_FD, 'Linux based fd')
+    OPAQUE_WIN32 = (CU_FILE_HANDLE_TYPE_OPAQUE_WIN32, 'Windows based handle (unsupported)')
+    USERSPACE_FS = CU_FILE_HANDLE_TYPE_USERSPACE_FS
+
+class Opcode(_cyb_FastEnum):
+    """
+    See `CUfileOpcode_t`.
+    """
+    READ = CUFILE_READ
+    WRITE = CUFILE_WRITE
+
+class Status(_cyb_FastEnum):
+    """
+    See `CUfileStatus_t`.
+    """
+    WAITING = CUFILE_WAITING
+    PENDING = CUFILE_PENDING
+    INVALID = CUFILE_INVALID
+    CANCELED = CUFILE_CANCELED
+    COMPLETE = CUFILE_COMPLETE
+    TIMEOUT = CUFILE_TIMEOUT
+    FAILED = CUFILE_FAILED
+
+class BatchMode(_cyb_FastEnum):
+    """
+    See `CUfileBatchMode_t`.
+    """
+    BATCH = CUFILE_BATCH
+
+class SizeTConfigParameter(_cyb_FastEnum):
+    """
+    See `CUFileSizeTConfigParameter_t`.
+    """
+    PROFILE_STATS = CUFILE_PARAM_PROFILE_STATS
+    EXECUTION_MAX_IO_QUEUE_DEPTH = CUFILE_PARAM_EXECUTION_MAX_IO_QUEUE_DEPTH
+    EXECUTION_MAX_IO_THREADS = CUFILE_PARAM_EXECUTION_MAX_IO_THREADS
+    EXECUTION_MIN_IO_THRESHOLD_SIZE_KB = CUFILE_PARAM_EXECUTION_MIN_IO_THRESHOLD_SIZE_KB
+    EXECUTION_MAX_REQUEST_PARALLELISM = CUFILE_PARAM_EXECUTION_MAX_REQUEST_PARALLELISM
+    PROPERTIES_MAX_DIRECT_IO_SIZE_KB = CUFILE_PARAM_PROPERTIES_MAX_DIRECT_IO_SIZE_KB
+    PROPERTIES_MAX_DEVICE_CACHE_SIZE_KB = CUFILE_PARAM_PROPERTIES_MAX_DEVICE_CACHE_SIZE_KB
+    PROPERTIES_PER_BUFFER_CACHE_SIZE_KB = CUFILE_PARAM_PROPERTIES_PER_BUFFER_CACHE_SIZE_KB
+    PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB = CUFILE_PARAM_PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB
+    PROPERTIES_IO_BATCHSIZE = CUFILE_PARAM_PROPERTIES_IO_BATCHSIZE
+    POLLTHRESHOLD_SIZE_KB = CUFILE_PARAM_POLLTHRESHOLD_SIZE_KB
+    PROPERTIES_BATCH_IO_TIMEOUT_MS = CUFILE_PARAM_PROPERTIES_BATCH_IO_TIMEOUT_MS
+
+class BoolConfigParameter(_cyb_FastEnum):
+    """
+    See `CUFileBoolConfigParameter_t`.
+    """
+    PROPERTIES_USE_POLL_MODE = CUFILE_PARAM_PROPERTIES_USE_POLL_MODE
+    PROPERTIES_ALLOW_COMPAT_MODE = CUFILE_PARAM_PROPERTIES_ALLOW_COMPAT_MODE
+    FORCE_COMPAT_MODE = CUFILE_PARAM_FORCE_COMPAT_MODE
+    FS_MISC_API_CHECK_AGGRESSIVE = CUFILE_PARAM_FS_MISC_API_CHECK_AGGRESSIVE
+    EXECUTION_PARALLEL_IO = CUFILE_PARAM_EXECUTION_PARALLEL_IO
+    PROFILE_NVTX = CUFILE_PARAM_PROFILE_NVTX
+    PROPERTIES_ALLOW_SYSTEM_MEMORY = CUFILE_PARAM_PROPERTIES_ALLOW_SYSTEM_MEMORY
+    USE_PCIP2PDMA = CUFILE_PARAM_USE_PCIP2PDMA
+    PREFER_IO_URING = CUFILE_PARAM_PREFER_IO_URING
+    FORCE_ODIRECT_MODE = CUFILE_PARAM_FORCE_ODIRECT_MODE
+    SKIP_TOPOLOGY_DETECTION = CUFILE_PARAM_SKIP_TOPOLOGY_DETECTION
+    STREAM_MEMOPS_BYPASS = CUFILE_PARAM_STREAM_MEMOPS_BYPASS
+
+class StringConfigParameter(_cyb_FastEnum):
+    """
+    See `CUFileStringConfigParameter_t`.
+    """
+    LOGGING_LEVEL = CUFILE_PARAM_LOGGING_LEVEL
+    ENV_LOGFILE_PATH = CUFILE_PARAM_ENV_LOGFILE_PATH
+    LOG_DIR = CUFILE_PARAM_LOG_DIR
+
+
+###############################################################################
+# Error handling
+###############################################################################
+
+ctypedef fused ReturnT:
+    CUfileError_t
+    ssize_t
+
+
+class cuFileError(Exception):
+
+    def __init__(self, status, cu_err=None):
+        self.status = status
+        self.cuda_error = cu_err
+        s = OpError(status)
+        cdef str err = f"{s.name} ({s.value}): {op_status_error(status)}"
+        if cu_err is not None:
+            e = pyCUresult(cu_err)
+            err += f"; CUDA status: {e.name} ({e.value})"
+        super(cuFileError, self).__init__(err)
+
+    def __reduce__(self):
+        return (type(self), (self.status, self.cuda_error))
+
+
+@cython.profile(False)
+cdef int check_status(ReturnT status) except 1 nogil:
+    if ReturnT is CUfileError_t:
+        if IS_CUDA_ERR(status):
+            with gil:
+                raise cuFileError(status.err, status.cu_err)
+        elif IS_CUFILE_ERR(status.err):
+            with gil:
+                raise cuFileError(status.err)
+    elif ReturnT is ssize_t:
+        if status == -1:
+            # note: this assumes cuFile already properly resets errno in each API
+            with gil:
+                raise cuFileError(errno.errno)
+    return 0
+
+
+###############################################################################
+# Wrapper functions
+###############################################################################
+
+cpdef intptr_t handle_register(intptr_t descr) except? 0:
+    """cuFileHandleRegister is required, and performs extra checking that is memoized to provide increased performance on later cuFile operations.
+
+    Args:
+        descr (intptr_t): ``CUfileDescr_t`` file descriptor (OS
+            agnostic).
+
+    Returns:
+        intptr_t: ``CUfileHandle_t`` opaque file handle for IO
+            operations.
+
+    .. seealso:: `cuFileHandleRegister`
+    """
+    cdef Handle fh
+    with nogil:
+        __status__ = cuFileHandleRegister(&fh, <CUfileDescr_t*>descr)
+    check_status(__status__)
+    return <intptr_t>fh
+
+
+cpdef void handle_deregister(intptr_t fh) except*:
+    """releases a registered filehandle from cuFile.
+
+    Args:
+        fh (intptr_t): ``CUfileHandle_t`` file handle.
+
+    .. seealso:: `cuFileHandleDeregister`
+    """
+    with nogil:
+        cuFileHandleDeregister(<Handle>fh)
+
+
+cpdef buf_register(intptr_t buf_ptr_base, size_t length, int flags):
+    """register an existing cudaMalloced memory with cuFile to pin for GPUDirect Storage access or register host allocated memory with cuFile.
+
+    Args:
+        buf_ptr_base (intptr_t): buffer pointer allocated.
+        length (size_t): size of memory region from the above
+            specified bufPtr.
+        flags (int): CU_FILE_RDMA_REGISTER.
+
+    .. seealso:: `cuFileBufRegister`
+    """
+    with nogil:
+        __status__ = cuFileBufRegister(<const void*>buf_ptr_base, length, flags)
+    check_status(__status__)
+
+
+cpdef buf_deregister(intptr_t buf_ptr_base):
+    """deregister an already registered device or host memory from cuFile.
+
+    Args:
+        buf_ptr_base (intptr_t): buffer pointer to deregister.
+
+    .. seealso:: `cuFileBufDeregister`
+    """
+    with nogil:
+        __status__ = cuFileBufDeregister(<const void*>buf_ptr_base)
+    check_status(__status__)
+
+
+cpdef driver_open():
+    """Initialize the cuFile library and open the nvidia-fs driver.
+
+    .. seealso:: `cuFileDriverOpen`
+    """
+    with nogil:
+        __status__ = cuFileDriverOpen()
+    check_status(__status__)
+
+
+cpdef use_count():
+    """returns use count of cufile drivers at that moment by the process.
+
+    .. seealso:: `cuFileUseCount`
+    """
+    with nogil:
+        __status__ = cuFileUseCount()
+    check_status(__status__)
+
+
+cpdef driver_get_properties(intptr_t props):
+    """Gets the Driver session properties.
+
+    Args:
+        props (intptr_t): to set.
+
+    .. seealso:: `cuFileDriverGetProperties`
+    """
+    with nogil:
+        __status__ = cuFileDriverGetProperties(<CUfileDrvProps_t*>props)
+    check_status(__status__)
+
+
+cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
+    """Sets whether the Read/Write APIs use polling to do IO operations.
+
+    Args:
+        poll (bint): boolean to indicate whether to use poll mode or
+            not.
+        poll_threshold_size (size_t): max IO size to use for POLLING
+            mode in KB.
+
+    .. seealso:: `cuFileDriverSetPollMode`
+    """
+    with nogil:
+        __status__ = cuFileDriverSetPollMode(<_cyb_bool>poll, poll_threshold_size)
+    check_status(__status__)
+
+
+cpdef driver_set_max_direct_io_size(size_t max_direct_io_size):
+    """Control parameter to set max IO size(KB) used by the library to talk to nvidia-fs driver.
+
+    Args:
+        max_direct_io_size (size_t): maximum allowed direct io size in
+            KB.
+
+    .. seealso:: `cuFileDriverSetMaxDirectIOSize`
+    """
+    with nogil:
+        __status__ = cuFileDriverSetMaxDirectIOSize(max_direct_io_size)
+    check_status(__status__)
+
+
+cpdef driver_set_max_cache_size(size_t max_cache_size):
+    """Control parameter to set maximum GPU memory reserved per device by the library for internal buffering.
+
+    Args:
+        max_cache_size (size_t): The maximum GPU buffer space per
+            device used for internal use in KB.
+
+    .. seealso:: `cuFileDriverSetMaxCacheSize`
+    """
+    with nogil:
+        __status__ = cuFileDriverSetMaxCacheSize(max_cache_size)
+    check_status(__status__)
+
+
+cpdef driver_set_max_pinned_mem_size(size_t max_pinned_size):
+    """Sets maximum buffer space that is pinned in KB for use by ``cuFileBufRegister``.
+
+    Args:
+        max_pinned_size (size_t): maximum buffer space that is pinned
+            in KB.
+
+    .. seealso:: `cuFileDriverSetMaxPinnedMemSize`
+    """
+    with nogil:
+        __status__ = cuFileDriverSetMaxPinnedMemSize(max_pinned_size)
+    check_status(__status__)
+
+
+cpdef intptr_t batch_io_set_up(unsigned nr) except? 0:
+    cdef BatchHandle batch_idp
+    with nogil:
+        __status__ = cuFileBatchIOSetUp(&batch_idp, nr)
+    check_status(__status__)
+    return <intptr_t>batch_idp
+
+
+cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, intptr_t iocbp, unsigned int flags):
+    with nogil:
+        __status__ = cuFileBatchIOSubmit(<BatchHandle>batch_idp, nr, <CUfileIOParams_t*>iocbp, flags)
+    check_status(__status__)
+
+
+cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, intptr_t iocbp, intptr_t timeout):
+    with nogil:
+        __status__ = cuFileBatchIOGetStatus(<BatchHandle>batch_idp, min_nr, <unsigned*>nr, <CUfileIOEvents_t*>iocbp, <timespec*>timeout)
+    check_status(__status__)
+
+
+cpdef batch_io_cancel(intptr_t batch_idp):
+    with nogil:
+        __status__ = cuFileBatchIOCancel(<BatchHandle>batch_idp)
+    check_status(__status__)
+
+
+cpdef void batch_io_destroy(intptr_t batch_idp) except*:
+    with nogil:
+        cuFileBatchIODestroy(<BatchHandle>batch_idp)
+
+
+cpdef read_async(intptr_t fh, intptr_t buf_ptr_base, intptr_t size_p, intptr_t file_offset_p, intptr_t buf_ptr_offset_p, intptr_t bytes_read_p, intptr_t stream):
+    with nogil:
+        __status__ = cuFileReadAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_read_p, <CUstream>stream)
+    check_status(__status__)
+
+
+cpdef write_async(intptr_t fh, intptr_t buf_ptr_base, intptr_t size_p, intptr_t file_offset_p, intptr_t buf_ptr_offset_p, intptr_t bytes_written_p, intptr_t stream):
+    with nogil:
+        __status__ = cuFileWriteAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_written_p, <CUstream>stream)
+    check_status(__status__)
+
+
+cpdef stream_register(intptr_t stream, unsigned flags):
+    with nogil:
+        __status__ = cuFileStreamRegister(<CUstream>stream, flags)
+    check_status(__status__)
+
+
+cpdef stream_deregister(intptr_t stream):
+    with nogil:
+        __status__ = cuFileStreamDeregister(<CUstream>stream)
+    check_status(__status__)
+
+
+cpdef int get_version() except? 0:
+    """Get the cuFile library version.
+
+    Returns:
+        int: Pointer to an integer where the version will be stored.
+
+    .. seealso:: `cuFileGetVersion`
+    """
+    cdef int version
+    with nogil:
+        __status__ = cuFileGetVersion(&version)
+    check_status(__status__)
+    return version
+
+
+cpdef size_t get_parameter_size_t(int param) except? 0:
+    cdef size_t value
+    with nogil:
+        __status__ = cuFileGetParameterSizeT(<_SizeTConfigParameter>param, &value)
+    check_status(__status__)
+    return value
+
+
+cpdef bint get_parameter_bool(int param) except? 0:
+    cdef _cyb_bool value
+    with nogil:
+        __status__ = cuFileGetParameterBool(<_BoolConfigParameter>param, &value)
+    check_status(__status__)
+    return <bint>value
+
+
+cpdef str get_parameter_string(int param, int len):
+    cdef bytes _desc_str_ = bytes(len)
+    cdef char* desc_str = _desc_str_
+    with nogil:
+        __status__ = cuFileGetParameterString(<_StringConfigParameter>param, desc_str, len)
+    check_status(__status__)
+    return _cyb_cpython.PyUnicode_FromString(desc_str)
+
+
+cpdef set_parameter_size_t(int param, size_t value):
+    with nogil:
+        __status__ = cuFileSetParameterSizeT(<_SizeTConfigParameter>param, value)
+    check_status(__status__)
+
+
+cpdef set_parameter_bool(int param, bint value):
+    with nogil:
+        __status__ = cuFileSetParameterBool(<_BoolConfigParameter>param, <_cyb_bool>value)
+    check_status(__status__)
+
+
+cpdef set_parameter_string(int param, intptr_t desc_str):
+    with nogil:
+        __status__ = cuFileSetParameterString(<_StringConfigParameter>param, <const char*>desc_str)
+    check_status(__status__)
+
+
+cpdef str op_status_error(int status):
+    """cufileop status string.
+
+    Args:
+        status (OpError): the error status to query.
+
+    .. seealso:: `cufileop_status_error`
+    """
+    cdef bytes _output_
+    _output_ = cufileop_status_error(<_OpError>status)
+    return _output_.decode()
+
+
+cpdef driver_close():
+    """reset the cuFile library and release the nvidia-fs driver
+    """
+    with nogil:
+        status = cuFileDriverClose_v2()
+    check_status(status)
+
+cpdef read(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset):
+    """read data from a registered file handle to a specified device or host memory.
+
+    Args:
+        fh (intptr_t): ``CUfileHandle_t`` opaque file handle.
+        buf_ptr_base (intptr_t): base address of buffer in device or host memory.
+        size (size_t): size bytes to read.
+        file_offset (off_t): file-offset from begining of the file.
+        buf_ptr_offset (off_t): offset relative to the buf_ptr_base pointer to read into.
+
+    Returns:
+        ssize_t: number of bytes read on success.
+
+    .. seealso:: `cuFileRead`
+    """
+    with nogil:
+        status = cuFileRead(<Handle>fh, <void*>buf_ptr_base, size, file_offset, buf_ptr_offset)
+    check_status(status)
+    return status
+
+
+cpdef write(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset):
+    """write data from a specified device or host memory to a registered file handle.
+
+    Args:
+        fh (intptr_t): ``CUfileHandle_t`` opaque file handle.
+        buf_ptr_base (intptr_t): base address of buffer in device or host memory.
+        size (size_t): size bytes to write.
+        file_offset (off_t): file-offset from begining of the file.
+        buf_ptr_offset (off_t): offset relative to the buf_ptr_base pointer to write from.
+
+    Returns:
+        ssize_t: number of bytes written on success.
+
+    .. seealso:: `cuFileWrite`
+    """
+    with nogil:
+        status = cuFileWrite(<Handle>fh, <const void*>buf_ptr_base, size, file_offset, buf_ptr_offset)
+    check_status(status)
+    return status
+
+
+del _cyb_FastEnum

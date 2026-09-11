@@ -1,0 +1,18 @@
+{
+    // NOTE : Application can override custom configuration via export CUFILE_ENV_PATH_JSON=<filepath>
+    // e.g : export CUFILE_ENV_PATH_JSON="/home/<xxx>/cufile.json"
+
+
+            "execution" : {
+                    // max number of workitems in the queue;
+                    "max_io_queue_depth": 128,
+                    // max number of host threads per gpu to spawn for parallel IO
+                    "max_io_threads" : 4,
+                    // enable support for parallel IO
+                    "parallel_io" : true,
+                    // minimum IO threshold before splitting the IO
+                    "min_io_threshold_size_kb" : 8192,
+                    // maximum parallelism for a single request
+                    "max_request_parallelism" : 4
+            }
+}

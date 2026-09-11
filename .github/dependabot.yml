@@ -20,21 +20,3 @@ updates:
         applies-to: version-updates
         patterns: ["*"]
         update-types: ["major", "minor", "patch"]
-
-  # GitHub Actions updates targeting the 12.9.x branch
-  - package-ecosystem: github-actions
-    directory: /
-    target-branch: "12.9.x"  # keep in sync with backport_branch in ci/versions.yml
-    schedule:
-      interval: "monthly"
-      time: "09:00"
-      timezone: "America/Los_Angeles"
-
-    # Keep churn down: only one open PR from this ecosystem at a time
-    open-pull-requests-limit: 1
-
-    groups:
-      actions-monthly:
-        applies-to: version-updates
-        patterns: ["*"]
-        update-types: ["major", "minor", "patch"]

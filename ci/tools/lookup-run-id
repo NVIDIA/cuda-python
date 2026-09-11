@@ -18,20 +18,22 @@ set -euo pipefail
 usage() {
     cat >&2 <<EOF
 Usage:
-  $0 --tag <git-tag> <repository> [workflow-name]
+  $0 --tag <git-tag> [--run-id <id>] <repository> [workflow-name]
   $0 --branch <branch> <repository> [workflow-name]
 
 Options:
   --tag <tag>        Find run by git tag (requires local git repo with the tag)
   --branch <branch>  Find latest successful run on the given branch
+  --run-id <id>      Validate and use this exact run ID (tag mode only)
   --artifact <glob>  Require an unexpired artifact matching this shell glob
                      (repeatable; branch mode only)
   --head-sha         Also print the run's head commit SHA (second line)
 
 Examples:
   $0 --tag v13.0.1 NVIDIA/cuda-python
+  $0 --tag v13.0.1 --run-id 123456789 NVIDIA/cuda-python
   $0 --branch main NVIDIA/cuda-python
-  $0 --branch 12.9.x --artifact 'cuda-bindings-python313-*' NVIDIA/cuda-python
+  $0 --branch main --artifact 'cuda-bindings-python315-cuda*-linux-64*' NVIDIA/cuda-python
   $0 --branch main --head-sha NVIDIA/cuda-python "CI"
 EOF
     exit 1
@@ -41,6 +43,7 @@ EOF
 MODE=""
 REF=""
 HEAD_SHA_FLAG=0
+EXPLICIT_RUN_ID=""
 ARTIFACT_PATTERNS=()
 
 while [[ $# -gt 0 ]]; do
@@ -53,6 +56,9 @@ while [[ $# -gt 0 ]]; do
             [[ $# -ge 2 ]] || usage
             [[ -n "${MODE}" && "${MODE}" != "branch" ]] && { echo "Error: --tag and --branch are mutually exclusive" >&2; exit 1; }
             MODE="branch"; REF="${2}"; shift 2 ;;
+        --run-id)
+            [[ $# -ge 2 ]] || usage
+            EXPLICIT_RUN_ID="${2}"; shift 2 ;;
         --artifact)
             [[ $# -ge 2 ]] || usage
             ARTIFACT_PATTERNS+=("${2}"); shift 2 ;;
@@ -80,6 +86,16 @@ if [[ -z "${REPOSITORY}" ]]; then usage; fi
 
 if [[ "${MODE}" != "branch" && ${#ARTIFACT_PATTERNS[@]} -gt 0 ]]; then
     echo "Error: --artifact is only supported with --branch" >&2
+    exit 1
+fi
+
+if [[ "${MODE}" != "tag" && -n "${EXPLICIT_RUN_ID}" ]]; then
+    echo "Error: --run-id is only supported with --tag" >&2
+    exit 1
+fi
+
+if [[ -n "${EXPLICIT_RUN_ID}" && ! "${EXPLICIT_RUN_ID}" =~ ^[1-9][0-9]*$ ]]; then
+    echo "Error: --run-id must be a positive integer" >&2
     exit 1
 fi
 
@@ -193,7 +209,7 @@ fi
 # ── Mode: tag ──
 echo "Looking up run ID for tag: ${REF} in repository: ${REPOSITORY}" >&2
 
-if ! COMMIT_SHA=$(git rev-parse "${REF}^{commit}"); then
+if ! COMMIT_SHA=$(git rev-parse --verify "refs/tags/${REF}^{commit}"); then
     echo "Error: Could not resolve git tag '${REF}' to a commit SHA" >&2
     echo "Make sure the tag exists and you have fetched it" >&2
     exit 1
@@ -201,6 +217,42 @@ fi
 
 echo "Resolved tag '${REF}' to commit: ${COMMIT_SHA}" >&2
 echo "Searching for '${WORKFLOW_NAME}' workflow runs for commit: ${COMMIT_SHA} (tag: ${REF})" >&2
+
+if [[ -n "${EXPLICIT_RUN_ID}" ]]; then
+    echo "Validating explicitly requested run ID: ${EXPLICIT_RUN_ID}" >&2
+    if ! RUN_DATA=$(gh run view "${EXPLICIT_RUN_ID}" \
+        --repo "${REPOSITORY}" \
+        --json databaseId,workflowName,status,conclusion,headSha,headBranch,event,createdAt,url); then
+        echo "Error: Could not inspect workflow run ${EXPLICIT_RUN_ID}" >&2
+        exit 1
+    fi
+
+    if ! jq -e \
+        --argjson id "${EXPLICIT_RUN_ID}" \
+        --arg workflow "${WORKFLOW_NAME}" \
+        --arg sha "${COMMIT_SHA}" \
+        --arg tag "${REF}" \
+        '.databaseId == $id
+         and .workflowName == $workflow
+         and .status == "completed"
+         and .conclusion == "success"
+         and .headSha == $sha
+         and .headBranch == $tag
+        and .event == "push"' <<< "${RUN_DATA}" >/dev/null; then
+        echo "Error: Run ${EXPLICIT_RUN_ID} is not a successful tag-triggered '${WORKFLOW_NAME}' run for '${REF}' at ${COMMIT_SHA}" >&2
+        echo "Observed run metadata:" >&2
+        jq -c '{workflowName, status, conclusion, headSha, headBranch, event}' <<< "${RUN_DATA}" >&2
+        exit 1
+    fi
+
+    echo "Validated workflow run ID: ${EXPLICIT_RUN_ID} for tag '${REF}'" >&2
+    echo "${EXPLICIT_RUN_ID}"
+    if [[ "${HEAD_SHA_FLAG}" == 1 ]]; then
+        echo "Head SHA: ${COMMIT_SHA}" >&2
+        echo "${COMMIT_SHA}"
+    fi
+    exit 0
+fi
 
 RUN_DATA=$(gh run list \
     --repo "${REPOSITORY}" \
