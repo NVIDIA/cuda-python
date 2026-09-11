@@ -1,0 +1,35 @@
+﻿cuda.bindings.nvml.GetMemoryLimits\_v1
+======================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GetMemoryLimits_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GetMemoryLimits_v1.__init__
+      ~GetMemoryLimits_v1.from_buffer
+      ~GetMemoryLimits_v1.from_data
+      ~GetMemoryLimits_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GetMemoryLimits_v1.current_used
+      ~GetMemoryLimits_v1.hard_limit
+      ~GetMemoryLimits_v1.name_space
+      ~GetMemoryLimits_v1.ptr
+      ~GetMemoryLimits_v1.soft_limit
+   
+   

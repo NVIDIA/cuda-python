@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=49ac2f0e"></script>
+    <script src="../_static/documentation_options.js?v=08ca9c8a"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev17';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev66';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -763,6 +763,19 @@
                   
   <section id="cuda-core-1-3-0-release-notes">
 <h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 1.3.0 Release Notes<a class="headerlink" href="#cuda-core-1-3-0-release-notes" title="Link to this heading">#</a></h1>
+<section id="new-features">
+<h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Added the read-only <a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.last_prefetch_location" title="cuda.core.ManagedBuffer.last_prefetch_location"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ManagedBuffer.last_prefetch_location</span></code></a> property,
+which reports the destination requested by the most recent explicit
+prefetch across the buffer. It returns a <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> or <a class="reference internal" href="../generated/cuda.core.Host.html#cuda.core.Host" title="cuda.core.Host"><code class="xref py py-class docutils literal notranslate"><span class="pre">Host</span></code></a>,
+including NUMA-specific host locations on CUDA 13, and <code class="docutils literal notranslate"><span class="pre">None</span></code> if any page
+has never been prefetched or the pages do not share one last-prefetch
+location. This reports the requested target, not current residency or
+completion of the asynchronous prefetch operation.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2109">#2109</a>)</p></li>
+</ul>
+</section>
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -834,6 +847,7 @@ resource.</p></li>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixes-and-enhancements">Fixes and enhancements</a></li>
 </ul>
   </nav></div>
