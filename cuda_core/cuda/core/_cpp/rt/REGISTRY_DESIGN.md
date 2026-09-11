@@ -19,7 +19,7 @@ expires.
 
 ## Level 1: Driver Handle -> Resource Handle (C++)
 
-`HandleRegistry` in `resource_handles.cpp` maps a raw CUDA handle
+`HandleRegistry` in `_cpp/rt/internal.hpp` maps a raw CUDA handle
 (e.g., `CUevent`, `CUkernel`, `CUgraph`) to a `weak_ptr`
 for its owning resource handle. When a `_ref` constructor receives a raw
 handle, it checks the registry first. If found, it returns the existing

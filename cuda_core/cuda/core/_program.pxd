@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from ._linker cimport Linker
-from ._resource_handles cimport NvrtcProgramHandle, NvvmProgramHandle
+from ._rt cimport NvrtcProgramHandle, NvvmProgramHandle
 
 
 cdef class Program:

@@ -20,7 +20,8 @@ from cuda.core.graph._subclasses cimport (
     ExecutableGraphNode,
     create_executable_node_view,
 )
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport note_or_report_cuda_error, report_cuda_error
+from cuda.core._rt cimport (
     GraphExecHandle,
     GraphHandle,
     OpaqueHandle,
@@ -33,6 +34,7 @@ from cuda.core._resource_handles cimport (
     graph_exec_update,
     graph_prepare_attachment,
     invalidate_child_graph_state,
+    invalidate_root_graph_state,
     retry_deferred_cleanup,
 )
 from cuda.core._stream cimport Stream, Stream_accept
@@ -244,14 +246,16 @@ def _instantiate_graph(source, options: GraphCompleteOptions | None = None) -> G
 # begin/end stream capture and whether they own the resulting CUgraph.
 # Each kind progresses through _CaptureState as follows:
 #
-#   PRIMARY:          NOT_STARTED -> CAPTURING -> ENDED
+#   PRIMARY:          NOT_STARTED -> CAPTURING -> ENDED | INVALIDATED
 #   FORKED:           CAPTURING (never transitions; joined and closed)
-#   CONDITIONAL_BODY: NOT_STARTED -> CAPTURING -> ENDED
+#   CONDITIONAL_BODY: NOT_STARTED -> CAPTURING -> ENDED | INVALIDATED
 #
 cdef enum _BuilderKind:
     # PRIMARY: The top-level builder created by Device or Stream. Owns the
     # captured CUgraph via an owning GraphHandle. Progresses through all three
-    # capture states; responsible for ending capture if destroyed early.
+    # capture states; responsible for ending capture if destroyed early. When
+    # the capture ends invalidated, the driver discards the graph and the
+    # handle is dropped without destroying it (see GB_end_capture).
     PRIMARY = 0
     # FORKED: Created by split(). Captures on a private stream forked from the
     # primary. Starts in CAPTURING state and never transitions; the user joins
@@ -270,8 +274,9 @@ cdef enum _BuilderKind:
 cdef enum _CaptureState:
     CAPTURE_NOT_STARTED = 0
     CAPTURING = 1
-    CAPTURE_ENDED = 2  # Finished, valid handle
-    CLOSED = 3         # No valid handle
+    CAPTURE_ENDED = 2        # Finished, valid handle
+    CLOSED = 3               # No valid handle
+    CAPTURE_INVALIDATED = 4  # Ended in error; the driver discarded the graph
 
 
 cdef class GraphBuilder:
@@ -306,7 +311,12 @@ cdef class GraphBuilder:
         )
 
     def __dealloc__(self):
-        GB_end_capture_if_needed(self, False)
+        cdef cydriver.CUresult err = GB_end_capture(self)
+        if err != cydriver.CUDA_SUCCESS:
+            # Nothing can be raised from __dealloc__: report instead.
+            report_cuda_error(
+                b"cuStreamEndCapture", err,
+                b"failed while releasing a GraphBuilder that was still building")
 
     @staticmethod
     def _init(Stream stream):
@@ -319,13 +329,18 @@ cdef class GraphBuilder:
         return self
 
     def close(self):
-        """Destroy the graph builder."""
-        GB_end_capture_if_needed(self, True)
+        """Destroy the graph builder.
+
+        A builder that is still building ends its capture first. The builder
+        is closed even when that fails; the driver error is raised afterwards.
+        """
+        cdef cydriver.CUresult err = GB_end_capture(self)
         self._h_graph.reset()
         self._h_stream.reset()
         retry_deferred_cleanup()
         self._state = CLOSED
         self._stream = None
+        HANDLE_RETURN(err)
 
     @property
     def is_closed(self) -> bool:
@@ -400,7 +415,8 @@ cdef class GraphBuilder:
                 "graph_definition is unavailable while capture is in "
                 "progress; call end_building() first."
             )
-        elif self._kind == PRIMARY:
+        GB_check_has_graph(self)
+        if self._kind == PRIMARY:
             if self._state == CAPTURE_NOT_STARTED:
                 raise RuntimeError(
                     "graph_definition is unavailable before begin_building() on "
@@ -477,24 +493,36 @@ cdef class GraphBuilder:
             return True
         elif status == cydriver.CU_STREAM_CAPTURE_STATUS_INVALIDATED:
             raise RuntimeError(
-                "Build process encountered an error and has been invalidated. Build process must now be ended."
+                "Build process encountered an error and has been invalidated. "
+                "Call end_building() to end it; the error is raised there."
             )
         else:
             raise NotImplementedError(f"Unsupported capture status type received: {status}")
 
     def end_building(self) -> GraphBuilder:
-        """Ends the building process."""
+        """Ends the building process.
+
+        Raises
+        ------
+        RuntimeError
+            If the builder is not building. A forked builder is ended by
+            :meth:`join`, not by this method.
+        CUDAError
+            If the capture was invalidated, for example by a CUDA call that is
+            not permitted while capturing. The capture is ended and the
+            builder holds no graph afterwards, so :meth:`complete` and
+            :attr:`graph_definition` are unavailable.
+        """
         GB_check_open(self)
-        if not self.is_building:
+        if self._state != CAPTURING:
             raise RuntimeError("Graph builder is not building.")
-        cdef cydriver.CUstream c_stream = as_cu(self._h_stream)
-        cdef cydriver.CUgraph c_graph
-        with nogil:
-            HANDLE_RETURN(cydriver.cuStreamEndCapture(c_stream, &c_graph))
+        if self._kind == FORKED:
+            raise RuntimeError(
+                "A forked graph builder is ended by GraphBuilder.join(), not end_building().")
+        HANDLE_RETURN(GB_end_capture(self))
 
         # TODO: Resolving https://github.com/NVIDIA/cuda-python/issues/617 would allow us to
         #       resume the build process after the first call to end_building()
-        self._state = CAPTURE_ENDED
         return self
 
     def complete(self, options: GraphCompleteOptions | None = None) -> Graph:
@@ -512,6 +540,7 @@ cdef class GraphBuilder:
 
         """
         GB_check_open(self)
+        GB_check_has_graph(self)
         if self._state != CAPTURE_ENDED:
             raise RuntimeError("Graph has not finished building.")
 
@@ -529,6 +558,7 @@ cdef class GraphBuilder:
 
         """
         GB_check_open(self)
+        GB_check_has_graph(self)
         if self._state != CAPTURE_ENDED:
             raise RuntimeError("Graph has not finished building.")
         cdef unsigned int c_flags = options._to_flags() if options else 0
@@ -820,6 +850,7 @@ cdef class GraphBuilder:
         """
         GB_check_open(self)
         GB_check_open(child)
+        GB_check_has_graph(child)
         if child._state != CAPTURE_ENDED:
             raise ValueError("Child graph has not finished building.")
 
@@ -860,6 +891,12 @@ cdef class GraphBuilder:
             if rollback_status == cydriver.CUDA_SUCCESS:
                 invalidate_child_graph_state(
                     self._h_graph, c_new_node)
+            else:
+                # The original exception propagates with the failed rollback
+                # attached as a note (error handling policy).
+                note_or_report_cuda_error(
+                    b"cuGraphDestroyNode", rollback_status,
+                    b"failed while rolling back a child graph node; the node remains in the graph")
             raise
 
         deps_info_update = [[new_node]] + [None] * (len(deps_info_out) - 1)
@@ -983,26 +1020,52 @@ cdef inline int GB_check_open(GraphBuilder gb) except -1:
     return 0
 
 
-cdef inline int GB_end_capture_if_needed(GraphBuilder gb, bint check_status) except -1 nogil:
-    """End an in-progress capture if this builder owns it.
+cdef inline int GB_check_has_graph(GraphBuilder gb) except -1:
+    """Reject graph access on a builder whose capture ended invalidated.
+
+    The driver discards the capture graph when it ends an invalidated
+    capture, so such a builder has nothing to complete, print, embed, or
+    update from.
+    """
+    if gb._state == CAPTURE_INVALIDATED:
+        raise RuntimeError(
+            "The capture was invalidated and the driver discarded its graph; "
+            "this graph builder has no graph.")
+    return 0
+
+
+cdef inline cydriver.CUresult GB_end_capture(GraphBuilder gb) noexcept:
+    """End the capture if this builder owns a live one, and settle ownership
+    of the graph. Returns the driver status; the caller raises or reports it.
 
     Only a CAPTURING PRIMARY or CONDITIONAL_BODY builder owns the live
     capture. A FORKED builder must not call cuStreamEndCapture: the driver
     requires forked streams to be joined first.
 
-    check_status=True checks the driver return (close()); False ignores it
-    (__dealloc__).
+    On success the driver hands back the graph this builder already holds.
+    When the capture was invalidated (or left unjoined), the driver destroys
+    the capture graph and returns NULL. The owning handle a PRIMARY builder
+    took in begin_building() must then forget that graph rather than destroy
+    it a second time, and the builder ends up with no graph at all.
     """
-    cdef cydriver.CUgraph c_graph
-    cdef cydriver.CUresult err
+    cdef cydriver.CUgraph c_graph = NULL
+    cdef cydriver.CUresult err = cydriver.CUDA_SUCCESS
     cdef cydriver.CUstream c_stream
-    if gb._h_stream and gb._state == CAPTURING and gb._kind != FORKED:
-        c_stream = as_cu(gb._h_stream)
-        with nogil:
-            err = cydriver.cuStreamEndCapture(c_stream, &c_graph)
-            if check_status:
-                HANDLE_RETURN(err)
-    return 0
+    if not gb._h_stream or gb._state != CAPTURING or gb._kind == FORKED:
+        return err
+    c_stream = as_cu(gb._h_stream)
+    with nogil:
+        err = cydriver.cuStreamEndCapture(c_stream, &c_graph)
+    if c_graph == NULL:
+        # A CONDITIONAL_BODY graph is owned by the parent's node, so only the
+        # PRIMARY builder's hierarchy has a root to retire.
+        if gb._kind == PRIMARY:
+            invalidate_root_graph_state(gb._h_graph)
+        gb._h_graph.reset()
+        gb._state = CAPTURE_INVALIDATED
+    else:
+        gb._state = CAPTURE_ENDED
+    return err
 
 
 cdef inline GraphBuilder GB_init_forked(Stream stream, GraphHandle h_primary_graph):
@@ -1174,6 +1237,7 @@ cdef class Graph:
 
         if isinstance(source, GraphBuilder):
             GB_check_open(<GraphBuilder>source)
+            GB_check_has_graph(<GraphBuilder>source)
             if (<GraphBuilder>source)._state != CAPTURE_ENDED:
                 raise ValueError("Graph has not finished building.")
             h_source = (<GraphBuilder>source)._h_graph

@@ -102,8 +102,10 @@ from cuda.core._stream import *
 from cuda.core._stream import __all__ as _stream_all
 from cuda.core._tensor_map import *
 from cuda.core._tensor_map import __all__ as _tensor_map_all
+from cuda.core._utils.cuda_utils import CUDAWarning
 
 __all__ = [
+    "CUDAWarning",
     *_context_all,
     *_device_all,
     *_device_resources_all,

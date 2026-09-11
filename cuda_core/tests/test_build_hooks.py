@@ -21,6 +21,8 @@ import importlib.util
 import os
 import sys
 import tempfile
+import threading
+import types
 from pathlib import Path
 from unittest import mock
 
@@ -325,3 +327,120 @@ class TestForceReachesBuildExt:
 
     def test_flag_clear_leaves_default(self, monkeypatch):
         assert not self._finalized_build_ext(False, monkeypatch).force
+
+
+class TestExtensionSources:
+    """_extension_sources: a directory of .cpp files, a single legacy .cpp, or nothing."""
+
+    @pytest.fixture
+    def tree(self, tmp_path, monkeypatch):
+        core = tmp_path / "cuda" / "core"
+        cpp = core / "_cpp"
+        (cpp / "a" / "nested").mkdir(parents=True)
+        (cpp / "d").mkdir()
+        for name in ("_a.pyx", "_b.pyx", "_c.pyx", "_d.pyx"):
+            (core / name).write_text("")
+        for name in ("a/x.cpp", "a/y.cpp", "a/nested/z.cpp", "a/notes.md", "b.cpp"):
+            (cpp / name).write_text("")
+        monkeypatch.chdir(tmp_path)
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_directory_of_sources(self, tree):
+        a = os.path.join("cuda", "core", "_cpp", "a")
+        assert build_hooks._extension_sources("_a") == [
+            "cuda/core/_a.pyx",
+            os.path.join(a, "nested", "z.cpp"),
+            os.path.join(a, "x.cpp"),
+            os.path.join(a, "y.cpp"),
+        ]
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_legacy_single_file_and_no_cpp(self, tree):
+        assert build_hooks._extension_sources("_b") == [
+            "cuda/core/_b.pyx",
+            os.path.join("cuda", "core", "_cpp", "b.cpp"),
+        ]
+        assert build_hooks._extension_sources("_c") == ["cuda/core/_c.pyx"]
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_empty_directory_is_an_error(self, tree):
+        with pytest.raises(RuntimeError, match="no .cpp files"):
+            build_hooks._extension_sources("_d")
+
+
+class TestExtensionDepends:
+    """_extension_depends: every header under a directory-form module's
+    _cpp/<stem>/, the same list for every extension (see its docstring)."""
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_headers_under_module_directories_only(self, tmp_path, monkeypatch):
+        cpp = tmp_path / "cuda" / "core" / "_cpp"
+        (cpp / "a" / "nested").mkdir(parents=True)
+        for name in ("a/x.hpp", "a/nested/y.h", "a/z.cpp", "a/notes.md", "top.hpp", "b.cpp"):
+            (cpp / name).write_text("")
+        monkeypatch.chdir(tmp_path)
+        a = os.path.join("cuda", "core", "_cpp", "a")
+        assert build_hooks._extension_depends() == [os.path.join(a, "nested", "y.h"), os.path.join(a, "x.hpp")]
+
+
+class TestParallelSourceCompilation:
+    """setup.py compiles an extension's sources through one shared thread pool."""
+
+    class FakeCompiler:
+        def __init__(self, fail_on=None):
+            self.compiled = []
+            self.fail_on = fail_on
+            self.lock = threading.Lock()
+
+        def _setup_compile(self, outdir, macros, incdirs, sources, depends, extra):
+            extra = [] if extra is None else extra  # as distutils does
+            objects = [source + ".o" for source in sources]
+            return macros, objects, extra, ["-Dpp"], {obj: (src, ".cpp") for obj, src in zip(objects, sources)}
+
+        def _get_cc_args(self, pp_opts, debug, before):
+            return ["-c", *pp_opts]
+
+        def _compile(self, obj, src, ext, cc_args, extra_postargs, pp_opts):
+            if src == self.fail_on:
+                raise RuntimeError(f"{src} failed")
+            with self.lock:
+                self.compiled.append((obj, src, ext, tuple(cc_args), tuple(extra_postargs), tuple(pp_opts)))
+
+        def compile(self, *args, **kwargs):
+            return "stock"
+
+    def _build_ext(self, monkeypatch, nthreads, compiler):
+        from setuptools.dist import Distribution
+
+        setup_py = _load_setup_py(monkeypatch)
+        monkeypatch.setattr(setup_py, "nthreads", nthreads)
+        cmd = setup_py.build_ext(Distribution({"name": "cuda-core", "version": "0"}))
+        cmd.compiler = compiler
+        return cmd
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_every_source_compiles_once_and_the_object_order_is_kept(self, monkeypatch):
+        cmd = self._build_ext(monkeypatch, 4, self.FakeCompiler())
+        sources = [f"rt/{name}.cpp" for name in "abcdef"]
+        with cmd._parallel_source_compilation():
+            objects = cmd.compiler.compile(sources, output_dir="tmp", extra_postargs=["-O2"], depends=["x.hpp"])
+        assert objects == [source + ".o" for source in sources]
+        assert sorted(entry[0] for entry in cmd.compiler.compiled) == sorted(objects)
+        assert {entry[2:] for entry in cmd.compiler.compiled} == {(".cpp", ("-c", "-Dpp"), ("-O2",), ("-Dpp",))}
+        assert cmd.compiler.compile(sources) == "stock"  # restored on exit
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_a_failing_source_fails_the_extension(self, monkeypatch):
+        cmd = self._build_ext(monkeypatch, 4, self.FakeCompiler(fail_on="rt/c.cpp"))
+        with cmd._parallel_source_compilation(), pytest.raises(RuntimeError, match="rt/c.cpp failed"):
+            cmd.compiler.compile([f"rt/{name}.cpp" for name in "abcdef"])
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_serial_builds_and_compilers_without_the_hook_keep_the_stock_path(self, monkeypatch):
+        cmd = self._build_ext(monkeypatch, 1, self.FakeCompiler())
+        with cmd._parallel_source_compilation():
+            assert cmd.compiler.compile(["a.cpp"]) == "stock"
+        msvc_like = types.SimpleNamespace(compile=self.FakeCompiler().compile)  # no _compile()
+        cmd = self._build_ext(monkeypatch, 4, msvc_like)
+        with cmd._parallel_source_compilation():
+            assert cmd.compiler.compile(["a.cpp"]) == "stock"

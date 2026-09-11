@@ -8,7 +8,7 @@ from libc.stddef cimport size_t
 from libcpp.vector cimport vector
 from cuda.bindings cimport cydriver
 from cuda.core.graph._graph_node cimport GraphNode, GN_check_valid
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     GraphHandle,
     GraphNodeHandle,
     as_cu,

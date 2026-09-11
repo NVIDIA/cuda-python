@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from cpython.object cimport PyObject
 from libc.stddef cimport size_t
 from libc.stdint cimport intptr_t
 
@@ -17,7 +18,7 @@ from cuda.bindings cimport cynvjitlink
 # Handle type aliases and inline helpers (declared from C++ header)
 # =============================================================================
 
-cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
+cdef extern from "_cpp/rt/handles.hpp" namespace "cuda_core::rt":
     # Handle types
     ctypedef shared_ptr[const cydriver.CUcontext] ContextHandle
     ctypedef shared_ptr[const cydriver.CUgreenCtx] GreenCtxHandle
@@ -35,9 +36,9 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # NvvmProgramValue and NvJitLinkValue are TaggedHandle<void*, Tag>
     # instantiations that make each shared_ptr type distinct for overloading.
-    cppclass NvvmProgramValue "cuda_core::NvvmProgramValue":
+    cppclass NvvmProgramValue "cuda_core::rt::NvvmProgramValue":
         pass
-    cppclass NvJitLinkValue "cuda_core::NvJitLinkValue":
+    cppclass NvJitLinkValue "cuda_core::rt::NvJitLinkValue":
         pass
     ctypedef shared_ptr[const NvvmProgramValue] NvvmProgramHandle
     ctypedef shared_ptr[const NvJitLinkValue] NvJitLinkHandle
@@ -50,9 +51,9 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # CUtexObject / CUsurfObject are both `unsigned long long` (as is CUdeviceptr),
     # so they are wrapped in distinct tagged value types to keep each handle's
     # as_cu/as_intptr/as_py overloads distinct.
-    cppclass TexObjectValue "cuda_core::TexObjectValue":
+    cppclass TexObjectValue "cuda_core::rt::TexObjectValue":
         pass
-    cppclass SurfObjectValue "cuda_core::SurfObjectValue":
+    cppclass SurfObjectValue "cuda_core::rt::SurfObjectValue":
         pass
     ctypedef shared_ptr[const TexObjectValue] TexObjectHandle
     ctypedef shared_ptr[const SurfObjectValue] SurfObjectHandle
@@ -158,15 +159,27 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
 
 # =============================================================================
-# Wrapper function declarations (implemented in _resource_handles.pyx)
+# Wrapper function declarations (implemented in _rt.pyx)
 #
-# Consumer modules cimport these. Calls go through _resource_handles.so.
+# Consumer modules cimport these. Calls go through _rt.so.
 # =============================================================================
 
 # Thread-local error handling
 cdef cydriver.CUresult get_last_error() noexcept nogil
 cdef cydriver.CUresult peek_last_error() noexcept nogil
 cdef void clear_last_error() noexcept nogil
+
+# Non-propagating error reporting (never raises; emits cuda.core.CUDAWarning
+# when possible, else writes to stderr)
+cdef void register_warning_category(PyObject* category) noexcept
+cdef void report_cuda_error(
+    const char* operation, cydriver.CUresult status, const char* detail) noexcept nogil
+cdef void report_message(const char* message) noexcept nogil
+cdef void report_status_code(const char* operation, long code) noexcept nogil
+cdef void note_or_report_cuda_error(
+    const char* operation, cydriver.CUresult status, const char* detail) noexcept nogil
+cdef const char* take_last_error_detail(cydriver.CUresult status) noexcept nogil
+cdef void clear_last_error_detail() noexcept nogil
 
 # Context handles
 cdef ContextHandle create_context_handle_ref(cydriver.CUcontext ctx) except+ nogil
@@ -184,13 +197,17 @@ cdef cydriver.CUresult context_get_stream_priority_range(
     const ContextHandle& h_context,
     int* least_priority,
     int* greatest_priority) noexcept nogil
+cdef cydriver.CUresult context_get_device(
+    const ContextHandle& h_context, cydriver.CUdevice* device) noexcept nogil
+cdef cydriver.CUresult graph_node_set_params(
+    cydriver.CUgraphNode node, cydriver.CUgraphNodeParams* params,
+    const ContextHandle& h_context, cydriver.CUresult* restore_status) noexcept nogil
 
 # Stream handles
 cdef StreamHandle create_stream_handle(
     const ContextHandle& h_ctx, unsigned int flags, int priority) except+ nogil
 cdef StreamHandle create_stream_handle_ref(cydriver.CUstream stream) except+ nogil
 cdef StreamHandle create_stream_handle_with_owner(cydriver.CUstream stream, object owner) except+ nogil
-cdef void py_object_user_object_destroy(void* py_object) noexcept nogil
 cdef void retry_deferred_cleanup() noexcept
 cdef ContextHandle get_stream_context(const StreamHandle& h) noexcept nogil
 cdef StreamHandle get_legacy_stream() except+ nogil
@@ -288,6 +305,7 @@ cdef cydriver.CUresult graph_commit_child_graph_update(
     PreparedChildGraphUpdate& prepared, GraphHandle* out_child) except+
 cdef void invalidate_child_graph_state(
     const GraphHandle& h_parent, cydriver.CUgraphNode owner_node) noexcept
+cdef void invalidate_root_graph_state(const GraphHandle& h_root) noexcept
 
 # Graph exec handles
 cdef GraphExecHandle create_graph_exec_handle(

@@ -126,7 +126,11 @@ class GraphBuilder:
     @staticmethod
     def _init(stream: Stream): ...
     def close(self):
-        """Destroy the graph builder."""
+        """Destroy the graph builder.
+
+        A builder that is still building ends its capture first. The builder
+        is closed even when that fails; the driver error is raised afterwards.
+        """
     @property
     def is_closed(self) -> bool:
         """Whether this graph builder has been closed."""
@@ -202,7 +206,19 @@ class GraphBuilder:
     def is_building(self) -> bool:
         """Returns True if the graph builder is currently building."""
     def end_building(self) -> GraphBuilder:
-        """Ends the building process."""
+        """Ends the building process.
+
+        Raises
+        ------
+        RuntimeError
+            If the builder is not building. A forked builder is ended by
+            :meth:`join`, not by this method.
+        CUDAError
+            If the capture was invalidated, for example by a CUDA call that is
+            not permitted while capturing. The capture is ended and the
+            builder holds no graph afterwards, so :meth:`complete` and
+            :attr:`graph_definition` are unavailable.
+        """
     def complete(self, options: GraphCompleteOptions | None=None) -> Graph:
         """Completes the graph builder and returns the built :obj:`~graph.Graph` object.
 
