@@ -45,6 +45,7 @@ def make_repo(
     git(tmp_path, "config", "user.name", "CUDA Python CI")
     git(tmp_path, "config", "user.email", "cuda-python@nvidia.com")
     git(tmp_path, "config", "commit.gpgsign", "false")
+    git(tmp_path, "config", "tag.gpgSign", "false")
     git(tmp_path, "add", config.relative_to(tmp_path).as_posix())
     git(tmp_path, "commit", "-m", "initial")
     return tmp_path, config

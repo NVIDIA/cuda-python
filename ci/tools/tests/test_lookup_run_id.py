@@ -272,6 +272,7 @@ def _tagged_repo(tmp_path, tag="v13.3.1"):
     repo = tmp_path / "repo"
     repo.mkdir()
     subprocess.run([GIT, "init", "-q"], cwd=repo, check=True)  # noqa: S603 - invokes git in a test repo
+    subprocess.run([GIT, "config", "tag.gpgSign", "false"], cwd=repo, check=True)  # noqa: S603
     (repo / "README").write_text("test\n", encoding="utf-8")
     subprocess.run([GIT, "add", "README"], cwd=repo, check=True)  # noqa: S603 - invokes git in a test repo
     commit_env = os.environ.copy()
@@ -299,6 +300,23 @@ def _tagged_repo(tmp_path, tag="v13.3.1"):
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 class TestExplicitTagRun:
+    def test_same_commit_tags_select_the_requested_tag_run(self, tmp_path, fake_gh):
+        repo, current_tag, sha = _tagged_repo(tmp_path)
+        maintenance_tag = "v12.9.8"
+        subprocess.run([GIT, "tag", maintenance_tag], cwd=repo, check=True)  # noqa: S603 - controlled test tag
+        runs = [
+            _run(200, "2026-08-31T13:00:00Z", branch=current_tag, head_sha=sha),
+            _run(100, "2026-08-31T12:00:00Z", branch=maintenance_tag, head_sha=sha),
+        ]
+
+        maintenance_result = _lookup(fake_gh, runs, {}, "--tag", maintenance_tag, cwd=repo)
+        current_result = _lookup(fake_gh, runs, {}, "--tag", current_tag, cwd=repo)
+
+        assert maintenance_result.returncode == 0, maintenance_result.stderr
+        assert maintenance_result.stdout.strip() == "100"
+        assert current_result.returncode == 0, current_result.stderr
+        assert current_result.stdout.strip() == "200"
+
     def test_accepts_matching_successful_tag_run(self, tmp_path, fake_gh):
         repo, tag, sha = _tagged_repo(tmp_path)
         run = _run(123, "2026-08-31T12:00:00Z", branch=tag, head_sha=sha)
