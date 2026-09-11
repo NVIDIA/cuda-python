@@ -2,7 +2,9 @@
 
 from typing import Any
 
-_LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative', 'programmatic_stream_serialization', 'priority')
+from cuda.core._utils.cuda_utils import driver
+
+_LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative', 'programmatic_stream_serialization', 'cluster_scheduling_policy_preference', 'priority')
 __all__ = ['LaunchConfig']
 
 class LaunchConfig:
@@ -39,6 +41,13 @@ class LaunchConfig:
         Whether to allow programmatic stream serialization (PDL). When True,
         the kernel may overlap with a previous kernel in the same stream that
         signals completion via programmatic means.
+    cluster_scheduling_policy_preference : str, optional
+        Cluster scheduling policy for the launch. One of ``"DEFAULT"``,
+        ``"SPREAD"``, or ``"LOAD_BALANCING"``.
+        When ``None`` (default), the launch attribute is omitted and the
+        driver applies the kernel function's default policy.
+        Passing ``"DEFAULT"`` explicitly sets the driver default via the
+        launch attribute.
     priority : int, optional
         Execution priority of the kernel. Lower numbers represent higher
         priorities. The meaningful range of values is device-specific,
@@ -49,15 +58,17 @@ class LaunchConfig:
         nonzero value outside this range raises :class:`ValueError`.
         When omitted (or 0), the launch uses the stream's priority.
     """
+    _CLUSTER_SCHED_POLICY_TO_DRIVER = {'DEFAULT': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_DEFAULT, 'SPREAD': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD, 'LOAD_BALANCING': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING}
     grid: tuple[Any, ...]
     cluster: tuple[Any, ...]
     block: tuple[Any, ...]
     shmem_size: int
     is_cooperative: bool
     programmatic_stream_serialization: bool
+    cluster_scheduling_policy_preference: str
     priority: int
 
-    def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False, programmatic_stream_serialization: bool=False, priority: int | None=None) -> None:
+    def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False, programmatic_stream_serialization: bool=False, cluster_scheduling_policy_preference: str | None=None, priority: int | None=None) -> None:
         """Initialize LaunchConfig with validation.
 
         Parameters
@@ -74,6 +85,11 @@ class LaunchConfig:
             Whether to launch as cooperative kernel (default: False)
         programmatic_stream_serialization : bool, optional
             Whether to allow programmatic stream serialization / PDL (default: False)
+        cluster_scheduling_policy_preference : str, optional
+            Cluster scheduling policy for the launch: ``"DEFAULT"``,
+            ``"SPREAD"``, or ``"LOAD_BALANCING"``.
+            ``None`` (default) omits the launch attribute; ``"DEFAULT"``
+            sets the driver default explicitly.
         priority : int, optional
             Execution priority of the kernel. Lower numbers represent higher
             priorities. The meaningful range of values is device-specific,
@@ -89,6 +105,8 @@ class LaunchConfig:
         """Return string representation of LaunchConfig."""
     def __eq__(self, other: object) -> bool: ...
     def __hash__(self) -> int: ...
+    def _validate_cluster_scheduling_policy_preference(self, value): ...
+    def _cluster_sched_policy_driver_value(self): ...
 
 def _to_native_launch_config(config: LaunchConfig) -> object:
     """Convert LaunchConfig to native driver CUlaunchConfig.
