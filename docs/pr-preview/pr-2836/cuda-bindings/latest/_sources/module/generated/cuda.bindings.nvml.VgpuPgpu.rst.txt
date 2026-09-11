@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.VgpuPgpu
+===========================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: VgpuPgpu
