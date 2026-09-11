@@ -56,6 +56,7 @@ from cuda.core._dlpack import DLDeviceType
 from cuda.core._memory._ipc import IPCBufferDescriptor
 from cuda.core._stream import default_stream
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
+from cuda.core._utils.version import driver_version
 from cuda.core.typing import (
     ManagedMemoryLocationType,
     VirtualMemoryAccessType,
@@ -1201,6 +1202,9 @@ def test_pinned_memory_resource_initialization(init_cuda):
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
 def test_pinned_memory_resource_rejects_unsupported_host_pool(init_cuda):
     """allocate() must fail on devices without host memory pool support (see #2486)."""
+    if driver_version() < (13, 0, 0):
+        pytest.skip("Generic HOST memory pools require CUDA 13.0 or later")
+
     device = init_cuda
     if device.properties.host_memory_pools_supported:
         pytest.skip("Device supports host memory pools")

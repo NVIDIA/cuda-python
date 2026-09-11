@@ -57,6 +57,7 @@ _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
         # We have some explicitly unsupported memory location types
         {
             "CU_MEM_LOCATION_TYPE_NONE",
+            "CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN",
             "CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT",
             "CU_MEM_LOCATION_TYPE_INVISIBLE",
             "CU_MEM_LOCATION_TYPE_MAX",
@@ -92,6 +93,9 @@ _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
         # We have some explicitly unsupported memory location types
         {
             "CU_MEM_LOCATION_TYPE_NONE",
+            # Requires a separate locality-domain id; cuda-core memory-resource
+            # options currently expose only device and host/NUMA placement.
+            "CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN",
             "CU_MEM_LOCATION_TYPE_INVISIBLE",
             "CU_MEM_LOCATION_TYPE_MAX",
             "CU_MEM_LOCATION_TYPE_INVALID",
