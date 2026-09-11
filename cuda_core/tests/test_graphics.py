@@ -61,13 +61,25 @@ def _configure_pyglet_headless():
 def _open_gl_window():
     """Open a hidden window (or configure EGL headless). Returns the window or None.
 
-    Closes the window if switch_to() fails so a partially-constructed window does not leak.
+    Cleans up partial windows and restores the previous GL context if
+    construction fails. Closes the window if switch_to() fails.
     """
     if not pyglet.options.get("headless"):
         from pyglet import gl
 
         config = gl.Config(double_buffer=False)
-        win = pyglet.window.Window(visible=False, config=config)
+        previous_context = gl.current_context
+        previous_windows = set(pyglet.app.windows)
+        try:
+            win = pyglet.window.Window(visible=False, config=config)
+        except Exception:
+            for window in set(pyglet.app.windows) - previous_windows:
+                with contextlib.suppress(Exception):
+                    window.close()
+            if previous_context is not None:
+                with contextlib.suppress(Exception):
+                    previous_context.set_current()
+            raise
         try:
             win.switch_to()
         except Exception:
