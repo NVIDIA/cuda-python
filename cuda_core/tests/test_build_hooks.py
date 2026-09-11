@@ -22,7 +22,7 @@ import os
 import sys
 import tempfile
 import threading
-import types
+from distutils.ccompiler import CCompiler
 from pathlib import Path
 from unittest import mock
 
@@ -386,8 +386,13 @@ class TestExtensionDepends:
 class TestParallelSourceCompilation:
     """setup.py compiles an extension's sources through one shared thread pool."""
 
-    class FakeCompiler:
+    class FakeCompiler(CCompiler):
+        """Uses the stock CCompiler.compile(), like the Unix compilers."""
+
+        executables = {}
+
         def __init__(self, fail_on=None):
+            super().__init__()
             self.compiled = []
             self.fail_on = fail_on
             self.lock = threading.Lock()
@@ -405,6 +410,9 @@ class TestParallelSourceCompilation:
                 raise RuntimeError(f"{src} failed")
             with self.lock:
                 self.compiled.append((obj, src, ext, tuple(cc_args), tuple(extra_postargs), tuple(pp_opts)))
+
+    class MsvcLikeCompiler(FakeCompiler):
+        """Overrides compile() wholesale, like MSVCCompiler."""
 
         def compile(self, *args, **kwargs):
             return "stock"
@@ -427,7 +435,7 @@ class TestParallelSourceCompilation:
         assert objects == [source + ".o" for source in sources]
         assert sorted(entry[0] for entry in cmd.compiler.compiled) == sorted(objects)
         assert {entry[2:] for entry in cmd.compiler.compiled} == {(".cpp", ("-c", "-Dpp"), ("-O2",), ("-Dpp",))}
-        assert cmd.compiler.compile(sources) == "stock"  # restored on exit
+        assert cmd.compiler.compile.__func__ is CCompiler.compile  # restored on exit
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_a_failing_source_fails_the_extension(self, monkeypatch):
@@ -439,8 +447,7 @@ class TestParallelSourceCompilation:
     def test_serial_builds_and_compilers_without_the_hook_keep_the_stock_path(self, monkeypatch):
         cmd = self._build_ext(monkeypatch, 1, self.FakeCompiler())
         with cmd._parallel_source_compilation():
-            assert cmd.compiler.compile(["a.cpp"]) == "stock"
-        msvc_like = types.SimpleNamespace(compile=self.FakeCompiler().compile)  # no _compile()
-        cmd = self._build_ext(monkeypatch, 4, msvc_like)
+            assert cmd.compiler.compile.__func__ is CCompiler.compile
+        cmd = self._build_ext(monkeypatch, 4, self.MsvcLikeCompiler())
         with cmd._parallel_source_compilation():
             assert cmd.compiler.compile(["a.cpp"]) == "stock"

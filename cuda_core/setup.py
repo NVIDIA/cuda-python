@@ -5,6 +5,7 @@
 import contextlib
 import os
 from concurrent.futures import ThreadPoolExecutor
+from distutils.ccompiler import CCompiler
 from pathlib import Path
 
 import build_hooks  # our build backend
@@ -88,11 +89,12 @@ class build_ext(_build_ext):  # noqa: N801
         cuda.core._rt (a dozen .cpp files) becomes the critical path. This
         mirrors CCompiler.compile() and fans its per-object _compile() calls out
         to a pool shared by all extensions, so at most `nthreads` compiler
-        processes run at once. MSVC's compiler class has no _compile(); it keeps
-        the stock path.
+        processes run at once. It applies only to compilers that still use
+        CCompiler.compile(), which drives the per-object _compile() hook (the
+        Unix family); MSVC overrides compile() wholesale and keeps the stock path.
         """
         compiler = self.compiler
-        if nthreads <= 1 or not hasattr(compiler, "_compile"):
+        if nthreads <= 1 or type(compiler).compile is not CCompiler.compile:
             yield
             return
         stock_compile = compiler.compile
