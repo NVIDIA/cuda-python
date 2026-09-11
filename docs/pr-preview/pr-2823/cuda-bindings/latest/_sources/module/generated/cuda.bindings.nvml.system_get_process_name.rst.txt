@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.system\_get\_process\_name
+=============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: system_get_process_name
