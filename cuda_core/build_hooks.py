@@ -188,14 +188,14 @@ def _extension_sources(mod_name):
     cuda/core/_cpp/<stem>/, or the single legacy file cuda/core/_cpp/<stem>.cpp.
     Example: _tensor_map.pyx compiles _cpp/tensor_map.cpp."""
     sources = [f"cuda/core/{mod_name}.pyx"]
-    cpp_stem = os.path.join("cuda", "core", "_cpp", mod_name.lstrip("_"))
-    if os.path.isdir(cpp_stem):
-        cpp_sources = sorted(glob.glob(os.path.join(cpp_stem, "**", "*.cpp"), recursive=True))
+    cpp_stem = Path("cuda", "core", "_cpp", mod_name.lstrip("_"))
+    if cpp_stem.is_dir():
+        cpp_sources = sorted(str(path) for path in cpp_stem.rglob("*.cpp"))
         if not cpp_sources:
             raise RuntimeError(f"{cpp_stem}/ exists but contains no .cpp files")
         sources.extend(cpp_sources)
-    elif os.path.isfile(cpp_stem + ".cpp"):
-        sources.append(cpp_stem + ".cpp")
+    elif cpp_stem.with_suffix(".cpp").is_file():
+        sources.append(str(cpp_stem.with_suffix(".cpp")))
     return sources
 
 

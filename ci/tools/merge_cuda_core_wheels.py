@@ -133,9 +133,11 @@ def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool
         # Copy version-specific directories from each wheel into versioned subdirectories
         base_dir = Path("cuda") / "core"
 
+        versioned_dirs = set()
         for i, wheel_dir in enumerate(extracted_wheels):
             cuda_version = wheels[i].name.split(".cu")[1].split(".")[0]
             versioned_dir = base_wheel / base_dir / f"cu{cuda_version}"
+            versioned_dirs.add(versioned_dir.name)
 
             # Copy entire directory tree from source wheel to versioned directory
             print(f"  Copying {wheel_dir / base_dir} to {versioned_dir}", file=sys.stderr)
@@ -147,14 +149,9 @@ def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool
         print("\n=== Removing files from cuda/core/ directory ===", file=sys.stderr)
         # Only what cuda/core/__init__.py uses before it rewrites __path__ to the
         # versioned subpackage stays at top level: it imports _version, then
-        # redirects every later import into cu12/ or cu13/. Anything else left at
-        # top level is a dead copy that nothing imports.
-        items_to_keep = (
-            "__init__.py",
-            "_version.py",
-            "cu12",
-            "cu13",
-        )
+        # redirects every later import into the versioned tree. Anything else
+        # left at top level is a dead copy that nothing imports.
+        items_to_keep = {"__init__.py", "_version.py", *versioned_dirs}
         all_items = os.scandir(base_wheel / base_dir)
         removed_count = 0
         for f in all_items:
@@ -169,6 +166,11 @@ def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool
                 os.remove(f_abspath)
             removed_count += 1
         print(f"Removed {removed_count} items from cuda/core/ directory", file=sys.stderr)
+        remaining = {entry.name for entry in os.scandir(base_wheel / base_dir)}
+        if remaining != items_to_keep:
+            raise RuntimeError(
+                f"unexpected top level under cuda/core/: {sorted(remaining)} (expected {sorted(items_to_keep)})"
+            )
 
         # Repack the merged wheel
         output_dir.mkdir(parents=True, exist_ok=True)

@@ -696,27 +696,6 @@ jobs:
             "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_PREV_CUDA_MAJOR}"/cuda_core*.whl \
             --output-dir "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"
 
-      - name: Check merged cuda.core wheel layout
-        if: ${{ env.BUILD_CORE == 'true' }}
-        run: |
-          # cuda/core/__init__.py rewrites __path__ to the active cuXX/ tree, so
-          # only the entry points and the two versioned trees belong at the top
-          # level of cuda/core/; anything else is a dead copy.
-          python - "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cuda_core*.whl <<'EOF'
-          import os
-          import sys
-          import zipfile
-
-          prefix = "cuda/core/"
-          members = zipfile.ZipFile(sys.argv[1]).namelist()
-          names = {n[len(prefix) :].split("/")[0] for n in members if n.startswith(prefix)}
-          names.discard("")
-          expected = {"__init__.py", "_version.py"}
-          expected |= {f"cu{os.environ[v]}" for v in ("BUILD_CUDA_MAJOR", "BUILD_PREV_CUDA_MAJOR")}
-          assert names == expected, f"unexpected top-level entries under cuda/core/: {sorted(names ^ expected)}"
-          print("merged wheel top level:", sorted(names))
-          EOF
-
       - name: Check cuda.core wheel
         if: ${{ env.BUILD_CORE == 'true' }}
         run: |
