@@ -8,7 +8,56 @@ _LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperativ
 __all__ = ['LaunchConfig']
 
 class LaunchConfig:
-    """Customizable launch options."""
+    """Customizable launch options.
+
+    Note
+    ----
+    When cluster is specified, the grid parameter represents the number of
+    clusters (not blocks). The hierarchy is: grid (clusters) -> cluster (blocks) ->
+    block (threads). Each dimension in grid specifies clusters in the grid, each dimension in
+    cluster specifies blocks per cluster, and each dimension in block specifies
+    threads per block.
+
+    Attributes
+    ----------
+    grid : tuple | int
+        Collection of threads that will execute a kernel function. When cluster
+        is not specified, this represents the number of blocks, otherwise
+        this represents the number of clusters.
+    cluster : tuple | int
+        Group of blocks (Thread Block Cluster) that will execute on the same
+        GPU Processing Cluster (GPC). Blocks within a cluster have access to
+        distributed shared memory and can be explicitly synchronized.
+    block : tuple | int
+        Group of threads (Thread Block) that will execute on the same
+        streaming multiprocessor (SM). Threads within a thread blocks have
+        access to shared memory and can be explicitly synchronized.
+    shmem_size : int, optional
+        Dynamic shared-memory size per thread block in bytes.
+        (Default to size 0)
+    is_cooperative : bool, optional
+        Whether this config can be used to launch a cooperative kernel.
+    programmatic_stream_serialization : bool, optional
+        Whether to allow programmatic stream serialization (PDL). When True,
+        the kernel may overlap with a previous kernel in the same stream that
+        signals completion via programmatic means.
+    cluster_scheduling_policy_preference : str, optional
+        Cluster scheduling policy for the launch. One of ``"DEFAULT"``,
+        ``"SPREAD"``, or ``"LOAD_BALANCING"``.
+        When ``None`` (default), the launch attribute is omitted and the
+        driver applies the kernel function's default policy.
+        Passing ``"DEFAULT"`` explicitly sets the driver default via the
+        launch attribute.
+    priority : int, optional
+        Execution priority of the kernel. Lower numbers represent higher
+        priorities. The meaningful range of values is device-specific,
+        given by ``[greatestPriority, leastPriority]`` as returned by
+        ``cuCtxGetStreamPriorityRange`` (the same range used by
+        :attr:`~cuda.core.StreamOptions.priority`); both bounds are 0 on
+        a device that does not support multiple stream priorities. A
+        nonzero value outside this range raises :class:`ValueError`.
+        When omitted (or 0), the launch uses the stream's priority.
+    """
     _CLUSTER_SCHED_POLICY_TO_DRIVER = {'DEFAULT': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_DEFAULT, 'SPREAD': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD, 'LOAD_BALANCING': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING}
     grid: tuple[Any, ...]
     cluster: tuple[Any, ...]

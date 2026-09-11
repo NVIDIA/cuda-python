@@ -30,11 +30,6 @@ __all__ = ['LaunchConfig']
 
 
 cdef class LaunchConfig:
-    _CLUSTER_SCHED_POLICY_TO_DRIVER = {
-        "DEFAULT": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_DEFAULT,
-        "SPREAD": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD,
-        "LOAD_BALANCING": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING,
-    }
     """Customizable launch options.
 
     Note
@@ -85,6 +80,12 @@ cdef class LaunchConfig:
         nonzero value outside this range raises :class:`ValueError`.
         When omitted (or 0), the launch uses the stream's priority.
     """
+
+    _CLUSTER_SCHED_POLICY_TO_DRIVER = {
+        "DEFAULT": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_DEFAULT,
+        "SPREAD": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD,
+        "LOAD_BALANCING": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING,
+    }
 
     # TODO: expand LaunchConfig to include other attributes
     # Note: attributes are declared in _launch_config.pxd
