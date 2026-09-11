@@ -3,8 +3,8 @@
 
 .. module:: cuda.bindings
 
-``cuda-bindings`` 13.4.0 Release notes
-======================================
+``cuda-bindings`` 13.4.1a0 Release notes
+========================================
 
 New APIs
 --------
@@ -51,6 +51,30 @@ New NVML API functions:
 * :func:`nvml.event_set_get_gpu_operational_event_context_legacy_xid_v1`
 * :func:`nvml.device_get_bank_remapper_status_v1`
 * :func:`nvml.event_set_get_context_data_v1`
+
+Bugfixes
+--------
+
+* Fixed a bug in the wrapping of ``nvrtcBundledHeadersInfo``.
+  (`PR #2754 <https://github.com/NVIDIA/cuda-python/pull/2754>`_)
+* Fixed ``CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING``: previously, setting it
+  to ``"0"`` (or any other non-empty string) still disabled the warning; it
+  is now parsed as a bool-like value, so ``"0"`` correctly leaves the warning
+  enabled.
+  (`PR #2581 <https://github.com/NVIDIA/cuda-python/pull/2581>`_)
+* Fixed a crash in ``nvml.system_event_set_wait`` caused by calling
+  ``resize()`` on a non-owning ``SystemEventData_v1._data`` view.
+  (`PR #2690 <https://github.com/NVIDIA/cuda-python/pull/2690>`_)
+* ``get_cuda_native_handle`` no longer misreports a ``KeyError`` raised from
+  within a registered getter as an "Unknown type" error.
+  (`PR #2551 <https://github.com/NVIDIA/cuda-python/pull/2551>`_)
+* Fixed ``cuFile`` status checking to no longer raise ``cuFileError``
+  spuriously when ``CUfileError_t.cu_err`` is set on a non-error path (for
+  example, BAR-size queries on GH200 systems).
+  (`PR #2530 <https://github.com/NVIDIA/cuda-python/pull/2530>`_)
+* Made ``param_packer.feed()`` safe under free-threaded Python by moving its
+  internal state initialization to import time.
+  (`PR #2417 <https://github.com/NVIDIA/cuda-python/pull/2417>`_)
 
 Deprecation Notices
 -------------------

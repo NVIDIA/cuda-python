@@ -23,7 +23,8 @@ class Host:
     ``Host`` is the symmetric counterpart of :class:`~cuda.core.Device`
     for managed-memory `prefetch`, `advise`, and `discard_prefetch`
     targets. Pass either a ``Device`` or a ``Host`` to those operations
-    and to ``ManagedBuffer.preferred_location`` / ``accessed_by``.
+    and to ``ManagedBuffer.preferred_location`` / ``accessed_by``. A
+    ``Host`` may also be returned by ``ManagedBuffer.last_prefetch_location``.
 
     ``Host`` is a singleton class, mirroring :class:`~cuda.core.Device`:
     constructor calls with the same arguments return the same instance,

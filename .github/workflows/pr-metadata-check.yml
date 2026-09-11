@@ -32,7 +32,11 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IS_BOT: ${{ github.actor == 'dependabot[bot]' || github.actor == 'pre-commit-ci[bot]' || github.actor == 'copy-pr-bot[bot]' }}
+          # Keyed on the PR author, not the actor: a maintainer labelling a bot
+          # PR re-triggers this workflow as themselves. Any bot author is
+          # exempt because none of them can set an assignee or milestone
+          # (e.g. the App identity used by the pixi lockfile refresh).
+          IS_BOT: ${{ github.event.pull_request.user.type == 'Bot' || github.actor == 'dependabot[bot]' || github.actor == 'pre-commit-ci[bot]' || github.actor == 'copy-pr-bot[bot]' || github.actor == 'github-actions[bot]' }}
           IS_DRAFT: ${{ github.event.pull_request.draft }}
         run: |
           if [ "$IS_BOT" = "true" ] || [ "$IS_DRAFT" = "true" ]; then

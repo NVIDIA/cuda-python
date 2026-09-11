@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b82680ec867e23638b173760105c35030e0cba5c9a8b3bb536ce5bb3381ec1fb
+# This code was automatically generated across versions from 1.5.0 to 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f6b70193e4ca3c62bd5749b3d19d305f0e268225bf1a6dcf6b95091cb0511791
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -43,6 +43,7 @@ ctypedef cudlaModuleLoadFlags _ModuleLoadFlags
 ctypedef cudlaSubmissionFlags _SubmissionFlags
 ctypedef cudlaAccessPermissionFlags _AccessPermissionFlags
 ctypedef cudlaDevAttributeType _DevAttributeType
+ctypedef cudlaScratchMemoryConfig _ScratchMemoryConfig
 
 
 ###############################################################################
