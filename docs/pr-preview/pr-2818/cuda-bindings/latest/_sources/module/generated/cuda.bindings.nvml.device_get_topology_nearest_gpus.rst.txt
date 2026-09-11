@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_topology\_nearest\_gpus
+=======================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_topology_nearest_gpus

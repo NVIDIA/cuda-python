@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.NvmlError
+============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: NvmlError

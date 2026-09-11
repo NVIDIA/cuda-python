@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_power\_smoothing\_set\_state
+=======================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_power_smoothing_set_state

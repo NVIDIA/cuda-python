@@ -1,0 +1,6 @@
+﻿cuda.core.typing.ProcessStateType
+=================================
+
+.. currentmodule:: cuda.core.typing
+
+.. autodata:: ProcessStateType
