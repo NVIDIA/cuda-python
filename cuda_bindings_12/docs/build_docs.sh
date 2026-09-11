@@ -16,13 +16,12 @@ fi
 
 # SPHINX_CUDA_BINDINGS_VER is used to create a subdir under build/html
 # (the Makefile file for sphinx-build also honors it if defined).
-# If there's a post release (ex: .post1) we don't want it to show up in the
-# version selector or directory structure.
+# Post releases reuse their base release directory, while prerelease and
+# development suffixes remain distinct so they cannot overwrite stable docs.
 if [[ -z "${SPHINX_CUDA_BINDINGS_VER}" ]]; then
     export SPHINX_CUDA_BINDINGS_VER=$(python -c "from importlib.metadata import version; \
-                                                 ver = '.'.join(str(version('cuda-bindings')).split('.')[:3]); \
-                                                 print(ver)" \
-                                      | awk -F'+' '{print $1}')
+                                                 ver = str(version('cuda-bindings')).split('+', 1)[0]; \
+                                                 print(ver.split('.post', 1)[0])")
 fi
 
 # build the docs (in parallel)
