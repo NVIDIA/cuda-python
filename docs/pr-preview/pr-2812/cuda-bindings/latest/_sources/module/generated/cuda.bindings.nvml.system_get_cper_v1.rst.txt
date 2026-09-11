@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.system\_get\_cper\_v1
+========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: system_get_cper_v1
