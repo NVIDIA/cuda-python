@@ -357,6 +357,12 @@ void invalidate_child_graph_state(
     const GraphHandle& h_parent,
     CUgraphNode owner_node) noexcept;
 
+// Invalidate cuda.core state for a root graph that CUDA destroyed itself, such
+// as the graph of an invalidated capture ended by cuStreamEndCapture. The
+// owning handle then no longer calls cuGraphDestroy. No-op unless h_root is
+// the live root of its hierarchy.
+void invalidate_root_graph_state(const GraphHandle& h_root) noexcept;
+
 // ============================================================================
 // Graph exec handle functions
 // ============================================================================

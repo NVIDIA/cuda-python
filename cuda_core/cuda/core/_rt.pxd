@@ -305,6 +305,7 @@ cdef cydriver.CUresult graph_commit_child_graph_update(
     PreparedChildGraphUpdate& prepared, GraphHandle* out_child) except+
 cdef void invalidate_child_graph_state(
     const GraphHandle& h_parent, cydriver.CUgraphNode owner_node) noexcept
+cdef void invalidate_root_graph_state(const GraphHandle& h_root) noexcept
 
 # Graph exec handles
 cdef GraphExecHandle create_graph_exec_handle(

@@ -22,6 +22,7 @@ from cuda.core._rt cimport (
     create_mempool_handle,
     deviceptr_alloc_from_pool,
     get_last_error,
+    note_or_report_cuda_error,
     as_cu,
     as_py,
 )
@@ -311,24 +312,48 @@ cdef int MP_raise_release_threshold(_MemPool self) except? -1:
     By default the release threshold is 0, meaning memory is returned to
     the OS as soon as there are no active suballocations.  Setting it to
     ULLONG_MAX avoids repeated OS round-trips.
+
+    Pool attribute reads and writes are potentially unsafe calls while the
+    calling thread is inside a global or thread-local stream capture: the
+    driver refuses them and invalidates the capture. Capture mode is a
+    per-thread property, so the thread is switched to relaxed mode around the
+    two calls and its previous mode is restored afterwards. This has no
+    observable effect when the thread is not capturing. The attribute write
+    executes immediately rather than being recorded into a graph, which is the
+    intent for a process-wide pool setting.
     """
     MP_check_open(self)
     cdef cydriver.cuuint64_t current_threshold
     cdef cydriver.cuuint64_t max_threshold = ULLONG_MAX
+    cdef cydriver.CUstreamCaptureMode mode = cydriver.CU_STREAM_CAPTURE_MODE_RELAXED
+    cdef cydriver.CUresult err
+    cdef cydriver.CUresult restore_err
     with nogil:
-        HANDLE_RETURN(
-            cydriver.cuMemPoolGetAttribute(
-                as_cu(self._h_pool),
-                cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
-                &current_threshold
-            )
+        # On return, mode holds the thread's previous capture mode.
+        HANDLE_RETURN(cydriver.cuThreadExchangeStreamCaptureMode(&mode))
+        err = cydriver.cuMemPoolGetAttribute(
+            as_cu(self._h_pool),
+            cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
+            &current_threshold
         )
-        if current_threshold == 0:
-            HANDLE_RETURN(cydriver.cuMemPoolSetAttribute(
+        if err == cydriver.CUDA_SUCCESS and current_threshold == 0:
+            err = cydriver.cuMemPoolSetAttribute(
                 as_cu(self._h_pool),
                 cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
                 &max_threshold
-            ))
+            )
+        restore_err = cydriver.cuThreadExchangeStreamCaptureMode(&mode)
+    try:
+        HANDLE_RETURN(err)
+    except:
+        if restore_err != cydriver.CUDA_SUCCESS:
+            # The attribute error propagates with the restore failure attached
+            # as a note (error handling policy).
+            note_or_report_cuda_error(
+                b"cuThreadExchangeStreamCaptureMode", restore_err,
+                b"failed to restore the thread's stream capture mode")
+        raise
+    HANDLE_RETURN(restore_err)
     return 0
 
 
