@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=616e51ad15aa071792eceba5db17a6fb2b845b219395e2fdcc6278d3621f52de
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5b9d3a05eab53628d366c602ae3125fede0d25b2cc48137e2b1f7dcb29068650
 
 
 
@@ -53,7 +53,7 @@ ctypedef CUfileP2PFlags_t _P2PFlags
 # Functions
 ###############################################################################
 
-cpdef intptr_t handle_register(intptr_t descr) except? 0
+cpdef intptr_t handle_register(descr) except? 0
 cpdef void handle_deregister(intptr_t fh) except*
 cpdef buf_register(intptr_t buf_ptr_base, size_t length, int flags)
 cpdef buf_deregister(intptr_t buf_ptr_base)
@@ -65,8 +65,8 @@ cpdef driver_set_max_direct_io_size(size_t max_direct_io_size)
 cpdef driver_set_max_cache_size(size_t max_cache_size)
 cpdef driver_set_max_pinned_mem_size(size_t max_pinned_size)
 cpdef intptr_t batch_io_set_up(unsigned nr) except? 0
-cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, intptr_t iocbp, unsigned int flags)
-cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, intptr_t iocbp, intptr_t timeout)
+cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, iocbp, unsigned int flags)
+cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, iocbp, intptr_t timeout)
 cpdef batch_io_cancel(intptr_t batch_idp)
 cpdef void batch_io_destroy(intptr_t batch_idp) except*
 cpdef read_async(intptr_t fh, intptr_t buf_ptr_base, intptr_t size_p, intptr_t file_offset_p, intptr_t buf_ptr_offset_p, intptr_t bytes_read_p, intptr_t stream)
@@ -86,9 +86,9 @@ cpdef int get_stats_level() except? 0
 cpdef stats_start()
 cpdef stats_stop()
 cpdef stats_reset()
-cpdef get_stats_l1(intptr_t stats)
-cpdef get_stats_l2(intptr_t stats)
-cpdef get_stats_l3(intptr_t stats)
+cpdef get_stats_l1(stats)
+cpdef get_stats_l2(stats)
+cpdef get_stats_l3(stats)
 cpdef size_t get_bar_size_in_kb(int gpu_index) except? 0
 cpdef set_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len)
 cpdef get_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len)

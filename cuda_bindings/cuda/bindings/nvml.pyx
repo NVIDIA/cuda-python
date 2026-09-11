@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=42baa8fa2cca9ddd517acada08429135ae729799383efe63d2547b9e2dc92327
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=bc9dd0fd13a3ef14daa32b5b958b5695e630f3e242a3949432186ea5a2a3f9af
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -3537,9 +3537,10 @@ cdef class ProcessInfo:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -3719,9 +3720,10 @@ cdef class ProcessDetail_v1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -4446,9 +4448,10 @@ cdef class BridgeChipInfo:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -4809,9 +4812,10 @@ cdef class _py_anon_pod0:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -5166,9 +5170,10 @@ cdef class ClkMonFaultInfo:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -5518,9 +5523,10 @@ cdef class ProcessUtilizationSample:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -5725,9 +5731,10 @@ cdef class ProcessUtilizationInfo_v1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -6679,9 +6686,10 @@ cdef class _py_anon_pod1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -7188,9 +7196,10 @@ cdef class VgpuProcessUtilizationInfo_v1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -7709,9 +7718,10 @@ cdef class VgpuSchedulerLogEntry:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -9300,9 +9310,10 @@ cdef class HwbcEntry:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -9956,9 +9967,10 @@ cdef class UnitFanInfo:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -10292,9 +10304,10 @@ cdef class SystemEventData_v1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -10647,9 +10660,10 @@ cdef class EncoderSessionInfo:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -11035,9 +11049,10 @@ cdef class FBCSessionInfo:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -13474,9 +13489,10 @@ cdef class GpuInstancePlacement:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -13910,9 +13926,10 @@ cdef class ComputeInstancePlacement:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -15047,9 +15064,10 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -15613,9 +15631,10 @@ cdef class NvlinkFirmwareVersion:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -16095,9 +16114,10 @@ cdef class VgpuSchedulerLogEntry_v2:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -17533,9 +17553,10 @@ cdef class PmgrPwrTuple:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -17679,9 +17700,10 @@ cdef class RailMetrics:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -17835,9 +17857,10 @@ cdef class PwrModelMetricsDlppm1xPerf:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -17981,9 +18004,10 @@ cdef class PwrModelMetricsSamplePfpp1x:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -18136,9 +18160,10 @@ cdef class PwrModelOperatingPointPfpp1x:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -19812,9 +19837,10 @@ cdef class NvlinkTelemetrySample_v1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -20609,9 +20635,10 @@ cdef class Sample:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -20768,9 +20795,10 @@ cdef class VgpuInstanceUtilizationSample:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -20967,9 +20995,10 @@ cdef class VgpuInstanceUtilizationInfo_v1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -21183,9 +21212,10 @@ cdef class FieldValue:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -22818,9 +22848,10 @@ cdef class GridLicensableFeature:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -24405,9 +24436,10 @@ cdef class CoreRailMetrics:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -24554,9 +24586,10 @@ cdef class PwrModelMetricsPfpp1x:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -25465,9 +25498,10 @@ cdef class PRMCounter_v1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -26895,9 +26929,10 @@ cdef class PwrModelMetricsDlppm1x:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -27076,9 +27111,10 @@ cdef class PerfMetricsPfpp1xSample:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -27221,9 +27257,10 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -27381,9 +27418,10 @@ cdef class ObservedMetrics:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -27571,9 +27609,10 @@ cdef class PerfMetricsDlppc2xSample:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -27870,9 +27909,10 @@ cdef class PerfMetricControllerSample:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -28026,9 +28066,10 @@ cdef class PerfMetricsSample:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -29864,7 +29905,7 @@ cpdef tuple device_get_mem_clk_min_max_vf_offset(intptr_t device):
     return (min_offset, max_offset)
 
 
-cpdef device_set_clock_offsets(intptr_t device, intptr_t info):
+cpdef device_set_clock_offsets(intptr_t device, info):
     """Control current clock offset of some clock domain for a given PState.
 
     Args:
@@ -29874,8 +29915,9 @@ cpdef device_set_clock_offsets(intptr_t device, intptr_t info):
 
     .. seealso:: `nvmlDeviceSetClockOffsets`
     """
+    cdef intptr_t _info_ptr_ = int(info)
     with nogil:
-        __status__ = nvmlDeviceSetClockOffsets(<Device>device, <nvmlClockOffset_t*>info)
+        __status__ = nvmlDeviceSetClockOffsets(<Device>device, <nvmlClockOffset_t*>_info_ptr_)
     check_status(__status__)
 
 
@@ -31725,7 +31767,7 @@ cpdef object device_get_nvlink_bw_mode(intptr_t device):
     return get_bw_mode_py
 
 
-cpdef device_set_nvlink_bw_mode(intptr_t device, intptr_t set_bw_mode):
+cpdef device_set_nvlink_bw_mode(intptr_t device, set_bw_mode):
     """Set the NvLink Reduced Bandwidth Mode for the device.
 
     Args:
@@ -31734,9 +31776,10 @@ cpdef device_set_nvlink_bw_mode(intptr_t device, intptr_t set_bw_mode):
 
     .. seealso:: `nvmlDeviceSetNvlinkBwMode`
     """
+    cdef intptr_t _set_bw_mode_ptr_ = int(set_bw_mode)
     set_bw_mode.version = NVML_VERSION_STRUCT(sizeof(nvmlNvlinkSetBwMode_v1_t), 1)
     with nogil:
-        __status__ = nvmlDeviceSetNvlinkBwMode(<Device>device, <nvmlNvlinkSetBwMode_t*>set_bw_mode)
+        __status__ = nvmlDeviceSetNvlinkBwMode(<Device>device, <nvmlNvlinkSetBwMode_t*>_set_bw_mode_ptr_)
     check_status(__status__)
 
 
@@ -31824,7 +31867,7 @@ cpdef event_set_free(intptr_t set):
     check_status(__status__)
 
 
-cpdef device_modify_drain_state(intptr_t pci_info, int new_state):
+cpdef device_modify_drain_state(pci_info, int new_state):
     """Modify the drain state of a GPU. This method forces a GPU to no longer accept new incoming requests. Any new NVML process will no longer see this GPU. Persistence mode for this GPU must be turned off before this call is made. Must be called as administrator. For Linux only.
 
     Args:
@@ -31835,12 +31878,13 @@ cpdef device_modify_drain_state(intptr_t pci_info, int new_state):
 
     .. seealso:: `nvmlDeviceModifyDrainState`
     """
+    cdef intptr_t _pci_info_ptr_ = int(pci_info)
     with nogil:
-        __status__ = nvmlDeviceModifyDrainState(<nvmlPciInfo_t*>pci_info, <_EnableState>new_state)
+        __status__ = nvmlDeviceModifyDrainState(<nvmlPciInfo_t*>_pci_info_ptr_, <_EnableState>new_state)
     check_status(__status__)
 
 
-cpdef int device_query_drain_state(intptr_t pci_info) except? -1:
+cpdef int device_query_drain_state(pci_info) except? -1:
     """Query the drain state of a GPU. This method is used to check if a GPU is in a currently draining state. For Linux only.
 
     Args:
@@ -31853,14 +31897,15 @@ cpdef int device_query_drain_state(intptr_t pci_info) except? -1:
 
     .. seealso:: `nvmlDeviceQueryDrainState`
     """
+    cdef intptr_t _pci_info_ptr_ = int(pci_info)
     cdef _EnableState current_state
     with nogil:
-        __status__ = nvmlDeviceQueryDrainState(<nvmlPciInfo_t*>pci_info, &current_state)
+        __status__ = nvmlDeviceQueryDrainState(<nvmlPciInfo_t*>_pci_info_ptr_, &current_state)
     check_status(__status__)
     return <int>current_state
 
 
-cpdef device_remove_gpu_v2(intptr_t pci_info, int gpu_state, int link_state):
+cpdef device_remove_gpu_v2(pci_info, int gpu_state, int link_state):
     """This method will remove the specified GPU from the view of both NVML and the NVIDIA kernel driver as long as no other processes are attached. If other processes are attached, this call will return NVML_ERROR_IN_USE and the GPU will be returned to its original "draining" state. Note: the only situation where a process can still be attached after :func:`device_modify_drain_state` is called to initiate the draining state is if that process was using, and is still using, a GPU before the call was made. Also note, persistence mode counts as an attachment to the GPU thus it must be disabled prior to this call.
 
     Args:
@@ -31872,12 +31917,13 @@ cpdef device_remove_gpu_v2(intptr_t pci_info, int gpu_state, int link_state):
 
     .. seealso:: `nvmlDeviceRemoveGpu_v2`
     """
+    cdef intptr_t _pci_info_ptr_ = int(pci_info)
     with nogil:
-        __status__ = nvmlDeviceRemoveGpu_v2(<nvmlPciInfo_t*>pci_info, <_DetachGpuState>gpu_state, <_PcieLinkState>link_state)
+        __status__ = nvmlDeviceRemoveGpu_v2(<nvmlPciInfo_t*>_pci_info_ptr_, <_DetachGpuState>gpu_state, <_PcieLinkState>link_state)
     check_status(__status__)
 
 
-cpdef device_discover_gpus(intptr_t pci_info):
+cpdef device_discover_gpus(pci_info):
     """Request the OS and the NVIDIA kernel driver to rediscover a portion of the PCI subsystem looking for GPUs that were previously removed. The portion of the PCI tree can be narrowed by specifying a domain, bus, and device. If all are zeroes then the entire PCI tree will be searched. Please note that for long-running NVML processes the enumeration will change based on how many GPUs are discovered and where they are inserted in bus order.
 
     Args:
@@ -31886,8 +31932,9 @@ cpdef device_discover_gpus(intptr_t pci_info):
 
     .. seealso:: `nvmlDeviceDiscoverGpus`
     """
+    cdef intptr_t _pci_info_ptr_ = int(pci_info)
     with nogil:
-        __status__ = nvmlDeviceDiscoverGpus(<nvmlPciInfo_t*>pci_info)
+        __status__ = nvmlDeviceDiscoverGpus(<nvmlPciInfo_t*>_pci_info_ptr_)
     check_status(__status__)
 
 
@@ -32637,7 +32684,7 @@ cpdef str vgpu_instance_get_mdev_uuid(unsigned int vgpu_instance):
     return _cyb_cpython.PyUnicode_FromString(mdev_uuid)
 
 
-cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, intptr_t p_scheduler):
+cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, p_scheduler):
     """Set vGPU scheduler state for the given GPU instance.
 
     Args:
@@ -32647,9 +32694,10 @@ cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, intptr_t p_sc
 
     .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState`
     """
+    cdef intptr_t _p_scheduler_ptr_ = int(p_scheduler)
     (<nvmlVgpuSchedulerState_t*>p_scheduler).version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuSchedulerState_v1_t), 1)
     with nogil:
-        __status__ = nvmlGpuInstanceSetVgpuSchedulerState(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_t*>p_scheduler)
+        __status__ = nvmlGpuInstanceSetVgpuSchedulerState(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_t*>_p_scheduler_ptr_)
     check_status(__status__)
 
 
@@ -32795,7 +32843,7 @@ cpdef device_set_vgpu_scheduler_state(intptr_t device, intptr_t p_scheduler_stat
     check_status(__status__)
 
 
-cpdef set_vgpu_version(intptr_t vgpu_version):
+cpdef set_vgpu_version(vgpu_version):
     """Override the preset range of vGPU versions supported by the NVIDIA vGPU Manager with a range set by an administrator.
 
     Args:
@@ -32804,8 +32852,9 @@ cpdef set_vgpu_version(intptr_t vgpu_version):
 
     .. seealso:: `nvmlSetVgpuVersion`
     """
+    cdef intptr_t _vgpu_version_ptr_ = int(vgpu_version)
     with nogil:
-        __status__ = nvmlSetVgpuVersion(<nvmlVgpuVersion_t*>vgpu_version)
+        __status__ = nvmlSetVgpuVersion(<nvmlVgpuVersion_t*>_vgpu_version_ptr_)
     check_status(__status__)
 
 
@@ -33088,7 +33137,7 @@ cpdef intptr_t device_create_gpu_instance(intptr_t device, unsigned int profile_
     return <intptr_t>gpu_instance
 
 
-cpdef intptr_t device_create_gpu_instance_with_placement(intptr_t device, unsigned int profile_id, intptr_t placement) except? 0:
+cpdef intptr_t device_create_gpu_instance_with_placement(intptr_t device, unsigned int profile_id, placement) except? 0:
     """Create GPU instance with the specified placement.
 
     Args:
@@ -33103,9 +33152,10 @@ cpdef intptr_t device_create_gpu_instance_with_placement(intptr_t device, unsign
 
     .. seealso:: `nvmlDeviceCreateGpuInstanceWithPlacement`
     """
+    cdef intptr_t _placement_ptr_ = int(placement)
     cdef GpuInstance gpu_instance
     with nogil:
-        __status__ = nvmlDeviceCreateGpuInstanceWithPlacement(<Device>device, profile_id, <const nvmlGpuInstancePlacement_t*>placement, &gpu_instance)
+        __status__ = nvmlDeviceCreateGpuInstanceWithPlacement(<Device>device, profile_id, <const nvmlGpuInstancePlacement_t*>_placement_ptr_, &gpu_instance)
     check_status(__status__)
     return <intptr_t>gpu_instance
 
@@ -33260,7 +33310,7 @@ cpdef intptr_t gpu_instance_create_compute_instance(intptr_t gpu_instance, unsig
     return <intptr_t>compute_instance
 
 
-cpdef intptr_t gpu_instance_create_compute_instance_with_placement(intptr_t gpu_instance, unsigned int profile_id, intptr_t placement) except? 0:
+cpdef intptr_t gpu_instance_create_compute_instance_with_placement(intptr_t gpu_instance, unsigned int profile_id, placement) except? 0:
     """Create compute instance with the specified placement.
 
     Args:
@@ -33276,9 +33326,10 @@ cpdef intptr_t gpu_instance_create_compute_instance_with_placement(intptr_t gpu_
 
     .. seealso:: `nvmlGpuInstanceCreateComputeInstanceWithPlacement`
     """
+    cdef intptr_t _placement_ptr_ = int(placement)
     cdef ComputeInstance compute_instance
     with nogil:
-        __status__ = nvmlGpuInstanceCreateComputeInstanceWithPlacement(<GpuInstance>gpu_instance, profile_id, <const nvmlComputeInstancePlacement_t*>placement, &compute_instance)
+        __status__ = nvmlGpuInstanceCreateComputeInstanceWithPlacement(<GpuInstance>gpu_instance, profile_id, <const nvmlComputeInstancePlacement_t*>_placement_ptr_, &compute_instance)
     check_status(__status__)
     return <intptr_t>compute_instance
 
@@ -33551,7 +33602,7 @@ cpdef object device_get_power_mizer_mode_v1(intptr_t device):
     return power_mizer_mode_py
 
 
-cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode):
+cpdef device_set_power_mizer_mode_v1(intptr_t device, power_mizer_mode):
     """Sets the new power mizer mode.
 
     Args:
@@ -33561,8 +33612,9 @@ cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode)
 
     .. seealso:: `nvmlDeviceSetPowerMizerMode_v1`
     """
+    cdef intptr_t _power_mizer_mode_ptr_ = int(power_mizer_mode)
     with nogil:
-        __status__ = nvmlDeviceSetPowerMizerMode_v1(<Device>device, <nvmlDevicePowerMizerModes_v1_t*>power_mizer_mode)
+        __status__ = nvmlDeviceSetPowerMizerMode_v1(<Device>device, <nvmlDevicePowerMizerModes_v1_t*>_power_mizer_mode_ptr_)
     check_status(__status__)
 
 
@@ -33659,7 +33711,7 @@ cpdef object gpu_instance_get_vgpu_scheduler_log_v2(intptr_t gpu_instance):
     return p_scheduler_log_info_py
 
 
-cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, intptr_t p_scheduler_state):
+cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, p_scheduler_state):
     """Sets the vGPU scheduler state.
 
     Args:
@@ -33668,12 +33720,13 @@ cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, intptr_t p_scheduler_s
 
     .. seealso:: `nvmlDeviceSetVgpuSchedulerState_v2`
     """
+    cdef intptr_t _p_scheduler_state_ptr_ = int(p_scheduler_state)
     with nogil:
-        __status__ = nvmlDeviceSetVgpuSchedulerState_v2(<Device>device, <nvmlVgpuSchedulerState_v2_t*>p_scheduler_state)
+        __status__ = nvmlDeviceSetVgpuSchedulerState_v2(<Device>device, <nvmlVgpuSchedulerState_v2_t*>_p_scheduler_state_ptr_)
     check_status(__status__)
 
 
-cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, intptr_t p_scheduler_state):
+cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, p_scheduler_state):
     """Set vGPU scheduler state for the given GPU instance.
 
     Args:
@@ -33683,8 +33736,9 @@ cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, intptr_t p
 
     .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState_v2`
     """
+    cdef intptr_t _p_scheduler_state_ptr_ = int(p_scheduler_state)
     with nogil:
-        __status__ = nvmlGpuInstanceSetVgpuSchedulerState_v2(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_v2_t*>p_scheduler_state)
+        __status__ = nvmlGpuInstanceSetVgpuSchedulerState_v2(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_v2_t*>_p_scheduler_state_ptr_)
     check_status(__status__)
 
 
@@ -33802,7 +33856,7 @@ cpdef object device_get_adaptive_tgp_mode_info_v1(intptr_t device):
     return info_py
 
 
-cpdef device_set_memory_limits_v1(intptr_t device, intptr_t limits):
+cpdef device_set_memory_limits_v1(intptr_t device, limits):
     """Set the memory limits of the device for the cgroup partition.
 
     Args:
@@ -33812,8 +33866,9 @@ cpdef device_set_memory_limits_v1(intptr_t device, intptr_t limits):
 
     .. seealso:: `nvmlDeviceSetMemoryLimits_v1`
     """
+    cdef intptr_t _limits_ptr_ = int(limits)
     with nogil:
-        __status__ = nvmlDeviceSetMemoryLimits_v1(<Device>device, <nvmlSetMemoryLimits_v1_t*>limits)
+        __status__ = nvmlDeviceSetMemoryLimits_v1(<Device>device, <nvmlSetMemoryLimits_v1_t*>_limits_ptr_)
     check_status(__status__)
 
 
@@ -33918,7 +33973,7 @@ cpdef object device_get_nv_link_telemetry_samples_v1(intptr_t device):
     return samples_py
 
 
-cpdef event_set_register_gpu_operational_events_v1(intptr_t event_set, intptr_t config):
+cpdef event_set_register_gpu_operational_events_v1(intptr_t event_set, config):
     """Adds a GPU Operational Event subscription to an event set.
 
     Args:
@@ -33928,8 +33983,9 @@ cpdef event_set_register_gpu_operational_events_v1(intptr_t event_set, intptr_t 
 
     .. seealso:: `nvmlEventSetRegisterGpuOperationalEvents_v1`
     """
+    cdef intptr_t _config_ptr_ = int(config)
     with nogil:
-        __status__ = nvmlEventSetRegisterGpuOperationalEvents_v1(<EventSet>event_set, <const nvmlGpuOperationalEventConfig_v1_t*>config)
+        __status__ = nvmlEventSetRegisterGpuOperationalEvents_v1(<EventSet>event_set, <const nvmlGpuOperationalEventConfig_v1_t*>_config_ptr_)
     check_status(__status__)
 
 
