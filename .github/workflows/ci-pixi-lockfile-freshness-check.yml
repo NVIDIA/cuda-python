@@ -19,23 +19,31 @@ concurrency:
 
 on:
   pull_request:
-    # `pyproject.toml` is a lockfile input too: the manifests consume sibling
-    # packages (including cuda_python_test_helpers) as path dependencies, so
-    # their metadata can stale a lock without any pixi.toml edit. Matched by
-    # glob rather than by name so the filter cannot drift as packages move.
-    paths: &lockfile_inputs
-      - "**/pixi.toml"
-      - "**/pixi.lock"
-      - "**/pyproject.toml"
-      - "ci/tools/list_pixi_workspaces.py"
-      - ".github/workflows/ci-pixi-lockfile-freshness-check.yml"
+    # A required workflow must run on every PR: a workflow skipped by a path
+    # filter leaves its required check pending. Label changes rerun the matrix
+    # so the aggregate gate immediately reflects the override state.
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+      - unlabeled
   push:
     # `pull_request` already covers PRs, including those from forks: this check
     # needs no secrets or GPU runner. Watching copy-pr-bot's `pull-request/N`
     # mirror too would run the whole matrix a second time per PR.
     branches:
       - "main"
-    paths: *lockfile_inputs
+    # `pyproject.toml` is a lockfile input too: the manifests consume sibling
+    # packages (including cuda_python_test_helpers) as path dependencies, so
+    # their metadata can stale a lock without any pixi.toml edit. Matched by
+    # glob rather than by name so the filter cannot drift as packages move.
+    paths:
+      - "**/pixi.toml"
+      - "**/pixi.lock"
+      - "**/pyproject.toml"
+      - "ci/tools/list_pixi_workspaces.py"
+      - ".github/workflows/ci-pixi-lockfile-freshness-check.yml"
   workflow_dispatch: {}
 
 defaults:
@@ -46,6 +54,8 @@ env:
   # Keep in sync with ci-pixi-source-test.yml. Must be >=0.71.0 so the
   # committed lockfile format (v7) matches what this job checks against.
   PIXI_VERSION: "v0.73.0"
+  REFRESH_WORKFLOW_URL: "https://github.com/NVIDIA/cuda-python/actions/workflows/ci-pixi-lockfile-refresh.yml"
+  OVERRIDE_LABEL: "ci-pixi-lockfile-override"
 
 permissions: {}
 
@@ -100,9 +110,11 @@ jobs:
           run-install: false
 
       - name: Check lockfile is current with its manifest
+        env:
+          MANIFEST: ${{ matrix.manifest }}
         run: |
-          if ! pixi lock --check --manifest-path "${{ matrix.manifest }}"; then
-            echo "::error::Lockfile is stale for '${{ matrix.manifest }}'. Regenerate with: pixi lock --manifest-path ${{ matrix.manifest }}"
+          if ! pixi lock --check --manifest-path "${MANIFEST}"; then
+            echo "::error::Lockfile is stale for '${MANIFEST}'. Run and commit: pixi lock --manifest-path ${MANIFEST}. For default-branch dependency drift, maintainers can run ${REFRESH_WORKFLOW_URL}"
             exit 1
           fi
 
@@ -112,8 +124,75 @@ jobs:
       # is invisible: the check prints "Updated lock file" and still passes,
       # while every later pixi run keeps rewriting the committed file (#2298).
       - name: Check lockfile is byte-for-byte canonical
+        env:
+          LOCKFILE: ${{ matrix.lockfile }}
+          MANIFEST: ${{ matrix.manifest }}
         run: |
-          if ! git diff --exit-code -- "${{ matrix.lockfile }}"; then
-            echo "::error::pixi ${PIXI_VERSION} rewrote ${{ matrix.lockfile }} during the check, so the committed bytes are not what it generates. Regenerate with pixi ${PIXI_VERSION}: pixi lock --manifest-path ${{ matrix.manifest }}"
+          if ! git diff --exit-code -- "${LOCKFILE}"; then
+            echo "::error::pixi ${PIXI_VERSION} rewrote ${LOCKFILE} during the check, so the committed bytes are not canonical. Run and commit with pixi ${PIXI_VERSION}: pixi lock --manifest-path ${MANIFEST}. For default-branch dependency drift, maintainers can run ${REFRESH_WORKFLOW_URL}"
             exit 1
           fi
+
+  gate:
+    name: Pixi lockfile freshness gate
+    if: ${{ always() && github.repository_owner == 'nvidia' }}
+    needs:
+      - plan
+      - lockfile-fresh
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Evaluate freshness results
+        env:
+          EVENT_ACTION: ${{ github.event.action }}
+          EVENT_NAME: ${{ github.event_name }}
+          LABELS_JSON: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+          LOCKFILE_RESULT: ${{ needs.lockfile-fresh.result }}
+          PLAN_RESULT: ${{ needs.plan.result }}
+        run: |
+          has_override=false
+          if jq -e --arg label "${OVERRIDE_LABEL}" \
+            '(. // []) | index($label) != null' <<<"${LABELS_JSON}" >/dev/null; then
+            has_override=true
+          fi
+
+          {
+            echo "### Pixi lockfile freshness gate"
+            echo
+            echo "- Workspace discovery: \`${PLAN_RESULT}\`"
+            echo "- Lockfile checks: \`${LOCKFILE_RESULT}\`"
+            echo "- Override label present: \`${has_override}\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          if [ "${PLAN_RESULT}" != "success" ]; then
+            echo "::error::Pixi workspace discovery did not succeed (${PLAN_RESULT})."
+            exit 1
+          fi
+
+          if [ "${LOCKFILE_RESULT}" = "success" ]; then
+            exit 0
+          fi
+
+          # Override approval applies only to a known diagnostic failure on the
+          # current PR head. opened/synchronize/reopened events cannot carry
+          # prior approval; the base-controlled reset workflow removes the
+          # label when one is present.
+          if [ "${EVENT_NAME}" = "pull_request" ] && \
+             [ "${EVENT_ACTION}" != "opened" ] && \
+             [ "${EVENT_ACTION}" != "synchronize" ] && \
+             [ "${EVENT_ACTION}" != "reopened" ] && \
+             [ "${LOCKFILE_RESULT}" = "failure" ] && \
+             [ "${has_override}" = "true" ]; then
+            echo "::warning::${OVERRIDE_LABEL} overrides the failing aggregate gate; the failed workspace diagnostics remain visible."
+            {
+              echo
+              echo "> [!WARNING]"
+              echo "> A maintainer override allows this gate to pass. Review the failed"
+              echo "> workspace diagnostics before merging."
+            } >> "${GITHUB_STEP_SUMMARY}"
+            exit 0
+          fi
+
+          echo "::error::Pixi lockfile checks did not succeed (${LOCKFILE_RESULT})."
+          exit 1

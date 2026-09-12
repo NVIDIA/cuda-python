@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "CI: invalidate pixi lockfile override"
+
+on:
+  # pull_request_target loads this workflow from the trusted base branch. It
+  # must never check out or execute code from the pull request.
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions: {}
+
+jobs:
+  invalidate:
+    name: Invalidate Pixi lockfile override
+    if: >-
+      github.repository_owner == 'nvidia' &&
+      contains(github.event.pull_request.labels.*.name, 'ci-pixi-lockfile-override')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Remove override from changed PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OVERRIDE_LABEL: ci-pixi-lockfile-override
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          endpoint="repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/labels"
+          labels="$(gh api "${endpoint}")"
+          if jq -e --arg label "${OVERRIDE_LABEL}" \
+            'map(.name) | index($label) != null' <<<"${labels}" >/dev/null; then
+            gh api --method DELETE "${endpoint}/${OVERRIDE_LABEL}"
+            echo "::notice::Removed ${OVERRIDE_LABEL}; a new PR head requires fresh maintainer approval."
+          fi
