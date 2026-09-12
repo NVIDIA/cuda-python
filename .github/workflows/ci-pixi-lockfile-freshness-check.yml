@@ -46,6 +46,7 @@ env:
   # Keep in sync with ci-pixi-source-test.yml. Must be >=0.71.0 so the
   # committed lockfile format (v7) matches what this job checks against.
   PIXI_VERSION: "v0.73.0"
+  REFRESH_WORKFLOW_URL: "https://github.com/NVIDIA/cuda-python/actions/workflows/ci-pixi-lockfile-refresh.yml"
 
 permissions: {}
 
@@ -100,9 +101,11 @@ jobs:
           run-install: false
 
       - name: Check lockfile is current with its manifest
+        env:
+          MANIFEST: ${{ matrix.manifest }}
         run: |
-          if ! pixi lock --check --manifest-path "${{ matrix.manifest }}"; then
-            echo "::error::Lockfile is stale for '${{ matrix.manifest }}'. Regenerate with: pixi lock --manifest-path ${{ matrix.manifest }}"
+          if ! pixi lock --check --manifest-path "${MANIFEST}"; then
+            echo "::error::Lockfile is stale for '${MANIFEST}'. Run and commit: pixi lock --manifest-path ${MANIFEST}. For default-branch dependency drift, maintainers can run ${REFRESH_WORKFLOW_URL}"
             exit 1
           fi
 
@@ -112,8 +115,11 @@ jobs:
       # is invisible: the check prints "Updated lock file" and still passes,
       # while every later pixi run keeps rewriting the committed file (#2298).
       - name: Check lockfile is byte-for-byte canonical
+        env:
+          LOCKFILE: ${{ matrix.lockfile }}
+          MANIFEST: ${{ matrix.manifest }}
         run: |
-          if ! git diff --exit-code -- "${{ matrix.lockfile }}"; then
-            echo "::error::pixi ${PIXI_VERSION} rewrote ${{ matrix.lockfile }} during the check, so the committed bytes are not what it generates. Regenerate with pixi ${PIXI_VERSION}: pixi lock --manifest-path ${{ matrix.manifest }}"
+          if ! git diff --exit-code -- "${LOCKFILE}"; then
+            echo "::error::pixi ${PIXI_VERSION} rewrote ${LOCKFILE} during the check, so the committed bytes are not canonical. Run and commit with pixi ${PIXI_VERSION}: pixi lock --manifest-path ${MANIFEST}. For default-branch dependency drift, maintainers can run ${REFRESH_WORKFLOW_URL}"
             exit 1
           fi

@@ -218,21 +218,23 @@ The freshness check additionally fails when the check itself rewrote a lockfile.
 not canonical for the pinned pixi version, quietly normalizing the file instead,
 which leaves every later pixi run rewriting the committed lockfile.
 
-A scheduled workflow (`CI: pixi lockfile refresh`)
-runs `pixi update --no-install` per workspace and opens a dedicated PR when that
-lockfile changes, so broad dependency churn is reviewed as maintenance rather
-than landing inside unrelated feature work. The workflow can also be dispatched
-manually for one workspace or for all of them. Its dispatch input and every
-lockfile CI matrix resolve through `ci/tools/list_pixi_workspaces.py`, which
-derives the workspace list from the committed manifests, so a newly added
-workspace is picked up without editing any workflow.
+The scheduled [`CI: pixi lockfile refresh`](https://github.com/NVIDIA/cuda-python/actions/workflows/ci-pixi-lockfile-refresh.yml)
+runs `pixi update --no-install` per workspace, canonicalizes the result with the
+pinned pixi version, and opens a dedicated PR when that lockfile changes. This
+keeps broad dependency churn in reviewable maintenance changes rather than
+unrelated feature work. Maintainers can also dispatch the workflow manually for
+one workspace or for all of them. Its dispatch input and every lockfile CI
+matrix resolve through `ci/tools/list_pixi_workspaces.py`, which derives the
+workspace list from the committed manifests, so a newly added workspace is
+picked up without editing any workflow.
 
-Those refresh PRs need an App token to pick up CI on their own: GitHub does not
-deliver workflow-triggering events for branches pushed with `GITHUB_TOKEN`. Set
-the `PIXI_LOCK_REFRESH_APP_ID` variable and `PIXI_LOCK_REFRESH_APP_PRIVATE_KEY`
-secret to enable that path. Until they are set, the workflow says so in the PR
-body and in a run warning, and required checks stay pending until a maintainer
-closes and reopens the PR or pushes to its branch.
+An App token lets refresh PRs start CI without manual approval and permits the
+full intended event flow. Set the `PIXI_LOCK_REFRESH_APP_ID` variable and
+`PIXI_LOCK_REFRESH_APP_PRIVATE_KEY` secret to enable that path. Without it, the
+workflow uses `GITHUB_TOKEN`; GitHub creates `opened`, `synchronize`, and
+`reopened` workflow runs in an approval-required state, while other
+workflow-triggering events remain suppressed. The generated PR body and run
+warning tell maintainers when approval is required.
 
 ## Secret Scanning
 
