@@ -198,8 +198,11 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
     for sub_dir in candidate_dirs:
         dirs.extend(find_sub_dirs_all_sitepackages(sub_dir.split(os.sep)))
 
-    # 2. Search in Conda environment
-    if (conda_prefix := os.environ.get("CONDA_PREFIX")) is not None:
+    # 2. Search in Conda environment.
+    # An empty CONDA_PREFIX means "not in a conda environment" (same rule as the
+    # other pathfinder search steps). Accepting it would join to a bare "bin",
+    # i.e. a CWD-relative search directory, which is the #2119 hazard.
+    if conda_prefix := os.environ.get("CONDA_PREFIX"):
         if IS_WINDOWS:
             dirs.append(os.path.join(conda_prefix, "Library", "bin"))
         else:
