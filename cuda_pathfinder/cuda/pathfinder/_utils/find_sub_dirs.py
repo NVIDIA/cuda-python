@@ -2,36 +2,37 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
-import os
 import site
 import sys
 from collections.abc import Sequence
+from pathlib import Path
 
 
 def find_sub_dirs_no_cache(parent_dirs: Sequence[str], sub_dirs: Sequence[str]) -> list[str]:
+    # Results stay str: they are consumed by _binaries, _dynamic_libs, _headers
+    # and _static_libs, so the type flip belongs in its own change.
     results = []
     for base in parent_dirs:
-        stack = [(base, 0)]  # (current_path, index into sub_dirs)
+        stack = [(Path(base), 0)]  # (current_path, index into sub_dirs)
         while stack:
             current_path, idx = stack.pop()
             if idx == len(sub_dirs):
-                if os.path.isdir(current_path):
-                    results.append(current_path)
+                if current_path.is_dir():
+                    results.append(str(current_path))
                 continue
 
             sub = sub_dirs[idx]
             if sub == "*":
                 try:
-                    entries = sorted(os.listdir(current_path))
+                    entries = sorted(current_path.iterdir(), key=lambda entry: entry.name)
                 except OSError:
                     continue
-                for entry in entries:
-                    entry_path = os.path.join(current_path, entry)
-                    if os.path.isdir(entry_path):
+                for entry_path in entries:
+                    if entry_path.is_dir():
                         stack.append((entry_path, idx + 1))
             else:
-                next_path = os.path.join(current_path, sub)
-                if os.path.isdir(next_path):
+                next_path = current_path / sub
+                if next_path.is_dir():
                     stack.append((next_path, idx + 1))
     return results
 
