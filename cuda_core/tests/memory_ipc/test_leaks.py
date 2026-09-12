@@ -128,10 +128,17 @@ class CheckFDLeaks:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is not None:
+        # Check on a CLEAN exit only. `exc_type is not None` inverted this: the
+        # count was compared only when the body had already raised -- never on
+        # the path the two users of this class actually take -- and there the
+        # AssertionError replaced the exception the test was really reporting.
+        if exc_type is None:
             gc.collect()
             final_fds = self.process.num_fds()
-            assert final_fds == self.initial_fds
+            assert final_fds == self.initial_fds, (
+                f"leaked {final_fds - self.initial_fds} file descriptor(s): "
+                f"{self.initial_fds} open before the block, {final_fds} after"
+            )
         return False
 
 
