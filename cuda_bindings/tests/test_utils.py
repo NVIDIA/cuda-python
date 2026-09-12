@@ -72,6 +72,18 @@ def test_ptx_utils(kernel, actual_ptx_ver, min_cuda_ver):
     assert cuda_ver == min_cuda_ver
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_ptx_utils_docstring_examples():
+    """The examples are rendered into the public docs; they have to run."""
+    import doctest
+
+    from cuda.bindings.utils import _ptx_utils
+
+    results = doctest.testmod(_ptx_utils, verbose=False, report=False)
+    assert results.attempted > 0
+    assert results.failed == 0
+
+
 @pytest.mark.parametrize(
     "target",
     (
