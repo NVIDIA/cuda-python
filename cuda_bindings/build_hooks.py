@@ -85,11 +85,11 @@ def _get_cuda_path() -> str:
 
 
 def _rename_architecture_specific_files():
-    path = os.path.join("cuda", "bindings", "_internal")
+    path = Path("cuda", "bindings", "_internal")
     if sys.platform == "linux":
-        src_files = glob.glob(os.path.join(path, "*_linux.pyx"))
+        src_files = path.glob("*_linux.pyx")
     elif sys.platform == "win32":
-        src_files = glob.glob(os.path.join(path, "*_windows.pyx"))
+        src_files = path.glob("*_windows.pyx")
     else:
         raise RuntimeError(f"platform is unrecognized: {sys.platform}")
     dst_files = []
@@ -97,19 +97,21 @@ def _rename_architecture_specific_files():
         with tempfile.NamedTemporaryFile(delete=False, dir=".") as f:
             shutil.copy2(src, f.name)
             f_name = f.name
-        dst = src.replace("_linux", "").replace("_windows", "")
-        os.replace(f_name, f"./{dst}")
+        dst = src.with_name(src.name.replace("_linux", "").replace("_windows", ""))
+        os.replace(f_name, dst)
         dst_files.append(dst)
     return dst_files
 
 
 def _prep_extensions(sources, libraries, include_dirs, library_dirs, extra_compile_args, extra_link_args):
-    pattern = sources[0]
+    # sources[0] is a pattern rooted anywhere, not a directory to search, so
+    # there is no Path.glob() form for it.
+    pattern = str(sources[0])
     files = glob.glob(pattern)
     libraries = libraries if libraries else []
     exts = []
     for pyx in files:
-        mod_name = pyx.replace(".pyx", "").replace(os.sep, ".").replace("/", ".")
+        mod_name = ".".join(Path(pyx).with_suffix("").parts)
         exts.append(
             Extension(
                 mod_name,
@@ -156,16 +158,16 @@ def _build_cuda_bindings(debug=False):
     compile_for_coverage = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
     # Prepare compile/link arguments
-    include_path_list = [os.path.join(cuda_path, "include")]
+    include_path_list = [str(Path(cuda_path, "include"))]
     include_dirs = [
-        os.path.dirname(sysconfig.get_path("include")),
+        str(Path(sysconfig.get_path("include")).parent),
     ] + include_path_list
-    library_dirs = [sysconfig.get_path("platlib"), os.path.join(os.sys.prefix, "lib")]
+    library_dirs = [sysconfig.get_path("platlib"), str(Path(os.sys.prefix, "lib"))]
     if sys.platform == "win32":
         cudalib_subdirs = [r"lib\arm64"] if sysconfig.get_platform() == "win-arm64" else [r"lib\x64"]
     else:
         cudalib_subdirs = ["lib64", "lib"]
-    library_dirs.extend(os.path.join(cuda_path, subdir) for subdir in cudalib_subdirs)
+    library_dirs.extend(str(Path(cuda_path, subdir)) for subdir in cudalib_subdirs)
 
     extra_compile_args = []
     extra_link_args = []
@@ -208,7 +210,7 @@ def _build_cuda_bindings(debug=False):
         cuda_bindings_files = [f for f in cuda_bindings_files if "cufile" not in f]
 
     def get_static_libraries(f):
-        if os.path.basename(f) in ("runtime.pyx", "runtime_ptds.pyx"):
+        if f.name in ("runtime.pyx", "runtime_ptds.pyx"):
             if sys.platform == "linux":
                 return ["cudart_static", "rt"]
             else:
@@ -222,7 +224,7 @@ def _build_cuda_bindings(debug=False):
         *(([f], None) for f in cuda_bindings_files),
         # internal files used by generated bindings
         (["cuda/bindings/_internal/utils.pyx"], None),
-        *(([f], get_static_libraries(f)) for f in dst_files if f.endswith(".pyx")),
+        *(([f], get_static_libraries(f)) for f in dst_files if f.suffix == ".pyx"),
     ]
 
     for sources, libraries in sources_list:
