@@ -6,7 +6,7 @@
 requires = [
     "setuptools>=80",
     "setuptools-scm[simple]>=8,!=10.1",
-    "Cython>=3.2.5,<3.3",
+    "Cython>=3.3,<3.4",
     "cuda-pathfinder>=1.5"
 ]
 build-backend = "build_hooks"
@@ -59,7 +59,7 @@ cu13 = ["cuda-bindings[all]==13.*", "cuda-toolkit==13.*"]
 
 [dependency-groups]
 test = [
-    "cython>=3.2.5,<3.3",
+    "cython>=3.3,<3.4",
     "setuptools>=80",
     "pytest==9.1.0",
     "pytest-benchmark==5.2.3",

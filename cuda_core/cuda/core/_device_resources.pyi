@@ -40,7 +40,7 @@ class SMResourceOptions:
     preferred_coscheduled_sm_count: int | SequenceABC[int] | None = None
     backfill: bool | SequenceABC[bool] = False
 
-@dataclass
+@dataclass(init=False)
 class WorkqueueResourceOptions:
     """Customizable :obj:`WorkqueueResource.configure` options.
 
@@ -60,7 +60,7 @@ class WorkqueueResourceOptions:
     sharing_scope: WorkqueueSharingScopeType | str | None = None
     concurrency_limit: int | None = None
 
-    def __post_init__(self): ...
+    def __init__(self, sharing_scope: WorkqueueSharingScopeType | str | None=None, concurrency_limit: int | None=None): ...
 
 class SMResource:
     """Represent an SM (streaming multiprocessor) resource partition.
