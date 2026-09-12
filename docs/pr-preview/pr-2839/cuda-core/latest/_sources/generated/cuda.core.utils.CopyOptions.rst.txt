@@ -1,0 +1,6 @@
+﻿cuda.core.utils.CopyOptions
+===========================
+
+.. currentmodule:: cuda.core.utils
+
+.. autoclass:: CopyOptions

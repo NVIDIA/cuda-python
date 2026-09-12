@@ -1,0 +1,38 @@
+﻿cuda.bindings.nvml.VgpuLicenseExpiry
+====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: VgpuLicenseExpiry
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VgpuLicenseExpiry.__init__
+      ~VgpuLicenseExpiry.from_buffer
+      ~VgpuLicenseExpiry.from_data
+      ~VgpuLicenseExpiry.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VgpuLicenseExpiry.day
+      ~VgpuLicenseExpiry.hour
+      ~VgpuLicenseExpiry.min_
+      ~VgpuLicenseExpiry.month
+      ~VgpuLicenseExpiry.ptr
+      ~VgpuLicenseExpiry.sec
+      ~VgpuLicenseExpiry.status
+      ~VgpuLicenseExpiry.year
+   
+   
