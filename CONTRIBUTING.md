@@ -236,6 +236,13 @@ workflow uses `GITHUB_TOKEN`; GitHub creates `opened`, `synchronize`, and
 workflow-triggering events remain suppressed. The generated PR body and run
 warning tell maintainers when approval is required.
 
+The stable `Pixi lockfile freshness gate` is intended to be a required check
+for pull requests targeting `main`. Its per-workspace jobs remain visible as
+diagnostics. In an emergency, a maintainer may apply the
+`ci-pixi-lockfile-override` label to let only the aggregate gate pass despite a
+known lockfile failure. The label is removed when the pull request head changes
+or the pull request is reopened, so the new head requires explicit approval.
+
 ## Secret Scanning
 
 The `secret-scan-trufflehog` pre-commit hook scans staged files and installs TruffleHog into its own environment on first run, on Linux, macOS, and Windows. If it flags a secret, remove it before committing, or contact a maintainer if it's a false positive. Secrets are also scanned server-side in CI.
