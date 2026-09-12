@@ -104,8 +104,25 @@ jobs:
           pixi-version: ${{ env.PIXI_VERSION }}
           run-install: false
 
-      - name: Update lockfile without installing
-        run: pixi update --no-install --manifest-path "${{ matrix.manifest }}"
+      # Pixi 0.73.0's update and lock-check paths can serialize the same
+      # solution differently (#2804). The first check canonicalizes the update
+      # result; the second proves that the committed bytes reached a fixed
+      # point before create-pull-request sees them.
+      - name: Update and canonicalize lockfile without installing
+        env:
+          LOCKFILE: ${{ matrix.lockfile }}
+          MANIFEST: ${{ matrix.manifest }}
+        run: |
+          pixi update --no-install --manifest-path "${MANIFEST}"
+          pixi lock --check --manifest-path "${MANIFEST}"
+
+          canonical_lock="${RUNNER_TEMP}/pixi-lock-after-canonicalization.lock"
+          cp -- "${LOCKFILE}" "${canonical_lock}"
+          pixi lock --check --manifest-path "${MANIFEST}"
+          if ! cmp --silent "${canonical_lock}" "${LOCKFILE}"; then
+            echo "::error::pixi ${PIXI_VERSION} did not reach a byte-stable lockfile after canonicalization: ${LOCKFILE}"
+            exit 1
+          fi
 
       - name: Compose PR body
         id: pr-body
@@ -117,7 +134,8 @@ jobs:
           body_path="${RUNNER_TEMP}/pixi-lock-refresh-body.md"
           {
             echo "Automated lockfile refresh for \`${WORKSPACE_ID}\`" \
-              "(\`pixi update --no-install --manifest-path ${MANIFEST}\`)."
+              "(\`pixi update --no-install --manifest-path ${MANIFEST}\`, followed"
+            echo "by pinned-pixi canonicalization and a byte-stability check)."
             echo
             echo "This PR is workspace-scoped so other packages are not forced to review"
             echo "unrelated solver churn. See #2298."
@@ -148,7 +166,8 @@ jobs:
           commit-message: |
             chore: refresh pixi.lock for ${{ matrix.id }}
 
-            Scheduled pixi update --no-install for this workspace only.
+            Scheduled pixi update --no-install followed by pinned-pixi
+            canonicalization for this workspace only.
           signoff: true
           sign-commits: true
           branch: ci/pixi-lock-refresh/${{ matrix.id }}
@@ -168,6 +187,7 @@ jobs:
             echo ""
             echo "- Manifest: \`${{ matrix.manifest }}\`"
             echo "- Lockfile: \`${{ matrix.lockfile }}\`"
+            echo "- Canonicalization: byte-stable fixed point verified"
             echo "- Operation: \`${{ steps.cpr.outputs.pull-request-operation }}\`"
             if [ -n "${{ steps.cpr.outputs.pull-request-url }}" ]; then
               echo "- PR: ${{ steps.cpr.outputs.pull-request-url }}"
