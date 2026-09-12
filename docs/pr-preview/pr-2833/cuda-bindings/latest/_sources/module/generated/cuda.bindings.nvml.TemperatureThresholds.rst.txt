@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.TemperatureThresholds
-========================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: TemperatureThresholds

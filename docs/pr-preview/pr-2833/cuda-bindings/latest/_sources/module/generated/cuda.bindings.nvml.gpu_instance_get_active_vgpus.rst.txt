@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.gpu\_instance\_get\_active\_vgpus
-====================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: gpu_instance_get_active_vgpus
