@@ -28,7 +28,7 @@ class _NvlinkInfoMeta(type):
         To find the actual number of Nvlinks available on a device, use
         :py:attr:`Device.get_nvlink_count`.
 
-        .. version-deprecated:: 1.1.0
+        .. deprecated:: 1.1.0
             This property is deprecated and will be removed in a future release.
             Use :py:attr:`Device.get_nvlink_count` instead.
         """
