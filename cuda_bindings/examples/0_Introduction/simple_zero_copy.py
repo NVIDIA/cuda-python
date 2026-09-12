@@ -69,7 +69,9 @@ def main():
 
     # Get the device selected by the user or default to 0, and then set it.
     if check_cmd_line_flag("device="):
-        device_count = cudart.cudaGetDeviceCount()
+        # cudaGetDeviceCount returns (cudaError_t, count); comparing the raw
+        # tuple against an int below raises TypeError.
+        device_count = check_cuda_errors(cudart.cudaGetDeviceCount())
         idev = int(get_cmd_line_argument_int("device="))
 
         if idev >= device_count or idev < 0:
