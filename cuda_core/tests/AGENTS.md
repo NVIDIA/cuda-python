@@ -58,6 +58,12 @@ with pytest.raises(RuntimeError, match="IPC is not available"):
     DeviceMemoryResource(mempool_device, DeviceMemoryResourceOptions(ipc_enabled=True))
 ```
 
+The marker has to be attached to the statement it exempts: on a comment line
+directly above it, anywhere within the statement itself (including the
+continuation lines of a multi-line call), or on the header of a block
+containing it. A marker somewhere else -- trailing the *previous* statement,
+or separated from the call by a blank line -- does not exempt anything.
+
 ## Release resources at test boundaries
 
 The `init_cuda` fixture in `conftest.py` runs `gc.collect()` followed
