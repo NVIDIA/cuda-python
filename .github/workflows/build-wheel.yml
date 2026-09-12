@@ -16,6 +16,10 @@ on:
         description: JSON workplan.
         required: true
         type: string
+      dry-run-release-tag:
+        description: Synthetic local-only release tag for the PR 2737 harness.
+        required: true
+        type: string
       single-cuda-major:
         description: "Build wheels for only the current CUDA major; skip the prior-major build and wheel merge"
         required: false
@@ -65,6 +69,12 @@ jobs:
           # but not historical blobs.
           fetch-depth: 0
           filter: blob:none
+          persist-credentials: false
+
+      - name: Create synthetic local release tag
+        env:
+          DRY_RUN_RELEASE_TAG: ${{ inputs.dry-run-release-tag }}
+        run: ./ci/tools/create-synthetic-release-tag "$DRY_RUN_RELEASE_TAG" "$GITHUB_SHA"
 
       - name: Resolve package-specific workplan gates
         env:

@@ -16,6 +16,10 @@ on:
         description: JSON workplan.
         required: true
         type: string
+      dry-run-release-tag:
+        description: Synthetic local-only release tag for the PR 2737 harness.
+        required: true
+        type: string
 
 defaults:
   run:
@@ -48,6 +52,12 @@ jobs:
           # the commit graph (`git describe`) but not historical blobs.
           fetch-depth: 0
           filter: blob:none
+          persist-credentials: false
+
+      - name: Create synthetic local release tag
+        env:
+          DRY_RUN_RELEASE_TAG: ${{ inputs.dry-run-release-tag }}
+        run: ./ci/tools/create-synthetic-release-tag "$DRY_RUN_RELEASE_TAG" "$GITHUB_SHA"
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0

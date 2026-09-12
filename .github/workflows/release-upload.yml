@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-name: "CI: Upload git archive"
+name: "CI: Validate git archive"
 
 on:
   workflow_call:
@@ -10,42 +10,31 @@ on:
       git-tag:
         type: string
         required: true
+      release-source-sha:
+        description: "Exact source commit to archive"
+        type: string
+        required: true
       run-id:
         description: "The GHA run ID that generated validated artifacts"
         type: string
         required: true
       component:
-        description: "Component to download wheels for"
+        description: "Component whose wheels will be validated"
         type: string
         required: true
-      dry-run:
-        description: "Validate release artifacts without uploading them to the GitHub release"
-        type: boolean
-        required: false
-        default: false
       bindings-package:
         description: "Resolved CUDA bindings package JSON"
         type: string
-        required: false
-        default: ""
-
-concurrency:
-  # Concurrency group that uses the workflow name and PR number if available
-  # or commit SHA as a fallback. If a new build is triggered under that
-  # concurrency group while a previous build is running it will be canceled.
-  # Repeated pushes to a PR will cancel all previous builds, while multiple
-  # merges to main will not cancel.
-  group: ${{ github.workflow }}-${{ github.ref_name || github.sha }}
-  cancel-in-progress: true
+        required: true
 
 permissions:
-  contents: write
+  actions: read
+  contents: read
 
 jobs:
-  # create source archive and upload it to the published release
-  # URL to the archive: https://github.com/NVIDIA/<repo>/releases/download/<tag>/<repo>-<tag>.tar.gz
   upload:
-    if: ${{ !github.event.repository.fork }}
+    name: Build and validate dry-run artifacts
+    if: ${{ github.repository == 'NVIDIA/cuda-python' }}
     runs-on: ubuntu-latest
     env:
       ARCHIVE_NAME: ${{ github.event.repository.name }}-${{ inputs.git-tag }}
@@ -53,18 +42,28 @@ jobs:
       RELEASE_GIT_TAG: ${{ inputs.git-tag }}
       RELEASE_REPOSITORY: ${{ github.repository }}
       RELEASE_RUN_ID: ${{ inputs.run-id }}
+      RELEASE_SOURCE_SHA: ${{ inputs.release-source-sha }}
     steps:
-      - name: Checkout release control plane
+      - name: Checkout release control plane without push credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Checkout release source without push credentials
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
           fetch-tags: true
-
-      - name: Checkout release source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          ref: ${{ inputs.git-tag }}
           path: release-source
+          persist-credentials: false
+          ref: ${{ inputs.release-source-sha }}
+
+      - name: Create synthetic local release tag for archival metadata
+        run: >-
+          ./ci/tools/create-synthetic-release-tag
+          "$RELEASE_GIT_TAG"
+          "$RELEASE_SOURCE_SHA"
+          release-source
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
@@ -74,39 +73,42 @@ jobs:
       - name: Install CI tool dependencies
         run: python -m pip install -e ./ci
 
-      - name: Create Release Directory
+      - name: Create release directory
         run: mkdir -p release
 
-      - name: Archive Source
+      - name: Archive synthetic release source
         run: >
-          git archive
+          git -C release-source archive
           --format=tar.gz
           --prefix="$ARCHIVE_NAME/"
-          --output="release/$ARCHIVE_NAME.tar.gz"
+          --output="$GITHUB_WORKSPACE/release/$ARCHIVE_NAME.tar.gz"
           "refs/tags/$RELEASE_GIT_TAG"
 
-      - name: Compute Checksum
+      - name: Verify archived source provenance
+        run: |
+          metadata=$(tar -xOf \
+            "release/$ARCHIVE_NAME.tar.gz" \
+            "$ARCHIVE_NAME/.git_archival.txt")
+          node=$(sed -n 's/^node: //p' <<< "$metadata")
+          ref_names=$(sed -n 's/^ref-names: //p' <<< "$metadata")
+          if [[ "$node" != "$RELEASE_SOURCE_SHA" ||
+                ", $ref_names, " != *", tag: $RELEASE_GIT_TAG, "* ]]; then
+            echo "error: archive metadata does not identify the requested synthetic tag and commit" >&2
+            printf '%s\n' "$metadata" >&2
+            exit 1
+          fi
+
+      - name: Compute checksum
         run: >
           sha256sum "release/$ARCHIVE_NAME.tar.gz"
           | awk '{print $1}'
           > "release/$ARCHIVE_NAME.tar.gz.sha256sum"
 
-      - name: Upload Archive
-        if: ${{ !inputs.dry-run }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: >
-          gh release upload
-          --clobber "$RELEASE_GIT_TAG"
-          --repo "$RELEASE_REPOSITORY"
-          release/*
-
-      - name: Download and Validate Wheels
+      - name: Download and validate wheels
         env:
           BINDINGS_PACKAGE: ${{ inputs.bindings-package }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Use the shared script to download wheels
           ./ci/tools/download-wheels \
             "$RELEASE_RUN_ID" \
             "$RELEASE_COMPONENT" \
@@ -115,7 +117,6 @@ jobs:
             "$RELEASE_GIT_TAG" \
             "$BINDINGS_PACKAGE"
 
-          # Validate that release wheels match the expected version from tag.
           python -m ci.tools.validate_release_wheels \
             "$RELEASE_GIT_TAG" \
             "$RELEASE_COMPONENT" \
@@ -123,20 +124,11 @@ jobs:
             --bindings-package "$BINDINGS_PACKAGE" \
             --release-source-root release-source
 
-      - name: Upload Wheels
-        if: ${{ !inputs.dry-run }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if [[ -d "release/wheels" && $(ls -A release/wheels 2>/dev/null | wc -l) -gt 0 ]]; then
-            echo "Uploading wheels to release $RELEASE_GIT_TAG"
-            gh release upload --clobber "$RELEASE_GIT_TAG" --repo "$RELEASE_REPOSITORY" release/wheels/*
-          fi
-
-      - name: Upload dry-run release artifacts
-        if: ${{ inputs.dry-run }}
+      - name: Upload dry-run release artifacts to this workflow run
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: release-artifacts-dry-run-${{ inputs.component }}-${{ inputs.git-tag }}
           path: release/
           retention-days: 3
+
+      # This harness intentionally contains no GitHub Release upload step.

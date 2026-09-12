@@ -1,0 +1,10 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. module:: cuda.bindings
+
+``cuda-bindings`` 12.9.99 synthetic dry-run notes
+=================================================
+
+This conspicuously synthetic release note exists only to validate the PR #2737
+CUDA 12 release path. It must not be published or merged.

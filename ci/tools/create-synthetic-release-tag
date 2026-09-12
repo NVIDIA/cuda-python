@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# Create the one local-only tag used by the disposable PR 2737 release harness.
+# This script never contacts or writes to a remote.
+
+set -euo pipefail
+
+if [[ $# -lt 2 || $# -gt 3 ]]; then
+    echo "Usage: $0 <tag> <expected-commit-sha> [repository]" >&2
+    exit 2
+fi
+
+readonly EXPECTED_TAG=v12.9.99
+readonly TAG=$1
+readonly EXPECTED_SHA=$2
+readonly REPOSITORY=${3:-.}
+
+if [[ "$TAG" != "$EXPECTED_TAG" ]]; then
+    echo "error: this harness may create only $EXPECTED_TAG, got $TAG" >&2
+    exit 1
+fi
+if [[ ! "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+    echo "error: expected a full lowercase commit SHA, got $EXPECTED_SHA" >&2
+    exit 1
+fi
+
+HEAD_SHA=$(git -C "$REPOSITORY" rev-parse HEAD)
+readonly HEAD_SHA
+if [[ "$HEAD_SHA" != "$EXPECTED_SHA" ]]; then
+    echo "error: checkout HEAD $HEAD_SHA does not match expected commit $EXPECTED_SHA" >&2
+    exit 1
+fi
+
+git -C "$REPOSITORY" check-ref-format "refs/tags/$TAG"
+if git -C "$REPOSITORY" show-ref --verify --quiet "refs/tags/$TAG"; then
+    echo "error: refusing to replace existing tag $TAG" >&2
+    exit 1
+fi
+
+git -C "$REPOSITORY" -c tag.gpgSign=false tag "$TAG" HEAD
+test "$(git -C "$REPOSITORY" rev-parse "refs/tags/${TAG}^{commit}")" = "$EXPECTED_SHA"

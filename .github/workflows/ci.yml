@@ -10,25 +10,66 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  push:
-    branches:
-      - "pull-request/[0-9]+"
-      - "main"
-    tags:
-      # Build release artifacts from tag refs so setuptools-scm resolves exact
-      # release versions instead of .dev+local variants.
-      - "v*"
-      - "cuda-core-v*"
-      - "cuda-pathfinder-v*"
-  schedule:
-    # every 24 hours at midnight UTC
-    - cron: "0 0 * * *"
-  workflow_dispatch: {}
+  # Temporary PR 2737 release-validation harness. This branch is deliberately
+  # dispatch-only and accepts only the conspicuously synthetic CUDA 12 tag.
+  workflow_dispatch:
+    inputs:
+      dry-run-release-tag:
+        description: "Synthetic local-only release tag"
+        required: true
+        type: choice
+        options:
+          - v12.9.99
 
 jobs:
+  validate-dry-run:
+    name: Validate isolated dry-run context
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository without push credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 1
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Reject any non-harness invocation
+        env:
+          DRY_RUN_RELEASE_TAG: ${{ inputs.dry-run-release-tag }}
+          EXPECTED_BRANCH: rwgk/pr2737-cuda12-release-dry-run
+          EXPECTED_REPOSITORY: NVIDIA/cuda-python
+          EXPECTED_TAG: v12.9.99
+        run: |
+          if [[ "$GITHUB_REPOSITORY" != "$EXPECTED_REPOSITORY" ||
+                "$GITHUB_EVENT_NAME" != "workflow_dispatch" ||
+                "$GITHUB_REF_TYPE" != "branch" ||
+                "$GITHUB_REF_NAME" != "$EXPECTED_BRANCH" ||
+                "$DRY_RUN_RELEASE_TAG" != "$EXPECTED_TAG" ]]; then
+            echo "error: this workflow revision is restricted to the PR 2737 CUDA 12 dry-run harness" >&2
+            exit 1
+          fi
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git check-ref-format "refs/tags/$DRY_RUN_RELEASE_TAG"
+
+          set +e
+          git ls-remote --exit-code --tags origin "refs/tags/$DRY_RUN_RELEASE_TAG" >/dev/null
+          status=$?
+          set -e
+          if [[ "$status" -eq 0 ]]; then
+            echo "error: refusing to shadow existing remote tag $DRY_RUN_RELEASE_TAG" >&2
+            exit 1
+          fi
+          if [[ "$status" -ne 2 ]]; then
+            echo "error: could not prove that remote tag $DRY_RUN_RELEASE_TAG is absent" >&2
+            exit "$status"
+          fi
+
   should-skip:
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
+    needs: validate-dry-run
     permissions:
       contents: read
       pull-requests: read
@@ -288,7 +329,7 @@ jobs:
         env:
           MERGE_BASE: ${{ steps.merge-base.outputs.sha }}
           BASELINE_RUN_ID: ${{ steps.baseline.outputs.run_id }}
-          RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+          RELEASE_TAG: ${{ inputs.dry-run-release-tag }}
         run: |
           set -euo pipefail
           planner_args=(
@@ -406,11 +447,11 @@ jobs:
     permissions:
       actions: read
       contents: read
-    secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
       bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
+      dry-run-release-tag: ${{ inputs.dry-run-release-tag }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See build-linux-64 for why build jobs are split by platform.
@@ -431,11 +472,11 @@ jobs:
     permissions:
       actions: read
       contents: read
-    secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
       bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
+      dry-run-release-tag: ${{ inputs.dry-run-release-tag }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See build-linux-64 for why build jobs are split by platform.
@@ -456,11 +497,11 @@ jobs:
     permissions:
       actions: read
       contents: read
-    secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
       bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
+      dry-run-release-tag: ${{ inputs.dry-run-release-tag }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # Windows ARM64 is available starting with CUDA 13.4. Build only the current
@@ -478,11 +519,11 @@ jobs:
     permissions:
       actions: read
       contents: read
-    secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: win-arm64
       bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
+      dry-run-release-tag: ${{ inputs.dry-run-release-tag }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
       single-cuda-major: ${{ needs.detect-changes.outputs.windows-arm64-single-cuda-major == 'true' }}
 
@@ -509,11 +550,11 @@ jobs:
     permissions:
       actions: read
       contents: read
-    secrets: inherit
     uses: ./.github/workflows/test-sdist-linux.yml
     with:
       host-platform: linux-64
       bindings-package: ${{ toJSON(matrix.package) }}
+      dry-run-release-tag: ${{ inputs.dry-run-release-tag }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See test-sdist-linux for why sdist test jobs are split by platform.
@@ -535,11 +576,11 @@ jobs:
     permissions:
       actions: read
       contents: read
-    secrets: inherit
     uses: ./.github/workflows/test-sdist-windows.yml
     with:
       host-platform: win-64
       bindings-package: ${{ toJSON(matrix.package) }}
+      dry-run-release-tag: ${{ inputs.dry-run-release-tag }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # NOTE: Test jobs are split by platform for the same reason as build jobs (see
@@ -564,7 +605,6 @@ jobs:
       - should-skip
       - detect-changes
       - build-linux-64
-    secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
     with:
       build-type: pull-request
@@ -592,7 +632,6 @@ jobs:
       - detect-changes
       - build-linux-64
       - build-linux-aarch64
-    secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
     with:
       build-type: pull-request
@@ -620,7 +659,6 @@ jobs:
       - detect-changes
       - build-linux-64
       - build-windows
-    secrets: inherit
     uses: ./.github/workflows/test-wheel-windows.yml
     with:
       build-type: pull-request
@@ -632,23 +670,19 @@ jobs:
   doc:
     name: Docs
     if: ${{ github.repository_owner == 'nvidia' }}
-    # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
     permissions:
-      id-token: write
-      contents: write
-      pull-requests: write
+      actions: read
+      contents: read
     needs:
       - build-linux-64
-    secrets: inherit
     uses: ./.github/workflows/build-docs.yml
     with:
-      # Bare cuda.bindings tags intentionally produce only their matching
-      # cuda.bindings and cuda-python artifacts. Keep tag docs on that focused
-      # artifact set; component-specific release runs build the other docs.
-      component: ${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'v') && 'cuda-bindings' || 'all' }}
-      git-tag: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+      checkout-ref: ${{ github.sha }}
+      component: cuda-bindings
+      deploy-docs: false
+      git-tag: ${{ inputs.dry-run-release-tag }}
       run-id: ${{ github.run_id }}
-      is-release: ${{ github.ref_type == 'tag' }}
+      is-release: true
 
   precommit-windows:
     name: Pre-commit on Windows

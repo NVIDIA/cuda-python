@@ -23,6 +23,11 @@ on:
         required: false
         default: ""
         type: string
+      checkout-ref:
+        description: "Source commit to check out while retaining git-tag as the logical release version"
+        required: false
+        default: ""
+        type: string
       run-id:
         description: "The GHA run ID that generated validated artifacts"
         required: false
@@ -63,13 +68,21 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
-          ref: ${{ inputs.git-tag }}
+          ref: ${{ inputs.checkout-ref || inputs.git-tag }}
+          persist-credentials: false
 
       - name: Checkout docs control plane
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           ref: ${{ github.sha }}
           path: .ci-control
+          persist-credentials: false
+
+      - name: Refuse documentation deployment from the dry-run harness
+        if: ${{ inputs.deploy-docs }}
+        run: |
+          echo "error: this temporary workflow revision may only build Actions artifacts" >&2
+          exit 1
 
       - name: Install CI tool dependencies
         run: python3 -m pip install -e ./.ci-control/ci
@@ -319,6 +332,12 @@ jobs:
             TARGET=""
           fi
           mv "${COMPONENT}"/docs/build/html/* "artifacts/docs/${TARGET}"
+
+      - name: Verify synthetic CUDA 12 release docs
+        if: ${{ inputs.is-release && inputs.component == 'cuda-bindings' && inputs.git-tag == 'v12.9.99' }}
+        run: |
+          test -d artifacts/docs/cuda-bindings/12.9.99
+          test -f artifacts/docs/cuda-bindings/12.9.99/index.html
 
       - name: Write rendered docs file list
         if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}

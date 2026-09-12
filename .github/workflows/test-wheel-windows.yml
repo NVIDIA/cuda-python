@@ -230,7 +230,7 @@ jobs:
           name: cuda-pathfinder-wheel
           path: ./cuda_pathfinder
           run-id: ${{ inputs.run-id || github.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ github.token }}
 
       - name: Download cuda-python build artifacts
         if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE == 'local' }}
@@ -239,7 +239,7 @@ jobs:
           name: ${{ env.CUDA_PYTHON_ARTIFACT_NAME }}
           path: .
           run-id: ${{ inputs.run-id || github.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ github.token }}
 
       - name: Download cuda.bindings build artifacts
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
@@ -249,7 +249,7 @@ jobs:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id || github.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda-python artifacts
         if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE != 'published' }}
@@ -271,7 +271,7 @@ jobs:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
           run-id: ${{ inputs.run-id || github.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda.bindings Cython tests
         if: ${{ env.TEST_BINDINGS == 'true' && env.SKIP_CYTHON_TEST == '0' }}
@@ -286,7 +286,7 @@ jobs:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id || github.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda.core build artifacts
         if: ${{ env.TEST_CORE == 'true' }}
@@ -301,7 +301,7 @@ jobs:
           name: ${{ env.CUDA_CORE_CYTHON_TEST_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
           run-id: ${{ inputs.run-id || github.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda.core Cython tests
         if: ${{ env.TEST_CORE == 'true' && env.SKIP_CYTHON_TEST == '0' }}
@@ -316,7 +316,7 @@ jobs:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-test-binaries
           path: ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}
           run-id: ${{ inputs.run-id || github.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda.core test binaries
         if: ${{ env.TEST_CORE == 'true' }}
