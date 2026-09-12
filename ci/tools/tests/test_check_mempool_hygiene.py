@@ -22,12 +22,23 @@ UNCAPPED = [
     pytest.param("DeviceMemoryResource(dev, DeviceMemoryResourceOptions(ipc_enabled=True))", id="options-kwarg"),
     pytest.param("PinnedMemoryResource(PinnedMemoryResourceOptions())", id="options-empty"),
     pytest.param('DeviceMemoryResource(dev, {"ipc_enabled": True})', id="options-dict"),
+    # max_size=0 asks the driver for its system-dependent default, i.e. exactly
+    # the uncapped pool that omitting max_size produces.
+    pytest.param("DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=0))", id="zero-kwarg"),
+    pytest.param(
+        "PinnedMemoryResource(PinnedMemoryResourceOptions(ipc_enabled=True, max_size=0))", id="zero-kwarg-among-others"
+    ),
+    pytest.param('DeviceMemoryResource(dev, {"max_size": 0})', id="zero-dict"),
 ]
 
 CAPPED = [
     pytest.param("DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))", id="capped-kwarg"),
     pytest.param('DeviceMemoryResource(dev, {"max_size": POOL_SIZE})', id="capped-dict"),
+    pytest.param("DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=1))", id="capped-nonzero-literal"),
     pytest.param("DeviceMemoryResource(dev, DeviceMemoryResourceOptions(**opts))", id="opaque-kwargs"),
+    # A literal 0 next to ``**opts`` is not decidable statically: opts may or
+    # may not override it, so the checker must not guess.
+    pytest.param('DeviceMemoryResource(dev, {"max_size": 0, **opts})', id="zero-dict-with-unpacking"),
     # No options at all wraps the device's default pool and reserves nothing, so
     # capping it would convert a free wrapper into a new pool.
     pytest.param("DeviceMemoryResource(dev)", id="default-pool-wrapper"),
@@ -70,6 +81,16 @@ def test_reported_message_names_file_line_and_symbol(tmp_path):
     assert violation.startswith(path.as_posix())
     assert ":2:" in violation
     assert "DeviceMemoryResourceOptions without max_size" in violation
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_zero_cap_message_names_the_zero(tmp_path):
+    path = write(tmp_path, "DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=0))\n")
+
+    (violation,) = violations_in(path)
+
+    assert "max_size=0" in violation
+    assert "uncapped default" in violation
 
 
 @pytest.mark.agent_authored(model="claude-opus-5")
