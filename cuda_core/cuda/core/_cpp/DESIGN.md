@@ -291,8 +291,10 @@ their callers `HANDLE_RETURN` the value. The two conventions never mix.
 Operations that must run in a specific context use `invoke_in_context` /
 `invoke_in_context_or_undo` (propagating paths) and `cleanup_in_context`
 (deleters). They switch the current context, run the operation, and restore the
-caller's context. When restoration fails after the operation succeeded, the
-creation is undone and the restoration status is returned. When both fail, the
+caller's context. `cleanup_in_context` emits its reports only after that
+restoration, so the user code a `CUDAWarning` runs (filters, `showwarning`)
+observes the caller's context. When restoration fails after the operation
+succeeded, the creation is undone and the restoration status is returned. When both fail, the
 operation status is returned. Either way the helper records a thread-local
 detail keyed to the returned status (`take_last_error_detail(status)`) that
 `_check_driver_error` attaches to the raised `CUDAError` as a PEP 678 note

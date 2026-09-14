@@ -532,25 +532,27 @@ CUresult invoke_in_context_or_undo(const ContextHandle& h_context, Fn&& operatio
 
 // Run cleanup with the requested context current. Warn and skip the operation
 // if activation fails, and independently warn on operation or restoration
-// failure. Return the operation or activation status; restoration never
-// changes the return value.
+// failure. Reports are emitted only after the caller's context has been
+// restored: a CUDAWarning runs user code (warning filters, showwarning), which
+// must observe the caller's context, not the cleanup context. Return the
+// operation or activation status; restoration never changes the return value.
 template <typename Fn, typename... Args>
 CUresult cleanup_in_context(const ContextHandle& h_context, const char* name,
                             Fn&& operation, Args&&... args) noexcept {
     ASSERT_NOTHROW_INVOCABLE(Fn&&, Args&&...);
     CUcontext previous = nullptr;
     int changed = 0;
+    const char* detail = nullptr;
     CUresult status = enter_context(h_context, &previous, &changed);
     if (status != CUDA_SUCCESS) {
-        report_cuda_error(name, status,
-                           "skipped (context activation failed; resource leaked)");
+        detail = "skipped (context activation failed; resource leaked)";
     } else {
         status = std::invoke(std::forward<Fn>(operation), std::forward<Args>(args)...);
-        if (status != CUDA_SUCCESS) {
-            report_cuda_error(name, status);
-        }
     }
     CUresult restore = exit_context(previous, changed, CUDA_SUCCESS);
+    if (status != CUDA_SUCCESS) {
+        report_cuda_error(name, status, detail);
+    }
     if (restore != CUDA_SUCCESS) {
         // Nothing is raised here, so the detail exit_context recorded has no
         // exception to attach to: report it and drop the detail.
