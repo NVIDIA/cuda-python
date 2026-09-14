@@ -196,11 +196,12 @@ Contributor expectations:
   ```
 
   Use `--manifest-path .` for the repository-root environment. Regenerate with
-  the pixi version CI pins in `PIXI_VERSION` (see
-  `.github/workflows/ci-pixi-source-test.yml`): different pixi versions write
-  different canonical forms, such as the `pixi.lock` format version or the
-  generated platform alias names, and CI requires the committed bytes to match
-  what the pinned version produces.
+  the pixi version pinned in `ci/pixi-version.env`: different pixi versions
+  write different canonical forms, such as the `pixi.lock` format version or
+  the generated platform alias names, and CI requires the committed bytes to
+  match what the pinned version produces. The pin must remain at least 0.71.0,
+  which supplies the content-addressed source-build cache used by CI and writes
+  the repository's version 7 lockfiles.
 - If a PR does not intentionally change pixi dependencies or metadata, do not
   include unrelated lockfile churn. `pixi run` can refresh a stale lockfile
   implicitly; revert that noise unless the refresh is the point of the change.
@@ -225,14 +226,22 @@ than landing inside unrelated feature work. The workflow can also be dispatched
 manually for one workspace or for all of them. Its dispatch input and every
 lockfile CI matrix resolve through `ci/tools/list_pixi_workspaces.py`, which
 derives the workspace list from the committed manifests, so a newly added
-workspace is picked up without editing any workflow.
+workspace is picked up without editing any workflow. Human-readable workspace
+IDs remain the dispatch and display names; the inventory generates separate,
+ref-safe keys for refresh branches and workflow concurrency.
 
-Those refresh PRs need an App token to pick up CI on their own: GitHub does not
-deliver workflow-triggering events for branches pushed with `GITHUB_TOKEN`. Set
-the `PIXI_LOCK_REFRESH_APP_ID` variable and `PIXI_LOCK_REFRESH_APP_PRIVATE_KEY`
-secret to enable that path. Until they are set, the workflow says so in the PR
-body and in a run warning, and required checks stay pending until a maintainer
-closes and reopens the PR or pushes to its branch.
+Refresh PRs use `GITHUB_TOKEN`. After one opens, a maintainer with write access
+must first select **Approve workflows to run** in the merge box, then assign
+themselves to the PR. Approval starts the queued `pull_request` runs; the
+human-generated `assigned` event creates the required
+**PR has assignee, labels, and milestone** `pull_request_target` check and gives
+the PR a clear owner.
+
+A future GitHub App integration could trigger both `pull_request` and
+`pull_request_target` workflows automatically.
+See GitHub's
+[token event documentation](https://docs.github.com/en/actions/concepts/security/github_token#when-github_token-triggers-workflow-runs)
+for the current behavior.
 
 ## Secret Scanning
 
