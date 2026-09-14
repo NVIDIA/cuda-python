@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_set\_temperature\_threshold
-======================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_set_temperature_threshold
