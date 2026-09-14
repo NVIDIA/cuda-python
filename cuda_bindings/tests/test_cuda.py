@@ -579,12 +579,12 @@ def test_eglFrame():
     assert int(val.frame.pArray[0]) == 0
     assert int(val.frame.pArray[1]) == 0
     assert int(val.frame.pArray[2]) == 0
-    val.frame.pArray = [1, 2, 3]
+    val.frame.pArray = [cuda.CUarray(x) for x in (1, 2, 3)]
     # [<CUarray 0x1>, <CUarray 0x2>, <CUarray 0x3>]
     assert int(val.frame.pArray[0]) == 1
     assert int(val.frame.pArray[1]) == 2
     assert int(val.frame.pArray[2]) == 3
-    val.frame.pArray = [cuda.CUarray(4), 2, 3]
+    val.frame.pArray = [cuda.CUarray(x) for x in (4, 2, 3)]
     # [<CUarray 0x4>, <CUarray 0x2>, <CUarray 0x3>]
     assert int(val.frame.pArray[0]) == 4
     assert int(val.frame.pArray[1]) == 2
