@@ -6,12 +6,40 @@
 ``cuda-bindings`` 12.9.8 Release notes
 ======================================
 
+Licensing
+---------
+
+* ``cuda-bindings`` and ``cuda-python`` are now relicensed under Apache 2.0.
+  (`PR #2294 <https://github.com/NVIDIA/cuda-python/pull/2294>`_)
+
 Bugfixes
 --------
 
-* Fixed a crash in ``nvml.system_event_set_wait`` caused by calling
-  ``resize()`` on a non-owning ``SystemEventData_v1._data`` view.
-  (`PR #2690 <https://github.com/NVIDIA/cuda-python/pull/2690>`_)
+* Fixed a potential data race in the lazy initialization of the driver,
+  runtime, NVRTC, NVML, nvJitLink, nvFatbin, and cuFile bindings, where
+  concurrent threads could observe a partially initialized state.
+  (`PR #2382 <https://github.com/NVIDIA/cuda-python/pull/2382>`_)
+* Restored the ``CUcheckpointRestoreArgs`` and ``CUcheckpointRestoreArgs_st``
+  driver bindings, whose generation had regressed to omit the checkpoint
+  restore argument struct and typedef.
+  (`PR #2145 <https://github.com/NVIDIA/cuda-python/pull/2145>`_)
+* Fixed the raw driver and NVRTC function-pointer exception declarations so
+  that a legitimately returned ``CUDA_ERROR_NOT_FOUND`` result is no longer
+  at risk of being mishandled as a spurious exception.
+  (`PR #2206 <https://github.com/NVIDIA/cuda-python/pull/2206>`_)
+* A missing driver or NVRTC function now raises ``FunctionNotFoundError``
+  (a subclass of ``RuntimeError``) instead of a bare ``RuntimeError``.
+  (`PR #2206 <https://github.com/NVIDIA/cuda-python/pull/2206>`_)
+* ``from_ptr()`` on several ``cufile`` and ``nvml`` struct wrapper classes
+  now accepts an ``owner`` argument that is held as a strong reference, so
+  the wrapped buffer can no longer be garbage-collected out from under the
+  wrapper.
+  (`PR #2604 <https://github.com/NVIDIA/cuda-python/pull/2604>`_)
+* ``nvml.error_string``, ``nvvm.get_error_string``,
+  ``cufile.handle_deregister``, and ``cufile.batch_io_destroy`` now release
+  the GIL while calling into the underlying C library, improving
+  concurrency for multi-threaded applications.
+  (`PR #2349 <https://github.com/NVIDIA/cuda-python/pull/2349>`_)
 
 Deprecation Notices
 -------------------
