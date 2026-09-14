@@ -37,7 +37,15 @@ from cuda.core._utils.runtime_cuda_error_explanations import RUNTIME_CUDA_ERROR_
 
 
 class CUDAError(Exception):
-    pass
+    """Raised when a CUDA driver or runtime call fails.
+
+    The message names the CUDA error and, when one is known, explains it. A
+    secondary failure observed while the error was being raised, such as a
+    failed restoration of the caller's CUDA context, is attached as a note
+    (``__notes__``) on Python 3.11 and newer and appended to the message on
+    older interpreters. See the error handling page of the ``cuda.core``
+    documentation for the guarantees an exception provides.
+    """
 
 
 class CUDAWarning(RuntimeWarning):
@@ -67,7 +75,7 @@ register_warning_category(<PyObject*>CUDAWarning)
 
 
 class NVRTCError(CUDAError):
-    pass
+    """Raised when an NVRTC call fails; the compiler log is appended when available."""
 
 
 

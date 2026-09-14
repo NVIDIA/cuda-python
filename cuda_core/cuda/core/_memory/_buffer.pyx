@@ -77,7 +77,8 @@ cdef void _mr_dealloc_callback(
         mr.deallocate(int(ptr), size, stream=stream)
     except Exception as exc:
         warnings.warn(
-            f"mr.deallocate() failed during Buffer destruction; the allocation may have leaked: {exc}",
+            f"mr.deallocate({int(ptr):#x}) failed during Buffer destruction; "
+            f"the allocation may have leaked: {exc}",
             CUDAWarning,
             stacklevel=2,
         )

@@ -300,16 +300,20 @@ detail keyed to the returned status (`take_last_error_detail(status)`) that
 `_check_driver_error` attaches to the raised `CUDAError` as a PEP 678 note
 (appended to the message on Python 3.10), so the user learns that the caller's
 context was not restored, which context is current and, for a double failure,
-why restoration failed. Keying the detail to its status keeps it from attaching
-to an unrelated error if the caller never raises that status; `enter_context`
-clears any stale detail. Tests inject restoration failures with
+why restoration failed. Keying the detail to its status narrows, but does not
+remove, misattribution: a caller that drops the status (an empty handle raised
+as a generic error) leaves the detail behind, and a later error on the same
+thread with the same status code picks it up. `enter_context` clears stale
+detail at the next context-scoped operation. Issue #2760 removes this
+thread-local state in favor of explicit status returns. Tests inject restoration failures with
 `set_context_restore_fault_for_testing()`.
 
 ### Reporting from non-propagating paths
 
 Deleters and CUDA callbacks cannot raise. They report through
 `report_cuda_error()` / `report_message()` (the `pw_*` wrappers decorate
-destroy calls with it), which emit a `cuda.core.CUDAWarning` through
+destroy calls with it and name the resource handle in the message, so Python's
+warning registry does not collapse independent failures of one call), which emit a `cuda.core.CUDAWarning` through
 the Python warnings machinery when the interpreter is usable, deliver an
 escalated warning as an unraisable exception, and fall back to stderr when the
 GIL cannot be taken (for example during finalization). `CUDA_ERROR_DEINITIALIZED`

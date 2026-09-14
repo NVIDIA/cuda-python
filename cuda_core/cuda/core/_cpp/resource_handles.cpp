@@ -237,6 +237,36 @@ void format_cuda_error(char* buffer, size_t size, const char* operation, CUresul
     }
 }
 
+// Bits of a resource handle for diagnostics: a pointer as its address, an
+// integer handle (CUdeviceptr, CUtexObject, ...) as its value, and a pointer
+// to a handle (nvrtcDestroyProgram(&prog) and friends) as the handle it points
+// to.
+template <typename T>
+unsigned long long handle_bits(const T& value) noexcept {
+    using U = std::remove_cv_t<std::remove_reference_t<T>>;
+    if constexpr (std::is_pointer_v<U>) {
+        using P = std::remove_cv_t<std::remove_pointer_t<U>>;
+        if constexpr (std::is_pointer_v<P>) {
+            return value ? handle_bits(*value) : 0ull;
+        } else {
+            return static_cast<unsigned long long>(reinterpret_cast<uintptr_t>(value));
+        }
+    } else if constexpr (std::is_integral_v<U> || std::is_enum_v<U>) {
+        return static_cast<unsigned long long>(value);
+    } else {
+        return 0ull;
+    }
+}
+
+// "<operation>(<handle>)": naming the resource keeps independent failures of
+// the same call distinct. Python's warning registry collapses repeated warnings
+// with identical text from one call site, so without the handle only the first
+// of several leaked resources would be reported.
+void format_operation(char* buffer, size_t size, const char* operation,
+                      unsigned long long handle) noexcept {
+    std::snprintf(buffer, size, "%s(%#llx)", operation, handle);
+}
+
 }  // namespace
 
 // Report a message that could not be raised. Emits cuda.core.CUDAWarning via
@@ -538,8 +568,11 @@ CUresult invoke_in_context_or_undo(const ContextHandle& h_context, Fn&& operatio
 // operation or activation status; restoration never changes the return value.
 template <typename Fn, typename... Args>
 CUresult cleanup_in_context(const ContextHandle& h_context, const char* name,
-                            Fn&& operation, Args&&... args) noexcept {
+                            unsigned long long handle, Fn&& operation,
+                            Args&&... args) noexcept {
     ASSERT_NOTHROW_INVOCABLE(Fn&&, Args&&...);
+    char operation_name[160];
+    format_operation(operation_name, sizeof(operation_name), name, handle);
     CUcontext previous = nullptr;
     int changed = 0;
     const char* detail = nullptr;
@@ -551,12 +584,12 @@ CUresult cleanup_in_context(const ContextHandle& h_context, const char* name,
     }
     CUresult restore = exit_context(previous, changed, CUDA_SUCCESS);
     if (status != CUDA_SUCCESS) {
-        report_cuda_error(name, status, detail);
+        report_cuda_error(operation_name, status, detail);
     }
     if (restore != CUDA_SUCCESS) {
         // Nothing is raised here, so the detail exit_context recorded has no
         // exception to attach to: report it and drop the detail.
-        report_cuda_error(name, restore, "failed while restoring the caller's context");
+        report_cuda_error(operation_name, restore, "failed while restoring the caller's context");
         clear_last_error_detail();
     }
     return status;
@@ -572,22 +605,33 @@ class WarnOnFailure {
 public:
     explicit WarnOnFailure(const char* operation) noexcept : operation_(operation) {}
 
-    template <typename... Args>
-    auto operator()(Args&&... args) const noexcept {
-        auto status = Function(std::forward<Args>(args)...);
-        report(status);
+    // The first argument is the resource being released; it is named in the
+    // report so that independent failures are not collapsed by the warning
+    // registry (see format_operation).
+    template <typename First, typename... Rest>
+    auto operator()(First&& first, Rest&&... rest) const noexcept {
+        const unsigned long long handle = handle_bits(first);
+        auto status = Function(std::forward<First>(first), std::forward<Rest>(rest)...);
+        report(status, handle);
         return status;
     }
 
 private:
-    void report(CUresult status) const noexcept {
-        report_cuda_error(operation_, status);
+    void report(CUresult status, unsigned long long handle) const noexcept {
+        if (status == CUDA_SUCCESS || status == CUDA_ERROR_DEINITIALIZED) {
+            return;
+        }
+        char operation[160];
+        format_operation(operation, sizeof(operation), operation_, handle);
+        report_cuda_error(operation, status);
     }
 
     template <typename Status>
-    void report(Status status) const noexcept {
+    void report(Status status, unsigned long long handle) const noexcept {
         if (static_cast<long>(status) != 0) {
-            report_status_code(operation_, static_cast<long>(status));
+            char operation[160];
+            format_operation(operation, sizeof(operation), operation_, handle);
+            report_status_code(operation, static_cast<long>(status));
         }
     }
 
@@ -1544,7 +1588,7 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h
             GILReleaseGuard gil;
             const DeallocationStream& stream = b->deallocation;
             cleanup_in_context(
-                deallocation_context(stream), "cuMemFreeAsync",
+                deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource),
                 [&]() noexcept {
                     return p_cuMemFreeAsync(
                         b->resource, as_cu(stream.h_stream));
@@ -1574,7 +1618,7 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream)
             GILReleaseGuard gil;
             const DeallocationStream& stream = b->deallocation;
             cleanup_in_context(
-                deallocation_context(stream), "cuMemFreeAsync",
+                deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource),
                 [&]() noexcept {
                     return p_cuMemFreeAsync(
                         b->resource, as_cu(stream.h_stream));
@@ -1659,7 +1703,7 @@ DevicePtrHandle deviceptr_create_mapped_graphics(
             CUgraphicsResource resource = as_cu(h_resource);
             const DeallocationStream& stream = b->deallocation;
             cleanup_in_context(
-                deallocation_context(stream), "cuGraphicsUnmapResources",
+                deallocation_context(stream), "cuGraphicsUnmapResources", handle_bits(resource),
                 [&]() noexcept {
                     return p_cuGraphicsUnmapResources(
                         1, &resource, as_cu(stream.h_stream));
@@ -1698,7 +1742,7 @@ DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject*
                 if (mr_dealloc_cb) {
                     const DeallocationStream& stream = b->deallocation;
                     cleanup_in_context(
-                        deallocation_context(stream), "MemoryResource.deallocate",
+                        deallocation_context(stream), "MemoryResource.deallocate", handle_bits(b->resource),
                         [&]() noexcept {
                             mr_dealloc_cb(mr, b->resource, size, stream.h_stream);
                             return CUDA_SUCCESS;
@@ -1803,7 +1847,7 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
                 GILReleaseGuard gil;
                 const DeallocationStream& stream = b->deallocation;
                 cleanup_in_context(
-                    deallocation_context(stream), "cuMemFreeAsync",
+                    deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource),
                     [&]() noexcept {
                         return p_cuMemFreeAsync(
                             b->resource, as_cu(stream.h_stream));
@@ -1834,7 +1878,7 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
                 GILReleaseGuard gil;
                 const DeallocationStream& stream = b->deallocation;
                 cleanup_in_context(
-                    deallocation_context(stream), "cuMemFreeAsync",
+                    deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource),
                     [&]() noexcept {
                         return p_cuMemFreeAsync(
                             b->resource, as_cu(stream.h_stream));
@@ -3258,7 +3302,7 @@ TexObjectHandle make_tex_object_handle(const CUDA_RESOURCE_DESC& res,
         new TexObjectBox{TexObjectValue{obj}, std::move(h_backing), h_context},
         [](const TexObjectBox* b) {
             GILReleaseGuard gil;
-            cleanup_in_context(b->h_context, "cuTexObjectDestroy", [&]() noexcept {
+            cleanup_in_context(b->h_context, "cuTexObjectDestroy", handle_bits(b->resource.raw), [&]() noexcept {
                 return p_cuTexObjectDestroy(b->resource.raw);
             });
             delete b;
@@ -3306,7 +3350,7 @@ SurfObjectHandle create_surf_object_handle(const ContextHandle& h_context,
         new SurfObjectBox{SurfObjectValue{obj}, h_backing, h_context},
         [](const SurfObjectBox* b) {
             GILReleaseGuard gil;
-            cleanup_in_context(b->h_context, "cuSurfObjectDestroy", [&]() noexcept {
+            cleanup_in_context(b->h_context, "cuSurfObjectDestroy", handle_bits(b->resource.raw), [&]() noexcept {
                 return p_cuSurfObjectDestroy(b->resource.raw);
             });
             delete b;

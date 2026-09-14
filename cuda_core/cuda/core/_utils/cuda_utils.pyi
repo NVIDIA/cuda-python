@@ -12,7 +12,16 @@ _keep_nvrtc_in_stub: nvrtc.nvrtcResult
 _keep_runtime_in_stub: runtime.cudaError_t
 _fork_warning_checked = False
 
-class CUDAError(Exception): ...
+class CUDAError(Exception):
+    """Raised when a CUDA driver or runtime call fails.
+
+    The message names the CUDA error and, when one is known, explains it. A
+    secondary failure observed while the error was being raised, such as a
+    failed restoration of the caller's CUDA context, is attached as a note
+    (``__notes__``) on Python 3.11 and newer and appended to the message on
+    older interpreters. See the error handling page of the ``cuda.core``
+    documentation for the guarantees an exception provides.
+    """
 
 class CUDAWarning(RuntimeWarning):
     """Warning issued when ``cuda.core`` hits a CUDA error it cannot raise.
@@ -35,7 +44,8 @@ class CUDAWarning(RuntimeWarning):
     .. versionadded:: 1.3.0
     """
 
-class NVRTCError(CUDAError): ...
+class NVRTCError(CUDAError):
+    """Raised when an NVRTC call fails; the compiler log is appended when available."""
 
 class ComputeCapability(NamedTuple):
     """A named tuple of (major, minor) CUDA compute capability version numbers."""

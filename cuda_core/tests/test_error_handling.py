@@ -15,6 +15,7 @@ test here restores the context stack itself.
 
 import ctypes
 import sys
+import warnings
 from contextlib import contextmanager
 
 import pytest
@@ -78,6 +79,14 @@ def no_context_with_restore_fault(status=INVALID_CONTEXT):
 def test_cudawarning_is_public_and_shown_by_default():
     assert "CUDAWarning" in cuda.core.__all__
     assert issubclass(CUDAWarning, RuntimeWarning)
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_cuda_errors_are_public():
+    assert "CUDAError" in cuda.core.__all__
+    assert "NVRTCError" in cuda.core.__all__
+    assert cuda.core.CUDAError is CUDAError
+    assert issubclass(cuda.core.NVRTCError, CUDAError)
 
 
 @thread_unsafe_context_fault
@@ -155,10 +164,43 @@ def test_cleanup_reports_restore_failure_as_warning(mempool_device):
     # A default-stream deallocation records the allocating context, so freeing
     # with no context current switches to it and must switch back.
     buf = mr.allocate(256, stream=default_stream())
+    ptr = int(buf.handle)
     with no_context_with_restore_fault():
         with pytest.warns(CUDAWarning, match="restoring the caller's context") as records:
             buf.close()
-        assert any("CUDA_ERROR_INVALID_CONTEXT" in str(record.message) for record in records)
+        messages = [str(record.message) for record in records]
+        assert any("CUDA_ERROR_INVALID_CONTEXT" in message for message in messages)
+        # The report names the resource so that independent failures stay distinct.
+        assert any(f"{ptr:#x}" in message for message in messages), messages
+
+
+@thread_unsafe_context_fault
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_independent_cleanup_failures_are_reported_separately(mempool_device):
+    """Python's default filter shows a given warning text once per call site. Two
+    resources failing the same call from the same line must still produce two
+    reports, which the handle in the message guarantees."""
+    dev = mempool_device
+    mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    buffers = [mr.allocate(256, stream=default_stream()) for _ in range(2)]
+    handles = [int(buf.handle) for buf in buffers]
+    previous = handle_return(driver.cuCtxPopCurrent())
+    try:
+        with warnings.catch_warnings(record=True) as records:
+            warnings.simplefilter("default", CUDAWarning)
+            for buf in buffers:
+                _set_context_restore_fault_for_testing(INVALID_CONTEXT)
+                buf.close()
+                # The failed restoration left the device's context current; clear it
+                # so the next release also has to switch and fail the same way.
+                handle_return(driver.cuCtxSetCurrent(driver.CUcontext(0)))
+    finally:
+        _set_context_restore_fault_for_testing(0)
+        handle_return(driver.cuCtxSetCurrent(driver.CUcontext(0)))
+        handle_return(driver.cuCtxPushCurrent(previous))
+    messages = [str(record.message) for record in records if issubclass(record.category, CUDAWarning)]
+    assert len(messages) == 2, messages
+    assert all(f"{handle:#x}" in message for handle, message in zip(handles, messages)), messages
 
 
 @thread_unsafe_context_fault

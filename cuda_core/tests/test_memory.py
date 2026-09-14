@@ -881,7 +881,8 @@ def test_mr_deallocation_failure_warns():
     buf = Buffer.from_handle(1, 1024, mr=FailingMR(device))
 
     with pytest.warns(
-        CUDAWarning, match=r"mr\.deallocate\(\) failed during Buffer destruction.*expected deallocation failure"
+        CUDAWarning,
+        match=r"mr\.deallocate\(0x[0-9a-f]+\) failed during Buffer destruction.*expected deallocation failure",
     ):
         buf.close()
 
