@@ -11,7 +11,6 @@ import time
 import weakref
 
 import pytest
-from conftest import xfail_on_graph_mempool_oom
 from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 from helpers.graph_kernels import compile_common_kernels
 from helpers.memory import xfail_on_graph_mempool_oom
