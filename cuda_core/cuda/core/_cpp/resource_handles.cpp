@@ -560,19 +560,21 @@ CUresult invoke_in_context_or_undo(const ContextHandle& h_context, Fn&& operatio
     return composite;
 }
 
-// Run cleanup with the requested context current. Warn and skip the operation
-// if activation fails, and independently warn on operation or restoration
-// failure. Reports are emitted only after the caller's context has been
-// restored: a CUDAWarning runs user code (warning filters, showwarning), which
-// must observe the caller's context, not the cleanup context. Return the
-// operation or activation status; restoration never changes the return value.
-template <typename Fn, typename... Args>
+// Run cleanup with the requested context current, restore the caller's
+// context, call `after_cleanup`, then report any failure (activation or
+// operation failure first, then restoration failure). `after_cleanup` marks
+// the point from which code we do not control may run: the report emits a
+// CUDAWarning, which acquires the GIL and runs user code, and whatever the
+// caller does next may do the same. It is called unconditionally, so a lock
+// the cleanup had to run under is released at one fixed point regardless of
+// outcome; pass a hook that unlocks it. Returns the operation or activation
+// status; restoration never changes it.
+template <typename Fn, typename AfterCleanup>
 CUresult cleanup_in_context(const ContextHandle& h_context, const char* name,
                             unsigned long long handle, Fn&& operation,
-                            Args&&... args) noexcept {
-    ASSERT_NOTHROW_INVOCABLE(Fn&&, Args&&...);
-    char operation_name[160];
-    format_operation(operation_name, sizeof(operation_name), name, handle);
+                            AfterCleanup&& after_cleanup) noexcept {
+    ASSERT_NOTHROW_INVOCABLE(Fn&&);
+    ASSERT_NOTHROW_INVOCABLE(AfterCleanup&&);
     CUcontext previous = nullptr;
     int changed = 0;
     const char* detail = nullptr;
@@ -580,19 +582,34 @@ CUresult cleanup_in_context(const ContextHandle& h_context, const char* name,
     if (status != CUDA_SUCCESS) {
         detail = "skipped (context activation failed; resource leaked)";
     } else {
-        status = std::invoke(std::forward<Fn>(operation), std::forward<Args>(args)...);
+        status = std::invoke(std::forward<Fn>(operation));
     }
     CUresult restore = exit_context(previous, changed, CUDA_SUCCESS);
-    if (status != CUDA_SUCCESS) {
-        report_cuda_error(operation_name, status, detail);
-    }
     if (restore != CUDA_SUCCESS) {
         // Nothing is raised here, so the detail exit_context recorded has no
-        // exception to attach to: report it and drop the detail.
-        report_cuda_error(operation_name, restore, "failed while restoring the caller's context");
+        // exception to attach to; drop it.
         clear_last_error_detail();
     }
+    std::invoke(std::forward<AfterCleanup>(after_cleanup));
+    if (status != CUDA_SUCCESS || restore != CUDA_SUCCESS) {
+        char operation_name[160];
+        format_operation(operation_name, sizeof(operation_name), name, handle);
+        if (status != CUDA_SUCCESS) {
+            report_cuda_error(operation_name, status, detail);
+        }
+        if (restore != CUDA_SUCCESS) {
+            report_cuda_error(operation_name, restore, "failed while restoring the caller's context");
+        }
+    }
     return status;
+}
+
+// Same, with nothing to do after the cleanup.
+template <typename Fn>
+CUresult cleanup_in_context(const ContextHandle& h_context, const char* name,
+                            unsigned long long handle, Fn&& operation) noexcept {
+    return cleanup_in_context(h_context, name, handle, std::forward<Fn>(operation),
+                              []() noexcept {});
 }
 
 #undef ASSERT_NOTHROW_INVOCABLE
@@ -1856,15 +1873,24 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
                 auto box = std::shared_ptr<DevicePtrBox>(
                     new DevicePtrBox{ptr, std::move(ds)},
                     [h_pool, key](DevicePtrBox* b) {
-                        ipc_ptr_cache.unregister_handle(key);
+                        // Release the GIL first (the GIL is the outermost lock), then hold the
+                        // mutex across unregister + free: a concurrent import that finds this
+                        // entry expired must wait until the mapping is gone, or it re-imports
+                        // the same allocation and the first cuMemFreeAsync unmaps it for both
+                        // (nvbug 5570902). Nothing under the mutex may acquire the GIL, so the
+                        // deallocation context is resolved before the lock (it may report) and
+                        // the lock is released as soon as the cleanup is done.
                         GILReleaseGuard gil;
                         const DeallocationStream& stream = b->deallocation;
+                        ContextHandle h_dealloc = deallocation_context(stream);
+                        std::unique_lock<std::mutex> lock(ipc_import_mutex);
+                        ipc_ptr_cache.unregister_handle(key);
                         cleanup_in_context(
-                            deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource),
+                            h_dealloc, "cuMemFreeAsync", handle_bits(b->resource),
                             [&]() noexcept {
-                                return p_cuMemFreeAsync(
-                                    b->resource, as_cu(stream.h_stream));
-                            });
+                                return p_cuMemFreeAsync(b->resource, as_cu(stream.h_stream));
+                            },
+                            [&]() noexcept { lock.unlock(); });
                         delete b;
                     }
                 );

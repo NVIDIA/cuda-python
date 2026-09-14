@@ -234,7 +234,10 @@ locked region. Code that needs a C++ lock and may run with the GIL held
 releases the GIL first (`GILReleaseGuard` before `lock_guard`). Otherwise a
 thread blocked on the lock while holding the GIL deadlocks with the lock holder
 waiting for the GIL (#2840). Collect statuses under the lock and report after it
-is released, as `deviceptr_import_ipc` does. The registries store `weak_ptr`s,
+is released, as `deviceptr_import_ipc` does: `cleanup_in_context` takes an
+`after_cleanup` hook that runs once the cleanup is done and before anything that
+may run user code, and the deleter passes one that unlocks its
+`std::unique_lock`. The registries store `weak_ptr`s,
 so erasing an entry under a registry lock never runs a deleter.
 
 ### Static Initialization and Deadlock Hazards
