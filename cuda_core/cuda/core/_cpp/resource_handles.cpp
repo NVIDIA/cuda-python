@@ -1545,8 +1545,14 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
         auto box = std::shared_ptr<DevicePtrBox>(
             new DevicePtrBox{ptr, std::move(ds)},
             [h_pool, key](DevicePtrBox* b) {
-                ipc_ptr_cache.unregister_handle(key);
+                // Release the GIL first (the GIL is the outermost lock), then hold
+                // the mutex across unregister + free. A concurrent import that finds
+                // this entry expired must wait until the mapping is gone; otherwise
+                // it re-imports the same allocation and the first cuMemFreeAsync
+                // unmaps it for both (nvbug 5570902).
                 GILReleaseGuard gil;
+                std::lock_guard<std::mutex> lock(ipc_import_mutex);
+                ipc_ptr_cache.unregister_handle(key);
                 const DeallocationStream& stream = b->deallocation;
                 cleanup_in_context(
                     deallocation_context(stream), "cuMemFreeAsync",
