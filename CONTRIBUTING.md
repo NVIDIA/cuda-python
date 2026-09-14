@@ -196,11 +196,12 @@ Contributor expectations:
   ```
 
   Use `--manifest-path .` for the repository-root environment. Regenerate with
-  the pixi version CI pins in `PIXI_VERSION` (see
-  `.github/workflows/ci-pixi-source-test.yml`): different pixi versions write
-  different canonical forms, such as the `pixi.lock` format version or the
-  generated platform alias names, and CI requires the committed bytes to match
-  what the pinned version produces.
+  the pixi version pinned in `ci/pixi-version.env`: different pixi versions
+  write different canonical forms, such as the `pixi.lock` format version or
+  the generated platform alias names, and CI requires the committed bytes to
+  match what the pinned version produces. The pin must remain at least 0.71.0,
+  which supplies the content-addressed source-build cache used by CI and writes
+  the repository's version 7 lockfiles.
 - If a PR does not intentionally change pixi dependencies or metadata, do not
   include unrelated lockfile churn. `pixi run` can refresh a stale lockfile
   implicitly; revert that noise unless the refresh is the point of the change.
@@ -225,14 +226,29 @@ than landing inside unrelated feature work. The workflow can also be dispatched
 manually for one workspace or for all of them. Its dispatch input and every
 lockfile CI matrix resolve through `ci/tools/list_pixi_workspaces.py`, which
 derives the workspace list from the committed manifests, so a newly added
-workspace is picked up without editing any workflow.
+workspace is picked up without editing any workflow. Human-readable workspace
+IDs remain the dispatch and display names; the inventory generates separate,
+ref-safe keys for refresh branches and workflow concurrency.
 
-Those refresh PRs need an App token to pick up CI on their own: GitHub does not
-deliver workflow-triggering events for branches pushed with `GITHUB_TOKEN`. Set
-the `PIXI_LOCK_REFRESH_APP_ID` variable and `PIXI_LOCK_REFRESH_APP_PRIVATE_KEY`
-secret to enable that path. Until they are set, the workflow says so in the PR
-body and in a run warning, and required checks stay pending until a maintainer
-closes and reopens the PR or pushes to its branch.
+For unattended refresh PRs, install a GitHub App on this repository with only
+**Contents: Read and write** and **Pull requests: Read and write** repository
+permissions. Set its App ID in the `PIXI_LOCK_REFRESH_APP_ID` repository
+variable and its PEM private key in the
+`PIXI_LOCK_REFRESH_APP_PRIVATE_KEY` repository secret. The workflow narrows
+each minted installation token to those two permissions.
+
+An intentionally absent App ID selects the `GITHUB_TOKEN` fallback. GitHub then
+creates `pull_request` workflow runs for `opened`, `synchronize`, and `reopened`
+events in an approval-required state; a maintainer with write access must select
+**Approve workflows to run** in the PR merge box. Other event types remain
+suppressed. The App token is preferred because it avoids that approval and lets
+the full intended automation run. A configured App ID with a missing or invalid
+private key, insufficient installation permissions, or no access to this
+repository fails the workflow while minting or using the token; it does not
+silently fall back to `GITHUB_TOKEN`.
+See GitHub's
+[workflow-trigger documentation](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow#triggering-a-workflow-from-a-workflow)
+for the current token behavior.
 
 ## Secret Scanning
 
