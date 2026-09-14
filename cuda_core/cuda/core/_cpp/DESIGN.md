@@ -226,6 +226,17 @@ Handle destructors may run from any thread. The implementation includes RAII gua
 The handle API functions are safe to call with or without the GIL held. They
 will release the GIL (if necessary) before calling CUDA driver API functions.
 
+**The GIL is the outermost lock.** Code that holds a C++ lock (a registry's
+mutex, `ipc_import_mutex`, any `std::mutex`) must not acquire or reacquire the
+GIL while the lock is held: no `report_*` or `pw_*` calls, no
+`GILAcquireGuard`, and no `GILReleaseGuard` whose destructor runs inside the
+locked region. Code that needs a C++ lock and may run with the GIL held
+releases the GIL first (`GILReleaseGuard` before `lock_guard`). Otherwise a
+thread blocked on the lock while holding the GIL deadlocks with the lock holder
+waiting for the GIL (#2840). Collect statuses under the lock and report after it
+is released, as `deviceptr_import_ipc` does. The registries store `weak_ptr`s,
+so erasing an entry under a registry lock never runs a deleter.
+
 ### Static Initialization and Deadlock Hazards
 
 When writing C++ code that interacts with Python, a subtle deadlock can occur

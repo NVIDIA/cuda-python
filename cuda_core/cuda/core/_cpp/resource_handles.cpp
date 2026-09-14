@@ -1822,42 +1822,62 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
         ExportDataKey key;
         std::memcpy(&key.data, data, sizeof(key.data));
 
-        std::lock_guard<std::mutex> lock(ipc_import_mutex);
-
-        if (auto h = ipc_ptr_cache.lookup(key)) {
-            return h;
-        }
-
+        // The mutex makes lookup, import and registration one step, so two
+        // threads cannot import the same descriptor twice. Release the GIL
+        // before taking it: a thread blocked on the mutex while holding the
+        // GIL would deadlock with a holder that needs the GIL back (#2840).
+        // Nothing under the mutex may acquire the GIL, so a failed discard is
+        // reported only after the lock is released (see DESIGN.md).
         GILReleaseGuard gil;
-        CUdeviceptr ptr;
-        if (CUDA_SUCCESS != (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {
-            return {};
-        }
+        CUresult discard_status = CUDA_SUCCESS;
+        CUdeviceptr discarded = 0;
+        {
+            std::lock_guard<std::mutex> lock(ipc_import_mutex);
 
-        DeallocationStream ds;
-        if (!make_deallocation_stream(h_stream, ds)) {
-            pw_cuMemFreeAsync(ptr, as_cu(h_stream));
-            return {};
-        }
-
-        auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, std::move(ds)},
-            [h_pool, key](DevicePtrBox* b) {
-                ipc_ptr_cache.unregister_handle(key);
-                GILReleaseGuard gil;
-                const DeallocationStream& stream = b->deallocation;
-                cleanup_in_context(
-                    deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource),
-                    [&]() noexcept {
-                        return p_cuMemFreeAsync(
-                            b->resource, as_cu(stream.h_stream));
-                    });
-                delete b;
+            if (auto h = ipc_ptr_cache.lookup(key)) {
+                return h;
             }
-        );
-        DevicePtrHandle h(box, &box->resource);
-        ipc_ptr_cache.register_handle(key, h);
-        return h;
+
+            CUdeviceptr ptr;
+            if (CUDA_SUCCESS != (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {
+                return {};
+            }
+
+            DeallocationStream ds;
+            if (make_deallocation_stream(h_stream, ds)) {
+                auto box = std::shared_ptr<DevicePtrBox>(
+                    new DevicePtrBox{ptr, std::move(ds)},
+                    [h_pool, key](DevicePtrBox* b) {
+                        ipc_ptr_cache.unregister_handle(key);
+                        GILReleaseGuard gil;
+                        const DeallocationStream& stream = b->deallocation;
+                        cleanup_in_context(
+                            deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource),
+                            [&]() noexcept {
+                                return p_cuMemFreeAsync(
+                                    b->resource, as_cu(stream.h_stream));
+                            });
+                        delete b;
+                    }
+                );
+                DevicePtrHandle h(box, &box->resource);
+                ipc_ptr_cache.register_handle(key, h);
+                return h;
+            }
+
+            // No deallocation stream could be recorded: discard the import with
+            // the raw call (a pw_ report would acquire the GIL under the mutex).
+            discard_status = p_cuMemFreeAsync(ptr, as_cu(h_stream));
+            discarded = ptr;
+        }
+        if (discard_status != CUDA_SUCCESS) {
+            char operation[160];
+            format_operation(operation, sizeof(operation), "cuMemFreeAsync", discarded);
+            report_cuda_error(operation, discard_status,
+                              "failed while discarding an IPC import that could not record a "
+                              "deallocation stream; the mapping leaked");
+        }
+        return {};
 
     } else {
         GILReleaseGuard gil;
