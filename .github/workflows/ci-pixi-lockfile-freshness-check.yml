@@ -47,6 +47,9 @@ defaults:
   run:
     shell: bash --noprofile --norc -xeuo pipefail {0}
 
+env:
+  REFRESH_WORKFLOW_URL: "https://github.com/NVIDIA/cuda-python/actions/workflows/ci-pixi-lockfile-refresh.yml"
+
 permissions: {}
 
 jobs:
@@ -98,7 +101,7 @@ jobs:
       - name: Check lockfile is current with its manifest
         run: |
           if ! pixi lock --check --manifest-path "${{ matrix.manifest }}"; then
-            echo "::error::Lockfile is stale for '${{ matrix.manifest }}'. Regenerate with: pixi lock --manifest-path ${{ matrix.manifest }}"
+            echo "::error::Lockfile is stale for '${{ matrix.manifest }}'. Regenerate with: pixi lock --manifest-path ${{ matrix.manifest }}. For default-branch dependency drift, maintainers can run ${REFRESH_WORKFLOW_URL}"
             exit 1
           fi
 
@@ -112,6 +115,6 @@ jobs:
           PIXI_VERSION: ${{ steps.setup-pixi.outputs.pixi-version }}
         run: |
           if ! git diff --exit-code -- "${{ matrix.lockfile }}"; then
-            echo "::error::pixi ${PIXI_VERSION} rewrote ${{ matrix.lockfile }} during the check, so the committed bytes are not what it generates. Regenerate with pixi ${PIXI_VERSION}: pixi lock --manifest-path ${{ matrix.manifest }}"
+            echo "::error::pixi ${PIXI_VERSION} rewrote ${{ matrix.lockfile }} during the check, so the committed bytes are not what it generates. Regenerate with pixi ${PIXI_VERSION}: pixi lock --manifest-path ${{ matrix.manifest }}. For default-branch dependency drift, maintainers can run ${REFRESH_WORKFLOW_URL}"
             exit 1
           fi
