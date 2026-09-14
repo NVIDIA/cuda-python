@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Setup pinned pixi
+description: Install the repository's canonical pixi version without installing an environment
+
+outputs:
+  pixi-version:
+    description: The canonical pixi version installed by this action
+    value: ${{ steps.version.outputs.pixi-version }}
+
+runs:
+  using: composite
+  steps:
+    - name: Read canonical pixi version
+      id: version
+      shell: bash --noprofile --norc -euo pipefail {0}
+      run: |
+        source "${GITHUB_WORKSPACE}/ci/pixi-version.env"
+        if [[ ! "${PIXI_VERSION:-}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "::error::ci/pixi-version.env must set PIXI_VERSION in vMAJOR.MINOR.PATCH form"
+          exit 1
+        fi
+        echo "pixi-version=${PIXI_VERSION}" >> "${GITHUB_OUTPUT}"
+
+    - name: Setup pixi ${{ steps.version.outputs.pixi-version }}
+      # Pinned to a commit SHA; install logic lives in the action and is
+      # auditable/pinned (vs. a curl|bash of an unverified installer).
+      uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
+      with:
+        pixi-version: ${{ steps.version.outputs.pixi-version }}
+        run-install: false
