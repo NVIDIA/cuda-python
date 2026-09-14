@@ -18,7 +18,7 @@ runs:
       shell: bash --noprofile --norc -euo pipefail {0}
       run: |
         source "${GITHUB_WORKSPACE}/ci/pixi-version.env"
-        if [[ ! "${PIXI_VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        if [[ ! "${PIXI_VERSION:-}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
           echo "::error::ci/pixi-version.env must set PIXI_VERSION in vMAJOR.MINOR.PATCH form"
           exit 1
         fi

@@ -35,9 +35,9 @@ jobs:
           # Keyed on the PR author, not the actor: a maintainer labelling a bot
           # PR re-triggers this workflow as themselves. Any bot author is
           # exempt from positive metadata because bots cannot set an assignee
-          # or milestone (e.g. the App identity used by the pixi refresh).
+          # or milestone (e.g. github-actions[bot] on a generated refresh PR).
           # Blocking labels are still enforced below.
-          IS_BOT: ${{ github.event.pull_request.user.type == 'Bot' || github.actor == 'dependabot[bot]' || github.actor == 'pre-commit-ci[bot]' || github.actor == 'copy-pr-bot[bot]' || github.actor == 'github-actions[bot]' }}
+          IS_BOT: ${{ github.event.pull_request.user.type == 'Bot' || github.event.pull_request.user.login == 'dependabot[bot]' || github.event.pull_request.user.login == 'pre-commit-ci[bot]' || github.event.pull_request.user.login == 'copy-pr-bot[bot]' || github.event.pull_request.user.login == 'github-actions[bot]' }}
           IS_DRAFT: ${{ github.event.pull_request.draft }}
         run: |
           if [ "$IS_DRAFT" = "true" ]; then

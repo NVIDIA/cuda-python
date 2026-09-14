@@ -79,21 +79,6 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.repository.default_branch }}
 
-      # GITHUB_TOKEN creates opened/synchronize/reopened pull_request runs in
-      # an approval-required state and suppresses other activity types. The App
-      # token lets the intended automation run without that approval step. An
-      # intentionally absent App ID selects the fallback; a configured but
-      # invalid App ID/private key fails here instead of silently falling back.
-      - name: Mint App token for the refresh PR
-        id: app-token
-        if: ${{ vars.PIXI_LOCK_REFRESH_APP_ID != '' }}
-        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
-        with:
-          app-id: ${{ vars.PIXI_LOCK_REFRESH_APP_ID }}
-          private-key: ${{ secrets.PIXI_LOCK_REFRESH_APP_PRIVATE_KEY }}
-          permission-contents: write
-          permission-pull-requests: write
-
       - name: Setup pixi
         id: setup-pixi
         uses: ./.github/actions/setup-pixi
@@ -126,7 +111,6 @@ jobs:
         env:
           WORKSPACE_ID: ${{ matrix.id }}
           MANIFEST: ${{ matrix.manifest }}
-          HAS_APP_TOKEN: ${{ steps.app-token.outputs.token != '' }}
           PIXI_VERSION: ${{ steps.setup-pixi.outputs.pixi-version }}
         run: |
           body_path="${RUNNER_TEMP}/pixi-lock-refresh-body.md"
@@ -138,29 +122,26 @@ jobs:
             echo "This PR is workspace-scoped so other packages are not forced to review"
             echo "unrelated solver churn. See #2298."
             echo
-            if [ "${HAS_APP_TOKEN}" != "true" ]; then
-              echo "> [!IMPORTANT]"
-              echo "> No refresh App token is configured, so this PR was opened with"
-              echo "> \`GITHUB_TOKEN\`. GitHub creates \`opened\`, \`synchronize\`, and"
-              echo "> \`reopened\` pull-request workflow runs in an approval-required state"
-              echo "> and suppresses other activity types. A maintainer with write access must"
-              echo "> select **Approve workflows to run** in the PR merge box."
-              echo
-            fi
+            echo "> [!IMPORTANT]"
+            echo "> This PR was opened with \`GITHUB_TOKEN\`. A maintainer with write access must:"
+            echo ">"
+            echo "> 1. Select **Approve workflows to run** in the merge box."
+            echo "> 2. Assign themselves to this PR. The human-generated \`assigned\` event"
+            echo ">    creates the required **PR has assignee, labels, and milestone** check"
+            echo ">    and gives the PR a clear owner."
+            echo
             echo "If the diff looks wrong, close this PR and leave the branch deleted; the"
             echo "next scheduled run opens a fresh one if an update is still needed."
           } > "${body_path}"
           echo "path=${body_path}" >> "${GITHUB_OUTPUT}"
 
-          if [ "${HAS_APP_TOKEN}" != "true" ]; then
-            echo "::warning::Opened with GITHUB_TOKEN; a maintainer must approve the refresh PR's workflow runs."
-          fi
+          echo "::warning::The refresh PR requires a maintainer to approve its workflow runs and assign themselves to create the required metadata check."
 
       - name: Open or update a lockfile-only PR
         id: cpr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
-          token: ${{ steps.app-token.outputs.token || github.token }}
+          token: ${{ github.token }}
           add-paths: ${{ matrix.lockfile }}
           commit-message: |
             chore: refresh pixi.lock for ${{ matrix.id }}

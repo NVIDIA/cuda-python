@@ -230,25 +230,18 @@ workspace is picked up without editing any workflow. Human-readable workspace
 IDs remain the dispatch and display names; the inventory generates separate,
 ref-safe keys for refresh branches and workflow concurrency.
 
-For unattended refresh PRs, install a GitHub App on this repository with only
-**Contents: Read and write** and **Pull requests: Read and write** repository
-permissions. Set its App ID in the `PIXI_LOCK_REFRESH_APP_ID` repository
-variable and its PEM private key in the
-`PIXI_LOCK_REFRESH_APP_PRIVATE_KEY` repository secret. The workflow narrows
-each minted installation token to those two permissions.
+Refresh PRs use `GITHUB_TOKEN`. After one opens, a maintainer with write access
+must first select **Approve workflows to run** in the merge box, then assign
+themselves to the PR. Approval starts the queued `pull_request` runs; the
+human-generated `assigned` event creates the required
+**PR has assignee, labels, and milestone** `pull_request_target` check and gives
+the PR a clear owner.
 
-An intentionally absent App ID selects the `GITHUB_TOKEN` fallback. GitHub then
-creates `pull_request` workflow runs for `opened`, `synchronize`, and `reopened`
-events in an approval-required state; a maintainer with write access must select
-**Approve workflows to run** in the PR merge box. Other event types remain
-suppressed. The App token is preferred because it avoids that approval and lets
-the full intended automation run. A configured App ID with a missing or invalid
-private key, insufficient installation permissions, or no access to this
-repository fails the workflow while minting or using the token; it does not
-silently fall back to `GITHUB_TOKEN`.
+A future GitHub App integration could trigger both `pull_request` and
+`pull_request_target` workflows automatically.
 See GitHub's
-[workflow-trigger documentation](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow#triggering-a-workflow-from-a-workflow)
-for the current token behavior.
+[token event documentation](https://docs.github.com/en/actions/concepts/security/github_token#when-github_token-triggers-workflow-runs)
+for the current behavior.
 
 ## Secret Scanning
 
