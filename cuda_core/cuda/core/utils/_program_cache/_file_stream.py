@@ -385,14 +385,20 @@ class FileStreamProgramCache(ProgramCacheResource):
         # a group shares on a cluster) keeps working. The cached files themselves
         # are still private: each is written to tmp/ as owner-only and moved into
         # entries/, which keeps its permissions. tmp/ is made owner-only so no one
-        # can read or swap a file while it's being written. We don't chmod, so an
-        # existing directory is left as-is.
-        # Trade-off: if a group deliberately shares a writable entries/, a member
-        # could replace a cached file. Blocking that needs a check at load time,
-        # not just permissions, and is out of scope here.
-        self._root.mkdir(parents=True, exist_ok=True)
-        self._entries.mkdir(exist_ok=True)
+        # can read or swap a file while it's being written.
+        #
+        # Security: create the cache tree owner-only (0o700). mkdir's mode is
+        # masked by the process umask, and exist_ok=True silently accepts a
+        # pre-existing (possibly world-writable) directory, so we re-assert
+        # restrictive perms on an existing root too -- a writable entries/ lets
+        # another local principal plant a binary that this process later loads
+        # via cuLibraryLoadData (CWE-494, NVBUG 6268887).
+        self._root.mkdir(parents=True, exist_ok=True, mode=0o700)
+        self._entries.mkdir(exist_ok=True, mode=0o700)
         self._tmp.mkdir(exist_ok=True, mode=0o700)
+        if os.name != "nt":
+            for _d in (self._root, self._entries, self._tmp):
+                os.chmod(_d, 0o700)
         # Opportunistic startup sweep of orphaned temp files left by any
         # crashed writers. Age-based so concurrent in-flight writes from
         # other processes are preserved.
@@ -452,13 +458,13 @@ class FileStreamProgramCache(ProgramCacheResource):
     def __setitem__(self, key: object, value: bytes | bytearray | memoryview | ObjectCode) -> None:
         data = _extract_bytes(value)
         target = self._path_for_key(key)
-        target.parent.mkdir(parents=True, exist_ok=True)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         # Re-create ``tmp/`` if something deleted it after ``__init__``
         # (operators clearing the cache by hand, ``rm -rf cache_dir/tmp``,
         # another process's overzealous wipe). Cheap and idempotent;
         # without it, every subsequent write would crash with
         # FileNotFoundError even though we could trivially recover.
-        self._tmp.mkdir(parents=True, exist_ok=True)
+        self._tmp.mkdir(parents=True, exist_ok=True, mode=0o700)
 
         # Stat the existing entry (if any) BEFORE the replace so we can
         # update the tracker by the net delta. A racing writer that lands
