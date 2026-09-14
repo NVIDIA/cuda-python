@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_accounting\_stats\_v2
+=====================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_accounting_stats_v2
