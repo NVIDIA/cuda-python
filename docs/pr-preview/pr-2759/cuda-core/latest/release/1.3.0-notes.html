@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=44a8bb51"></script>
+    <script src="../_static/documentation_options.js?v=340cd270"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev68';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev73';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -663,6 +663,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.CUDAError.html">cuda.core.CUDAError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.NVRTCError.html">cuda.core.NVRTCError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
@@ -798,6 +800,9 @@ such failures loud. The new <a class="reference internal" href="../error_handlin
 documents what an exception from <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> guarantees, how failures that
 cannot be raised are reported, and how context restoration failures and
 sticky CUDA errors are handled.</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAError</span></code></a> and <a class="reference internal" href="../generated/cuda.core.NVRTCError.html#cuda.core.NVRTCError" title="cuda.core.NVRTCError"><code class="xref py py-class docutils literal notranslate"><span class="pre">NVRTCError</span></code></a> are now importable from the
+top-level <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> namespace, alongside <a class="reference internal" href="../generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a>. Previously
+they were only available from a private module.</p></li>
 </ul>
 </section>
 <section id="fixes-and-enhancements">
@@ -836,8 +841,10 @@ captured with <code class="xref py py-func docutils literal notranslate"><span c
 <code class="docutils literal notranslate"><span class="pre">cuLinkDestroy</span></code>, <code class="docutils literal notranslate"><span class="pre">cuArrayDestroy</span></code>, <code class="docutils literal notranslate"><span class="pre">cuMipmappedArrayDestroy</span></code>,
 <code class="docutils literal notranslate"><span class="pre">cuTexObjectDestroy</span></code>, <code class="docutils literal notranslate"><span class="pre">cuSurfObjectDestroy</span></code>, user-object releases and the
 NVRTC, NVVM and nvJitLink destroy calls made from destructors were previously
-discarded; they are now reported. <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_DEINITIALIZED</span></code> (the driver is
-shutting down) is not reported. Test code that matched the old <code class="docutils literal notranslate"><span class="pre">stderr</span></code>
+discarded; they are now reported, and each message names the failed call,
+the handle of the affected resource and the CUDA error, so Python’s
+once-per-call-site warning filter does not collapse independent failures.
+<code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_DEINITIALIZED</span></code> (the driver is shutting down) is not reported. Test code that matched the old <code class="docutils literal notranslate"><span class="pre">stderr</span></code>
 text uses <code class="docutils literal notranslate"><span class="pre">pytest.warns(CUDAWarning)</span></code> instead.</p></li>
 <li><p>When a <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> method has to run in the device’s context and the
 caller’s context cannot be restored afterwards, the created resource is

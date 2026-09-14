@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=44a8bb51"></script>
+    <script src="_static/documentation_options.js?v=340cd270"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev68';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev73';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -664,6 +664,8 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.CUDAError.html">cuda.core.CUDAError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.NVRTCError.html">cuda.core.NVRTCError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
@@ -784,8 +786,11 @@ few situations in which <code class="docutils literal notranslate"><span class="
 <section id="exceptions">
 <h2>Exceptions<a class="headerlink" href="#exceptions" title="Link to this heading">#</a></h2>
 <p>A CUDA driver, runtime, NVRTC, NVVM or nvJitLink call that fails raises an
-exception (<code class="docutils literal notranslate"><span class="pre">CUDAError</span></code> for driver and runtime failures) whose message contains
-the CUDA error name and its description. Invalid arguments and misuse raise the
+exception whose message contains the error name and its description:
+<a class="reference internal" href="generated/cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAError</span></code></a> for driver and runtime failures, its subclass
+<a class="reference internal" href="generated/cuda.core.NVRTCError.html#cuda.core.NVRTCError" title="cuda.core.NVRTCError"><code class="xref py py-class docutils literal notranslate"><span class="pre">NVRTCError</span></code></a> for NVRTC failures, and the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> error types
+for NVVM and nvJitLink failures. Both <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> classes are importable from
+the top-level <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> namespace. Invalid arguments and misuse raise the
 usual Python exception types (<code class="docutils literal notranslate"><span class="pre">TypeError</span></code>, <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>, <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>).</p>
 <p>When a <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> call raises, the following hold:</p>
 <ul class="simple">
@@ -807,7 +812,7 @@ methods that add several driver edges).</p></li>
 while an exception is being raised, for example the caller’s context cannot be
 restored after a failed call, or the rollback of a partially built graph node
 fails, the second failure is attached to the exception as a note
-(<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#BaseException.add_note" title="(in Python v3.14)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseException.add_note()</span></code></a>), which appears in the traceback and in
+(<a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#BaseException.add_note" title="(in Python v3.14)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseException.add_note()</span></code></a>), which appears in the traceback and in
 <code class="docutils literal notranslate"><span class="pre">__notes__</span></code>. Python 3.10 has no exception notes; there the information is
 appended to the message when <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> constructs the exception, and
 reported as described in the next section otherwise.</p>
@@ -822,10 +827,13 @@ context switch and restoration around such a release;</p></li>
 <li><p>callbacks invoked by CUDA.</p></li>
 </ul>
 <p>A CUDA error in one of these places is reported as a <a class="reference internal" href="generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a>. The
-message names the failed driver call and the CUDA error. The warning means the
+message names the failed driver call, the handle of the resource involved, and
+the CUDA error. Python shows a warning with a given text once per call site by
+default; because the handle differs per resource, independent failures are not
+collapsed into one report. The warning means the
 affected resource may have leaked; <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> never leaves a resource in use
 by CUDA with its memory released (it prefers a leak to a dangling pointer).</p>
-<p><a class="reference internal" href="generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a> derives from <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeWarning" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeWarning</span></code></a>, so it is shown by
+<p><a class="reference internal" href="generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a> derives from <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeWarning" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeWarning</span></code></a>, so it is shown by
 default and can be filtered like any other warning. To make these failures
 loud in a test suite:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>

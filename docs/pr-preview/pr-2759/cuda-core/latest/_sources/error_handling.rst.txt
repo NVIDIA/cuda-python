@@ -15,8 +15,11 @@ Exceptions
 ----------
 
 A CUDA driver, runtime, NVRTC, NVVM or nvJitLink call that fails raises an
-exception (``CUDAError`` for driver and runtime failures) whose message contains
-the CUDA error name and its description. Invalid arguments and misuse raise the
+exception whose message contains the error name and its description:
+:class:`CUDAError` for driver and runtime failures, its subclass
+:class:`NVRTCError` for NVRTC failures, and the ``cuda.bindings`` error types
+for NVVM and nvJitLink failures. Both ``cuda.core`` classes are importable from
+the top-level ``cuda.core`` namespace. Invalid arguments and misuse raise the
 usual Python exception types (``TypeError``, ``ValueError``, ``RuntimeError``).
 
 When a ``cuda.core`` call raises, the following hold:
@@ -55,7 +58,10 @@ Some ``cuda.core`` code runs where no Python exception can propagate:
 - callbacks invoked by CUDA.
 
 A CUDA error in one of these places is reported as a :class:`CUDAWarning`. The
-message names the failed driver call and the CUDA error. The warning means the
+message names the failed driver call, the handle of the resource involved, and
+the CUDA error. Python shows a warning with a given text once per call site by
+default; because the handle differs per resource, independent failures are not
+collapsed into one report. The warning means the
 affected resource may have leaked; ``cuda.core`` never leaves a resource in use
 by CUDA with its memory released (it prefers a leak to a dangling pointer).
 
