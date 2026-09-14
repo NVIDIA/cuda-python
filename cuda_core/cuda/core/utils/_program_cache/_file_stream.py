@@ -139,6 +139,11 @@ def _stat_and_read_with_sharing_retry(path: Path) -> tuple[os.stat_result, bytes
     """
 
     def _do_stat_and_read() -> tuple[os.stat_result, bytes]:
+        # Reject symlinks on POSIX -- a pre-planted symlink could redirect reads
+        # to attacker-controlled content (CWE-494, NVBUG 6268887). Raise
+        # FileNotFoundError so the caller treats this as a cache miss and recompiles.
+        if os.name != "nt" and path.is_symlink():
+            raise FileNotFoundError(f"Symlink not accepted as cache entry: {path}")
         return path.stat(), path.read_bytes()
 
     def _exhausted(last_exc: PermissionError) -> None:
