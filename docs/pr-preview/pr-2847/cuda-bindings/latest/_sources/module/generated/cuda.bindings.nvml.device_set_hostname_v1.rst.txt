@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_set\_hostname\_v1
-============================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_set_hostname_v1
