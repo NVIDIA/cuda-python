@@ -2569,6 +2569,5 @@ def test_program_cache_tightens_preexisting_permissive_dirs(tmp_path):
         path = root / subdir if subdir else root
         mode = stat.S_IMODE(os.stat(path).st_mode)
         assert mode == 0o700, (
-            f"{path} has mode {oct(mode)} after open — "
-            "pre-existing permissive directory was not tightened (CWE-494)"
+            f"{path} has mode {oct(mode)} after open — pre-existing permissive directory was not tightened (CWE-494)"
         )
