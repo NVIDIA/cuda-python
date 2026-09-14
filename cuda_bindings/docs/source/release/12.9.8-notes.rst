@@ -9,20 +9,9 @@
 Bugfixes
 --------
 
-  (`PR #2581 <https://github.com/NVIDIA/cuda-python/pull/2581>`_)
 * Fixed a crash in ``nvml.system_event_set_wait`` caused by calling
   ``resize()`` on a non-owning ``SystemEventData_v1._data`` view.
   (`PR #2690 <https://github.com/NVIDIA/cuda-python/pull/2690>`_)
-* ``get_cuda_native_handle`` no longer misreports a ``KeyError`` raised from
-  within a registered getter as an "Unknown type" error.
-  (`PR #2551 <https://github.com/NVIDIA/cuda-python/pull/2551>`_)
-* Fixed ``cuFile`` status checking to no longer raise ``cuFileError``
-  spuriously when ``CUfileError_t.cu_err`` is set on a non-error path (for
-  example, BAR-size queries on GH200 systems).
-  (`PR #2530 <https://github.com/NVIDIA/cuda-python/pull/2530>`_)
-* Made ``param_packer.feed()`` safe under free-threaded Python by moving its
-  internal state initialization to import time.
-  (`PR #2417 <https://github.com/NVIDIA/cuda-python/pull/2417>`_)
 
 Deprecation Notices
 -------------------
@@ -30,14 +19,6 @@ Deprecation Notices
 * Support for using ``cuda-bindings`` with Python 3.10 is deprecated and will be
   removed in a future version.  Python 3.10 reaches end of life in October 2026
   per the `CPython support cycle <https://devguide.python.org/versions/>`_.
-
-Prerelease feature
-------------------
-
-A new version of the ``nvrtc`` API is available as ``cuda.bindings._v2.nvrtc``.  The
-primary improvements are: (1) raising exceptions rather than returning error
-codes, (2) uses PEP8-compliant naming, and (3) more performance.  This API is
-still experimental and subject to change.
 
 Known issues
 ------------
