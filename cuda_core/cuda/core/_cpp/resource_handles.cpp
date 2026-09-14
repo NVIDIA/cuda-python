@@ -360,7 +360,7 @@ bool add_note_to_handled_exception(const char* message) noexcept {
 
 }  // namespace
 
-void note_or_report_cuda_error(const char* operation, CUresult status, const char* detail) noexcept {
+void attach_rollback_failure(const char* operation, CUresult status, const char* detail) noexcept {
     if (status == CUDA_SUCCESS || status == CUDA_ERROR_DEINITIALIZED) {
         return;
     }
@@ -600,6 +600,13 @@ CUresult cleanup_in_context(const ContextHandle& h_context, const char* name,
 // Decorate a status-returning cleanup call to report whenever it fails. CUDA
 // calls (CUresult) are reported with the error name and description; NVRTC,
 // NVVM and nvJitLink calls (integer status codes) with the raw code.
+//
+// A pw_ wrapper is not a p_ pointer with logging. On failure it acquires the
+// GIL and runs Python: the warning filters, showwarning, or sys.unraisablehook,
+// any of which may be user code that calls back into cuda.core. Never invoke
+// one while holding a C++ lock; the GIL must be the outermost lock. Where a
+// lock must stay held, call the p_ pointer, keep the status, and report after
+// the lock is released (see deviceptr_import_ipc and DESIGN.md).
 template <auto& Function>
 class WarnOnFailure {
 public:
@@ -638,7 +645,8 @@ private:
     const char* operation_;
 };
 
-// Warning-decorated CUDA operations used by non-throwing cleanup paths.
+// Warning-decorated CUDA operations for deleters and cleanup paths. Each one
+// may run user Python on failure (see WarnOnFailure above): no C++ lock held.
 const WarnOnFailure<p_cuStreamDestroy> pw_cuStreamDestroy{"cuStreamDestroy"};
 const WarnOnFailure<p_cuEventDestroy> pw_cuEventDestroy{"cuEventDestroy"};
 const WarnOnFailure<p_cuMemFree> pw_cuMemFree{"cuMemFree"};

@@ -45,7 +45,7 @@ from cuda.core.graph._subclasses cimport (
     SwitchNode,
     WhileNode,
 )
-from cuda.core._resource_handles cimport note_or_report_cuda_error
+from cuda.core._resource_handles cimport attach_rollback_failure
 from cuda.core._resource_handles cimport (
     GraphHandle,
     GraphNodeHandle,
@@ -1118,7 +1118,7 @@ cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDefinition child_def):
         else:
             # The original exception propagates with the failed rollback
             # attached as a note (error handling policy).
-            note_or_report_cuda_error(
+            attach_rollback_failure(
                 b"cuGraphDestroyNode", rollback_status,
                 b"failed while rolling back a child graph node; the node remains in the graph")
         raise

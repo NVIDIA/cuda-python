@@ -20,7 +20,7 @@ from cuda.core.graph._subclasses cimport (
     ExecutableGraphNode,
     create_executable_node_view,
 )
-from cuda.core._resource_handles cimport note_or_report_cuda_error, report_cuda_error
+from cuda.core._resource_handles cimport attach_rollback_failure, report_cuda_error
 from cuda.core._resource_handles cimport (
     GraphExecHandle,
     GraphHandle,
@@ -864,7 +864,7 @@ cdef class GraphBuilder:
             else:
                 # The original exception propagates with the failed rollback
                 # attached as a note (error handling policy).
-                note_or_report_cuda_error(
+                attach_rollback_failure(
                     b"cuGraphDestroyNode", rollback_status,
                     b"failed while rolling back a child graph node; the node remains in the graph")
             raise

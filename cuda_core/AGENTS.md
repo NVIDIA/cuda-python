@@ -132,8 +132,23 @@ below are for contributors. Reviewers and agents should flag violations.
   which emits `cuda.core.CUDAWarning`. No `print(file=sys.stderr)` and no
   `fprintf` outside that helper. `CUDA_ERROR_DEINITIALIZED` is filtered by the
   helper because it means the driver is shutting down.
+- **Pick the channel by where you are**: a path that can raise uses
+  `HANDLE_RETURN`; an `except` block whose rollback failed uses
+  `attach_rollback_failure()`; a deleter or cleanup path uses a `pw_*`
+  wrapper or `report_cuda_error()`; the same situation in Cython or Python
+  uses `warnings.warn(..., CUDAWarning)`; a CUDA callback thread does nothing
+  that needs the GIL and hands its work to the deferred-cleanup queue
+  (`Py_AddPendingCall` is GIL-free and allowed there). The table in
+  `_cpp/DESIGN.md` ("Which channel to use") spells this out.
+- **`pw_*` runs user Python**: a `p_` pointer only calls the driver; its `pw_`
+  twin also acquires the GIL on failure and runs the warning filters,
+  `showwarning`, or `sys.unraisablehook`, any of which may call back into
+  cuda.core. Never call a `pw_*` wrapper or `report_*` while holding a C++
+  lock. Take the GIL as the outermost lock, release it before taking a C++
+  lock, and when a lock must stay held call `p_`, keep the status, and report
+  after the lock is released (`deviceptr_import_ipc` is the model).
 - **Rollback failure**: the original exception propagates; the failed rollback
-  is attached to it with `note_or_report_cuda_error()` (a PEP 678 note on
+  is attached to it with `attach_rollback_failure()` (a PEP 678 note on
   Python 3.11+, reported out-of-band on 3.10), or chained with
   `raise ... from` when a second exception must be raised. Catching everything
   (bare `except:` or `except BaseException:`) is acceptable only for

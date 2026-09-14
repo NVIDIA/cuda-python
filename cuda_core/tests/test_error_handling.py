@@ -31,7 +31,7 @@ from cuda.core import (
 )
 from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
 from cuda.core._resource_handles import (
-    _note_or_report_cuda_error_for_testing,
+    _attach_rollback_failure_for_testing,
     _set_context_restore_fault_for_testing,
 )
 from cuda.core._stream import default_stream
@@ -305,12 +305,12 @@ def test_rollback_failure_is_attached_to_the_propagating_exception():
         except RuntimeError:
             if HAS_NOTES:
                 with assert_no_cuda_warning():
-                    _note_or_report_cuda_error_for_testing(INVALID_VALUE)
+                    _attach_rollback_failure_for_testing(INVALID_VALUE)
             else:
                 with pytest.warns(CUDAWarning, match="cuTestOperation failed while testing"):
-                    _note_or_report_cuda_error_for_testing(INVALID_VALUE)
+                    _attach_rollback_failure_for_testing(INVALID_VALUE)
             with assert_no_cuda_warning():
-                _note_or_report_cuda_error_for_testing(DEINITIALIZED)
+                _attach_rollback_failure_for_testing(DEINITIALIZED)
             raise
     exc = excinfo.value
     assert str(exc) == "primary failure"
@@ -321,4 +321,4 @@ def test_rollback_failure_is_attached_to_the_propagating_exception():
         assert not hasattr(exc, "__notes__")
     # With no exception being handled there is nothing to attach to.
     with pytest.warns(CUDAWarning, match="cuTestOperation failed while testing"):
-        _note_or_report_cuda_error_for_testing(INVALID_VALUE)
+        _attach_rollback_failure_for_testing(INVALID_VALUE)

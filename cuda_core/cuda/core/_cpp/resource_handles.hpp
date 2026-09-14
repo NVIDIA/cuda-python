@@ -60,10 +60,13 @@ void clear_last_error() noexcept;
 // ============================================================================
 // Non-propagating error reporting
 //
-// Paths that cannot raise (shared_ptr deleters, CUDA callbacks, __dealloc__)
-// report failures through these functions instead of discarding them. They
-// emit a cuda.core.CUDAWarning when the interpreter can be used and write to
-// stderr otherwise; they never raise. See docs/source/error_handling.rst.
+// Paths that cannot raise (shared_ptr deleters, __dealloc__) report failures
+// through these functions instead of discarding them. They emit a
+// cuda.core.CUDAWarning when the interpreter can be used and write to stderr
+// otherwise; they never raise. Emitting the warning acquires the GIL and runs
+// user Python (warning filters, showwarning, sys.unraisablehook), so never call
+// them while holding a C++ lock. See docs/source/error_handling.rst and the
+// "Which channel to use" table in DESIGN.md.
 // ============================================================================
 
 // Register the Python warning category used by report_* (cuda.core.CUDAWarning).
@@ -84,7 +87,7 @@ void report_status_code(const char* operation, long code) noexcept;
 // (PEP 678 note, Python 3.11+): for rollback failures inside `except` blocks
 // whose original exception is about to be re-raised. When no exception is
 // being handled or notes are unavailable, falls back to report_cuda_error().
-void note_or_report_cuda_error(const char* operation, CUresult status, const char* detail = nullptr) noexcept;
+void attach_rollback_failure(const char* operation, CUresult status, const char* detail = nullptr) noexcept;
 
 // Detail recorded by a context-scoped helper for the CUresult it is about to
 // return, e.g. that the caller's context could not be restored. The Cython

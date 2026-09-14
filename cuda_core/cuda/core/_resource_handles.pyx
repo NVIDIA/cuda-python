@@ -45,11 +45,11 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void report_message "cuda_core::report_message" (const char* message) noexcept nogil
     void report_status_code "cuda_core::report_status_code" (
         const char* operation, long code) noexcept nogil
-    void note_or_report_cuda_error "cuda_core::note_or_report_cuda_error" (
+    void attach_rollback_failure "cuda_core::attach_rollback_failure" (
         const char* operation, cydriver.CUresult status, const char* detail) noexcept nogil
     # Alias for calls made from this module: calling the pxd-declared name here
     # would make Cython emit a conflicting static prototype for it.
-    void _note_or_report_cuda_error_local "cuda_core::note_or_report_cuda_error" (
+    void _attach_rollback_failure_local "cuda_core::attach_rollback_failure" (
         const char* operation, cydriver.CUresult status, const char* detail) noexcept nogil
     const char* take_last_error_detail "cuda_core::take_last_error_detail" (
         cydriver.CUresult status) noexcept nogil
@@ -597,14 +597,14 @@ def _set_context_restore_fault_for_testing(int status):
     set_context_restore_fault_for_testing(<cydriver.CUresult>status)
 
 
-def _note_or_report_cuda_error_for_testing(int status):
+def _attach_rollback_failure_for_testing(int status):
     """Attach a failed CUDA call to the exception being handled, or report it.
 
-    Test hook for ``note_or_report_cuda_error()``. Called inside an ``except``
+    Test hook for ``attach_rollback_failure()``. Called inside an ``except``
     block it adds a note to the exception being handled (Python 3.11+); anywhere
     else it emits a ``CUDAWarning``.
     """
-    _note_or_report_cuda_error_local(
+    _attach_rollback_failure_local(
         b"cuTestOperation", <cydriver.CUresult>status, b"failed while testing")
 
 # =============================================================================
