@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.PwrModelMetricsSamplePfpp1x
+==============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: PwrModelMetricsSamplePfpp1x
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PwrModelMetricsSamplePfpp1x.__init__
+      ~PwrModelMetricsSamplePfpp1x.from_buffer
+      ~PwrModelMetricsSamplePfpp1x.from_data
+      ~PwrModelMetricsSamplePfpp1x.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PwrModelMetricsSamplePfpp1x.est_tgp_pwrm_w
+      ~PwrModelMetricsSamplePfpp1x.freqk_hz
+      ~PwrModelMetricsSamplePfpp1x.ptr
+   
+   
