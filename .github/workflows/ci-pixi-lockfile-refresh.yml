@@ -135,8 +135,6 @@ jobs:
           } > "${body_path}"
           echo "path=${body_path}" >> "${GITHUB_OUTPUT}"
 
-          echo "::warning::The refresh PR requires a maintainer to approve its workflow runs and assign themselves to create the required metadata check."
-
       - name: Open or update a lockfile-only PR
         id: cpr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
@@ -158,6 +156,10 @@ jobs:
           body-path: ${{ steps.pr-body.outputs.path }}
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+
+      - name: Warn about required maintainer action
+        if: ${{ steps.cpr.outputs.pull-request-operation == 'created' || steps.cpr.outputs.pull-request-operation == 'updated' }}
+        run: echo "::warning::The refresh PR requires a maintainer to approve its workflow runs and assign themselves to create the required metadata check."
 
       - name: Summarize
         run: |
