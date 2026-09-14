@@ -1524,13 +1524,19 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
         ExportDataKey key;
         std::memcpy(&key.data, data, sizeof(key.data));
 
+        // The GIL must be released before the mutex is taken. Destruction runs
+        // in reverse declaration order, so declaring the lock first would
+        // reacquire the GIL while still holding the mutex, deadlocking against
+        // a caller that blocks on the mutex while holding the GIL (callers
+        // enter this function with the GIL held). Nothing in the critical
+        // section needs the GIL.
+        GILReleaseGuard gil;
         std::lock_guard<std::mutex> lock(ipc_import_mutex);
 
         if (auto h = ipc_ptr_cache.lookup(key)) {
             return h;
         }
 
-        GILReleaseGuard gil;
         CUdeviceptr ptr;
         if (CUDA_SUCCESS != (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {
             return {};
