@@ -2530,11 +2530,11 @@ def test_inmemory_cache_concurrent_threads_stay_consistent():
 
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits only")
-def test_program_cache_tmp_dir_created_owner_only(tmp_path):
-    """``tmp`` stages in-flight compiled device code before the atomic rename into
-    ``entries``, so it must be created owner-only (0o700) regardless of the inherited
-    umask. ``root``/``entries`` intentionally inherit the umask to keep deliberately
-    shared caches working (PR #2399 review), so only ``tmp`` is asserted."""
+def test_program_cache_dirs_created_owner_only(tmp_path):
+    """Security: root, entries, and tmp must all be created owner-only (0o700).
+    A writable entries/ lets another local principal plant a malicious cubin
+    that this process later loads via cuLibraryLoadData (CWE-494, NVBUG 6268887).
+    mkdir's mode= is masked by umask, so we explicitly chmod after creation."""
     import stat
 
     from cuda.core.utils._program_cache._file_stream import FileStreamProgramCache
@@ -2542,25 +2542,33 @@ def test_program_cache_tmp_dir_created_owner_only(tmp_path):
     root = tmp_path / "pc"
     FileStreamProgramCache(path=root)
 
-    mode = stat.S_IMODE(os.stat(root / "tmp").st_mode)
-    assert mode == 0o700, f"tmp has mode {oct(mode)}"
+    for subdir in ("", "entries", "tmp"):
+        path = root / subdir if subdir else root
+        mode = stat.S_IMODE(os.stat(path).st_mode)
+        assert mode == 0o700, f"{path} has mode {oct(mode)}, expected 0o700"
 
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits only")
-def test_program_cache_preexisting_shared_root_used_as_is(tmp_path):
-    """PR #2399 review: a deliberately shared cache root (e.g. group-writable on a
-    compute cluster) must be used as-is, not re-tightened. Only ``tmp`` is forced
-    owner-only; ``root`` keeps whatever permissions it was created with."""
+def test_program_cache_tightens_preexisting_permissive_dirs(tmp_path):
+    """Security (NVBUG 6268887): exist_ok=True silently accepts a pre-existing
+    world-writable directory. We must re-assert 0o700 on open to close the
+    cache-poisoning primitive even when the directory was created externally."""
     import stat
 
     from cuda.core.utils._program_cache._file_stream import FileStreamProgramCache
 
     root = tmp_path / "pc"
     root.mkdir()
-    # Simulate an intentionally shared cache directory.
+    # Simulate an attacker (or misconfigured system) pre-creating a permissive dir.
     os.chmod(root, 0o777)  # noqa: S103
+    assert stat.S_IMODE(os.stat(root).st_mode) == 0o777, "precondition: root is 0o777"
 
     FileStreamProgramCache(path=root)
 
-    assert stat.S_IMODE(os.stat(root).st_mode) == 0o777
-    assert stat.S_IMODE(os.stat(root / "tmp").st_mode) == 0o700
+    for subdir in ("", "entries", "tmp"):
+        path = root / subdir if subdir else root
+        mode = stat.S_IMODE(os.stat(path).st_mode)
+        assert mode == 0o700, (
+            f"{path} has mode {oct(mode)} after open — "
+            "pre-existing permissive directory was not tightened (CWE-494)"
+        )
