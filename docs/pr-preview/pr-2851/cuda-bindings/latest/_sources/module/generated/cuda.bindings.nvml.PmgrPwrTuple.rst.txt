@@ -1,0 +1,32 @@
+﻿cuda.bindings.nvml.PmgrPwrTuple
+===============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: PmgrPwrTuple
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PmgrPwrTuple.__init__
+      ~PmgrPwrTuple.from_buffer
+      ~PmgrPwrTuple.from_data
+      ~PmgrPwrTuple.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PmgrPwrTuple.ptr
+      ~PmgrPwrTuple.pwrm_w
+   
+   

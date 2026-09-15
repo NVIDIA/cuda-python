@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_compute\_mode
+=============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_compute_mode

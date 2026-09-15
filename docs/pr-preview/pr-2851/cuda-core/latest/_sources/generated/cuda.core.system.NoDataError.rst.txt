@@ -1,0 +1,6 @@
+﻿cuda.core.system.NoDataError
+============================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: NoDataError
