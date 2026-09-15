@@ -13,6 +13,11 @@ Enhancements
 - ``cuda-bindings`` docstrings now include the full documentation from the upstream CTK, not just the first paragraph.
 - For all ``cuda-bindings`` APIs, functions that accept a ``bytes`` object will also accept ``None``, which is treated as ``NULL``.
 
+Behavior changes
+----------------
+
+- Passing a ``None`` to ``nvvm.add_module_to_program`` or ``nvvm.lazy_add_module_to_program`` will now raise a ``nvvm.nvvmError`` (``INVALID_INPUT``) rather than a ``ValueError``.
+
 Prerelease feature
 ------------------
 
