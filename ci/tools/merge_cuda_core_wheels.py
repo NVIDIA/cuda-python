@@ -157,23 +157,16 @@ def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool
             os.truncate(versioned_dir / "__init__.py", 0)
 
         print("\n=== Removing files from cuda/core/ directory ===", file=sys.stderr)
-        items_to_keep = {
-            "__init__.py",
-            "_version.py",
-            "_include",
-            "_cpp",  # Headers for Cython development
-            *cuda_variants,
-        }
-        # _resource_handles is shared (not CUDA-version-specific) and must stay
-        # at top level. It's imported early in __init__.py before versioned code.
-        items_to_keep_prefix = ("_resource_handles",)
+        # Only what cuda/core/__init__.py uses before it rewrites __path__ to the
+        # versioned subpackage stays at top level: it imports _version, then
+        # redirects every later import into the versioned tree. Anything else
+        # left at top level is a dead copy that nothing imports.
+        items_to_keep = {"__init__.py", "_version.py", *cuda_variants}
         all_items = os.scandir(base_wheel / base_dir)
         removed_count = 0
         for f in all_items:
             f_abspath = f.path
             if f.name in items_to_keep:
-                continue
-            if any(f.name.startswith(prefix) for prefix in items_to_keep_prefix):
                 continue
             if f.is_dir():
                 print(f"  Removing directory: {f.name}", file=sys.stderr)
@@ -183,6 +176,11 @@ def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool
                 os.remove(f_abspath)
             removed_count += 1
         print(f"Removed {removed_count} items from cuda/core/ directory", file=sys.stderr)
+        remaining = {entry.name for entry in os.scandir(base_wheel / base_dir)}
+        if remaining != items_to_keep:
+            raise RuntimeError(
+                f"unexpected top level under cuda/core/: {sorted(remaining)} (expected {sorted(items_to_keep)})"
+            )
 
         # Repack the merged wheel
         output_dir.mkdir(parents=True, exist_ok=True)
