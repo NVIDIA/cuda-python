@@ -20,8 +20,8 @@ from cuda.core.graph._subclasses cimport (
     ExecutableGraphNode,
     create_executable_node_view,
 )
-from cuda.core._resource_handles cimport attach_rollback_failure, report_cuda_error
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport attach_rollback_failure, report_cuda_error
+from cuda.core._rt cimport (
     GraphExecHandle,
     GraphHandle,
     OpaqueHandle,

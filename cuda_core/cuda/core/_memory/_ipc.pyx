@@ -9,7 +9,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_check_open, Buffer_from_deviceptr_handle
 from cuda.core._memory._memory_pool cimport _MemPool, MP_check_open
 from cuda.core._stream cimport Stream, Stream_accept
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     DevicePtrHandle,
     create_fd_handle,
     create_mempool_handle_ipc,

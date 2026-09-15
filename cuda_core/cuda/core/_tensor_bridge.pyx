@@ -54,7 +54,7 @@ from libc.stdint cimport intptr_t, int8_t, int16_t, int32_t, int64_t, uint8_t
 from cuda.core._memoryview cimport StridedMemoryView
 from cuda.core._layout cimport _StridedLayout
 from cuda.bindings cimport cydriver
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     EventHandle,
     create_event_handle_for_stream,
     as_cu,

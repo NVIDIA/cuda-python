@@ -199,6 +199,29 @@ def _extension_sources(mod_name):
     return sources
 
 
+def _extension_depends():
+    """Headers whose edits must rebuild an extension: every header under a
+    directory-form module's cuda/core/_cpp/<stem>/ (a single-file module has
+    none).
+
+    The same list serves every extension. A module that cimports a
+    directory-form module compiles against the header its .pxd names, and
+    cythonize copies each `depends` entry into its build directory before
+    compiling, so the copied header finds its sibling includes beside it
+    (quoted includes resolve next to the copy, not in the source tree).
+    Listing the whole directory keeps the rule free of include parsing; the
+    cost is that every extension rebuilds when any of these headers changes,
+    exactly as editing the one monolithic header did before the split."""
+    cpp = Path("cuda", "core", "_cpp")
+    return sorted(
+        str(path)
+        for module_dir in cpp.iterdir()
+        if module_dir.is_dir()
+        for path in module_dir.rglob("*")
+        if path.suffix in (".h", ".hpp")
+    )
+
+
 def _build_cuda_core(debug=False):
     # Customizing the build hooks is needed because we must defer cythonization until cuda-bindings,
     # now a required build-time dependency that's dynamically installed via the other hook below,
@@ -265,10 +288,12 @@ def _build_cuda_core(debug=False):
         # related to free-threading builds.
         extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
 
+    depends = _extension_depends()
     ext_modules = tuple(
         Extension(
             f"cuda.core.{mod.replace(os.path.sep, '.')}",
             sources=_extension_sources(mod),
+            depends=depends,
             include_dirs=[
                 "cuda/core/_include",
                 "cuda/core/_cpp",
@@ -299,6 +324,10 @@ def _build_cuda_core(debug=False):
         # CUDA_PYTHON_COVERAGE deliberately generates in-tree so the sources can
         # be packaged; every other build gets its own per-configuration cache,
         # anchored alongside the stamp so both resolve the same from any cwd.
+        # Cython also copies each extension's extern headers and `depends` under
+        # this directory and compiles against the copies. Copies are refreshed by
+        # mtime and never deleted, so remove build/ after renaming or deleting a
+        # header under _cpp/.
         build_dir="." if COMPILE_FOR_COVERAGE else str(_BUILD_DIR / "cython" / f"cu{cuda_major}"),
         nthreads=nthreads,
         compiler_directives=compiler_directives,

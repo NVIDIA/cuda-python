@@ -18,7 +18,7 @@ from cuda.core._memory._buffer cimport Buffer, Buffer_check_open, Buffer_coerce_
 # need a pragma to be seen as used.
 from cuda.core._memory._location cimport cumemlocation_from_id  # no-cython-lint
 from cuda.core._memory._location cimport to_cumemlocation  # no-cython-lint
-from cuda.core._resource_handles cimport as_cu
+from cuda.core._rt cimport as_cu
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
