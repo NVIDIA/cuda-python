@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c87dc8d7"></script>
+    <script src="../_static/documentation_options.js?v=20676b15"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev77';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev78';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -235,6 +235,13 @@
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../concurrency.html">
     Concurrency and Thread Safety
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../error_handling.html">
+    Error Handling
   </a>
 </li>
 
@@ -471,6 +478,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../error_handling.html">
+    Error Handling
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core API Reference
   </a>
@@ -570,6 +584,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../concurrency.html">Concurrency and Thread Safety</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../error_handling.html">Error Handling</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Device.html">cuda.core.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Host.html">cuda.core.Host</a></li>
@@ -649,6 +664,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.CUDAError.html">cuda.core.CUDAError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.NVRTCError.html">cuda.core.NVRTCError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.copy_batch.html">cuda.core.utils.copy_batch</a></li>
@@ -783,8 +801,8 @@
 <section id="new-examples">
 <h2>New examples<a class="headerlink" href="#new-examples" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Add a <a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0ad1583d417f5f313f096f863eb17337769ef406/cuda_core/examples/cuda_graphs.py">CUDA graph</a> example.</p></li>
-<li><p>Add a <a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0ad1583d417f5f313f096f863eb17337769ef406/cuda_core/examples/memory_ops.py">memory resource</a> example.</p></li>
+<li><p>Add a <a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/6aaeb668aea77da52c81500ba7637521b1cdeba1/cuda_core/examples/cuda_graphs.py">CUDA graph</a> example.</p></li>
+<li><p>Add a <a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/6aaeb668aea77da52c81500ba7637521b1cdeba1/cuda_core/examples/memory_ops.py">memory resource</a> example.</p></li>
 </ul>
 </section>
 <section id="fixes-and-enhancements">
