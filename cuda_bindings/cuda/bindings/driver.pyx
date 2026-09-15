@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6bd7ebe1b68edf32a3a0c2768c16c1383f942ddf1f5dc51cc06f8b1792eb9b5d
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6d4503ae5ca9326721247759fac6bacd4bddc12e10d7fafc683325024a84cfee
 from typing import Any, Optional
 import cython
 import ctypes
@@ -53944,7 +53944,7 @@ def cuGraphicsResourceGetMappedPointer(resource):
     Returns in `*pDevPtr` a pointer through which the mapped graphics
     resource `resource` may be accessed. Returns in `pSize` the size of the
     memory in bytes which may be accessed from that pointer. The value set
-    in `pPointer` may change every time that `resource` is mapped.
+    in `pDevPtr` may change every time that `resource` is mapped.
 
     If `resource` is not a buffer then it cannot be accessed via a pointer
     and :py:obj:`~.CUDA_ERROR_NOT_MAPPED_AS_POINTER` is returned. If
@@ -53963,7 +53963,7 @@ def cuGraphicsResourceGetMappedPointer(resource):
     pDevPtr : :py:obj:`~.CUdeviceptr`
         Returned pointer through which `resource` may be accessed
     pSize : int
-        Returned size of the buffer accessible starting at `*pPointer`
+        Returned size of the buffer accessible starting at `*pDevPtr`
 
     See Also
     --------
