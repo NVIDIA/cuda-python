@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=73ecfdaa9669d6c35bbc45263289a54cf10531358fb60b4750ab7ebeacfad047
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=18c8392e37b8eedb541e1f1729c1173b7e59ed5d917249a949c724226d753145
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -33727,35 +33727,6 @@ cpdef gpu_instance_destroy(intptr_t gpu_instance):
     check_status(__status__)
 
 
-cpdef object device_get_gpu_instances(intptr_t device, unsigned int profile_id):
-    """Get GPU instances for given profile ID.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-        profile_id (unsigned int): The GPU instance profile ID. See
-            ``nvmlDeviceGetGpuInstanceProfileInfo``.
-
-    Returns:
-        intptr_t: Returns pre-exiting GPU instances, the buffer must be
-            large enough to accommodate the instances supported by the
-            profile. See ``nvmlDeviceGetGpuInstanceProfileInfo``.
-
-    .. seealso:: `nvmlDeviceGetGpuInstances`
-    """
-    cdef unsigned int[1] count = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetGpuInstances(<Device>device, profile_id, NULL, <unsigned int*>count)
-    check_status_size(__status__)
-    cdef _cyb_view.array _gpu_instances_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
-    cdef intptr_t *gpu_instances_ptr = <intptr_t *>(_gpu_instances_alloc_.data)
-    cdef object gpu_instances = _gpu_instances_alloc_[:count[0]]
-    if count[0] != 0:
-        with nogil:
-            __status__ = nvmlDeviceGetGpuInstances(<Device>device, profile_id, <nvmlGpuInstance_t*>gpu_instances_ptr, <unsigned int*>count)
-        check_status(__status__)
-    return gpu_instances
-
-
 cpdef intptr_t device_get_gpu_instance_by_id(intptr_t device, unsigned int id) except? 0:
     """Get GPU instances for given instance ID.
 
@@ -33927,36 +33898,6 @@ cpdef compute_instance_destroy(intptr_t compute_instance):
     with nogil:
         __status__ = nvmlComputeInstanceDestroy(<ComputeInstance>compute_instance)
     check_status(__status__)
-
-
-cpdef object gpu_instance_get_compute_instances(intptr_t gpu_instance, unsigned int profile_id):
-    """Get compute instances for given profile ID.
-
-    Args:
-        gpu_instance (intptr_t): The identifier of the target GPU
-            instance.
-        profile_id (unsigned int): The compute instance profile ID. See
-            ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
-
-    Returns:
-        intptr_t: Returns pre-exiting compute instances, the buffer must
-            be large enough to accommodate the instances supported by the
-            profile. See ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
-
-    .. seealso:: `nvmlGpuInstanceGetComputeInstances`
-    """
-    cdef unsigned int[1] count = [0]
-    with nogil:
-        __status__ = nvmlGpuInstanceGetComputeInstances(<GpuInstance>gpu_instance, profile_id, NULL, <unsigned int*>count)
-    check_status_size(__status__)
-    cdef _cyb_view.array _compute_instances_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
-    cdef intptr_t *compute_instances_ptr = <intptr_t *>(_compute_instances_alloc_.data)
-    cdef object compute_instances = _compute_instances_alloc_[:count[0]]
-    if count[0] != 0:
-        with nogil:
-            __status__ = nvmlGpuInstanceGetComputeInstances(<GpuInstance>gpu_instance, profile_id, <nvmlComputeInstance_t*>compute_instances_ptr, <unsigned int*>count)
-        check_status(__status__)
-    return compute_instances
 
 
 cpdef intptr_t gpu_instance_get_compute_instance_by_id(intptr_t gpu_instance, unsigned int id) except? 0:
@@ -35581,6 +35522,69 @@ cpdef object device_get_gpu_instance_profile_info_v(intptr_t device, unsigned in
         __status__ = nvmlDeviceGetGpuInstanceProfileInfoV(<Device>device, profile, <nvmlGpuInstanceProfileInfo_v2_t *>info)
     check_status(__status__)
     return info_py
+
+
+cpdef object device_get_gpu_instances(intptr_t device, unsigned int profile_id):
+    """Get GPU instances for given profile ID.
+
+    Unlike most array-returning MIG APIs, ``nvmlDeviceGetGpuInstances`` does
+    not accept a NULL buffer to discover the count; the caller must size the
+    buffer from the profile's ``instance_count`` up front.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        profile_id (unsigned int): The GPU instance profile ID. See
+            ``nvmlDeviceGetGpuInstanceProfileInfo``.
+
+    Returns:
+        list[intptr_t]: Returns pre-existing GPU instances for the given
+            profile.
+
+    .. seealso:: `nvmlDeviceGetGpuInstances`
+    """
+    cdef object profile_info = device_get_gpu_instance_profile_info_v(device, profile_id)
+    cdef unsigned int capacity = profile_info.instance_count
+    cdef unsigned int[1] count = [capacity]
+    cdef _cyb_view.array _gpu_instances_alloc_ = _cyb_view.array(shape=(max(capacity, 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef intptr_t *gpu_instances_ptr = <intptr_t *>(_gpu_instances_alloc_.data)
+    if capacity != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetGpuInstances(<Device>device, profile_id, <nvmlGpuInstance_t*>gpu_instances_ptr, <unsigned int*>count)
+        check_status(__status__)
+    return _gpu_instances_alloc_[:count[0]]
+
+
+cpdef object gpu_instance_get_compute_instances(intptr_t gpu_instance, unsigned int profile_id):
+    """Get compute instances for given profile ID.
+
+    Unlike most array-returning MIG APIs, ``nvmlGpuInstanceGetComputeInstances``
+    does not accept a NULL buffer to discover the count; the caller must size
+    the buffer from the profile's ``instance_count`` up front.
+
+    Args:
+        gpu_instance (intptr_t): The identifier of the target GPU instance.
+        profile_id (unsigned int): The compute instance profile ID. See
+            ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
+
+    Returns:
+        list[intptr_t]: Returns pre-existing compute instances for the given
+            profile.
+
+    .. seealso:: `nvmlGpuInstanceGetComputeInstances`
+    """
+    # NVML_COMPUTE_INSTANCE_ENGINE_PROFILE_SHARED: the only engine profile
+    # currently defined, and the one nvmlGpuInstanceGetComputeInstances
+    # itself has no way to select between.
+    cdef object profile_info = gpu_instance_get_compute_instance_profile_info_v(gpu_instance, profile_id, 0)
+    cdef unsigned int capacity = profile_info.instance_count
+    cdef unsigned int[1] count = [capacity]
+    cdef _cyb_view.array _compute_instances_alloc_ = _cyb_view.array(shape=(max(capacity, 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef intptr_t *compute_instances_ptr = <intptr_t *>(_compute_instances_alloc_.data)
+    if capacity != 0:
+        with nogil:
+            __status__ = nvmlGpuInstanceGetComputeInstances(<GpuInstance>gpu_instance, profile_id, <nvmlComputeInstance_t*>compute_instances_ptr, <unsigned int*>count)
+        check_status(__status__)
+    return _compute_instances_alloc_[:count[0]]
 
 
 cpdef intptr_t device_get_handle_by_uuidv(int type, bytes uuid) except? 0:

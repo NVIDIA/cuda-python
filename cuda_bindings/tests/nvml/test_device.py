@@ -200,18 +200,17 @@ def test_device_get_samples_zero_result_returns_tuple(all_devices, subtests):
     for device in all_devices:
         with subtests.test(device_index=nvml.device_get_index(device)):
             with unsupported_before(device, None):
-                # Query once to learn the timestamp of the most recent sample, then
-                # re-query for samples strictly newer than that: on most drivers this
-                # is a legitimate zero-sample SUCCESS; some drivers instead report
-                # NotFoundError when there is nothing newer, which is also an
-                # acceptable (non-crashing) outcome.
-                _, latest_samples = nvml.device_get_samples(device, nvml.SamplingType.GPU_UTILIZATION_SAMPLES, 0)
-                last_seen_time_stamp = max((s.time_stamp for s in latest_samples), default=_FUTURE_TIMESTAMP)
+                # _FUTURE_TIMESTAMP is newer than any sample can ever be, so the
+                # zero-sample result is deterministic and cannot race with a
+                # newly arriving sample (unlike querying "now" and re-querying).
                 try:
                     result = nvml.device_get_samples(
-                        device, nvml.SamplingType.GPU_UTILIZATION_SAMPLES, last_seen_time_stamp
+                        device, nvml.SamplingType.GPU_UTILIZATION_SAMPLES, _FUTURE_TIMESTAMP
                     )
                 except nvml.NotFoundError:
+                    # Some drivers report NotFoundError instead of a zero-sample
+                    # SUCCESS when there is nothing newer than the timestamp;
+                    # that is also an acceptable (non-crashing) outcome.
                     continue
 
             assert isinstance(result, tuple)
@@ -219,6 +218,22 @@ def test_device_get_samples_zero_result_returns_tuple(all_devices, subtests):
             sample_val_type, samples = result
             assert isinstance(sample_val_type, int)
             assert len(samples) == 0
+
+
+def _check_vgpu_type_id_list(type_ids):
+    # The bug this guards against was a NameError raised only once the
+    # driver reported at least one result (it referenced an undefined
+    # "deviceCount" while sizing the non-empty buffer), so a zero-length
+    # result alone would not have caught it. Assert on the actual contents
+    # rather than just __len__ so both the empty and non-empty paths are
+    # meaningfully exercised, not just the trivially available zero path.
+    assert hasattr(type_ids, "__len__")
+    ids = list(type_ids)
+    if ids:
+        assert all(isinstance(type_id, int) and type_id > 0 for type_id in ids)
+        assert len(set(ids)) == len(ids)
+    else:
+        assert ids == []
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5")
@@ -230,7 +245,7 @@ def test_device_get_supported_vgpus_no_namerror(all_devices, subtests):
         with subtests.test(device_index=nvml.device_get_index(device)):
             with unsupported_before(device, None):
                 vgpu_type_ids = nvml.device_get_supported_vgpus(device)
-            assert hasattr(vgpu_type_ids, "__len__")
+            _check_vgpu_type_id_list(vgpu_type_ids)
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5")
@@ -242,7 +257,7 @@ def test_device_get_creatable_vgpus_no_namerror(all_devices, subtests):
         with subtests.test(device_index=nvml.device_get_index(device)):
             with unsupported_before(device, None):
                 vgpu_type_ids = nvml.device_get_creatable_vgpus(device)
-            assert hasattr(vgpu_type_ids, "__len__")
+            _check_vgpu_type_id_list(vgpu_type_ids)
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5")
@@ -254,7 +269,7 @@ def test_device_get_active_vgpus_no_namerror(all_devices, subtests):
         with subtests.test(device_index=nvml.device_get_index(device)):
             with unsupported_before(device, None):
                 active_vgpus = nvml.device_get_active_vgpus(device)
-            assert hasattr(active_vgpus, "__len__")
+            _check_vgpu_type_id_list(active_vgpus)
 
 
 def _iter_gpu_instance_profile_ids(device):
@@ -271,7 +286,8 @@ def _iter_gpu_instance_profile_ids(device):
 @pytest.mark.agent_authored(model="claude-sonnet-5")
 def test_device_get_gpu_instances_empty_result(all_devices, subtests):
     """device_get_gpu_instances must not raise ValueError: Invalid shape in
-    axis 0: 0 when a profile has zero existing GPU instances.
+    axis 0: 0 when a profile has zero existing GPU instances, and must return
+    a correctly-sized array (not a placeholder) when instances do exist.
     """
     for device in all_devices:
         with subtests.test(device_index=nvml.device_get_index(device)):
@@ -284,13 +300,27 @@ def test_device_get_gpu_instances_empty_result(all_devices, subtests):
 
             for profile_id in profile_ids:
                 gpu_instances = nvml.device_get_gpu_instances(device, profile_id)
-                assert hasattr(gpu_instances, "__len__")
+                handles = list(gpu_instances)
+                if not handles:
+                    # This test does not create any GPU instances, so the
+                    # common case is zero pre-existing instances for a given
+                    # profile: this is the exact case that used to raise
+                    # ValueError("Invalid shape in axis 0: 0").
+                    assert handles == []
+                else:
+                    # If the environment already has MIG instances configured,
+                    # verify the array is sized to the real count and every
+                    # handle is distinct, not left as uninitialized garbage.
+                    assert all(isinstance(h, int) and h != 0 for h in handles)
+                    assert len(set(handles)) == len(handles)
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5")
 def test_gpu_instance_get_compute_instances_empty_result(all_devices, subtests):
     """gpu_instance_get_compute_instances must not raise ValueError: Invalid
-    shape in axis 0: 0 when a profile has zero existing compute instances.
+    shape in axis 0: 0 when a profile has zero existing compute instances, and
+    must return a correctly-sized array (not a placeholder) when instances do
+    exist.
     """
     for device in all_devices:
         with subtests.test(device_index=nvml.device_get_index(device)):
@@ -317,7 +347,18 @@ def test_gpu_instance_get_compute_instances_empty_result(all_devices, subtests):
                 except (nvml.NotSupportedError, nvml.InvalidArgumentError):
                     continue
                 compute_instances = nvml.gpu_instance_get_compute_instances(gpu_instance, compute_info.id)
-                assert hasattr(compute_instances, "__len__")
+                handles = list(compute_instances)
+                if not handles:
+                    # The common case: this compute profile has no existing
+                    # compute instances, which used to raise
+                    # ValueError("Invalid shape in axis 0: 0").
+                    assert handles == []
+                else:
+                    # If compute instances already exist on this GPU instance,
+                    # verify the array is sized to the real count and every
+                    # handle is distinct, not left as uninitialized garbage.
+                    assert all(isinstance(h, int) and h != 0 for h in handles)
+                    assert len(set(handles)) == len(handles)
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5")
@@ -337,6 +378,17 @@ def test_device_get_vgpu_utilization_sized_array(all_devices, subtests):
             # A future timestamp means no samples should be newer than it.
             assert len(samples) == 0
 
+            # Positive path: a timestamp of 0 returns every current sample.
+            # The bug this test guards against left every element past index
+            # 0 as uninitialized memory, so with real vGPU activity present,
+            # each sample must report a distinct, valid vgpu_instance rather
+            # than duplicate or garbage values.
+            sample_val_type, samples = nvml.device_get_vgpu_utilization(device, 0)
+            assert isinstance(sample_val_type, int)
+            if len(samples) > 1:
+                vgpu_instances = [int(s.vgpu_instance) for s in samples]
+                assert len(set(vgpu_instances)) == len(vgpu_instances)
+
 
 @pytest.mark.agent_authored(model="claude-sonnet-5")
 def test_device_get_vgpu_process_utilization_returns_array(all_devices, subtests):
@@ -354,3 +406,14 @@ def test_device_get_vgpu_process_utilization_returns_array(all_devices, subtests
             assert not isinstance(samples, tuple)
             # A future timestamp means no samples should be newer than it.
             assert len(samples) == 0
+
+            # Positive path: a timestamp of 0 returns every current sample.
+            # The bug this test guards against returned a stale one-element
+            # array regardless of the real count, so with real vGPU process
+            # activity present, the array must be sized to match and every
+            # element must report a distinct pid.
+            samples = nvml.device_get_vgpu_process_utilization(device, 0)
+            assert not isinstance(samples, tuple)
+            if len(samples) > 1:
+                keys = [(int(s.vgpu_instance), int(s.pid)) for s in samples]
+                assert len(set(keys)) == len(keys)
