@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3b8511134061327f1f74f13445b55957cf53ad3f91826b02067b7964e2c038c0
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=76a86808faa9549ea3b05b336d54be2e8bafdd423083f0b5d6ea5989bb155bcf
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -167,9 +167,6 @@ cdef class _py_anon_pod1:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef cuda_bindings_cufile__anon_pod1 *new_ptr
-        cdef cuda_bindings_cufile__anon_pod1 *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -177,18 +174,8 @@ cdef class _py_anon_pod1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof((<CUfileDescr_t*>NULL).handle), view.len)
                     )
-                new_ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_malloc(sizeof((<CUfileDescr_t*>NULL).handle))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating _py_anon_pod1")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof((<CUfileDescr_t*>NULL).handle))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof((<CUfileDescr_t*>NULL).handle))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -328,9 +315,6 @@ cdef class _py_anon_pod3:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef cuda_bindings_cufile__anon_pod3 *new_ptr
-        cdef cuda_bindings_cufile__anon_pod3 *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -338,18 +322,8 @@ cdef class _py_anon_pod3:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof((<CUfileIOParams_t*>NULL).u.batch), view.len)
                     )
-                new_ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating _py_anon_pod3")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof((<CUfileIOParams_t*>NULL).u.batch))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof((<CUfileIOParams_t*>NULL).u.batch))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -679,9 +653,6 @@ cdef class OpCounter:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef CUfileOpCounter_t *new_ptr
-        cdef CUfileOpCounter_t *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -689,18 +660,8 @@ cdef class OpCounter:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(CUfileOpCounter_t), view.len)
                     )
-                new_ptr = <CUfileOpCounter_t *>_cyb_malloc(sizeof(CUfileOpCounter_t))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating OpCounter")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(CUfileOpCounter_t))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(CUfileOpCounter_t))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -1655,9 +1616,6 @@ cdef class _py_anon_pod2:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef cuda_bindings_cufile__anon_pod2 *new_ptr
-        cdef cuda_bindings_cufile__anon_pod2 *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -1665,18 +1623,8 @@ cdef class _py_anon_pod2:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof((<CUfileIOParams_t*>NULL).u), view.len)
                     )
-                new_ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating _py_anon_pod2")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof((<CUfileIOParams_t*>NULL).u))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof((<CUfileIOParams_t*>NULL).u))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -1861,9 +1809,6 @@ cdef class StatsLevel1:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef CUfileStatsLevel1_t *new_ptr
-        cdef CUfileStatsLevel1_t *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -1871,18 +1816,8 @@ cdef class StatsLevel1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(CUfileStatsLevel1_t), view.len)
                     )
-                new_ptr = <CUfileStatsLevel1_t *>_cyb_malloc(sizeof(CUfileStatsLevel1_t))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating StatsLevel1")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(CUfileStatsLevel1_t))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(CUfileStatsLevel1_t))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -2911,9 +2846,6 @@ cdef class StatsLevel2:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef CUfileStatsLevel2_t *new_ptr
-        cdef CUfileStatsLevel2_t *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -2921,18 +2853,8 @@ cdef class StatsLevel2:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(CUfileStatsLevel2_t), view.len)
                     )
-                new_ptr = <CUfileStatsLevel2_t *>_cyb_malloc(sizeof(CUfileStatsLevel2_t))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating StatsLevel2")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(CUfileStatsLevel2_t))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(CUfileStatsLevel2_t))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
