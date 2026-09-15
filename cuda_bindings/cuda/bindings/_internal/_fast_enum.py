@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ba0cdc082182caf2642d5e1f6a84d9b3d5bd9f14eaf7b5f7287316c1732b63fe
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7d52d8ab0d58615d8f83e19217680f72afe533876caa8f87adbab04ff2cc434d
 """
 This is a replacement for the stdlib enum.IntEnum.
 
@@ -55,10 +55,10 @@ class FastEnumMetaclass(type):
         return f"<enum '{cls.__name__}'>"
 
     def __len__(cls) -> int:
-        return len(cls.__members__)
+        return len(cls.__singletons__)
 
     def __iter__(cls) -> Iterator["FastEnum"]:
-        return iter(cls.__members__.values())
+        return iter(cls.__singletons__.values())
 
     def __contains__(cls, item: Any) -> bool:
         return item in cls.__singletons__
