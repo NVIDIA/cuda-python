@@ -75,15 +75,19 @@ def _wait_until(predicate, timeout=None, interval=0.02):
     raise AssertionError(f"condition not satisfied within {timeout}s")
 
 
-from cuda.core import Device, DeviceMemoryResource, EventOptions, Kernel, LaunchConfig
+from cuda.core import Device, DeviceMemoryResource, EventOptions, Kernel, LaunchConfig, LegacyPinnedMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core._utils.version import driver_version
 from cuda.core.graph import (
     ChildGraphNode,
     ConditionalNode,
+    EventRecordNode,
+    EventWaitNode,
+    FreeNode,
     GraphDefinition,
     HostCallbackNode,
     KernelNode,
+    MemcpyNode,
 )
 
 
@@ -684,6 +688,7 @@ def test_event_survives_graph_clone_and_execution(init_cuda):
 # =============================================================================
 
 
+@pytest.mark.thread_unsafe(reason="asserts cleanup on main thread")
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_user_object_cleanup_is_coalesced_on_python_thread(init_cuda):
     """More than 32 CUDA callbacks drain through one main-thread pending call."""
@@ -1195,6 +1200,90 @@ def test_kernel_node_reconstruction_preserves_validity(init_cuda):
     stream.sync()
 
 
+def _pred_chain_memcpy(g, bufs):
+    memory_resource = LegacyPinnedMemoryResource()
+    src = memory_resource.allocate(8)
+    dst = memory_resource.allocate(8)
+    bufs.extend((src, dst))
+    node = g.memcpy(dst, src, 8)
+    src_ptr, dst_ptr, size = node.src, node.dst, node.size
+    succ = node.record(Device().create_event())
+
+    def check(reconstructed):
+        assert isinstance(reconstructed, MemcpyNode)
+        assert reconstructed.src == src_ptr
+        assert reconstructed.dst == dst_ptr
+        assert reconstructed.size == size
+
+    return node, succ, check
+
+
+def _pred_chain_event_record(g, bufs):
+    event = Device().create_event()
+    node = g.record(event)
+    succ = node.wait(Device().create_event())
+
+    def check(reconstructed):
+        assert isinstance(reconstructed, EventRecordNode)
+        assert reconstructed.event.handle == event.handle
+
+    return node, succ, check
+
+
+def _pred_chain_event_wait(g, bufs):
+    wait_event = Device().create_event()
+    node = g.wait(wait_event)
+    succ = node.record(Device().create_event())
+
+    def check(reconstructed):
+        assert isinstance(reconstructed, EventWaitNode)
+        assert reconstructed.event.handle == wait_event.handle
+
+    return node, succ, check
+
+
+def _pred_chain_free(g, bufs):
+    _skip_if_no_mempool()
+    with xfail_on_graph_mempool_oom():
+        alloc = g.allocate(64)
+        node = alloc.deallocate(alloc.dptr)
+    free_dptr = node.dptr
+    succ = node.record(Device().create_event())
+
+    def check(reconstructed):
+        assert isinstance(reconstructed, FreeNode)
+        assert reconstructed.dptr == free_dptr
+
+    return node, succ, check
+
+
+@pytest.mark.parametrize(
+    "factory",
+    [
+        _pred_chain_memcpy,
+        _pred_chain_event_record,
+        _pred_chain_event_wait,
+        _pred_chain_free,
+    ],
+    ids=["memcpy", "event_record", "event_wait", "free"],
+)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_graph_nodes_reconstructed_via_pred_chain(init_cuda, factory):
+    """Dropping the original Python node forces `_create_from_driver` on pred walk."""
+    g = GraphDefinition()
+    bufs = []
+    try:
+        node, succ, check = factory(g, bufs)
+        node_ref = weakref.ref(node)
+        del node
+        _wait_until(lambda: node_ref() is None)
+        reconstructed = next(iter(succ.pred))
+        check(reconstructed)
+    finally:
+        for buf in bufs:
+            buf.close()
+
+
 # =============================================================================
 # Kernel argument lifetime — kernel nodes should keep argument objects alive
 # =============================================================================
@@ -1395,6 +1484,7 @@ def test_memcpy_buffer_survives_close(init_cuda):
     assert list(out) == [0xCD] * 4
 
 
+@pytest.mark.thread_unsafe(reason="deferred cleanup on main thread which would wait")
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memcpy_buffer_allocations_released_after_graph_destroyed(init_cuda):
     """Destroying the graph frees both memcpy operand allocations.
@@ -1617,7 +1707,7 @@ def test_memcpy_mixed_buffer_and_raw_owner(init_cuda):
 
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memset_closed_buffer_rejected(init_cuda):
-    """Memset rejects a Buffer with no active allocation."""
+    """Memset rejects a closed Buffer."""
     _skip_if_no_mempool()
     dev = Device()
     mr = DeviceMemoryResource(dev)
@@ -1626,7 +1716,7 @@ def test_memset_closed_buffer_rejected(init_cuda):
     buf.close()
 
     g = GraphDefinition()
-    with pytest.raises(ValueError, match="dst Buffer has no active allocation"):
+    with pytest.raises(RuntimeError, match="Buffer has been closed"):
         g.memset(buf, 0xAB, 4)
 
 
@@ -1642,7 +1732,7 @@ def test_memset_closed_buffer_dst_owner_rejected(init_cuda):
     buf.close()
 
     g = GraphDefinition()
-    with pytest.raises(ValueError, match="dst_owner Buffer has no active allocation"):
+    with pytest.raises(RuntimeError, match="Buffer has been closed"):
         g.memset(dptr, 0xAB, 4, dst_owner=buf)
 
 
@@ -1658,7 +1748,7 @@ def test_memcpy_closed_buffer_src_owner_rejected(init_cuda):
     buf.close()
 
     g = GraphDefinition()
-    with pytest.raises(ValueError, match="src_owner Buffer has no active allocation"):
+    with pytest.raises(RuntimeError, match="Buffer has been closed"):
         g.memcpy(dptr, dptr, 4, src_owner=buf)
 
 

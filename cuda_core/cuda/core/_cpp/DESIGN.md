@@ -226,6 +226,20 @@ Handle destructors may run from any thread. The implementation includes RAII gua
 The handle API functions are safe to call with or without the GIL held. They
 will release the GIL (if necessary) before calling CUDA driver API functions.
 
+**The GIL is the outermost lock.** Code that holds a C++ lock (a registry's
+mutex, `ipc_import_mutex`, any `std::mutex`) must not acquire or reacquire the
+GIL while the lock is held: no `report_*` or `pw_*` calls, no
+`GILAcquireGuard`, and no `GILReleaseGuard` whose destructor runs inside the
+locked region. Code that needs a C++ lock and may run with the GIL held
+releases the GIL first (`GILReleaseGuard` before `lock_guard`). Otherwise a
+thread blocked on the lock while holding the GIL deadlocks with the lock holder
+waiting for the GIL (#2840). Collect statuses under the lock and report after it
+is released, as `deviceptr_import_ipc` does: `cleanup_in_context` takes an
+`after_cleanup` hook that runs once the cleanup is done and before anything that
+may run user code, and the deleter passes one that unlocks its
+`std::unique_lock`. The registries store `weak_ptr`s,
+so erasing an entry under a registry lock never runs a deleter.
+
 ### Static Initialization and Deadlock Hazards
 
 When writing C++ code that interacts with Python, a subtle deadlock can occur
@@ -274,6 +288,95 @@ Related functions:
 - `get_last_error()`: Returns and clears the most recent error
 - `peek_last_error()`: Returns the error without clearing it
 - `clear_last_error()`: Clears the error state
+
+The C++ layer never raises Python exceptions: it runs `nogil` and `noexcept`,
+and is called from deleters, CUDA callbacks and GIL-released code where raising
+is impossible. Status is turned into `CUDAError` in one place, `HANDLE_RETURN`
+in the Cython layer. Which status convention a function uses is decided by its
+return value. Factories return the handle, so their status goes to thread-local
+`err` and is read with `get_last_error()`. Functions that do not produce a
+handle (`context_synchronize`, `context_get_device`, `graph_node_set_params`,
+the `graph_*_attachment` family, `deviceptr_alloc_raw`) return the `CUresult`
+directly and deliver results through out-parameters, mirroring the driver API;
+their callers `HANDLE_RETURN` the value. The two conventions never mix.
+
+### Context-scoped operations
+
+Operations that must run in a specific context use `invoke_in_context` /
+`invoke_in_context_or_undo` (propagating paths) and `cleanup_in_context`
+(deleters). They switch the current context, run the operation, and restore the
+caller's context. `cleanup_in_context` emits its reports only after that
+restoration, so the user code a `CUDAWarning` runs (filters, `showwarning`)
+observes the caller's context. When restoration fails after the operation
+succeeded, the creation is undone and the restoration status is returned. When both fail, the
+operation status is returned. Either way the helper records a thread-local
+detail keyed to the returned status (`take_last_error_detail(status)`) that
+`_check_driver_error` attaches to the raised `CUDAError` as a PEP 678 note
+(appended to the message on Python 3.10), so the user learns that the caller's
+context was not restored, which context is current and, for a double failure,
+why restoration failed. Keying the detail to its status narrows, but does not
+remove, misattribution: a caller that drops the status (an empty handle raised
+as a generic error) leaves the detail behind, and a later error on the same
+thread with the same status code picks it up. `enter_context` clears stale
+detail at the next context-scoped operation. Issue #2760 removes this
+thread-local state in favor of explicit status returns. Tests inject restoration failures with
+`set_context_restore_fault_for_testing()`.
+
+### Reporting from non-propagating paths
+
+Deleters and CUDA callbacks cannot raise. They report through
+`report_cuda_error()` / `report_message()` (the `pw_*` wrappers decorate
+destroy calls with it and name the resource handle in the message, so Python's
+warning registry does not collapse independent failures of one call), which emit a `cuda.core.CUDAWarning` through
+the Python warnings machinery when the interpreter is usable, deliver an
+escalated warning as an unraisable exception, and fall back to stderr when the
+GIL cannot be taken (for example during finalization). `CUDA_ERROR_DEINITIALIZED`
+is never reported because it means the driver is shutting down. No status is
+discarded silently anywhere in this layer, and nothing in this layer may
+terminate the process; see `docs/source/error_handling.rst` and the "Failure handling"
+section of `AGENTS.md` for the policy.
+
+A rollback that fails inside a Cython `except` block is not a non-propagating
+path: `attach_rollback_failure()` attaches it as a note to the exception being
+handled (`PyErr_GetHandledException`, Python 3.11+) and falls back to a report
+only when there is no such exception or notes are unavailable.
+
+### Which channel to use
+
+Pick the channel by where the failure happens. Every failure goes through
+exactly one of these; none is ever dropped.
+
+| Where you are | Use | Result |
+|---|---|---|
+| Cython, on a path that can raise | `HANDLE_RETURN(status)` | Raises `CUDAError`. A restoration detail recorded by the C++ helper becomes a note on the exception. |
+| Cython, after a handle constructor returned an empty handle | `HANDLE_RETURN(get_last_error())`, immediately | Same. Transitional: #2760 makes constructors return the status instead. |
+| C++, a helper that runs an operation in another context | Return the `CUresult`; `exit_context` records the restoration detail | Cython raises it. Transitional: #2760 returns the restoration status as a second out-parameter. |
+| Cython, inside an `except` block whose rollback failed | `attach_rollback_failure(op, status, detail)` | Adds a note to the exception being handled. Reports instead if nothing is being handled or notes do not exist (Python 3.10). |
+| C++, a deleter or deferred cleanup | A `pw_*` wrapper, or `report_cuda_error()` / `report_message()` | Emits `CUDAWarning`. Never raises. |
+| Cython or Python, a `__dealloc__` or destructor-path callback | `warnings.warn(msg, CUDAWarning, stacklevel=2)` | Same. |
+| A CUDA callback thread | Nothing that needs the GIL. Hand the work to the deferred-cleanup queue with `Py_AddPendingCall` | CUDA forbids driver calls there, and acquiring the GIL there can deadlock with a GIL holder blocked in a driver call. GIL-free C API that only schedules work is fine. |
+
+### `p_` versus `pw_`
+
+A `p_` function pointer calls the driver and nothing else. Its `pw_` twin calls
+the driver and, if the call fails, acquires the GIL and runs Python: the warning
+filters, `showwarning`, or `sys.unraisablehook`. Any of those can be user code,
+and user code can call back into cuda.core. This is the one place where the
+handle layer runs code it does not control, and it is the entry point through
+which a thread holding a C++ lock can deadlock (see "GIL Management").
+
+Python exceptions raised by that code never become C++ exceptions: the C API
+reports them as return codes, and `report_message` hands them to
+`sys.unraisablehook`. Nothing on the report path may allocate or throw, since a
+deleter is `noexcept`.
+
+So: use `pw_` only in deleters and cleanup paths that hold no C++ lock and have
+finished updating the layer's own state. Where a lock must stay held, call
+`p_`, keep the status, and report after the lock is released, as
+`deviceptr_import_ipc` does. CUDA callback threads need no extra rule for
+`pw_`: the driver call is forbidden there, so the wrapper is too. The general
+rule for those threads is no GIL and no Python objects; GIL-free scheduling
+calls such as `Py_AddPendingCall` are how work leaves them.
 
 ## Usage from Cython
 

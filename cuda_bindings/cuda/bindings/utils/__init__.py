@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from typing import Any, Callable
 
+from ._envvar import envvar_bool
 from ._nvvm_utils import check_nvvm_compiler_options
 from ._ptx_utils import get_minimal_required_cuda_ver_from_ptx_ver, get_ptx_ver
 from ._version_check import warn_if_cuda_major_version_mismatch

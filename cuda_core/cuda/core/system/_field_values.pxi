@@ -75,7 +75,7 @@ cdef class FieldValue:
         elif value_type == ValueType.UNSIGNED_LONG_LONG:
             return int(value.ull_val[0])
         elif value_type == ValueType.SIGNED_LONG_LONG:
-            return int(value.ll_val[0])
+            return int(value.sll_val[0])
         elif value_type == ValueType.SIGNED_INT:
             return int(value.si_val[0])
         elif value_type == ValueType.UNSIGNED_SHORT:

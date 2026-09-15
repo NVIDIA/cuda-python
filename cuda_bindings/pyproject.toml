@@ -55,6 +55,9 @@ test = [
     "pytest-randomly==4.1.0",
     "pyglet==2.1.14",
 ]
+test-ft = [
+    "pytest-run-parallel==0.10.0",
+]
 
 [project.urls]
 Repository = "https://github.com/NVIDIA/cuda-python"
@@ -82,7 +85,6 @@ build-verbosity = 1
 archs = "native"
 
 [tool.cibuildwheel.windows]
-archs = "AMD64"
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
 

@@ -13,28 +13,45 @@ from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_already_loaded_library_checks_known_dlls_newest_first(mocker):
+def test_already_loaded_library_checks_known_dlls_in_preference_order(mocker):
     desc = LIB_DESCRIPTORS["cublasLt"]
-    oldest_dll = desc.windows_dlls[0]
-    newest_dll = desc.windows_dlls[-1]
+    preferred_dll = desc.windows_dlls[0]
+    fallback_dll = desc.windows_dlls[-1]
     queried_dlls: list[str] = []
     handle = 0xBEEF
 
     def get_module_handle(dll_name):
         queried_dlls.append(dll_name)
-        return handle if dll_name == oldest_dll else 0
+        return handle if dll_name == fallback_dll else 0
 
     mocker.patch.object(load_dl_windows.kernel32, "GetModuleHandleW", side_effect=get_module_handle)
     mocker.patch.object(
         load_dl_windows,
         "abs_path_for_dynamic_library",
-        return_value=rf"C:\CUDA\bin\{oldest_dll}",
+        return_value=rf"C:\CUDA\bin\{fallback_dll}",
     )
 
     loaded = load_dl_windows.check_if_already_loaded_from_elsewhere(desc)
 
     assert loaded is not None
-    assert queried_dlls == [newest_dll, oldest_dll]
+    assert queried_dlls == list(desc.windows_dlls)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_system_search_checks_known_dlls_in_preference_order(mocker):
+    desc = LIB_DESCRIPTORS["cublasLt"]
+    queried_dlls: list[str] = []
+
+    def load_library(dll_name, _file, _flags):
+        queried_dlls.append(dll_name)
+        return 0
+
+    mocker.patch.object(load_dl_windows.kernel32, "LoadLibraryExW", side_effect=load_library)
+
+    loaded = load_dl_windows.load_with_system_search(desc)
+
+    assert loaded is None
+    assert queried_dlls == list(desc.windows_dlls)
 
 
 @pytest.mark.parametrize(
@@ -46,7 +63,7 @@ def test_already_loaded_library_registers_resolved_directory_by_descriptor_polic
     mocker, tmp_path, libname, register_directory
 ):
     desc = LIB_DESCRIPTORS[libname]
-    resolved_path = str(tmp_path / desc.windows_dlls[-1])
+    resolved_path = str(tmp_path / desc.windows_dlls[0])
     handle = 0xBEEF
     mocker.patch.object(load_dl_windows.kernel32, "GetModuleHandleW", return_value=handle)
     mocker.patch.object(load_dl_windows, "abs_path_for_dynamic_library", return_value=resolved_path)

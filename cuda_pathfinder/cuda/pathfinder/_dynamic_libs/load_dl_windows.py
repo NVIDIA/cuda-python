@@ -9,7 +9,6 @@ import os
 import struct
 import sys
 import warnings
-from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
@@ -121,13 +120,8 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) 
     return buffer.value
 
 
-def _candidate_dll_names(desc: LibDescriptor) -> Iterator[str]:
-    """Yield tabulated DLL names from newest to oldest."""
-    return reversed(desc.windows_dlls)
-
-
 def check_if_already_loaded_from_elsewhere(desc: LibDescriptor) -> LoadedDL | None:
-    for dll_name in _candidate_dll_names(desc):
+    for dll_name in desc.windows_dlls:
         handle = kernel32.GetModuleHandleW(dll_name)
         if handle:
             abs_path = abs_path_for_dynamic_library(desc.name, handle)
@@ -154,7 +148,7 @@ def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded
     """
-    for dll_name in _candidate_dll_names(desc):
+    for dll_name in desc.windows_dlls:
         handle = kernel32.LoadLibraryExW(dll_name, None, 0)
         if handle:
             abs_path = abs_path_for_dynamic_library(desc.name, handle)

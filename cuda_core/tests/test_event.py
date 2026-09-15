@@ -119,6 +119,7 @@ def test_error_timing_recorded():
 
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
+@pytest.mark.thread_unsafe(reason="requires a barrier wait to avoid overlapping pinned latch allocations")
 def test_error_timing_incomplete():
     device = Device()
     device.set_current()
@@ -223,6 +224,7 @@ def test_event_ipc_descriptor_non_ipc(init_cuda):
 
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
+@pytest.mark.thread_unsafe(reason="requires a barrier wait to avoid overlapping pinned latch allocations")
 def test_event_is_done_false(init_cuda):
     """Event.is_done returns False when captured work has not yet completed."""
     device = Device()
@@ -354,3 +356,30 @@ def test_event_set_membership(init_cuda):
     # Same event should not add duplicate
     event_set.add(e1)
     assert len(event_set) == 2
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_event_rejected_before_operations(init_cuda):
+    device = Device()
+    stream = device.create_stream()
+    event = device.create_event()
+    other = device.create_event()
+    event.close()
+
+    assert event.is_closed
+    for operation in (
+        event.sync,
+        lambda: event.is_done,
+        lambda: event.is_ipc_enabled,
+        lambda: event.is_timing_enabled,
+        lambda: event.is_blocking_sync,
+        lambda: event.ipc_descriptor,
+        lambda: event.device,
+        lambda: event.context,
+        lambda: stream.record(event),
+        lambda: stream.wait(event),
+        lambda: event - other,
+        lambda: other - event,
+    ):
+        with pytest.raises(RuntimeError, match="Event has been closed"):
+            operation()

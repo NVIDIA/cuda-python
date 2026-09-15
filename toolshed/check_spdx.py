@@ -36,6 +36,19 @@ TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS = {
 }
 
 SPDX_IGNORE_FILENAME = ".spdx-ignore"
+REPOSITORY_LICENSE_CONTENTS = Path("LICENSE").read_bytes()
+
+
+def license_files_match_repository(filepaths):
+    licenses_match = True
+    for filepath in filepaths:
+        license_path = Path(filepath)
+        if license_path.name != "LICENSE":
+            continue
+        if license_path.read_bytes() != REPOSITORY_LICENSE_CONTENTS:
+            print(f"PACKAGE LICENSE {filepath!r} does not match repository LICENSE")
+            licenses_match = False
+    return licenses_match
 
 
 def load_spdx_ignore():
@@ -203,9 +216,12 @@ def main(args):
     else:
         fix = False
 
+    returncode = 0
+    if not license_files_match_repository(args):
+        returncode = 1
+
     ignore_spec = load_spdx_ignore()
 
-    returncode = 0
     for filepath in args:
         if ignore_spec.match_file(filepath):
             continue

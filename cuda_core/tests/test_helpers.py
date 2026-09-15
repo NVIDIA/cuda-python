@@ -2,11 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import sys
 import time
 import types
+from unittest.mock import Mock
 
 import pytest
-from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer
+from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer, thread_unsafe_on_windows
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 from helpers.oom_diagnostics import (
@@ -29,6 +31,7 @@ NBYTES = 64
 
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
+@pytest.mark.thread_unsafe(reason="requires a barrier wait to avoid overlapping pinned latch allocations")
 def test_latchkernel():
     """Test LatchKernel."""
     log = TimestampedLogger(enabled=ENABLE_LOGGING)
@@ -63,16 +66,18 @@ def test_latchkernel():
     under_compute_sanitizer(),
     reason="Too slow under compute-sanitizer (UVM-heavy test).",
 )
+@thread_unsafe_on_windows
 def test_patterngen_seeds():
     """Test PatternGen with seed argument."""
     device = Device()
     device.set_current()
     buffer = make_scratch_buffer(device, 0, NBYTES)
+    stream = device.default_stream
 
     # All seeds are pairwise different.
     # We test a sampling of values because exhaustive testing is too slow,
     # especially on Windows. See https://github.com/NVIDIA/cuda-python/issues/1455
-    pgen = PatternGen(device, NBYTES)
+    pgen = PatternGen(device, NBYTES, stream=stream)
     for i in (ii for ii in range(256) if ii < 5 or ii % 17 == 0):
         pgen.fill_buffer(buffer, seed=i)
         pgen.verify_buffer(buffer, seed=i)
@@ -81,6 +86,7 @@ def test_patterngen_seeds():
                 pgen.verify_buffer(buffer, seed=j)
 
 
+@thread_unsafe_on_windows
 def test_patterngen_values():
     """Test PatternGen with value argument, also compare_equal_buffers."""
     device = Device()
@@ -89,7 +95,7 @@ def test_patterngen_values():
     twos = make_scratch_buffer(device, 2, NBYTES)
     assert compare_equal_buffers(ones, ones)
     assert not compare_equal_buffers(ones, twos)
-    pgen = PatternGen(device, NBYTES)
+    pgen = PatternGen(device, NBYTES, stream=device.default_stream)
     pgen.verify_buffer(ones, value=1)
     pgen.verify_buffer(twos, value=2)
 
@@ -347,3 +353,87 @@ def test_oom_diagnostics_probe_basics_is_live_and_cheap(init_cuda):
     assert snapshot.pool_va_ok is None
     assert snapshot.get_mem_pool_ok is None
     assert snapshot.capped_pool_create_ok is None
+
+
+# ---------------------------------------------------------------------------
+# GL helper tests
+# ---------------------------------------------------------------------------
+
+import pytest
+from cuda_python_test_helpers.graphics import is_gl_context_unavailable, open_gl_window
+
+
+@pytest.mark.thread_unsafe(reason="patches the process-wide pyglet module")
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_open_gl_window_cleans_up_failed_construction(monkeypatch):
+    windows = set()
+    partial_window = Mock()
+    previous_context = Mock()
+
+    def fail_window(**_kwargs):
+        windows.add(partial_window)
+        raise RuntimeError
+
+    pyglet = types.ModuleType("pyglet")
+    pyglet.options = {}
+    pyglet.app = types.SimpleNamespace(windows=windows)
+    pyglet.gl = types.SimpleNamespace(Config=Mock(), current_context=previous_context)
+    pyglet.window = types.SimpleNamespace(Window=fail_window)
+    monkeypatch.setitem(sys.modules, "pyglet", pyglet)
+
+    with pytest.raises(RuntimeError):
+        open_gl_window()
+
+    assert partial_window.close.called
+    assert previous_context.set_current.called
+
+
+class _PygletError(Exception):
+    pass
+
+
+# Simulate a pyglet-namespaced exception by name.
+def _make_pyglet_exc(name, module="pyglet.window"):
+    cls = type(name, (_PygletError,), {})
+    cls.__module__ = module
+    return cls
+
+
+@pytest.mark.human_reviewed
+@pytest.mark.parametrize(
+    "exc",
+    [
+        _make_pyglet_exc("NoSuchDisplayException")("x"),
+        _make_pyglet_exc("NoSuchConfigException")("x"),
+        _make_pyglet_exc("NoSuchScreenModeException")("x"),
+        _make_pyglet_exc("WindowException")("x"),
+        _make_pyglet_exc("ContextException")("x"),
+        _make_pyglet_exc("MissingFunctionException", module="pyglet.gl.lib")("x"),
+        FileNotFoundError("Could not find module 'opengl32' (or one of its dependencies)."),
+        AttributeError("opengl32"),
+        ImportError('Library "GL" not found.'),
+        ImportError('Library "EGL" not found.'),
+    ],
+)
+def test_is_gl_context_unavailable_accepts_genuine(exc):
+    assert is_gl_context_unavailable(exc) is True
+
+
+@pytest.mark.human_reviewed
+@pytest.mark.parametrize(
+    "exc",
+    [
+        # pyglet exception names that are not context-creation failures
+        _make_pyglet_exc("GLException")("GL_INVALID_ENUM"),
+        _make_pyglet_exc("ImageException")("x"),
+        # Built-in exceptions that do not mention opengl32 / GL library
+        TypeError("bug"),
+        AttributeError("'NoneType' object has no attribute 'Config'"),
+        FileNotFoundError("No such file: /tmp/missing"),
+        ImportError("No module named 'foo'"),
+        OSError("disk full"),
+        RuntimeError("bug"),
+    ],
+)
+def test_is_gl_context_unavailable_rejects_unrelated(exc):
+    assert is_gl_context_unavailable(exc) is False

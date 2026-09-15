@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1788ebb3c332e99a6dc0dcd98c5af472bf42c1c960ba70cb65f294a81712491d
+# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ce1a8b4cfbbc98d5a6e7975adbfa4e5be9f62da604eb3841691dc555b4b72e76
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -63,3 +63,5 @@ cdef CUfileError_t _cuFileGetStatsL3(CUfileStatsLevel3_t* stats) except?<CUfileE
 cdef CUfileError_t _cuFileGetBARSizeInKB(int gpuIndex, size_t* barSize) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef CUfileError_t _cuFileSetParameterPosixPoolSlabArray(const size_t* size_values, const size_t* count_values, int len) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef CUfileError_t _cuFileGetParameterPosixPoolSlabArray(size_t* size_values, size_t* count_values, int len) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef ssize_t _cuFileReadv(CUfileHandle_t fh, const CUfileIOVec_t* iov, size_t iovcnt, off_t file_offset, unsigned flags) except* nogil
+cdef ssize_t _cuFileWritev(CUfileHandle_t fh, const CUfileIOVec_t* iov, size_t iovcnt, off_t file_offset, unsigned flags) except* nogil

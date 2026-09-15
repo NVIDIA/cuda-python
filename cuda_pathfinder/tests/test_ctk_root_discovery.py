@@ -73,7 +73,7 @@ def _create_nvvm_in_ctk(ctk_root):
     else:
         nvvm_dir = ctk_root / "nvvm" / "lib64"
         nvvm_dir.mkdir(parents=True)
-        nvvm_lib = nvvm_dir / "libnvvm.so"
+        nvvm_lib = nvvm_dir / "libnvvm.so.4"
         nvvm_lib.write_bytes(b"fake")
     return nvvm_lib
 
@@ -91,7 +91,7 @@ def _create_cudart_in_ctk(ctk_root):
     else:
         lib_dir = ctk_root / "lib64"
         lib_dir.mkdir(parents=True)
-        lib_file = lib_dir / "libcudart.so"
+        lib_file = lib_dir / "libcudart.so.13"
     lib_file.write_bytes(b"fake")
     return lib_file
 

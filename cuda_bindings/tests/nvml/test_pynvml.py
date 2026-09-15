@@ -52,13 +52,24 @@ def test_device_get_attributes(mig_handles):
         pytest.skip("No MIG devices found")
 
 
-def test_device_get_handle_by_uuid(ngpus, uuids):
-    handles = [nvml.device_get_handle_by_uuid(uuids[i]) for i in range(ngpus)]
-    assert len(handles) == ngpus
+def test_device_get_handle_by_uuid(ngpus, handles, uuids, subtests):
+    for i in range(ngpus):
+        with subtests.test(device_index=i):
+            uuid = uuids[i]
+            if "Orin" in nvml.device_get_name(handles[i]) and len(uuid) == 36:
+                pytest.skip("UUID lookup is unsupported on Orin, which reports a UUID without a GPU- prefix")
+            assert nvml.device_get_handle_by_uuid(uuid) == handles[i]
 
 
-def test_device_get_handle_by_pci_bus_id(ngpus, pci_info):
-    handles = [nvml.device_get_handle_by_pci_bus_id_v2(pci_info[i].bus_id) for i in range(ngpus)]
+def test_device_get_handle_by_pci_bus_id(ngpus):
+    pci_infos = []
+    for i in range(ngpus):
+        handle = nvml.device_get_handle_by_index_v2(i)
+        with unsupported_before(handle, None):
+            pci_info = nvml.device_get_pci_info_v3(handle)
+            pci_infos.append(pci_info)
+    assert len(pci_infos) == ngpus
+    handles = [nvml.device_get_handle_by_pci_bus_id_v2(pci_infos[i].bus_id) for i in range(ngpus)]
     assert len(handles) == ngpus
 
 
@@ -68,7 +79,7 @@ def test_device_get_memory_affinity(handles, scope, subtests):
     size = 1024
     for device_index, handle in enumerate(handles):
         with subtests.test(device_index=device_index):
-            with unsupported_before(handle, nvml.DeviceArch.KEPLER):
+            with unsupported_before(handle, None):
                 node_set = nvml.device_get_memory_affinity(handle, size, scope)
             assert node_set is not None
             assert len(node_set) == size
@@ -80,7 +91,7 @@ def test_device_get_cpu_affinity_within_scope(handles, scope, subtests):
     size = 1024
     for device_index, handle in enumerate(handles):
         with subtests.test(device_index=device_index):
-            with unsupported_before(handle, nvml.DeviceArch.KEPLER):
+            with unsupported_before(handle, None):
                 cpu_set = nvml.device_get_cpu_affinity_within_scope(handle, size, scope)
             assert cpu_set is not None
             assert len(cpu_set) == size
@@ -102,7 +113,12 @@ def test_device_get_p2p_status(handles, index):
     for h1 in handles:
         for h2 in handles:
             if h1 is not h2:
-                status = nvml.device_get_p2p_status(h1, h2, index)
+                try:
+                    status = nvml.device_get_p2p_status(h1, h2, index)
+                except nvml.InvalidArgumentError:
+                    # Some devices may not support all indices, and may
+                    # raise InvalidArgumentError for unsupported ones.
+                    continue
                 assert nvml.GpuP2PStatus.P2P_STATUS_OK <= status <= nvml.GpuP2PStatus.P2P_STATUS_UNKNOWN
 
 

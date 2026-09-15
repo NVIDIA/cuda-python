@@ -64,6 +64,8 @@ platforms as appropriate for each release.
 Review `cuda_core/pyproject.toml` and verify that all dependency
 requirements are current.
 
+Update the cuda_core dependency in `cuda_python/setup.py`.
+
 ---
 
 ## Sweep deprecations whose removal version has arrived

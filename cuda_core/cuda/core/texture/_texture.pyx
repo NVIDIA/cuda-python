@@ -8,29 +8,30 @@ from libc.stdint cimport intptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core.texture._array cimport OpaqueArray
+from cuda.core._context cimport Context
+from cuda.core.texture._array cimport OpaqueArray, OpaqueArray_check_open
 from cuda.core.texture._array import (
     _ARRAYFORMAT_TO_CU,
     _CU_TO_ARRAYFORMAT,
     _FORMAT_ELEM_SIZE,
     _validate_format_channels,
 )
-from cuda.core._memory._buffer cimport Buffer
-from cuda.core.texture._mipmapped_array cimport MipmappedArray
+from cuda.core._memory._buffer cimport Buffer, Buffer_check_open
+from cuda.core.texture._mipmapped_array cimport MipmappedArray, MipmappedArray_check_open
 from cuda.core.texture._mipmapped_array import MipmappedArray as _PyMipmappedArray
 from cuda.core._resource_handles cimport (
+    ContextHandle,
     TexObjectHandle,
     as_cu,
     as_intptr,
     create_tex_object_handle_array,
     create_tex_object_handle_linear,
     create_tex_object_handle_mipmap,
+    get_array_context,
     get_last_error,
+    get_mipmapped_array_context,
 )
-from cuda.core._utils.cuda_utils cimport (
-    HANDLE_RETURN,
-    _get_current_device_id,
-)
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 from cuda.core.typing import AddressModeType, FilterModeType, ReadModeType
 
@@ -112,6 +113,7 @@ class ResourceDescriptor:
         """Build a resource descriptor backed by a :class:`OpaqueArray`."""
         if not isinstance(array, OpaqueArray):
             raise TypeError(f"array must be a OpaqueArray, got {type(array).__name__}")
+        OpaqueArray_check_open(<OpaqueArray>array)
         self = cls.__new__(cls)
         self._kind = "array"
         self._source = array
@@ -137,6 +139,7 @@ class ResourceDescriptor:
                 f"mipmapped_array must be a MipmappedArray, got "
                 f"{type(mipmapped_array).__name__}"
             )
+        MipmappedArray_check_open(<MipmappedArray>mipmapped_array)
         self = cls.__new__(cls)
         self._kind = "mipmapped_array"
         self._source = mipmapped_array
@@ -174,6 +177,7 @@ class ResourceDescriptor:
         """
         if not isinstance(buffer, Buffer):
             raise TypeError(f"buffer must be a Buffer, got {type(buffer).__name__}")
+        Buffer_check_open(<Buffer>buffer)
         fmt = _validate_format_channels(format, num_channels)
         cu_format = _ARRAYFORMAT_TO_CU[fmt]
 
@@ -235,6 +239,7 @@ class ResourceDescriptor:
         """
         if not isinstance(buffer, Buffer):
             raise TypeError(f"buffer must be a Buffer, got {type(buffer).__name__}")
+        Buffer_check_open(<Buffer>buffer)
         fmt = _validate_format_channels(format, num_channels)
         cu_format = _ARRAYFORMAT_TO_CU[fmt]
 
@@ -431,6 +436,11 @@ cdef class TextureObject:
         return as_intptr(self._handle)
 
     @property
+    def is_closed(self) -> bool:
+        """Whether this texture object has been closed."""
+        return self._handle.get() == NULL
+
+    @property
     def resource(self):
         """The :class:`ResourceDescriptor` this texture was built from."""
         return self._source_ref
@@ -465,8 +475,9 @@ cdef class TextureObject:
         return f"TextureObject(handle=0x{as_intptr(self._handle):x})"
 
 
-def _create_texture_object(resource, options):
-    """Create a :class:`TextureObject` on the current device.
+def _create_texture_object(
+        resource, options, Context ctx, int device_id):
+    """Create a :class:`TextureObject` on the specified device.
 
     Backs :meth:`cuda.core.Device.create_texture_object`. ``resource`` is a
     :class:`ResourceDescriptor`; ``options`` is a :class:`TextureObjectOptions`
@@ -491,16 +502,26 @@ def _create_texture_object(resource, options):
     cdef MipmappedArray mip
     cdef Buffer buf
     cdef intptr_t devptr
+    cdef ContextHandle resource_context
+    cdef int resource_device_id
     if resource.kind == "array":
         arr = <OpaqueArray>resource.source
+        OpaqueArray_check_open(arr)
+        resource_context = get_array_context(arr._handle)
+        resource_device_id = arr._device_id
         res_desc.resType = cydriver.CU_RESOURCE_TYPE_ARRAY
         res_desc.res.array.hArray = as_cu(arr._handle)
     elif resource.kind == "mipmapped_array":
         mip = <MipmappedArray>resource.source
+        MipmappedArray_check_open(mip)
+        resource_context = get_mipmapped_array_context(mip._handle)
+        resource_device_id = mip._device_id
         res_desc.resType = cydriver.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY
         res_desc.res.mipmap.hMipmappedArray = as_cu(mip._handle)
     elif resource.kind == "linear":
         buf = <Buffer>resource.source
+        Buffer_check_open(buf)
+        resource_device_id = buf.device_id  # -1 for memory not bound to a device
         devptr = int(buf.handle)
         res_desc.resType = cydriver.CU_RESOURCE_TYPE_LINEAR
         res_desc.res.linear.devPtr = <cydriver.CUdeviceptr>devptr
@@ -509,6 +530,8 @@ def _create_texture_object(resource, options):
         res_desc.res.linear.sizeInBytes = <size_t>resource._size_bytes
     elif resource.kind == "pitch2d":
         buf = <Buffer>resource.source
+        Buffer_check_open(buf)
+        resource_device_id = buf.device_id  # -1 for memory not bound to a device
         devptr = int(buf.handle)
         res_desc.resType = cydriver.CU_RESOURCE_TYPE_PITCH2D
         res_desc.res.pitch2D.devPtr = <cydriver.CUdeviceptr>devptr
@@ -521,6 +544,13 @@ def _create_texture_object(resource, options):
         raise NotImplementedError(
             f"ResourceDescriptor kind {resource.kind!r} is not yet supported"
         )
+    if resource_device_id >= 0 and resource_device_id != device_id:
+        raise ValueError(
+            f"resource belongs to device {resource_device_id}, "
+            f"but texture creation was requested on device {device_id}"
+        )
+    if resource_context and as_cu(resource_context) != as_cu(ctx._h_context):
+        raise ValueError("resource is not compatible with this Device object")
 
     # --- Texture descriptor ---
     # filter_mode/read_mode/mipmap_filter_mode are normalized to their
@@ -572,11 +602,14 @@ def _create_texture_object(resource, options):
 
     cdef TexObjectHandle h
     if resource.kind == "array":
-        h = create_tex_object_handle_array(res_desc, tex_desc, arr._handle)
+        h = create_tex_object_handle_array(
+            ctx._h_context, res_desc, tex_desc, arr._handle)
     elif resource.kind == "mipmapped_array":
-        h = create_tex_object_handle_mipmap(res_desc, tex_desc, mip._handle)
+        h = create_tex_object_handle_mipmap(
+            ctx._h_context, res_desc, tex_desc, mip._handle)
     else:  # linear or pitch2d — both backed by a device Buffer
-        h = create_tex_object_handle_linear(res_desc, tex_desc, buf._h_ptr)
+        h = create_tex_object_handle_linear(
+            ctx._h_context, res_desc, tex_desc, buf._h_ptr)
     if not h:
         HANDLE_RETURN(get_last_error())
 
@@ -584,5 +617,5 @@ def _create_texture_object(resource, options):
     self._handle = h
     self._source_ref = resource
     self._options = opts
-    self._device_id = _get_current_device_id()
+    self._device_id = device_id
     return self

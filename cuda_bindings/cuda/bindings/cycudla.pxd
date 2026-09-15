@@ -1,9 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
+# This code was automatically generated across versions from 1.5.0 to 13.4.1. Do not modify it directly.
 # This layer exposes the C header to Cython as-is.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=be6683c55e3dcbd7c8c958a5d174e208adc510f1c3623b3ea97576e7e42c9c57
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f769acaca3dada01ba364b7053e43bcc2439f912fee376ebf3f2139fd8786203
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -87,6 +87,11 @@ ctypedef enum cudlaAccessPermissionFlags "cudlaAccessPermissionFlags":
 ctypedef enum cudlaDevAttributeType "cudlaDevAttributeType":
     CUDLA_UNIFIED_ADDRESSING "CUDLA_UNIFIED_ADDRESSING" = 0
     CUDLA_DEVICE_VERSION "CUDLA_DEVICE_VERSION" = 1
+
+ctypedef enum cudlaScratchMemoryConfig "cudlaScratchMemoryConfig":
+    CUDLA_SCRATCH_MEMORY_DEFAULT "CUDLA_SCRATCH_MEMORY_DEFAULT" = (0U << 1)
+    CUDLA_SCRATCH_MEMORY_SHARED_STATIC "CUDLA_SCRATCH_MEMORY_SHARED_STATIC" = (1U << 1)
+    CUDLA_SCRATCH_MEMORY_CONFIG_MAX "CUDLA_SCRATCH_MEMORY_CONFIG_MAX" = 0x7FFFFFFF
 
 # types
 ctypedef void* cudlaDevHandle 'cudlaDevHandle'

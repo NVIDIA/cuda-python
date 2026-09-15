@@ -23,5 +23,9 @@ cdef class Stream:
 
 cpdef Stream default_stream()
 cpdef Stream Stream_accept(arg, bint allow_stream_protocol=*)
+cdef inline int Stream_check_open(Stream self) except -1:
+    if not self._h_stream:
+        raise RuntimeError("Stream has been closed")
+    return 0
 cdef bint Stream_is_default_token(Stream self) noexcept nogil
 cdef bint Stream_is_legacy_default_token(Stream self) noexcept nogil

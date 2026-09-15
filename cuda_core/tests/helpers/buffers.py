@@ -3,22 +3,36 @@
 
 import ctypes
 
+import pytest
+
 from cuda.core import Buffer, Device, MemoryResource
 from cuda.core._stream import Stream_accept
 from cuda.core._utils.cuda_utils import driver, handle_return
 
-from . import libc
+from . import IS_WINDOWS, IS_WSL, libc
 
 __all__ = [
     "DummyDeviceMemoryResource",
+    "DummyHostMemoryResource",
     "DummyUnifiedMemoryResource",
+    "NumpyHostMemoryResource",
     "PatternGen",
     "StubMemoryResource",
     "compare_buffer_to_constant",
     "compare_equal_buffers",
     "make_instrumented_memory_resource",
     "make_scratch_buffer",
+    "thread_unsafe_on_windows",
 ]
+
+
+def thread_unsafe_on_windows(func):
+    # Tests that use these buffers and access the memory on the host are
+    # thread-unsafe on windows. On windows the GPU must be fully quiescent for host
+    # access to be safe and with threaded tests that would require a barrier.
+    if IS_WINDOWS or IS_WSL:
+        return pytest.mark.thread_unsafe(reason="windows host-access unsafe while GPU is working")(func)
+    return func
 
 
 class StubMemoryResource(MemoryResource):
@@ -141,13 +155,81 @@ class DummyUnifiedMemoryResource(MemoryResource):
         return self.device
 
 
+class DummyHostMemoryResource(MemoryResource):
+    # Pure-host ctypes allocation; stream is accepted for interface
+    # conformance but ignored.
+    def __init__(self):
+        pass
+
+    def allocate(self, size, *, stream=None) -> Buffer:
+        # Allocate a ctypes buffer of size `size`
+        ptr = (ctypes.c_byte * size)()
+        self._ptr = ptr
+        return Buffer.from_handle(ptr=ctypes.addressof(ptr), size=size, mr=self)
+
+    def deallocate(self, ptr, size, *, stream=None):
+        del self._ptr
+
+    @property
+    def is_device_accessible(self) -> bool:
+        return False
+
+    @property
+    def is_host_accessible(self) -> bool:
+        return True
+
+    @property
+    def device_id(self) -> int:
+        raise RuntimeError("the pinned memory resource is not bound to any GPU")
+
+
+class NumpyHostMemoryResource(MemoryResource):
+    """Host-only resource backed by ``numpy.empty``, adapted from issue #2769.
+
+    It never touches the CUDA driver, so it must work in a process that has not
+    initialized CUDA. ``deallocate`` takes ``stream`` positionally, as the
+    reporter's resource does.
+    """
+
+    def __init__(self):
+        # Strong refs keyed by pointer; Buffer carries only the int address.
+        self._held = {}
+
+    def allocate(self, size, *, stream=None) -> Buffer:
+        import numpy as np
+
+        arr = np.empty(size, dtype=np.uint8)
+        ptr = int(arr.ctypes.data)
+        self._held[ptr] = arr
+        return Buffer.from_handle(ptr=ptr, size=size, mr=self)
+
+    def deallocate(self, ptr, size, stream=None):
+        self._held.pop(int(ptr), None)
+
+    @property
+    def is_device_accessible(self) -> bool:
+        return False
+
+    @property
+    def is_host_accessible(self) -> bool:
+        return True
+
+    @property
+    def is_managed(self) -> bool:
+        return False
+
+    @property
+    def device_id(self) -> int:
+        return -1
+
+
 class PatternGen:
     """
     Provides methods to fill a target buffer with  known test patterns and
     verify the expected values.
 
-    If a stream is provided, operations are synchronized with respect to that
-    stream.  Otherwise, they are synchronized over the device.
+    Operations are submitted to the supplied stream. Verification synchronizes
+    that stream before comparing results on the host.
 
     The test pattern is either a fixed value or a cyclic pattern generated from
     an 8-bit seed.  Only one of `value` or `seed` should be supplied.
@@ -158,11 +240,10 @@ class PatternGen:
     buffer and then perform a comparison.
     """
 
-    def __init__(self, device, size, stream=None):
+    def __init__(self, device, size, *, stream):
         self.device = device
         self.size = size
-        self.stream = stream if stream is not None else device.create_stream()
-        self.sync_target = stream if stream is not None else device
+        self.stream = Stream_accept(stream)
         self.pattern_buffers = {}
 
     def fill_buffer(self, buffer, seed=None, value=None):
@@ -179,7 +260,7 @@ class PatternGen:
         pattern_buffer = self._get_pattern_buffer(seed, value)
         ptr_expected = self._ptr(pattern_buffer)
         scratch_buffer.copy_from(buffer, stream=self.stream)
-        self.sync_target.sync()
+        self.stream.sync()
         assert libc.memcmp(ptr_test, ptr_expected, self.size) == 0
 
     @staticmethod

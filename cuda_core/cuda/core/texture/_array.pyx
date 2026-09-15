@@ -9,7 +9,8 @@ from libc.stdint cimport intptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core._memory._buffer cimport Buffer
+from cuda.core._context cimport Context
+from cuda.core._memory._buffer cimport Buffer, Buffer_check_open
 from cuda.core._resource_handles cimport (
     OpaqueArrayHandle,
     as_cu,
@@ -248,6 +249,7 @@ cdef int _fill_linear_endpoint(
     cdef intptr_t ptr
     cdef size_t required = width_bytes * height * depth
     if isinstance(obj, Buffer):
+        Buffer_check_open(<Buffer>obj)
         if <size_t>(<Buffer>obj).size < required:
             raise ValueError(
                 f"Buffer size ({(<Buffer>obj).size} bytes) is smaller than "
@@ -370,6 +372,11 @@ cdef class OpaqueArray:
         return as_intptr(self._handle)
 
     @property
+    def is_closed(self) -> bool:
+        """Whether this array has been closed."""
+        return self._handle.get() == NULL
+
+    @property
     def shape(self):
         """Allocation shape, in elements."""
         return self._shape
@@ -424,6 +431,7 @@ cdef class OpaqueArray:
             Stream to issue the copy on. A :class:`~cuda.core.graph.GraphBuilder`
             is accepted so the copy can be captured into a graph.
         """
+        OpaqueArray_check_open(self)
         _copy3d(self, src, Stream_accept(stream), to_array=True)
 
     def copy_to(self, dst, *, stream):
@@ -442,6 +450,7 @@ cdef class OpaqueArray:
         -------
         The ``dst`` object, for parity with :meth:`Buffer.copy_to`.
         """
+        OpaqueArray_check_open(self)
         _copy3d(self, dst, Stream_accept(stream), to_array=False)
         return dst
 
@@ -476,7 +485,6 @@ cdef class OpaqueArray:
             f"num_channels={self._num_channels})"
         )
 
-
 cdef OpaqueArray _array_from_handle(OpaqueArrayHandle h, int device_id):
     """Wrap an existing OpaqueArrayHandle as a OpaqueArray, querying the driver for the
     array's shape/format/channels/surface-flag metadata.
@@ -508,8 +516,8 @@ cdef OpaqueArray _array_from_handle(OpaqueArrayHandle h, int device_id):
     return self
 
 
-def _create_opaque_array(options):
-    """Allocate a new :class:`OpaqueArray` on the current device.
+def _create_opaque_array(options, Context ctx, int device_id):
+    """Allocate a new :class:`OpaqueArray` on the specified device.
 
     Backs :meth:`cuda.core.Device.create_opaque_array`. ``options`` is an
     :class:`OpaqueArrayOptions` (or a mapping accepted by it); it is validated
@@ -538,7 +546,7 @@ def _create_opaque_array(options):
         Flags=flags,
     )
 
-    cdef OpaqueArrayHandle h = create_array_handle(desc3d)
+    cdef OpaqueArrayHandle h = create_array_handle(ctx._h_context, desc3d)
     if not h:
         HANDLE_RETURN(get_last_error())
 
@@ -548,5 +556,5 @@ def _create_opaque_array(options):
     self._format = c_format
     self._num_channels = opts.num_channels
     self._surface_load_store = bool(opts.is_surface_load_store)
-    self._device_id = _get_current_device_id()
+    self._device_id = device_id
     return self

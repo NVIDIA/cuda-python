@@ -28,6 +28,14 @@ def test_stream_init_with_options(init_cuda):
     assert stream.priority == 0
 
 
+@pytest.mark.agent_authored(model="glm-5.2")
+def test_stream_init_with_dict_options(init_cuda):
+    """Device.create_stream accepts a plain dict for options (backward compat)."""
+    stream = Device().create_stream(options={"nonblocking": True, "priority": 0})
+    assert stream.is_nonblocking is True
+    assert stream.priority == 0
+
+
 def test_stream_handle(init_cuda):
     stream = Device().create_stream(options=StreamOptions())
     assert isinstance(stream.handle, driver.CUstream)
@@ -64,6 +72,31 @@ def test_stream_wait_event(init_cuda):
     e1 = s1.record()
     s2.wait(e1)  # Should not raise any exceptions
     s2.sync()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_stream_wait_stream_on_other_device(device_x2):
+    """Stream.wait(other_stream) must work when the streams live on different
+    devices and neither device is necessarily current: the temporary ordering
+    event has to be created in the *recorded* stream's context, since
+    cuEventRecord rejects an event from another context (#2311)."""
+    from helpers.contexts import current_context_handle
+
+    dev0, dev1 = device_x2
+    dev0.set_current()
+    s0 = dev0.create_stream()
+    dev1.set_current()
+    s1 = dev1.create_stream()
+    ambient = current_context_handle()
+    try:
+        s1.wait(s0)  # dev1 current: s0's device is not current
+        s0.wait(s1)  # dev1 current: self's device is not current
+        s0.sync()
+        s1.sync()
+        assert current_context_handle() == ambient
+    finally:
+        s0.close()
+        s1.close()
 
 
 def test_stream_wait_invalid_event(init_cuda):
@@ -111,13 +144,78 @@ def test_per_thread_default_stream():
     assert isinstance(PER_THREAD_DEFAULT_STREAM, Stream)
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.parametrize(
+    ("handle", "singleton"),
+    [
+        (driver.CU_STREAM_LEGACY, LEGACY_DEFAULT_STREAM),
+        (driver.CU_STREAM_PER_THREAD, PER_THREAD_DEFAULT_STREAM),
+    ],
+)
+def test_borrowed_default_stream_token_can_close(handle, singleton, init_cuda):
+    Device().set_current()
+    stream = Stream.from_handle(int(handle))
+
+    assert stream is not singleton
+    assert not stream.is_closed
+
+    stream.close()
+
+    assert stream.is_closed
+    assert not singleton.is_closed
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_raw_null_stream_is_live_until_closed(init_cuda):
+    """A live wrapper around NULL CUstream is distinct from a closed wrapper."""
+    Device().set_current()
+    stream = Stream.from_handle(0)
+
+    assert not stream.is_closed
+    assert Stream_accept(stream) is stream
+    assert stream.__cuda_stream__() == (0, 0)
+
+    stream.close()
+    assert stream.is_closed
+    assert int(stream.handle) == 0
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_stream_rejected_before_operations(init_cuda):
+    stream = Device().create_stream()
+    wrapped = StreamWrapper(stream)
+    stream.close()
+
+    assert stream.is_closed
+    for operation in (
+        lambda: Stream_accept(stream),
+        lambda: Stream_accept(wrapped, allow_stream_protocol=True),
+        stream.__cuda_stream__,
+        stream.sync,
+        stream.record,
+        stream.create_graph_builder,
+    ):
+        with pytest.raises(RuntimeError, match="Stream has been closed"):
+            operation()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_stream_accept_rejects_closed_graph_builder(init_cuda):
+    builder = Device().create_graph_builder()
+    builder.close()
+
+    assert builder.is_closed
+    with pytest.raises(RuntimeError, match="GraphBuilder has been closed"):
+        Stream_accept(builder)
+
+
 def test_stream_subclassing(init_cuda):
     class MyStream(Stream):
         pass
 
     dev = Device()
     dev.set_current()
-    stream = MyStream._init(options=StreamOptions(), device_id=dev.device_id)
+    stream = MyStream._init(options=StreamOptions(), device_id=dev.device_id, ctx=dev.context)
     assert isinstance(stream, MyStream)
 
 

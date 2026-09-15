@@ -157,6 +157,11 @@ cdef class Event:
         """
         self._h_event.reset()
 
+    @property
+    def is_closed(self) -> bool:
+        """Whether this event has been closed."""
+        return self._h_event.get() == NULL
+
     def __isub__(self, other: object):
         return NotImplemented
 
@@ -165,14 +170,16 @@ cdef class Event:
 
     def __sub__(self, other: Event) -> float:
         # return self - other (in milliseconds)
+        Event_check_open(self)
+        cdef Event other_event = Event_accept(other)
         cdef float timing
         with nogil:
-            err = cydriver.cuEventElapsedTime(&timing, as_cu((<Event>other)._h_event), as_cu(self._h_event))
+            err = cydriver.cuEventElapsedTime(&timing, as_cu(other_event._h_event), as_cu(self._h_event))
         if err == 0:
             return timing
         else:
             if err == cydriver.CUresult.CUDA_ERROR_INVALID_HANDLE:
-                if not self.is_timing_enabled or not other.is_timing_enabled:
+                if not self.is_timing_enabled or not other_event.is_timing_enabled:
                     explanation = (
                         "Both Events must be created with timing enabled in order to subtract them; "
                         "use EventOptions(timing_enabled=True) when creating both events."
@@ -208,6 +215,7 @@ cdef class Event:
     @property
     def ipc_descriptor(self) -> IPCEventDescriptor:
         """Descriptor for sharing this event with other processes."""
+        Event_check_open(self)
         if self._ipc_descriptor is not None:
             return self._ipc_descriptor
         if not self.is_ipc_enabled:
@@ -255,11 +263,13 @@ cdef class Event:
     @property
     def is_ipc_enabled(self) -> bool:
         """Return True if the event can be shared across process boundaries, otherwise False."""
+        Event_check_open(self)
         return get_event_ipc_enabled(self._h_event)
 
     @property
     def is_timing_enabled(self) -> bool:
         """Return True if the event records timing data, otherwise False."""
+        Event_check_open(self)
         return get_event_timing_enabled(self._h_event)
 
     @property
@@ -267,6 +277,7 @@ cdef class Event:
         """Return True if the event uses blocking synchronization (the CPU
         thread blocks on :meth:`sync` instead of busy-waiting), otherwise False.
         """
+        Event_check_open(self)
         return get_event_is_blocking_sync(self._h_event)
 
     def sync(self) -> None:
@@ -278,12 +289,14 @@ cdef class Event:
         thread busy-waits until the event has completed.
 
         """
+        Event_check_open(self)
         with nogil:
             HANDLE_RETURN(cydriver.cuEventSynchronize(as_cu(self._h_event)))
 
     @property
     def is_done(self) -> bool:
         """Return True if all captured works have been completed, otherwise False."""
+        Event_check_open(self)
         with nogil:
             result = cydriver.cuEventQuery(as_cu(self._h_event))
         if result == cydriver.CUresult.CUDA_SUCCESS:
@@ -314,6 +327,7 @@ cdef class Event:
         context is set current after a event is created.
 
         """
+        Event_check_open(self)
         cdef int dev_id = get_event_device_id(self._h_event)
         if dev_id >= 0:
             from ._device import Device  # avoid circular import
@@ -322,10 +336,18 @@ cdef class Event:
     @property
     def context(self) -> Context:
         """Return the :obj:`~_context.Context` associated with this event."""
+        Event_check_open(self)
         cdef ContextHandle h_ctx = get_event_context(self._h_event)
         cdef int dev_id = get_event_device_id(self._h_event)
         if h_ctx and dev_id >= 0:
             return Context._from_handle(Context, h_ctx, dev_id)
+
+cdef Event Event_accept(object arg):
+    if not isinstance(arg, Event):
+        raise TypeError(f"Event expected, got {type(arg).__name__}")
+    cdef Event event = <Event>arg
+    Event_check_open(event)
+    return event
 
 
 cdef class IPCEventDescriptor:

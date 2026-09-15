@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b6fe9a4efd0077f8c09ef4f826880ad0a54100455d4465953c4127d3de8c4d91
+# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=635b329217b9c57fce06de4ffd743372a120b5039eb247f49205bd4d2baf663c
 
 
 
@@ -147,6 +147,11 @@ ctypedef nvmlPRMCounterId_t _PRMCounterId
 ctypedef nvmlPowerProfileOperation_t _PowerProfileOperation
 ctypedef nvmlProcessMode_t _ProcessMode
 ctypedef nvmlCPERType_t _CPERType
+ctypedef nvmlGpuOperationalEventLogLevel_t _GpuOperationalEventLogLevel
+ctypedef nvmlOperationalEventSeverity_t _OperationalEventSeverity
+ctypedef nvmlEventDataType_t _EventDataType
+ctypedef nvmlGpuOperationalEventContextType_t _GpuOperationalEventContextType
+ctypedef nvmlNvlinkTelemetrySampleType_t _NvlinkTelemetrySampleType
 
 
 ###############################################################################
@@ -438,3 +443,14 @@ cpdef object system_get_cper_v1()
 cpdef object device_get_bbx_time_data_v1(intptr_t device)
 cpdef object device_get_accounting_stats_v2(intptr_t device)
 cpdef object device_get_remapped_rows_v2(intptr_t device)
+cpdef device_set_adaptive_tgp_mode_v1(intptr_t device, int mode)
+cpdef object device_get_adaptive_tgp_mode_info_v1(intptr_t device)
+cpdef device_set_memory_limits_v1(intptr_t device, intptr_t limits)
+cpdef object device_get_memory_limits_v1(intptr_t device)
+cpdef object device_get_gpu_fabric_info_v4(intptr_t device)
+cpdef object device_perf_metrics_get_samples_v1(intptr_t device)
+cpdef object device_set_nvlink_bw_mode_async_v1(intptr_t device)
+cpdef object device_get_nv_link_telemetry_samples_v1(intptr_t device)
+cpdef event_set_register_gpu_operational_events_v1(intptr_t event_set, intptr_t config)
+cpdef object event_set_get_context_count_v1(intptr_t set)
+cpdef object device_get_bank_remapper_status_v1(intptr_t device)
