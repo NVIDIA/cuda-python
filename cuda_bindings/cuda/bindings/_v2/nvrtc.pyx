@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d512546d71f7aec9d334b646f7b4e9f51660692e7eeb3a276a73749ed9b1a7f1
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=02b3cf8418e94d7f615f69c775826a4a91f3e6340849a84aaa4cb2f04a6f1c38
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -672,17 +672,17 @@ cpdef object get_supported_archs():
 
     .. seealso:: `nvrtcGetSupportedArchs`
     """
-    cdef int numArchs = 0
+    cdef int numArchs
     with nogil:
         __status__ = nvrtcGetNumSupportedArchs(&numArchs)
     check_status(__status__)
-    if numArchs == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(int), format="i", mode="c")[:0]
-    cdef _cyb_view.array supported_archs = _cyb_view.array(shape=(numArchs,), itemsize=sizeof(int), format="i", mode="c")
-    cdef int *supported_archs_ptr = <int *>(supported_archs.data)
-    with nogil:
-        __status__ = nvrtcGetSupportedArchs(supported_archs_ptr)
-    check_status(__status__)
+    cdef _cyb_view.array _supported_archs_alloc_ = _cyb_view.array(shape=(max(numArchs, 1),), itemsize=sizeof(int), format="i", mode="c")
+    cdef int *supported_archs_ptr = <int *>(_supported_archs_alloc_.data)
+    cdef object supported_archs = _supported_archs_alloc_[:numArchs]
+    if numArchs != 0:
+        with nogil:
+            __status__ = nvrtcGetSupportedArchs(supported_archs_ptr)
+        check_status(__status__)
     return supported_archs
 
 
@@ -730,17 +730,16 @@ cpdef bytes get_ptx(intptr_t prog):
 
     .. seealso:: `nvrtcGetPTX`
     """
-    cdef size_t ptxSizeRet = 0
+    cdef size_t ptxSizeRet
     with nogil:
         __status__ = nvrtcGetPTXSize(<Program>prog, &ptxSizeRet)
     check_status(__status__)
-    if ptxSizeRet == 0:
-        return b""
     cdef bytes _ptx_ = bytes(ptxSizeRet)
     cdef char* ptx = _ptx_
-    with nogil:
-        __status__ = nvrtcGetPTX(<Program>prog, ptx)
-    check_status(__status__)
+    if ptxSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetPTX(<Program>prog, ptx)
+        check_status(__status__)
     return _ptx_
 
 
@@ -773,17 +772,16 @@ cpdef bytes get_cubin(intptr_t prog):
 
     .. seealso:: `nvrtcGetCUBIN`
     """
-    cdef size_t cubinSizeRet = 0
+    cdef size_t cubinSizeRet
     with nogil:
         __status__ = nvrtcGetCUBINSize(<Program>prog, &cubinSizeRet)
     check_status(__status__)
-    if cubinSizeRet == 0:
-        return b""
     cdef bytes _cubin_ = bytes(cubinSizeRet)
     cdef char* cubin = _cubin_
-    with nogil:
-        __status__ = nvrtcGetCUBIN(<Program>prog, cubin)
-    check_status(__status__)
+    if cubinSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetCUBIN(<Program>prog, cubin)
+        check_status(__status__)
     return _cubin_
 
 
@@ -816,17 +814,16 @@ cpdef bytes get_ltoir(intptr_t prog):
 
     .. seealso:: `nvrtcGetLTOIR`
     """
-    cdef size_t LTOIRSizeRet = 0
+    cdef size_t LTOIRSizeRet
     with nogil:
         __status__ = nvrtcGetLTOIRSize(<Program>prog, &LTOIRSizeRet)
     check_status(__status__)
-    if LTOIRSizeRet == 0:
-        return b""
     cdef bytes _ltoir_ = bytes(LTOIRSizeRet)
     cdef char* ltoir = _ltoir_
-    with nogil:
-        __status__ = nvrtcGetLTOIR(<Program>prog, ltoir)
-    check_status(__status__)
+    if LTOIRSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetLTOIR(<Program>prog, ltoir)
+        check_status(__status__)
     return _ltoir_
 
 
@@ -859,17 +856,16 @@ cpdef bytes get_optix_ir(intptr_t prog):
 
     .. seealso:: `nvrtcGetOptiXIR`
     """
-    cdef size_t optixirSizeRet = 0
+    cdef size_t optixirSizeRet
     with nogil:
         __status__ = nvrtcGetOptiXIRSize(<Program>prog, &optixirSizeRet)
     check_status(__status__)
-    if optixirSizeRet == 0:
-        return b""
     cdef bytes _optixir_ = bytes(optixirSizeRet)
     cdef char* optixir = _optixir_
-    with nogil:
-        __status__ = nvrtcGetOptiXIR(<Program>prog, optixir)
-    check_status(__status__)
+    if optixirSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetOptiXIR(<Program>prog, optixir)
+        check_status(__status__)
     return _optixir_
 
 
@@ -905,17 +901,16 @@ cpdef bytes get_program_log(intptr_t prog):
 
     .. seealso:: `nvrtcGetProgramLog`
     """
-    cdef size_t logSizeRet = 0
+    cdef size_t logSizeRet
     with nogil:
         __status__ = nvrtcGetProgramLogSize(<Program>prog, &logSizeRet)
     check_status(__status__)
-    if logSizeRet == 0:
-        return b""
     cdef bytes _log_ = bytes(logSizeRet)
     cdef char* log = _log_
-    with nogil:
-        __status__ = nvrtcGetProgramLog(<Program>prog, log)
-    check_status(__status__)
+    if logSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetProgramLog(<Program>prog, log)
+        check_status(__status__)
     return _log_
 
 
@@ -1047,17 +1042,16 @@ cpdef bytes get_tile_ir(intptr_t prog):
 
     .. seealso:: `nvrtcGetTileIR`
     """
-    cdef size_t TileIRSizeRet = 0
+    cdef size_t TileIRSizeRet
     with nogil:
         __status__ = nvrtcGetTileIRSize(<Program>prog, &TileIRSizeRet)
     check_status(__status__)
-    if TileIRSizeRet == 0:
-        return b""
     cdef bytes _tile_ir_ = bytes(TileIRSizeRet)
     cdef char* tile_ir = _tile_ir_
-    with nogil:
-        __status__ = nvrtcGetTileIR(<Program>prog, tile_ir)
-    check_status(__status__)
+    if TileIRSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetTileIR(<Program>prog, tile_ir)
+        check_status(__status__)
     return _tile_ir_
 
 
