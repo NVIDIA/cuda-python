@@ -1,6 +1,0 @@
-﻿cuda.core.utils.discard\_batch
-==============================
-
-.. currentmodule:: cuda.core.utils
-
-.. autofunction:: discard_batch
