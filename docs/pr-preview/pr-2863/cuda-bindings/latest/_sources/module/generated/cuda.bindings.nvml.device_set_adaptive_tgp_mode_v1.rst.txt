@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_set\_adaptive\_tgp\_mode\_v1
+=======================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_set_adaptive_tgp_mode_v1
