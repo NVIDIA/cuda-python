@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=d4818e24"></script>
+    <script src="../_static/documentation_options.js?v=95e73da0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev130';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev141';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -778,6 +778,7 @@
 <dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">shmem_size:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">bool</span> <span class="pre">is_cooperative:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">bool</span> <span class="pre">programmatic_stream_serialization:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">str</span> <span class="pre">cluster_scheduling_policy_preference:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">priority:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
@@ -799,7 +800,7 @@ is not specified, this represents the number of blocks, otherwise
 this represents the number of clusters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a> | <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a> | <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -812,7 +813,7 @@ GPU Processing Cluster (GPC). Blocks within a cluster have access to
 distributed shared memory and can be explicitly synchronized.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a> | <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a> | <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -825,7 +826,7 @@ streaming multiprocessor (SM). Threads within a thread blocks have
 access to shared memory and can be explicitly synchronized.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a> | <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a> | <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -837,7 +838,7 @@ access to shared memory and can be explicitly synchronized.</p>
 (Default to size 0)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, optional</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a>, optional</p>
 </dd>
 </dl>
 </dd></dl>
@@ -848,7 +849,7 @@ access to shared memory and can be explicitly synchronized.</p>
 <dd><p>Whether this config can be used to launch a cooperative kernel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, optional</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)">bool</a>, optional</p>
 </dd>
 </dl>
 </dd></dl>
@@ -861,7 +862,23 @@ the kernel may overlap with a previous kernel in the same stream that
 signals completion via programmatic means.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, optional</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)">bool</a>, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.LaunchConfig.cluster_scheduling_policy_preference">
+<span class="sig-name descname"><span class="pre">cluster_scheduling_policy_preference</span></span><a class="headerlink" href="#cuda.core.LaunchConfig.cluster_scheduling_policy_preference" title="Link to this definition">#</a></dt>
+<dd><p>Cluster scheduling policy for the launch. One of <code class="docutils literal notranslate"><span class="pre">&quot;DEFAULT&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;SPREAD&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;LOAD_BALANCING&quot;</span></code>.
+When <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), the launch attribute is omitted and the
+driver applies the kernel function’s default policy.
+Passing <code class="docutils literal notranslate"><span class="pre">&quot;DEFAULT&quot;</span></code> explicitly sets the driver default via the
+launch attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a>, optional</p>
 </dd>
 </dl>
 </dd></dl>
@@ -875,11 +892,11 @@ given by <code class="docutils literal notranslate"><span class="pre">[greatestP
 <code class="docutils literal notranslate"><span class="pre">cuCtxGetStreamPriorityRange</span></code> (the same range used by
 <a class="reference internal" href="cuda.core.StreamOptions.html#cuda.core.StreamOptions.priority" title="cuda.core.StreamOptions.priority"><code class="xref py py-attr docutils literal notranslate"><span class="pre">priority</span></code></a>); both bounds are 0 on
 a device that does not support multiple stream priorities. A
-nonzero value outside this range raises <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a>.
+nonzero value outside this range raises <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a>.
 When omitted (or 0), the launch uses the stream’s priority.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, optional</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a>, optional</p>
 </dd>
 </dl>
 </dd></dl>
@@ -944,6 +961,7 @@ When omitted (or 0), the launch uses the stream’s priority.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.shmem_size"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.shmem_size</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.is_cooperative"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.is_cooperative</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.programmatic_stream_serialization"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.programmatic_stream_serialization</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.cluster_scheduling_policy_preference"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.cluster_scheduling_policy_preference</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.priority"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.priority</span></code></a></li>
 </ul>
 </li>

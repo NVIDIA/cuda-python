@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=fb082620"></script>
+    <script src="../_static/documentation_options.js?v=6daef84d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.2.dev269';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.2.dev280';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1374,11 +1374,11 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>An array of strings, each containing a
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>An array of strings, each containing a
 single option. It can be:</p>
 <ul>
-<li><p>an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> as the pointer address to the nested sequence, or</p></li>
-<li><p>a Python sequence of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s, each of which is a pointer address
+<li><p>an <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> as the pointer address to the nested sequence, or</p></li>
+<li><p>a Python sequence of <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s, each of which is a pointer address
 to a valid sequence of ‘char’, or</p></li>
 <li><p>a nested Python sequence of <code class="docutils literal notranslate"><span class="pre">str</span></code>.</p></li>
 </ul>
@@ -1433,13 +1433,13 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p></li>
-<li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The PTX code.</p></li>
+<li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The PTX code.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – The size of the PTX code.</p></li>
-<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The numerical architecture that this PTX is for
+<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The numerical architecture that this PTX is for
 (the XX of any sm_XX, lto_XX, or compute_XX).</p></li>
-<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the PTX, useful when extracting the
+<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the PTX, useful when extracting the
 fatbin with tools like cuobjdump.</p></li>
-<li><p><strong>options_cmd_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Options used during JIT compilation.</p></li>
+<li><p><strong>options_cmd_line</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Options used during JIT compilation.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1457,11 +1457,11 @@ fatbin with tools like cuobjdump.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p></li>
-<li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The cubin.</p></li>
+<li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The cubin.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – The size of the cubin.</p></li>
-<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The numerical architecture that this cubin is for
+<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The numerical architecture that this cubin is for
 (the XX of any sm_XX, lto_XX, or compute_XX).</p></li>
-<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the cubin, useful when extracting
+<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the cubin, useful when extracting
 the fatbin with tools like cuobjdump.</p></li>
 </ul>
 </dd>
@@ -1491,13 +1491,13 @@ the fatbin with tools like cuobjdump.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p></li>
-<li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The LTOIR code.</p></li>
+<li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The LTOIR code.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – The size of the LTOIR code.</p></li>
-<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The numerical architecture that this LTOIR is for
+<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The numerical architecture that this LTOIR is for
 (the XX of any sm_XX, lto_XX, or compute_XX).</p></li>
-<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the LTOIR, useful when extracting
+<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the LTOIR, useful when extracting
 the fatbin with tools like cuobjdump.</p></li>
-<li><p><strong>options_cmd_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Options used during JIT compilation.</p></li>
+<li><p><strong>options_cmd_line</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Options used during JIT compilation.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1515,7 +1515,7 @@ the fatbin with tools like cuobjdump.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p></li>
-<li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The host object image.</p></li>
+<li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The host object image.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – The size of the host object image code.</p></li>
 </ul>
 </dd>
@@ -1544,11 +1544,11 @@ the fatbin with tools like cuobjdump.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p></li>
-<li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The Tile IR.</p></li>
+<li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The Tile IR.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – The size of the Tile IR.</p></li>
-<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the Tile IR, useful when extracting
+<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the Tile IR, useful when extracting
 the fatbin with tools like cuobjdump.</p></li>
-<li><p><strong>options_cmd_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Options used during JIT compilation.</p></li>
+<li><p><strong>options_cmd_line</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Options used during JIT compilation.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1587,7 +1587,7 @@ the fatbin with tools like cuobjdump.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p></li>
-<li><p><strong>buffer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – memory to store fatbinary.</p></li>
+<li><p><strong>buffer</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – memory to store fatbinary.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1599,7 +1599,7 @@ the fatbin with tools like cuobjdump.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.get_error_string">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">get_error_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">result</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvfatbin.get_error_string" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">get_error_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">result</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvfatbin.get_error_string" title="Link to this definition">#</a></dt>
 <dd><p>nvFatbinGetErrorString returns an error description string for each error code.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1614,7 +1614,7 @@ the fatbin with tools like cuobjdump.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.version">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvfatbin.version" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvfatbin.version" title="Link to this definition">#</a></dt>
 <dd><p>nvFatbinVersion returns the current version of nvFatbin.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1639,7 +1639,7 @@ the fatbin with tools like cuobjdump.</p></li>
 <h2>Types<a class="headerlink" href="#types" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">Result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvfatbin.Result" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">Result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvfatbin.Result" title="Link to this definition">#</a></dt>
 <dd><p>The enumerated type <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinResult</span></code> defines API call result codes.
 nvFatbin APIs return <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinResult</span></code> codes to indicate the result.</p>
 <p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinResult</span></code>.</p>

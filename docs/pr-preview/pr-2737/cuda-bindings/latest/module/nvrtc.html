@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=fb082620"></script>
+    <script src="../_static/documentation_options.js?v=6daef84d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.2.dev269';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.2.dev280';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1364,7 +1364,7 @@
 <p>NVRTC defines the following enumeration type and function for API call error handling.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult" title="Link to this definition">#</a></dt>
 <dd><p>The enumerated type <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> defines API call result
 codes. NVRTC API functions return <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> to
 indicate the call result.</p>
@@ -1574,14 +1574,14 @@ indicate the call result.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>src</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – CUDA program source.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – CUDA program name.  <cite>name</cite> can be <cite>NULL</cite>; <cite>“default_program”</cite> is
+<li><p><strong>src</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – CUDA program source.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – CUDA program name.  <cite>name</cite> can be <cite>NULL</cite>; <cite>“default_program”</cite> is
 used when <cite>name</cite> is <cite>NULL</cite> or “”.</p></li>
-<li><p><strong>numHeaders</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of headers used.  <cite>numHeaders</cite> must be greater than or equal
+<li><p><strong>numHeaders</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of headers used.  <cite>numHeaders</cite> must be greater than or equal
 to 0.</p></li>
-<li><p><strong>headers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em>]</em>) – Sources of the headers.  <cite>headers</cite> can be <cite>NULL</cite> when <cite>numHeaders</cite>
+<li><p><strong>headers</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em>]</em>) – Sources of the headers.  <cite>headers</cite> can be <cite>NULL</cite> when <cite>numHeaders</cite>
 is 0.</p></li>
-<li><p><strong>includeNames</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em>]</em>) – Name of each header by which they can be included in the CUDA
+<li><p><strong>includeNames</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em>]</em>) – Name of each header by which they can be included in the CUDA
 program source.  <cite>includeNames</cite> can be <cite>NULL</cite> when <cite>numHeaders</cite> is
 0. These headers must be included with the exact names specified
 here.</p></li>
@@ -1644,8 +1644,8 @@ here.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>numOptions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of compiler options passed.</p></li>
-<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em>]</em>) – Compiler options in the form of C string array.  <cite>options</cite> can be
+<li><p><strong>numOptions</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of compiler options passed.</p></li>
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em>]</em>) – Compiler options in the form of C string array.  <cite>options</cite> can be
 <cite>NULL</cite> when <cite>numOptions</cite> is 0.</p></li>
 </ul>
 </dd>
@@ -1705,7 +1705,7 @@ here.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>ptx</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Compiled result.</p></li>
+<li><p><strong>ptx</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Compiled result.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1762,7 +1762,7 @@ here.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>cubin</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Compiled and assembled result.</p></li>
+<li><p><strong>cubin</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Compiled and assembled result.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1819,7 +1819,7 @@ here.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>LTOIR</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Compiled result.</p></li>
+<li><p><strong>LTOIR</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Compiled result.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1876,7 +1876,7 @@ here.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>optixir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Optix IR Compiled result.</p></li>
+<li><p><strong>optixir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Optix IR Compiled result.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1935,7 +1935,7 @@ informative messages, even when the compilation of <cite>prog</cite> succeeds.</
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Compilation log.</p></li>
+<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Compilation log.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1966,7 +1966,7 @@ call to nvrtcGetLoweredName to extract the lowered name.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>name_expression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – constant expression denoting the address of a global function or
+<li><p><strong>name_expression</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – constant expression denoting the address of a global function or
 device/__constant__ variable.</p></li>
 </ul>
 </dd>
@@ -1997,7 +1997,7 @@ device/__constant__ variable.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><em>nvrtcProgram</em></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>name_expression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – constant expression denoting the address of a global function or
+<li><p><strong>name_expression</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – constant expression denoting the address of a global function or
 device/__constant__ variable.</p></li>
 </ul>
 </dd>
@@ -2099,7 +2099,7 @@ nvrtcCompileProgram call in progress.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>TileIR</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Generated cuda_tile IR.</p></li>
+<li><p><strong>TileIR</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Generated cuda_tile IR.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2244,7 +2244,7 @@ stored</p></li>
 <dd><p>Non-zero if bundled headers are available</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -2279,7 +2279,7 @@ stored</p></li>
 <dd><p>Non-zero if bundled headers are available</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -2326,7 +2326,7 @@ NVRTC_ERROR_BUSY if another process holds the lock.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>installPath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Path where headers should be extracted (UTF-8 encoded). The
+<li><p><strong>installPath</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Path where headers should be extracted (UTF-8 encoded). The
 directory will be created if it doesn’t exist.</p></li>
 <li><p><strong>flags</strong> (<em>unsigned int</em>) – NVRTC_INSTALL_HEADERS_* flags:</p></li>
 </ul>
@@ -2397,7 +2397,7 @@ recursively removes all files and subdirectories within the
 installation directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>installPath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Path where headers were previously installed. Must be the same path
+<dd class="field-odd"><p><strong>installPath</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Path where headers were previously installed. Must be the same path
 used with nvrtcInstallBundledHeaders.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
