@@ -548,11 +548,11 @@
 <h1>cuda.pathfinder.find_nvidia_binary_utility<a class="headerlink" href="#cuda-pathfinder-find-nvidia-binary-utility" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.pathfinder.find_nvidia_binary_utility">
-<span class="sig-prename descclassname"><span class="pre">cuda.pathfinder.</span></span><span class="sig-name descname"><span class="pre">find_nvidia_binary_utility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">utility_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.pathfinder.find_nvidia_binary_utility" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.pathfinder.</span></span><span class="sig-name descname"><span class="pre">find_nvidia_binary_utility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">utility_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.pathfinder.find_nvidia_binary_utility" title="Link to this definition">#</a></dt>
 <dd><p>Locate a CUDA binary utility executable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>utility_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the binary utility to find
+<dd class="field-odd"><p><strong>utility_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the binary utility to find
 (e.g., <code class="docutils literal notranslate"><span class="pre">&quot;nvdisasm&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cuobjdump&quot;</span></code>). On Windows, the <code class="docutils literal notranslate"><span class="pre">.exe</span></code>
 extension will be automatically appended if not present. The function
 also recognizes <code class="docutils literal notranslate"><span class="pre">.bat</span></code> and <code class="docutils literal notranslate"><span class="pre">.cmd</span></code> files on Windows.</p>
@@ -563,13 +563,13 @@ if the utility cannot be found. The returned path is normalized
 (absolute and with resolved separators).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> or None</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a> or None</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>UnsupportedBinaryError</strong> – If <code class="docutils literal notranslate"><span class="pre">utility_name</span></code> is not in the supported set
     (see <code class="docutils literal notranslate"><span class="pre">SUPPORTED_BINARY_UTILITIES</span></code>).</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If a native Windows architecture needed for an
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If a native Windows architecture needed for an
     architecture-specific utility layout cannot be determined, or an
     installed Nsight product has incomplete or invalid registry data.</p></li>
 </ul>
