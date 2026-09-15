@@ -39,6 +39,7 @@ cuda.core.graph.GraphBuilder
    
    .. autoproperty:: graph_definition
    .. autoproperty:: is_building
+   .. autoproperty:: is_closed
    .. autoproperty:: is_join_required
    .. autoproperty:: stream
    

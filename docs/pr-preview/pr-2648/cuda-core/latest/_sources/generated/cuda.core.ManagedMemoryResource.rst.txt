@@ -29,6 +29,7 @@ cuda.core.ManagedMemoryResource
    .. autoattribute:: attributes
    .. autoattribute:: device_id
    .. autoattribute:: handle
+   .. autoattribute:: is_closed
    .. autoattribute:: is_device_accessible
    .. autoattribute:: is_handle_owned
    .. autoattribute:: is_host_accessible

@@ -28,6 +28,7 @@ cuda.core.texture.MipmappedArray
    .. autoattribute:: device
    .. autoattribute:: format
    .. autoattribute:: handle
+   .. autoattribute:: is_closed
    .. autoattribute:: is_surface_load_store
    .. autoattribute:: num_channels
    .. autoattribute:: num_levels

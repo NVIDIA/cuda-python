@@ -29,6 +29,7 @@ cuda.core.GraphicsResource
 
    
    .. autoattribute:: handle
+   .. autoattribute:: is_closed
    .. autoattribute:: is_mapped
    .. autoattribute:: resource_handle
    

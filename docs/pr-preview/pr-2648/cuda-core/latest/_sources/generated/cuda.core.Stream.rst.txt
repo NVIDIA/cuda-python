@@ -32,6 +32,7 @@ cuda.core.Stream
    .. autoattribute:: context
    .. autoattribute:: device
    .. autoattribute:: handle
+   .. autoattribute:: is_closed
    .. autoattribute:: is_nonblocking
    .. autoattribute:: priority
    .. autoattribute:: resources

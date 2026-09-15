@@ -26,6 +26,7 @@ cuda.core.texture.SurfaceObject
    
    .. autoattribute:: device
    .. autoattribute:: handle
+   .. autoattribute:: is_closed
    .. autoattribute:: resource
    
    

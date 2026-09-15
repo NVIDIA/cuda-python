@@ -27,6 +27,7 @@ cuda.core.Program
    
    .. autoattribute:: backend
    .. autoattribute:: handle
+   .. autoattribute:: is_closed
    .. autoattribute:: pch_status
    
    

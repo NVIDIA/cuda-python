@@ -25,6 +25,7 @@ cuda.core.\_memory.\_ipc.IPCAllocationHandle
 
    
    .. autoattribute:: handle
+   .. autoattribute:: is_closed
    .. autoattribute:: uuid
    
    
