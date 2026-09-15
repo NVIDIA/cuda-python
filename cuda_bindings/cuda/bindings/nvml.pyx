@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=18c8392e37b8eedb541e1f1729c1173b7e59ed5d917249a949c724226d753145
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f00cb8d39c11e189440ba8c2bd91691d1c460547f22aca74a2c13962e89eac9b
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -35542,7 +35542,7 @@ cpdef object device_get_gpu_instances(intptr_t device, unsigned int profile_id):
 
     .. seealso:: `nvmlDeviceGetGpuInstances`
     """
-    cdef object profile_info = device_get_gpu_instance_profile_info_v(device, profile_id)
+    cdef object profile_info = device_get_gpu_instance_profile_info_by_id_v(device, profile_id)
     cdef unsigned int capacity = profile_info.instance_count
     cdef unsigned int[1] count = [capacity]
     cdef _cyb_view.array _gpu_instances_alloc_ = _cyb_view.array(shape=(max(capacity, 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
