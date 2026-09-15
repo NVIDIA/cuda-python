@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.system\_get\_nvlink\_bw\_mode
+================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: system_get_nvlink_bw_mode
