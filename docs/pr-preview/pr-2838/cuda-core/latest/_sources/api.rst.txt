@@ -324,6 +324,8 @@ reported as a warning instead.
 .. autosummary::
    :toctree: generated/
 
+   CUDAError
+   NVRTCError
    CUDAWarning
 
 

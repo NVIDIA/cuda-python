@@ -27,6 +27,10 @@ New features
   cannot be raised are reported, and how context restoration failures and
   sticky CUDA errors are handled.
 
+- :class:`CUDAError` and :class:`NVRTCError` are now importable from the
+  top-level ``cuda.core`` namespace, alongside :class:`CUDAWarning`. Previously
+  they were only available from a private module.
+
 Fixes and enhancements
 ----------------------
 
@@ -85,8 +89,10 @@ Fixes and enhancements
   ``cuLinkDestroy``, ``cuArrayDestroy``, ``cuMipmappedArrayDestroy``,
   ``cuTexObjectDestroy``, ``cuSurfObjectDestroy``, user-object releases and the
   NVRTC, NVVM and nvJitLink destroy calls made from destructors were previously
-  discarded; they are now reported. ``CUDA_ERROR_DEINITIALIZED`` (the driver is
-  shutting down) is not reported. Test code that matched the old ``stderr``
+  discarded; they are now reported, and each message names the failed call,
+  the handle of the affected resource and the CUDA error, so Python's
+  once-per-call-site warning filter does not collapse independent failures.
+  ``CUDA_ERROR_DEINITIALIZED`` (the driver is shutting down) is not reported. Test code that matched the old ``stderr``
   text uses ``pytest.warns(CUDAWarning)`` instead.
 
 - When a :class:`Device` method has to run in the device's context and the

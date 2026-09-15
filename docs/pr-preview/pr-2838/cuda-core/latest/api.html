@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=c87dc8d7"></script>
+    <script src="_static/documentation_options.js?v=1987f5f1"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev77';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev86';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -664,6 +664,8 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.CUDAError.html">cuda.core.CUDAError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.NVRTCError.html">cuda.core.NVRTCError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
@@ -898,7 +900,7 @@ Use <a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.cor
 closing the buffer. Changing the recorded stream does not synchronize streams;
 the caller must order allocation and every access before the deallocation,
 using events or other CUDA synchronization mechanisms as needed. See
-<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0edbe267b71a6385824dbaae0008f0ce609961cf/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
+<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/af42fb183cc50ae3424fdb4a3fb1c32cb1d14f60/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
 for a complete example.</p>
 </section>
 <section id="cuda-compilation-toolchain">
@@ -1190,6 +1192,12 @@ guarantees an exception provides and for the situations in which a failure is
 reported as a warning instead.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDAError</span></code></a></p></td>
+<td><p>Raised when a CUDA driver or runtime call fails.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.NVRTCError.html#cuda.core.NVRTCError" title="cuda.core.NVRTCError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTCError</span></code></a></p></td>
+<td><p>Raised when an NVRTC call fails; the compiler log is appended when available.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a></p></td>
 <td><p>Warning issued when <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> hits a CUDA error it cannot raise.</p></td>
 </tr>

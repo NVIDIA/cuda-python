@@ -15,8 +15,11 @@ Exceptions
 ----------
 
 A CUDA driver, runtime, NVRTC, NVVM or nvJitLink call that fails raises an
-exception (``CUDAError`` for driver and runtime failures) whose message contains
-the CUDA error name and its description. Invalid arguments and misuse raise the
+exception whose message contains the error name and its description:
+:class:`CUDAError` for driver and runtime failures, its subclass
+:class:`NVRTCError` for NVRTC failures, and the ``cuda.bindings`` error types
+for NVVM and nvJitLink failures. Both ``cuda.core`` classes are importable from
+the top-level ``cuda.core`` namespace. Invalid arguments and misuse raise the
 usual Python exception types (``TypeError``, ``ValueError``, ``RuntimeError``).
 
 When a ``cuda.core`` call raises, the following hold:
@@ -55,7 +58,10 @@ Some ``cuda.core`` code runs where no Python exception can propagate:
 - callbacks invoked by CUDA.
 
 A CUDA error in one of these places is reported as a :class:`CUDAWarning`. The
-message names the failed driver call and the CUDA error. The warning means the
+message names the failed driver call, the handle of the resource involved, and
+the CUDA error. Python shows a warning with a given text once per call site by
+default; because the handle differs per resource, independent failures are not
+collapsed into one report. The warning means the
 affected resource may have leaked; ``cuda.core`` never leaves a resource in use
 by CUDA with its memory released (it prefers a leak to a dangling pointer).
 
@@ -127,7 +133,15 @@ release matters.
 Process termination
 -------------------
 
-``cuda.core`` does not abort the process in response to a CUDA error, including
-errors that cannot be raised, and including failures to restore the caller's
-context. Aborting is reserved for an internal invariant violation where
-continuing could corrupt memory.
+``cuda.core`` never terminates the process. A CUDA error is raised, or reported
+as a :class:`CUDAWarning` where nothing can be raised; this includes errors in
+destructors and callbacks and failures to restore the caller's context. An
+internal error in ``cuda.core`` itself is handled the same way: it raises a
+``RuntimeError`` that asks you to report it, or is reported as a warning, and
+the affected resource is leaked rather than released in an inconsistent state.
+If you want such failures to stop your program, escalate the warning category::
+
+   warnings.filterwarnings("error", category=cuda.core.CUDAWarning)
+
+A process exit caused by ``cuda.core``, for example through an exception that
+escapes a destructor, is a bug; please report it.
