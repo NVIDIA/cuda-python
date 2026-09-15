@@ -1,6 +1,0 @@
-﻿cuda.core.VirtualMemoryResourceOptions
-======================================
-
-.. currentmodule:: cuda.core
-
-.. autoclass:: VirtualMemoryResourceOptions
