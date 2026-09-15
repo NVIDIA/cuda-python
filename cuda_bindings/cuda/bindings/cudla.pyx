@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8d4b8c867daba77b08b0665ca7e5172bd4969fef4087ee4573eb30c3bcf6a038
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=69ecb88f06055f5cb48ca1cfc02d37bbbd546020f594d06810a1b70e78059e89
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -183,8 +183,6 @@ cdef class ExternalMemoryHandleDesc:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cudlaExternalMemoryHandleDesc_t), view.len)
                     )
-                # val's buffer may alias self._data (e.g. self-assignment, or another
-                # wrapper pointing at this same storage), so this must tolerate overlap.
                 _cyb_memmove(<void*>&self._data, view.buf, sizeof(cudlaExternalMemoryHandleDesc_t))
                 self._ptr = &self._data
                 self._owner = None
@@ -319,8 +317,6 @@ cdef class ExternalSemaphoreHandleDesc:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cudlaExternalSemaphoreHandleDesc_t), view.len)
                     )
-                # val's buffer may alias self._data (e.g. self-assignment, or another
-                # wrapper pointing at this same storage), so this must tolerate overlap.
                 _cyb_memmove(<void*>&self._data, view.buf, sizeof(cudlaExternalSemaphoreHandleDesc_t))
                 self._ptr = &self._data
                 self._owner = None
@@ -455,8 +451,6 @@ cdef class ModuleTensorDescriptor:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cudlaModuleTensorDescriptor), view.len)
                     )
-                # val's buffer may alias self._data (e.g. self-assignment, or another
-                # wrapper pointing at this same storage), so this must tolerate overlap.
                 _cyb_memmove(<void*>&self._data, view.buf, sizeof(cudlaModuleTensorDescriptor))
                 self._ptr = &self._data
                 self._owner = None
@@ -712,8 +706,6 @@ cdef class Fence:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(CudlaFence), view.len)
                     )
-                # val's buffer may alias self._data (e.g. self-assignment, or another
-                # wrapper pointing at this same storage), so this must tolerate overlap.
                 _cyb_memmove(<void*>&self._data, view.buf, sizeof(CudlaFence))
                 self._ptr = &self._data
                 self._owner = None
@@ -849,8 +841,6 @@ cdef class DevAttribute:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cudlaDevAttribute), view.len)
                     )
-                # val's buffer may alias self._data (e.g. self-assignment, or another
-                # wrapper pointing at this same storage), so this must tolerate overlap.
                 _cyb_memmove(<void*>&self._data, view.buf, sizeof(cudlaDevAttribute))
                 self._ptr = &self._data
                 self._owner = None
@@ -988,8 +978,6 @@ cdef class ModuleAttribute:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cudlaModuleAttribute), view.len)
                     )
-                # val's buffer may alias self._data (e.g. self-assignment, or another
-                # wrapper pointing at this same storage), so this must tolerate overlap.
                 _cyb_memmove(<void*>&self._data, view.buf, sizeof(cudlaModuleAttribute))
                 self._ptr = &self._data
                 self._owner = None
@@ -1149,8 +1137,6 @@ cdef class WaitEvents:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cudlaWaitEvents), view.len)
                     )
-                # val's buffer may alias self._data (e.g. self-assignment, or another
-                # wrapper pointing at this same storage), so this must tolerate overlap.
                 _cyb_memmove(<void*>&self._data, view.buf, sizeof(cudlaWaitEvents))
                 self._ptr = &self._data
                 self._owner = None
@@ -1289,8 +1275,6 @@ cdef class SignalEvents:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cudlaSignalEvents), view.len)
                     )
-                # val's buffer may alias self._data (e.g. self-assignment, or another
-                # wrapper pointing at this same storage), so this must tolerate overlap.
                 _cyb_memmove(<void*>&self._data, view.buf, sizeof(cudlaSignalEvents))
                 self._ptr = &self._data
                 self._owner = None
@@ -1458,8 +1442,6 @@ cdef class Task:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cudlaTask), view.len)
                     )
-                # val's buffer may alias self._data (e.g. self-assignment, or another
-                # wrapper pointing at this same storage), so this must tolerate overlap.
                 _cyb_memmove(<void*>&self._data, view.buf, sizeof(cudlaTask))
                 self._ptr = &self._data
                 self._owner = None

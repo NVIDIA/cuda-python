@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=76a86808faa9549ea3b05b336d54be2e8bafdd423083f0b5d6ea5989bb155bcf
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9c73cc3eb2dfb48e4d87babe7f846f3b63bf212587a85f5dffe3b3591008dd53
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -3018,8 +3018,6 @@ cdef class StatsLevel3:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(CUfileStatsLevel3_t), view.len)
                     )
-                # val's buffer may alias self._data (e.g. self-assignment, or another
-                # wrapper pointing at this same storage), so this must tolerate overlap.
                 _cyb_memmove(<void*>&self._data, view.buf, sizeof(CUfileStatsLevel3_t))
                 self._ptr = &self._data
                 self._owner = None
