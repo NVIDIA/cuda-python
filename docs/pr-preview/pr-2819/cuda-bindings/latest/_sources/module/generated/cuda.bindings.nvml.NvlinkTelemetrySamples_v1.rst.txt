@@ -1,0 +1,32 @@
+﻿cuda.bindings.nvml.NvlinkTelemetrySamples\_v1
+=============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: NvlinkTelemetrySamples_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NvlinkTelemetrySamples_v1.__init__
+      ~NvlinkTelemetrySamples_v1.from_buffer
+      ~NvlinkTelemetrySamples_v1.from_data
+      ~NvlinkTelemetrySamples_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~NvlinkTelemetrySamples_v1.ptr
+      ~NvlinkTelemetrySamples_v1.telemetry_samples
+   
+   

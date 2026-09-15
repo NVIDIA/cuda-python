@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.NvlinkFirmwareInfo
+=====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: NvlinkFirmwareInfo
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NvlinkFirmwareInfo.__init__
+      ~NvlinkFirmwareInfo.from_buffer
+      ~NvlinkFirmwareInfo.from_data
+      ~NvlinkFirmwareInfo.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~NvlinkFirmwareInfo.firmware_version
+      ~NvlinkFirmwareInfo.num_valid_entries
+      ~NvlinkFirmwareInfo.ptr
+   
+   
