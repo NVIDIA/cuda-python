@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4bba1f4b"></script>
+    <script src="../_static/documentation_options.js?v=b6c1b578"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev30';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev91';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -939,7 +939,7 @@ NVVM/NVRTC <em>compiler</em> option: nvJitLink rejects it with
 <code class="docutils literal notranslate"><span class="pre">cuLink</span></code> API has no corresponding <code class="docutils literal notranslate"><span class="pre">CUjit_option</span></code>, so no linking backend
 can honor it. PTX inputs are handed to the linker, and the option used to be
 forwarded into <code class="docutils literal notranslate"><span class="pre">LinkerOptions</span></code> and then dropped without a diagnostic. The
-warning is a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#UserWarning" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UserWarning</span></code></a>, not a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#DeprecationWarning" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeprecationWarning</span></code></a> –
+warning is a <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#UserWarning" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UserWarning</span></code></a>, not a <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#DeprecationWarning" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeprecationWarning</span></code></a> –
 <code class="docutils literal notranslate"><span class="pre">ProgramOptions.numba_debug</span></code> is not deprecated and remains fully supported
 on the NVVM and NVRTC compilation paths, where it takes effect; it is simply
 inapplicable to a linking backend. The gate is truthiness, matching how the
@@ -986,7 +986,7 @@ refreshed for CUDA 13.3 and now recognizes
 <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 2.0.0. It was exposed in <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> 1.1.0 but no linking
 backend ever read it, so setting it has never had any effect;
 <code class="docutils literal notranslate"><span class="pre">numba_debug</span></code> is an NVVM/NVRTC compiler option with no linker equivalent.
-Setting it now emits a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#DeprecationWarning" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeprecationWarning</span></code></a> and the value continues
+Setting it now emits a <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#DeprecationWarning" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeprecationWarning</span></code></a> and the value continues
 to be ignored. Removal waits for the next major version because the
 <a class="reference internal" href="../support.html"><span class="doc">support policy</span></a> confines breaking API changes to
 major-version boundaries. Use <a class="reference internal" href="../generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.numba_debug" title="cuda.core.ProgramOptions.numba_debug"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ProgramOptions.numba_debug</span></code></a> on an NVVM
