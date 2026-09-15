@@ -325,3 +325,42 @@ class TestForceReachesBuildExt:
 
     def test_flag_clear_leaves_default(self, monkeypatch):
         assert not self._finalized_build_ext(False, monkeypatch).force
+
+
+class TestExtensionSources:
+    """_extension_sources: a directory of .cpp files, a single legacy .cpp, or nothing."""
+
+    @pytest.fixture
+    def tree(self, tmp_path, monkeypatch):
+        core = tmp_path / "cuda" / "core"
+        cpp = core / "_cpp"
+        (cpp / "a" / "nested").mkdir(parents=True)
+        (cpp / "d").mkdir()
+        for name in ("_a.pyx", "_b.pyx", "_c.pyx", "_d.pyx"):
+            (core / name).write_text("")
+        for name in ("a/x.cpp", "a/y.cpp", "a/nested/z.cpp", "a/notes.md", "b.cpp"):
+            (cpp / name).write_text("")
+        monkeypatch.chdir(tmp_path)
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_directory_of_sources(self, tree):
+        a = os.path.join("cuda", "core", "_cpp", "a")
+        assert build_hooks._extension_sources("_a") == [
+            "cuda/core/_a.pyx",
+            os.path.join(a, "nested", "z.cpp"),
+            os.path.join(a, "x.cpp"),
+            os.path.join(a, "y.cpp"),
+        ]
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_legacy_single_file_and_no_cpp(self, tree):
+        assert build_hooks._extension_sources("_b") == [
+            "cuda/core/_b.pyx",
+            os.path.join("cuda", "core", "_cpp", "b.cpp"),
+        ]
+        assert build_hooks._extension_sources("_c") == ["cuda/core/_c.pyx"]
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_empty_directory_is_an_error(self, tree):
+        with pytest.raises(RuntimeError, match="no .cpp files"):
+            build_hooks._extension_sources("_d")

@@ -316,7 +316,7 @@ def test_device_pci_bus_id():
         pci_bus_id = device.pci_info.bus_id
         assert isinstance(pci_bus_id, str)
 
-        new_device = system.Device(pci_bus_id=device.pci_info.bus_id)
+        new_device = system.Device(pci_bus_id=pci_bus_id)
         assert new_device.index == device.index
 
 
@@ -1013,5 +1013,5 @@ def test_uuid():
     for device in system.Device.get_all_devices():
         uuid = device.uuid
         assert isinstance(uuid, str)
-        assert uuid.startswith(("GPU-", "MIG-"))
+        assert uuid.startswith(("GPU-", "MIG-", "DLA-"))
         assert uuid == device.uuid

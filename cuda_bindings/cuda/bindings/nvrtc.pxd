@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated with version 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ee485e830fdb8037d58a70b73a413f3ce362819576fd86e91d55ce14ba3f9149
+# This code was automatically generated with version 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ba23f6c3908c2fa6496002f8def30ec166cec8643e4de22c1741040b2c4b2965
 cimport cuda.bindings.cynvrtc as cynvrtc
 
 include "_lib/utils.pxd"

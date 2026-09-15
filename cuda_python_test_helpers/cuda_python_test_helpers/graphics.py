@@ -2,19 +2,59 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""GL availability classification for graphics interop tests.
+"""Shared GL helpers for graphics interop tests.
 
 Both ``cuda_core`` and ``cuda_bindings`` graphics tests need to skip
 when the GL backend cannot be made current, and that decision must not
 hide real bugs in the tests' own GL allocation code. This module owns the
 shared predicate so the two test suites stay in sync.
 
-The helper intentionally does **not** import ``pyglet``: importing
-``pyglet.gl`` / ``pyglet.window`` triggers pyglet's shadow-window
-creation, which fails on headless machines before the test has had a
-chance to set ``pyglet.options["headless"]``. Classification is by
-exception module/name and tightly matched built-in loader errors instead.
+This module intentionally does **not** import ``pyglet`` at module load time:
+importing ``pyglet.gl`` / ``pyglet.window`` triggers pyglet's shadow-window
+creation, which fails on headless machines before the test has had a chance to
+set ``pyglet.options["headless"]``.
 """
+
+import contextlib
+
+
+def open_gl_window():
+    """Open a hidden window after the caller has configured pyglet.
+
+    In headless mode, initialize pyglet's headless GL backend and return None.
+    If window construction fails, clean up any partially-created windows and
+    restore the GL context that was current before the attempt.
+    """
+    import pyglet
+
+    if not pyglet.options.get("headless"):
+        from pyglet import gl
+
+        config = gl.Config(double_buffer=False)
+        previous_context = gl.current_context
+        previous_windows = set(pyglet.app.windows)
+        try:
+            win = pyglet.window.Window(visible=False, config=config)
+        except Exception:
+            for window in set(pyglet.app.windows) - previous_windows:
+                with contextlib.suppress(Exception):
+                    window.close()
+            if previous_context is not None:
+                with contextlib.suppress(Exception):
+                    previous_context.set_current()
+            raise
+        try:
+            win.switch_to()
+        except Exception:
+            with contextlib.suppress(Exception):
+                win.close()
+            raise
+        return win
+
+    from pyglet.gl import headless  # noqa: F401
+
+    return None
+
 
 _GL_CONTEXT_UNAVAILABLE_EXC_NAMES = frozenset(
     {

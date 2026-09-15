@@ -1,9 +1,9 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-.. This code was automatically generated with version 13.3.0. Do not modify it directly.
+.. This code was automatically generated with version 13.4.1. Do not modify it directly.
 
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8d52054221a5bd6e5240446c2ef3a12e4c6787538a1115bb24ee3d6b827369cd
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8fb799afff57074126fc28394dc578e31f2d13bffcbecea17a8e14da87e419c7
 ------
 driver
 ------
@@ -88,6 +88,8 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUDA_EVENT_RECORD_NODE_PARAMS_st
 .. autoclass:: cuda.bindings.driver.CUDA_EVENT_WAIT_NODE_PARAMS_st
 .. autoclass:: cuda.bindings.driver.CUgraphNodeParams_st
+.. autoclass:: cuda.bindings.driver.CUcheckpointCustomStoragePerDeviceData_st
+.. autoclass:: cuda.bindings.driver.CUcheckpointCustomStorageInfo_st
 .. autoclass:: cuda.bindings.driver.CUcheckpointLockArgs_st
 .. autoclass:: cuda.bindings.driver.CUcheckpointCheckpointArgs_st
 .. autoclass:: cuda.bindings.driver.CUcheckpointGpuPair_st
@@ -1923,6 +1925,18 @@ Data types used by CUDA driver
         Device supports atomic reduction operations in stream batch memory operations
 
 
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_COUNT
+
+
+        Number of locality domains
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_OVERSIZED_SHARED_MEMORY_PER_BLOCK
+
+
+        Maximum oversized shared memory per block
+
+
     .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED
 
 
@@ -1957,6 +1971,24 @@ Data types used by CUDA driver
 
 
         Device supports unicast logical endpoint access on the owner device
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_MULTIPROCESSOR_COUNT
+
+
+        Number of multiprocessors on each locality domain
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_SUPPORTED_HANDLE_TYPES
+
+
+        Handle types supported with logical endpoint IPC
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WITH_LOCALIZED_MEMORY_SUPPORTED
+
+
+        Device supports GPUDirect RDMA with localized memory using the default RDMA mapping link
 
 
     .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX
@@ -2088,6 +2120,12 @@ Data types used by CUDA driver
 
         Returns in ``*data`` a boolean that indicates whether the pointer points to memory that is capable to be used for hardware accelerated decompression.
 
+
+    .. autoattribute:: cuda.bindings.driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_LOCALITY_DOMAIN_ORDINAL
+
+
+        Returns in ``*data`` an integer representing the locality domain ordinal of the memory allocation, or -1 if the allocation is not localized to a locality domain.
+
 .. autoclass:: cuda.bindings.driver.CUfunction_attribute
 
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK
@@ -2141,19 +2179,43 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES
 
 
-        The maximum size in bytes of dynamically-allocated shared memory that can be used by this function. If the user-specified dynamic shared memory size is larger than this value, the launch will fail. The default value of this attribute is :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK` - :py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES`, except when :py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES` is greater than :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK`, then the default value of this attribute is 0. The value can be increased to :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN` - :py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES`. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
+        The maximum size in bytes of dynamically-allocated shared memory that can be used by this function. If the user-specified dynamic shared memory size is larger than this value, the launch will fail.
+
+
+
+        The default value of this attribute is :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK` - :py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES`, except when :py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES` is greater than :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK`, then the default value of this attribute is 0. The value can be increased to :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN` - :py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES`.
+
+
+
+        This attribute is ignored if :py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_MEMORY_MODE` or :py:obj:`~.CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE` is set.
+
+
+
+        This attribute cannot be used to access oversized shared memory. Oversized shared memory can only be accessed by setting :py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_MEMORY_MODE` or :py:obj:`~.CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE`.
+
+
+
+        See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
 
 
-        On devices where the L1 cache and shared memory use the same hardware resources, this sets the shared memory carveout preference, in percent of the total shared memory. Refer to :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_MULTIPROCESSOR`. This is only a hint, and the driver can choose a different ratio if required to execute the function. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
+        On devices where the L1 cache and shared memory use the same hardware resources, this sets the shared memory carveout preference, in percent of the total shared memory. Refer to :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_MULTIPROCESSOR`. This is only a hint, and the driver can choose a different ratio if required to execute the function.
+
+
+
+        See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET
 
 
-        If this attribute is set, the kernel must launch with a valid cluster size specified. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
+        If this attribute is set, the kernel must launch with a valid cluster size specified.
+
+
+
+        See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH
@@ -2163,7 +2225,11 @@ Data types used by CUDA driver
 
 
 
-        If the value is set during compile time, it cannot be set at runtime. Setting it at runtime will return CUDA_ERROR_NOT_PERMITTED. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
+        If the value is set during compile time, it cannot be set at runtime. Setting it at runtime will return CUDA_ERROR_NOT_PERMITTED.
+
+
+
+        See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT
@@ -2173,7 +2239,11 @@ Data types used by CUDA driver
 
 
 
-        If the value is set during compile time, it cannot be set at runtime. Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
+        If the value is set during compile time, it cannot be set at runtime. Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED.
+
+
+
+        See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH
@@ -2183,7 +2253,11 @@ Data types used by CUDA driver
 
 
 
-        If the value is set during compile time, it cannot be set at runtime. Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
+        If the value is set during compile time, it cannot be set at runtime. Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED.
+
+
+
+        See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED
@@ -2205,19 +2279,41 @@ Data types used by CUDA driver
 
 
 
-        The specific hardware unit may support higher cluster sizes that’s not guaranteed to be portable. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
+        The specific hardware unit may support higher cluster sizes that’s not guaranteed to be portable.
+
+
+
+        See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
 
 
-        The block scheduling policy of a function. The value type is :py:obj:`~.CUclusterSchedulingPolicy` / cudaClusterSchedulingPolicy. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
+        The block scheduling policy of a function. The value type is :py:obj:`~.CUclusterSchedulingPolicy` / cudaClusterSchedulingPolicy.
+
+
+
+        See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED
 
 
-        Whether the function can be updated on device. 1 means device node update is supported, 0 is unsupported. See :py:obj:`~.cuFuncGetAttribute`.
+        Whether the function can be updated on device. 1 means device node update is supported, 0 is unsupported.
+
+
+
+        See :py:obj:`~.cuFuncGetAttribute`.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_SHARED_MEMORY_MODE
+
+
+        The shared memory mode of a function. The value type is :py:obj:`~.CUsharedMemoryMode` / cudaSharedMemoryMode.
+
+
+
+        See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX
@@ -2909,6 +3005,12 @@ Data types used by CUDA driver
         Compute device class 10.3.
 
 
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_107
+
+
+        Compute device class 10.7.
+
+
     .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_120
 
 
@@ -2942,6 +3044,9 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_103A
 
 
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_107A
+
+
         Compute device class 12.0. with accelerated features.
 
 
@@ -2970,6 +3075,9 @@ Data types used by CUDA driver
 
 
     .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_103F
+
+
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_107F
 
 
         Compute device class 12.0. with family features.
@@ -3194,6 +3302,12 @@ Data types used by CUDA driver
         When set to zero, CUDA will fail to launch a kernel on a CIG context, instead of using the fallback path, if the kernel uses more shared memory than available
 
 
+    .. autoattribute:: cuda.bindings.driver.CUlimit.CU_LIMIT_PER_BLOCK_MEMORY_SIZE
+
+
+        Per-block memory size
+
+
     .. autoattribute:: cuda.bindings.driver.CUlimit.CU_LIMIT_MAX
 
 .. autoclass:: cuda.bindings.driver.CUresourcetype
@@ -3389,7 +3503,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUgraphDependencyType.CU_GRAPH_DEPENDENCY_TYPE_PROGRAMMATIC
 
 
-        This dependency type allows the downstream node to use ``cudaGridDependencySynchronize()``. It may only be used between kernel nodes, and must be used with either the :py:obj:`~.CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC` or :py:obj:`~.CU_GRAPH_KERNEL_NODE_PORT_LAUNCH_ORDER` outgoing port.
+        This dependency type allows the downstream node to use cudaGridDependencySynchronize(). It may only be used between kernel nodes, and must be used with either the :py:obj:`~.CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC` or :py:obj:`~.CU_GRAPH_KERNEL_NODE_PORT_LAUNCH_ORDER` outgoing port.
 
 .. autoclass:: cuda.bindings.driver.CUgraphInstantiateResult
 
@@ -3460,6 +3574,9 @@ Data types used by CUDA driver
 
         allow the hardware to load-balance the blocks in a cluster to the SMs
 
+
+    .. autoattribute:: cuda.bindings.driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_RUBIN_DSMEM_LOCALITY
+
 .. autoclass:: cuda.bindings.driver.CUlaunchMemSyncDomain
 
     .. autoattribute:: cuda.bindings.driver.CUlaunchMemSyncDomain.CU_LAUNCH_MEM_SYNC_DOMAIN_DEFAULT
@@ -3510,6 +3627,18 @@ Data types used by CUDA driver
 
 
         Specifies that the dynamic shared size bytes requested may be a non-portable size but still within the bounds of :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN`
+
+
+    .. autoattribute:: cuda.bindings.driver.CUsharedMemoryMode.CU_SHARED_MEMORY_MODE_ALLOW_OVERSIZED_SHARED_MEMORY
+
+
+        Specifies that oversized shared memory configurations may be used (with the limitation of only 8kB L1 cache)
+
+
+    .. autoattribute:: cuda.bindings.driver.CUsharedMemoryMode.CU_SHARED_MEMORY_MODE_PREFER_OVERSIZED_SHARED_MEMORY
+
+
+        Specifies that oversized shared memory configurations may be used (with the limitation of only 8kB L1 cache), and prefer an oversized shared memory configuration
 
 .. autoclass:: cuda.bindings.driver.CUlaunchAttributeID
 
@@ -3644,7 +3773,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE
 
 
-        Valid for graph nodes, launches. This indicates if the kernel is allowed to use a non-portable dynamic shared memory mode.
+        Valid for graph nodes, launches. This controls a kernel's use of non-portable or oversized shared memory configurations.
 
 .. autoclass:: cuda.bindings.driver.CUstreamCaptureStatus
 
@@ -3830,6 +3959,12 @@ Data types used by CUDA driver
         This indicates that requested CUDA device is unavailable at the current time. Devices are often unavailable due to use of :py:obj:`~.CU_COMPUTEMODE_EXCLUSIVE_PROCESS` or :py:obj:`~.CU_COMPUTEMODE_PROHIBITED`.
 
 
+    .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_MULTICAST_RESOURCE_FULL
+
+
+        The API call failed because of a hardware resource required to bind memory to a multicast object is unavailable.
+
+
     .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_NO_DEVICE
 
 
@@ -3998,6 +4133,12 @@ Data types used by CUDA driver
 
 
         This indicates that an exception occurred on the device that is now contained by the GPU's error containment capability. Common causes are - a. Certain types of invalid accesses of peer GPU memory over nvlink b. Certain classes of hardware errors This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_INSUFFICIENT_LOADER_VERSION
+
+
+        This indicates that the Loader version is insufficient for fatbin
 
 
     .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_SOURCE
@@ -4370,6 +4511,12 @@ Data types used by CUDA driver
 
 
         This error indicates that a graph recapture failed and had to be terminated.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_FABRIC_NOT_READY
+
+
+        The GPU fabric is not ready within the bounded wait while the fabric manager probe is still in progress (or not converging in time). Applications may retry after a delay; for the initialization wait budget, see environment variables such as CUDA_FABRIC_INIT_TIMEOUT_MS. The CUDA Runtime uses the same value as :py:obj:`~.cudaErrorFabricNotReady`.
 
 
     .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_UNKNOWN
@@ -4965,6 +5112,12 @@ Data types used by CUDA driver
         Location is not visible but device is accessible, id is always CU_DEVICE_INVALID
 
 
+    .. autoattribute:: cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN
+
+
+        Location is a portion of device memory, specified by the locality domain ID.
+
+
     .. autoattribute:: cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_MAX
 
 .. autoclass:: cuda.bindings.driver.CUmemAllocationType
@@ -5196,6 +5349,16 @@ Data types used by CUDA driver
 
 
         (value type = int) Indicates whether the pool has hardware compresssion enabled
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCALITY_DOMAIN_ID
+
+
+        (value type = int) The locality domain ID for the mempool, if the mempool is localized to a locality domain. A value of -1 indicates that the mempool is not localized.
+
+
+
+        Note: On devices with a single locality domain, mempools created with :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN` and localityDomainId 0 are equivalent to full-device mempools created with :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`. The value of this attribute will be -1 for such mempools.
 
 .. autoclass:: cuda.bindings.driver.CUmemcpyFlags
 
@@ -5524,6 +5687,18 @@ Data types used by CUDA driver
 
 
         Application entered an uncorrectable error during the checkpoint/restore process
+
+
+    .. autoattribute:: cuda.bindings.driver.CUprocessState.CU_PROCESS_STATE_CHECKPOINTING
+
+
+        Application memory contents are being checkpointed
+
+
+    .. autoattribute:: cuda.bindings.driver.CUprocessState.CU_PROCESS_STATE_RESTORING
+
+
+        Application memory contents are being restored
 
 .. autoclass:: cuda.bindings.driver.CUeglFrameType
 
@@ -6422,6 +6597,9 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUDA_EVENT_RECORD_NODE_PARAMS
 .. autoclass:: cuda.bindings.driver.CUDA_EVENT_WAIT_NODE_PARAMS
 .. autoclass:: cuda.bindings.driver.CUgraphNodeParams
+.. autoclass:: cuda.bindings.driver.CUcheckpointCustomStoragePerDeviceData
+.. autoclass:: cuda.bindings.driver.CUcheckpointOperationHandle
+.. autoclass:: cuda.bindings.driver.CUcheckpointCustomStorageInfo
 .. autoclass:: cuda.bindings.driver.CUcheckpointLockArgs
 .. autoclass:: cuda.bindings.driver.CUcheckpointCheckpointArgs
 .. autoclass:: cuda.bindings.driver.CUcheckpointGpuPair
@@ -6558,6 +6736,10 @@ Data types used by CUDA driver
 .. autoattribute:: cuda.bindings.driver.CU_MEM_CREATE_USAGE_HW_DECOMPRESS
 
     This flag, if set, indicates that the memory will be used as a buffer for hardware accelerated decompression.
+
+.. autoattribute:: cuda.bindings.driver.CU_MEM_CREATE_USAGE_GPU_DIRECT_RDMA_OVER_PCIE
+
+    Setting this flag forces GPUDirect RDMA on a locality-domain-localized allocation to use the PCIe (BAR1) path, allowing the allocation to remain locality-domain localized on platforms where the platform-coherent RDMA path does not support localized allocations. Because on some platforms the PCIe bandwidth is limited, using this flag may result in lower RDMA bandwidth than the default RDMA mapping link. Note that this flag does not itself force PCIe to be used, and that this must be done when creating the RDMA export. :py:obj:`~.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WITH_LOCALIZED_MEMORY_SUPPORTED` indicates whether this flag is needed to create GPUDirect RDMA capable localized memory allocations. This flag is only valid if gpuDirectRDMACapable is set.
 
 .. autoattribute:: cuda.bindings.driver.CU_MEM_POOL_CREATE_USAGE_HW_DECOMPRESS
 
@@ -7082,6 +7264,46 @@ Support for multicast on a specific device can be queried using the device attri
 .. autofunction:: cuda.bindings.driver.cuMulticastUnbind
 .. autofunction:: cuda.bindings.driver.cuMulticastGetGranularity
 
+Fabric Clique Information
+-------------------------
+
+MANBRIEF low-level CUDA driver application programming interface to retrieve fabric clique information. API (CURRENT_FILE) ENDMANBRIEF
+
+
+
+This section describes functions and data structures to retrieve fabric clique information.
+
+.. autoclass:: cuda.bindings.driver.CUcliqueInfo_st
+.. autoclass:: cuda.bindings.driver.CUcliqueType
+
+    .. autoattribute:: cuda.bindings.driver.CUcliqueType.CU_CLIQUE_TYPE_UNICAST_POINTER
+
+
+        Unicast pointer clique
+
+
+    .. autoattribute:: cuda.bindings.driver.CUcliqueType.CU_CLIQUE_TYPE_MULTICAST_POINTER
+
+
+        Multicast pointer clique
+
+
+    .. autoattribute:: cuda.bindings.driver.CUcliqueType.CU_CLIQUE_TYPE_UNICAST_LOGICAL_ENDPOINT
+
+
+        Unicast logical endpoint clique
+
+
+    .. autoattribute:: cuda.bindings.driver.CUcliqueType.CU_CLIQUE_TYPE_MULTICAST_LOGICAL_ENDPOINT
+
+
+        Multicast logical endpoint clique
+
+.. autoclass:: cuda.bindings.driver.CUcliqueInfo
+.. autofunction:: cuda.bindings.driver.cuDeviceGetFabricClusterUuid
+.. autofunction:: cuda.bindings.driver.cuDeviceGetCliqueCount
+.. autofunction:: cuda.bindings.driver.cuDeviceGetCliqueInfo
+
 Logical Endpoint
 ----------------
 
@@ -7212,6 +7434,7 @@ This device address may be queried using cuMemHostGetDevicePointer() when a cont
 .. autofunction:: cuda.bindings.driver.cuMemPrefetchBatchAsync
 .. autofunction:: cuda.bindings.driver.cuMemDiscardBatchAsync
 .. autofunction:: cuda.bindings.driver.cuMemDiscardAndPrefetchBatchAsync
+.. autofunction:: cuda.bindings.driver.cuMemGetLocationInfo
 .. autofunction:: cuda.bindings.driver.cuMemRangeGetAttribute
 .. autofunction:: cuda.bindings.driver.cuMemRangeGetAttributes
 .. autofunction:: cuda.bindings.driver.cuPointerSetAttribute
@@ -7475,7 +7698,9 @@ This section describes the graph management functions of the low-level CUDA driv
 .. autofunction:: cuda.bindings.driver.cuGraphRetainUserObject
 .. autofunction:: cuda.bindings.driver.cuGraphReleaseUserObject
 .. autofunction:: cuda.bindings.driver.cuGraphAddNode
+.. autofunction:: cuda.bindings.driver.cuGraphAddNode_v3
 .. autofunction:: cuda.bindings.driver.cuGraphNodeSetParams
+.. autofunction:: cuda.bindings.driver.cuGraphNodeSetParams_v2
 .. autofunction:: cuda.bindings.driver.cuGraphNodeGetParams
 .. autofunction:: cuda.bindings.driver.cuGraphExecNodeSetParams
 .. autofunction:: cuda.bindings.driver.cuGraphConditionalHandleCreate
@@ -7731,6 +7956,22 @@ SMs
 
 There are two possible partition operations - with cuDevSmResourceSplitByCount the partitions created have to follow default SM count granularity requirements, so it will often be rounded up and aligned to a default value. On the other hand, cuDevSmResourceSplit is explicit and allows for creation of non-equal groups. It will not round up automatically - instead it is the developer’s responsibility to query and set the correct values. These requirements can be queried with cuDeviceGetDevResource to determine the alignment granularity (sm.smCoscheduledAlignment). A general guideline on the default values for each compute architecture:
 
+- On all architectures,
+
+
+
+
+
+  - Portable code should set smCount to a multiple of the device's alignment granularity (sm.smCoscheduledAlignment).
+
+
+
+
+
+
+
+
+
 - On Compute Architecture 7.X, 8.X, and all Tegra SoC:
 
 
@@ -7761,7 +8002,7 @@ There are two possible partition operations - with cuDevSmResourceSplitByCount t
 
 
 
-  - The smCount must be a multiple of 8, or coscheduledSmCount if provided.
+  - The smCount must be a multiple of coscheduledSmCount if provided.
 
 
 
@@ -7769,7 +8010,7 @@ There are two possible partition operations - with cuDevSmResourceSplitByCount t
 
 
 
-  - The alignment (and default value of coscheduledSmCount) is 8. While the maximum value for coscheduled SM count is 32 on all Compute Architecture 9.0+, it's recommended to follow cluster size requirements. The portable cluster size and the max cluster size should be used in order to benefit from this co-scheduling.
+  - The alignment is 8.
 
 
 
@@ -7780,6 +8021,10 @@ There are two possible partition operations - with cuDevSmResourceSplitByCount t
 
 
 
+
+
+
+While the maximum value for coscheduled SM count is 32 on all Compute Architecture 9.0+, it's recommended to follow cluster size requirements. The portable cluster size and the max cluster size should be used in order to benefit from this co-scheduling.
 
 
 
@@ -7845,6 +8090,26 @@ Additionally, there are two known scenarios, where its possible for the workload
 
 - On Compute Architecture 9.x: When a module with dynamic parallelism (CDP) is loaded, all future kernels running under green contexts may use and share an additional set of 2 SMs.
 
+
+
+
+
+
+
+
+
+
+
+
+
+Memory Copy Operations
+
+
+
+
+
+Green context restrictions apply to memory copy operations only when the copy is performed using a green context. For cross-device copies, green context restrictions may not be applied.
+
 .. autoclass:: cuda.bindings.driver.CUdevSmResource_st
 .. autoclass:: cuda.bindings.driver.CUdevWorkqueueConfigResource_st
 .. autoclass:: cuda.bindings.driver.CUdevWorkqueueResource_st
@@ -7871,6 +8136,12 @@ Additionally, there are two known scenarios, where its possible for the workload
 
 
     .. autoattribute:: cuda.bindings.driver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_BACKFILL
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID
+
+
+        The SMs must be located on a specific locality domain, specified by localityDomainId
 
 .. autoclass:: cuda.bindings.driver.CUdevSmResourceSplitByCount_flags
 
@@ -7986,6 +8257,7 @@ Checkpoint and restore capabilities are currently restricted to Linux.
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessLock
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessCheckpoint
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessRestore
+.. autofunction:: cuda.bindings.driver.cuCheckpointOperationComplete
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessUnlock
 
 Profiler Control

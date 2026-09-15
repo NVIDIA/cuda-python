@@ -100,10 +100,3 @@ def uuids(ngpus, handles):
     uuids = [nvml.device_get_uuid(handles[i]) for i in range(ngpus)]
     assert len(uuids) == ngpus
     return uuids
-
-
-@pytest.fixture
-def pci_info(ngpus, handles):
-    pci_info = [nvml.device_get_pci_info_v3(handles[i]) for i in range(ngpus)]
-    assert len(pci_info) == ngpus
-    return pci_info
