@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2deb18bb807294bf53e2c658224675406d9211c4ce7e17cb8a0d115dbbbbbab5
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0dd5a3d6611fc33f3dc65d159d2af4526419579897c3efcba7b54b8d30b9c144
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -2724,9 +2724,6 @@ cdef class PciInfo:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef nvmlPciInfo_t *new_ptr
-        cdef nvmlPciInfo_t *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -2734,18 +2731,8 @@ cdef class PciInfo:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlPciInfo_t), view.len)
                     )
-                new_ptr = <nvmlPciInfo_t *>_cyb_malloc(sizeof(nvmlPciInfo_t))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating PciInfo")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlPciInfo_t))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(nvmlPciInfo_t))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -4612,9 +4599,6 @@ cdef class Value:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef nvmlValue_t *new_ptr
-        cdef nvmlValue_t *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -4622,18 +4606,8 @@ cdef class Value:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlValue_t), view.len)
                     )
-                new_ptr = <nvmlValue_t *>_cyb_malloc(sizeof(nvmlValue_t))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating Value")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlValue_t))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(nvmlValue_t))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -7415,9 +7389,6 @@ cdef class _py_anon_pod2:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef cuda_bindings_nvml__anon_pod2 *new_ptr
-        cdef cuda_bindings_nvml__anon_pod2 *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -7425,18 +7396,8 @@ cdef class _py_anon_pod2:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cuda_bindings_nvml__anon_pod2), view.len)
                     )
-                new_ptr = <cuda_bindings_nvml__anon_pod2 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod2))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating _py_anon_pod2")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod2))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod2))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -7573,9 +7534,6 @@ cdef class _py_anon_pod3:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef cuda_bindings_nvml__anon_pod3 *new_ptr
-        cdef cuda_bindings_nvml__anon_pod3 *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -7583,18 +7541,8 @@ cdef class _py_anon_pod3:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cuda_bindings_nvml__anon_pod3), view.len)
                     )
-                new_ptr = <cuda_bindings_nvml__anon_pod3 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod3))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating _py_anon_pod3")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod3))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod3))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -7927,9 +7875,6 @@ cdef class _py_anon_pod4:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef cuda_bindings_nvml__anon_pod4 *new_ptr
-        cdef cuda_bindings_nvml__anon_pod4 *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -7937,18 +7882,8 @@ cdef class _py_anon_pod4:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cuda_bindings_nvml__anon_pod4), view.len)
                     )
-                new_ptr = <cuda_bindings_nvml__anon_pod4 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod4))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating _py_anon_pod4")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod4))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod4))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -8085,9 +8020,6 @@ cdef class _py_anon_pod5:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef cuda_bindings_nvml__anon_pod5 *new_ptr
-        cdef cuda_bindings_nvml__anon_pod5 *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -8095,18 +8027,8 @@ cdef class _py_anon_pod5:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cuda_bindings_nvml__anon_pod5), view.len)
                     )
-                new_ptr = <cuda_bindings_nvml__anon_pod5 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod5))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating _py_anon_pod5")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod5))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod5))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -8453,9 +8375,6 @@ cdef class VgpuLicenseExpiry:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef nvmlVgpuLicenseExpiry_t *new_ptr
-        cdef nvmlVgpuLicenseExpiry_t *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -8463,18 +8382,8 @@ cdef class VgpuLicenseExpiry:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuLicenseExpiry_t), view.len)
                     )
-                new_ptr = <nvmlVgpuLicenseExpiry_t *>_cyb_malloc(sizeof(nvmlVgpuLicenseExpiry_t))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating VgpuLicenseExpiry")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlVgpuLicenseExpiry_t))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(nvmlVgpuLicenseExpiry_t))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -8672,9 +8581,6 @@ cdef class GridLicenseExpiry:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef nvmlGridLicenseExpiry_t *new_ptr
-        cdef nvmlGridLicenseExpiry_t *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -8682,18 +8588,8 @@ cdef class GridLicenseExpiry:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGridLicenseExpiry_t), view.len)
                     )
-                new_ptr = <nvmlGridLicenseExpiry_t *>_cyb_malloc(sizeof(nvmlGridLicenseExpiry_t))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating GridLicenseExpiry")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlGridLicenseExpiry_t))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(nvmlGridLicenseExpiry_t))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -12914,9 +12810,6 @@ cdef class VgpuVersion:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef nvmlVgpuVersion_t *new_ptr
-        cdef nvmlVgpuVersion_t *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -12924,18 +12817,8 @@ cdef class VgpuVersion:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuVersion_t), view.len)
                     )
-                new_ptr = <nvmlVgpuVersion_t *>_cyb_malloc(sizeof(nvmlVgpuVersion_t))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating VgpuVersion")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlVgpuVersion_t))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(nvmlVgpuVersion_t))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -15717,9 +15600,6 @@ cdef class PRMCounterInput_v1:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef nvmlPRMCounterInput_v1_t *new_ptr
-        cdef nvmlPRMCounterInput_v1_t *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -15727,18 +15607,8 @@ cdef class PRMCounterInput_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlPRMCounterInput_v1_t), view.len)
                     )
-                new_ptr = <nvmlPRMCounterInput_v1_t *>_cyb_malloc(sizeof(nvmlPRMCounterInput_v1_t))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating PRMCounterInput_v1")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlPRMCounterInput_v1_t))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(nvmlPRMCounterInput_v1_t))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -16949,9 +16819,6 @@ cdef class CPERCursor_v1:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef nvmlCPERCursor_v1_t *new_ptr
-        cdef nvmlCPERCursor_v1_t *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -16959,18 +16826,8 @@ cdef class CPERCursor_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlCPERCursor_v1_t), view.len)
                     )
-                new_ptr = <nvmlCPERCursor_v1_t *>_cyb_malloc(sizeof(nvmlCPERCursor_v1_t))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating CPERCursor_v1")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlCPERCursor_v1_t))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(nvmlCPERCursor_v1_t))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -18823,9 +18680,6 @@ cdef class GpuFabricClique_v1:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef nvmlGpuFabricClique_v1_t *new_ptr
-        cdef nvmlGpuFabricClique_v1_t *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -18833,18 +18687,8 @@ cdef class GpuFabricClique_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGpuFabricClique_v1_t), view.len)
                     )
-                new_ptr = <nvmlGpuFabricClique_v1_t *>_cyb_malloc(sizeof(nvmlGpuFabricClique_v1_t))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating GpuFabricClique_v1")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlGpuFabricClique_v1_t))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(nvmlGpuFabricClique_v1_t))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -19899,9 +19743,6 @@ cdef class EccBankRemapperHistogram_v1:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef nvmlEccBankRemapperHistogram_v1_t *new_ptr
-        cdef nvmlEccBankRemapperHistogram_v1_t *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -19909,18 +19750,8 @@ cdef class EccBankRemapperHistogram_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlEccBankRemapperHistogram_v1_t), view.len)
                     )
-                new_ptr = <nvmlEccBankRemapperHistogram_v1_t *>_cyb_malloc(sizeof(nvmlEccBankRemapperHistogram_v1_t))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating EccBankRemapperHistogram_v1")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlEccBankRemapperHistogram_v1_t))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(nvmlEccBankRemapperHistogram_v1_t))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -21293,9 +21124,6 @@ cdef class PRMCounterValue_v1:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef nvmlPRMCounterValue_v1_t *new_ptr
-        cdef nvmlPRMCounterValue_v1_t *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -21303,18 +21131,8 @@ cdef class PRMCounterValue_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlPRMCounterValue_v1_t), view.len)
                     )
-                new_ptr = <nvmlPRMCounterValue_v1_t *>_cyb_malloc(sizeof(nvmlPRMCounterValue_v1_t))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating PRMCounterValue_v1")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlPRMCounterValue_v1_t))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(nvmlPRMCounterValue_v1_t))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -22233,9 +22051,6 @@ cdef class VgpuSchedulerParams:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef nvmlVgpuSchedulerParams_t *new_ptr
-        cdef nvmlVgpuSchedulerParams_t *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -22243,18 +22058,8 @@ cdef class VgpuSchedulerParams:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuSchedulerParams_t), view.len)
                     )
-                new_ptr = <nvmlVgpuSchedulerParams_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerParams_t))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating VgpuSchedulerParams")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlVgpuSchedulerParams_t))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(nvmlVgpuSchedulerParams_t))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -22402,9 +22207,6 @@ cdef class VgpuSchedulerSetParams:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef nvmlVgpuSchedulerSetParams_t *new_ptr
-        cdef nvmlVgpuSchedulerSetParams_t *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -22412,18 +22214,8 @@ cdef class VgpuSchedulerSetParams:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuSchedulerSetParams_t), view.len)
                     )
-                new_ptr = <nvmlVgpuSchedulerSetParams_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerSetParams_t))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating VgpuSchedulerSetParams")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlVgpuSchedulerSetParams_t))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(nvmlVgpuSchedulerSetParams_t))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -23778,9 +23570,6 @@ cdef class NvlinkFirmwareInfo:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef nvmlNvlinkFirmwareInfo_t *new_ptr
-        cdef nvmlNvlinkFirmwareInfo_t *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -23788,18 +23577,8 @@ cdef class NvlinkFirmwareInfo:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkFirmwareInfo_t), view.len)
                     )
-                new_ptr = <nvmlNvlinkFirmwareInfo_t *>_cyb_malloc(sizeof(nvmlNvlinkFirmwareInfo_t))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating NvlinkFirmwareInfo")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlNvlinkFirmwareInfo_t))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(nvmlNvlinkFirmwareInfo_t))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -27543,9 +27322,6 @@ cdef class _py_anon_pod8:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
-        cdef cuda_bindings_nvml__anon_pod8 *new_ptr
-        cdef cuda_bindings_nvml__anon_pod8 *old_ptr
-        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -27553,18 +27329,8 @@ cdef class _py_anon_pod8:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cuda_bindings_nvml__anon_pod8), view.len)
                     )
-                new_ptr = <cuda_bindings_nvml__anon_pod8 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod8))
-                if new_ptr == NULL:
-                    raise MemoryError("Error allocating _py_anon_pod8")
-                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod8))
-                old_ptr = self._ptr
-                old_owner = self._owner
-                self._ptr = new_ptr
-                self._owner = NULL
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod8))
                 self._readonly = view.readonly != 0
-                if old_owner == NULL and old_ptr != NULL:
-                    _cyb_free(old_ptr)
-                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
