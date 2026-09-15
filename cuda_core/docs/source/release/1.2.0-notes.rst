@@ -244,6 +244,12 @@ Fixes and enhancements
   refreshed for CUDA 13.3 and now recognizes
   ``CUDA_ERROR_GRAPH_RECAPTURE_FAILURE``.
   (`#2383 <https://github.com/NVIDIA/cuda-python/pull/2383>`__)
+- :meth:`ObjectCode.get_kernel` now accepts a ``symbol_mapping`` whose values
+  are ``str``, as :meth:`ObjectCode.from_cubin` and its siblings document
+  (``dict[str, str]``). The mapped name was only encoded on the *miss* path, so
+  a hand-built mapping raised ``TypeError: expected bytes, str found`` for
+  exactly the names it was supposed to translate. Mappings produced by
+  :meth:`Program.compile` are unaffected -- their values are already ``bytes``.
 
 Deprecation Notices
 -------------------
