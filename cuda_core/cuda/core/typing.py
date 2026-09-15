@@ -84,7 +84,7 @@ class ObjectCodeFormatType(StrEnum):
     * ``CUBIN`` — device-native CUDA binary.
     * ``LTOIR`` — LTO (link-time optimization) IR for later linking.
     * ``FATBIN`` — fat binary bundling multiple device images.
-    * ``OBJECT`` — relocatable device object.
+    * ``OBJECT`` — host object containing device code.
     * ``LIBRARY`` — device code library.
     """
 

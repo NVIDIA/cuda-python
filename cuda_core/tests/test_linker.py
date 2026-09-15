@@ -5,9 +5,20 @@
 import inspect
 import warnings
 
+import numpy as np
 import pytest
 
-from cuda.core import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
+from cuda.core import (
+    Device,
+    LaunchConfig,
+    LegacyPinnedMemoryResource,
+    Linker,
+    LinkerOptions,
+    Program,
+    ProgramOptions,
+    _linker,
+    launch,
+)
 from cuda.core._module import ObjectCode
 from cuda.core._program import _can_load_generated_ptx
 from cuda.core._utils.cuda_utils import CUDAError
@@ -27,7 +38,11 @@ if not is_culink_backend:
     from cuda.bindings import nvjitlink
 
     nvJitLinkError = nvjitlink.nvJitLinkError
+    nvjitlink_version = nvjitlink.version()
+    has_linked_ltoir_bindings = all(hasattr(nvjitlink, name) for name in ("get_linked_ltoir_size", "get_linked_ltoir"))
 else:
+    nvjitlink_version = (0, 0)
+    has_linked_ltoir_bindings = False
 
     class nvJitLinkError(Exception):
         pass
@@ -86,8 +101,7 @@ if not is_culink_backend:
         LinkerOptions(arch=ARCH, variables_used=["var1", "var2"]),
         LinkerOptions(arch=ARCH, variables_used=("var1", "var2")),
     ]
-    version = nvjitlink.version()
-    if version >= (12, 5):
+    if nvjitlink_version >= (12, 5):
         options.append(LinkerOptions(arch=ARCH, no_cache=True))
 
 
@@ -196,6 +210,14 @@ def test_linker_options_as_bytes_nvjitlink():
     assert "-g" in options_str
     assert "-ftz=true" in options_str
     assert "-maxrregcount=32" in options_str
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.skipif(is_culink_backend, reason="as_bytes() only supported for nvjitlink backend")
+@pytest.mark.parametrize("value,expected_count", [(None, 0), (False, 0), (True, 1)])
+def test_linker_options_relocatable_as_bytes(value, expected_count):
+    options = LinkerOptions(arch="sm_80", relocatable=value)
+    assert options.as_bytes().count(b"-r") == expected_count
 
 
 @pytest.mark.parametrize("backend", ("invalid", "driver"))
@@ -453,6 +475,13 @@ def test_prepare_driver_options_unsupported_raises(driver_binding, kwargs, match
         opts._prepare_driver_options()
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_prepare_driver_options_rejects_relocatable(driver_binding):
+    options = LinkerOptions(relocatable=True)
+    with pytest.raises(ValueError, match="relocatable option is not supported by the driver API"):
+        options._prepare_driver_options()
+
+
 @pytest.mark.agent_authored(model="claude-opus-5")
 @pytest.mark.parametrize("value", [True, False])
 def test_numba_debug_warns_and_is_ignored(value):
@@ -500,3 +529,191 @@ def test_as_bytes_nvjitlink_unavailable(monkeypatch):
     opts = LinkerOptions(arch="sm_80")
     with pytest.raises(RuntimeError, match="nvJitLink backend is not available"):
         opts.as_bytes("nvjitlink")
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_require_nvjitlink_version_reports_required_and_detected_versions(monkeypatch):
+    class OldNvJitLink:
+        @staticmethod
+        def version():
+            return (13, 1)
+
+    monkeypatch.setattr(_linker, "_optional_cuda_import", lambda _name: OldNvJitLink)
+
+    with pytest.raises(RuntimeError, match=r"requires nvJitLink 13\.2 or newer; found 13\.1"):
+        _linker._require_nvjitlink_version((13, 2), "relocatable linking")
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_require_nvjitlink_version_accepts_boundary_version(monkeypatch):
+    class NvJitLinkAtMinimum:
+        @staticmethod
+        def version():
+            return (13, 2)
+
+    monkeypatch.setattr(_linker, "_optional_cuda_import", lambda _name: NvJitLinkAtMinimum)
+
+    assert _linker._require_nvjitlink_version((13, 2), "relocatable linking") is NvJitLinkAtMinimum
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_linked_ltoir_output_requires_new_enough_runtime(monkeypatch):
+    class OldNvJitLink:
+        get_linked_ltoir_size = object()
+        get_linked_ltoir = object()
+
+        @staticmethod
+        def version():
+            return (13, 2)
+
+    monkeypatch.setattr(_linker, "_optional_cuda_import", lambda _name: OldNvJitLink)
+
+    with pytest.raises(RuntimeError, match=r"LTOIR output requires nvJitLink 13\.3 or newer; found 13\.2"):
+        _linker._linked_ltoir_output_module()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_linked_ltoir_output_requires_new_enough_bindings(monkeypatch):
+    class NvJitLinkWithoutLinkedLtoir:
+        @staticmethod
+        def version():
+            return (13, 3)
+
+    monkeypatch.setattr(_linker, "_optional_cuda_import", lambda _name: NvJitLinkWithoutLinkedLtoir)
+
+    with pytest.raises(RuntimeError, match="cuda-bindings with get_linked_ltoir_size and get_linked_ltoir"):
+        _linker._linked_ltoir_output_module()
+
+
+incremental_caller = r"""
+extern "C" __device__ int incremental_helper();
+extern "C" __global__ void incremental_kernel(int* result) {
+    if (threadIdx.x == 0 && blockIdx.x == 0) {
+        *result = incremental_helper();
+    }
+}
+"""
+
+incremental_helper = r"""
+extern "C" __device__ int incremental_helper() { return 42; }
+"""
+
+
+def _compile_incremental_inputs(target_type):
+    if target_type == "ptx":
+        options = ProgramOptions(relocatable_device_code=True)
+    else:
+        options = ProgramOptions(link_time_optimization=True)
+    caller = Program(incremental_caller, "c++", options).compile(target_type)
+    helper = Program(incremental_helper, "c++", options).compile(target_type)
+    return caller, helper
+
+
+def _launch_incrementally_linked_kernel(device, linked_code):
+    kernel = linked_code.get_kernel("incremental_kernel")
+    stream = device.create_stream()
+    try:
+        with LegacyPinnedMemoryResource().allocate(4) as host_buffer:
+            result = np.from_dlpack(host_buffer).view(np.int32)
+            try:
+                with device.memory_resource.allocate(4, stream=stream) as device_buffer:
+                    result[:] = 0
+
+                    launch(stream, LaunchConfig(grid=1, block=1), kernel, device_buffer)
+                    device_buffer.copy_to(host_buffer, stream=stream)
+                    stream.sync()
+                    actual = int(result[0])
+            finally:
+                # Drop the DLPack view before releasing its pinned allocation.
+                result = None
+
+        assert actual == 42
+    finally:
+        try:
+            stream.sync()
+        finally:
+            stream.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.skipif(
+    is_culink_backend or nvjitlink_version < (13, 2),
+    reason="relocatable linking requires nvJitLink 13.2 or newer",
+)
+def test_relocatable_cubin_round_trip(init_cuda):
+    caller, helper = _compile_incremental_inputs("ptx")
+
+    partial = Linker(caller, options=LinkerOptions(arch=ARCH, relocatable=True)).link("cubin")
+    assert partial.code_type == "cubin"
+
+    resolved_partial = Linker(
+        partial,
+        helper,
+        options=LinkerOptions(arch=ARCH, relocatable=True),
+    ).link("cubin")
+    assert resolved_partial.code_type == "cubin"
+
+    final = Linker(resolved_partial, options=LinkerOptions(arch=ARCH)).link("cubin")
+    _launch_incrementally_linked_kernel(init_cuda, final)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.skipif(
+    is_culink_backend or nvjitlink_version < (13, 3) or not has_linked_ltoir_bindings,
+    reason="linked LTOIR output requires nvJitLink 13.3 or newer and matching cuda-bindings",
+)
+def test_relocatable_ltoir_round_trip(init_cuda):
+    caller, helper = _compile_incremental_inputs("ltoir")
+    incremental_options = LinkerOptions(
+        arch=ARCH,
+        relocatable=True,
+        link_time_optimization=True,
+    )
+
+    partial = Linker(caller, options=incremental_options).link("ltoir")
+    assert partial.code_type == "ltoir"
+
+    resolved_partial = Linker(partial, helper, options=incremental_options).link("ltoir")
+    assert resolved_partial.code_type == "ltoir"
+
+    final = Linker(
+        resolved_partial,
+        options=LinkerOptions(arch=ARCH, link_time_optimization=True),
+    ).link("cubin")
+    _launch_incrementally_linked_kernel(init_cuda, final)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.skipif(
+    is_culink_backend or nvjitlink_version < (13, 2),
+    reason="relocatable linking requires nvJitLink 13.2 or newer",
+)
+def test_relocatable_link_rejects_ptx_output(compile_ptx_functions):
+    linker = Linker(
+        *compile_ptx_functions,
+        options=LinkerOptions(arch=ARCH, relocatable=True),
+    )
+    with pytest.raises(ValueError, match="PTX output is not supported for relocatable linking"):
+        linker.link("ptx")
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_relocatable_link_rejects_ptx_option(compile_ptx_functions):
+    with pytest.raises(ValueError, match="relocatable and ptx output options cannot be used together"):
+        Linker(
+            *compile_ptx_functions,
+            options=LinkerOptions(
+                arch=ARCH,
+                relocatable=True,
+                link_time_optimization=True,
+                ptx=True,
+            ),
+        )
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.skipif(is_culink_backend, reason="LTOIR output requires nvJitLink")
+def test_ltoir_output_requires_lto(compile_ptx_functions):
+    linker = Linker(*compile_ptx_functions, options=LinkerOptions(arch=ARCH))
+    with pytest.raises(ValueError, match="LTOIR output requires link_time_optimization=True"):
+        linker.link("ltoir")
