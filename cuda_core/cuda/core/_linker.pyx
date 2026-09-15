@@ -18,6 +18,7 @@ from cuda.bindings cimport cynvjitlink
 
 from ._resource_handles cimport (
     as_cu,
+    as_intptr,
     as_py,
     create_culink_handle,
     create_nvjitlink_handle,
@@ -101,7 +102,9 @@ cdef class Linker:
         Parameters
         ----------
         target_type : ObjectCodeFormatType | str
-            The type of the target output. Must be either "cubin" or "ptx".
+            The type of the target output. Must be "cubin", "ptx", or
+            "ltoir". Linked LTOIR output requires
+            ``link_time_optimization=True`` and nvJitLink 13.3 or newer.
 
         Returns
         -------
@@ -112,6 +115,10 @@ cdef class Linker:
 
             Ensure that input object codes were compiled with appropriate
             flags for linking (e.g., relocatable device code enabled).
+
+            A CUBIN produced with ``relocatable=True`` can be passed directly
+            to another :class:`Linker`, but it can still contain unresolved
+            device references and should be finalized before execution.
         """
         Linker_check_open(self)
         return Linker_link(self, str(target_type))
@@ -256,6 +263,11 @@ class LinkerOptions:
     link_time_optimization : bool, optional
         Perform link time optimization.
         Default: False.
+    relocatable : bool, optional
+        Perform a relocatable (incremental) link. The result can be passed
+        directly to a later :class:`Linker`. Requires nvJitLink 13.2 or newer
+        and is not supported by the driver linker backend.
+        Default: False.
     ptx : bool, optional
         Emit PTX after linking instead of CUBIN; only supported with ``link_time_optimization=True``.
         Default: False.
@@ -336,6 +348,7 @@ class LinkerOptions:
     split_compile_extended: int | None = None
     no_cache: bool | None = None
     numba_debug: bool | None = None
+    relocatable: bool | None = None
 
     def __post_init__(self) -> None:
         _lazy_init()
@@ -371,6 +384,8 @@ class LinkerOptions:
             options.append("-verbose")
         if self.link_time_optimization:
             options.append("-lto")
+        if self.relocatable:
+            options.append("-r")
         if self.ptx:
             options.append("-ptx")
         if self.optimization_level is not None:
@@ -450,6 +465,8 @@ class LinkerOptions:
         if self.link_time_optimization:
             formatted_options.append(1)
             option_keys.append(_driver.CUjit_option.CU_JIT_LTO)
+        if self.relocatable:
+            raise ValueError("relocatable option is not supported by the driver API")
         if self.ptx:
             raise ValueError("ptx option is not supported by the driver API")
         if self.optimization_level is not None:
@@ -532,8 +549,12 @@ cdef inline int Linker_init(Linker self, tuple object_codes, object options) exc
     cdef void** c_drv_jit_values_ptr
 
     self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
+    if options.relocatable and options.ptx:
+        raise ValueError("relocatable and ptx output options cannot be used together")
 
     if _use_nvjitlink_backend:
+        if options.relocatable:
+            _require_nvjitlink_version((13, 2), "relocatable linking")
         self._use_nvjitlink = True
         options_bytes = options._prepare_nvjitlink_options(as_bytes=True)
         c_num_opts = len(options_bytes)
@@ -642,14 +663,23 @@ cdef inline void Linker_add_code_object(Linker self, object object_code) except 
 
 cdef inline object Linker_link(Linker self, str target_type):
     """Complete linking and return the result as ObjectCode."""
-    if target_type not in ("cubin", "ptx"):
+    if target_type not in ("cubin", "ptx", "ltoir"):
         raise ValueError(f"Unsupported target type: {target_type}")
+    if self._options.relocatable and target_type == "ptx":
+        raise ValueError("PTX output is not supported for relocatable linking")
+    if target_type == "ltoir":
+        if not self._use_nvjitlink:
+            raise ValueError("LTOIR output is not supported by the driver API")
+        if not self._options.link_time_optimization:
+            raise ValueError("LTOIR output requires link_time_optimization=True")
+        nvjitlink_module = _linked_ltoir_output_module()
 
     cdef cynvjitlink.nvJitLinkHandle c_nvjitlink_h
     cdef cydriver.CUlinkState c_culink_state
     cdef size_t c_output_size = 0
     cdef char* c_code_ptr
     cdef void* c_cubin_out = NULL
+    cdef intptr_t c_handle
 
     if self._use_nvjitlink:
         c_nvjitlink_h = as_cu(self._nvjitlink_handle)
@@ -663,7 +693,7 @@ cdef inline object Linker_link(Linker self, str target_type):
             with nogil:
                 HANDLE_RETURN_NVJITLINK(c_nvjitlink_h,
                     cynvjitlink.nvJitLinkGetLinkedCubin(c_nvjitlink_h, c_code_ptr))
-        else:
+        elif target_type == "ptx":
             HANDLE_RETURN_NVJITLINK(c_nvjitlink_h,
                 cynvjitlink.nvJitLinkGetLinkedPtxSize(c_nvjitlink_h, &c_output_size))
             code = bytearray(c_output_size)
@@ -671,6 +701,18 @@ cdef inline object Linker_link(Linker self, str target_type):
             with nogil:
                 HANDLE_RETURN_NVJITLINK(c_nvjitlink_h,
                     cynvjitlink.nvJitLinkGetLinkedPtx(c_nvjitlink_h, c_code_ptr))
+        else:
+            c_handle = as_intptr(self._nvjitlink_handle)
+            function_not_found_error = _nvjitlink_function_not_found_error()
+            try:
+                output_size = nvjitlink_module.get_linked_ltoir_size(c_handle)
+                code = bytearray(output_size)
+                nvjitlink_module.get_linked_ltoir(c_handle, code)
+            except function_not_found_error as e:
+                raise RuntimeError(
+                    "LTOIR output requires nvJitLinkGetLinkedLTOIRSize and "
+                    "nvJitLinkGetLinkedLTOIR support"
+                ) from e
     else:
         c_culink_state = as_cu(self._culink_handle)
         try:
@@ -708,6 +750,42 @@ _use_nvjitlink_backend = None  # set by _decide_nvjitlink_or_driver()
 # Input type mappings populated by _lazy_init() with C-level enum ints.
 _nvjitlink_input_types = None
 _driver_input_types = None
+
+
+def _require_nvjitlink_version(minimum_version: tuple[int, int], feature: str):
+    """Return the nvJitLink module after checking a feature's runtime version."""
+    nvjitlink_module = _optional_cuda_import("cuda.bindings.nvjitlink")
+    if nvjitlink_module is None:
+        raise RuntimeError(f"{feature} requires cuda.bindings.nvjitlink")
+
+    detected_version = nvjitlink_module.version()
+    if detected_version < minimum_version:
+        required = ".".join(str(component) for component in minimum_version)
+        detected = ".".join(str(component) for component in detected_version)
+        raise RuntimeError(f"{feature} requires nvJitLink {required} or newer; found {detected}")
+    return nvjitlink_module
+
+
+def _linked_ltoir_output_module():
+    """Return bindings that can retrieve linked LTOIR without a Cython dependency."""
+    nvjitlink_module = _require_nvjitlink_version((13, 3), "LTOIR output")
+    missing = [
+        name
+        for name in ("get_linked_ltoir_size", "get_linked_ltoir")
+        if not hasattr(nvjitlink_module, name)
+    ]
+    if missing:
+        raise RuntimeError(
+            "LTOIR output requires cuda-bindings with " + " and ".join(missing)
+        )
+    return nvjitlink_module
+
+
+def _nvjitlink_function_not_found_error():
+    """Return the exact error raised for an unavailable nvJitLink symbol."""
+    from cuda.bindings._internal.utils import FunctionNotFoundError
+
+    return FunctionNotFoundError
 
 
 def _nvjitlink_has_version_symbol(nvjitlink) -> bool:
