@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_margin\_temperature
+===================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_margin_temperature

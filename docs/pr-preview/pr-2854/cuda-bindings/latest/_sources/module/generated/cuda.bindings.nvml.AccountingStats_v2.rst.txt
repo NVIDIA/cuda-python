@@ -1,0 +1,41 @@
+﻿cuda.bindings.nvml.AccountingStats\_v2
+======================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: AccountingStats_v2
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AccountingStats_v2.__init__
+      ~AccountingStats_v2.from_buffer
+      ~AccountingStats_v2.from_data
+      ~AccountingStats_v2.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~AccountingStats_v2.gpu_utilization
+      ~AccountingStats_v2.is_running
+      ~AccountingStats_v2.max_memory_usage
+      ~AccountingStats_v2.memory_utilization
+      ~AccountingStats_v2.pid
+      ~AccountingStats_v2.ptr
+      ~AccountingStats_v2.sample_count
+      ~AccountingStats_v2.start_time
+      ~AccountingStats_v2.sum_fb_util
+      ~AccountingStats_v2.sum_gpu_util
+      ~AccountingStats_v2.time
+   
+   
