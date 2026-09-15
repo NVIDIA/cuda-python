@@ -212,7 +212,7 @@ def _extension_depends():
     Listing the whole directory keeps the rule free of include parsing; the
     cost is that every extension rebuilds when any of these headers changes,
     exactly as editing the one monolithic header did before the split."""
-    cpp = Path("cuda", "core", "_cpp")
+    cpp = Path(__file__).parent / "cuda" / "core" / "_cpp"
     return sorted(
         str(path)
         for module_dir in cpp.iterdir()
