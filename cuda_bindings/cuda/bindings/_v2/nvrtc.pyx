@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=27a65e25f2ddca0b89c0e3017c34f26b42c64fc9b221475ab0b8198207d44647
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7bea42584683721061ad6a55d7580e0a95b588f56cce22e7cfcf985235b43f1b
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -640,7 +640,6 @@ cpdef tuple version():
 
     Returns:
         A 2-tuple containing:
-
         - int: CUDA Runtime Compilation major version number.
         - int: CUDA Runtime Compilation minor version number.
 
@@ -658,7 +657,6 @@ cpdef int get_num_supported_archs() except? -1:
     """nvrtcGetNumSupportedArchs sets the output parameter ``num_archs`` with the number of architectures supported by NVRTC. This can then be used to pass an array to ``nvrtcGetSupportedArchs`` to get the supported architectures.
 
     see ``nvrtcGetSupportedArchs``.
-
     Returns:
         int: number of supported architectures.
 
@@ -675,7 +673,6 @@ cpdef object get_supported_archs():
     """nvrtcGetSupportedArchs populates the array passed via the output parameter ``supported_archs`` with the architectures supported by NVRTC. The array is sorted in the ascending order. The size of the array to be passed can be determined using ``nvrtcGetNumSupportedArchs``.
 
     see ``nvrtcGetNumSupportedArchs``.
-
     Returns:
         int: sorted array of supported architectures.
 
@@ -887,7 +884,6 @@ cpdef size_t get_program_log_size(intptr_t prog) except? 0:
 
     Note that compilation log may be generated with warnings and informative
     messages, even when the compilation of ``prog`` succeeds.
-
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
 
@@ -932,14 +928,12 @@ cpdef bytes get_program_log(intptr_t prog):
 cpdef add_name_expression(intptr_t prog, name_expression):
     """nvrtcAddNameExpression notes the given name expression denoting the address of a global function or device/__constant__ variable.
 
-    The identical name expression string must be provided on a subsequent call
-    to nvrtcGetLoweredName to extract the lowered name.
-
+    The identical name expression string must be provided on a subsequent call to
+    nvrtcGetLoweredName to extract the lowered name.
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
-        name_expression (str): constant expression denoting the
-            address of a global function or device/__constant__
-            variable.
+        name_expression (str): constant expression denoting the address of
+            a global function or device/__constant__ variable.
 
     .. seealso:: `nvrtcAddNameExpression`
     """
@@ -956,8 +950,8 @@ cpdef size_t get_pch_heap_size() except? 0:
     """retrieve the current size of the PCH Heap.
 
     Returns:
-        size_t: pointer to location where the size of the PCH Heap
-            will be stored.
+        size_t: pointer to location where the size of the PCH Heap will be
+            stored.
 
     .. seealso:: `nvrtcGetPCHHeapSize`
     """
@@ -971,10 +965,9 @@ cpdef size_t get_pch_heap_size() except? 0:
 cpdef set_pch_heap_size(size_t size):
     """set the size of the PCH Heap.
 
-    The requested size may be rounded up to a platform dependent alignment
-    (e.g. page size). If the PCH Heap has already been allocated, the heap
-    memory will be freed and a new PCH Heap will be allocated.
-
+    The requested size may be rounded up to a platform dependent alignment (e.g.
+    page size). If the PCH Heap has already been allocated, the heap memory will be
+    freed and a new PCH Heap will be allocated.
     Args:
         size (size_t): requested size of the PCH Heap, in bytes.
 
@@ -991,17 +984,16 @@ cpdef int get_pch_create_status(intptr_t prog) except? -1:
     NVRTC_SUCCESS indicates that the PCH was successfully created.
     NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED indicates that no PCH creation was
     attempted, either because PCH functionality was not requested during the
-    preceding nvrtcCompileProgram call, or automatic PCH processing was
-    requested, and compiler chose not to create a PCH file.
+    preceding nvrtcCompileProgram call, or automatic PCH processing was requested,
+    and compiler chose not to create a PCH file.
     NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED indicates that a PCH file could
-    potentially have been created, but the compiler ran out space in the PCH
-    heap. In this scenario, the :func:`get_pch_heap_size_required` can be used
-    to query the required heap size, the heap can be reallocated for this size
-    with :func:`set_pch_heap_size` and PCH creation may be reattempted again
-    invoking :func:`compile_program` with a new NVRTC program instance.
-    NVRTC_ERROR_PCH_CREATE indicates that an error condition prevented the PCH
-    file from being created.
-
+    potentially have been created, but the compiler ran out space in the PCH heap.
+    In this scenario, the :func:`get_pch_heap_size_required` can be used to query
+    the required heap size, the heap can be reallocated for this size with
+    :func:`set_pch_heap_size` and PCH creation may be reattempted again invoking
+    :func:`compile_program` with a new NVRTC program instance.
+    NVRTC_ERROR_PCH_CREATE indicates that an error condition prevented the PCH file
+    from being created.
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
 
