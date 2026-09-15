@@ -2575,6 +2575,12 @@ similarly-renamed <code class="docutils literal notranslate"><span class="pre">n
 <li><p>Creating wrapped structs (AUTO_LOWPP_CLASS) in <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> should now be faster in most cases, because it requires 1 heap allocation rather than 2.</p></li>
 </ul>
 </section>
+<section id="behavior-changes">
+<h2>Behavior changes<a class="headerlink" href="#behavior-changes" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Passing a <code class="docutils literal notranslate"><span class="pre">None</span></code> to <code class="docutils literal notranslate"><span class="pre">nvvm.add_module_to_program</span></code> or <code class="docutils literal notranslate"><span class="pre">nvvm.lazy_add_module_to_program</span></code> will now raise a <code class="docutils literal notranslate"><span class="pre">nvvm.nvvmError</span></code> (<code class="docutils literal notranslate"><span class="pre">INVALID_INPUT</span></code>) rather than a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p></li>
+</ul>
+</section>
 <section id="bugfixes">
 <h2>Bugfixes<a class="headerlink" href="#bugfixes" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -2648,6 +2654,7 @@ still experimental and subject to change.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#changes">Changes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enhancements">Enhancements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior-changes">Behavior changes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bugfixes">Bugfixes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerelease-feature">Prerelease feature</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#known-issues">Known issues</a></li>
