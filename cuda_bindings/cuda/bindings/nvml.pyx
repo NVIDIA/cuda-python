@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4d010f839da36550c1c10e3d22a111851674c07a6f0fa504131b531899a4c477
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2deb18bb807294bf53e2c658224675406d9211c4ce7e17cb8a0d115dbbbbbab5
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -32,6 +32,7 @@ from libc.stdlib cimport (
 from libc.string cimport (
     memcmp as _cyb_memcmp,
     memcpy as _cyb_memcpy,
+    memmove as _cyb_memmove,
 )
 
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
@@ -2497,7 +2498,9 @@ cdef class PciInfoExt_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlPciInfoExt_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlPciInfoExt_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlPciInfoExt_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -2721,6 +2724,9 @@ cdef class PciInfo:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef nvmlPciInfo_t *new_ptr
+        cdef nvmlPciInfo_t *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -2728,14 +2734,18 @@ cdef class PciInfo:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlPciInfo_t), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <nvmlPciInfo_t *>_cyb_malloc(sizeof(nvmlPciInfo_t))
-                if self._ptr == NULL:
+                new_ptr = <nvmlPciInfo_t *>_cyb_malloc(sizeof(nvmlPciInfo_t))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating PciInfo")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(nvmlPciInfo_t))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlPciInfo_t))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -2933,7 +2943,9 @@ cdef class Utilization:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlUtilization_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlUtilization_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlUtilization_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -3069,7 +3081,9 @@ cdef class Memory:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlMemory_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlMemory_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlMemory_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -3218,7 +3232,9 @@ cdef class Memory_v2:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlMemory_v2_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlMemory_v2_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlMemory_v2_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -3387,7 +3403,9 @@ cdef class BAR1Memory:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlBAR1Memory_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlBAR1Memory_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlBAR1Memory_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -3916,7 +3934,9 @@ cdef class DeviceAttributes:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlDeviceAttributes_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlDeviceAttributes_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlDeviceAttributes_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -4127,7 +4147,9 @@ cdef class C2cModeInfo_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlC2cModeInfo_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlC2cModeInfo_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlC2cModeInfo_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -4254,7 +4276,9 @@ cdef class RowRemapperHistogramValues:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlRowRemapperHistogramValues_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlRowRemapperHistogramValues_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlRowRemapperHistogramValues_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -4588,6 +4612,9 @@ cdef class Value:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef nvmlValue_t *new_ptr
+        cdef nvmlValue_t *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -4595,14 +4622,18 @@ cdef class Value:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlValue_t), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <nvmlValue_t *>_cyb_malloc(sizeof(nvmlValue_t))
-                if self._ptr == NULL:
+                new_ptr = <nvmlValue_t *>_cyb_malloc(sizeof(nvmlValue_t))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating Value")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(nvmlValue_t))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlValue_t))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -4988,7 +5019,9 @@ cdef class CoolerInfo_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlCoolerInfo_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlCoolerInfo_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlCoolerInfo_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -5307,7 +5340,9 @@ cdef class ClockOffset_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlClockOffset_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlClockOffset_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlClockOffset_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -5933,7 +5968,9 @@ cdef class EccSramErrorStatus_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlEccSramErrorStatus_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlEccSramErrorStatus_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlEccSramErrorStatus_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -6195,7 +6232,9 @@ cdef class PlatformInfo_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlPlatformInfo_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlPlatformInfo_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlPlatformInfo_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -6414,7 +6453,9 @@ cdef class PlatformInfo_v2:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlPlatformInfo_v2_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlPlatformInfo_v2_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlPlatformInfo_v2_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -6814,7 +6855,9 @@ cdef class VgpuPlacementList_v2:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuPlacementList_v2_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuPlacementList_v2_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuPlacementList_v2_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -6980,7 +7023,9 @@ cdef class VgpuTypeBar1Info_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuTypeBar1Info_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuTypeBar1Info_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuTypeBar1Info_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -7370,6 +7415,9 @@ cdef class _py_anon_pod2:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef cuda_bindings_nvml__anon_pod2 *new_ptr
+        cdef cuda_bindings_nvml__anon_pod2 *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -7377,14 +7425,18 @@ cdef class _py_anon_pod2:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cuda_bindings_nvml__anon_pod2), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <cuda_bindings_nvml__anon_pod2 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod2))
-                if self._ptr == NULL:
+                new_ptr = <cuda_bindings_nvml__anon_pod2 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod2))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating _py_anon_pod2")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod2))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod2))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -7521,6 +7573,9 @@ cdef class _py_anon_pod3:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef cuda_bindings_nvml__anon_pod3 *new_ptr
+        cdef cuda_bindings_nvml__anon_pod3 *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -7528,14 +7583,18 @@ cdef class _py_anon_pod3:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cuda_bindings_nvml__anon_pod3), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <cuda_bindings_nvml__anon_pod3 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod3))
-                if self._ptr == NULL:
+                new_ptr = <cuda_bindings_nvml__anon_pod3 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod3))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating _py_anon_pod3")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod3))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod3))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -7868,6 +7927,9 @@ cdef class _py_anon_pod4:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef cuda_bindings_nvml__anon_pod4 *new_ptr
+        cdef cuda_bindings_nvml__anon_pod4 *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -7875,14 +7937,18 @@ cdef class _py_anon_pod4:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cuda_bindings_nvml__anon_pod4), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <cuda_bindings_nvml__anon_pod4 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod4))
-                if self._ptr == NULL:
+                new_ptr = <cuda_bindings_nvml__anon_pod4 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod4))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating _py_anon_pod4")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod4))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod4))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -8019,6 +8085,9 @@ cdef class _py_anon_pod5:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef cuda_bindings_nvml__anon_pod5 *new_ptr
+        cdef cuda_bindings_nvml__anon_pod5 *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -8026,14 +8095,18 @@ cdef class _py_anon_pod5:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cuda_bindings_nvml__anon_pod5), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <cuda_bindings_nvml__anon_pod5 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod5))
-                if self._ptr == NULL:
+                new_ptr = <cuda_bindings_nvml__anon_pod5 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod5))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating _py_anon_pod5")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod5))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod5))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -8163,7 +8236,9 @@ cdef class VgpuSchedulerCapabilities:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuSchedulerCapabilities_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerCapabilities_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerCapabilities_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -8378,6 +8453,9 @@ cdef class VgpuLicenseExpiry:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef nvmlVgpuLicenseExpiry_t *new_ptr
+        cdef nvmlVgpuLicenseExpiry_t *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -8385,14 +8463,18 @@ cdef class VgpuLicenseExpiry:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuLicenseExpiry_t), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <nvmlVgpuLicenseExpiry_t *>_cyb_malloc(sizeof(nvmlVgpuLicenseExpiry_t))
-                if self._ptr == NULL:
+                new_ptr = <nvmlVgpuLicenseExpiry_t *>_cyb_malloc(sizeof(nvmlVgpuLicenseExpiry_t))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating VgpuLicenseExpiry")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(nvmlVgpuLicenseExpiry_t))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlVgpuLicenseExpiry_t))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -8590,6 +8672,9 @@ cdef class GridLicenseExpiry:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef nvmlGridLicenseExpiry_t *new_ptr
+        cdef nvmlGridLicenseExpiry_t *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -8597,14 +8682,18 @@ cdef class GridLicenseExpiry:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGridLicenseExpiry_t), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <nvmlGridLicenseExpiry_t *>_cyb_malloc(sizeof(nvmlGridLicenseExpiry_t))
-                if self._ptr == NULL:
+                new_ptr = <nvmlGridLicenseExpiry_t *>_cyb_malloc(sizeof(nvmlGridLicenseExpiry_t))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating GridLicenseExpiry")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(nvmlGridLicenseExpiry_t))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlGridLicenseExpiry_t))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -8797,7 +8886,9 @@ cdef class VgpuTypeIdInfo_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuTypeIdInfo_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuTypeIdInfo_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuTypeIdInfo_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -8944,7 +9035,9 @@ cdef class ActiveVgpuInstanceInfo_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlActiveVgpuInstanceInfo_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -9093,7 +9186,9 @@ cdef class VgpuCreatablePlacementInfo_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuCreatablePlacementInfo_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -9415,7 +9510,9 @@ cdef class LedState:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlLedState_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlLedState_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlLedState_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -9556,7 +9653,9 @@ cdef class UnitInfo:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlUnitInfo_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlUnitInfo_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlUnitInfo_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -9731,7 +9830,9 @@ cdef class PSUInfo:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlPSUInfo_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlPSUInfo_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlPSUInfo_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -10053,7 +10154,9 @@ cdef class EventData:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlEventData_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlEventData_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlEventData_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -10384,7 +10487,9 @@ cdef class AccountingStats:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlAccountingStats_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlAccountingStats_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlAccountingStats_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -10794,7 +10899,9 @@ cdef class FBCStats:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlFBCStats_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlFBCStats_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlFBCStats_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -11218,7 +11325,9 @@ cdef class ConfComputeSystemCaps:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlConfComputeSystemCaps_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlConfComputeSystemCaps_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlConfComputeSystemCaps_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -11354,7 +11463,9 @@ cdef class ConfComputeSystemState:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlConfComputeSystemState_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlConfComputeSystemState_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlConfComputeSystemState_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -11503,7 +11614,9 @@ cdef class SystemConfComputeSettings_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlSystemConfComputeSettings_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlSystemConfComputeSettings_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlSystemConfComputeSettings_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -11671,7 +11784,9 @@ cdef class ConfComputeMemSizeInfo:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlConfComputeMemSizeInfo_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlConfComputeMemSizeInfo_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlConfComputeMemSizeInfo_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -11808,7 +11923,9 @@ cdef class ConfComputeGpuCertificate:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlConfComputeGpuCertificate_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlConfComputeGpuCertificate_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlConfComputeGpuCertificate_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -11969,7 +12086,9 @@ cdef class ConfComputeGpuAttestationReport:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlConfComputeGpuAttestationReport_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlConfComputeGpuAttestationReport_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlConfComputeGpuAttestationReport_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -12158,7 +12277,9 @@ cdef class GpuFabricInfo_v2:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGpuFabricInfo_v2_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlGpuFabricInfo_v2_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlGpuFabricInfo_v2_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -12344,7 +12465,9 @@ cdef class NvlinkSupportedBwModes_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkSupportedBwModes_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlNvlinkSupportedBwModes_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvlinkSupportedBwModes_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -12491,7 +12614,9 @@ cdef class NvlinkGetBwMode_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkGetBwMode_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlNvlinkGetBwMode_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvlinkGetBwMode_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -12638,7 +12763,9 @@ cdef class NvlinkSetBwMode_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkSetBwMode_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlNvlinkSetBwMode_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvlinkSetBwMode_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -12787,6 +12914,9 @@ cdef class VgpuVersion:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef nvmlVgpuVersion_t *new_ptr
+        cdef nvmlVgpuVersion_t *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -12794,14 +12924,18 @@ cdef class VgpuVersion:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuVersion_t), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <nvmlVgpuVersion_t *>_cyb_malloc(sizeof(nvmlVgpuVersion_t))
-                if self._ptr == NULL:
+                new_ptr = <nvmlVgpuVersion_t *>_cyb_malloc(sizeof(nvmlVgpuVersion_t))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating VgpuVersion")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(nvmlVgpuVersion_t))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlVgpuVersion_t))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -12944,7 +13078,9 @@ cdef class VgpuMetadata:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuMetadata_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuMetadata_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuMetadata_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -13168,7 +13304,9 @@ cdef class VgpuPgpuCompatibility:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuPgpuCompatibility_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuPgpuCompatibility_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuPgpuCompatibility_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -13472,7 +13610,9 @@ cdef class GpuInstanceProfileInfo_v3:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGpuInstanceProfileInfo_v3_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlGpuInstanceProfileInfo_v3_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlGpuInstanceProfileInfo_v3_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -13899,7 +14039,9 @@ cdef class ComputeInstanceProfileInfo_v2:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlComputeInstanceProfileInfo_v2_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlComputeInstanceProfileInfo_v2_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlComputeInstanceProfileInfo_v2_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -14147,7 +14289,9 @@ cdef class ComputeInstanceProfileInfo_v3:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlComputeInstanceProfileInfo_v3_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlComputeInstanceProfileInfo_v3_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlComputeInstanceProfileInfo_v3_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -14396,7 +14540,9 @@ cdef class DeviceAddressingMode_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlDeviceAddressingMode_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlDeviceAddressingMode_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlDeviceAddressingMode_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -14532,7 +14678,9 @@ cdef class RepairStatus_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlRepairStatus_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlRepairStatus_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlRepairStatus_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -14679,7 +14827,9 @@ cdef class DevicePowerMizerModes_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlDevicePowerMizerModes_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlDevicePowerMizerModes_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlDevicePowerMizerModes_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -15048,7 +15198,9 @@ cdef class GpuFabricInfo_v3:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGpuFabricInfo_v3_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlGpuFabricInfo_v3_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlGpuFabricInfo_v3_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -15244,7 +15396,9 @@ cdef class NvLinkInfo_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvLinkInfo_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlNvLinkInfo_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvLinkInfo_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -15563,6 +15717,9 @@ cdef class PRMCounterInput_v1:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef nvmlPRMCounterInput_v1_t *new_ptr
+        cdef nvmlPRMCounterInput_v1_t *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -15570,14 +15727,18 @@ cdef class PRMCounterInput_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlPRMCounterInput_v1_t), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <nvmlPRMCounterInput_v1_t *>_cyb_malloc(sizeof(nvmlPRMCounterInput_v1_t))
-                if self._ptr == NULL:
+                new_ptr = <nvmlPRMCounterInput_v1_t *>_cyb_malloc(sizeof(nvmlPRMCounterInput_v1_t))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating PRMCounterInput_v1")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(nvmlPRMCounterInput_v1_t))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlPRMCounterInput_v1_t))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -15703,7 +15864,9 @@ cdef class VgpuSchedulerStateInfo_v2:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuSchedulerStateInfo_v2_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -16080,7 +16243,9 @@ cdef class VgpuSchedulerState_v2:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuSchedulerState_v2_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerState_v2_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerState_v2_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -16236,7 +16401,9 @@ cdef class BBXTimeData_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlBBXTimeData_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlBBXTimeData_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlBBXTimeData_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -16364,7 +16531,9 @@ cdef class RemappedRowsInfo_v2:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlRemappedRowsInfo_v2_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlRemappedRowsInfo_v2_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlRemappedRowsInfo_v2_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -16551,7 +16720,9 @@ cdef class AccountingStats_v2:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlAccountingStats_v2_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlAccountingStats_v2_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlAccountingStats_v2_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -16778,6 +16949,9 @@ cdef class CPERCursor_v1:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef nvmlCPERCursor_v1_t *new_ptr
+        cdef nvmlCPERCursor_v1_t *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -16785,14 +16959,18 @@ cdef class CPERCursor_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlCPERCursor_v1_t), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <nvmlCPERCursor_v1_t *>_cyb_malloc(sizeof(nvmlCPERCursor_v1_t))
-                if self._ptr == NULL:
+                new_ptr = <nvmlCPERCursor_v1_t *>_cyb_malloc(sizeof(nvmlCPERCursor_v1_t))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating CPERCursor_v1")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(nvmlCPERCursor_v1_t))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlCPERCursor_v1_t))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -16945,7 +17123,9 @@ cdef class SetMemoryLimits_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlSetMemoryLimits_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlSetMemoryLimits_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlSetMemoryLimits_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -17102,7 +17282,9 @@ cdef class GetMemoryLimits_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGetMemoryLimits_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlGetMemoryLimits_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlGetMemoryLimits_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -18033,7 +18215,9 @@ cdef class AdaptiveTgpModeInfo_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlAdaptiveTgpModeInfo_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlAdaptiveTgpModeInfo_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlAdaptiveTgpModeInfo_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -18200,7 +18384,9 @@ cdef class EventSetGetContextCount_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlEventSetGetContextCount_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlEventSetGetContextCount_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlEventSetGetContextCount_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -18327,7 +18513,9 @@ cdef class EventSetGetContextInfo_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlEventSetGetContextInfo_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlEventSetGetContextInfo_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlEventSetGetContextInfo_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -18495,7 +18683,9 @@ cdef class EventSetGetGpuOperationalEventContextLegacyXid_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -18633,6 +18823,9 @@ cdef class GpuFabricClique_v1:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef nvmlGpuFabricClique_v1_t *new_ptr
+        cdef nvmlGpuFabricClique_v1_t *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -18640,14 +18833,18 @@ cdef class GpuFabricClique_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGpuFabricClique_v1_t), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <nvmlGpuFabricClique_v1_t *>_cyb_malloc(sizeof(nvmlGpuFabricClique_v1_t))
-                if self._ptr == NULL:
+                new_ptr = <nvmlGpuFabricClique_v1_t *>_cyb_malloc(sizeof(nvmlGpuFabricClique_v1_t))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating GpuFabricClique_v1")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(nvmlGpuFabricClique_v1_t))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlGpuFabricClique_v1_t))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -18783,7 +18980,9 @@ cdef class GpuOperationalEventConfig_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGpuOperationalEventConfig_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlGpuOperationalEventConfig_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlGpuOperationalEventConfig_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -18956,7 +19155,9 @@ cdef class EventSetWait_v3:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlEventSetWait_v3_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlEventSetWait_v3_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlEventSetWait_v3_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -19353,7 +19554,9 @@ cdef class NvlinkSetBwModeAsync_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkSetBwModeAsync_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlNvlinkSetBwModeAsync_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvlinkSetBwModeAsync_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -19696,6 +19899,9 @@ cdef class EccBankRemapperHistogram_v1:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef nvmlEccBankRemapperHistogram_v1_t *new_ptr
+        cdef nvmlEccBankRemapperHistogram_v1_t *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -19703,14 +19909,18 @@ cdef class EccBankRemapperHistogram_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlEccBankRemapperHistogram_v1_t), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <nvmlEccBankRemapperHistogram_v1_t *>_cyb_malloc(sizeof(nvmlEccBankRemapperHistogram_v1_t))
-                if self._ptr == NULL:
+                new_ptr = <nvmlEccBankRemapperHistogram_v1_t *>_cyb_malloc(sizeof(nvmlEccBankRemapperHistogram_v1_t))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating EccBankRemapperHistogram_v1")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(nvmlEccBankRemapperHistogram_v1_t))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlEccBankRemapperHistogram_v1_t))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -19845,7 +20055,9 @@ cdef class ExcludedDeviceInfo:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlExcludedDeviceInfo_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlExcludedDeviceInfo_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlExcludedDeviceInfo_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -19993,7 +20205,9 @@ cdef class ProcessDetailList_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlProcessDetailList_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlProcessDetailList_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlProcessDetailList_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -20150,7 +20364,9 @@ cdef class BridgeChipHierarchy:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlBridgeChipHierarchy_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlBridgeChipHierarchy_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlBridgeChipHierarchy_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -21077,6 +21293,9 @@ cdef class PRMCounterValue_v1:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef nvmlPRMCounterValue_v1_t *new_ptr
+        cdef nvmlPRMCounterValue_v1_t *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -21084,14 +21303,18 @@ cdef class PRMCounterValue_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlPRMCounterValue_v1_t), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <nvmlPRMCounterValue_v1_t *>_cyb_malloc(sizeof(nvmlPRMCounterValue_v1_t))
-                if self._ptr == NULL:
+                new_ptr = <nvmlPRMCounterValue_v1_t *>_cyb_malloc(sizeof(nvmlPRMCounterValue_v1_t))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating PRMCounterValue_v1")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(nvmlPRMCounterValue_v1_t))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlPRMCounterValue_v1_t))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -21242,7 +21465,9 @@ cdef class GpuThermalSettings:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGpuThermalSettings_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlGpuThermalSettings_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlGpuThermalSettings_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -21386,7 +21611,9 @@ cdef class ClkMonStatus:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlClkMonStatus_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlClkMonStatus_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlClkMonStatus_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -21536,7 +21763,9 @@ cdef class ProcessesUtilizationInfo_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlProcessesUtilizationInfo_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlProcessesUtilizationInfo_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlProcessesUtilizationInfo_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -21693,7 +21922,9 @@ cdef class GpuDynamicPstatesInfo:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGpuDynamicPstatesInfo_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlGpuDynamicPstatesInfo_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlGpuDynamicPstatesInfo_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -21840,7 +22071,9 @@ cdef class VgpuProcessesUtilizationInfo_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -22000,6 +22233,9 @@ cdef class VgpuSchedulerParams:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef nvmlVgpuSchedulerParams_t *new_ptr
+        cdef nvmlVgpuSchedulerParams_t *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -22007,14 +22243,18 @@ cdef class VgpuSchedulerParams:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuSchedulerParams_t), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <nvmlVgpuSchedulerParams_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerParams_t))
-                if self._ptr == NULL:
+                new_ptr = <nvmlVgpuSchedulerParams_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerParams_t))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating VgpuSchedulerParams")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(nvmlVgpuSchedulerParams_t))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlVgpuSchedulerParams_t))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -22162,6 +22402,9 @@ cdef class VgpuSchedulerSetParams:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef nvmlVgpuSchedulerSetParams_t *new_ptr
+        cdef nvmlVgpuSchedulerSetParams_t *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -22169,14 +22412,18 @@ cdef class VgpuSchedulerSetParams:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuSchedulerSetParams_t), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <nvmlVgpuSchedulerSetParams_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerSetParams_t))
-                if self._ptr == NULL:
+                new_ptr = <nvmlVgpuSchedulerSetParams_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerSetParams_t))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating VgpuSchedulerSetParams")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(nvmlVgpuSchedulerSetParams_t))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlVgpuSchedulerSetParams_t))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -22322,7 +22569,9 @@ cdef class VgpuLicenseInfo:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuLicenseInfo_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuLicenseInfo_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuLicenseInfo_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -22673,7 +22922,9 @@ cdef class UnitFanSpeeds:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlUnitFanSpeeds_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlUnitFanSpeeds_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlUnitFanSpeeds_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -22822,7 +23073,9 @@ cdef class VgpuPgpuMetadata:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuPgpuMetadata_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuPgpuMetadata_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuPgpuMetadata_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -23027,7 +23280,9 @@ cdef class GpuInstanceInfo:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGpuInstanceInfo_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlGpuInstanceInfo_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlGpuInstanceInfo_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -23193,7 +23448,9 @@ cdef class ComputeInstanceInfo:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlComputeInstanceInfo_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlComputeInstanceInfo_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlComputeInstanceInfo_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -23370,7 +23627,9 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -23519,6 +23778,9 @@ cdef class NvlinkFirmwareInfo:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef nvmlNvlinkFirmwareInfo_t *new_ptr
+        cdef nvmlNvlinkFirmwareInfo_t *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -23526,14 +23788,18 @@ cdef class NvlinkFirmwareInfo:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkFirmwareInfo_t), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <nvmlNvlinkFirmwareInfo_t *>_cyb_malloc(sizeof(nvmlNvlinkFirmwareInfo_t))
-                if self._ptr == NULL:
+                new_ptr = <nvmlNvlinkFirmwareInfo_t *>_cyb_malloc(sizeof(nvmlNvlinkFirmwareInfo_t))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating NvlinkFirmwareInfo")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(nvmlNvlinkFirmwareInfo_t))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(nvmlNvlinkFirmwareInfo_t))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -23680,7 +23946,9 @@ cdef class VgpuSchedulerLogInfo_v2:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuSchedulerLogInfo_v2_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -23868,7 +24136,9 @@ cdef class GetCPER_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGetCPER_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlGetCPER_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlGetCPER_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -24370,7 +24640,9 @@ cdef class GpuFabricInfo_v4:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGpuFabricInfo_v4_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlGpuFabricInfo_v4_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlGpuFabricInfo_v4_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -24575,7 +24847,9 @@ cdef class NvlinkTelemetrySamples_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkTelemetrySamples_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlNvlinkTelemetrySamples_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvlinkTelemetrySamples_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -24712,7 +24986,9 @@ cdef class EccBankRemapperStatus_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlEccBankRemapperStatus_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlEccBankRemapperStatus_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlEccBankRemapperStatus_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -24879,7 +25155,9 @@ cdef class VgpuInstancesUtilizationInfo_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -25217,7 +25495,9 @@ cdef class VgpuSchedulerLog:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuSchedulerLog_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerLog_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerLog_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -25410,7 +25690,9 @@ cdef class VgpuSchedulerGetState:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuSchedulerGetState_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerGetState_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerGetState_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -25564,7 +25846,9 @@ cdef class VgpuSchedulerStateInfo_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuSchedulerStateInfo_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -25742,7 +26026,9 @@ cdef class VgpuSchedulerLogInfo_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuSchedulerLogInfo_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -25948,7 +26234,9 @@ cdef class VgpuSchedulerState_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlVgpuSchedulerState_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerState_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlVgpuSchedulerState_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -26122,7 +26410,9 @@ cdef class GridLicensableFeatures:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGridLicensableFeatures_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlGridLicensableFeatures_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlGridLicensableFeatures_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -26269,7 +26559,9 @@ cdef class NvLinkInfo_v2:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvLinkInfo_v2_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlNvLinkInfo_v2_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvLinkInfo_v2_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
@@ -27251,6 +27543,9 @@ cdef class _py_anon_pod8:
 
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
+        cdef cuda_bindings_nvml__anon_pod8 *new_ptr
+        cdef cuda_bindings_nvml__anon_pod8 *old_ptr
+        cdef _cyb_PyObject *old_owner
         if key == 0:
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
@@ -27258,14 +27553,18 @@ cdef class _py_anon_pod8:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cuda_bindings_nvml__anon_pod8), view.len)
                     )
-                if self._owner == NULL and self._ptr != NULL:
-                    _cyb_free(self._ptr)
-                _cyb_Py_CLEAR(self._owner)
-                self._ptr = <cuda_bindings_nvml__anon_pod8 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod8))
-                if self._ptr == NULL:
+                new_ptr = <cuda_bindings_nvml__anon_pod8 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod8))
+                if new_ptr == NULL:
                     raise MemoryError("Error allocating _py_anon_pod8")
-                _cyb_memcpy(<void*>self._ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod8))
+                _cyb_memcpy(<void*>new_ptr, view.buf, sizeof(cuda_bindings_nvml__anon_pod8))
+                old_ptr = self._ptr
+                old_owner = self._owner
+                self._ptr = new_ptr
+                self._owner = NULL
                 self._readonly = view.readonly != 0
+                if old_owner == NULL and old_ptr != NULL:
+                    _cyb_free(old_ptr)
+                _cyb_Py_CLEAR(old_owner)
             finally:
                 _cyb_PyBuffer_Release(&view)
         else:
@@ -27726,7 +28025,9 @@ cdef class PerfMetricsSamples_v1:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlPerfMetricsSamples_v1_t), view.len)
                     )
-                _cyb_memcpy(<void*>&self._data, view.buf, sizeof(nvmlPerfMetricsSamples_v1_t))
+                # val's buffer may alias self._data (e.g. self-assignment, or another
+                # wrapper pointing at this same storage), so this must tolerate overlap.
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlPerfMetricsSamples_v1_t))
                 self._ptr = &self._data
                 self._owner = None
                 self._readonly = view.readonly != 0
