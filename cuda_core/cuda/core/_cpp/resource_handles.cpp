@@ -401,6 +401,7 @@ const WarnOnFailure<p_cuStreamDestroy> pw_cuStreamDestroy{"cuStreamDestroy"};
 const WarnOnFailure<p_cuEventDestroy> pw_cuEventDestroy{"cuEventDestroy"};
 const WarnOnFailure<p_cuMemFree> pw_cuMemFree{"cuMemFree"};
 const WarnOnFailure<p_cuMemFreeAsync> pw_cuMemFreeAsync{"cuMemFreeAsync"};
+const WarnOnFailure<p_cuMemPoolSetAccess> pw_cuMemPoolSetAccess{"cuMemPoolSetAccess"};
 const WarnOnFailure<p_cuArrayDestroy> pw_cuArrayDestroy{"cuArrayDestroy"};
 const WarnOnFailure<p_cuMipmappedArrayDestroy> pw_cuMipmappedArrayDestroy{"cuMipmappedArrayDestroy"};
 const WarnOnFailure<p_cuTexObjectDestroy> pw_cuTexObjectDestroy{"cuTexObjectDestroy"};
@@ -1156,37 +1157,46 @@ EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
 namespace {
 struct MemoryPoolBox {
     CUmemoryPool resource;
+    int device_id;
 };
 }  // namespace
 
 // Helper to clear peer access before destroying a memory pool.
 // Works around nvbug 5698116: recycled pool handles inherit peer access state.
 // Must be noexcept since it's called from a shared_ptr deleter.
-static void clear_mempool_peer_access(CUmemoryPool pool) noexcept {
+static void clear_mempool_peer_access(CUmemoryPool pool, int device_id) noexcept {
     try {
         int device_count = 0;
-        if (p_cuDeviceGetCount(&device_count) != CUDA_SUCCESS || device_count <= 0) {
+        if (p_cuDeviceGetCount(&device_count) != CUDA_SUCCESS || device_count <= 1) {
             return;
         }
 
-        std::vector<CUmemAccessDesc> clear_access(device_count);
+        std::vector<CUmemAccessDesc> clear_access;
+        clear_access.reserve(device_count - 1);
         for (int i = 0; i < device_count; ++i) {
-            clear_access[i].location.type = CU_MEM_LOCATION_TYPE_DEVICE;
-            clear_access[i].location.id = i;
-            clear_access[i].flags = CU_MEM_ACCESS_FLAGS_PROT_NONE;
+            if (i == device_id) {
+                continue;
+            }
+            CUmemAccessDesc access{};
+            access.location.type = CU_MEM_LOCATION_TYPE_DEVICE;
+            access.location.id = i;
+            access.flags = CU_MEM_ACCESS_FLAGS_PROT_NONE;
+            clear_access.push_back(access);
         }
-        p_cuMemPoolSetAccess(pool, clear_access.data(), device_count);  // Best effort
+        if (!clear_access.empty()) {
+            pw_cuMemPoolSetAccess(pool, clear_access.data(), clear_access.size());
+        }
     } catch (...) {
         // Swallow exceptions - this is best-effort cleanup in destructor context
     }
 }
 
-static MemoryPoolHandle wrap_mempool_owned(CUmemoryPool pool) {
+static MemoryPoolHandle wrap_mempool_owned(CUmemoryPool pool, int device_id) {
     auto box = std::shared_ptr<const MemoryPoolBox>(
-        new MemoryPoolBox{pool},
+        new MemoryPoolBox{pool, device_id},
         [](const MemoryPoolBox* b) {
             GILReleaseGuard gil;
-            clear_mempool_peer_access(b->resource);
+            clear_mempool_peer_access(b->resource, b->device_id);
             p_cuMemPoolDestroy(b->resource);
             delete b;
         }
@@ -1200,11 +1210,11 @@ MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) {
     if (CUDA_SUCCESS != (err = p_cuMemPoolCreate(&pool, &props))) {
         return {};
     }
-    return wrap_mempool_owned(pool);
+    return wrap_mempool_owned(pool, props.location.id);
 }
 
 MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool) {
-    auto box = std::make_shared<const MemoryPoolBox>(MemoryPoolBox{pool});
+    auto box = std::make_shared<const MemoryPoolBox>(MemoryPoolBox{pool, -1});
     return MemoryPoolHandle(box, &box->resource);
 }
 
@@ -1224,7 +1234,7 @@ MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType han
     if (CUDA_SUCCESS != (err = p_cuMemPoolImportFromShareableHandle(&pool, handle_ptr, handle_type, 0))) {
         return {};
     }
-    return wrap_mempool_owned(pool);
+    return wrap_mempool_owned(pool, -1);
 }
 
 // ============================================================================

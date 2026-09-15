@@ -2476,6 +2476,32 @@ def test_dmr_mempool_get_access_peer(mempool_device_x2):
     assert DMR_mempool_get_access(mr, peer.device_id) == ""
 
 
+def test_owned_mempool_recycled_peer_access_is_cleared(mempool_device_x2):
+    """Recycled owned pools must not retain access granted to a prior pool."""
+    from cuda.core._memory._device_memory_resource import DMR_mempool_get_access
+
+    device, peer = mempool_device_x2
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE)
+
+    first = DeviceMemoryResource(device, options=options)
+    first.peer_accessible_by = [peer]
+    assert DMR_mempool_get_access(first, peer.device_id) == "rw"
+    first_handle = int(first.handle)
+    first.close()
+
+    for _ in range(100):
+        recycled = DeviceMemoryResource(device, options=options)
+        try:
+            if int(recycled.handle) != first_handle:
+                continue
+            assert DMR_mempool_get_access(recycled, peer.device_id) == ""
+            return
+        finally:
+            recycled.close()
+
+    pytest.skip("CUDA did not recycle the memory-pool handle within 100 attempts")
+
+
 def test_dmr_peer_accessible_by_setter_empty(mempool_device):
     """Assigning an empty peer-access set to a fresh owned pool is a no-op."""
     # max_size caps VA to dodge Windows MCDM OOM
