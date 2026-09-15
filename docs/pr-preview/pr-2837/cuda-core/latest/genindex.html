@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=c87dc8d7"></script>
+    <script src="_static/documentation_options.js?v=8a07fb82"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev77';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev84';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -657,6 +657,8 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.CUDAError.html">cuda.core.CUDAError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.NVRTCError.html">cuda.core.NVRTCError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
@@ -1328,6 +1330,8 @@
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.cluster_launch">cluster_launch (cuda.core._device.DeviceProperties attribute)</a>
 </li>
+      <li><a href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig.cluster_scheduling_policy_preference">cluster_scheduling_policy_preference (cuda.core.LaunchConfig attribute)</a>
+</li>
       <li><a href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode.code">code (cuda.core.ObjectCode attribute)</a>
 </li>
       <li><a href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode.code_type">code_type (cuda.core.ObjectCode attribute)</a>
@@ -1517,6 +1521,8 @@
       <li><a href="generated/cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE.html#cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE">CUDA_BINDINGS_NVML_IS_COMPATIBLE (in module cuda.core.system)</a>
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.cuda_compute_capability">cuda_compute_capability (cuda.core.system.Device attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.CUDAError.html#cuda.core.CUDAError">CUDAError</a>
 </li>
       <li><a href="generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning">CUDAWarning</a>
 </li>
@@ -3329,8 +3335,6 @@
 </li>
       <li><a href="generated/cuda.core.Kernel.html#cuda.core.Kernel.num_arguments">num_arguments (cuda.core.Kernel attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.texture.MipmappedArray.html#cuda.core.texture.MipmappedArray.num_channels">num_channels (cuda.core.texture.MipmappedArray attribute)</a>
 
       <ul>
@@ -3343,6 +3347,8 @@
         <li><a href="generated/cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor.num_channels">(cuda.core.texture.ResourceDescriptor attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.num_fans">num_fans (cuda.core.system.Device attribute)</a>
 </li>
       <li><a href="generated/cuda.core.texture.MipmappedArray.html#cuda.core.texture.MipmappedArray.num_levels">num_levels (cuda.core.texture.MipmappedArray attribute)</a>
@@ -3376,6 +3382,8 @@
       <li><a href="generated/cuda.core.system.NvlinkInfo.html#cuda.core.system.NvlinkInfo">NvlinkInfo (class in cuda.core.system)</a>
 </li>
       <li><a href="generated/cuda.core.system.NvmlError.html#cuda.core.system.NvmlError">NvmlError</a>
+</li>
+      <li><a href="generated/cuda.core.NVRTCError.html#cuda.core.NVRTCError">NVRTCError</a>
 </li>
   </ul></td>
 </tr></table>
