@@ -16,6 +16,56 @@ set ``pyglet.options["headless"]``.
 """
 
 import contextlib
+import ctypes
+
+
+def select_headless_egl_device_for_cuda(cuda_device_ordinal: int) -> int | None:
+    """Return the pyglet ``headless_device`` index matching *cuda_device_ordinal*.
+
+    ``CUDA_VISIBLE_DEVICES`` reorders CUDA's device enumeration but has no
+    effect on EGL's, so on headless multi-GPU systems EGL platform device
+    ``N`` does not necessarily correspond to CUDA device ``N`` (the CUDA
+    Programming Guide notes ``CUDA_VISIBLE_DEVICES`` does not select the
+    default EGL device). The ``EGL_NV_device_cuda``
+    extension (``eglQueryDeviceAttribEXT`` with ``EGL_CUDA_DEVICE_NV``)
+    reports the CUDA ordinal each EGL device corresponds to, so it can be
+    used to pick the EGL device that matches the CUDA device already
+    selected via ``cuda.core``.
+
+    Must be called after ``pyglet.options["headless"]`` is set and before a
+    headless GL context is created. Returns ``None`` if the extension is
+    unavailable or no EGL device reports *cuda_device_ordinal*; the caller
+    should then fall back to pyglet's default (device 0).
+    """
+    egl_cuda_device_nv = 0x323A
+
+    try:
+        from pyglet.libs.egl import egl, eglext
+        from pyglet.libs.egl.lib import link_EGL
+
+        egl_query_device_attrib_ext = link_EGL(
+            "eglQueryDeviceAttribEXT",
+            egl.EGLBoolean,
+            [eglext.EGLDeviceEXT, egl.EGLint, ctypes.POINTER(ctypes.c_ssize_t)],
+        )
+
+        num_devices = egl.EGLint()
+        if not eglext.eglQueryDevicesEXT(0, None, ctypes.byref(num_devices)) or num_devices.value <= 0:
+            return None
+
+        devices = (eglext.EGLDeviceEXT * num_devices.value)()
+        if not eglext.eglQueryDevicesEXT(num_devices.value, devices, ctypes.byref(num_devices)):
+            return None
+
+        for index in range(num_devices.value):
+            queried_ordinal = ctypes.c_ssize_t(-1)
+            found = egl_query_device_attrib_ext(devices[index], egl_cuda_device_nv, ctypes.byref(queried_ordinal))
+            if found and queried_ordinal.value == cuda_device_ordinal:
+                return index
+    except Exception:
+        return None
+
+    return None
 
 
 def open_gl_window():
