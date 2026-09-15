@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b48fcf3feff2d9d838d0f6a6b6ffd6a3a00b204fc3a24f27940b475255c24800
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8d1afafeb9369977927ce07c70187f6f0927eb5f556b6f4e3569d6ce58980e7a
 
 
 
@@ -419,7 +419,6 @@ cpdef unsigned int device_get_gpu_instance_remaining_capacity(intptr_t device, u
 cpdef intptr_t device_create_gpu_instance(intptr_t device, unsigned int profile_id) except? 0
 cpdef intptr_t device_create_gpu_instance_with_placement(intptr_t device, unsigned int profile_id, placement) except? 0
 cpdef gpu_instance_destroy(intptr_t gpu_instance)
-cpdef object device_get_gpu_instances(intptr_t device, unsigned int profile_id)
 cpdef intptr_t device_get_gpu_instance_by_id(intptr_t device, unsigned int id) except? 0
 cpdef object gpu_instance_get_info(intptr_t gpu_instance)
 cpdef object gpu_instance_get_compute_instance_profile_info_v(intptr_t gpu_instance, unsigned int profile, unsigned int eng_profile)
@@ -428,7 +427,6 @@ cpdef object gpu_instance_get_compute_instance_possible_placements(intptr_t gpu_
 cpdef intptr_t gpu_instance_create_compute_instance(intptr_t gpu_instance, unsigned int profile_id) except? 0
 cpdef intptr_t gpu_instance_create_compute_instance_with_placement(intptr_t gpu_instance, unsigned int profile_id, placement) except? 0
 cpdef compute_instance_destroy(intptr_t compute_instance)
-cpdef object gpu_instance_get_compute_instances(intptr_t gpu_instance, unsigned int profile_id)
 cpdef intptr_t gpu_instance_get_compute_instance_by_id(intptr_t gpu_instance, unsigned int id) except? 0
 cpdef object compute_instance_get_info_v2(intptr_t compute_instance)
 cpdef unsigned int device_is_mig_device_handle(intptr_t device) except? 0
