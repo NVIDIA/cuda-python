@@ -104,3 +104,10 @@ Fixes and enhancements
 
 - :attr:`Stream.device` and related queries on a stream whose context is not
   current now restore the caller's context even when the device query fails.
+
+- Closing a :class:`DeviceMemoryResource` now revokes the peer access it
+  granted before the driver destroys the pool. The revocation request used to
+  name the pool's own device as well, which the driver rejects as a whole, so
+  it never took effect and a pool created later could inherit that access
+  through a recycled handle.
+  (`#2807 <https://github.com/NVIDIA/cuda-python/issues/2807>`__)

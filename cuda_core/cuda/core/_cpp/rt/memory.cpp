@@ -35,8 +35,10 @@ struct MemoryPoolBox {
 
 // Helper to clear peer access before destroying a memory pool.
 // Works around nvbug 5698116: recycled pool handles inherit peer access state.
+// The driver rejects the whole request if it names the pool's own device, so
+// owner_device (-1 if the pool has none) is left out.
 // Must be noexcept since it's called from a shared_ptr deleter.
-static void clear_mempool_peer_access(CUmemoryPool pool) noexcept {
+static void clear_mempool_peer_access(CUmemoryPool pool, int owner_device) noexcept {
     try {
         int device_count = 0;
         if (p_cuDeviceGetCount(&device_count) != CUDA_SUCCESS || device_count <= 0) {
@@ -44,23 +46,33 @@ static void clear_mempool_peer_access(CUmemoryPool pool) noexcept {
         }
 
         std::vector<CUmemAccessDesc> clear_access(device_count);
+        size_t count = 0;
         for (int i = 0; i < device_count; ++i) {
-            clear_access[i].location.type = CU_MEM_LOCATION_TYPE_DEVICE;
-            clear_access[i].location.id = i;
-            clear_access[i].flags = CU_MEM_ACCESS_FLAGS_PROT_NONE;
+            if (i == owner_device) {
+                continue;
+            }
+            clear_access[count].location.type = CU_MEM_LOCATION_TYPE_DEVICE;
+            clear_access[count].location.id = i;
+            clear_access[count].flags = CU_MEM_ACCESS_FLAGS_PROT_NONE;
+            ++count;
         }
-        p_cuMemPoolSetAccess(pool, clear_access.data(), device_count);  // Best effort
+        if (count == 0) {
+            return;
+        }
+        p_cuMemPoolSetAccess(pool, clear_access.data(), count);  // Best effort
     } catch (...) {
         // Swallow exceptions - this is best-effort cleanup in destructor context
     }
 }
 
-static MemoryPoolHandle wrap_mempool_owned(CUmemoryPool pool) {
+// owner_device is the ordinal of a device-located pool, or -1 when there is no
+// device to skip (host pools) or the location is unknown (imported pools).
+static MemoryPoolHandle wrap_mempool_owned(CUmemoryPool pool, int owner_device) {
     auto box = std::shared_ptr<const MemoryPoolBox>(
         new MemoryPoolBox{pool},
-        [](const MemoryPoolBox* b) {
+        [owner_device](const MemoryPoolBox* b) {
             GILReleaseGuard gil;
-            clear_mempool_peer_access(b->resource);
+            clear_mempool_peer_access(b->resource, owner_device);
             pw_cuMemPoolDestroy(b->resource);
             delete b;
         }
@@ -74,7 +86,8 @@ MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) {
     if (CUDA_SUCCESS != (err = p_cuMemPoolCreate(&pool, &props))) {
         return {};
     }
-    return wrap_mempool_owned(pool);
+    int owner_device = props.location.type == CU_MEM_LOCATION_TYPE_DEVICE ? props.location.id : -1;
+    return wrap_mempool_owned(pool, owner_device);
 }
 
 MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool) {
@@ -98,7 +111,7 @@ MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType han
     if (CUDA_SUCCESS != (err = p_cuMemPoolImportFromShareableHandle(&pool, handle_ptr, handle_type, 0))) {
         return {};
     }
-    return wrap_mempool_owned(pool);
+    return wrap_mempool_owned(pool, -1);
 }
 
 // ============================================================================
