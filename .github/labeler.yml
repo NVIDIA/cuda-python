@@ -7,7 +7,9 @@
 
 cuda.bindings:
   - changed-files:
-    - any-glob-to-any-file: 'cuda_bindings/**'
+    - any-glob-to-any-file:
+      - 'cuda_bindings/**'
+      - 'cuda_bindings_*/**'
 
 cuda.core:
   - changed-files:

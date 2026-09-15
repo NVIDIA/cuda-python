@@ -7,26 +7,36 @@
 """
 Script to merge CUDA-specific wheels into a single multi-CUDA wheel.
 
-This script takes wheels built for different CUDA versions (cu12, cu13) and merges them
-into a single wheel that supports both CUDA versions.
+This script takes wheels built for different CUDA ABI majors and merges them into a
+single wheel that supports every supplied major.
 
 In particular, each wheel contains a CUDA-specific build of the `cuda.core` library
 and the associated bindings. This script merges these directories into a single wheel
-that supports both CUDA versions, i.e., containing both `cuda/core/cu12`
-and `cuda/core/cu13`. At runtime, the code in `cuda/core/__init__.py`
-is used to import the appropriate CUDA-specific bindings.
+with one `cuda/core/cuN` directory per input. At runtime, the code in
+`cuda/core/__init__.py` imports the appropriate CUDA-specific bindings.
 
 This script is based on the one in NVIDIA/CCCL.
 """
 
 import argparse
 import os
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
 import zipfile
 from pathlib import Path
+
+CUDA_WHEEL_SUFFIX = re.compile(r"\.cu(?P<major>[1-9][0-9]*)\.whl$")
+
+
+def cuda_variant_from_wheel(wheel: Path) -> str:
+    """Return the ``cuN`` variant encoded in an intermediate wheel name."""
+    match = CUDA_WHEEL_SUFFIX.search(wheel.name)
+    if match is None:
+        raise ValueError(f"wheel name does not contain a .cuN suffix: {wheel.name}")
+    return f"cu{match.group('major')}"
 
 
 def run_command(cmd: list[str], cwd: Path | None = None, env: dict = os.environ) -> subprocess.CompletedProcess:
@@ -84,6 +94,9 @@ def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool
 
     if len(wheels) == 1:
         raise RuntimeError("only one wheel is provided, nothing to merge")
+    cuda_variants = [cuda_variant_from_wheel(wheel) for wheel in wheels]
+    if len(set(cuda_variants)) != len(cuda_variants):
+        raise RuntimeError(f"input wheels must have unique CUDA variants: {cuda_variants}")
 
     # Extract all wheels to temporary directories
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -133,11 +146,8 @@ def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool
         # Copy version-specific directories from each wheel into versioned subdirectories
         base_dir = Path("cuda") / "core"
 
-        versioned_dirs = set()
-        for i, wheel_dir in enumerate(extracted_wheels):
-            cuda_version = wheels[i].name.split(".cu")[1].split(".")[0]
-            versioned_dir = base_wheel / base_dir / f"cu{cuda_version}"
-            versioned_dirs.add(versioned_dir.name)
+        for wheel_dir, cuda_variant in zip(extracted_wheels, cuda_variants, strict=True):
+            versioned_dir = base_wheel / base_dir / cuda_variant
 
             # Copy entire directory tree from source wheel to versioned directory
             print(f"  Copying {wheel_dir / base_dir} to {versioned_dir}", file=sys.stderr)
@@ -151,7 +161,7 @@ def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool
         # versioned subpackage stays at top level: it imports _version, then
         # redirects every later import into the versioned tree. Anything else
         # left at top level is a dead copy that nothing imports.
-        items_to_keep = {"__init__.py", "_version.py", *versioned_dirs}
+        items_to_keep = {"__init__.py", "_version.py", *cuda_variants}
         all_items = os.scandir(base_wheel / base_dir)
         removed_count = 0
         for f in all_items:

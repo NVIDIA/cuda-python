@@ -26,6 +26,7 @@ TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS = {
     "benchmarks": "Apache-2.0",
     "ci": "Apache-2.0",
     "cuda_bindings": "Apache-2.0",
+    "cuda_bindings_12": "Apache-2.0",
     "cuda_core": "Apache-2.0",
     "cuda_pathfinder": "Apache-2.0",
     "cuda_python": "Apache-2.0",

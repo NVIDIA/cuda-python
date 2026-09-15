@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 line-length = 120
@@ -124,7 +124,7 @@ inline-quotes = "double"
 
 # CUDA bindings mirror C API naming conventions (CamelCase types, camelCase functions)
 # Keep examples opted-in to enforce naming conventions in example-local identifiers.
-"cuda_bindings/{cuda,docs,tests}/**" = [
+"{cuda_bindings,cuda_bindings_12}/{cuda,docs,tests}/**" = [
   "N801",    # invalid-class-name
   "N802",    # invalid-function-name
   "N803",    # invalid-argument-name
@@ -136,7 +136,7 @@ inline-quotes = "double"
   "N802",    # invalid-function-name
   "N806",    # non-lowercase-variable-in-function
 ]
-"cuda_bindings/{build_hooks.py,setup.py}" = ["N801", "N802", "N803", "N806", "N816"]
+"{cuda_bindings,cuda_bindings_12}/{build_hooks.py,setup.py}" = ["N801", "N802", "N803", "N806", "N816"]
 
 # scripts and build tooling — print is the expected output method
 "qa/**" = ["T201"]
