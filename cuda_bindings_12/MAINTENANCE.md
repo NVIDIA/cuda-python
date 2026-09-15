@@ -12,13 +12,17 @@ CUDA 13 bindings in `cuda_bindings/`. The two package roots are an intentional
 transitional design. Moving target-specific generated output into overlays and
 sharing more handwritten implementation is a separate architectural change.
 
-The imported tree comes from
+The imported tree originally came from
 `NVIDIA/cuda-python@238955935bd903ac72817c0dfdfe4f6a54ee6bb1:cuda_bindings`.
 Cybind commit `95d8bb525de46a9ff7ae40d759a98cbe50cf8391`
 reproduces 52 generated paths in that snapshot, including all 40 generated
 paths modified by #2604. It does not reproduce the snapshot's legacy
 runtime/v2 storage layout, so generation provenance for the complete imported
 root remains partial.
+
+The CUDA Bindings 12.9.8 release sync subsequently replaced 28 generated
+paths with exact copies from
+`NVIDIA/cuda-python@826f10e0e80dc0c2294d5a5aae21f7c6fe32bef2:cuda_bindings`.
 
 ## File classes
 

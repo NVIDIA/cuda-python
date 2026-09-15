@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fb154012a5a055db532eb391202398888c164eb266582ebc67ce3b5f8eb2c485
+# This code was automatically generated across versions from 12.0.1 to 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d826369ce197164240eae2ca22bc88bb193a3ec936946b9d3b5b906b503fb446
 
 
 # <<<< PREAMBLE CONTENT >>>>
