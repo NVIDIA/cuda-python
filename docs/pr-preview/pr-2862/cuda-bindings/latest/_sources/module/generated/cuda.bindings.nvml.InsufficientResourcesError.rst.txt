@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.InsufficientResourcesError
+=============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: InsufficientResourcesError
