@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9b90aeebc14d6ddb9f18d55978ed2c2d1ea96a4289c114610fcdecfb4a5d9180
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2202d93ff748ecdd5a69713532e2cef7e456a1db5b0637fe7ed91b6172aa1fb4
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -304,8 +304,6 @@ cdef class BundledHeadersInfo:
                     raise ValueError(
                         "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvrtcBundledHeadersInfo), view.len)
                     )
-                # val's buffer may alias self._data (e.g. self-assignment, or another
-                # wrapper pointing at this same storage), so this must tolerate overlap.
                 _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvrtcBundledHeadersInfo))
                 self._ptr = &self._data
                 self._owner = None
