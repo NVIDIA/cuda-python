@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=bc9dd0fd13a3ef14daa32b5b958b5695e630f3e242a3949432186ea5a2a3f9af
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=215448c94725d076d53cf599f903b9cf658abfe2bc4ab2db648eda0e72e20f40
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -32695,7 +32695,7 @@ cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, p_scheduler):
     .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState`
     """
     cdef intptr_t _p_scheduler_ptr_ = int(p_scheduler)
-    (<nvmlVgpuSchedulerState_t*>p_scheduler).version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuSchedulerState_v1_t), 1)
+    (<nvmlVgpuSchedulerState_t*>_p_scheduler_ptr_).version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuSchedulerState_v1_t), 1)
     with nogil:
         __status__ = nvmlGpuInstanceSetVgpuSchedulerState(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_t*>_p_scheduler_ptr_)
     check_status(__status__)
