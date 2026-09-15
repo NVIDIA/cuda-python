@@ -1362,14 +1362,17 @@
 <h1><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.5.0 Release notes<a class="headerlink" href="#cuda-bindings-13-5-0-release-notes" title="Link to this heading">#</a></h1>
 <section id="changes">
 <h2>Changes<a class="headerlink" href="#changes" title="Link to this heading">#</a></h2>
-<ul class="simple">
+<ul>
 <li><p>Many <code class="docutils literal notranslate"><span class="pre">cuda.bindings.cudla</span></code> and <code class="docutils literal notranslate"><span class="pre">cuda.bindings.nvml</span></code> enum members had a
 redundant prefix stripped from their name,
 e.g. <code class="docutils literal notranslate"><span class="pre">nvml.BrandType.BRAND_GEFORCE</span></code> is now <code class="docutils literal notranslate"><span class="pre">nvml.BrandType.GEFORCE</span></code>.
 The old, longer names remain available as backward-compatible aliases and
 will continue to work. The full list of renames, excluding the 447
 similarly-renamed <code class="docutils literal notranslate"><span class="pre">nvml.GpmMetricId</span></code> members (which had their
-<code class="docutils literal notranslate"><span class="pre">GPM_METRIC_</span></code> prefix stripped the same way), is below.</p></li>
+<code class="docutils literal notranslate"><span class="pre">GPM_METRIC_</span></code> prefix stripped the same way), is below.</p>
+<p>The old aliases do not appear in <code class="docutils literal notranslate"><span class="pre">__members__</span></code> (so they will not show up in
+autocompletion), but remain available for use.</p>
+</li>
 </ul>
 <div class="pst-scrollable-table-container"><table class="table" id="id1">
 <caption><span class="caption-number">Table 1 </span><span class="caption-text">Enum member renames (old names remain available as backward-compatible aliases)</span><a class="headerlink" href="#id1" title="Link to this table">#</a></caption>

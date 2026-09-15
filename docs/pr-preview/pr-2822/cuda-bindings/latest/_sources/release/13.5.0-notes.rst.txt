@@ -17,6 +17,9 @@ Changes
   similarly-renamed ``nvml.GpmMetricId`` members (which had their
   ``GPM_METRIC_`` prefix stripped the same way), is below.
 
+  The old aliases do not appear in ``__members__`` (so they will not show up in
+  autocompletion), but remain available for use.
+
 .. csv-table:: Enum member renames (old names remain available as backward-compatible aliases)
    :header: "Module", "Enum class", "New name", "Deprecated alias"
    :widths: 10, 25, 25, 25
