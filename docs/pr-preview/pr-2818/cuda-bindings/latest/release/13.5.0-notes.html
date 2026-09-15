@@ -1364,7 +1364,25 @@
 <h2>Enhancements<a class="headerlink" href="#enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> docstrings now include the full documentation from the upstream CTK, not just the first paragraph.</p></li>
-<li><p>For all <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> APIs, functions that accept a <code class="docutils literal notranslate"><span class="pre">bytes</span></code> object will also accept <code class="docutils literal notranslate"><span class="pre">None</span></code>, which is treated as <code class="docutils literal notranslate"><span class="pre">NULL</span></code>.</p></li>
+<li><p>The following functions now accept <code class="docutils literal notranslate"><span class="pre">None</span></code> for their buffer-like pointer argument (an integer address or an object supporting the buffer protocol), which is treated as <code class="docutils literal notranslate"><span class="pre">NULL</span></code>.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudla.module_load_from_memory</span></code> (<code class="docutils literal notranslate"><span class="pre">p_module</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvfatbin.add_cubin</span></code>, <code class="docutils literal notranslate"><span class="pre">nvfatbin.add_index</span></code>, <code class="docutils literal notranslate"><span class="pre">nvfatbin.add_ltoir</span></code>, <code class="docutils literal notranslate"><span class="pre">nvfatbin.add_ptx</span></code>, <code class="docutils literal notranslate"><span class="pre">nvfatbin.add_reloc</span></code>, <code class="docutils literal notranslate"><span class="pre">nvfatbin.add_tile_ir</span></code> (<code class="docutils literal notranslate"><span class="pre">code</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvfatbin.get</span></code> (<code class="docutils literal notranslate"><span class="pre">buffer</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvjitlink.add_data</span></code> (<code class="docutils literal notranslate"><span class="pre">data</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvjitlink.get_error_log</span></code>, <code class="docutils literal notranslate"><span class="pre">nvjitlink.get_info_log</span></code> (<code class="docutils literal notranslate"><span class="pre">log</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvjitlink.get_linked_cubin</span></code> (<code class="docutils literal notranslate"><span class="pre">cubin</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvjitlink.get_linked_ltoir</span></code> (<code class="docutils literal notranslate"><span class="pre">ltoir</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvjitlink.get_linked_ptx</span></code> (<code class="docutils literal notranslate"><span class="pre">ptx</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvvm.add_module_to_program</span></code>, <code class="docutils literal notranslate"><span class="pre">nvvm.lazy_add_module_to_program</span></code>, <code class="docutils literal notranslate"><span class="pre">nvvm.get_compiled_result</span></code>, <code class="docutils literal notranslate"><span class="pre">nvvm.get_program_log</span></code> (<code class="docutils literal notranslate"><span class="pre">buffer</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="behavior-changes">
+<h2>Behavior changes<a class="headerlink" href="#behavior-changes" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Passing a <code class="docutils literal notranslate"><span class="pre">None</span></code> to <code class="docutils literal notranslate"><span class="pre">nvvm.add_module_to_program</span></code> or <code class="docutils literal notranslate"><span class="pre">nvvm.lazy_add_module_to_program</span></code> will now raise a <code class="docutils literal notranslate"><span class="pre">nvvm.nvvmError</span></code> (<code class="docutils literal notranslate"><span class="pre">INVALID_INPUT</span></code>) rather than a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p></li>
 </ul>
 </section>
 <section id="prerelease-feature">
@@ -1433,6 +1451,7 @@ still experimental and subject to change.</p>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enhancements">Enhancements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior-changes">Behavior changes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerelease-feature">Prerelease feature</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#known-issues">Known issues</a></li>
 </ul>
