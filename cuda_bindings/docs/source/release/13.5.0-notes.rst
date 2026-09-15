@@ -257,6 +257,29 @@ Changes
    "nvml", "VgpuVmIdType", "DOMAIN_ID", "VGPU_VM_ID_DOMAIN_ID"
    "nvml", "VgpuVmIdType", "UUID", "VGPU_VM_ID_UUID"
 
+- ``nvml.device_get_samples``: On a zero-sample result, the old implementation
+  returned a bare ``Sample`` instance instead of the documented
+  ```(sample_val_type, samples)`` tuple. It now always returns the correct 2-tuple.
+
+- ``nvml.device_get_supported_vgpus``, ``nvmldevice_get_creatable_vgpus``,
+  ``nvml.device_get_active_vgpus``: The old implementations would return a
+  ``NameError`` at runtime whenever there was at least one result to return. Now
+  fixed.
+
+- ``nvml.device_get_gpu_instances``,
+  ``nvml.gpu_instance_get_compute_instances``: The old implementations would fail
+  with ``ValueError: Invalid shape in axis 0: 0`` whenever the result is empty.
+  Now correctly returns an empty array in that case.
+
+- ``nvml.device_get_vgpu_utilization``: The old implementation would only the
+  first element the rest of the returned array was uninitialized garbage.
+
+- ``nvml.device_get_vgpu_process_utilization``: The old implementation returned
+  a tuple ``(sample_count, samples)``, and the ``samples`` array only ever
+  countained one element.  It is now correctly returned as a properly-sized array
+  (and the redundant ``sample_count`` — which was only ever the array's own size —
+  is no longer part of the returned value; use ``len(result)`` instead).
+
 Enhancements
 ------------
 
