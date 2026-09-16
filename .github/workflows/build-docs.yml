@@ -50,6 +50,13 @@ jobs:
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     runs-on: ubuntu-latest
+    # Serialize (never cancel) concurrent pushes to the shared gh-pages
+    # branch: parallel runs from different PRs, or a PR preview racing a
+    # main/release deploy, can otherwise both push against the same base
+    # commit and fail with a non-fast-forward error.
+    concurrency:
+      group: gh-pages-deploy
+      cancel-in-progress: false
     defaults:
       run:
         shell: bash -el {0}
