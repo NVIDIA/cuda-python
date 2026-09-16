@@ -17,7 +17,21 @@ from cuda.core.graph._graph_definition cimport (
 from cuda.core.graph._graph_node cimport GraphNode, GN_check_valid
 from cuda.core.graph._host_callback cimport _resolve_host_callback
 from cuda.core.graph._subclasses cimport (
+    ChildGraphNode,
+    EventRecordNode,
+    EventWaitNode,
+    ExecutableChildGraphNode,
+    ExecutableEventRecordNode,
+    ExecutableEventWaitNode,
     ExecutableGraphNode,
+    ExecutableHostCallbackNode,
+    ExecutableKernelNode,
+    ExecutableMemcpyNode,
+    ExecutableMemsetNode,
+    HostCallbackNode,
+    KernelNode,
+    MemcpyNode,
+    MemsetNode,
     create_executable_node_view,
 )
 from cuda.core._rt cimport attach_rollback_failure, report_cuda_error
@@ -47,7 +61,16 @@ from cuda.core._utils.cuda_utils import (
 )
 
 if TYPE_CHECKING:
+    from typing import overload
+
     from cuda.core.graph._graph_definition import GraphDefinition
+else:
+    # Cython applies a method decorator by rebinding the type's dict entry, so
+    # typing.overload would replace the compiled ``__getitem__`` slot wrapper
+    # with its placeholder. The overloads only serve the stub; at run time the
+    # decorator must leave the method alone.
+    def overload(f):
+        return f
 
 __all__ = ['Graph', 'GraphBuilder', 'GraphCompleteOptions', 'GraphDebugPrintOptions']
 
@@ -1154,6 +1177,21 @@ cdef class Graph:
 
         """
         return as_py(self._h_graph_exec)
+
+    @overload
+    def __getitem__(self, node: KernelNode) -> ExecutableKernelNode: ...
+    @overload
+    def __getitem__(self, node: MemsetNode) -> ExecutableMemsetNode: ...
+    @overload
+    def __getitem__(self, node: MemcpyNode) -> ExecutableMemcpyNode: ...
+    @overload
+    def __getitem__(self, node: ChildGraphNode) -> ExecutableChildGraphNode: ...
+    @overload
+    def __getitem__(self, node: EventRecordNode) -> ExecutableEventRecordNode: ...
+    @overload
+    def __getitem__(self, node: EventWaitNode) -> ExecutableEventWaitNode: ...
+    @overload
+    def __getitem__(self, node: HostCallbackNode) -> ExecutableHostCallbackNode: ...
 
     def __getitem__(self, node: GraphNode) -> ExecutableGraphNode:
         """Return a view for updating *node* in this executable graph.
