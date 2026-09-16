@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.0.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=84da1bdc4b1620ced150103d0acd5f0d48ea8808f593d8c67255896868f26ec3
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8462b94704f0e45448922fefa8c2b53cf8fffa18c04c70af4604458a36c6cd58
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -121,6 +121,7 @@ cpdef destroy_program(intptr_t prog):
 cpdef str get_error_string(int result):
     """Get the message string for the given ``nvvmResult`` code.
 
+
     Args:
         result (Result): NVVM API result code.
 
@@ -136,6 +137,7 @@ cpdef str get_error_string(int result):
 
 cpdef tuple version():
     """Get the NVVM version.
+
 
     Returns:
         A 2-tuple containing:
@@ -154,6 +156,7 @@ cpdef tuple version():
 
 cpdef tuple ir_version():
     """Get the NVVM IR version.
+
 
     Returns:
         A 4-tuple containing:
@@ -175,7 +178,8 @@ cpdef tuple ir_version():
 
 
 cpdef intptr_t create_program() except? 0:
-    """Create a program, and set the value of its handle to ``*prog``.
+    """Create a program, and set the value of its handle to ``\*prog``.
+
 
     Returns:
         intptr_t: NVVM program.
@@ -191,6 +195,11 @@ cpdef intptr_t create_program() except? 0:
 
 cpdef add_module_to_program(intptr_t prog, buffer, size_t size, name):
     """Add a module level NVVM IR to a program.
+
+    The ``buffer`` should contain an NVVM IR module. The module should have NVVM IR
+    either in the LLVM 7.0.1 bitcode representation or in the LLVM 7.0.1 text
+    representation. Support for reading the text representation of NVVM IR is
+    deprecated and may be removed in a later version.
 
     Args:
         prog (intptr_t): NVVM program.
@@ -215,6 +224,16 @@ cpdef add_module_to_program(intptr_t prog, buffer, size_t size, name):
 cpdef lazy_add_module_to_program(intptr_t prog, buffer, size_t size, name):
     """Add a module level NVVM IR to a program.
 
+    The ``buffer`` should contain an NVVM IR module. The module should have NVVM IR
+    in the LLVM 7.0.1 bitcode representation.
+    A module added using this API is lazily loaded - the only symbols loaded are
+    those that are required by module(s) loaded using nvvmAddModuleToProgram. It is
+    an error for a program to have all modules loaded using this API. Compiler may
+    also optimize entities in this module by making them internal to the linked
+    NVVM IR module, making them eligible for other optimizations. Due to these
+    optimizations, this API to load a module is more efficient and should be used
+    where possible.
+
     Args:
         prog (intptr_t): NVVM program.
         buffer (bytes): NVVM IR module in the bitcode representation.
@@ -236,6 +255,71 @@ cpdef lazy_add_module_to_program(intptr_t prog, buffer, size_t size, name):
 
 cpdef compile_program(intptr_t prog, int num_options, options):
     """Compile the NVVM program.
+
+    The NVVM IR modules in the program will be linked at the IR level. The linked
+    IR program is compiled to PTX.
+    The target datalayout in the linked IR program is used to determine the address
+    size (32bit vs 64bit).
+    The valid compiler options are:.
+
+    - -g (enable generation of full debugging information). Full debug support is
+      only valid with '-opt=0'. Debug support requires the input module to utilize
+      NVVM IR Debug Metadata. Line number (line info) only generation is also
+      enabled via NVVM IR Debug Metadata, there is no specific libNVVM API flag for
+      that case.
+    - -opt=.
+    - 0 (disable optimizations).
+    - 3 (default, enable optimizations).
+    - -arch=.
+    - compute_75 (default).
+    - compute_80.
+    - compute_87.
+    - compute_89.
+    - compute_90.
+    - compute_90a.
+    - compute_100.
+    - compute_100a.
+    - compute_100f.
+    - compute_103.
+    - compute_103a.
+    - compute_103f.
+    - compute_110.
+    - compute_110a.
+    - compute_110f.
+    - compute_120.
+    - compute_120a.
+    - compute_120f.
+    - compute_121.
+    - compute_121a.
+    - compute_121f.
+    - -ftz=.
+    - 0 (default, preserve denormal values, when performing single-precision
+      floating-point operations).
+    - 1 (flush denormal values to zero, when performing single-precision
+      floating-point operations).
+    - -prec-sqrt=.
+    - 0 (use a faster approximation for single-precision floating-point square
+      root).
+    - 1 (default, use IEEE round-to-nearest mode for single-precision floating-
+      point square root).
+    - -prec-div=.
+    - 0 (use a faster approximation for single-precision floating-point division
+      and reciprocals).
+    - 1 (default, use IEEE round-to-nearest mode for single-precision floating-
+      point division and reciprocals).
+    - -fma=.
+    - 0 (disable FMA contraction).
+    - 1 (default, enable FMA contraction).
+    - -jump-table-density=[0-101] Specify the case density percentage in switch
+      statements, and use it as a minimal threshold to determine whether jump
+      table(brx.idx instruction) will be used to implement a switch statement.
+      Default value is 101. The percentage ranges from 0 to 101 inclusively.
+    - -gen-lto (Generate LTO IR instead of PTX).
+    - -ptx-version-target=[86-94] Specify the target PTX version as (MAJOR VERSION
+      \* 10 + MINOR VERSION). This is supported only for Blackwell and later
+      architectures (compute capability compute_100 or greater). Using this option
+      implies that the operations in incoming ``prog`` are compliant with targeted
+      PTX version. If not set, highest available PTX version is used.
 
     Args:
         prog (intptr_t): NVVM program.
@@ -259,6 +343,9 @@ cpdef compile_program(intptr_t prog, int num_options, options):
 cpdef verify_program(intptr_t prog, int num_options, options):
     """Verify the NVVM program.
 
+    The valid compiler options are:.
+    Same as for :func:`compile_program`.
+
     Args:
         prog (intptr_t): NVVM program.
         num_options (int): Number of compiler ``options`` passed.
@@ -281,6 +368,7 @@ cpdef verify_program(intptr_t prog, int num_options, options):
 cpdef size_t get_compiled_result_size(intptr_t prog) except? 0:
     """Get the size of the compiled result.
 
+
     Args:
         prog (intptr_t): NVVM program.
 
@@ -299,6 +387,8 @@ cpdef size_t get_compiled_result_size(intptr_t prog) except? 0:
 cpdef get_compiled_result(intptr_t prog, buffer):
     """Get the compiled result.
 
+    The result is stored in the memory pointed to by ``buffer``.
+
     Args:
         prog (intptr_t): NVVM program.
         buffer (bytes): Compiled result.
@@ -313,6 +403,9 @@ cpdef get_compiled_result(intptr_t prog, buffer):
 
 cpdef size_t get_program_log_size(intptr_t prog) except? 0:
     """Get the Size of Compiler/Verifier Message.
+
+    The size of the message string (including the trailing NULL) is stored into
+    ``buffer_size_ret`` when the return value is NVVM_SUCCESS.
 
     Args:
         prog (intptr_t): NVVM program.
@@ -333,6 +426,9 @@ cpdef size_t get_program_log_size(intptr_t prog) except? 0:
 cpdef get_program_log(intptr_t prog, buffer):
     """Get the Compiler/Verifier Message.
 
+    The NULL terminated message string is stored in the memory pointed to by
+    ``buffer`` when the return value is NVVM_SUCCESS.
+
     Args:
         prog (intptr_t): NVVM program.
         buffer (bytes): Compilation/Verification log.
@@ -347,6 +443,8 @@ cpdef get_program_log(intptr_t prog, buffer):
 
 cpdef int llvm_version(arch) except? 0:
     """Get the LLVM IR version guaranteed to be supported by NVVM.
+
+    The valid arch strings are the ones supported by :func:`compile_program`.
 
     Args:
         arch (str): Architecture string.
