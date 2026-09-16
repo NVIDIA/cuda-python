@@ -549,6 +549,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
@@ -1369,11 +1370,27 @@
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">event_set</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">config</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.event_set_register_gpu_operational_events_v1" title="Link to this definition">#</a></dt>
 <dd><p>Adds a GPU Operational Event subscription to an event set.</p>
+<p>This API is separate from <code class="docutils literal notranslate"><span class="pre">nvmlDeviceRegisterEvents</span></code>. Calling this API opts
+the event set into the structured GPU Operational Event format for the target
+GPU UUID. Subscriptions are identified by <code class="docutils literal notranslate"><span class="pre">config</span></code>; registering the same
+subscription more than once is treated as success.
+<code class="docutils literal notranslate"><span class="pre">nvmlDeviceRegisterEvents</span></code> and
+<code class="docutils literal notranslate"><span class="pre">nvmlEventSetRegisterGpuOperationalEvents_v1</span></code> may both be used on the same
+event set. In that mixed-subscription model, NVML event-bit subscriptions
+continue to deliver event bits such as <code class="docutils literal notranslate"><span class="pre">nvmlEventTypeXidCriticalError</span></code>, while
+GPU Operational Event subscriptions deliver
+<code class="docutils literal notranslate"><span class="pre">NVML_EVENT_DATA_TYPE_GPU_OPERATIONAL_EVENT</span></code> records through
+<code class="docutils literal notranslate"><span class="pre">nvmlEventSetWait_v3</span></code> with <code class="docutils literal notranslate"><span class="pre">eventType</span></code> set to <code class="docutils literal notranslate"><span class="pre">nvmlEventTypeNone</span></code>. The
+same underlying incident may generate both an NVML event-bit notification and a
+structured notification.
+This API supports GPU UUID subscriptions.
+For Turing ™️ or newer fully supported devices.
+For Linux only.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

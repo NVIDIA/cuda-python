@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=2e7f7f9b"></script>
+    <script src="../_static/documentation_options.js?v=312a026e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev85';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev98';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -808,6 +808,14 @@ they were only available from a private module.</p></li>
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Graph.__getitem__</span></code> now declares an overload for each node type that has
+an executable view, so type checkers and editors see the precise view type:
+indexing with a <a class="reference internal" href="../generated/cuda.core.graph.KernelNode.html#cuda.core.graph.KernelNode" title="cuda.core.graph.KernelNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelNode</span></code></a> yields an
+<a class="reference internal" href="../generated/cuda.core.graph.ExecutableKernelNode.html#cuda.core.graph.ExecutableKernelNode" title="cuda.core.graph.ExecutableKernelNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecutableKernelNode</span></code></a>, and so on for memset, memcpy,
+child-graph, event-record, event-wait, and host-callback nodes. Indexing
+with a node type that has no executable view is now also reported
+statically.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2482">#2482</a>)</p></li>
 <li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code> can now be constructed, and
 <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.memory_resource" title="cuda.core.Device.memory_resource"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Device.memory_resource</span></code></a> first accessed, while the calling thread is
 inside a <code class="docutils literal notranslate"><span class="pre">global</span></code> or <code class="docutils literal notranslate"><span class="pre">thread_local</span></code> stream capture. The constructor

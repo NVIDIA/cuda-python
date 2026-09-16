@@ -549,6 +549,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
@@ -1378,6 +1379,12 @@
 <dd class="field-odd"><p>unsigned int</p>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>On MIG-enabled GPUs, querying the device’s core count is currently not
+supported using this API. Please use <code class="docutils literal notranslate"><span class="pre">nvmlDeviceGetGpuInstanceProfileInfo</span></code> to
+fetch the MIG device’s core count.</p>
+</div>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><cite>nvmlDeviceGetNumGpuCores</cite></p>

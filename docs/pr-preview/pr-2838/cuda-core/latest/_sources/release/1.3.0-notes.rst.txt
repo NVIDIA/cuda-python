@@ -34,6 +34,15 @@ New features
 Fixes and enhancements
 ----------------------
 
+- ``Graph.__getitem__`` now declares an overload for each node type that has
+  an executable view, so type checkers and editors see the precise view type:
+  indexing with a :class:`~graph.KernelNode` yields an
+  :class:`~graph.ExecutableKernelNode`, and so on for memset, memcpy,
+  child-graph, event-record, event-wait, and host-callback nodes. Indexing
+  with a node type that has no executable view is now also reported
+  statically.
+  (`#2482 <https://github.com/NVIDIA/cuda-python/issues/2482>`__)
+
 - :class:`~_memory.DeviceMemoryResource` can now be constructed, and
   :attr:`Device.memory_resource` first accessed, while the calling thread is
   inside a ``global`` or ``thread_local`` stream capture. The constructor
