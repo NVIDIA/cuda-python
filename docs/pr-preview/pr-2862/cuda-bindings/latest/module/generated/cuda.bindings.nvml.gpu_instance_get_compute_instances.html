@@ -1375,8 +1375,8 @@
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.gpu_instance_get_compute_instances" title="Link to this definition">#</a></dt>
 <dd><p>Get compute instances for given profile ID.</p>
 <p>Unlike most array-returning MIG APIs, <code class="docutils literal notranslate"><span class="pre">nvmlGpuInstanceGetComputeInstances</span></code>
-does not accept a NULL buffer to discover the count; the caller must size
-the buffer from the profile’s <code class="docutils literal notranslate"><span class="pre">instance_count</span></code> up front.</p>
+does not accept a NULL buffer to discover the count; use the number of
+possible placements for the profile as a safe upper bound.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
