@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_max\_clock\_info
-================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_max_clock_info

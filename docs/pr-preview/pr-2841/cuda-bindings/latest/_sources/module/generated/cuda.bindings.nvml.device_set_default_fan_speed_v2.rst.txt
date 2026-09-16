@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_set\_default\_fan\_speed\_v2
-=======================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_set_default_fan_speed_v2

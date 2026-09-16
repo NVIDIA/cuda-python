@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.DeviceAddressingModeType
-===========================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: DeviceAddressingModeType
