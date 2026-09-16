@@ -258,7 +258,7 @@ def _build_cuda_core(debug=False):
             extra_compile_args += ["-g", "-O0"]
             extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]
         else:
-            extra_compile_args += ["-O2"]
+            extra_compile_args += ["-g0", "-O2"]
             extra_link_args += ["-Wl,--strip-all"]
     if COMPILE_FOR_COVERAGE:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
