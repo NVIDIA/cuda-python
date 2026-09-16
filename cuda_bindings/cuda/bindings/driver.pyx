@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6d4503ae5ca9326721247759fac6bacd4bddc12e10d7fafc683325024a84cfee
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b6bd22f8ef64e899985668d55170be02666396c33bbb7787cd17cc3c6acfba24
 from typing import Any, Optional
 import cython
 import ctypes
@@ -10906,7 +10906,6 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
         self._ctx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
 
     def __dealloc__(self):
-        pass
 
         if self._paramArray is not NULL:
             free(self._paramArray)
@@ -11050,7 +11049,6 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st:
         self._ctx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
 
     def __dealloc__(self):
-        pass
 
         if self._paramArray is not NULL:
             free(self._paramArray)
@@ -14460,7 +14458,6 @@ cdef class CUlaunchConfig_st:
         self._hStream = CUstream(_ptr=<void_ptr>&self._pvt_ptr[0].hStream)
 
     def __dealloc__(self):
-        pass
 
         if self._attrs is not NULL:
             free(self._attrs)
@@ -14922,7 +14919,6 @@ cdef class CUctxCreateParams_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
 
         if self._execAffinityParams is not NULL:
             free(self._execAffinityParams)
@@ -15128,7 +15124,6 @@ cdef class CUstreamCigCaptureParams_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
 
         if self._streamCigParams is not NULL:
             free(self._streamCigParams)
@@ -19921,7 +19916,6 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
 
         if self._extSemArray is not NULL:
             free(self._extSemArray)
@@ -20072,8 +20066,6 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
         self._gCtx = CUgreenCtx(_ptr=<void_ptr>&self._pvt_ptr[0].gCtx)
 
     def __dealloc__(self):
-        if self._val_ptr is not NULL:
-            free(self._val_ptr)
 
         if self._extSemArray is not NULL:
             free(self._extSemArray)
@@ -20084,6 +20076,8 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
             free(self._paramsArray)
             self._pvt_ptr[0].paramsArray = NULL
 
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -20255,7 +20249,6 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
 
         if self._extSemArray is not NULL:
             free(self._extSemArray)
@@ -20406,8 +20399,6 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
         self._gCtx = CUgreenCtx(_ptr=<void_ptr>&self._pvt_ptr[0].gCtx)
 
     def __dealloc__(self):
-        if self._val_ptr is not NULL:
-            free(self._val_ptr)
 
         if self._extSemArray is not NULL:
             free(self._extSemArray)
@@ -20418,6 +20409,8 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
             free(self._paramsArray)
             self._pvt_ptr[0].paramsArray = NULL
 
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -22885,7 +22878,6 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
         self._dptr = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].dptr)
 
     def __dealloc__(self):
-        pass
 
         if self._accessDescs is not NULL:
             free(self._accessDescs)
@@ -23055,7 +23047,6 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v2_st:
         self._dptr = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].dptr)
 
     def __dealloc__(self):
-        pass
 
         if self._accessDescs is not NULL:
             free(self._accessDescs)
@@ -24000,7 +23991,6 @@ cdef class CUcheckpointCustomStorageInfo_st:
         self._handle = CUcheckpointOperationHandle(_ptr=<void_ptr>&self._pvt_ptr[0].handle)
 
     def __dealloc__(self):
-        pass
 
         if self._perDeviceData is not NULL:
             free(self._perDeviceData)
@@ -24294,7 +24284,6 @@ cdef class CUcheckpointRestoreArgs_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
 
         if self._gpuPairs is not NULL:
             free(self._gpuPairs)
@@ -25343,13 +25332,13 @@ cdef class CUdevResource_st:
         self._wq = CUdevWorkqueueResource(_ptr=<void_ptr>&self._pvt_ptr[0].wq)
 
     def __dealloc__(self):
-        if self._val_ptr is not NULL:
-            free(self._val_ptr)
 
         if self._nextResource is not NULL:
             free(self._nextResource)
             self._pvt_ptr[0].nextResource = NULL
 
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
