@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f40bcf5230303700cb1bc97b46c5ca063fd1e8de3562b1ee412e366f26b1419e
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=11827bb18f0653afd95163d1d140a0ec529d3d025b1ca1da61f96ee88f48d948
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -61,7 +61,7 @@ cdef _cyb_from_buffer(buffer, size, lowpp_type):
             raise ValueError("buffer itemsize must be 1 byte")
         if view.len != size:
             raise ValueError(f"buffer length must be {size} bytes")
-        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
+        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, view.readonly != 0, buffer)
     finally:
         _cyb_cpython.PyBuffer_Release(&view)
 
@@ -3164,6 +3164,8 @@ cdef class PciInfoExt_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This PciInfoExt_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlPciInfoExt_v1_t):
@@ -3395,6 +3397,8 @@ cdef class PciInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This PciInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlPciInfo_t):
@@ -3594,6 +3598,8 @@ cdef class Utilization:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This Utilization instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlUtilization_t):
@@ -3730,6 +3736,8 @@ cdef class Memory:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This Memory instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlMemory_t):
@@ -3879,6 +3887,8 @@ cdef class Memory_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This Memory_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlMemory_v2_t):
@@ -4048,6 +4058,8 @@ cdef class BAR1Memory:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This BAR1Memory instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlBAR1Memory_t):
@@ -4577,6 +4589,8 @@ cdef class DeviceAttributes:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This DeviceAttributes instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlDeviceAttributes_t):
@@ -4788,6 +4802,8 @@ cdef class C2cModeInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This C2cModeInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlC2cModeInfo_v1_t):
@@ -4915,6 +4931,8 @@ cdef class RowRemapperHistogramValues:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This RowRemapperHistogramValues instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlRowRemapperHistogramValues_t):
@@ -5256,6 +5274,8 @@ cdef class Value:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This Value instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlValue_t):
@@ -5643,6 +5663,8 @@ cdef class CoolerInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This CoolerInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlCoolerInfo_v1_t):
@@ -5962,6 +5984,8 @@ cdef class ClockOffset_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ClockOffset_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlClockOffset_v1_t):
@@ -6588,6 +6612,8 @@ cdef class EccSramErrorStatus_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EccSramErrorStatus_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEccSramErrorStatus_v1_t):
@@ -6850,6 +6876,8 @@ cdef class PlatformInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This PlatformInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlPlatformInfo_v1_t):
@@ -7069,6 +7097,8 @@ cdef class PlatformInfo_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This PlatformInfo_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlPlatformInfo_v2_t):
@@ -7469,6 +7499,8 @@ cdef class VgpuPlacementList_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuPlacementList_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuPlacementList_v2_t):
@@ -7635,6 +7667,8 @@ cdef class VgpuTypeBar1Info_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuTypeBar1Info_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuTypeBar1Info_v1_t):
@@ -8260,6 +8294,8 @@ cdef class _py_anon_pod2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cuda_bindings_nvml__anon_pod2):
@@ -8405,6 +8441,8 @@ cdef class _py_anon_pod3:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod3 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cuda_bindings_nvml__anon_pod3):
@@ -8746,6 +8784,8 @@ cdef class _py_anon_pod4:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod4 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cuda_bindings_nvml__anon_pod4):
@@ -8891,6 +8931,8 @@ cdef class _py_anon_pod5:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod5 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cuda_bindings_nvml__anon_pod5):
@@ -9022,6 +9064,8 @@ cdef class VgpuSchedulerCapabilities:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerCapabilities instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerCapabilities_t):
@@ -9244,6 +9288,8 @@ cdef class VgpuLicenseExpiry:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuLicenseExpiry instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuLicenseExpiry_t):
@@ -9450,6 +9496,8 @@ cdef class GridLicenseExpiry:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GridLicenseExpiry instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGridLicenseExpiry_t):
@@ -9644,6 +9692,8 @@ cdef class VgpuTypeIdInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuTypeIdInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuTypeIdInfo_v1_t):
@@ -9791,6 +9841,8 @@ cdef class ActiveVgpuInstanceInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ActiveVgpuInstanceInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlActiveVgpuInstanceInfo_v1_t):
@@ -9940,6 +9992,8 @@ cdef class VgpuCreatablePlacementInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuCreatablePlacementInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuCreatablePlacementInfo_v1_t):
@@ -10262,6 +10316,8 @@ cdef class LedState:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This LedState instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlLedState_t):
@@ -10403,6 +10459,8 @@ cdef class UnitInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This UnitInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlUnitInfo_t):
@@ -10578,6 +10636,8 @@ cdef class PSUInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This PSUInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlPSUInfo_t):
@@ -10900,6 +10960,8 @@ cdef class EventData:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EventData instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEventData_t):
@@ -11231,6 +11293,8 @@ cdef class AccountingStats:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This AccountingStats instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlAccountingStats_t):
@@ -11641,6 +11705,8 @@ cdef class FBCStats:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This FBCStats instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlFBCStats_t):
@@ -12065,6 +12131,8 @@ cdef class ConfComputeSystemCaps:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ConfComputeSystemCaps instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlConfComputeSystemCaps_t):
@@ -12201,6 +12269,8 @@ cdef class ConfComputeSystemState:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ConfComputeSystemState instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlConfComputeSystemState_t):
@@ -12350,6 +12420,8 @@ cdef class SystemConfComputeSettings_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This SystemConfComputeSettings_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlSystemConfComputeSettings_v1_t):
@@ -12518,6 +12590,8 @@ cdef class ConfComputeMemSizeInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ConfComputeMemSizeInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlConfComputeMemSizeInfo_t):
@@ -12655,6 +12729,8 @@ cdef class ConfComputeGpuCertificate:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ConfComputeGpuCertificate instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlConfComputeGpuCertificate_t):
@@ -12816,6 +12892,8 @@ cdef class ConfComputeGpuAttestationReport:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ConfComputeGpuAttestationReport instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlConfComputeGpuAttestationReport_t):
@@ -13005,6 +13083,8 @@ cdef class GpuFabricInfo_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuFabricInfo_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuFabricInfo_v2_t):
@@ -13191,6 +13271,8 @@ cdef class NvlinkSupportedBwModes_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkSupportedBwModes_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlNvlinkSupportedBwModes_v1_t):
@@ -13338,6 +13420,8 @@ cdef class NvlinkGetBwMode_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkGetBwMode_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlNvlinkGetBwMode_v1_t):
@@ -13485,6 +13569,8 @@ cdef class NvlinkSetBwMode_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkSetBwMode_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlNvlinkSetBwMode_v1_t):
@@ -13641,6 +13727,8 @@ cdef class VgpuVersion:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuVersion instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuVersion_t):
@@ -13785,6 +13873,8 @@ cdef class VgpuMetadata:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuMetadata instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuMetadata_t):
@@ -14009,6 +14099,8 @@ cdef class VgpuPgpuCompatibility:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuPgpuCompatibility instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuPgpuCompatibility_t):
@@ -14313,6 +14405,8 @@ cdef class GpuInstanceProfileInfo_v3:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuInstanceProfileInfo_v3 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuInstanceProfileInfo_v3_t):
@@ -14740,6 +14834,8 @@ cdef class ComputeInstanceProfileInfo_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ComputeInstanceProfileInfo_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlComputeInstanceProfileInfo_v2_t):
@@ -14988,6 +15084,8 @@ cdef class ComputeInstanceProfileInfo_v3:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ComputeInstanceProfileInfo_v3 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlComputeInstanceProfileInfo_v3_t):
@@ -15237,6 +15335,8 @@ cdef class DeviceAddressingMode_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This DeviceAddressingMode_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlDeviceAddressingMode_v1_t):
@@ -15373,6 +15473,8 @@ cdef class RepairStatus_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This RepairStatus_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlRepairStatus_v1_t):
@@ -15520,6 +15622,8 @@ cdef class DevicePowerMizerModes_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This DevicePowerMizerModes_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlDevicePowerMizerModes_v1_t):
@@ -15889,6 +15993,8 @@ cdef class GpuFabricInfo_v3:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuFabricInfo_v3 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuFabricInfo_v3_t):
@@ -16085,6 +16191,8 @@ cdef class NvLinkInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This NvLinkInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlNvLinkInfo_v1_t):
@@ -16411,6 +16519,8 @@ cdef class PRMCounterInput_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This PRMCounterInput_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlPRMCounterInput_v1_t):
@@ -16538,6 +16648,8 @@ cdef class VgpuSchedulerStateInfo_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerStateInfo_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerStateInfo_v2_t):
@@ -16915,6 +17027,8 @@ cdef class VgpuSchedulerState_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerState_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerState_v2_t):
@@ -17071,6 +17185,8 @@ cdef class BBXTimeData_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This BBXTimeData_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlBBXTimeData_v1_t):
@@ -17199,6 +17315,8 @@ cdef class RemappedRowsInfo_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This RemappedRowsInfo_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlRemappedRowsInfo_v2_t):
@@ -17386,6 +17504,8 @@ cdef class AccountingStats_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This AccountingStats_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlAccountingStats_v2_t):
@@ -17620,6 +17740,8 @@ cdef class CPERCursor_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This CPERCursor_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlCPERCursor_v1_t):
@@ -17774,6 +17896,8 @@ cdef class SetMemoryLimits_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This SetMemoryLimits_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlSetMemoryLimits_v1_t):
@@ -17931,6 +18055,8 @@ cdef class GetMemoryLimits_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GetMemoryLimits_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGetMemoryLimits_v1_t):
@@ -18862,6 +18988,8 @@ cdef class AdaptiveTgpModeInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This AdaptiveTgpModeInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlAdaptiveTgpModeInfo_v1_t):
@@ -19029,6 +19157,8 @@ cdef class EventSetGetContextCount_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EventSetGetContextCount_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEventSetGetContextCount_v1_t):
@@ -19156,6 +19286,8 @@ cdef class EventSetGetContextInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EventSetGetContextInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEventSetGetContextInfo_v1_t):
@@ -19324,6 +19456,8 @@ cdef class EventSetGetGpuOperationalEventContextLegacyXid_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EventSetGetGpuOperationalEventContextLegacyXid_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t):
@@ -19469,6 +19603,8 @@ cdef class GpuFabricClique_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuFabricClique_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuFabricClique_v1_t):
@@ -19606,6 +19742,8 @@ cdef class GpuOperationalEventConfig_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuOperationalEventConfig_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuOperationalEventConfig_v1_t):
@@ -19779,6 +19917,8 @@ cdef class EventSetWait_v3:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EventSetWait_v3 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEventSetWait_v3_t):
@@ -20176,6 +20316,8 @@ cdef class NvlinkSetBwModeAsync_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkSetBwModeAsync_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlNvlinkSetBwModeAsync_v1_t):
@@ -20526,6 +20668,8 @@ cdef class EccBankRemapperHistogram_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EccBankRemapperHistogram_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEccBankRemapperHistogram_v1_t):
@@ -20662,6 +20806,8 @@ cdef class ExcludedDeviceInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ExcludedDeviceInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlExcludedDeviceInfo_t):
@@ -20810,6 +20956,8 @@ cdef class ProcessDetailList_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ProcessDetailList_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlProcessDetailList_v1_t):
@@ -20967,6 +21115,8 @@ cdef class BridgeChipHierarchy:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This BridgeChipHierarchy instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlBridgeChipHierarchy_t):
@@ -21901,6 +22051,8 @@ cdef class PRMCounterValue_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This PRMCounterValue_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlPRMCounterValue_v1_t):
@@ -22053,6 +22205,8 @@ cdef class GpuThermalSettings:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuThermalSettings instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuThermalSettings_t):
@@ -22197,6 +22351,8 @@ cdef class ClkMonStatus:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ClkMonStatus instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlClkMonStatus_t):
@@ -22347,6 +22503,8 @@ cdef class ProcessesUtilizationInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ProcessesUtilizationInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlProcessesUtilizationInfo_v1_t):
@@ -22504,6 +22662,8 @@ cdef class GpuDynamicPstatesInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuDynamicPstatesInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuDynamicPstatesInfo_t):
@@ -22651,6 +22811,8 @@ cdef class VgpuProcessesUtilizationInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuProcessesUtilizationInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t):
@@ -22818,6 +22980,8 @@ cdef class VgpuSchedulerParams:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerParams instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerParams_t):
@@ -22974,6 +23138,8 @@ cdef class VgpuSchedulerSetParams:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerSetParams instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerSetParams_t):
@@ -23121,6 +23287,8 @@ cdef class VgpuLicenseInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuLicenseInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuLicenseInfo_t):
@@ -23472,6 +23640,8 @@ cdef class UnitFanSpeeds:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This UnitFanSpeeds instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlUnitFanSpeeds_t):
@@ -23621,6 +23791,8 @@ cdef class VgpuPgpuMetadata:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuPgpuMetadata instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuPgpuMetadata_t):
@@ -23826,6 +23998,8 @@ cdef class GpuInstanceInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuInstanceInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuInstanceInfo_t):
@@ -23992,6 +24166,8 @@ cdef class ComputeInstanceInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ComputeInstanceInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlComputeInstanceInfo_t):
@@ -24169,6 +24345,8 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EccSramUniqueUncorrectedErrorCounts_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t):
@@ -24325,6 +24503,8 @@ cdef class NvlinkFirmwareInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkFirmwareInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlNvlinkFirmwareInfo_t):
@@ -24473,6 +24653,8 @@ cdef class VgpuSchedulerLogInfo_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerLogInfo_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerLogInfo_v2_t):
@@ -24661,6 +24843,8 @@ cdef class GetCPER_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GetCPER_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGetCPER_v1_t):
@@ -25163,6 +25347,8 @@ cdef class GpuFabricInfo_v4:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuFabricInfo_v4 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuFabricInfo_v4_t):
@@ -25368,6 +25554,8 @@ cdef class NvlinkTelemetrySamples_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkTelemetrySamples_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlNvlinkTelemetrySamples_v1_t):
@@ -25505,6 +25693,8 @@ cdef class EccBankRemapperStatus_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EccBankRemapperStatus_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEccBankRemapperStatus_v1_t):
@@ -25672,6 +25862,8 @@ cdef class VgpuInstancesUtilizationInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuInstancesUtilizationInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t):
@@ -26010,6 +26202,8 @@ cdef class VgpuSchedulerLog:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerLog instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerLog_t):
@@ -26203,6 +26397,8 @@ cdef class VgpuSchedulerGetState:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerGetState instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerGetState_t):
@@ -26357,6 +26553,8 @@ cdef class VgpuSchedulerStateInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerStateInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerStateInfo_v1_t):
@@ -26535,6 +26733,8 @@ cdef class VgpuSchedulerLogInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerLogInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerLogInfo_v1_t):
@@ -26741,6 +26941,8 @@ cdef class VgpuSchedulerState_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerState_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerState_v1_t):
@@ -26915,6 +27117,8 @@ cdef class GridLicensableFeatures:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GridLicensableFeatures instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGridLicensableFeatures_t):
@@ -27062,6 +27266,8 @@ cdef class NvLinkInfo_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This NvLinkInfo_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlNvLinkInfo_v2_t):
@@ -28051,6 +28257,8 @@ cdef class _py_anon_pod8:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod8 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cuda_bindings_nvml__anon_pod8):
@@ -28513,6 +28721,8 @@ cdef class PerfMetricsSamples_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This PerfMetricsSamples_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlPerfMetricsSamples_v1_t):
