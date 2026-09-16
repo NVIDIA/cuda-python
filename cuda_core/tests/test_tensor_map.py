@@ -3,13 +3,12 @@
 
 import numpy as np
 import pytest
-from conftest import create_managed_memory_resource_or_skip, skip_if_managed_memory_unsupported
+from helpers.memory import create_managed_memory_resource_or_skip, skip_if_managed_memory_unsupported
 
 from cuda.core import (
     Device,
     ManagedMemoryResourceOptions,
     TensorMapDescriptor,
-    system,
 )
 from cuda.core._dlpack import DLDeviceType
 from cuda.core._tensor_map import (
@@ -386,7 +385,7 @@ class TestTensorMapReplaceAddress:
             desc.replace_address(host_arr)
 
     def test_replace_address_rejects_tensor_from_other_device(self, dev, skip_if_no_tma):
-        if system.get_num_devices() < 2:
+        if len(Device.get_all_devices()) < 2:
             pytest.skip("requires multi-GPU")
 
         dev0 = dev
@@ -407,7 +406,7 @@ class TestTensorMapReplaceAddress:
             desc.replace_address(buf1)
 
     def test_replace_address_accepts_managed_buffer_on_nonzero_device(self, init_cuda):
-        if system.get_num_devices() < 2:
+        if len(Device.get_all_devices()) < 2:
             pytest.skip("requires multi-GPU")
 
         dev1 = Device(1)
@@ -431,7 +430,7 @@ class TestTensorMapMultiDeviceValidation:
     """Test multi-device validation for descriptor creation."""
 
     def test_from_tiled_rejects_tensor_from_other_device(self, init_cuda):
-        if system.get_num_devices() < 2:
+        if len(Device.get_all_devices()) < 2:
             pytest.skip("requires multi-GPU")
 
         dev0 = Device(0)
@@ -451,7 +450,7 @@ class TestTensorMapMultiDeviceValidation:
             )
 
     def test_from_tiled_accepts_managed_buffer_on_nonzero_device(self, init_cuda):
-        if system.get_num_devices() < 2:
+        if len(Device.get_all_devices()) < 2:
             pytest.skip("requires multi-GPU")
 
         dev1 = Device(1)

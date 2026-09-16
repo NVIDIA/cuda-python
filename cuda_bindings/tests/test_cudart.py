@@ -34,7 +34,16 @@ def supportsSparseTexturesDeviceFilter():
 
 
 def supportsCudaAPI(name):
-    return name in dir(cuda) or dir(cudart)
+    return name in dir(cuda) or name in dir(cudart)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_supportsCudaAPI():
+    # Guards the operator precedence: `name in dir(cuda) or dir(cudart)` parses
+    # as `(name in dir(cuda)) or dir(cudart)`, which is truthy for every name.
+    assert supportsCudaAPI("cudaMalloc") is True  # runtime module
+    assert supportsCudaAPI("cuInit") is True  # driver module
+    assert supportsCudaAPI("this_is_not_a_cuda_api") is False
 
 
 def test_cudart_memcpy():
@@ -289,6 +298,9 @@ def test_cudart_cudaGraphGetEdges_edgeData_outlives_call():
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
+            # cudaGraphEdgeData_st layout: from_port(1), to_port(1), type(1), reserved[5]
+            raw = (ctypes.c_uint8 * 8).from_address(ed.getPtr())
+            assert bytes(raw[3:]) == b"\x00" * 5
     finally:
         (err,) = cudart.cudaGraphDestroy(graph)
         assertSuccess(err)
@@ -328,6 +340,9 @@ def test_cudart_cudaGraphNodeGetDependencies_edgeData_outlives_call():
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
+            # cudaGraphEdgeData_st layout: from_port(1), to_port(1), type(1), reserved[5]
+            raw = (ctypes.c_uint8 * 8).from_address(ed.getPtr())
+            assert bytes(raw[3:]) == b"\x00" * 5
     finally:
         (err,) = cudart.cudaGraphDestroy(graph)
         assertSuccess(err)

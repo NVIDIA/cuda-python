@@ -2,15 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
-import os.path
 import shutil
-import subprocess
-import sys
 import textwrap
 
 import numpy as np
 import pytest
 from cuda_python_test_helpers.mempool import xfail_if_mempool_oom
+from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
@@ -990,6 +988,9 @@ def test_cuGraphGetEdges_edgeData_outlives_call(device, ctx):
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
+            # CUgraphEdgeData_st layout: from_port(1), to_port(1), type(1), reserved[5]
+            raw = (ctypes.c_uint8 * 8).from_address(ed.getPtr())
+            assert bytes(raw[3:]) == b"\x00" * 5
     finally:
         (err,) = cuda.cuGraphDestroy(graph)
         assert err == cuda.CUresult.CUDA_SUCCESS
@@ -1029,6 +1030,9 @@ def test_cuGraphNodeGetDependencies_edgeData_outlives_call(device, ctx):
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
+            # CUgraphEdgeData_st layout: from_port(1), to_port(1), type(1), reserved[5]
+            raw = (ctypes.c_uint8 * 8).from_address(ed.getPtr())
+            assert bytes(raw[3:]) == b"\x00" * 5
     finally:
         (err,) = cuda.cuGraphDestroy(graph)
         assert err == cuda.CUresult.CUDA_SUCCESS
@@ -1289,10 +1293,7 @@ def test_array_setter_no_double_free_after_clearing_with_empty_list():
         params.attrs = [cuda.CUlaunchAttribute() for _ in range(8)]
         """
     )
-    proc = subprocess.run([sys.executable, "-c", code], capture_output=True, cwd=os.path.dirname(__file__))  # noqa: S603
-    assert proc.returncode == 0, (
-        f"reproducer subprocess exited with code {proc.returncode}; stderr: {proc.stderr.decode(errors='replace')}"
-    )
+    run_python_snippet(code)
 
 
 def test_dealloc_clears_array_field_in_external_struct():

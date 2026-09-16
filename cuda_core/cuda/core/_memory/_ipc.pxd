@@ -5,7 +5,7 @@
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core._memory._memory_pool cimport _MemPool
-from cuda.core._resource_handles cimport FileDescriptorHandle
+from cuda.core._rt cimport FileDescriptorHandle
 
 
 # Holds _MemPool objects imported by this process.  This enables

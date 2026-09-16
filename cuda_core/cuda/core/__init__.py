@@ -36,12 +36,17 @@ def _patch_rlcompleter_for_cython_properties() -> None:
     # which rlcompleter's narrow isinstance(..., property) check misses; the
     # fallback getattr() then invokes the descriptor and any non-AttributeError
     # it raises kills tab completion. Extend that isinstance check to also
-    # match getset_descriptor / member_descriptor. Only installed in
-    # interactive mode so library users running scripts see no global
-    # rlcompleter side effect.
+    # match getset_descriptor / member_descriptor. Installed unconditionally
+    # (the patch is scoped to the rlcompleter module, so non-interactive users
+    # only pay for the import).
     import os
 
-    if int(os.environ.get("CUDA_CORE_DONT_FIX_TAB_COMPLETION", "0")):
+    raw_opt_out = os.environ.get("CUDA_CORE_DONT_FIX_TAB_COMPLETION", "").strip()
+    try:
+        opt_out = int(raw_opt_out) != 0
+    except ValueError:
+        opt_out = raw_opt_out != ""
+    if opt_out:
         # Explicit opt-out for users who don't want the global rlcompleter
         # side effect, even in an interactive session.
         return
@@ -97,8 +102,12 @@ from cuda.core._stream import *
 from cuda.core._stream import __all__ as _stream_all
 from cuda.core._tensor_map import *
 from cuda.core._tensor_map import __all__ as _tensor_map_all
+from cuda.core._utils.cuda_utils import CUDAError, CUDAWarning, NVRTCError
 
 __all__ = [
+    "CUDAError",
+    "CUDAWarning",
+    "NVRTCError",
     *_context_all,
     *_device_all,
     *_device_resources_all,

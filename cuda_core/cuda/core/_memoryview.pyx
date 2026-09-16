@@ -16,15 +16,19 @@ import functools
 import sys
 import warnings
 from collections.abc import Callable  # no-cython-lint  # used in string annotations below
-from typing import Any  # no-cython-lint  # used in string annotations below
+from typing import TYPE_CHECKING, Any  # no-cython-lint  # used in string annotations below
+
+if TYPE_CHECKING:
+    from cuda.core._tensor_map import TensorMapDescriptorOptions
 
 import numpy
 
 from cuda.bindings cimport cydriver
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     EventHandle,
-    create_event_handle_noctx,
+    create_event_handle_for_stream,
     as_cu,
+    get_last_error,
 )
 
 from cuda.core._utils.cuda_utils import handle_return, driver
@@ -32,6 +36,7 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 
 from cuda.core._memory import Buffer
+from cuda.core._memory._buffer cimport Buffer as cyBuffer, Buffer_check_open
 
 
 # ---------------------------------------------------------------------------
@@ -377,7 +382,7 @@ cdef class StridedMemoryView:
         self,
         box_dim: tuple[int, ...] | None = None,
         *,
-        options: object = None,
+        options: TensorMapDescriptorOptions | None = None,
         element_strides: tuple[int, ...] | None = None,
         data_type: object = None,
         interleave: object = None,
@@ -1102,7 +1107,7 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
     buf.dl_tensor = dl_tensor
     buf.metadata = capsule
-    buf.ptr = <intptr_t>(dl_tensor.data)
+    buf.ptr = <intptr_t>(dl_tensor.data) + <intptr_t>(dl_tensor.byte_offset)
     buf.device_id = device_id
     buf.is_device_accessible = is_device_accessible
     buf.readonly = is_readonly
@@ -1223,7 +1228,12 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
             # establish stream order
             if producer_s != consumer_s:
                 with nogil:
-                    h_event = create_event_handle_noctx(cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+                    # The event must belong to the producer stream's context to
+                    # be recorded on it, whatever context is current here.
+                    h_event = create_event_handle_for_stream(
+                        <cydriver.CUstream>producer_s, cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+                    if not h_event:
+                        HANDLE_RETURN(get_last_error())
                     HANDLE_RETURN(cydriver.cuEventRecord(
                         as_cu(h_event), <cydriver.CUstream>producer_s))
                     HANDLE_RETURN(cydriver.cuStreamWaitEvent(
@@ -1257,7 +1267,7 @@ cpdef StridedMemoryView view_as_array_interface(obj, view=None):
     buf.get_layout()
     buf.ptr, buf.readonly = data["data"]
     buf.is_device_accessible = False
-    buf.device_id = handle_return(driver.cuCtxGetDevice())
+    buf.device_id = -1
     return buf
 
 
@@ -1332,6 +1342,8 @@ cdef inline int view_buffer_strided(
     object dtype,
     bint is_readonly,
 ) except -1:
+    if isinstance(buffer, Buffer):
+        Buffer_check_open(<cyBuffer>buffer)
     if dtype is not None:
         dtype = numpy.dtype(dtype)
         if dtype.itemsize != layout.itemsize:

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from cuda.core._resource_handles cimport GraphicsResourceHandle
+from cuda.core._rt cimport GraphicsResourceHandle
 
 
 cdef class GraphicsResource:

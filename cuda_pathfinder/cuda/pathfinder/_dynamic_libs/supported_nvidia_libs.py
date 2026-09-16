@@ -24,6 +24,12 @@ _OTHER_DESCRIPTORS = tuple(desc for desc in DESCRIPTOR_CATALOG if desc.packaged_
 _DRIVER_DESCRIPTORS = tuple(desc for desc in DESCRIPTOR_CATALOG if desc.packaged_with == "driver")
 _NON_CTK_DESCRIPTORS = _OTHER_DESCRIPTORS + _DRIVER_DESCRIPTORS
 
+
+def _legacy_least_preferred_first(names: tuple[str, ...]) -> tuple[str, ...]:
+    """Preserve the historical ordering of legacy filename projections."""
+    return tuple(reversed(names))
+
+
 SUPPORTED_LIBNAMES_COMMON = tuple(desc.name for desc in _CTK_DESCRIPTORS if desc.linux_sonames and desc.windows_dlls)
 SUPPORTED_LIBNAMES_LINUX_ONLY = tuple(
     desc.name for desc in _CTK_DESCRIPTORS if desc.linux_sonames and not desc.windows_dlls
@@ -60,14 +66,26 @@ else:
 DIRECT_DEPENDENCIES_CTK = {desc.name: desc.dependencies for desc in _CTK_DESCRIPTORS if desc.dependencies}
 DIRECT_DEPENDENCIES = {desc.name: desc.dependencies for desc in DESCRIPTOR_CATALOG if desc.dependencies}
 
-SUPPORTED_LINUX_SONAMES_CTK = {desc.name: desc.linux_sonames for desc in _CTK_DESCRIPTORS if desc.linux_sonames}
-SUPPORTED_LINUX_SONAMES_OTHER = {desc.name: desc.linux_sonames for desc in _OTHER_DESCRIPTORS if desc.linux_sonames}
-SUPPORTED_LINUX_SONAMES_DRIVER = {desc.name: desc.linux_sonames for desc in _DRIVER_DESCRIPTORS if desc.linux_sonames}
+SUPPORTED_LINUX_SONAMES_CTK = {
+    desc.name: _legacy_least_preferred_first(desc.linux_sonames) for desc in _CTK_DESCRIPTORS if desc.linux_sonames
+}
+SUPPORTED_LINUX_SONAMES_OTHER = {
+    desc.name: _legacy_least_preferred_first(desc.linux_sonames) for desc in _OTHER_DESCRIPTORS if desc.linux_sonames
+}
+SUPPORTED_LINUX_SONAMES_DRIVER = {
+    desc.name: _legacy_least_preferred_first(desc.linux_sonames) for desc in _DRIVER_DESCRIPTORS if desc.linux_sonames
+}
 SUPPORTED_LINUX_SONAMES = SUPPORTED_LINUX_SONAMES_CTK | SUPPORTED_LINUX_SONAMES_OTHER | SUPPORTED_LINUX_SONAMES_DRIVER
 
-SUPPORTED_WINDOWS_DLLS_CTK = {desc.name: desc.windows_dlls for desc in _CTK_DESCRIPTORS if desc.windows_dlls}
-SUPPORTED_WINDOWS_DLLS_OTHER = {desc.name: desc.windows_dlls for desc in _OTHER_DESCRIPTORS if desc.windows_dlls}
-SUPPORTED_WINDOWS_DLLS_DRIVER = {desc.name: desc.windows_dlls for desc in _DRIVER_DESCRIPTORS if desc.windows_dlls}
+SUPPORTED_WINDOWS_DLLS_CTK = {
+    desc.name: _legacy_least_preferred_first(desc.windows_dlls) for desc in _CTK_DESCRIPTORS if desc.windows_dlls
+}
+SUPPORTED_WINDOWS_DLLS_OTHER = {
+    desc.name: _legacy_least_preferred_first(desc.windows_dlls) for desc in _OTHER_DESCRIPTORS if desc.windows_dlls
+}
+SUPPORTED_WINDOWS_DLLS_DRIVER = {
+    desc.name: _legacy_least_preferred_first(desc.windows_dlls) for desc in _DRIVER_DESCRIPTORS if desc.windows_dlls
+}
 SUPPORTED_WINDOWS_DLLS = SUPPORTED_WINDOWS_DLLS_CTK | SUPPORTED_WINDOWS_DLLS_OTHER | SUPPORTED_WINDOWS_DLLS_DRIVER
 
 LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY = tuple(

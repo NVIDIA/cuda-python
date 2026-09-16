@@ -319,6 +319,20 @@ def test_make_program_cache_key_rejects_extra_sources_outside_nvvm(code_type, co
         )
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("value", [True, False])
+def test_make_program_cache_key_ignores_numba_debug_for_ptx(value):
+    """``numba_debug`` cannot change PTX-path output -- no linker backend reads
+    it -- so it must not perturb the cache key (#2640).
+
+    If it did, two compiles producing byte-identical cubins would miss each
+    other in the cache.
+    """
+    baseline = _make_key(code=".version 7.0", code_type="ptx", target_type="cubin", options=_opts())
+    with_flag = _make_key(code=".version 7.0", code_type="ptx", target_type="cubin", options=_opts(numba_debug=value))
+    assert with_flag == baseline
+
+
 @pytest.mark.parametrize(
     "kwargs, exc_type, match",
     [
@@ -1512,41 +1526,18 @@ def test_filestream_cache_rejects_non_positive_size_cap(tmp_path, bad):
         FileStreamProgramCache(tmp_path / "fc", max_size_bytes=bad)
 
 
-def test_default_cache_dir_lives_under_user_cache_root(monkeypatch, tmp_path):
-    """The cache root is platform-specific:
-
-    * Linux: ``$XDG_CACHE_HOME`` or ``~/.cache``.
-    * Windows: ``%LOCALAPPDATA%`` or ``~/AppData/Local``.
-
-    Both branches must end in ``cuda-python/program-cache``; that suffix
-    is what guarantees a stable on-disk layout across releases.
-    """
-    from pathlib import Path
-
+@pytest.mark.agent_authored(model="claude-sonnet-5")
+def test_file_stream_default_cache_dir_appends_program_cache_leaf(monkeypatch, tmp_path):
+    """The file-stream cache's default dir is the shared user-cache root plus a
+    ``program-cache`` leaf, so it can live alongside sibling caches (e.g. NVRTC's
+    bundled-headers cache) under the same ``cuda-python`` vendor directory."""
     from cuda.core.utils import _program_cache
+
+    monkeypatch.setattr(_program_cache._file_stream, "_user_cache_dir", lambda: tmp_path / "root")
+
     from cuda.core.utils._program_cache._file_stream import _default_cache_dir
 
-    # Path must end with cuda-python/program-cache regardless of platform.
-    assert _default_cache_dir().parts[-2:] == ("cuda-python", "program-cache")
-
-    # Linux branch: XDG_CACHE_HOME wins when set.
-    monkeypatch.setattr(_program_cache._file_stream, "_IS_WINDOWS", False)
-    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path / "xdg"))
-    assert _default_cache_dir() == tmp_path / "xdg" / "cuda-python" / "program-cache"
-
-    # Linux branch: falls back to ``~/.cache`` when XDG_CACHE_HOME is unset.
-    monkeypatch.delenv("XDG_CACHE_HOME", raising=False)
-    monkeypatch.setattr(Path, "home", classmethod(lambda _cls: tmp_path / "home"))
-    assert _default_cache_dir() == tmp_path / "home" / ".cache" / "cuda-python" / "program-cache"
-
-    # Windows branch: LOCALAPPDATA wins when set.
-    monkeypatch.setattr(_program_cache._file_stream, "_IS_WINDOWS", True)
-    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "appdata"))
-    assert _default_cache_dir() == tmp_path / "appdata" / "cuda-python" / "program-cache"
-
-    # Windows branch: falls back to ``~/AppData/Local`` when LOCALAPPDATA is unset.
-    monkeypatch.delenv("LOCALAPPDATA", raising=False)
-    assert _default_cache_dir() == tmp_path / "home" / "AppData" / "Local" / "cuda-python" / "program-cache"
+    assert _default_cache_dir() == tmp_path / "root" / "program-cache"
 
 
 def test_filestream_cache_uses_default_dir_when_path_omitted(tmp_path, monkeypatch):

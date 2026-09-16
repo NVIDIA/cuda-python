@@ -52,6 +52,15 @@ def test_no_self_dependency(spec: DescriptorSpec):
     assert spec.name not in spec.dependencies, f"{spec.name} lists itself as a dependency"
 
 
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_optional_dependencies_reference_existing_entries(spec: DescriptorSpec):
+    for dep in spec.optional_dependencies:
+        assert dep in _CATALOG_BY_NAME, f"{spec.name} optionally depends on unknown library {dep!r}"
+        assert dep != spec.name, f"{spec.name} lists itself as an optional dependency"
+        assert dep not in spec.dependencies, f"{spec.name} lists {dep!r} as both required and optional"
+
+
 @pytest.mark.parametrize(
     "spec",
     [s for s in DESCRIPTOR_CATALOG if s.packaged_with == "driver"],
@@ -81,6 +90,13 @@ def test_linux_sonames_look_like_sonames(spec: DescriptorSpec):
 
 
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_library_filenames_are_unique_per_platform(spec: DescriptorSpec):
+    assert len(spec.linux_sonames) == len(set(spec.linux_sonames))
+    assert len(spec.windows_dlls) == len({dll.casefold() for dll in spec.windows_dlls})
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
 def test_windows_dlls_look_like_dlls(spec: DescriptorSpec):
     for dll in spec.windows_dlls:
         assert dll.endswith(".dll"), f"Unexpected Windows DLL format: {dll}"
@@ -103,6 +119,31 @@ def test_windows_search_dirs_do_not_include_unsupported_arches(spec: DescriptorS
         if arch not in spec.supported_windows_arch:
             assert not spec.site_packages_windows.for_arch(arch)
             assert not spec.anchor_rel_dirs_windows.for_arch(arch)
+            assert not spec.install_root_env_rel_dirs_windows.for_arch(arch)
+            assert not spec.program_files_root_globs_windows.for_arch(arch)
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_windows_install_root_env_metadata_is_complete(spec: DescriptorSpec):
+    has_env_vars = bool(spec.install_root_env_vars_windows)
+    has_rel_dirs = any(spec.install_root_env_rel_dirs_windows.for_arch(arch) for arch in _VALID_WINDOWS_ARCHES)
+
+    assert has_env_vars == has_rel_dirs, f"{spec.name} must define both installation-root env vars and relative dirs"
+    if has_env_vars:
+        for arch in spec.supported_windows_arch:
+            assert spec.install_root_env_rel_dirs_windows.for_arch(arch), (
+                f"{spec.name} exposes installation-root env vars without {arch} relative dirs"
+            )
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_linux_install_root_env_metadata_is_complete(spec: DescriptorSpec):
+    has_env_vars = bool(spec.install_root_env_vars_linux)
+    has_rel_dirs = bool(spec.install_root_env_rel_dirs_linux)
+
+    assert has_env_vars == has_rel_dirs, f"{spec.name} must define both Linux installation-root env vars and dirs"
 
 
 @pytest.mark.agent_authored(model="gpt-5")
@@ -113,6 +154,39 @@ def test_cusparselt_windows_metadata_matches_wheel_layouts():
         x64=("nvidia/cu13/bin/x64", "nvidia/cusparselt/bin"),
         arm64=("nvidia/cu13/bin/arm64",),
     )
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_cudnn_metadata_matches_supported_layouts():
+    spec = _CATALOG_BY_NAME["cudnn"]
+    assert spec.packaged_with == "other"
+    assert spec.linux_sonames == ("libcudnn.so.9",)
+    assert spec.windows_dlls == ("cudnn64_9.dll",)
+    assert spec.supported_windows_arch == ("x64", "arm64")
+    assert spec.site_packages_linux == ("nvidia/cudnn/lib",)
+    assert spec.site_packages_windows == WindowsSearchDirs.x64_only("nvidia/cudnn/bin")
+    assert spec.anchor_rel_dirs_windows == WindowsSearchDirs.x64_only("bin/x64", "bin")
+    assert spec.dependencies == ("cublasLt",)
+    assert spec.optional_dependencies == ("nvrtc",)
+    assert spec.install_root_env_vars_linux == ("CUDNN_PATH",)
+    assert spec.install_root_env_rel_dirs_linux == ("lib", "lib64")
+    assert spec.install_root_env_vars_windows == ("CUDNN_PATH",)
+    assert spec.install_root_env_rel_dirs_windows == WindowsSearchDirs(
+        x64=("bin/x64", "bin"),
+        arm64=("bin/arm64",),
+    )
+    assert spec.program_files_root_globs_windows == WindowsSearchDirs.x64_only("NVIDIA/CUDNN/v9.*")
+    assert spec.requires_add_dll_directory
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_nccl_metadata_matches_supported_linux_install_layouts():
+    spec = _CATALOG_BY_NAME["nccl"]
+    assert spec.packaged_with == "other"
+    assert spec.linux_sonames == ("libnccl.so.2",)
+    assert spec.site_packages_linux == ("nvidia/nccl/lib",)
+    assert spec.install_root_env_vars_linux == ("NCCL_HOME",)
+    assert spec.install_root_env_rel_dirs_linux == ("lib", "lib64", "build/lib")
 
 
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)

@@ -21,7 +21,6 @@ license-files = ["LICENSE"]
 requires-python = ">=3.10"
 classifiers = [
     "Intended Audience :: Developers",
-    "Topic :: Database",
     "Topic :: Scientific/Engineering",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.10",
@@ -56,6 +55,9 @@ test = [
     "pytest-randomly==4.1.0",
     "pyglet==2.1.14",
 ]
+test-ft = [
+    "pytest-run-parallel==0.10.0",
+]
 
 [project.urls]
 Repository = "https://github.com/NVIDIA/cuda-python"
@@ -83,7 +85,6 @@ build-verbosity = 1
 archs = "native"
 
 [tool.cibuildwheel.windows]
-archs = "AMD64"
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
 

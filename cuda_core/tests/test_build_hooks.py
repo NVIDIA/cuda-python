@@ -19,17 +19,21 @@ These tests require Cython to be installed (build_hooks.py imports it).
 import builtins
 import importlib.util
 import os
+import sys
 import tempfile
+import threading
+from distutils.ccompiler import CCompiler
 from pathlib import Path
 from unittest import mock
 
+# build_hooks.py imports Cython and setuptools at the top level; both are
+# declared test dependencies, so a missing install must surface as an
+# ImportError at collection time rather than being hidden by importorskip.
+import Cython  # noqa: F401
 import pytest
+import setuptools  # noqa: F401
 
 from cuda.pathfinder import get_cuda_path_or_home
-
-# build_hooks.py imports Cython and setuptools at the top level, so skip if not available
-pytest.importorskip("Cython")
-pytest.importorskip("setuptools")
 
 
 def _load_build_hooks():
@@ -165,3 +169,285 @@ class TestGetCudaMajorVersion:
             pytest.raises(RuntimeError, match="CUDA_PATH or CUDA_HOME"),
         ):
             build_hooks._determine_cuda_major_version()
+
+
+@pytest.fixture
+def stamp(tmp_path, monkeypatch):
+    """Redirect the build stamp to a scratch path.
+
+    _BUILD_MAJOR_STAMP is anchored to build_hooks.py rather than the working
+    directory, so it has to be replaced outright; chdir would not move it, and
+    record_build_major() would write into the real source tree.
+    """
+    scratch = tmp_path / "build" / ".build-cuda-major"
+    monkeypatch.setattr(build_hooks, "_BUILD_MAJOR_STAMP", scratch)
+    monkeypatch.setattr(build_hooks, "force_build_ext", False)
+    build_hooks._get_cuda_path.cache_clear()
+    build_hooks._determine_cuda_major_version.cache_clear()
+    get_cuda_path_or_home.cache_clear()
+    monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
+    return scratch
+
+
+def _write_stamp(stamp, cuda_major):
+    stamp.parent.mkdir(parents=True, exist_ok=True)
+    stamp.write_text(cuda_major + "\n")
+
+
+class TestBuildMajorStamp:
+    """Tests for _check_build_major() and record_build_major()."""
+
+    def test_missing_stamp_forces_rebuild(self, stamp):
+        # No stamp means the last build's major is unknown, so rebuild.
+        assert build_hooks._check_build_major() == "13"
+        assert build_hooks.force_build_ext is True
+
+    def test_same_major_does_not_force(self, stamp):
+        _write_stamp(stamp, "13")
+        assert build_hooks._check_build_major() == "13"
+        assert build_hooks.force_build_ext is False
+
+    def test_changed_major_forces_rebuild(self, stamp):
+        _write_stamp(stamp, "12")
+        assert build_hooks._check_build_major() == "13"
+        assert build_hooks.force_build_ext is True
+
+    def test_record_writes_stamp(self, stamp):
+        build_hooks.record_build_major()
+        assert stamp.read_text().strip() == "13"
+
+
+def _capture_cythonize_build_dir(monkeypatch, cuda_major):
+    """Run the cythonize setup for one CUDA major and report its build_dir.
+
+    cythonize() is replaced, so nothing is generated or compiled: this only
+    observes which directory the build was about to write into.
+    """
+    captured = {}
+
+    def fake_cythonize(ext_modules, **kwargs):
+        captured.update(kwargs)
+        return []
+
+    # Builds resolve the CTK for include dirs; stub it so the test runs
+    # where no toolkit is installed (e.g. the wheels CI jobs).
+    monkeypatch.setattr(build_hooks, "_get_cuda_path", lambda: "/nonexistent-cuda")
+    monkeypatch.setattr(build_hooks, "cythonize", fake_cythonize)
+    monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", cuda_major)
+    build_hooks._determine_cuda_major_version.cache_clear()
+    # _build_cuda_core() globs cuda/core/**/*.pyx relative to the cwd.
+    monkeypatch.chdir(Path(__file__).parent.parent)
+    # It also prepends cuda_bindings/ to sys.path; swap in a copy so the
+    # mutation lands there and the real list is restored on teardown.
+    monkeypatch.setattr(sys, "path", list(sys.path))
+
+    build_hooks._build_cuda_core()
+    return Path(captured["build_dir"])
+
+
+class TestGeneratedSourceDirIsKeyed:
+    """Generated C++ must not be shared between CUDA majors.
+
+    Cython's up-to-date check does not hash compile_time_env, so without a
+    per-major directory a cu13 build's generated sources are handed to a cu12
+    compiler (and vice versa).
+    """
+
+    def test_majors_use_different_dirs(self, monkeypatch):
+        dir_12 = _capture_cythonize_build_dir(monkeypatch, "12")
+        dir_13 = _capture_cythonize_build_dir(monkeypatch, "13")
+
+        assert dir_12 != dir_13
+        assert dir_12.name == "cu12"
+        assert dir_13.name == "cu13"
+
+    def test_dir_is_anchored_not_relative_to_cwd(self, monkeypatch):
+        # Anchored to build_hooks.py, so it must agree with the stamp
+        # regardless of where the build was invoked from.
+        build_dir = _capture_cythonize_build_dir(monkeypatch, "13")
+
+        assert build_dir.is_absolute()
+        assert build_dir.parent.parent == build_hooks._BUILD_MAJOR_STAMP.parent
+
+
+class TestSetuptoolsSourcePaths:
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_absolute_sources_are_made_relative(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        generated = tmp_path / "build" / "cython" / "cu13" / "cuda" / "core" / "_device.cpp"
+        relative = "cuda/core/_cpp/helper.cpp"
+        extension = build_hooks.Extension("cuda.core._device", [str(generated), relative])
+
+        build_hooks._relativize_extension_sources([extension])
+
+        assert extension.sources == [os.path.relpath(generated, start=tmp_path), relative]
+
+
+def _load_setup_py(monkeypatch):
+    """Import setup.py for its command classes.
+
+    Importing rather than running is only possible because setup() is guarded
+    by __name__ == "__main__"; setuptools invokes the file as a script, so the
+    guard does not affect real builds.
+
+    setup.py does a bare ``import build_hooks``, which resolves to
+    cuda_bindings' copy if that directory is on sys.path. Pin cuda_core's, so
+    the flag the test sets is the one setup.py reads.
+    """
+    monkeypatch.setitem(sys.modules, "build_hooks", build_hooks)
+    setup_path = Path(__file__).parent.parent / "setup.py"
+    spec = importlib.util.spec_from_file_location("cuda_core_setup", setup_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+class TestForceReachesBuildExt:
+    """The rebuild decision must actually be handed to setuptools.
+
+    _check_build_major() only sets a flag; if build_ext does not read it, a
+    stale extension is silently kept because its mtime looks newer than the
+    regenerated sources.
+    """
+
+    @staticmethod
+    def _finalized_build_ext(force_flag, monkeypatch):
+        from setuptools.dist import Distribution
+
+        setup_py = _load_setup_py(monkeypatch)
+        assert setup_py.build_hooks is build_hooks
+        monkeypatch.setattr(build_hooks, "force_build_ext", force_flag)
+
+        cmd = setup_py.build_ext(Distribution({"name": "cuda-core", "version": "0"}))
+        cmd.finalize_options()
+        return cmd
+
+    def test_flag_set_forces_rebuild(self, monkeypatch):
+        assert self._finalized_build_ext(True, monkeypatch).force
+
+    def test_flag_clear_leaves_default(self, monkeypatch):
+        assert not self._finalized_build_ext(False, monkeypatch).force
+
+
+class TestExtensionSources:
+    """_extension_sources: a directory of .cpp files, a single legacy .cpp, or nothing."""
+
+    @pytest.fixture
+    def tree(self, tmp_path, monkeypatch):
+        core = tmp_path / "cuda" / "core"
+        cpp = core / "_cpp"
+        (cpp / "a" / "nested").mkdir(parents=True)
+        (cpp / "d").mkdir()
+        for name in ("_a.pyx", "_b.pyx", "_c.pyx", "_d.pyx"):
+            (core / name).write_text("")
+        for name in ("a/x.cpp", "a/y.cpp", "a/nested/z.cpp", "a/notes.md", "b.cpp"):
+            (cpp / name).write_text("")
+        monkeypatch.chdir(tmp_path)
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_directory_of_sources(self, tree):
+        a = os.path.join("cuda", "core", "_cpp", "a")
+        assert build_hooks._extension_sources("_a") == [
+            "cuda/core/_a.pyx",
+            os.path.join(a, "nested", "z.cpp"),
+            os.path.join(a, "x.cpp"),
+            os.path.join(a, "y.cpp"),
+        ]
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_legacy_single_file_and_no_cpp(self, tree):
+        assert build_hooks._extension_sources("_b") == [
+            "cuda/core/_b.pyx",
+            os.path.join("cuda", "core", "_cpp", "b.cpp"),
+        ]
+        assert build_hooks._extension_sources("_c") == ["cuda/core/_c.pyx"]
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_empty_directory_is_an_error(self, tree):
+        with pytest.raises(RuntimeError, match="no .cpp files"):
+            build_hooks._extension_sources("_d")
+
+
+class TestExtensionDepends:
+    """_extension_depends: every header under a directory-form module's
+    _cpp/<stem>/, the same list for every extension (see its docstring)."""
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_headers_under_module_directories_only(self, tmp_path, monkeypatch):
+        cpp = tmp_path / "cuda" / "core" / "_cpp"
+        (cpp / "a" / "nested").mkdir(parents=True)
+        for name in ("a/x.hpp", "a/nested/y.h", "a/z.cpp", "a/notes.md", "top.hpp", "b.cpp"):
+            (cpp / name).write_text("")
+        monkeypatch.chdir(tmp_path)
+        a = os.path.join("cuda", "core", "_cpp", "a")
+        assert build_hooks._extension_depends() == [os.path.join(a, "nested", "y.h"), os.path.join(a, "x.hpp")]
+
+
+class TestParallelSourceCompilation:
+    """setup.py compiles an extension's sources through one shared thread pool."""
+
+    class FakeCompiler(CCompiler):
+        """Uses the stock CCompiler.compile(), like the Unix compilers."""
+
+        executables = {}
+
+        def __init__(self, fail_on=None):
+            super().__init__()
+            self.compiled = []
+            self.fail_on = fail_on
+            self.lock = threading.Lock()
+
+        def _setup_compile(self, outdir, macros, incdirs, sources, depends, extra):
+            extra = [] if extra is None else extra  # as distutils does
+            objects = [source + ".o" for source in sources]
+            return macros, objects, extra, ["-Dpp"], {obj: (src, ".cpp") for obj, src in zip(objects, sources)}
+
+        def _get_cc_args(self, pp_opts, debug, before):
+            return ["-c", *pp_opts]
+
+        def _compile(self, obj, src, ext, cc_args, extra_postargs, pp_opts):
+            if src == self.fail_on:
+                raise RuntimeError(f"{src} failed")
+            with self.lock:
+                self.compiled.append((obj, src, ext, tuple(cc_args), tuple(extra_postargs), tuple(pp_opts)))
+
+    class MsvcLikeCompiler(FakeCompiler):
+        """Overrides compile() wholesale, like MSVCCompiler."""
+
+        def compile(self, *args, **kwargs):
+            return "stock"
+
+    def _build_ext(self, monkeypatch, nthreads, compiler):
+        from setuptools.dist import Distribution
+
+        setup_py = _load_setup_py(monkeypatch)
+        monkeypatch.setattr(setup_py, "nthreads", nthreads)
+        cmd = setup_py.build_ext(Distribution({"name": "cuda-core", "version": "0"}))
+        cmd.compiler = compiler
+        return cmd
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_every_source_compiles_once_and_the_object_order_is_kept(self, monkeypatch):
+        cmd = self._build_ext(monkeypatch, 4, self.FakeCompiler())
+        sources = [f"rt/{name}.cpp" for name in "abcdef"]
+        with cmd._parallel_source_compilation():
+            objects = cmd.compiler.compile(sources, output_dir="tmp", extra_postargs=["-O2"], depends=["x.hpp"])
+        assert objects == [source + ".o" for source in sources]
+        assert sorted(entry[0] for entry in cmd.compiler.compiled) == sorted(objects)
+        assert {entry[2:] for entry in cmd.compiler.compiled} == {(".cpp", ("-c", "-Dpp"), ("-O2",), ("-Dpp",))}
+        assert cmd.compiler.compile.__func__ is CCompiler.compile  # restored on exit
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_a_failing_source_fails_the_extension(self, monkeypatch):
+        cmd = self._build_ext(monkeypatch, 4, self.FakeCompiler(fail_on="rt/c.cpp"))
+        with cmd._parallel_source_compilation(), pytest.raises(RuntimeError, match="rt/c.cpp failed"):
+            cmd.compiler.compile([f"rt/{name}.cpp" for name in "abcdef"])
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_serial_builds_and_compilers_without_the_hook_keep_the_stock_path(self, monkeypatch):
+        cmd = self._build_ext(monkeypatch, 1, self.FakeCompiler())
+        with cmd._parallel_source_compilation():
+            assert cmd.compiler.compile.__func__ is CCompiler.compile
+        cmd = self._build_ext(monkeypatch, 4, self.MsvcLikeCompiler())
+        with cmd._parallel_source_compilation():
+            assert cmd.compiler.compile(["a.cpp"]) == "stock"

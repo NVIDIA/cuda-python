@@ -3,12 +3,15 @@
 
 from __future__ import annotations
 
+import platform
 import sysconfig
 
 WINDOWS_PE_MACHINE_BY_ARCH = {
     "x64": 0x8664,
     "arm64": 0xAA64,
 }
+
+_WINDOWS_ARCH_BY_PE_MACHINE = {machine: arch for arch, machine in WINDOWS_PE_MACHINE_BY_ARCH.items()}
 
 
 class UnsupportedArchError(RuntimeError):
@@ -33,6 +36,76 @@ def windows_python_arch() -> str:
         return "x64"
 
     raise UnsupportedArchError(raw_platform_tag)
+
+
+def _windows_machine_arch_from_platform() -> str:
+    """Return the Windows architecture reported by Python's platform module."""
+    raw_machine = platform.machine()
+    machine = raw_machine.lower().replace("_", "-")
+
+    if machine in ("amd64", "x86-64"):
+        return "x64"
+
+    if machine in ("arm64", "aarch64"):
+        return "arm64"
+
+    raise RuntimeError(f"Unsupported Windows machine architecture: {raw_machine!r}")
+
+
+def _windows_native_machine() -> int | None:
+    """Return the native Windows PE machine type, or None on older Windows."""
+    import ctypes
+    from ctypes import wintypes
+
+    try:
+        # These ctypes attributes are absent from the type stubs on non-Windows hosts.
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)  # type: ignore[attr-defined, unused-ignore]
+    except OSError as exc:
+        raise RuntimeError("Failed to load kernel32 while detecting the native Windows architecture") from exc
+
+    get_current_process = kernel32.GetCurrentProcess
+    try:
+        is_wow64_process2 = kernel32.IsWow64Process2
+    except AttributeError:
+        return None
+
+    get_current_process.argtypes = ()
+    get_current_process.restype = wintypes.HANDLE
+    is_wow64_process2.argtypes = (
+        wintypes.HANDLE,
+        ctypes.POINTER(wintypes.USHORT),
+        ctypes.POINTER(wintypes.USHORT),
+    )
+    is_wow64_process2.restype = wintypes.BOOL
+
+    process_machine = wintypes.USHORT()
+    native_machine = wintypes.USHORT()
+    if not is_wow64_process2(
+        get_current_process(),
+        ctypes.byref(process_machine),
+        ctypes.byref(native_machine),
+    ):
+        error_code = ctypes.get_last_error()  # type: ignore[attr-defined, unused-ignore]
+        error = ctypes.WinError(error_code)  # type: ignore[attr-defined, unused-ignore]
+        raise RuntimeError(
+            f"IsWow64Process2 failed while detecting the native Windows architecture "
+            f"(Windows error {error_code}): {error}"
+        ) from error
+    return native_machine.value
+
+
+def windows_machine_arch() -> str:
+    """Return the native Windows machine architecture, ignoring process emulation."""
+    native_machine = _windows_native_machine()
+    if native_machine is None:
+        # IsWow64Process2 predates x64-on-Arm emulation, so this fallback is only
+        # needed on older Windows versions where platform.machine() is sufficient.
+        return _windows_machine_arch_from_platform()
+
+    try:
+        return _WINDOWS_ARCH_BY_PE_MACHINE[native_machine]
+    except KeyError:
+        raise RuntimeError(f"Unsupported native Windows PE machine type: 0x{native_machine:04x}") from None
 
 
 def windows_pe_matches_arch(path: str, target_arch: str) -> bool:

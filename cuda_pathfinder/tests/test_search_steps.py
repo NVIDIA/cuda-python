@@ -5,7 +5,9 @@
 
 from __future__ import annotations
 
+import ctypes
 import os
+from ctypes import wintypes
 
 import pytest
 
@@ -14,7 +16,11 @@ from cuda.pathfinder._dynamic_libs import search_platform as search_platform_mod
 from cuda.pathfinder._dynamic_libs.descriptor_catalog import WindowsSearchDirs
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS, LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
-from cuda.pathfinder._dynamic_libs.search_platform import LinuxSearchPlatform, WindowsSearchPlatform
+from cuda.pathfinder._dynamic_libs.search_platform import (
+    LinuxSearchPlatform,
+    WindowsSearchPlatform,
+    _find_descriptor_dll_under_dir,
+)
 from cuda.pathfinder._dynamic_libs.search_steps import (
     EARLY_FIND_STEPS,
     LATE_FIND_STEPS,
@@ -23,6 +29,8 @@ from cuda.pathfinder._dynamic_libs.search_steps import (
     _find_lib_dir_using_anchor,
     find_in_conda,
     find_in_cuda_path,
+    find_in_install_root_env_vars,
+    find_in_program_files_roots,
     find_in_site_packages,
     run_find_steps,
 )
@@ -87,16 +95,16 @@ class TestSearchContext:
         assert ctx.libname == "nvrtc"
 
     def test_lib_searched_for_linux(self):
-        ctx = SearchContext(_make_desc(name="cublas"), platform=LinuxSearchPlatform())
-        assert ctx.lib_searched_for == "libcublas.so"
+        ctx = SearchContext(LIB_DESCRIPTORS["cublas"], platform=LinuxSearchPlatform())
+        assert ctx.lib_searched_for == "libcublas.so.13 or libcublas.so.12"
 
     def test_lib_searched_for_windows(self):
         ctx = SearchContext(_make_desc(name="cublas"), platform=WindowsSearchPlatform(target_arch="x64"))
-        assert ctx.lib_searched_for == "cublas*.dll"
+        assert ctx.lib_searched_for == "known cublas DLL"
 
     def test_raise_not_found_includes_messages(self):
         ctx = _ctx()
-        ctx.error_messages.append("No such file: libcudart.so*")
+        ctx.error_messages.append("No such file: libcudart.so")
         ctx.attachments.append('  listdir("/some/dir"):')
         with pytest.raises(DynamicLibNotFoundError, match="No such file"):
             ctx.raise_not_found()
@@ -145,6 +153,85 @@ class TestWindowsPythonArch:
         ) as exc_info:
             windows_arch_mod.windows_python_arch()
         assert exc_info.value.platform_tag == "custom-win"
+
+
+class TestWindowsMachineArch:
+    @pytest.mark.parametrize(
+        ("native_machine", "expected"),
+        ((0x8664, "x64"), (0xAA64, "arm64")),
+    )
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_uses_native_pe_machine(self, mocker, native_machine, expected):
+        mocker.patch.object(windows_arch_mod, "_windows_native_machine", return_value=native_machine)
+        platform_machine = mocker.patch.object(windows_arch_mod.platform, "machine", return_value="AMD64")
+
+        assert windows_arch_mod.windows_machine_arch() == expected
+        platform_machine.assert_not_called()
+
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_rejects_unknown_native_pe_machine(self, mocker):
+        mocker.patch.object(windows_arch_mod, "_windows_native_machine", return_value=0x014C)
+
+        with pytest.raises(RuntimeError, match=r"Unsupported native Windows PE machine type: 0x014c"):
+            windows_arch_mod.windows_machine_arch()
+
+    @pytest.mark.parametrize(
+        ("reported_machine", "expected"),
+        (("AMD64", "x64"), ("x86_64", "x64"), ("ARM64", "arm64"), ("aarch64", "arm64")),
+    )
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_old_windows_fallback_normalizes_platform_machine(self, mocker, reported_machine, expected):
+        mocker.patch.object(windows_arch_mod, "_windows_native_machine", return_value=None)
+        mocker.patch.object(windows_arch_mod.platform, "machine", return_value=reported_machine)
+
+        assert windows_arch_mod.windows_machine_arch() == expected
+
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_native_machine_returns_none_when_is_wow64_process2_is_unavailable(self, mocker):
+        kernel32 = mocker.Mock(spec=["GetCurrentProcess"])
+        mocker.patch.object(ctypes, "WinDLL", create=True, return_value=kernel32)
+
+        assert windows_arch_mod._windows_native_machine() is None
+
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_native_machine_configures_api_and_returns_native_machine(self, mocker):
+        kernel32 = mocker.Mock()
+        kernel32.GetCurrentProcess.return_value = wintypes.HANDLE(1)
+
+        def report_native_machine(_process, _process_machine, native_machine):
+            native_machine._obj.value = 0xAA64
+            return True
+
+        kernel32.IsWow64Process2.side_effect = report_native_machine
+        mocker.patch.object(ctypes, "WinDLL", create=True, return_value=kernel32)
+
+        assert windows_arch_mod._windows_native_machine() == 0xAA64
+        assert kernel32.GetCurrentProcess.argtypes == ()
+        assert kernel32.GetCurrentProcess.restype is wintypes.HANDLE
+        assert kernel32.IsWow64Process2.argtypes == (
+            wintypes.HANDLE,
+            ctypes.POINTER(wintypes.USHORT),
+            ctypes.POINTER(wintypes.USHORT),
+        )
+        assert kernel32.IsWow64Process2.restype is wintypes.BOOL
+
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_native_machine_raises_contextual_error_when_api_call_fails(self, mocker):
+        kernel32 = mocker.Mock()
+        kernel32.GetCurrentProcess.return_value = wintypes.HANDLE(1)
+        kernel32.IsWow64Process2.return_value = False
+        mocker.patch.object(ctypes, "WinDLL", create=True, return_value=kernel32)
+        mocker.patch.object(ctypes, "get_last_error", create=True, return_value=87)
+        windows_error = OSError(87, "The parameter is incorrect")
+        mocker.patch.object(ctypes, "WinError", create=True, return_value=windows_error)
+
+        with pytest.raises(
+            RuntimeError,
+            match=r"IsWow64Process2 failed while detecting the native Windows architecture \(Windows error 87\)",
+        ) as exc_info:
+            windows_arch_mod._windows_native_machine()
+
+        assert exc_info.value.__cause__ is windows_error
 
 
 @pytest.mark.parametrize(
@@ -202,6 +289,24 @@ class TestFindInSitePackages:
         assert result.abs_path == str(so_file)
         assert result.found_via == "site-packages"
 
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_nvvm_linux_wheel_accepts_declared_unversioned_filename(self, mocker, tmp_path):
+        lib_dir = tmp_path / "nvidia" / "cuda_nvcc" / "nvvm" / "lib64"
+        lib_dir.mkdir(parents=True)
+        so_file = lib_dir / "libnvvm.so"
+        so_file.touch()
+
+        mocker.patch(
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            return_value=[str(lib_dir)],
+        )
+
+        result = find_in_site_packages(_ctx(LIB_DESCRIPTORS["nvvm"], platform=LinuxSearchPlatform()))
+
+        assert result is not None
+        assert result.abs_path == str(so_file)
+        assert result.found_via == "site-packages"
+
     def test_found_windows(self, mocker, tmp_path):
         bin_dir = tmp_path / "nvidia" / "cuda_runtime" / "bin"
         bin_dir.mkdir(parents=True)
@@ -225,6 +330,69 @@ class TestFindInSitePackages:
         assert result is not None
         assert result.abs_path == str(dll)
         assert result.found_via == "site-packages"
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_windows_exact_names_reject_cudnn_sidecar(self, mocker, tmp_path):
+        bin_dir = tmp_path / "nvidia" / "cudnn" / "bin"
+        bin_dir.mkdir(parents=True)
+        (bin_dir / "cudnn_adv64_9.dll").touch()
+
+        mocker.patch(
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            return_value=[str(bin_dir)],
+        )
+
+        result = find_in_site_packages(
+            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
+        )
+
+        assert result is None
+
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_windows_matching_rejects_unlisted_cupti_name(self, mocker, tmp_path):
+        bin_dir = tmp_path / "nvidia" / "cuda_cupti" / "bin"
+        bin_dir.mkdir(parents=True)
+        (bin_dir / "cupti64_14.dll").touch()
+
+        mocker.patch(
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            return_value=[str(bin_dir)],
+        )
+
+        result = find_in_site_packages(
+            _ctx(LIB_DESCRIPTORS["cupti"], platform=WindowsSearchPlatform(target_arch="x64"))
+        )
+
+        assert result is None
+
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_windows_known_cupti_names_follow_declared_preference_order(self, tmp_path):
+        preferred_dll = tmp_path / "cupti64_2026.3.0.dll"
+        fallback_dll = tmp_path / "cupti64_2026.2.1.dll"
+        preferred_dll.touch()
+        fallback_dll.touch()
+
+        result = _find_descriptor_dll_under_dir(str(tmp_path), LIB_DESCRIPTORS["cupti"])
+
+        assert result == str(preferred_dll)
+
+    @pytest.mark.parametrize(
+        ("libname", "sibling_dll"),
+        (
+            ("cublas", "cublasLt64_13.dll"),
+            ("cufft", "cufftw64_12.dll"),
+            ("cusolver", "cusolverMg64_12.dll"),
+            ("cusparse", "cusparseLt.dll"),
+            ("cutensor", "cutensorMg.dll"),
+        ),
+    )
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_windows_matching_rejects_sibling_library(self, tmp_path, libname, sibling_dll):
+        (tmp_path / sibling_dll).touch()
+
+        result = _find_descriptor_dll_under_dir(str(tmp_path), LIB_DESCRIPTORS[libname])
+
+        assert result is None
 
     @pytest.mark.agent_authored(model="gpt-5")
     def test_found_windows_arm64_prefers_cuda13_arch_dir_to_cuda12(self, mocker, tmp_path):
@@ -317,15 +485,8 @@ class TestFindInSitePackages:
         assert result is None
         assert any("No such file" in m for m in ctx.error_messages)
 
-    # The next three tests cover the Linux glob fallback in
-    # cuda.pathfinder._dynamic_libs.search_platform._find_so_in_rel_dirs.
-    # The fallback triggers when the unversioned libfoo.so is absent but
-    # versioned libfoo.so.<major> files exist (e.g. some conda layouts).
-    # Issue #1732 tracks the decision to return the newest-sorting match
-    # deterministically; these tests lock in that policy at the
-    # site-packages call site.
-
-    def test_glob_fallback_returns_single_versioned_match(self, mocker, tmp_path):
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_linux_declared_versioned_soname_does_not_need_unversioned_link(self, mocker, tmp_path):
         lib_dir = tmp_path / "nvidia" / "cuda_runtime" / "lib"
         lib_dir.mkdir(parents=True)
         versioned = lib_dir / "libcudart.so.13"
@@ -336,43 +497,53 @@ class TestFindInSitePackages:
             return_value=[str(lib_dir)],
         )
 
-        result = find_in_site_packages(_ctx(platform=LinuxSearchPlatform()))
+        desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
+        result = find_in_site_packages(_ctx(desc, platform=LinuxSearchPlatform()))
         assert result is not None
         assert result.abs_path == str(versioned)
         assert result.found_via == "site-packages"
 
-    def test_glob_fallback_returns_newest_of_multiple_matches(self, mocker, tmp_path):
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_linux_declared_sonames_follow_preference_order(self, mocker, tmp_path):
         lib_dir = tmp_path / "nvidia" / "cuda_runtime" / "lib"
         lib_dir.mkdir(parents=True)
-        older = lib_dir / "libcudart.so.12"
-        newer = lib_dir / "libcudart.so.13"
-        older.touch()
-        newer.touch()
+        preferred = lib_dir / "libcudart.so.13"
+        fallback = lib_dir / "libcudart.so.12"
+        preferred.touch()
+        fallback.touch()
 
         mocker.patch(
             f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
             return_value=[str(lib_dir)],
         )
 
-        result = find_in_site_packages(_ctx(platform=LinuxSearchPlatform()))
+        desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
+        result = find_in_site_packages(_ctx(desc, platform=LinuxSearchPlatform()))
         assert result is not None
-        assert result.abs_path == str(newer)
+        assert result.abs_path == str(preferred)
         assert result.found_via == "site-packages"
 
-    def test_glob_fallback_zero_matches_returns_none(self, mocker, tmp_path):
+    @pytest.mark.parametrize(
+        "undeclared_filename",
+        ("libcudart.so", "libcudart.so.14", "libcudart.so.13.5.0", "libcudart.so.13.backup"),
+    )
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_linux_rejects_undeclared_filename(self, mocker, tmp_path, undeclared_filename):
         lib_dir = tmp_path / "nvidia" / "cuda_runtime" / "lib"
         lib_dir.mkdir(parents=True)
-        (lib_dir / "unrelated.txt").touch()
+        (lib_dir / undeclared_filename).touch()
 
         mocker.patch(
             f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
             return_value=[str(lib_dir)],
         )
 
-        ctx = _ctx(platform=LinuxSearchPlatform())
+        desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
+        ctx = _ctx(desc, platform=LinuxSearchPlatform())
         result = find_in_site_packages(ctx)
         assert result is None
-        assert any("No such file" in m and "libcudart.so" in m for m in ctx.error_messages)
+        assert ctx.error_messages
+        assert all("*" not in message for message in ctx.error_messages)
 
 
 # ---------------------------------------------------------------------------
@@ -432,15 +603,8 @@ class TestFindInConda:
         assert result.abs_path == str(arm64_dll)
         assert result.found_via == "conda"
 
-    # The next three tests cover the Linux glob fallback in
-    # cuda.pathfinder._dynamic_libs.search_platform.LinuxSearchPlatform.find_in_lib_dir,
-    # which is exercised by find_in_conda (and find_in_cuda_path) when the
-    # resolved lib dir contains only versioned libfoo.so.<major> files.
-    # Issue #1732 tracks the decision to return the newest-sorting match
-    # deterministically; these tests lock in that policy at the conda /
-    # CUDA_PATH call site.
-
-    def test_glob_fallback_returns_single_versioned_match(self, mocker, tmp_path):
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_linux_declared_versioned_soname_found_in_lib_dir(self, mocker, tmp_path):
         lib_dir = tmp_path / "lib"
         lib_dir.mkdir()
         versioned = lib_dir / "libcudart.so.13"
@@ -448,37 +612,30 @@ class TestFindInConda:
 
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
 
-        result = find_in_conda(_ctx(platform=LinuxSearchPlatform()))
+        desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
+        result = find_in_conda(_ctx(desc, platform=LinuxSearchPlatform()))
         assert result is not None
         assert result.abs_path == str(versioned)
         assert result.found_via == "conda"
 
-    def test_glob_fallback_returns_newest_of_multiple_matches(self, mocker, tmp_path):
+    @pytest.mark.parametrize(
+        "undeclared_filename",
+        ("libcudart.so", "libcudart.so.14", "libcudart.so.13.5.0", "libcudart.so.13.backup"),
+    )
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_linux_rejects_undeclared_filename_in_lib_dir(self, mocker, tmp_path, undeclared_filename):
         lib_dir = tmp_path / "lib"
         lib_dir.mkdir()
-        older = lib_dir / "libcudart.so.12"
-        newer = lib_dir / "libcudart.so.13"
-        older.touch()
-        newer.touch()
+        (lib_dir / undeclared_filename).touch()
 
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
 
-        result = find_in_conda(_ctx(platform=LinuxSearchPlatform()))
-        assert result is not None
-        assert result.abs_path == str(newer)
-        assert result.found_via == "conda"
-
-    def test_glob_fallback_zero_matches_returns_none(self, mocker, tmp_path):
-        lib_dir = tmp_path / "lib"
-        lib_dir.mkdir()
-        (lib_dir / "unrelated.txt").touch()
-
-        mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
-
-        ctx = _ctx(platform=LinuxSearchPlatform())
+        desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
+        ctx = _ctx(desc, platform=LinuxSearchPlatform())
         result = find_in_conda(ctx)
         assert result is None
-        assert any("No such file" in m and "libcudart.so" in m for m in ctx.error_messages)
+        assert ctx.error_messages
+        assert all("*" not in message for message in ctx.error_messages)
 
 
 # ---------------------------------------------------------------------------
@@ -565,6 +722,164 @@ class TestFindInCudaHome:
 
 
 # ---------------------------------------------------------------------------
+# Descriptor-specific Linux install roots
+# ---------------------------------------------------------------------------
+
+
+class TestLinuxInstallRoots:
+    @pytest.mark.parametrize(
+        ("libname", "env_var", "rel_dir", "soname"),
+        (
+            ("cudnn", "CUDNN_PATH", "lib", "libcudnn.so.9"),
+            ("cudnn", "CUDNN_PATH", "lib64", "libcudnn.so.9"),
+            ("nccl", "NCCL_HOME", "lib", "libnccl.so.2"),
+            ("nccl", "NCCL_HOME", "lib64", "libnccl.so.2"),
+            ("nccl", "NCCL_HOME", "build/lib", "libnccl.so.2"),
+        ),
+    )
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_product_root_finds_supported_layouts(self, mocker, tmp_path, libname, env_var, rel_dir, soname):
+        root = tmp_path / libname
+        lib_dir = root / rel_dir
+        lib_dir.mkdir(parents=True)
+        library = lib_dir / soname
+        library.touch()
+        env = {"CUDNN_PATH": "", "NCCL_HOME": ""}
+        env[env_var] = str(root)
+        mocker.patch.dict(os.environ, env)
+
+        result = find_in_install_root_env_vars(_ctx(LIB_DESCRIPTORS[libname], platform=LinuxSearchPlatform()))
+
+        assert result == FindResult(str(library), env_var)
+
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_nccl_home_prefers_canonical_installed_layout(self, mocker, tmp_path):
+        libraries = []
+        for rel_dir in ("lib", "lib64", "build/lib"):
+            lib_dir = tmp_path / rel_dir
+            lib_dir.mkdir(parents=True)
+            library = lib_dir / "libnccl.so.2"
+            library.touch()
+            libraries.append(library)
+        mocker.patch.dict(os.environ, {"CUDNN_PATH": "", "NCCL_HOME": str(tmp_path)})
+
+        result = find_in_install_root_env_vars(_ctx(LIB_DESCRIPTORS["nccl"], platform=LinuxSearchPlatform()))
+
+        assert result == FindResult(str(libraries[0]), "NCCL_HOME")
+
+
+# ---------------------------------------------------------------------------
+# Descriptor-specific Windows install roots
+# ---------------------------------------------------------------------------
+
+
+class TestWindowsInstallRoots:
+    @pytest.mark.parametrize(
+        ("target_arch", "archive_bin_rel_dir"),
+        [
+            ("x64", "bin/x64"),
+            ("x64", "bin"),
+            ("arm64", "bin/arm64"),
+        ],
+    )
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_cudnn_path_finds_supported_archive_layouts(self, mocker, tmp_path, target_arch, archive_bin_rel_dir):
+        bin_dir = tmp_path / archive_bin_rel_dir
+        bin_dir.mkdir(parents=True)
+        dll = bin_dir / "cudnn64_9.dll"
+        dll.touch()
+        mocker.patch.dict(os.environ, {"CUDNN_PATH": str(tmp_path)})
+
+        result = find_in_install_root_env_vars(
+            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch=target_arch))
+        )
+
+        assert result == FindResult(str(dll), "CUDNN_PATH")
+
+    @pytest.mark.parametrize(
+        ("target_arch", "other_arch_bin_rel_dir"),
+        [
+            ("x64", "bin/arm64"),
+            ("arm64", "bin/x64"),
+            ("arm64", "bin"),
+        ],
+    )
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_cudnn_path_does_not_cross_architectures(self, mocker, tmp_path, target_arch, other_arch_bin_rel_dir):
+        bin_dir = tmp_path / other_arch_bin_rel_dir
+        bin_dir.mkdir(parents=True)
+        (bin_dir / "cudnn64_9.dll").touch()
+        mocker.patch.dict(os.environ, {"CUDNN_PATH": str(tmp_path)})
+
+        result = find_in_install_root_env_vars(
+            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch=target_arch))
+        )
+
+        assert result is None
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_program_files_finds_versioned_cudnn_install(self, mocker, tmp_path):
+        bin_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.24" / "bin"
+        x64_bin_dir = bin_dir / "x64"
+        x64_bin_dir.mkdir(parents=True)
+        (x64_bin_dir / "cudnn_adv64_9.dll").touch()
+        dll = bin_dir / "cudnn64_9.dll"
+        dll.touch()
+        mocker.patch.dict(os.environ, {"PROGRAMFILES": str(tmp_path), "PROGRAMW6432": ""})
+
+        result = find_in_program_files_roots(
+            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
+        )
+
+        assert result == FindResult(str(dll), "ProgramFiles")
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_program_files_prefers_newest_numeric_cudnn_version_across_layouts(self, mocker, tmp_path):
+        older_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.9" / "bin" / "x64"
+        newer_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.10" / "bin"
+        older_dir.mkdir(parents=True)
+        newer_dir.mkdir(parents=True)
+        (older_dir / "cudnn64_9.dll").touch()
+        newer_dll = newer_dir / "cudnn64_9.dll"
+        newer_dll.touch()
+        mocker.patch.dict(os.environ, {"PROGRAMFILES": str(tmp_path), "PROGRAMW6432": ""})
+
+        result = find_in_program_files_roots(
+            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
+        )
+
+        assert result == FindResult(str(newer_dll), "ProgramFiles")
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_cudnn_arm64_archive_layout_is_not_assumed_for_other_roots(self, mocker, tmp_path):
+        conda_root = tmp_path / "conda"
+        cuda_root = tmp_path / "cuda"
+        program_files_root = tmp_path / "Program Files"
+        for bin_dir in (
+            conda_root / "Library" / "bin" / "arm64",
+            cuda_root / "bin" / "arm64",
+            program_files_root / "NVIDIA" / "CUDNN" / "v9.25" / "bin" / "arm64",
+        ):
+            bin_dir.mkdir(parents=True)
+            (bin_dir / "cudnn64_9.dll").touch()
+        mocker.patch.dict(
+            os.environ,
+            {
+                "CONDA_PREFIX": str(conda_root),
+                "PROGRAMFILES": str(program_files_root),
+                "PROGRAMW6432": "",
+            },
+        )
+        mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(cuda_root))
+        ctx = _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="arm64"))
+
+        assert find_in_conda(ctx) is None
+        assert find_in_cuda_path(ctx) is None
+        assert find_in_program_files_roots(ctx) is None
+        assert ctx.platform.site_packages_rel_dirs(ctx.desc) == ()
+
+
+# ---------------------------------------------------------------------------
 # run_find_steps
 # ---------------------------------------------------------------------------
 
@@ -606,7 +921,17 @@ class TestStepTuples:
         assert find_in_conda in EARLY_FIND_STEPS
 
     def test_late_find_steps_contains_expected(self):
+        assert find_in_install_root_env_vars in LATE_FIND_STEPS
         assert find_in_cuda_path in LATE_FIND_STEPS
+        assert find_in_program_files_roots in LATE_FIND_STEPS
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_late_find_steps_use_specific_roots_before_generic_roots(self):
+        assert (
+            find_in_install_root_env_vars,
+            find_in_cuda_path,
+            find_in_program_files_roots,
+        ) == LATE_FIND_STEPS
 
     def test_early_and_late_are_disjoint(self):
         assert not set(EARLY_FIND_STEPS) & set(LATE_FIND_STEPS)

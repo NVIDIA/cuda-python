@@ -7,11 +7,13 @@ from libc.string cimport memset
 from typing import Any
 
 from cuda.core._device import Device
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils import (
     CUDAError,
     cast_to_3_tuple,
     driver,
 )
+from cuda.core._utils.validators import format_or_list
 
 _LAUNCH_CONFIG_ATTRS = (
     'grid',
@@ -20,6 +22,8 @@ _LAUNCH_CONFIG_ATTRS = (
     'shmem_size',
     'is_cooperative',
     'programmatic_stream_serialization',
+    'cluster_scheduling_policy_preference',
+    'priority',
 )
 
 __all__ = ['LaunchConfig']
@@ -38,15 +42,15 @@ cdef class LaunchConfig:
 
     Attributes
     ----------
-    grid : Union[tuple, int]
+    grid : tuple | int
         Collection of threads that will execute a kernel function. When cluster
         is not specified, this represents the number of blocks, otherwise
         this represents the number of clusters.
-    cluster : Union[tuple, int]
+    cluster : tuple | int
         Group of blocks (Thread Block Cluster) that will execute on the same
         GPU Processing Cluster (GPC). Blocks within a cluster have access to
         distributed shared memory and can be explicitly synchronized.
-    block : Union[tuple, int]
+    block : tuple | int
         Group of threads (Thread Block) that will execute on the same
         streaming multiprocessor (SM). Threads within a thread blocks have
         access to shared memory and can be explicitly synchronized.
@@ -59,7 +63,29 @@ cdef class LaunchConfig:
         Whether to allow programmatic stream serialization (PDL). When True,
         the kernel may overlap with a previous kernel in the same stream that
         signals completion via programmatic means.
+    cluster_scheduling_policy_preference : str, optional
+        Cluster scheduling policy for the launch. One of ``"DEFAULT"``,
+        ``"SPREAD"``, or ``"LOAD_BALANCING"``.
+        When ``None`` (default), the launch attribute is omitted and the
+        driver applies the kernel function's default policy.
+        Passing ``"DEFAULT"`` explicitly sets the driver default via the
+        launch attribute.
+    priority : int, optional
+        Execution priority of the kernel. Lower numbers represent higher
+        priorities. The meaningful range of values is device-specific,
+        given by ``[greatestPriority, leastPriority]`` as returned by
+        ``cuCtxGetStreamPriorityRange`` (the same range used by
+        :attr:`~cuda.core.StreamOptions.priority`); both bounds are 0 on
+        a device that does not support multiple stream priorities. A
+        nonzero value outside this range raises :class:`ValueError`.
+        When omitted (or 0), the launch uses the stream's priority.
     """
+
+    _CLUSTER_SCHED_POLICY_TO_DRIVER = {
+        "DEFAULT": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_DEFAULT,
+        "SPREAD": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD,
+        "LOAD_BALANCING": driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING,
+    }
 
     # TODO: expand LaunchConfig to include other attributes
     # Note: attributes are declared in _launch_config.pxd
@@ -72,16 +98,18 @@ cdef class LaunchConfig:
         shmem_size: int | None = None,
         is_cooperative: bool = False,
         programmatic_stream_serialization: bool = False,
+        cluster_scheduling_policy_preference: str | None = None,
+        priority: int | None = None,
     ) -> None:
         """Initialize LaunchConfig with validation.
 
         Parameters
         ----------
-        grid : Union[tuple, int], optional
+        grid : tuple | int, optional
             Grid dimensions (number of blocks or clusters if cluster is specified)
-        cluster : Union[tuple, int], optional
+        cluster : tuple | int, optional
             Cluster dimensions (Thread Block Cluster)
-        block : Union[tuple, int], optional
+        block : tuple | int, optional
             Block dimensions (threads per block)
         shmem_size : int, optional
             Dynamic shared memory size in bytes (default: 0)
@@ -89,10 +117,30 @@ cdef class LaunchConfig:
             Whether to launch as cooperative kernel (default: False)
         programmatic_stream_serialization : bool, optional
             Whether to allow programmatic stream serialization / PDL (default: False)
+        cluster_scheduling_policy_preference : str, optional
+            Cluster scheduling policy for the launch: ``"DEFAULT"``,
+            ``"SPREAD"``, or ``"LOAD_BALANCING"``.
+            ``None`` (default) omits the launch attribute; ``"DEFAULT"``
+            sets the driver default explicitly.
+        priority : int, optional
+            Execution priority of the kernel. Lower numbers represent higher
+            priorities. The meaningful range of values is device-specific,
+            given by ``[greatestPriority, leastPriority]`` as returned by
+            ``cuCtxGetStreamPriorityRange`` (the same range used by
+            :attr:`~cuda.core.StreamOptions.priority`); both bounds are 0 on
+            a device that does not support multiple stream priorities. A
+            nonzero value outside this range raises :class:`ValueError`.
+            When omitted (or 0), the launch uses the stream's priority.
         """
         # Convert and validate grid and block dimensions
         self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)
         self.block = cast_to_3_tuple("LaunchConfig.block", block)
+
+        self.cluster_scheduling_policy_preference = (
+            self._validate_cluster_scheduling_policy_preference(
+                cluster_scheduling_policy_preference
+            )
+        )
 
         # FIXME: Calling Device() strictly speaking is not quite right; we should instead
         # look up the device from stream. We probably need to defer the checks related to
@@ -117,6 +165,26 @@ cdef class LaunchConfig:
         self.is_cooperative = is_cooperative
         self.programmatic_stream_serialization = programmatic_stream_serialization
 
+        # priority=0 is treated the same as an unset priority (see
+        # _to_native_launch_config), so only nonzero values need validating
+        # against the device's stream priority range.
+        cdef int high, low
+        cdef cydriver.CUresult res_code
+        cdef int prio
+        if priority:
+            with nogil:
+                res_code = cydriver.cuCtxGetStreamPriorityRange(&high, &low)
+            if res_code != cydriver.CUresult.CUDA_SUCCESS:
+                if res_code == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
+                    raise RuntimeError(
+                        "No current CUDA context. Call dev.set_current() before creating a LaunchConfig with a priority."
+                    )
+                HANDLE_RETURN(res_code)
+            prio = priority
+            if not (low <= prio <= high):
+                raise ValueError(f"{priority=} is out of range {[low, high]}")
+            self.priority = prio
+
         if self.is_cooperative and not Device().properties.cooperative_launch:
             raise CUDAError("cooperative kernels are not supported on this device")
 
@@ -135,6 +203,27 @@ cdef class LaunchConfig:
 
     def __hash__(self) -> int:
         return hash(self._identity())
+
+    def _validate_cluster_scheduling_policy_preference(self, value):
+        if value is None:
+            return None
+        if isinstance(value, str) and value in LaunchConfig._CLUSTER_SCHED_POLICY_TO_DRIVER:
+            cc = Device().compute_capability
+            if cc < (9, 0):
+                raise CUDAError(
+                    "cluster launch attributes are not supported on devices with "
+                    f"compute capability < 9.0 (got {cc})"
+                )
+            return value
+        valid = format_or_list(LaunchConfig._CLUSTER_SCHED_POLICY_TO_DRIVER.keys())
+        raise ValueError(
+            f"{value!r} is not a valid cluster_scheduling_policy_preference. Must be {valid}"
+        )
+
+    def _cluster_sched_policy_driver_value(self):
+        return LaunchConfig._CLUSTER_SCHED_POLICY_TO_DRIVER[
+            self.cluster_scheduling_policy_preference
+        ]
 
     cdef cydriver.CUlaunchConfig _to_native_launch_config(self):
         cdef cydriver.CUlaunchConfig drv_cfg
@@ -167,6 +256,18 @@ cdef class LaunchConfig:
         if self.programmatic_stream_serialization:
             attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION
             attr.value.programmaticStreamSerializationAllowed = 1
+            self._attrs.push_back(attr)
+
+        if self.cluster_scheduling_policy_preference is not None:
+            attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
+            attr.value.clusterSchedulingPolicyPreference = int(
+                self._cluster_sched_policy_driver_value()
+            )
+            self._attrs.push_back(attr)
+
+        if self.priority:
+            attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PRIORITY
+            attr.value.priority = self.priority
             self._attrs.push_back(attr)
 
         drv_cfg.numAttrs = self._attrs.size()
@@ -228,6 +329,18 @@ cpdef object _to_native_launch_config(LaunchConfig config):
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION
         attr.value.programmaticStreamSerializationAllowed = 1
+        attrs.append(attr)
+
+    if config.cluster_scheduling_policy_preference is not None:
+        attr = driver.CUlaunchAttribute()
+        attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
+        attr.value.clusterSchedulingPolicyPreference = config._cluster_sched_policy_driver_value()
+        attrs.append(attr)
+
+    if config.priority:
+        attr = driver.CUlaunchAttribute()
+        attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PRIORITY
+        attr.value.priority = config.priority
         attrs.append(attr)
 
     drv_cfg.numAttrs = len(attrs)

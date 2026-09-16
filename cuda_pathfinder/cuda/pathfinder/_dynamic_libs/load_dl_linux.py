@@ -129,17 +129,10 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
     return os.path.join(l_origin, os.path.basename(l_name))
 
 
-def _candidate_sonames(desc: LibDescriptor) -> list[str]:
-    # Reverse tabulated names to achieve new -> old search order.
-    candidates = list(reversed(desc.linux_sonames))
-    candidates.append(f"lib{desc.name}.so")
-    return candidates
-
-
 if sys.platform == "linux":
 
-    def check_if_already_loaded_from_elsewhere(desc: LibDescriptor, _have_abs_path: bool) -> LoadedDL | None:
-        for soname in _candidate_sonames(desc):
+    def check_if_already_loaded_from_elsewhere(desc: LibDescriptor) -> LoadedDL | None:
+        for soname in desc.linux_sonames:
             try:
                 handle = ctypes.CDLL(soname, mode=os.RTLD_NOLOAD)
             except OSError:
@@ -160,7 +153,7 @@ if sys.platform == "linux":
         return ctypes.CDLL(filename, cdll_mode)
 else:
 
-    def check_if_already_loaded_from_elsewhere(_desc: LibDescriptor, _have_abs_path: bool) -> LoadedDL | None:
+    def check_if_already_loaded_from_elsewhere(_desc: LibDescriptor) -> LoadedDL | None:
         raise RuntimeError(f"check_if_already_loaded_from_elsewhere() is not supported on platform {sys.platform!r}")
 
     def _load_lib(_desc: LibDescriptor, _filename: str) -> ctypes.CDLL:
@@ -177,7 +170,7 @@ def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
         A LoadedDL object if successful, None if the library cannot be loaded
 
     """
-    for soname in _candidate_sonames(desc):
+    for soname in desc.linux_sonames:
         try:
             handle = _load_lib(desc, soname)
         except OSError:

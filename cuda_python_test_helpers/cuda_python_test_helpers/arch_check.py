@@ -80,10 +80,11 @@ def unsupported_before(device, expected_device_arch):
         try:
             yield
         except (nvml.NotSupportedError, nvml.FunctionNotFoundError, NvmlSymbolNotFoundError):
-            pytest.skip(
-                f"Unsupported call for device architecture {nvml.DeviceArch(device_arch).name} "
-                f"on device '{nvml.device_get_name(handle)}'"
-            )
+            try:
+                name = nvml.DeviceArch(device_arch).name
+            except ValueError:
+                name = f"UNKNOWN({device_arch})"
+            pytest.skip(f"Unsupported call for device architecture {name} on device '{nvml.device_get_name(handle)}'")
     elif int(device_arch) < expected_device_arch_int:
         # We know it will fail; assert that it does.
         with pytest.raises(nvml.NotSupportedError):

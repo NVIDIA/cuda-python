@@ -14,26 +14,30 @@ guide for package-specific conventions and workflows.
 
 # Pull requests
 
-**Never push branches or commits to the upstream repo (github.com/NVIDIA/cuda-python).
-Treat it as read-only.** All branch creation and pushes must go to the contributor's
-personal fork. Before pushing, confirm which remote points to the contributor's
-personal fork (not `upstream`) by running `git remote -v`, then push there
-(`git push <personal-fork-remote> <branch>`). Open the PR from that fork with
-`gh pr create`. Do not use `git push upstream` or any command that writes to
-the `upstream` remote.
+Treat the canonical upstream repository as read-only by default. For normal
+pull-request work, push branches and commits to an approved fork associated
+with the contributor. The fork may be owned by the contributor's personal
+account or by an organization.
 
-When creating pull requests with `gh pr create`, always assign at least one
-label and a milestone. CI enforces this via the `pr-metadata-check` workflow
-and will block PRs that are missing labels or a milestone. Use `--label` and
-`--milestone` flags, for example:
+Before any push, run `git remote -v` and verify the complete
+`OWNER/REPOSITORY` of the intended destination. For normal pull-request work,
+confirm that the destination is a fork of the pull-request base. Do not rely
+on remote names such as `origin` or `upstream`, or on the owner alone.
 
-```
-gh pr create --title "..." --body "..." --label "bug" --milestone "v1.0"
-```
+An upstream push is allowed when the user explicitly requests it and provides
+a rationale for why the upstream repository is needed, such as testing
+`.github/workflows`, triggering CI from a designated upstream ref, or other
+infrastructure work.
 
-If you are unsure which label or milestone to use, check the existing labels
-and milestones on the repository with `gh label list` and `gh api
-repos/{owner}/{repo}/milestones --jq '.[].title'`, and pick the best match.
+For an authorized upstream push, verify the exact source and destination refs
+against the user's request. If the repository and refspec are unambiguous,
+proceed; do not require the user to perform the push manually solely because
+the destination is upstream.
+
+Authorization is limited to the requested ref update. It does not authorize
+pushing to a default or protected branch, force-pushing, creating tags, or
+deleting refs unless the user separately and explicitly requests those
+operations.
 
 
 # General

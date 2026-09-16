@@ -9,28 +9,15 @@
 #include <algorithm>
 #include <exception>
 
-#if defined(__has_include)
-// Older CTK releases do not ship <cuda/tma>. When it is unavailable we keep
-// the CCCL helper compiled out and fall back to the direct driver path.
-#  if __has_include(<cuda/tma>)
-#    include <cuda/tma>
-#    define CUDA_CORE_HAS_CUDA_TMA 1
-#  else
-#    define CUDA_CORE_HAS_CUDA_TMA 0
-#  endif
-#  if __has_include("dlpack.h")
-#    include "dlpack.h"
-#    define CUDA_CORE_HAS_DLPACK_H 1
-#  elif __has_include(<dlpack/dlpack.h>)
-#    include <dlpack/dlpack.h>
-#    define CUDA_CORE_HAS_DLPACK_H 1
-#  else
-#    define CUDA_CORE_HAS_DLPACK_H 0
-#  endif
-#else
-#  define CUDA_CORE_HAS_CUDA_TMA 0
-#  define CUDA_CORE_HAS_DLPACK_H 0
-#endif
+
+// TODO(seberg): As of 2026-09 CCCL does not fully avoid using nvrtc
+// symbols.  Until now, this code was never used (if it got compiled
+// it lead to errors).
+// When CCCL is fixed we should use CCCL as a submodule and redesign this
+// code (possibly the datatype is also unimportant so we could a)
+// See: https://github.com/NVIDIA/cccl/issues/11231
+#define CUDA_CORE_HAS_CUDA_TMA 0
+
 
 static inline void cuda_core_write_err(char* err, size_t cap, const char* msg) noexcept
 {
@@ -68,7 +55,7 @@ int cuda_core_cccl_make_tma_descriptor_tiled(
   char* err,
   size_t err_cap) noexcept
 {
-#if !(CUDA_CORE_HAS_CUDA_TMA && CUDA_CORE_HAS_DLPACK_H)
+#if !(CUDA_CORE_HAS_CUDA_TMA)
   (void)out_tensor_map;
   (void)data;
   (void)device_type;

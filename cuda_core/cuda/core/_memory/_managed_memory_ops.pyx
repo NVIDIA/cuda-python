@@ -11,8 +11,14 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
     from libcpp.vector cimport vector
 
 from cuda.bindings cimport cydriver
-from cuda.core._memory._buffer cimport Buffer
-from cuda.core._resource_handles cimport as_cu
+from cuda.core._memory._buffer cimport Buffer, Buffer_check_open, Buffer_coerce_batch  # no-cython-lint
+
+# to_cumemlocation / cumemlocation_from_id are referenced only from CUDA 13
+# branches. cython-lint does not evaluate compile-time IF blocks, so they
+# need a pragma to be seen as used.
+from cuda.core._memory._location cimport cumemlocation_from_id  # no-cython-lint
+from cuda.core._memory._location cimport to_cumemlocation  # no-cython-lint
+from cuda.core._rt cimport as_cu
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
@@ -52,31 +58,16 @@ cdef void _require_managed_buffer(Buffer self, str what):
         raise ValueError(f"{what} requires a managed-memory allocation")
 
 
-cdef tuple _coerce_batch_buffers(object buffers, str what):
+_SINGLE_MANAGED_HINT = "the ManagedBuffer instance method"
+
+
+cdef inline tuple _coerce_batch_buffers(object buffers, str what):
     """Coerce ``buffers`` to a tuple[Buffer, ...]; rejects a single Buffer.
 
     For single-buffer operations, use the corresponding ManagedBuffer
     instance method instead.
     """
-    cdef Buffer buf
-    cdef list out
-    if isinstance(buffers, Buffer):
-        raise TypeError(
-            f"{what}: pass a sequence of Buffers; for a single buffer use "
-            f"the ManagedBuffer instance method"
-        )
-    if isinstance(buffers, Sequence):
-        if not buffers:
-            raise ValueError(f"{what}: empty buffers sequence")
-        out = []
-        for t in buffers:
-            buf = <Buffer?>t
-            out.append(buf)
-        return tuple(out)
-    raise TypeError(
-        f"{what}: buffers must be a sequence of Buffer, "
-        f"got {type(buffers).__name__}"
-    )
+    return Buffer_coerce_batch(buffers, what, _SINGLE_MANAGED_HINT)
 
 
 cdef tuple _broadcast_locations(object location, Py_ssize_t n, bint allow_none, str what):
@@ -91,27 +82,7 @@ cdef tuple _broadcast_locations(object location, Py_ssize_t n, bint allow_none, 
     return tuple([coerced] * n)
 
 
-IF CUDA_CORE_BUILD_MAJOR >= 13:
-    # Convert a _LocSpec dataclass to a cydriver.CUmemLocation struct.
-    cdef inline cydriver.CUmemLocation _to_cumemlocation(object loc):
-        cdef str kind = loc.kind
-        if kind == "device":
-            return cydriver.CUmemLocation(
-                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
-                id=<int>loc.id)
-        elif kind == "host":
-            return cydriver.CUmemLocation(
-                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST,
-                id=0)
-        elif kind == "host_numa":
-            return cydriver.CUmemLocation(
-                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA,
-                id=<int>loc.id)
-        else:  # host_numa_current
-            return cydriver.CUmemLocation(
-                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT,
-                id=0)
-ELSE:
+IF CUDA_CORE_BUILD_MAJOR < 13:
     # CUDA 12 cuMemPrefetchAsync takes a device ordinal (-1 = host).
     cdef inline int _to_legacy_device(object loc) except? -2:
         cdef str kind = loc.kind
@@ -224,11 +195,10 @@ cdef void _do_single_advise(Buffer buf, object advice_value, object loc, bint al
             # Driver ignores location for read_mostly / unset_preferred_location
             # advice values but still validates the CUmemLocation; pass a
             # host placeholder.
-            cu_loc = cydriver.CUmemLocation(
-                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST,
-                id=0)
+            cu_loc = cumemlocation_from_id(
+                cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST, 0)
         else:
-            cu_loc = _to_cumemlocation(loc)
+            cu_loc = to_cumemlocation(loc.kind, loc.id)
         with nogil:
             HANDLE_RETURN(cydriver.cuMemAdvise(cu_ptr, nbytes, advice_enum, cu_loc))
     ELSE:
@@ -292,7 +262,7 @@ cdef void _do_single_prefetch(Buffer buf, object loc, Stream s):
     cdef size_t nbytes = buf._size
     cdef cydriver.CUstream hstream = as_cu(s._h_stream)
     IF CUDA_CORE_BUILD_MAJOR >= 13:
-        cdef cydriver.CUmemLocation cu_loc = _to_cumemlocation(loc)
+        cdef cydriver.CUmemLocation cu_loc = to_cumemlocation(loc.kind, loc.id)
         with nogil:
             HANDLE_RETURN(cydriver.cuMemPrefetchAsync(cu_ptr, nbytes, cu_loc, 0, hstream))
     ELSE:
@@ -311,15 +281,14 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
     ) except ?cydriver.CUDA_ERROR_NOT_FOUND nogil
 
 
-    def _read_preferred_location_v2(Buffer buf) -> Device | Host | None:
-        """Internal: read preferred_location with full NUMA detail.
-
-        Bypasses cuda.bindings.driver.cuMemRangeGetAttribute (whose
-        attribute allowlist doesn't yet include the cu13 _TYPE / _ID
-        attributes) by calling cydriver directly.
-
-        Returns Device | Host | None.
-        """
+    cdef object _read_location_v2(
+        Buffer buf,
+        cydriver.CUmem_range_attribute type_attribute,
+        cydriver.CUmem_range_attribute id_attribute,
+    ):
+        # cuda.bindings.driver.cuMemRangeGetAttribute does not yet accept the
+        # CUDA 13 _TYPE / _ID attributes, so query them through cydriver.
+        Buffer_check_open(buf)
         cdef cydriver.CUdeviceptr cu_ptr = as_cu(buf._h_ptr)
         cdef size_t nbytes = buf._size
         cdef int loc_type = 0
@@ -327,12 +296,12 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
         with nogil:
             HANDLE_RETURN(cydriver.cuMemRangeGetAttribute(
                 <void*>&loc_type, sizeof(int),
-                cydriver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_TYPE,
+                type_attribute,
                 cu_ptr, nbytes,
             ))
             HANDLE_RETURN(cydriver.cuMemRangeGetAttribute(
                 <void*>&loc_id, sizeof(int),
-                cydriver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_ID,
+                id_attribute,
                 cu_ptr, nbytes,
             ))
         if loc_type == <int>cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE:
@@ -344,7 +313,29 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
             return Host(numa_id=loc_id)
         if loc_type == <int>cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT:
             return Host.numa_current()
-        return None  # CU_MEM_LOCATION_TYPE_INVALID — no preferred location
+        if loc_type == <int>cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_INVALID:
+            return None
+        raise RuntimeError(
+            f"cuMemRangeGetAttribute returned unexpected location type: {loc_type}"
+        )
+
+
+    def _read_preferred_location_v2(Buffer buf) -> Device | Host | None:
+        """Internal: read preferred_location with full NUMA detail."""
+        return _read_location_v2(
+            buf,
+            cydriver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_TYPE,
+            cydriver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_ID,
+        )
+
+
+    def _read_last_prefetch_location_v2(Buffer buf) -> Device | Host | None:
+        """Internal: read last_prefetch_location with full NUMA detail."""
+        return _read_location_v2(
+            buf,
+            cydriver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_TYPE,
+            cydriver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_ID,
+        )
 
 
     cdef void _do_batch_prefetch_op(tuple bufs, tuple locs, Stream s, _BatchPrefetchFn fn):
@@ -361,11 +352,13 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
         loc_indices.resize(n)
         cdef Buffer buf
         cdef Py_ssize_t i
+        cdef object loc_spec
         for i in range(n):
             buf = <Buffer>bufs[i]
             ptrs[i] = as_cu(buf._h_ptr)
             sizes[i] = buf._size
-            loc_arr[i] = _to_cumemlocation(locs[i])
+            loc_spec = locs[i]
+            loc_arr[i] = to_cumemlocation(loc_spec.kind, loc_spec.id)
             loc_indices[i] = <size_t>i
         with nogil:
             HANDLE_RETURN(fn(
@@ -375,13 +368,18 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
             ))
 ELSE:
     def _read_preferred_location_v2(Buffer buf) -> Device | Host | None:
-        # Symbol exists so _managed_buffer.py can `from ... import
-        # _read_preferred_location_v2` unconditionally at module top.
-        # `ManagedBuffer.preferred_location` gates on both
-        # binding_version() and driver_version() >= (13, 0, 0) before
-        # calling, so this path is unreachable on a cu12 build.
+        # Symbols exist so _managed_buffer.py can import the v2 readers
+        # unconditionally. Their properties gate on both binding_version()
+        # and driver_version() >= (13, 0, 0), so these paths are unreachable
+        # on a CUDA 12 build.
         raise NotImplementedError(
             "_read_preferred_location_v2 requires a CUDA 13 build of cuda.core"
+        )
+
+
+    def _read_last_prefetch_location_v2(Buffer buf) -> Device | Host | None:
+        raise NotImplementedError(
+            "_read_last_prefetch_location_v2 requires a CUDA 13 build of cuda.core"
         )
 
 

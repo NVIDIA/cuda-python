@@ -6,7 +6,13 @@ from __future__ import annotations
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer
-from cuda.core._memory._memory_pool cimport _MemPool, _MP_allocate, MP_init_create_pool, MP_init_current_pool
+from cuda.core._memory._memory_pool cimport (
+    _MemPool,
+    _MP_allocate,
+    MP_check_open,
+    MP_init_create_pool,
+    MP_init_current_pool,
+)
 from cuda.core._memory cimport _ipc
 from cuda.core._memory._ipc cimport IPCAllocationHandle
 from cuda.core._stream cimport Stream, Stream_accept
@@ -15,6 +21,7 @@ from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
 
+import cython
 from dataclasses import dataclass
 import multiprocessing
 import platform  # no-cython-lint
@@ -103,11 +110,13 @@ cdef class PinnedMemoryResource(_MemPool):
     See :class:`DeviceMemoryResource` for more details on IPC usage patterns.
     """
 
-    def __init__(self, options: PinnedMemoryResourceOptions | dict[str, object] | None = None) -> None:
+    @cython.annotation_typing(False)
+    def __init__(self, options: PinnedMemoryResourceOptions | None = None) -> None:
         _PMR_init(self, options)
 
     def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate a host-pinned buffer asynchronously on the supplied stream."""
+        MP_check_open(self)
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         cdef Stream s = Stream_accept(stream)
@@ -127,6 +136,7 @@ cdef class PinnedMemoryResource(_MemPool):
         return _MP_allocate(self, size, s)
 
     def __reduce__(self) -> tuple[object, ...]:
+        MP_check_open(self)
         return PinnedMemoryResource.from_registry, (self.uuid,)
 
     @staticmethod
@@ -190,6 +200,7 @@ cdef class PinnedMemoryResource(_MemPool):
         The handle can be used to share the memory pool with other processes.
         The handle is cached in this `MemoryResource` and owned by it.
         """
+        MP_check_open(self)
         if not self.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
         return self._ipc_data._alloc_handle

@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c2cc3cd086b5aeea5fad7ca17600d0102691a3cb354b916f5c086c383d77df19
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=25a9a64fc7aed96ba4ab9be2bd7b2c8c2b464e7d8fb7dab7b2dd85b32da0efe3
 from ..cynvml cimport *
 
 
@@ -367,3 +367,18 @@ cdef nvmlReturn_t _nvmlSystemGetCPER_v1(nvmlGetCPER_v1_t* cper) except?_NVMLRETU
 cdef nvmlReturn_t _nvmlDeviceGetBBXTimeData_v1(nvmlDevice_t device, nvmlBBXTimeData_v1_t* timeData) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t _nvmlDeviceGetAccountingStats_v2(nvmlDevice_t device, nvmlAccountingStats_v2_t* stats) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t _nvmlDeviceGetRemappedRows_v2(nvmlDevice_t device, nvmlRemappedRowsInfo_v2_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlDeviceSetAdaptiveTgpMode_v1(nvmlDevice_t device, nvmlEnableState_t mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlDeviceGetAdaptiveTgpModeInfo_v1(nvmlDevice_t device, nvmlAdaptiveTgpModeInfo_v1_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlDeviceSetMemoryLimits_v1(nvmlDevice_t device, nvmlSetMemoryLimits_v1_t* limits) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlDeviceGetMemoryLimits_v1(nvmlDevice_t device, nvmlGetMemoryLimits_v1_t* limits) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlDeviceGetGpuFabricInfo_v4(nvmlDevice_t device, nvmlGpuFabricInfo_v4_t* gpuFabricInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlDevicePerfMetricsGetSamples_v1(nvmlDevice_t device, nvmlPerfMetricsSamples_v1_t* samples) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlDeviceSetNvlinkBwModeAsync_v1(nvmlDevice_t device, nvmlNvlinkSetBwModeAsync_v1_t* setBwModeAsync) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlDeviceGetNvLinkTelemetrySamples_v1(nvmlDevice_t device, nvmlNvlinkTelemetrySamples_v1_t* samples) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlEventSetRegisterGpuOperationalEvents_v1(nvmlEventSet_t eventSet, const nvmlGpuOperationalEventConfig_v1_t* config) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlEventSetWait_v3(nvmlEventSet_t set, nvmlEventSetWait_v3_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlEventSetGetContextCount_v1(nvmlEventSet_t set, nvmlEventSetGetContextCount_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlEventSetGetContextInfo_v1(nvmlEventSet_t set, nvmlEventSetGetContextInfo_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlEventSetGetContextData_v1(nvmlEventSet_t set, nvmlEventSetGetContextData_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1(nvmlEventSet_t set, nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlDeviceGetBankRemapperStatus_v1(nvmlDevice_t device, nvmlEccBankRemapperStatus_v1_t* pBankRemapperStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil

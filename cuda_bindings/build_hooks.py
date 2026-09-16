@@ -137,6 +137,7 @@ def _build_cuda_bindings(debug=False):
     that metadata queries do not require a CUDA toolkit installation.
     """
     from Cython.Build import cythonize
+    from Cython.Compiler import Options as _CythonOptions
 
     global _extensions
 
@@ -230,6 +231,7 @@ def _build_cuda_bindings(debug=False):
         )
 
     # Cythonize
+    _CythonOptions.warning_errors = True
     cython_directives = {"language_level": 3, "embedsignature": True, "binding": True, "freethreading_compatible": True}
     if compile_for_coverage:
         cython_directives["linetrace"] = True

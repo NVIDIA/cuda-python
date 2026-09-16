@@ -2,23 +2,26 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e5360fc057cdd7b8e28b4d502821443d190e589b200dce1a234494ad6e9abf93
+# This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=343843af0d4fa5698e46b9e9dd9ba41a1abe2f056ba3fe97ad98351bf2261c1b
 
 
 # <<<< PREAMBLE CONTENT >>>>
 
 cimport cpython as _cyb_cpython
 cimport cpython.buffer as _cyb_cpython_buffer
-from cython cimport view as _cyb_view
-from libc.stdlib cimport (
-    calloc as _cyb_calloc,
-    free as _cyb_free,
-    malloc as _cyb_malloc,
+from cpython.buffer cimport (
+    PyBUF_SIMPLE as _cyb_PyBUF_SIMPLE,
+    PyBuffer_Release as _cyb_PyBuffer_Release,
+    PyObject_GetBuffer as _cyb_PyObject_GetBuffer,
+    Py_buffer as _cyb_Py_buffer,
 )
+from cython cimport view as _cyb_view
+from libc.stdint cimport intptr_t
 from libc.string cimport (
     memcmp as _cyb_memcmp,
     memcpy as _cyb_memcpy,
+    memmove as _cyb_memmove,
 )
 
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
@@ -47,7 +50,7 @@ cdef _cyb_from_buffer(buffer, size, lowpp_type):
             raise ValueError("buffer itemsize must be 1 byte")
         if view.len != size:
             raise ValueError(f"buffer length must be {size} bytes")
-        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
+        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, view.readonly != 0, buffer)
     finally:
         _cyb_cpython.PyBuffer_Release(&view)
 
@@ -255,25 +258,15 @@ cdef class BundledHeadersInfo:
     .. seealso:: `nvrtcBundledHeadersInfo`
     """
     cdef:
+        nvrtcBundledHeadersInfo _data
         nvrtcBundledHeadersInfo *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvrtcBundledHeadersInfo *>_cyb_calloc(1, sizeof(nvrtcBundledHeadersInfo))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating BundledHeadersInfo")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvrtcBundledHeadersInfo *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.BundledHeadersInfo object at {hex(id(self))}>"
@@ -303,14 +296,22 @@ cdef class BundledHeadersInfo:
         pass
 
     def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvrtcBundledHeadersInfo *>_cyb_malloc(sizeof(nvrtcBundledHeadersInfo))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating BundledHeadersInfo")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvrtcBundledHeadersInfo))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This BundledHeadersInfo instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvrtcBundledHeadersInfo):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvrtcBundledHeadersInfo), view.len)
+                    )
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvrtcBundledHeadersInfo))
+                self._ptr = &self._data
+                self._owner = None
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
         else:
             setattr(self, key, val)
 
@@ -407,16 +408,12 @@ cdef class BundledHeadersInfo:
             raise ValueError("ptr must not be null (0)")
         cdef BundledHeadersInfo obj = BundledHeadersInfo.__new__(BundledHeadersInfo)
         if owner is None:
-            obj._ptr = <nvrtcBundledHeadersInfo *>_cyb_malloc(sizeof(nvrtcBundledHeadersInfo))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating BundledHeadersInfo")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvrtcBundledHeadersInfo))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvrtcBundledHeadersInfo))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvrtcBundledHeadersInfo *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -621,6 +618,7 @@ cpdef remove_bundled_headers(bytes install_path):
 cpdef str get_error_string(int result):
     """nvrtcGetErrorString is a helper function that returns a string describing the given ``nvrtcResult`` code, e.g., NVRTC_SUCCESS to ``"NVRTC_SUCCESS"``. For unrecognized enumeration values, it returns ``"NVRTC_ERROR unknown"``.
 
+
     Args:
         result (Result): CUDA Runtime Compilation API result code.
 
@@ -637,9 +635,9 @@ cpdef str get_error_string(int result):
 cpdef tuple version():
     """nvrtcVersion sets the output parameters ``major`` and ``minor`` with the CUDA Runtime Compilation version number.
 
+
     Returns:
         A 2-tuple containing:
-
         - int: CUDA Runtime Compilation major version number.
         - int: CUDA Runtime Compilation minor version number.
 
@@ -656,6 +654,8 @@ cpdef tuple version():
 cpdef int get_num_supported_archs() except? -1:
     """nvrtcGetNumSupportedArchs sets the output parameter ``num_archs`` with the number of architectures supported by NVRTC. This can then be used to pass an array to ``nvrtcGetSupportedArchs`` to get the supported architectures.
 
+    see ``nvrtcGetSupportedArchs``.
+
     Returns:
         int: number of supported architectures.
 
@@ -671,6 +671,8 @@ cpdef int get_num_supported_archs() except? -1:
 cpdef object get_supported_archs():
     """nvrtcGetSupportedArchs populates the array passed via the output parameter ``supported_archs`` with the architectures supported by NVRTC. The array is sorted in the ascending order. The size of the array to be passed can be determined using ``nvrtcGetNumSupportedArchs``.
 
+    see ``nvrtcGetNumSupportedArchs``.
+
     Returns:
         int: sorted array of supported architectures.
 
@@ -680,18 +682,19 @@ cpdef object get_supported_archs():
     with nogil:
         __status__ = nvrtcGetNumSupportedArchs(&numArchs)
     check_status(__status__)
-    if numArchs == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(int), format="i", mode="c")[:0]
-    cdef _cyb_view.array supported_archs = _cyb_view.array(shape=(numArchs,), itemsize=sizeof(int), format="i", mode="c")
-    cdef int *supported_archs_ptr = <int *>(supported_archs.data)
-    with nogil:
-        __status__ = nvrtcGetSupportedArchs(supported_archs_ptr)
-    check_status(__status__)
+    cdef _cyb_view.array _supported_archs_alloc_ = _cyb_view.array(shape=(max(numArchs, 1),), itemsize=sizeof(int), format="i", mode="c")
+    cdef int *supported_archs_ptr = <int *>(_supported_archs_alloc_.data)
+    cdef object supported_archs = _supported_archs_alloc_[:numArchs]
+    if numArchs != 0:
+        with nogil:
+            __status__ = nvrtcGetSupportedArchs(supported_archs_ptr)
+        check_status(__status__)
     return supported_archs
 
 
 cpdef destroy_program(intptr_t prog):
     """nvrtcDestroyProgram destroys the given program.
+
 
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
@@ -706,6 +709,7 @@ cpdef destroy_program(intptr_t prog):
 
 cpdef size_t get_ptx_size(intptr_t prog) except? 0:
     """nvrtcGetPTXSize sets the value of ``ptx_size_ret`` with the size of the PTX generated by the previous compilation of ``prog`` (including the trailing ``NULL``).
+
 
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
@@ -726,6 +730,7 @@ cpdef size_t get_ptx_size(intptr_t prog) except? 0:
 cpdef bytes get_ptx(intptr_t prog):
     """nvrtcGetPTX stores the PTX generated by the previous compilation of ``prog`` in the memory pointed by ``ptx``.
 
+
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
 
@@ -738,18 +743,18 @@ cpdef bytes get_ptx(intptr_t prog):
     with nogil:
         __status__ = nvrtcGetPTXSize(<Program>prog, &ptxSizeRet)
     check_status(__status__)
-    if ptxSizeRet == 0:
-        return b""
     cdef bytes _ptx_ = bytes(ptxSizeRet)
     cdef char* ptx = _ptx_
-    with nogil:
-        __status__ = nvrtcGetPTX(<Program>prog, ptx)
-    check_status(__status__)
+    if ptxSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetPTX(<Program>prog, ptx)
+        check_status(__status__)
     return _ptx_
 
 
 cpdef size_t get_cubin_size(intptr_t prog) except? 0:
     """nvrtcGetCUBINSize sets the value of ``cubin_size_ret`` with the size of the cubin generated by the previous compilation of ``prog``. The value of cubin_size_ret is set to 0 if the value specified to ``-arch`` is a virtual architecture instead of an actual architecture.
+
 
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
@@ -769,6 +774,7 @@ cpdef size_t get_cubin_size(intptr_t prog) except? 0:
 cpdef bytes get_cubin(intptr_t prog):
     """nvrtcGetCUBIN stores the cubin generated by the previous compilation of ``prog`` in the memory pointed by ``cubin``. No cubin is available if the value specified to ``-arch`` is a virtual architecture instead of an actual architecture. The cubin does not contain code for the Tile functions (``__tile__`` / ``__tile_global__``) or variables (``__tile__``); use :func:`get_tile_ir` to extract the cuda_tile IR generated for Tile code.
 
+
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
 
@@ -781,18 +787,18 @@ cpdef bytes get_cubin(intptr_t prog):
     with nogil:
         __status__ = nvrtcGetCUBINSize(<Program>prog, &cubinSizeRet)
     check_status(__status__)
-    if cubinSizeRet == 0:
-        return b""
     cdef bytes _cubin_ = bytes(cubinSizeRet)
     cdef char* cubin = _cubin_
-    with nogil:
-        __status__ = nvrtcGetCUBIN(<Program>prog, cubin)
-    check_status(__status__)
+    if cubinSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetCUBIN(<Program>prog, cubin)
+        check_status(__status__)
     return _cubin_
 
 
 cpdef size_t get_ltoir_size(intptr_t prog) except? 0:
     """nvrtcGetLTOIRSize sets the value of ``ltoir_size_ret`` with the size of the LTO IR generated by the previous compilation of ``prog``. The value of ltoir_size_ret is set to 0 if the program was not compiled with ``-dlto``.
+
 
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
@@ -812,6 +818,7 @@ cpdef size_t get_ltoir_size(intptr_t prog) except? 0:
 cpdef bytes get_ltoir(intptr_t prog):
     """nvrtcGetltoir stores the LTO IR generated by the previous compilation of ``prog`` in the memory pointed by ``ltoir``. No LTO IR is available if the program was compiled without ``-dlto``.
 
+
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
 
@@ -824,18 +831,18 @@ cpdef bytes get_ltoir(intptr_t prog):
     with nogil:
         __status__ = nvrtcGetLTOIRSize(<Program>prog, &LTOIRSizeRet)
     check_status(__status__)
-    if LTOIRSizeRet == 0:
-        return b""
     cdef bytes _ltoir_ = bytes(LTOIRSizeRet)
     cdef char* ltoir = _ltoir_
-    with nogil:
-        __status__ = nvrtcGetLTOIR(<Program>prog, ltoir)
-    check_status(__status__)
+    if LTOIRSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetLTOIR(<Program>prog, ltoir)
+        check_status(__status__)
     return _ltoir_
 
 
 cpdef size_t get_optix_ir_size(intptr_t prog) except? 0:
     """nvrtcGetOptiXIRSize sets the value of ``optixir_size_ret`` with the size of the OptiX IR generated by the previous compilation of ``prog``. The value of nvrtcGetOptiXIRSize is set to 0 if the program was compiled with options incompatible with OptiX IR generation.
+
 
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
@@ -855,6 +862,7 @@ cpdef size_t get_optix_ir_size(intptr_t prog) except? 0:
 cpdef bytes get_optix_ir(intptr_t prog):
     """nvrtcGetOptiXIR stores the OptiX IR generated by the previous compilation of ``prog`` in the memory pointed by ``optixir``. No OptiX IR is available if the program was compiled with options incompatible with OptiX IR generation.
 
+
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
 
@@ -867,18 +875,20 @@ cpdef bytes get_optix_ir(intptr_t prog):
     with nogil:
         __status__ = nvrtcGetOptiXIRSize(<Program>prog, &optixirSizeRet)
     check_status(__status__)
-    if optixirSizeRet == 0:
-        return b""
     cdef bytes _optixir_ = bytes(optixirSizeRet)
     cdef char* optixir = _optixir_
-    with nogil:
-        __status__ = nvrtcGetOptiXIR(<Program>prog, optixir)
-    check_status(__status__)
+    if optixirSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetOptiXIR(<Program>prog, optixir)
+        check_status(__status__)
     return _optixir_
 
 
 cpdef size_t get_program_log_size(intptr_t prog) except? 0:
     """nvrtcGetProgramLogSize sets ``log_size_ret`` with the size of the log generated by the previous compilation of ``prog`` (including the trailing ``NULL``).
+
+    Note that compilation log may be generated with warnings and informative
+    messages, even when the compilation of ``prog`` succeeds.
 
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
@@ -899,6 +909,7 @@ cpdef size_t get_program_log_size(intptr_t prog) except? 0:
 cpdef bytes get_program_log(intptr_t prog):
     """nvrtcGetProgramLog stores the log generated by the previous compilation of ``prog`` in the memory pointed by ``log``.
 
+
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
 
@@ -911,24 +922,25 @@ cpdef bytes get_program_log(intptr_t prog):
     with nogil:
         __status__ = nvrtcGetProgramLogSize(<Program>prog, &logSizeRet)
     check_status(__status__)
-    if logSizeRet == 0:
-        return b""
     cdef bytes _log_ = bytes(logSizeRet)
     cdef char* log = _log_
-    with nogil:
-        __status__ = nvrtcGetProgramLog(<Program>prog, log)
-    check_status(__status__)
+    if logSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetProgramLog(<Program>prog, log)
+        check_status(__status__)
     return _log_
 
 
 cpdef add_name_expression(intptr_t prog, name_expression):
     """nvrtcAddNameExpression notes the given name expression denoting the address of a global function or device/__constant__ variable.
 
+    The identical name expression string must be provided on a subsequent call to
+    nvrtcGetLoweredName to extract the lowered name.
+
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
-        name_expression (str): constant expression denoting the
-            address of a global function or device/__constant__
-            variable.
+        name_expression (str): constant expression denoting the address of
+            a global function or device/__constant__ variable.
 
     .. seealso:: `nvrtcAddNameExpression`
     """
@@ -944,9 +956,10 @@ cpdef add_name_expression(intptr_t prog, name_expression):
 cpdef size_t get_pch_heap_size() except? 0:
     """retrieve the current size of the PCH Heap.
 
+
     Returns:
-        size_t: pointer to location where the size of the PCH Heap
-            will be stored.
+        size_t: pointer to location where the size of the PCH Heap will be
+            stored.
 
     .. seealso:: `nvrtcGetPCHHeapSize`
     """
@@ -959,6 +972,10 @@ cpdef size_t get_pch_heap_size() except? 0:
 
 cpdef set_pch_heap_size(size_t size):
     """set the size of the PCH Heap.
+
+    The requested size may be rounded up to a platform dependent alignment (e.g.
+    page size). If the PCH Heap has already been allocated, the heap memory will be
+    freed and a new PCH Heap will be allocated.
 
     Args:
         size (size_t): requested size of the PCH Heap, in bytes.
@@ -973,6 +990,20 @@ cpdef set_pch_heap_size(size_t size):
 cpdef int get_pch_create_status(intptr_t prog) except? -1:
     """returns the PCH creation status.
 
+    NVRTC_SUCCESS indicates that the PCH was successfully created.
+    NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED indicates that no PCH creation was
+    attempted, either because PCH functionality was not requested during the
+    preceding nvrtcCompileProgram call, or automatic PCH processing was requested,
+    and compiler chose not to create a PCH file.
+    NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED indicates that a PCH file could
+    potentially have been created, but the compiler ran out space in the PCH heap.
+    In this scenario, the :func:`get_pch_heap_size_required` can be used to query
+    the required heap size, the heap can be reallocated for this size with
+    :func:`set_pch_heap_size` and PCH creation may be reattempted again invoking
+    :func:`compile_program` with a new NVRTC program instance.
+    NVRTC_ERROR_PCH_CREATE indicates that an error condition prevented the PCH file
+    from being created.
+
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
 
@@ -986,6 +1017,7 @@ cpdef int get_pch_create_status(intptr_t prog) except? -1:
 
 cpdef size_t get_pch_heap_size_required(intptr_t prog) except? 0:
     """retrieve the required size of the PCH heap required to compile the given program.
+
 
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
@@ -1006,6 +1038,7 @@ cpdef size_t get_pch_heap_size_required(intptr_t prog) except? 0:
 cpdef size_t get_tile_ir_size(intptr_t prog) except? 0:
     """nvrtcGetTileIRSize sets the value of ``tile_ir_size_ret`` with the size of the cuda_tile IR generated by the previous compilation of ``prog``.
 
+
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
 
@@ -1024,6 +1057,7 @@ cpdef size_t get_tile_ir_size(intptr_t prog) except? 0:
 cpdef bytes get_tile_ir(intptr_t prog):
     """nvrtcGettile_ir stores the cuda_tile IR generated by the previous compilation of ``prog`` in the memory pointed by ``tile_ir``.
 
+
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
 
@@ -1036,13 +1070,12 @@ cpdef bytes get_tile_ir(intptr_t prog):
     with nogil:
         __status__ = nvrtcGetTileIRSize(<Program>prog, &TileIRSizeRet)
     check_status(__status__)
-    if TileIRSizeRet == 0:
-        return b""
     cdef bytes _tile_ir_ = bytes(TileIRSizeRet)
     cdef char* tile_ir = _tile_ir_
-    with nogil:
-        __status__ = nvrtcGetTileIR(<Program>prog, tile_ir)
-    check_status(__status__)
+    if TileIRSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetTileIR(<Program>prog, tile_ir)
+        check_status(__status__)
     return _tile_ir_
 
 
