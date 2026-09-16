@@ -633,6 +633,8 @@ cdef class GraphBuilder:
         """Joins multiple graph builders into a single graph builder.
 
         The returned builder inherits work dependencies from the provided builders.
+        If joining fails partway, the builders that were not joined are closed
+        before the error propagates, so none is left capturing.
 
         Parameters
         ----------
@@ -661,11 +663,19 @@ cdef class GraphBuilder:
 
         # Join all onto the root builder
         root_bdr = graph_builders[root_idx]
-        for idx, builder in enumerate(graph_builders):
-            if idx == root_idx:
-                continue
-            root_bdr.stream.wait(builder.stream)
-            builder.close()
+        try:
+            for idx, builder in enumerate(graph_builders):
+                if idx == root_idx:
+                    continue
+                root_bdr.stream.wait(builder.stream)
+                builder.close()
+        finally:
+            # A fork left open mid-capture crashed the interpreter when it was
+            # collected later (#2776). Close whatever the loop did not reach;
+            # on success every fork is already closed and this is a no-op.
+            for idx, builder in enumerate(graph_builders):
+                if idx != root_idx and not builder.is_closed:
+                    builder.close()
 
         return root_bdr
 

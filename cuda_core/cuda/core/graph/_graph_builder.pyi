@@ -281,6 +281,8 @@ class GraphBuilder:
         """Joins multiple graph builders into a single graph builder.
 
         The returned builder inherits work dependencies from the provided builders.
+        If joining fails partway, the builders that were not joined are closed
+        before the error propagates, so none is left capturing.
 
         Parameters
         ----------

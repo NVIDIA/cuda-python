@@ -237,6 +237,34 @@ def test_graph_complete_after_close_forked(init_cuda):
         right.complete()
 
 
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_graph_join_failure_closes_unjoined_forks(init_cuda):
+    """A join that raises midway closes the forks it did not join (#2776).
+
+    A fork left capturing on its private stream crashed the interpreter when it
+    was collected later. The failure is provoked by closing one fork's stream,
+    which makes the root's wait on it raise before the remaining forks are joined.
+    """
+    mod = compile_common_kernels()
+    empty_kernel = mod.get_kernel("empty_kernel")
+
+    gb = Device().create_graph_builder().begin_building()
+    gb, bad, left, right = gb.split(4)
+    launch(left, LaunchConfig(grid=1, block=1), empty_kernel)
+    bad.stream.close()
+    with pytest.raises(RuntimeError, match="^Stream has been closed"):
+        GraphBuilder.join(gb, bad, left, right)
+    assert bad.is_closed and left.is_closed and right.is_closed
+    del bad, left, right
+    gc.collect()
+
+    # The work captured on the abandoned fork was never joined back, so the
+    # driver refuses to end the capture; the builder still closes cleanly.
+    with pytest.raises(CUDAError, match="CUDA_ERROR_STREAM_CAPTURE_UNJOINED"):
+        gb.end_building()
+    gb.close()
+
+
 def test_graph_update_after_source_close(init_cuda):
     """Graph.update() with a closed source builder must raise, not deref a null handle."""
     mod = compile_common_kernels()

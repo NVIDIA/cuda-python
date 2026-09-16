@@ -66,6 +66,11 @@ Fixes and enhancements
   are ended by :meth:`~graph.GraphBuilder.join`.
   (`#2834 <https://github.com/NVIDIA/cuda-python/issues/2834>`__)
 
+- :meth:`~graph.GraphBuilder.join` that fails partway now closes the forked
+  builders it did not join before the error propagates. A fork left capturing
+  on its private stream crashed the interpreter when it was collected later.
+  (`#2776 <https://github.com/NVIDIA/cuda-python/issues/2776>`__)
+
 - :class:`Device` methods that create resources or synchronize now act on that
   device's bound context, even when another device is current. They do not
   change which device is current. For example, ``dev1.sync()`` synchronizes
