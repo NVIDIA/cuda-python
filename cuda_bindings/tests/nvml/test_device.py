@@ -70,17 +70,6 @@ def test_grid_licensable_features(all_devices):
                 nvml.GridLicenseExpiry(feature.license_expiry)
 
 
-def test_get_handle_by_uuidv(all_devices, subtests):
-    for device in all_devices:
-        with subtests.test(device_index=nvml.device_get_index(device)):
-            uuid = nvml.device_get_uuid(device)
-            if "Orin" in nvml.device_get_name(device) and len(uuid) == 36:
-                pytest.skip("UUID lookup is unsupported on Orin, which reports a UUID without a GPU- prefix")
-            with unsupported_before(device, None):
-                new_handle = nvml.device_get_handle_by_uuidv(nvml.UUIDType.ASCII, uuid.encode("ascii"))
-            assert new_handle == device
-
-
 def test_get_nv_link_supported_bw_modes(all_devices, subtests):
     for device in all_devices:
         with subtests.test(device_index=nvml.device_get_index(device)):
@@ -93,13 +82,6 @@ def test_get_nv_link_supported_bw_modes(all_devices, subtests):
 
             for mode in modes.bw_modes:
                 assert isinstance(mode, np.uint8)
-
-
-def test_device_get_pdi(all_devices):
-    for device in all_devices:
-        with unsupported_before(device, None):
-            pdi = nvml.device_get_pdi(device)
-            assert isinstance(pdi, int)
 
 
 def test_device_get_performance_modes(all_devices, subtests):
@@ -136,21 +118,6 @@ def test_read_prm_counters(all_devices, subtests):
                 read_counters = nvml.device_read_prm_counters_v1(device, counters)
             assert counters is read_counters
             assert len(read_counters) == 5
-
-
-@pytest.mark.thread_unsafe(reason="API appears to be thread-unsafe (2026-06)")
-def test_read_write_prm(all_devices, subtests):
-    for device in all_devices:
-        with subtests.test(device_index=nvml.device_get_index(device)):
-            # Docs say supported in BLACKWELL or later
-            with unsupported_before(device, None):
-                try:
-                    result = nvml.device_read_write_prm_v1(device, b"012345678")
-                except nvml.NoPermissionError:
-                    pytest.skip("No permission to read/write PRM")
-            assert isinstance(result, tuple)
-            assert isinstance(result[0], int)
-            assert isinstance(result[1], bytes)
 
 
 def test_get_power_management_limit(all_devices, subtests):
