@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a03d2e0af0d3709b37182ac9f661266b2414746092668fe3761cc31bc1a5b7d8
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=343843af0d4fa5698e46b9e9dd9ba41a1abe2f056ba3fe97ad98351bf2261c1b
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -50,7 +50,7 @@ cdef _cyb_from_buffer(buffer, size, lowpp_type):
             raise ValueError("buffer itemsize must be 1 byte")
         if view.len != size:
             raise ValueError(f"buffer length must be {size} bytes")
-        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
+        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, view.readonly != 0, buffer)
     finally:
         _cyb_cpython.PyBuffer_Release(&view)
 
@@ -298,6 +298,8 @@ cdef class BundledHeadersInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This BundledHeadersInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvrtcBundledHeadersInfo):

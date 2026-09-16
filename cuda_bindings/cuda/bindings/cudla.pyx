@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d993ca63a75f175f1e05248eb9e18c79cd0e61ef41e6f13ca05cc3ff1ff91ef6
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7a208273ab596a5fc3e4ce5ca2f4cd474a4d3e649aa06b78bc8e5564fe2cebfd
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -54,7 +54,7 @@ cdef _cyb_from_buffer(buffer, size, lowpp_type):
             raise ValueError("buffer itemsize must be 1 byte")
         if view.len != size:
             raise ValueError(f"buffer length must be {size} bytes")
-        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
+        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, view.readonly != 0, buffer)
     finally:
         _cyb_cpython.PyBuffer_Release(&view)
 
@@ -177,6 +177,8 @@ cdef class ExternalMemoryHandleDesc:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ExternalMemoryHandleDesc instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cudlaExternalMemoryHandleDesc_t):
@@ -311,6 +313,8 @@ cdef class ExternalSemaphoreHandleDesc:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ExternalSemaphoreHandleDesc instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cudlaExternalSemaphoreHandleDesc_t):
@@ -445,6 +449,8 @@ cdef class ModuleTensorDescriptor:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ModuleTensorDescriptor instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cudlaModuleTensorDescriptor):
@@ -700,6 +706,8 @@ cdef class Fence:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This Fence instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(CudlaFence):
@@ -835,6 +843,8 @@ cdef class DevAttribute:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This DevAttribute instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cudlaDevAttribute):
@@ -972,6 +982,8 @@ cdef class ModuleAttribute:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ModuleAttribute instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cudlaModuleAttribute):
@@ -1131,6 +1143,8 @@ cdef class WaitEvents:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This WaitEvents instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cudlaWaitEvents):
@@ -1269,6 +1283,8 @@ cdef class SignalEvents:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This SignalEvents instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cudlaSignalEvents):
@@ -1436,6 +1452,8 @@ cdef class Task:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This Task instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cudlaTask):
