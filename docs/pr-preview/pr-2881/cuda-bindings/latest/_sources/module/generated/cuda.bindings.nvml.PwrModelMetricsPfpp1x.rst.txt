@@ -1,0 +1,36 @@
+﻿cuda.bindings.nvml.PwrModelMetricsPfpp1x
+========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: PwrModelMetricsPfpp1x
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PwrModelMetricsPfpp1x.__init__
+      ~PwrModelMetricsPfpp1x.from_buffer
+      ~PwrModelMetricsPfpp1x.from_data
+      ~PwrModelMetricsPfpp1x.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PwrModelMetricsPfpp1x.b_valid
+      ~PwrModelMetricsPfpp1x.estimated_metrics
+      ~PwrModelMetricsPfpp1x.fmax_at_vmax_point
+      ~PwrModelMetricsPfpp1x.max_perf_per_watt_point
+      ~PwrModelMetricsPfpp1x.ptr
+      ~PwrModelMetricsPfpp1x.tgp_headroomm_w
+   
+   
