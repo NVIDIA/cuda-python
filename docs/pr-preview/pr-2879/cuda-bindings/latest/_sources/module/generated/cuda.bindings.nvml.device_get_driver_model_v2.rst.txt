@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_driver\_model\_v2
+=================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_driver_model_v2
