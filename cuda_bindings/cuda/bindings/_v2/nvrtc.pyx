@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2202d93ff748ecdd5a69713532e2cef7e456a1db5b0637fe7ed91b6172aa1fb4
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d512546d71f7aec9d334b646f7b4e9f51660692e7eeb3a276a73749ed9b1a7f1
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -672,7 +672,7 @@ cpdef object get_supported_archs():
 
     .. seealso:: `nvrtcGetSupportedArchs`
     """
-    cdef int numArchs
+    cdef int numArchs = 0
     with nogil:
         __status__ = nvrtcGetNumSupportedArchs(&numArchs)
     check_status(__status__)
@@ -730,7 +730,7 @@ cpdef bytes get_ptx(intptr_t prog):
 
     .. seealso:: `nvrtcGetPTX`
     """
-    cdef size_t ptxSizeRet
+    cdef size_t ptxSizeRet = 0
     with nogil:
         __status__ = nvrtcGetPTXSize(<Program>prog, &ptxSizeRet)
     check_status(__status__)
@@ -773,7 +773,7 @@ cpdef bytes get_cubin(intptr_t prog):
 
     .. seealso:: `nvrtcGetCUBIN`
     """
-    cdef size_t cubinSizeRet
+    cdef size_t cubinSizeRet = 0
     with nogil:
         __status__ = nvrtcGetCUBINSize(<Program>prog, &cubinSizeRet)
     check_status(__status__)
@@ -816,7 +816,7 @@ cpdef bytes get_ltoir(intptr_t prog):
 
     .. seealso:: `nvrtcGetLTOIR`
     """
-    cdef size_t LTOIRSizeRet
+    cdef size_t LTOIRSizeRet = 0
     with nogil:
         __status__ = nvrtcGetLTOIRSize(<Program>prog, &LTOIRSizeRet)
     check_status(__status__)
@@ -859,7 +859,7 @@ cpdef bytes get_optix_ir(intptr_t prog):
 
     .. seealso:: `nvrtcGetOptiXIR`
     """
-    cdef size_t optixirSizeRet
+    cdef size_t optixirSizeRet = 0
     with nogil:
         __status__ = nvrtcGetOptiXIRSize(<Program>prog, &optixirSizeRet)
     check_status(__status__)
@@ -905,7 +905,7 @@ cpdef bytes get_program_log(intptr_t prog):
 
     .. seealso:: `nvrtcGetProgramLog`
     """
-    cdef size_t logSizeRet
+    cdef size_t logSizeRet = 0
     with nogil:
         __status__ = nvrtcGetProgramLogSize(<Program>prog, &logSizeRet)
     check_status(__status__)
@@ -1047,7 +1047,7 @@ cpdef bytes get_tile_ir(intptr_t prog):
 
     .. seealso:: `nvrtcGetTileIR`
     """
-    cdef size_t TileIRSizeRet
+    cdef size_t TileIRSizeRet = 0
     with nogil:
         __status__ = nvrtcGetTileIRSize(<Program>prog, &TileIRSizeRet)
     check_status(__status__)
