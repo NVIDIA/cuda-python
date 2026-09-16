@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.vgpu\_type\_get\_device\_id
-==============================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: vgpu_type_get_device_id
