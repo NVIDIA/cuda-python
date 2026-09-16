@@ -1604,7 +1604,7 @@ was used for application performance.</p>
 </pre></div>
 </div>
 <div class="pst-scrollable-table-container"><table class="table" id="id4">
-<caption><span class="caption-number">Table 1 </span><span class="caption-text">Kernel and application performance comparison.</span><a class="headerlink" href="#id4" title="Link to this table">#</a></caption>
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">Kernel and application performance comparison.</span><a class="headerlink" href="#id4" title="Link to this table">#</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"></th>
 <th class="head"><p>C++</p></th>
@@ -1667,7 +1667,7 @@ maximize performance ({numref}``Figure 1``).</p>
 </div>
 <p>The first step is to create array objects with types corresponding to your kernel arguments. Primitive NumPy types have the following corresponding kernel types:</p>
 <div class="pst-scrollable-table-container"><table class="table" id="id5">
-<caption><span class="caption-number">Table 2 </span><span class="caption-text">Correspondence between NumPy types and kernel types.</span><a class="headerlink" href="#id5" title="Link to this table">#</a></caption>
+<caption><span class="caption-number">Table 3 </span><span class="caption-text">Correspondence between NumPy types and kernel types.</span><a class="headerlink" href="#id5" title="Link to this table">#</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>NumPy type</p></th>
 <th class="head"><p>Corresponding kernel types</p></th>
@@ -1842,7 +1842,7 @@ Furthermore, <a class="reference external" href="https://docs.python.org/3/libra
 <h3>CUDA objects<a class="headerlink" href="#cuda-objects" title="Link to this heading">#</a></h3>
 <p>Certain CUDA kernels use native CUDA types as their parameters such as <code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code>. These types require special handling since they’re neither a primitive ctype nor a custom user type. Since <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> exposes each of them as Python classes, they each implement <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code> and <code class="docutils literal notranslate"><span class="pre">__int__()</span></code>. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#">Tips and Tricks</a>.</p>
 <p>For this example, lets use the <code class="docutils literal notranslate"><span class="pre">transformKernel</span></code> from
-<a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/4d55ab4c341063afb09d97afeb63df1f8bb47dcc/cuda_bindings/examples/0_Introduction/simple_cubemap_texture.py">simple_cubemap_texture.py</a>.
+<a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/3317db0ed00267fec46229853bd65cd8d0af3cfc/cuda_bindings/examples/0_Introduction/simple_cubemap_texture.py">simple_cubemap_texture.py</a>.
 The <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> page links to more samples covering textures, graphs,
 memory mapping, and multi-GPU workflows.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simpleCubemapTexture</span> <span class="o">=</span> <span class="s2">"""</span><span class="se">\</span>

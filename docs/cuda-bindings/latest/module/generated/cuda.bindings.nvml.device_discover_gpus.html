@@ -1365,7 +1365,7 @@
 <h1>cuda.bindings.nvml.device_discover_gpus<a class="headerlink" href="#cuda-bindings-nvml-device-discover-gpus" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.device_discover_gpus">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">device_discover_gpus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">pci_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_discover_gpus" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">device_discover_gpus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pci_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_discover_gpus" title="Link to this definition">#</a></dt>
 <dd><p>Request the OS and the NVIDIA kernel driver to rediscover a portion of the PCI subsystem looking for GPUs that were previously removed. The portion of the PCI tree can be narrowed by specifying a domain, bus, and device. If all are zeroes then the entire PCI tree will be searched. Please note that for long-running NVML processes the enumeration will change based on how many GPUs are discovered and where they are inserted in bus order.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

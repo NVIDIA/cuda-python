@@ -1360,6 +1360,1212 @@
                   
   <section id="cuda-bindings-13-5-0-release-notes">
 <h1><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.5.0 Release notes<a class="headerlink" href="#cuda-bindings-13-5-0-release-notes" title="Link to this heading">#</a></h1>
+<section id="changes">
+<h2>Changes<a class="headerlink" href="#changes" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Many <code class="docutils literal notranslate"><span class="pre">cuda.bindings.cudla</span></code> and <code class="docutils literal notranslate"><span class="pre">cuda.bindings.nvml</span></code> enum members had a
+redundant prefix stripped from their name,
+e.g. <code class="docutils literal notranslate"><span class="pre">nvml.BrandType.BRAND_GEFORCE</span></code> is now <code class="docutils literal notranslate"><span class="pre">nvml.BrandType.GEFORCE</span></code>.
+The old, longer names remain available as backward-compatible aliases and
+will continue to work. The full list of renames, excluding the 447
+similarly-renamed <code class="docutils literal notranslate"><span class="pre">nvml.GpmMetricId</span></code> members (which had their
+<code class="docutils literal notranslate"><span class="pre">GPM_METRIC_</span></code> prefix stripped the same way), is below.</p></li>
+</ul>
+<div class="pst-scrollable-table-container"><table class="table" id="id1">
+<caption><span class="caption-number">Table 1 </span><span class="caption-text">Enum member renames (old names remain available as backward-compatible aliases)</span><a class="headerlink" href="#id1" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 11.8%" />
+<col style="width: 29.4%" />
+<col style="width: 29.4%" />
+<col style="width: 29.4%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Module</p></th>
+<th class="head"><p>Enum class</p></th>
+<th class="head"><p>New name</p></th>
+<th class="head"><p>Deprecated alias</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>cudla</p></td>
+<td><p>FenceType</p></td>
+<td><p>FENCE</p></td>
+<td><p>NVSCISYNC_FENCE</p></td>
+</tr>
+<tr class="row-odd"><td><p>cudla</p></td>
+<td><p>FenceType</p></td>
+<td><p>FENCE_SOF</p></td>
+<td><p>NVSCISYNC_FENCE_SOF</p></td>
+</tr>
+<tr class="row-even"><td><p>cudla</p></td>
+<td><p>ModuleLoadFlags</p></td>
+<td><p>DEFAULT</p></td>
+<td><p>MODULE_DEFAULT</p></td>
+</tr>
+<tr class="row-odd"><td><p>cudla</p></td>
+<td><p>ModuleLoadFlags</p></td>
+<td><p>ENABLE_FAULT_DIAGNOSTICS</p></td>
+<td><p>MODULE_ENABLE_FAULT_DIAGNOSTICS</p></td>
+</tr>
+<tr class="row-even"><td><p>cudla</p></td>
+<td><p>ScratchMemoryConfig</p></td>
+<td><p>CONFIG_MAX</p></td>
+<td><p>MAX</p></td>
+</tr>
+<tr class="row-odd"><td><p>cudla</p></td>
+<td><p>ScratchMemoryConfig</p></td>
+<td><p>DEFAULT</p></td>
+<td><p>SCRATCH_MEMORY_DEFAULT</p></td>
+</tr>
+<tr class="row-even"><td><p>cudla</p></td>
+<td><p>ScratchMemoryConfig</p></td>
+<td><p>SHARED_STATIC</p></td>
+<td><p>SCRATCH_MEMORY_SHARED_STATIC</p></td>
+</tr>
+<tr class="row-odd"><td><p>cudla</p></td>
+<td><p>SubmissionFlags</p></td>
+<td><p>DIAGNOSTICS_TASK</p></td>
+<td><p>SUBMIT_DIAGNOSTICS_TASK</p></td>
+</tr>
+<tr class="row-even"><td><p>cudla</p></td>
+<td><p>SubmissionFlags</p></td>
+<td><p>NOOP</p></td>
+<td><p>SUBMIT_NOOP</p></td>
+</tr>
+<tr class="row-odd"><td><p>cudla</p></td>
+<td><p>SubmissionFlags</p></td>
+<td><p>SKIP_LOCK_ACQUIRE</p></td>
+<td><p>SUBMIT_SKIP_LOCK_ACQUIRE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>COUNT</p></td>
+<td><p>BRAND_COUNT</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>GEFORCE</p></td>
+<td><p>BRAND_GEFORCE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>GEFORCE_RTX</p></td>
+<td><p>BRAND_GEFORCE_RTX</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>GRID</p></td>
+<td><p>BRAND_GRID</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>NVIDIA</p></td>
+<td><p>BRAND_NVIDIA</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>NVIDIA_CLOUD_GAMING</p></td>
+<td><p>BRAND_NVIDIA_CLOUD_GAMING</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>NVIDIA_DLA</p></td>
+<td><p>BRAND_NVIDIA_DLA</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>NVIDIA_NPU</p></td>
+<td><p>BRAND_NVIDIA_NPU</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>NVIDIA_RTX</p></td>
+<td><p>BRAND_NVIDIA_RTX</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>NVIDIA_VAPPS</p></td>
+<td><p>BRAND_NVIDIA_VAPPS</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>NVIDIA_VCS</p></td>
+<td><p>BRAND_NVIDIA_VCS</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>NVIDIA_VGAMEDEV</p></td>
+<td><p>BRAND_NVIDIA_VGAMEDEV</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>NVIDIA_VGAMING</p></td>
+<td><p>BRAND_NVIDIA_VGAMING</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>NVIDIA_VPC</p></td>
+<td><p>BRAND_NVIDIA_VPC</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>NVIDIA_VWS</p></td>
+<td><p>BRAND_NVIDIA_VWS</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>NVS</p></td>
+<td><p>BRAND_NVS</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>QUADRO</p></td>
+<td><p>BRAND_QUADRO</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>QUADRO_RTX</p></td>
+<td><p>BRAND_QUADRO_RTX</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>TESLA</p></td>
+<td><p>BRAND_TESLA</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>TITAN</p></td>
+<td><p>BRAND_TITAN</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>TITAN_RTX</p></td>
+<td><p>BRAND_TITAN_RTX</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>BrandType</p></td>
+<td><p>UNKNOWN</p></td>
+<td><p>BRAND_UNKNOWN</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>BridgeChipType</p></td>
+<td><p>BRO4</p></td>
+<td><p>BRIDGE_CHIP_BRO4</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>BridgeChipType</p></td>
+<td><p>PLX</p></td>
+<td><p>BRIDGE_CHIP_PLX</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>ClockType</p></td>
+<td><p>COUNT</p></td>
+<td><p>CLOCK_COUNT</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>ClockType</p></td>
+<td><p>GRAPHICS</p></td>
+<td><p>CLOCK_GRAPHICS</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>ClockType</p></td>
+<td><p>MEM</p></td>
+<td><p>CLOCK_MEM</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>ClockType</p></td>
+<td><p>SM</p></td>
+<td><p>CLOCK_SM</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>ClockType</p></td>
+<td><p>VIDEO</p></td>
+<td><p>CLOCK_VIDEO</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>ComputeMode</p></td>
+<td><p>COUNT</p></td>
+<td><p>COMPUTEMODE_COUNT</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>ComputeMode</p></td>
+<td><p>DEFAULT</p></td>
+<td><p>COMPUTEMODE_DEFAULT</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>ComputeMode</p></td>
+<td><p>EXCLUSIVE_PROCESS</p></td>
+<td><p>COMPUTEMODE_EXCLUSIVE_PROCESS</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>ComputeMode</p></td>
+<td><p>EXCLUSIVE_THREAD</p></td>
+<td><p>COMPUTEMODE_EXCLUSIVE_THREAD</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>ComputeMode</p></td>
+<td><p>PROHIBITED</p></td>
+<td><p>COMPUTEMODE_PROHIBITED</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>CoolerControl</p></td>
+<td><p>COUNT</p></td>
+<td><p>THERMAL_COOLER_SIGNAL_COUNT</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>CoolerControl</p></td>
+<td><p>NONE</p></td>
+<td><p>THERMAL_COOLER_SIGNAL_NONE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>CoolerControl</p></td>
+<td><p>TOGGLE</p></td>
+<td><p>THERMAL_COOLER_SIGNAL_TOGGLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>CoolerControl</p></td>
+<td><p>VARIABLE</p></td>
+<td><p>THERMAL_COOLER_SIGNAL_VARIABLE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>CoolerTarget</p></td>
+<td><p>GPU</p></td>
+<td><p>THERMAL_GPU</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>CoolerTarget</p></td>
+<td><p>GPU_RELATED</p></td>
+<td><p>THERMAL_GPU_RELATED</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>CoolerTarget</p></td>
+<td><p>MEMORY</p></td>
+<td><p>THERMAL_MEMORY</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>CoolerTarget</p></td>
+<td><p>NONE</p></td>
+<td><p>THERMAL_NONE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>CoolerTarget</p></td>
+<td><p>POWER_SUPPLY</p></td>
+<td><p>THERMAL_POWER_SUPPLY</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>DetachGpuState</p></td>
+<td><p>KEEP</p></td>
+<td><p>DETACH_GPU_KEEP</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>DetachGpuState</p></td>
+<td><p>REMOVE</p></td>
+<td><p>DETACH_GPU_REMOVE</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>DeviceAddressingModeType</p></td>
+<td><p>ATS</p></td>
+<td><p>DEVICE_ADDRESSING_MODE_ATS</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>DeviceAddressingModeType</p></td>
+<td><p>HMM</p></td>
+<td><p>DEVICE_ADDRESSING_MODE_HMM</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>DeviceAddressingModeType</p></td>
+<td><p>NONE</p></td>
+<td><p>DEVICE_ADDRESSING_MODE_NONE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>DeviceGpuRecoveryAction</p></td>
+<td><p>BUS_RESET</p></td>
+<td><p>GPU_RECOVERY_ACTION_BUS_RESET</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>DeviceGpuRecoveryAction</p></td>
+<td><p>DRAIN_AND_RESET</p></td>
+<td><p>GPU_RECOVERY_ACTION_DRAIN_AND_RESET</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>DeviceGpuRecoveryAction</p></td>
+<td><p>DRAIN_P2P</p></td>
+<td><p>GPU_RECOVERY_ACTION_DRAIN_P2P</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>DeviceGpuRecoveryAction</p></td>
+<td><p>GPU_RESET</p></td>
+<td><p>GPU_RECOVERY_ACTION_GPU_RESET</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>DeviceGpuRecoveryAction</p></td>
+<td><p>NODE_REBOOT</p></td>
+<td><p>GPU_RECOVERY_ACTION_NODE_REBOOT</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>DeviceGpuRecoveryAction</p></td>
+<td><p>NONE</p></td>
+<td><p>GPU_RECOVERY_ACTION_NONE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>DeviceGpuRecoveryAction</p></td>
+<td><p>RECOVER_IMEX_DOMAIN</p></td>
+<td><p>GPU_RECOVERY_ACTION_RECOVER_IMEX_DOMAIN</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>DeviceGpuRecoveryAction</p></td>
+<td><p>SYSTEM_REBOOT</p></td>
+<td><p>GPU_RECOVERY_ACTION_SYSTEM_REBOOT</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>DeviceVgpuCapability</p></td>
+<td><p>COMPUTE_MEDIA_ENGINE_GPU</p></td>
+<td><p>DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>DeviceVgpuCapability</p></td>
+<td><p>COUNT</p></td>
+<td><p>DEVICE_VGPU_CAP_COUNT</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>DeviceVgpuCapability</p></td>
+<td><p>DEVICE_STREAMING</p></td>
+<td><p>DEVICE_VGPU_CAP_DEVICE_STREAMING</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>DeviceVgpuCapability</p></td>
+<td><p>FRACTIONAL_MULTI_VGPU</p></td>
+<td><p>DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>DeviceVgpuCapability</p></td>
+<td><p>HETEROGENEOUS_TIMESLICE_PROFILES</p></td>
+<td><p>DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>DeviceVgpuCapability</p></td>
+<td><p>HETEROGENEOUS_TIMESLICE_SIZES</p></td>
+<td><p>DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>DeviceVgpuCapability</p></td>
+<td><p>HOMOGENEOUS_PLACEMENTS</p></td>
+<td><p>DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>DeviceVgpuCapability</p></td>
+<td><p>MIG_TIMESLICING_ENABLED</p></td>
+<td><p>DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>DeviceVgpuCapability</p></td>
+<td><p>MIG_TIMESLICING_SUPPORTED</p></td>
+<td><p>DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>DeviceVgpuCapability</p></td>
+<td><p>MINI_QUARTER_GPU</p></td>
+<td><p>DEVICE_VGPU_CAP_MINI_QUARTER_GPU</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>DeviceVgpuCapability</p></td>
+<td><p>READ_DEVICE_BUFFER_BW</p></td>
+<td><p>DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>DeviceVgpuCapability</p></td>
+<td><p>WARM_UPDATE</p></td>
+<td><p>DEVICE_VGPU_CAP_WARM_UPDATE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>DeviceVgpuCapability</p></td>
+<td><p>WRITE_DEVICE_BUFFER_BW</p></td>
+<td><p>DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>DriverModel</p></td>
+<td><p>MCDM</p></td>
+<td><p>DRIVER_MCDM</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>DriverModel</p></td>
+<td><p>WDDM</p></td>
+<td><p>DRIVER_WDDM</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>DriverModel</p></td>
+<td><p>WDM</p></td>
+<td><p>DRIVER_WDM</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>EccCounterType</p></td>
+<td><p>ECC_COUNTER_TYPE_COUNT</p></td>
+<td><p>COUNT</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>EnableState</p></td>
+<td><p>DISABLED</p></td>
+<td><p>FEATURE_DISABLED</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>EnableState</p></td>
+<td><p>ENABLED</p></td>
+<td><p>FEATURE_ENABLED</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>EncoderType</p></td>
+<td><p>AV1</p></td>
+<td><p>ENCODER_QUERY_AV1</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>EncoderType</p></td>
+<td><p>H264</p></td>
+<td><p>ENCODER_QUERY_H264</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>EncoderType</p></td>
+<td><p>HEVC</p></td>
+<td><p>ENCODER_QUERY_HEVC</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>EncoderType</p></td>
+<td><p>UNKNOWN</p></td>
+<td><p>ENCODER_QUERY_UNKNOWN</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>EventDataType</p></td>
+<td><p>NVML_EVENT</p></td>
+<td><p>EVENT</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>FanState</p></td>
+<td><p>FAILED</p></td>
+<td><p>FAN_FAILED</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>FanState</p></td>
+<td><p>NORMAL</p></td>
+<td><p>FAN_NORMAL</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>GpuOperationMode</p></td>
+<td><p>ALL_ON</p></td>
+<td><p>GOM_ALL_ON</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>GpuOperationMode</p></td>
+<td><p>COMPUTE</p></td>
+<td><p>GOM_COMPUTE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>GpuOperationMode</p></td>
+<td><p>LOW_DP</p></td>
+<td><p>GOM_LOW_DP</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>GpuP2PCapsIndex</p></td>
+<td><p>ATOMICS</p></td>
+<td><p>P2P_CAPS_INDEX_ATOMICS</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>GpuP2PCapsIndex</p></td>
+<td><p>NVLINK</p></td>
+<td><p>P2P_CAPS_INDEX_NVLINK</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>GpuP2PCapsIndex</p></td>
+<td><p>PCI</p></td>
+<td><p>P2P_CAPS_INDEX_PCI</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>GpuP2PCapsIndex</p></td>
+<td><p>PROP</p></td>
+<td><p>P2P_CAPS_INDEX_PROP</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>GpuP2PCapsIndex</p></td>
+<td><p>READ</p></td>
+<td><p>P2P_CAPS_INDEX_READ</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>GpuP2PCapsIndex</p></td>
+<td><p>UNKNOWN</p></td>
+<td><p>P2P_CAPS_INDEX_UNKNOWN</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>GpuP2PCapsIndex</p></td>
+<td><p>WRITE</p></td>
+<td><p>P2P_CAPS_INDEX_WRITE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>GpuP2PStatus</p></td>
+<td><p>CHIPSET_NOT_SUPPORED</p></td>
+<td><p>P2P_STATUS_CHIPSET_NOT_SUPPORED</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>GpuP2PStatus</p></td>
+<td><p>CHIPSET_NOT_SUPPORTED</p></td>
+<td><p>P2P_STATUS_CHIPSET_NOT_SUPPORTED</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>GpuP2PStatus</p></td>
+<td><p>DISABLED_BY_REGKEY</p></td>
+<td><p>P2P_STATUS_DISABLED_BY_REGKEY</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>GpuP2PStatus</p></td>
+<td><p>GPU_NOT_SUPPORTED</p></td>
+<td><p>P2P_STATUS_GPU_NOT_SUPPORTED</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>GpuP2PStatus</p></td>
+<td><p>IOH_TOPOLOGY_NOT_SUPPORTED</p></td>
+<td><p>P2P_STATUS_IOH_TOPOLOGY_NOT_SUPPORTED</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>GpuP2PStatus</p></td>
+<td><p>NOT_SUPPORTED</p></td>
+<td><p>P2P_STATUS_NOT_SUPPORTED</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>GpuP2PStatus</p></td>
+<td><p>OK</p></td>
+<td><p>P2P_STATUS_OK</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>GpuP2PStatus</p></td>
+<td><p>UNKNOWN</p></td>
+<td><p>P2P_STATUS_UNKNOWN</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>GpuTopologyLevel</p></td>
+<td><p>HOSTBRIDGE</p></td>
+<td><p>TOPOLOGY_HOSTBRIDGE</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>GpuTopologyLevel</p></td>
+<td><p>INTERNAL</p></td>
+<td><p>TOPOLOGY_INTERNAL</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>GpuTopologyLevel</p></td>
+<td><p>MULTIPLE</p></td>
+<td><p>TOPOLOGY_MULTIPLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>GpuTopologyLevel</p></td>
+<td><p>NODE</p></td>
+<td><p>TOPOLOGY_NODE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>GpuTopologyLevel</p></td>
+<td><p>SINGLE</p></td>
+<td><p>TOPOLOGY_SINGLE</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>GpuTopologyLevel</p></td>
+<td><p>SYSTEM</p></td>
+<td><p>TOPOLOGY_SYSTEM</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>GpuUtilizationDomainId</p></td>
+<td><p>BUS</p></td>
+<td><p>GPU_UTILIZATION_DOMAIN_BUS</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>GpuUtilizationDomainId</p></td>
+<td><p>FB</p></td>
+<td><p>GPU_UTILIZATION_DOMAIN_FB</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>GpuUtilizationDomainId</p></td>
+<td><p>GPU</p></td>
+<td><p>GPU_UTILIZATION_DOMAIN_GPU</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>GpuUtilizationDomainId</p></td>
+<td><p>VID</p></td>
+<td><p>GPU_UTILIZATION_DOMAIN_VID</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>InforomObject</p></td>
+<td><p>COUNT</p></td>
+<td><p>INFOROM_COUNT</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>InforomObject</p></td>
+<td><p>DEN</p></td>
+<td><p>INFOROM_DEN</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>InforomObject</p></td>
+<td><p>ECC</p></td>
+<td><p>INFOROM_ECC</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>InforomObject</p></td>
+<td><p>OEM</p></td>
+<td><p>INFOROM_OEM</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>InforomObject</p></td>
+<td><p>POWER</p></td>
+<td><p>INFOROM_POWER</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>IntNvLinkDeviceType</p></td>
+<td><p>GPU</p></td>
+<td><p>NVLINK_DEVICE_TYPE_GPU</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>IntNvLinkDeviceType</p></td>
+<td><p>IBMNPU</p></td>
+<td><p>NVLINK_DEVICE_TYPE_IBMNPU</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>IntNvLinkDeviceType</p></td>
+<td><p>SWITCH</p></td>
+<td><p>NVLINK_DEVICE_TYPE_SWITCH</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>IntNvLinkDeviceType</p></td>
+<td><p>UNKNOWN</p></td>
+<td><p>NVLINK_DEVICE_TYPE_UNKNOWN</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvLinkCapability</p></td>
+<td><p>COUNT</p></td>
+<td><p>NVLINK_CAP_COUNT</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvLinkCapability</p></td>
+<td><p>P2P_ATOMICS</p></td>
+<td><p>NVLINK_CAP_P2P_ATOMICS</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvLinkCapability</p></td>
+<td><p>P2P_SUPPORTED</p></td>
+<td><p>NVLINK_CAP_P2P_SUPPORTED</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvLinkCapability</p></td>
+<td><p>SLI_BRIDGE</p></td>
+<td><p>NVLINK_CAP_SLI_BRIDGE</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvLinkCapability</p></td>
+<td><p>SYSMEM_ACCESS</p></td>
+<td><p>NVLINK_CAP_SYSMEM_ACCESS</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvLinkCapability</p></td>
+<td><p>SYSMEM_ATOMICS</p></td>
+<td><p>NVLINK_CAP_SYSMEM_ATOMICS</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvLinkCapability</p></td>
+<td><p>VALID</p></td>
+<td><p>NVLINK_CAP_VALID</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvLinkErrorCounter</p></td>
+<td><p>COUNT</p></td>
+<td><p>NVLINK_ERROR_COUNT</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvLinkErrorCounter</p></td>
+<td><p>DL_CRC_DATA</p></td>
+<td><p>NVLINK_ERROR_DL_CRC_DATA</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvLinkErrorCounter</p></td>
+<td><p>DL_CRC_FLIT</p></td>
+<td><p>NVLINK_ERROR_DL_CRC_FLIT</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvLinkErrorCounter</p></td>
+<td><p>DL_ECC_DATA</p></td>
+<td><p>NVLINK_ERROR_DL_ECC_DATA</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvLinkErrorCounter</p></td>
+<td><p>DL_RECOVERY</p></td>
+<td><p>NVLINK_ERROR_DL_RECOVERY</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvLinkErrorCounter</p></td>
+<td><p>DL_REPLAY</p></td>
+<td><p>NVLINK_ERROR_DL_REPLAY</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvLinkUtilizationCountPktTypes</p></td>
+<td><p>ALL</p></td>
+<td><p>NVLINK_COUNTER_PKTFILTER_ALL</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvLinkUtilizationCountPktTypes</p></td>
+<td><p>FLUSH</p></td>
+<td><p>NVLINK_COUNTER_PKTFILTER_FLUSH</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvLinkUtilizationCountPktTypes</p></td>
+<td><p>NOP</p></td>
+<td><p>NVLINK_COUNTER_PKTFILTER_NOP</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvLinkUtilizationCountPktTypes</p></td>
+<td><p>NRATOM</p></td>
+<td><p>NVLINK_COUNTER_PKTFILTER_NRATOM</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvLinkUtilizationCountPktTypes</p></td>
+<td><p>RATOM</p></td>
+<td><p>NVLINK_COUNTER_PKTFILTER_RATOM</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvLinkUtilizationCountPktTypes</p></td>
+<td><p>READ</p></td>
+<td><p>NVLINK_COUNTER_PKTFILTER_READ</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvLinkUtilizationCountPktTypes</p></td>
+<td><p>RESPDATA</p></td>
+<td><p>NVLINK_COUNTER_PKTFILTER_RESPDATA</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvLinkUtilizationCountPktTypes</p></td>
+<td><p>RESPNODATA</p></td>
+<td><p>NVLINK_COUNTER_PKTFILTER_RESPNODATA</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvLinkUtilizationCountPktTypes</p></td>
+<td><p>WRITE</p></td>
+<td><p>NVLINK_COUNTER_PKTFILTER_WRITE</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvLinkUtilizationCountUnits</p></td>
+<td><p>BYTES</p></td>
+<td><p>NVLINK_COUNTER_UNIT_BYTES</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvLinkUtilizationCountUnits</p></td>
+<td><p>COUNT</p></td>
+<td><p>NVLINK_COUNTER_UNIT_COUNT</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvLinkUtilizationCountUnits</p></td>
+<td><p>CYCLES</p></td>
+<td><p>NVLINK_COUNTER_UNIT_CYCLES</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvLinkUtilizationCountUnits</p></td>
+<td><p>PACKETS</p></td>
+<td><p>NVLINK_COUNTER_UNIT_PACKETS</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvLinkUtilizationCountUnits</p></td>
+<td><p>RESERVED</p></td>
+<td><p>NVLINK_COUNTER_UNIT_RESERVED</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvlinkVersion</p></td>
+<td><p>NVLINK_VERSION_1_0</p></td>
+<td><p>VERSION_1_0</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvlinkVersion</p></td>
+<td><p>NVLINK_VERSION_2_0</p></td>
+<td><p>VERSION_2_0</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvlinkVersion</p></td>
+<td><p>NVLINK_VERSION_2_2</p></td>
+<td><p>VERSION_2_2</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvlinkVersion</p></td>
+<td><p>NVLINK_VERSION_3_0</p></td>
+<td><p>VERSION_3_0</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvlinkVersion</p></td>
+<td><p>NVLINK_VERSION_3_1</p></td>
+<td><p>VERSION_3_1</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvlinkVersion</p></td>
+<td><p>NVLINK_VERSION_4_0</p></td>
+<td><p>VERSION_4_0</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvlinkVersion</p></td>
+<td><p>NVLINK_VERSION_5_0</p></td>
+<td><p>VERSION_5_0</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>NvlinkVersion</p></td>
+<td><p>NVLINK_VERSION_6_0</p></td>
+<td><p>VERSION_6_0</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>NvlinkVersion</p></td>
+<td><p>NVLINK_VERSION_INVALID</p></td>
+<td><p>VERSION_INVALID</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PcieLinkState</p></td>
+<td><p>KEEP</p></td>
+<td><p>PCIE_LINK_KEEP</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PcieLinkState</p></td>
+<td><p>SHUT_DOWN</p></td>
+<td><p>PCIE_LINK_SHUT_DOWN</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PcieUtilCounter</p></td>
+<td><p>COUNT</p></td>
+<td><p>PCIE_UTIL_COUNT</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PcieUtilCounter</p></td>
+<td><p>RX_BYTES</p></td>
+<td><p>PCIE_UTIL_RX_BYTES</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PcieUtilCounter</p></td>
+<td><p>TX_BYTES</p></td>
+<td><p>PCIE_UTIL_TX_BYTES</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PerfPolicyType</p></td>
+<td><p>BOARD_LIMIT</p></td>
+<td><p>PERF_POLICY_BOARD_LIMIT</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PerfPolicyType</p></td>
+<td><p>COUNT</p></td>
+<td><p>PERF_POLICY_COUNT</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PerfPolicyType</p></td>
+<td><p>LOW_UTILIZATION</p></td>
+<td><p>PERF_POLICY_LOW_UTILIZATION</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PerfPolicyType</p></td>
+<td><p>POWER</p></td>
+<td><p>PERF_POLICY_POWER</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PerfPolicyType</p></td>
+<td><p>RELIABILITY</p></td>
+<td><p>PERF_POLICY_RELIABILITY</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PerfPolicyType</p></td>
+<td><p>SYNC_BOOST</p></td>
+<td><p>PERF_POLICY_SYNC_BOOST</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PerfPolicyType</p></td>
+<td><p>THERMAL</p></td>
+<td><p>PERF_POLICY_THERMAL</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PerfPolicyType</p></td>
+<td><p>TOTAL_APP_CLOCKS</p></td>
+<td><p>PERF_POLICY_TOTAL_APP_CLOCKS</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PerfPolicyType</p></td>
+<td><p>TOTAL_BASE_CLOCKS</p></td>
+<td><p>PERF_POLICY_TOTAL_BASE_CLOCKS</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>BALANCED</p></td>
+<td><p>POWER_PROFILE_BALANCED</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>COMPUTE</p></td>
+<td><p>POWER_PROFILE_COMPUTE</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>DCPCIE</p></td>
+<td><p>POWER_PROFILE_DCPCIE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>HIGH_THROUGHPUT_INFERENCE</p></td>
+<td><p>POWER_PROFILE_HIGH_THROUGHPUT_INFERENCE</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>HMMA_DENSE</p></td>
+<td><p>POWER_PROFILE_HMMA_DENSE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>HMMA_SPARSE</p></td>
+<td><p>POWER_PROFILE_HMMA_SPARSE</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>HPC</p></td>
+<td><p>POWER_PROFILE_HPC</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>INFERENCE</p></td>
+<td><p>POWER_PROFILE_INFERENCE</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>LLM_INFERENCE</p></td>
+<td><p>POWER_PROFILE_LLM_INFERENCE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>LLM_TRAINING</p></td>
+<td><p>POWER_PROFILE_LLM_TRAINING</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>LOW_LATENCY_INFERENCE</p></td>
+<td><p>POWER_PROFILE_LOW_LATENCY_INFERENCE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>LOW_PRIORITY_BACKGROUND</p></td>
+<td><p>POWER_PROFILE_LOW_PRIORITY_BACKGROUND</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>MAX</p></td>
+<td><p>POWER_PROFILE_MAX</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>MAX_P</p></td>
+<td><p>POWER_PROFILE_MAX_P</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>MAX_Q</p></td>
+<td><p>POWER_PROFILE_MAX_Q</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>MAX_Q_1</p></td>
+<td><p>POWER_PROFILE_MAX_Q_1</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>MAX_Q_2</p></td>
+<td><p>POWER_PROFILE_MAX_Q_2</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>MAX_Q_3</p></td>
+<td><p>POWER_PROFILE_MAX_Q_3</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>MEDIUM_THROUGHPUT_INFERENCE</p></td>
+<td><p>POWER_PROFILE_MEDIUM_THROUGHPUT_INFERENCE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>MEMORY_BOUND</p></td>
+<td><p>POWER_PROFILE_MEMORY_BOUND</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>MIG</p></td>
+<td><p>POWER_PROFILE_MIG</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>NETWORK</p></td>
+<td><p>POWER_PROFILE_NETWORK</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>NETWORK_BOUND</p></td>
+<td><p>POWER_PROFILE_NETWORK_BOUND</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>RBM</p></td>
+<td><p>POWER_PROFILE_RBM</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>SYNC_BALANCED</p></td>
+<td><p>POWER_PROFILE_SYNC_BALANCED</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>PowerProfileType</p></td>
+<td><p>TRAINING</p></td>
+<td><p>POWER_PROFILE_TRAINING</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>TemperatureSensors</p></td>
+<td><p>COUNT</p></td>
+<td><p>TEMPERATURE_COUNT</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>TemperatureSensors</p></td>
+<td><p>GPU</p></td>
+<td><p>TEMPERATURE_GPU</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>TemperatureSensors</p></td>
+<td><p>GPU_MAX</p></td>
+<td><p>TEMPERATURE_GPU_MAX</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>TemperatureThresholds</p></td>
+<td><p>ACOUSTIC_CURR</p></td>
+<td><p>TEMPERATURE_THRESHOLD_ACOUSTIC_CURR</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>TemperatureThresholds</p></td>
+<td><p>ACOUSTIC_MAX</p></td>
+<td><p>TEMPERATURE_THRESHOLD_ACOUSTIC_MAX</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>TemperatureThresholds</p></td>
+<td><p>ACOUSTIC_MIN</p></td>
+<td><p>TEMPERATURE_THRESHOLD_ACOUSTIC_MIN</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>TemperatureThresholds</p></td>
+<td><p>COUNT</p></td>
+<td><p>TEMPERATURE_THRESHOLD_COUNT</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>TemperatureThresholds</p></td>
+<td><p>GPS_CURR</p></td>
+<td><p>TEMPERATURE_THRESHOLD_GPS_CURR</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>TemperatureThresholds</p></td>
+<td><p>GPU_MAX</p></td>
+<td><p>TEMPERATURE_THRESHOLD_GPU_MAX</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>TemperatureThresholds</p></td>
+<td><p>MEM_MAX</p></td>
+<td><p>TEMPERATURE_THRESHOLD_MEM_MAX</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>TemperatureThresholds</p></td>
+<td><p>SHUTDOWN</p></td>
+<td><p>TEMPERATURE_THRESHOLD_SHUTDOWN</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>TemperatureThresholds</p></td>
+<td><p>SLOWDOWN</p></td>
+<td><p>TEMPERATURE_THRESHOLD_SLOWDOWN</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>VgpuCapability</p></td>
+<td><p>COUNT</p></td>
+<td><p>VGPU_CAP_COUNT</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>VgpuCapability</p></td>
+<td><p>EXCLUSIVE_SIZE</p></td>
+<td><p>VGPU_CAP_EXCLUSIVE_SIZE</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>VgpuCapability</p></td>
+<td><p>EXCLUSIVE_TYPE</p></td>
+<td><p>VGPU_CAP_EXCLUSIVE_TYPE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>VgpuCapability</p></td>
+<td><p>GPUDIRECT</p></td>
+<td><p>VGPU_CAP_GPUDIRECT</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>VgpuCapability</p></td>
+<td><p>MULTI_VGPU_EXCLUSIVE</p></td>
+<td><p>VGPU_CAP_MULTI_VGPU_EXCLUSIVE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>VgpuCapability</p></td>
+<td><p>NVLINK_P2P</p></td>
+<td><p>VGPU_CAP_NVLINK_P2P</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>VgpuDriverCapability</p></td>
+<td><p>COUNT</p></td>
+<td><p>VGPU_DRIVER_CAP_COUNT</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>VgpuDriverCapability</p></td>
+<td><p>HETEROGENEOUS_MULTI_VGPU</p></td>
+<td><p>VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>VgpuDriverCapability</p></td>
+<td><p>WARM_UPDATE</p></td>
+<td><p>VGPU_DRIVER_CAP_WARM_UPDATE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>VgpuGuestInfoState</p></td>
+<td><p>INITIALIZED</p></td>
+<td><p>VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>VgpuGuestInfoState</p></td>
+<td><p>UNINITIALIZED</p></td>
+<td><p>VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>VgpuPgpuCompatibilityLimitCode</p></td>
+<td><p>GPU</p></td>
+<td><p>VGPU_COMPATIBILITY_LIMIT_GPU</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>VgpuPgpuCompatibilityLimitCode</p></td>
+<td><p>GUEST_DRIVER</p></td>
+<td><p>VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>VgpuPgpuCompatibilityLimitCode</p></td>
+<td><p>HOST_DRIVER</p></td>
+<td><p>VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>VgpuPgpuCompatibilityLimitCode</p></td>
+<td><p>NONE</p></td>
+<td><p>VGPU_COMPATIBILITY_LIMIT_NONE</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>VgpuPgpuCompatibilityLimitCode</p></td>
+<td><p>OTHER</p></td>
+<td><p>VGPU_COMPATIBILITY_LIMIT_OTHER</p></td>
+</tr>
+<tr class="row-odd"><td><p>nvml</p></td>
+<td><p>VgpuVmIdType</p></td>
+<td><p>DOMAIN_ID</p></td>
+<td><p>VGPU_VM_ID_DOMAIN_ID</p></td>
+</tr>
+<tr class="row-even"><td><p>nvml</p></td>
+<td><p>VgpuVmIdType</p></td>
+<td><p>UUID</p></td>
+<td><p>VGPU_VM_ID_UUID</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="enhancements">
 <h2>Enhancements<a class="headerlink" href="#enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -1377,12 +2583,21 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">nvvm.add_module_to_program</span></code>, <code class="docutils literal notranslate"><span class="pre">nvvm.lazy_add_module_to_program</span></code>, <code class="docutils literal notranslate"><span class="pre">nvvm.get_compiled_result</span></code>, <code class="docutils literal notranslate"><span class="pre">nvvm.get_program_log</span></code> (<code class="docutils literal notranslate"><span class="pre">buffer</span></code>)</p></li>
 </ul>
 </li>
+<li><p>For all <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> APIs, functions that accept a struct wrapper will accept the struct wrapper directly, rather than requiring getting the <code class="docutils literal notranslate"><span class="pre">.ptr</span></code> property.</p></li>
+<li><p>Creating class instances in <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> should now be faster in most cases, because it requires 1 heap allocation rather than 2.</p></li>
 </ul>
 </section>
 <section id="behavior-changes">
 <h2>Behavior changes<a class="headerlink" href="#behavior-changes" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Passing a <code class="docutils literal notranslate"><span class="pre">None</span></code> to <code class="docutils literal notranslate"><span class="pre">nvvm.add_module_to_program</span></code> or <code class="docutils literal notranslate"><span class="pre">nvvm.lazy_add_module_to_program</span></code> will now raise a <code class="docutils literal notranslate"><span class="pre">nvvm.nvvmError</span></code> (<code class="docutils literal notranslate"><span class="pre">INVALID_INPUT</span></code>) rather than a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p></li>
+</ul>
+</section>
+<section id="bugfixes">
+<h2>Bugfixes<a class="headerlink" href="#bugfixes" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>A number of incorrect docstrings have been corrected.</p></li>
+<li><p>Setting a <code class="docutils literal notranslate"><span class="pre">cuda_bindings</span></code> class instance to itself (<code class="docutils literal notranslate"><span class="pre">obj</span> <span class="pre">=</span> <span class="pre">cuda_bindings.driver.Class();</span> <span class="pre">obj[0]</span> <span class="pre">=</span> <span class="pre">obj</span></code>) will no longer crash or use garbage values.</p></li>
 </ul>
 </section>
 <section id="prerelease-feature">
@@ -1450,8 +2665,10 @@ still experimental and subject to change.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#changes">Changes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enhancements">Enhancements</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior-changes">Behavior changes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bugfixes">Bugfixes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerelease-feature">Prerelease feature</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#known-issues">Known issues</a></li>
 </ul>
