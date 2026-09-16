@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_unrepairable\_memory\_flag\_v1
-==============================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_unrepairable_memory_flag_v1

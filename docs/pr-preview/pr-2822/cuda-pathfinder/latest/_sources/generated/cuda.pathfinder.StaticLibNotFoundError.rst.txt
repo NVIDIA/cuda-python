@@ -1,6 +1,0 @@
-﻿cuda.pathfinder.StaticLibNotFoundError
-======================================
-
-.. currentmodule:: cuda.pathfinder
-
-.. autoexception:: StaticLibNotFoundError
