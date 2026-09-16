@@ -41,6 +41,14 @@ Fixes and enhancements
   read the program options to locate that file.
   (`#2876 <https://github.com/NVIDIA/cuda-python/issues/2876>`__)
 
+- Growing a :class:`~_memory.VirtualMemoryResource` allocation with
+  :meth:`~_memory.VirtualMemoryResource.modify_allocation` when the address
+  range cannot be extended in place no longer reports a spurious
+  :class:`CUDAWarning`. The old buffer is now closed through the resource's
+  :meth:`~_memory.VirtualMemoryResource.deallocate` instead of having its
+  range freed by hand and then released a second time.
+  (`#2877 <https://github.com/NVIDIA/cuda-python/issues/2877>`__)
+
 - ``Graph.__getitem__`` now declares an overload for each node type that has
   an executable view, so type checkers and editors see the precise view type:
   indexing with a :class:`~graph.KernelNode` yields an
