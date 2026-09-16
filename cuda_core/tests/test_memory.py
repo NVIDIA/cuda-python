@@ -1505,6 +1505,45 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
     assert ("set_access", new_ptr, aligned_additional, 1) in calls
 
 
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="warning capture is process-global")
+def test_vmm_allocator_grow_allocation_slow_path_closes_old_buffer(init_cuda):
+    """The slow grow path closes the old buffer without a spurious CUDAWarning (#2877).
+
+    It used to free the old VA range by hand and then reset the old buffer's
+    handle, whose deleter called deallocate() on the freed range a second time.
+    """
+    device = Device()
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+
+    vmm_mr = VirtualMemoryResource(
+        device,
+        config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
+    )
+    buf = vmm_mr.allocate(2 * 1024 * 1024)
+    old_ptr, old_size = int(buf.handle), buf.size
+    handle_return(driver.cuMemsetD8(old_ptr, 7, old_size))
+
+    # Occupy the address range right after buf so the adjacent reservation cannot
+    # be honored and modify_allocation has to take the slow path.
+    decoy = handle_return(driver.cuMemAddressReserve(old_size, 0, old_ptr + old_size, 0))
+    try:
+        with assert_no_cuda_warning():
+            grown = vmm_mr.modify_allocation(buf, 2 * old_size)
+    finally:
+        handle_return(driver.cuMemAddressFree(decoy, old_size))
+
+    assert buf.is_closed
+    assert int(grown.handle) != old_ptr
+    assert grown.size == 2 * old_size
+    # The old contents are reachable through the new mapping.
+    host = (ctypes.c_ubyte * old_size)()
+    handle_return(driver.cuMemcpyDtoH(ctypes.addressof(host), int(grown.handle), old_size))
+    assert bytes(host) == bytes([7]) * old_size
+    grown.close()
+
+
 def test_vmm_allocator_rdma_unsupported_exception():
     """Test that VirtualMemoryResource throws an exception when RDMA is requested but device doesn't support it.
 

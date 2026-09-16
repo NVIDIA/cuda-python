@@ -372,10 +372,11 @@ class VirtualMemoryResource(MemoryResource):
         Slow path for growing a virtual memory allocation when the new region cannot be
         reserved contiguously after the existing buffer.
 
-        This function reserves a new, larger virtual address (VA) range, remaps the old
-        physical memory to the beginning of the new VA range, creates and maps new physical
-        memory for the additional size, sets access permissions, and updates the buffer's
-        pointer and size.
+        This function reserves a new, larger virtual address (VA) range, maps the old
+        physical memory to the beginning of the new VA range as a second mapping, creates
+        and maps new physical memory for the additional size, sets access permissions, and
+        then closes the old buffer, which releases the old VA range through
+        :meth:`deallocate`.
 
         Args:
             buf (Buffer): The buffer to grow.
@@ -386,8 +387,9 @@ class VirtualMemoryResource(MemoryResource):
             addr_align (int): The required address alignment for the new VA range.
 
         Returns:
-            Buffer: The buffer object updated with the new pointer and size.
+            Buffer: A new buffer for the new VA range. ``buf`` is closed.
         """
+        aligned_prev_size = total_aligned_size - aligned_additional_size
         with Transaction() as trans:
             # Reserve a completely new, larger VA range
             res, new_ptr = driver.cuMemAddressReserve(total_aligned_size, addr_align, 0, 0)
@@ -403,23 +405,10 @@ class VirtualMemoryResource(MemoryResource):
             # Register undo for old_handle
             trans.append(lambda h=old_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
 
-            # Unmap the old VA range (aligned previous size)
-            aligned_prev_size = total_aligned_size - aligned_additional_size
-            (result,) = driver.cuMemUnmap(int(buf.handle), aligned_prev_size)
-            raise_if_driver_error(result)
-
-            def _remap_old() -> None:
-                # Try to remap the old physical memory back to the original VA range
-                try:
-                    (res,) = driver.cuMemMap(int(buf.handle), aligned_prev_size, 0, old_handle, 0)
-                    raise_if_driver_error(res)
-                except Exception:  # noqa: S110
-                    # TODO: consider logging this exception
-                    pass
-
-            trans.append(_remap_old)
-
-            # Remap the old physical memory to the new VA range (aligned previous size)
+            # Map the old physical memory to the new VA range (aligned previous size).
+            # The old VA range stays mapped too (virtual aliasing), so the old buffer
+            # is untouched if anything below fails and is released as a whole by
+            # buf.close() once the new mapping is complete.
             (res,) = driver.cuMemMap(int(new_ptr), aligned_prev_size, 0, old_handle, 0)
             raise_if_driver_error(res)
 
@@ -453,12 +442,11 @@ class VirtualMemoryResource(MemoryResource):
             # All succeeded, cancel undo actions
             trans.commit()
 
-        # Free the old VA range (aligned previous size)
-        (res2,) = driver.cuMemAddressFree(int(buf.handle), aligned_prev_size)
-        raise_if_driver_error(res2)
-
-        # Invalidate the old buffer so its destructor won't try to free again
-        buf._clear()
+        # Release the old VA range through the resource: closing the buffer runs
+        # deallocate(), which unmaps the old range, frees its reservation and
+        # releases the handle reference it retains. The physical memory stays
+        # alive through the new mapping.
+        buf.close()
 
         # Return a new Buffer for the new mapping
         return Buffer.from_handle(ptr=new_ptr, size=new_size, mr=self)
