@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=faf8de1cd4a99bbf9a812ae8b7cfb742b4d6abd0ade517b9ac7ce5335a8864ef
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d3db350726920a29e39063433d1e38b118fe1bc300b1998538d2df6662c508ab
 from typing import Any, Optional
 import cython
 import ctypes
@@ -9624,7 +9624,6 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
         self._ctx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
 
     def __dealloc__(self):
-        pass
 
         if self._paramArray is not NULL:
             free(self._paramArray)
@@ -9768,7 +9767,6 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st:
         self._ctx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
 
     def __dealloc__(self):
-        pass
 
         if self._paramArray is not NULL:
             free(self._paramArray)
@@ -13042,7 +13040,6 @@ cdef class CUlaunchConfig_st:
         self._hStream = CUstream(_ptr=<void_ptr>&self._pvt_ptr[0].hStream)
 
     def __dealloc__(self):
-        pass
 
         if self._attrs is not NULL:
             free(self._attrs)
@@ -13497,7 +13494,6 @@ cdef class CUctxCreateParams_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
 
         if self._execAffinityParams is not NULL:
             free(self._execAffinityParams)
@@ -18348,7 +18344,6 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
 
         if self._extSemArray is not NULL:
             free(self._extSemArray)
@@ -18484,7 +18479,6 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
 
         if self._extSemArray is not NULL:
             free(self._extSemArray)
@@ -18620,7 +18614,6 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
 
         if self._extSemArray is not NULL:
             free(self._extSemArray)
@@ -18756,7 +18749,6 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
 
         if self._extSemArray is not NULL:
             free(self._extSemArray)
@@ -21068,7 +21060,6 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
         self._dptr = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].dptr)
 
     def __dealloc__(self):
-        pass
 
         if self._accessDescs is not NULL:
             free(self._accessDescs)
@@ -21238,7 +21229,6 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v2_st:
         self._dptr = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].dptr)
 
     def __dealloc__(self):
-        pass
 
         if self._accessDescs is not NULL:
             free(self._accessDescs)
@@ -49493,7 +49483,7 @@ def cuGraphicsResourceGetMappedPointer(resource):
     Returns in `*pDevPtr` a pointer through which the mapped graphics
     resource `resource` may be accessed. Returns in `pSize` the size of the
     memory in bytes which may be accessed from that pointer. The value set
-    in `pPointer` may change every time that `resource` is mapped.
+    in `pDevPtr` may change every time that `resource` is mapped.
 
     If `resource` is not a buffer then it cannot be accessed via a pointer
     and :py:obj:`~.CUDA_ERROR_NOT_MAPPED_AS_POINTER` is returned. If
@@ -49503,16 +49493,20 @@ def cuGraphicsResourceGetMappedPointer(resource):
     Parameters
     ----------
     resource : :py:obj:`~.CUgraphicsResource`
-        None
+        Mapped resource to access
 
     Returns
     -------
     CUresult
-
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_NOT_MAPPED`, :py:obj:`~.CUDA_ERROR_NOT_MAPPED_AS_POINTER`
     pDevPtr : :py:obj:`~.CUdeviceptr`
-        None
+        Returned pointer through which `resource` may be accessed
     pSize : int
-        None
+        Returned size of the buffer accessible starting at `*pDevPtr`
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphicsMapResources`, :py:obj:`~.cuGraphicsSubResourceGetMappedArray`, :py:obj:`~.cudaGraphicsResourceGetMappedPointer`
     """
     cdef cydriver.CUgraphicsResource cyresource
     if resource is None:
@@ -51975,18 +51969,22 @@ def cuGraphicsResourceGetMappedEglFrame(resource, unsigned int index, unsigned i
     Parameters
     ----------
     resource : :py:obj:`~.CUgraphicsResource`
-        None
+        Registered resource to access.
     index : unsigned int
-        None
+        Index for cubemap surfaces.
     mipLevel : unsigned int
-        None
+        Mipmap level for the subresource to access.
 
     Returns
     -------
     CUresult
-
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_NOT_MAPPED`
     eglFrame : :py:obj:`~.CUeglFrame`
-        None
+        Returned eglFrame.
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphicsMapResources`, :py:obj:`~.cuGraphicsSubResourceGetMappedArray`, :py:obj:`~.cuGraphicsResourceGetMappedPointer`, :py:obj:`~.cudaGraphicsResourceGetMappedEglFrame`
     """
     cdef cydriver.CUgraphicsResource cyresource
     if resource is None:
