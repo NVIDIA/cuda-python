@@ -312,6 +312,7 @@ Bugfixes
 
 - A number of incorrect docstrings have been corrected.
 - Setting a ``cuda_bindings`` class instance to itself (``obj = cuda_bindings.driver.Class(); obj[0] = obj``) will no longer crash or use garbage values.
+- Fix a potential use-after-free error in the destructors of classes in ``driver`` and ``runtime``.
 
 Prerelease feature
 ------------------
