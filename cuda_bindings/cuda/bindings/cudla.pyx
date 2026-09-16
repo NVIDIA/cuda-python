@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=69ecb88f06055f5cb48ca1cfc02d37bbbd546020f594d06810a1b70e78059e89
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d993ca63a75f175f1e05248eb9e18c79cd0e61ef41e6f13ca05cc3ff1ff91ef6
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -1627,23 +1627,30 @@ class FenceType(_cyb_IntEnum):
     """
     See `cudlaFenceType`.
     """
-    NVSCISYNC_FENCE = CUDLA_NVSCISYNC_FENCE
-    NVSCISYNC_FENCE_SOF = CUDLA_NVSCISYNC_FENCE_SOF
+    FENCE = CUDLA_NVSCISYNC_FENCE
+    NVSCISYNC_FENCE = FENCE  # backward-compat alias
+    FENCE_SOF = CUDLA_NVSCISYNC_FENCE_SOF
+    NVSCISYNC_FENCE_SOF = FENCE_SOF  # backward-compat alias
 
 class ModuleLoadFlags(_cyb_IntEnum):
     """
     See `cudlaModuleLoadFlags`.
     """
-    MODULE_DEFAULT = CUDLA_MODULE_DEFAULT
-    MODULE_ENABLE_FAULT_DIAGNOSTICS = CUDLA_MODULE_ENABLE_FAULT_DIAGNOSTICS
+    DEFAULT = CUDLA_MODULE_DEFAULT
+    MODULE_DEFAULT = DEFAULT  # backward-compat alias
+    ENABLE_FAULT_DIAGNOSTICS = CUDLA_MODULE_ENABLE_FAULT_DIAGNOSTICS
+    MODULE_ENABLE_FAULT_DIAGNOSTICS = ENABLE_FAULT_DIAGNOSTICS  # backward-compat alias
 
 class SubmissionFlags(_cyb_IntEnum):
     """
     See `cudlaSubmissionFlags`.
     """
-    SUBMIT_NOOP = CUDLA_SUBMIT_NOOP
-    SUBMIT_SKIP_LOCK_ACQUIRE = CUDLA_SUBMIT_SKIP_LOCK_ACQUIRE
-    SUBMIT_DIAGNOSTICS_TASK = CUDLA_SUBMIT_DIAGNOSTICS_TASK
+    NOOP = CUDLA_SUBMIT_NOOP
+    SUBMIT_NOOP = NOOP  # backward-compat alias
+    SKIP_LOCK_ACQUIRE = CUDLA_SUBMIT_SKIP_LOCK_ACQUIRE
+    SUBMIT_SKIP_LOCK_ACQUIRE = SKIP_LOCK_ACQUIRE  # backward-compat alias
+    DIAGNOSTICS_TASK = CUDLA_SUBMIT_DIAGNOSTICS_TASK
+    SUBMIT_DIAGNOSTICS_TASK = DIAGNOSTICS_TASK  # backward-compat alias
 
 class AccessPermissionFlags(_cyb_IntEnum):
     """
@@ -1664,9 +1671,12 @@ class ScratchMemoryConfig(_cyb_IntEnum):
     """
     See `cudlaScratchMemoryConfig`.
     """
-    SCRATCH_MEMORY_DEFAULT = CUDLA_SCRATCH_MEMORY_DEFAULT
-    SCRATCH_MEMORY_SHARED_STATIC = CUDLA_SCRATCH_MEMORY_SHARED_STATIC
-    MAX = CUDLA_SCRATCH_MEMORY_CONFIG_MAX
+    DEFAULT = CUDLA_SCRATCH_MEMORY_DEFAULT
+    SCRATCH_MEMORY_DEFAULT = DEFAULT  # backward-compat alias
+    SHARED_STATIC = CUDLA_SCRATCH_MEMORY_SHARED_STATIC
+    SCRATCH_MEMORY_SHARED_STATIC = SHARED_STATIC  # backward-compat alias
+    CONFIG_MAX = CUDLA_SCRATCH_MEMORY_CONFIG_MAX
+    MAX = CONFIG_MAX  # backward-compat alias
 
 
 ###############################################################################
