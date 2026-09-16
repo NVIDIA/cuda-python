@@ -357,3 +357,6 @@ jobs:
           target-folder: docs/
           commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ env.CUDA_PYTHON_DOCS_GITHUB_REF }}"
           clean: false
+          # Rebase onto concurrent PR-preview or coverage deployments instead of
+          # force-pushing, which the gh-pages ruleset rejects.
+          force: false

@@ -575,3 +575,6 @@ jobs:
           target-folder: docs/
           commit-message: "Deploy combined coverage (Linux + Windows): ${{ github.sha }}"
           clean: false
+          # Rebase onto concurrent docs deployments instead of force-pushing,
+          # which the gh-pages ruleset rejects.
+          force: false
