@@ -1465,12 +1465,14 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
         calls.append(("unmap", ptr, size))
         return (SUCCESS,)
 
-    def fake_release(handle):
-        calls.append(("release", handle))
-        return (SUCCESS,)
-
     def fake_addr_free(ptr, size):
         calls.append(("addr_free", ptr, size))
+        return (SUCCESS,)
+
+    # Runs on success as well: the mapping keeps the memory alive, so the
+    # reference returned by cuMemCreate must be dropped once it is mapped (#2882).
+    def fake_release(handle):
+        calls.append(("release", handle))
         return (SUCCESS,)
 
     monkeypatch.setattr(driver, "cuMemCreate", fake_create)
@@ -1498,11 +1500,58 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
     assert result is buf
     assert buf._size == new_size
 
-    # Successful commit: create, map, set access, and no rollback calls.
-    assert [c[0] for c in calls] == ["create", "map", "set_access"]
+    # Successful commit: create, map, set access, release the creation
+    # reference, and no rollback calls.
+    assert [c[0] for c in calls] == ["create", "map", "set_access", "release"]
     assert ("create", aligned_additional) in calls
     assert ("map", new_ptr, aligned_additional, NEW_HANDLE) in calls
     assert ("set_access", new_ptr, aligned_additional, 1) in calls
+    assert ("release", NEW_HANDLE) in calls
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="measures device-wide free memory")
+def test_vmm_allocator_close_returns_physical_memory(init_cuda):
+    """Closing VMM buffers returns their physical memory to the device (#2882).
+
+    allocate() and both grow paths kept the reference that cuMemCreate returns,
+    so the memory stayed allocated after the range was unmapped and freed.
+    """
+    device = Device()
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+
+    vmm_mr = VirtualMemoryResource(
+        device,
+        config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
+    )
+    chunk = 32 * 1024 * 1024
+    rounds = 8
+
+    def free_memory():
+        device.sync()
+        return handle_return(driver.cuMemGetInfo())[0]
+
+    # Plain allocate and close: the leak was one chunk per round.
+    before = free_memory()
+    for _ in range(rounds):
+        vmm_mr.allocate(chunk).close()
+    retained = before - free_memory()
+    assert retained < rounds * chunk // 2, f"{retained >> 20} MiB still allocated after close"
+
+    # Grow through the slow path (forced by a decoy reservation), then close:
+    # the leak was two chunks per round.
+    before = free_memory()
+    for _ in range(rounds):
+        buf = vmm_mr.allocate(chunk)
+        decoy = handle_return(driver.cuMemAddressReserve(chunk, 0, int(buf.handle) + buf.size, 0))
+        try:
+            grown = vmm_mr.modify_allocation(buf, 2 * chunk)
+        finally:
+            handle_return(driver.cuMemAddressFree(decoy, chunk))
+        grown.close()
+    retained = before - free_memory()
+    assert retained < rounds * chunk, f"{retained >> 20} MiB still allocated after grow and close"
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")

@@ -34,6 +34,13 @@ New features
 Fixes and enhancements
 ----------------------
 
+- :class:`~_memory.VirtualMemoryResource` now releases the physical allocation
+  handle once it is mapped, so closing a buffer returns its memory to the
+  device. Previously every allocation, and every chunk added by
+  :meth:`~_memory.VirtualMemoryResource.modify_allocation`, stayed allocated
+  until the process exited.
+  (`#2882 <https://github.com/NVIDIA/cuda-python/issues/2882>`__)
+
 - Growing a :class:`~_memory.VirtualMemoryResource` allocation with
   :meth:`~_memory.VirtualMemoryResource.modify_allocation` when the address
   range cannot be extended in place no longer reports a spurious
