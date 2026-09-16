@@ -1524,6 +1524,9 @@ def test_vmm_allocator_grow_allocation_slow_path_closes_old_buffer(init_cuda):
     buf = vmm_mr.allocate(2 * 1024 * 1024)
     old_ptr, old_size = int(buf.handle), buf.size
     handle_return(driver.cuMemsetD8(old_ptr, 7, old_size))
+    # The memset is asynchronous and the grow unmaps the old range, so let it
+    # finish first; on WDDM the batched kernel otherwise faults after the unmap.
+    device.sync()
 
     # Occupy the address range right after buf so the adjacent reservation cannot
     # be honored and modify_allocation has to take the slow path.
