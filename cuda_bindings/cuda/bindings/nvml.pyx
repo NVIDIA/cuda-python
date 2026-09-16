@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5ed3725c25cf754a1e180ca213be9beed28f8e6fd8852ab22df3c9d62f32a8f5
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f40bcf5230303700cb1bc97b46c5ca063fd1e8de3562b1ee412e366f26b1419e
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -28593,7 +28593,7 @@ cpdef init_v2():
     This will initialize the NVML Library state without enumerating any discovered
     devices. This will allow NVML to communicate with a device, even if other
     devices are in an unstable or bad state. Enumeration of a device can be done by
-    obtaining the device handle via the nvmlDeviceGetHandleBy\* class of APIs.
+    obtaining the device handle via the nvmlDeviceGetHandleBy* class of APIs.
     This method needs to be called once before any usage of NVML Library APIs.
     For all products.
 
@@ -28615,14 +28615,14 @@ cpdef init_with_flags(unsigned int flags):
     A variant of :func:`init_v2`, this will initialize the NVML Library state
     without enumerating any discovered devices. An option to pass in additional
     flags is provided to modify the behavior of NVML Library init. The usage of
-    these flags can be obtained from NVML_INIT_FLAG_\*. These flags can be combined
+    these flags can be obtained from NVML_INIT_FLAG_*. These flags can be combined
     together.
     Other than the "flags" parameter, this method is completely identical to
     :func:`init_v2`.
     For all products.
 
     Args:
-        flags (unsigned int): NVML_INIT_FLAG_\* flags that can modify NVML
+        flags (unsigned int): NVML_INIT_FLAG_* flags that can modify NVML
             Init behavior.
 
     .. note::
@@ -30391,7 +30391,7 @@ cpdef unsigned int device_get_temperature_threshold(intptr_t device, int thresho
     NVML_TEMPERATURE_THRESHOLD_MEM_MAX and NVML_TEMPERATURE_THRESHOLD_GPU_MAX.
     Support for reading these temperature thresholds for Ada and later
     architectures would be removed from this API in future releases. Please use
-    ``nvmlDeviceGetFieldValues`` with NVML_FI_DEV_TEMPERATURE_\* fields to retrieve
+    ``nvmlDeviceGetFieldValues`` with NVML_FI_DEV_TEMPERATURE_* fields to retrieve
     temperature thresholds on these architectures.
 
     Args:
@@ -32410,7 +32410,7 @@ cpdef unsigned int device_get_architecture(intptr_t device) except? 0:
 
     Returns:
         unsigned int: Reference where architecture is returned, if call
-            successful. Set to NVML_DEVICE_ARCH_\* upon success.
+            successful. Set to NVML_DEVICE_ARCH_* upon success.
 
     .. seealso:: `nvmlDeviceGetArchitecture`
     """
@@ -32532,7 +32532,7 @@ cpdef device_set_persistence_mode(intptr_t device, int mode):
     After calling this API with mode set to NVML_FEATURE_DISABLED on a device that
     has its own NUMA memory, the given device handle will no longer be valid, and
     to continue to interact with this device, a new handle should be obtained from
-    one of the nvmlDeviceGetHandleBy\*() APIs. This limitation is currently only
+    one of the nvmlDeviceGetHandleBy*() APIs. This limitation is currently only
     applicable to devices that have a coherent NVLink connection to system memory.
 
     Args:
@@ -33825,7 +33825,7 @@ cpdef str vgpu_type_get_license(unsigned int vgpu_type_id):
 
     The license type and version required to run the specified vGPU type is
     returned as an alphanumeric string, in the form "<license name>,<version>", for
-    example "GRID-Virtual-PC,2.0". If a vGPU is runnable with\* more than one type
+    example "GRID-Virtual-PC,2.0". If a vGPU is runnable with* more than one type
     of license, the licenses are delimited by a semicolon, for example "GRID-
     Virtual-PC,2.0;GRID-Virtual-WS,2.0;GRID-Virtual-WS-Ext,2.0".
     The total length of the returned string will not exceed 128 characters,
@@ -34588,7 +34588,7 @@ cpdef object device_get_vgpu_scheduler_state(intptr_t device):
 
 
 cpdef object device_get_vgpu_scheduler_capabilities(intptr_t device):
-    """Returns the vGPU scheduler capabilities. The list of supported vGPU schedulers returned in ``nvmlVgpuSchedulerCapabilities_t`` is from the NVML_VGPU_SCHEDULER_POLICY_\*. This list enumerates the supported scheduler policies if the engine is Graphics type. The other values in ``nvmlVgpuSchedulerCapabilities_t`` are also applicable if the engine is Graphics type. For other engine types, it is BEST EFFORT policy. If ARR is supported and enabled, scheduling frequency and averaging factor are applicable else timeSlice is applicable.
+    """Returns the vGPU scheduler capabilities. The list of supported vGPU schedulers returned in ``nvmlVgpuSchedulerCapabilities_t`` is from the NVML_VGPU_SCHEDULER_POLICY_*. This list enumerates the supported scheduler policies if the engine is Graphics type. The other values in ``nvmlVgpuSchedulerCapabilities_t`` are also applicable if the engine is Graphics type. For other engine types, it is BEST EFFORT policy. If ARR is supported and enabled, scheduling frequency and averaging factor are applicable else timeSlice is applicable.
 
     For Pascal ™️ or newer fully supported devices.
 
@@ -35243,9 +35243,9 @@ cpdef object gpu_instance_get_compute_instance_profile_info_v(intptr_t gpu_insta
         gpu_instance (intptr_t): The identifier of the target GPU
             instance.
         profile (unsigned int): One of the
-            NVML_COMPUTE_INSTANCE_PROFILE_\*.
+            NVML_COMPUTE_INSTANCE_PROFILE_*.
         eng_profile (unsigned int): One of the
-            NVML_COMPUTE_INSTANCE_ENGINE_PROFILE_\*.
+            NVML_COMPUTE_INSTANCE_ENGINE_PROFILE_*.
 
     Returns:
         nvmlComputeInstanceProfileInfo_v2_t: Returns detailed profile
@@ -36102,12 +36102,12 @@ cpdef object device_get_gpu_fabric_info_v4(intptr_t device):
     Returns fabric clique data via ``nvmlGpuFabricInfo_v4_t``. Each entry in the
     ``cliques`` array is a (type, id) pair representing a single clique assignment.
     The number of valid entries is given by ``numCliques``. Entries are sorted by
-    ascending type (NVML_GPU_FABRIC_CLIQUE_TYPE_\*), then by ascending clique id
+    ascending type (NVML_GPU_FABRIC_CLIQUE_TYPE_*), then by ascending clique id
     within each type.
     On Hopper systems, the driver reports Unicast Pointer and Multicast Pointer
     cliques. On Blackwell and Rubin, Unicast Logical Endpoint and Multicast Logical
     Endpoint are additionally reported.
-    \*\*View CUDA Toolkit Documentation for a C++ code example\*\*.
+    \*\*View CUDA Toolkit Documentation for a C++ code example*\*.
     For Hopper ™️ or newer fully supported devices.
 
     Args:

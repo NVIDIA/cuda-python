@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.0.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8462b94704f0e45448922fefa8c2b53cf8fffa18c04c70af4604458a36c6cd58
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=92a06aa55bccfabc1d5bb1216489bb147dfb71d6e628480128fee207b8f3794f
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -178,7 +178,7 @@ cpdef tuple ir_version():
 
 
 cpdef intptr_t create_program() except? 0:
-    """Create a program, and set the value of its handle to ``\*prog``.
+    """Create a program, and set the value of its handle to ``*prog``.
 
 
     Returns:
