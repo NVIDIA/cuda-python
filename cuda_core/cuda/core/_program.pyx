@@ -108,7 +108,13 @@ cdef class Program:
         # moved off options.name is what says one was written. Without that test
         # the caller's own file is deleted whenever options.name happens to match
         # something on disk, since the unredirected name is just that path.
-        if self._nvrtc_name is not None and self._nvrtc_name != self._options._name:
+        # Both attributes are still None when construction failed before they
+        # were recorded, and __dealloc__ runs on that object too (#2876).
+        if (
+            self._options is not None
+            and self._nvrtc_name is not None
+            and self._nvrtc_name != self._options._name
+        ):
             self._unlink_debug_source(self._nvrtc_name.decode())
 
     def _unlink_debug_source(self, path: str) -> None:

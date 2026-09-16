@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import gc
 import re
 import shutil
 import subprocess
@@ -404,6 +405,26 @@ def test_program_init_invalid_code_format():
     code = 12345
     with pytest.raises(TypeError):
         Program(code, "c++")
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="replaces the process-global sys.unraisablehook")
+def test_program_dealloc_after_failed_init_is_quiet():
+    """A Program whose construction failed before its options were recorded is destroyed quietly (#2876).
+
+    __dealloc__ cannot propagate an exception, so a failure there is only
+    visible through sys.unraisablehook; the hook is replaced to observe it.
+    """
+    unraisable = []
+    previous_hook = sys.unraisablehook
+    sys.unraisablehook = unraisable.append
+    try:
+        with pytest.raises(TypeError):
+            Program('extern "C" __global__ void my_kernel() {}', "c++", options=object())
+        gc.collect()
+    finally:
+        sys.unraisablehook = previous_hook
+    assert unraisable == []
 
 
 # arch is passed explicitly so the current device is not queried.

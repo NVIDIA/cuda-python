@@ -34,6 +34,11 @@ New features
 Fixes and enhancements
 ----------------------
 
+- A :class:`Program` whose construction failed before its options were
+  recorded, for example because ``options`` had the wrong type, no longer
+  raises ``AttributeError`` from its destructor.
+  (`#2876 <https://github.com/NVIDIA/cuda-python/issues/2876>`__)
+
 - ``Graph.__getitem__`` now declares an overload for each node type that has
   an executable view, so type checkers and editors see the precise view type:
   indexing with a :class:`~graph.KernelNode` yields an
