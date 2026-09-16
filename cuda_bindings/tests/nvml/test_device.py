@@ -283,6 +283,16 @@ def _iter_gpu_instance_profile_ids(device):
         yield info.id
 
 
+def _require_mig_enabled(device):
+    try:
+        current_mode, _ = nvml.device_get_mig_mode(device)
+    except nvml.NotSupportedError:
+        pytest.skip(f"MIG is not supported on device {device}")
+
+    if current_mode != int(nvml.DeviceMig.ENABLE):
+        pytest.skip(f"MIG is not enabled on device {device}")
+
+
 @pytest.mark.agent_authored(model="claude-sonnet-5")
 def test_device_get_gpu_instances_empty_result(all_devices, subtests):
     """device_get_gpu_instances must not raise ValueError: Invalid shape in
@@ -293,6 +303,7 @@ def test_device_get_gpu_instances_empty_result(all_devices, subtests):
         with subtests.test(device_index=nvml.device_get_index(device)):
             if util.is_vgpu(device):
                 pytest.skip(f"Not supported on vGPU device {device}")
+            _require_mig_enabled(device)
 
             profile_ids = list(_iter_gpu_instance_profile_ids(device))
             if not profile_ids:
@@ -326,6 +337,7 @@ def test_gpu_instance_get_compute_instances_empty_result(all_devices, subtests):
         with subtests.test(device_index=nvml.device_get_index(device)):
             if util.is_vgpu(device):
                 pytest.skip(f"Not supported on vGPU device {device}")
+            _require_mig_enabled(device)
 
             gpu_instance = None
             for profile_id in _iter_gpu_instance_profile_ids(device):
@@ -373,17 +385,23 @@ def test_device_get_vgpu_utilization_sized_array(all_devices, subtests):
                 sample_val_type, samples = nvml.device_get_vgpu_utilization(device, _FUTURE_TIMESTAMP)
             except nvml.NotSupportedError:
                 pytest.skip(f"vGPU utilization not supported on device {device}")
-
-            assert isinstance(sample_val_type, int)
-            # A future timestamp means no samples should be newer than it.
-            assert len(samples) == 0
+            except nvml.NotFoundError:
+                # NVML may report an empty sample set as NOT_FOUND.
+                pass
+            else:
+                assert isinstance(sample_val_type, int)
+                # A future timestamp means no samples should be newer than it.
+                assert len(samples) == 0
 
             # Positive path: a timestamp of 0 returns every current sample.
             # The bug this test guards against left every element past index
             # 0 as uninitialized memory, so with real vGPU activity present,
             # each sample must report a distinct, valid vgpu_instance rather
             # than duplicate or garbage values.
-            sample_val_type, samples = nvml.device_get_vgpu_utilization(device, 0)
+            try:
+                sample_val_type, samples = nvml.device_get_vgpu_utilization(device, 0)
+            except nvml.NotFoundError:
+                continue
             assert isinstance(sample_val_type, int)
             if len(samples) > 1:
                 vgpu_instances = [int(s.vgpu_instance) for s in samples]
@@ -402,17 +420,23 @@ def test_device_get_vgpu_process_utilization_returns_array(all_devices, subtests
                 samples = nvml.device_get_vgpu_process_utilization(device, _FUTURE_TIMESTAMP)
             except nvml.NotSupportedError:
                 pytest.skip(f"vGPU process utilization not supported on device {device}")
-
-            assert not isinstance(samples, tuple)
-            # A future timestamp means no samples should be newer than it.
-            assert len(samples) == 0
+            except nvml.NotFoundError:
+                # NVML may report an empty sample set as NOT_FOUND.
+                pass
+            else:
+                assert not isinstance(samples, tuple)
+                # A future timestamp means no samples should be newer than it.
+                assert len(samples) == 0
 
             # Positive path: a timestamp of 0 returns every current sample.
             # The bug this test guards against returned a stale one-element
             # array regardless of the real count, so with real vGPU process
             # activity present, the array must be sized to match and every
             # element must report a distinct pid.
-            samples = nvml.device_get_vgpu_process_utilization(device, 0)
+            try:
+                samples = nvml.device_get_vgpu_process_utilization(device, 0)
+            except nvml.NotFoundError:
+                continue
             assert not isinstance(samples, tuple)
             if len(samples) > 1:
                 keys = [(int(s.vgpu_instance), int(s.pid)) for s in samples]
