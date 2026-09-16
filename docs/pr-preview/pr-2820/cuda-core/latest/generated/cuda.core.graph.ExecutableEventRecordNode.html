@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=e9f8cb9d"></script>
+    <script src="../_static/documentation_options.js?v=f19d5633"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev58';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev89';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -235,6 +235,13 @@
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../concurrency.html">
     Concurrency and Thread Safety
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../error_handling.html">
+    Error Handling
   </a>
 </li>
 
@@ -470,6 +477,13 @@
 </li>
 
 
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../error_handling.html">
+    Error Handling
+  </a>
+</li>
+
+
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core API Reference
@@ -570,6 +584,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../concurrency.html">Concurrency and Thread Safety</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../error_handling.html">Error Handling</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Device.html">cuda.core.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Host.html">cuda.core.Host</a></li>
@@ -649,6 +664,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAError.html">cuda.core.CUDAError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.NVRTCError.html">cuda.core.NVRTCError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.copy_batch.html">cuda.core.utils.copy_batch</a></li>
@@ -776,7 +794,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.ExecutableEventRecordNode.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Event</span> <span class="pre">event:</span> <span class="pre">Event</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.graph.ExecutableEventRecordNode.update" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Event</span> <span class="pre">event:</span> <span class="pre">Event</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.graph.ExecutableEventRecordNode.update" title="Link to this definition">#</a></dt>
 <dd><p>Replace the event recorded by future launches.</p>
 </dd></dl>
 
