@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.vgpu\_instance\_get\_accounting\_stats
+=========================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: vgpu_instance_get_accounting_stats
