@@ -245,8 +245,6 @@ jobs:
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
-            SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
-            SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
@@ -348,8 +346,6 @@ jobs:
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
-            SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
-            SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
@@ -637,8 +633,6 @@ jobs:
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
-            SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
-            SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
