@@ -1506,6 +1506,7 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
     assert ("release", NEW_HANDLE) in calls
 
 
+@pytest.mark.thread_unsafe(reason="cuMemGetInfo measures process-wide free memory")
 @pytest.mark.parametrize("grow", [False, True], ids=["allocate", "grow"])
 def test_vmm_allocate_close_does_not_leak(init_cuda, grow):
     device = Device()
