@@ -14,7 +14,6 @@
 #include <mutex>
 #include <stdexcept>
 #include <utility>
-#include <vector>
 #ifndef _WIN32
 #include <unistd.h>
 #endif
@@ -35,8 +34,11 @@ struct MemoryPoolBox {
 
 // Helper to clear peer access before destroying a memory pool.
 // Works around nvbug 5698116: recycled pool handles inherit peer access state.
-// The driver rejects the whole request if it names the pool's own device, so
-// owner_device (-1 if the pool has none) is left out.
+// The driver validates a request as a whole and rejects it if any entry cannot
+// be applied: the pool's own device, a device without memory-map support, or
+// devices of more than one kind in one request. Each device is therefore
+// revoked with its own request, and the owning device (-1 if the pool has
+// none) is not requested at all.
 // Must be noexcept since it's called from a shared_ptr deleter.
 static void clear_mempool_peer_access(CUmemoryPool pool, int owner_device) noexcept {
     try {
@@ -45,21 +47,16 @@ static void clear_mempool_peer_access(CUmemoryPool pool, int owner_device) noexc
             return;
         }
 
-        std::vector<CUmemAccessDesc> clear_access(device_count);
-        size_t count = 0;
+        CUmemAccessDesc revoke{};
+        revoke.location.type = CU_MEM_LOCATION_TYPE_DEVICE;
+        revoke.flags = CU_MEM_ACCESS_FLAGS_PROT_NONE;
         for (int i = 0; i < device_count; ++i) {
             if (i == owner_device) {
                 continue;
             }
-            clear_access[count].location.type = CU_MEM_LOCATION_TYPE_DEVICE;
-            clear_access[count].location.id = i;
-            clear_access[count].flags = CU_MEM_ACCESS_FLAGS_PROT_NONE;
-            ++count;
+            revoke.location.id = i;
+            p_cuMemPoolSetAccess(pool, &revoke, 1);  // Best effort
         }
-        if (count == 0) {
-            return;
-        }
-        p_cuMemPoolSetAccess(pool, clear_access.data(), count);  // Best effort
     } catch (...) {
         // Swallow exceptions - this is best-effort cleanup in destructor context
     }
