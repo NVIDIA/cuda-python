@@ -185,7 +185,7 @@ def _build_cuda_bindings(debug=False):
             extra_compile_args += ["-g", "-O0"]
             extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]
         else:
-            extra_compile_args += ["-O3"]
+            extra_compile_args += ["-g0", "-O3"]
             extra_link_args += ["-Wl,--strip-all"]
     if compile_for_coverage:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
