@@ -7,6 +7,8 @@ from libc.string cimport memset
 from typing import Any
 
 from cuda.core._device import Device
+from cuda.core._event cimport Event_accept
+from cuda.core._rt cimport as_cu
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils import (
     CUDAError,
@@ -24,6 +26,8 @@ _LAUNCH_CONFIG_ATTRS = (
     'programmatic_stream_serialization',
     'cluster_scheduling_policy_preference',
     'priority',
+    'programmatic_event',
+    'programmatic_event_trigger_at_block_start',
 )
 
 __all__ = ['LaunchConfig']
@@ -79,6 +83,25 @@ cdef class LaunchConfig:
         a device that does not support multiple stream priorities. A
         nonzero value outside this range raises :class:`ValueError`.
         When omitted (or 0), the launch uses the stream's priority.
+    programmatic_event : Event, optional
+        Event recorded by the launch for cross-stream Programmatic Dependent
+        Launch (PDL). Whereas
+        :attr:`~cuda.core.LaunchConfig.programmatic_stream_serialization`
+        lets a dependent kernel in the *same* stream start early, this event
+        can be awaited from another stream via
+        :meth:`~cuda.core.Stream.wait`.
+        The event triggers only after every block of the kernel signals
+        completion, which a block does by calling
+        ``cudaTriggerProgrammaticLaunchCompletion()`` (or the equivalent PTX
+        ``launchdep.release``). PDL requires compute capability >= 9.0.
+        When ``None`` (default), the launch attribute is omitted.
+        The event is recorded with no flags; ``CU_EVENT_RECORD_EXTERNAL`` is
+        not accepted by this launch attribute.
+    programmatic_event_trigger_at_block_start : bool, optional
+        When True, the trigger is inserted at the start of each block instead
+        of requiring the kernel to signal completion explicitly (default:
+        False). Setting this without ``programmatic_event`` raises
+        :class:`ValueError`.
     """
 
     _CLUSTER_SCHED_POLICY_TO_DRIVER = {
@@ -100,6 +123,8 @@ cdef class LaunchConfig:
         programmatic_stream_serialization: bool = False,
         cluster_scheduling_policy_preference: str | None = None,
         priority: int | None = None,
+        programmatic_event: Event | None = None,
+        programmatic_event_trigger_at_block_start: bool = False,
     ) -> None:
         """Initialize LaunchConfig with validation.
 
@@ -131,6 +156,14 @@ cdef class LaunchConfig:
             a device that does not support multiple stream priorities. A
             nonzero value outside this range raises :class:`ValueError`.
             When omitted (or 0), the launch uses the stream's priority.
+        programmatic_event : Event, optional
+            Event recorded by the launch for cross-stream Programmatic
+            Dependent Launch, triggered once all blocks signal completion.
+            ``None`` (default) omits the launch attribute.
+        programmatic_event_trigger_at_block_start : bool, optional
+            Whether to trigger at the start of each block instead of on
+            explicit completion (default: False). Requires
+            ``programmatic_event``.
         """
         # Convert and validate grid and block dimensions
         self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)
@@ -140,6 +173,13 @@ cdef class LaunchConfig:
             self._validate_cluster_scheduling_policy_preference(
                 cluster_scheduling_policy_preference
             )
+        )
+
+        self.programmatic_event = self._validate_programmatic_event(
+            programmatic_event, programmatic_event_trigger_at_block_start
+        )
+        self.programmatic_event_trigger_at_block_start = (
+            programmatic_event_trigger_at_block_start
         )
 
         # FIXME: Calling Device() strictly speaking is not quite right; we should instead
@@ -225,6 +265,17 @@ cdef class LaunchConfig:
             self.cluster_scheduling_policy_preference
         ]
 
+    def _validate_programmatic_event(self, event, trigger_at_block_start):
+        if event is None:
+            if trigger_at_block_start:
+                raise ValueError(
+                    "programmatic_event_trigger_at_block_start requires "
+                    "programmatic_event to be set"
+                )
+            return None
+        # Rejects non-Event values and events that have been closed.
+        return Event_accept(event)
+
     cdef cydriver.CUlaunchConfig _to_native_launch_config(self):
         cdef cydriver.CUlaunchConfig drv_cfg
         cdef cydriver.CUlaunchAttribute attr
@@ -270,6 +321,13 @@ cdef class LaunchConfig:
             attr.value.priority = self.priority
             self._attrs.push_back(attr)
 
+        if self.programmatic_event is not None:
+            attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
+            attr.value.programmaticEvent.event = as_cu(self.programmatic_event._h_event)
+            attr.value.programmaticEvent.flags = 0
+            attr.value.programmaticEvent.triggerAtBlockStart = self.programmatic_event_trigger_at_block_start
+            self._attrs.push_back(attr)
+
         drv_cfg.numAttrs = self._attrs.size()
         drv_cfg.attrs = self._attrs.data()
 
@@ -294,6 +352,7 @@ cpdef object _to_native_launch_config(LaunchConfig config):
     cdef list attrs
     cdef object attr
     cdef object dim
+    cdef object prog_event
     cdef tuple grid_blocks
 
     # Handle grid dimensions and cluster configuration
@@ -341,6 +400,15 @@ cpdef object _to_native_launch_config(LaunchConfig config):
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PRIORITY
         attr.value.priority = config.priority
+        attrs.append(attr)
+
+    if config.programmatic_event is not None:
+        attr = driver.CUlaunchAttribute()
+        attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
+        prog_event = attr.value.programmaticEvent
+        prog_event.event = config.programmatic_event.handle
+        prog_event.flags = 0
+        prog_event.triggerAtBlockStart = config.programmatic_event_trigger_at_block_start
         attrs.append(attr)
 
     drv_cfg.numAttrs = len(attrs)

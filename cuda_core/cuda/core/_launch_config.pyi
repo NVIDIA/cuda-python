@@ -2,9 +2,10 @@
 
 from typing import Any
 
+from cuda.core._event import Event
 from cuda.core._utils.cuda_utils import driver
 
-_LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative', 'programmatic_stream_serialization', 'cluster_scheduling_policy_preference', 'priority')
+_LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative', 'programmatic_stream_serialization', 'cluster_scheduling_policy_preference', 'priority', 'programmatic_event', 'programmatic_event_trigger_at_block_start')
 __all__ = ['LaunchConfig']
 
 class LaunchConfig:
@@ -57,6 +58,25 @@ class LaunchConfig:
         a device that does not support multiple stream priorities. A
         nonzero value outside this range raises :class:`ValueError`.
         When omitted (or 0), the launch uses the stream's priority.
+    programmatic_event : Event, optional
+        Event recorded by the launch for cross-stream Programmatic Dependent
+        Launch (PDL). Whereas
+        :attr:`~cuda.core.LaunchConfig.programmatic_stream_serialization`
+        lets a dependent kernel in the *same* stream start early, this event
+        can be awaited from another stream via
+        :meth:`~cuda.core.Stream.wait`.
+        The event triggers only after every block of the kernel signals
+        completion, which a block does by calling
+        ``cudaTriggerProgrammaticLaunchCompletion()`` (or the equivalent PTX
+        ``launchdep.release``). PDL requires compute capability >= 9.0.
+        When ``None`` (default), the launch attribute is omitted.
+        The event is recorded with no flags; ``CU_EVENT_RECORD_EXTERNAL`` is
+        not accepted by this launch attribute.
+    programmatic_event_trigger_at_block_start : bool, optional
+        When True, the trigger is inserted at the start of each block instead
+        of requiring the kernel to signal completion explicitly (default:
+        False). Setting this without ``programmatic_event`` raises
+        :class:`ValueError`.
     """
     _CLUSTER_SCHED_POLICY_TO_DRIVER = {'DEFAULT': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_DEFAULT, 'SPREAD': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD, 'LOAD_BALANCING': driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING}
     grid: tuple[Any, ...]
@@ -67,8 +87,10 @@ class LaunchConfig:
     programmatic_stream_serialization: bool
     cluster_scheduling_policy_preference: str
     priority: int
+    programmatic_event: Event
+    programmatic_event_trigger_at_block_start: bool
 
-    def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False, programmatic_stream_serialization: bool=False, cluster_scheduling_policy_preference: str | None=None, priority: int | None=None) -> None:
+    def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False, programmatic_stream_serialization: bool=False, cluster_scheduling_policy_preference: str | None=None, priority: int | None=None, programmatic_event: Event | None=None, programmatic_event_trigger_at_block_start: bool=False) -> None:
         """Initialize LaunchConfig with validation.
 
         Parameters
@@ -99,6 +121,14 @@ class LaunchConfig:
             a device that does not support multiple stream priorities. A
             nonzero value outside this range raises :class:`ValueError`.
             When omitted (or 0), the launch uses the stream's priority.
+        programmatic_event : Event, optional
+            Event recorded by the launch for cross-stream Programmatic
+            Dependent Launch, triggered once all blocks signal completion.
+            ``None`` (default) omits the launch attribute.
+        programmatic_event_trigger_at_block_start : bool, optional
+            Whether to trigger at the start of each block instead of on
+            explicit completion (default: False). Requires
+            ``programmatic_event``.
         """
     def _identity(self) -> tuple[Any, ...]: ...
     def __repr__(self) -> str:
@@ -107,6 +137,7 @@ class LaunchConfig:
     def __hash__(self) -> int: ...
     def _validate_cluster_scheduling_policy_preference(self, value): ...
     def _cluster_sched_policy_driver_value(self): ...
+    def _validate_programmatic_event(self, event, trigger_at_block_start): ...
 
 def _to_native_launch_config(config: LaunchConfig) -> object:
     """Convert LaunchConfig to native driver CUlaunchConfig.

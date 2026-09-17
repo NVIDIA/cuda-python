@@ -494,6 +494,135 @@ def test_launch_cluster_scheduling_policy_smoke(init_cuda):
     stream.sync()
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_launch_config_programmatic_event(init_cuda):
+    """Ctor, getter/setter, native attrs, and equality for programmatic_event."""
+    from cuda.bindings import driver
+    from cuda.core._launch_config import _to_native_launch_config
+
+    dev = Device()
+    event = dev.create_event()
+
+    # Omitted by default, so no launch attribute is emitted.
+    cfg = LaunchConfig(grid=1, block=1)
+    assert cfg.programmatic_event is None
+    assert cfg.programmatic_event_trigger_at_block_start is False
+    assert _to_native_launch_config(cfg).numAttrs == 0
+
+    cfg.programmatic_event = event
+    assert cfg.programmatic_event is event
+
+    for trigger_at_block_start in (False, True):
+        cfg = LaunchConfig(
+            grid=2,
+            block=4,
+            programmatic_event=event,
+            programmatic_event_trigger_at_block_start=trigger_at_block_start,
+        )
+        assert cfg.programmatic_event is event
+        assert cfg.programmatic_event_trigger_at_block_start is trigger_at_block_start
+
+        native = _to_native_launch_config(cfg)
+        assert native.numAttrs == 1
+        attr = native.attrs[0]
+        assert attr.id == driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
+        assert int(attr.value.programmaticEvent.event) == int(event.handle)
+        # CU_EVENT_RECORD_EXTERNAL is not accepted for this attribute.
+        assert attr.value.programmaticEvent.flags == 0
+        assert attr.value.programmaticEvent.triggerAtBlockStart == int(trigger_at_block_start)
+
+    # programmatic_event is the first non-scalar member of _identity().
+    other_event = dev.create_event()
+    base = LaunchConfig(grid=1, block=1, programmatic_event=event)
+    same = LaunchConfig(grid=1, block=1, programmatic_event=event)
+    assert base == same
+    assert hash(base) == hash(same)
+    assert base != LaunchConfig(grid=1, block=1, programmatic_event=other_event)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_launch_config_programmatic_event_rejected(init_cuda):
+    """Non-events, closed events, and a trigger without an event are rejected."""
+    # Cython enforces the Event | None annotation before the validator runs.
+    with pytest.raises(TypeError, match="got str"):
+        LaunchConfig(grid=1, block=1, programmatic_event="not-an-event")
+
+    with pytest.raises(ValueError, match="requires programmatic_event"):
+        LaunchConfig(grid=1, block=1, programmatic_event_trigger_at_block_start=True)
+
+    closed_event = Device().create_event()
+    closed_event.close()
+    with pytest.raises(RuntimeError, match="Event has been closed"):
+        LaunchConfig(grid=1, block=1, programmatic_event=closed_event)
+
+
+@skipif_need_cuda_headers
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("trigger_at_block_start", (False, True))
+def test_launch_programmatic_event_cross_stream(trigger_at_block_start):
+    """A programmatic event is a usable cross-stream dependency on Hopper+.
+
+    The driver must accept CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT at launch
+    time, and the recorded event must signal so a consumer waiting on it from
+    another stream runs. Timing of the trigger relative to the producer is
+    opportunistic, so only the dependency is asserted, not overlap.
+    """
+    dev = Device()
+    if dev.compute_capability < (9, 0):
+        pytest.skip("Programmatic Dependent Launch requires compute capability >= 9.0")
+    dev.set_current()
+
+    code = r"""
+    #include <cuda_device_runtime_api.h>
+
+    extern "C" __global__ void producer_kernel() {
+        cudaTriggerProgrammaticLaunchCompletion();
+
+        // Stay resident briefly so the trigger, not kernel exit, can release
+        // the event. clock64() budgets are in GPU cycles.
+        const long long deadline = clock64() + 20000000LL;  // ~10ms @ ~2GHz
+        while (clock64() < deadline) {
+            __nanosleep(1000);
+        }
+    }
+
+    extern "C" __global__ void consumer_kernel(int* consumer_ran) {
+        if (threadIdx.x == 0 && blockIdx.x == 0) {
+            atomicExch(consumer_ran, 1);
+        }
+    }
+    """
+
+    arch = "".join(f"{i}" for i in dev.compute_capability)
+    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=helpers.CUDA_INCLUDE_PATH)
+    mod = Program(code, code_type="c++", options=pro_opts).compile("cubin")
+    producer = mod.get_kernel("producer_kernel")
+    consumer = mod.get_kernel("consumer_kernel")
+
+    consumer_ran = np.from_dlpack(LegacyPinnedMemoryResource().allocate(4)).view(np.int32)
+    consumer_ran[0] = 0
+
+    producer_stream = dev.create_stream(options=StreamOptions(nonblocking=True))
+    consumer_stream = dev.create_stream(options=StreamOptions(nonblocking=True))
+    event = dev.create_event()
+
+    producer_cfg = LaunchConfig(
+        grid=1,
+        block=32,
+        programmatic_event=event,
+        programmatic_event_trigger_at_block_start=trigger_at_block_start,
+    )
+    launch(producer_stream, producer_cfg, producer)
+
+    consumer_stream.wait(event)
+    launch(consumer_stream, LaunchConfig(grid=1, block=1), consumer, consumer_ran.ctypes.data)
+
+    consumer_stream.sync()
+    producer_stream.sync()
+
+    assert int(consumer_ran[0]) == 1, "Consumer waiting on the programmatic event did not run"
+
+
 def test_launch_invalid_values(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, SourceCodeType.CXX)

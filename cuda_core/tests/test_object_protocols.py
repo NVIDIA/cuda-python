@@ -705,7 +705,9 @@ REPR_PATTERNS = [
         r"LaunchConfig\(grid=\(\d+, \d+, \d+\), cluster=.+, block=\(\d+, \d+, \d+\), "
         r"shmem_size=\d+, is_cooperative=(?:True|False), "
         r"programmatic_stream_serialization=(?:True|False), "
-        r"cluster_scheduling_policy_preference=.+, priority=-?\d+\)",
+        r"cluster_scheduling_policy_preference=.+, priority=-?\d+, "
+        r"programmatic_event=.+, "
+        r"programmatic_event_trigger_at_block_start=(?:True|False)\)",
     ),
     ("sample_kernel", r"<Kernel handle=0x[0-9a-f]+>"),
     # ObjectCode variations (by code_type)
