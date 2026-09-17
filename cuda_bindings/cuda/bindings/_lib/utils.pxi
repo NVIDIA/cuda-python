@@ -36,9 +36,6 @@ cdef object ctypes_c_float = _ctypes.c_float
 cdef object ctypes_c_double = _ctypes.c_double
 cdef object ctypes_c_void_p = _ctypes.c_void_p
 cdef object ctypes_Structure = _ctypes.Structure
-cdef object py_int = int
-cdef object py_bool = bool
-cdef object py_float = float
 
 # excluding void_p and None, which are handled specially
 cdef object supported_types = {
@@ -75,17 +72,17 @@ cdef int _try_specific_types(char* slot, object value, object ctype) except -1:
     specific argument is slow.
     """
     cdef object value_type = type(value)
-    if ctype is ctypes_c_int and value_type is py_int:
+    if ctype is ctypes_c_int and value_type is int:
         (<int*>slot)[0] = value
         return 1
-    if ctype is ctypes_c_bool and value_type is py_bool:
+    if ctype is ctypes_c_bool and value_type is bool:
         (<cpp_bool*>slot)[0] = value
         return 1
-    if ctype is ctypes_c_byte and value_type is py_int:
+    if ctype is ctypes_c_byte and value_type is int:
         (<int8_t*>slot)[0] = value
         return 1
     if ctype is ctypes_c_double:
-        if value_type is py_float:
+        if value_type is float:
             (<double*>slot)[0] = value
             return 1
         if isinstance(value, ctypes_c_float):
@@ -93,10 +90,10 @@ cdef int _try_specific_types(char* slot, object value, object ctype) except -1:
             (<double*>slot)[0] = value.value
             return 1
         return 0
-    if ctype is ctypes_c_float and value_type is py_float:
+    if ctype is ctypes_c_float and value_type is float:
         (<float*>slot)[0] = value
         return 1
-    if ctype is ctypes_c_longlong and value_type is py_int:
+    if ctype is ctypes_c_longlong and value_type is int:
         (<long long*>slot)[0] = value
         return 1
     return 0
