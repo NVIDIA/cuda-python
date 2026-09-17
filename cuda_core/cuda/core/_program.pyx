@@ -104,18 +104,17 @@ cdef class Program:
         self._cleanup_debug_source()
 
     def _cleanup_debug_source(self):
-        # Only a temp file this Program wrote may be removed, and the name having
-        # moved off options.name is what says one was written. Without that test
-        # the caller's own file is deleted whenever options.name happens to match
-        # something on disk, since the unredirected name is just that path.
-        # Both attributes are still None when construction failed before they
-        # were recorded, and __dealloc__ runs on that object too (#2876).
-        if (
-            self._options is not None
-            and self._nvrtc_name is not None
-            and self._nvrtc_name != self._options._name
-        ):
-            self._unlink_debug_source(self._nvrtc_name.decode())
+        # Only a temp file this Program wrote may be removed, so its path is kept
+        # in a dedicated attribute rather than derived from _nvrtc_name and
+        # _options. When a Program dies inside a reference cycle, the cyclic
+        # collector clears the object attributes of everything in the cycle
+        # before __dealloc__ runs: _options may already be None, or the
+        # ProgramOptions may already have lost its fields (#2876). A bytes
+        # attribute is left alone by that clearing.
+        path = self._debug_source
+        if path is not None:
+            self._debug_source = None
+            self._unlink_debug_source(path.decode())
 
     def _unlink_debug_source(self, path: str) -> None:
         try:
@@ -889,7 +888,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         if (options.debug or options.lineinfo) and options.name == "default_program":
             debug_path = self._try_materialize_nvrtc_debug_source(code)
             if debug_path is not None:
-                self._nvrtc_name = debug_path.encode()
+                self._nvrtc_name = self._debug_source = debug_path.encode()
                 # NVRTC resolves #include "..." against the directory of the name it
                 # is given, so moving the name into the temp dir would otherwise stop
                 # every quoted include from resolving where it did before.
