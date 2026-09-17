@@ -23,6 +23,7 @@ from cuda.core._rt cimport (
     as_intptr,
     as_cu,
     get_current_context,
+    set_mr_deallocation_size,
     set_deallocation_stream,
 )
 from cuda.core.typing import DevicePointerType
@@ -258,6 +259,9 @@ cdef class Buffer:
     """
     def __cinit__(self) -> None:
         self._clear()
+
+    cdef void _set_deallocation_size(self, size_t size) noexcept:
+        set_mr_deallocation_size(self._h_ptr, size)
 
     def _clear(self) -> None:
         self._h_ptr.reset()  # Release the handle

@@ -108,6 +108,7 @@ MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType han
 namespace {
 struct DevicePtrBox {
     CUdeviceptr resource;
+    mutable size_t mr_deallocation_size;
     // Mutable so set_deallocation_stream() can update free ordering through a
     // const DevicePtrHandle. Built with make_deallocation_stream so default-
     // stream tokens carry a bound context.
@@ -130,6 +131,10 @@ static DevicePtrBox* get_box(const DevicePtrHandle& h) {
 // Return the stream that orders a device pointer's deallocation.
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept {
     return get_box(h)->deallocation.h_stream;
+}
+
+void set_mr_deallocation_size(const DevicePtrHandle& h, size_t size) noexcept {
+    get_box(h)->mr_deallocation_size = size;
 }
 
 // Replace the stream that orders a device pointer's deallocation.
@@ -159,7 +164,7 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, std::move(ds)},
+        new DevicePtrBox{ptr, 0, std::move(ds)},
         [h_pool](DevicePtrBox* b) {
             GILReleaseGuard gil;
             const DeallocationStream& stream = b->deallocation;
@@ -189,7 +194,7 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream)
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, std::move(ds)},
+        new DevicePtrBox{ptr, 0, std::move(ds)},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
             const DeallocationStream& stream = b->deallocation;
@@ -224,7 +229,7 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), DeallocationStream{}},
+        new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), 0, DeallocationStream{}},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
             pw_cuMemFreeHost(reinterpret_cast<void*>(b->resource));
@@ -251,7 +256,7 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
     }
     Py_INCREF(owner);
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, DeallocationStream{}},
+        new DevicePtrBox{ptr, 0, DeallocationStream{}},
         [owner](DevicePtrBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
@@ -273,7 +278,7 @@ DevicePtrHandle deviceptr_create_mapped_graphics(
         return {};
     }
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, std::move(ds)},
+        new DevicePtrBox{ptr, 0, std::move(ds)},
         [h_resource](DevicePtrBox* b) {
             GILReleaseGuard gil;
             CUgraphicsResource resource = as_cu(h_resource);
@@ -311,8 +316,8 @@ DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject*
     }
     Py_INCREF(mr);
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, DeallocationStream{}},
-        [mr, size](DevicePtrBox* b) {
+        new DevicePtrBox{ptr, size, DeallocationStream{}},
+        [mr](DevicePtrBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
                 if (mr_dealloc_cb) {
@@ -320,7 +325,7 @@ DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject*
                     cleanup_in_context(
                         deallocation_context(stream), "MemoryResource.deallocate", handle_bits(b->resource),
                         [&]() noexcept {
-                            mr_dealloc_cb(mr, b->resource, size, stream.h_stream);
+                            mr_dealloc_cb(mr, b->resource, b->mr_deallocation_size, stream.h_stream);
                             return CUDA_SUCCESS;
                         });
                 }
@@ -422,7 +427,7 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
             DeallocationStream ds;
             if (make_deallocation_stream(h_stream, ds)) {
                 auto box = std::shared_ptr<DevicePtrBox>(
-                    new DevicePtrBox{ptr, std::move(ds)},
+                    new DevicePtrBox{ptr, 0, std::move(ds)},
                     [h_pool, key](DevicePtrBox* b) {
                         // Release the GIL first (the GIL is the outermost lock), then hold the
                         // mutex across unregister + free: a concurrent import that finds this
@@ -478,7 +483,7 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
         }
 
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, std::move(ds)},
+            new DevicePtrBox{ptr, 0, std::move(ds)},
             [h_pool](DevicePtrBox* b) {
                 GILReleaseGuard gil;
                 const DeallocationStream& stream = b->deallocation;

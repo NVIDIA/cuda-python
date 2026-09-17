@@ -1486,6 +1486,9 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
         def __init__(self, size):
             self._size = size
 
+        def _set_deallocation_size(self, size):
+            self.deallocation_size = size
+
     original_size = 2 * 1024 * 1024
     aligned_additional = 2 * 1024 * 1024
     new_size = original_size + aligned_additional
@@ -1497,6 +1500,7 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
     # Fast-path contract: same buffer object, size updated in place.
     assert result is buf
     assert buf._size == new_size
+    assert buf.deallocation_size == new_size
 
     # Successful commit: create, map, set access, and no rollback calls.
     assert [c[0] for c in calls] == ["create", "map", "set_access"]

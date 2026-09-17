@@ -245,6 +245,8 @@ void register_mr_dealloc_callback(MRDeallocCallback cb);
 // Implemented in memory.cpp
 DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject* mr);
 
+void set_mr_deallocation_size(const DevicePtrHandle& h, size_t size) noexcept;
+
 // Build an OpaqueHandle from a Python object: increments its refcount now and
 // decrements it (under the GIL) on release. The caller must hold the GIL.
 // Implemented in graph.cpp

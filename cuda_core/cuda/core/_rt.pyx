@@ -165,6 +165,8 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
         const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
     StreamHandle deallocation_stream "cuda_core::rt::deallocation_stream" (
         const DevicePtrHandle& h) noexcept nogil
+    void set_mr_deallocation_size "cuda_core::rt::set_mr_deallocation_size" (
+        const DevicePtrHandle& h, size_t size) noexcept nogil
     cydriver.CUresult set_deallocation_stream "cuda_core::rt::set_deallocation_stream" (
         const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
 

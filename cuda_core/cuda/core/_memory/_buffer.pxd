@@ -28,6 +28,7 @@ cdef class Buffer:
         # Python code in _memory/_virtual_memory_resource.py needs to update
         # this value, though it is technically private.
         size_t          _size
+    cdef void _set_deallocation_size(self, size_t size) noexcept
 
 
 cdef class MemoryResource:
