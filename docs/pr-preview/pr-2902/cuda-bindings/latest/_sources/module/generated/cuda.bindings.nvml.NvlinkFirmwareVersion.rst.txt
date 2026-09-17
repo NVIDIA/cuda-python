@@ -1,0 +1,35 @@
+﻿cuda.bindings.nvml.NvlinkFirmwareVersion
+========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: NvlinkFirmwareVersion
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NvlinkFirmwareVersion.__init__
+      ~NvlinkFirmwareVersion.from_buffer
+      ~NvlinkFirmwareVersion.from_data
+      ~NvlinkFirmwareVersion.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~NvlinkFirmwareVersion.major
+      ~NvlinkFirmwareVersion.minor
+      ~NvlinkFirmwareVersion.ptr
+      ~NvlinkFirmwareVersion.sub_minor
+      ~NvlinkFirmwareVersion.ucode_type
+   
+   
