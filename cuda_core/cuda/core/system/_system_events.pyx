@@ -77,7 +77,7 @@ cdef class SystemEvents:
     def __len__(self) -> int:
         return len(self._event_data)
 
-    def __getitem__(self, idx: int) -> SystemEvent:
+    def __getitem__(self, Py_ssize_t idx) -> SystemEvent:
         """
         Get the :obj:`~_system_events.SystemEvent` at the specified index.
         """
