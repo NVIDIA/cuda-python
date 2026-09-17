@@ -9,7 +9,7 @@
 Bugfixes
 --------
 
-- ``cuda-bindings`` is rebuilt against CTK 13.4.1 U1, and thus gets all of its bugfixes.
+- ``cuda-bindings`` is rebuilt against CUDA toolkit 13.4.2, and thus gets all of its bugfixes.
 
 Known issues
 ------------
