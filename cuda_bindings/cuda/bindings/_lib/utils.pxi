@@ -2,17 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cpython.buffer cimport PyObject_CheckBuffer, PyObject_GetBuffer, PyBuffer_Release, PyBUF_SIMPLE, PyBUF_ANY_CONTIGUOUS
+from cpython.mem cimport PyMem_Calloc, PyMem_Free
 from libc.stdlib cimport calloc, free
-from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t
-from libc.stddef cimport wchar_t
+from libc.stdint cimport int8_t
+from libc.stddef cimport size_t
 from libc.string cimport memcpy
+from libcpp cimport bool as cpp_bool
 from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 import ctypes as _ctypes
 cimport cuda.bindings.cydriver as cydriver
-cimport cuda.bindings._lib.param_packer as param_packer
-
-# Import-time init so feed() is a pure read under free threading.
-param_packer.init_param_packer()
 
 cdef void* _callocWrapper(length, size):
     cdef void* out = calloc(length, size)
@@ -20,114 +18,191 @@ cdef void* _callocWrapper(length, size):
         raise MemoryError('Failed to allocated length x size memory: {}x{}'.format(length, size))
     return out
 
+cdef object ctypes_c_bool = _ctypes.c_bool
+cdef object ctypes_c_char = _ctypes.c_char
+cdef object ctypes_c_wchar = _ctypes.c_wchar
+cdef object ctypes_c_byte = _ctypes.c_byte
+cdef object ctypes_c_ubyte = _ctypes.c_ubyte
+cdef object ctypes_c_short = _ctypes.c_short
+cdef object ctypes_c_ushort = _ctypes.c_ushort
+cdef object ctypes_c_int = _ctypes.c_int
+cdef object ctypes_c_uint = _ctypes.c_uint
+cdef object ctypes_c_long = _ctypes.c_long
+cdef object ctypes_c_ulong = _ctypes.c_ulong
+cdef object ctypes_c_longlong = _ctypes.c_longlong
+cdef object ctypes_c_ulonglong = _ctypes.c_ulonglong
+cdef object ctypes_c_size_t = _ctypes.c_size_t
+cdef object ctypes_c_float = _ctypes.c_float
+cdef object ctypes_c_double = _ctypes.c_double
+cdef object ctypes_c_void_p = _ctypes.c_void_p
+cdef object ctypes_Structure = _ctypes.Structure
+cdef object py_int = int
+cdef object py_bool = bool
+cdef object py_float = float
+
+# excluding void_p and None, which are handled specially
+cdef object supported_types = {
+    ctypes_c_bool,
+    ctypes_c_char,
+    ctypes_c_wchar,
+    ctypes_c_byte,
+    ctypes_c_ubyte,
+    ctypes_c_short,
+    ctypes_c_ushort,
+    ctypes_c_int,
+    ctypes_c_uint,
+    ctypes_c_long,
+    ctypes_c_ulong,
+    ctypes_c_longlong,
+    ctypes_c_ulonglong,
+    ctypes_c_size_t,
+    ctypes_c_float,
+    ctypes_c_double,
+}
+
+# A slot wide enough for all `supported_types` above (and `void_p`)
+cdef size_t MAX_PARAM_SIZE = max(_ctypes.sizeof(t) for t in supported_types)
+# For correct access pointers have to fit (appended) and the size
+# must be a multiple of the max alignment (guaranteed if power of 2).
+assert MAX_PARAM_SIZE % sizeof(void*) == 0
+assert ((MAX_PARAM_SIZE - 1) & MAX_PARAM_SIZE) == 0
+
+
+cdef int _try_specific_types(char* slot, object value, object ctype) except -1:
+    """Helper for specific type parsing.  If this fails, conversion goes
+    via `ctype(value)`.  This converter is more strict than ctypes
+    (e.g. raises for out of bound integers).  It should be extended if a
+    specific argument is slow.
+    """
+    cdef object value_type = type(value)
+    if ctype is ctypes_c_int and value_type is py_int:
+        (<int*>slot)[0] = value
+        return 1
+    if ctype is ctypes_c_bool and value_type is py_bool:
+        (<cpp_bool*>slot)[0] = value
+        return 1
+    if ctype is ctypes_c_byte and value_type is py_int:
+        (<int8_t*>slot)[0] = value
+        return 1
+    if ctype is ctypes_c_double:
+        if value_type is py_float:
+            (<double*>slot)[0] = value
+            return 1
+        if isinstance(value, _ctypes.c_float):
+            # This explcitly allows c_float for double arguments.
+            (<double*>slot)[0] = value.value
+            return 1
+        return 0
+    if ctype is ctypes_c_float and value_type is py_float:
+        (<float*>slot)[0] = value
+        return 1
+    if ctype is ctypes_c_longlong and value_type is py_int:
+        (<long long*>slot)[0] = value
+        return 1
+    return 0
+
+
+cdef int _pack_argument(void** ptr, char* slot, object value, object ctype) except -1:
+    cdef size_t size
+    cdef void* addr
+    cdef object getPtr
+
+    if ctype is None:
+        getPtr = getattr(value, 'getPtr', None)
+        if callable(getPtr):
+            ptr[0] = <void*><void_ptr>getPtr()
+        elif isinstance(value, ctypes_Structure):
+            ptr[0] = <void*><void_ptr>_ctypes.addressof(value)
+        elif isinstance(value, _FastEnum):
+            ptr[0] = slot
+            (<int*>slot)[0] = value  # _FastEnum is an int
+        else:
+            raise TypeError("Provided argument is of type {} but expected Type {}, {} or CUDA Binding structure with getPtr() attribute".format(type(value), type(_ctypes.Structure), type(_ctypes.c_void_p)))
+        return 0
+
+    ptr[0] = slot
+    if _try_specific_types(slot, value, ctype):
+        return 0
+    if ctype in supported_types:
+        # handle case where a float is passed as a double
+        if not isinstance(value, ctype):
+            value = ctype(value)
+        size = <size_t>_ctypes.sizeof(ctype)
+        addr = <void*><void_ptr>_ctypes.addressof(value)
+        memcpy(slot, addr, size)
+        return 0
+    elif ctype is ctypes_c_void_p:
+        if isinstance(value, (int, ctypes_c_void_p)):
+            (<void_ptr*>slot)[0] = value.value if isinstance(value, ctypes_c_void_p) else value
+        else:
+            getPtr = getattr(value, 'getPtr', None)
+            if callable(getPtr):
+                (<void_ptr*>slot)[0] = getPtr()
+            else:
+                raise TypeError("Provided argument is of type {} but expected Type {}, {} or CUDA Binding structure with getPtr() attribute".format(type(value), type(int), type(_ctypes.c_void_p)))
+        return 0
+    raise TypeError("Unsupported type: " + str(type(ctype)))
+
+
 cdef class _HelperKernelParams:
-    supported_types = { # excluding void_p and None, which are handled specially
-        _ctypes.c_bool,
-        _ctypes.c_char,
-        _ctypes.c_wchar,
-        _ctypes.c_byte,
-        _ctypes.c_ubyte,
-        _ctypes.c_short,
-        _ctypes.c_ushort,
-        _ctypes.c_int,
-        _ctypes.c_uint,
-        _ctypes.c_long,
-        _ctypes.c_ulong,
-        _ctypes.c_longlong,
-        _ctypes.c_ulonglong,
-        _ctypes.c_size_t,
-        _ctypes.c_float,
-        _ctypes.c_double
-    }
-
-    max_param_size = max(_ctypes.sizeof(max(_HelperKernelParams.supported_types, key=lambda t:_ctypes.sizeof(t))), sizeof(void_ptr))
-
     def __cinit__(self, kernelParams):
+        cdef tuple values, types
+        cdef Py_ssize_t i, n
+        cdef size_t data_bytes, total
+        cdef char* block
+        cdef char* slot
+        cdef int err_buffer
+        cdef void** ptrs
+
         self._pyobj_acquired = False
-        self._malloc_list_created = False
+        self.ckernelParams = NULL
+        self._ckernelParamsData = NULL
+
         if kernelParams is None:
-            self._ckernelParams = NULL
-        elif isinstance(kernelParams, (int)):
+            pass
+        elif isinstance(kernelParams, int):
             # Easy run, user gave us an already configured void** address
-            self._ckernelParams = <void**><void_ptr>kernelParams
+            self.ckernelParams = <void**><void_ptr>kernelParams
         elif PyObject_CheckBuffer(kernelParams):
             # Easy run, get address from Python Buffer Protocol
             err_buffer = PyObject_GetBuffer(kernelParams, &self._pybuffer, PyBUF_SIMPLE | PyBUF_ANY_CONTIGUOUS)
             if err_buffer == -1:
                 raise RuntimeError("Argument 'kernelParams' failed to retrieve buffer through Buffer Protocol")
             self._pyobj_acquired = True
-            self._ckernelParams = <void**><void_ptr>self._pybuffer.buf
-        elif isinstance(kernelParams, (tuple)) and len(kernelParams) == 2 and isinstance(kernelParams[0], (tuple)) and isinstance(kernelParams[1], (tuple)):
-            # Hard run, construct and fill out contigues memory using provided kernel values and types based
-            if len(kernelParams[0]) != len(kernelParams[1]):
+            self.ckernelParams = <void**><void_ptr>self._pybuffer.buf
+        elif (
+            isinstance(kernelParams, tuple)
+            and len(kernelParams) == 2
+            and isinstance(kernelParams[0], tuple)
+            and isinstance(kernelParams[1], tuple)
+        ):
+            # Hard run, construct and fill out contiguous memory using provided kernel values and types
+            values = <tuple>kernelParams[0]
+            types = <tuple>kernelParams[1]
+            n = len(values)
+            if n != len(types):
                 raise TypeError("Argument 'kernelParams' has tuples with different length")
-            if len(kernelParams[0]) != 0:
-                self._length = len(kernelParams[0])
-                self._ckernelParams = <void**>_callocWrapper(len(kernelParams[0]), sizeof(void*))
-                self._ckernelParamsData = <char*>_callocWrapper(len(kernelParams[0]), _HelperKernelParams.max_param_size)
-                self._malloc_list_created = True
-
-            idx = 0
-            data_idx = 0
-            for value, ctype in zip(kernelParams[0], kernelParams[1]):
-                if ctype is None:
-                    # special cases for None
-                    if callable(getattr(value, 'getPtr', None)):
-                        self._ckernelParams[idx] = <void*><void_ptr>value.getPtr()
-                    elif isinstance(value, (_ctypes.Structure)):
-                        self._ckernelParams[idx] = <void*><void_ptr>_ctypes.addressof(value)
-                    elif isinstance(value, (_FastEnum)):
-                        self._ckernelParams[idx] = &(self._ckernelParamsData[data_idx])
-                        (<int*>self._ckernelParams[idx])[0] = value.value
-                        data_idx += sizeof(int)
-                    else:
-                        raise TypeError("Provided argument is of type {} but expected Type {}, {} or CUDA Binding structure with getPtr() attribute".format(type(value), type(_ctypes.Structure), type(_ctypes.c_void_p)))
-                elif ctype in _HelperKernelParams.supported_types:
-                    self._ckernelParams[idx] = &(self._ckernelParamsData[data_idx])
-
-                    # handle case where a float is passed as a double
-                    if ctype == _ctypes.c_double and isinstance(value, _ctypes.c_float):
-                        value = ctype(value.value)
-                    if not isinstance(value, ctype): # make it a ctype
-                        size = param_packer.feed(self._ckernelParams[idx], value, ctype)
-                        if size == 0: # feed failed
-                            value = ctype(value)
-                            size = _ctypes.sizeof(ctype)
-                            addr = <void*>(<void_ptr>_ctypes.addressof(value))
-                            memcpy(self._ckernelParams[idx], addr, size)
-                    else:
-                        size = _ctypes.sizeof(ctype)
-                        addr = <void*>(<void_ptr>_ctypes.addressof(value))
-                        memcpy(self._ckernelParams[idx], addr, size)
-                    data_idx += size
-                elif ctype == _ctypes.c_void_p:
-                    # special cases for void_p
-                    if isinstance(value, (int, _ctypes.c_void_p)):
-                        self._ckernelParams[idx] = &(self._ckernelParamsData[data_idx])
-                        (<void_ptr*>self._ckernelParams[idx])[0] = value.value if isinstance(value, (_ctypes.c_void_p)) else value
-                        data_idx += sizeof(void_ptr)
-                    elif callable(getattr(value, 'getPtr', None)):
-                        self._ckernelParams[idx] = &(self._ckernelParamsData[data_idx])
-                        (<void_ptr*>self._ckernelParams[idx])[0] = value.getPtr()
-                        data_idx += sizeof(void_ptr)
-                    else:
-                        raise TypeError("Provided argument is of type {} but expected Type {}, {} or CUDA Binding structure with getPtr() attribute".format(type(value), type(int), type(_ctypes.c_void_p)))
-                else:
-                    raise TypeError("Unsupported type: " + str(type(ctype)))
-                idx += 1
+            if n == 0:
+                return
+            data_bytes = <size_t>n * MAX_PARAM_SIZE
+            total = data_bytes + <size_t>n * sizeof(void*)
+            block = <char*>PyMem_Calloc(1, total)
+            if block == NULL:
+                raise MemoryError('Failed to allocated length x size memory: {}x{}'.format(n, MAX_PARAM_SIZE))
+            self._ckernelParamsData = block
+            ptrs = <void**>(block + data_bytes)
+            self.ckernelParams = ptrs
+            for i in range(n):
+                slot = block + i * MAX_PARAM_SIZE
+                _pack_argument(ptrs + i, slot, values[i], types[i])
         else:
             raise TypeError("Argument 'kernelParams' is not a valid type: tuple[tuple[Any, ...], tuple[Any, ...]] or PyObject implimenting Buffer Protocol or Int")
 
     def __dealloc__(self):
-        if self._pyobj_acquired is True:
+        if self._pyobj_acquired:
             PyBuffer_Release(&self._pybuffer)
-        if self._malloc_list_created is True:
-            free(self._ckernelParams)
-            free(self._ckernelParamsData)
-
-    @property
-    def ckernelParams(self):
-        return <void_ptr>self._ckernelParams
+        if self._ckernelParamsData:
+            PyMem_Free(self._ckernelParamsData)
 
 cdef class _HelperInputVoidPtr:
     def __cinit__(self, ptr):
