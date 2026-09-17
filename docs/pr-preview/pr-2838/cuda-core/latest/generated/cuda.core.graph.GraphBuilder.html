@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=312a026e"></script>
+    <script src="../_static/documentation_options.js?v=95528677"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev98';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev99';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -986,7 +986,11 @@ default is assigned.</p>
 <li><p><a class="reference internal" href="cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><strong>CUDAError</strong></a> – If the capture was invalidated, for example by a CUDA call that is
     not permitted while capturing. The capture is ended and the
     builder holds no graph afterwards, so <a class="reference internal" href="#cuda.core.graph.GraphBuilder.complete" title="cuda.core.graph.GraphBuilder.complete"><code class="xref py py-meth docutils literal notranslate"><span class="pre">complete()</span></code></a> and
-    <code class="xref py py-attr docutils literal notranslate"><span class="pre">graph_definition</span></code> are unavailable.</p></li>
+    <code class="xref py py-attr docutils literal notranslate"><span class="pre">graph_definition</span></code> are unavailable. This applies to a
+    top-level builder. The body builder of a conditional node cannot
+    recover from an invalidated capture: the driver discards the body
+    graph that the parent graph still refers to, so the parent
+    builder’s graph is invalid as well.</p></li>
 </ul>
 </dd>
 </dl>
