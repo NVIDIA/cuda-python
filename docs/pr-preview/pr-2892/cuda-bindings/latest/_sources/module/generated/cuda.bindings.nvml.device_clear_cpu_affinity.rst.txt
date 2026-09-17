@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_clear\_cpu\_affinity
+===============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_clear_cpu_affinity
