@@ -34,6 +34,13 @@ New features
 Fixes and enhancements
 ----------------------
 
+- A :class:`Program` that is collected as part of a reference cycle no longer
+  raises ``AttributeError`` from its destructor, and the source file it wrote
+  for a ``debug`` or ``lineinfo`` build is removed. The cyclic collector
+  clears object attributes before the destructor runs, and the destructor
+  read the program options to locate that file.
+  (`#2876 <https://github.com/NVIDIA/cuda-python/issues/2876>`__)
+
 - ``Graph.__getitem__`` now declares an overload for each node type that has
   an executable view, so type checkers and editors see the precise view type:
   indexing with a :class:`~graph.KernelNode` yields an
