@@ -504,8 +504,7 @@ class VirtualMemoryResource(MemoryResource):
         size : int
             The size in bytes of the buffer to allocate.
         stream : Stream, optional
-            Keyword-only. Unused because virtual memory operations are
-            synchronous.
+            Keyword-only. Validated when provided but otherwise unused.
 
         Returns
         -------
@@ -591,15 +590,15 @@ class VirtualMemoryResource(MemoryResource):
         size : int
             The size in bytes of the memory to deallocate.
         stream : Stream, optional
-            Keyword-only. Unused because virtual memory operations are
-            synchronous.
+            Keyword-only. If provided, ``stream.sync()`` is called before the
+            virtual memory is unmapped.
         """
         ptr = 0 if ptr is None else int(ptr)
 
         if stream is not None:
             from cuda.core._stream import Stream_accept
 
-            Stream_accept(stream)
+            Stream_accept(stream).sync()
         result, handle = driver.cuMemRetainAllocationHandle(ptr)
         raise_if_driver_error(result)
         (result,) = driver.cuMemUnmap(ptr, size)
