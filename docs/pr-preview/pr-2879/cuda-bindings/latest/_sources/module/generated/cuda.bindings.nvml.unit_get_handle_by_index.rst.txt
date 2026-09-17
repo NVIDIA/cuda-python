@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.unit\_get\_handle\_by\_index
-===============================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: unit_get_handle_by_index
