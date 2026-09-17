@@ -25,6 +25,7 @@ cdef class LaunchConfig:
         vector[cydriver.CUlaunchAttribute] _attrs
         object __weakref__
 
+    cdef Event _accept_programmatic_event(self)
     cdef cydriver.CUlaunchConfig _to_native_launch_config(self)
 
 

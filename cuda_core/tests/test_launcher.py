@@ -556,6 +556,54 @@ def test_launch_config_programmatic_event_rejected(init_cuda):
         LaunchConfig(grid=1, block=1, programmatic_event=closed_event)
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_launch_config_programmatic_event_revalidated_after_mutation(init_cuda):
+    """Mutating the attributes after construction is revalidated on conversion.
+
+    ``programmatic_event`` is public and mutable and an Event can be closed
+    independently, so both native conversions re-check it. Otherwise a config
+    built with a live event could reach ``cuLaunchKernelEx`` with a null
+    CUevent, since ``as_cu()`` maps a reset handle to ``nullptr``.
+    """
+    from cuda.core._launch_config import _to_native_launch_config
+
+    dev = Device()
+
+    # Reassigning the event is reflected in the native attribute.
+    other_event = dev.create_event()
+    cfg = LaunchConfig(grid=1, block=1, programmatic_event=dev.create_event())
+    cfg.programmatic_event = other_event
+    native = _to_native_launch_config(cfg)
+    assert int(native.attrs[0].value.programmaticEvent.event) == int(other_event.handle)
+
+    # Closing the event after construction is rejected by both conversions:
+    # _to_native_launch_config() here, and the cdef conversion via launch().
+    kernel = (
+        Program('extern "C" __global__ void noop() {}', SourceCodeType.CXX)
+        .compile(ObjectCodeFormatType.CUBIN)
+        .get_kernel("noop")
+    )
+    for materialize in (
+        _to_native_launch_config,
+        lambda cfg: launch(dev.default_stream, cfg, kernel),
+    ):
+        cfg = LaunchConfig(grid=1, block=1, programmatic_event=dev.create_event())
+        cfg.programmatic_event.close()
+        with pytest.raises(RuntimeError, match="Event has been closed"):
+            materialize(cfg)
+
+    # Clearing the event while the trigger stays set keeps the ctor invariant.
+    cfg = LaunchConfig(
+        grid=1,
+        block=1,
+        programmatic_event=dev.create_event(),
+        programmatic_event_trigger_at_block_start=True,
+    )
+    cfg.programmatic_event = None
+    with pytest.raises(ValueError, match="requires programmatic_event"):
+        _to_native_launch_config(cfg)
+
+
 @skipif_need_cuda_headers
 @pytest.mark.agent_authored(model="claude-opus-5")
 @pytest.mark.parametrize("trigger_at_block_start", (False, True))

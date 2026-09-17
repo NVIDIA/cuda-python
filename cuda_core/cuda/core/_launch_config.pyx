@@ -7,7 +7,7 @@ from libc.string cimport memset
 from typing import Any
 
 from cuda.core._device import Device
-from cuda.core._event cimport Event_accept
+from cuda.core._event cimport Event_check_open
 from cuda.core._rt cimport as_cu
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils import (
@@ -97,6 +97,9 @@ cdef class LaunchConfig:
         When ``None`` (default), the launch attribute is omitted.
         The event is recorded with no flags; ``CU_EVENT_RECORD_EXTERNAL`` is
         not accepted by this launch attribute.
+        The event must still be open when the kernel is launched; because this
+        attribute is mutable, a closed event raises :class:`RuntimeError` at
+        launch rather than being passed to the driver as a null event.
     programmatic_event_trigger_at_block_start : bool, optional
         When True, the trigger is inserted at the start of each block instead
         of requiring the kernel to signal completion explicitly (default:
@@ -175,12 +178,13 @@ cdef class LaunchConfig:
             )
         )
 
-        self.programmatic_event = self._validate_programmatic_event(
-            programmatic_event, programmatic_event_trigger_at_block_start
-        )
+        # Validated through the same member used when the native launch config
+        # is materialized, so construction and launch enforce one invariant.
+        self.programmatic_event = programmatic_event
         self.programmatic_event_trigger_at_block_start = (
             programmatic_event_trigger_at_block_start
         )
+        self._accept_programmatic_event()
 
         # FIXME: Calling Device() strictly speaking is not quite right; we should instead
         # look up the device from stream. We probably need to defer the checks related to
@@ -265,20 +269,32 @@ cdef class LaunchConfig:
             self.cluster_scheduling_policy_preference
         ]
 
-    def _validate_programmatic_event(self, event, trigger_at_block_start):
+    cdef Event _accept_programmatic_event(self):
+        """Validate the programmatic-event attributes and return the event, if any.
+
+        Both attributes are public and mutable, and an Event can be closed after
+        the config is built, so this runs whenever the native launch config is
+        materialized and not only in __init__. Skipping the re-check would let a
+        closed event reach cuLaunchKernelEx as a null CUevent, because as_cu()
+        maps a reset handle to nullptr.
+        """
+        cdef Event event = self.programmatic_event
         if event is None:
-            if trigger_at_block_start:
+            if self.programmatic_event_trigger_at_block_start:
                 raise ValueError(
                     "programmatic_event_trigger_at_block_start requires "
                     "programmatic_event to be set"
                 )
             return None
-        # Rejects non-Event values and events that have been closed.
-        return Event_accept(event)
+        Event_check_open(event)
+        return event
 
     cdef cydriver.CUlaunchConfig _to_native_launch_config(self):
         cdef cydriver.CUlaunchConfig drv_cfg
         cdef cydriver.CUlaunchAttribute attr
+        # Re-checked here, before any state is touched, because the attributes
+        # are mutable after construction.
+        cdef Event prog_event = self._accept_programmatic_event()
         memset(&drv_cfg, 0, sizeof(drv_cfg))
         self._attrs.resize(0)
 
@@ -321,9 +337,9 @@ cdef class LaunchConfig:
             attr.value.priority = self.priority
             self._attrs.push_back(attr)
 
-        if self.programmatic_event is not None:
+        if prog_event is not None:
             attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
-            attr.value.programmaticEvent.event = as_cu(self.programmatic_event._h_event)
+            attr.value.programmaticEvent.event = as_cu(prog_event._h_event)
             attr.value.programmaticEvent.flags = 0
             attr.value.programmaticEvent.triggerAtBlockStart = self.programmatic_event_trigger_at_block_start
             self._attrs.push_back(attr)
@@ -352,8 +368,10 @@ cpdef object _to_native_launch_config(LaunchConfig config):
     cdef list attrs
     cdef object attr
     cdef object dim
-    cdef object prog_event
+    cdef object prog_event_value
     cdef tuple grid_blocks
+    # Re-checked for the same reason as the cdef conversion above.
+    cdef Event prog_event = config._accept_programmatic_event()
 
     # Handle grid dimensions and cluster configuration
     if config.cluster is not None:
@@ -402,13 +420,13 @@ cpdef object _to_native_launch_config(LaunchConfig config):
         attr.value.priority = config.priority
         attrs.append(attr)
 
-    if config.programmatic_event is not None:
+    if prog_event is not None:
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
-        prog_event = attr.value.programmaticEvent
-        prog_event.event = config.programmatic_event.handle
-        prog_event.flags = 0
-        prog_event.triggerAtBlockStart = config.programmatic_event_trigger_at_block_start
+        prog_event_value = attr.value.programmaticEvent
+        prog_event_value.event = prog_event.handle
+        prog_event_value.flags = 0
+        prog_event_value.triggerAtBlockStart = config.programmatic_event_trigger_at_block_start
         attrs.append(attr)
 
     drv_cfg.numAttrs = len(attrs)

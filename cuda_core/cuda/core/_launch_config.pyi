@@ -72,6 +72,9 @@ class LaunchConfig:
         When ``None`` (default), the launch attribute is omitted.
         The event is recorded with no flags; ``CU_EVENT_RECORD_EXTERNAL`` is
         not accepted by this launch attribute.
+        The event must still be open when the kernel is launched; because this
+        attribute is mutable, a closed event raises :class:`RuntimeError` at
+        launch rather than being passed to the driver as a null event.
     programmatic_event_trigger_at_block_start : bool, optional
         When True, the trigger is inserted at the start of each block instead
         of requiring the kernel to signal completion explicitly (default:
@@ -137,7 +140,6 @@ class LaunchConfig:
     def __hash__(self) -> int: ...
     def _validate_cluster_scheduling_policy_preference(self, value): ...
     def _cluster_sched_policy_driver_value(self): ...
-    def _validate_programmatic_event(self, event, trigger_at_block_start): ...
 
 def _to_native_launch_config(config: LaunchConfig) -> object:
     """Convert LaunchConfig to native driver CUlaunchConfig.
