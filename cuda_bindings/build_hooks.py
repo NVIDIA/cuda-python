@@ -22,8 +22,7 @@ from warnings import warn
 from setuptools import build_meta as _build_meta
 from setuptools.extension import Extension
 
-# Valid toolchains per platform; the first entry is the default and reproduces
-# the previous build behavior exactly. See CUDA_PYTHON_TOOLCHAIN docs.
+# Valid toolchains per platform; the first entry is the default.
 _TOOLCHAINS_LINUX = ("gnu", "llvm")
 _TOOLCHAINS_WINDOWS = ("msvc",)
 
