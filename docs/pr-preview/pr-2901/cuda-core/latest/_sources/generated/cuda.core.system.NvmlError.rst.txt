@@ -1,0 +1,6 @@
+﻿cuda.core.system.NvmlError
+==========================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: NvmlError
