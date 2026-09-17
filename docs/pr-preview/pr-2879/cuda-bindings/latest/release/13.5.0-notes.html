@@ -549,6 +549,7 @@
 <li class="toctree-l2"><a class="reference internal" href="13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.5-notes.html">12.9.5</a></li>
@@ -2565,6 +2566,30 @@ similarly-renamed <code class="docutils literal notranslate"><span class="pre">n
 </tbody>
 </table>
 </div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.device_get_samples</span></code>: On a zero-sample result, the old implementation
+returned a bare <code class="docutils literal notranslate"><span class="pre">Sample</span></code> instance instead of the documented
+<code class="docutils literal notranslate"><span class="pre">(sample_val_type,</span> <span class="pre">samples)</span></code> tuple. It now always returns the correct 2-tuple.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.device_get_supported_vgpus</span></code>, <code class="docutils literal notranslate"><span class="pre">nvml.device_get_creatable_vgpus</span></code>,
+<code class="docutils literal notranslate"><span class="pre">nvml.device_get_active_vgpus</span></code>: The old implementations would return a
+<code class="docutils literal notranslate"><span class="pre">NameError</span></code> at runtime whenever there was at least one result to return. Now
+fixed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.device_get_gpu_instances</span></code>,
+<code class="docutils literal notranslate"><span class="pre">nvml.gpu_instance_get_compute_instances</span></code>: The old implementations would fail
+with <code class="docutils literal notranslate"><span class="pre">ValueError:</span> <span class="pre">Invalid</span> <span class="pre">shape</span> <span class="pre">in</span> <span class="pre">axis</span> <span class="pre">0:</span> <span class="pre">0</span></code> whenever the result is empty.
+Now correctly returns an empty array in that case.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.device_get_vgpu_utilization</span></code>: The old implementation would only fill
+in the first element of the returned array; the rest was uninitialized
+garbage. It is now correctly returned as a properly-sized array. In addition,
+the first element of the returned tuple, <code class="docutils literal notranslate"><span class="pre">sample_val_type</span></code>, is now a plain
+<code class="docutils literal notranslate"><span class="pre">int</span></code> rather than a length-1 array, since it is a single output parameter,
+not a per-sample value.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.device_get_vgpu_process_utilization</span></code>: The old implementation returned
+a tuple <code class="docutils literal notranslate"><span class="pre">(sample_count,</span> <span class="pre">samples)</span></code>, and the <code class="docutils literal notranslate"><span class="pre">samples</span></code> array only ever
+contained one element. It is now correctly returned as a properly-sized array
+(and the redundant <code class="docutils literal notranslate"><span class="pre">sample_count</span></code> — which was only ever the array’s own size —
+is no longer part of the returned value; use <code class="docutils literal notranslate"><span class="pre">len(result)</span></code> instead).</p></li>
+</ul>
 </section>
 <section id="enhancements">
 <h2>Enhancements<a class="headerlink" href="#enhancements" title="Link to this heading">#</a></h2>
@@ -2598,6 +2623,7 @@ similarly-renamed <code class="docutils literal notranslate"><span class="pre">n
 <ul class="simple">
 <li><p>A number of incorrect docstrings have been corrected.</p></li>
 <li><p>Setting a <code class="docutils literal notranslate"><span class="pre">cuda_bindings</span></code> class instance to itself (<code class="docutils literal notranslate"><span class="pre">obj</span> <span class="pre">=</span> <span class="pre">cuda_bindings.driver.Class();</span> <span class="pre">obj[0]</span> <span class="pre">=</span> <span class="pre">obj</span></code>) will no longer crash or use garbage values.</p></li>
+<li><p>Fix a potential use-after-free error in the destructors of classes in <code class="docutils literal notranslate"><span class="pre">driver</span></code> and <code class="docutils literal notranslate"><span class="pre">runtime</span></code>.</p></li>
 </ul>
 </section>
 <section id="prerelease-feature">
