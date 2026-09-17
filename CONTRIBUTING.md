@@ -219,16 +219,14 @@ The freshness check additionally fails when the check itself rewrote a lockfile.
 not canonical for the pinned pixi version, quietly normalizing the file instead,
 which leaves every later pixi run rewriting the committed lockfile.
 
-A scheduled workflow (`CI: pixi lockfile refresh`)
-runs `pixi update --no-install` per workspace and opens a dedicated PR when that
-lockfile changes, so broad dependency churn is reviewed as maintenance rather
-than landing inside unrelated feature work. The workflow can also be dispatched
-manually for one workspace or for all of them. Its dispatch input and every
-lockfile CI matrix resolve through `ci/tools/list_pixi_workspaces.py`, which
-derives the workspace list from the committed manifests, so a newly added
-workspace is picked up without editing any workflow. Human-readable workspace
-IDs remain the dispatch and display names; the inventory generates separate,
-ref-safe keys for refresh branches and workflow concurrency.
+A scheduled workflow (`CI: pixi lockfile refresh`) runs
+`pixi update --no-install` for every workspace in one job and opens one PR with
+all changed lockfiles, so broad dependency churn is reviewed as maintenance
+rather than landing inside unrelated feature work. The workflow can also be
+dispatched manually. Both lockfile workflows resolve their workspace lists
+through `ci/tools/list_pixi_workspaces.py`, which derives the inventory from the
+committed manifests, so a newly added workspace is picked up without editing a
+workflow.
 
 Refresh PRs use `GITHUB_TOKEN`. After one opens, a maintainer with write access
 must first select **Approve workflows to run** in the merge box, then assign
