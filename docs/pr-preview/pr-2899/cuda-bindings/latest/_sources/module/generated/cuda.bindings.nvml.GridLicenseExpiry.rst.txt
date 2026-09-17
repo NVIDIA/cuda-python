@@ -1,0 +1,38 @@
+﻿cuda.bindings.nvml.GridLicenseExpiry
+====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GridLicenseExpiry
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GridLicenseExpiry.__init__
+      ~GridLicenseExpiry.from_buffer
+      ~GridLicenseExpiry.from_data
+      ~GridLicenseExpiry.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GridLicenseExpiry.day
+      ~GridLicenseExpiry.hour
+      ~GridLicenseExpiry.min_
+      ~GridLicenseExpiry.month
+      ~GridLicenseExpiry.ptr
+      ~GridLicenseExpiry.sec
+      ~GridLicenseExpiry.status
+      ~GridLicenseExpiry.year
+   
+   
