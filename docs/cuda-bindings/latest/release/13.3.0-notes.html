@@ -59,7 +59,7 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/release/13.3.0-notes.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/13.4.2/release/13.3.0-notes.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -119,9 +119,6 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-<aside class="bd-header-announcement" aria-label="Announcement">
-  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
-</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -537,7 +534,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="13.5.0-notes.html">13.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.4.2-notes.html">13.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.4.1-notes.html">13.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.4.0-notes.html">13.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.3.1-notes.html">13.3.1</a></li>
@@ -549,7 +546,6 @@
 <li class="toctree-l2"><a class="reference internal" href="13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.0-notes.html">13.0.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.5-notes.html">12.9.5</a></li>
@@ -1436,9 +1432,6 @@ builds of <code class="docutils literal notranslate"><span class="pre">cuda-bind
 <ul class="simple">
 <li><p>Updating from older versions (v12.6.2.post1 and below) via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">cuda-python</span></code> might not work. Please do a clean re-installation by uninstalling <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">uninstall</span> <span class="pre">-y</span> <span class="pre">cuda-python</span></code> followed by installing <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-python</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvml.system_get_process_name</span></code> on WSL can return incorrect values.  To work around this, set the locale to “C” before calling <code class="docutils literal notranslate"><span class="pre">nvml.device_get_compute_running_processes_v3</span></code> (which sets the process names) and before calling <code class="docutils literal notranslate"><span class="pre">nvml.system_get_process_name</span></code>. <code class="docutils literal notranslate"><span class="pre">cuda_core</span></code> does this automatically, but users of the raw NVML API will need to do this manually.</p></li>
-<li><p>When using <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.3.x with <code class="docutils literal notranslate"><span class="pre">cufile</span></code> 13.4.x, the <code class="docutils literal notranslate"><span class="pre">cuda.bindings.cufile.get_stats_l1</span></code> and <code class="docutils literal notranslate"><span class="pre">cuda.bindings.cufile.get_stats_l2</span></code> function will segfault.
-Upgrade to <code class="docutils literal notranslate"><span class="pre">cuda-bindings`</span> <span class="pre">13.4.1</span> <span class="pre">or</span> <span class="pre">later</span> <span class="pre">if</span> <span class="pre">you</span> <span class="pre">need</span> <span class="pre">to</span> <span class="pre">use</span> <span class="pre">these</span> <span class="pre">functions</span> <span class="pre">with</span> <span class="pre">``cufile`</span></code> 13.4.x.
-See <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2794">issue #2794</a>.</p></li>
 </ul>
 </section>
 </section>

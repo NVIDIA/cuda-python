@@ -59,7 +59,7 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/13.4.2/overview.html" />
     <link rel="icon" href="_static/favicon.png"/>
 
     <link rel="index" title="Index" href="genindex.html" />
@@ -119,9 +119,6 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-<aside class="bd-header-announcement" aria-label="Announcement">
-  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
-</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -537,7 +534,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/13.5.0-notes.html">13.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/13.4.2-notes.html">13.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.4.1-notes.html">13.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.4.0-notes.html">13.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.3.1-notes.html">13.3.1</a></li>
@@ -549,7 +546,6 @@
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html">13.0.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.5-notes.html">12.9.5</a></li>
@@ -1605,7 +1601,7 @@ was used for application performance.</p>
 </pre></div>
 </div>
 <div class="pst-scrollable-table-container"><table class="table" id="id4">
-<caption><span class="caption-number">Table 2 </span><span class="caption-text">Kernel and application performance comparison.</span><a class="headerlink" href="#id4" title="Link to this table">#</a></caption>
+<caption><span class="caption-number">Table 1 </span><span class="caption-text">Kernel and application performance comparison.</span><a class="headerlink" href="#id4" title="Link to this table">#</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"></th>
 <th class="head"><p>C++</p></th>
@@ -1668,7 +1664,7 @@ maximize performance ({numref}``Figure 1``).</p>
 </div>
 <p>The first step is to create array objects with types corresponding to your kernel arguments. Primitive NumPy types have the following corresponding kernel types:</p>
 <div class="pst-scrollable-table-container"><table class="table" id="id5">
-<caption><span class="caption-number">Table 3 </span><span class="caption-text">Correspondence between NumPy types and kernel types.</span><a class="headerlink" href="#id5" title="Link to this table">#</a></caption>
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">Correspondence between NumPy types and kernel types.</span><a class="headerlink" href="#id5" title="Link to this table">#</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>NumPy type</p></th>
 <th class="head"><p>Corresponding kernel types</p></th>
@@ -1843,7 +1839,7 @@ Furthermore, <a class="reference external" href="https://docs.python.org/3/libra
 <h3>CUDA objects<a class="headerlink" href="#cuda-objects" title="Link to this heading">#</a></h3>
 <p>Certain CUDA kernels use native CUDA types as their parameters such as <code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code>. These types require special handling since they’re neither a primitive ctype nor a custom user type. Since <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> exposes each of them as Python classes, they each implement <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code> and <code class="docutils literal notranslate"><span class="pre">__int__()</span></code>. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#">Tips and Tricks</a>.</p>
 <p>For this example, lets use the <code class="docutils literal notranslate"><span class="pre">transformKernel</span></code> from
-<a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/f9de5797efa09827b1c5d6a75ffc618963e7110a/cuda_bindings/examples/0_Introduction/simple_cubemap_texture.py">simple_cubemap_texture.py</a>.
+<a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/v13.4.2/cuda_bindings/examples/0_Introduction/simple_cubemap_texture.py">simple_cubemap_texture.py</a>.
 The <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> page links to more samples covering textures, graphs,
 memory mapping, and multi-GPU workflows.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simpleCubemapTexture</span> <span class="o">=</span> <span class="s2">"""</span><span class="se">\</span>
