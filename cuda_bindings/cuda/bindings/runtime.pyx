@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=144b063e6665a8eda3633307d63f7bd708b343d3f3be6f61e0f39b5890fcc76e
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fc55059ea50298ed1008a81741a0b366c8a833aa4535678016c5d0c91564020f
 from typing import Any, Optional
 import cython
 import ctypes
@@ -11320,7 +11320,6 @@ cdef class cudaMemAllocNodeParams:
         self._poolProps = cudaMemPoolProps(_ptr=<void_ptr>&self._pvt_ptr[0].poolProps)
 
     def __dealloc__(self):
-        pass
 
         if self._accessDescs is not NULL:
             free(self._accessDescs)
@@ -11478,7 +11477,6 @@ cdef class cudaMemAllocNodeParamsV2:
         self._poolProps = cudaMemPoolProps(_ptr=<void_ptr>&self._pvt_ptr[0].poolProps)
 
     def __dealloc__(self):
-        pass
 
         if self._accessDescs is not NULL:
             free(self._accessDescs)
@@ -15884,13 +15882,13 @@ cdef class cudaDevResource_st:
         self._wq = cudaDevWorkqueueResource(_ptr=<void_ptr>&self._pvt_ptr[0].wq)
 
     def __dealloc__(self):
-        if self._val_ptr is not NULL:
-            free(self._val_ptr)
 
         if self._nextResource is not NULL:
             free(self._nextResource)
             self._pvt_ptr[0].nextResource = NULL
 
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -16567,7 +16565,6 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
 
         if self._extSemArray is not NULL:
             free(self._extSemArray)
@@ -16710,7 +16707,6 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
         self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
 
     def __dealloc__(self):
-        pass
 
         if self._extSemArray is not NULL:
             free(self._extSemArray)
@@ -16869,7 +16865,6 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
 
         if self._extSemArray is not NULL:
             free(self._extSemArray)
@@ -17012,7 +17007,6 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
         self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
 
     def __dealloc__(self):
-        pass
 
         if self._extSemArray is not NULL:
             free(self._extSemArray)
@@ -31352,16 +31346,20 @@ def cudaGraphicsResourceGetMappedPointer(resource):
     Parameters
     ----------
     resource : :py:obj:`~.cudaGraphicsResource_t`
-        None
+        Mapped resource to access
 
     Returns
     -------
     cudaError_t
-
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorUnknown`
     devPtr : Any
-        None
+        Returned pointer through which `resource` may be accessed
     size : int
-        None
+        Returned size of the buffer accessible starting at `*devPtr`
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphicsMapResources`, :py:obj:`~.cudaGraphicsSubResourceGetMappedArray`, :py:obj:`~.cuGraphicsResourceGetMappedPointer`
     """
     cdef cyruntime.cudaGraphicsResource_t cyresource
     if resource is None:
@@ -34648,7 +34646,7 @@ def cudaGraphNodeGetToolsId(hNode):
     -------
     cudaError_t
         :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.cudaErrorInvalidValue`
-    *toolsNodeId : unsigned long long
+    toolsNodeId : unsigned long long
         Pointer to return the id used by tools
 
     See Also

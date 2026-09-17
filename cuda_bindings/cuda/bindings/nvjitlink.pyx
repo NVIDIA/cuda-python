@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.0.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2722e4f76d90d40a7e867693a6583e1e1a5364bcb4dd8ec6265135f041d4b362
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d783bc46a513ae0becbc9385c3be40ba64809b0fd834e5ed3189b94bd287436d
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -152,6 +152,8 @@ cpdef destroy(intptr_t handle):
 cpdef intptr_t create(uint32_t num_options, options) except -1:
     """nvJitLinkCreate creates an instance of ``nvJitLinkHandle`` with the given input options, and sets the output parameter ``handle``.
 
+    It supports options listed in ``Supported Link Options``.
+
     Args:
         num_options (uint32_t): Number of options passed.
         options (object): Array of size ``num_options`` of option strings. It can be:
@@ -178,6 +180,7 @@ cpdef intptr_t create(uint32_t num_options, options) except -1:
 cpdef add_data(intptr_t handle, int input_type, data, size_t size, name):
     """nvJitLinkAddData adds data image to the link.
 
+
     Args:
         handle (intptr_t): nvJitLink handle.
         input_type (InputType): kind of input.
@@ -200,6 +203,7 @@ cpdef add_data(intptr_t handle, int input_type, data, size_t size, name):
 cpdef add_file(intptr_t handle, int input_type, file_name):
     """nvJitLinkAddFile reads data from file and links it in.
 
+
     Args:
         handle (intptr_t): nvJitLink handle.
         input_type (InputType): kind of input.
@@ -219,6 +223,7 @@ cpdef add_file(intptr_t handle, int input_type, file_name):
 cpdef complete(intptr_t handle):
     """nvJitLinkComplete does the actual link.
 
+
     Args:
         handle (intptr_t): nvJitLink handle.
 
@@ -231,6 +236,7 @@ cpdef complete(intptr_t handle):
 
 cpdef size_t get_linked_cubin_size(intptr_t handle) except? 0:
     """nvJitLinkGetLinkedCubinSize gets the size of the linked cubin.
+
 
     Args:
         handle (intptr_t): nvJitLink handle.
@@ -250,6 +256,8 @@ cpdef size_t get_linked_cubin_size(intptr_t handle) except? 0:
 cpdef get_linked_cubin(intptr_t handle, cubin):
     """nvJitLinkGetLinkedCubin gets the linked cubin.
 
+    User is responsible for allocating enough space to hold the ``cubin``.
+
     Args:
         handle (intptr_t): nvJitLink handle.
         cubin (bytes): The linked cubin.
@@ -264,6 +272,8 @@ cpdef get_linked_cubin(intptr_t handle, cubin):
 
 cpdef size_t get_linked_ptx_size(intptr_t handle) except? 0:
     """nvJitLinkGetLinkedPtxSize gets the size of the linked ptx.
+
+    Linked PTX is only available when using the ``-lto`` option.
 
     Args:
         handle (intptr_t): nvJitLink handle.
@@ -283,6 +293,9 @@ cpdef size_t get_linked_ptx_size(intptr_t handle) except? 0:
 cpdef get_linked_ptx(intptr_t handle, ptx):
     """nvJitLinkGetLinkedPtx gets the linked ptx.
 
+    Linked PTX is only available when using the ``-lto`` option. User is
+    responsible for allocating enough space to hold the ``ptx``.
+
     Args:
         handle (intptr_t): nvJitLink handle.
         ptx (bytes): The linked PTX.
@@ -297,6 +310,7 @@ cpdef get_linked_ptx(intptr_t handle, ptx):
 
 cpdef size_t get_error_log_size(intptr_t handle) except? 0:
     """nvJitLinkGetErrorLogSize gets the size of the error log.
+
 
     Args:
         handle (intptr_t): nvJitLink handle.
@@ -316,6 +330,8 @@ cpdef size_t get_error_log_size(intptr_t handle) except? 0:
 cpdef get_error_log(intptr_t handle, log):
     """nvJitLinkGetErrorLog puts any error messages in the log.
 
+    User is responsible for allocating enough space to hold the ``log``.
+
     Args:
         handle (intptr_t): nvJitLink handle.
         log (bytes): The error log.
@@ -330,6 +346,7 @@ cpdef get_error_log(intptr_t handle, log):
 
 cpdef size_t get_info_log_size(intptr_t handle) except? 0:
     """nvJitLinkGetInfoLogSize gets the size of the info log.
+
 
     Args:
         handle (intptr_t): nvJitLink handle.
@@ -349,6 +366,8 @@ cpdef size_t get_info_log_size(intptr_t handle) except? 0:
 cpdef get_info_log(intptr_t handle, log):
     """nvJitLinkGetInfoLog puts any info messages in the log.
 
+    User is responsible for allocating enough space to hold the ``log``.
+
     Args:
         handle (intptr_t): nvJitLink handle.
         log (bytes): The info log.
@@ -363,6 +382,7 @@ cpdef get_info_log(intptr_t handle, log):
 
 cpdef tuple version():
     """nvJitLinkVersion returns the current version of nvJitLink.
+
 
     Returns:
         A 2-tuple containing:
@@ -382,6 +402,9 @@ cpdef tuple version():
 cpdef size_t get_linked_ltoir_size(intptr_t handle) except? 0:
     """nvJitLinkGetLinkedLTOIRSize gets the size of the linked LTOIR.
 
+    Linked LTOIR is only available when using the ``-lto`` option. The returned
+    data is in LTOIR Container format (not raw bitcode).
+
     Args:
         handle (intptr_t): nvJitLink handle.
 
@@ -399,6 +422,10 @@ cpdef size_t get_linked_ltoir_size(intptr_t handle) except? 0:
 
 cpdef get_linked_ltoir(intptr_t handle, ltoir):
     """nvJitLinkGetLinkedLTOIR gets the linked LTOIR.
+
+    Linked LTOIR is only available when using the ``-lto`` option. User is
+    responsible for allocating enough space to hold the ``ltoir``. The returned
+    data is in LTOIR Container format (not raw bitcode).
 
     Args:
         handle (intptr_t): nvJitLink handle.
