@@ -80,7 +80,7 @@ def test_create_and_destroy():
 
 @pytest.mark.parametrize("add_fn", [nvvm.add_module_to_program, nvvm.lazy_add_module_to_program])
 def test_add_module_to_program_fail(add_fn):
-    with nvvm_program() as prog, pytest.raises(ValueError):
+    with nvvm_program() as prog, pytest.raises(nvvm.nvvmError):
         # Passing a C NULL pointer generates "ERROR_INVALID_INPUT (4)",
         # but that is not possible through our Python bindings.
         # The ValueError originates from the cython bindings code.
