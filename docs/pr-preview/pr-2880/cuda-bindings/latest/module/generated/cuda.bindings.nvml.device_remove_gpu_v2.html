@@ -549,6 +549,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
@@ -1367,6 +1368,12 @@
 <dt class="sig sig-object py" id="cuda.bindings.nvml.device_remove_gpu_v2">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">device_remove_gpu_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pci_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">gpu_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">link_state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_remove_gpu_v2" title="Link to this definition">#</a></dt>
 <dd><p>This method will remove the specified GPU from the view of both NVML and the NVIDIA kernel driver as long as no other processes are attached. If other processes are attached, this call will return NVML_ERROR_IN_USE and the GPU will be returned to its original “draining” state. Note: the only situation where a process can still be attached after <a class="reference internal" href="cuda.bindings.nvml.device_modify_drain_state.html#cuda.bindings.nvml.device_modify_drain_state" title="cuda.bindings.nvml.device_modify_drain_state"><code class="xref py py-func docutils literal notranslate"><span class="pre">device_modify_drain_state()</span></code></a> is called to initiate the draining state is if that process was using, and is still using, a GPU before the call was made. Also note, persistence mode counts as an attachment to the GPU thus it must be disabled prior to this call.</p>
+<p>For long-running NVML processes please note that this will change the
+enumeration of current GPUs. For example, if there are four GPUs present and
+GPU1 is removed, the new enumeration will be 0-2. Also, device handles after
+the removed GPU will not be valid and must be re-established. Must be run as
+administrator. For Linux only.
+For Pascal ™️ or newer fully supported devices. Some Kepler devices supported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
