@@ -241,9 +241,11 @@ def test_graph_complete_after_close_forked(init_cuda):
 def test_graph_join_failure_closes_unjoined_forks(init_cuda):
     """A join that raises midway closes the forks it did not join (#2776).
 
-    A fork left capturing on its private stream crashed the interpreter when it
-    was collected later. The failure is provoked by closing one fork's stream,
-    which makes the root's wait on it raise before the remaining forks are joined.
+    The crash in #2776 was the builder's teardown after such an unjoined
+    capture, which GB_end_capture now handles; this checks that the forks are
+    closed and that ending the capture reports the unjoined work. The failure
+    is provoked by closing one fork's stream, which makes the root's wait on it
+    raise before the remaining forks are joined.
     """
     mod = compile_common_kernels()
     empty_kernel = mod.get_kernel("empty_kernel")
