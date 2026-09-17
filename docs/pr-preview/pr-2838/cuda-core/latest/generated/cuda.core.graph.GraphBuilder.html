@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=95528677"></script>
+    <script src="../_static/documentation_options.js?v=85a0e44f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev99';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev104';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1056,7 +1056,9 @@ whether the branch executes.</p>
 <dt class="sig sig-object py" id="cuda.core.graph.GraphBuilder.join">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">graph_builders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphBuilder.join" title="Link to this definition">#</a></dt>
 <dd><p>Joins multiple graph builders into a single graph builder.</p>
-<p>The returned builder inherits work dependencies from the provided builders.</p>
+<p>The returned builder inherits work dependencies from the provided builders.
+If joining fails partway, the builders that were not joined are closed
+before the error propagates, so none is left capturing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>*graph_builders</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code>) – The graph builders to join.</p>
