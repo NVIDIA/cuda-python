@@ -59,7 +59,7 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/13.4.2/module/nvvm.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/nvvm.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -119,6 +119,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -534,7 +537,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../release/13.4.2-notes.html">13.4.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.5.0-notes.html">13.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.4.1-notes.html">13.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.4.0-notes.html">13.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.3.1-notes.html">13.3.1</a></li>
@@ -546,6 +549,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.5-notes.html">12.9.5</a></li>
@@ -1429,6 +1433,10 @@
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.add_module_to_program">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">add_module_to_program</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvvm.add_module_to_program" title="Link to this definition">#</a></dt>
 <dd><p>Add a module level NVVM IR to a program.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">buffer</span></code> should contain an NVVM IR module. The module should have NVVM IR
+either in the LLVM 7.0.1 bitcode representation or in the LLVM 7.0.1 text
+representation. Support for reading the text representation of NVVM IR is
+deprecated and may be removed in a later version.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1436,8 +1444,8 @@
 <li><p><strong>buffer</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – NVVM IR module in the bitcode or text
 representation.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – Size of the NVVM IR module.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the NVVM IR module. If NULL, “&lt;unnamed&gt;”
-is used as the name.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the NVVM IR module. If NULL, “&lt;unnamed&gt;” is
+used as the name.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1451,14 +1459,23 @@ is used as the name.</p></li>
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.lazy_add_module_to_program">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">lazy_add_module_to_program</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvvm.lazy_add_module_to_program" title="Link to this definition">#</a></dt>
 <dd><p>Add a module level NVVM IR to a program.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">buffer</span></code> should contain an NVVM IR module. The module should have NVVM IR
+in the LLVM 7.0.1 bitcode representation.
+A module added using this API is lazily loaded - the only symbols loaded are
+those that are required by module(s) loaded using nvvmAddModuleToProgram. It is
+an error for a program to have all modules loaded using this API. Compiler may
+also optimize entities in this module by making them internal to the linked
+NVVM IR module, making them eligible for other optimizations. Due to these
+optimizations, this API to load a module is more efficient and should be used
+where possible.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
 <li><p><strong>buffer</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – NVVM IR module in the bitcode representation.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – Size of the NVVM IR module.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the NVVM IR module. If NULL, “&lt;unnamed&gt;”
-is used as the name.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the NVVM IR module. If NULL, “&lt;unnamed&gt;” is
+used as the name.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1472,13 +1489,77 @@ is used as the name.</p></li>
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.compile_program">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">compile_program</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">num_options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvvm.compile_program" title="Link to this definition">#</a></dt>
 <dd><p>Compile the NVVM program.</p>
+<p>The NVVM IR modules in the program will be linked at the IR level. The linked
+IR program is compiled to PTX.
+The target datalayout in the linked IR program is used to determine the address
+size (32bit vs 64bit).
+The valid compiler options are:.</p>
+<ul class="simple">
+<li><p>-g (enable generation of full debugging information). Full debug support is
+only valid with ‘-opt=0’. Debug support requires the input module to utilize
+NVVM IR Debug Metadata. Line number (line info) only generation is also
+enabled via NVVM IR Debug Metadata, there is no specific libNVVM API flag for
+that case.</p></li>
+<li><p>-opt=.</p></li>
+<li><p>0 (disable optimizations).</p></li>
+<li><p>3 (default, enable optimizations).</p></li>
+<li><p>-arch=.</p></li>
+<li><p>compute_75 (default).</p></li>
+<li><p>compute_80.</p></li>
+<li><p>compute_87.</p></li>
+<li><p>compute_89.</p></li>
+<li><p>compute_90.</p></li>
+<li><p>compute_90a.</p></li>
+<li><p>compute_100.</p></li>
+<li><p>compute_100a.</p></li>
+<li><p>compute_100f.</p></li>
+<li><p>compute_103.</p></li>
+<li><p>compute_103a.</p></li>
+<li><p>compute_103f.</p></li>
+<li><p>compute_110.</p></li>
+<li><p>compute_110a.</p></li>
+<li><p>compute_110f.</p></li>
+<li><p>compute_120.</p></li>
+<li><p>compute_120a.</p></li>
+<li><p>compute_120f.</p></li>
+<li><p>compute_121.</p></li>
+<li><p>compute_121a.</p></li>
+<li><p>compute_121f.</p></li>
+<li><p>-ftz=.</p></li>
+<li><p>0 (default, preserve denormal values, when performing single-precision
+floating-point operations).</p></li>
+<li><p>1 (flush denormal values to zero, when performing single-precision
+floating-point operations).</p></li>
+<li><p>-prec-sqrt=.</p></li>
+<li><p>0 (use a faster approximation for single-precision floating-point square
+root).</p></li>
+<li><p>1 (default, use IEEE round-to-nearest mode for single-precision floating-
+point square root).</p></li>
+<li><p>-prec-div=.</p></li>
+<li><p>0 (use a faster approximation for single-precision floating-point division
+and reciprocals).</p></li>
+<li><p>1 (default, use IEEE round-to-nearest mode for single-precision floating-
+point division and reciprocals).</p></li>
+<li><p>-fma=.</p></li>
+<li><p>0 (disable FMA contraction).</p></li>
+<li><p>1 (default, enable FMA contraction).</p></li>
+<li><p>-jump-table-density=[0-101] Specify the case density percentage in switch
+statements, and use it as a minimal threshold to determine whether jump
+table(brx.idx instruction) will be used to implement a switch statement.
+Default value is 101. The percentage ranges from 0 to 101 inclusively.</p></li>
+<li><p>-gen-lto (Generate LTO IR instead of PTX).</p></li>
+<li><p>-ptx-version-target=[86-94] Specify the target PTX version as (MAJOR VERSION
+* 10 + MINOR VERSION). This is supported only for Blackwell and later
+architectures (compute capability compute_100 or greater). Using this option
+implies that the operations in incoming <code class="docutils literal notranslate"><span class="pre">prog</span></code> are compliant with targeted
+PTX version. If not set, highest available PTX version is used.</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
 <li><p><strong>num_options</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of compiler <code class="docutils literal notranslate"><span class="pre">options</span></code> passed.</p></li>
-<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>Compiler options in the form of C string
-array. It can be:</p>
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>Compiler options in the form of C string array. It can be:</p>
 <ul>
 <li><p>an <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> as the pointer address to the nested sequence, or</p></li>
 <li><p>a Python sequence of <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s, each of which is a pointer address
@@ -1499,13 +1580,14 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.verify_program">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">verify_program</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">num_options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvvm.verify_program" title="Link to this definition">#</a></dt>
 <dd><p>Verify the NVVM program.</p>
+<p>The valid compiler options are:.
+Same as for <a class="reference internal" href="#cuda.bindings.nvvm.compile_program" title="cuda.bindings.nvvm.compile_program"><code class="xref py py-func docutils literal notranslate"><span class="pre">compile_program()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
 <li><p><strong>num_options</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of compiler <code class="docutils literal notranslate"><span class="pre">options</span></code> passed.</p></li>
-<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>Compiler options in the form of C string
-array. It can be:</p>
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>Compiler options in the form of C string array. It can be:</p>
 <ul>
 <li><p>an <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> as the pointer address to the nested sequence, or</p></li>
 <li><p>a Python sequence of <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s, each of which is a pointer address
@@ -1531,11 +1613,7 @@ to a valid sequence of ‘char’, or</p></li>
 <dd class="field-odd"><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>Size of the compiled result (including the trailing</dt><dd><p>NULL).</p>
-</dd>
-</dl>
-</p>
+<dd class="field-even"><p>Size of the compiled result (including the trailing NULL).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>size_t</p>
@@ -1551,6 +1629,7 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.get_compiled_result">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">get_compiled_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvvm.get_compiled_result" title="Link to this definition">#</a></dt>
 <dd><p>Get the compiled result.</p>
+<p>The result is stored in the memory pointed to by <code class="docutils literal notranslate"><span class="pre">buffer</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1569,13 +1648,15 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.get_program_log_size">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">get_program_log_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">prog</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">size_t</span></span></span><a class="headerlink" href="#cuda.bindings.nvvm.get_program_log_size" title="Link to this definition">#</a></dt>
 <dd><p>Get the Size of Compiler/Verifier Message.</p>
+<p>The size of the message string (including the trailing NULL) is stored into
+<code class="docutils literal notranslate"><span class="pre">buffer_size_ret</span></code> when the return value is NVVM_SUCCESS.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>Size of the compilation/verification log (including</dt><dd><p>the trailing NULL).</p>
+<dt>Size of the compilation/verification log (including the</dt><dd><p>trailing NULL).</p>
 </dd>
 </dl>
 </p>
@@ -1594,6 +1675,8 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.get_program_log">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">get_program_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvvm.get_program_log" title="Link to this definition">#</a></dt>
 <dd><p>Get the Compiler/Verifier Message.</p>
+<p>The NULL terminated message string is stored in the memory pointed to by
+<code class="docutils literal notranslate"><span class="pre">buffer</span></code> when the return value is NVVM_SUCCESS.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
