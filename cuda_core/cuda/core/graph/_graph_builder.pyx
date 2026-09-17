@@ -534,7 +534,11 @@ cdef class GraphBuilder:
             If the capture was invalidated, for example by a CUDA call that is
             not permitted while capturing. The capture is ended and the
             builder holds no graph afterwards, so :meth:`complete` and
-            :attr:`graph_definition` are unavailable.
+            :attr:`graph_definition` are unavailable. This applies to a
+            top-level builder. The body builder of a conditional node cannot
+            recover from an invalidated capture: the driver discards the body
+            graph that the parent graph still refers to, so the parent
+            builder's graph is invalid as well.
         """
         GB_check_open(self)
         if self._state != CAPTURING:
@@ -1080,8 +1084,12 @@ cdef inline cydriver.CUresult GB_end_capture(GraphBuilder gb) noexcept:
     with nogil:
         err = cydriver.cuStreamEndCapture(c_stream, &c_graph)
     if c_graph == NULL:
-        # A CONDITIONAL_BODY graph is owned by the parent's node, so only the
-        # PRIMARY builder's hierarchy has a root to retire.
+        # Only a PRIMARY builder owns a graph hierarchy to retire. A
+        # CONDITIONAL_BODY graph belongs to the parent's conditional node; the
+        # driver destroys it as well when the body capture ends invalidated and
+        # leaves the parent graph referring to it, which cuda.core cannot
+        # repair (see the end_building docstring). Only this builder's alias
+        # is dropped here.
         if gb._kind == PRIMARY:
             invalidate_root_graph_state(gb._h_graph)
         gb._h_graph.reset()
