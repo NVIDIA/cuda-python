@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_set\_power\_management\_limit\_v2
-============================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_set_power_management_limit_v2
