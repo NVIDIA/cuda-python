@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=2541bb0b"></script>
+    <script src="../_static/documentation_options.js?v=eec82bc6"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev93';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev94';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -808,9 +808,11 @@ they were only available from a private module.</p></li>
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>A <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> whose construction failed before its options were
-recorded, for example because <code class="docutils literal notranslate"><span class="pre">options</span></code> had the wrong type, no longer
-raises <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> from its destructor.
+<li><p>A <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> that is collected as part of a reference cycle no longer
+raises <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> from its destructor, and the source file it wrote
+for a <code class="docutils literal notranslate"><span class="pre">debug</span></code> or <code class="docutils literal notranslate"><span class="pre">lineinfo</span></code> build is removed. The cyclic collector
+clears object attributes before the destructor runs, and the destructor
+read the program options to locate that file.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2876">#2876</a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Graph.__getitem__</span></code> now declares an overload for each node type that has
 an executable view, so type checkers and editors see the precise view type:
