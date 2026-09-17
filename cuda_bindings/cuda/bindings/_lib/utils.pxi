@@ -60,7 +60,7 @@ cdef object supported_types = {
     ctypes_c_double,
 }
 
-# A slot wide enough for all `supported_types` above (and `void_p`)
+# A slot wide enough for all `supported_types` (and `void_p`)
 cdef size_t MAX_PARAM_SIZE = max(_ctypes.sizeof(t) for t in supported_types)
 # For correct access pointers have to fit (appended) and the size
 # must be a multiple of the max alignment (guaranteed if power of 2).
@@ -88,8 +88,8 @@ cdef int _try_specific_types(char* slot, object value, object ctype) except -1:
         if value_type is py_float:
             (<double*>slot)[0] = value
             return 1
-        if isinstance(value, _ctypes.c_float):
-            # This explcitly allows c_float for double arguments.
+        if isinstance(value, ctypes_c_float):
+            # This explicitly allows c_float for double arguments.
             (<double*>slot)[0] = value.value
             return 1
         return 0
@@ -117,14 +117,13 @@ cdef int _pack_argument(void** ptr, char* slot, object value, object ctype) exce
             ptr[0] = slot
             (<int*>slot)[0] = value  # _FastEnum is an int
         else:
-            raise TypeError("Provided argument is of type {} but expected Type {}, {} or CUDA Binding structure with getPtr() attribute".format(type(value), type(_ctypes.Structure), type(_ctypes.c_void_p)))
+            raise TypeError(f"Provided argument is of type {type(value)} but expected Type {_ctypes.Structure}, {_ctypes.c_void_p} or CUDA Binding structure with getPtr() attribute")
         return 0
 
     ptr[0] = slot
     if _try_specific_types(slot, value, ctype):
         return 0
     if ctype in supported_types:
-        # handle case where a float is passed as a double
         if not isinstance(value, ctype):
             value = ctype(value)
         size = <size_t>_ctypes.sizeof(ctype)
@@ -139,9 +138,9 @@ cdef int _pack_argument(void** ptr, char* slot, object value, object ctype) exce
             if callable(getPtr):
                 (<void_ptr*>slot)[0] = getPtr()
             else:
-                raise TypeError("Provided argument is of type {} but expected Type {}, {} or CUDA Binding structure with getPtr() attribute".format(type(value), type(int), type(_ctypes.c_void_p)))
+                raise TypeError(f"Provided argument is of type {type(value)} but expected Type {int}, {_ctypes.c_void_p} or CUDA Binding structure with getPtr() attribute")
         return 0
-    raise TypeError("Unsupported type: " + str(type(ctype)))
+    raise TypeError(f"Unsupported type: {ctype!r}")
 
 
 cdef class _HelperKernelParams:
@@ -230,7 +229,7 @@ cdef void * _helper_input_void_ptr(ptr, _HelperInputVoidPtrStruct *helper):
                 raise RuntimeError("Failed to retrieve buffer through Buffer Protocol")
             return <void*><void_ptr>(helper[0]._pybuffer.buf)
         else:
-            raise TypeError("Provided argument is of type {} but expected Type {}, {} or object with Buffer Protocol".format(type(ptr), type(None), type(int)))
+            raise TypeError(f"Provided argument is of type {type(ptr)} but expected Type None, int or object with Buffer Protocol")
 
 
 
