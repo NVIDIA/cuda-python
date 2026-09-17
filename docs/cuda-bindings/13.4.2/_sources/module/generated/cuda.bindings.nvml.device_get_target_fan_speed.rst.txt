@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_target\_fan\_speed
+==================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_target_fan_speed
