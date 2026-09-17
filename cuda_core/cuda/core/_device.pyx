@@ -30,7 +30,6 @@ from cuda.core._rt cimport (
 )
 
 from cuda.core._stream import IsStreamType, Stream, StreamOptions
-from cuda.core._utils.clear_error_support import assert_type
 from cuda.core._utils.cuda_utils import (
     ComputeCapability,
     CUDAError,
@@ -1215,9 +1214,7 @@ class Device:
         return self._memory_resource
 
     @memory_resource.setter
-    def memory_resource(self, mr: MemoryResource) -> None:
-        from cuda.core._memory import MemoryResource
-        assert_type(mr, MemoryResource)
+    def memory_resource(self, MemoryResource mr: MemoryResource) -> None:
         self._memory_resource = mr
 
     @property
@@ -1254,7 +1251,7 @@ class Device:
     def __reduce__(self) -> tuple[object, ...]:
         return Device, (self.device_id,)
 
-    def set_current(self, ctx: Context | None = None) -> Context | None:
+    def set_current(self, Context ctx: Context | None = None) -> Context | None:
         """Set device to be used for GPU executions.
 
         Initializes CUDA and sets the calling thread to a valid CUDA
@@ -1298,8 +1295,6 @@ class Device:
         cdef Context prev_owned = None
 
         if ctx is not None:
-            # TODO: revisit once Context is cythonized
-            assert_type(ctx, Context)
             Context_check_open(ctx)
             if ctx._device_id != self._device_id:
                 # The CUDA context stack is per-thread, not per-Device-object,

@@ -78,7 +78,7 @@ def plan_peer_access_update(owner_device_id: int, current_peer_ids: Iterable[int
     """Compute the peer-access target state and add/remove deltas."""
 def _resolve_peer_device_id(value: Device | int | None) -> int:
     """Coerce ``Device | int`` into a device-ordinal int."""
-def _set_pool_access(mr: object, to_add: tuple[int, ...], to_remove: tuple[int, ...]) -> None:
+def _set_pool_access(mr: DeviceMemoryResource, to_add: tuple[int, ...], to_remove: tuple[int, ...]) -> None:
     """Issue one ``cuMemPoolSetAccess`` for the given add/remove deltas.
 
     The thin Python-callable layer that wraps the actual driver call: building

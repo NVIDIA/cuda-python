@@ -30,7 +30,7 @@ __all__ = ['launch']
 def launch(
     stream: Stream | GraphBuilder | IsStreamType,
     config: LaunchConfig,
-    kernel: Kernel,
+    Kernel kernel: Kernel,
     *kernel_args
 ) -> None:
     """Launches a :obj:`~_module.Kernel`
@@ -59,8 +59,7 @@ def launch(
     cdef ParamHolder ker_args = ParamHolder(kernel_args)
     cdef void** args_ptr = <void**><uintptr_t>(ker_args.ptr)
 
-    cdef Kernel ker = <Kernel>kernel
-    cdef cydriver.CUfunction func_handle = <cydriver.CUfunction>as_cu(ker._h_kernel)
+    cdef cydriver.CUfunction func_handle = <cydriver.CUfunction>as_cu(kernel._h_kernel)
 
     drv_cfg = conf._to_native_launch_config()
     drv_cfg.hStream = as_cu(s._h_stream)
