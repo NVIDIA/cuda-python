@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=1d1e2eac"></script>
+    <script src="../_static/documentation_options.js?v=5a42cde7"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev110';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev108';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -808,6 +808,12 @@ they were only available from a private module.</p></li>
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>A <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> that is collected as part of a reference cycle no longer
+raises <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> from its destructor, and the source file it wrote
+for a <code class="docutils literal notranslate"><span class="pre">debug</span></code> or <code class="docutils literal notranslate"><span class="pre">lineinfo</span></code> build is removed. The cyclic collector
+clears object attributes before the destructor runs, and the destructor
+read the program options to locate that file.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2876">#2876</a>)</p></li>
 <li><p>Growing a <code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code> allocation with
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">modify_allocation()</span></code> when the address
 range cannot be extended in place no longer reports a spurious
@@ -885,6 +891,14 @@ made when a still-building <a class="reference internal" href="../generated/cuda
 is now reported as <a class="reference internal" href="../generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a>; both were silent.</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.Stream.html#cuda.core.Stream.device" title="cuda.core.Stream.device"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Stream.device</span></code></a> and related queries on a stream whose context is not
 current now restore the caller’s context even when the device query fails.</p></li>
+<li><p>Closing a <a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a> now revokes the peer access it
+granted before the driver destroys the pool. The revocation used to be one
+request that named every device, including the pool’s own; the driver
+rejects such a request as a whole, so it never took effect and a pool
+created later could inherit that access through a recycled handle. Each
+device is now revoked with its own request, so no single device can block
+the others.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2807">#2807</a>)</p></li>
 </ul>
 </section>
 </section>
