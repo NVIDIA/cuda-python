@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_memory\_error\_counter
-======================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_memory_error_counter
