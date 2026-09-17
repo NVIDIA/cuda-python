@@ -157,8 +157,13 @@ def simple_malloc_multi_device_mmap(size, resident_devices, mapping_devices, ali
             simple_free_multi_device_mmap(dptr, size)
             return status, None, None
 
-    # Each accessDescriptor will describe the mapping requirement for a single device
-    access_descriptors = [cuda.CUmemAccessDesc()] * len(mapping_devices)
+    # Each accessDescriptor will describe the mapping requirement for a single device.
+    # One CUmemAccessDesc per device: `[CUmemAccessDesc()] * n` would store n
+    # references to a single mutable object, so the loop below would overwrite
+    # the same descriptor n times and cuMemSetAccess would receive the last
+    # device repeated n times -- succeeding, while every other device faults on
+    # first touch.
+    access_descriptors = [cuda.CUmemAccessDesc() for _ in mapping_devices]
 
     # Prepare the access descriptor array indicating where and how the backings should be visible.
     for idx in range(len(mapping_devices)):
@@ -290,10 +295,16 @@ def main():
     # h_C contains the result in host memory
     check_cuda_errors(cuda.cuMemcpyDtoH(h_c, d_c, size))
 
-    # Verify result
+    # Verify result.
+    # A completed C `for` loop leaves i == n, which is why the C sample can
+    # test `i == N` for success. A completed Python loop leaves i == n - 1, so
+    # a flag is needed: `i + 1 != n` is also what `break` at the last index
+    # produces, and a wrong value in h_c[n - 1] would be reported as a pass.
+    mismatch = False
     for i in range(n):
         sum_all = h_a[i] + h_b[i]
         if math.fabs(h_c[i] - sum_all) > 1e-7:
+            mismatch = True
             break
 
     check_cuda_errors(simple_free_multi_device_mmap(d_a, allocation_size))
@@ -302,7 +313,7 @@ def main():
 
     check_cuda_errors(cuda.cuCtxDestroy(cu_context))
 
-    if i + 1 != n:
+    if mismatch:
         print("Result = FAIL", file=sys.stderr)
         sys.exit(1)
 
