@@ -35,6 +35,11 @@ import setuptools  # noqa: F401
 
 from cuda.pathfinder import get_cuda_path_or_home
 
+_skip_if_source_tree_unavailable = pytest.mark.skipif(
+    os.environ.get("CUDA_CORE_TEST_SKIP_SOURCE_TREE_TESTS") == "1",
+    reason="cuda.core source tree is unavailable in this test environment",
+)
+
 
 def _load_build_hooks():
     """Load build_hooks module from source without permanently modifying sys.path.
@@ -245,6 +250,7 @@ def _capture_cythonize_build_dir(monkeypatch, cuda_major):
     return Path(captured["build_dir"])
 
 
+@_skip_if_source_tree_unavailable
 class TestGeneratedSourceDirIsKeyed:
     """Generated C++ must not be shared between CUDA majors.
 

@@ -17,10 +17,16 @@ templates and inline functions, through file-relative includes. Everything with
 storage or a body lives behind rt.hpp, which only _rt.pyx names.
 """
 
+import os
 import re
 from pathlib import Path
 
 import pytest
+
+_skip_if_source_tree_unavailable = pytest.mark.skipif(
+    os.environ.get("CUDA_CORE_TEST_SKIP_SOURCE_TREE_TESTS") == "1",
+    reason="cuda.core source tree is unavailable in this test environment",
+)
 
 CORE = Path(__file__).resolve().parent.parent / "cuda" / "core"
 RT = CORE / "_cpp" / "rt"
@@ -51,12 +57,14 @@ def include_closure(path):
     return sorted(seen)
 
 
+@_skip_if_source_tree_unavailable
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_python_h_is_spelled_only_in_py_hpp():
     spellers = [p.name for p in HEADERS + SOURCES if "<Python.h>" in read(p)]
     assert spellers == ["py.hpp"]
 
 
+@_skip_if_source_tree_unavailable
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_neutral_files_do_not_name_python():
     """Every header except the seam and the umbrellas, and every source that does
@@ -76,6 +84,7 @@ def test_in_tree_includes_are_bare_sibling_names_that_exist():
             assert (RT / name).is_file(), f"{path.name} includes {name!r}, which does not exist"
 
 
+@_skip_if_source_tree_unavailable
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_umbrellas_are_named_only_by_their_cython_file():
     for path in HEADERS + SOURCES:
@@ -87,6 +96,7 @@ def test_umbrellas_are_named_only_by_their_cython_file():
     assert named == {"_cpp/rt/rt.hpp": {"_rt.pyx"}, "_cpp/rt/handles.hpp": {"_rt.pxd"}}
 
 
+@_skip_if_source_tree_unavailable
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_consumer_closure_is_types_and_the_python_seam():
     closure = {p.name for p in include_closure(RT / "handles.hpp")}
@@ -98,6 +108,7 @@ def test_consumer_closure_is_types_and_the_python_seam():
         assert not re.search(r"^(static|thread_local)\b", text, re.M), f"{name} defines storage"
 
 
+@_skip_if_source_tree_unavailable
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_pxd_functions_are_not_called_by_name_inside_the_module():
     """Cython emits a static prototype for each cdef function the .pxd declares, so
