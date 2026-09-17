@@ -198,26 +198,31 @@ def test_device_get_samples_zero_result_returns_tuple(all_devices, subtests):
     even when there are zero samples to report, instead of a bare Sample instance.
     """
     for device in all_devices:
-        with subtests.test(device_index=nvml.device_get_index(device)):
-            with unsupported_before(device, None):
-                # _FUTURE_TIMESTAMP is newer than any sample can ever be, so the
-                # zero-sample result is deterministic and cannot race with a
-                # newly arriving sample (unlike querying "now" and re-querying).
+        with subtests.test(device_index=nvml.device_get_index(device)), unsupported_before(device, None):
+            last_seen_timestamp = 0
+            for _ in range(3):
                 try:
                     result = nvml.device_get_samples(
-                        device, nvml.SamplingType.GPU_UTILIZATION_SAMPLES, _FUTURE_TIMESTAMP
+                        device, nvml.SamplingType.GPU_UTILIZATION_SAMPLES, last_seen_timestamp
                     )
                 except nvml.NotFoundError:
                     # Some drivers report NotFoundError instead of a zero-sample
-                    # SUCCESS when there is nothing newer than the timestamp;
-                    # that is also an acceptable (non-crashing) outcome.
-                    continue
+                    # SUCCESS when there is nothing newer than the timestamp.
+                    break
 
-            assert isinstance(result, tuple)
-            assert len(result) == 2
-            sample_val_type, samples = result
-            assert isinstance(sample_val_type, int)
-            assert len(samples) == 0
+                assert isinstance(result, tuple)
+                assert len(result) == 2
+                sample_val_type, samples = result
+                assert isinstance(sample_val_type, int)
+                if len(samples) == 0:
+                    break
+
+                # NVML documents zero or a timestamp from a previous query.
+                # Advance to the newest returned sample and try to observe the
+                # zero-result path before another sample arrives.
+                last_seen_timestamp = max(sample.time_stamp for sample in samples)
+            else:
+                pytest.skip("NVML continued producing samples before an empty result could be observed")
 
 
 def _check_vgpu_type_id_list(type_ids):
