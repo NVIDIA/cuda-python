@@ -549,6 +549,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
@@ -1371,12 +1372,22 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>buf_ptr_base</strong> (<em>intptr_t</em>) – buffer pointer allocated.</p></li>
-<li><p><strong>length</strong> (<em>size_t</em>) – size of memory region from the above
-specified bufPtr.</p></li>
+<li><p><strong>length</strong> (<em>size_t</em>) – size of memory region from the above specified
+bufPtr.</p></li>
 <li><p><strong>flags</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – CU_FILE_RDMA_REGISTER.</p></li>
 </ul>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This memory will be use to perform GPU direct DMA from the supported storage.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This API is intended for usecases where the memory is used as streaming buffer
+that is reused across multiple cuFile IO operations before calling
+<code class="docutils literal notranslate"><span class="pre">cuFileBufDeregister</span></code>.</p>
+</div>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><cite>cuFileBufRegister</cite></p>

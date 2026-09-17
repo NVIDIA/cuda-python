@@ -549,6 +549,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
@@ -1372,8 +1373,35 @@
 <dd><em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span> <span class="pre">last_seen_time_stamp</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvml.device_get_vgpu_process_utilization" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_get_vgpu_process_utilization" title="Link to this definition">#</a></dt>
 <dd><p>Retrieves current utilization for processes running on vGPUs on a physical GPU (device).</p>
+<p>For Maxwell ™️ or newer fully supported devices.
+Reads recent utilization of GPU SM (3D/Compute), framebuffer, video encoder,
+and video decoder for processes running on vGPU instances active on a device.
+Utilization values are returned as an array of utilization sample structures in
+the caller-supplied buffer pointed at by <code class="docutils literal notranslate"><span class="pre">utilization_samples</span></code>. One
+utilization sample structure is returned per process running on vGPU instances,
+that had some non-zero utilization during the last sample period. It includes
+the CPU timestamp at which the samples were recorded. Individual utilization
+values are returned as “unsigned int” values.
+To read utilization values, first determine the size of buffer required to hold
+the samples by invoking the function with <code class="docutils literal notranslate"><span class="pre">utilization_samples</span></code> set to NULL.
+The function will return NVML_ERROR_INSUFFICIENT_SIZE, with the current vGPU
+instance count in <code class="docutils literal notranslate"><span class="pre">vgpu_process_samples_count</span></code>. The caller should allocate a
+buffer of size vgpu_process_samples_count *
+sizeof(nvmlVgpuProcessUtilizationSample_t). Invoke the function again with the
+allocated buffer passed in <code class="docutils literal notranslate"><span class="pre">utilization_samples</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">vgpu_process_samples_count</span></code> set to the number of entries the buffer is sized
+for.
+On successful return, the function updates <code class="docutils literal notranslate"><span class="pre">vgpuSubProcessSampleCount</span></code> with
+the number of vGPU sub process utilization sample structures that were actually
+written. This may differ from a previously read value depending on the number
+of processes that are active in any given sample period.
+last_seen_time_stamp represents the CPU timestamp in microseconds at which
+utilization samples were last read. Set it to 0 to read utilization based on
+all the samples maintained by the driver’s internal sample buffer. Set
+last_seen_time_stamp to a timeStamp retrieved from a previous query to read
+utilization since the previous query.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1383,23 +1411,15 @@ with timestamp greater than last_seen_time_stamp.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><dl class="simple">
-<dt>unsigned int: Pointer to caller-supplied array size, and</dt><dd><p>returns number of processes running on vGPU instances.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>nvmlVgpuProcessUtilizationSample_t: Pointer to caller-supplied</dt><dd><p>buffer in which vGPU sub process utilization samples are
+<dd class="field-even"><p><dl class="simple">
+<dt>Pointer to caller-supplied</dt><dd><p>buffer in which vGPU sub process utilization samples are
 returned.</p>
 </dd>
 </dl>
-</li>
-</ul>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A 2-tuple containing</p>
+<dd class="field-odd"><p>nvmlVgpuProcessUtilizationSample_t</p>
 </dd>
 </dl>
 <div class="admonition seealso">
