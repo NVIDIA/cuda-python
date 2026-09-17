@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9c73cc3eb2dfb48e4d87babe7f846f3b63bf212587a85f5dffe3b3591008dd53
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3c7e927ec5c1cfb53359992761541e0b734a28aa9fb7dc7de75f94b140ff84bd
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -65,7 +65,7 @@ cdef _cyb_from_buffer(buffer, size, lowpp_type):
             raise ValueError("buffer itemsize must be 1 byte")
         if view.len != size:
             raise ValueError(f"buffer length must be {size} bytes")
-        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
+        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, view.readonly != 0, buffer)
     finally:
         _cyb_cpython.PyBuffer_Release(&view)
 
@@ -168,6 +168,8 @@ cdef class _py_anon_pod1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof((<CUfileDescr_t*>NULL).handle):
@@ -316,6 +318,8 @@ cdef class _py_anon_pod3:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod3 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof((<CUfileIOParams_t*>NULL).u.batch):
@@ -654,6 +658,8 @@ cdef class OpCounter:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This OpCounter instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(CUfileOpCounter_t):
@@ -1617,6 +1623,8 @@ cdef class _py_anon_pod2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof((<CUfileIOParams_t*>NULL).u):
@@ -1810,6 +1818,8 @@ cdef class StatsLevel1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This StatsLevel1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(CUfileStatsLevel1_t):
@@ -2847,6 +2857,8 @@ cdef class StatsLevel2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This StatsLevel2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(CUfileStatsLevel2_t):
@@ -3012,6 +3024,8 @@ cdef class StatsLevel3:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This StatsLevel3 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(CUfileStatsLevel3_t):
@@ -3354,12 +3368,19 @@ cdef int check_status(ReturnT status) except 1 nogil:
 cpdef intptr_t handle_register(descr) except? 0:
     """cuFileHandleRegister is required, and performs extra checking that is memoized to provide increased performance on later cuFile operations.
 
+    Description cuFileHandleRegister registers the open file descriptor for use
+    with cuFile IO operations.
+    This API will ensure that the file's descriptor is checked for GPUDirect
+    Storage support and returns a valid file handle on CU_FILE_SUCCESS.
+
     Args:
         descr (intptr_t): ``CUfileDescr_t`` file descriptor (OS agnostic).
 
     Returns:
         intptr_t: ``CUfileHandle_t`` opaque file handle for IO operations.
 
+    .. note::
+        the file needs to be opened in O_DIRECT mode to support GPUDirect Storage.
     .. seealso:: `cuFileHandleRegister`
     """
     cdef intptr_t _descr_ptr_ = int(descr)
@@ -3373,6 +3394,7 @@ cpdef intptr_t handle_register(descr) except? 0:
 cpdef void handle_deregister(intptr_t fh) except*:
     """releases a registered filehandle from cuFile.
 
+
     Args:
         fh (intptr_t): ``CUfileHandle_t`` file handle.
 
@@ -3385,12 +3407,19 @@ cpdef void handle_deregister(intptr_t fh) except*:
 cpdef buf_register(intptr_t buf_ptr_base, size_t length, int flags):
     """register an existing cudaMalloced memory with cuFile to pin for GPUDirect Storage access or register host allocated memory with cuFile.
 
+
     Args:
         buf_ptr_base (intptr_t): buffer pointer allocated.
         length (size_t): size of memory region from the above specified
             bufPtr.
         flags (int): CU_FILE_RDMA_REGISTER.
 
+    .. note::
+        This memory will be use to perform GPU direct DMA from the supported storage.
+    .. note::
+        This API is intended for usecases where the memory is used as streaming buffer
+        that is reused across multiple cuFile IO operations before calling
+        ``cuFileBufDeregister``.
     .. seealso:: `cuFileBufRegister`
     """
     with nogil:
@@ -3400,6 +3429,7 @@ cpdef buf_register(intptr_t buf_ptr_base, size_t length, int flags):
 
 cpdef buf_deregister(intptr_t buf_ptr_base):
     """deregister an already registered device or host memory from cuFile.
+
 
     Args:
         buf_ptr_base (intptr_t): buffer pointer to deregister.
@@ -3414,6 +3444,7 @@ cpdef buf_deregister(intptr_t buf_ptr_base):
 cpdef driver_open():
     """Initialize the cuFile library and open the nvidia-fs driver.
 
+
     .. seealso:: `cuFileDriverOpen`
     """
     with nogil:
@@ -3424,6 +3455,7 @@ cpdef driver_open():
 cpdef use_count():
     """returns use count of cufile drivers at that moment by the process.
 
+
     .. seealso:: `cuFileUseCount`
     """
     with nogil:
@@ -3433,6 +3465,7 @@ cpdef use_count():
 
 cpdef driver_get_properties(intptr_t props):
     """Gets the Driver session properties If the driver is not opened, it will return the staged/default properties If the driver is opened, it will return the current properties.
+
 
     Args:
         props (intptr_t): Properties to get.
@@ -3447,11 +3480,15 @@ cpdef driver_get_properties(intptr_t props):
 cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
     """Sets whether the Read/Write APIs use polling to do IO operations This takes place before the driver is opened. No-op if driver is already open.
 
+
     Args:
         poll (bint): boolean to indicate whether to use poll mode or not.
         poll_threshold_size (size_t): max IO size to use for POLLING mode
             in KB.
 
+    .. note::
+        This is an advanced command and should be tuned based on available system
+        memory.
     .. seealso:: `cuFileDriverSetPollMode`
     """
     with nogil:
@@ -3462,9 +3499,13 @@ cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
 cpdef driver_set_max_direct_io_size(size_t max_direct_io_size):
     """Control parameter to set max IO size(KB) used by the library to talk to nvidia-fs driver This takes place before the driver is opened. No-op if driver is already open.
 
+
     Args:
         max_direct_io_size (size_t): maximum allowed direct io size in KB.
 
+    .. note::
+        This is an advanced command and should be tuned based on available system
+        memory.
     .. seealso:: `cuFileDriverSetMaxDirectIOSize`
     """
     with nogil:
@@ -3475,10 +3516,13 @@ cpdef driver_set_max_direct_io_size(size_t max_direct_io_size):
 cpdef driver_set_max_cache_size(size_t max_cache_size):
     """Control parameter to set maximum GPU memory reserved per device by the library for internal buffering This takes place before the driver is opened. No-op if driver is already open.
 
+
     Args:
         max_cache_size (size_t): The maximum GPU buffer space per device
             used for internal use in KB.
 
+    .. note::
+        This is an advanced command and should be tuned based on supported GPU memory.
     .. seealso:: `cuFileDriverSetMaxCacheSize`
     """
     with nogil:
@@ -3489,10 +3533,13 @@ cpdef driver_set_max_cache_size(size_t max_cache_size):
 cpdef driver_set_max_pinned_mem_size(size_t max_pinned_size):
     """Sets maximum buffer space that is pinned in KB for use by ``cuFileBufRegister`` This takes place before the driver is opened. No-op if driver is already open.
 
+
     Args:
         max_pinned_size (size_t): maximum buffer space that is pinned in
             KB.
 
+    .. note::
+        This is an advanced command and should be tuned based on supported GPU memory.
     .. seealso:: `cuFileDriverSetMaxPinnedMemSize`
     """
     with nogil:
@@ -3560,9 +3607,14 @@ cpdef stream_deregister(intptr_t stream):
 cpdef int get_version() except? 0:
     """Get the cuFile library version.
 
+    The version is returned as (1000 major + 10 minor). For example, CUFILE 1.7.0
+    would be represented by 1070.
+
     Returns:
         int: Pointer to an integer where the version will be stored.
 
+    .. note::
+        This is useful for applications that need to inquire the library.
     .. seealso:: `cuFileGetVersion`
     """
     cdef int version
@@ -3618,6 +3670,7 @@ cpdef set_parameter_string(int param, intptr_t desc_str):
 cpdef tuple get_parameter_min_max_value(int param):
     """Get both the minimum and maximum settable values for a given size_t parameter in a single call.
 
+
     Args:
         param (SizeTConfigParameter): CUfile SizeT configuration
             parameter.
@@ -3640,10 +3693,15 @@ cpdef tuple get_parameter_min_max_value(int param):
 cpdef set_stats_level(int level):
     """Set the level of statistics collection for cuFile operations. This will override the cufile.json settings for stats.
 
+
     Args:
         level (int): Statistics level (0 = disabled, 1 = basic, 2 =
             detailed, 3 = verbose).
 
+    .. note::
+        Higher stats levels may impact performance. Level 0 disables statistics.
+    .. note::
+        Changes to stats level take effect for future operations.
     .. seealso:: `cuFileSetStatsLevel`
     """
     with nogil:
@@ -3653,6 +3711,7 @@ cpdef set_stats_level(int level):
 
 cpdef int get_stats_level() except? 0:
     """Get the current level of statistics collection for cuFile operations.
+
 
     Returns:
         int: Pointer to store the current statistics level.
@@ -3669,6 +3728,10 @@ cpdef int get_stats_level() except? 0:
 cpdef stats_start():
     """Start collecting cuFile statistics.
 
+
+    .. note::
+        Statistics level must be set using cuFileSetStatsLevel before calling this
+        function.
     .. seealso:: `cuFileStatsStart`
     """
     with nogil:
@@ -3678,6 +3741,7 @@ cpdef stats_start():
 
 cpdef stats_stop():
     """Stop collecting cuFile statistics.
+
 
     .. seealso:: `cuFileStatsStop`
     """
@@ -3689,6 +3753,7 @@ cpdef stats_stop():
 cpdef stats_reset():
     """Reset all cuFile statistics counters.
 
+
     .. seealso:: `cuFileStatsReset`
     """
     with nogil:
@@ -3698,6 +3763,7 @@ cpdef stats_reset():
 
 cpdef get_stats_l1(stats):
     """Get Level 1 cuFile statistics.
+
 
     Args:
         stats (intptr_t): Pointer to ``CUfileStatsLevel1_t`` structure to
@@ -3714,6 +3780,7 @@ cpdef get_stats_l1(stats):
 cpdef get_stats_l2(stats):
     """Get Level 2 cuFile statistics.
 
+
     Args:
         stats (intptr_t): Pointer to ``CUfileStatsLevel2_t`` structure to
             be filled.
@@ -3728,6 +3795,7 @@ cpdef get_stats_l2(stats):
 
 cpdef get_stats_l3(stats):
     """Get Level 3 cuFile statistics.
+
 
     Args:
         stats (intptr_t): Pointer to ``CUfileStatsLevel3_t`` structure to
@@ -3752,6 +3820,7 @@ cpdef size_t get_bar_size_in_kb(int gpu_index) except? 0:
 cpdef set_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len):
     """Set both POSIX pool slab size and count parameters as a pair.
 
+
     Args:
         size_values (intptr_t): Array of slab sizes in KB.
         count_values (intptr_t): Array of slab counts.
@@ -3766,6 +3835,7 @@ cpdef set_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_v
 
 cpdef get_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len):
     """Get both POSIX pool slab size and count parameters as a pair.
+
 
     Args:
         size_values (intptr_t): Buffer to receive slab sizes in KB.

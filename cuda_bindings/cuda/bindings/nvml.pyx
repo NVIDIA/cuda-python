@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3725fb32334b95e2b1046b133f024b7fe82357ce6afba040f5c8e2f355ae2e9d
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=11827bb18f0653afd95163d1d140a0ec529d3d025b1ca1da61f96ee88f48d948
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -61,7 +61,7 @@ cdef _cyb_from_buffer(buffer, size, lowpp_type):
             raise ValueError("buffer itemsize must be 1 byte")
         if view.len != size:
             raise ValueError(f"buffer length must be {size} bytes")
-        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
+        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, view.readonly != 0, buffer)
     finally:
         _cyb_cpython.PyBuffer_Release(&view)
 
@@ -1064,7 +1064,7 @@ class GpmMetricId(_cyb_FastEnum):
     GPM_METRIC_DMMA_TENSOR_UTIL = DMMA_TENSOR_UTIL  # backward-compat alias
     IMMA_TENSOR_UTIL = (NVML_GPM_METRIC_IMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing IMMA tensor operations. 0.0 - 100.0.")
     GPM_METRIC_IMMA_TENSOR_UTIL = IMMA_TENSOR_UTIL  # backward-compat alias
-    DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. `0.0 - 100.0 */`.')
+    DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. `0.0 - 100.0`.')
     GPM_METRIC_DRAM_BW_UTIL = DRAM_BW_UTIL  # backward-compat alias
     FP64_UTIL = (NVML_GPM_METRIC_FP64_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP64 math. 0.0 - 100.0.")
     GPM_METRIC_FP64_UTIL = FP64_UTIL  # backward-compat alias
@@ -3164,6 +3164,8 @@ cdef class PciInfoExt_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This PciInfoExt_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlPciInfoExt_v1_t):
@@ -3395,6 +3397,8 @@ cdef class PciInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This PciInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlPciInfo_t):
@@ -3594,6 +3598,8 @@ cdef class Utilization:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This Utilization instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlUtilization_t):
@@ -3730,6 +3736,8 @@ cdef class Memory:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This Memory instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlMemory_t):
@@ -3879,6 +3887,8 @@ cdef class Memory_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This Memory_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlMemory_v2_t):
@@ -4048,6 +4058,8 @@ cdef class BAR1Memory:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This BAR1Memory instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlBAR1Memory_t):
@@ -4577,6 +4589,8 @@ cdef class DeviceAttributes:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This DeviceAttributes instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlDeviceAttributes_t):
@@ -4788,6 +4802,8 @@ cdef class C2cModeInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This C2cModeInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlC2cModeInfo_v1_t):
@@ -4915,6 +4931,8 @@ cdef class RowRemapperHistogramValues:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This RowRemapperHistogramValues instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlRowRemapperHistogramValues_t):
@@ -5256,6 +5274,8 @@ cdef class Value:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This Value instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlValue_t):
@@ -5643,6 +5663,8 @@ cdef class CoolerInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This CoolerInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlCoolerInfo_v1_t):
@@ -5962,6 +5984,8 @@ cdef class ClockOffset_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ClockOffset_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlClockOffset_v1_t):
@@ -6588,6 +6612,8 @@ cdef class EccSramErrorStatus_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EccSramErrorStatus_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEccSramErrorStatus_v1_t):
@@ -6850,6 +6876,8 @@ cdef class PlatformInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This PlatformInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlPlatformInfo_v1_t):
@@ -7069,6 +7097,8 @@ cdef class PlatformInfo_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This PlatformInfo_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlPlatformInfo_v2_t):
@@ -7469,6 +7499,8 @@ cdef class VgpuPlacementList_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuPlacementList_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuPlacementList_v2_t):
@@ -7635,6 +7667,8 @@ cdef class VgpuTypeBar1Info_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuTypeBar1Info_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuTypeBar1Info_v1_t):
@@ -7706,6 +7740,234 @@ cdef class VgpuTypeBar1Info_v1:
             obj._ptr = <nvmlVgpuTypeBar1Info_v1_t *>ptr
             obj._owner = owner
         obj._readonly = readonly
+        return obj
+
+
+cdef _get_vgpu_process_utilization_sample_dtype_offsets():
+    cdef nvmlVgpuProcessUtilizationSample_t pod
+    return _numpy.dtype({
+        'names': ['vgpu_instance', 'pid', 'process_name', 'time_stamp', 'sm_util', 'mem_util', 'enc_util', 'dec_util'],
+        'formats': [_numpy.uint32, _numpy.uint32, (_numpy.int8, 64), _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.processName)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.smUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.memUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.encUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.decUtil)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuProcessUtilizationSample_t),
+    })
+
+vgpu_process_utilization_sample_dtype = _get_vgpu_process_utilization_sample_dtype_offsets()
+
+cdef class VgpuProcessUtilizationSample:
+    """Empty-initialize an array of `nvmlVgpuProcessUtilizationSample_t`.
+    The resulting object is of length `size` and of dtype `vgpu_process_utilization_sample_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `nvmlVgpuProcessUtilizationSample_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=vgpu_process_utilization_sample_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlVgpuProcessUtilizationSample_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuProcessUtilizationSample_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.VgpuProcessUtilizationSample_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.VgpuProcessUtilizationSample object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, VgpuProcessUtilizationSample)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def vgpu_instance(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.vgpu_instance[0])
+        return self._data.vgpu_instance
+
+    @vgpu_instance.setter
+    def vgpu_instance(self, val):
+        self._data.vgpu_instance = val
+
+    @property
+    def pid(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.pid[0])
+        return self._data.pid
+
+    @pid.setter
+    def pid(self, val):
+        self._data.pid = val
+
+    @property
+    def process_name(self):
+        """~_numpy.int8: (array of length 64)."""
+        return self._data.process_name
+
+    @process_name.setter
+    def process_name(self, val):
+        self._data.process_name = val
+
+    @property
+    def time_stamp(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.time_stamp[0])
+        return self._data.time_stamp
+
+    @time_stamp.setter
+    def time_stamp(self, val):
+        self._data.time_stamp = val
+
+    @property
+    def sm_util(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.sm_util[0])
+        return self._data.sm_util
+
+    @sm_util.setter
+    def sm_util(self, val):
+        self._data.sm_util = val
+
+    @property
+    def mem_util(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.mem_util[0])
+        return self._data.mem_util
+
+    @mem_util.setter
+    def mem_util(self, val):
+        self._data.mem_util = val
+
+    @property
+    def enc_util(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.enc_util[0])
+        return self._data.enc_util
+
+    @enc_util.setter
+    def enc_util(self, val):
+        self._data.enc_util = val
+
+    @property
+    def dec_util(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.dec_util[0])
+        return self._data.dec_util
+
+    @dec_util.setter
+    def dec_util(self, val):
+        self._data.dec_util = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return VgpuProcessUtilizationSample.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == vgpu_process_utilization_sample_dtype:
+            return VgpuProcessUtilizationSample.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuProcessUtilizationSample instance with the memory from the given buffer."""
+        return VgpuProcessUtilizationSample.from_data(_numpy.frombuffer(buffer, dtype=vgpu_process_utilization_sample_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an VgpuProcessUtilizationSample instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `vgpu_process_utilization_sample_dtype` holding the data.
+        """
+        cdef VgpuProcessUtilizationSample obj = VgpuProcessUtilizationSample.__new__(VgpuProcessUtilizationSample)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != vgpu_process_utilization_sample_dtype:
+            raise ValueError("data array must be of dtype vgpu_process_utilization_sample_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an VgpuProcessUtilizationSample instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef VgpuProcessUtilizationSample obj = VgpuProcessUtilizationSample.__new__(VgpuProcessUtilizationSample)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlVgpuProcessUtilizationSample_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_process_utilization_sample_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
         return obj
 
 
@@ -8032,6 +8294,8 @@ cdef class _py_anon_pod2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cuda_bindings_nvml__anon_pod2):
@@ -8177,6 +8441,8 @@ cdef class _py_anon_pod3:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod3 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cuda_bindings_nvml__anon_pod3):
@@ -8518,6 +8784,8 @@ cdef class _py_anon_pod4:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod4 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cuda_bindings_nvml__anon_pod4):
@@ -8663,6 +8931,8 @@ cdef class _py_anon_pod5:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod5 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cuda_bindings_nvml__anon_pod5):
@@ -8794,6 +9064,8 @@ cdef class VgpuSchedulerCapabilities:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerCapabilities instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerCapabilities_t):
@@ -9016,6 +9288,8 @@ cdef class VgpuLicenseExpiry:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuLicenseExpiry instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuLicenseExpiry_t):
@@ -9222,6 +9496,8 @@ cdef class GridLicenseExpiry:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GridLicenseExpiry instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGridLicenseExpiry_t):
@@ -9416,6 +9692,8 @@ cdef class VgpuTypeIdInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuTypeIdInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuTypeIdInfo_v1_t):
@@ -9563,6 +9841,8 @@ cdef class ActiveVgpuInstanceInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ActiveVgpuInstanceInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlActiveVgpuInstanceInfo_v1_t):
@@ -9712,6 +9992,8 @@ cdef class VgpuCreatablePlacementInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuCreatablePlacementInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuCreatablePlacementInfo_v1_t):
@@ -10034,6 +10316,8 @@ cdef class LedState:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This LedState instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlLedState_t):
@@ -10175,6 +10459,8 @@ cdef class UnitInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This UnitInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlUnitInfo_t):
@@ -10350,6 +10636,8 @@ cdef class PSUInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This PSUInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlPSUInfo_t):
@@ -10672,6 +10960,8 @@ cdef class EventData:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EventData instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEventData_t):
@@ -11003,6 +11293,8 @@ cdef class AccountingStats:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This AccountingStats instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlAccountingStats_t):
@@ -11413,6 +11705,8 @@ cdef class FBCStats:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This FBCStats instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlFBCStats_t):
@@ -11837,6 +12131,8 @@ cdef class ConfComputeSystemCaps:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ConfComputeSystemCaps instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlConfComputeSystemCaps_t):
@@ -11973,6 +12269,8 @@ cdef class ConfComputeSystemState:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ConfComputeSystemState instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlConfComputeSystemState_t):
@@ -12122,6 +12420,8 @@ cdef class SystemConfComputeSettings_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This SystemConfComputeSettings_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlSystemConfComputeSettings_v1_t):
@@ -12290,6 +12590,8 @@ cdef class ConfComputeMemSizeInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ConfComputeMemSizeInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlConfComputeMemSizeInfo_t):
@@ -12427,6 +12729,8 @@ cdef class ConfComputeGpuCertificate:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ConfComputeGpuCertificate instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlConfComputeGpuCertificate_t):
@@ -12588,6 +12892,8 @@ cdef class ConfComputeGpuAttestationReport:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ConfComputeGpuAttestationReport instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlConfComputeGpuAttestationReport_t):
@@ -12777,6 +13083,8 @@ cdef class GpuFabricInfo_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuFabricInfo_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuFabricInfo_v2_t):
@@ -12963,6 +13271,8 @@ cdef class NvlinkSupportedBwModes_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkSupportedBwModes_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlNvlinkSupportedBwModes_v1_t):
@@ -13110,6 +13420,8 @@ cdef class NvlinkGetBwMode_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkGetBwMode_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlNvlinkGetBwMode_v1_t):
@@ -13257,6 +13569,8 @@ cdef class NvlinkSetBwMode_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkSetBwMode_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlNvlinkSetBwMode_v1_t):
@@ -13413,6 +13727,8 @@ cdef class VgpuVersion:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuVersion instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuVersion_t):
@@ -13557,6 +13873,8 @@ cdef class VgpuMetadata:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuMetadata instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuMetadata_t):
@@ -13781,6 +14099,8 @@ cdef class VgpuPgpuCompatibility:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuPgpuCompatibility instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuPgpuCompatibility_t):
@@ -14085,6 +14405,8 @@ cdef class GpuInstanceProfileInfo_v3:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuInstanceProfileInfo_v3 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuInstanceProfileInfo_v3_t):
@@ -14512,6 +14834,8 @@ cdef class ComputeInstanceProfileInfo_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ComputeInstanceProfileInfo_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlComputeInstanceProfileInfo_v2_t):
@@ -14760,6 +15084,8 @@ cdef class ComputeInstanceProfileInfo_v3:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ComputeInstanceProfileInfo_v3 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlComputeInstanceProfileInfo_v3_t):
@@ -15009,6 +15335,8 @@ cdef class DeviceAddressingMode_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This DeviceAddressingMode_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlDeviceAddressingMode_v1_t):
@@ -15145,6 +15473,8 @@ cdef class RepairStatus_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This RepairStatus_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlRepairStatus_v1_t):
@@ -15292,6 +15622,8 @@ cdef class DevicePowerMizerModes_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This DevicePowerMizerModes_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlDevicePowerMizerModes_v1_t):
@@ -15661,6 +15993,8 @@ cdef class GpuFabricInfo_v3:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuFabricInfo_v3 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuFabricInfo_v3_t):
@@ -15857,6 +16191,8 @@ cdef class NvLinkInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This NvLinkInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlNvLinkInfo_v1_t):
@@ -16183,6 +16519,8 @@ cdef class PRMCounterInput_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This PRMCounterInput_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlPRMCounterInput_v1_t):
@@ -16310,6 +16648,8 @@ cdef class VgpuSchedulerStateInfo_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerStateInfo_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerStateInfo_v2_t):
@@ -16687,6 +17027,8 @@ cdef class VgpuSchedulerState_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerState_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerState_v2_t):
@@ -16843,6 +17185,8 @@ cdef class BBXTimeData_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This BBXTimeData_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlBBXTimeData_v1_t):
@@ -16971,6 +17315,8 @@ cdef class RemappedRowsInfo_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This RemappedRowsInfo_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlRemappedRowsInfo_v2_t):
@@ -17158,6 +17504,8 @@ cdef class AccountingStats_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This AccountingStats_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlAccountingStats_v2_t):
@@ -17392,6 +17740,8 @@ cdef class CPERCursor_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This CPERCursor_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlCPERCursor_v1_t):
@@ -17546,6 +17896,8 @@ cdef class SetMemoryLimits_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This SetMemoryLimits_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlSetMemoryLimits_v1_t):
@@ -17703,6 +18055,8 @@ cdef class GetMemoryLimits_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GetMemoryLimits_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGetMemoryLimits_v1_t):
@@ -18634,6 +18988,8 @@ cdef class AdaptiveTgpModeInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This AdaptiveTgpModeInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlAdaptiveTgpModeInfo_v1_t):
@@ -18801,6 +19157,8 @@ cdef class EventSetGetContextCount_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EventSetGetContextCount_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEventSetGetContextCount_v1_t):
@@ -18928,6 +19286,8 @@ cdef class EventSetGetContextInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EventSetGetContextInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEventSetGetContextInfo_v1_t):
@@ -19096,6 +19456,8 @@ cdef class EventSetGetGpuOperationalEventContextLegacyXid_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EventSetGetGpuOperationalEventContextLegacyXid_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t):
@@ -19241,6 +19603,8 @@ cdef class GpuFabricClique_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuFabricClique_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuFabricClique_v1_t):
@@ -19378,6 +19742,8 @@ cdef class GpuOperationalEventConfig_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuOperationalEventConfig_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuOperationalEventConfig_v1_t):
@@ -19551,6 +19917,8 @@ cdef class EventSetWait_v3:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EventSetWait_v3 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEventSetWait_v3_t):
@@ -19948,6 +20316,8 @@ cdef class NvlinkSetBwModeAsync_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkSetBwModeAsync_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlNvlinkSetBwModeAsync_v1_t):
@@ -20298,6 +20668,8 @@ cdef class EccBankRemapperHistogram_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EccBankRemapperHistogram_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEccBankRemapperHistogram_v1_t):
@@ -20434,6 +20806,8 @@ cdef class ExcludedDeviceInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ExcludedDeviceInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlExcludedDeviceInfo_t):
@@ -20582,6 +20956,8 @@ cdef class ProcessDetailList_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ProcessDetailList_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlProcessDetailList_v1_t):
@@ -20739,6 +21115,8 @@ cdef class BridgeChipHierarchy:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This BridgeChipHierarchy instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlBridgeChipHierarchy_t):
@@ -21673,6 +22051,8 @@ cdef class PRMCounterValue_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This PRMCounterValue_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlPRMCounterValue_v1_t):
@@ -21825,6 +22205,8 @@ cdef class GpuThermalSettings:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuThermalSettings instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuThermalSettings_t):
@@ -21969,6 +22351,8 @@ cdef class ClkMonStatus:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ClkMonStatus instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlClkMonStatus_t):
@@ -22119,6 +22503,8 @@ cdef class ProcessesUtilizationInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ProcessesUtilizationInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlProcessesUtilizationInfo_v1_t):
@@ -22276,6 +22662,8 @@ cdef class GpuDynamicPstatesInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuDynamicPstatesInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuDynamicPstatesInfo_t):
@@ -22423,6 +22811,8 @@ cdef class VgpuProcessesUtilizationInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuProcessesUtilizationInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t):
@@ -22590,6 +22980,8 @@ cdef class VgpuSchedulerParams:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerParams instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerParams_t):
@@ -22746,6 +23138,8 @@ cdef class VgpuSchedulerSetParams:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerSetParams instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerSetParams_t):
@@ -22893,6 +23287,8 @@ cdef class VgpuLicenseInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuLicenseInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuLicenseInfo_t):
@@ -23244,6 +23640,8 @@ cdef class UnitFanSpeeds:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This UnitFanSpeeds instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlUnitFanSpeeds_t):
@@ -23393,6 +23791,8 @@ cdef class VgpuPgpuMetadata:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuPgpuMetadata instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuPgpuMetadata_t):
@@ -23598,6 +23998,8 @@ cdef class GpuInstanceInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuInstanceInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuInstanceInfo_t):
@@ -23764,6 +24166,8 @@ cdef class ComputeInstanceInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This ComputeInstanceInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlComputeInstanceInfo_t):
@@ -23941,6 +24345,8 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EccSramUniqueUncorrectedErrorCounts_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t):
@@ -24097,6 +24503,8 @@ cdef class NvlinkFirmwareInfo:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkFirmwareInfo instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlNvlinkFirmwareInfo_t):
@@ -24245,6 +24653,8 @@ cdef class VgpuSchedulerLogInfo_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerLogInfo_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerLogInfo_v2_t):
@@ -24433,6 +24843,8 @@ cdef class GetCPER_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GetCPER_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGetCPER_v1_t):
@@ -24935,6 +25347,8 @@ cdef class GpuFabricInfo_v4:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuFabricInfo_v4 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGpuFabricInfo_v4_t):
@@ -25140,6 +25554,8 @@ cdef class NvlinkTelemetrySamples_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkTelemetrySamples_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlNvlinkTelemetrySamples_v1_t):
@@ -25277,6 +25693,8 @@ cdef class EccBankRemapperStatus_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This EccBankRemapperStatus_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlEccBankRemapperStatus_v1_t):
@@ -25444,6 +25862,8 @@ cdef class VgpuInstancesUtilizationInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuInstancesUtilizationInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t):
@@ -25782,6 +26202,8 @@ cdef class VgpuSchedulerLog:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerLog instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerLog_t):
@@ -25975,6 +26397,8 @@ cdef class VgpuSchedulerGetState:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerGetState instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerGetState_t):
@@ -26129,6 +26553,8 @@ cdef class VgpuSchedulerStateInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerStateInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerStateInfo_v1_t):
@@ -26307,6 +26733,8 @@ cdef class VgpuSchedulerLogInfo_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerLogInfo_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerLogInfo_v1_t):
@@ -26513,6 +26941,8 @@ cdef class VgpuSchedulerState_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This VgpuSchedulerState_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlVgpuSchedulerState_v1_t):
@@ -26687,6 +27117,8 @@ cdef class GridLicensableFeatures:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This GridLicensableFeatures instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlGridLicensableFeatures_t):
@@ -26834,6 +27266,8 @@ cdef class NvLinkInfo_v2:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This NvLinkInfo_v2 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlNvLinkInfo_v2_t):
@@ -27823,6 +28257,8 @@ cdef class _py_anon_pod8:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod8 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(cuda_bindings_nvml__anon_pod8):
@@ -28285,6 +28721,8 @@ cdef class PerfMetricsSamples_v1:
     def __setitem__(self, key, val):
         cdef _cyb_Py_buffer view
         if key == 0:
+            if self._readonly:
+                raise ValueError("This PerfMetricsSamples_v1 instance is read-only")
             _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
             try:
                 if <size_t>view.len < sizeof(nvmlPerfMetricsSamples_v1_t):
@@ -28362,6 +28800,18 @@ cdef class PerfMetricsSamples_v1:
 cpdef init_v2():
     """Initialize the NVML Library lazily, without allocating any device state.
 
+    This will initialize the NVML Library state without enumerating any discovered
+    devices. This will allow NVML to communicate with a device, even if other
+    devices are in an unstable or bad state. Enumeration of a device can be done by
+    obtaining the device handle via the nvmlDeviceGetHandleBy* class of APIs.
+    This method needs to be called once before any usage of NVML Library APIs.
+    For all products.
+
+    .. note::
+        A reference count of the number of initializations is maintained, and a
+        corresponding call to :func:`shutdown` needs to be issued once usage of the
+        NVML Library is complete. Shutdown will only occur after the reference count
+        reaches zero.
     .. seealso:: `nvmlInit_v2`
     """
     with nogil:
@@ -28372,10 +28822,24 @@ cpdef init_v2():
 cpdef init_with_flags(unsigned int flags):
     """Initialize the NVML Library lazily, without allocating any device state, with additional init flags.
 
+    A variant of :func:`init_v2`, this will initialize the NVML Library state
+    without enumerating any discovered devices. An option to pass in additional
+    flags is provided to modify the behavior of NVML Library init. The usage of
+    these flags can be obtained from NVML_INIT_FLAG_*. These flags can be combined
+    together.
+    Other than the "flags" parameter, this method is completely identical to
+    :func:`init_v2`.
+    For all products.
+
     Args:
         flags (unsigned int): NVML_INIT_FLAG_* flags that can modify NVML
             Init behavior.
 
+    .. note::
+        A reference count of the number of initializations is maintained, and a
+        corresponding call to :func:`shutdown` needs to be issued once usage of the
+        NVML Library is complete. Shutdown will only occur after the reference count
+        reaches zero.
     .. seealso:: `nvmlInitWithFlags`
     """
     with nogil:
@@ -28386,6 +28850,15 @@ cpdef init_with_flags(unsigned int flags):
 cpdef shutdown():
     """Shut down and cleanup NVML Library state.
 
+    This will shut down and cleanup NVML Library state by releasing all device and
+    library resources previously allocated with :func:`init_v2` or
+    :func:`init_with_flags`. This should be called after all NVML work is done, and
+    once for each call to :func:`init_v2` or :func:`init_with_flags`.
+    Complete shutdown will only occur when the reference count of all prior NVML
+    initializations reaches zero. No error will be reported if this is called more
+    times than :func:`init_v2` or :func:`init_with_flags`.
+    For all products.
+
     .. seealso:: `nvmlShutdown`
     """
     with nogil:
@@ -28395,6 +28868,8 @@ cpdef shutdown():
 
 cpdef str error_string(int result):
     """Helper method for converting NVML error codes into readable strings.
+
+    For all products.
 
     Args:
         result (Return): NVML error code to convert.
@@ -28412,6 +28887,11 @@ cpdef str error_string(int result):
 cpdef str system_get_driver_version():
     """Retrieves the version of the system's graphics driver.
 
+    For all products.
+    The version identifier is an alphanumeric string. It will not exceed 80
+    characters in length (including the NULL terminator). See
+    nvmlConstants::NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE.
+
     Returns:
         char: Reference in which to return the version identifier.
 
@@ -28427,6 +28907,11 @@ cpdef str system_get_driver_version():
 
 cpdef str system_get_nvml_version():
     """Retrieves the version of the NVML library.
+
+    For all products.
+    The version identifier is an alphanumeric string. It will not exceed 80
+    characters in length (including the NULL terminator). See
+    nvmlConstants::NVML_SYSTEM_NVML_VERSION_BUFFER_SIZE.
 
     Returns:
         char: Reference in which to return the version identifier.
@@ -28444,6 +28929,11 @@ cpdef str system_get_nvml_version():
 cpdef int system_get_cuda_driver_version() except *:
     """Retrieves the version of the CUDA driver.
 
+    For all products.
+    The CUDA driver version returned will be retreived from the currently installed
+    version of CUDA. If the cuda library is not found, this function will return a
+    known supported version number.
+
     Returns:
         int: Reference in which to return the version identifier.
 
@@ -28459,6 +28949,9 @@ cpdef int system_get_cuda_driver_version() except *:
 cpdef int system_get_cuda_driver_version_v2() except 0:
     """Retrieves the version of the CUDA driver from the shared library.
 
+    For all products.
+    The returned CUDA driver version by calling cuDriverGetVersion().
+
     Returns:
         int: Reference in which to return the version identifier.
 
@@ -28473,6 +28966,10 @@ cpdef int system_get_cuda_driver_version_v2() except 0:
 
 cpdef str system_get_process_name(unsigned int pid):
     """Gets name of the process with provided process id.
+
+    For all products.
+    Returned process name is cropped to provided length. name string is encoded in
+    ANSI.
 
     Args:
         pid (unsigned int): The identifier of the process.
@@ -28493,6 +28990,11 @@ cpdef str system_get_process_name(unsigned int pid):
 cpdef object system_get_hic_version():
     """Retrieves the IDs and firmware versions for any Host Interface Cards (HICs) in the system.
 
+    For S-class products.
+    The ``hwbc_count`` argument is expected to be set to the size of the input
+    ``hwbc_entries`` array. The HIC must be connected to an S-class system for it
+    to be reported by this function.
+
     Returns:
         nvmlHwbcEntry_t: Array holding information about hwbc.
 
@@ -28504,16 +29006,44 @@ cpdef object system_get_hic_version():
     check_status_size(__status__)
     cdef HwbcEntry hwbc_entries = HwbcEntry(hwbc_count[0])
     cdef nvmlHwbcEntry_t *hwbc_entries_ptr = <nvmlHwbcEntry_t *><intptr_t>(hwbc_entries._get_ptr())
-    if hwbc_count[0] == 0:
-        return hwbc_entries
+    if hwbc_count[0] != 0:
+        with nogil:
+            __status__ = nvmlSystemGetHicVersion(<unsigned int*>hwbc_count, hwbc_entries_ptr)
+        check_status(__status__)
+    return hwbc_entries[:hwbc_count[0]]
+
+
+cpdef object system_get_topology_gpu_set(unsigned int cpu_number):
+    """Retrieve the set of GPUs that have a CPU affinity with the given CPU number For all products. Supported on Linux only.
+
+
+    Args:
+        cpu_number (unsigned int): The CPU number.
+
+    Returns:
+        intptr_t: An array of device handles for GPUs found with affinity
+            to ``cpu_number``.
+
+    .. seealso:: `nvmlSystemGetTopologyGpuSet`
+    """
+    cdef unsigned int[1] count = [0]
     with nogil:
-        __status__ = nvmlSystemGetHicVersion(<unsigned int*>hwbc_count, hwbc_entries_ptr)
-    check_status(__status__)
-    return hwbc_entries
+        __status__ = nvmlSystemGetTopologyGpuSet(cpu_number, <unsigned int*>count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array _device_array_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef intptr_t *device_array_ptr = <intptr_t *>(_device_array_alloc_.data)
+    cdef object device_array = _device_array_alloc_[:count[0]]
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlSystemGetTopologyGpuSet(cpu_number, <unsigned int*>count, <nvmlDevice_t*>device_array_ptr)
+        check_status(__status__)
+    return device_array[:count[0]]
 
 
 cpdef unsigned int unit_get_count() except? 0:
     """Retrieves the number of units in the system.
+
+    For S-class products.
 
     Returns:
         unsigned int: Reference in which to return the number of units.
@@ -28529,6 +29059,13 @@ cpdef unsigned int unit_get_count() except? 0:
 
 cpdef intptr_t unit_get_handle_by_index(unsigned int index) except? 0:
     """Acquire the handle for a particular unit, based on its index.
+
+    For S-class products.
+    Valid indices are derived from the ``unitCount`` returned by
+    :func:`unit_get_count`. For example, if ``unitCount`` is 2 the valid indices
+    are 0 and 1, corresponding to UNIT 0 and UNIT 1.
+    The order in which NVML enumerates units has no guarantees of consistency
+    between reboots.
 
     Args:
         index (unsigned int): The index of the target unit, >= 0 and <
@@ -28549,6 +29086,9 @@ cpdef intptr_t unit_get_handle_by_index(unsigned int index) except? 0:
 cpdef object unit_get_unit_info(intptr_t unit):
     """Retrieves the static information associated with a unit.
 
+    For S-class products.
+    See ``nvmlUnitInfo_t`` for details on available unit info.
+
     Args:
         unit (intptr_t): The identifier of the target unit.
 
@@ -28567,6 +29107,9 @@ cpdef object unit_get_unit_info(intptr_t unit):
 
 cpdef object unit_get_led_state(intptr_t unit):
     """Retrieves the LED state associated with this unit.
+
+    For S-class products.
+    See ``nvmlLedState_t`` for details on allowed states.
 
     Args:
         unit (intptr_t): The identifier of the target unit.
@@ -28588,6 +29131,9 @@ cpdef object unit_get_led_state(intptr_t unit):
 cpdef object unit_get_psu_info(intptr_t unit):
     """Retrieves the PSU stats for the unit.
 
+    For S-class products.
+    See ``nvmlPSUInfo_t`` for details on available PSU info.
+
     Args:
         unit (intptr_t): The identifier of the target unit.
 
@@ -28606,6 +29152,10 @@ cpdef object unit_get_psu_info(intptr_t unit):
 
 cpdef unsigned int unit_get_temperature(intptr_t unit, unsigned int type) except? 0:
     """Retrieves the temperature readings for the unit, in degrees C.
+
+    For S-class products.
+    Depending on the product, readings may be available for intake (type=0),
+    exhaust (type=1) and board (type=2).
 
     Args:
         unit (intptr_t): The identifier of the target unit.
@@ -28626,6 +29176,9 @@ cpdef unsigned int unit_get_temperature(intptr_t unit, unsigned int type) except
 cpdef object unit_get_fan_speed_info(intptr_t unit):
     """Retrieves the fan speed readings for the unit.
 
+    For S-class products.
+    See ``nvmlUnitFanSpeeds_t`` for details on available fan speed info.
+
     Args:
         unit (intptr_t): The identifier of the target unit.
 
@@ -28643,8 +29196,47 @@ cpdef object unit_get_fan_speed_info(intptr_t unit):
     return fan_speeds_py
 
 
+cpdef object unit_get_devices(intptr_t unit):
+    """Retrieves the set of GPU devices that are attached to the specified unit.
+
+    For S-class products.
+    The ``device_count`` argument is expected to be set to the size of the input
+    ``devices`` array.
+
+    Args:
+        unit (intptr_t): The identifier of the target unit.
+
+    Returns:
+        intptr_t: Reference in which to return the references to the
+            attached GPU devices.
+
+    .. seealso:: `nvmlUnitGetDevices`
+    """
+    cdef unsigned int[1] device_count = [0]
+    with nogil:
+        __status__ = nvmlUnitGetDevices(<Unit>unit, <unsigned int*>device_count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array _devices_alloc_ = _cyb_view.array(shape=(max(device_count[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef intptr_t *devices_ptr = <intptr_t *>(_devices_alloc_.data)
+    cdef object devices = _devices_alloc_[:device_count[0]]
+    if device_count[0] != 0:
+        with nogil:
+            __status__ = nvmlUnitGetDevices(<Unit>unit, <unsigned int*>device_count, <nvmlDevice_t*>devices_ptr)
+        check_status(__status__)
+    return devices[:device_count[0]]
+
+
 cpdef unsigned int device_get_count_v2() except? 0:
     """Retrieves the number of compute devices in the system. A compute device is a single GPU.
+
+    For all products.
+    Note: New nvmlDeviceGetCount_v2 (default in NVML 5.319) returns count of all
+    devices in the system even if nvmlDeviceGetHandleByIndex_v2 returns
+    NVML_ERROR_NO_PERMISSION for such device. Update your code to handle this
+    error, or use NVML 4.304 or older nvml header file. For backward binary
+    compatibility reasons _v1 version of the API is still present in the shared
+    library. Old _v1 version of nvmlDeviceGetCount doesn't count devices that NVML
+    has no permission to talk to.
 
     Returns:
         unsigned int: Reference in which to return the number of
@@ -28662,12 +29254,16 @@ cpdef unsigned int device_get_count_v2() except? 0:
 cpdef object device_get_attributes_v2(intptr_t device):
     """Get attributes (engine counts etc.) for the given NVML device handle.
 
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+
     Args:
         device (intptr_t): NVML device handle.
 
     Returns:
         nvmlDeviceAttributes_t: Device attributes.
 
+    .. note::
+        This API currently only supports MIG device handles.
     .. seealso:: `nvmlDeviceGetAttributes_v2`
     """
     cdef DeviceAttributes attributes_py = DeviceAttributes()
@@ -28680,6 +29276,33 @@ cpdef object device_get_attributes_v2(intptr_t device):
 
 cpdef intptr_t device_get_handle_by_index_v2(unsigned int index) except? 0:
     """Acquire the handle for a particular device, based on its index.
+
+    For all products.
+    Valid indices are derived from the ``accessibleDevices`` count returned by
+    :func:`device_get_count_v2`. For example, if ``accessibleDevices`` is 2 the
+    valid indices are 0 and 1, corresponding to GPU 0 and GPU 1.
+    The order in which NVML enumerates devices has no guarantees of consistency
+    between reboots. For that reason it is recommended that devices be looked up by
+    their PCI ids or UUID. See :func:`device_get_handle_by_uuid` and
+    :func:`device_get_handle_by_pci_bus_id_v2`.
+    Note: The NVML index may not correlate with other APIs, such as the CUDA device
+    index.
+    Starting from NVML 5, this API causes NVML to initialize the target GPU NVML
+    may initialize additional GPUs if:.
+
+    - The target GPU is an SLI slave.
+
+    Note: New nvmlDeviceGetCount_v2 (default in NVML 5.319) returns count of all
+    devices in the system even if nvmlDeviceGetHandleByIndex_v2 returns
+    NVML_ERROR_NO_PERMISSION for such device. Update your code to handle this
+    error, or use NVML 4.304 or older nvml header file. For backward binary
+    compatibility reasons _v1 version of the API is still present in the shared
+    library. Old _v1 version of nvmlDeviceGetCount doesn't count devices that NVML
+    has no permission to talk to.
+    This means that nvmlDeviceGetHandleByIndex_v2 and _v1 can return different
+    devices for the same index. If you don't touch macros that map old (_v1)
+    versions to _v2 versions at the top of the file you don't need to worry about
+    that.
 
     Args:
         index (unsigned int): The index of the target GPU, >= 0 and <
@@ -28699,6 +29322,13 @@ cpdef intptr_t device_get_handle_by_index_v2(unsigned int index) except? 0:
 
 cpdef intptr_t device_get_handle_by_serial(serial) except? 0:
     """Acquire the handle for a particular device, based on its board serial number.
+
+    For Fermi ™️ or newer fully supported devices.
+    This number corresponds to the value printed directly on the board, and to the
+    value returned by :func:`device_get_serial`.
+    [Deprecated].
+    Starting from NVML 5, this API causes NVML to initialize the target GPU NVML
+    may initialize additional GPUs as it searches for the target GPU.
 
     Args:
         serial (str): The board serial number of the target GPU.
@@ -28721,6 +29351,10 @@ cpdef intptr_t device_get_handle_by_serial(serial) except? 0:
 
 cpdef intptr_t device_get_handle_by_uuid(uuid) except? 0:
     """Acquire the handle for a particular device, based on its globally unique immutable UUID (in ASCII format) associated with each device.
+
+    For all products.
+    Starting from NVML 5, this API causes NVML to initialize the target GPU NVML
+    may initialize additional GPUs as it searches for the target GPU.
 
     Args:
         uuid (str): The UUID of the target GPU or MIG instance.
@@ -28745,6 +29379,14 @@ cpdef intptr_t device_get_handle_by_uuid(uuid) except? 0:
 cpdef intptr_t device_get_handle_by_pci_bus_id_v2(pci_bus_id) except? 0:
     """Acquire the handle for a particular device, based on its PCI bus id.
 
+    For all products.
+    This value corresponds to the ``nvmlPciInfo_t.busId`` returned by
+    :func:`device_get_pci_info_v3`.
+    Starting from NVML 5, this API causes NVML to initialize the target GPU NVML
+    may initialize additional GPUs if:.
+
+    - The target GPU is an SLI slave.
+
     Args:
         pci_bus_id (str): The PCI bus id of the target GPU Accept the
             following formats (all numbers in hexadecimal):
@@ -28754,6 +29396,9 @@ cpdef intptr_t device_get_handle_by_pci_bus_id_v2(pci_bus_id) except? 0:
     Returns:
         intptr_t: Reference in which to return the device handle.
 
+    .. note::
+        NVML 4.304 and older version of nvmlDeviceGetHandleByPciBusId"_v1" returns
+        NVML_ERROR_NOT_FOUND instead of NVML_ERROR_NO_PERMISSION.
     .. seealso:: `nvmlDeviceGetHandleByPciBusId_v2`
     """
     if not isinstance(pci_bus_id, str):
@@ -28769,6 +29414,13 @@ cpdef intptr_t device_get_handle_by_pci_bus_id_v2(pci_bus_id) except? 0:
 
 cpdef str device_get_name(intptr_t device):
     """Retrieves the name of this device.
+
+    For all products.
+    The name is an alphanumeric string that denotes a particular product, e.g.
+    Tesla ™️ C2070. It will not exceed 96 characters in length (including the NULL
+    terminator). See nvmlConstants::NVML_DEVICE_NAME_V2_BUFFER_SIZE.
+    When used with MIG device handles the API returns MIG device names which can be
+    used to identify devices based on their attributes.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -28789,6 +29441,9 @@ cpdef str device_get_name(intptr_t device):
 cpdef int device_get_brand(intptr_t device) except? -1:
     """Retrieves the brand of this device.
 
+    For all products.
+    The type is a member of ``nvmlBrandType_t`` defined above.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -28806,6 +29461,20 @@ cpdef int device_get_brand(intptr_t device) except? -1:
 
 cpdef unsigned int device_get_index(intptr_t device) except? 0:
     """Retrieves the NVML index of this device.
+
+    For all products.
+    Valid indices are derived from the ``accessibleDevices`` count returned by
+    :func:`device_get_count_v2`. For example, if ``accessibleDevices`` is 2 the
+    valid indices are 0 and 1, corresponding to GPU 0 and GPU 1.
+    The order in which NVML enumerates devices has no guarantees of consistency
+    between reboots. For that reason it is recommended that devices be looked up by
+    their PCI ids or GPU UUID. See :func:`device_get_handle_by_pci_bus_id_v2` and
+    :func:`device_get_handle_by_uuid`.
+    When used with MIG device handles this API returns indices that can be passed
+    to ``nvmlDeviceGetMigDeviceHandleByIndex`` to retrieve an identical handle. MIG
+    device indices are unique within a device.
+    Note: The NVML index may not correlate with other APIs, such as the CUDA device
+    index.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -28826,6 +29495,12 @@ cpdef unsigned int device_get_index(intptr_t device) except? 0:
 cpdef str device_get_serial(intptr_t device):
     """Retrieves the globally unique board serial number associated with this device's board.
 
+    For all products with an inforom.
+    The serial number is an alphanumeric string that will not exceed 30 characters
+    (including the NULL terminator). This number matches the serial number tag that
+    is physically attached to the board. See
+    nvmlConstants::NVML_DEVICE_SERIAL_BUFFER_SIZE.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -28845,6 +29520,9 @@ cpdef str device_get_serial(intptr_t device):
 cpdef unsigned int device_get_module_id(intptr_t device) except? 0:
     """Get a unique identifier for the device module on the baseboard.
 
+    This API retrieves a unique identifier for each GPU module that exists on a
+    given baseboard. For non-baseboard products, this ID would always be 0.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -28862,6 +29540,7 @@ cpdef unsigned int device_get_module_id(intptr_t device) except? 0:
 
 cpdef object device_get_c2c_mode_info_v(intptr_t device):
     """Retrieves the Device's C2C Mode information.
+
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -28883,6 +29562,8 @@ cpdef object device_get_c2c_mode_info_v(intptr_t device):
 cpdef object device_get_memory_affinity(intptr_t device, unsigned int node_set_size, unsigned int scope):
     """Retrieves an array of unsigned ints (sized to node_set_size) of bitmasks with the ideal memory affinity within node or socket for the device. For example, if NUMA node 0, 1 are ideal within the socket for the device and node_set_size == 1, result[0] = 0x3.
 
+    For Kepler ™️ or newer fully supported devices. Supported on Linux only.
+
     Args:
         device (intptr_t): The identifier of the target device.
         node_set_size (unsigned int): The size of the node_set array that
@@ -28894,12 +29575,15 @@ cpdef object device_get_memory_affinity(intptr_t device, unsigned int node_set_s
             NODEs, 64 NODEs per unsigned long on 64-bit machines, 32 on
             32-bit machines.
 
+    .. note::
+        If requested scope is not applicable to the target topology, the API will fall
+        back to reporting the memory affinity for the immediate non-I/O ancestor of the
+        device.
     .. seealso:: `nvmlDeviceGetMemoryAffinity`
     """
-    if node_set_size == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
-    cdef _cyb_view.array node_set = _cyb_view.array(shape=(node_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
-    cdef unsigned long *node_set_ptr = <unsigned long *>(node_set.data)
+    cdef _cyb_view.array _node_set_alloc_ = _cyb_view.array(shape=(max(node_set_size, 1),), itemsize=sizeof(unsigned long), format="L", mode="c")
+    cdef unsigned long *node_set_ptr = <unsigned long *>(_node_set_alloc_.data)
+    cdef object node_set = _node_set_alloc_[:node_set_size]
     with nogil:
         __status__ = nvmlDeviceGetMemoryAffinity(<Device>device, node_set_size, node_set_ptr, <nvmlAffinityScope_t>scope)
     check_status(__status__)
@@ -28908,6 +29592,8 @@ cpdef object device_get_memory_affinity(intptr_t device, unsigned int node_set_s
 
 cpdef object device_get_cpu_affinity_within_scope(intptr_t device, unsigned int cpu_set_size, unsigned int scope):
     """Retrieves an array of unsigned ints (sized to cpu_set_size) of bitmasks with the ideal CPU affinity within node or socket for the device. For example, if processors 0, 1, 32, and 33 are ideal for the device and cpu_set_size == 2, result[0] = 0x3, result[1] = 0x3.
+
+    For Kepler ™️ or newer fully supported devices. Supported on Linux only.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -28920,12 +29606,15 @@ cpdef object device_get_cpu_affinity_within_scope(intptr_t device, unsigned int 
             CPUs, 64 CPUs per unsigned long on 64-bit machines, 32 on
             32-bit machines.
 
+    .. note::
+        If requested scope is not applicable to the target topology, the API will fall
+        back to reporting the CPU affinity for the immediate non-I/O ancestor of the
+        device.
     .. seealso:: `nvmlDeviceGetCpuAffinityWithinScope`
     """
-    if cpu_set_size == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
-    cdef _cyb_view.array cpu_set = _cyb_view.array(shape=(cpu_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
-    cdef unsigned long *cpu_set_ptr = <unsigned long *>(cpu_set.data)
+    cdef _cyb_view.array _cpu_set_alloc_ = _cyb_view.array(shape=(max(cpu_set_size, 1),), itemsize=sizeof(unsigned long), format="L", mode="c")
+    cdef unsigned long *cpu_set_ptr = <unsigned long *>(_cpu_set_alloc_.data)
+    cdef object cpu_set = _cpu_set_alloc_[:cpu_set_size]
     with nogil:
         __status__ = nvmlDeviceGetCpuAffinityWithinScope(<Device>device, cpu_set_size, cpu_set_ptr, <nvmlAffinityScope_t>scope)
     check_status(__status__)
@@ -28934,6 +29623,8 @@ cpdef object device_get_cpu_affinity_within_scope(intptr_t device, unsigned int 
 
 cpdef object device_get_cpu_affinity(intptr_t device, unsigned int cpu_set_size):
     """Retrieves an array of unsigned ints (sized to cpu_set_size) of bitmasks with the ideal CPU affinity for the device For example, if processors 0, 1, 32, and 33 are ideal for the device and cpu_set_size == 2, result[0] = 0x3, result[1] = 0x3 This is equivalent to calling ``nvmlDeviceGetCpuAffinityWithinScope`` with ``NVML_AFFINITY_SCOPE_NODE``.
+
+    For Kepler ™️ or newer fully supported devices. Supported on Linux only.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -28947,10 +29638,9 @@ cpdef object device_get_cpu_affinity(intptr_t device, unsigned int cpu_set_size)
 
     .. seealso:: `nvmlDeviceGetCpuAffinity`
     """
-    if cpu_set_size == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
-    cdef _cyb_view.array cpu_set = _cyb_view.array(shape=(cpu_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
-    cdef unsigned long *cpu_set_ptr = <unsigned long *>(cpu_set.data)
+    cdef _cyb_view.array _cpu_set_alloc_ = _cyb_view.array(shape=(max(cpu_set_size, 1),), itemsize=sizeof(unsigned long), format="L", mode="c")
+    cdef unsigned long *cpu_set_ptr = <unsigned long *>(_cpu_set_alloc_.data)
+    cdef object cpu_set = _cpu_set_alloc_[:cpu_set_size]
     with nogil:
         __status__ = nvmlDeviceGetCpuAffinity(<Device>device, cpu_set_size, cpu_set_ptr)
     check_status(__status__)
@@ -28959,6 +29649,8 @@ cpdef object device_get_cpu_affinity(intptr_t device, unsigned int cpu_set_size)
 
 cpdef device_set_cpu_affinity(intptr_t device):
     """Sets the ideal affinity for the calling thread and device using the guidelines given in :func:`device_get_cpu_affinity`. Note, this is a change as of version 8.0. Older versions set the affinity for a calling process and all children. Currently supports up to 1024 processors.
+
+    For Kepler ™️ or newer fully supported devices. Supported on Linux only.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -28973,6 +29665,8 @@ cpdef device_set_cpu_affinity(intptr_t device):
 cpdef device_clear_cpu_affinity(intptr_t device):
     """Clear all affinity bindings for the calling thread. Note, this is a change as of version 8.0 as older versions cleared the affinity for a calling process and all children.
 
+    For Kepler ™️ or newer fully supported devices. Supported on Linux only.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -28985,6 +29679,7 @@ cpdef device_clear_cpu_affinity(intptr_t device):
 
 cpdef unsigned int device_get_numa_node_id(intptr_t device) except? 0:
     """Get the NUMA node of the given GPU device. This only applies to platforms where the GPUs are NUMA nodes.
+
 
     Args:
         device (intptr_t): The device handle.
@@ -29004,6 +29699,7 @@ cpdef unsigned int device_get_numa_node_id(intptr_t device) except? 0:
 cpdef int device_get_topology_common_ancestor(intptr_t device1, intptr_t device2) except? -1:
     """Retrieve the common ancestor for two devices For all products. Supported on Linux only.
 
+
     Args:
         device1 (intptr_t): The identifier of the first device.
         device2 (intptr_t): The identifier of the second device.
@@ -29020,8 +29716,37 @@ cpdef int device_get_topology_common_ancestor(intptr_t device1, intptr_t device2
     return <int>path_info
 
 
+cpdef object device_get_topology_nearest_gpus(intptr_t device, int level):
+    """Retrieve the set of GPUs that are nearest to a given device at a specific interconnectivity level For all products. Supported on Linux only.
+
+
+    Args:
+        device (intptr_t): The identifier of the first device.
+        level (GpuTopologyLevel): The ``nvmlGpuTopologyLevel_t`` level to
+            search for other GPUs.
+
+    Returns:
+        intptr_t: An array of device handles for GPUs found at ``level``.
+
+    .. seealso:: `nvmlDeviceGetTopologyNearestGpus`
+    """
+    cdef unsigned int[1] count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetTopologyNearestGpus(<Device>device, <_GpuTopologyLevel>level, <unsigned int*>count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array _device_array_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef intptr_t *device_array_ptr = <intptr_t *>(_device_array_alloc_.data)
+    cdef object device_array = _device_array_alloc_[:count[0]]
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetTopologyNearestGpus(<Device>device, <_GpuTopologyLevel>level, <unsigned int*>count, <nvmlDevice_t*>device_array_ptr)
+        check_status(__status__)
+    return device_array[:count[0]]
+
+
 cpdef int device_get_p2p_status(intptr_t device1, intptr_t device2, int p2p_index) except? -1:
     """Retrieve the status for a given p2p capability index between a given pair of GPU.
+
 
     Args:
         device1 (intptr_t): The first device.
@@ -29045,6 +29770,15 @@ cpdef int device_get_p2p_status(intptr_t device1, intptr_t device2, int p2p_inde
 cpdef str device_get_uuid(intptr_t device):
     """Retrieves the globally unique immutable UUID associated with this device, as a 5 part hexadecimal string, that augments the immutable, board serial identifier.
 
+    For all products.
+    The UUID is a globally unique identifier. It is the only available identifier
+    for pre-Fermi-architecture products. It does NOT correspond to any identifier
+    printed on the board. It will not exceed 96 characters in length (including the
+    NULL terminator). See nvmlConstants::NVML_DEVICE_UUID_V2_BUFFER_SIZE.
+    When used with MIG device handles the API returns globally unique UUIDs which
+    can be used to identify MIG devices across both GPU and MIG devices. UUIDs are
+    immutable for the lifetime of a MIG device.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29063,6 +29797,8 @@ cpdef str device_get_uuid(intptr_t device):
 
 cpdef unsigned int device_get_minor_number(intptr_t device) except? 0:
     """Retrieves minor number for the device. The minor number for the device is such that the Nvidia device node file for each GPU will have the form /dev/nvidia[minor number].
+
+    For all products. Supported only for Linux.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29083,6 +29819,8 @@ cpdef unsigned int device_get_minor_number(intptr_t device) except? 0:
 cpdef str device_get_board_part_number(intptr_t device):
     """Retrieves the the device board part number which is programmed into the board's InfoROM.
 
+    For all products.
+
     Args:
         device (intptr_t): Identifier of the target device.
 
@@ -29101,6 +29839,14 @@ cpdef str device_get_board_part_number(intptr_t device):
 
 cpdef str device_get_inforom_version(intptr_t device, int object):
     """Retrieves the version information for the device's infoROM object.
+
+    For all products with an inforom.
+    Fermi and higher parts have non-volatile on-board memory for persisting device
+    info, such as aggregate ECC counts. The version of the data structures in this
+    memory may change from time to time. It will not exceed 16 characters in length
+    (including the NULL terminator). See
+    nvmlConstants::NVML_DEVICE_INFOROM_VERSION_BUFFER_SIZE.
+    See ``nvmlInforomObject_t`` for details on the available infoROM objects.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29122,6 +29868,13 @@ cpdef str device_get_inforom_version(intptr_t device, int object):
 cpdef str device_get_inforom_image_version(intptr_t device):
     """Retrieves the global infoROM image version.
 
+    For all products with an inforom.
+    Image version just like VBIOS version uniquely describes the exact version of
+    the infoROM flashed on the board in contrast to infoROM object version which is
+    only an indicator of supported features. Version string will not exceed 16
+    characters in length (including the NULL terminator). See
+    nvmlConstants::NVML_DEVICE_INFOROM_VERSION_BUFFER_SIZE.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29140,6 +29893,12 @@ cpdef str device_get_inforom_image_version(intptr_t device):
 
 cpdef unsigned int device_get_inforom_configuration_checksum(intptr_t device) except? 0:
     """Retrieves the checksum of the configuration stored in the device's infoROM.
+
+    For all products with an inforom.
+    Can be used to make sure that two GPUs have the exact same configuration.
+    Current checksum takes into account configuration stored in PWR and ECC infoROM
+    objects. Checksum can change between driver releases or when user changes
+    configuration (e.g. disable/enable ECC).
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29160,6 +29919,8 @@ cpdef unsigned int device_get_inforom_configuration_checksum(intptr_t device) ex
 cpdef device_validate_inforom(intptr_t device):
     """Reads the infoROM from the flash and verifies the checksums.
 
+    For all products with an inforom.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29172,6 +29933,8 @@ cpdef device_validate_inforom(intptr_t device):
 
 cpdef tuple device_get_last_bbx_flush_time(intptr_t device):
     """Retrieves the timestamp and the duration of the last flush of the BBX (blackbox) infoROM object during the current run.
+
+    For all products with an inforom.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29194,6 +29957,11 @@ cpdef tuple device_get_last_bbx_flush_time(intptr_t device):
 cpdef int device_get_display_mode(intptr_t device) except? -1:
     """Retrieves the display mode for the device.
 
+    For all products.
+    This method indicates whether a physical display (e.g. monitor) is currently
+    connected to any of the device's connectors.
+    See ``nvmlEnableState_t`` for details on allowed modes.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29211,6 +29979,13 @@ cpdef int device_get_display_mode(intptr_t device) except? -1:
 
 cpdef int device_get_display_active(intptr_t device) except? -1:
     """Retrieves the display active state for the device.
+
+    For all products.
+    This method indicates whether a display is initialized on the device. For
+    example whether X Server is attached to this device and has allocated memory
+    for the screen.
+    Display can be active even when no monitor is physically attached.
+    See ``nvmlEnableState_t`` for details on allowed modes.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29230,6 +30005,11 @@ cpdef int device_get_display_active(intptr_t device) except? -1:
 cpdef int device_get_persistence_mode(intptr_t device) except? -1:
     """Retrieves the persistence mode associated with this device.
 
+    For all products. For Linux only.
+    When driver persistence mode is enabled the driver software state is not torn
+    down when the last client disconnects. By default this feature is disabled.
+    See ``nvmlEnableState_t`` for details on allowed modes.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29248,6 +30028,9 @@ cpdef int device_get_persistence_mode(intptr_t device) except? -1:
 
 cpdef object device_get_pci_info_ext(intptr_t device):
     """Retrieves PCI attributes of this device.
+
+    For all products.
+    See ``nvmlPciInfoExt_v1_t`` for details on the available PCI info.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29269,6 +30052,9 @@ cpdef object device_get_pci_info_ext(intptr_t device):
 cpdef object device_get_pci_info_v3(intptr_t device):
     """Retrieves the PCI attributes of this device.
 
+    For all products.
+    See ``nvmlPciInfo_t`` for details on the available PCI info.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29287,6 +30073,10 @@ cpdef object device_get_pci_info_v3(intptr_t device):
 
 cpdef unsigned int device_get_max_pcie_link_generation(intptr_t device) except? 0:
     """Retrieves the maximum PCIe link generation possible with this device and system.
+
+    I.E. for a generation 2 PCIe device attached to a generation 1 PCIe bus the max
+    link generation this function will report is generation 1.
+    For Fermi ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29307,6 +30097,8 @@ cpdef unsigned int device_get_max_pcie_link_generation(intptr_t device) except? 
 cpdef unsigned int device_get_gpu_max_pcie_link_generation(intptr_t device) except? 0:
     """Retrieves the maximum PCIe link generation supported by this device.
 
+    For Fermi ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29325,6 +30117,10 @@ cpdef unsigned int device_get_gpu_max_pcie_link_generation(intptr_t device) exce
 
 cpdef unsigned int device_get_max_pcie_link_width(intptr_t device) except? 0:
     """Retrieves the maximum PCIe link width possible with this device and system.
+
+    I.E. for a device with a 16x PCIe bus width attached to a 8x PCIe system bus
+    this function will report a max link width of 8.
+    For Fermi ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29345,6 +30141,8 @@ cpdef unsigned int device_get_max_pcie_link_width(intptr_t device) except? 0:
 cpdef unsigned int device_get_curr_pcie_link_generation(intptr_t device) except? 0:
     """Retrieves the current PCIe link generation.
 
+    For Fermi ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29364,6 +30162,8 @@ cpdef unsigned int device_get_curr_pcie_link_generation(intptr_t device) except?
 cpdef unsigned int device_get_curr_pcie_link_width(intptr_t device) except? 0:
     """Retrieves the current PCIe link width.
 
+    For Fermi ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29382,6 +30182,9 @@ cpdef unsigned int device_get_curr_pcie_link_width(intptr_t device) except? 0:
 
 cpdef unsigned int device_get_pcie_throughput(intptr_t device, int counter) except? 0:
     """Retrieve PCIe utilization information. This function is querying a byte counter over a 20ms interval and thus is the PCIe throughput over that interval.
+
+    For Maxwell ™️ or newer fully supported devices.
+    This method is not supported in virtual machines running virtual GPU (vGPU).
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29403,6 +30206,8 @@ cpdef unsigned int device_get_pcie_throughput(intptr_t device, int counter) exce
 cpdef unsigned int device_get_pcie_replay_counter(intptr_t device) except? 0:
     """Retrieve the PCIe replay counter.
 
+    For Kepler ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29420,6 +30225,9 @@ cpdef unsigned int device_get_pcie_replay_counter(intptr_t device) except? 0:
 
 cpdef unsigned int device_get_clock_info(intptr_t device, int type) except? 0:
     """Retrieves the current clock speeds for the device.
+
+    For Fermi ™️ or newer fully supported devices.
+    See ``nvmlClockType_t`` for details on available clock information.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29440,6 +30248,9 @@ cpdef unsigned int device_get_clock_info(intptr_t device, int type) except? 0:
 cpdef unsigned int device_get_max_clock_info(intptr_t device, int type) except? 0:
     """Retrieves the maximum clock speeds for the device.
 
+    For Fermi ™️ or newer fully supported devices.
+    See ``nvmlClockType_t`` for details on available clock information.
+
     Args:
         device (intptr_t): The identifier of the target device.
         type (ClockType): Identify which clock domain to query.
@@ -29447,6 +30258,9 @@ cpdef unsigned int device_get_max_clock_info(intptr_t device, int type) except? 
     Returns:
         unsigned int: Reference in which to return the clock speed in MHz.
 
+    .. note::
+        Current P0 clocks (reported by ``nvmlDeviceGetClockInfo``) can differ from max
+        clocks by a few MHz.
     .. seealso:: `nvmlDeviceGetMaxClockInfo`
     """
     cdef unsigned int clock
@@ -29458,6 +30272,7 @@ cpdef unsigned int device_get_max_clock_info(intptr_t device, int type) except? 
 
 cpdef int device_get_gpc_clk_vf_offset(intptr_t device) except? 0:
     """Retrieve the GPCCLK VF offset value.
+
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29476,6 +30291,8 @@ cpdef int device_get_gpc_clk_vf_offset(intptr_t device) except? 0:
 
 cpdef unsigned int device_get_clock(intptr_t device, int clock_type, int clock_id) except? 0:
     """Retrieves the clock speed for the clock specified by the clock type and clock ID.
+
+    For Kepler ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29497,6 +30314,8 @@ cpdef unsigned int device_get_clock(intptr_t device, int clock_type, int clock_i
 cpdef unsigned int device_get_max_customer_boost_clock(intptr_t device, int clock_type) except? 0:
     """Retrieves the customer defined maximum boost clock speed specified by the given clock type.
 
+    For Pascal ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
         clock_type (ClockType): Identify which clock domain to query.
@@ -29516,6 +30335,8 @@ cpdef unsigned int device_get_max_customer_boost_clock(intptr_t device, int cloc
 cpdef object device_get_supported_memory_clocks(intptr_t device):
     """Retrieves the list of possible memory clocks that can be used as an argument for ``nvmlDeviceSetMemoryLockedClocks``.
 
+    For Kepler ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29528,18 +30349,20 @@ cpdef object device_get_supported_memory_clocks(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetSupportedMemoryClocks(<Device>device, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    if count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef _cyb_view.array clocks_m_hz = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>(clocks_m_hz.data)
-    with nogil:
-        __status__ = nvmlDeviceGetSupportedMemoryClocks(<Device>device, <unsigned int*>count, clocks_m_hz_ptr)
-    check_status(__status__)
-    return clocks_m_hz
+    cdef _cyb_view.array _clocks_m_hz_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
+    cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>(_clocks_m_hz_alloc_.data)
+    cdef object clocks_m_hz = _clocks_m_hz_alloc_[:count[0]]
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetSupportedMemoryClocks(<Device>device, <unsigned int*>count, clocks_m_hz_ptr)
+        check_status(__status__)
+    return clocks_m_hz[:count[0]]
 
 
 cpdef object device_get_supported_graphics_clocks(intptr_t device, unsigned int memory_clock_m_hz):
     """Retrieves the list of possible graphics clocks that can be used as an argument for ``nvmlDeviceSetGpuLockedClocks``.
+
+    For Kepler ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29555,18 +30378,25 @@ cpdef object device_get_supported_graphics_clocks(intptr_t device, unsigned int 
     with nogil:
         __status__ = nvmlDeviceGetSupportedGraphicsClocks(<Device>device, memory_clock_m_hz, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    if count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef _cyb_view.array clocks_m_hz = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>(clocks_m_hz.data)
-    with nogil:
-        __status__ = nvmlDeviceGetSupportedGraphicsClocks(<Device>device, memory_clock_m_hz, <unsigned int*>count, clocks_m_hz_ptr)
-    check_status(__status__)
-    return clocks_m_hz
+    cdef _cyb_view.array _clocks_m_hz_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
+    cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>(_clocks_m_hz_alloc_.data)
+    cdef object clocks_m_hz = _clocks_m_hz_alloc_[:count[0]]
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetSupportedGraphicsClocks(<Device>device, memory_clock_m_hz, <unsigned int*>count, clocks_m_hz_ptr)
+        check_status(__status__)
+    return clocks_m_hz[:count[0]]
 
 
 cpdef tuple device_get_auto_boosted_clocks_enabled(intptr_t device):
     """Retrieve the current state of Auto Boosted clocks on a device and store it in ``is_enabled``.
+
+    For Kepler ™️ or newer fully supported devices.
+    Auto Boosted clocks are enabled by default on some hardware, allowing the GPU
+    to run at higher clock rates to maximize performance as thermal limits allow.
+    On Pascal and newer hardware, Auto Aoosted clocks are controlled through
+    application clocks. Use nvmlDeviceSetApplicationsClocks and
+    nvmlDeviceResetApplicationsClocks to control Auto Boost behavior.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29592,6 +30422,12 @@ cpdef tuple device_get_auto_boosted_clocks_enabled(intptr_t device):
 cpdef unsigned int device_get_fan_speed(intptr_t device) except? 0:
     """Retrieves the intended operating speed of the device's fan.
 
+    Note: The reported speed is the intended fan speed. If the fan is physically
+    blocked and unable to spin, the output will not match the actual fan speed.
+    For all discrete products with dedicated fans.
+    The fan speed is expressed as a percentage of the product's maximum noise
+    tolerance fan speed. This value may exceed 100% in certain cases.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29610,6 +30446,12 @@ cpdef unsigned int device_get_fan_speed(intptr_t device) except? 0:
 
 cpdef unsigned int device_get_fan_speed_v2(intptr_t device, unsigned int fan) except? 0:
     """Retrieves the intended operating speed of the device's specified fan.
+
+    Note: The reported speed is the intended fan speed. If the fan is physically
+    blocked and unable to spin, the output will not match the actual fan speed.
+    For all discrete products with dedicated fans.
+    The fan speed is expressed as a percentage of the product's maximum noise
+    tolerance fan speed. This value may exceed 100% in certain cases.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29631,6 +30473,14 @@ cpdef unsigned int device_get_fan_speed_v2(intptr_t device, unsigned int fan) ex
 cpdef unsigned int device_get_target_fan_speed(intptr_t device, unsigned int fan) except? 0:
     """Retrieves the intended target speed of the device's specified fan.
 
+    Normally, the driver dynamically adjusts the fan based on the needs of the GPU.
+    But when user set fan speed using nvmlDeviceSetFanSpeed_v2, the driver will
+    attempt to make the fan achieve the setting in nvmlDeviceSetFanSpeed_v2. The
+    actual current speed of the fan is reported in nvmlDeviceGetFanSpeed_v2.
+    For all discrete products with dedicated fans.
+    The fan speed is expressed as a percentage of the product's maximum noise
+    tolerance fan speed. This value may exceed 100% in certain cases.
+
     Args:
         device (intptr_t): The identifier of the target device.
         fan (unsigned int): The index of the target fan, zero indexed.
@@ -29650,6 +30500,8 @@ cpdef unsigned int device_get_target_fan_speed(intptr_t device, unsigned int fan
 
 cpdef tuple device_get_min_max_fan_speed(intptr_t device):
     """Retrieves the min and max fan speed that user can set for the GPU fan.
+
+    For all cuda-capable discrete products with fans.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29672,6 +30524,9 @@ cpdef tuple device_get_min_max_fan_speed(intptr_t device):
 cpdef unsigned int device_get_fan_control_policy_v2(intptr_t device, unsigned int fan) except *:
     """Gets current fan control policy.
 
+    For Maxwell ™️ or newer fully supported devices.
+    For all cuda-capable discrete products with fans.
+
     Args:
         device (intptr_t): The identifier of the target ``device``.
         fan (unsigned int): The index of the target fan, zero indexed.
@@ -29692,6 +30547,8 @@ cpdef unsigned int device_get_fan_control_policy_v2(intptr_t device, unsigned in
 cpdef unsigned int device_get_num_fans(intptr_t device) except? 0:
     """Retrieves the number of fans on the device.
 
+    For all discrete products with dedicated fans.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29709,6 +30566,9 @@ cpdef unsigned int device_get_num_fans(intptr_t device) except? 0:
 
 cpdef object device_get_cooler_info(intptr_t device):
     """Retrieves the cooler's information. Returns a cooler's control signal characteristics. The possible types are restricted, Variable and Toggle. See ``nvmlCoolerControl_t`` for details on available signal types. Returns objects that cooler cools. Targets may be GPU, Memory, Power Supply or All of these. See ``nvmlCoolerTarget_t`` for details on available targets.
+
+    For Maxwell ™️ or newer fully supported devices.
+    For all discrete products with dedicated fans.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29732,6 +30592,18 @@ cpdef object device_get_cooler_info(intptr_t device):
 cpdef unsigned int device_get_temperature_threshold(intptr_t device, int threshold_type) except? 0:
     """Retrieves the temperature threshold for the GPU with the specified threshold type in degrees C.
 
+    For Kepler ™️ or newer fully supported devices.
+    See ``nvmlTemperatureThresholds_t`` for details on available temperature
+    thresholds.
+    Note: This API is no longer the preferred interface for retrieving the
+    following temperature thresholds on Ada and later architectures:
+    NVML_TEMPERATURE_THRESHOLD_SHUTDOWN, NVML_TEMPERATURE_THRESHOLD_SLOWDOWN,
+    NVML_TEMPERATURE_THRESHOLD_MEM_MAX and NVML_TEMPERATURE_THRESHOLD_GPU_MAX.
+    Support for reading these temperature thresholds for Ada and later
+    architectures would be removed from this API in future releases. Please use
+    ``nvmlDeviceGetFieldValues`` with NVML_FI_DEV_TEMPERATURE_* fields to retrieve
+    temperature thresholds on these architectures.
+
     Args:
         device (intptr_t): The identifier of the target device.
         threshold_type (TemperatureThresholds): The type of threshold
@@ -29752,6 +30624,7 @@ cpdef unsigned int device_get_temperature_threshold(intptr_t device, int thresho
 
 cpdef object device_get_thermal_settings(intptr_t device, unsigned int sensor_index):
     """Used to execute a list of thermal system instructions.
+
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29774,6 +30647,9 @@ cpdef object device_get_thermal_settings(intptr_t device, unsigned int sensor_in
 cpdef int device_get_performance_state(intptr_t device) except? -1:
     """Retrieves the current performance state for the device.
 
+    For Fermi ™️ or newer fully supported devices.
+    See ``nvmlPstates_t`` for details on allowed performance states.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29792,6 +30668,8 @@ cpdef int device_get_performance_state(intptr_t device) except? -1:
 cpdef unsigned long long device_get_current_clocks_event_reasons(intptr_t device) except? 0:
     """Retrieves current clocks event reasons.
 
+    For all fully supported products.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29799,6 +30677,9 @@ cpdef unsigned long long device_get_current_clocks_event_reasons(intptr_t device
         unsigned long long: Reference in which to return bitmask of active
             clocks event reasons.
 
+    .. note::
+        More than one bit can be enabled at the same time. Multiple reasons can be
+        affecting clocks at once.
     .. seealso:: `nvmlDeviceGetCurrentClocksEventReasons`
     """
     cdef unsigned long long clocks_event_reasons
@@ -29810,6 +30691,9 @@ cpdef unsigned long long device_get_current_clocks_event_reasons(intptr_t device
 
 cpdef unsigned long long device_get_supported_clocks_event_reasons(intptr_t device) except? 0:
     """Retrieves bitmask of supported clocks event reasons that can be returned by ``nvmlDeviceGetCurrentClocksEventReasons``.
+
+    For all fully supported products.
+    This method is not supported in virtual machines running virtual GPU (vGPU).
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29830,6 +30714,10 @@ cpdef unsigned long long device_get_supported_clocks_event_reasons(intptr_t devi
 cpdef int device_get_power_state(intptr_t device) except? -1:
     """Deprecated: Use ``nvmlDeviceGetPerformanceState``. This function exposes an incorrect generalization.
 
+    Retrieve the current performance state for the device.
+    For Fermi ™️ or newer fully supported devices.
+    See ``nvmlPstates_t`` for details on allowed performance states.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29847,6 +30735,7 @@ cpdef int device_get_power_state(intptr_t device) except? -1:
 
 cpdef object device_get_dynamic_pstates_info(intptr_t device):
     """Retrieve performance monitor samples from the associated subdevice.
+
 
     Args:
         device (intptr_t): .
@@ -29867,6 +30756,7 @@ cpdef object device_get_dynamic_pstates_info(intptr_t device):
 cpdef int device_get_mem_clk_vf_offset(intptr_t device) except? 0:
     """Retrieve the MemClk (Memory Clock) VF offset value.
 
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29884,6 +30774,7 @@ cpdef int device_get_mem_clk_vf_offset(intptr_t device) except? 0:
 
 cpdef tuple device_get_min_max_clock_of_p_state(intptr_t device, int type, int pstate):
     """Retrieve min and max clocks of some clock domain for a given PState.
+
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29908,6 +30799,7 @@ cpdef tuple device_get_min_max_clock_of_p_state(intptr_t device, int type, int p
 cpdef tuple device_get_gpc_clk_min_max_vf_offset(intptr_t device):
     """Retrieve the GPCCLK min max VF offset value.
 
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -29928,6 +30820,7 @@ cpdef tuple device_get_gpc_clk_min_max_vf_offset(intptr_t device):
 
 cpdef tuple device_get_mem_clk_min_max_vf_offset(intptr_t device):
     """Retrieve the MemClk (Memory Clock) min max VF offset value.
+
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29950,6 +30843,9 @@ cpdef tuple device_get_mem_clk_min_max_vf_offset(intptr_t device):
 cpdef device_set_clock_offsets(intptr_t device, info):
     """Control current clock offset of some clock domain for a given PState.
 
+    For Maxwell ™️ or newer fully supported devices.
+    Requires privileged user.
+
     Args:
         device (intptr_t): The identifier of the target device.
         info (intptr_t): Structure specifying the clock type (input), the
@@ -29965,6 +30861,13 @@ cpdef device_set_clock_offsets(intptr_t device, info):
 
 cpdef unsigned int device_get_power_management_limit(intptr_t device) except? 0:
     """Retrieves the power management limit associated with this device.
+
+    For Fermi ™️ or newer fully supported devices.
+    The power limit defines the upper boundary for the card's power draw. If the
+    card's total power draw reaches this limit the power management algorithm kicks
+    in.
+    This reading is only available if power management mode is supported. See
+    nvmlDeviceGetPowerManagementMode.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -29984,6 +30887,8 @@ cpdef unsigned int device_get_power_management_limit(intptr_t device) except? 0:
 
 cpdef tuple device_get_power_management_limit_constraints(intptr_t device):
     """Retrieves information about possible values of power management limits on this device.
+
+    For Kepler ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30008,6 +30913,8 @@ cpdef tuple device_get_power_management_limit_constraints(intptr_t device):
 cpdef unsigned int device_get_power_management_default_limit(intptr_t device) except? 0:
     """Retrieves default power management limit on this device, in milliwatts. Default power management limit is a power management limit that the device boots with.
 
+    For Kepler ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -30026,6 +30933,16 @@ cpdef unsigned int device_get_power_management_default_limit(intptr_t device) ex
 
 cpdef unsigned int device_get_power_usage(intptr_t device) except? 0:
     """Retrieves power usage for this GPU in milliwatts and its associated circuitry (e.g. memory).
+
+    For Fermi ™️ or newer fully supported devices.
+    On Fermi and Kepler GPUs the reading is accurate to within +/- 5% of current
+    power draw. On Ampere (except GA100) or newer GPUs, the API returns power
+    averaged over 1 sec interval. On GA100 and older architectures, instantaneous
+    power is returned.
+    See ``NVML_FI_DEV_POWER_AVERAGE`` and ``NVML_FI_DEV_POWER_INSTANT`` to query
+    specific power values.
+    It is only available if power management mode is supported. See
+    nvmlDeviceGetPowerManagementMode.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30046,6 +30963,8 @@ cpdef unsigned int device_get_power_usage(intptr_t device) except? 0:
 cpdef unsigned long long device_get_total_energy_consumption(intptr_t device) except? 0:
     """Retrieves total energy consumption for this GPU in millijoules (mJ) since the driver was last reloaded.
 
+    For Volta ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -30065,6 +30984,11 @@ cpdef unsigned long long device_get_total_energy_consumption(intptr_t device) ex
 cpdef unsigned int device_get_enforced_power_limit(intptr_t device) except? 0:
     """Get the effective power limit that the driver enforces after taking into account all limiters.
 
+    Note: This can be different from the ``nvmlDeviceGetPowerManagementLimit`` if
+    other limits are set elsewhere This includes the out of band power limit
+    interface.
+    For Kepler ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The device to communicate with.
 
@@ -30083,6 +31007,10 @@ cpdef unsigned int device_get_enforced_power_limit(intptr_t device) except? 0:
 
 cpdef tuple device_get_gpu_operation_mode(intptr_t device):
     """Retrieves the current GOM and pending GOM (the one that GPU will switch to after reboot).
+
+    For GK110 M-class and X-class Tesla ™️ products from the Kepler family. Modes
+    ``NVML_GOM_LOW_DP`` and ``NVML_GOM_ALL_ON`` are supported on fully supported
+    GeForce products. Not supported on Quadro ®️ and Tesla ™️ C-class products.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30105,6 +31033,13 @@ cpdef tuple device_get_gpu_operation_mode(intptr_t device):
 cpdef object device_get_memory_info_v2(intptr_t device):
     """Retrieves the amount of used, free, reserved and total memory available on the device, in bytes. nvmlDeviceGetMemoryInfo_v2 accounts separately for reserved memory and includes it in the used memory amount.
 
+    For all products.
+    Enabling ECC reduces the amount of total available memory, due to the extra
+    required parity bits. Under WDDM most device memory is allocated and managed on
+    startup by Windows.
+    Under Linux and Windows TCC, the reported amount of used memory is equal to the
+    sum of memory allocated by all active channels on the device.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -30112,6 +31047,23 @@ cpdef object device_get_memory_info_v2(intptr_t device):
         nvmlMemory_v2_t: Reference in which to return the memory
             information.
 
+    .. note::
+        In MIG mode, if device handle is provided, the API returns aggregate
+        information, only if the caller has appropriate privileges. Per-instance
+        information can be queried by using specific MIG device handles.
+    .. note::
+        On systems where GPUs are NUMA nodes, the accuracy of FB memory utilization
+        provided by this API depends on the memory accounting of the operating system.
+        This is because FB memory is managed by the operating system instead of the
+        NVIDIA GPU driver. Typically, pages allocated from FB memory are not released
+        even after the process terminates to enhance performance. In scenarios where
+        the operating system is under memory pressure, it may resort to utilizing FB
+        memory. Such actions can result in discrepancies in the accuracy of memory
+        reporting.
+    .. note::
+        On certain SOC platforms, the integrated GPU (iGPU) does not use a dedicated
+        framebuffer but instead shares memory with the system. As a result,
+        ``NVML_ERROR_NOT_SUPPORTED`` will be returned in this case.
     .. seealso:: `nvmlDeviceGetMemoryInfo_v2`
     """
     cdef Memory_v2 memory_py = Memory_v2()
@@ -30126,6 +31078,9 @@ cpdef object device_get_memory_info_v2(intptr_t device):
 cpdef int device_get_compute_mode(intptr_t device) except? -1:
     """Retrieves the current compute mode for the device or MIG device.
 
+    For all products.
+    See ``nvmlComputeMode_t`` for details on allowed compute modes.
+
     Args:
         device (intptr_t): The identifier of the target device handle or
             MIG device handle.
@@ -30133,6 +31088,8 @@ cpdef int device_get_compute_mode(intptr_t device) except? -1:
     Returns:
         int: Reference in which to return the current compute mode.
 
+    .. note::
+        If MIG is enabled on a GPU, device must be MIG device handle.
     .. seealso:: `nvmlDeviceGetComputeMode`
     """
     cdef _ComputeMode mode
@@ -30144,6 +31101,13 @@ cpdef int device_get_compute_mode(intptr_t device) except? -1:
 
 cpdef tuple device_get_cuda_compute_capability(intptr_t device):
     """Retrieves the CUDA compute capability of the device.
+
+    For all products.
+    Returns the major and minor compute capability version numbers of the device.
+    The major and minor versions are equivalent to the
+    CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR and
+    CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR attributes that would be returned
+    by CUDA's cuDeviceGetAttribute().
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30168,6 +31132,12 @@ cpdef tuple device_get_cuda_compute_capability(intptr_t device):
 cpdef tuple device_get_ecc_mode(intptr_t device):
     """Retrieves the current and pending ECC modes for the device.
 
+    For Fermi ™️ or newer fully supported devices. Only applicable to devices with
+    ECC. Requires ``NVML_INFOROM_ECC`` version 1.0 or higher.
+    Changing ECC modes requires a reboot. The "pending" ECC mode refers to the
+    target mode following the next reboot.
+    See ``nvmlEnableState_t`` for details on allowed modes.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -30189,6 +31159,10 @@ cpdef tuple device_get_ecc_mode(intptr_t device):
 cpdef int device_get_default_ecc_mode(intptr_t device) except? -1:
     """Retrieves the default ECC modes for the device.
 
+    For Fermi ™️ or newer fully supported devices. Only applicable to devices with
+    ECC. Requires ``NVML_INFOROM_ECC`` version 1.0 or higher.
+    See ``nvmlEnableState_t`` for details on allowed modes.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -30206,6 +31180,8 @@ cpdef int device_get_default_ecc_mode(intptr_t device) except? -1:
 
 cpdef unsigned int device_get_board_id(intptr_t device) except? 0:
     """Retrieves the device board_id from 0-N. Devices with the same board_id indicate GPUs connected to the same PLX. Use in conjunction with :func:`device_get_multi_gpu_board` to decide if they are on the same board as well. The board_id returned is a unique ID for the current configuration. Uniqueness and ordering across reboots and system configurations is not guaranteed (i.e. if a Tesla K40c returns 0x100 and the two GPUs on a Tesla K10 in the same system returns 0x200 it is not guaranteed they will always return those values but they will always be different from each other).
+
+    For Fermi ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30225,6 +31201,8 @@ cpdef unsigned int device_get_board_id(intptr_t device) except? 0:
 cpdef unsigned int device_get_multi_gpu_board(intptr_t device) except? 0:
     """Retrieves whether the device is on a Multi-GPU Board Devices that are on multi-GPU boards will set ``multi_gpu_bool`` to a non-zero value.
 
+    For Fermi ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -30243,6 +31221,14 @@ cpdef unsigned int device_get_multi_gpu_board(intptr_t device) except? 0:
 
 cpdef unsigned long long device_get_total_ecc_errors(intptr_t device, int error_type, int counter_type) except? 0:
     """Retrieves the total ECC error counts for the device.
+
+    For Fermi ™️ or newer fully supported devices. Only applicable to devices with
+    ECC. Requires ``NVML_INFOROM_ECC`` version 1.0 or higher. Requires ECC Mode to
+    be enabled.
+    The total error count is the sum of errors across each of the separate memory
+    systems, i.e. the total set of errors across the entire device.
+    See ``nvmlMemoryErrorType_t`` for a description of available error types. See
+    ``nvmlEccCounterType_t`` for a description of available counter types.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30267,6 +31253,17 @@ cpdef unsigned long long device_get_total_ecc_errors(intptr_t device, int error_
 cpdef unsigned long long device_get_memory_error_counter(intptr_t device, int error_type, int counter_type, int location_type) except? 0:
     """Retrieves the requested memory error counter for the device.
 
+    For Fermi ™️ or newer fully supported devices. Requires ``NVML_INFOROM_ECC``
+    version 2.0 or higher to report aggregate location-based memory error counts.
+    Requires ``NVML_INFOROM_ECC`` version 1.0 or higher to report all other memory
+    error counts.
+    Only applicable to devices with ECC.
+    Requires ECC Mode to be enabled.
+    See ``nvmlMemoryErrorType_t`` for a description of available memory error
+    types. See ``nvmlEccCounterType_t`` for a description of available counter
+    types. See ``nvmlMemoryLocation_t`` for a description of available counter
+    locations.
+
     Args:
         device (intptr_t): The identifier of the target device.
         error_type (MemoryErrorType): Flag that specifies the type of
@@ -30279,6 +31276,11 @@ cpdef unsigned long long device_get_memory_error_counter(intptr_t device, int er
     Returns:
         unsigned long long: Reference in which to return the ECC counter.
 
+    .. note::
+        On MIG-enabled GPUs, per instance information can be queried using specific MIG
+        device handles. Per instance information is currently only supported for non-
+        DRAM uncorrectable volatile errors. Querying volatile errors using device
+        handles is currently not supported.
     .. seealso:: `nvmlDeviceGetMemoryErrorCounter`
     """
     cdef unsigned long long count
@@ -30291,6 +31293,9 @@ cpdef unsigned long long device_get_memory_error_counter(intptr_t device, int er
 cpdef object device_get_utilization_rates(intptr_t device):
     """Retrieves the current utilization rates for the device's major subsystems.
 
+    For Fermi ™️ or newer fully supported devices.
+    See ``nvmlUtilization_t`` for details on available utilization rates.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -30298,6 +31303,13 @@ cpdef object device_get_utilization_rates(intptr_t device):
         nvmlUtilization_t: Reference in which to return the utilization
             information.
 
+    .. note::
+        During driver initialization when ECC is enabled one can see high GPU and
+        Memory Utilization readings. This is caused by ECC Memory Scrubbing mechanism
+        that is performed during driver initialization.
+    .. note::
+        On MIG-enabled GPUs, querying device utilization rates is not currently
+        supported.
     .. seealso:: `nvmlDeviceGetUtilizationRates`
     """
     cdef Utilization utilization_py = Utilization()
@@ -30311,6 +31323,8 @@ cpdef object device_get_utilization_rates(intptr_t device):
 cpdef tuple device_get_encoder_utilization(intptr_t device):
     """Retrieves the current utilization and sampling size in microseconds for the Encoder.
 
+    For Kepler ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -30321,6 +31335,8 @@ cpdef tuple device_get_encoder_utilization(intptr_t device):
         - unsigned int: Reference to an unsigned int for the sampling period
                 in US.
 
+    .. note::
+        On MIG-enabled GPUs, querying encoder utilization is not currently supported.
     .. seealso:: `nvmlDeviceGetEncoderUtilization`
     """
     cdef unsigned int utilization
@@ -30333,6 +31349,8 @@ cpdef tuple device_get_encoder_utilization(intptr_t device):
 
 cpdef unsigned int device_get_encoder_capacity(intptr_t device, int encoder_query_type) except? 0:
     """Retrieves the current capacity of the device's encoder, as a percentage of maximum encoder capacity with valid values in the range 0-100.
+
+    For Maxwell ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30353,6 +31371,8 @@ cpdef unsigned int device_get_encoder_capacity(intptr_t device, int encoder_quer
 
 cpdef tuple device_get_encoder_stats(intptr_t device):
     """Retrieves the current encoder statistics for a given device.
+
+    For Maxwell ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30380,6 +31400,18 @@ cpdef tuple device_get_encoder_stats(intptr_t device):
 cpdef object device_get_encoder_sessions(intptr_t device):
     """Retrieves information about active encoder sessions on a target device.
 
+    An array of active encoder sessions is returned in the caller-supplied buffer
+    pointed at by ``session_infos``. The array element count is passed in
+    ``session_count``, and ``session_count`` is used to return the number of
+    sessions written to the buffer.
+    If the supplied buffer is not large enough to accommodate the active session
+    array, the function returns NVML_ERROR_INSUFFICIENT_SIZE, with the element
+    count of ``nvmlEncoderSessionInfo_t`` array required in ``session_count``. To
+    query the number of active encoder sessions, call this function with
+    \*session_count = 0. The code will return NVML_SUCCESS with number of active
+    encoder sessions updated in \*session_count.
+    For Maxwell ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -30395,16 +31427,17 @@ cpdef object device_get_encoder_sessions(intptr_t device):
     check_status_size(__status__)
     cdef EncoderSessionInfo session_infos = EncoderSessionInfo(session_count[0])
     cdef nvmlEncoderSessionInfo_t *session_infos_ptr = <nvmlEncoderSessionInfo_t *><intptr_t>(session_infos._get_ptr())
-    if session_count[0] == 0:
-        return session_infos
-    with nogil:
-        __status__ = nvmlDeviceGetEncoderSessions(<Device>device, <unsigned int*>session_count, session_infos_ptr)
-    check_status(__status__)
-    return session_infos
+    if session_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetEncoderSessions(<Device>device, <unsigned int*>session_count, session_infos_ptr)
+        check_status(__status__)
+    return session_infos[:session_count[0]]
 
 
 cpdef tuple device_get_decoder_utilization(intptr_t device):
     """Retrieves the current utilization and sampling size in microseconds for the Decoder.
+
+    For Kepler ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30416,6 +31449,8 @@ cpdef tuple device_get_decoder_utilization(intptr_t device):
         - unsigned int: Reference to an unsigned int for the sampling period
                 in US.
 
+    .. note::
+        On MIG-enabled GPUs, querying decoder utilization is not currently supported.
     .. seealso:: `nvmlDeviceGetDecoderUtilization`
     """
     cdef unsigned int utilization
@@ -30429,6 +31464,8 @@ cpdef tuple device_get_decoder_utilization(intptr_t device):
 cpdef tuple device_get_jpg_utilization(intptr_t device):
     """Retrieves the current utilization and sampling size in microseconds for the JPG.
 
+    For Turing ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -30439,6 +31476,8 @@ cpdef tuple device_get_jpg_utilization(intptr_t device):
         - unsigned int: Reference to an unsigned int for the sampling period
                 in US.
 
+    .. note::
+        On MIG-enabled GPUs, querying decoder utilization is not currently supported.
     .. seealso:: `nvmlDeviceGetJpgUtilization`
     """
     cdef unsigned int utilization
@@ -30452,6 +31491,8 @@ cpdef tuple device_get_jpg_utilization(intptr_t device):
 cpdef tuple device_get_ofa_utilization(intptr_t device):
     """Retrieves the current utilization and sampling size in microseconds for the OFA (Optical Flow Accelerator).
 
+    For Turing ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -30462,6 +31503,8 @@ cpdef tuple device_get_ofa_utilization(intptr_t device):
         - unsigned int: Reference to an unsigned int for the sampling period
                 in US.
 
+    .. note::
+        On MIG-enabled GPUs, querying decoder utilization is not currently supported.
     .. seealso:: `nvmlDeviceGetOfaUtilization`
     """
     cdef unsigned int utilization
@@ -30474,6 +31517,8 @@ cpdef tuple device_get_ofa_utilization(intptr_t device):
 
 cpdef object device_get_fbc_stats(intptr_t device):
     """Retrieves the active frame buffer capture sessions statistics for a given device.
+
+    For Maxwell ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30495,6 +31540,18 @@ cpdef object device_get_fbc_stats(intptr_t device):
 cpdef object device_get_fbc_sessions(intptr_t device):
     """Retrieves information about active frame buffer capture sessions on a target device.
 
+    An array of active FBC sessions is returned in the caller-supplied buffer
+    pointed at by ``session_info``. The array element count is passed in
+    ``session_count``, and ``session_count`` is used to return the number of
+    sessions written to the buffer.
+    If the supplied buffer is not large enough to accommodate the active session
+    array, the function returns NVML_ERROR_INSUFFICIENT_SIZE, with the element
+    count of ``nvmlFBCSessionInfo_t`` array required in ``session_count``. To query
+    the number of active FBC sessions, call this function with \*session_count = 0.
+    The code will return NVML_SUCCESS with number of active FBC sessions updated in
+    \*session_count.
+    For Maxwell ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -30502,6 +31559,10 @@ cpdef object device_get_fbc_sessions(intptr_t device):
         nvmlFBCSessionInfo_t: Reference in which to return the session
             information.
 
+    .. note::
+        hResolution, vResolution, averageFPS and averageLatency data for a FBC session
+        returned in ``session_info`` may be zero if there are no new frames captured
+        since the session started.
     .. seealso:: `nvmlDeviceGetFBCSessions`
     """
     cdef unsigned int[1] session_count = [0]
@@ -30510,16 +31571,23 @@ cpdef object device_get_fbc_sessions(intptr_t device):
     check_status_size(__status__)
     cdef FBCSessionInfo session_info = FBCSessionInfo(session_count[0])
     cdef nvmlFBCSessionInfo_t *session_info_ptr = <nvmlFBCSessionInfo_t *><intptr_t>(session_info._get_ptr())
-    if session_count[0] == 0:
-        return session_info
-    with nogil:
-        __status__ = nvmlDeviceGetFBCSessions(<Device>device, <unsigned int*>session_count, session_info_ptr)
-    check_status(__status__)
-    return session_info
+    if session_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetFBCSessions(<Device>device, <unsigned int*>session_count, session_info_ptr)
+        check_status(__status__)
+    return session_info[:session_count[0]]
 
 
 cpdef tuple device_get_driver_model_v2(intptr_t device):
     """Retrieves the current and pending driver model for the device.
+
+    For Kepler ™️ or newer fully supported devices. For windows only.
+    On Windows platforms the device driver can run in either WDDM, MCDM or WDM
+    (TCC) modes. If a display is attached to the device it must run in WDDM mode.
+    MCDM mode is preferred if a display is not attached. TCC mode is deprecated.
+    Driver-model availability is architecture-specific; attempting to set an
+    unsupported driver model returns NVML_ERROR_NOT_SUPPORTED.
+    See ``nvmlDriverModel_t`` for details on available driver models.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30542,6 +31610,11 @@ cpdef tuple device_get_driver_model_v2(intptr_t device):
 cpdef str device_get_vbios_version(intptr_t device):
     """Get VBIOS version of the device.
 
+    For all products.
+    The VBIOS version may change from time to time. It will not exceed 32
+    characters in length (including the NULL terminator). See
+    nvmlConstants::NVML_DEVICE_VBIOS_VERSION_BUFFER_SIZE.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -30560,6 +31633,8 @@ cpdef str device_get_vbios_version(intptr_t device):
 
 cpdef object device_get_bridge_chip_info(intptr_t device):
     """Get Bridge Chip Information for all the bridge chips on the board.
+
+    For all fully supported products. Only applicable to multi-GPU products.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30581,6 +31656,19 @@ cpdef object device_get_bridge_chip_info(intptr_t device):
 cpdef object device_get_compute_running_processes_v3(intptr_t device):
     """Get information about processes with a compute context on a device.
 
+    For Fermi ™️ or newer fully supported devices.
+    This function returns information only about compute running processes (e.g.
+    CUDA application which have active context). Any graphics applications (e.g.
+    using OpenGL, DirectX) won't be listed by this function.
+    To query the current number of running compute processes, call this function
+    with \*info_count = 0. The return code will be NVML_ERROR_INSUFFICIENT_SIZE, or
+    NVML_SUCCESS if none are running. For this call ``infos`` is allowed to be
+    NULL.
+    The usedGpuMemory field returned is all of the memory used by the application.
+    Keep in mind that information returned by this call is dynamic and the number
+    of elements might change in time. Allocate more space for ``infos`` table in
+    case new compute processes are spawned.
+
     Args:
         device (intptr_t): The device handle or MIG device handle.
 
@@ -30588,6 +31676,12 @@ cpdef object device_get_compute_running_processes_v3(intptr_t device):
         nvmlProcessInfo_t: Reference in which to return the process
             information.
 
+    .. note::
+        In MIG mode, if device handle is provided, the API returns aggregate
+        information, only if the caller has appropriate privileges. Per-instance
+        information can be queried by using specific MIG device handles. Querying per-
+        instance information using MIG device handles is not supported if the device is
+        in vGPU Host virtualization mode.
     .. seealso:: `nvmlDeviceGetComputeRunningProcesses_v3`
     """
     cdef unsigned int[1] info_count = [0]
@@ -30596,16 +31690,27 @@ cpdef object device_get_compute_running_processes_v3(intptr_t device):
     check_status_size(__status__)
     cdef ProcessInfo infos = ProcessInfo(info_count[0])
     cdef nvmlProcessInfo_t *infos_ptr = <nvmlProcessInfo_t *><intptr_t>(infos._get_ptr())
-    if info_count[0] == 0:
-        return infos
-    with nogil:
-        __status__ = nvmlDeviceGetComputeRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
-    check_status(__status__)
-    return infos
+    if info_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetComputeRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
+        check_status(__status__)
+    return infos[:info_count[0]]
 
 
 cpdef object device_get_graphics_running_processes_v3(intptr_t device):
     """Get information about processes with a graphics context on a device.
+
+    For Kepler ™️ or newer fully supported devices.
+    This function returns information only about graphics based processes (eg.
+    applications using OpenGL, DirectX).
+    To query the current number of running graphics processes, call this function
+    with \*info_count = 0. The return code will be NVML_ERROR_INSUFFICIENT_SIZE, or
+    NVML_SUCCESS if none are running. For this call ``infos`` is allowed to be
+    NULL.
+    The usedGpuMemory field returned is all of the memory used by the application.
+    Keep in mind that information returned by this call is dynamic and the number
+    of elements might change in time. Allocate more space for ``infos`` table in
+    case new graphics processes are spawned.
 
     Args:
         device (intptr_t): The device handle or MIG device handle.
@@ -30614,6 +31719,12 @@ cpdef object device_get_graphics_running_processes_v3(intptr_t device):
         nvmlProcessInfo_t: Reference in which to return the process
             information.
 
+    .. note::
+        In MIG mode, if device handle is provided, the API returns aggregate
+        information, only if the caller has appropriate privileges. Per-instance
+        information can be queried by using specific MIG device handles. Querying per-
+        instance information using MIG device handles is not supported if the device is
+        in vGPU Host virtualization mode.
     .. seealso:: `nvmlDeviceGetGraphicsRunningProcesses_v3`
     """
     cdef unsigned int[1] info_count = [0]
@@ -30622,16 +31733,28 @@ cpdef object device_get_graphics_running_processes_v3(intptr_t device):
     check_status_size(__status__)
     cdef ProcessInfo infos = ProcessInfo(info_count[0])
     cdef nvmlProcessInfo_t *infos_ptr = <nvmlProcessInfo_t *><intptr_t>(infos._get_ptr())
-    if info_count[0] == 0:
-        return infos
-    with nogil:
-        __status__ = nvmlDeviceGetGraphicsRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
-    check_status(__status__)
-    return infos
+    if info_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetGraphicsRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
+        check_status(__status__)
+    return infos[:info_count[0]]
 
 
 cpdef object device_get_mps_compute_running_processes_v3(intptr_t device):
     """Get information about processes with a Multi-Process Service (MPS) compute context on a device.
+
+    For Volta ™️ or newer fully supported devices.
+    This function returns information only about compute running processes (e.g.
+    CUDA application which have active context) utilizing MPS. Any graphics
+    applications (e.g. using OpenGL, DirectX) won't be listed by this function.
+    To query the current number of running compute processes, call this function
+    with \*info_count = 0. The return code will be NVML_ERROR_INSUFFICIENT_SIZE, or
+    NVML_SUCCESS if none are running. For this call ``infos`` is allowed to be
+    NULL.
+    The usedGpuMemory field returned is all of the memory used by the application.
+    Keep in mind that information returned by this call is dynamic and the number
+    of elements might change in time. Allocate more space for ``infos`` table in
+    case new compute processes are spawned.
 
     Args:
         device (intptr_t): The device handle or MIG device handle.
@@ -30640,6 +31763,12 @@ cpdef object device_get_mps_compute_running_processes_v3(intptr_t device):
         nvmlProcessInfo_t: Reference in which to return the process
             information.
 
+    .. note::
+        In MIG mode, if device handle is provided, the API returns aggregate
+        information, only if the caller has appropriate privileges. Per-instance
+        information can be queried by using specific MIG device handles. Querying per-
+        instance information using MIG device handles is not supported if the device is
+        in vGPU Host virtualization mode.
     .. seealso:: `nvmlDeviceGetMPSComputeRunningProcesses_v3`
     """
     cdef unsigned int[1] info_count = [0]
@@ -30648,16 +31777,17 @@ cpdef object device_get_mps_compute_running_processes_v3(intptr_t device):
     check_status_size(__status__)
     cdef ProcessInfo infos = ProcessInfo(info_count[0])
     cdef nvmlProcessInfo_t *infos_ptr = <nvmlProcessInfo_t *><intptr_t>(infos._get_ptr())
-    if info_count[0] == 0:
-        return infos
-    with nogil:
-        __status__ = nvmlDeviceGetMPSComputeRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
-    check_status(__status__)
-    return infos
+    if info_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetMPSComputeRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
+        check_status(__status__)
+    return infos[:info_count[0]]
 
 
 cpdef int device_on_same_board(intptr_t device1, intptr_t device2) except? 0:
     """Check if the GPU devices are on the same physical board.
+
+    For all fully supported products.
 
     Args:
         device1 (intptr_t): The first GPU device.
@@ -30679,6 +31809,8 @@ cpdef int device_on_same_board(intptr_t device1, intptr_t device2) except? 0:
 cpdef int device_get_api_restriction(intptr_t device, int api_type) except? -1:
     """Retrieves the root/admin permissions on the target API. See ``nvmlRestrictedAPI_t`` for the list of supported APIs. If an API is restricted only root users can call that API. See ``nvmlDeviceSetAPIRestriction`` to change current permissions.
 
+    For all fully supported products.
+
     Args:
         device (intptr_t): The identifier of the target device.
         api_type (RestrictedAPI): Target API type for this operation.
@@ -30698,8 +31830,67 @@ cpdef int device_get_api_restriction(intptr_t device, int api_type) except? -1:
     return <int>is_restricted
 
 
+cpdef tuple device_get_samples(intptr_t device, int type, unsigned long long last_seen_time_stamp):
+    """Gets recent samples for the GPU.
+
+    For Kepler ™️ or newer fully supported devices.
+    Based on type, this method can be used to fetch the power, utilization or clock
+    samples maintained in the buffer by the driver.
+    Power, Utilization and Clock samples are returned as type "unsigned int" for
+    the union ``nvmlValue_t``.
+    To get the size of samples that user needs to allocate, the method is invoked
+    with samples set to NULL. The returned samplesCount will provide the number of
+    samples that can be queried. The user needs to allocate the buffer with size as
+    samplesCount \* sizeof(nvmlSample_t).
+    last_seen_time_stamp represents CPU timestamp in microseconds. Set it to 0 to
+    fetch all the samples maintained by the underlying buffer. Set
+    last_seen_time_stamp to one of the timeStamps retrieved from the date of the
+    previous query to get more recent samples.
+    This method fetches the number of entries which can be accommodated in the
+    provided samples array, and the reference samplesCount is updated to indicate
+    how many samples were actually retrieved. The advantage of using this method
+    for samples in contrast to polling via existing methods is to get get higher
+    frequency data at lower polling cost.
+
+    Args:
+        device (intptr_t): The identifier for the target device.
+        type (SamplingType): Type of sampling event.
+        last_seen_time_stamp (unsigned long long): Return only samples
+            with timestamp greater than last_seen_time_stamp.
+
+    Returns:
+        A 2-tuple containing:
+        - int: Output parameter to represent the type of sample value as
+                described in nvmlSampleVal_t.
+        - nvmlSample_t: Reference in which samples are returned.
+
+    .. note::
+        On MIG-enabled GPUs, querying the following sample types,
+        NVML_GPU_UTILIZATION_SAMPLES, NVML_MEMORY_UTILIZATION_SAMPLES
+        NVML_ENC_UTILIZATION_SAMPLES and NVML_DEC_UTILIZATION_SAMPLES, is not currently
+        supported.
+    .. seealso:: `nvmlDeviceGetSamples`
+    """
+    cdef _ValueType sample_val_type
+    cdef unsigned int[1] sample_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetSamples(<Device>device, <_SamplingType>type, last_seen_time_stamp, &sample_val_type, <unsigned int*>sample_count, NULL)
+    check_status_size(__status__)
+    cdef Sample samples = Sample(sample_count[0])
+    cdef nvmlSample_t *samples_ptr = <nvmlSample_t *><intptr_t>(samples._get_ptr())
+    if not (sample_count[0] == 0):
+        with nogil:
+            __status__ = nvmlDeviceGetSamples(<Device>device, <_SamplingType>type, last_seen_time_stamp, &sample_val_type, <unsigned int*>sample_count, samples_ptr)
+        check_status(__status__)
+    return (<int>sample_val_type, samples[:sample_count[0]])
+
+
 cpdef object device_get_bar1_memory_info(intptr_t device):
     """Gets Total, Available and Used size of BAR1 memory.
+
+    BAR1 is used to map the FB (device memory) so that it can be directly accessed
+    by the CPU or by 3rd party devices (peer-to-peer on the PCIE bus).
+    For Kepler ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30708,6 +31899,10 @@ cpdef object device_get_bar1_memory_info(intptr_t device):
         nvmlBAR1Memory_t: Reference in which BAR1 memory information is
             returned.
 
+    .. note::
+        In MIG mode, if device handle is provided, the API returns aggregate
+        information, only if the caller has appropriate privileges. Per-instance
+        information can be queried by using specific MIG device handles.
     .. seealso:: `nvmlDeviceGetBAR1MemoryInfo`
     """
     cdef BAR1Memory bar1memory_py = BAR1Memory()
@@ -30720,6 +31915,7 @@ cpdef object device_get_bar1_memory_info(intptr_t device):
 
 cpdef unsigned int device_get_irq_num(intptr_t device) except? 0:
     """Gets the device's interrupt number.
+
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30740,12 +31936,17 @@ cpdef unsigned int device_get_irq_num(intptr_t device) except? 0:
 cpdef unsigned int device_get_num_gpu_cores(intptr_t device) except? 0:
     """Gets the device's core count.
 
+
     Args:
         device (intptr_t): The identifier of the target device.
 
     Returns:
         unsigned int: The number of cores for the specified device.
 
+    .. note::
+        On MIG-enabled GPUs, querying the device's core count is currently not
+        supported using this API. Please use ``nvmlDeviceGetGpuInstanceProfileInfo`` to
+        fetch the MIG device's core count.
     .. seealso:: `nvmlDeviceGetNumGpuCores`
     """
     cdef unsigned int num_cores
@@ -30757,6 +31958,7 @@ cpdef unsigned int device_get_num_gpu_cores(intptr_t device) except? 0:
 
 cpdef unsigned int device_get_power_source(intptr_t device) except *:
     """Gets the devices power source.
+
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30776,6 +31978,7 @@ cpdef unsigned int device_get_power_source(intptr_t device) except *:
 cpdef unsigned int device_get_memory_bus_width(intptr_t device) except? 0:
     """Gets the device's memory bus width.
 
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -30793,6 +31996,7 @@ cpdef unsigned int device_get_memory_bus_width(intptr_t device) except? 0:
 
 cpdef unsigned int device_get_pcie_link_max_speed(intptr_t device) except? 0:
     """Gets the device's PCIE Max Link speed in MBPS.
+
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30812,6 +32016,7 @@ cpdef unsigned int device_get_pcie_link_max_speed(intptr_t device) except? 0:
 cpdef unsigned int device_get_pcie_speed(intptr_t device) except? 0:
     """Gets the device's PCIe Link speed in Mbps.
 
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -30829,6 +32034,7 @@ cpdef unsigned int device_get_pcie_speed(intptr_t device) except? 0:
 
 cpdef unsigned int device_get_adaptive_clock_info_status(intptr_t device) except? 0:
     """Gets the device's Adaptive Clock status.
+
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30850,6 +32056,14 @@ cpdef unsigned int device_get_adaptive_clock_info_status(intptr_t device) except
 cpdef unsigned int device_get_bus_type(intptr_t device) except? 0:
     """Get the type of the GPU Bus (PCIe, PCI, ...).
 
+    return.
+
+    - ``NVML_SUCCESS`` if the bus ``type`` is successfully retreived.
+    - ``NVML_ERROR_UNINITIALIZED`` if the library has not been successfully
+      initialized.
+    - ``NVML_ERROR_INVALID_ARGUMENT`` if ``device`` is invalid or ``type`` is NULL.
+    - ``NVML_ERROR_UNKNOWN`` on any unexpected error.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -30868,6 +32082,9 @@ cpdef unsigned int device_get_bus_type(intptr_t device) except? 0:
 cpdef object system_get_conf_compute_capabilities():
     """Get Conf Computing System capabilities.
 
+    For Ampere ™️ or newer fully supported devices. Supported on Linux, Windows
+    TCC.
+
     Returns:
         nvmlConfComputeSystemCaps_t: System CC capabilities.
 
@@ -30884,6 +32101,9 @@ cpdef object system_get_conf_compute_capabilities():
 cpdef object system_get_conf_compute_state():
     """Get Conf Computing System State.
 
+    For Ampere ™️ or newer fully supported devices. Supported on Linux, Windows
+    TCC.
+
     Returns:
         nvmlConfComputeSystemState_t: System CC State.
 
@@ -30899,6 +32119,9 @@ cpdef object system_get_conf_compute_state():
 
 cpdef object device_get_conf_compute_mem_size_info(intptr_t device):
     """Get Conf Computing Protected and Unprotected Memory Sizes.
+
+    For Ampere ™️ or newer fully supported devices. Supported on Linux, Windows
+    TCC.
 
     Args:
         device (intptr_t): Device handle.
@@ -30919,6 +32142,16 @@ cpdef object device_get_conf_compute_mem_size_info(intptr_t device):
 cpdef unsigned int system_get_conf_compute_gpus_ready_state() except? 0:
     """Get Conf Computing GPUs ready state.
 
+    For Ampere ™️ or newer fully supported devices. Supported on Linux, Windows
+    TCC.
+    return.
+
+    - ``NVML_SUCCESS`` if ``current`` GPUs ready state were successfully queried.
+    - ``NVML_ERROR_UNINITIALIZED`` if the library has not been successfully
+      initialized.
+    - ``NVML_ERROR_INVALID_ARGUMENT`` if ``is_accepting_work`` is NULL.
+    - ``NVML_ERROR_NOT_SUPPORTED`` if this query is not supported by the device.
+
     Returns:
         unsigned int: Returns GPU current work accepting state,
             NVML_CC_ACCEPTING_CLIENT_REQUESTS_TRUE or
@@ -30935,6 +32168,9 @@ cpdef unsigned int system_get_conf_compute_gpus_ready_state() except? 0:
 
 cpdef object device_get_conf_compute_protected_memory_usage(intptr_t device):
     """Get Conf Computing protected memory usage.
+
+    For Ampere ™️ or newer fully supported devices. Supported on Linux, Windows
+    TCC.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30954,6 +32190,9 @@ cpdef object device_get_conf_compute_protected_memory_usage(intptr_t device):
 
 cpdef object device_get_conf_compute_gpu_certificate(intptr_t device):
     """Get Conf Computing GPU certificate details.
+
+    For Ampere ™️ or newer fully supported devices. Supported on Linux, Windows
+    TCC.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -30975,6 +32214,9 @@ cpdef object device_get_conf_compute_gpu_certificate(intptr_t device):
 cpdef device_set_conf_compute_unprotected_mem_size(intptr_t device, unsigned long long size_ki_b):
     """Set Conf Computing Unprotected Memory Size.
 
+    For Ampere ™️ or newer fully supported devices. Supported on Linux, Windows
+    TCC.
+
     Args:
         device (intptr_t): Device Handle.
         size_ki_b (unsigned long long): Unprotected Memory size to be set
@@ -30990,6 +32232,16 @@ cpdef device_set_conf_compute_unprotected_mem_size(intptr_t device, unsigned lon
 cpdef system_set_conf_compute_gpus_ready_state(unsigned int is_accepting_work):
     """Set Conf Computing GPUs ready state.
 
+    For Ampere ™️ or newer fully supported devices. Supported on Linux, Windows
+    TCC.
+    return.
+
+    - ``NVML_SUCCESS`` if ``current`` GPUs ready state is successfully set.
+    - ``NVML_ERROR_UNINITIALIZED`` if the library has not been successfully
+      initialized.
+    - ``NVML_ERROR_INVALID_ARGUMENT`` if ``is_accepting_work`` is invalid.
+    - ``NVML_ERROR_NOT_SUPPORTED`` if this query is not supported by the device.
+
     Args:
         is_accepting_work (unsigned int): GPU accepting new work,
             NVML_CC_ACCEPTING_CLIENT_REQUESTS_TRUE or
@@ -31004,6 +32256,9 @@ cpdef system_set_conf_compute_gpus_ready_state(unsigned int is_accepting_work):
 
 cpdef object system_get_conf_compute_settings():
     """Get Conf Computing System Settings.
+
+    For Hopper ™️ or newer fully supported devices. Supported on Linux, Windows
+    TCC.
 
     Returns:
         nvmlSystemConfComputeSettings_v1_t: System CC settings.
@@ -31022,6 +32277,9 @@ cpdef object system_get_conf_compute_settings():
 cpdef char device_get_gsp_firmware_version(intptr_t device) except? 0:
     """Retrieve GSP firmware version.
 
+    The caller passes in buffer via ``version`` and corresponding GSP firmware
+    numbered version is returned with the same parameter in string format.
+
     Args:
         device (intptr_t): Device handle.
 
@@ -31039,6 +32297,10 @@ cpdef char device_get_gsp_firmware_version(intptr_t device) except? 0:
 
 cpdef tuple device_get_gsp_firmware_mode(intptr_t device):
     """Retrieve GSP firmware mode.
+
+    The caller passes in integer pointers. GSP firmware enablement and default mode
+    information is returned with corresponding parameters. The return value in
+    ``is_enabled`` and ``default_mode`` should be treated as boolean.
 
     Args:
         device (intptr_t): Device handle.
@@ -31062,6 +32324,10 @@ cpdef tuple device_get_gsp_firmware_mode(intptr_t device):
 cpdef object device_get_sram_ecc_error_status(intptr_t device):
     """Get SRAM ECC error status of this device.
 
+    For Ampere ™️ or newer fully supported devices. Requires root/admin
+    permissions.
+    See ``nvmlEccSramErrorStatus_v1_t`` for more information on the struct.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -31082,6 +32348,10 @@ cpdef object device_get_sram_ecc_error_status(intptr_t device):
 cpdef int device_get_accounting_mode(intptr_t device) except? -1:
     """Queries the state of per process accounting mode.
 
+    For Kepler ™️ or newer fully supported devices.
+    See ``nvmlDeviceGetAccountingStats`` for more details. See
+    ``nvmlDeviceSetAccountingMode``.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -31100,6 +32370,17 @@ cpdef int device_get_accounting_mode(intptr_t device) except? -1:
 cpdef object device_get_accounting_stats(intptr_t device, unsigned int pid):
     """Queries process's accounting stats.
 
+    For Kepler ™️ or newer fully supported devices.
+    Accounting stats capture GPU utilization and other statistics across the
+    lifetime of a process. Accounting stats can be queried during life time of the
+    process and after its termination. The time field in ``nvmlAccountingStats_t``
+    is reported as 0 during the lifetime of the process and updated to actual
+    running time after its termination. Accounting stats are kept in a circular
+    buffer, newly created processes overwrite information about old processes.
+    See ``nvmlAccountingStats_t`` for description of each returned metric. List of
+    processes that can be queried can be retrieved from
+    ``nvmlDeviceGetAccountingPids``.
+
     Args:
         device (intptr_t): The identifier of the target device.
         pid (unsigned int): Process Id of the target process to query
@@ -31109,6 +32390,18 @@ cpdef object device_get_accounting_stats(intptr_t device, unsigned int pid):
         nvmlAccountingStats_t: Reference in which to return the process's
             accounting stats.
 
+    .. note::
+        Accounting Mode needs to be on. See ``nvmlDeviceGetAccountingMode``.
+    .. note::
+        Only compute and graphics applications stats can be queried. Monitoring
+        applications stats can't be queried since they don't contribute to GPU
+        utilization.
+    .. note::
+        In case of pid collision stats of only the latest process (that terminated
+        last) will be reported.
+    .. note::
+        On Kepler devices per process statistics are accurate only if there's one
+        process running on a GPU.
     .. seealso:: `nvmlDeviceGetAccountingStats`
     """
     cdef AccountingStats stats_py = AccountingStats()
@@ -31122,30 +32415,44 @@ cpdef object device_get_accounting_stats(intptr_t device, unsigned int pid):
 cpdef object device_get_accounting_pids(intptr_t device):
     """Queries list of processes that can be queried for accounting stats. The list of processes returned can be in running or terminated state.
 
+    For Kepler ™️ or newer fully supported devices.
+    To query the number of processes under Accounting Mode, call this function with
+    \*count = 0 and pids=NULL. The return code will be NVML_ERROR_INSUFFICIENT_SIZE
+    with an updated count value indicating the number of processes.
+    For more details see ``nvmlDeviceGetAccountingStats``.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
     Returns:
         unsigned int: Reference in which to return list of process ids.
 
+    .. note::
+        In case of PID collision some processes might not be accessible before the
+        circular buffer is full.
     .. seealso:: `nvmlDeviceGetAccountingPids`
     """
     cdef unsigned int[1] count = [0]
     with nogil:
         __status__ = nvmlDeviceGetAccountingPids(<Device>device, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    if count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef _cyb_view.array pids = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    cdef unsigned int *pids_ptr = <unsigned int *>(pids.data)
-    with nogil:
-        __status__ = nvmlDeviceGetAccountingPids(<Device>device, <unsigned int*>count, pids_ptr)
-    check_status(__status__)
-    return pids
+    cdef _cyb_view.array _pids_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
+    cdef unsigned int *pids_ptr = <unsigned int *>(_pids_alloc_.data)
+    cdef object pids = _pids_alloc_[:count[0]]
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetAccountingPids(<Device>device, <unsigned int*>count, pids_ptr)
+        check_status(__status__)
+    return pids[:count[0]]
 
 
 cpdef unsigned int device_get_accounting_buffer_size(intptr_t device) except? 0:
     """Returns the number of processes that the circular buffer with accounting pids can hold.
+
+    For Kepler ™️ or newer fully supported devices.
+    This is the maximum number of processes that accounting information will be
+    stored for before information about oldest processes will get overwritten by
+    information about new processes.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31166,6 +32473,8 @@ cpdef unsigned int device_get_accounting_buffer_size(intptr_t device) except? 0:
 cpdef object device_get_retired_pages(intptr_t device, int cause):
     """Returns the list of retired pages by source, including pages that are pending retirement The address information provided from this API is the hardware address of the page that was retired. Note that this does not match the virtual address used in CUDA, but will match the address information in Xid 63.
 
+    For Kepler ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
         cause (PageRetirementCause): Filter page addresses by cause of
@@ -31180,18 +32489,59 @@ cpdef object device_get_retired_pages(intptr_t device, int cause):
     with nogil:
         __status__ = nvmlDeviceGetRetiredPages(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, NULL)
     check_status_size(__status__)
-    if page_count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long long), format="Q", mode="c")[:0]
-    cdef _cyb_view.array addresses = _cyb_view.array(shape=(page_count[0],), itemsize=sizeof(unsigned long long), format="Q", mode="c")
-    cdef unsigned long long *addresses_ptr = <unsigned long long *>(addresses.data)
+    cdef _cyb_view.array _addresses_alloc_ = _cyb_view.array(shape=(max(page_count[0], 1),), itemsize=sizeof(unsigned long long), format="Q", mode="c")
+    cdef unsigned long long *addresses_ptr = <unsigned long long *>(_addresses_alloc_.data)
+    cdef object addresses = _addresses_alloc_[:page_count[0]]
+    if page_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetRetiredPages(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, addresses_ptr)
+        check_status(__status__)
+    return addresses[:page_count[0]]
+
+
+cpdef tuple device_get_retired_pages_v2(intptr_t device, int cause):
+    """Returns the list of retired pages by source, including pages that are pending retirement The address information provided from this API is the hardware address of the page that was retired. Note that this does not match the virtual address used in CUDA, but will match the address information in Xid 63.
+
+    For Kepler ™️ or newer fully supported devices.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        cause (PageRetirementCause): Filter page addresses by cause of
+            retirement.
+
+    Returns:
+        A 2-tuple containing:
+        - unsigned long long: Buffer to write the page addresses into.
+        - unsigned long long: Buffer to write the timestamps of page
+                retirement, additional for _v2.
+
+    .. note::
+        nvmlDeviceGetRetiredPages_v2 adds an additional timestamps parameter to return
+        the time of each page's retirement. This is supported for Pascal and newer
+        architecture.
+    .. seealso:: `nvmlDeviceGetRetiredPages_v2`
+    """
+    cdef unsigned int[1] page_count = [0]
     with nogil:
-        __status__ = nvmlDeviceGetRetiredPages(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, addresses_ptr)
-    check_status(__status__)
-    return addresses
+        __status__ = nvmlDeviceGetRetiredPages_v2(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, NULL, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array _addresses_alloc_ = _cyb_view.array(shape=(max(page_count[0], 1),), itemsize=sizeof(unsigned long long), format="Q", mode="c")
+    cdef unsigned long long *addresses_ptr = <unsigned long long *>(_addresses_alloc_.data)
+    cdef object addresses = _addresses_alloc_[:page_count[0]]
+    cdef _cyb_view.array _timestamps_alloc_ = _cyb_view.array(shape=(max(page_count[0], 1),), itemsize=sizeof(unsigned long long), format="Q", mode="c")
+    cdef unsigned long long *timestamps_ptr = <unsigned long long *>(_timestamps_alloc_.data)
+    cdef object timestamps = _timestamps_alloc_[:page_count[0]]
+    if not (page_count[0] == 0):
+        with nogil:
+            __status__ = nvmlDeviceGetRetiredPages_v2(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, addresses_ptr, timestamps_ptr)
+        check_status(__status__)
+    return (addresses[:page_count[0]], timestamps[:page_count[0]])
 
 
 cpdef int device_get_retired_pages_pending_status(intptr_t device) except? -1:
     """Check if any pages are pending retirement and need a reboot to fully retire.
+
+    For Kepler ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31211,6 +32561,8 @@ cpdef int device_get_retired_pages_pending_status(intptr_t device) except? -1:
 cpdef tuple device_get_remapped_rows(intptr_t device):
     """Get number of remapped rows. The number of rows reported will be based on the cause of the remapping. is_pending indicates whether or not there are pending remappings. A reset will be required to actually remap the row. failure_occurred will be set if a row remapping ever failed in the past. A pending remapping won't affect future work on the GPU since error-containment and dynamic page blacklisting will take care of that.
 
+    For Ampere ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -31224,6 +32576,9 @@ cpdef tuple device_get_remapped_rows(intptr_t device):
         - unsigned int: Reference that is set when a remapping has failed in
                 the past.
 
+    .. note::
+        On MIG-enabled GPUs with active instances, querying the number of remapped rows
+        is not supported.
     .. seealso:: `nvmlDeviceGetRemappedRows`
     """
     cdef unsigned int corr_rows
@@ -31238,6 +32593,7 @@ cpdef tuple device_get_remapped_rows(intptr_t device):
 
 cpdef object device_get_row_remapper_histogram(intptr_t device):
     """Get the row remapper histogram. Returns the remap availability for each bank on the GPU.
+
 
     Args:
         device (intptr_t): Device handle.
@@ -31258,6 +32614,7 @@ cpdef object device_get_row_remapper_histogram(intptr_t device):
 cpdef unsigned int device_get_architecture(intptr_t device) except? 0:
     """Get architecture for device.
 
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -31276,6 +32633,9 @@ cpdef unsigned int device_get_architecture(intptr_t device) except? 0:
 
 cpdef object device_get_clk_mon_status(intptr_t device):
     """Retrieves the frequency monitor fault status for the device.
+
+    For Ampere ™️ or newer fully supported devices. Requires root user.
+    See ``nvmlClkMonStatus_t`` for details on decoding the status output.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31297,6 +32657,32 @@ cpdef object device_get_clk_mon_status(intptr_t device):
 cpdef object device_get_process_utilization(intptr_t device, unsigned long long last_seen_time_stamp):
     """Retrieves the current utilization and process ID.
 
+    For Maxwell ™️ or newer fully supported devices.
+    Reads recent utilization of GPU SM (3D/Compute), framebuffer, video encoder,
+    and video decoder for processes running. Utilization values are returned as an
+    array of utilization sample structures in the caller-supplied buffer pointed at
+    by ``utilization``. One utilization sample structure is returned per process
+    running, that had some non-zero utilization during the last sample period. It
+    includes the CPU timestamp at which the samples were recorded. Individual
+    utilization values are returned as "unsigned int" values. If no valid sample
+    entries are found since the last_seen_time_stamp, NVML_ERROR_NOT_FOUND is
+    returned.
+    To read utilization values, first determine the size of buffer required to hold
+    the samples by invoking the function with ``utilization`` set to NULL. The
+    caller should allocate a buffer of size process_samples_count \*
+    sizeof(nvmlProcessUtilizationSample_t). Invoke the function again with the
+    allocated buffer passed in ``utilization``, and ``process_samples_count`` set
+    to the number of entries the buffer is sized for.
+    On successful return, the function updates ``process_samples_count`` with the
+    number of process utilization sample structures that were actually written.
+    This may differ from a previously read value as instances are created or
+    destroyed.
+    last_seen_time_stamp represents the CPU timestamp in microseconds at which
+    utilization samples were last read. Set it to 0 to read utilization based on
+    all the samples maintained by the driver's internal sample buffer. Set
+    last_seen_time_stamp to a timeStamp retrieved from a previous query to read
+    utilization since the previous query.
+
     Args:
         device (intptr_t): The identifier of the target device.
         last_seen_time_stamp (unsigned long long): Return only samples
@@ -31306,6 +32692,8 @@ cpdef object device_get_process_utilization(intptr_t device, unsigned long long 
         nvmlProcessUtilizationSample_t: Pointer to caller-supplied buffer
             in which guest process utilization samples are returned.
 
+    .. note::
+        On MIG-enabled GPUs, querying process utilization is not currently supported.
     .. seealso:: `nvmlDeviceGetProcessUtilization`
     """
     cdef unsigned int[1] process_samples_count = [0]
@@ -31314,16 +32702,22 @@ cpdef object device_get_process_utilization(intptr_t device, unsigned long long 
     check_status_size(__status__)
     cdef ProcessUtilizationSample utilization = ProcessUtilizationSample(process_samples_count[0])
     cdef nvmlProcessUtilizationSample_t *utilization_ptr = <nvmlProcessUtilizationSample_t *><intptr_t>(utilization._get_ptr())
-    if process_samples_count[0] == 0:
-        return utilization
-    with nogil:
-        __status__ = nvmlDeviceGetProcessUtilization(<Device>device, utilization_ptr, <unsigned int*>process_samples_count, last_seen_time_stamp)
-    check_status(__status__)
-    return utilization
+    if process_samples_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetProcessUtilization(<Device>device, utilization_ptr, <unsigned int*>process_samples_count, last_seen_time_stamp)
+        check_status(__status__)
+    return utilization[:process_samples_count[0]]
 
 
 cpdef unit_set_led_state(intptr_t unit, int color):
     """Set the LED state for the unit. The LED can be either green (0) or amber (1).
+
+    For S-class products. Requires root/admin permissions.
+    This operation takes effect immediately.
+    Current S-Class products don't provide unique LEDs for each unit. As such, both
+    front and back LEDs will be toggled in unison regardless of which unit is
+    specified with this command.
+    See ``nvmlLedColor_t`` for available colors.
 
     Args:
         unit (intptr_t): The identifier of the target unit.
@@ -31339,6 +32733,18 @@ cpdef unit_set_led_state(intptr_t unit, int color):
 cpdef device_set_persistence_mode(intptr_t device, int mode):
     """Set the persistence mode for the device.
 
+    For all products. For Linux only. Requires root/admin permissions.
+    The persistence mode determines whether the GPU driver software is torn down
+    after the last client exits.
+    This operation takes effect immediately. It is not persistent across reboots.
+    After each reboot the persistence mode is reset to "Disabled".
+    See ``nvmlEnableState_t`` for available modes.
+    After calling this API with mode set to NVML_FEATURE_DISABLED on a device that
+    has its own NUMA memory, the given device handle will no longer be valid, and
+    to continue to interact with this device, a new handle should be obtained from
+    one of the nvmlDeviceGetHandleBy*() APIs. This limitation is currently only
+    applicable to devices that have a coherent NVLink connection to system memory.
+
     Args:
         device (intptr_t): The identifier of the target device.
         mode (EnableState): The target persistence mode.
@@ -31353,11 +32759,21 @@ cpdef device_set_persistence_mode(intptr_t device, int mode):
 cpdef device_set_compute_mode(intptr_t device, int mode):
     """Set the compute mode for the device or MIG device.
 
+    For all products. Requires root/admin permissions.
+    The compute mode determines whether a GPU can be used for compute operations
+    and whether it can be shared across contexts.
+    This operation takes effect immediately. Under Linux it is not persistent
+    across reboots and always resets to "Default". Under windows it is persistent.
+    Under windows compute mode may only be set to DEFAULT when running in WDDM.
+    See ``nvmlComputeMode_t`` for details on available compute modes.
+
     Args:
         device (intptr_t): The identifier of the target device handle or
             MIG device handle.
         mode (ComputeMode): The target compute mode.
 
+    .. note::
+        If MIG is enabled on a GPU, device must be MIG device handle.
     .. seealso:: `nvmlDeviceSetComputeMode`
     """
     with nogil:
@@ -31367,6 +32783,13 @@ cpdef device_set_compute_mode(intptr_t device, int mode):
 
 cpdef device_set_ecc_mode(intptr_t device, int ecc):
     """Set the ECC mode for the device.
+
+    For Kepler ™️ or newer fully supported devices. Only applicable to devices with
+    ECC. Requires ``NVML_INFOROM_ECC`` version 1.0 or higher. Requires root/admin
+    permissions.
+    The ECC mode determines whether the GPU enables its ECC support.
+    This operation takes effect after the next reboot.
+    See ``nvmlEnableState_t`` for details on available modes.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31381,6 +32804,16 @@ cpdef device_set_ecc_mode(intptr_t device, int ecc):
 
 cpdef device_clear_ecc_error_counts(intptr_t device, int counter_type):
     """Clear the ECC error and other memory error counts for the device.
+
+    For Kepler ™️ or newer fully supported devices. Only applicable to devices with
+    ECC. Requires ``NVML_INFOROM_ECC`` version 2.0 or higher to clear aggregate
+    location-based ECC counts. Requires ``NVML_INFOROM_ECC`` version 1.0 or higher
+    to clear all other ECC counts. Requires root/admin permissions. Requires ECC
+    Mode to be enabled.
+    Sets all of the specified ECC counters to 0, including both detailed and total
+    counts.
+    This operation takes effect immediately.
+    See ``nvmlMemoryErrorType_t`` for details on available counter types.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31397,6 +32830,25 @@ cpdef device_clear_ecc_error_counts(intptr_t device, int counter_type):
 cpdef device_set_driver_model(intptr_t device, int driver_model, unsigned int flags):
     """Set the driver model for the device.
 
+    For Fermi ™️ or newer fully supported devices. For windows only. Requires
+    root/admin permissions.
+    On Windows platforms the device driver can run in either WDDM or WDM (TCC)
+    mode. If a display is attached to the device it must run in WDDM mode.
+    Driver-model availability is architecture-specific; attempting to set an
+    unsupported driver model returns NVML_ERROR_NOT_SUPPORTED.
+    It is possible to force the change to WDM (TCC) while the display is still
+    attached with a force flag (nvmlFlagForce). This should only be done if the
+    host is subsequently powered down and the display is detached from the device
+    before the next reboot.
+    This operation takes effect after the next reboot.
+    Windows driver model may only be set to WDDM when running in DEFAULT compute
+    mode.
+    Change driver model to WDDM is not supported when GPU doesn't support graphics
+    acceleration or will not support it after reboot. See
+    ``nvmlDeviceSetGpuOperationMode``.
+    See ``nvmlDriverModel_t`` for details on available driver models. See
+    ``nvmlFlagDefault`` and ``nvmlFlagForce``.
+
     Args:
         device (intptr_t): The identifier of the target device.
         driver_model (DriverModel): The target driver model.
@@ -31411,6 +32863,24 @@ cpdef device_set_driver_model(intptr_t device, int driver_model, unsigned int fl
 
 cpdef device_set_gpu_locked_clocks(intptr_t device, unsigned int min_gpu_clock_m_hz, unsigned int max_gpu_clock_m_hz):
     """Set clocks that device will lock to.
+
+    Sets the clocks that the device will be running at to the value in the range of
+    min_gpu_clock_m_hz to max_gpu_clock_m_hz.
+    Can be used as a setting to request constant performance.
+    This can be called with a pair of integer clock frequencies in MHz, or a pair
+    of /ref ``nvmlClockLimitId_t`` values. See the table below for valid
+    combinations of these values.
+    minGpuClock | maxGpuClock | Effect
+    ---------—+----------—+-----------------------------------------------— tdp |
+    tdp | Lock clock to TDP unlimited | tdp | Upper bound is TDP but clock may
+    drift below this tdp | unlimited | Lower bound is TDP but clock may boost above
+    this unlimited | unlimited | Unlocked (== nvmlDeviceResetGpuLockedClocks).
+    If one arg takes one of these values, the other must be one of these values as
+    well. Mixed numeric and symbolic calls return NVML_ERROR_INVALID_ARGUMENT.
+    Requires root/admin permissions.
+    After system reboot or driver reload GPU clocks go back to their default value.
+    See ``nvmlDeviceResetGpuLockedClocks``.
+    For Volta ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31429,6 +32899,10 @@ cpdef device_set_gpu_locked_clocks(intptr_t device, unsigned int min_gpu_clock_m
 cpdef device_reset_gpu_locked_clocks(intptr_t device):
     """Resets the gpu clock to the default value.
 
+    This is the gpu clock that will be used after system reboot or driver reload.
+    Default values are idle clocks.
+    For Volta ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -31441,6 +32915,14 @@ cpdef device_reset_gpu_locked_clocks(intptr_t device):
 
 cpdef device_set_memory_locked_clocks(intptr_t device, unsigned int min_mem_clock_m_hz, unsigned int max_mem_clock_m_hz):
     """Set memory clocks that device will lock to.
+
+    Sets the device's memory clocks to the value in the range of min_mem_clock_m_hz
+    to max_mem_clock_m_hz.
+    Can be used as a setting to request constant performance.
+    Requires root/admin permissions.
+    After system reboot or driver reload memory clocks go back to their default
+    value. See ``nvmlDeviceResetMemoryLockedClocks``.
+    For Ampere ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31459,6 +32941,10 @@ cpdef device_set_memory_locked_clocks(intptr_t device, unsigned int min_mem_cloc
 cpdef device_reset_memory_locked_clocks(intptr_t device):
     """Resets the memory clock to the default value.
 
+    This is the memory clock that will be used after system reboot or driver
+    reload. Default values are idle clocks.
+    For Ampere ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -31471,6 +32957,18 @@ cpdef device_reset_memory_locked_clocks(intptr_t device):
 
 cpdef device_set_auto_boosted_clocks_enabled(intptr_t device, int enabled):
     """Try to set the current state of Auto Boosted clocks on a device.
+
+    For Kepler ™️ or newer fully supported devices.
+    Auto Boosted clocks are enabled by default on some hardware, allowing the GPU
+    to run at higher clock rates to maximize performance as thermal limits allow.
+    Auto Boosted clocks should be disabled if fixed clock rates are desired.
+    Non-root users may use this API by default but can be restricted by root from
+    using this API by calling ``nvmlDeviceSetAPIRestriction`` with
+    apiType=NVML_RESTRICTED_API_SET_AUTO_BOOSTED_CLOCKS. Note: Persistence Mode is
+    required to modify current Auto Boost settings, therefore, it must be enabled.
+    On Pascal and newer hardware, Auto Boosted clocks are controlled through
+    application clocks. Use nvmlDeviceSetApplicationsClocks and
+    nvmlDeviceResetApplicationsClocks to control Auto Boost behavior.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31486,6 +32984,15 @@ cpdef device_set_auto_boosted_clocks_enabled(intptr_t device, int enabled):
 
 cpdef device_set_default_auto_boosted_clocks_enabled(intptr_t device, int enabled, unsigned int flags):
     """Try to set the default state of Auto Boosted clocks on a device. This is the default state that Auto Boosted clocks will return to when no compute running processes (e.g. CUDA application which have an active context) are running.
+
+    For Kepler ™️ or newer non-GeForce fully supported devices and Maxwell or newer
+    GeForce devices. Requires root/admin permissions.
+    Auto Boosted clocks are enabled by default on some hardware, allowing the GPU
+    to run at higher clock rates to maximize performance as thermal limits allow.
+    Auto Boosted clocks should be disabled if fixed clock rates are desired.
+    On Pascal and newer hardware, Auto Boosted clocks are controlled through
+    application clocks. Use nvmlDeviceSetApplicationsClocks and
+    nvmlDeviceResetApplicationsClocks to control Auto Boost behavior.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31504,6 +33011,8 @@ cpdef device_set_default_auto_boosted_clocks_enabled(intptr_t device, int enable
 cpdef device_set_default_fan_speed_v2(intptr_t device, unsigned int fan):
     """Sets the speed of the fan control policy to default.
 
+    For all cuda-capable discrete products with fans.
+
     Args:
         device (intptr_t): The identifier of the target device.
         fan (unsigned int): The index of the fan, starting at zero.
@@ -31517,6 +33026,10 @@ cpdef device_set_default_fan_speed_v2(intptr_t device, unsigned int fan):
 
 cpdef device_set_fan_control_policy(intptr_t device, unsigned int fan, unsigned int policy):
     """Sets current fan control policy.
+
+    For Maxwell ™️ or newer fully supported devices.
+    Requires privileged user.
+    For all cuda-capable discrete products with fans.
 
     Args:
         device (intptr_t): The identifier of the target ``device``.
@@ -31533,6 +33046,16 @@ cpdef device_set_fan_control_policy(intptr_t device, unsigned int fan, unsigned 
 cpdef device_set_gpu_operation_mode(intptr_t device, int mode):
     """Sets new GOM. See ``nvmlGpuOperationMode_t`` for details.
 
+    For GK110 M-class and X-class Tesla ™️ products from the Kepler family. Modes
+    ``NVML_GOM_LOW_DP`` and ``NVML_GOM_ALL_ON`` are supported on fully supported
+    GeForce products. Not supported on Quadro ®️ and Tesla ™️ C-class products.
+    Requires root/admin permissions.
+    Changing GOMs requires a reboot. The reboot requirement might be removed in the
+    future.
+    Compute only GOMs don't support graphics acceleration. Under windows switching
+    to these GOMs when pending driver model is WDDM is not supported. See
+    ``nvmlDeviceSetDriverModel``.
+
     Args:
         device (intptr_t): The identifier of the target device.
         mode (GpuOperationMode): Target GOM.
@@ -31546,6 +33069,9 @@ cpdef device_set_gpu_operation_mode(intptr_t device, int mode):
 
 cpdef device_set_api_restriction(intptr_t device, int api_type, int is_restricted):
     """Changes the root/admin restructions on certain APIs. See ``nvmlRestrictedAPI_t`` for the list of supported APIs. This method can be used by a root/admin user to give non-root/admin access to certain otherwise-restricted APIs. The new setting lasts for the lifetime of the NVIDIA driver; it is not persistent. See ``nvmlDeviceGetAPIRestriction`` to query the current restriction settings.
+
+    For Kepler ™️ or newer fully supported devices. Requires root/admin
+    permissions.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31561,6 +33087,22 @@ cpdef device_set_api_restriction(intptr_t device, int api_type, int is_restricte
 
 cpdef device_set_fan_speed_v2(intptr_t device, unsigned int fan, unsigned int speed):
     """Sets the speed of a specified fan.
+
+    WARNING: This function changes the fan control policy to manual. It means that
+    YOU have to monitor the temperature and adjust the fan speed accordingly. If
+    you set the fan speed too low you can burn your GPU! Use
+    nvmlDeviceSetDefaultFanSpeed_v2 to restore default control policy.
+    For all cuda-capable discrete products with fans that are Maxwell or Newer.
+    return.
+
+    - ``NVML_SUCCESS`` if the fan speed has been set.
+    - ``NVML_ERROR_UNINITIALIZED`` if the library has not been successfully
+      initialized.
+    - ``NVML_ERROR_INVALID_ARGUMENT`` if the device is not valid, or the speed is
+      outside acceptable ranges, or if the fan index doesn't reference an actual
+      fan.
+    - ``NVML_ERROR_NOT_SUPPORTED`` if the device is older than Maxwell.
+    - ``NVML_ERROR_UNKNOWN`` if there was an unexpected error.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31578,10 +33120,26 @@ cpdef device_set_fan_speed_v2(intptr_t device, unsigned int fan, unsigned int sp
 cpdef device_set_accounting_mode(intptr_t device, int mode):
     """Enables or disables per process accounting.
 
+    For Kepler ™️ or newer fully supported devices. Requires root/admin
+    permissions.
+    See ``nvmlDeviceGetAccountingMode`` See ``nvmlDeviceGetAccountingStats`` See
+    ``nvmlDeviceClearAccountingPids``.
+
     Args:
         device (intptr_t): The identifier of the target device.
         mode (EnableState): The target accounting mode.
 
+    .. note::
+        This setting is not persistent and will default to disabled after driver
+        unloads. Enable persistence mode to be sure the setting doesn't switch off to
+        disabled.
+    .. note::
+        Enabling accounting mode has no negative impact on the GPU performance.
+    .. note::
+        Disabling accounting clears all accounting pids information.
+    .. note::
+        On MIG-enabled GPUs, accounting mode would be set to DISABLED and changing it
+        is not supported.
     .. seealso:: `nvmlDeviceSetAccountingMode`
     """
     with nogil:
@@ -31591,6 +33149,11 @@ cpdef device_set_accounting_mode(intptr_t device, int mode):
 
 cpdef device_clear_accounting_pids(intptr_t device):
     """Clears accounting information about all processes that have already terminated.
+
+    For Kepler ™️ or newer fully supported devices. Requires root/admin
+    permissions.
+    See ``nvmlDeviceGetAccountingMode`` See ``nvmlDeviceGetAccountingStats`` See
+    ``nvmlDeviceSetAccountingMode``.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31604,6 +33167,8 @@ cpdef device_clear_accounting_pids(intptr_t device):
 
 cpdef int device_get_nvlink_state(intptr_t device, unsigned int link) except? -1:
     """Retrieves the state of the device's NvLink for the link specified.
+
+    For Pascal ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31626,6 +33191,8 @@ cpdef int device_get_nvlink_state(intptr_t device, unsigned int link) except? -1
 cpdef unsigned int device_get_nvlink_version(intptr_t device, unsigned int link) except? 0:
     """Retrieves the version of the device's NvLink for the link specified.
 
+    For Pascal ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
         link (unsigned int): Specifies the NvLink link to be queried.
@@ -31645,6 +33212,8 @@ cpdef unsigned int device_get_nvlink_version(intptr_t device, unsigned int link)
 
 cpdef unsigned int device_get_nvlink_capability(intptr_t device, unsigned int link, int capability) except? 0:
     """Retrieves the requested capability from the device's NvLink for the link specified Please refer to the ``nvmlNvLinkCapability_t`` structure for the specific caps that can be queried The return value should be treated as a boolean.
+
+    For Pascal ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31668,6 +33237,8 @@ cpdef unsigned int device_get_nvlink_capability(intptr_t device, unsigned int li
 cpdef object device_get_nvlink_remote_pci_info_v2(intptr_t device, unsigned int link):
     """Retrieves the PCI information for the remote node on a NvLink link Note: pciSubSystemId is not filled in this function and is indeterminate.
 
+    For Pascal ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
         link (unsigned int): Specifies the NvLink link to be queried.
@@ -31688,6 +33259,8 @@ cpdef object device_get_nvlink_remote_pci_info_v2(intptr_t device, unsigned int 
 
 cpdef unsigned long long device_get_nvlink_error_counter(intptr_t device, unsigned int link, int counter) except? 0:
     """Retrieves the specified error counter value Please refer to ``nvmlNvLinkErrorCounter_t`` for error counters that are available.
+
+    For Pascal ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31710,6 +33283,8 @@ cpdef unsigned long long device_get_nvlink_error_counter(intptr_t device, unsign
 cpdef device_reset_nvlink_error_counters(intptr_t device, unsigned int link):
     """Resets all error counters to zero Please refer to ``nvmlNvLinkErrorCounter_t`` for the list of error counters that are reset.
 
+    For Pascal ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
         link (unsigned int): Specifies the NvLink link to be queried.
@@ -31723,6 +33298,7 @@ cpdef device_reset_nvlink_error_counters(intptr_t device, unsigned int link):
 
 cpdef int device_get_nvlink_remote_device_type(intptr_t device, unsigned int link) except? -1:
     """Get the NVLink device type of the remote device connected over the given link.
+
 
     Args:
         device (intptr_t): The device handle of the target GPU.
@@ -31743,6 +33319,7 @@ cpdef int device_get_nvlink_remote_device_type(intptr_t device, unsigned int lin
 cpdef system_set_nvlink_bw_mode(unsigned int nvlink_bw_mode):
     """Set the global nvlink bandwith mode.
 
+
     Args:
         nvlink_bw_mode (unsigned int): nvlink bandwidth mode.
 
@@ -31755,6 +33332,7 @@ cpdef system_set_nvlink_bw_mode(unsigned int nvlink_bw_mode):
 
 cpdef unsigned int system_get_nvlink_bw_mode() except? 0:
     """Get the global nvlink bandwith mode.
+
 
     Returns:
         unsigned int: reference of nvlink bandwidth mode.
@@ -31770,6 +33348,8 @@ cpdef unsigned int system_get_nvlink_bw_mode() except? 0:
 
 cpdef object device_get_nvlink_supported_bw_modes(intptr_t device):
     """Get the supported NvLink Reduced Bandwidth Modes of the device.
+
+    For Blackwell ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31792,6 +33372,8 @@ cpdef object device_get_nvlink_supported_bw_modes(intptr_t device):
 cpdef object device_get_nvlink_bw_mode(intptr_t device):
     """Get the NvLink Reduced Bandwidth Mode for the device.
 
+    For Blackwell ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -31812,6 +33394,8 @@ cpdef object device_get_nvlink_bw_mode(intptr_t device):
 cpdef device_set_nvlink_bw_mode(intptr_t device, set_bw_mode):
     """Set the NvLink Reduced Bandwidth Mode for the device.
 
+    For Blackwell ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
         set_bw_mode (intptr_t): Reference to ``nvmlNvlinkSetBwMode_t``.
@@ -31828,6 +33412,8 @@ cpdef device_set_nvlink_bw_mode(intptr_t device, set_bw_mode):
 cpdef intptr_t event_set_create() except? 0:
     """Create an empty set of events. Event set should be freed by ``nvmlEventSetFree``.
 
+    For Fermi ™️ or newer fully supported devices.
+
     Returns:
         intptr_t: Reference in which to return the event handle.
 
@@ -31842,6 +33428,18 @@ cpdef intptr_t event_set_create() except? 0:
 
 cpdef device_register_events(intptr_t device, unsigned long long event_types, intptr_t set):
     """Starts recording of events on a specified devices and add the events to specified ``nvmlEventSet_t``.
+
+    For Fermi ™️ or newer fully supported devices. ECC events are available only on
+    ECC-enabled devices (see ``nvmlDeviceGetTotalEccErrors``) Power capping events
+    are available only on Power Management enabled devices (see
+    nvmlDeviceGetPowerManagementMode).
+    For Linux only.
+    This call starts recording of events on specific device. All events that
+    occurred before this call are not recorded. Checking if some event occurred can
+    be done with ``nvmlEventSetWait_v2``.
+    If function reports NVML_ERROR_UNKNOWN, event set is in undefined state and
+    should be freed. If function reports NVML_ERROR_NOT_SUPPORTED, event set can
+    still be used. None of the requested event_types are registered in that case.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31858,6 +33456,10 @@ cpdef device_register_events(intptr_t device, unsigned long long event_types, in
 
 cpdef unsigned long long device_get_supported_event_types(intptr_t device) except? 0:
     """Returns information about events supported on device.
+
+    For Fermi ™️ or newer fully supported devices.
+    Events are not supported on Windows. So this function returns an empty mask in
+    ``event_types`` on Windows.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31877,6 +33479,25 @@ cpdef unsigned long long device_get_supported_event_types(intptr_t device) excep
 
 cpdef object event_set_wait_v2(intptr_t set, unsigned int timeoutms):
     """Waits on events and delivers events.
+
+    For Fermi ™️ or newer fully supported devices.
+    If some events are ready to be delivered at the time of the call, function
+    returns immediately. If there are no events ready to be delivered, function
+    sleeps till event arrives but not longer than specified timeout. This function
+    in certain conditions can return before specified timeout passes (e.g. when
+    interrupt arrives).
+    On Windows, in case of Xid error, the function returns the most recent Xid
+    error type seen by the system. If there are multiple Xid errors generated
+    before nvmlEventSetWait is invoked then the last seen Xid error type is
+    returned for all Xid error events.
+    On Linux, every Xid error event would return the associated event data and
+    other information if applicable.
+    In MIG mode, if device handle is provided, the API reports all the events for
+    the available instances, only if the caller has appropriate privileges. In
+    absence of required privileges, only the events which affect all the instances
+    (i.e. whole device) are reported.
+    This API does not currently support per-instance event reporting using MIG
+    device handles.
 
     Args:
         set (intptr_t): Reference to set of events to wait on.
@@ -31899,6 +33520,8 @@ cpdef object event_set_wait_v2(intptr_t set, unsigned int timeoutms):
 cpdef event_set_free(intptr_t set):
     """Releases events in the set.
 
+    For Fermi ™️ or newer fully supported devices.
+
     Args:
         set (intptr_t): Reference to events to be released.
 
@@ -31911,6 +33534,8 @@ cpdef event_set_free(intptr_t set):
 
 cpdef device_modify_drain_state(pci_info, int new_state):
     """Modify the drain state of a GPU. This method forces a GPU to no longer accept new incoming requests. Any new NVML process will no longer see this GPU. Persistence mode for this GPU must be turned off before this call is made. Must be called as administrator. For Linux only.
+
+    For Pascal ™️ or newer fully supported devices. Some Kepler devices supported.
 
     Args:
         pci_info (intptr_t): The PCI address of the GPU drain state to be
@@ -31928,6 +33553,8 @@ cpdef device_modify_drain_state(pci_info, int new_state):
 
 cpdef int device_query_drain_state(pci_info) except? -1:
     """Query the drain state of a GPU. This method is used to check if a GPU is in a currently draining state. For Linux only.
+
+    For Pascal ™️ or newer fully supported devices. Some Kepler devices supported.
 
     Args:
         pci_info (intptr_t): The PCI address of the GPU drain state to be
@@ -31950,6 +33577,13 @@ cpdef int device_query_drain_state(pci_info) except? -1:
 cpdef device_remove_gpu_v2(pci_info, int gpu_state, int link_state):
     """This method will remove the specified GPU from the view of both NVML and the NVIDIA kernel driver as long as no other processes are attached. If other processes are attached, this call will return NVML_ERROR_IN_USE and the GPU will be returned to its original "draining" state. Note: the only situation where a process can still be attached after :func:`device_modify_drain_state` is called to initiate the draining state is if that process was using, and is still using, a GPU before the call was made. Also note, persistence mode counts as an attachment to the GPU thus it must be disabled prior to this call.
 
+    For long-running NVML processes please note that this will change the
+    enumeration of current GPUs. For example, if there are four GPUs present and
+    GPU1 is removed, the new enumeration will be 0-2. Also, device handles after
+    the removed GPU will not be valid and must be re-established. Must be run as
+    administrator. For Linux only.
+    For Pascal ™️ or newer fully supported devices. Some Kepler devices supported.
+
     Args:
         pci_info (intptr_t): The PCI address of the GPU to be removed.
         gpu_state (DetachGpuState): Whether the GPU is to be removed, from
@@ -31968,6 +33602,12 @@ cpdef device_remove_gpu_v2(pci_info, int gpu_state, int link_state):
 cpdef device_discover_gpus(pci_info):
     """Request the OS and the NVIDIA kernel driver to rediscover a portion of the PCI subsystem looking for GPUs that were previously removed. The portion of the PCI tree can be narrowed by specifying a domain, bus, and device. If all are zeroes then the entire PCI tree will be searched. Please note that for long-running NVML processes the enumeration will change based on how many GPUs are discovered and where they are inserted in bus order.
 
+    In addition, all newly discovered GPUs will be initialized and their ECC
+    scrubbed which may take several seconds per GPU. Also, all device handles are
+    no longer guaranteed to be valid post discovery.
+    Must be run as administrator. For Linux only.
+    For Pascal ™️ or newer fully supported devices. Some Kepler devices supported.
+
     Args:
         pci_info (intptr_t): The PCI tree to be searched. Only the domain,
             bus, and device fields are used in this call.
@@ -31982,6 +33622,8 @@ cpdef device_discover_gpus(pci_info):
 
 cpdef int device_get_virtualization_mode(intptr_t device) except? -1:
     """This method is used to get the virtualization mode corresponding to the GPU.
+
+    For Kepler ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): Identifier of the target device.
@@ -32002,6 +33644,10 @@ cpdef int device_get_virtualization_mode(intptr_t device) except? -1:
 cpdef int device_get_host_vgpu_mode(intptr_t device) except? -1:
     """Queries if SR-IOV host operation is supported on a vGPU supported device.
 
+    Checks whether SR-IOV host capability is supported by the device and the
+    driver, and indicates device is in SR-IOV mode if both of these conditions are
+    true.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -32020,6 +33666,8 @@ cpdef int device_get_host_vgpu_mode(intptr_t device) except? -1:
 cpdef device_set_virtualization_mode(intptr_t device, int virtual_mode):
     """This method is used to set the virtualization mode corresponding to the GPU.
 
+    For Kepler ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): Identifier of the target device.
         virtual_mode (GpuVirtualizationMode): virtualization mode. One of
@@ -32034,6 +33682,7 @@ cpdef device_set_virtualization_mode(intptr_t device, int virtual_mode):
 
 cpdef unsigned long long vgpu_type_get_gsp_heap_size(unsigned int vgpu_type_id) except? 0:
     """Retrieve the static GSP heap size of the vGPU type in bytes.
+
 
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
@@ -32052,6 +33701,7 @@ cpdef unsigned long long vgpu_type_get_gsp_heap_size(unsigned int vgpu_type_id) 
 
 cpdef unsigned long long vgpu_type_get_fb_reservation(unsigned int vgpu_type_id) except? 0:
     """Retrieve the static framebuffer reservation of the vGPU type in bytes.
+
 
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
@@ -32072,6 +33722,9 @@ cpdef unsigned long long vgpu_type_get_fb_reservation(unsigned int vgpu_type_id)
 cpdef device_set_vgpu_capabilities(intptr_t device, int capability, int state):
     """Set the desirable vGPU capability of a device.
 
+    Refer to the ``nvmlDeviceVgpuCapability_t`` structure for the specific
+    capabilities that can be set. See ``nvmlEnableState_t`` for available state.
+
     Args:
         device (intptr_t): The identifier of the target device.
         capability (DeviceVgpuCapability): Specifies the
@@ -32087,6 +33740,9 @@ cpdef device_set_vgpu_capabilities(intptr_t device, int capability, int state):
 
 cpdef object device_get_grid_licensable_features_v4(intptr_t device):
     """Retrieve the vGPU Software licensable features.
+
+    Identifies whether the system supports vGPU Software Licensing. If it does,
+    return the list of licensable feature(s) and their current license status.
 
     Args:
         device (intptr_t): Identifier of the target device.
@@ -32108,6 +33764,12 @@ cpdef object device_get_grid_licensable_features_v4(intptr_t device):
 cpdef unsigned int get_vgpu_driver_capabilities(int capability) except? 0:
     """Retrieve the requested vGPU driver capability.
 
+    Refer to the ``nvmlVgpuDriverCapability_t`` structure for the specific
+    capabilities that can be queried. The return value in ``cap_result`` should be
+    treated as a boolean, with a non-zero value indicating that the capability is
+    supported.
+    For Maxwell ™️ or newer fully supported devices.
+
     Args:
         capability (VgpuDriverCapability): Specifies the
             ``nvmlVgpuDriverCapability_t`` to be queried.
@@ -32128,6 +33790,12 @@ cpdef unsigned int get_vgpu_driver_capabilities(int capability) except? 0:
 cpdef unsigned int device_get_vgpu_capabilities(intptr_t device, int capability) except? 0:
     """Retrieve the requested vGPU capability for GPU.
 
+    Refer to the ``nvmlDeviceVgpuCapability_t`` structure for the specific
+    capabilities that can be queried. The return value in ``cap_result`` reports a
+    non-zero value indicating that the capability is supported, and also reports
+    the capability's data based on the queried capability.
+    For Maxwell ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
         capability (DeviceVgpuCapability): Specifies the
@@ -32146,8 +33814,91 @@ cpdef unsigned int device_get_vgpu_capabilities(intptr_t device, int capability)
     return cap_result
 
 
+cpdef object device_get_supported_vgpus(intptr_t device):
+    """Retrieve the supported vGPU types on a physical GPU (device).
+
+    An array of supported vGPU types for the physical GPU indicated by ``device``
+    is returned in the caller-supplied buffer pointed at by ``vgpu_type_ids``. The
+    element count of ``nvmlVgpuTypeId_t`` array is passed in ``vgpu_count``, and
+    ``vgpu_count`` is used to return the number of vGPU types written to the
+    buffer.
+    If the supplied buffer is not large enough to accommodate the vGPU type array,
+    the function returns NVML_ERROR_INSUFFICIENT_SIZE, with the element count of
+    ``nvmlVgpuTypeId_t`` array required in ``vgpu_count``. To query the number of
+    vGPU types supported for the GPU, call this function with \*vgpu_count = 0. The
+    code will return NVML_ERROR_INSUFFICIENT_SIZE, or NVML_SUCCESS if no vGPU types
+    are supported.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        unsigned int: Pointer to caller-supplied array in which to return
+            list of vGPU types.
+
+    .. seealso:: `nvmlDeviceGetSupportedVgpus`
+    """
+    cdef unsigned int[1] vgpu_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetSupportedVgpus(<Device>device, <unsigned int*>vgpu_count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array _vgpu_type_ids_alloc_ = _cyb_view.array(shape=(max(vgpu_count[0], 1),), itemsize=sizeof(nvmlVgpuTypeId_t), format="I", mode="c")
+    cdef nvmlVgpuTypeId_t *vgpu_type_ids_ptr = <nvmlVgpuTypeId_t *>(_vgpu_type_ids_alloc_.data)
+    cdef object vgpu_type_ids = _vgpu_type_ids_alloc_[:vgpu_count[0]]
+    if vgpu_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetSupportedVgpus(<Device>device, <unsigned int*>vgpu_count, vgpu_type_ids_ptr)
+        check_status(__status__)
+    return vgpu_type_ids[:vgpu_count[0]]
+
+
+cpdef object device_get_creatable_vgpus(intptr_t device):
+    """Retrieve the currently creatable vGPU types on a physical GPU (device).
+
+    An array of creatable vGPU types for the physical GPU indicated by ``device``
+    is returned in the caller-supplied buffer pointed at by ``vgpu_type_ids``. The
+    element count of ``nvmlVgpuTypeId_t`` array is passed in ``vgpu_count``, and
+    ``vgpu_count`` is used to return the number of vGPU types written to the
+    buffer.
+    The creatable vGPU types for a device may differ over time, as there may be
+    restrictions on what type of vGPU types can concurrently run on a device. For
+    example, if only one vGPU type is allowed at a time on a device, then the
+    creatable list will be restricted to whatever vGPU type is already running on
+    the device.
+    If the supplied buffer is not large enough to accommodate the vGPU type array,
+    the function returns NVML_ERROR_INSUFFICIENT_SIZE, with the element count of
+    ``nvmlVgpuTypeId_t`` array required in ``vgpu_count``. To query the number of
+    vGPU types that can be created for the GPU, call this function with
+    \*vgpu_count = 0. The code will return NVML_ERROR_INSUFFICIENT_SIZE, or
+    NVML_SUCCESS if no vGPU types are creatable.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        unsigned int: Pointer to caller-supplied array in which to return
+            list of vGPU types.
+
+    .. seealso:: `nvmlDeviceGetCreatableVgpus`
+    """
+    cdef unsigned int[1] vgpu_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetCreatableVgpus(<Device>device, <unsigned int*>vgpu_count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array _vgpu_type_ids_alloc_ = _cyb_view.array(shape=(max(vgpu_count[0], 1),), itemsize=sizeof(nvmlVgpuTypeId_t), format="I", mode="c")
+    cdef nvmlVgpuTypeId_t *vgpu_type_ids_ptr = <nvmlVgpuTypeId_t *>(_vgpu_type_ids_alloc_.data)
+    cdef object vgpu_type_ids = _vgpu_type_ids_alloc_[:vgpu_count[0]]
+    if vgpu_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetCreatableVgpus(<Device>device, <unsigned int*>vgpu_count, vgpu_type_ids_ptr)
+        check_status(__status__)
+    return vgpu_type_ids[:vgpu_count[0]]
+
+
 cpdef str vgpu_type_get_class(unsigned int vgpu_type_id):
     """Retrieve the class of a vGPU type. It will not exceed 64 characters in length (including the NUL terminator). See nvmlConstants::NVML_DEVICE_NAME_BUFFER_SIZE.
+
+    For Kepler ™️ or newer fully supported devices.
 
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
@@ -32161,18 +33912,19 @@ cpdef str vgpu_type_get_class(unsigned int vgpu_type_id):
     with nogil:
         __status__ = nvmlVgpuTypeGetClass(<nvmlVgpuTypeId_t>vgpu_type_id, NULL, <unsigned int*>size)
     check_status_size(__status__)
-    if size[0] == 0:
-        return ""
     cdef bytes _vgpu_type_class_ = bytes(size[0])
     cdef char* vgpu_type_class = _vgpu_type_class_
-    with nogil:
-        __status__ = nvmlVgpuTypeGetClass(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_class, <unsigned int*>size)
-    check_status(__status__)
+    if size[0] != 0:
+        with nogil:
+            __status__ = nvmlVgpuTypeGetClass(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_class, <unsigned int*>size)
+        check_status(__status__)
     return _cyb_cpython.PyUnicode_FromString(vgpu_type_class)
 
 
 cpdef unsigned int vgpu_type_get_gpu_instance_profile_id(unsigned int vgpu_type_id) except? 0:
     """Retrieve the GPU Instance Profile ID for the given vGPU type ID. The API will return a valid GPU Instance Profile ID for the MIG capable vGPU types, else INVALID_GPU_INSTANCE_PROFILE_ID is returned.
+
+    For Kepler ™️ or newer fully supported devices.
 
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
@@ -32191,6 +33943,8 @@ cpdef unsigned int vgpu_type_get_gpu_instance_profile_id(unsigned int vgpu_type_
 
 cpdef tuple vgpu_type_get_device_id(unsigned int vgpu_type_id):
     """Retrieve the device ID of a vGPU type.
+
+    For Kepler ™️ or newer fully supported devices.
 
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
@@ -32215,6 +33969,8 @@ cpdef tuple vgpu_type_get_device_id(unsigned int vgpu_type_id):
 cpdef unsigned long long vgpu_type_get_framebuffer_size(unsigned int vgpu_type_id) except? 0:
     """Retrieve the vGPU framebuffer size in bytes.
 
+    For Kepler ™️ or newer fully supported devices.
+
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
 
@@ -32233,6 +33989,8 @@ cpdef unsigned long long vgpu_type_get_framebuffer_size(unsigned int vgpu_type_i
 cpdef unsigned int vgpu_type_get_num_display_heads(unsigned int vgpu_type_id) except? 0:
     """Retrieve count of vGPU's supported display heads.
 
+    For Kepler ™️ or newer fully supported devices.
+
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
 
@@ -32250,6 +34008,8 @@ cpdef unsigned int vgpu_type_get_num_display_heads(unsigned int vgpu_type_id) ex
 
 cpdef tuple vgpu_type_get_resolution(unsigned int vgpu_type_id, unsigned int display_index):
     """Retrieve vGPU display head's maximum supported resolution.
+
+    For Kepler ™️ or newer fully supported devices.
 
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
@@ -32273,6 +34033,16 @@ cpdef tuple vgpu_type_get_resolution(unsigned int vgpu_type_id, unsigned int dis
 cpdef str vgpu_type_get_license(unsigned int vgpu_type_id):
     """Retrieve license requirements for a vGPU type.
 
+    The license type and version required to run the specified vGPU type is
+    returned as an alphanumeric string, in the form "<license name>,<version>", for
+    example "GRID-Virtual-PC,2.0". If a vGPU is runnable with* more than one type
+    of license, the licenses are delimited by a semicolon, for example "GRID-
+    Virtual-PC,2.0;GRID-Virtual-WS,2.0;GRID-Virtual-WS-Ext,2.0".
+    The total length of the returned string will not exceed 128 characters,
+    including the NUL terminator. See
+    nvmlVgpuConstants::NVML_GRID_LICENSE_BUFFER_SIZE.
+    For Kepler ™️ or newer fully supported devices.
+
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
 
@@ -32292,6 +34062,8 @@ cpdef str vgpu_type_get_license(unsigned int vgpu_type_id):
 cpdef unsigned int vgpu_type_get_frame_rate_limit(unsigned int vgpu_type_id) except? 0:
     """Retrieve the static frame rate limit value of the vGPU type.
 
+    For Kepler ™️ or newer fully supported devices.
+
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
 
@@ -32309,6 +34081,8 @@ cpdef unsigned int vgpu_type_get_frame_rate_limit(unsigned int vgpu_type_id) exc
 
 cpdef unsigned int vgpu_type_get_max_instances(intptr_t device, unsigned int vgpu_type_id) except? 0:
     """Retrieve the maximum number of vGPU instances creatable on a device for given vGPU type.
+
+    For Kepler ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -32330,6 +34104,8 @@ cpdef unsigned int vgpu_type_get_max_instances(intptr_t device, unsigned int vgp
 cpdef unsigned int vgpu_type_get_max_instances_per_vm(unsigned int vgpu_type_id) except? 0:
     """Retrieve the maximum number of vGPU instances supported per VM for given vGPU type.
 
+    For Kepler ™️ or newer fully supported devices.
+
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
 
@@ -32349,6 +34125,8 @@ cpdef unsigned int vgpu_type_get_max_instances_per_vm(unsigned int vgpu_type_id)
 cpdef object vgpu_type_get_bar1_info(unsigned int vgpu_type_id):
     """Retrieve the BAR1 info for given vGPU type.
 
+    For Maxwell ™️ or newer fully supported devices.
+
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
 
@@ -32367,8 +34145,82 @@ cpdef object vgpu_type_get_bar1_info(unsigned int vgpu_type_id):
     return bar1info_py
 
 
+cpdef object device_get_active_vgpus(intptr_t device):
+    """Retrieve the active vGPU instances on a device.
+
+    An array of active vGPU instances is returned in the caller-supplied buffer
+    pointed at by ``vgpu_instances``. The array element count is passed in
+    ``vgpu_count``, and ``vgpu_count`` is used to return the number of vGPU
+    instances written to the buffer.
+    If the supplied buffer is not large enough to accommodate the vGPU instance
+    array, the function returns NVML_ERROR_INSUFFICIENT_SIZE, with the element
+    count of ``nvmlVgpuInstance_t`` array required in ``vgpu_count``. To query the
+    number of active vGPU instances, call this function with \*vgpu_count = 0. The
+    code will return NVML_ERROR_INSUFFICIENT_SIZE, or NVML_SUCCESS if no vGPU Types
+    are supported.
+    For Kepler ™️ or newer fully supported devices.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        unsigned int: Pointer to array in which to return list of vGPU
+            instances.
+
+    .. seealso:: `nvmlDeviceGetActiveVgpus`
+    """
+    cdef unsigned int[1] vgpu_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetActiveVgpus(<Device>device, <unsigned int*>vgpu_count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array _vgpu_instances_alloc_ = _cyb_view.array(shape=(max(vgpu_count[0], 1),), itemsize=sizeof(nvmlVgpuInstance_t), format="I", mode="c")
+    cdef nvmlVgpuInstance_t *vgpu_instances_ptr = <nvmlVgpuInstance_t *>(_vgpu_instances_alloc_.data)
+    cdef object vgpu_instances = _vgpu_instances_alloc_[:vgpu_count[0]]
+    if vgpu_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetActiveVgpus(<Device>device, <unsigned int*>vgpu_count, vgpu_instances_ptr)
+        check_status(__status__)
+    return vgpu_instances[:vgpu_count[0]]
+
+
+cpdef tuple vgpu_instance_get_vm_id(unsigned int vgpu_instance):
+    """Retrieve the VM ID associated with a vGPU instance.
+
+    The VM ID is returned as a string, not exceeding 80 characters in length
+    (including the NUL terminator). See
+    nvmlConstants::NVML_DEVICE_UUID_BUFFER_SIZE.
+    The format of the VM ID varies by platform, and is indicated by the type
+    identifier returned in ``vm_idType``.
+    For Kepler ™️ or newer fully supported devices.
+
+    Args:
+        vgpu_instance (unsigned int): Identifier of the target vGPU
+            instance.
+
+    Returns:
+        A 2-tuple containing:
+        - char: Pointer to caller-supplied buffer to hold VM ID.
+        - int: Pointer to hold VM ID type.
+
+    .. seealso:: `nvmlVgpuInstanceGetVmID`
+    """
+    cdef unsigned int size = 80
+    cdef char[80] vm_id
+    cdef _VgpuVmIdType vm_id_type
+    with nogil:
+        __status__ = nvmlVgpuInstanceGetVmID(<nvmlVgpuInstance_t>vgpu_instance, vm_id, size, &vm_id_type)
+    check_status(__status__)
+    return (_cyb_cpython.PyUnicode_FromString(vm_id), <int>vm_id_type)
+
+
 cpdef str vgpu_instance_get_uuid(unsigned int vgpu_instance):
     """Retrieve the UUID of a vGPU instance.
+
+    The UUID is a globally unique identifier associated with the vGPU, and is
+    returned as a 5-part hexadecimal string, not exceeding 80 characters in length
+    (including the NULL terminator). See
+    nvmlConstants::NVML_DEVICE_UUID_BUFFER_SIZE.
+    For Kepler ™️ or newer fully supported devices.
 
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU
@@ -32390,6 +34242,16 @@ cpdef str vgpu_instance_get_uuid(unsigned int vgpu_instance):
 cpdef str vgpu_instance_get_vm_driver_version(unsigned int vgpu_instance):
     """Retrieve the NVIDIA driver version installed in the VM associated with a vGPU.
 
+    The version is returned as an alphanumeric string in the caller-supplied buffer
+    ``version``. The length of the version string will not exceed 80 characters in
+    length (including the NUL terminator). See
+    nvmlConstants::NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE.
+    :func:`vgpu_instance_get_vm_driver_version` may be called at any time for a
+    vGPU instance. The guest VM driver version is returned as "Not Available" if no
+    NVIDIA driver is installed in the VM, or the VM has not yet booted to the point
+    where the NVIDIA driver is loaded and initialized.
+    For Kepler ™️ or newer fully supported devices.
+
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU
             instance.
@@ -32410,6 +34272,10 @@ cpdef str vgpu_instance_get_vm_driver_version(unsigned int vgpu_instance):
 cpdef unsigned long long vgpu_instance_get_fb_usage(unsigned int vgpu_instance) except? 0:
     """Retrieve the framebuffer usage in bytes.
 
+    Framebuffer usage is the amont of vGPU framebuffer memory that is currently in
+    use by the VM.
+    For Kepler ™️ or newer fully supported devices.
+
     Args:
         vgpu_instance (unsigned int): The identifier of the target
             instance.
@@ -32428,6 +34294,11 @@ cpdef unsigned long long vgpu_instance_get_fb_usage(unsigned int vgpu_instance) 
 
 cpdef unsigned int vgpu_instance_get_license_status(unsigned int vgpu_instance) except? 0:
     """[Deprecated].
+
+    Retrieve the current licensing state of the vGPU instance.
+    If the vGPU is currently licensed, ``licensed`` is set to 1, otherwise it is
+    set to 0.
+    For Kepler ™️ or newer fully supported devices.
 
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU
@@ -32448,6 +34319,9 @@ cpdef unsigned int vgpu_instance_get_license_status(unsigned int vgpu_instance) 
 cpdef unsigned int vgpu_instance_get_type(unsigned int vgpu_instance) except? 0:
     """Retrieve the vGPU type of a vGPU instance.
 
+    Returns the vGPU type ID of vgpu assigned to the vGPU instance.
+    For Kepler ™️ or newer fully supported devices.
+
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU
             instance.
@@ -32466,6 +34340,9 @@ cpdef unsigned int vgpu_instance_get_type(unsigned int vgpu_instance) except? 0:
 
 cpdef unsigned int vgpu_instance_get_frame_rate_limit(unsigned int vgpu_instance) except? 0:
     """Retrieve the frame rate limit set for the vGPU instance.
+
+    Returns the value of the frame rate limit set for the vGPU instance.
+    For Kepler ™️ or newer fully supported devices.
 
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU
@@ -32486,6 +34363,7 @@ cpdef unsigned int vgpu_instance_get_frame_rate_limit(unsigned int vgpu_instance
 cpdef int vgpu_instance_get_ecc_mode(unsigned int vgpu_instance) except? -1:
     """Retrieve the current ECC mode of vGPU instance.
 
+
     Args:
         vgpu_instance (unsigned int): The identifier of the target vGPU
             instance.
@@ -32504,6 +34382,8 @@ cpdef int vgpu_instance_get_ecc_mode(unsigned int vgpu_instance) except? -1:
 
 cpdef unsigned int vgpu_instance_get_encoder_capacity(unsigned int vgpu_instance) except? 0:
     """Retrieve the encoder capacity of a vGPU instance, as a percentage of maximum encoder capacity with valid values in the range 0-100.
+
+    For Maxwell ™️ or newer fully supported devices.
 
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU
@@ -32525,6 +34405,8 @@ cpdef unsigned int vgpu_instance_get_encoder_capacity(unsigned int vgpu_instance
 cpdef vgpu_instance_set_encoder_capacity(unsigned int vgpu_instance, unsigned int encoder_capacity):
     """Set the encoder capacity of a vGPU instance, as a percentage of maximum encoder capacity with valid values in the range 0-100.
 
+    For Maxwell ™️ or newer fully supported devices.
+
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU
             instance.
@@ -32540,6 +34422,8 @@ cpdef vgpu_instance_set_encoder_capacity(unsigned int vgpu_instance, unsigned in
 
 cpdef tuple vgpu_instance_get_encoder_stats(unsigned int vgpu_instance):
     """Retrieves the current encoder statistics of a vGPU Instance.
+
+    For Maxwell ™️ or newer fully supported devices.
 
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU
@@ -32568,6 +34452,18 @@ cpdef tuple vgpu_instance_get_encoder_stats(unsigned int vgpu_instance):
 cpdef object vgpu_instance_get_encoder_sessions(unsigned int vgpu_instance):
     """Retrieves information about all active encoder sessions on a vGPU Instance.
 
+    An array of active encoder sessions is returned in the caller-supplied buffer
+    pointed at by ``session_info``. The array element count is passed in
+    ``session_count``, and ``session_count`` is used to return the number of
+    sessions written to the buffer.
+    If the supplied buffer is not large enough to accommodate the active session
+    array, the function returns NVML_ERROR_INSUFFICIENT_SIZE, with the element
+    count of ``nvmlEncoderSessionInfo_t`` array required in ``session_count``. To
+    query the number of active encoder sessions, call this function with
+    \*session_count = 0. The code will return NVML_SUCCESS with number of active
+    encoder sessions updated in \*session_count.
+    For Maxwell ™️ or newer fully supported devices.
+
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU
             instance.
@@ -32584,16 +34480,17 @@ cpdef object vgpu_instance_get_encoder_sessions(unsigned int vgpu_instance):
     check_status_size(__status__)
     cdef EncoderSessionInfo session_info = EncoderSessionInfo(session_count[0])
     cdef nvmlEncoderSessionInfo_t *session_info_ptr = <nvmlEncoderSessionInfo_t *><intptr_t>(session_info._get_ptr())
-    if session_count[0] == 0:
-        return session_info
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetEncoderSessions(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>session_count, session_info_ptr)
-    check_status(__status__)
-    return session_info
+    if session_count[0] != 0:
+        with nogil:
+            __status__ = nvmlVgpuInstanceGetEncoderSessions(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>session_count, session_info_ptr)
+        check_status(__status__)
+    return session_info[:session_count[0]]
 
 
 cpdef object vgpu_instance_get_fbc_stats(unsigned int vgpu_instance):
     """Retrieves the active frame buffer capture sessions statistics of a vGPU Instance.
+
+    For Maxwell ™️ or newer fully supported devices.
 
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU
@@ -32616,6 +34513,18 @@ cpdef object vgpu_instance_get_fbc_stats(unsigned int vgpu_instance):
 cpdef object vgpu_instance_get_fbc_sessions(unsigned int vgpu_instance):
     """Retrieves information about active frame buffer capture sessions on a vGPU Instance.
 
+    An array of active FBC sessions is returned in the caller-supplied buffer
+    pointed at by ``session_info``. The array element count is passed in
+    ``session_count``, and ``session_count`` is used to return the number of
+    sessions written to the buffer.
+    If the supplied buffer is not large enough to accommodate the active session
+    array, the function returns NVML_ERROR_INSUFFICIENT_SIZE, with the element
+    count of ``nvmlFBCSessionInfo_t`` array required in ``session_count``. To query
+    the number of active FBC sessions, call this function with \*session_count = 0.
+    The code will return NVML_SUCCESS with number of active FBC sessions updated in
+    \*session_count.
+    For Maxwell ™️ or newer fully supported devices.
+
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU
             instance.
@@ -32624,6 +34533,10 @@ cpdef object vgpu_instance_get_fbc_sessions(unsigned int vgpu_instance):
         nvmlFBCSessionInfo_t: Reference in which to return the session
             information.
 
+    .. note::
+        hResolution, vResolution, averageFPS and averageLatency data for a FBC session
+        returned in ``session_info`` may be zero if there are no new frames captured
+        since the session started.
     .. seealso:: `nvmlVgpuInstanceGetFBCSessions`
     """
     cdef unsigned int[1] session_count = [0]
@@ -32632,16 +34545,17 @@ cpdef object vgpu_instance_get_fbc_sessions(unsigned int vgpu_instance):
     check_status_size(__status__)
     cdef FBCSessionInfo session_info = FBCSessionInfo(session_count[0])
     cdef nvmlFBCSessionInfo_t *session_info_ptr = <nvmlFBCSessionInfo_t *><intptr_t>(session_info._get_ptr())
-    if session_count[0] == 0:
-        return session_info
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetFBCSessions(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>session_count, session_info_ptr)
-    check_status(__status__)
-    return session_info
+    if session_count[0] != 0:
+        with nogil:
+            __status__ = nvmlVgpuInstanceGetFBCSessions(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>session_count, session_info_ptr)
+        check_status(__status__)
+    return session_info[:session_count[0]]
 
 
 cpdef unsigned int vgpu_instance_get_gpu_instance_id(unsigned int vgpu_instance) except? 0:
     """Retrieve the GPU Instance ID for the given vGPU Instance. The API will return a valid GPU Instance ID for MIG backed vGPU Instance, else INVALID_GPU_INSTANCE_ID is returned.
+
+    For Kepler ™️ or newer fully supported devices.
 
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU
@@ -32662,6 +34576,9 @@ cpdef unsigned int vgpu_instance_get_gpu_instance_id(unsigned int vgpu_instance)
 cpdef str vgpu_instance_get_gpu_pci_id(unsigned int vgpu_instance):
     """Retrieves the PCI Id of the given vGPU Instance i.e. the PCI Id of the GPU as seen inside the VM.
 
+    The vGPU PCI id is returned as "00000000:00:00.0" if NVIDIA driver is not
+    installed on the vGPU instance.
+
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU
             instance.
@@ -32675,18 +34592,19 @@ cpdef str vgpu_instance_get_gpu_pci_id(unsigned int vgpu_instance):
     with nogil:
         __status__ = nvmlVgpuInstanceGetGpuPciId(<nvmlVgpuInstance_t>vgpu_instance, NULL, <unsigned int*>length)
     check_status_size(__status__)
-    if length[0] == 0:
-        return ""
     cdef bytes _vgpu_pci_id_ = bytes(length[0])
     cdef char* vgpu_pci_id = _vgpu_pci_id_
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetGpuPciId(<nvmlVgpuInstance_t>vgpu_instance, vgpu_pci_id, <unsigned int*>length)
-    check_status(__status__)
+    if length[0] != 0:
+        with nogil:
+            __status__ = nvmlVgpuInstanceGetGpuPciId(<nvmlVgpuInstance_t>vgpu_instance, vgpu_pci_id, <unsigned int*>length)
+        check_status(__status__)
     return _cyb_cpython.PyUnicode_FromString(vgpu_pci_id)
 
 
 cpdef unsigned int vgpu_type_get_capabilities(unsigned int vgpu_type_id, int capability) except? 0:
     """Retrieve the requested capability for a given vGPU type. Refer to the ``nvmlVgpuCapability_t`` structure for the specific capabilities that can be queried. The return value in ``cap_result`` should be treated as a boolean, with a non-zero value indicating that the capability is supported.
+
+    For Maxwell ™️ or newer fully supported devices.
 
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
@@ -32709,6 +34627,12 @@ cpdef unsigned int vgpu_type_get_capabilities(unsigned int vgpu_type_id, int cap
 cpdef str vgpu_instance_get_mdev_uuid(unsigned int vgpu_instance):
     """Retrieve the MDEV UUID of a vGPU instance.
 
+    The MDEV UUID is a globally unique identifier of the mdev device assigned to
+    the VM, and is returned as a 5-part hexadecimal string, not exceeding 80
+    characters in length (including the NULL terminator). MDEV UUID is displayed
+    only on KVM platform. See nvmlConstants::NVML_DEVICE_UUID_BUFFER_SIZE.
+    For Maxwell ™️ or newer fully supported devices.
+
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU
             instance.
@@ -32729,6 +34653,14 @@ cpdef str vgpu_instance_get_mdev_uuid(unsigned int vgpu_instance):
 cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, p_scheduler):
     """Set vGPU scheduler state for the given GPU instance.
 
+    For Blackwell &tm GB20x; or newer fully supported devices.
+    Scheduler state and params will be allowed to set only when no VM is running
+    within the GPU instance. In ``nvmlVgpuSchedulerState_t``, IFF enableARRMode is
+    enabled then provide the avgFactor and frequency as input. If enableARRMode is
+    disabled then provide timeslice as input.
+    The scheduler state change won't persist across module load/unload and GPU
+    Instance creation/deletion.
+
     Args:
         gpu_instance (intptr_t): The GPU instance handle.
         p_scheduler (intptr_t): Pointer to the caller-provided structure
@@ -32745,6 +34677,8 @@ cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, p_scheduler):
 
 cpdef object gpu_instance_get_vgpu_scheduler_state(intptr_t gpu_instance):
     """Returns the vGPU scheduler state for the given GPU instance. The information returned in ``nvmlVgpuSchedulerStateInfo_t`` is not relevant if the BEST EFFORT policy is set.
+
+    For Blackwell &tm GB20x; or newer fully supported devices.
 
     Args:
         gpu_instance (intptr_t): The GPU instance handle.
@@ -32767,6 +34701,9 @@ cpdef object gpu_instance_get_vgpu_scheduler_state(intptr_t gpu_instance):
 cpdef object gpu_instance_get_vgpu_scheduler_log(intptr_t gpu_instance):
     """Returns the vGPU scheduler logs for the given GPU instance. ``p_scheduler_log_info`` points to a caller-allocated structure to contain the logs. The number of elements returned will never exceed ``NVML_SCHEDULER_SW_MAX_LOG_ENTRIES``.
 
+    To get the entire logs, call the function atleast 5 times a second.
+    For Blackwell &tm GB20x; or newer fully supported devices.
+
     Args:
         gpu_instance (intptr_t): The GPU instance handle.
 
@@ -32788,6 +34725,11 @@ cpdef object gpu_instance_get_vgpu_scheduler_log(intptr_t gpu_instance):
 cpdef str device_get_pgpu_metadata_string(intptr_t device):
     """Returns the properties of the physical GPU indicated by the device in an ascii-encoded string format.
 
+    The caller passes in a buffer via ``pgpu_metadata``, with the size of the
+    buffer in ``buffer_size``. If the string is too large to fit in the supplied
+    buffer, the function returns NVML_ERROR_INSUFFICIENT_SIZE with the size needed
+    in ``buffer_size``.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -32801,18 +34743,20 @@ cpdef str device_get_pgpu_metadata_string(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetPgpuMetadataString(<Device>device, NULL, <unsigned int*>buffer_size)
     check_status_size(__status__)
-    if buffer_size[0] == 0:
-        return ""
     cdef bytes _pgpu_metadata_ = bytes(buffer_size[0])
     cdef char* pgpu_metadata = _pgpu_metadata_
-    with nogil:
-        __status__ = nvmlDeviceGetPgpuMetadataString(<Device>device, pgpu_metadata, <unsigned int*>buffer_size)
-    check_status(__status__)
+    if buffer_size[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetPgpuMetadataString(<Device>device, pgpu_metadata, <unsigned int*>buffer_size)
+        check_status(__status__)
     return _cyb_cpython.PyUnicode_FromString(pgpu_metadata)
 
 
 cpdef object device_get_vgpu_scheduler_log(intptr_t device):
     """Returns the vGPU Software scheduler logs. ``p_scheduler_log`` points to a caller-allocated structure to contain the logs. The number of elements returned will never exceed ``NVML_SCHEDULER_SW_MAX_LOG_ENTRIES``.
+
+    To get the entire logs, call the function atleast 5 times a second.
+    For Pascal ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target ``device``.
@@ -32834,6 +34778,8 @@ cpdef object device_get_vgpu_scheduler_log(intptr_t device):
 cpdef object device_get_vgpu_scheduler_state(intptr_t device):
     """Returns the vGPU scheduler state. The information returned in ``nvmlVgpuSchedulerGetState_t`` is not relevant if the BEST EFFORT policy is set.
 
+    For Pascal ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target ``device``.
 
@@ -32853,6 +34799,8 @@ cpdef object device_get_vgpu_scheduler_state(intptr_t device):
 
 cpdef object device_get_vgpu_scheduler_capabilities(intptr_t device):
     """Returns the vGPU scheduler capabilities. The list of supported vGPU schedulers returned in ``nvmlVgpuSchedulerCapabilities_t`` is from the NVML_VGPU_SCHEDULER_POLICY_*. This list enumerates the supported scheduler policies if the engine is Graphics type. The other values in ``nvmlVgpuSchedulerCapabilities_t`` are also applicable if the engine is Graphics type. For other engine types, it is BEST EFFORT policy. If ARR is supported and enabled, scheduling frequency and averaging factor are applicable else timeSlice is applicable.
+
+    For Pascal ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target ``device``.
@@ -32874,6 +34822,13 @@ cpdef object device_get_vgpu_scheduler_capabilities(intptr_t device):
 cpdef device_set_vgpu_scheduler_state(intptr_t device, intptr_t p_scheduler_state):
     """Sets the vGPU scheduler state.
 
+    For Pascal ™️ or newer fully supported devices.
+    The scheduler state change won't persist across module load/unload. Scheduler
+    state and params will be allowed to set only when no VM is running. In
+    ``nvmlVgpuSchedulerSetState_t``, IFF enableARRMode is enabled then provide
+    avgFactorForARR and frequency as input. If enableARRMode is disabled then
+    provide timeslice as input.
+
     Args:
         device (intptr_t): The identifier of the target ``device``.
         p_scheduler_state (intptr_t): vGPU ``p_scheduler_state`` to set.
@@ -32885,13 +34840,58 @@ cpdef device_set_vgpu_scheduler_state(intptr_t device, intptr_t p_scheduler_stat
     check_status(__status__)
 
 
+cpdef tuple get_vgpu_version():
+    """Query the ranges of supported vGPU versions.
+
+    This function gets the linear range of supported vGPU versions that is preset
+    for the NVIDIA vGPU Manager and the range set by an administrator. If the
+    preset range has not been overridden by ``nvmlSetVgpuVersion``, both ranges are
+    the same.
+    The caller passes pointers to the following ``nvmlVgpuVersion_t`` structures,
+    into which the NVIDIA vGPU Manager writes the ranges:.
+
+    Returns:
+        A 2-tuple containing:
+        - nvmlVgpuVersion_t: Pointer to the structure in which the preset
+                range of vGPU versions supported by the NVIDIA vGPU Manager is
+                written.
+        - nvmlVgpuVersion_t: Pointer to the structure in which the range of
+                supported vGPU versions set by an administrator is written.
+
+    .. seealso:: `nvmlGetVgpuVersion`
+    """
+    cdef VgpuVersion supported_py = VgpuVersion()
+    cdef nvmlVgpuVersion_t *supported = <nvmlVgpuVersion_t *><intptr_t>(supported_py._get_ptr())
+    cdef VgpuVersion current_py = VgpuVersion()
+    cdef nvmlVgpuVersion_t *current = <nvmlVgpuVersion_t *><intptr_t>(current_py._get_ptr())
+    with nogil:
+        __status__ = nvmlGetVgpuVersion(supported, current)
+    check_status(__status__)
+    return (supported_py, current_py)
+
+
 cpdef set_vgpu_version(vgpu_version):
     """Override the preset range of vGPU versions supported by the NVIDIA vGPU Manager with a range set by an administrator.
+
+    This function configures the NVIDIA vGPU Manager with a range of supported vGPU
+    versions set by an administrator. This range must be a subset of the preset
+    range that the NVIDIA vGPU Manager supports. The custom range set by an
+    administrator takes precedence over the preset range and is advertised to the
+    guest VM for negotiating the vGPU version. See ``nvmlGetVgpuVersion`` for
+    details of how to query the preset range of versions supported.
+    This function takes a pointer to vGPU version range structure
+    ``nvmlVgpuVersion_t`` as input to override the preset vGPU version range that
+    the NVIDIA vGPU Manager supports.
+    After host system reboot or driver reload, the range of supported versions
+    reverts to the range that is preset for the NVIDIA vGPU Manager.
 
     Args:
         vgpu_version (intptr_t): Pointer to a caller-supplied range of
             supported vGPU versions.
 
+    .. note::
+        1. The range set by the administrator must be a subset of the preset range that
+        the NVIDIA vGPU Manager supports. Otherwise, an error is returned.
     .. seealso:: `nvmlSetVgpuVersion`
     """
     cdef intptr_t _vgpu_version_ptr_ = int(vgpu_version)
@@ -32900,8 +34900,38 @@ cpdef set_vgpu_version(vgpu_version):
     check_status(__status__)
 
 
-cpdef tuple device_get_vgpu_process_utilization(intptr_t device, unsigned long long last_seen_time_stamp):
-    """Retrieves current utilization for processes running on vGPUs on a physical GPU (device).
+cpdef tuple device_get_vgpu_utilization(intptr_t device, unsigned long long last_seen_time_stamp):
+    """Retrieves current utilization for vGPUs on a physical GPU (device).
+
+    For Kepler ™️ or newer fully supported devices.
+    Reads recent utilization of GPU SM (3D/Compute), framebuffer, video encoder,
+    and video decoder for vGPU instances running on a device. Utilization values
+    are returned as an array of utilization sample structures in the caller-
+    supplied buffer pointed at by ``utilization_samples``. One utilization sample
+    structure is returned per vGPU instance, and includes the CPU timestamp at
+    which the samples were recorded. Individual utilization values are returned as
+    "unsigned int" values in ``nvmlValue_t`` unions. The function sets the caller-
+    supplied ``sample_val_type`` to NVML_VALUE_TYPE_UNSIGNED_INT to indicate the
+    returned value type.
+    To read utilization values, first determine the size of buffer required to hold
+    the samples by invoking the function with ``utilization_samples`` set to NULL.
+    The function will return NVML_ERROR_INSUFFICIENT_SIZE, with the current vGPU
+    instance count in ``vgpu_instance_samples_count``, or NVML_SUCCESS if the
+    current vGPU instance count is zero. The caller should allocate a buffer of
+    size vgpu_instance_samples_count \*
+    sizeof(nvmlVgpuInstanceUtilizationSample_t). Invoke the function again with the
+    allocated buffer passed in ``utilization_samples``, and
+    ``vgpu_instance_samples_count`` set to the number of entries the buffer is
+    sized for.
+    On successful return, the function updates ``vgpuInstanceSampleCount`` with the
+    number of vGPU utilization sample structures that were actually written. This
+    may differ from a previously read value as vGPU instances are created or
+    destroyed.
+    last_seen_time_stamp represents the CPU timestamp in microseconds at which
+    utilization samples were last read. Set it to 0 to read utilization based on
+    all the samples maintained by the driver's internal sample buffer. Set
+    last_seen_time_stamp to a timeStamp retrieved from a previous query to read
+    utilization since the previous query.
 
     Args:
         device (intptr_t): The identifier for the target device.
@@ -32910,24 +34940,87 @@ cpdef tuple device_get_vgpu_process_utilization(intptr_t device, unsigned long l
 
     Returns:
         A 2-tuple containing:
-        - unsigned int: Pointer to caller-supplied array size, and returns
-                number of processes running on vGPU instances.
-        - nvmlVgpuProcessUtilizationSample_t: Pointer to caller-supplied
-                buffer in which vGPU sub process utilization samples are
-                returned.
+        - int: Pointer to caller-supplied buffer to hold the type of
+                returned sample values.
+        - nvmlVgpuInstanceUtilizationSample_t: Pointer to caller-supplied
+                buffer in which vGPU utilization samples are returned.
+
+    .. seealso:: `nvmlDeviceGetVgpuUtilization`
+    """
+    cdef _ValueType sample_val_type
+    cdef unsigned int[1] vgpu_instance_samples_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetVgpuUtilization(<Device>device, last_seen_time_stamp, &sample_val_type, <unsigned int*>vgpu_instance_samples_count, NULL)
+    check_status_size(__status__)
+    cdef VgpuInstanceUtilizationSample utilization_samples = VgpuInstanceUtilizationSample(vgpu_instance_samples_count[0])
+    cdef nvmlVgpuInstanceUtilizationSample_t *utilization_samples_ptr = <nvmlVgpuInstanceUtilizationSample_t *><intptr_t>(utilization_samples._get_ptr())
+    if not (vgpu_instance_samples_count[0] == 0):
+        with nogil:
+            __status__ = nvmlDeviceGetVgpuUtilization(<Device>device, last_seen_time_stamp, &sample_val_type, <unsigned int*>vgpu_instance_samples_count, utilization_samples_ptr)
+        check_status(__status__)
+    return (<int>sample_val_type, utilization_samples[:vgpu_instance_samples_count[0]])
+
+
+cpdef object device_get_vgpu_process_utilization(intptr_t device, unsigned long long last_seen_time_stamp):
+    """Retrieves current utilization for processes running on vGPUs on a physical GPU (device).
+
+    For Maxwell ™️ or newer fully supported devices.
+    Reads recent utilization of GPU SM (3D/Compute), framebuffer, video encoder,
+    and video decoder for processes running on vGPU instances active on a device.
+    Utilization values are returned as an array of utilization sample structures in
+    the caller-supplied buffer pointed at by ``utilization_samples``. One
+    utilization sample structure is returned per process running on vGPU instances,
+    that had some non-zero utilization during the last sample period. It includes
+    the CPU timestamp at which the samples were recorded. Individual utilization
+    values are returned as "unsigned int" values.
+    To read utilization values, first determine the size of buffer required to hold
+    the samples by invoking the function with ``utilization_samples`` set to NULL.
+    The function will return NVML_ERROR_INSUFFICIENT_SIZE, with the current vGPU
+    instance count in ``vgpu_process_samples_count``. The caller should allocate a
+    buffer of size vgpu_process_samples_count \*
+    sizeof(nvmlVgpuProcessUtilizationSample_t). Invoke the function again with the
+    allocated buffer passed in ``utilization_samples``, and
+    ``vgpu_process_samples_count`` set to the number of entries the buffer is sized
+    for.
+    On successful return, the function updates ``vgpuSubProcessSampleCount`` with
+    the number of vGPU sub process utilization sample structures that were actually
+    written. This may differ from a previously read value depending on the number
+    of processes that are active in any given sample period.
+    last_seen_time_stamp represents the CPU timestamp in microseconds at which
+    utilization samples were last read. Set it to 0 to read utilization based on
+    all the samples maintained by the driver's internal sample buffer. Set
+    last_seen_time_stamp to a timeStamp retrieved from a previous query to read
+    utilization since the previous query.
+
+    Args:
+        device (intptr_t): The identifier for the target device.
+        last_seen_time_stamp (unsigned long long): Return only samples
+            with timestamp greater than last_seen_time_stamp.
+
+    Returns:
+        nvmlVgpuProcessUtilizationSample_t: Pointer to caller-supplied
+            buffer in which vGPU sub process utilization samples are
+            returned.
 
     .. seealso:: `nvmlDeviceGetVgpuProcessUtilization`
     """
-    cdef unsigned int vgpu_process_samples_count
-    cdef nvmlVgpuProcessUtilizationSample_t utilization_samples
+    cdef unsigned int[1] vgpu_process_samples_count = [0]
     with nogil:
-        __status__ = nvmlDeviceGetVgpuProcessUtilization(<Device>device, last_seen_time_stamp, &vgpu_process_samples_count, &utilization_samples)
-    check_status(__status__)
-    return (vgpu_process_samples_count, utilization_samples)
+        __status__ = nvmlDeviceGetVgpuProcessUtilization(<Device>device, last_seen_time_stamp, <unsigned int*>vgpu_process_samples_count, NULL)
+    check_status_size(__status__)
+    cdef VgpuProcessUtilizationSample utilization_samples = VgpuProcessUtilizationSample(vgpu_process_samples_count[0])
+    cdef nvmlVgpuProcessUtilizationSample_t *utilization_samples_ptr = <nvmlVgpuProcessUtilizationSample_t *><intptr_t>(utilization_samples._get_ptr())
+    if vgpu_process_samples_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetVgpuProcessUtilization(<Device>device, last_seen_time_stamp, <unsigned int*>vgpu_process_samples_count, utilization_samples_ptr)
+        check_status(__status__)
+    return utilization_samples[:vgpu_process_samples_count[0]]
 
 
 cpdef int vgpu_instance_get_accounting_mode(unsigned int vgpu_instance) except? -1:
     """Queries the state of per process accounting mode on vGPU.
+
+    For Maxwell ™️ or newer fully supported devices.
 
     Args:
         vgpu_instance (unsigned int): The identifier of the target vGPU
@@ -32948,6 +35041,12 @@ cpdef int vgpu_instance_get_accounting_mode(unsigned int vgpu_instance) except? 
 cpdef object vgpu_instance_get_accounting_pids(unsigned int vgpu_instance):
     """Queries list of processes running on vGPU that can be queried for accounting stats. The list of processes returned can be in running or terminated state.
 
+    For Maxwell ™️ or newer fully supported devices.
+    To just query the maximum number of processes that can be queried, call this
+    function with \*count = 0 and pids=NULL. The return code will be
+    NVML_ERROR_INSUFFICIENT_SIZE, or NVML_SUCCESS if list is empty.
+    For more details see ``nvmlVgpuInstanceGetAccountingStats``.
+
     Args:
         vgpu_instance (unsigned int): The identifier of the target vGPU
             instance.
@@ -32955,24 +35054,38 @@ cpdef object vgpu_instance_get_accounting_pids(unsigned int vgpu_instance):
     Returns:
         unsigned int: Reference in which to return list of process ids.
 
+    .. note::
+        In case of PID collision some processes might not be accessible before the
+        circular buffer is full.
     .. seealso:: `nvmlVgpuInstanceGetAccountingPids`
     """
     cdef unsigned int[1] count = [0]
     with nogil:
         __status__ = nvmlVgpuInstanceGetAccountingPids(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    if count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef _cyb_view.array pids = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    cdef unsigned int *pids_ptr = <unsigned int *>(pids.data)
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetAccountingPids(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>count, pids_ptr)
-    check_status(__status__)
-    return pids
+    cdef _cyb_view.array _pids_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
+    cdef unsigned int *pids_ptr = <unsigned int *>(_pids_alloc_.data)
+    cdef object pids = _pids_alloc_[:count[0]]
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlVgpuInstanceGetAccountingPids(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>count, pids_ptr)
+        check_status(__status__)
+    return pids[:count[0]]
 
 
 cpdef object vgpu_instance_get_accounting_stats(unsigned int vgpu_instance, unsigned int pid):
     """Queries process's accounting stats.
+
+    For Maxwell ™️ or newer fully supported devices.
+    Accounting stats capture GPU utilization and other statistics across the
+    lifetime of a process, and can be queried during life time of the process or
+    after its termination. The time field in ``nvmlAccountingStats_t`` is reported
+    as 0 during the lifetime of the process and updated to actual running time
+    after its termination. Accounting stats are kept in a circular buffer, newly
+    created processes overwrite information about old processes.
+    See ``nvmlAccountingStats_t`` for description of each returned metric. List of
+    processes that can be queried can be retrieved from
+    ``nvmlVgpuInstanceGetAccountingPids``.
 
     Args:
         vgpu_instance (unsigned int): The identifier of the target vGPU
@@ -32984,6 +35097,15 @@ cpdef object vgpu_instance_get_accounting_stats(unsigned int vgpu_instance, unsi
         nvmlAccountingStats_t: Reference in which to return the process's
             accounting stats.
 
+    .. note::
+        Accounting Mode needs to be on. See ``nvmlVgpuInstanceGetAccountingMode``.
+    .. note::
+        Only compute and graphics applications stats can be queried. Monitoring
+        applications stats can't be queried since they don't contribute to GPU
+        utilization.
+    .. note::
+        In case of pid collision stats of only the latest process (that terminated
+        last) will be reported.
     .. seealso:: `nvmlVgpuInstanceGetAccountingStats`
     """
     cdef AccountingStats stats_py = AccountingStats()
@@ -32997,10 +35119,18 @@ cpdef object vgpu_instance_get_accounting_stats(unsigned int vgpu_instance, unsi
 cpdef vgpu_instance_clear_accounting_pids(unsigned int vgpu_instance):
     """Clears accounting information of the vGPU instance that have already terminated.
 
+    For Maxwell ™️ or newer fully supported devices. Requires root/admin
+    permissions.
+
     Args:
         vgpu_instance (unsigned int): The identifier of the target vGPU
             instance.
 
+    .. note::
+        Accounting Mode needs to be on. See ``nvmlVgpuInstanceGetAccountingMode``.
+    .. note::
+        Only compute and graphics applications stats are reported and can be cleared
+        since monitoring applications stats don't contribute to GPU utilization.
     .. seealso:: `nvmlVgpuInstanceClearAccountingPids`
     """
     with nogil:
@@ -33010,6 +35140,8 @@ cpdef vgpu_instance_clear_accounting_pids(unsigned int vgpu_instance):
 
 cpdef object vgpu_instance_get_license_info_v2(unsigned int vgpu_instance):
     """Query the license information of the vGPU instance.
+
+    For Maxwell ™️ or newer fully supported devices.
 
     Args:
         vgpu_instance (unsigned int): Identifier of the target vGPU
@@ -33032,6 +35164,8 @@ cpdef object vgpu_instance_get_license_info_v2(unsigned int vgpu_instance):
 cpdef unsigned int get_excluded_device_count() except? 0:
     """Retrieves the number of excluded GPU devices in the system.
 
+    For all products.
+
     Returns:
         unsigned int: Reference in which to return the number of excluded
             devices.
@@ -33047,6 +35181,11 @@ cpdef unsigned int get_excluded_device_count() except? 0:
 
 cpdef object get_excluded_device_info_by_index(unsigned int index):
     """Acquire the device information for an excluded GPU device, based on its index.
+
+    For all products.
+    Valid indices are derived from the ``deviceCount`` returned by
+    :func:`get_excluded_device_count`. For example, if ``deviceCount`` is 2 the
+    valid indices are 0 and 1, corresponding to GPU 0 and GPU 1.
 
     Args:
         index (unsigned int): The index of the target GPU, >= 0 and <
@@ -33069,6 +35208,20 @@ cpdef object get_excluded_device_info_by_index(unsigned int index):
 cpdef int device_set_mig_mode(intptr_t device, unsigned int mode) except? -1:
     """Set MIG mode for the device.
 
+    For Ampere ™️ or newer fully supported devices. Requires root user.
+    This mode determines whether a GPU instance can be created.
+    This API may unbind or reset the device to activate the requested mode. Thus,
+    the attributes associated with the device, such as minor number, might change.
+    The caller of this API is expected to query such attributes again.
+    On certain platforms like pass-through virtualization, where reset
+    functionality may not be exposed directly, VM reboot is required.
+    ``activation_status`` would return ``NVML_ERROR_RESET_REQUIRED`` for such
+    cases.
+    ``activation_status`` would return the appropriate error code upon unsuccessful
+    activation. For example, if device unbind fails because the device isn't idle,
+    ``NVML_ERROR_IN_USE`` would be returned. The caller of this API is expected to
+    idle the device and retry setting the ``mode``.
+
     Args:
         device (intptr_t): The identifier of the target device.
         mode (unsigned int): The mode to be set,
@@ -33077,6 +35230,10 @@ cpdef int device_set_mig_mode(intptr_t device, unsigned int mode) except? -1:
     Returns:
         int: The activation_status status.
 
+    .. note::
+        On Windows, only disabling MIG mode is supported. ``activation_status`` would
+        return ``NVML_ERROR_NOT_SUPPORTED`` as GPU reset is not supported on Windows
+        through this API.
     .. seealso:: `nvmlDeviceSetMigMode`
     """
     cdef _Return activation_status
@@ -33088,6 +35245,10 @@ cpdef int device_set_mig_mode(intptr_t device, unsigned int mode) except? -1:
 
 cpdef tuple device_get_mig_mode(intptr_t device):
     """Get MIG mode for the device.
+
+    For Ampere ™️ or newer fully supported devices.
+    Changing MIG modes may require device unbind or reset. The "pending" MIG mode
+    refers to the target mode following the next activation trigger.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -33112,6 +35273,14 @@ cpdef tuple device_get_mig_mode(intptr_t device):
 cpdef object device_get_gpu_instance_possible_placements_v2(intptr_t device, unsigned int profile_id):
     """Get GPU instance placements.
 
+    A placement represents the location of a GPU instance within a device. This API
+    only returns all the possible placements for the given profile regardless of
+    whether MIG is enabled or not. A created GPU instance occupies memory slices
+    described by its placement. Creation of new GPU instance will fail if there is
+    overlap with the already occupied memory slices.
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+    Requires privileged user.
+
     Args:
         device (intptr_t): The identifier of the target device.
         profile_id (unsigned int): The GPU instance profile ID. See
@@ -33131,16 +35300,18 @@ cpdef object device_get_gpu_instance_possible_placements_v2(intptr_t device, uns
     check_status_size(__status__)
     cdef GpuInstancePlacement placements = GpuInstancePlacement(count[0])
     cdef nvmlGpuInstancePlacement_t *placements_ptr = <nvmlGpuInstancePlacement_t *><intptr_t>(placements._get_ptr())
-    if count[0] == 0:
-        return placements
-    with nogil:
-        __status__ = nvmlDeviceGetGpuInstancePossiblePlacements_v2(<Device>device, profile_id, placements_ptr, <unsigned int*>count)
-    check_status(__status__)
-    return placements
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetGpuInstancePossiblePlacements_v2(<Device>device, profile_id, placements_ptr, <unsigned int*>count)
+        check_status(__status__)
+    return placements[:count[0]]
 
 
 cpdef unsigned int device_get_gpu_instance_remaining_capacity(intptr_t device, unsigned int profile_id) except? 0:
     """Get GPU instance profile capacity.
+
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+    Requires privileged user.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -33162,6 +35333,12 @@ cpdef unsigned int device_get_gpu_instance_remaining_capacity(intptr_t device, u
 cpdef intptr_t device_create_gpu_instance(intptr_t device, unsigned int profile_id) except? 0:
     """Create GPU instance.
 
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+    Requires privileged user.
+    If the parent device is unbound, reset or the GPU instance is destroyed
+    explicitly, the GPU instance handle would become invalid. The GPU instance must
+    be recreated to acquire a valid handle.
+
     Args:
         device (intptr_t): The identifier of the target device.
         profile_id (unsigned int): The GPU instance profile ID. See
@@ -33181,6 +35358,12 @@ cpdef intptr_t device_create_gpu_instance(intptr_t device, unsigned int profile_
 
 cpdef intptr_t device_create_gpu_instance_with_placement(intptr_t device, unsigned int profile_id, placement) except? 0:
     """Create GPU instance with the specified placement.
+
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+    Requires privileged user.
+    If the parent device is unbound, reset or the GPU instance is destroyed
+    explicitly, the GPU instance handle would become invalid. The GPU instance must
+    be recreated to acquire a valid handle.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -33205,6 +35388,9 @@ cpdef intptr_t device_create_gpu_instance_with_placement(intptr_t device, unsign
 cpdef gpu_instance_destroy(intptr_t gpu_instance):
     """Destroy GPU instance.
 
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+    Requires privileged user.
+
     Args:
         gpu_instance (intptr_t): The GPU instance handle.
 
@@ -33217,6 +35403,9 @@ cpdef gpu_instance_destroy(intptr_t gpu_instance):
 
 cpdef intptr_t device_get_gpu_instance_by_id(intptr_t device, unsigned int id) except? 0:
     """Get GPU instances for given instance ID.
+
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+    Requires privileged user.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -33237,6 +35426,8 @@ cpdef intptr_t device_get_gpu_instance_by_id(intptr_t device, unsigned int id) e
 cpdef object gpu_instance_get_info(intptr_t gpu_instance):
     """Get GPU instance information.
 
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+
     Args:
         gpu_instance (intptr_t): The GPU instance handle.
 
@@ -33255,6 +35446,8 @@ cpdef object gpu_instance_get_info(intptr_t gpu_instance):
 
 cpdef object gpu_instance_get_compute_instance_profile_info_v(intptr_t gpu_instance, unsigned int profile, unsigned int eng_profile):
     """Versioned wrapper around ``nvmlGpuInstanceGetComputeInstanceProfileInfo`` that accepts a versioned ``nvmlComputeInstanceProfileInfo_v2_t`` or later output structure.
+
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
 
     Args:
         gpu_instance (intptr_t): The identifier of the target GPU
@@ -33282,6 +35475,9 @@ cpdef object gpu_instance_get_compute_instance_profile_info_v(intptr_t gpu_insta
 cpdef unsigned int gpu_instance_get_compute_instance_remaining_capacity(intptr_t gpu_instance, unsigned int profile_id) except? 0:
     """Get compute instance profile capacity.
 
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+    Requires privileged user.
+
     Args:
         gpu_instance (intptr_t): The identifier of the target GPU
             instance.
@@ -33303,6 +35499,14 @@ cpdef unsigned int gpu_instance_get_compute_instance_remaining_capacity(intptr_t
 cpdef object gpu_instance_get_compute_instance_possible_placements(intptr_t gpu_instance, unsigned int profile_id):
     """Get compute instance placements.
 
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+    Requires privileged user.
+    A placement represents the location of a compute instance within a GPU
+    instance. This API only returns all the possible placements for the given
+    profile. A created compute instance occupies compute slices described by its
+    placement. Creation of new compute instance will fail if there is overlap with
+    the already occupied compute slices.
+
     Args:
         gpu_instance (intptr_t): The identifier of the target GPU
             instance.
@@ -33323,16 +35527,22 @@ cpdef object gpu_instance_get_compute_instance_possible_placements(intptr_t gpu_
     check_status_size(__status__)
     cdef ComputeInstancePlacement placements = ComputeInstancePlacement(count[0])
     cdef nvmlComputeInstancePlacement_t *placements_ptr = <nvmlComputeInstancePlacement_t *><intptr_t>(placements._get_ptr())
-    if count[0] == 0:
-        return placements
-    with nogil:
-        __status__ = nvmlGpuInstanceGetComputeInstancePossiblePlacements(<GpuInstance>gpu_instance, profile_id, placements_ptr, <unsigned int*>count)
-    check_status(__status__)
-    return placements
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlGpuInstanceGetComputeInstancePossiblePlacements(<GpuInstance>gpu_instance, profile_id, placements_ptr, <unsigned int*>count)
+        check_status(__status__)
+    return placements[:count[0]]
 
 
 cpdef intptr_t gpu_instance_create_compute_instance(intptr_t gpu_instance, unsigned int profile_id) except? 0:
     """Create compute instance.
+
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+    Requires privileged user.
+    If the parent device is unbound, reset or the parent GPU instance is destroyed
+    or the compute instance is destroyed explicitly, the compute instance handle
+    would become invalid. The compute instance must be recreated to acquire a valid
+    handle.
 
     Args:
         gpu_instance (intptr_t): The identifier of the target GPU
@@ -33354,6 +35564,13 @@ cpdef intptr_t gpu_instance_create_compute_instance(intptr_t gpu_instance, unsig
 
 cpdef intptr_t gpu_instance_create_compute_instance_with_placement(intptr_t gpu_instance, unsigned int profile_id, placement) except? 0:
     """Create compute instance with the specified placement.
+
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+    Requires privileged user.
+    If the parent device is unbound, reset or the parent GPU instance is destroyed
+    or the compute instance is destroyed explicitly, the compute instance handle
+    would become invalid. The compute instance must be recreated to acquire a valid
+    handle.
 
     Args:
         gpu_instance (intptr_t): The identifier of the target GPU
@@ -33379,6 +35596,9 @@ cpdef intptr_t gpu_instance_create_compute_instance_with_placement(intptr_t gpu_
 cpdef compute_instance_destroy(intptr_t compute_instance):
     """Destroy compute instance.
 
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+    Requires privileged user.
+
     Args:
         compute_instance (intptr_t): The compute instance handle.
 
@@ -33391,6 +35611,9 @@ cpdef compute_instance_destroy(intptr_t compute_instance):
 
 cpdef intptr_t gpu_instance_get_compute_instance_by_id(intptr_t gpu_instance, unsigned int id) except? 0:
     """Get compute instance for given instance ID.
+
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+    Requires privileged user.
 
     Args:
         gpu_instance (intptr_t): The identifier of the target GPU
@@ -33412,6 +35635,8 @@ cpdef intptr_t gpu_instance_get_compute_instance_by_id(intptr_t gpu_instance, un
 cpdef object compute_instance_get_info_v2(intptr_t compute_instance):
     """Get compute instance information.
 
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+
     Args:
         compute_instance (intptr_t): The compute instance handle.
 
@@ -33431,6 +35656,12 @@ cpdef object compute_instance_get_info_v2(intptr_t compute_instance):
 cpdef unsigned int device_is_mig_device_handle(intptr_t device) except? 0:
     """Test if the given handle refers to a MIG device.
 
+    A MIG device handle is an NVML abstraction which maps to a MIG compute
+    instance. These overloaded references can be used (with some restrictions)
+    interchangeably with a GPU device handle to execute queries at a per-compute
+    instance granularity.
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+
     Args:
         device (intptr_t): NVML handle to test.
 
@@ -33448,6 +35679,10 @@ cpdef unsigned int device_is_mig_device_handle(intptr_t device) except? 0:
 
 cpdef unsigned int device_get_gpu_instance_id(intptr_t device) except? 0:
     """Get GPU instance ID for the given MIG device handle.
+
+    GPU instance IDs are unique per device and remain valid until the GPU instance
+    is destroyed.
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
 
     Args:
         device (intptr_t): Target MIG device handle.
@@ -33467,6 +35702,10 @@ cpdef unsigned int device_get_gpu_instance_id(intptr_t device) except? 0:
 cpdef unsigned int device_get_compute_instance_id(intptr_t device) except? 0:
     """Get compute instance ID for the given MIG device handle.
 
+    Compute instance IDs are unique per GPU instance and remain valid until the
+    compute instance is destroyed.
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+
     Args:
         device (intptr_t): Target MIG device handle.
 
@@ -33485,6 +35724,9 @@ cpdef unsigned int device_get_compute_instance_id(intptr_t device) except? 0:
 cpdef unsigned int device_get_max_mig_device_count(intptr_t device) except? 0:
     """Get the maximum number of MIG devices that can exist under a given parent NVML device.
 
+    Returns zero if MIG is not supported or enabled.
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+
     Args:
         device (intptr_t): Target device handle.
 
@@ -33502,6 +35744,12 @@ cpdef unsigned int device_get_max_mig_device_count(intptr_t device) except? 0:
 
 cpdef intptr_t device_get_mig_device_handle_by_index(intptr_t device, unsigned int index) except? 0:
     """Get MIG device handle for the given index under its parent NVML device.
+
+    If the compute instance is destroyed either explicitly or by destroying,
+    resetting or unbinding the parent GPU instance or the GPU device itself the MIG
+    device handle would remain invalid and must be requested again using this API.
+    Handles may be reused and their properties can change in the process.
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
 
     Args:
         device (intptr_t): Reference to the parent GPU device handle.
@@ -33522,6 +35770,8 @@ cpdef intptr_t device_get_mig_device_handle_by_index(intptr_t device, unsigned i
 cpdef intptr_t device_get_device_handle_from_mig_device_handle(intptr_t mig_device) except? 0:
     """Get parent device handle from a MIG device handle.
 
+    For Ampere ™️ or newer fully supported devices. Supported on Linux only.
+
     Args:
         mig_device (intptr_t): MIG device handle.
 
@@ -33540,6 +35790,8 @@ cpdef intptr_t device_get_device_handle_from_mig_device_handle(intptr_t mig_devi
 cpdef device_power_smoothing_activate_preset_profile(intptr_t device, intptr_t profile):
     """Activiate a specific preset profile for datacenter power smoothing. The API only sets the active preset profile based on the input profileId, and ignores the other parameters of the structure. Requires root/admin permissions.
 
+    For Blackwell ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
         profile (intptr_t): Reference to
@@ -33557,6 +35809,13 @@ cpdef device_power_smoothing_activate_preset_profile(intptr_t device, intptr_t p
 cpdef device_power_smoothing_update_preset_profile_param(intptr_t device, intptr_t profile):
     """Update the value of a specific profile parameter contained within ``nvmlPowerSmoothingProfile_v1_t``. Requires root/admin permissions.
 
+    For Blackwell ™️ or newer fully supported devices.
+    NVML_POWER_SMOOTHING_PROFILE_PARAM_PERCENT_TMP_FLOOR expects a value as a
+    percentage from 00.00-100.00% NVML_POWER_SMOOTHING_PROFILE_PARAM_RAMP_UP_RATE
+    expects a value in W/s NVML_POWER_SMOOTHING_PROFILE_PARAM_RAMP_DOWN_RATE
+    expects a value in W/s NVML_POWER_SMOOTHING_PROFILE_PARAM_RAMP_DOWN_HYSTERESIS
+    expects a value in ms.
+
     Args:
         device (intptr_t): The identifier of the target device.
         profile (intptr_t): Reference to
@@ -33572,6 +35831,9 @@ cpdef device_power_smoothing_update_preset_profile_param(intptr_t device, intptr
 cpdef device_power_smoothing_set_state(intptr_t device, intptr_t state):
     """Enable or disable the Power Smoothing Feature. Requires root/admin permissions.
 
+    For Blackwell ™️ or newer fully supported devices.
+    See ``nvmlEnableState_t`` for details on allowed states.
+
     Args:
         device (intptr_t): The identifier of the target device.
         state (intptr_t): Reference to ``nvmlPowerSmoothingState_v1_t``.
@@ -33585,6 +35847,8 @@ cpdef device_power_smoothing_set_state(intptr_t device, intptr_t state):
 
 cpdef object device_get_addressing_mode(intptr_t device):
     """Get the addressing mode for a given GPU. Addressing modes can be one of:.
+
+    For Turing ™️ or newer fully supported devices. Supported on Linux only.
 
     Args:
         device (intptr_t): The device handle.
@@ -33607,6 +35871,8 @@ cpdef object device_get_addressing_mode(intptr_t device):
 cpdef object device_get_repair_status(intptr_t device):
     """Get the repair status for TPC/Channel repair.
 
+    For Ampere ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -33626,6 +35892,10 @@ cpdef object device_get_repair_status(intptr_t device):
 
 cpdef object device_get_power_mizer_mode_v1(intptr_t device):
     """Retrieves current power mizer mode on this device.
+
+    PowerMizerMode provides a hint to the driver as to how to manage the
+    performance of the GPU.
+    For Maxwell ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -33647,6 +35917,8 @@ cpdef object device_get_power_mizer_mode_v1(intptr_t device):
 cpdef device_set_power_mizer_mode_v1(intptr_t device, power_mizer_mode):
     """Sets the new power mizer mode.
 
+    For Maxwell ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
         power_mizer_mode (intptr_t): Reference in which to set the power
@@ -33663,9 +35935,20 @@ cpdef device_set_power_mizer_mode_v1(intptr_t device, power_mizer_mode):
 cpdef device_vgpu_force_gsp_unload(intptr_t device):
     """Executes a forced GSP unload operation on a device.
 
+    For Ada ™️ or newer fully supported devices. Forces the unload of the GSP
+    firmware on a device currently operating in vGPU mode. This operation forcibly
+    removes the GSP from the targeted GPU and terminates all GSP operations.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
+    .. note::
+        This is a disruptive operation that will impact any active vGPU instances and
+        should only be used when absolutely necessary, such as during error recovery or
+        maintenance operations.
+    .. note::
+        This operation may result in a temporary loss of GPU functionality and should
+        be used with caution.
     .. seealso:: `nvmlDeviceVgpuForceGspUnload`
     """
     with nogil:
@@ -33675,6 +35958,8 @@ cpdef device_vgpu_force_gsp_unload(intptr_t device):
 
 cpdef object device_get_vgpu_scheduler_state_v2(intptr_t device):
     """Returns the vGPU scheduler state. The information returned in ``nvmlVgpuSchedulerStateInfo_v2_t`` is not relevant if the BEST EFFORT policy is set.
+
+    For Pascal ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target ``device``.
@@ -33696,6 +35981,8 @@ cpdef object device_get_vgpu_scheduler_state_v2(intptr_t device):
 cpdef object gpu_instance_get_vgpu_scheduler_state_v2(intptr_t gpu_instance):
     """Returns the vGPU scheduler state for the given GPU instance. The information returned in ``nvmlVgpuSchedulerStateInfo_v2_t`` is not relevant if the BEST EFFORT policy is set.
 
+    For Blackwell &tm GB20x; or newer fully supported devices.
+
     Args:
         gpu_instance (intptr_t): The GPU instance handle.
 
@@ -33715,6 +36002,9 @@ cpdef object gpu_instance_get_vgpu_scheduler_state_v2(intptr_t gpu_instance):
 
 cpdef object device_get_vgpu_scheduler_log_v2(intptr_t device):
     """Returns the vGPU Software scheduler logs for the device. ``p_scheduler_log_info`` points to a caller-allocated structure to contain the logs. The number of elements returned will never exceed ``NVML_SCHEDULER_SW_MAX_LOG_ENTRIES``.
+
+    To get the entire logs, call the function atleast 5 times a second.
+    For Pascal ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target ``device``.
@@ -33736,6 +36026,9 @@ cpdef object device_get_vgpu_scheduler_log_v2(intptr_t device):
 cpdef object gpu_instance_get_vgpu_scheduler_log_v2(intptr_t gpu_instance):
     """Returns the vGPU scheduler logs for the given GPU instance. ``p_scheduler_log_info`` points to a caller-allocated structure to contain the logs. The number of elements returned will never exceed ``NVML_SCHEDULER_SW_MAX_LOG_ENTRIES``.
 
+    To get the entire logs, call the function atleast 5 times a second.
+    For Blackwell &tm GB20x; or newer fully supported devices.
+
     Args:
         gpu_instance (intptr_t): The GPU instance handle.
 
@@ -33756,6 +36049,10 @@ cpdef object gpu_instance_get_vgpu_scheduler_log_v2(intptr_t gpu_instance):
 cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, p_scheduler_state):
     """Sets the vGPU scheduler state.
 
+    For Pascal ™️ or newer fully supported devices.
+    The scheduler state change won't persist across module load/unload. Scheduler
+    state and params will be allowed to set only when no VM is running.
+
     Args:
         device (intptr_t): The identifier of the target ``device``.
         p_scheduler_state (intptr_t): vGPU ``p_scheduler_state`` to set.
@@ -33770,6 +36067,12 @@ cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, p_scheduler_state):
 
 cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, p_scheduler_state):
     """Set vGPU scheduler state for the given GPU instance.
+
+    For Blackwell &tm GB20x; or newer fully supported devices.
+    Scheduler state and params will be allowed to set only when no VM is running
+    within the GPU instance.
+    The scheduler state change won't persist across module load/unload and GPU
+    Instance creation/deletion.
 
     Args:
         gpu_instance (intptr_t): The GPU instance handle.
@@ -33786,6 +36089,19 @@ cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, p_schedule
 
 cpdef object system_get_cper_v1():
     """Retrieves Common Platform Error Record (CPER) data.
+
+    Records are returned in a caller-supplied buffer. Iteration is driven by the
+    ``cursor`` (``nvmlCPERCursor_v1_t``) struct: pass the same ``cursor`` on every
+    call in a sequence; the implementation updates ``cursor.handle``. Do not modify
+    ``cursor`` between calls. To change ``cursor.cperTypeMask`` or ``cursor.uuid``,
+    set ``cursor.handle`` to ``NVML_CPER_CURSOR_HANDLE_INIT`` and call again (new
+    iteration).
+    For a size query, call with ``buffer`` NULL and ``bufferSize`` 0; the function
+    returns ``NVML_ERROR_INSUFFICIENT_SIZE`` and sets ``bufferSize`` when records
+    exist, or ``NVML_SUCCESS`` with ``bufferSize`` set to 0 when there are no CPER
+    records. Use ``bufferSize`` == 0 on return as the indicator for "no records" or
+    "no more records".
+    This API requires root privileges. Records are available from initialization.
 
     Returns:
         nvmlGetCPER_v1_t: Pointer to an ``nvmlGetCPER_v1_t``. On entry set
@@ -33807,6 +36123,8 @@ cpdef object system_get_cper_v1():
 cpdef object device_get_bbx_time_data_v1(intptr_t device):
     """Retrieves the cumulative number of seconds the GPU has had the driver loaded.
 
+    For all products with an inforom.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -33827,6 +36145,18 @@ cpdef object device_get_bbx_time_data_v1(intptr_t device):
 cpdef object device_get_accounting_stats_v2(intptr_t device):
     """Queries process's accounting stats (v2).
 
+    For Kepler ™️ or newer fully supported devices.
+    Accounting stats (v2) capture GPU utilization and other statistics across the
+    lifetime of a process. Accounting stats (v2) can be queried during life time of
+    the process and after its termination. The time field in
+    ``nvmlAccountingStats_v2_t`` is reported as 0 during the lifetime of the
+    process and updated to actual running time after its termination. Accounting
+    stats (v2) are kept in a circular buffer, newly created processes overwrite
+    information about old processes.
+    See ``nvmlAccountingStats_v2_t`` for description of each returned metric. List
+    of processes that can be queried can be retrieved from
+    ``nvmlDeviceGetAccountingPids``.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -33834,6 +36164,18 @@ cpdef object device_get_accounting_stats_v2(intptr_t device):
         nvmlAccountingStats_v2_t: Reference in which to return the
             process's accounting stats (v2).
 
+    .. note::
+        Accounting Mode needs to be on. See ``nvmlDeviceGetAccountingMode``.
+    .. note::
+        Only compute and graphics applications stats can be queried. Monitoring
+        applications stats can't be queried since they don't contribute to GPU
+        utilization.
+    .. note::
+        In case of pid collision stats of only the latest process (that terminated
+        last) will be reported.
+    .. note::
+        On Kepler devices per process statistics are accurate only if there's one
+        process running on a GPU.
     .. seealso:: `nvmlDeviceGetAccountingStats_v2`
     """
     cdef AccountingStats_v2 stats_py = AccountingStats_v2()
@@ -33847,6 +36189,8 @@ cpdef object device_get_accounting_stats_v2(intptr_t device):
 cpdef object device_get_remapped_rows_v2(intptr_t device):
     """Get the status of row remapper.
 
+    For Ampere ™️ or newer fully supported devices.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -33854,6 +36198,9 @@ cpdef object device_get_remapped_rows_v2(intptr_t device):
         nvmlRemappedRowsInfo_v2_t: Reference for
             ``nvmlRemappedRowsInfo_v2_t``.
 
+    .. note::
+        On MIG-enabled GPUs with active instances, querying the number of remapped rows
+        is not supported.
     .. seealso:: `nvmlDeviceGetRemappedRows_v2`
     """
     cdef RemappedRowsInfo_v2 info_py = RemappedRowsInfo_v2()
@@ -33866,6 +36213,12 @@ cpdef object device_get_remapped_rows_v2(intptr_t device):
 
 cpdef device_set_adaptive_tgp_mode_v1(intptr_t device, int mode):
     """Request to enable or disable Adaptive TGP Mode for a GPU.
+
+    RUBIN_OR_NEWER% Requires root/admin privileges.
+    Adaptive TGP Mode assigns tailored power budgets to two binned GPU parts within
+    the same module, reducing node-to-node and rack-to-rack performance variation.
+    An out-of-band administrator policy may override the in-band request; use
+    ``nvmlDeviceGetAdaptiveTgpModeInfo_v1`` to query the arbitrated state.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -33880,6 +36233,12 @@ cpdef device_set_adaptive_tgp_mode_v1(intptr_t device, int mode):
 
 cpdef object device_get_adaptive_tgp_mode_info_v1(intptr_t device):
     """Retrieves Adaptive TGP Mode state and telemetry for a GPU.
+
+    RUBIN_OR_NEWER%.
+    Populates ``info`` with the in-band request, out-of-band enablement status,
+    out-of-band override status, arbitrated enablement state, and adjusted base
+    power limit. The adjusted base power is valid only when feature is enabled. See
+    ``nvmlAdaptiveTgpModeInfo_v1_t`` for field details.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -33901,11 +36260,18 @@ cpdef object device_get_adaptive_tgp_mode_info_v1(intptr_t device):
 cpdef device_set_memory_limits_v1(intptr_t device, limits):
     """Set the memory limits of the device for the cgroup partition.
 
+    This method will set the memory limits of the device for the specified cgroup
+    partition. The limits will indicate the amount of memory that can be allocated
+    for the device for use of an application in that cgroup.
+    For all products. For Linux only. Requires root/admin permissions.
+
     Args:
         device (intptr_t): The identifier of the target device.
         limits (intptr_t): A pointer to ``nvmlSetMemoryLimits_v1_t`` where
             the limits can be set.
 
+    .. note::
+        MIG handles are not supported.
     .. seealso:: `nvmlDeviceSetMemoryLimits_v1`
     """
     cdef intptr_t _limits_ptr_ = int(limits)
@@ -33917,6 +36283,10 @@ cpdef device_set_memory_limits_v1(intptr_t device, limits):
 cpdef object device_get_memory_limits_v1(intptr_t device):
     """Get the memory limits of the device for the cgroup partition.
 
+    This method will get the current memory limits of the device for the specified
+    cgroup partition, as well as the current memory used against the limits.
+    For all products. For Linux only.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -33924,6 +36294,8 @@ cpdef object device_get_memory_limits_v1(intptr_t device):
         nvmlGetMemoryLimits_v1_t: A pointer to
             ``nvmlGetMemoryLimits_v1_t``.
 
+    .. note::
+        MIG handles are not supported.
     .. seealso:: `nvmlDeviceGetMemoryLimits_v1`
     """
     cdef GetMemoryLimits_v1 limits_py = GetMemoryLimits_v1()
@@ -33936,6 +36308,17 @@ cpdef object device_get_memory_limits_v1(intptr_t device):
 
 cpdef object device_get_gpu_fabric_info_v4(intptr_t device):
     """Retrieves GPU fabric information including per-type clique assignments.
+
+    Returns fabric clique data via ``nvmlGpuFabricInfo_v4_t``. Each entry in the
+    ``cliques`` array is a (type, id) pair representing a single clique assignment.
+    The number of valid entries is given by ``numCliques``. Entries are sorted by
+    ascending type (NVML_GPU_FABRIC_CLIQUE_TYPE_*), then by ascending clique id
+    within each type.
+    On Hopper systems, the driver reports Unicast Pointer and Multicast Pointer
+    cliques. On Blackwell and Rubin, Unicast Logical Endpoint and Multicast Logical
+    Endpoint are additionally reported.
+    \*\*View CUDA Toolkit Documentation for a C++ code example*\*.
+    For Hopper ™️ or newer fully supported devices.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -33957,6 +36340,8 @@ cpdef object device_get_gpu_fabric_info_v4(intptr_t device):
 cpdef object device_perf_metrics_get_samples_v1(intptr_t device):
     """Get Performance Metric samples.
 
+    See ``nvmlPerfMetricsSamples_v1_t`` for more information on the struct.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -33977,6 +36362,8 @@ cpdef object device_perf_metrics_get_samples_v1(intptr_t device):
 cpdef object device_set_nvlink_bw_mode_async_v1(intptr_t device):
     """Set the NvLink Reduced Bandwidth Mode asynchronously for the device. Polling should be done by checking for ``NVML_GPU_FABRIC_STATE_COMPLETED`` from :func:`device_get_gpu_fabric_info_v`.
 
+    RUBIN_OR_NEWER%.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -33996,6 +36383,12 @@ cpdef object device_set_nvlink_bw_mode_async_v1(intptr_t device):
 
 cpdef object device_get_nv_link_telemetry_samples_v1(intptr_t device):
     """Retrieve a batch of historical NVLink per-link telemetry samples.
+
+    Samples are taken at approximately 100 ms intervals. Intended for use with
+    periodic polling every ~2 seconds. Longer polling intervals are possible, but
+    can result in dropped samples if the supported ``sampleCount`` is too low for
+    the given polling interval.
+    RUBIN_OR_NEWER%.
 
     Args:
         device (intptr_t): The device handle of the GPU to retrieve
@@ -34018,6 +36411,23 @@ cpdef object device_get_nv_link_telemetry_samples_v1(intptr_t device):
 cpdef event_set_register_gpu_operational_events_v1(intptr_t event_set, config):
     """Adds a GPU Operational Event subscription to an event set.
 
+    This API is separate from ``nvmlDeviceRegisterEvents``. Calling this API opts
+    the event set into the structured GPU Operational Event format for the target
+    GPU UUID. Subscriptions are identified by ``config``; registering the same
+    subscription more than once is treated as success.
+    ``nvmlDeviceRegisterEvents`` and
+    ``nvmlEventSetRegisterGpuOperationalEvents_v1`` may both be used on the same
+    event set. In that mixed-subscription model, NVML event-bit subscriptions
+    continue to deliver event bits such as ``nvmlEventTypeXidCriticalError``, while
+    GPU Operational Event subscriptions deliver
+    ``NVML_EVENT_DATA_TYPE_GPU_OPERATIONAL_EVENT`` records through
+    ``nvmlEventSetWait_v3`` with ``eventType`` set to ``nvmlEventTypeNone``. The
+    same underlying incident may generate both an NVML event-bit notification and a
+    structured notification.
+    This API supports GPU UUID subscriptions.
+    For Turing ™️ or newer fully supported devices.
+    For Linux only.
+
     Args:
         event_set (intptr_t): Event set created by ``nvmlEventSetCreate``.
         config (intptr_t): GPU Operational Event subscription
@@ -34033,6 +36443,12 @@ cpdef event_set_register_gpu_operational_events_v1(intptr_t event_set, config):
 
 cpdef object event_set_get_context_count_v1(intptr_t set):
     """Gets the number of context records for the most recent event returned by ``nvmlEventSetWait_v3`` on this event set.
+
+    This count is tied to the event set, not to a caller-owned copy of
+    ``nvmlEventSetWait_v3_t``. It is replaced by the next successful call to
+    ``nvmlEventSetWait_v3`` on the same event set.
+    For Turing ™️ or newer fully supported devices.
+    For Linux only.
 
     Args:
         set (intptr_t): Event set previously used with
@@ -34055,6 +36471,8 @@ cpdef object event_set_get_context_count_v1(intptr_t set):
 cpdef object device_get_bank_remapper_status_v1(intptr_t device):
     """Get bank remapper status.
 
+    RUBIN_OR_NEWER%.
+
     Args:
         device (intptr_t): The identifier of the target device.
 
@@ -34070,28 +36488,6 @@ cpdef object device_get_bank_remapper_status_v1(intptr_t device):
         __status__ = nvmlDeviceGetBankRemapperStatus_v1(<Device>device, p_bank_remapper_status)
     check_status(__status__)
     return p_bank_remapper_status_py
-
-
-cpdef object system_get_topology_gpu_set(unsigned int cpuNumber):
-    """Retrieve the set of GPUs that have a CPU affinity with the given CPU number
-
-    Args:
-        cpuNumber (unsigned int): The CPU number
-
-    Returns:
-        array: An array of device handles for GPUs found with affinity to  cpuNumber
-    """
-    cdef unsigned int[1] count = [0]
-    with nogil:
-        __status__ = nvmlSystemGetTopologyGpuSet(cpuNumber, <unsigned int*>count, NULL)
-    check_status_size(__status__)
-    if count[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
-    with nogil:
-        __status__ = nvmlSystemGetTopologyGpuSet(cpuNumber, <unsigned int*>count, <nvmlDevice_t *>deviceArray.data)
-    check_status(__status__)
-    return deviceArray
 
 
 cpdef str system_get_driver_branch():
@@ -34110,61 +36506,6 @@ cpdef str system_get_driver_branch():
         __status__ = nvmlSystemGetDriverBranch(&info, length)
     check_status(__status__)
     return cpython.PyUnicode_FromString(info.branch)
-
-
-cpdef object unit_get_devices(intptr_t unit):
-    """Retrieves the set of GPU devices that are attached to the specified unit.
-
-    Args:
-        unit (Unit): The identifier of the target unit.
-
-    Returns:
-        array: An array of device handles for GPUs attached to the unit.
-    """
-    cdef unsigned int[1] deviceCount = [0]
-    with nogil:
-        __status__ = nvmlUnitGetDevices(<nvmlUnit_t>unit, <unsigned int*>deviceCount, NULL)
-    check_status_size(__status__)
-    if deviceCount[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(deviceCount[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
-    with nogil:
-        __status__ = nvmlUnitGetDevices(<nvmlUnit_t>unit, <unsigned int*>deviceCount, <nvmlDevice_t *>deviceArray.data)
-    check_status(__status__)
-    return deviceArray
-
-
-cpdef object device_get_topology_nearest_gpus(intptr_t device, unsigned int level):
-    """Retrieve the set of GPUs that are nearest to a given device at a specific interconnectivity level
-
-    Args:
-        device (Device): The identifier of the first device
-        level (GpuTopologyLevel): The level to search for other GPUs
-
-    Returns:
-        array: An array of device handles for GPUs found at level
-    """
-    cdef unsigned int[1] count = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetTopologyNearestGpus(
-            <Device>device,
-            <nvmlGpuTopologyLevel_t>level,
-            count,
-            NULL
-        )
-    check_status_size(__status__)
-    if count[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetTopologyNearestGpus(
-            <Device>device,
-            <nvmlGpuTopologyLevel_t>level,
-            count,
-            <nvmlDevice_t *>deviceArray.data
-        )
-    check_status(__status__)
-    return deviceArray
 
 
 cpdef int device_get_temperature_v(intptr_t device, nvmlTemperatureSensors_t sensorType):
@@ -34239,58 +36580,6 @@ cpdef object device_get_running_process_detail_list(intptr_t device, unsigned in
         __status__ = nvmlDeviceGetRunningProcessDetailList(<Device>device, ptr)
     check_status(__status__)
     return plist
-
-
-cpdef tuple device_get_samples(intptr_t device, int type, unsigned long long last_seen_time_stamp):
-    """Gets recent samples for the GPU.
-
-    Args:
-        device (intptr_t): The identifier for the target device.
-        type (SamplingType): Type of sampling event.
-        last_seen_time_stamp (unsigned long long): Return only samples with timestamp greater than last_seen_time_stamp.
-
-    .. seealso:: `nvmlDeviceGetSamples`
-    """
-    cdef unsigned int[1] sample_count = [0]
-    cdef unsigned int[1] sample_val_type = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetSamples(<Device>device, <_SamplingType>type, last_seen_time_stamp, <_ValueType*>sample_val_type, <unsigned int*>sample_count, NULL)
-    check_status_size(__status__)
-    cdef Sample samples = Sample(sample_count[0])
-    cdef nvmlSample_t *samples_ptr = <nvmlSample_t *>samples._get_ptr()
-    if sample_count[0] == 0:
-        return samples
-    with nogil:
-        __status__ = nvmlDeviceGetSamples(<Device>device, <_SamplingType>type, last_seen_time_stamp, <_ValueType*>sample_val_type, <unsigned int*>sample_count, samples_ptr)
-    check_status(__status__)
-    return (sample_val_type[0], samples)
-
-
-cpdef tuple device_get_retired_pages_v2(intptr_t device, int cause):
-    """Returns the list of retired pages by source, including pages that are pending retirement
-
-    Args:
-        device (Device): The identifier of the target device.
-        cause (PageRetirementCause): Filter page addresses by cause of retirement.
-
-    Returns:
-        tuple: A tuple of two arrays (addresses, timestamps).
-    """
-    cdef unsigned int[1] page_count = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetRetiredPages_v2(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, NULL, NULL)
-    check_status_size(__status__)
-    if page_count[0] == 0:
-        return (
-            view.array(shape=(1,), itemsize=sizeof(unsigned long long), format="Q", mode="c")[:0],
-            view.array(shape=(1,), itemsize=sizeof(unsigned long long), format="Q", mode="c")[:0]
-        )
-    cdef view.array addresses = view.array(shape=(page_count[0],), itemsize=sizeof(unsigned long long), format="Q", mode="c")
-    cdef view.array timestamps = view.array(shape=(page_count[0],), itemsize=sizeof(unsigned long long), format="Q", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetRetiredPages_v2(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, <unsigned long long *>addresses.data, <unsigned long long *>timestamps.data)
-    check_status(__status__)
-    return (addresses, timestamps)
 
 
 cpdef object device_get_processes_utilization_info(intptr_t device, unsigned long long last_seen_time_stamp):
@@ -34434,90 +36723,6 @@ cpdef  device_clear_field_values(intptr_t device, values):
     with nogil:
         __status__ = nvmlDeviceClearFieldValues(<Device>device, valuesCount, ptr)
     check_status(__status__)
-
-
-cpdef object device_get_supported_vgpus(intptr_t device):
-    """Retrieve the supported vGPU types on a physical GPU (device).
-
-    Args:
-        device (Device): The identifier of the target device.
-
-    Returns:
-        array: An array of supported vGPU type IDs.
-    """
-    cdef unsigned int[1] vgpuCount = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetSupportedVgpus(<Device>device, vgpuCount, NULL)
-    check_status_size(__status__)
-    if vgpuCount[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef view.array vgpuTypeIds = view.array(shape=(deviceCount[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetSupportedVgpus(<Device>device, vgpuCount, <nvmlVgpuTypeId_t *>vgpuTypeIds.data)
-    check_status(__status__)
-    return vgpuTypeIds
-
-
-cpdef object device_get_creatable_vgpus(intptr_t device):
-    """Retrieve the currently creatable vGPU types on a physical GPU (device).
-
-    Args:
-        device (Device): The identifier of the target device.
-
-    Returns:
-        array: An array of createable vGPU type IDs.
-    """
-    cdef unsigned int[1] vgpuCount = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetCreatableVgpus(<Device>device, vgpuCount, NULL)
-    check_status_size(__status__)
-    if vgpuCount[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef view.array vgpuTypeIds = view.array(shape=(deviceCount[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetCreatableVgpus(<Device>device, vgpuCount, <nvmlVgpuTypeId_t *>vgpuTypeIds.data)
-    check_status(__status__)
-    return vgpuTypeIds
-
-
-cpdef object device_get_active_vgpus(intptr_t device):
-    """Retrieve the active vGPU instances on a device.
-
-    Args:
-        device (Device): The identifier of the target device.
-
-    Returns:
-        array: An array of active vGPU instance IDs.
-    """
-    cdef unsigned int[1] vgpuCount = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetActiveVgpus(<Device>device, vgpuCount, NULL)
-    check_status_size(__status__)
-    if vgpuCount[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef view.array vgpuInstances = view.array(shape=(deviceCount[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetActiveVgpus(<Device>device, vgpuCount, <nvmlVgpuInstance_t *>vgpuInstances.data)
-    check_status(__status__)
-    return vgpuInstances
-
-
-cpdef tuple vgpu_instance_get_vm_id(unsigned int vgpu_instance):
-    """Retrieve the VM ID associated with a vGPU instance.
-
-    Args:
-        vgpu_instance (unsigned int): The identifier of the target vGPU instance.
-
-    Returns:
-        tuple[str, VgpuVmIdType]: A tuple of (id, id_type).
-    """
-    cdef unsigned int size = 80
-    cdef char[80] vmId
-    cdef nvmlVgpuVmIdType_t[1] vmIdType
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetVmID(<nvmlVgpuInstance_t>vgpu_instance, vmId, size, vmIdType)
-    check_status(__status__)
-    return (cpython.PyUnicode_FromString(vmId), vmIdType[0])
 
 
 cpdef object gpu_instance_get_creatable_vgpus(intptr_t gpu_instance):
@@ -34727,24 +36932,6 @@ cpdef object get_vgpu_compatibility(VgpuMetadata vgpu_metadata, VgpuPgpuMetadata
     return compatibilityInfo
 
 
-cpdef tuple get_vgpu_version():
-    """Query the ranges of supported vGPU versions.
-
-    Returns:
-        tuple: A tuple of (VgpuVersion supported, VgpuVersion current).
-    """
-    cdef VgpuVersion supported = VgpuVersion()
-    cdef nvmlVgpuVersion_t *supported_ptr = <nvmlVgpuVersion_t *>supported._get_ptr()
-    cdef VgpuVersion current = VgpuVersion()
-    cdef nvmlVgpuVersion_t *current_ptr = <nvmlVgpuVersion_t *>current._get_ptr()
-
-    with nogil:
-        __status__ = nvmlGetVgpuVersion(supported_ptr, current_ptr)
-
-    check_status(__status__)
-    return (supported, current)
-
-
 cpdef object device_get_vgpu_instances_utilization_info(intptr_t device):
     """
     Retrieves recent utilization for vGPU instances running on a physical GPU (device).
@@ -34810,58 +36997,6 @@ cpdef object device_get_vgpu_processes_utilization_info(intptr_t device, unsigne
     check_status(__status__)
 
     return vgpuProcUtilInfo
-
-
-cpdef object device_get_gpu_instances(intptr_t device, unsigned int profile_id):
-    """Get GPU instances for given profile ID.
-
-    Args:
-        device (Device): The identifier of the target device.
-        profile_id (unsigned int): The GPU instance profile ID. See device_get_gpu_instance_profile_info().
-
-    Returns:
-        array: An array of GPU instance handles.
-    """
-    cdef unsigned int[1] count = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetGpuInstances(<Device>device, profile_id, NULL, count)
-    check_status_size(__status__)
-
-    if count[0] == 0:
-        view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-
-    cdef view.array gpuInstances = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetGpuInstances(<Device>device, profile_id, <nvmlGpuInstance_t *>gpuInstances.data, count)
-    check_status(__status__)
-
-    return gpuInstances
-
-
-cpdef object gpu_instance_get_compute_instances(intptr_t gpu_instance, unsigned int profile_id):
-    """Get Compute instances for given profile ID.
-
-    Args:
-        gpu_instance (GpuInstance): The identifier of the target GPU Instance.
-        profile_id (unsigned int): The Compute instance profile ID.
-
-    Returns:
-        array: An array of Compute instance handles.
-    """
-    cdef unsigned int[1] count = [0]
-    with nogil:
-        __status__ = nvmlGpuInstanceGetComputeInstances(<GpuInstance>gpu_instance, profile_id, NULL, count)
-    check_status_size(__status__)
-
-    if count[0] == 0:
-        view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-
-    cdef view.array computeInstances = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
-    with nogil:
-        __status__ = nvmlGpuInstanceGetComputeInstances(<GpuInstance>gpu_instance, profile_id, <nvmlComputeInstance_t *>computeInstances.data, count)
-    check_status(__status__)
-
-    return computeInstances
 
 
 cpdef object device_get_sram_unique_uncorrected_ecc_error_counts(intptr_t device):
@@ -35296,6 +37431,74 @@ cpdef object device_get_gpu_instance_profile_info_v(intptr_t device, unsigned in
     return info_py
 
 
+cpdef object device_get_gpu_instances(intptr_t device, unsigned int profile_id):
+    """Get GPU instances for given profile ID.
+
+    Unlike most array-returning MIG APIs, ``nvmlDeviceGetGpuInstances`` does
+    not accept a NULL buffer to discover the count; use the number of possible
+    placements for the profile as a safe upper bound.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        profile_id (unsigned int): The GPU instance profile ID. See
+            ``nvmlDeviceGetGpuInstanceProfileInfo``.
+
+    Returns:
+        list[intptr_t]: Returns pre-existing GPU instances for the given
+            profile.
+
+    .. seealso:: `nvmlDeviceGetGpuInstances`
+    """
+    cdef unsigned int[1] count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetGpuInstancePossiblePlacements_v2(
+            <Device>device, profile_id, NULL, <unsigned int*>count
+        )
+    check_status(__status__)
+    cdef unsigned int capacity = count[0]
+    cdef _cyb_view.array _gpu_instances_alloc_ = _cyb_view.array(shape=(max(capacity, 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef intptr_t *gpu_instances_ptr = <intptr_t *>(_gpu_instances_alloc_.data)
+    if capacity != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetGpuInstances(<Device>device, profile_id, <nvmlGpuInstance_t*>gpu_instances_ptr, <unsigned int*>count)
+        check_status(__status__)
+    return _gpu_instances_alloc_[:count[0]]
+
+
+cpdef object gpu_instance_get_compute_instances(intptr_t gpu_instance, unsigned int profile_id):
+    """Get compute instances for given profile ID.
+
+    Unlike most array-returning MIG APIs, ``nvmlGpuInstanceGetComputeInstances``
+    does not accept a NULL buffer to discover the count; use the number of
+    possible placements for the profile as a safe upper bound.
+
+    Args:
+        gpu_instance (intptr_t): The identifier of the target GPU instance.
+        profile_id (unsigned int): The compute instance profile ID. See
+            ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
+
+    Returns:
+        list[intptr_t]: Returns pre-existing compute instances for the given
+            profile.
+
+    .. seealso:: `nvmlGpuInstanceGetComputeInstances`
+    """
+    cdef unsigned int[1] count = [0]
+    with nogil:
+        __status__ = nvmlGpuInstanceGetComputeInstancePossiblePlacements(
+            <GpuInstance>gpu_instance, profile_id, NULL, <unsigned int*>count
+        )
+    check_status(__status__)
+    cdef unsigned int capacity = count[0]
+    cdef _cyb_view.array _compute_instances_alloc_ = _cyb_view.array(shape=(max(capacity, 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef intptr_t *compute_instances_ptr = <intptr_t *>(_compute_instances_alloc_.data)
+    if capacity != 0:
+        with nogil:
+            __status__ = nvmlGpuInstanceGetComputeInstances(<GpuInstance>gpu_instance, profile_id, <nvmlComputeInstance_t*>compute_instances_ptr, <unsigned int*>count)
+        check_status(__status__)
+    return _compute_instances_alloc_[:count[0]]
+
+
 cpdef intptr_t device_get_handle_by_uuidv(int type, bytes uuid) except? 0:
     """Acquire the handle for a particular device, based on its globally unique immutable UUID (in either ASCII or binary format) associated with each device. See ``nvmlUUID_v1_t`` for more information on the UUID struct. The caller must set the appropriate version prior to calling this API.
 
@@ -35459,55 +37662,6 @@ cpdef gpu_instance_set_vgpu_heterogeneous_mode(intptr_t gpu_instance, unsigned i
         heterogeneous_mode[0].mode = mode
         __status__ = nvmlGpuInstanceSetVgpuHeterogeneousMode(<GpuInstance>gpu_instance, heterogeneous_mode)
     check_status(__status__)
-
-
-cpdef tuple device_get_vgpu_utilization(intptr_t device, unsigned long long last_seen_time_stamp):
-    """Retrieves current utilization for vGPUs on a physical GPU (device).
-
-    Args:
-        device (intptr_t): The identifier for the target device.
-        last_seen_time_stamp (unsigned long long): Return only samples with timestamp greater than last_seen_time_stamp.
-
-    Returns:
-        A 2-tuple containing:
-
-        - samples: Returned sample values.
-        - utilizationSamples: Utilization samples.
-
-    .. seealso:: `nvmlDeviceGetVgpuUtilization`
-    """
-    cdef unsigned int vgpu_instance_samples_count
-    with nogil:
-        __status__ = nvmlDeviceGetVgpuUtilization(
-            <Device>device,
-            last_seen_time_stamp,
-            NULL,
-            &vgpu_instance_samples_count,
-            NULL
-        )
-    check_status_size(__status__)
-
-    if vgpu_instance_samples_count == 0:
-        return (
-            view.array(shape=(1,), itemsize=sizeof(int), format="I", mode="c")[:0],
-            VgpuInstanceUtilizationSample(0)
-        )
-
-    cdef view.array arr = view.array(shape=(vgpu_instance_samples_count,), itemsize=sizeof(int), format="I", mode="c")
-    cdef VgpuInstanceUtilizationSample utilization_samples_py = VgpuInstanceUtilizationSample(vgpu_instance_samples_count)
-    cdef nvmlVgpuInstanceUtilizationSample_t *ptr = <nvmlVgpuInstanceUtilizationSample_t *>utilization_samples_py._get_ptr()
-
-    with nogil:
-        __status__ = nvmlDeviceGetVgpuUtilization(
-            <Device>device,
-            last_seen_time_stamp,
-            <nvmlValueType_t *>arr.data,
-            &vgpu_instance_samples_count,
-            ptr
-        )
-    check_status(__status__)
-
-    return (arr, utilization_samples_py)
 
 
 cpdef object device_read_prm_counters_v1(intptr_t device, PRMCounter_v1 counters):
