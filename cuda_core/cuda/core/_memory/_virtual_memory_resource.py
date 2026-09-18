@@ -590,12 +590,12 @@ class VirtualMemoryResource(MemoryResource):
         size : int
             The size in bytes of the memory to deallocate.
         stream : Stream, optional
-            Keyword-only. If provided, ``stream.sync()`` is called before the
-            virtual memory is unmapped.
+            Keyword-only. If provided for a device-located resource,
+            ``stream.sync()`` is called before the virtual memory is unmapped.
         """
         ptr = 0 if ptr is None else int(ptr)
 
-        if stream is not None:
+        if stream is not None and self.is_device_accessible:
             from cuda.core._stream import Stream_accept
 
             Stream_accept(stream).sync()
