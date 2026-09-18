@@ -370,6 +370,7 @@ jobs:
     concurrency:
       group: cuda-python-gh-pages-publish
       queue: max
+      cancel-in-progress: false
     defaults:
       run:
         shell: bash -el {0}
