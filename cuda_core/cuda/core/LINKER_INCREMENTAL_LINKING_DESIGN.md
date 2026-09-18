@@ -19,7 +19,9 @@ final or relocatable:
   are normally a CUDA ELF with ELF type `ET_REL`; without `-r`, they are normally
   `ET_EXEC`.
 - `Linker.link("ltoir")` returns `ObjectCode(code_type="ltoir")`. It is available when
-  `link_time_optimization=True` and the linked-LTOIR getter is available.
+  `link_time_optimization=True`, the linked-LTOIR getter is available, and there are
+  no direct PTX or cubin inputs. nvJitLink silently omits inputs that carry no LTOIR
+  from this output.
 - `Linker.link("object")` remains invalid. In nvJitLink, `NVJITLINK_INPUT_OBJECT` means
   a *host object*, not every object whose ELF type is `ET_REL`.
 - `Linker.link("ptx")` is rejected in relocatable mode. The `-r -lto -ptx`
@@ -160,7 +162,7 @@ representation retrieved from the completed nvJitLink handle.
 | false/unset | false | `"cubin"` | Existing final cubin behavior |
 | false/unset | true | `"cubin"` | Existing final LTO-optimized cubin behavior |
 | false/unset | true | `"ptx"` | Existing linked-PTX behavior; requires `ptx=True` |
-| either | true | `"ltoir"` | Linked LTOIR container, when its getter is available |
+| either | true | `"ltoir"` | Linked LTOIR carried by the inputs, when its getter is available; direct PTX and cubin inputs are rejected |
 | true | false | `"cubin"` | Partial native cubin, normally ELF `ET_REL` |
 | true | true | `"cubin"` | Partial native cubin; later LTO cannot cross this binary boundary |
 | true | true | `"ltoir"` | Partial linked LTOIR; preferred for incremental LTO |
@@ -169,8 +171,11 @@ representation retrieved from the completed nvJitLink handle.
 
 The linked-LTOIR getter is specified by CUDA in terms of `-lto`, not `-r`. Therefore
 `link("ltoir")` should be accepted whenever `link_time_optimization=True`, whether or
-not `relocatable` is set. Without `-r`, `nvJitLinkComplete` will still reject unresolved
-references in the usual way.
+not `relocatable` is set, provided there is no direct PTX or cubin input. Those formats
+carry no LTOIR and nvJitLink silently omits them from the retrieved result. FATBIN,
+host-object, and library inputs cannot be rejected from their outer format because
+they may carry LTOIR, but callers should be aware that they may carry none. Without
+`-r`, `nvJitLinkComplete` will still reject unresolved references in the usual way.
 
 The existing `ObjectCodeFormatType.LTOIR` member is sufficient for the new target.
 `Linker.link()` documentation and typing should be updated to list `"ltoir"` alongside
@@ -306,6 +311,8 @@ The implementation should reject unsupported combinations before
   version.
 - `target_type="ltoir"` without `link_time_optimization=True`: `ValueError` explaining
   that linked LTOIR requires `-lto`.
+- `target_type="ltoir"` with a direct PTX or cubin input: `ValueError` explaining that
+  the input carries no LTOIR and would otherwise be omitted from the output.
 - `target_type="ltoir"` without getter support: capability error naming the missing
   CUDA or cuda-bindings support.
 - `relocatable=True` with `ptx=True`, or `target_type="ptx"` in relocatable mode:
@@ -419,6 +426,15 @@ The following experiments used an NVIDIA A30 targeting `sm_80` with nvJitLink
    demonstrates the optimization boundary introduced by a cubin intermediate.
 5. `-r -lto -ptx` failed with `NVJITLINK_ERROR_INCORRECT_INPUT_TYPE` on both CUDA
    13.4.52 and 13.5.12.
+
+### Linked-LTOIR input filtering experiment
+
+With nvJitLink 13.4.52, linking two LTOIR inputs and a PTX input under `-r -lto`
+produced a cubin containing all three functions, but the linked-LTOIR getter omitted
+the function supplied as PTX. A final LTO link of that retrieved LTOIR succeeded with
+the function still absent and emitted no diagnostic. An `ET_REL` cubin and a SASS-only
+FATBIN were omitted in the same way. FATBIN and host-object inputs that carried LTOIR
+did contribute their LTOIR to the result.
 
 ## Alternatives Considered
 

@@ -685,6 +685,34 @@ def test_relocatable_ltoir_round_trip(init_cuda):
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 @pytest.mark.skipif(
+    is_culink_backend or nvjitlink_version < (13, 3) or not has_linked_ltoir_bindings,
+    reason="linked LTOIR output requires nvJitLink 13.3 or newer and matching cuda-bindings",
+)
+@pytest.mark.parametrize("non_ltoir_type", ("ptx", "cubin"))
+def test_ltoir_output_rejects_inputs_without_ltoir(init_cuda, non_ltoir_type):
+    caller, _ = _compile_incremental_inputs("ltoir")
+    other_kernel = 'extern "C" __global__ void other_kernel() {}'
+    non_ltoir_input = Program(
+        other_kernel,
+        "c++",
+        ProgramOptions(relocatable_device_code=True),
+    ).compile(non_ltoir_type)
+    linker = Linker(
+        caller,
+        non_ltoir_input,
+        options=LinkerOptions(
+            arch=ARCH,
+            relocatable=True,
+            link_time_optimization=True,
+        ),
+    )
+
+    with pytest.raises(ValueError, match='LTOIR output is not supported with "ptx" or "cubin" inputs'):
+        linker.link("ltoir")
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.skipif(
     is_culink_backend or nvjitlink_version < (13, 2),
     reason="relocatable linking requires nvJitLink 13.2 or newer",
 )

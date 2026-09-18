@@ -119,6 +119,12 @@ cdef class Linker:
             A CUBIN produced with ``relocatable=True`` can be passed directly
             to another :class:`Linker`, but it can still contain unresolved
             device references and should be finalized before execution.
+
+            ``"ltoir"`` output contains only the LTOIR carried by the inputs.
+            Direct PTX and CUBIN inputs are rejected because they carry no
+            LTOIR. FATBIN, host object, and library inputs are accepted but
+            may carry no LTOIR, in which case they contribute nothing to the
+            output.
         """
         Linker_check_open(self)
         return Linker_link(self, str(target_type))
@@ -549,6 +555,7 @@ cdef inline int Linker_init(Linker self, tuple object_codes, object options) exc
     cdef void** c_drv_jit_values_ptr
 
     self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
+    self._has_ptx_or_cubin_input = False
     if options.relocatable and options.ptx:
         raise ValueError("relocatable and ptx output options cannot be used together")
 
@@ -660,6 +667,9 @@ cdef inline void Linker_add_code_object(Linker self, object object_code) except 
             Linker_annotate_error_log(self, e)
             raise
 
+    if object_code.code_type in ("ptx", "cubin"):
+        self._has_ptx_or_cubin_input = True
+
 
 cdef inline object Linker_link(Linker self, str target_type):
     """Complete linking and return the result as ObjectCode."""
@@ -672,6 +682,11 @@ cdef inline object Linker_link(Linker self, str target_type):
             raise ValueError("LTOIR output is not supported by the driver API")
         if not self._options.link_time_optimization:
             raise ValueError("LTOIR output requires link_time_optimization=True")
+        if self._has_ptx_or_cubin_input:
+            raise ValueError(
+                'LTOIR output is not supported with "ptx" or "cubin" inputs; '
+                "they carry no LTOIR and would be omitted from the output"
+            )
         nvjitlink_module = _linked_ltoir_output_module()
 
     cdef cynvjitlink.nvJitLinkHandle c_nvjitlink_h
