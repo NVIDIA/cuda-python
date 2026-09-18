@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_gpc\_clk\_vf\_offset
-====================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_gpc_clk_vf_offset
