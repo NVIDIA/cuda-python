@@ -958,6 +958,49 @@ def test_inflight_launch_retains_attachments_until_completion(init_cuda, make_mr
     _wait_until(lambda: not allocation_weak)
 
 
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_memcpy_node_retains_vmm_range_across_grow(init_cuda):
+    """A memcpy node keeps a virtual memory range mapped across a grow and the close of every alias.
+
+    The node attaches the input buffer's device pointer handle. Growing the
+    buffer creates an alias; closing both buffers leaves the node as the last
+    owner, so the range stays mapped until the graph that retains it is gone.
+    """
+    from cuda.core._utils._weak_handles import weak_handle
+
+    dev = Device()
+    mr = _virtual_memory_resource(dev)
+    buf = mr.allocate(8, stream=dev.default_stream)
+    dev.default_stream.sync()
+    dptr = int(buf.handle)
+
+    graph_def = GraphDefinition()
+    copy_node = graph_def.memcpy(dptr, dptr + 4, 4, dst_owner=buf, src_owner=buf)
+    grown = mr.modify_allocation(buf, 2 * buf.size)
+    input_weak = weak_handle(buf)
+    grown_weak = weak_handle(grown)
+
+    buf.close()
+    grown.close()
+    gc.collect()
+    # The node still owns the input's handle; the alias released its own.
+    assert input_weak
+    assert not grown_weak
+
+    graph = graph_def.instantiate()
+    del copy_node, graph_def
+    gc.collect()
+    assert input_weak
+
+    # The copy runs against the range the node kept mapped.
+    stream = dev.create_stream()
+    graph.launch(stream)
+    stream.sync()
+    graph.close()
+    del graph
+    _wait_until(lambda: not input_weak)
+
+
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_callback_survives_source_node_deletion_after_clone(init_cuda):
     """A clone independently retains a callback removed from its source graph."""

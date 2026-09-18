@@ -215,6 +215,13 @@ static bool sync_would_disturb_capture(CUstream stream) noexcept {
 // skip message that fits this use: when the sync cannot run, nothing leaks,
 // because the range is unmapped regardless. Sets `capture_skipped` instead of
 // synchronizing when the sync would disturb a capture.
+//
+// The sync itself runs with the calling thread in relaxed capture mode.
+// cuStreamSynchronize is one of the calls the driver treats as unsafe while a
+// capture is active: in the thread's default (global) mode it invalidates
+// every global-mode capture in the process, and any non-relaxed capture this
+// thread began, on streams unrelated to `s`. Relaxed mode disables that
+// interaction; the stream's own capture state is still checked above.
 static void sync_recorded_stream(const DeallocationStream& ds, bool& capture_skipped) noexcept {
     const CUstream s = as_cu(ds.h_stream);
     CUcontext previous = nullptr;
@@ -226,7 +233,12 @@ static void sync_recorded_stream(const DeallocationStream& ds, bool& capture_ski
     } else if (sync_would_disturb_capture(s)) {
         capture_skipped = true;
     } else {
+        CUstreamCaptureMode mode = CU_STREAM_CAPTURE_MODE_RELAXED;
+        const CUresult swapped = p_cuThreadExchangeStreamCaptureMode(&mode);  // `mode` now holds the previous mode
         status = p_cuStreamSynchronize(s);
+        if (swapped == CUDA_SUCCESS) {
+            p_cuThreadExchangeStreamCaptureMode(&mode);  // restore the previous mode
+        }
     }
     const CUresult restore = exit_context(previous, changed, CUDA_SUCCESS);
     if (restore != CUDA_SUCCESS) {

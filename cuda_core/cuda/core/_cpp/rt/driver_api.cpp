@@ -70,6 +70,7 @@ decltype(&cuMemUnmap) p_cuMemUnmap = nullptr;
 decltype(&cuMemSetAccess) p_cuMemSetAccess = nullptr;
 decltype(&cuStreamSynchronize) p_cuStreamSynchronize = nullptr;
 decltype(&cuStreamGetCaptureInfo) p_cuStreamGetCaptureInfo = nullptr;
+decltype(&cuThreadExchangeStreamCaptureMode) p_cuThreadExchangeStreamCaptureMode = nullptr;
 
 decltype(&cuLibraryLoadFromFile) p_cuLibraryLoadFromFile = nullptr;
 decltype(&cuLibraryLoadData) p_cuLibraryLoadData = nullptr;

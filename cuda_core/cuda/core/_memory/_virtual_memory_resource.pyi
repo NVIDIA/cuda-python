@@ -31,7 +31,7 @@ class VirtualMemoryResourceOptions:
     handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str
         Export handle type for the physical allocation. Use ``"posix_fd"`` on
         Linux if you plan to import/export the allocation. Use `None` if you
-        don't need an exportable handle. Host-located allocations require
+        don't need an exportable handle. ``location_type="host"`` requires
         `None`.
     gpu_direct_rdma: bool
         Hint that the allocation should be GDR-capable (if supported).
@@ -97,8 +97,12 @@ class VirtualMemoryBuffer(Buffer):
         last buffer that maps them closes. Before it unmaps, the resource
         synchronizes every deallocation stream the buffers of the range
         recorded. Virtual memory deallocation is synchronous and cannot be
-        captured, so closing on a capturing stream raises and leaves the
-        buffer open.
+        captured. When the stream this close uses, given or recorded, is not
+        a default stream and is capturing, the call raises and leaves the
+        buffer open. A default stream is checked when the range is released
+        instead: if synchronizing it would disturb a capture in its context,
+        the release reports a :class:`CUDAWarning` and unmaps without
+        synchronizing that stream.
 
         Parameters
         ----------
@@ -183,7 +187,8 @@ class VirtualMemoryResource(MemoryResource):
         config : VirtualMemoryResourceOptions, optional
             Configuration for the new physical memory chunk only. Existing
             chunks keep the access they were created with, and the resource's
-            own configuration is unchanged.
+            own configuration is unchanged. It must name the resource's
+            ``location_type`` and passes the same checks as the constructor.
 
         Returns
         -------
@@ -195,6 +200,12 @@ class VirtualMemoryResource(MemoryResource):
         ------
         TypeError
             If ``buf`` did not come from this resource.
+        ValueError
+            If ``config`` names a different location than the resource, or
+            the constructor would reject it.
+        RuntimeError
+            If ``buf`` is closed, or ``config`` requests GPUDirect RDMA on a
+            device without support.
         CUDAError
             If a driver call fails. ``buf`` is untouched when this method raises.
         """

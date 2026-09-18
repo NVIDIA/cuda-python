@@ -30,7 +30,13 @@ its local handles die. The module is written in Cython, because the handles are 
   Writes through one are visible through the other in stream order and at kernel boundaries; the
   driver adds no synchronization of its own.
 - **Context and synchronization.** No VMM entry point needs a current context. `cuMemUnmap` does
-  not synchronize. `cuStreamSynchronize` is rejected on a capturing stream.
+  not synchronize. `cuStreamSynchronize` is rejected on a capturing stream. It is also one of the
+  calls the driver treats as unsafe while any capture is active: in the calling thread's default
+  (global) capture mode it invalidates every global-mode capture in the process, and any
+  non-relaxed capture the thread began, before it returns an error. Switching the thread to
+  relaxed mode with `cuThreadExchangeStreamCaptureMode` disables that interaction; the stream's
+  own capture state is unaffected by the mode. The VMM entry points do not have this
+  interaction.
 
 So a mapping depends on exactly one reservation and one allocation, mappings never depend on
 other mappings, and reservations and allocations are independent of each other. A buffer is a
@@ -97,8 +103,9 @@ Deleters:
 - `VmmRange`: release the GIL; unless the interpreter is finalizing, for each forwarded stream
   check the capture status and skip the stream with one report when a sync would disturb a
   capture (the stream is capturing, or it is the legacy stream while a blocking stream in its
-  context is capturing), otherwise synchronize it under its bound context. Then, whether or not the syncs succeeded,
-  destroy the mappings. Each mapping unmaps; the reservations free and the allocations release as
+  context is capturing), otherwise synchronize it under its bound context with the thread's
+  capture mode switched to relaxed for the call, so a capture on an unrelated stream is not
+  invalidated. Then, whether or not the syncs succeeded, destroy the mappings. Each mapping unmaps; the reservations free and the allocations release as
   their last references go. Every forwarded stream is synchronized because two aliases may have
   recorded different streams; synchronizing only the last one to die would unmap under work
   queued on the other. This is the first blocking deleter in the layer, and it may run inside
@@ -109,14 +116,18 @@ what makes that safe: the allocation is released exactly once, when its last map
 
 ## The resource
 
-- `VirtualMemoryResourceOptions` describes the allocations. `__init__` rejects `location_type="host"` with a
-  handle type other than `None`, which the driver rejects, and keeps the RDMA and VMM-support
-  checks. The resource reports `is_ipc_enabled = False`, which `Buffer.ipc_descriptor` reads.
+- `VirtualMemoryResourceOptions` describes the allocations. `_check_config` rejects
+  `location_type="host"` with a handle type other than `None`, which the driver rejects, and a
+  request for GPUDirect RDMA on a device without support. `__init__` runs it after the VMM-support
+  check; `modify_allocation` runs it on a per-call configuration, which must also name the
+  resource's location. The resource reports `is_ipc_enabled = False`, which
+  `Buffer.ipc_descriptor` reads.
 - `cdef class VirtualMemoryBuffer(Buffer)` carries no extra state. It is created with
   `Buffer_from_deviceptr_handle(h_ptr, size, self, cls=VirtualMemoryBuffer)` and documented in
-  `api.rst` like `ManagedBuffer`. It overrides `close(stream=None)` to reject a capturing stream,
-  since VMM deallocation is synchronous and cannot be captured. `allocate(0)` returns one with no
-  mapping.
+  `api.rst` like `ManagedBuffer`. It overrides `close(stream=None)` to reject a capturing stream
+  other than a default stream, since VMM deallocation is synchronous and cannot be captured; a
+  default stream is checked by the range deleter under its bound context, which reports and skips
+  the sync instead of raising. `allocate(0)` returns one with no mapping.
 - `allocate(size, *, stream=None)`:
   1. `size == 0` returns an empty buffer without a driver call, like the other resources.
   2. Build `CUmemAllocationProp` and the access descriptors from the options; query the
@@ -131,8 +142,8 @@ what makes that safe: the allocation is released exactly once, when its last map
   6. Return a `VirtualMemoryBuffer` whose `size` is the aligned size.
 - `modify_allocation(buf, new_size, config=None)`:
   - `Buffer_check_open(buf)`; `range = vmm_range(buf._h_ptr)`; an empty range means the buffer
-    did not come from this resource: `TypeError`. `cfg = config or self.config` governs the new
-    chunk only and is not stored on the resource. Let `req = align_up(new_size)` and `total` be
+    did not come from this resource: `TypeError`. `cfg = config or self.config` passes
+    `_check_config`, governs the new chunk only and is not stored on the resource. Let `req = align_up(new_size)` and `total` be
     the range total.
   - `req <= buf.size`: return `buf`. The buffer already covers the request.
   - `buf.size < req <= total`: return a new `VirtualMemoryBuffer` over the same range with size

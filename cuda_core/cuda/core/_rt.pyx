@@ -424,6 +424,7 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
     void* p_cuMemSetAccess "reinterpret_cast<void*&>(cuda_core::rt::p_cuMemSetAccess)"
     void* p_cuStreamSynchronize "reinterpret_cast<void*&>(cuda_core::rt::p_cuStreamSynchronize)"
     void* p_cuStreamGetCaptureInfo "reinterpret_cast<void*&>(cuda_core::rt::p_cuStreamGetCaptureInfo)"
+    void* p_cuThreadExchangeStreamCaptureMode "reinterpret_cast<void*&>(cuda_core::rt::p_cuThreadExchangeStreamCaptureMode)"
 
     # Library
     void* p_cuLibraryLoadFromFile "reinterpret_cast<void*&>(cuda_core::rt::p_cuLibraryLoadFromFile)"
@@ -508,7 +509,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     global p_cuMemPoolImportPointer
     global p_cuMemCreate, p_cuMemRelease, p_cuMemAddressReserve, p_cuMemAddressFree
     global p_cuMemMap, p_cuMemUnmap, p_cuMemSetAccess
-    global p_cuStreamSynchronize, p_cuStreamGetCaptureInfo
+    global p_cuStreamSynchronize, p_cuStreamGetCaptureInfo, p_cuThreadExchangeStreamCaptureMode
     global p_cuLibraryLoadFromFile, p_cuLibraryLoadData, p_cuLibraryUnload, p_cuLibraryGetKernel
     global p_cuGraphDestroy, p_cuGraphInstantiateWithParams
     global p_cuGraphExecUpdate, p_cuGraphExecDestroy
@@ -587,6 +588,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     p_cuMemSetAccess = _get_driver_fn("cuMemSetAccess")
     p_cuStreamSynchronize = _get_driver_fn("cuStreamSynchronize")
     p_cuStreamGetCaptureInfo = _get_driver_fn("cuStreamGetCaptureInfo")
+    p_cuThreadExchangeStreamCaptureMode = _get_driver_fn("cuThreadExchangeStreamCaptureMode")
 
     # Library
     p_cuLibraryLoadFromFile = _get_driver_fn("cuLibraryLoadFromFile")

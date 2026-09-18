@@ -73,6 +73,7 @@ extern decltype(&cuMemUnmap) p_cuMemUnmap;
 extern decltype(&cuMemSetAccess) p_cuMemSetAccess;
 extern decltype(&cuStreamSynchronize) p_cuStreamSynchronize;
 extern decltype(&cuStreamGetCaptureInfo) p_cuStreamGetCaptureInfo;
+extern decltype(&cuThreadExchangeStreamCaptureMode) p_cuThreadExchangeStreamCaptureMode;
 
 // Library
 extern decltype(&cuLibraryLoadFromFile) p_cuLibraryLoadFromFile;

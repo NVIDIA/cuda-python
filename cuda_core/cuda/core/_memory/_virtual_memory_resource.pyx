@@ -92,7 +92,7 @@ class VirtualMemoryResourceOptions:
     handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str
         Export handle type for the physical allocation. Use ``"posix_fd"`` on
         Linux if you plan to import/export the allocation. Use `None` if you
-        don't need an exportable handle. Host-located allocations require
+        don't need an exportable handle. ``location_type="host"`` requires
         `None`.
     gpu_direct_rdma: bool
         Hint that the allocation should be GDR-capable (if supported).
@@ -235,8 +235,12 @@ cdef class VirtualMemoryBuffer(Buffer):
         last buffer that maps them closes. Before it unmaps, the resource
         synchronizes every deallocation stream the buffers of the range
         recorded. Virtual memory deallocation is synchronous and cannot be
-        captured, so closing on a capturing stream raises and leaves the
-        buffer open.
+        captured. When the stream this close uses, given or recorded, is not
+        a default stream and is capturing, the call raises and leaves the
+        buffer open. A default stream is checked when the range is released
+        instead: if synchronizing it would disturb a capture in its context,
+        the release reports a :class:`CUDAWarning` and unmaps without
+        synchronizing that stream.
 
         Parameters
         ----------
@@ -301,23 +305,31 @@ cdef class VirtualMemoryResource(MemoryResource):
         )
         if self.config.location_type in _HOST_LOCATION_TYPES:
             self.device = None
-            # The driver rejects an exportable handle type for host memory.
-            if self.config.handle_type is not None:
-                raise ValueError(
-                    "host-located virtual memory cannot have an exportable handle type; "
-                    "pass handle_type=None"
-                )
-
         if self.device is not None and not self.device.properties.virtual_memory_management_supported:
             raise RuntimeError("VirtualMemoryResource requires CUDA VMM API support")
+        self._check_config(self.config)
 
-        # Validate RDMA support if requested
-        if (
-            self.config.gpu_direct_rdma
-            and self.device is not None
-            and not self.device.properties.gpu_direct_rdma_supported
-        ):
+    cdef int _check_config(self, object cfg) except -1:
+        """Reject options the driver would reject, before any driver call.
+
+        Shared by ``__init__`` and ``modify_allocation``, so a per-call
+        configuration is held to the same rules as the resource's own.
+        """
+        if cfg.location_type != self.config.location_type:
+            raise ValueError(
+                f"config.location_type {str(cfg.location_type)!r} does not match the resource's "
+                f"{str(self.config.location_type)!r}; the location of a buffer cannot change"
+            )
+        # The driver rejects an exportable handle type for HOST memory only;
+        # the NUMA location types may carry one.
+        if cfg.location_type == VirtualMemoryLocationType.HOST and cfg.handle_type is not None:
+            raise ValueError(
+                'virtual memory with location_type="host" cannot have an exportable handle type; '
+                "pass handle_type=None"
+            )
+        if cfg.gpu_direct_rdma and self.device is not None and not self.device.properties.gpu_direct_rdma_supported:
             raise RuntimeError("GPU Direct RDMA is not supported on this device")
+        return 0
 
     cdef int _fill_prop(self, object cfg, cydriver.CUmemAllocationProp* prop) except -1:
         # The location comes from the resource; the rest may come from a
@@ -438,7 +450,13 @@ cdef class VirtualMemoryResource(MemoryResource):
 
         if size == 0:
             # Nothing to reserve or map; an empty buffer with a non-owning handle.
-            return Buffer_from_deviceptr_handle(deviceptr_create_ref(0), 0, self, None, VirtualMemoryBuffer)
+            # A real stream is still recorded so that a later grow inherits it;
+            # a default-stream token is not, which keeps this path free of
+            # driver calls.
+            h_ptr = deviceptr_create_ref(0)
+            if s is not None and not Stream_is_default_token(s):
+                HANDLE_RETURN(set_deallocation_stream(h_ptr, s._h_stream))
+            return Buffer_from_deviceptr_handle(h_ptr, 0, self, None, VirtualMemoryBuffer)
 
         self._fill_prop(cfg, &prop)
         self._fill_access(cfg, &prop, descs)
@@ -494,7 +512,8 @@ cdef class VirtualMemoryResource(MemoryResource):
         config : VirtualMemoryResourceOptions, optional
             Configuration for the new physical memory chunk only. Existing
             chunks keep the access they were created with, and the resource's
-            own configuration is unchanged.
+            own configuration is unchanged. It must name the resource's
+            ``location_type`` and passes the same checks as the constructor.
 
         Returns
         -------
@@ -506,6 +525,12 @@ cdef class VirtualMemoryResource(MemoryResource):
         ------
         TypeError
             If ``buf`` did not come from this resource.
+        ValueError
+            If ``config`` names a different location than the resource, or
+            the constructor would reject it.
+        RuntimeError
+            If ``buf`` is closed, or ``config`` requests GPUDirect RDMA on a
+            device without support.
         CUDAError
             If a driver call fails. ``buf`` is untouched when this method raises.
         """
@@ -531,9 +556,13 @@ cdef class VirtualMemoryResource(MemoryResource):
         cfg = self.config if config is None else check_or_create_options(
             VirtualMemoryResourceOptions, config, "VirtualMemoryResource options", keep_none=False
         )
+        self._check_config(cfg)
         if b._size == 0:
-            # An empty buffer maps nothing; the request is a fresh allocation.
-            return self._allocate(cfg, new_size, None)
+            # An empty buffer maps nothing; the request is a fresh allocation
+            # that inherits the stream the empty buffer recorded, if any.
+            new_buf = self._allocate(cfg, new_size, None)
+            self._copy_deallocation_stream((<Buffer>new_buf)._h_ptr, b._h_ptr)
+            return new_buf
         rng = vmm_range(b._h_ptr)
         if not rng:
             raise TypeError("buf was not allocated by VirtualMemoryResource.allocate")
