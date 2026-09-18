@@ -99,33 +99,67 @@ _TOOLCHAIN_COMPILERS = {
 }
 
 
-def _resolve_toolchain_name():
-    """Read CUDA_PYTHON_TOOLCHAIN, validate it, return (name, allowed, cc, cxx).
+def _infer_compiler_family(value):
+    """Return 'llvm' if the compiler string looks like clang, else 'gnu'."""
+    return "llvm" if "clang" in value else "gnu"
 
-    The default toolchain (gnu on Linux, msvc on Windows) is the first entry
-    of the platform's allowed tuple. cc/cxx are the compiler binaries for the
-    toolchain (None for msvc, which distutils discovers via the MSVC env).
+
+def _resolve_toolchain_name():
+    """Read CUDA_PYTHON_TOOLCHAIN / CC / CXX and pick the toolchain.
+
+    Returns (name, allowed, cc, cxx, explicit). On Linux the default is gnu;
+    on Windows the only value is msvc. When CUDA_PYTHON_TOOLCHAIN is set it
+    takes precedence over an externally-set CC/CXX: a mismatch warns and the
+    external CC/CXX is overridden. When CUDA_PYTHON_TOOLCHAIN is unset on
+    Linux, the toolchain is inferred from the external CC/CXX (CXX preferred,
+    fall back to CC): a value containing 'clang' selects llvm, else gnu. In
+    the inferred case the external compiler is left in place (not overridden),
+    so a wrapper like CC='sccache clang' survives and gets the llvm flags.
     """
     if sys.platform == "win32":
         platform_key, allowed = "win32", _TOOLCHAINS_WINDOWS
     else:
         platform_key, allowed = "linux", _TOOLCHAINS_LINUX
-    name = os.environ.get("CUDA_PYTHON_TOOLCHAIN", allowed[0]).strip().lower()
-    if name not in allowed:
-        raise RuntimeError(
-            f"CUDA_PYTHON_TOOLCHAIN={name!r} is not supported on {platform_key}. Valid values: {', '.join(allowed)}."
-        )
+
+    explicit = os.environ.get("CUDA_PYTHON_TOOLCHAIN", "").strip().lower()
+    external_cc = os.environ.get("CC", "").strip()
+    external_cxx = os.environ.get("CXX", "").strip()
+
+    if explicit:
+        name = explicit
+        if name not in allowed:
+            raise RuntimeError(
+                f"CUDA_PYTHON_TOOLCHAIN={name!r} is not supported on {platform_key}. Valid values: {', '.join(allowed)}."
+            )
+        # Warn if an explicit toolchain conflicts with an externally-set CC. We check
+        # CC only (not CXX): CXX commonly defaults to 'c++' in the environment and is
+        # not a reliable user-intent signal, whereas CC is the canonical override.
+        tc_cc, _tc_cxx = _TOOLCHAIN_COMPILERS[name]
+        if tc_cc is not None and external_cc and _infer_compiler_family(external_cc) != _infer_compiler_family(tc_cc):
+            warn(
+                f"CUDA_PYTHON_TOOLCHAIN={name} takes precedence over externally-set CC ({external_cc!r}); ignoring it.",
+                stacklevel=2,
+            )
+    elif platform_key == "linux":
+        # Infer from the external compiler (CXX preferred, fall back to CC).
+        probe = external_cxx or external_cc
+        name = "llvm" if probe and "clang" in probe else allowed[0]
+    else:
+        name = allowed[0]
+
     cc, cxx = _TOOLCHAIN_COMPILERS[name]
-    return name, allowed, cc, cxx
+    return name, allowed, cc, cxx, bool(explicit)
 
 
-def _apply_toolchain_env(name, allowed, cc, cxx):
-    """Set CC/CXX/LDSHARED for a non-default toolchain.
+def _apply_toolchain_env(cc, cxx, explicit):
+    """Set CC/CXX/LDSHARED for an explicitly-chosen non-default toolchain.
 
-    The default path intentionally does not touch the env, so an externally-
-    set compiler (e.g. CC="sccache cc" in CI) keeps working.
+    The default path and the inferred path intentionally do not touch the
+    env, so an externally-set compiler (e.g. CC='sccache cc' or CC='clang' in
+    CI) keeps working. Only an explicit CUDA_PYTHON_TOOLCHAIN override governs
+    the compiler.
     """
-    if name != allowed[0] and cc is not None:
+    if explicit and cc is not None:
         os.environ["CC"] = cc
         os.environ["CXX"] = cxx
         os.environ["LDSHARED"] = f"{cxx} -shared"
@@ -164,7 +198,7 @@ def _resolve_toolchain(debug=False, compile_for_coverage=False):
     Linux) selects clang/clang++ and lld and sets CC/CXX/LDSHARED so distutils'
     customize_compiler picks them up.
     """
-    name, allowed, cc, cxx = _resolve_toolchain_name()
+    name, _allowed, cc, cxx, explicit = _resolve_toolchain_name()
 
     extra_compile_args = []
     extra_link_args = []
@@ -199,7 +233,7 @@ def _resolve_toolchain(debug=False, compile_for_coverage=False):
         # related to free-threading builds.
         extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
 
-    _apply_toolchain_env(name, allowed, cc, cxx)
+    _apply_toolchain_env(cc, cxx, explicit)
 
     return name, cc, cxx, extra_compile_args, extra_link_args
 
