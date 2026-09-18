@@ -66,6 +66,37 @@ def _import_get_cuda_path_or_home():
     return cuda.pathfinder.get_cuda_path_or_home
 
 
+def _import_cuda_bindings():
+    """Import cuda.bindings, working around PEP 517 namespace shadowing.
+
+    Same problem and same repair as _import_get_cuda_path_or_home() (see
+    https://github.com/NVIDIA/cuda-python/issues/1824): in an isolated build the
+    project's own ``cuda/`` directory is the whole ``cuda`` namespace, so the
+    cuda-bindings pip installed into the build environment is not importable
+    until its ``cuda/`` directory is added to the namespace path. Raises
+    ModuleNotFoundError when no cuda-bindings is installed at all.
+    (importlib.metadata is no alternative: pip's in-process hook runner forwards
+    ``find_distributions`` without the requested name, so it reports this
+    project's own metadata for any name.)
+    """
+    try:
+        import cuda.bindings
+    except ModuleNotFoundError as exc:
+        if exc.name not in ("cuda", "cuda.bindings"):
+            raise
+        import cuda
+
+        for p in sys.path:
+            sp_cuda = Path(p) / "cuda"
+            if (sp_cuda / "bindings").is_dir():
+                cuda.__path__ = list(cuda.__path__) + [str(sp_cuda)]
+                break
+        else:
+            raise
+        import cuda.bindings
+    return cuda.bindings
+
+
 @functools.cache
 def _get_cuda_path() -> str:
     get_cuda_path_or_home = _import_get_cuda_path_or_home()
@@ -178,13 +209,12 @@ def _check_build_configuration(cuda_path: str, cuda_major: str) -> None:
     requirement = floor.pip_requirement(major)
 
     try:
-        bindings_module = importlib.import_module("cuda.bindings")
-    except ImportError as exc:
+        bindings_version = _import_cuda_bindings().__version__
+    except ModuleNotFoundError as exc:
         raise RuntimeError(
             f"cuda.core requires cuda-bindings to build (install '{requirement}'). "
             "Isolated builds install it automatically; other builds must provide it."
         ) from exc
-    bindings_version = bindings_module.__version__
     bindings = floor.release_triple(bindings_version)
     if bindings is None:
         raise RuntimeError(
@@ -360,10 +390,10 @@ def _build_cuda_core(debug=False):
     # We need to add the directory containing the 'cuda' package so Cython can resolve
     # "from cuda.bindings cimport cydriver"
     try:
-        import cuda.bindings
+        cuda_bindings = _import_cuda_bindings()
 
-        bindings_path = Path(cuda.bindings.__file__).parent  # .../cuda/bindings/
-        print(f"Using cuda-bindings {cuda.bindings.__version__} from {bindings_path}", file=sys.stderr)
+        bindings_path = Path(cuda_bindings.__file__).parent  # .../cuda/bindings/
+        print(f"Using cuda-bindings {cuda_bindings.__version__} from {bindings_path}", file=sys.stderr)
         cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings/ (contains cuda/)
         if str(cuda_package_dir) not in sys.path:
             sys.path.insert(0, str(cuda_package_dir))

@@ -457,12 +457,17 @@ class TestParallelSourceCompilation:
 
 
 def _fake_bindings(monkeypatch, version):
-    """Install a stand-in cuda.bindings whose __version__ is `version`."""
+    """Make the build see an installed cuda-bindings of `version` (None: not installed)."""
     import types
 
-    module = types.ModuleType("cuda.bindings")
-    module.__version__ = version
-    monkeypatch.setitem(sys.modules, "cuda.bindings", module)
+    def import_cuda_bindings():
+        if version is None:
+            raise ModuleNotFoundError("No module named 'cuda.bindings'", name="cuda.bindings")
+        module = types.ModuleType("cuda.bindings")
+        module.__version__ = version
+        return module
+
+    monkeypatch.setattr(build_hooks, "_import_cuda_bindings", import_cuda_bindings)
 
 
 def _write_cuda_h(tmp_path, cuda_version):
@@ -539,7 +544,7 @@ class TestBuildConfigurationCheck:
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_missing_bindings_is_a_build_error(self, tmp_path, monkeypatch):
-        monkeypatch.setitem(sys.modules, "cuda.bindings", None)  # makes `import cuda.bindings` fail
+        _fake_bindings(monkeypatch, None)  # no cuda-bindings in the build environment
         cuda_path = _write_cuda_h(tmp_path, 13040)
         with pytest.raises(RuntimeError, match="requires cuda-bindings to build"):
             build_hooks._check_build_configuration(cuda_path, "13")
