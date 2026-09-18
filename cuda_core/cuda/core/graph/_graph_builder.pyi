@@ -228,10 +228,9 @@ class GraphBuilder:
             not permitted while capturing. The capture is ended and the
             builder holds no graph afterwards, so :meth:`complete` and
             :attr:`graph_definition` are unavailable. This applies to a
-            top-level builder. The body builder of a conditional node cannot
-            recover from an invalidated capture: the driver discards the body
-            graph that the parent graph still refers to, so the parent
-            builder's graph is invalid as well.
+            top-level builder. An invalidated capture of a conditional body
+            leaves the parent builder's graph invalid as well; ending it may
+            crash the process (see issue #2918).
         """
     def complete(self, options: GraphCompleteOptions | None=None) -> Graph:
         """Completes the graph builder and returns the built :obj:`~graph.Graph` object.
