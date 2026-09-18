@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.ResetTypeNotSupportedError
-=============================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoexception:: ResetTypeNotSupportedError
