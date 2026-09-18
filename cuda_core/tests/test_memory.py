@@ -3,7 +3,6 @@
 
 import ctypes
 import multiprocessing as mp
-import subprocess
 import sys
 import textwrap
 
@@ -17,6 +16,7 @@ import platform
 import re
 
 import pytest
+from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 from helpers import supports_ipc_mempool
 from helpers.buffers import (
     DummyDeviceMemoryResource,
@@ -1738,14 +1738,9 @@ def test_vmm_buffers_alive_at_shutdown_are_freed_quietly(init_cuda):
         keep.append(mr.modify_allocation(keep[0], 2 * keep[0].size))
         """
     )
-    result = subprocess.run(  # noqa: S603
-        [sys.executable, "-c", code],
-        capture_output=True,
-        text=True,
-        timeout=CHILD_TIMEOUT_SEC,
-        check=False,
-    )
-    assert result.returncode == 0, result.stderr
+    # The runner starts the child in an empty directory, so the installed
+    # package is imported rather than the source tree the test runs from.
+    result = run_python_snippet(code, timeout=CHILD_TIMEOUT_SEC)
     assert result.stderr == ""
 
 
