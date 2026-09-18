@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from cuda.core._resource_handles cimport ContextHandle, StreamHandle
+from cuda.core._rt cimport ContextHandle, StreamHandle
 
 
 cdef class Stream:

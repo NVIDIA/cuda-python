@@ -16,7 +16,7 @@ from libcpp.vector cimport vector
 from cuda.bindings cimport cydriver
 from cuda.bindings cimport cynvjitlink
 
-from ._resource_handles cimport (
+from ._rt cimport (
     as_cu,
     as_py,
     create_culink_handle,

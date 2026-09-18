@@ -93,9 +93,9 @@ class ManagedMemoryResource(_MemPool):
         ManagedBuffer
             A :class:`ManagedBuffer` (a :class:`Buffer` subclass) that
             exposes the property-style advice API
-            (``read_mostly``, ``preferred_location``, ``accessed_by``)
-            and instance methods (``prefetch``, ``discard``,
-            ``discard_prefetch``).
+            (``read_mostly``, ``preferred_location``,
+            ``last_prefetch_location``, ``accessed_by``) and instance methods
+            (``prefetch``, ``discard``, ``discard_prefetch``).
         """
     @property
     def device_id(self) -> int:

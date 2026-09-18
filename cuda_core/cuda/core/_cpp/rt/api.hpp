@@ -4,223 +4,12 @@
 
 #pragma once
 
-#include <Python.h>
+#include "types.hpp"
 #include <cuda.h>
 #include <nvrtc.h>
-#include <cstdint>
-#include <memory>
+#include <cstddef>
 
-// Forward declaration for NVVM - avoids nvvm.h dependency
-// Use void* to match cuda.bindings.cynvvm's typedef
-using nvvmProgram = void*;
-
-// Forward declaration for nvJitLink - avoids nvJitLink.h dependency
-// Use void* to match cuda.bindings.cynvjitlink's typedef
-using nvJitLink_t = void*;
-
-namespace cuda_core {
-
-// ============================================================================
-// TaggedHandle - make void*-based handle types distinct for overloading
-//
-// Both nvvmProgram and nvJitLink_t are void*, so shared_ptr<const void*>
-// would be the same C++ type for both. TaggedHandle<T, Tag> wraps the raw
-// value with a unique tag type, making each shared_ptr type distinct.
-// ============================================================================
-
-template<typename T, int Tag>
-struct TaggedHandle {
-    T raw;
-};
-
-using NvvmProgramValue = TaggedHandle<nvvmProgram, 0>;
-using NvJitLinkValue = TaggedHandle<nvJitLink_t, 1>;
-
-// CUtexObject, CUsurfObject and CUdeviceptr are all `unsigned long long`, so
-// shared_ptr<const CUtexObject> et al. would be the *same* C++ type as
-// DevicePtrHandle (and each other), collapsing the as_cu/as_intptr/as_py
-// overload sets. Tag them to keep each handle type distinct, exactly as the
-// NVVM / nvJitLink handles above do.
-using TexObjectValue = TaggedHandle<CUtexObject, 2>;
-using SurfObjectValue = TaggedHandle<CUsurfObject, 3>;
-
-// ============================================================================
-// Thread-local error handling
-// ============================================================================
-
-// Get and clear the last CUDA error (like cudaGetLastError)
-CUresult get_last_error() noexcept;
-
-// Get the last CUDA error without clearing it (like cudaPeekAtLastError)
-CUresult peek_last_error() noexcept;
-
-// Explicitly clear the last error
-void clear_last_error() noexcept;
-
-// ============================================================================
-// CUDA driver function pointers
-//
-// These are populated by _resource_handles.pyx at module import time using
-// function pointers extracted from cuda.bindings.cydriver.__pyx_capi__.
-// ============================================================================
-
-extern decltype(&cuGetErrorName) p_cuGetErrorName;
-extern decltype(&cuGetErrorString) p_cuGetErrorString;
-
-extern decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain;
-extern decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease;
-extern decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent;
-extern decltype(&cuCtxSetCurrent) p_cuCtxSetCurrent;
-extern decltype(&cuCtxSynchronize) p_cuCtxSynchronize;
-extern decltype(&cuCtxGetStreamPriorityRange) p_cuCtxGetStreamPriorityRange;
-extern decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate;
-extern decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy;
-extern decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx;
-extern decltype(&cuDevResourceGenerateDesc) p_cuDevResourceGenerateDesc;
-
-extern decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate;
-
-extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
-extern decltype(&cuStreamDestroy) p_cuStreamDestroy;
-extern decltype(&cuStreamGetCtx) p_cuStreamGetCtx;
-
-extern decltype(&cuEventCreate) p_cuEventCreate;
-extern decltype(&cuEventDestroy) p_cuEventDestroy;
-extern decltype(&cuIpcOpenEventHandle) p_cuIpcOpenEventHandle;
-
-extern decltype(&cuDeviceGetCount) p_cuDeviceGetCount;
-
-extern decltype(&cuMemPoolSetAccess) p_cuMemPoolSetAccess;
-extern decltype(&cuMemPoolDestroy) p_cuMemPoolDestroy;
-extern decltype(&cuMemPoolCreate) p_cuMemPoolCreate;
-extern decltype(&cuDeviceGetMemPool) p_cuDeviceGetMemPool;
-extern decltype(&cuMemPoolImportFromShareableHandle) p_cuMemPoolImportFromShareableHandle;
-
-extern decltype(&cuMemAllocFromPoolAsync) p_cuMemAllocFromPoolAsync;
-extern decltype(&cuMemAllocAsync) p_cuMemAllocAsync;
-extern decltype(&cuMemAlloc) p_cuMemAlloc;
-extern decltype(&cuMemAllocHost) p_cuMemAllocHost;
-
-extern decltype(&cuMemFreeAsync) p_cuMemFreeAsync;
-extern decltype(&cuMemFree) p_cuMemFree;
-extern decltype(&cuMemFreeHost) p_cuMemFreeHost;
-
-extern decltype(&cuMemPoolImportPointer) p_cuMemPoolImportPointer;
-
-// Library
-extern decltype(&cuLibraryLoadFromFile) p_cuLibraryLoadFromFile;
-extern decltype(&cuLibraryLoadData) p_cuLibraryLoadData;
-extern decltype(&cuLibraryUnload) p_cuLibraryUnload;
-extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
-
-// Graph
-extern decltype(&cuGraphDestroy) p_cuGraphDestroy;
-extern decltype(&cuGraphInstantiateWithParams) p_cuGraphInstantiateWithParams;
-extern decltype(&cuGraphExecUpdate) p_cuGraphExecUpdate;
-extern decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy;
-extern decltype(&cuUserObjectCreate) p_cuUserObjectCreate;
-extern decltype(&cuUserObjectRelease) p_cuUserObjectRelease;
-extern decltype(&cuGraphRetainUserObject) p_cuGraphRetainUserObject;
-extern decltype(&cuGraphReleaseUserObject) p_cuGraphReleaseUserObject;
-extern decltype(&cuGraphNodeFindInClone) p_cuGraphNodeFindInClone;
-extern decltype(&cuGraphChildGraphNodeGetGraph) p_cuGraphChildGraphNodeGetGraph;
-
-// Linker
-extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
-
-// Graphics interop
-extern decltype(&cuGraphicsUnmapResources) p_cuGraphicsUnmapResources;
-extern decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource;
-
-// Texture / surface / array (PR #467)
-extern decltype(&cuArray3DCreate) p_cuArray3DCreate;
-extern decltype(&cuArrayDestroy) p_cuArrayDestroy;
-extern decltype(&cuMipmappedArrayCreate) p_cuMipmappedArrayCreate;
-extern decltype(&cuMipmappedArrayDestroy) p_cuMipmappedArrayDestroy;
-extern decltype(&cuMipmappedArrayGetLevel) p_cuMipmappedArrayGetLevel;
-extern decltype(&cuTexObjectCreate) p_cuTexObjectCreate;
-extern decltype(&cuTexObjectDestroy) p_cuTexObjectDestroy;
-extern decltype(&cuSurfObjectCreate) p_cuSurfObjectCreate;
-extern decltype(&cuSurfObjectDestroy) p_cuSurfObjectDestroy;
-
-// SM resource split (13.1+ — may be null on older drivers/bindings)
-#if CUDA_VERSION >= 13010
-extern decltype(&cuDevSmResourceSplit) p_cuDevSmResourceSplit;
-#else
-// cuDevSmResourceSplit doesn't exist in CUDA < 13.1 headers, so use a
-// void* placeholder. The pointer is always null when built against 12.x.
-extern void* p_cuDevSmResourceSplit;
-#endif
-
-// cuMemcpyWithAttributesAsync (13.2+ — may be null on older drivers/bindings)
-#if CUDA_VERSION >= 13020
-extern decltype(&cuMemcpyWithAttributesAsync) p_cuMemcpyWithAttributesAsync;
-#else
-// cuMemcpyWithAttributesAsync doesn't exist in CUDA < 13.2 headers, so use a
-// void* placeholder. The pointer is always null when built against older CUDA.
-extern void* p_cuMemcpyWithAttributesAsync;
-#endif
-
-// ============================================================================
-// NVRTC function pointers
-//
-// These are populated by _resource_handles.pyx at module import time using
-// function pointers extracted from cuda.bindings.cynvrtc.__pyx_capi__.
-// ============================================================================
-
-extern decltype(&nvrtcDestroyProgram) p_nvrtcDestroyProgram;
-
-// ============================================================================
-// NVVM function pointers
-//
-// These are populated by _resource_handles.pyx at module import time using
-// function pointers extracted from cuda.bindings.cynvvm.__pyx_capi__.
-// Note: May be null if NVVM is not available at runtime.
-// ============================================================================
-
-// Function pointer type for nvvmDestroyProgram (avoids nvvm.h dependency)
-// Signature: nvvmResult nvvmDestroyProgram(nvvmProgram *prog)
-using NvvmDestroyProgramFn = int (*)(nvvmProgram*);
-extern NvvmDestroyProgramFn p_nvvmDestroyProgram;
-
-// ============================================================================
-// nvJitLink function pointers
-//
-// These are populated by _resource_handles.pyx at module import time using
-// function pointers extracted from cuda.bindings.cynvjitlink.__pyx_capi__.
-// Note: May be null if nvJitLink is not available at runtime.
-// ============================================================================
-
-// Function pointer type for nvJitLinkDestroy (avoids nvJitLink.h dependency)
-// Signature: nvJitLinkResult nvJitLinkDestroy(nvJitLinkHandle *handle)
-using NvJitLinkDestroyFn = int (*)(nvJitLink_t*);
-extern NvJitLinkDestroyFn p_nvJitLinkDestroy;
-
-// ============================================================================
-// Handle type aliases - expose only the raw CUDA resource
-// ============================================================================
-
-using ContextHandle = std::shared_ptr<const CUcontext>;
-using GreenCtxHandle = std::shared_ptr<const CUgreenCtx>;
-using StreamHandle = std::shared_ptr<const CUstream>;
-using EventHandle = std::shared_ptr<const CUevent>;
-using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
-using LibraryHandle = std::shared_ptr<const CUlibrary>;
-using KernelHandle = std::shared_ptr<const CUkernel>;
-using GraphHandle = std::shared_ptr<const CUgraph>;
-using GraphExecHandle = std::shared_ptr<const CUgraphExec>;
-using GraphNodeHandle = std::shared_ptr<const CUgraphNode>;
-using GraphicsResourceHandle = std::shared_ptr<const CUgraphicsResource>;
-using NvrtcProgramHandle = std::shared_ptr<const nvrtcProgram>;
-using NvvmProgramHandle = std::shared_ptr<const NvvmProgramValue>;
-using NvJitLinkHandle = std::shared_ptr<const NvJitLinkValue>;
-using CuLinkHandle = std::shared_ptr<const CUlinkState>;
-using FileDescriptorHandle = std::shared_ptr<const int>;
-using OpaqueArrayHandle = std::shared_ptr<const CUarray>;
-using MipmappedArrayHandle = std::shared_ptr<const CUmipmappedArray>;
-using TexObjectHandle = std::shared_ptr<const TexObjectValue>;
-using SurfObjectHandle = std::shared_ptr<const SurfObjectValue>;
-
+namespace cuda_core::rt {
 
 // ============================================================================
 // Context handle functions
@@ -263,6 +52,22 @@ CUresult context_get_stream_priority_range(
     int* least_priority,
     int* greatest_priority) noexcept;
 
+// Query the device of the provided context.
+// Returns CUDA_ERROR_INVALID_CONTEXT for an empty handle.
+CUresult context_get_device(const ContextHandle& h_context, CUdevice* device) noexcept;
+
+// Call cuGraphNodeSetParams with h_context current (empty handle: the caller's
+// context). Returns the update status; *restore_status receives a failure to
+// restore the caller's context after a successful update, which the caller
+// raises only after publishing the metadata that depends on the update.
+// Returns CUDA_ERROR_NOT_SUPPORTED when the driver lacks cuGraphNodeSetParams.
+// Implemented in graph.cpp
+CUresult graph_node_set_params(
+    CUgraphNode node,
+    CUgraphNodeParams* params,
+    const ContextHandle& h_context,
+    CUresult* restore_status) noexcept;
+
 // ============================================================================
 // Stream handle functions
 // ============================================================================
@@ -279,18 +84,11 @@ StreamHandle create_stream_handle(const ContextHandle& h_ctx, unsigned int flags
 // Caller is responsible for keeping the stream's context alive.
 StreamHandle create_stream_handle_ref(CUstream stream);
 
-// Create a non-owning stream handle that prevents a Python owner from being GC'd.
-// The owner's refcount is incremented; decremented when handle is released.
-// The owner is responsible for keeping the stream's context alive.
-StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner);
-
-// Destroy a Python-backed CUDA user object by decref'ing it when safe.
-// If Python is finalized or finalizing, the object is intentionally leaked.
-void py_object_user_object_destroy(void* py_object) noexcept;
-
 // Initialize the process-lifetime CUDA user-object cleanup queue. Called once
 // from module initialization while Python is fully initialized.
+// Implemented in py_deferred_cleanup.cpp
 void initialize_deferred_cleanup();
+// Implemented in py_deferred_cleanup.cpp
 void retry_deferred_cleanup() noexcept;
 
 // Return the context dependency associated with a stream handle, if any.
@@ -383,8 +181,6 @@ MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType han
 // Device pointer handle functions
 // ============================================================================
 
-using DevicePtrHandle = std::shared_ptr<const CUdeviceptr>;
-
 // Allocate device memory from a pool asynchronously via cuMemAllocFromPoolAsync.
 // The pointer structurally depends on the provided pool handle (captured in deleter).
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
@@ -415,12 +211,6 @@ DevicePtrHandle deviceptr_alloc_host(size_t size);
 // The pointer will NOT be freed when the handle is released.
 DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr);
 
-// Create a non-owning device pointer handle that prevents a Python owner from being GC'd.
-// The owner's refcount is incremented; decremented when handle is released.
-// The pointer will NOT be freed when the handle is released.
-// If owner is nullptr, equivalent to deviceptr_create_ref.
-DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner);
-
 // Create a device pointer handle for a mapped graphics resource.
 // The pointer structurally depends on the provided graphics resource handle.
 // When the last reference is released, cuGraphicsUnmapResources is called on
@@ -430,23 +220,6 @@ DevicePtrHandle deviceptr_create_mapped_graphics(
     CUdeviceptr ptr,
     const GraphicsResourceHandle& h_resource,
     const StreamHandle& h_stream);
-
-// Callback type for MemoryResource deallocation.
-// Called from the shared_ptr deleter when a handle created via
-// deviceptr_create_with_mr is destroyed.  The implementation is responsible
-// for converting raw C types to Python objects and calling
-// mr.deallocate(ptr, size, stream).
-using MRDeallocCallback = void (*)(PyObject* mr, CUdeviceptr ptr,
-                                   size_t size, const StreamHandle& stream);
-
-// Register the MR deallocation callback.
-void register_mr_dealloc_callback(MRDeallocCallback cb);
-
-// Create a device pointer handle whose destructor calls mr.deallocate()
-// via the registered callback.  The mr's refcount is incremented and
-// decremented when the handle is released.
-// If mr is nullptr, equivalent to deviceptr_create_ref.
-DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject* mr);
 
 // Import a device pointer from IPC via cuMemPoolImportPointer.
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
@@ -534,52 +307,8 @@ GraphHandle create_child_graph_handle(
 // after CUDA copies or destroys graph state.
 // ============================================================================
 
-// Type-erased shared owner of an attached resource. Typed handles such as
-// EventHandle and KernelHandle convert to OpaqueHandle by assignment, reusing
-// their existing control block; the helpers below build OpaqueHandles for the
-// two cases that need a custom deleter.
-using OpaqueHandle = std::shared_ptr<const void>;
-
-// Build an OpaqueHandle from a Python object: increments its refcount now and
-// decrements it (under the GIL) on release. The caller must hold the GIL.
-OpaqueHandle make_opaque_py(PyObject* obj);
-
 // Build an OpaqueHandle from a malloc'd buffer: std::free on release.
 OpaqueHandle make_opaque_malloc(void* buf);
-
-struct PreparedAttachmentState;
-using PreparedAttachmentRollback =
-    void (*)(PreparedAttachmentState*) noexcept;
-struct PreparedAttachmentDeleter {
-    PreparedAttachmentRollback rollback = nullptr;
-
-    void operator()(PreparedAttachmentState* state) const noexcept {
-        rollback(state);
-    }
-};
-using PreparedAttachment =
-    std::unique_ptr<PreparedAttachmentState, PreparedAttachmentDeleter>;
-
-struct PreparedChildGraphUpdateState;
-// Opaque unpublished hierarchy transaction; releasing it discards staged
-// metadata unless graph_commit_child_graph_update publishes the replacement.
-using PreparedChildGraphUpdate =
-    std::shared_ptr<PreparedChildGraphUpdateState>;
-
-struct PreparedExecAttachmentState;
-using PreparedExecAttachmentRollback =
-    void (*)(PreparedExecAttachmentState*) noexcept;
-struct PreparedExecAttachmentDeleter {
-    PreparedExecAttachmentRollback rollback = nullptr;
-
-    void operator()(PreparedExecAttachmentState* state) const noexcept {
-        rollback(state);
-    }
-};
-// Opaque append transaction. Releasing it rolls back newly appended owners
-// unless graph_commit_exec_attachment has kept them.
-using PreparedExecAttachment =
-    std::unique_ptr<PreparedExecAttachmentState, PreparedExecAttachmentDeleter>;
 
 // Copy requested owners from node's current attachment. Pass nullptr to ignore
 // either owner; a missing attachment produces empty handles.
@@ -821,359 +550,4 @@ SurfObjectHandle create_surf_object_handle(const ContextHandle& h_context,
                                            const CUDA_RESOURCE_DESC& res,
                                            const OpaqueArrayHandle& h_backing);
 
-// ============================================================================
-// Overloaded helper functions to extract raw resources from handles
-// ============================================================================
-
-// as_cu() - extract the raw CUDA handle
-inline CUcontext as_cu(const ContextHandle& h) noexcept {
-    return h ? *h : nullptr;
-}
-
-inline CUgreenCtx as_cu(const GreenCtxHandle& h) noexcept {
-    return h ? *h : nullptr;
-}
-
-inline CUstream as_cu(const StreamHandle& h) noexcept {
-    return h ? *h : nullptr;
-}
-
-inline CUevent as_cu(const EventHandle& h) noexcept {
-    return h ? *h : nullptr;
-}
-
-inline CUmemoryPool as_cu(const MemoryPoolHandle& h) noexcept {
-    return h ? *h : nullptr;
-}
-
-inline CUdeviceptr as_cu(const DevicePtrHandle& h) noexcept {
-    return h ? *h : 0;
-}
-
-inline CUlibrary as_cu(const LibraryHandle& h) noexcept {
-    return h ? *h : nullptr;
-}
-
-inline CUmodule as_cu(const CUmodule& h) noexcept {
-    return h;
-}
-
-inline CUkernel as_cu(const KernelHandle& h) noexcept {
-    return h ? *h : nullptr;
-}
-
-inline CUgraph as_cu(const GraphHandle& h) noexcept {
-    return h ? *h : nullptr;
-}
-
-inline CUgraphExec as_cu(const GraphExecHandle& h) noexcept {
-    return h ? *h : nullptr;
-}
-
-inline CUgraphNode as_cu(const GraphNodeHandle& h) noexcept {
-    return h ? *h : nullptr;
-}
-
-inline CUgraphicsResource as_cu(const GraphicsResourceHandle& h) noexcept {
-    return h ? *h : nullptr;
-}
-
-inline nvrtcProgram as_cu(const NvrtcProgramHandle& h) noexcept {
-    return h ? *h : nullptr;
-}
-
-inline nvvmProgram as_cu(const NvvmProgramHandle& h) noexcept {
-    return h ? h->raw : nullptr;
-}
-
-inline nvJitLink_t as_cu(const NvJitLinkHandle& h) noexcept {
-    return h ? h->raw : nullptr;
-}
-
-inline CUlinkState as_cu(const CuLinkHandle& h) noexcept {
-    return h ? *h : nullptr;
-}
-
-inline CUarray as_cu(const OpaqueArrayHandle& h) noexcept {
-    return h ? *h : nullptr;
-}
-
-inline CUmipmappedArray as_cu(const MipmappedArrayHandle& h) noexcept {
-    return h ? *h : nullptr;
-}
-
-// CUtexObject / CUsurfObject are integer-valued (like CUdeviceptr); null is 0.
-// The raw value lives in the tagged wrapper's `raw` field.
-inline CUtexObject as_cu(const TexObjectHandle& h) noexcept {
-    return h ? h->raw : 0;
-}
-
-inline CUsurfObject as_cu(const SurfObjectHandle& h) noexcept {
-    return h ? h->raw : 0;
-}
-
-// as_intptr() - extract handle as intptr_t for Python interop
-// Using signed intptr_t per C standard convention and issue #1342
-inline std::intptr_t as_intptr(const ContextHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const GreenCtxHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const StreamHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const EventHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const MemoryPoolHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const DevicePtrHandle& h) noexcept {
-    return static_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const LibraryHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const CUmodule& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const KernelHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const GraphHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const GraphExecHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const GraphNodeHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const GraphicsResourceHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const NvrtcProgramHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const NvvmProgramHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const NvJitLinkHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const CuLinkHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const FileDescriptorHandle& h) noexcept {
-    return h ? static_cast<std::intptr_t>(*h) : -1;
-}
-
-inline std::intptr_t as_intptr(const OpaqueArrayHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const MipmappedArrayHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const TexObjectHandle& h) noexcept {
-    return static_cast<std::intptr_t>(as_cu(h));
-}
-
-inline std::intptr_t as_intptr(const SurfObjectHandle& h) noexcept {
-    return static_cast<std::intptr_t>(as_cu(h));
-}
-
-// as_py() - convert handle to Python wrapper object (returns new reference)
-#if PY_VERSION_HEX < 0x030D0000
-extern "C" int _Py_IsFinalizing(void);
-#endif
-
-// Best-effort probe for interpreter shutdown.
-//
-// In CPython this is not a hard guarantee: finalization can begin after this
-// returns false but before a later PyGILState_Ensure() or other Python C-API
-// call.
-//
-// If that race is lost on a non-finalizer thread, CPython's behavior is
-// version-dependent: on older supported versions (3.10-3.13) it may abruptly
-// terminate the current thread (historically via PyThread_exit_thread(),
-// without normal C++ unwinding), while on newer versions (3.14+) it may hang
-// the thread until process exit.
-//
-// We still use this check because the policy in this layer is to avoid Python
-// work once shutdown is underway and accept an intentional leak or skipped
-// Python conversion in that edge case rather than add more complex deferral
-// machinery.
-inline bool py_is_finalizing() noexcept {
-#if PY_VERSION_HEX >= 0x030D0000
-    return Py_IsFinalizing();
-#else
-    return _Py_IsFinalizing() != 0;
-#endif
-}
-
-namespace detail {
-// n.b. class lookup is not cached to avoid deadlock hazard, see DESIGN.md
-inline PyObject* make_py(const char* module_name, const char* class_name, std::intptr_t value) noexcept {
-    if (py_is_finalizing()) {
-        Py_RETURN_NONE;
-    }
-    PyObject* mod = PyImport_ImportModule(module_name);
-    if (!mod) return nullptr;
-    PyObject* cls = PyObject_GetAttrString(mod, class_name);
-    Py_DECREF(mod);
-    if (!cls) return nullptr;
-    PyObject* result = PyObject_CallFunction(cls, "L", value);
-    Py_DECREF(cls);
-    return result;
-}
-}  // namespace detail
-
-inline PyObject* as_py(const ContextHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUcontext", as_intptr(h));
-}
-
-inline PyObject* as_py(const GreenCtxHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUgreenCtx", as_intptr(h));
-}
-
-inline PyObject* as_py(const StreamHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUstream", as_intptr(h));
-}
-
-inline PyObject* as_py(const EventHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUevent", as_intptr(h));
-}
-
-inline PyObject* as_py(const MemoryPoolHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUmemoryPool", as_intptr(h));
-}
-
-inline PyObject* as_py(const DevicePtrHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUdeviceptr", as_intptr(h));
-}
-
-inline PyObject* as_py(const LibraryHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUlibrary", as_intptr(h));
-}
-
-inline PyObject* as_py(const CUmodule& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUmodule", as_intptr(h));
-}
-
-inline PyObject* as_py(const KernelHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUkernel", as_intptr(h));
-}
-
-inline PyObject* as_py(const GraphHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUgraph", as_intptr(h));
-}
-
-inline PyObject* as_py(const GraphExecHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUgraphExec", as_intptr(h));
-}
-
-inline PyObject* as_py(const GraphNodeHandle& h) noexcept {
-    if (!as_intptr(h)) {
-        Py_RETURN_NONE;
-    }
-    return detail::make_py("cuda.bindings.driver", "CUgraphNode", as_intptr(h));
-}
-
-inline PyObject* as_py(const NvrtcProgramHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.nvrtc", "nvrtcProgram", as_intptr(h));
-}
-
-inline PyObject* as_py(const NvvmProgramHandle& h) noexcept {
-    // NVVM bindings use raw integers, not wrapper classes
-    return PyLong_FromSsize_t(as_intptr(h));
-}
-
-inline PyObject* as_py(const NvJitLinkHandle& h) noexcept {
-    // nvJitLink bindings use raw integers, not wrapper classes
-    return PyLong_FromSsize_t(as_intptr(h));
-}
-
-inline PyObject* as_py(const CuLinkHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUlinkState", as_intptr(h));
-}
-
-inline PyObject* as_py(const GraphicsResourceHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUgraphicsResource", as_intptr(h));
-}
-
-inline PyObject* as_py(const FileDescriptorHandle& h) noexcept {
-    return PyLong_FromSsize_t(as_intptr(h));
-}
-
-inline PyObject* as_py(const OpaqueArrayHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUarray", as_intptr(h));
-}
-
-inline PyObject* as_py(const MipmappedArrayHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUmipmappedArray", as_intptr(h));
-}
-
-inline PyObject* as_py(const TexObjectHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUtexObject", as_intptr(h));
-}
-
-inline PyObject* as_py(const SurfObjectHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.driver", "CUsurfObject", as_intptr(h));
-}
-
-// ============================================================================
-// SM resource split wrapper (13.1+)
-//
-// Calls through p_cuDevSmResourceSplit if available, otherwise returns
-// CUDA_ERROR_NOT_SUPPORTED. This avoids a direct Cython cimport of the
-// cydriver cdef function, which would fail at module init on cuda-bindings
-// < 13.1 (see https://github.com/NVIDIA/cuda-python/issues/2063).
-// ============================================================================
-
-// groupParams is void* so the Cython declaration doesn't reference
-// CU_DEV_SM_RESOURCE_GROUP_PARAMS (absent from cuda-bindings 13.0 .pxd).
-CUresult sm_resource_split(CUdevResource* result, unsigned int nbGroups,
-                           const CUdevResource* input, CUdevResource* remainder,
-                           unsigned int flags, void* groupParams);
-
-// Returns true if the cuDevSmResourceSplit function pointer is available.
-bool has_sm_resource_split() noexcept;
-
-// ============================================================================
-// cuMemcpyWithAttributesAsync wrapper (13.2+)
-//
-// Calls through p_cuMemcpyWithAttributesAsync if available, otherwise returns
-// CUDA_ERROR_NOT_SUPPORTED. This avoids a direct Cython cimport of the
-// cydriver cdef function, which would fail at module init on cuda-bindings
-// < 13.2 (see https://github.com/NVIDIA/cuda-python/issues/2063).
-// ============================================================================
-
-// attr is void* so the Cython declaration doesn't reference CUmemcpyAttributes
-// (absent from cuda-bindings built against CUDA < 12.8). The C++ side casts it.
-CUresult memcpy_with_attributes_async(CUdeviceptr dst, CUdeviceptr src, size_t size,
-                                       void* attr, CUstream hStream);
-
-// Returns true if the cuMemcpyWithAttributesAsync function pointer is available.
-bool has_memcpy_with_attributes_async() noexcept;
-
-}  // namespace cuda_core
+}  // namespace cuda_core::rt

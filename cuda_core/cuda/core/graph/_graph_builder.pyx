@@ -17,10 +17,25 @@ from cuda.core.graph._graph_definition cimport (
 from cuda.core.graph._graph_node cimport GraphNode, GN_check_valid
 from cuda.core.graph._host_callback cimport _resolve_host_callback
 from cuda.core.graph._subclasses cimport (
+    ChildGraphNode,
+    EventRecordNode,
+    EventWaitNode,
+    ExecutableChildGraphNode,
+    ExecutableEventRecordNode,
+    ExecutableEventWaitNode,
     ExecutableGraphNode,
+    ExecutableHostCallbackNode,
+    ExecutableKernelNode,
+    ExecutableMemcpyNode,
+    ExecutableMemsetNode,
+    HostCallbackNode,
+    KernelNode,
+    MemcpyNode,
+    MemsetNode,
     create_executable_node_view,
 )
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport attach_rollback_failure, report_cuda_error
+from cuda.core._rt cimport (
     GraphExecHandle,
     GraphHandle,
     OpaqueHandle,
@@ -46,7 +61,16 @@ from cuda.core._utils.cuda_utils import (
 )
 
 if TYPE_CHECKING:
+    from typing import overload
+
     from cuda.core.graph._graph_definition import GraphDefinition
+else:
+    # Cython applies a method decorator by rebinding the type's dict entry, so
+    # typing.overload would replace the compiled ``__getitem__`` slot wrapper
+    # with its placeholder. The overloads only serve the stub; at run time the
+    # decorator must leave the method alone.
+    def overload(f):
+        return f
 
 __all__ = ['Graph', 'GraphBuilder', 'GraphCompleteOptions', 'GraphDebugPrintOptions']
 
@@ -860,6 +884,12 @@ cdef class GraphBuilder:
             if rollback_status == cydriver.CUDA_SUCCESS:
                 invalidate_child_graph_state(
                     self._h_graph, c_new_node)
+            else:
+                # The original exception propagates with the failed rollback
+                # attached as a note (error handling policy).
+                attach_rollback_failure(
+                    b"cuGraphDestroyNode", rollback_status,
+                    b"failed while rolling back a child graph node; the node remains in the graph")
             raise
 
         deps_info_update = [[new_node]] + [None] * (len(deps_info_out) - 1)
@@ -990,8 +1020,8 @@ cdef inline int GB_end_capture_if_needed(GraphBuilder gb, bint check_status) exc
     capture. A FORKED builder must not call cuStreamEndCapture: the driver
     requires forked streams to be joined first.
 
-    check_status=True checks the driver return (close()); False ignores it
-    (__dealloc__).
+    check_status=True raises on a driver error (close()); False reports it as
+    a CUDAWarning instead, because nothing can be raised from __dealloc__.
     """
     cdef cydriver.CUgraph c_graph
     cdef cydriver.CUresult err
@@ -1002,6 +1032,10 @@ cdef inline int GB_end_capture_if_needed(GraphBuilder gb, bint check_status) exc
             err = cydriver.cuStreamEndCapture(c_stream, &c_graph)
             if check_status:
                 HANDLE_RETURN(err)
+            else:
+                report_cuda_error(
+                    b"cuStreamEndCapture", err,
+                    b"failed while releasing a GraphBuilder that was still building")
     return 0
 
 
@@ -1143,6 +1177,21 @@ cdef class Graph:
 
         """
         return as_py(self._h_graph_exec)
+
+    @overload
+    def __getitem__(self, node: KernelNode) -> ExecutableKernelNode: ...
+    @overload
+    def __getitem__(self, node: MemsetNode) -> ExecutableMemsetNode: ...
+    @overload
+    def __getitem__(self, node: MemcpyNode) -> ExecutableMemcpyNode: ...
+    @overload
+    def __getitem__(self, node: ChildGraphNode) -> ExecutableChildGraphNode: ...
+    @overload
+    def __getitem__(self, node: EventRecordNode) -> ExecutableEventRecordNode: ...
+    @overload
+    def __getitem__(self, node: EventWaitNode) -> ExecutableEventWaitNode: ...
+    @overload
+    def __getitem__(self, node: HostCallbackNode) -> ExecutableHostCallbackNode: ...
 
     def __getitem__(self, node: GraphNode) -> ExecutableGraphNode:
         """Return a view for updating *node* in this executable graph.

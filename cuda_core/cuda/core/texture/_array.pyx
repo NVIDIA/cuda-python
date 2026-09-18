@@ -11,7 +11,7 @@ from libc.string cimport memset
 from cuda.bindings cimport cydriver
 from cuda.core._context cimport Context
 from cuda.core._memory._buffer cimport Buffer, Buffer_check_open
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     OpaqueArrayHandle,
     as_cu,
     as_intptr,

@@ -18,7 +18,7 @@ from cuda.core._device_resources cimport DeviceResources, SMResource, WorkqueueR
 from cuda.core._event cimport Event as cyEvent
 from cuda.core._event import Event, EventOptions
 from cuda.core._memory._buffer cimport Buffer, MemoryResource
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     ContextHandle,
     GreenCtxHandle,
     create_context_handle_ref,
@@ -1315,8 +1315,12 @@ class Device:
                 HANDLE_RETURN(cydriver.cuCtxGetCurrent(&prev_ctx))
                 if prev_ctx != NULL:
                     HANDLE_RETURN(cydriver.cuCtxGetDevice(&prev_dev))
-                HANDLE_RETURN(cydriver.cuCtxPopCurrent(&prev_ctx))
-                HANDLE_RETURN(cydriver.cuCtxPushCurrent(curr_ctx))
+                # cuCtxSetCurrent replaces the top of the thread's context stack
+                # in one driver call (or binds ctx when nothing is current), so
+                # a failure leaves the previous context current instead of
+                # leaving the thread with no context, as a failed pop-then-push
+                # would.
+                HANDLE_RETURN(cydriver.cuCtxSetCurrent(curr_ctx))
             self._has_inited = True
             self._context = ctx  # Store owning context reference
             if prev_ctx != NULL:
