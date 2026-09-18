@@ -215,8 +215,8 @@ def test_linker_options_as_bytes_nvjitlink():
 @pytest.mark.agent_authored(model="gpt-5.6")
 @pytest.mark.skipif(is_culink_backend, reason="as_bytes() only supported for nvjitlink backend")
 @pytest.mark.parametrize("value,expected_count", [(None, 0), (False, 0), (True, 1)])
-def test_linker_options_relocatable_as_bytes(value, expected_count):
-    options = LinkerOptions(arch="sm_80", relocatable=value)
+def test_linker_options_incremental_as_bytes(value, expected_count):
+    options = LinkerOptions(arch="sm_80", incremental=value)
     assert options.as_bytes().count(b"-r") == expected_count
 
 
@@ -504,9 +504,9 @@ def test_prepare_driver_options_unsupported_raises(driver_binding, kwargs, match
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_prepare_driver_options_rejects_relocatable(driver_binding):
-    options = LinkerOptions(relocatable=True)
-    with pytest.raises(ValueError, match="relocatable option is not supported by the driver API"):
+def test_prepare_driver_options_rejects_incremental(driver_binding):
+    options = LinkerOptions(incremental=True)
+    with pytest.raises(ValueError, match="incremental option is not supported by the driver API"):
         options._prepare_driver_options()
 
 
@@ -564,14 +564,14 @@ def test_require_nvjitlink_version_reports_required_and_detected_versions(monkey
     monkeypatch.setattr(_linker, "_nvjitlink_version", (13, 1))
 
     with pytest.raises(RuntimeError, match=r"requires nvJitLink 13\.2 or newer; found 13\.1"):
-        _linker._require_nvjitlink_version((13, 2), "relocatable linking")
+        _linker._require_nvjitlink_version((13, 2), "incremental linking")
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_require_nvjitlink_version_accepts_boundary_version(monkeypatch):
     monkeypatch.setattr(_linker, "_nvjitlink_version", (13, 2))
 
-    _linker._require_nvjitlink_version((13, 2), "relocatable linking")
+    _linker._require_nvjitlink_version((13, 2), "incremental linking")
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -647,18 +647,18 @@ def _launch_incrementally_linked_kernel(device, linked_code):
 @pytest.mark.human_reviewed
 @pytest.mark.skipif(
     is_culink_backend or nvjitlink_version < (13, 2),
-    reason="relocatable linking requires nvJitLink 13.2 or newer",
+    reason="incremental linking requires nvJitLink 13.2 or newer",
 )
-def test_relocatable_cubin_round_trip(init_cuda):
+def test_incremental_cubin_round_trip(init_cuda):
     caller, helper = _compile_incremental_inputs("ptx")
 
-    partial = Linker(caller, options=LinkerOptions(arch=ARCH, relocatable=True)).link("cubin")
+    partial = Linker(caller, options=LinkerOptions(arch=ARCH, incremental=True)).link("cubin")
     assert partial.code_type == "cubin"
 
     resolved_partial = Linker(
         partial,
         helper,
-        options=LinkerOptions(arch=ARCH, relocatable=True),
+        options=LinkerOptions(arch=ARCH, incremental=True),
     ).link("cubin")
     assert resolved_partial.code_type == "cubin"
     _launch_incrementally_linked_kernel(init_cuda, resolved_partial)
@@ -672,11 +672,11 @@ def test_relocatable_cubin_round_trip(init_cuda):
     is_culink_backend or nvjitlink_version < (13, 3) or not has_linked_ltoir_bindings,
     reason="linked LTOIR output requires nvJitLink 13.3 or newer and matching cuda-bindings",
 )
-def test_relocatable_ltoir_round_trip(init_cuda):
+def test_incremental_ltoir_round_trip(init_cuda):
     caller, helper = _compile_incremental_inputs("ltoir")
     incremental_options = LinkerOptions(
         arch=ARCH,
-        relocatable=True,
+        incremental=True,
         link_time_optimization=True,
     )
 
@@ -714,15 +714,15 @@ def test_complete_ltoir_round_trip_matches_direct_cubin(init_cuda):
 @pytest.mark.agent_authored(model="gpt-5.6")
 @pytest.mark.skipif(
     is_culink_backend or nvjitlink_version < (13, 2),
-    reason="relocatable linking requires nvJitLink 13.2 or newer",
+    reason="incremental linking requires nvJitLink 13.2 or newer",
 )
-def test_relocatable_lto_cubin_round_trip(init_cuda):
+def test_incremental_lto_cubin_round_trip(init_cuda):
     caller, helper = _compile_incremental_inputs("ltoir")
     partial = Linker(
         caller,
         options=LinkerOptions(
             arch=ARCH,
-            relocatable=True,
+            incremental=True,
             link_time_optimization=True,
         ),
     ).link("cubin")
@@ -758,7 +758,7 @@ def test_ltoir_output_rejects_inputs_without_ltoir(init_cuda, non_ltoir_type):
         non_ltoir_input,
         options=LinkerOptions(
             arch=ARCH,
-            relocatable=True,
+            incremental=True,
             link_time_optimization=True,
         ),
     )
@@ -770,25 +770,25 @@ def test_ltoir_output_rejects_inputs_without_ltoir(init_cuda, non_ltoir_type):
 @pytest.mark.agent_authored(model="gpt-5.6")
 @pytest.mark.skipif(
     is_culink_backend or nvjitlink_version < (13, 2),
-    reason="relocatable linking requires nvJitLink 13.2 or newer",
+    reason="incremental linking requires nvJitLink 13.2 or newer",
 )
-def test_relocatable_link_rejects_ptx_output(compile_ptx_functions):
+def test_incremental_link_rejects_ptx_output(compile_ptx_functions):
     linker = Linker(
         *compile_ptx_functions,
-        options=LinkerOptions(arch=ARCH, relocatable=True),
+        options=LinkerOptions(arch=ARCH, incremental=True),
     )
-    with pytest.raises(ValueError, match="PTX output is not supported for relocatable linking"):
+    with pytest.raises(ValueError, match="PTX output is not supported for incremental linking"):
         linker.link("ptx")
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_relocatable_link_rejects_ptx_option(compile_ptx_functions):
-    with pytest.raises(ValueError, match="relocatable and ptx output options cannot be used together"):
+def test_incremental_link_rejects_ptx_option(compile_ptx_functions):
+    with pytest.raises(ValueError, match="incremental and ptx output options cannot be used together"):
         Linker(
             *compile_ptx_functions,
             options=LinkerOptions(
                 arch=ARCH,
-                relocatable=True,
+                incremental=True,
                 link_time_optimization=True,
                 ptx=True,
             ),

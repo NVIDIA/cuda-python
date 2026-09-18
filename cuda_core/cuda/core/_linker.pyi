@@ -66,7 +66,7 @@ class Linker:
             Ensure that input object codes were compiled with appropriate
             flags for linking (e.g., relocatable device code enabled).
 
-            A CUBIN produced with ``relocatable=True`` can be passed directly
+            A CUBIN produced with ``incremental=True`` can be passed directly
             to another :class:`Linker`, but it can still contain unresolved
             device references and should be finalized before execution.
 
@@ -151,8 +151,8 @@ class LinkerOptions:
     link_time_optimization : bool, optional
         Perform link time optimization.
         Default: False.
-    relocatable : bool, optional
-        Perform a relocatable (incremental) link. The result can be passed
+    incremental : bool, optional
+        Perform an incremental link. The result can be passed
         directly to a later :class:`Linker`. Requires nvJitLink 13.2 or newer
         and is not supported by the driver linker backend.
         Default: False.
@@ -235,7 +235,7 @@ class LinkerOptions:
     split_compile_extended: int | None = None
     no_cache: bool | None = None
     numba_debug: bool | None = None
-    relocatable: bool | None = None
+    incremental: bool | None = None
 
     def __post_init__(self) -> None: ...
     def _prepare_nvjitlink_options(self, as_bytes: bool=False) -> list[bytes] | list[str]: ...

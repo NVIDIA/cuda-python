@@ -9,8 +9,8 @@
 New features
 ------------
 
-- Added relocatable and incremental linking to :class:`Linker` through
-  ``LinkerOptions(relocatable=True)`` on nvJitLink 13.2 or newer. A partial
+- Added incremental linking to :class:`Linker` through
+  ``LinkerOptions(incremental=True)`` on nvJitLink 13.2 or newer. A partial
   native result is returned as a CUBIN and can be passed directly to another
   linker. :meth:`Linker.link` also accepts ``"ltoir"`` on nvJitLink 13.3 or
   newer so incremental LTO chains can retain IR until their final link. Direct

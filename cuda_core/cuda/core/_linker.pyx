@@ -116,7 +116,7 @@ cdef class Linker:
             Ensure that input object codes were compiled with appropriate
             flags for linking (e.g., relocatable device code enabled).
 
-            A CUBIN produced with ``relocatable=True`` can be passed directly
+            A CUBIN produced with ``incremental=True`` can be passed directly
             to another :class:`Linker`, but it can still contain unresolved
             device references and should be finalized before execution.
 
@@ -269,8 +269,8 @@ class LinkerOptions:
     link_time_optimization : bool, optional
         Perform link time optimization.
         Default: False.
-    relocatable : bool, optional
-        Perform a relocatable (incremental) link. The result can be passed
+    incremental : bool, optional
+        Perform an incremental link. The result can be passed
         directly to a later :class:`Linker`. Requires nvJitLink 13.2 or newer
         and is not supported by the driver linker backend.
         Default: False.
@@ -354,7 +354,7 @@ class LinkerOptions:
     split_compile_extended: int | None = None
     no_cache: bool | None = None
     numba_debug: bool | None = None
-    relocatable: bool | None = None
+    incremental: bool | None = None
 
     def __post_init__(self) -> None:
         _lazy_init()
@@ -390,7 +390,7 @@ class LinkerOptions:
             options.append("-verbose")
         if self.link_time_optimization:
             options.append("-lto")
-        if self.relocatable:
+        if self.incremental:
             options.append("-r")
         if self.ptx:
             options.append("-ptx")
@@ -471,8 +471,8 @@ class LinkerOptions:
         if self.link_time_optimization:
             formatted_options.append(1)
             option_keys.append(_driver.CUjit_option.CU_JIT_LTO)
-        if self.relocatable:
-            raise ValueError("relocatable option is not supported by the driver API")
+        if self.incremental:
+            raise ValueError("incremental option is not supported by the driver API")
         if self.ptx:
             raise ValueError("ptx option is not supported by the driver API")
         if self.optimization_level is not None:
@@ -556,12 +556,12 @@ cdef inline int Linker_init(Linker self, tuple object_codes, object options) exc
 
     self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
     self._has_ptx_or_cubin_input = False
-    if options.relocatable and options.ptx:
-        raise ValueError("relocatable and ptx output options cannot be used together")
+    if options.incremental and options.ptx:
+        raise ValueError("incremental and ptx output options cannot be used together")
 
     if _use_nvjitlink_backend:
-        if options.relocatable:
-            _require_nvjitlink_version((13, 2), "relocatable linking")
+        if options.incremental:
+            _require_nvjitlink_version((13, 2), "incremental linking")
         self._use_nvjitlink = True
         options_bytes = options._prepare_nvjitlink_options(as_bytes=True)
         c_num_opts = len(options_bytes)
@@ -675,8 +675,8 @@ cdef inline object Linker_link(Linker self, str target_type):
     """Complete linking and return the result as ObjectCode."""
     if target_type not in ("cubin", "ptx", "ltoir"):
         raise ValueError(f"Unsupported target type: {target_type}")
-    if self._options.relocatable and target_type == "ptx":
-        raise ValueError("PTX output is not supported for relocatable linking")
+    if self._options.incremental and target_type == "ptx":
+        raise ValueError("PTX output is not supported for incremental linking")
     if target_type == "ltoir":
         if not self._use_nvjitlink:
             raise ValueError("LTOIR output is not supported by the driver API")
