@@ -60,6 +60,17 @@ decltype(&cuMemFreeHost) p_cuMemFreeHost = nullptr;
 
 decltype(&cuMemPoolImportPointer) p_cuMemPoolImportPointer = nullptr;
 
+// Virtual memory management
+decltype(&cuMemCreate) p_cuMemCreate = nullptr;
+decltype(&cuMemRelease) p_cuMemRelease = nullptr;
+decltype(&cuMemAddressReserve) p_cuMemAddressReserve = nullptr;
+decltype(&cuMemAddressFree) p_cuMemAddressFree = nullptr;
+decltype(&cuMemMap) p_cuMemMap = nullptr;
+decltype(&cuMemUnmap) p_cuMemUnmap = nullptr;
+decltype(&cuMemSetAccess) p_cuMemSetAccess = nullptr;
+decltype(&cuStreamSynchronize) p_cuStreamSynchronize = nullptr;
+decltype(&cuStreamGetCaptureInfo) p_cuStreamGetCaptureInfo = nullptr;
+
 decltype(&cuLibraryLoadFromFile) p_cuLibraryLoadFromFile = nullptr;
 decltype(&cuLibraryLoadData) p_cuLibraryLoadData = nullptr;
 decltype(&cuLibraryUnload) p_cuLibraryUnload = nullptr;

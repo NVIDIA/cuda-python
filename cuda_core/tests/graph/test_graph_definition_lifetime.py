@@ -16,7 +16,7 @@ from helpers.graph_kernels import compile_common_kernels
 from helpers.memory import xfail_on_graph_mempool_oom
 from helpers.misc import try_create_condition
 
-from cuda_python_test_helpers import under_compute_sanitizer
+from cuda_python_test_helpers import IS_WINDOWS, under_compute_sanitizer
 
 # Resource finalization triggered by graph destruction is not synchronous. A
 # CUDA user-object callback transfers each node attachment bundle to a
@@ -75,7 +75,16 @@ def _wait_until(predicate, timeout=None, interval=0.02):
     raise AssertionError(f"condition not satisfied within {timeout}s")
 
 
-from cuda.core import Device, DeviceMemoryResource, EventOptions, Kernel, LaunchConfig, LegacyPinnedMemoryResource
+from cuda.core import (
+    Device,
+    DeviceMemoryResource,
+    EventOptions,
+    Kernel,
+    LaunchConfig,
+    LegacyPinnedMemoryResource,
+    VirtualMemoryResource,
+    VirtualMemoryResourceOptions,
+)
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core._utils.version import driver_version
 from cuda.core.graph import (
@@ -94,6 +103,26 @@ from cuda.core.graph import (
 def _skip_if_no_mempool():
     if not Device(0).properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
+
+
+def _device_memory_resource(dev):
+    _skip_if_no_mempool()
+    return DeviceMemoryResource(dev)
+
+
+def _virtual_memory_resource(dev):
+    if not dev.properties.virtual_memory_management_supported:
+        pytest.skip("Device does not support virtual memory management")
+    handle_type = "win32_kmt" if IS_WINDOWS else "posix_fd"
+    return VirtualMemoryResource(dev, config=VirtualMemoryResourceOptions(handle_type=handle_type))
+
+
+# Memory resources whose buffers a graph node can retain through its
+# attachment. Each factory skips when the device lacks the feature.
+_MEMORY_RESOURCES = [
+    pytest.param(_device_memory_resource, id="device_mr"),
+    pytest.param(_virtual_memory_resource, id="vmm"),
+]
 
 
 # =============================================================================
@@ -865,13 +894,18 @@ def test_callback_survives_source_node_deletion(init_cuda):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_inflight_launch_retains_attachments_until_completion(init_cuda):
-    """An in-flight launch retains the final allocation reference."""
+@pytest.mark.parametrize("make_mr", _MEMORY_RESOURCES)
+def test_inflight_launch_retains_attachments_until_completion(init_cuda, make_mr):
+    """An in-flight launch retains the final allocation reference.
+
+    The memcpy node attaches the buffer's allocation handle, so the memory
+    outlives ``buf.close()`` until the launch completes and the graph is gone.
+    For a virtual memory buffer that release also unmaps the range.
+    """
     from cuda.core._utils._weak_handles import weak_handle
 
-    _skip_if_no_mempool()
     dev = Device()
-    mr = DeviceMemoryResource(dev)
+    mr = make_mr(dev)
     buf = mr.allocate(8, stream=dev.default_stream)
     dev.default_stream.sync()
     dptr = int(buf.handle)

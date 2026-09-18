@@ -29,8 +29,6 @@ class Buffer:
     by calling :meth:`from_ipc_descriptor` and therefore performs an IPC
     import. Do not unpickle buffers from untrusted sources.
     """
-    _size: int
-
     def _clear(self) -> None: ...
     def __init__(self, *args, **kwargs) -> None: ...
     @classmethod

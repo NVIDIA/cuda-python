@@ -8,6 +8,7 @@
 #include "driver_api.hpp"
 #include "error.hpp"
 #include "internal.hpp"
+#include "vmm_range.hpp"
 #include <cstddef>
 #include <cstring>
 #include <memory>
@@ -295,6 +296,31 @@ DevicePtrHandle deviceptr_create_mapped_graphics(
                         1, &resource, as_cu(stream.h_stream));
                 });
             delete b;
+        }
+    );
+    return DevicePtrHandle(box, &box->resource);
+}
+
+// ============================================================================
+// Virtual memory ranges (VMM_DESIGN.md)
+// ============================================================================
+
+DevicePtrHandle deviceptr_create_vmm(CUdeviceptr base, const VmmRangeHandle& range) {
+    if (!range) {
+        err = CUDA_ERROR_INVALID_VALUE;
+        return {};
+    }
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{base, DeallocationStream{}},
+        // Init-capture: a plain copy of the `const&` parameter would be const.
+        [range = range](DevicePtrBox* b) mutable {
+            GILReleaseGuard gil;
+            // Hand the recorded stream to the range, then drop the range: if
+            // this was the last owner, the range deleter synchronizes every
+            // recorded stream and unmaps. The box never blocks itself.
+            vmm_range_forward_stream(*range, b->deallocation);
+            delete b;
+            range.reset();
         }
     );
     return DevicePtrHandle(box, &box->resource);
