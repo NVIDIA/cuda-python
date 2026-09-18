@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.UninitializedError
+=====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: UninitializedError
