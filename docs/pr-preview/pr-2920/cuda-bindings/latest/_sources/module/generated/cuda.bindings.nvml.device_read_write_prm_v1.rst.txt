@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_read\_write\_prm\_v1
+===============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_read_write_prm_v1
