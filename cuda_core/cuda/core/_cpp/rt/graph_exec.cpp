@@ -90,7 +90,7 @@ struct ExecAttachmentStaging {
         const GraphHandle source = std::move(h_source);
         accumulator = nullptr;
         GILReleaseGuard gil;
-        return p_cuGraphReleaseUserObject(*source, object, 1);
+        return DRIVER_CALL(cuGraphReleaseUserObject, *source, object, 1);
     }
 };
 
@@ -98,11 +98,6 @@ struct ExecAttachmentStaging {
 // instantiation or whole-graph update propagates a reference into the exec.
 CUresult stage_exec_attachments(
         const GraphHandle& h_source, ExecAttachmentStaging* out_staging) {
-    if (!p_cuUserObjectCreate || !p_cuUserObjectRelease ||
-        !p_cuGraphRetainUserObject || !p_cuGraphReleaseUserObject) {
-        return CUDA_ERROR_NOT_SUPPORTED;
-    }
-
     ensure_deferred_cleanup_ready();
     auto* accumulator = new ExecAttachments;
 
@@ -110,7 +105,7 @@ CUresult stage_exec_attachments(
     CUresult status;
     {
         GILReleaseGuard gil;
-        status = p_cuUserObjectCreate(
+        status = DRIVER_CALL(cuUserObjectCreate,
             &object,
             static_cast<DeferredCleanupItem*>(accumulator),
             reinterpret_cast<CUhostFn>(enqueue_cleanup),
@@ -121,7 +116,7 @@ CUresult stage_exec_attachments(
             return status;
         }
         accumulator->object = object;
-        status = p_cuGraphRetainUserObject(
+        status = DRIVER_CALL(cuGraphRetainUserObject,
             *h_source, object, 1, CU_GRAPH_USER_OBJECT_MOVE);
         if (status != CUDA_SUCCESS) {
             // Dropping the last reference retires the accumulator.
@@ -174,11 +169,6 @@ GraphExecHandle create_graph_exec_handle(
         err = CUDA_ERROR_INVALID_VALUE;
         return {};
     }
-    if (!p_cuGraphInstantiateWithParams) {
-        err = CUDA_ERROR_NOT_SUPPORTED;
-        return {};
-    }
-
     ExecAttachmentStaging staging;
     if (CUDA_SUCCESS != (err = stage_exec_attachments(h_source, &staging))) {
         return {};
@@ -187,7 +177,7 @@ GraphExecHandle create_graph_exec_handle(
     CUgraphExec graph_exec = nullptr;
     {
         GILReleaseGuard gil;
-        err = p_cuGraphInstantiateWithParams(&graph_exec, *h_source, params);
+        err = DRIVER_CALL(cuGraphInstantiateWithParams, &graph_exec, *h_source, params);
     }
     if (err != CUDA_SUCCESS) {
         return {};
@@ -218,10 +208,6 @@ CUresult graph_exec_update(
     if (!h_exec || !h_source || !*h_source || !result_info) {
         return CUDA_ERROR_INVALID_VALUE;
     }
-    if (!p_cuGraphExecUpdate) {
-        return CUDA_ERROR_NOT_SUPPORTED;
-    }
-
     GraphExecBox* box = get_exec_box(h_exec);
     if (!box->resource) {
         return CUDA_ERROR_INVALID_VALUE;
@@ -235,7 +221,7 @@ CUresult graph_exec_update(
 
     {
         GILReleaseGuard gil;
-        status = p_cuGraphExecUpdate(box->resource, *h_source, result_info);
+        status = DRIVER_CALL(cuGraphExecUpdate, box->resource, *h_source, result_info);
     }
     if (status != CUDA_SUCCESS) {
         return status;

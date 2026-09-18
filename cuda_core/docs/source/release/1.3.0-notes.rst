@@ -6,6 +6,32 @@
 ``cuda.core`` 1.3.0 Release Notes
 ==================================
 
+Breaking Changes
+----------------
+
+- ``cuda.core`` now requires a minimum ``cuda-bindings`` version per CUDA major, at build time and
+  at run time: 12.9.8 for CUDA 12 and 13.4.1 for CUDA 13 (see the
+  :ref:`support policy <cuda-core-bindings-floor>`). ``import cuda.core`` with an older
+  ``cuda-bindings`` fails with a message that names the required version and how to install it;
+  ``pip install cuda-core[cu12]`` / ``[cu13]`` installs a compatible version. A source build must
+  also use a ``cuda.h`` of the same major.minor as its ``cuda-bindings``; it fails early otherwise.
+  Supported CUDA drivers and CUDA Toolkit libraries are unchanged. Previously any
+  ``cuda-bindings`` of the right major was accepted, and an older one produced import errors for
+  missing C functions, silently disabled features, or crashes.
+  (https://github.com/NVIDIA/cuda-python/issues/2783)
+
+- With the ``cuda-bindings`` floor in place, whether a feature is available now depends on the
+  CUDA driver alone (and on the CUDA major of the ``cuda.core`` build). Checks that also inspected
+  the ``cuda-bindings`` version are gone, and the error messages they produced with them; error
+  messages that name a minimum now name a driver version. ``cuda.core.system`` always uses NVML
+  through ``cuda-bindings``, so ``cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE`` is always
+  ``True`` and is deprecated. :mod:`cuda.core.checkpoint` requires the CUDA 13 build of
+  ``cuda.core`` (it did in effect before: the CUDA 12 ``cuda-bindings`` lack a type it uses) and
+  now says so. The C++ layer calls the driver through the entry points ``cuda-bindings`` resolves
+  rather than through its Cython wrappers, so a driver function that the installed driver lacks
+  can no longer surface as ``SystemError`` from a C++ call.
+  (https://github.com/NVIDIA/cuda-python/issues/2783)
+
 New features
 ------------
 

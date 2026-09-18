@@ -43,11 +43,11 @@ CUresult enter_context(const ContextHandle& h_context, CUcontext* previous, int*
     }
 
     GILReleaseGuard gil;
-    CUresult status = p_cuCtxGetCurrent(previous);
+    CUresult status = DRIVER_CALL(cuCtxGetCurrent, previous);
     if (status != CUDA_SUCCESS || *previous == target) {
         return status;
     }
-    status = p_cuCtxSetCurrent(target);
+    status = DRIVER_CALL(cuCtxSetCurrent, target);
     *changed = status == CUDA_SUCCESS;
     return status;
 }
@@ -62,7 +62,7 @@ CUresult restore_context(CUcontext previous) noexcept {
         return fault;
     }
     GILReleaseGuard gil;
-    return p_cuCtxSetCurrent(previous);
+    return DRIVER_CALL(cuCtxSetCurrent, previous);
 }
 // Restore the previous context and preserve an earlier operation error. The
 // operation error, if any, is returned; otherwise the restoration status is.
@@ -82,7 +82,7 @@ CUresult exit_context(CUcontext previous, int changed, CUresult operation_status
 CUresult context_synchronize(const ContextHandle& h_context) noexcept {
     GILReleaseGuard gil;
     return invoke_in_context(h_context, []() noexcept {
-        return p_cuCtxSynchronize();
+        return DRIVER_FN(cuCtxSynchronize)();
     });
 }
 
@@ -92,14 +92,14 @@ CUresult context_get_stream_priority_range(const ContextHandle& h_context,
                                            int* greatest_priority) noexcept {
     GILReleaseGuard gil;
     return invoke_in_context(h_context, [&]() noexcept {
-        return p_cuCtxGetStreamPriorityRange(least_priority, greatest_priority);
+        return DRIVER_CALL(cuCtxGetStreamPriorityRange, least_priority, greatest_priority);
     });
 }
 
 // Query the device of the provided context.
 CUresult context_get_device(const ContextHandle& h_context, CUdevice* device) noexcept {
     return invoke_in_context(h_context, [&]() noexcept {
-        return p_cuCtxGetDevice(device);
+        return DRIVER_CALL(cuCtxGetDevice, device);
     });
 }
 
@@ -157,13 +157,8 @@ ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green
     if (!h_green_ctx) {
         return {};
     }
-    if (!p_cuCtxFromGreenCtx) {
-        err = CUDA_ERROR_NOT_SUPPORTED;
-        return {};
-    }
-
     CUcontext ctx = nullptr;
-    if (CUDA_SUCCESS != (err = p_cuCtxFromGreenCtx(&ctx, as_cu(h_green_ctx)))) {
+    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuCtxFromGreenCtx, &ctx, as_cu(h_green_ctx)))) {
         return {};
     }
 
@@ -180,18 +175,13 @@ GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept {
 GreenCtxHandle create_green_ctx_handle(CUdevResource* resources, unsigned int nbResources,
                                        CUdevice dev, unsigned int flags) {
     GILReleaseGuard gil;
-    if (!p_cuDevResourceGenerateDesc || !p_cuGreenCtxCreate || !p_cuGreenCtxDestroy) {
-        err = CUDA_ERROR_NOT_SUPPORTED;
-        return {};
-    }
-
     CUdevResourceDesc desc = nullptr;
-    if (CUDA_SUCCESS != (err = p_cuDevResourceGenerateDesc(&desc, resources, nbResources))) {
+    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuDevResourceGenerateDesc, &desc, resources, nbResources))) {
         return {};
     }
 
     CUgreenCtx green_ctx = nullptr;
-    if (CUDA_SUCCESS != (err = p_cuGreenCtxCreate(&green_ctx, desc, dev, flags))) {
+    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuGreenCtxCreate, &green_ctx, desc, dev, flags))) {
         return {};
     }
 
@@ -228,7 +218,7 @@ ContextHandle get_primary_context(int device_id) {
     // Cache miss - acquire primary context from driver
     GILReleaseGuard gil;
     CUcontext ctx;
-    if (CUDA_SUCCESS != (err = p_cuDevicePrimaryCtxRetain(&ctx, device_id))) {
+    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuDevicePrimaryCtxRetain, &ctx, device_id))) {
         return {};
     }
 
@@ -236,13 +226,12 @@ ContextHandle get_primary_context(int device_id) {
         new ContextBox{ctx, {}},
         [device_id](const ContextBox* b) {
             context_registry.unregister_handle(b->resource);
-            // The driver function pointer targets a Cython __pyx_capi__
-            // wrapper, which touches the Python runtime even though the
-            // underlying CUDA call does not. During interpreter shutdown,
-            // leave primary-context cleanup to process teardown.
+            // During interpreter shutdown, leave primary-context cleanup to
+            // process teardown (an unavailable table entry would need Python
+            // to report itself).
             if (Py_IsInitialized() && !py_is_finalizing()) {
                 GILReleaseGuard gil;
-                p_cuDevicePrimaryCtxRelease(device_id);
+                DRIVER_CALL(cuDevicePrimaryCtxRelease, device_id);
             }
             delete b;
         }
@@ -261,7 +250,7 @@ ContextHandle get_primary_context(int device_id) {
 ContextHandle get_current_context() {
     GILReleaseGuard gil;
     CUcontext ctx = nullptr;
-    if (CUDA_SUCCESS != (err = p_cuCtxGetCurrent(&ctx))) {
+    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuCtxGetCurrent, &ctx))) {
         return {};
     }
     if (!ctx) {

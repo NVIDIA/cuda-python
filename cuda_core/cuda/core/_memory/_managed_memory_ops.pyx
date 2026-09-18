@@ -91,7 +91,7 @@ IF CUDA_CORE_BUILD_MAJOR < 13:
         if kind == "host":
             return -1
         raise RuntimeError(
-            "Host(numa_id=...) / Host.numa_current() require both cuda-bindings 13.0+ "
+            "Host(numa_id=...) / Host.numa_current() require the CUDA 13 build of cuda.core "
             "and a CUDA 13+ runtime driver; use Host() instead"
         )
 

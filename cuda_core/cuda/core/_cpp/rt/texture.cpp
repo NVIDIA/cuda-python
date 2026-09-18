@@ -27,6 +27,7 @@ struct GraphicsResourceBox {
 }  // namespace
 
 GraphicsResourceHandle create_graphics_resource_handle(CUgraphicsResource resource) {
+    ensure_fn_table(FnTable::driver);  // the deleter calls the driver; resolve before it can run
     auto box = std::shared_ptr<const GraphicsResourceBox>(
         new GraphicsResourceBox{resource},
         [](const GraphicsResourceBox* b) {
@@ -112,7 +113,7 @@ OpaqueArrayHandle create_array_handle(const ContextHandle& h_context, const CUDA
     CUarray arr = nullptr;
     err = invoke_in_context_or_undo(
         h_context,
-        [&]() noexcept { return p_cuArray3DCreate(&arr, &desc); },
+        [&]() noexcept { return DRIVER_CALL(cuArray3DCreate, &arr, &desc); },
         [&]() noexcept { pw_cuArrayDestroy(arr); },
         /*undo_requires_target_context=*/false);
     if (err != CUDA_SUCCESS) {
@@ -130,6 +131,7 @@ OpaqueArrayHandle create_array_handle_ref(CUarray arr) {
 }
 
 OpaqueArrayHandle create_array_handle_owning(CUarray arr) {
+    ensure_fn_table(FnTable::driver);  // the deleter calls the driver; resolve before it can run
     if (!arr) {
         return {};
     }
@@ -145,7 +147,7 @@ OpaqueArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, u
     GILReleaseGuard gil;
     CUarray arr;
     ContextHandle h_context = h_mip ? get_box(h_mip)->h_context : ContextHandle{};
-    if (CUDA_SUCCESS != (err = p_cuMipmappedArrayGetLevel(&arr, as_cu(h_mip), level))) {
+    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMipmappedArrayGetLevel, &arr, as_cu(h_mip), level))) {
         return {};
     }
     // Non-owning level view: storage belongs to the mipmap. Embed the mipmap
@@ -164,7 +166,7 @@ MipmappedArrayHandle create_mipmapped_array_handle(const ContextHandle& h_contex
     CUmipmappedArray mip = nullptr;
     err = invoke_in_context_or_undo(
         h_context,
-        [&]() noexcept { return p_cuMipmappedArrayCreate(&mip, &desc, num_levels); },
+        [&]() noexcept { return DRIVER_CALL(cuMipmappedArrayCreate, &mip, &desc, num_levels); },
         [&]() noexcept { pw_cuMipmappedArrayDestroy(mip); },
         /*undo_requires_target_context=*/false);
     if (err != CUDA_SUCCESS) {
@@ -195,7 +197,7 @@ TexObjectHandle make_tex_object_handle(const CUDA_RESOURCE_DESC& res,
     CUtexObject obj = 0;
     err = invoke_in_context_or_undo(
         h_context,
-        [&]() noexcept { return p_cuTexObjectCreate(&obj, &res, &tex, nullptr); },
+        [&]() noexcept { return DRIVER_CALL(cuTexObjectCreate, &obj, &res, &tex, nullptr); },
         [&]() noexcept { pw_cuTexObjectDestroy(obj); },
         /*undo_requires_target_context=*/true);
     if (err != CUDA_SUCCESS) {
@@ -206,7 +208,7 @@ TexObjectHandle make_tex_object_handle(const CUDA_RESOURCE_DESC& res,
         [](const TexObjectBox* b) {
             GILReleaseGuard gil;
             cleanup_in_context(b->h_context, "cuTexObjectDestroy", handle_bits(b->resource.raw), [&]() noexcept {
-                return p_cuTexObjectDestroy(b->resource.raw);
+                return DRIVER_CALL(cuTexObjectDestroy, b->resource.raw);
             });
             delete b;
         }
@@ -243,7 +245,7 @@ SurfObjectHandle create_surf_object_handle(const ContextHandle& h_context,
     CUsurfObject obj = 0;
     err = invoke_in_context_or_undo(
         h_context,
-        [&]() noexcept { return p_cuSurfObjectCreate(&obj, &res); },
+        [&]() noexcept { return DRIVER_CALL(cuSurfObjectCreate, &obj, &res); },
         [&]() noexcept { pw_cuSurfObjectDestroy(obj); },
         /*undo_requires_target_context=*/true);
     if (err != CUDA_SUCCESS) {
@@ -254,7 +256,7 @@ SurfObjectHandle create_surf_object_handle(const ContextHandle& h_context,
         [](const SurfObjectBox* b) {
             GILReleaseGuard gil;
             cleanup_in_context(b->h_context, "cuSurfObjectDestroy", handle_bits(b->resource.raw), [&]() noexcept {
-                return p_cuSurfObjectDestroy(b->resource.raw);
+                return DRIVER_CALL(cuSurfObjectDestroy, b->resource.raw);
             });
             delete b;
         }

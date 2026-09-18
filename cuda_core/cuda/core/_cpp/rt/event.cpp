@@ -69,7 +69,7 @@ EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
     CUevent event = nullptr;
     err = invoke_in_context_or_undo(
         h_ctx,
-        [&]() noexcept { return p_cuEventCreate(&event, flags); },
+        [&]() noexcept { return DRIVER_CALL(cuEventCreate, &event, flags); },
         [&]() noexcept { pw_cuEventDestroy(event); },
         /*undo_requires_target_context=*/false);
     if (err != CUDA_SUCCESS) {
@@ -97,7 +97,7 @@ EventHandle create_event_handle_for_stream(CUstream stream, unsigned int flags) 
     CUcontext ctx = nullptr;
     {
         GILReleaseGuard gil;
-        err = p_cuStreamGetCtx(stream, &ctx);
+        err = DRIVER_CALL(cuStreamGetCtx, stream, &ctx);
     }
     if (err != CUDA_SUCCESS) {
         return {};
@@ -121,7 +121,7 @@ EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
                                     bool is_blocking_sync) {
     GILReleaseGuard gil;
     CUevent event;
-    if (CUDA_SUCCESS != (err = p_cuIpcOpenEventHandle(&event, ipc_handle))) {
+    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuIpcOpenEventHandle, &event, ipc_handle))) {
         return {};
     }
 

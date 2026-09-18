@@ -7,23 +7,14 @@
 # without either depending on the other.
 
 from cuda.bindings cimport cydriver
-from cuda.core._utils.version cimport cy_binding_version, cy_driver_version  # no-cython-lint
+from cuda.core._utils.version cimport cy_driver_version  # no-cython-lint
 
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
-    from cuda.core._rt cimport has_memcpy_with_attributes_async
-
     cdef inline bint _with_attributes_available():
-        # has_memcpy_with_attributes_async() says whether the installed
-        # cuda-bindings actually exports cuMemcpyWithAttributesAsync (13.2+);
-        # the version checks alone are not sufficient, since cuda.core's build
-        # can be paired with a cuda-bindings install older than what it built
-        # against (see https://github.com/NVIDIA/cuda-python/issues/2063).
-        return (
-            has_memcpy_with_attributes_async()
-            and cy_driver_version() >= (13, 2, 0)
-            and cy_binding_version() >= (13, 2, 0)
-        )
+        # cuMemcpyWithAttributesAsync is a 13.2 driver API; cuda-bindings 13.4+
+        # (the floor) always exports it, so only the driver can lack it.
+        return cy_driver_version() >= (13, 2, 0)
 ELSE:
     cdef inline bint _with_attributes_available():
         return False
