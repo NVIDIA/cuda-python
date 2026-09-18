@@ -50,6 +50,10 @@ jobs:
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     runs-on: ubuntu-latest
+    outputs:
+      deployment-artifact-name: ${{ steps.deployment-metadata.outputs.deployment-artifact-name }}
+      docs-github-ref: ${{ steps.deployment-metadata.outputs.docs-github-ref }}
+      pr-number: ${{ steps.deployment-metadata.outputs.pr-number }}
     defaults:
       run:
         shell: bash -el {0}
@@ -221,6 +225,13 @@ jobs:
         if: ${{ !inputs.is-release }}
         uses: ./.github/actions/get_pr_number
 
+      - name: Record deployment metadata
+        id: deployment-metadata
+        run: |
+          echo "deployment-artifact-name=docs-deployment-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+          echo "docs-github-ref=${CUDA_PYTHON_DOCS_GITHUB_REF}" >> "$GITHUB_OUTPUT"
+          echo "pr-number=${PR_NUMBER:-}" >> "$GITHUB_OUTPUT"
+
       - name: Set up artifact directories
         run: |
           mkdir -p artifacts/docs
@@ -330,6 +341,16 @@ jobs:
           path: artifacts/
           retention-days: 3
 
+      - name: Upload docs deployment payload
+        if: ${{ inputs.deploy-docs }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: ${{ steps.deployment-metadata.outputs.deployment-artifact-name }}
+          path: artifacts/docs/
+          retention-days: 3
+          include-hidden-files: true
+          if-no-files-found: error
+
       - name: Upload dry-run docs artifact
         if: ${{ !inputs.deploy-docs || (inputs.is-release && inputs.docs-branch != 'gh-pages') }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
@@ -338,16 +359,46 @@ jobs:
           path: artifacts/docs/
           retention-days: 3
 
+  deploy:
+    name: Deploy docs
+    # GitHub discards prerequisite artifacts on a new run attempt. If only this
+    # job fails, use "Re-run all jobs" so the build recreates its payload.
+    needs: build
+    if: ${{ inputs.deploy-docs && needs.build.result == 'success' }}
+    runs-on: ubuntu-latest
+    # Must match every job that writes to gh-pages.
+    concurrency:
+      group: cuda-python-gh-pages-publish
+      queue: max
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{ inputs.git-tag }}
+
+      - name: Download docs deployment payload
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: ${{ needs.build.outputs.deployment-artifact-name }}
+          path: artifacts/docs/
+
+      - name: Set up deployment directories
+        run: mkdir -p artifacts/empty_docs
+
       - name: Deploy or clean up doc preview
-        if: ${{ inputs.deploy-docs && !inputs.is-release }}
+        if: ${{ !inputs.is-release }}
         uses: ./.github/actions/doc_preview
         with:
           source-folder: ${{ (github.ref_name != 'main' && 'artifacts/docs') ||
                               'artifacts/empty_docs' }}
-          pr-number: ${{ env.PR_NUMBER }}
+          pr-number: ${{ needs.build.outputs.pr-number }}
 
       - name: Deploy doc update
-        if: ${{ inputs.deploy-docs && (github.ref_name == 'main' || inputs.is-release) }}
+        if: ${{ github.ref_name == 'main' || inputs.is-release }}
         uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445  # v4.9.0
         with:
           git-config-name: cuda-python-bot
@@ -355,5 +406,6 @@ jobs:
           branch: ${{ inputs.docs-branch }}
           folder: artifacts/docs/
           target-folder: docs/
-          commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ env.CUDA_PYTHON_DOCS_GITHUB_REF }}"
+          commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ needs.build.outputs.docs-github-ref }}"
           clean: false
+          single-commit: true
