@@ -248,14 +248,14 @@ jobs:
           fi
 
       - name: Display structure of downloaded cuda-python artifacts
-        if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE != 'published' }}
+        if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE != 'floor' }}
         run: |
           pwd
           ls -lah cuda_python*.whl cuda_pathfinder/
 
       - name: Display structure of downloaded cuda.bindings artifacts
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
-                env.BINDINGS_SOURCE != 'published' }}
+                env.BINDINGS_SOURCE != 'floor' }}
         run: |
           pwd
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR

@@ -45,7 +45,10 @@ CUDA Version Support
 example, ``cuda.core`` 1.x supports CUDA 12 and 13.
 
 In particular, what this entails is that all CUDA minor versions within the two major releases
-(12.x, 13.x) are supported by the same ``cuda-core`` package.
+(12.x, 13.x) are supported by the same ``cuda-core`` package, at run time: any CUDA driver and any
+CUDA Toolkit libraries of a supported major work with the same ``cuda-core`` wheel. The one input
+this does not extend to is ``cuda-bindings``, which has a per-release minimum (see
+:ref:`cuda-core-bindings-floor` below).
 
 When a new CUDA major version is released and support for the oldest major version is dropped,
 ``cuda.core`` will release a new major version (e.g., 1.x → 2.0.0).
@@ -59,8 +62,44 @@ When a new CUDA major version is released and support for the oldest major versi
      - 12, 13
 
 As with any CUDA library, certain features may impose additional requirements on the minimum
-``cuda-bindings``, CUDA library, or CUDA driver versions. Refer to the individual module
-documentation for details.
+CUDA library or CUDA driver versions. Refer to the individual module documentation for details.
+
+.. _cuda-core-bindings-floor:
+
+``cuda-bindings`` Version Requirements
+**************************************
+
+Each ``cuda-core`` release declares, for each supported CUDA major version, a minimum
+``cuda-bindings`` version, its *floor*: the newest ``cuda-bindings`` release of that major at the
+time of the ``cuda-core`` release, which is the version the published wheels are built against.
+The floors of the current release are recorded in ``cuda/core/_bindings_floor.py`` and in the
+``cu12``/``cu13`` extras of ``cuda-core``.
+
+.. list-table:: ``cuda-bindings`` floors
+   :header-rows: 1
+
+   * - ``cuda-core`` version
+     - CUDA 12
+     - CUDA 13
+   * - 1.3.x
+     - ``cuda-bindings`` >= 12.9.8
+     - ``cuda-bindings`` >= 13.4.1
+
+- **At run time**, ``import cuda.core`` requires an installed ``cuda-bindings`` of the same major
+  as the ``cuda-core`` build in use and at least as new as that build's floor. An older
+  ``cuda-bindings`` fails at import with a message that names the version found, the version
+  required, and the ``pip`` command that fixes it. A newer ``cuda-bindings`` of the same major is
+  supported.
+- **At build time**, a source build requires ``cuda-bindings`` at or above the floor and a
+  ``cuda.h`` (``CUDA_PATH`` or ``CUDA_HOME``) of the same major.minor as that ``cuda-bindings``,
+  which is the header ``cuda-bindings`` itself was generated from. Any other configuration fails
+  the build with a message that names what was found and what is required. Building against an
+  older CUDA Toolkit than the floor's minor is not supported.
+- **The CUDA driver** is unaffected. Feature availability is decided by the driver alone: a
+  feature the installed driver lacks raises when it is used, as before.
+
+A floor is raised only in a release that needs a newer ``cuda-bindings`` API, and every such
+change is listed under "Breaking Changes" in the :doc:`release notes <release>`.
 
 Python Version Support
 ----------------------

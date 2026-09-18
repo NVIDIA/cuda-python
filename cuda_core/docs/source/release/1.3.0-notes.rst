@@ -6,6 +6,20 @@
 ``cuda.core`` 1.3.0 Release Notes
 ==================================
 
+Breaking Changes
+----------------
+
+- ``cuda.core`` now requires a minimum ``cuda-bindings`` version per CUDA major, at build time and
+  at run time: 12.9.8 for CUDA 12 and 13.4.1 for CUDA 13 (see the
+  :ref:`support policy <cuda-core-bindings-floor>`). ``import cuda.core`` with an older
+  ``cuda-bindings`` fails with a message that names the required version and how to install it;
+  ``pip install cuda-core[cu12]`` / ``[cu13]`` installs a compatible version. A source build must
+  also use a ``cuda.h`` of the same major.minor as its ``cuda-bindings``; it fails early otherwise.
+  Supported CUDA drivers and CUDA Toolkit libraries are unchanged. Previously any
+  ``cuda-bindings`` of the right major was accepted, and an older one produced import errors for
+  missing C functions, silently disabled features, or crashes.
+  (https://github.com/NVIDIA/cuda-python/issues/2783)
+
 New features
 ------------
 
