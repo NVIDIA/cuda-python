@@ -234,7 +234,7 @@ def _capture_cythonize_build_dir(monkeypatch, cuda_major):
     monkeypatch.setattr(build_hooks, "_get_cuda_path", lambda: "/nonexistent-cuda")
     # The configuration check reads that header and the installed cuda-bindings;
     # it has its own tests (TestBuildConfigurationCheck).
-    monkeypatch.setattr(build_hooks, "_check_build_configuration", lambda cuda_path, cuda_major: None)
+    monkeypatch.setattr(build_hooks, "_check_build_configuration", lambda *_: None)
     monkeypatch.setattr(build_hooks, "cythonize", fake_cythonize)
     monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", cuda_major)
     build_hooks._determine_cuda_major_version.cache_clear()
@@ -494,12 +494,13 @@ class TestBuildConfigurationCheck:
 
         build_hooks._check_build_configuration(cuda_path, str(major))
 
-        info = {}
-        exec(build_hooks._BUILD_INFO_PATH.read_text(), info)
-        assert info["CUDA_MAJOR"] == major
-        assert info["CUDA_VERSION"] == floor[0] * 1000 + floor[1] * 10
-        assert info["CUDA_BINDINGS_FLOOR"] == floor
-        assert info["CUDA_BINDINGS_BUILD_VERSION"] == version
+        spec = importlib.util.spec_from_file_location("_build_info_under_test", build_hooks._BUILD_INFO_PATH)
+        info = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(info)
+        assert major == info.CUDA_MAJOR
+        assert floor[0] * 1000 + floor[1] * 10 == info.CUDA_VERSION
+        assert floor == info.CUDA_BINDINGS_FLOOR
+        assert version == info.CUDA_BINDINGS_BUILD_VERSION
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_bindings_below_the_floor_fail(self, tmp_path, monkeypatch):
@@ -597,7 +598,7 @@ class TestDefineMacros:
             return []
 
         monkeypatch.setattr(build_hooks, "_get_cuda_path", lambda: "/nonexistent-cuda")
-        monkeypatch.setattr(build_hooks, "_check_build_configuration", lambda cuda_path, cuda_major: None)
+        monkeypatch.setattr(build_hooks, "_check_build_configuration", lambda *_: None)
         monkeypatch.setattr(build_hooks, "cythonize", fake_cythonize)
         monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
         build_hooks._determine_cuda_major_version.cache_clear()

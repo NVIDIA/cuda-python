@@ -13,20 +13,19 @@ REPO = TOOLS.parent.parent
 FLOOR_MODULE = REPO / "cuda_core" / "cuda" / "core" / "_bindings_floor.py"
 
 
-def _load_tool():
-    spec = importlib.util.spec_from_file_location("cuda_core_bindings_floor", TOOLS / "cuda_core_bindings_floor.py")
+def _load(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
 
 
-tool = _load_tool()
+tool = _load("cuda_core_bindings_floor", TOOLS / "cuda_core_bindings_floor.py")
+floor_module = _load("cuda_core_bindings_floor_module", FLOOR_MODULE)
 
 
 def _expected(major):
-    namespace = {}
-    exec(FLOOR_MODULE.read_text(encoding="utf-8"), namespace)
-    return namespace["format_version"](namespace["CUDA_BINDINGS_FLOOR"][major])
+    return floor_module.format_version(floor_module.CUDA_BINDINGS_FLOOR[major])
 
 
 def _wheel(tmp_path, entries):

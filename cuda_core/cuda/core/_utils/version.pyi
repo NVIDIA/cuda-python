@@ -2,6 +2,7 @@
 
 import functools
 
+BUILD_CUDA_MAJOR: int = ...
 
 def _parse_version_triple(version_str: str) -> tuple[int, int, int]:
     """Parse a PEP 440 version string into a (major, minor, patch) triple.
@@ -10,8 +11,6 @@ def _parse_version_triple(version_str: str) -> tuple[int, int, int]:
     ``0b1`` or ``0rc1`` by extracting only the leading integer from each
     release segment.
     """
-BUILD_CUDA_MAJOR: int
-
 @functools.cache
 def binding_version() -> tuple[int, int, int]:
     """Return the cuda-bindings version as a (major, minor, patch) triple."""

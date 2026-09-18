@@ -16,12 +16,14 @@ commit reads that wheel's floor.
 
 The wheel carries the import-free module cuda/core/_bindings_floor.py, at top
 level in a single-major build and under cuda/core/cu<major>/ in the merged
-wheel; this script evaluates it and prints CUDA_BINDINGS_FLOOR[major].
+wheel; this script reads the CUDA_BINDINGS_FLOOR literal out of it (without
+running the module) and prints the entry for `major` as a dotted version.
 """
 
 from __future__ import annotations
 
 import argparse
+import ast
 import sys
 import zipfile
 from pathlib import Path
@@ -29,13 +31,25 @@ from pathlib import Path
 MODULE = "_bindings_floor.py"
 
 
+def floors_from_source(source: str) -> dict[int, tuple[int, int, int]]:
+    """The CUDA_BINDINGS_FLOOR literal of _bindings_floor.py, parsed without executing it."""
+    for node in ast.parse(source, MODULE).body:
+        if isinstance(node, ast.AnnAssign):
+            targets = [node.target]
+        elif isinstance(node, ast.Assign):
+            targets = node.targets
+        else:
+            continue
+        if node.value is not None and any(isinstance(t, ast.Name) and t.id == "CUDA_BINDINGS_FLOOR" for t in targets):
+            return ast.literal_eval(node.value)
+    raise SystemExit(f"{MODULE} does not assign CUDA_BINDINGS_FLOOR")
+
+
 def floor_from_source(source: str, major: int) -> str:
-    namespace: dict = {}
-    exec(compile(source, MODULE, "exec"), namespace)
-    floors = namespace["CUDA_BINDINGS_FLOOR"]
+    floors = floors_from_source(source)
     if major not in floors:
         raise SystemExit(f"CUDA {major} is not a supported major (floors: {sorted(floors)})")
-    return namespace["format_version"](floors[major])
+    return ".".join(str(part) for part in floors[major])
 
 
 def floor_from_wheel(wheel: Path, major: int) -> str:
