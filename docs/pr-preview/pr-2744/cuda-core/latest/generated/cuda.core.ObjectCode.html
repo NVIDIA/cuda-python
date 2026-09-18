@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=47bbfa18"></script>
+    <script src="../_static/documentation_options.js?v=21d86056"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev123';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev105';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -235,6 +235,13 @@
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../concurrency.html">
     Concurrency and Thread Safety
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../error_handling.html">
+    Error Handling
   </a>
 </li>
 
@@ -470,6 +477,13 @@
 </li>
 
 
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../error_handling.html">
+    Error Handling
+  </a>
+</li>
+
+
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core API Reference
@@ -570,6 +584,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../concurrency.html">Concurrency and Thread Safety</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../error_handling.html">Error Handling</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Device.html">cuda.core.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Host.html">cuda.core.Host</a></li>
@@ -649,6 +664,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAError.html">cuda.core.CUDAError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.NVRTCError.html">cuda.core.NVRTCError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.copy_batch.html">cuda.core.utils.copy_batch</a></li>
@@ -686,6 +704,8 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.3.0-notes.html">1.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.2.1-notes.html">1.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.2.0-notes.html">1.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.1.1-notes.html">1.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.1.0-notes.html">1.1.0</a></li>
@@ -788,11 +808,11 @@ from all other possible code types should be avoided in favor of compilation thr
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><em>os.PathLike</em></a>) – Either a bytes object containing the in-memory cubin to load, or
+<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><em>os.PathLike</em></a>) – Either a bytes object containing the in-memory cubin to load, or
 a file path object (or its string representation) pointing to the
 on-disk cubin to load.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – A human-readable identifier representing this code object.</p></li>
-<li><p><strong>symbol_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> | </em><em>None</em>) – A dictionary specifying how the unmangled symbol names (as keys)
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – A human-readable identifier representing this code object.</p></li>
+<li><p><strong>symbol_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> | </em><em>None</em>) – A dictionary specifying how the unmangled symbol names (as keys)
 should be mapped to the mangled names before trying to retrieve
 them (default to no mappings).</p></li>
 </ul>
@@ -807,11 +827,11 @@ them (default to no mappings).</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><em>os.PathLike</em></a>) – Either a bytes object containing the in-memory fatbin to load, or
+<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><em>os.PathLike</em></a>) – Either a bytes object containing the in-memory fatbin to load, or
 or a file path object (or its string representation) pointing to the
 on-disk fatbin to load.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – A human-readable identifier representing this code object.</p></li>
-<li><p><strong>symbol_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> | </em><em>None</em>) – A dictionary specifying how the unmangled symbol names (as keys)
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – A human-readable identifier representing this code object.</p></li>
+<li><p><strong>symbol_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> | </em><em>None</em>) – A dictionary specifying how the unmangled symbol names (as keys)
 should be mapped to the mangled names before trying to retrieve
 them (default to no mappings).</p></li>
 </ul>
@@ -836,10 +856,10 @@ them (default to no mappings).</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Either a bytes object containing the in-memory library to load, or
+<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Either a bytes object containing the in-memory library to load, or
 a file path string pointing to the on-disk library to load.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – A human-readable identifier representing this code object.</p></li>
-<li><p><strong>symbol_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> | </em><em>None</em>) – A dictionary specifying how the unmangled symbol names (as keys)
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – A human-readable identifier representing this code object.</p></li>
+<li><p><strong>symbol_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> | </em><em>None</em>) – A dictionary specifying how the unmangled symbol names (as keys)
 should be mapped to the mangled names before trying to retrieve
 them (default to no mappings).</p></li>
 </ul>
@@ -854,11 +874,11 @@ them (default to no mappings).</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><em>os.PathLike</em></a>) – Either a bytes object containing the in-memory ltoir code to load,
+<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><em>os.PathLike</em></a>) – Either a bytes object containing the in-memory ltoir code to load,
 or a file path object (or its string representation) pointing to the
 on-disk ltoir file to load.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – A human-readable identifier representing this code object.</p></li>
-<li><p><strong>symbol_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> | </em><em>None</em>) – A dictionary specifying how the unmangled symbol names (as keys)
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – A human-readable identifier representing this code object.</p></li>
+<li><p><strong>symbol_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> | </em><em>None</em>) – A dictionary specifying how the unmangled symbol names (as keys)
 should be mapped to the mangled names before trying to retrieve
 them (default to no mappings).</p></li>
 </ul>
@@ -883,10 +903,10 @@ them (default to no mappings).</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Either a bytes object containing the in-memory object code to load, or
+<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Either a bytes object containing the in-memory object code to load, or
 a file path string pointing to the on-disk object code to load.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – A human-readable identifier representing this code object.</p></li>
-<li><p><strong>symbol_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> | </em><em>None</em>) – A dictionary specifying how the unmangled symbol names (as keys)
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – A human-readable identifier representing this code object.</p></li>
+<li><p><strong>symbol_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> | </em><em>None</em>) – A dictionary specifying how the unmangled symbol names (as keys)
 should be mapped to the mangled names before trying to retrieve
 them (default to no mappings).</p></li>
 </ul>
@@ -901,11 +921,11 @@ them (default to no mappings).</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><em>os.PathLike</em></a>) – Either a bytes object containing the in-memory ptx code to load, or
+<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><em>os.PathLike</em></a>) – Either a bytes object containing the in-memory ptx code to load, or
 a file path object (or its string representation) pointing to the
 on-disk ptx file to load.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – A human-readable identifier representing this code object.</p></li>
-<li><p><strong>symbol_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> | </em><em>None</em>) – A dictionary specifying how the unmangled symbol names (as keys)
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – A human-readable identifier representing this code object.</p></li>
+<li><p><strong>symbol_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> | </em><em>None</em>) – A dictionary specifying how the unmangled symbol names (as keys)
 should be mapped to the mangled names before trying to retrieve
 them (default to no mappings).</p></li>
 </ul>
@@ -915,11 +935,11 @@ them (default to no mappings).</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.ObjectCode.get_kernel">
-<span class="sig-name descname"><span class="pre">get_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core.Kernel"><span class="pre">Kernel</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.get_kernel" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core.Kernel"><span class="pre">Kernel</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.get_kernel" title="Link to this definition">#</a></dt>
 <dd><p>Return the <a class="reference internal" href="cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core._module.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a> of a specified name from this object code.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Name of the kernel to retrieve.</p>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Name of the kernel to retrieve.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Newly created kernel object.</p>
