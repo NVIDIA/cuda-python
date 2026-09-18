@@ -688,6 +688,52 @@ def test_relocatable_ltoir_round_trip(init_cuda):
     is_culink_backend or nvjitlink_version < (13, 3) or not has_linked_ltoir_bindings,
     reason="linked LTOIR output requires nvJitLink 13.3 or newer and matching cuda-bindings",
 )
+def test_complete_ltoir_round_trip_matches_direct_cubin(init_cuda):
+    caller, helper = _compile_incremental_inputs("ltoir")
+    options = LinkerOptions(arch=ARCH, link_time_optimization=True)
+
+    linked_ltoir = Linker(caller, helper, options=options).link("ltoir")
+    direct_cubin = Linker(caller, helper, options=options).link("cubin")
+    round_trip_cubin = Linker(linked_ltoir, options=options).link("cubin")
+
+    assert linked_ltoir.code_type == "ltoir"
+    assert round_trip_cubin.code == direct_cubin.code
+    _launch_incrementally_linked_kernel(init_cuda, round_trip_cubin)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.skipif(
+    is_culink_backend or nvjitlink_version < (13, 2),
+    reason="relocatable linking requires nvJitLink 13.2 or newer",
+)
+def test_relocatable_lto_cubin_round_trip(init_cuda):
+    caller, helper = _compile_incremental_inputs("ltoir")
+    partial = Linker(
+        caller,
+        options=LinkerOptions(
+            arch=ARCH,
+            relocatable=True,
+            link_time_optimization=True,
+        ),
+    ).link("cubin")
+
+    assert partial.code_type == "cubin"
+    assert partial.code.startswith(b"\x7fELF")
+    assert int.from_bytes(partial.code[16:18], "little") == 1  # ET_REL
+
+    final = Linker(
+        partial,
+        helper,
+        options=LinkerOptions(arch=ARCH, link_time_optimization=True),
+    ).link("cubin")
+    _launch_incrementally_linked_kernel(init_cuda, final)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.skipif(
+    is_culink_backend or nvjitlink_version < (13, 3) or not has_linked_ltoir_bindings,
+    reason="linked LTOIR output requires nvJitLink 13.3 or newer and matching cuda-bindings",
+)
 @pytest.mark.parametrize("non_ltoir_type", ("ptx", "cubin"))
 def test_ltoir_output_rejects_inputs_without_ltoir(init_cuda, non_ltoir_type):
     caller, _ = _compile_incremental_inputs("ltoir")
