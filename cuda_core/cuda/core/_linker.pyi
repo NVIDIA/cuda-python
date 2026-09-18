@@ -21,6 +21,8 @@ const_char_ptr: TypeAlias = bytes
 __all__ = ['Linker', 'LinkerOptions']
 LinkerHandleT = Union['cuda.bindings.nvjitlink.nvJitLinkHandle', 'cuda.bindings.driver.CUlinkState']
 _driver = None
+_nvjitlink = None
+_nvjitlink_version = None
 _inited = False
 _use_nvjitlink_backend = None
 _nvjitlink_input_types = None
@@ -259,8 +261,8 @@ class LinkerOptions:
             If nvJitLink backend is not available.
         """
 
-def _require_nvjitlink_version(minimum_version: tuple[int, int], feature: str):
-    """Return the nvJitLink module after checking a feature's runtime version."""
+def _require_nvjitlink_version(minimum_version: tuple[int, int], feature: str) -> None:
+    """Check that the cached nvJitLink runtime meets a feature's requirement."""
 def _linked_ltoir_output_module():
     """Return bindings that can retrieve linked LTOIR without a Cython dependency."""
 def _nvjitlink_has_version_symbol(nvjitlink) -> bool: ...

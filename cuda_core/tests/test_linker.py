@@ -342,11 +342,37 @@ class TestWhichBackendClassmethod:
         assert result == "nvJitLink"
         assert called, "_decide_nvjitlink_or_driver was not called"
 
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_which_backend_caches_nvjitlink_module_and_version(self, monkeypatch):
+        class NvJitLink:
+            version_calls = 0
+
+            @classmethod
+            def version(cls):
+                cls.version_calls += 1
+                return (13, 4)
+
+        monkeypatch.setattr(_linker, "_use_nvjitlink_backend", None)
+        monkeypatch.setattr(_linker, "_nvjitlink", None)
+        monkeypatch.setattr(_linker, "_nvjitlink_version", None)
+        monkeypatch.setattr(_linker, "_optional_cuda_import", lambda _name: NvJitLink)
+        monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", lambda _nvjitlink: True)
+
+        assert Linker.which_backend() == "nvJitLink"
+        assert _linker._nvjitlink is NvJitLink
+        assert _linker._nvjitlink_version == (13, 4)
+        assert NvJitLink.version_calls == 1
+
+        assert Linker.which_backend() == "nvJitLink"
+        assert NvJitLink.version_calls == 1
+
     @pytest.mark.agent_authored(model="grok-4.5")
     def test_which_backend_falls_back_when_nvjitlink_too_old(self, monkeypatch):
         """Regression test for #2408: old nvJitLink must not crash which_backend()."""
         monkeypatch.setattr(_linker, "_use_nvjitlink_backend", None)
         monkeypatch.setattr(_linker, "_driver", None)
+        monkeypatch.setattr(_linker, "_nvjitlink", None)
+        monkeypatch.setattr(_linker, "_nvjitlink_version", None)
 
         def fake__optional_cuda_import(modname, probe_function=None):
             assert modname == "cuda.bindings.nvjitlink"
@@ -368,6 +394,8 @@ class TestWhichBackendClassmethod:
 
         monkeypatch.setattr(_linker, "_use_nvjitlink_backend", None)
         monkeypatch.setattr(_linker, "_driver", None)
+        monkeypatch.setattr(_linker, "_nvjitlink", None)
+        monkeypatch.setattr(_linker, "_nvjitlink_version", None)
 
         def raise_missing(_nvjitlink):
             raise DynamicLibNotFoundError("missing")
@@ -533,12 +561,7 @@ def test_as_bytes_nvjitlink_unavailable(monkeypatch):
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_require_nvjitlink_version_reports_required_and_detected_versions(monkeypatch):
-    class OldNvJitLink:
-        @staticmethod
-        def version():
-            return (13, 1)
-
-    monkeypatch.setattr(_linker, "_optional_cuda_import", lambda _name: OldNvJitLink)
+    monkeypatch.setattr(_linker, "_nvjitlink_version", (13, 1))
 
     with pytest.raises(RuntimeError, match=r"requires nvJitLink 13\.2 or newer; found 13\.1"):
         _linker._require_nvjitlink_version((13, 2), "relocatable linking")
@@ -546,27 +569,14 @@ def test_require_nvjitlink_version_reports_required_and_detected_versions(monkey
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_require_nvjitlink_version_accepts_boundary_version(monkeypatch):
-    class NvJitLinkAtMinimum:
-        @staticmethod
-        def version():
-            return (13, 2)
+    monkeypatch.setattr(_linker, "_nvjitlink_version", (13, 2))
 
-    monkeypatch.setattr(_linker, "_optional_cuda_import", lambda _name: NvJitLinkAtMinimum)
-
-    assert _linker._require_nvjitlink_version((13, 2), "relocatable linking") is NvJitLinkAtMinimum
+    _linker._require_nvjitlink_version((13, 2), "relocatable linking")
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_linked_ltoir_output_requires_new_enough_runtime(monkeypatch):
-    class OldNvJitLink:
-        get_linked_ltoir_size = object()
-        get_linked_ltoir = object()
-
-        @staticmethod
-        def version():
-            return (13, 2)
-
-    monkeypatch.setattr(_linker, "_optional_cuda_import", lambda _name: OldNvJitLink)
+    monkeypatch.setattr(_linker, "_nvjitlink_version", (13, 2))
 
     with pytest.raises(RuntimeError, match=r"LTOIR output requires nvJitLink 13\.3 or newer; found 13\.2"):
         _linker._linked_ltoir_output_module()
@@ -575,11 +585,10 @@ def test_linked_ltoir_output_requires_new_enough_runtime(monkeypatch):
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_linked_ltoir_output_requires_new_enough_bindings(monkeypatch):
     class NvJitLinkWithoutLinkedLtoir:
-        @staticmethod
-        def version():
-            return (13, 3)
+        pass
 
-    monkeypatch.setattr(_linker, "_optional_cuda_import", lambda _name: NvJitLinkWithoutLinkedLtoir)
+    monkeypatch.setattr(_linker, "_nvjitlink", NvJitLinkWithoutLinkedLtoir)
+    monkeypatch.setattr(_linker, "_nvjitlink_version", (13, 3))
 
     with pytest.raises(RuntimeError, match="cuda-bindings with get_linked_ltoir_size and get_linked_ltoir"):
         _linker._linked_ltoir_output_module()

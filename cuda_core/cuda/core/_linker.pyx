@@ -752,6 +752,8 @@ cdef inline void Linker_annotate_error_log(Linker self, object e):
 
 # TODO: revisit this treatment for py313t builds
 _driver = None  # populated if nvJitLink cannot be used
+_nvjitlink = None  # populated if nvJitLink can be used
+_nvjitlink_version = None
 _inited = False
 _use_nvjitlink_backend = None  # set by _decide_nvjitlink_or_driver()
 
@@ -760,33 +762,27 @@ _nvjitlink_input_types = None
 _driver_input_types = None
 
 
-def _require_nvjitlink_version(minimum_version: tuple[int, int], feature: str):
-    """Return the nvJitLink module after checking a feature's runtime version."""
-    nvjitlink_module = _optional_cuda_import("cuda.bindings.nvjitlink")
-    if nvjitlink_module is None:
-        raise RuntimeError(f"{feature} requires cuda.bindings.nvjitlink")
-
-    detected_version = nvjitlink_module.version()
-    if detected_version < minimum_version:
+def _require_nvjitlink_version(minimum_version: tuple[int, int], feature: str) -> None:
+    """Check that the cached nvJitLink runtime meets a feature's requirement."""
+    if _nvjitlink_version < minimum_version:
         required = ".".join(str(component) for component in minimum_version)
-        detected = ".".join(str(component) for component in detected_version)
+        detected = ".".join(str(component) for component in _nvjitlink_version)
         raise RuntimeError(f"{feature} requires nvJitLink {required} or newer; found {detected}")
-    return nvjitlink_module
 
 
 def _linked_ltoir_output_module():
     """Return bindings that can retrieve linked LTOIR without a Cython dependency."""
-    nvjitlink_module = _require_nvjitlink_version((13, 3), "LTOIR output")
+    _require_nvjitlink_version((13, 3), "LTOIR output")
     missing = [
         name
         for name in ("get_linked_ltoir_size", "get_linked_ltoir")
-        if not hasattr(nvjitlink_module, name)
+        if not hasattr(_nvjitlink, name)
     ]
     if missing:
         raise RuntimeError(
             "LTOIR output requires cuda-bindings with " + " and ".join(missing)
         )
-    return nvjitlink_module
+    return _nvjitlink
 
 
 def _nvjitlink_has_version_symbol(nvjitlink) -> bool:
@@ -797,9 +793,12 @@ def _nvjitlink_has_version_symbol(nvjitlink) -> bool:
 # Note: this function is reused in the tests
 def _decide_nvjitlink_or_driver() -> bool:
     """Return True if falling back to the cuLink* driver APIs."""
-    global _driver, _use_nvjitlink_backend
+    global _driver, _nvjitlink, _nvjitlink_version, _use_nvjitlink_backend
     if _use_nvjitlink_backend is not None:
         return not _use_nvjitlink_backend
+
+    _nvjitlink = None
+    _nvjitlink_version = None
 
     warn_txt_common = (
         "the driver APIs will be used instead, which do not support"
@@ -821,6 +820,9 @@ def _decide_nvjitlink_or_driver() -> bool:
             )
         else:
             if has_version_symbol:
+                detected_version = nvjitlink_module.version()
+                _nvjitlink = nvjitlink_module
+                _nvjitlink_version = detected_version
                 _use_nvjitlink_backend = True
                 return False  # Use nvjitlink
             warn_txt = (
