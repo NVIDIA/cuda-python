@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=b966aab5"></script>
+    <script src="../_static/documentation_options.js?v=4517b012"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev111';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev115';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -915,7 +915,8 @@ address range.</p>
 <li><p><strong>new_size</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The requested total size in bytes; rounded up to the granularity.</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><em>VirtualMemoryResourceOptions</em></a><em>, </em><em>optional</em>) – Configuration for the new physical memory chunk only. Existing
 chunks keep the access they were created with, and the resource’s
-own configuration is unchanged.</p></li>
+own configuration is unchanged. It must name the resource’s
+<code class="docutils literal notranslate"><span class="pre">location_type</span></code> and passes the same checks as the constructor.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -928,6 +929,10 @@ buffer of the rounded size.</p>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">buf</span></code> did not come from this resource.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">config</span></code> names a different location than the resource, or
+    the constructor would reject it.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">buf</span></code> is closed, or <code class="docutils literal notranslate"><span class="pre">config</span></code> requests GPUDirect RDMA on a
+    device without support.</p></li>
 <li><p><a class="reference internal" href="cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><strong>CUDAError</strong></a> – If a driver call fails. <code class="docutils literal notranslate"><span class="pre">buf</span></code> is untouched when this method raises.</p></li>
 </ul>
 </dd>

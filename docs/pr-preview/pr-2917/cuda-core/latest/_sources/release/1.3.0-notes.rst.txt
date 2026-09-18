@@ -33,7 +33,10 @@ New features
 
 - Added :class:`VirtualMemoryBuffer`, the :class:`Buffer` subclass that
   :class:`VirtualMemoryResource` returns. Closing it on a capturing stream
-  raises, because virtual memory deallocation cannot be captured.
+  other than a default stream raises, because virtual memory deallocation
+  cannot be captured. A release ordered on a default stream that would
+  disturb a capture in its context is reported as a :class:`CUDAWarning`
+  and proceeds without the synchronization.
 
 Fixes and enhancements
 ----------------------
@@ -163,8 +166,9 @@ Fixes and enhancements
   range. A request the buffer already covers returns the buffer itself, and
   :attr:`Buffer.size` after a grow is the aligned total. The ``config``
   argument applies to the chunk that call adds and is no longer stored on the
-  resource (`#2909 <https://github.com/NVIDIA/cuda-python/issues/2909>`__).
-  Buffers from ``allocate()`` free themselves when they close and no longer
+  resource (`#2909 <https://github.com/NVIDIA/cuda-python/issues/2909>`__);
+  it must keep the resource's location and passes the constructor's option
+  checks. Buffers from ``allocate()`` free themselves when they close and no longer
   call :meth:`VirtualMemoryResource.deallocate`, which now serves pointers
   wrapped with :meth:`Buffer.from_handle`. A buffer records the stream passed
   to ``allocate()`` and the last close of an aliased range synchronizes every

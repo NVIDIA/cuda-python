@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=b966aab5"></script>
+    <script src="../_static/documentation_options.js?v=4517b012"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev111';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev115';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -814,8 +814,12 @@ freed when the last buffer that maps it closes.</p>
 last buffer that maps them closes. Before it unmaps, the resource
 synchronizes every deallocation stream the buffers of the range
 recorded. Virtual memory deallocation is synchronous and cannot be
-captured, so closing on a capturing stream raises and leaves the
-buffer open.</p>
+captured. When the stream this close uses, given or recorded, is not
+a default stream and is capturing, the call raises and leaves the
+buffer open. A default stream is checked when the range is released
+instead: if synchronizing it would disturb a capture in its context,
+the release reports a <a class="reference internal" href="cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a> and unmaps without
+synchronizing that stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, optional) – If given, replaces the recorded deallocation stream, as for

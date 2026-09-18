@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=b966aab5"></script>
+    <script src="../_static/documentation_options.js?v=4517b012"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev111';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev115';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -806,7 +806,10 @@ top-level <code class="docutils literal notranslate"><span class="pre">cuda.core
 they were only available from a private module.</p></li>
 <li><p>Added <a class="reference internal" href="../generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a>, the <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> subclass that
 <a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> returns. Closing it on a capturing stream
-raises, because virtual memory deallocation cannot be captured.</p></li>
+other than a default stream raises, because virtual memory deallocation
+cannot be captured. A release ordered on a default stream that would
+disturb a capture in its context is reported as a <a class="reference internal" href="../generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a>
+and proceeds without the synchronization.</p></li>
 </ul>
 </section>
 <section id="fixes-and-enhancements">
@@ -924,8 +927,9 @@ and the pointer is preserved when the driver grants the adjacent address
 range. A request the buffer already covers returns the buffer itself, and
 <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.size" title="cuda.core.Buffer.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.size</span></code></a> after a grow is the aligned total. The <code class="docutils literal notranslate"><span class="pre">config</span></code>
 argument applies to the chunk that call adds and is no longer stored on the
-resource (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2909">#2909</a>).
-Buffers from <code class="docutils literal notranslate"><span class="pre">allocate()</span></code> free themselves when they close and no longer
+resource (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2909">#2909</a>);
+it must keep the resource’s location and passes the constructor’s option
+checks. Buffers from <code class="docutils literal notranslate"><span class="pre">allocate()</span></code> free themselves when they close and no longer
 call <a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.deallocate" title="cuda.core.VirtualMemoryResource.deallocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">VirtualMemoryResource.deallocate()</span></code></a>, which now serves pointers
 wrapped with <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.from_handle" title="cuda.core.Buffer.from_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_handle()</span></code></a>. A buffer records the stream passed
 to <code class="docutils literal notranslate"><span class="pre">allocate()</span></code> and the last close of an aliased range synchronizes every
