@@ -63,6 +63,18 @@ extern decltype(&cuMemFreeHost) p_cuMemFreeHost;
 
 extern decltype(&cuMemPoolImportPointer) p_cuMemPoolImportPointer;
 
+// Virtual memory management (VMM_DESIGN.md)
+extern decltype(&cuMemCreate) p_cuMemCreate;
+extern decltype(&cuMemRelease) p_cuMemRelease;
+extern decltype(&cuMemAddressReserve) p_cuMemAddressReserve;
+extern decltype(&cuMemAddressFree) p_cuMemAddressFree;
+extern decltype(&cuMemMap) p_cuMemMap;
+extern decltype(&cuMemUnmap) p_cuMemUnmap;
+extern decltype(&cuMemSetAccess) p_cuMemSetAccess;
+extern decltype(&cuStreamSynchronize) p_cuStreamSynchronize;
+extern decltype(&cuStreamGetCaptureInfo) p_cuStreamGetCaptureInfo;
+extern decltype(&cuThreadExchangeStreamCaptureMode) p_cuThreadExchangeStreamCaptureMode;
+
 // Library
 extern decltype(&cuLibraryLoadFromFile) p_cuLibraryLoadFromFile;
 extern decltype(&cuLibraryLoadData) p_cuLibraryLoadData;
