@@ -90,12 +90,26 @@ def test_umbrellas_are_named_only_by_their_cython_file():
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_consumer_closure_is_types_and_the_python_seam():
     closure = {p.name for p in include_closure(RT / "handles.hpp")}
-    assert closure == {"handles.hpp", "py.hpp", "types.hpp"}
+    assert closure == {"handles.hpp", "py.hpp", "types.hpp", "versions.hpp"}
     # Consumers are RTLD_LOCAL extensions that cannot link to _rt: nothing with storage.
     for name in sorted(closure):
         text = read(RT / name)
         assert not re.search(r'^extern (?!"C")', text, re.M), f"{name} declares an extern variable"
         assert not re.search(r"^(static|thread_local)\b", text, re.M), f"{name} defines storage"
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_cuda_version_is_named_only_in_versions_hpp():
+    """The C++ may branch on CUDA_CORE_BUILD_MAJOR only. A `#if CUDA_VERSION >= 130x0`
+    fence compiled a feature out of source builds against an older header while the
+    run-time checks never noticed (https://github.com/NVIDIA/cuda-python/issues/2783);
+    versions.hpp checks the header once and is the only file allowed to name it."""
+    cpp = CORE / "_cpp"
+    files = sorted(p for p in cpp.rglob("*") if p.suffix in (".hpp", ".h", ".cpp"))
+    assert len(files) > 20
+    spellers = sorted(p.relative_to(cpp).as_posix() for p in files if re.search(r"\bCUDA_VERSION\b", read(p)))
+    assert spellers == ["rt/versions.hpp"]
+    assert "CUDA_CORE_BUILD_MAJOR" in read(RT / "versions.hpp")
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")

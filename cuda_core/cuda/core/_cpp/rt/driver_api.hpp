@@ -99,24 +99,6 @@ extern decltype(&cuTexObjectDestroy) p_cuTexObjectDestroy;
 extern decltype(&cuSurfObjectCreate) p_cuSurfObjectCreate;
 extern decltype(&cuSurfObjectDestroy) p_cuSurfObjectDestroy;
 
-// SM resource split (13.1+ — may be null on older drivers/bindings)
-#if CUDA_VERSION >= 13010
-extern decltype(&cuDevSmResourceSplit) p_cuDevSmResourceSplit;
-#else
-// cuDevSmResourceSplit doesn't exist in CUDA < 13.1 headers, so use a
-// void* placeholder. The pointer is always null when built against 12.x.
-extern void* p_cuDevSmResourceSplit;
-#endif
-
-// cuMemcpyWithAttributesAsync (13.2+ — may be null on older drivers/bindings)
-#if CUDA_VERSION >= 13020
-extern decltype(&cuMemcpyWithAttributesAsync) p_cuMemcpyWithAttributesAsync;
-#else
-// cuMemcpyWithAttributesAsync doesn't exist in CUDA < 13.2 headers, so use a
-// void* placeholder. The pointer is always null when built against older CUDA.
-extern void* p_cuMemcpyWithAttributesAsync;
-#endif
-
 // ============================================================================
 // NVRTC function pointers
 //
@@ -151,40 +133,5 @@ extern NvvmDestroyProgramFn p_nvvmDestroyProgram;
 // Signature: nvJitLinkResult nvJitLinkDestroy(nvJitLinkHandle *handle)
 using NvJitLinkDestroyFn = int (*)(nvJitLink_t*);
 extern NvJitLinkDestroyFn p_nvJitLinkDestroy;
-
-// ============================================================================
-// SM resource split wrapper (13.1+)
-//
-// Calls through p_cuDevSmResourceSplit if available, otherwise returns
-// CUDA_ERROR_NOT_SUPPORTED. This avoids a direct Cython cimport of the
-// cydriver cdef function, which would fail at module init on cuda-bindings
-// < 13.1 (see https://github.com/NVIDIA/cuda-python/issues/2063).
-// ============================================================================
-
-// groupParams is void* so the Cython declaration doesn't reference
-// CU_DEV_SM_RESOURCE_GROUP_PARAMS (absent from cuda-bindings 13.0 .pxd).
-CUresult sm_resource_split(CUdevResource* result, unsigned int nbGroups,
-                           const CUdevResource* input, CUdevResource* remainder,
-                           unsigned int flags, void* groupParams);
-
-// Returns true if the cuDevSmResourceSplit function pointer is available.
-bool has_sm_resource_split() noexcept;
-
-// ============================================================================
-// cuMemcpyWithAttributesAsync wrapper (13.2+)
-//
-// Calls through p_cuMemcpyWithAttributesAsync if available, otherwise returns
-// CUDA_ERROR_NOT_SUPPORTED. This avoids a direct Cython cimport of the
-// cydriver cdef function, which would fail at module init on cuda-bindings
-// < 13.2 (see https://github.com/NVIDIA/cuda-python/issues/2063).
-// ============================================================================
-
-// attr is void* so the Cython declaration doesn't reference CUmemcpyAttributes
-// (absent from cuda-bindings built against CUDA < 12.8). The C++ side casts it.
-CUresult memcpy_with_attributes_async(CUdeviceptr dst, CUdeviceptr src, size_t size,
-                                       void* attr, CUstream hStream);
-
-// Returns true if the cuMemcpyWithAttributesAsync function pointer is available.
-bool has_memcpy_with_attributes_async() noexcept;
 
 }  // namespace cuda_core::rt

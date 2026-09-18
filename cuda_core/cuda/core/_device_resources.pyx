@@ -225,20 +225,17 @@ cdef inline unsigned int _to_sm_count(object value) except? 0:
     return <unsigned int>(value)
 
 
-IF CUDA_CORE_BUILD_MAJOR >= 13:
-    from cuda.core._rt cimport sm_resource_split, has_sm_resource_split
-
 cdef int _structured_split_checked = 0
 
 cdef inline bint _can_use_structured_sm_split():
-    """Check if cuDevSmResourceSplit (13.1+) is available. Cached."""
+    """Whether the driver provides cuDevSmResourceSplit (13.1+). Cached.
+
+    cuda-bindings 13.4+ (the floor) always exports it; only the driver can lack it."""
     global _structured_split_checked
     if _structured_split_checked != 0:
         return _structured_split_checked == 1
     IF CUDA_CORE_BUILD_MAJOR >= 13:
-        if (has_sm_resource_split()
-                and cy_driver_version() >= (13, 1, 0)
-                and cy_binding_version() >= (13, 1, 0)):
+        if cy_driver_version() >= (13, 1, 0):
             _structured_split_checked = 1
             return True
     _structured_split_checked = -1
@@ -326,13 +323,13 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
 
             memset(&remaining, 0, sizeof(cydriver.CUdevResource))
             with nogil:
-                HANDLE_RETURN(sm_resource_split(
+                HANDLE_RETURN(cydriver.cuDevSmResourceSplit(
                     result,
                     <unsigned int>(n_groups),
                     &sm._resource,
                     &remaining,
                     0,
-                    <void*>params,
+                    params,
                 ))
 
             if result != NULL:

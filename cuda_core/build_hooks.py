@@ -215,6 +215,16 @@ def _check_build_configuration(cuda_path: str, cuda_major: str) -> None:
     _write_build_info(major, cuda_version, floor.CUDA_BINDINGS_FLOOR[major], bindings_version)
 
 
+def _build_define_macros(cuda_major: str) -> list:
+    """Preprocessor macros that carry the build decision into the C++ (see _cpp/rt/versions.hpp)."""
+    floor = _load_bindings_floor()
+    major = int(cuda_major)
+    return [
+        ("CUDA_CORE_BUILD_MAJOR", str(major)),
+        ("CUDA_CORE_MIN_CUDA_VERSION", str(floor.cuda_version_of(floor.CUDA_BINDINGS_FLOOR[major]))),
+    ]
+
+
 def _write_build_info(cuda_major: int, cuda_version: int, floor: tuple, bindings_version: str) -> None:
     """Record what this build compiled against, for the import-time check.
 
@@ -400,6 +410,12 @@ def _build_cuda_core(debug=False):
         # related to free-threading builds.
         extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
 
+    # Deliberately after the cuda.bindings import above: this re-enters
+    # _get_cuda_path() and reads cuda.h, which must not run before the
+    # pathfinder import has repaired PEP 517 namespace shadowing.
+    cuda_major = _check_build_major()
+    _check_build_configuration(cuda_path, cuda_major)
+
     depends = _extension_depends()
     ext_modules = tuple(
         Extension(
@@ -411,18 +427,15 @@ def _build_cuda_core(debug=False):
                 "cuda/core/_cpp",
             ]
             + all_include_dirs,
+            # The C++ branches on the CUDA major series only; _cpp/rt/versions.hpp
+            # re-checks cuda.h against both macros (see _check_build_configuration).
+            define_macros=_build_define_macros(cuda_major),
             language="c++",
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
         )
         for mod in module_names()
     )
-
-    # Deliberately after the cuda.bindings import above: this re-enters
-    # _get_cuda_path() and reads cuda.h, which must not run before the
-    # pathfinder import has repaired PEP 517 namespace shadowing.
-    cuda_major = _check_build_major()
-    _check_build_configuration(cuda_path, cuda_major)
 
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
     compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(cuda_major)}

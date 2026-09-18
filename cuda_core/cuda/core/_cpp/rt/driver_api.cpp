@@ -94,20 +94,6 @@ decltype(&cuTexObjectDestroy) p_cuTexObjectDestroy = nullptr;
 decltype(&cuSurfObjectCreate) p_cuSurfObjectCreate = nullptr;
 decltype(&cuSurfObjectDestroy) p_cuSurfObjectDestroy = nullptr;
 
-// SM resource split (13.1+ — may be null on older drivers/bindings)
-#if CUDA_VERSION >= 13010
-decltype(&cuDevSmResourceSplit) p_cuDevSmResourceSplit = nullptr;
-#else
-void* p_cuDevSmResourceSplit = nullptr;
-#endif
-
-// cuMemcpyWithAttributesAsync (13.2+ — may be null on older drivers/bindings)
-#if CUDA_VERSION >= 13020
-decltype(&cuMemcpyWithAttributesAsync) p_cuMemcpyWithAttributesAsync = nullptr;
-#else
-void* p_cuMemcpyWithAttributesAsync = nullptr;
-#endif
-
 // NVRTC function pointers
 decltype(&nvrtcDestroyProgram) p_nvrtcDestroyProgram = nullptr;
 
@@ -116,49 +102,5 @@ NvvmDestroyProgramFn p_nvvmDestroyProgram = nullptr;
 
 // nvJitLink function pointers (may be null if nvJitLink is not available)
 NvJitLinkDestroyFn p_nvJitLinkDestroy = nullptr;
-
-// ============================================================================
-// SM resource split wrapper
-// ============================================================================
-
-CUresult sm_resource_split(CUdevResource* result, unsigned int nbGroups,
-                           const CUdevResource* input, CUdevResource* remainder,
-                           unsigned int flags, void* groupParams) {
-#if CUDA_VERSION >= 13010
-    if (!p_cuDevSmResourceSplit) {
-        return CUDA_ERROR_NOT_SUPPORTED;
-    }
-    return p_cuDevSmResourceSplit(
-        result, nbGroups, input, remainder, flags,
-        static_cast<CU_DEV_SM_RESOURCE_GROUP_PARAMS*>(groupParams));
-#else
-    return CUDA_ERROR_NOT_SUPPORTED;
-#endif
-}
-
-bool has_sm_resource_split() noexcept {
-    return p_cuDevSmResourceSplit != nullptr;
-}
-
-// ============================================================================
-// cuMemcpyWithAttributesAsync wrapper
-// ============================================================================
-
-CUresult memcpy_with_attributes_async(CUdeviceptr dst, CUdeviceptr src, size_t size,
-                                       void* attr, CUstream hStream) {
-#if CUDA_VERSION >= 13020
-    if (!p_cuMemcpyWithAttributesAsync) {
-        return CUDA_ERROR_NOT_SUPPORTED;
-    }
-    return p_cuMemcpyWithAttributesAsync(
-        dst, src, size, static_cast<CUmemcpyAttributes*>(attr), hStream);
-#else
-    return CUDA_ERROR_NOT_SUPPORTED;
-#endif
-}
-
-bool has_memcpy_with_attributes_async() noexcept {
-    return p_cuMemcpyWithAttributesAsync != nullptr;
-}
 
 }  // namespace cuda_core::rt

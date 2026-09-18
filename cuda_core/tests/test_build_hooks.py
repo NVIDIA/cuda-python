@@ -574,3 +574,34 @@ class TestBuildRequirement:
         build_hooks._determine_cuda_major_version.cache_clear()
         with pytest.raises(RuntimeError, match="does not support CUDA 11.*12, 13"):
             build_hooks._get_cuda_bindings_require()
+
+
+class TestDefineMacros:
+    """The C++ learns the build decision through two macros (see _cpp/rt/versions.hpp)."""
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    @pytest.mark.parametrize("major", ["12", "13"])
+    def test_major_and_floor_header_version(self, major):
+        floor = build_hooks._load_bindings_floor().CUDA_BINDINGS_FLOOR[int(major)]
+        assert build_hooks._build_define_macros(major) == [
+            ("CUDA_CORE_BUILD_MAJOR", major),
+            ("CUDA_CORE_MIN_CUDA_VERSION", str(floor[0] * 1000 + floor[1] * 10)),
+        ]
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_extensions_receive_the_macros(self, monkeypatch):
+        captured = {}
+
+        def fake_cythonize(ext_modules, **kwargs):
+            captured["macros"] = {tuple(ext.define_macros) for ext in ext_modules}
+            return []
+
+        monkeypatch.setattr(build_hooks, "_get_cuda_path", lambda: "/nonexistent-cuda")
+        monkeypatch.setattr(build_hooks, "_check_build_configuration", lambda cuda_path, cuda_major: None)
+        monkeypatch.setattr(build_hooks, "cythonize", fake_cythonize)
+        monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
+        build_hooks._determine_cuda_major_version.cache_clear()
+        monkeypatch.chdir(Path(__file__).parent.parent)
+        monkeypatch.setattr(sys, "path", list(sys.path))
+        build_hooks._build_cuda_core()
+        assert captured["macros"] == {tuple(build_hooks._build_define_macros("13"))}

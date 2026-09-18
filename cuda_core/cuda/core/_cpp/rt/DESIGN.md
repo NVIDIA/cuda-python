@@ -205,6 +205,25 @@ This approach:
   will return errors like `CUDA_ERROR_NO_DEVICE`)
 - Requires no custom capsule infrastructure—uses Cython's built-in mechanism
 
+## Build-time version guards
+
+cuda.core supports one build configuration per CUDA major series: the `cuda.h`
+it compiles against has the same major.minor as the cuda-bindings it is built
+with, and that cuda-bindings is at or above the series' floor
+(`cuda/core/_bindings_floor.py`). `build_hooks.py` enforces both before
+compiling and defines `CUDA_CORE_BUILD_MAJOR` and `CUDA_CORE_MIN_CUDA_VERSION`
+for the C++ compiler; `versions.hpp`, the first include of the tree, re-checks
+`cuda.h` against them with `#error`.
+
+The C++ branches on `CUDA_CORE_BUILD_MAJOR` only, and only where the two major
+series differ. Minor-version fences (`#if CUDA_VERSION >= 130x0`) are not
+allowed: they compiled features out of source builds against an older header
+while the run-time checks, which looked at the bindings and the driver, never
+noticed (https://github.com/NVIDIA/cuda-python/issues/2783). Whether the
+*driver* provides a function is decided by the driver-version gates in Cython,
+never by the C++ layer. `tests/test_rt_layout.py` enforces that `versions.hpp`
+is the only file under `_cpp/` that names `CUDA_VERSION`.
+
 ## Key Implementation Details
 
 ### Structural Dependencies

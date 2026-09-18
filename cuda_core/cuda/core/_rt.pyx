@@ -271,23 +271,6 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
     FileDescriptorHandle create_fd_handle_ref "cuda_core::rt::create_fd_handle_ref" (
         int fd) except+ nogil
 
-    # SM resource split (13.1+ wrapper — avoids direct cydriver cimport)
-    # groupParams is void* to avoid referencing CU_DEV_SM_RESOURCE_GROUP_PARAMS
-    # (which doesn't exist in cuda-bindings 13.0 .pxd). The C++ side casts it.
-    cydriver.CUresult sm_resource_split "cuda_core::rt::sm_resource_split" (
-        cydriver.CUdevResource* result, unsigned int nbGroups,
-        const cydriver.CUdevResource* input, cydriver.CUdevResource* remainder,
-        unsigned int flags, void* groupParams) nogil
-    bint has_sm_resource_split "cuda_core::rt::has_sm_resource_split" () noexcept nogil
-
-    # cuMemcpyWithAttributesAsync (13.2+ wrapper — avoids direct cydriver cimport)
-    # attr is void* to avoid referencing CUmemcpyAttributes (absent from
-    # cuda-bindings built against CUDA < 12.8). The C++ side casts it.
-    cydriver.CUresult memcpy_with_attributes_async "cuda_core::rt::memcpy_with_attributes_async" (
-        cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src, size_t size,
-        void* attr, cydriver.CUstream hStream) nogil
-    bint has_memcpy_with_attributes_async "cuda_core::rt::has_memcpy_with_attributes_async" () noexcept nogil
-
     # Array / mipmapped-array / texture / surface handles (PR #467)
     OpaqueArrayHandle create_array_handle "cuda_core::rt::create_array_handle" (
         const ContextHandle& h_context, const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc) except+ nogil
@@ -420,12 +403,6 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
     void* p_cuSurfObjectCreate "reinterpret_cast<void*&>(cuda_core::rt::p_cuSurfObjectCreate)"
     void* p_cuSurfObjectDestroy "reinterpret_cast<void*&>(cuda_core::rt::p_cuSurfObjectDestroy)"
 
-    # SM resource split (13.1+)
-    void* p_cuDevSmResourceSplit "reinterpret_cast<void*&>(cuda_core::rt::p_cuDevSmResourceSplit)"
-
-    # cuMemcpyWithAttributesAsync (13.2+)
-    void* p_cuMemcpyWithAttributesAsync "reinterpret_cast<void*&>(cuda_core::rt::p_cuMemcpyWithAttributesAsync)"
-
     # NVRTC
     void* p_nvrtcDestroyProgram "reinterpret_cast<void*&>(cuda_core::rt::p_nvrtcDestroyProgram)"
 
@@ -473,8 +450,6 @@ cdef void _init_driver_fn_pointers() noexcept:
     global p_cuGraphNodeFindInClone, p_cuGraphChildGraphNodeGetGraph
     global p_cuLinkDestroy
     global p_cuGraphicsUnmapResources, p_cuGraphicsUnregisterResource
-    global p_cuDevSmResourceSplit
-    global p_cuMemcpyWithAttributesAsync
     global p_cuArray3DCreate, p_cuArrayDestroy
     global p_cuMipmappedArrayCreate, p_cuMipmappedArrayDestroy, p_cuMipmappedArrayGetLevel
     global p_cuTexObjectCreate, p_cuTexObjectDestroy
@@ -570,11 +545,6 @@ cdef void _init_driver_fn_pointers() noexcept:
     p_cuSurfObjectCreate = _get_driver_fn("cuSurfObjectCreate")
     p_cuSurfObjectDestroy = _get_driver_fn("cuSurfObjectDestroy")
 
-    # SM resource split (13.1+ — may not exist in older cuda-bindings)
-    p_cuDevSmResourceSplit = _get_optional_driver_fn("cuDevSmResourceSplit")
-
-    # cuMemcpyWithAttributesAsync (13.2+ — may not exist in older cuda-bindings)
-    p_cuMemcpyWithAttributesAsync = _get_optional_driver_fn("cuMemcpyWithAttributesAsync")
 
 _init_driver_fn_pointers()
 initialize_deferred_cleanup()
