@@ -1,6 +1,0 @@
-﻿cuda.core.texture.OpaqueArrayOptions
-====================================
-
-.. currentmodule:: cuda.core.texture
-
-.. autoclass:: OpaqueArrayOptions
