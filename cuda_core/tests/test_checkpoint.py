@@ -407,14 +407,12 @@ class TestInputValidation:
 import ctypes
 
 from cuda.bindings import driver as _bindings_driver
+from cuda.core._utils.version import BUILD_CUDA_MAJOR
 
-# The checkpoint functions, structs, and enums are generated and shipped
-# together from the same CUDA headers, so probe them as one atomic API surface.
-_HAS_CHECKPOINT_BINDINGS = all(hasattr(_bindings_driver, name) for name in checkpoint._REQUIRED_BINDING_ATTRS)
-
+# The helpers build CUcheckpointGpuPair, a CUDA 13 type the CUDA 12 bindings lack.
 needs_checkpoint_bindings = pytest.mark.skipif(
-    not _HAS_CHECKPOINT_BINDINGS,
-    reason="cuda.bindings does not expose the CUDA checkpoint API",
+    BUILD_CUDA_MAJOR < 13,
+    reason="the checkpoint helpers use CUDA 13 binding types",
 )
 
 
