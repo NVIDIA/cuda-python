@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fc55059ea50298ed1008a81741a0b366c8a833aa4535678016c5d0c91564020f
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=685208d88a179bf2a468215105cfd8d90c9def1f1187bd1cef500ddbb69b50e7
 from typing import Any, Optional
 import cython
 import ctypes
@@ -16264,7 +16264,7 @@ cdef class cudaKernelNodeParams:
     @kernelParams.setter
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
-        self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
+        self._pvt_ptr[0].kernelParams = self._cykernelParams.ckernelParams
 
 
     @property
@@ -16496,7 +16496,7 @@ cdef class cudaKernelNodeParamsV2:
     @kernelParams.setter
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
-        self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
+        self._pvt_ptr[0].kernelParams = self._cykernelParams.ckernelParams
 
 
     @property

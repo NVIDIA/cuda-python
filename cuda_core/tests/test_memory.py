@@ -1459,8 +1459,8 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
         calls.append(("set_access", ptr, size, count))
         return (SUCCESS,)
 
-    # Rollback-only entry points: registered as undo actions but, on a
-    # successful commit, must never be invoked.
+    # Cleanup entry points. Release runs on commit; unmap and address free
+    # remain rollback-only.
     def fake_unmap(ptr, size):
         calls.append(("unmap", ptr, size))
         return (SUCCESS,)
@@ -1498,11 +1498,44 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
     assert result is buf
     assert buf._size == new_size
 
-    # Successful commit: create, map, set access, and no rollback calls.
-    assert [c[0] for c in calls] == ["create", "map", "set_access"]
+    # Successful commit: create, map, set access, and release the creation handle.
+    assert [c[0] for c in calls] == ["create", "map", "set_access", "release"]
     assert ("create", aligned_additional) in calls
     assert ("map", new_ptr, aligned_additional, NEW_HANDLE) in calls
     assert ("set_access", new_ptr, aligned_additional, 1) in calls
+    assert ("release", NEW_HANDLE) in calls
+
+
+@pytest.mark.thread_unsafe(reason="cuMemGetInfo measures process-wide free memory")
+@pytest.mark.parametrize("grow", [False, True], ids=["allocate", "grow"])
+def test_vmm_allocate_close_does_not_leak(init_cuda, grow):
+    device = Device()
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+
+    mr = VirtualMemoryResource(
+        device,
+        config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
+    )
+    requested_size = 8 * 1024 * 1024
+
+    def allocate_and_close():
+        buf = mr.allocate(requested_size)
+        if grow:
+            buf = mr.modify_allocation(buf, 2 * buf.size)
+        aligned_size = buf.size
+        buf.close()
+        return aligned_size
+
+    aligned_size = allocate_and_close()  # Warm up and learn the aligned allocation size.
+
+    baseline = handle_return(driver.cuMemGetInfo())[0]
+    for _ in range(8):
+        allocate_and_close()
+    free = handle_return(driver.cuMemGetInfo())[0]
+
+    # Current main leaks aligned_size per iteration; the fixed path stays near baseline.
+    assert baseline - free < aligned_size
 
 
 @pytest.mark.parametrize("location_type", ["device", "host"])
@@ -2494,6 +2527,39 @@ def test_dmr_mempool_get_access_peer(mempool_device_x2):
     # After revoking, peer is back to no access.
     mr.peer_accessible_by = []
     assert DMR_mempool_get_access(mr, peer.device_id) == ""
+
+
+@pytest.mark.thread_unsafe(reason="depends on the driver handing back the pool handle that was just destroyed")
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_closed_pool_peer_access_not_inherited_by_recycled_handle(mempool_device_x2):
+    """Peer access granted to a closed pool does not survive into a pool that reuses its handle."""
+    from cuda.core._memory._device_memory_resource import DMR_mempool_get_access
+
+    dev, peer = mempool_device_x2
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE)
+    mr = DeviceMemoryResource(dev, options)
+    mr.peer_accessible_by = [peer]
+    assert DMR_mempool_get_access(mr, peer.device_id) == "rw"
+    old_handle = int(mr.handle)
+    mr.close()
+
+    # The driver usually hands the freed handle straight back. Keep the misses
+    # alive so that a retry cannot land on the same address twice.
+    pools = []
+    try:
+        for _ in range(8):
+            recycled = DeviceMemoryResource(dev, options)
+            pools.append(recycled)
+            if int(recycled.handle) == old_handle:
+                break
+        else:
+            pytest.skip("the driver did not recycle the destroyed pool handle")
+        # Unless the peer access is revoked before the pool is destroyed, the
+        # recycled handle still reports it (nvbug 5698116).
+        assert DMR_mempool_get_access(recycled, peer.device_id) == ""
+    finally:
+        for pool in pools:
+            pool.close()
 
 
 def test_dmr_peer_accessible_by_setter_empty(mempool_device):
