@@ -1505,40 +1505,19 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
     assert ("set_access", new_ptr, aligned_additional, 1) in calls
 
 
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_vmm_deallocate_synchronizes_stream_before_unmap(monkeypatch):
-    """VMM deallocation orders outstanding stream work before unmapping."""
-    mr = VirtualMemoryResource.__new__(VirtualMemoryResource)
-    events = []
-    success = driver.CUresult.CUDA_SUCCESS
+@pytest.mark.parametrize("location_type", ["device", "host"])
+def test_vmm_deallocate_with_stream_has_no_warning(init_cuda, location_type):
+    """VMM buffers close cleanly with an explicit stream for both locations."""
+    device = Device()
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+    device.set_current()
+    stream = device.create_stream()
+    mr = VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type))
 
-    class FakeStream:
-        def sync(self):
-            events.append("sync")
-
-    monkeypatch.setattr("cuda.core._stream.Stream_accept", lambda stream: stream)
-
-    def fake_retain(_ptr):
-        return success, 0xBEEF
-
-    def fake_unmap(_ptr, _size):
-        events.append("unmap")
-        return (success,)
-
-    def fake_address_free(_ptr, _size):
-        return (success,)
-
-    def fake_release(_handle):
-        return (success,)
-
-    monkeypatch.setattr(driver, "cuMemRetainAllocationHandle", fake_retain)
-    monkeypatch.setattr(driver, "cuMemUnmap", fake_unmap)
-    monkeypatch.setattr(driver, "cuMemAddressFree", fake_address_free)
-    monkeypatch.setattr(driver, "cuMemRelease", fake_release)
-
-    mr.deallocate(0x1000, 4096, stream=FakeStream())
-
-    assert events == ["sync", "unmap"]
+    with assert_no_cuda_warning():
+        buffer = mr.allocate(2 * 1024 * 1024)
+        buffer.close(stream)
 
 
 def test_vmm_allocator_rdma_unsupported_exception():
