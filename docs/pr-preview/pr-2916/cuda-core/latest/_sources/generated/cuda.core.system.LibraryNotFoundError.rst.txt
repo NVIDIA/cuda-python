@@ -1,0 +1,6 @@
+﻿cuda.core.system.LibraryNotFoundError
+=====================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: LibraryNotFoundError
