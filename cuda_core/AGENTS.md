@@ -91,10 +91,20 @@ and agents should flag violations.
   objects that are not meant to be shared (e.g., the thread-local `Device`) do not
   need such guards (see #2321). Reference-count integrity is guaranteed; cache
   value-identity/idempotency is not.
-- **Entry points assume the GIL is held**: the helpers in `_cpp/rt/`
-  are called from Cython with the GIL held and do not re-acquire it. Driver and
-  destructor callbacks run at arbitrary times, so they take the GIL (`with gil`)
-  and probe for interpreter shutdown before touching Python objects.
+- **Entry points work with or without the GIL**: the helpers in `_cpp/rt/`
+  are called from Cython both inside and outside `with nogil` blocks. They
+  never require the GIL, release it around driver calls, and never acquire it
+  while holding a C++ lock; the only paths that acquire it are the reporting
+  wrappers (`pw_*`, `report_*`) and the one-time driver function-table fill
+  (`ensure_fn_table()`, see `_cpp/rt/DESIGN.md`). Driver and destructor
+  callbacks run at arbitrary times, so they take the GIL (`with gil`) and probe
+  for interpreter shutdown before touching Python objects.
+- **Driver calls go through the table**: C++ calls the driver with
+  `DRIVER_CALL(name, args...)`, whose pointers come from cuda-bindings'
+  resolved table, never from the Cython wrappers. A function the installed
+  driver may lack is gated in Cython on `cy_driver_version()` at the version
+  cuda-bindings requests it at (the number in `driver_api.hpp`); the C++
+  never checks a pointer for null.
 - **Lock ordering -- release the GIL before entering the driver**: any CUDA work
   reachable from a host callback or a retained object's `__del__` must release the
   GIL before calling the driver, to avoid GIL/driver-lock deadlocks (see the

@@ -113,6 +113,53 @@ def test_cuda_version_is_named_only_in_versions_hpp():
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_driver_function_table_matches_the_cuda_bindings_loader():
+    """driver_api.hpp lists each driver function with the CUDA version cuda-bindings
+    requests it at; that number decides which functions every supported driver
+    must provide. Check it against the loader cuda-bindings generates."""
+    loader = CORE.parents[2] / "cuda_bindings" / "cuda" / "bindings" / "_internal" / "driver_linux.pyx"
+    if not loader.is_file():
+        pytest.skip("cuda-bindings source is not next to cuda_core")
+    entries = re.findall(r"^\s*X\((cu\w+), (\d+)\)", read(RT / "driver_api.hpp"), re.M)
+    assert len(entries) >= 60
+    assert len({name for name, _ in entries}) == len(entries), "duplicate table entry"
+    requested = {}
+    for name, version in re.findall(r"cuGetProcAddress_v2\('(\w+)', <void \*\*>&__\w+, (\d+)", read(loader)):
+        requested.setdefault(name, set()).add(int(version))
+    mismatched = {
+        name: (int(introduced), sorted(requested.get(name, ())))
+        for name, introduced in entries
+        if int(introduced) not in requested.get(name, ())
+    }
+    assert mismatched == {}
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_driver_calls_go_through_the_table():
+    """Every driver call uses DRIVER_CALL (or a pw_ wrapper), which resolves the
+    table on first use and never dereferences null. The only raw p_ calls are
+    the table's own machinery and the sites under ipc_import_mutex, where the
+    table is resolved before the lock and marked `// raw:`."""
+    machinery = {"driver_api.hpp", "driver_api.cpp", "py_driver_fns.cpp", "internal.hpp"}
+    raw_call = re.compile(r"\bp_(cu|nv)\w+\(")
+    offenders = []
+    for path in HEADERS + SOURCES:
+        if path.name in machinery:
+            continue
+        for number, line in enumerate(read(path).splitlines(), 1):
+            if raw_call.search(line) and "// raw:" not in line and not line.lstrip().startswith("//"):
+                offenders.append(f"{path.name}:{number}")
+    assert offenders == []
+    marked = [
+        f"{path.name}:{number}"
+        for path in SOURCES
+        for number, line in enumerate(read(path).splitlines(), 1)
+        if "// raw:" in line
+    ]
+    assert {name.split(":")[0] for name in marked} == {"memory.cpp"}, marked
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_pxd_functions_are_not_called_by_name_inside_the_module():
     """Cython emits a static prototype for each cdef function the .pxd declares, so
     calling one by that name from _rt.pyx clashes with the extern C++ declaration.

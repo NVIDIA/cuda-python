@@ -39,8 +39,8 @@ void format_cuda_error(char* buffer, size_t size, const char* operation, CUresul
     const char* error_name = nullptr;
     const char* error_description = nullptr;
     bool decoded = p_cuGetErrorName && p_cuGetErrorString
-                   && p_cuGetErrorName(status, &error_name) == CUDA_SUCCESS
-                   && p_cuGetErrorString(status, &error_description) == CUDA_SUCCESS;
+                   && DRIVER_CALL(cuGetErrorName, status, &error_name) == CUDA_SUCCESS
+                   && DRIVER_CALL(cuGetErrorString, status, &error_description) == CUDA_SUCCESS;
     const char* outcome = detail ? detail : "failed";
     if (decoded) {
         std::snprintf(buffer, size, "%s %s: %s: %s", operation, outcome, error_name, error_description);
@@ -100,13 +100,13 @@ namespace detail {
 void note_context_not_restored(CUcontext previous, CUresult operation_status,
                                CUresult restore_status) noexcept {
     CUcontext current = nullptr;
-    if (p_cuCtxGetCurrent(&current) != CUDA_SUCCESS) {
+    if (DRIVER_CALL(cuCtxGetCurrent, &current) != CUDA_SUCCESS) {
         current = nullptr;
     }
     char cause[128] = {0};
     if (operation_status != CUDA_SUCCESS) {
         const char* error_name = nullptr;
-        if (p_cuGetErrorName && p_cuGetErrorName(restore_status, &error_name) == CUDA_SUCCESS) {
+        if (DRIVER_CALL(cuGetErrorName, restore_status, &error_name) == CUDA_SUCCESS) {
             std::snprintf(cause, sizeof(cause), " after this failure (cuCtxSetCurrent: %s)", error_name);
         } else {
             std::snprintf(cause, sizeof(cause), " after this failure (cuCtxSetCurrent: CUDA error %d)",
