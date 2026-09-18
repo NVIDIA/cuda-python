@@ -61,8 +61,10 @@ Fixes and enhancements
   error, after which the builder holds no graph. A failed ``join`` also closes
   the forked builders it did not join. This does not extend to the body
   builder of a conditional node: an invalidated body capture leaves the parent
-  graph invalid as well. Calling ``end_building`` on a forked builder is now
-  rejected with ``RuntimeError``; forked builders are ended by ``join``.
+  graph invalid as well, and ending it may crash the process
+  (`#2918 <https://github.com/NVIDIA/cuda-python/issues/2918>`__). Calling
+  ``end_building`` on a forked builder is now rejected with ``RuntimeError``;
+  forked builders are ended by ``join``.
   (`#2834 <https://github.com/NVIDIA/cuda-python/issues/2834>`__,
   `#2776 <https://github.com/NVIDIA/cuda-python/issues/2776>`__)
 
