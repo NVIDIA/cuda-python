@@ -15,6 +15,7 @@ from cuda.core._rt cimport (
     graph_node_get_graph,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+import cython
 from collections.abc import Iterable, Iterator, MutableSet, Set
 from typing import Any, TypeVar
 
@@ -59,6 +60,7 @@ class AdjacencySetProxy(MutableSet[GraphNode]):
             return
         (<_AdjacencySetCore>self._core).add_edge(<GraphNode>value)
 
+    @cython.annotation_typing(False)
     def discard(self, value: GraphNode) -> None:
         (<_AdjacencySetCore>self._core).check_owner_mutable()
         if value not in self:
