@@ -718,16 +718,9 @@ cdef inline object Linker_link(Linker self, str target_type):
                     cynvjitlink.nvJitLinkGetLinkedPtx(c_nvjitlink_h, c_code_ptr))
         else:
             c_handle = as_intptr(self._nvjitlink_handle)
-            function_not_found_error = _nvjitlink_function_not_found_error()
-            try:
-                output_size = nvjitlink_module.get_linked_ltoir_size(c_handle)
-                code = bytearray(output_size)
-                nvjitlink_module.get_linked_ltoir(c_handle, code)
-            except function_not_found_error as e:
-                raise RuntimeError(
-                    "LTOIR output requires nvJitLinkGetLinkedLTOIRSize and "
-                    "nvJitLinkGetLinkedLTOIR support"
-                ) from e
+            output_size = nvjitlink_module.get_linked_ltoir_size(c_handle)
+            code = bytearray(output_size)
+            nvjitlink_module.get_linked_ltoir(c_handle, code)
     else:
         c_culink_state = as_cu(self._culink_handle)
         try:
@@ -794,13 +787,6 @@ def _linked_ltoir_output_module():
             "LTOIR output requires cuda-bindings with " + " and ".join(missing)
         )
     return nvjitlink_module
-
-
-def _nvjitlink_function_not_found_error():
-    """Return the exact error raised for an unavailable nvJitLink symbol."""
-    from cuda.bindings._internal.utils import FunctionNotFoundError
-
-    return FunctionNotFoundError
 
 
 def _nvjitlink_has_version_symbol(nvjitlink) -> bool:

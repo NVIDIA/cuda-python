@@ -263,8 +263,6 @@ def _require_nvjitlink_version(minimum_version: tuple[int, int], feature: str):
     """Return the nvJitLink module after checking a feature's runtime version."""
 def _linked_ltoir_output_module():
     """Return bindings that can retrieve linked LTOIR without a Cython dependency."""
-def _nvjitlink_function_not_found_error():
-    """Return the exact error raised for an unavailable nvJitLink symbol."""
 def _nvjitlink_has_version_symbol(nvjitlink) -> bool: ...
 def _decide_nvjitlink_or_driver() -> bool:
     """Return True if falling back to the cuLink* driver APIs."""
