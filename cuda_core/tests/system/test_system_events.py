@@ -10,12 +10,10 @@ pytestmark = skip_if_nvml_unsupported
 import helpers
 import pytest
 
+from cuda.bindings import nvml
 from cuda.core import system
 from cuda.core.system import typing
-
-if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-    from cuda.bindings import nvml
-    from cuda.core.system._system_events import SystemEvent, SystemEvents, _pci_bus_id_from_gpu_id
+from cuda.core.system._system_events import SystemEvent, SystemEvents, _pci_bus_id_from_gpu_id
 
 
 @pytest.mark.agent_authored(model="claude-opus-4.7")

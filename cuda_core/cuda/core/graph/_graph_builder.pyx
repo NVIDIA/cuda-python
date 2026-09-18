@@ -52,7 +52,7 @@ from cuda.core._rt cimport (
 )
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
-from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
+from cuda.core._utils.version cimport cy_driver_version
 
 from cuda.core._utils.cuda_utils import (
     CUDAError,
@@ -251,10 +251,7 @@ def _instantiate_graph(source, options: GraphCompleteOptions | None = None) -> G
         )
     elif params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_MULTIPLE_CTXS_NOT_SUPPORTED:
         raise RuntimeError("Instantiation for device launch failed due to the nodes belonging to different contexts.")
-    elif (
-        cy_binding_version() >= (12, 8, 0)
-        and params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_CONDITIONAL_HANDLE_UNUSED
-    ):
+    elif params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_CONDITIONAL_HANDLE_UNUSED:
         raise RuntimeError("One or more conditional handles are not associated with conditional builders.")
     elif params.result_out != driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_SUCCESS:
         raise RuntimeError(f"Graph instantiation failed with unexpected error code: {params.result_out}")
@@ -666,8 +663,6 @@ cdef class GraphBuilder:
         GB_check_open(self)
         if cy_driver_version() < (12, 3, 0):
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional handles")
-        if cy_binding_version() < (12, 3, 0):
-            raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional handles")
         if default_value is not None:
             flags = driver.CU_GRAPH_COND_ASSIGN_DEFAULT
         else:
@@ -706,8 +701,6 @@ cdef class GraphBuilder:
         GB_check_open(self)
         if cy_driver_version() < (12, 3, 0):
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional if")
-        if cy_binding_version() < (12, 3, 0):
-            raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional if")
         if not isinstance(condition, GraphCondition):
             raise TypeError(
                 f"condition must be a GraphCondition object (from "
@@ -743,8 +736,6 @@ cdef class GraphBuilder:
         GB_check_open(self)
         if cy_driver_version() < (12, 8, 0):
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional if-else")
-        if cy_binding_version() < (12, 8, 0):
-            raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional if-else")
         if not isinstance(condition, GraphCondition):
             raise TypeError(
                 f"condition must be a GraphCondition object (from "
@@ -783,8 +774,6 @@ cdef class GraphBuilder:
         GB_check_open(self)
         if cy_driver_version() < (12, 8, 0):
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional switch")
-        if cy_binding_version() < (12, 8, 0):
-            raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional switch")
         if not isinstance(condition, GraphCondition):
             raise TypeError(
                 f"condition must be a GraphCondition object (from "
@@ -820,8 +809,6 @@ cdef class GraphBuilder:
         GB_check_open(self)
         if cy_driver_version() < (12, 3, 0):
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional while loop")
-        if cy_binding_version() < (12, 3, 0):
-            raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional while loop")
         if not isinstance(condition, GraphCondition):
             raise TypeError(
                 f"condition must be a GraphCondition object (from "

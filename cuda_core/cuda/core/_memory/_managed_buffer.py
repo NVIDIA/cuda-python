@@ -19,7 +19,7 @@ from cuda.core._memory._managed_memory_ops import (
     _read_preferred_location_v2,
 )
 from cuda.core._utils.cuda_utils import driver, handle_return
-from cuda.core._utils.version import binding_version, driver_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 
 if TYPE_CHECKING:
     from cuda.core._memory._buffer import MemoryResource
@@ -215,13 +215,13 @@ class ManagedBuffer(Buffer):
         as ``Host()``.
         """
         # The v2 path uses CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_{TYPE,ID},
-        # both added in CUDA 13. Require both bindings and the runtime driver
-        # to be 13.0+; otherwise fall back to the legacy device-ordinal path.
-        # See PR #2054 / #2064 for prior bindings-only-check regressions.
-        if binding_version() >= (13, 0, 0) and driver_version() >= (13, 0, 0):
+        # both added in CUDA 13: it exists in the CUDA 13 build only, and the
+        # runtime driver must be 13.0+ too; otherwise fall back to the legacy
+        # device-ordinal path. See PR #2054 / #2064 for prior regressions.
+        if BUILD_CUDA_MAJOR >= 13 and driver_version() >= (13, 0, 0):
             return _read_preferred_location_v2(self)
-        # CUDA 12 legacy path (no NUMA info available; also taken when
-        # bindings are 13.x but the runtime driver is still 12.x).
+        # CUDA 12 legacy path (no NUMA info available; also taken by a CUDA 13
+        # build when the runtime driver is still 12.x).
         loc_id = _get_int_attr(self, _ATTR_PREFERRED)
         if loc_id == -2:
             return None
@@ -249,7 +249,7 @@ class ManagedBuffer(Buffer):
         the legacy attribute carries only a device ordinal (or ``-1`` for
         host), so host NUMA details are unavailable.
         """
-        if binding_version() >= (13, 0, 0) and driver_version() >= (13, 0, 0):
+        if BUILD_CUDA_MAJOR >= 13 and driver_version() >= (13, 0, 0):
             return _read_last_prefetch_location_v2(self)
         loc_id = _get_int_attr(self, _ATTR_LAST_PREFETCH)
         if loc_id == -2:

@@ -11,7 +11,6 @@ from cuda.core._device import Device
 from cuda.core._host import Host
 from cuda.core._utils.cuda_utils import driver
 from cuda.core._utils.pycompat import StrEnum
-from cuda.core._utils.version import binding_version
 
 __all__ = ["CopyOptions", "MemcpyOverlapMode", "MemcpySrcAccessOrder"]
 
@@ -117,47 +116,31 @@ class CopyOptions:
 
     def _to_driver_enum(self) -> int:
         """Return the driver CUmemcpySrcAccessOrder value."""
-        if not _SRC_ACCESS_ORDER_TO_DRIVER:
-            raise NotImplementedError(_CUDA13_REQUIRED)
         return _SRC_ACCESS_ORDER_TO_DRIVER[MemcpySrcAccessOrder(self.src_access_order)]
 
     def _to_driver_flags(self) -> int:
         """Return the driver CUmemcpyFlags value."""
-        if not _OVERLAP_MODE_TO_DRIVER:
-            raise NotImplementedError(_CUDA13_REQUIRED)
         return _OVERLAP_MODE_TO_DRIVER[MemcpyOverlapMode(self.overlap_mode)]
 
 
-_CUDA13_REQUIRED = "copy attributes require cuda.bindings 13.0 or newer"
-
-# CUmemcpySrcAccessOrder and CUmemcpyFlags are exposed by cuda.bindings 13.0+,
-# so these maps are empty when it is older. Nothing reaches them there:
-# copy_batch refuses non-default CopyOptions when the batched entry point is
-# unavailable.
-#
-# Keyed by ``str``: under ``python_version = "3.10"`` mypy resolves StrEnum to
-# the unstubbed backports shim and so infers the members as plain ``str``.
-# StrEnum members are ``str`` instances, so this holds on every version. The
-# values are wrapped in ``int()`` because the driver enums are untyped.
-_SRC_ACCESS_ORDER_TO_DRIVER: dict[str, int]
-_OVERLAP_MODE_TO_DRIVER: dict[str, int]
-
-if binding_version() >= (13, 0, 0):
-    _src_order = driver.CUmemcpySrcAccessOrder
-    _flags = driver.CUmemcpyFlags
-    _SRC_ACCESS_ORDER_TO_DRIVER = {
-        MemcpySrcAccessOrder.STREAM: int(_src_order.CU_MEMCPY_SRC_ACCESS_ORDER_STREAM),
-        MemcpySrcAccessOrder.DURING_API_CALL: int(_src_order.CU_MEMCPY_SRC_ACCESS_ORDER_DURING_API_CALL),
-        MemcpySrcAccessOrder.ANY: int(_src_order.CU_MEMCPY_SRC_ACCESS_ORDER_ANY),
-    }
-    _OVERLAP_MODE_TO_DRIVER = {
-        MemcpyOverlapMode.DEFAULT: int(_flags.CU_MEMCPY_FLAG_DEFAULT),
-        MemcpyOverlapMode.PREFER_OVERLAP_WITH_COMPUTE: int(_flags.CU_MEMCPY_FLAG_PREFER_OVERLAP_WITH_COMPUTE),
-    }
-    del _src_order, _flags
-else:
-    _SRC_ACCESS_ORDER_TO_DRIVER = {}
-    _OVERLAP_MODE_TO_DRIVER = {}
+# CUmemcpySrcAccessOrder and CUmemcpyFlags were added in CUDA 12.8; every
+# cuda-bindings cuda.core accepts has them. Keyed by ``str``: under
+# ``python_version = "3.10"`` mypy resolves StrEnum to the unstubbed backports
+# shim and so infers the members as plain ``str``. StrEnum members are ``str``
+# instances, so this holds on every version. The values are wrapped in
+# ``int()`` because the driver enums are untyped.
+_src_order = driver.CUmemcpySrcAccessOrder
+_flags = driver.CUmemcpyFlags
+_SRC_ACCESS_ORDER_TO_DRIVER: dict[str, int] = {
+    MemcpySrcAccessOrder.STREAM: int(_src_order.CU_MEMCPY_SRC_ACCESS_ORDER_STREAM),
+    MemcpySrcAccessOrder.DURING_API_CALL: int(_src_order.CU_MEMCPY_SRC_ACCESS_ORDER_DURING_API_CALL),
+    MemcpySrcAccessOrder.ANY: int(_src_order.CU_MEMCPY_SRC_ACCESS_ORDER_ANY),
+}
+_OVERLAP_MODE_TO_DRIVER: dict[str, int] = {
+    MemcpyOverlapMode.DEFAULT: int(_flags.CU_MEMCPY_FLAG_DEFAULT),
+    MemcpyOverlapMode.PREFER_OVERLAP_WITH_COMPUTE: int(_flags.CU_MEMCPY_FLAG_PREFER_OVERLAP_WITH_COMPUTE),
+}
+del _src_order, _flags
 
 
 def _reject_unsupported_during_api_call(

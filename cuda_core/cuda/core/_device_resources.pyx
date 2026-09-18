@@ -20,7 +20,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._rt cimport ContextHandle, GreenCtxHandle, as_cu, get_context_green_ctx
 from cuda.core._utils.cuda_utils cimport check_or_create_options, HANDLE_RETURN
 from cuda.core._utils.cuda_utils import is_sequence
-from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
+from cuda.core._utils.version cimport cy_driver_version
 from cuda.core._utils.validators import check_str_enum
 
 
@@ -47,18 +47,10 @@ cdef inline int _check_green_ctx_support() except?-1:
     if _green_ctx_checked == -1:
         raise RuntimeError(_green_ctx_err_msg)
     cdef tuple drv = cy_driver_version()
-    cdef tuple bind = cy_binding_version()
     if drv < (12, 4, 0):
         _green_ctx_err_msg = (
             "Green context support requires CUDA driver 12.4 or newer "
             f"(current driver: {'.'.join(map(str, drv))})"
-        )
-        _green_ctx_checked = -1
-        raise RuntimeError(_green_ctx_err_msg)
-    if bind < (12, 4, 0):
-        _green_ctx_err_msg = (
-            "Green context support requires cuda.bindings 12.4 or newer "
-            f"(current bindings: {'.'.join(map(str, bind))})"
         )
         _green_ctx_checked = -1
         raise RuntimeError(_green_ctx_err_msg)
@@ -73,18 +65,10 @@ cdef inline int _check_workqueue_support() except?-1:
     if _workqueue_checked == -1:
         raise RuntimeError(_workqueue_err_msg)
     cdef tuple drv = cy_driver_version()
-    cdef tuple bind = cy_binding_version()
     if drv < (13, 1, 0):
         _workqueue_err_msg = (
             "WorkqueueResource requires CUDA driver 13.1 or newer "
             f"(current driver: {'.'.join(map(str, drv))})"
-        )
-        _workqueue_checked = -1
-        raise RuntimeError(_workqueue_err_msg)
-    if bind < (13, 1, 0):
-        _workqueue_err_msg = (
-            "WorkqueueResource requires cuda.bindings 13.1 or newer "
-            f"(current bindings: {'.'.join(map(str, bind))})"
         )
         _workqueue_checked = -1
         raise RuntimeError(_workqueue_err_msg)

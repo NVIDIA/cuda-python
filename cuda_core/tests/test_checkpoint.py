@@ -40,18 +40,11 @@ def _checkpoint_available():
 
 
 def _checkpoint_unavailable_can_skip(message):
-    if message.startswith(
+    return message.startswith(
         (
             "CUDA checkpointing is not supported by the installed NVIDIA driver.",
-            "CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. Found cuda.bindings ",
+            "CUDA checkpointing requires the CUDA 13 build of cuda.core",
         )
-    ):
-        return True
-
-    return (
-        checkpoint._binding_version()[0] == 12
-        and message
-        == "CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. Missing: CUcheckpointGpuPair"
     )
 
 

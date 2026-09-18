@@ -326,12 +326,6 @@ class TestWhichBackendClassmethod:
         monkeypatch.setattr(_linker, "_use_nvjitlink_backend", None)
         monkeypatch.setattr(_linker, "_driver", None)
 
-        def fake__optional_cuda_import(modname, probe_function=None):
-            assert modname == "cuda.bindings.nvjitlink"
-            assert probe_function is None
-            return object()
-
-        monkeypatch.setattr(_linker, "_optional_cuda_import", fake__optional_cuda_import)
         monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", lambda _nvjitlink: False)
 
         with pytest.warns(RuntimeWarning, match="too old \\(<12.3\\)"):
@@ -350,13 +344,7 @@ class TestWhichBackendClassmethod:
         def raise_missing(_nvjitlink):
             raise DynamicLibNotFoundError("missing")
 
-        def fake__optional_cuda_import(modname, probe_function=None):
-            assert modname == "cuda.bindings.nvjitlink"
-            assert probe_function is None
-            return object()
-
         monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", raise_missing)
-        monkeypatch.setattr(_linker, "_optional_cuda_import", fake__optional_cuda_import)
 
         with pytest.warns(RuntimeWarning, match="cuda.bindings.nvjitlink is not available"):
             assert Linker.which_backend() == "driver"

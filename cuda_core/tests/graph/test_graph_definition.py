@@ -54,18 +54,18 @@ def _skip_if_no_managed_mempool():
 
 
 def _has_node_get_params():
-    from cuda.core._utils.version import binding_version, driver_version
+    from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 
-    return driver_version() >= (13, 2, 0) and binding_version() >= (13, 2, 0)
+    return BUILD_CUDA_MAJOR >= 13 and driver_version() >= (13, 2, 0)
 
 
 _HAS_NODE_GET_PARAMS = _has_node_get_params()
 
 
 def _bindings_major_version():
-    from cuda.core._utils.version import binding_version
+    from cuda.core._utils.version import BUILD_CUDA_MAJOR
 
-    return binding_version()[0]
+    return BUILD_CUDA_MAJOR
 
 
 _BINDINGS_MAJOR = _bindings_major_version()
@@ -471,7 +471,7 @@ _NODE_SPECS = [
     pytest.param(
         NodeSpec("alloc_managed", AllocNode, "CU_GRAPH_NODE_TYPE_MEM_ALLOC", _build_alloc_managed_node),
         id="alloc_managed",
-        marks=pytest.mark.skipif(_BINDINGS_MAJOR < 13, reason="managed alloc requires CUDA 13.0+ bindings"),
+        marks=pytest.mark.skipif(_BINDINGS_MAJOR < 13, reason="managed alloc requires the CUDA 13 build"),
     ),
     pytest.param(NodeSpec("free", FreeNode, "CU_GRAPH_NODE_TYPE_MEM_FREE", _build_free_node), id="free"),
     pytest.param(NodeSpec("memset", MemsetNode, "CU_GRAPH_NODE_TYPE_MEMSET", _build_memset_node), id="memset"),

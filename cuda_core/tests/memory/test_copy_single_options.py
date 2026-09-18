@@ -10,7 +10,7 @@ from helpers.memory import create_managed_memory_resource_or_skip
 
 from cuda.core import Device, Host, LegacyPinnedMemoryResource
 from cuda.core._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM
-from cuda.core._utils.version import binding_version, driver_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 from cuda.core.utils import CopyOptions, MemcpyOverlapMode, MemcpySrcAccessOrder
 
 SIZE = 4096
@@ -19,12 +19,12 @@ SIZE = 4096
 def _options_honored():
     """True when cuMemcpyWithAttributesAsync will actually be used for options.
 
-    Mirrors _with_attributes_available() in _buffer.pyx. CI runs a matrix
-    that includes pre-CUDA-13.2 driver/bindings combinations (see
+    Mirrors _with_attributes_available() in _copy_attributes.pxd. CI runs a
+    matrix that includes CUDA 12 builds and pre-13.2 drivers (see
     ci/test-matrix.yml), where this is False and the DURING_API_CALL tests
     below must expect a RuntimeError instead of a successful copy.
     """
-    return driver_version() >= (13, 2, 0) and binding_version() >= (13, 2, 0)
+    return BUILD_CUDA_MAJOR >= 13 and driver_version() >= (13, 2, 0)
 
 
 @pytest.fixture

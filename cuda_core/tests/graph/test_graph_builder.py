@@ -13,9 +13,7 @@ import pytest
 from cuda_python_test_helpers.marks import requires_module, skipif_need_cuda_headers
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
 from helpers.misc import try_create_condition
-from packaging.version import Version
 
-import cuda.bindings
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, Program, ProgramOptions, StreamOptions, launch
 from cuda.core.graph import Graph, GraphBuilder, GraphCompleteOptions, GraphDefinition
 from cuda.core.graph._graph_builder import (
@@ -33,10 +31,10 @@ def _wait_until(predicate, timeout=5.0):
 
 
 def _skip_if_conditional_handles_unsupported():
-    from cuda.core._utils.version import binding_version, driver_version
+    from cuda.core._utils.version import driver_version
 
-    if driver_version() < (12, 3, 0) or binding_version() < (12, 3, 0):
-        pytest.skip("conditional handles require CUDA driver and bindings 12.3+")
+    if driver_version() < (12, 3, 0):
+        pytest.skip("conditional handles require CUDA driver 12.3+")
 
 
 def test_graph_is_building(init_cuda):
@@ -780,13 +778,6 @@ def test_pdl_launch_graph_capture(init_cuda):
         maps to a programmatic dependency edge from the programmatic kernel port.
         """
         from cuda.bindings import driver
-
-        # cuda.bindings before 13.3.0 (before 12.9.7 on the 12.x branch) returned
-        # CUgraphEdgeData wrappers backed by a scratch buffer that was freed before the
-        # call returned, so every field reads back as freed heap memory (#1804).
-        version = Version(cuda.bindings.__version__)
-        if version < Version("13.3.0" if version.major >= 13 else "12.9.7"):
-            pytest.skip(f"cuda.bindings {version} returns dangling graph edge data (#1804)")
 
         h_graph = graph_definition.handle
         if driver.CUDA_VERSION >= 13000:

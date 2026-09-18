@@ -15,19 +15,16 @@ import re
 import helpers
 import pytest
 
+from cuda.bindings import nvml
+from cuda.bindings.nvml import DeviceArch
 from cuda.core import Device as CudaDevice
 from cuda.core import system
-from cuda.core.system import typing
-
-if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-    from cuda.bindings import nvml
-    from cuda.bindings.nvml import DeviceArch
-    from cuda.core.system import _device
+from cuda.core.system import _device, typing
 
 
 @pytest.fixture(autouse=True, scope="module")
 def check_gpu_available():
-    if not system.CUDA_BINDINGS_NVML_IS_COMPATIBLE or system.get_num_devices() == 0:
+    if system.get_num_devices() == 0:
         pytest.skip("No GPUs available to run device tests", allow_module_level=True)
 
 

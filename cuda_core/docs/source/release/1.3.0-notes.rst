@@ -20,6 +20,18 @@ Breaking Changes
   missing C functions, silently disabled features, or crashes.
   (https://github.com/NVIDIA/cuda-python/issues/2783)
 
+- With the ``cuda-bindings`` floor in place, whether a feature is available now depends on the
+  CUDA driver alone (and on the CUDA major of the ``cuda.core`` build). Checks that also inspected
+  the ``cuda-bindings`` version are gone, and the error messages they produced with them; error
+  messages that name a minimum now name a driver version. ``cuda.core.system`` always uses NVML
+  through ``cuda-bindings``, so ``cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE`` is always
+  ``True`` and is deprecated. :mod:`cuda.core.checkpoint` requires the CUDA 13 build of
+  ``cuda.core`` (it did in effect before: the CUDA 12 ``cuda-bindings`` lack a type it uses) and
+  now says so. The C++ layer calls the driver through the entry points ``cuda-bindings`` resolves
+  rather than through its Cython wrappers, so a driver function that the installed driver lacks
+  can no longer surface as ``SystemError`` from a C++ call.
+  (https://github.com/NVIDIA/cuda-python/issues/2783)
+
 New features
 ------------
 

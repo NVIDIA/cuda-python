@@ -7,9 +7,8 @@ import pytest
 from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource
 from helpers.memory import create_managed_memory_resource_or_skip
 
-from cuda.bindings import driver
 from cuda.core import Device, Host, ManagedBuffer
-from cuda.core._utils.version import binding_version, driver_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 
 # Managed-memory prefetch and CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION
 # operate at physical-page granularity. Test buffers must each occupy a full
@@ -52,8 +51,8 @@ def _skip_if_managed_location_ops_unsupported(device):
 
 def _skip_if_managed_discard_prefetch_unsupported(device):
     _skip_if_managed_location_ops_unsupported(device)
-    if not hasattr(driver, "cuMemDiscardAndPrefetchBatchAsync"):
-        pytest.skip("discard-prefetch requires cuda.bindings support")
+    if BUILD_CUDA_MAJOR < 13:
+        pytest.skip("discard-prefetch requires the CUDA 13 build")
 
     visible_devices = Device.get_all_devices()
     if not all(dev.properties.concurrent_managed_access for dev in visible_devices):
@@ -161,20 +160,18 @@ class TestLocationCoerce:
 
     def test_host_numa_passthrough(self):
         from cuda.core._memory._managed_location import _coerce_location
-        from cuda.core._utils.version import binding_version
 
-        if binding_version() < (13, 0, 0):
-            pytest.skip("Host(numa_id=N) requires CUDA 13 bindings")
+        if BUILD_CUDA_MAJOR < 13:
+            pytest.skip("Host(numa_id=N) requires the CUDA 13 build")
         spec = _coerce_location(Host(numa_id=3))
         assert spec.kind == "host_numa"
         assert spec.id == 3
 
     def test_host_numa_current_passthrough(self):
         from cuda.core._memory._managed_location import _coerce_location
-        from cuda.core._utils.version import binding_version
 
-        if binding_version() < (13, 0, 0):
-            pytest.skip("Host.numa_current() requires CUDA 13 bindings")
+        if BUILD_CUDA_MAJOR < 13:
+            pytest.skip("Host.numa_current() requires the CUDA 13 build")
         spec = _coerce_location(Host.numa_current())
         assert spec.kind == "host_numa_current"
 
@@ -246,8 +243,8 @@ class TestDiscardBatch:
     def test_basic(self, location_ops_device, location_ops_mr):
         from cuda.core.utils import discard_batch, prefetch_batch
 
-        if not hasattr(driver, "cuMemDiscardBatchAsync"):
-            pytest.skip("cuMemDiscardBatchAsync unavailable")
+        if BUILD_CUDA_MAJOR < 13:
+            pytest.skip("cuMemDiscardBatchAsync requires the CUDA 13 build")
         device = location_ops_device
         stream = device.create_stream()
         bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=stream) for _ in range(3)]
@@ -265,8 +262,8 @@ class TestDiscardPrefetchBatch:
     def test_same_location(self, location_ops_device, location_ops_mr):
         from cuda.core.utils import discard_prefetch_batch, prefetch_batch
 
-        if not hasattr(driver, "cuMemDiscardAndPrefetchBatchAsync"):
-            pytest.skip("cuMemDiscardAndPrefetchBatchAsync unavailable")
+        if BUILD_CUDA_MAJOR < 13:
+            pytest.skip("cuMemDiscardAndPrefetchBatchAsync requires the CUDA 13 build")
         device = location_ops_device
         stream = device.create_stream()
         bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=stream) for _ in range(2)]
@@ -360,8 +357,8 @@ class TestManagedBuffer:
         assert external_managed_buffer.last_prefetch_location is None
 
     @pytest.mark.skipif(
-        binding_version() < (13, 0, 0) or driver_version() < (13, 0, 0),
-        reason="Host NUMA last-prefetch location requires CUDA 13",
+        BUILD_CUDA_MAJOR < 13 or driver_version() < (13, 0, 0),
+        reason="Host NUMA last-prefetch location requires the CUDA 13 build and driver",
     )
     @pytest.mark.agent_authored(model="gpt-5")
     def test_last_prefetch_location_roundtrip_host_numa(self, location_ops_device, managed_buffer):
@@ -398,10 +395,8 @@ class TestManagedBuffer:
     @pytest.mark.thread_unsafe(reason="external_managed_buffer is shared between threads")
     def test_preferred_location_roundtrip_host_numa(self, location_ops_device):
         """Host(numa_id=N) round-trips correctly on CUDA 13 builds."""
-        from cuda.core._utils.version import binding_version
-
-        if binding_version() < (13, 0, 0):
-            pytest.skip("Host(numa_id=N) round-trip requires CUDA 13 bindings")
+        if BUILD_CUDA_MAJOR < 13:
+            pytest.skip("Host(numa_id=N) round-trip requires the CUDA 13 build")
         plain = DummyUnifiedMemoryResource(location_ops_device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
         try:
             buf = ManagedBuffer.from_handle(plain.handle, plain.size, owner=plain)
@@ -486,8 +481,8 @@ class TestManagedBuffer:
         assert buf.last_prefetch_location == device
 
     def test_instance_discard(self, location_ops_device, managed_buffer):
-        if not hasattr(driver, "cuMemDiscardBatchAsync"):
-            pytest.skip("cuMemDiscardBatchAsync unavailable")
+        if BUILD_CUDA_MAJOR < 13:
+            pytest.skip("cuMemDiscardBatchAsync requires the CUDA 13 build")
         device = location_ops_device
         buf = managed_buffer
         stream = device.create_stream()
