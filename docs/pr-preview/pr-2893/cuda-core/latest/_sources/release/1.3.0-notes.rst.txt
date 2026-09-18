@@ -34,6 +34,13 @@ New features
 Fixes and enhancements
 ----------------------
 
+- A :class:`Program` that is collected as part of a reference cycle no longer
+  raises ``AttributeError`` from its destructor, and the source file it wrote
+  for a ``debug`` or ``lineinfo`` build is removed. The cyclic collector
+  clears object attributes before the destructor runs, and the destructor
+  read the program options to locate that file.
+  (`#2876 <https://github.com/NVIDIA/cuda-python/issues/2876>`__)
+
 - ``Graph.__getitem__`` now declares an overload for each node type that has
   an executable view, so type checkers and editors see the precise view type:
   indexing with a :class:`~graph.KernelNode` yields an
@@ -113,3 +120,17 @@ Fixes and enhancements
 
 - :attr:`Stream.device` and related queries on a stream whose context is not
   current now restore the caller's context even when the device query fails.
+
+- Closing a :class:`DeviceMemoryResource` now revokes the peer access it
+  granted before the driver destroys the pool. The revocation used to be one
+  request that named every device, including the pool's own; the driver
+  rejects such a request as a whole, so it never took effect and a pool
+  created later could inherit that access through a recycled handle. Each
+  device is now revoked with its own request, so no single device can block
+  the others.
+  (`#2807 <https://github.com/NVIDIA/cuda-python/issues/2807>`__)
+
+- Calling ``discard()`` on the set-like :attr:`graph.GraphNode.pred` and
+  :attr:`graph.GraphNode.succ` views with an object that is not a
+  :class:`~graph.GraphNode` is now a no-op instead of raising ``TypeError``,
+  consistent with :class:`collections.abc.MutableSet` semantics.
