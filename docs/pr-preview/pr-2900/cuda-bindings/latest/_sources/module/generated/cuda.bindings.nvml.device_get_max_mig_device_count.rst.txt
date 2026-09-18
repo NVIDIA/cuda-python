@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_max\_mig\_device\_count
-=======================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_max_mig_device_count
