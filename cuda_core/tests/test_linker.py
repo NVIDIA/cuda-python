@@ -644,7 +644,7 @@ def _launch_incrementally_linked_kernel(device, linked_code):
             stream.close()
 
 
-@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.human_reviewed
 @pytest.mark.skipif(
     is_culink_backend or nvjitlink_version < (13, 2),
     reason="relocatable linking requires nvJitLink 13.2 or newer",
@@ -661,6 +661,7 @@ def test_relocatable_cubin_round_trip(init_cuda):
         options=LinkerOptions(arch=ARCH, relocatable=True),
     ).link("cubin")
     assert resolved_partial.code_type == "cubin"
+    _launch_incrementally_linked_kernel(init_cuda, resolved_partial)
 
     final = Linker(resolved_partial, options=LinkerOptions(arch=ARCH)).link("cubin")
     _launch_incrementally_linked_kernel(init_cuda, final)
