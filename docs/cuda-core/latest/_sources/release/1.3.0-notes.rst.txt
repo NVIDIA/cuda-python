@@ -129,3 +129,8 @@ Fixes and enhancements
   device is now revoked with its own request, so no single device can block
   the others.
   (`#2807 <https://github.com/NVIDIA/cuda-python/issues/2807>`__)
+
+- Calling ``discard()`` on the set-like :attr:`graph.GraphNode.pred` and
+  :attr:`graph.GraphNode.succ` views with an object that is not a
+  :class:`~graph.GraphNode` is now a no-op instead of raising ``TypeError``,
+  consistent with :class:`collections.abc.MutableSet` semantics.
