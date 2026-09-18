@@ -50,6 +50,31 @@ Fixes and enhancements
   statically.
   (`#2482 <https://github.com/NVIDIA/cuda-python/issues/2482>`__)
 
+- :class:`~_memory.DeviceMemoryResource` can now be constructed for a
+  device's default pool (without options), and :attr:`Device.memory_resource`
+  first accessed, while the calling thread is inside a ``global`` or
+  ``thread_local`` stream capture. The constructor applies its
+  release-threshold policy with pool attribute calls that the driver refuses
+  during such a capture; it now makes them in relaxed capture mode and
+  restores the thread's previous mode, so the capture stays valid. Creating a
+  new pool with options during such a capture is still refused by the driver.
+  (`#2834 <https://github.com/NVIDIA/cuda-python/issues/2834>`__)
+
+- Ending, closing, or collecting a top-level :class:`~graph.GraphBuilder`
+  whose capture was invalidated, or left unjoined by a
+  :meth:`~graph.GraphBuilder.join` that failed partway, no longer crashes.
+  :meth:`~graph.GraphBuilder.end_building` and
+  :meth:`~graph.GraphBuilder.close` end the capture and raise the driver
+  error, after which the builder holds no graph. A failed ``join`` also closes
+  the forked builders it did not join. This does not extend to the body
+  builder of a conditional node: an invalidated body capture leaves the parent
+  graph invalid as well, and ending it may crash the process
+  (`#2918 <https://github.com/NVIDIA/cuda-python/issues/2918>`__). Calling
+  ``end_building`` on a forked builder is now rejected with ``RuntimeError``;
+  forked builders are ended by ``join``.
+  (`#2834 <https://github.com/NVIDIA/cuda-python/issues/2834>`__,
+  `#2776 <https://github.com/NVIDIA/cuda-python/issues/2776>`__)
+
 - :class:`Device` methods that create resources or synchronize now act on that
   device's bound context, even when another device is current. They do not
   change which device is current. For example, ``dev1.sync()`` synchronizes

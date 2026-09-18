@@ -719,6 +719,39 @@ void invalidate_child_graph_state(
     }
 }
 
+// CUDA destroyed the root graph and, with it, every child. Retire every box
+// so that no registry entry resolves to the dead graphs and the hierarchy's
+// deleter finds no root to destroy.
+void invalidate_root_graph_state(const GraphHandle& h_root) noexcept {
+    if (!h_root) {
+        return;
+    }
+
+    GraphBox* root = get_box(h_root);
+    if (!root->resource || root->parent) {
+        return;
+    }
+    GraphHierarchy& hierarchy = *root->hierarchy;
+    for (auto it = hierarchy.graphs.begin();
+         it != hierarchy.graphs.end();) {
+        auto graph = it++;
+
+        // Empty node_handles and invalidate each one.
+        for (auto& entry : graph->node_handles.drain()) {
+            if (GraphNodeHandle h_node = entry.second.lock()) {
+                get_box(h_node)->resource = nullptr;
+            }
+        }
+        if (graph->resource) {
+            graph_registry.unregister_handle(graph->resource);
+            graph->resource = nullptr;
+        }
+        graph->attachments.clear();
+        hierarchy.graveyard.splice(
+            hierarchy.graveyard.end(), hierarchy.graphs, graph);
+    }
+}
+
 GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_graph) {
     if (!node) {
         auto box = std::make_shared<const GraphNodeBox>(
