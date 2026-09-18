@@ -1775,7 +1775,11 @@ def test_vmm_deallocate_frees_wrapped_pointer(init_cuda):
     prop.type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
     prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
     prop.location.id = device.device_id
-    prop.requestedHandleTypes = VirtualMemoryResourceOptions._handle_type_to_driver(VMM_HANDLE_TYPE)
+    # The helper returns a plain int; the CUDA 13.0 bindings' struct setter
+    # accepts only the enum.
+    prop.requestedHandleTypes = driver.CUmemAllocationHandleType(
+        VirtualMemoryResourceOptions._handle_type_to_driver(VMM_HANDLE_TYPE)
+    )
     size = handle_return(
         driver.cuMemGetAllocationGranularity(
             prop, driver.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED
