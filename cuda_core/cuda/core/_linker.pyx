@@ -770,6 +770,8 @@ def _require_nvjitlink_version(minimum_version: tuple[int, int], feature: str) -
         raise RuntimeError(f"{feature} requires nvJitLink {required} or newer; found {detected}")
 
 
+# TODO(#2783): Replace this Python-level dispatch with direct cimports once
+# the cuda-bindings runtime floor includes the linked-LTOIR getters.
 def _linked_ltoir_output_module():
     """Return bindings that can retrieve linked LTOIR without a Cython dependency."""
     _require_nvjitlink_version((13, 3), "LTOIR output")
