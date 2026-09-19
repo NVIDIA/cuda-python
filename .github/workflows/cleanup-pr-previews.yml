@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -24,6 +24,11 @@ jobs:
   cleanup:
     name: Clean up stale PR preview folders
     runs-on: ubuntu-latest
+    # Must match every job that writes to gh-pages.
+    concurrency:
+      group: cuda-python-gh-pages-publish
+      queue: max
+      cancel-in-progress: false
     # Only run for NVIDIA org to prevent forks from running this
     if: github.repository_owner == 'NVIDIA'
     steps:
@@ -41,8 +46,10 @@ jobs:
           git config --global user.email "cuda-python-bot@users.noreply.github.com"
 
       - name: Run PR preview cleanup script
+        id: cleanup
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_PAGES_PUBLISH_LOCK: cuda-python-gh-pages-publish
         run: |
           # Determine if we should run in dry-run mode
           if [[ "${{ inputs.dry-run }}" == "true" ]]; then
@@ -58,11 +65,13 @@ jobs:
         run: |
           echo "### PR Preview Cleanup Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [[ "${{ inputs.dry-run }}" == "true" ]]; then
+          if [[ "${{ steps.cleanup.outcome }}" != "success" ]]; then
+            echo "❌ Cleanup failed; no successful update was confirmed" >> $GITHUB_STEP_SUMMARY
+          elif [[ "${{ inputs.dry-run }}" == "true" ]]; then
             echo "✅ Dry-run completed successfully" >> $GITHUB_STEP_SUMMARY
             echo "No changes were made to the gh-pages branch" >> $GITHUB_STEP_SUMMARY
           else
-            echo "✅ Cleanup completed and changes pushed to gh-pages" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Cleanup completed; gh-pages is up to date" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY

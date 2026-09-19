@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -29,6 +29,7 @@ runs:
         folder: ${{ inputs.source-folder }}
         target-folder: docs/pr-preview/pr-${{ inputs.pr-number }}/
         commit-message: "Deploy doc preview for PR ${{ inputs.pr-number }} (${{ github.sha }})"
+        single-commit: true
 
     - name: Leave a comment after deployment
       if: ${{ github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
@@ -56,6 +57,7 @@ runs:
         folder: ${{ inputs.source-folder }}
         target-folder: docs/pr-preview/pr-${{ inputs.pr-number }}/
         commit-message: "Clean up doc preview for PR ${{ inputs.pr-number }} (${{ github.sha }})"
+        single-commit: true
 
     - name: Leave a comment after removal
       if: ${{ github.ref_name == 'main' || startsWith(github.ref_name, 'release/') }}
