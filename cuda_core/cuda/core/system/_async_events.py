@@ -54,12 +54,7 @@ _TIMED_OUT = object()
 
 # How long an idle worker waits for the next slice before retiring.  Workers
 # stop by themselves, so nothing has to wake them when the interpreter exits.
-_IDLE_POLL_S = 0.05
-
-# How long the drain's wait for a borrowed slice runs before it is renewed, and
-# how often it looks at the outcome.
-_DRAIN_WAIT_MS = 1000
-_DRAIN_POLL_S = 0.0005
+_IDLE_POLL_S = 0.02
 
 
 def _settle(future, payload, error):
@@ -86,26 +81,38 @@ class _Outcome:
     a single borrowed slice at a time.
     """
 
-    __slots__ = ("error", "finished", "payload")
+    __slots__ = ("_lock", "drain_future", "error", "finished", "payload")
 
     def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self.drain_future = None
         self.error = None
         self.payload = None
         self.finished = False
 
     def reset(self) -> None:
+        self.drain_future = None
         self.error = None
         self.payload = None
         self.finished = False
 
-    def wait(self, timeout_ms: int) -> bool:
-        """Block a worker thread until the slice ends; only draining uses this."""
-        deadline = time.monotonic() + timeout_ms / 1000
-        while not self.finished:
-            if time.monotonic() >= deadline:
-                return False
-            time.sleep(_DRAIN_POLL_S)
-        return True
+    def finish(self, payload, error):
+        """Publish the slice result; a drain that is already waiting is returned."""
+        with self._lock:
+            self.payload = payload
+            self.error = error
+            self.finished = True
+            waiting, self.drain_future = self.drain_future, None
+        return waiting
+
+    def claim(self, loop):
+        """Future that completes with this slice, or ``None`` if it already has."""
+        with self._lock:
+            if self.finished:
+                return None
+            if self.drain_future is None:
+                self.drain_future = loop.create_future()
+            return self.drain_future
 
 
 class _Dispatcher:
@@ -145,12 +152,12 @@ class _Dispatcher:
                 payload, error = None, exc
             finally:
                 request = native_wait = None  # do not pin the event set any longer
-            outcome.error = error
-            outcome.payload = payload
-            outcome.finished = True
+            waiting = outcome.finish(payload, error)
             with self._lock:
                 self._pending -= 1
             loop.call_soon_threadsafe(_settle, future, payload, error)
+            if waiting is not None:
+                loop.call_soon_threadsafe(_settle, waiting, payload, error)
 
     def submit(self, loop, outcome, native_wait, slice_ms):
         """Queue one slice and return the future it will be delivered through."""
@@ -182,18 +189,22 @@ def _workers() -> _Dispatcher:
 async def _drain(outcome, loop):
     """Wait out the borrowed slice; return its event, or ``None`` if it timed out.
 
-    The future that carried the slice was cancelled with the task, so this waits
-    on the slice itself - on a worker thread, because the event loop is not the
-    place to sit out a native call.  Letting the drain finish before the
-    cancellation returns is what makes releasing the event set safe; a repeat
-    cancel only means starting another wait for the same slice.
+    The future that carried the slice was cancelled together with the task, so
+    this waits on the slice itself: the worker that owns it completes the
+    waiter this registers.  Letting the drain finish before the cancellation
+    returns is what makes releasing the event set safe, and it costs only the
+    rest of the slice - never another worker.  A repeat cancel just re-shields
+    the same waiter.
     """
-    while not outcome.finished:
-        waiting = _workers().submit(loop, _Outcome(), outcome.wait, _DRAIN_WAIT_MS)
+    while True:
+        waiting = outcome.claim(loop)
+        if waiting is None:
+            break
         try:
             await asyncio.shield(waiting)
         except asyncio.CancelledError:
             continue
+        break
     if outcome.error is not None:
         raise outcome.error
     return None if outcome.payload is _TIMED_OUT else outcome.payload
