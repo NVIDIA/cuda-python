@@ -29,6 +29,11 @@ runs:
         folder: ${{ inputs.source-folder }}
         target-folder: docs/pr-preview/pr-${{ inputs.pr-number }}/
         commit-message: "Deploy doc preview for PR ${{ inputs.pr-number }} (${{ github.sha }})"
+        # Every PR preview, the main docs deploy, and the coverage deploy commit to
+        # the shared gh-pages branch. Rebase onto a deployment that landed in the
+        # meantime instead of force-pushing over it, which the branch ruleset
+        # rejects (and which used to discard the other deployment).
+        force: false
 
     - name: Leave a comment after deployment
       if: ${{ github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
@@ -56,6 +61,7 @@ runs:
         folder: ${{ inputs.source-folder }}
         target-folder: docs/pr-preview/pr-${{ inputs.pr-number }}/
         commit-message: "Clean up doc preview for PR ${{ inputs.pr-number }} (${{ github.sha }})"
+        force: false
 
     - name: Leave a comment after removal
       if: ${{ github.ref_name == 'main' || startsWith(github.ref_name, 'release/') }}
