@@ -44,6 +44,9 @@ __all__ = ["EventSetWaiting"]
 # an idle wait wakes up.
 _SLICE_MS = 100
 
+# The same bound in seconds, for the slice arithmetic.
+_SLICE_S = _SLICE_MS / 1000
+
 # Upper bound on the threads that may be blocked in a native wait at once.
 _MAX_WORKERS = 8
 
@@ -240,23 +243,20 @@ class EventSetWaiting:
         pending, self._pending = self._pending, None
         return pending
 
-    def _acquire(self) -> None:
-        if self._busy:
-            raise RuntimeError("an event wait is already in flight for this event set")
-        self._busy = True
-
     def _claim(self, convert):
         pending = self.take_pending()
         if pending is None:
-            return None
-        return pending if convert is None else convert(pending)
+            return None, False
+        return (pending if convert is None else convert(pending)), True
 
     def wait(self, native_wait, timeout_ms: int, convert=None):
         """Blocking wait; the lease is held for the whole native call."""
-        self._acquire()
+        if self._busy:
+            raise RuntimeError("an event wait is already in flight for this event set")
+        self._busy = True
         try:
-            pending = self._claim(convert)
-            return native_wait(timeout_ms) if pending is None else pending
+            pending, claimed = self._claim(convert)
+            return pending if claimed else native_wait(timeout_ms)
         finally:
             self._busy = False
 
@@ -266,32 +266,38 @@ class EventSetWaiting:
         ``native_wait`` takes the slice length in milliseconds and is called
         from a worker thread.  It must be a bound method of the object that owns
         the native event set, so that awaiting this coroutine keeps that handle
-        alive for as long as a slice can still borrow it.
+        alive for as long as a slice can still borrow it.  ``convert`` turns a
+        consumed payload - fresh or parked - into the public result type.
         """
         if timeout_ms < 0:
             raise ValueError(f"timeout_ms must be >= 0, got {timeout_ms}")
-        self._acquire()
+        if self._busy:
+            raise RuntimeError("an event wait is already in flight for this event set")
+        self._busy = True
         try:
-            pending = self._claim(convert)
-            if pending is not None:
+            pending, claimed = self._claim(convert)
+            if claimed:
                 return pending
             loop = asyncio.get_running_loop()
+            outcome = self._outcome
             deadline = None if timeout_ms == 0 else time.monotonic() + timeout_ms / 1000
             while True:
                 if deadline is None:
                     slice_ms = _SLICE_MS
                 else:
-                    remaining_ms = math.ceil((deadline - time.monotonic()) * 1000)
-                    slice_ms = min(_SLICE_MS, remaining_ms) if remaining_ms > 0 else 1
+                    remaining = deadline - time.monotonic()
+                    slice_ms = _SLICE_MS if remaining >= _SLICE_S else math.ceil(remaining * 1000)
+                    if slice_ms < 1:
+                        slice_ms = 1
                 started = time.monotonic()
-                self._outcome.reset()
-                future = _workers().submit(loop, self._outcome, native_wait, slice_ms)
+                outcome.reset()
+                future = _workers().submit(loop, outcome, native_wait, slice_ms)
                 try:
                     payload = await future
                     if payload is not _TIMED_OUT:
-                        return payload
+                        return payload if convert is None else convert(payload)
                 except asyncio.CancelledError:
-                    result = await _drain(self._outcome, loop)
+                    result = await _drain(outcome, loop)
                     if result is not None:
                         self.park(result)
                     raise

@@ -168,10 +168,11 @@ cdef class RegisteredSystemEvents:
         native_wait = functools.partial(self._wait_slice, buffer_size=buffer_size)
         return self._waiting.wait(native_wait, timeout_ms, lambda payload: self._take_batch(payload, buffer_size))
 
-    async def wait_async(self, timeout_ms: int = 0, buffer_size: int = 1) -> object:
+    def wait_async(self, timeout_ms: int = 0, buffer_size: int = 1):
         """
         Wait asynchronously for events in the system event set.
 
+        Returns a coroutine, so it is used as ``await events.wait_async(...)``.
         Behaves like :meth:`wait`, without blocking the event loop.  The native
         wait is issued in bounded slices, so cancelling the awaiting task stops
         the wait within a slice instead of parking a thread for the remaining
@@ -203,10 +204,17 @@ cdef class RegisteredSystemEvents:
         :class:`ValueError`
             If ``timeout_ms`` is negative.
         """
-        native_wait = functools.partial(self._wait_slice, buffer_size=buffer_size)
-        return await self._waiting.wait_async(
-            native_wait, timeout_ms, lambda payload: self._take_batch(payload, buffer_size)
+        return self._waiting.wait_async(
+            functools.partial(self._wait_slice, buffer_size=buffer_size),
+            timeout_ms,
+            functools.partial(self._batch_result, buffer_size=buffer_size),
         )
+
+    def _batch_result(self, payload, buffer_size: int) -> SystemEvents:
+        """Turn a consumed payload into the public type, parked batch included."""
+        if isinstance(payload, tuple):
+            return self._take_batch(payload, buffer_size)
+        return SystemEvents(payload)
 
     def _wait_slice(self, timeout_ms: int, buffer_size: int):
         """One native wait of at most ``timeout_ms`` milliseconds."""

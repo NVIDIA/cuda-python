@@ -181,10 +181,11 @@ cdef class DeviceEvents:
         """
         return EventData(self._waiting.wait(self._wait_slice, timeout_ms))
 
-    async def wait_async(self, timeout_ms: int = 0) -> object:
+    def wait_async(self, timeout_ms: int = 0):
         """
         Wait asynchronously for an event in the event set.
 
+        Returns a coroutine, so it is used as ``await events.wait_async(...)``.
         Behaves like :meth:`wait`, without blocking the event loop.  The native
         wait is issued in bounded slices, so cancelling the awaiting task stops
         the wait within a slice instead of parking a thread for the remaining
@@ -212,7 +213,7 @@ cdef class DeviceEvents:
         :class:`ValueError`
             If ``timeout_ms`` is negative.
         """
-        return EventData(await self._waiting.wait_async(self._wait_slice, timeout_ms))
+        return self._waiting.wait_async(self._wait_slice, timeout_ms, EventData)
 
     def _wait_slice(self, timeout_ms: int):
         """One native wait of at most ``timeout_ms`` milliseconds."""
