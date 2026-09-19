@@ -1538,6 +1538,21 @@ def test_vmm_allocate_close_does_not_leak(init_cuda, grow):
     assert baseline - free < aligned_size
 
 
+@pytest.mark.parametrize("location_type", ["device", "host"])
+def test_vmm_deallocate_with_stream_has_no_warning(init_cuda, location_type):
+    """VMM buffers close cleanly with an explicit stream for both locations."""
+    device = Device()
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+    device.set_current()
+    stream = device.create_stream()
+    mr = VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type))
+
+    with assert_no_cuda_warning():
+        buffer = mr.allocate(2 * 1024 * 1024)
+        buffer.close(stream)
+
+
 def test_vmm_allocator_rdma_unsupported_exception():
     """Test that VirtualMemoryResource throws an exception when RDMA is requested but device doesn't support it.
 
