@@ -57,7 +57,9 @@ def _workers() -> ThreadPoolExecutor:
 
 
 def _slice_result(native):
-    """Result of a finished slice, or ``None`` when the slice timed out."""
+    """Result of a finished slice, or ``None`` when it timed out or never ran."""
+    if native.cancelled():
+        return None
     error = native.exception()
     if error is None:
         return native.result()
