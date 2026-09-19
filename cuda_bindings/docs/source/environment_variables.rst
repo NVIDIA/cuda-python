@@ -25,3 +25,5 @@ Build-Time Environment Variables
      for details and migration guidance.
 
 - ``CUDA_PYTHON_PARALLEL_LEVEL`` (previously ``PARALLEL_LEVEL``) : int, sets the number of threads used in the compilation of extension modules. Not setting it or setting it to 0 would disable parallel builds.
+
+- ``CUDA_PYTHON_TOOLCHAIN`` : Selects the C/C++ toolchain used to compile the extension modules. Values are case-insensitive. On Linux the default is ``gnu`` (gcc + GNU ld) and the alternative is ``llvm`` (clang + lld); on Windows the only value is ``msvc`` (cl.exe + link.exe), which is the default.

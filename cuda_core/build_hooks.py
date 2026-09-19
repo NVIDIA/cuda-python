@@ -11,10 +11,12 @@ import functools
 import glob
 import os
 import re
+import shutil
 import sys
 import tempfile
 import zipfile
 from pathlib import Path
+from warnings import warn
 
 from Cython.Build import cythonize
 from Cython.Compiler import Options as _CythonOptions
@@ -73,6 +75,159 @@ def _get_cuda_path() -> str:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
     print("CUDA path:", cuda_path)
     return cuda_path
+
+
+# -----------------------------------------------------------------------
+# Toolchain selection
+#
+# The helpers below (down to the end-of-shared-block marker) are duplicated
+# verbatim in cuda_bindings/build_hooks.py. Keep them in sync. Only the
+# per-package _resolve_toolchain() flag assembly that follows is package-
+# specific (it differs because the two packages use different C++ standards
+# and opt levels).
+
+# --- begin shared toolchain helpers (keep in sync) ---
+_TOOLCHAINS_LINUX = ("gnu", "llvm")
+_TOOLCHAINS_WINDOWS = ("msvc",)
+_TOOLCHAIN_COMPILERS = {
+    "gnu": ("cc", "c++"),
+    "llvm": ("clang", "clang++"),
+    "msvc": (None, None),
+}
+
+
+def _infer_compiler_family(value):
+    """Return 'llvm' if the compiler string looks like clang, else 'gnu'."""
+    return "llvm" if "clang" in value else "gnu"
+
+
+def _resolve_toolchain_name():
+    """Read CUDA_PYTHON_TOOLCHAIN / CC / CXX and pick the toolchain.
+
+    Returns (name, allowed, cc, cxx, explicit). On Linux the default is gnu;
+    on Windows the only value is msvc. When CUDA_PYTHON_TOOLCHAIN is set it
+    takes precedence over an externally-set CC/CXX: a mismatch warns and the
+    external CC/CXX is overridden. When CUDA_PYTHON_TOOLCHAIN is unset on
+    Linux, the toolchain is inferred from the external CC/CXX (CXX preferred,
+    fall back to CC): a value containing 'clang' selects llvm, else gnu. In
+    the inferred case the external compiler is left in place (not overridden),
+    so a wrapper like CC='sccache clang' survives and gets the llvm flags.
+    """
+    if sys.platform == "win32":
+        platform_key, allowed = "win32", _TOOLCHAINS_WINDOWS
+    else:
+        platform_key, allowed = "linux", _TOOLCHAINS_LINUX
+
+    explicit = os.environ.get("CUDA_PYTHON_TOOLCHAIN", "").strip().lower()
+    external_cc = os.environ.get("CC", "").strip()
+    external_cxx = os.environ.get("CXX", "").strip()
+
+    if explicit:
+        name = explicit
+        if name not in allowed:
+            raise RuntimeError(
+                f"CUDA_PYTHON_TOOLCHAIN={name!r} is not supported on {platform_key}. Valid values: {', '.join(allowed)}."
+            )
+        # Warn if an explicit toolchain conflicts with an externally-set CC. We check
+        # CC only (not CXX): CXX commonly defaults to 'c++' in the environment and is
+        # not a reliable user-intent signal, whereas CC is the canonical override.
+        tc_cc, _tc_cxx = _TOOLCHAIN_COMPILERS[name]
+        if tc_cc is not None and external_cc and _infer_compiler_family(external_cc) != _infer_compiler_family(tc_cc):
+            warn(
+                f"CUDA_PYTHON_TOOLCHAIN={name} takes precedence over externally-set CC ({external_cc!r}); ignoring it.",
+                stacklevel=2,
+            )
+    elif platform_key == "linux":
+        # Infer from the external compiler (CXX preferred, fall back to CC).
+        probe = external_cxx or external_cc
+        name = "llvm" if probe and "clang" in probe else allowed[0]
+    else:
+        name = allowed[0]
+
+    cc, cxx = _TOOLCHAIN_COMPILERS[name]
+    return name, allowed, cc, cxx, bool(explicit)
+
+
+def _apply_toolchain_env(cc, cxx, explicit):
+    """Set CC/CXX/LDSHARED for an explicitly-chosen non-default toolchain.
+
+    The default path and the inferred path intentionally do not touch the
+    env, so an externally-set compiler (e.g. CC='sccache cc' or CC='clang' in
+    CI) keeps working. Only an explicit CUDA_PYTHON_TOOLCHAIN override governs
+    the compiler.
+    """
+    if explicit and cc is not None:
+        os.environ["CC"] = cc
+        os.environ["CXX"] = cxx
+        os.environ["LDSHARED"] = f"{cxx} -shared"
+
+
+def _check_toolchain_available(name):
+    """Preflight: verify the selected toolchain's tools are on PATH.
+
+    No-op for the platform default (distutils discovers those). For llvm,
+    probes clang, clang++, and ld.lld so a missing toolchain fails fast with a
+    helpful message instead of a cryptic compile error.
+    """
+    if name != "llvm":
+        return
+    tools = ("clang", "clang++", "ld.lld")
+    missing = [t for t in tools if shutil.which(t) is None]
+    if missing:
+        raise RuntimeError(
+            f"CUDA_PYTHON_TOOLCHAIN=llvm but required tool(s) not found on PATH: "
+            f"{', '.join(missing)}. Install clang and lld "
+            f"(e.g. `apt install clang lld` or `dnf install clang lld`) "
+            f"or set CUDA_PYTHON_TOOLCHAIN=gnu."
+        )
+
+
+# --- end shared toolchain helpers ---
+
+
+def _resolve_toolchain(debug=False, compile_for_coverage=False):
+    """Resolve the C/C++ toolchain from CUDA_PYTHON_TOOLCHAIN (cuda.core flags).
+
+    Returns (name, cc, cxx, extra_compile_args, extra_link_args). The default
+    toolchain (gnu on Linux, msvc on Windows) reproduces the previous build
+    behavior and does not touch CC/CXX/LDSHARED, so an externally-set compiler
+    (e.g. CC="sccache cc") keeps working. A non-default toolchain (llvm on
+    Linux) selects clang/clang++ and lld and sets CC/CXX/LDSHARED so distutils'
+    customize_compiler picks them up.
+    """
+    name, _allowed, cc, cxx, explicit = _resolve_toolchain_name()
+
+    extra_compile_args = []
+    extra_link_args = []
+
+    if name == "msvc":
+        extra_compile_args += ["/std:c++17"]
+        if debug:
+            raise RuntimeError("Debuggable builds are not supported on Windows.")
+    elif name == "gnu":
+        extra_compile_args += ["-std=c++17"]
+        if debug:
+            extra_compile_args += ["-g", "-O0", "-D _GLIBCXX_ASSERTIONS"]
+        else:
+            extra_compile_args += ["-g0", "-O2"]
+            extra_link_args += ["-Wl,--strip-all"]
+    elif name == "llvm":
+        extra_compile_args += ["-std=c++17"]
+        extra_link_args += ["-fuse-ld=lld"]
+        if debug:
+            extra_compile_args += ["-g", "-O0", "-D _GLIBCXX_ASSERTIONS"]
+        else:
+            extra_compile_args += ["-g0", "-O2"]
+            extra_link_args += ["-Wl,--strip-all"]
+
+    if compile_for_coverage:
+        # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
+        # related to free-threading builds.
+        extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
+
+    _apply_toolchain_env(cc, cxx, explicit)
+
+    return name, cc, cxx, extra_compile_args, extra_link_args
 
 
 @functools.cache
@@ -267,26 +422,17 @@ def _build_cuda_core(debug=False):
             yield mod
 
     all_include_dirs = [os.path.join(cuda_path, "include")]
-    extra_compile_args = []
-    extra_link_args = []
+
+    # Resolve the C/C++ toolchain (CUDA_PYTHON_TOOLCHAIN). The default (gnu on
+    # Linux, msvc on Windows) reproduces the previous build behavior and does
+    # not touch CC/CXX, so an externally-set compiler (e.g. sccache) survives.
+    toolchain, _cc, _cxx, extra_compile_args, extra_link_args = _resolve_toolchain(
+        debug=debug, compile_for_coverage=COMPILE_FOR_COVERAGE
+    )
+    _check_toolchain_available(toolchain)
     extra_cythonize_kwargs = {}
-    if sys.platform == "win32":
-        extra_compile_args += ["/std:c++17"]
-        if debug:
-            raise RuntimeError("Debuggable builds are not supported on Windows.")
-    else:
-        extra_compile_args += ["-std=c++17"]
-        if debug:
-            extra_cythonize_kwargs["gdb_debug"] = True
-            extra_compile_args += ["-g", "-O0"]
-            extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]
-        else:
-            extra_compile_args += ["-g0", "-O2"]
-            extra_link_args += ["-Wl,--strip-all"]
-    if COMPILE_FOR_COVERAGE:
-        # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
-        # related to free-threading builds.
-        extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
+    if debug and sys.platform != "win32":
+        extra_cythonize_kwargs["gdb_debug"] = True
 
     depends = _extension_depends()
     ext_modules = tuple(

@@ -31,3 +31,11 @@ Runtime Environment Variables
   makes tab completion fail on Cython properties, and it changes global
   interpreter state; set this variable to opt out. Unset, empty, and ``0``
   leave the patch enabled; any other value disables it.
+
+Build-Time Environment Variables
+---------------------------------
+
+- ``CUDA_PYTHON_TOOLCHAIN`` : Selects the C/C++ toolchain used to compile the
+  extension modules. See the `cuda-bindings environment variables documentation
+  <https://nvidia.github.io/cuda-python/cuda-bindings/latest/environment_variables.html>`_
+  for the full description; it applies to ``cuda.core`` as well.

@@ -55,6 +55,16 @@ def _load_build_hooks():
 build_hooks = _load_build_hooks()
 
 
+@pytest.fixture(autouse=True)
+def _clean_cc_env(monkeypatch):
+    # _apply_toolchain_env sets CC/CXX/LDSHARED directly in os.environ (so
+    # distutils picks them up), which monkeypatch does not revert because it
+    # did not set them. Clean them per test so toolchain state never leaks
+    # across tests.
+    for k in ("CUDA_PYTHON_TOOLCHAIN", "CC", "CXX", "LDSHARED"):
+        monkeypatch.delenv(k, raising=False)
+
+
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_cuda_path_is_resolved_before_importing_bindings(monkeypatch):
     """PEP 517 namespace repair runs before cuda.bindings is imported."""
@@ -451,3 +461,194 @@ class TestParallelSourceCompilation:
         cmd = self._build_ext(monkeypatch, 4, self.MsvcLikeCompiler())
         with cmd._parallel_source_compilation():
             assert cmd.compiler.compile(["a.cpp"]) == "stock"
+
+
+class TestResolveToolchain:
+    """_resolve_toolchain: pick compiler/linker/flags from CUDA_PYTHON_TOOLCHAIN.
+
+    The default toolchain (gnu on Linux, msvc on Windows) must reproduce the
+    previous build behavior exactly and must not touch CC/CXX/LDSHARED, so an
+    externally-set compiler (e.g. the sccache wrapper in CI) survives.
+    """
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_default_does_not_touch_env(self, monkeypatch):
+        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+        monkeypatch.delenv("CC", raising=False)
+        monkeypatch.delenv("CXX", raising=False)
+        monkeypatch.delenv("LDSHARED", raising=False)
+        name, cc, cxx, _cargs, _largs = build_hooks._resolve_toolchain()
+        if sys.platform == "win32":
+            assert name == "msvc"
+            assert cc is None and cxx is None
+        else:
+            assert name == "gnu"
+            assert (cc, cxx) == ("cc", "c++")
+        assert "CC" not in os.environ and "CXX" not in os.environ
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_default_preserves_existing_cc(self, monkeypatch):
+        # An externally-set CC (e.g. sccache) must survive the default toolchain.
+        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+        monkeypatch.setenv("CC", "sccache cc")
+        monkeypatch.setenv("CXX", "sccache c++")
+        _name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
+        assert os.environ["CC"] == "sccache cc"
+        assert os.environ["CXX"] == "sccache c++"
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_case_insensitive(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("llvm only valid on Linux")
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "LLVM")
+        name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
+        assert name == "llvm"
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_invalid_value_raises(self, monkeypatch):
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "icc")
+        with pytest.raises(RuntimeError, match="not supported"):
+            build_hooks._resolve_toolchain()
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_llvm_sets_env_and_flags(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("llvm only valid on Linux")
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
+        monkeypatch.delenv("CC", raising=False)
+        monkeypatch.delenv("CXX", raising=False)
+        monkeypatch.delenv("LDSHARED", raising=False)
+        name, cc, cxx, cargs, largs = build_hooks._resolve_toolchain()
+        assert name == "llvm"
+        assert (cc, cxx) == ("clang", "clang++")
+        assert os.environ["CC"] == "clang"
+        assert os.environ["CXX"] == "clang++"
+        assert "-fuse-ld=lld" in largs
+        # clang rejects the gcc-only flags that gnu uses; they must be absent.
+        assert "-fpermissive" not in cargs
+        assert "-fno-var-tracking-assignments" not in cargs
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_llvm_overrides_external_cc(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("llvm only valid on Linux")
+        # An explicit non-default toolchain governs the compiler, so a stale
+        # external CC (e.g. "sccache cc") is replaced, not kept. The gnu
+        # external CC conflicts with llvm, so a mismatch warning is expected.
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
+        monkeypatch.setenv("CC", "sccache cc")
+        with pytest.warns(UserWarning, match="takes precedence"):
+            _name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
+        assert os.environ["CC"] == "clang"
+
+
+class TestCheckToolchainAvailable:
+    """_check_toolchain_available: fast, helpful failure when a tool is missing."""
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_default_is_noop(self):
+        # The platform default never preflights.
+        build_hooks._check_toolchain_available("gnu")
+        build_hooks._check_toolchain_available("msvc")
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_llvm_missing_tool_lists_install_hint(self, monkeypatch):
+        def fake_which(name):
+            return None if name in ("clang", "clang++", "ld.lld") else "/bin/" + name
+
+        monkeypatch.setattr(build_hooks.shutil, "which", fake_which)
+        with pytest.raises(RuntimeError, match="clang and lld"):
+            build_hooks._check_toolchain_available("llvm")
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_llvm_present_passes(self, monkeypatch):
+        monkeypatch.setattr(build_hooks.shutil, "which", lambda name: "/bin/" + name)
+        build_hooks._check_toolchain_available("llvm")
+
+
+class TestInferToolchain:
+    """When CUDA_PYTHON_TOOLCHAIN is unset, infer the toolchain from CC/CXX.
+
+    Regression for the externally-supplied-clang path: previously the default
+    'gnu' flag set (incl. -fno-var-tracking-assignments) reached clang because the
+    default path did not override CC/CXX. Now clang is inferred and the llvm
+    flag set (no gcc-only flags, -fuse-ld=lld) is used, and the external
+    compiler is left in place.
+    """
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_external_cc_clang_infers_llvm(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("inference is Linux-only")
+        monkeypatch.setenv("CC", "clang")
+        name, _cc, _cxx, cargs, largs = build_hooks._resolve_toolchain()
+        assert name == "llvm"
+        # llvm flags: no gcc-only -fno-var-tracking-assignments, uses lld
+        assert "-fno-var-tracking-assignments" not in cargs
+        assert "-fuse-ld=lld" in largs
+        # inferred path does not override the external compiler
+        assert os.environ["CC"] == "clang"
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_external_cxx_clang_infers_llvm(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("inference is Linux-only")
+        monkeypatch.setenv("CXX", "clang++")
+        name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
+        assert name == "llvm"
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_external_cc_gcc_infers_gnu(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("inference is Linux-only")
+        monkeypatch.setenv("CC", "gcc")
+        name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
+        assert name == "gnu"
+        assert os.environ["CC"] == "gcc"  # not overridden
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_explicit_gnu_with_clang_cc_warns_and_overrides(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("Linux-only")
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "gnu")
+        monkeypatch.setenv("CC", "clang")
+        with pytest.warns(UserWarning, match="takes precedence"):
+            name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
+        assert name == "gnu"
+        # explicit toolchain governs: CC overridden to the gnu compiler
+        assert os.environ["CC"] == "cc"
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_explicit_llvm_with_clang_cc_no_warning(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("Linux-only")
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
+        monkeypatch.setenv("CC", "clang")
+        import warnings
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")  # any warning here would fail the test
+            name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
+        assert name == "llvm"
+        assert os.environ["CC"] == "clang"  # overridden to clang (same family)
+
+
+def test_shared_toolchain_block_is_in_sync():
+    """The toolchain helpers between the begin/end markers must be byte-
+    identical across cuda_bindings/build_hooks.py and cuda_core/build_hooks.py.
+
+    PEP 517 build isolation forbids a shared module (the sibling package
+    isn't installed in the isolated build env), so the block is duplicated
+    verbatim with a 'keep in sync' marker. This test enforces that invariant
+    so a drift is caught locally instead of silently breaking one package.
+    """
+    bindings = Path(__file__).parent.parent.parent / "cuda_bindings" / "build_hooks.py"
+    core = Path(__file__).parent.parent / "build_hooks.py"
+
+    def shared_block(path):
+        text = path.read_text()
+        start = text.index("# --- begin shared toolchain helpers")
+        end = text.index("# --- end shared toolchain helpers ---") + len("# --- end shared toolchain helpers ---")
+        return text[start:end]
+
+    assert shared_block(bindings) == shared_block(core)
