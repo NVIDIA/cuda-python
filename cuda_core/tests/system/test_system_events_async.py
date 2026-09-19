@@ -312,14 +312,16 @@ def test_in_flight_wait_keeps_the_owner_alive():
 def test_threads_are_reused_across_waits():
     state = EventSetWaiting()
     fake = FakeWait(deliver_at=0)
+    seen = []
 
     async def main():
-        for _ in range(50):
+        for index in range(50):
             assert await state.wait_async(fake, 100) is EVENT
+            if index in (5, 45):
+                seen.append(sum(1 for thread in threading.enumerate() if thread.name.startswith("cuda-core-nvml")))
 
-    before = threading.active_count()
     asyncio.run(main())
-    assert threading.active_count() == before
+    assert seen[0] == seen[1], f"workers grew while waiting: {seen}"
     assert state.is_waiting is False
 
 

@@ -19,7 +19,10 @@ so that
 * an event consumed by a slice whose awaiter went away is handed to the next
   consumer instead of being dropped.
 
-The state machine is pure Python so that it can be exercised without NVML; the
+The slices run on a small set of threads that take requests off a queue: paying
+a thread pool per request would dominate the cost of a short wait, and these
+workers are reused across waits.  The state machine and the dispatcher are pure
+Python so that they can be exercised without NVML; the
 :mod:`cuda.core.system` extension types only supply the native call and convert
 the result into their public types.
 """
@@ -28,8 +31,9 @@ from __future__ import annotations
 
 import asyncio
 import math
+import queue
+import threading
 import time
-from concurrent.futures import ThreadPoolExecutor
 
 from cuda.bindings import nvml
 
@@ -40,52 +44,159 @@ __all__ = ["EventSetWaiting"]
 # an idle wait wakes up.
 _SLICE_MS = 100
 
-# Upper bound on the threads that may be blocked in a native wait at once.  The
-# pool is private so that waiting never occupies the default executor of the
-# application.
+# Upper bound on the threads that may be blocked in a native wait at once.
 _MAX_WORKERS = 8
 
-_executor = None
+# A slice that timed out.  Slices are an implementation detail, so the timeout
+# of one slice is a value rather than an exception: only the caller's own
+# deadline raises, once, with the project's NVML timeout type.
+_TIMED_OUT = object()
+
+# How long an idle worker waits for the next slice before retiring.  Workers
+# stop by themselves, so nothing has to wake them when the interpreter exits.
+_IDLE_POLL_S = 0.05
+
+# How long the drain's wait for a borrowed slice runs before it is renewed, and
+# how often it looks at the outcome.
+_DRAIN_WAIT_MS = 1000
+_DRAIN_POLL_S = 0.0005
 
 
-def _workers() -> ThreadPoolExecutor:
-    """The private pool that holds threads blocked in a native wait."""
-    global _executor
-    if _executor is None:
-        _executor = ThreadPoolExecutor(max_workers=_MAX_WORKERS, thread_name_prefix="cuda-core-nvml")
-    return _executor
-
-
-def _slice_result(native):
-    """Result of a finished slice, or ``None`` when it timed out or never ran."""
-    if native.cancelled():
-        return None
-    error = native.exception()
+def _settle(future, payload, error):
+    """Hand a finished slice to the event loop; runs on the loop thread."""
+    if future.done():
+        return
     if error is None:
-        return native.result()
-    if isinstance(error, nvml.TimeoutError):
-        return None
-    raise error
+        future.set_result(payload)
+    else:
+        future.set_exception(error)
 
 
-async def _drain(native, loop):
-    """Wait out an in-flight slice; return its event, or ``None`` if it timed out.
+def _timeout_exception():
+    """The project's NVML timeout, raised for the caller's own deadline."""
+    return nvml.TimeoutError(nvml.Return.ERROR_TIMEOUT)
 
-    ``native`` is the ``concurrent.futures.Future`` of the submitted slice, not
-    the asyncio wrapper: cancelling the awaiting task cancels that wrapper, so
-    the drain waits on the work item itself.  One wrapper is shielded
-    repeatedly, which also keeps a repeat cancel from abandoning the borrowed
-    event set.
+
+class _Outcome:
+    """How the borrowed slice ended.
+
+    The fast path only needs the future it awaits; this slot exists for the
+    drain, which has to read the slice's result after the task cancelled the
+    future that carried it.  One slot per event set is enough: the lease allows
+    a single borrowed slice at a time.
     """
-    wrapper = asyncio.wrap_future(native, loop=loop)
-    while not native.done():
+
+    __slots__ = ("error", "finished", "payload")
+
+    def __init__(self) -> None:
+        self.error = None
+        self.payload = None
+        self.finished = False
+
+    def reset(self) -> None:
+        self.error = None
+        self.payload = None
+        self.finished = False
+
+    def wait(self, timeout_ms: int) -> bool:
+        """Block a worker thread until the slice ends; only draining uses this."""
+        deadline = time.monotonic() + timeout_ms / 1000
+        while not self.finished:
+            if time.monotonic() >= deadline:
+                return False
+            time.sleep(_DRAIN_POLL_S)
+        return True
+
+
+class _Dispatcher:
+    """Runs blocking native waits on a bounded, lazily grown set of threads.
+
+    A worker takes one slice off a queue, calls the native wait, and hands the
+    outcome back to the event loop.  Workers are non-daemon and retire once they
+    have been idle for a moment, so an in-flight slice always completes before
+    the event set it borrowed can be released, and a process that stops waiting
+    still exits promptly.
+    """
+
+    def __init__(self, max_workers: int = _MAX_WORKERS) -> None:
+        self._queue = queue.SimpleQueue()
+        self._max_workers = max_workers
+        self._threads = []
+        self._pending = 0
+        self._lock = threading.Lock()
+
+    def _run(self) -> None:
+        while True:
+            try:
+                request = self._queue.get(timeout=_IDLE_POLL_S)
+            except queue.Empty:
+                with self._lock:
+                    if not self._queue.qsize():
+                        self._threads.remove(threading.current_thread())
+                        return
+                continue
+            loop, future, outcome, native_wait, slice_ms = request
+            error = None
+            try:
+                payload = native_wait(slice_ms)
+            except nvml.TimeoutError:
+                payload = _TIMED_OUT
+            except BaseException as exc:  # forwarded to the awaiter, never swallowed
+                payload, error = None, exc
+            finally:
+                request = native_wait = None  # do not pin the event set any longer
+            outcome.error = error
+            outcome.payload = payload
+            outcome.finished = True
+            with self._lock:
+                self._pending -= 1
+            loop.call_soon_threadsafe(_settle, future, payload, error)
+
+    def submit(self, loop, outcome, native_wait, slice_ms):
+        """Queue one slice and return the future it will be delivered through."""
+        future = loop.create_future()
+        with self._lock:
+            self._threads = [thread for thread in self._threads if thread.is_alive()]
+            self._pending += 1
+            self._queue.put((loop, future, outcome, native_wait, slice_ms))
+            # One worker per in-flight slice, up to the bound: a queued slice
+            # must not wait behind a long one belonging to another event set.
+            while len(self._threads) < self._max_workers and self._pending > len(self._threads):
+                thread = threading.Thread(target=self._run, name=f"cuda-core-nvml-{len(self._threads)}")
+                thread.start()
+                self._threads.append(thread)
+        return future
+
+
+_dispatcher = None
+
+
+def _workers() -> _Dispatcher:
+    """The private dispatcher, created on first use."""
+    global _dispatcher
+    if _dispatcher is None:
+        _dispatcher = _Dispatcher()
+    return _dispatcher
+
+
+async def _drain(outcome, loop):
+    """Wait out the borrowed slice; return its event, or ``None`` if it timed out.
+
+    The future that carried the slice was cancelled with the task, so this waits
+    on the slice itself - on a worker thread, because the event loop is not the
+    place to sit out a native call.  Letting the drain finish before the
+    cancellation returns is what makes releasing the event set safe; a repeat
+    cancel only means starting another wait for the same slice.
+    """
+    while not outcome.finished:
+        waiting = _workers().submit(loop, _Outcome(), outcome.wait, _DRAIN_WAIT_MS)
         try:
-            await asyncio.shield(wrapper)
+            await asyncio.shield(waiting)
         except asyncio.CancelledError:
             continue
-        except nvml.TimeoutError:
-            return None
-    return _slice_result(native)
+    if outcome.error is not None:
+        raise outcome.error
+    return None if outcome.payload is _TIMED_OUT else outcome.payload
 
 
 class EventSetWaiting:
@@ -97,10 +208,11 @@ class EventSetWaiting:
     (cancelled or past its deadline) for the next consumer.
     """
 
-    __slots__ = ("_busy", "_pending")
+    __slots__ = ("_busy", "_outcome", "_pending")
 
     def __init__(self) -> None:
         self._busy = False
+        self._outcome = _Outcome()
         self._pending = None
 
     @property
@@ -161,22 +273,24 @@ class EventSetWaiting:
                     remaining_ms = math.ceil((deadline - time.monotonic()) * 1000)
                     slice_ms = min(_SLICE_MS, remaining_ms) if remaining_ms > 0 else 1
                 started = time.monotonic()
-                native = _workers().submit(native_wait, slice_ms)
+                self._outcome.reset()
+                future = _workers().submit(loop, self._outcome, native_wait, slice_ms)
                 try:
-                    return await asyncio.wrap_future(native, loop=loop)
-                except nvml.TimeoutError:
-                    if deadline is not None and time.monotonic() >= deadline:
-                        raise
-                    # A native wait may return early (e.g. on an interrupt);
-                    # wait out the rest of the slice so that does not become a
-                    # poll loop.
-                    shortfall = slice_ms / 1000 - (time.monotonic() - started)
-                    if shortfall > 0:
-                        await asyncio.sleep(shortfall)
+                    payload = await future
+                    if payload is not _TIMED_OUT:
+                        return payload
                 except asyncio.CancelledError:
-                    result = await _drain(native, loop)
+                    result = await _drain(self._outcome, loop)
                     if result is not None:
                         self.park(result)
                     raise
+                if deadline is not None and time.monotonic() >= deadline:
+                    raise _timeout_exception()
+                # A native wait that gives up well before its slice would
+                # otherwise turn this into a poll loop; ordinary timer jitter is
+                # not worth another trip through the event loop.
+                consumed = time.monotonic() - started
+                if consumed * 2 < slice_ms / 1000:
+                    await asyncio.sleep(slice_ms / 1000 - consumed)
         finally:
             self._busy = False
