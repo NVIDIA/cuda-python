@@ -81,6 +81,41 @@ class RegisteredSystemEvents:
         :class:`cuda.core.system.GpuIsLostError`
             If the GPU has fallen off the bus or is otherwise inaccessible.
         """
+    async def wait_async(self, timeout_ms: int=0, buffer_size: int=1) -> SystemEvents:
+        """
+        Wait asynchronously for events in the system event set.
+
+        Behaves like :meth:`wait`, without blocking the event loop.  The native
+        wait is issued in bounded slices, so cancelling the awaiting task stops
+        the wait within a slice instead of parking a thread for the remaining
+        timeout.  A batch that a cancelled slice already consumed is delivered
+        to the next wait on this event set, one ``buffer_size`` slice at a time,
+        rather than being dropped.
+
+        Parameters
+        ----------
+        timeout_ms: int
+            The timeout in milliseconds. A value of 0 means to wait indefinitely.
+        buffer_size: int
+            The maximum number of events to retrieve.  Must be at least 1.
+
+        Returns
+        -------
+        :obj:`~_system_events.SystemEvents`
+            A set of events that were received.  The number of events returned may
+            be less than the specified buffer size if fewer events were available.
+
+        Raises
+        ------
+        :class:`cuda.core.system.TimeoutError`
+            If the timeout expires before an event is received.
+        :class:`cuda.core.system.GpuIsLostError`
+            If the GPU has fallen off the bus or is otherwise inaccessible.
+        :class:`RuntimeError`
+            If another wait already borrows this event set.
+        :class:`ValueError`
+            If ``timeout_ms`` is negative.
+        """
 
 def _pci_bus_id_from_gpu_id(gpu_id: int) -> str:
     """

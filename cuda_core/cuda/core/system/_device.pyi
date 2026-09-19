@@ -311,6 +311,42 @@ class DeviceEvents:
             If the timeout expires before an event is received.
         :class:`cuda.core.system.GpuIsLostError`
             If the GPU has fallen off the bus or is otherwise inaccessible.
+
+        Notes
+        -----
+        Only one wait may borrow this event set at a time; a second concurrent
+        wait (sync or async) raises :class:`RuntimeError`.
+        """
+    async def wait_async(self, timeout_ms: int=0) -> EventData:
+        """
+        Wait asynchronously for an event in the event set.
+
+        Behaves like :meth:`wait`, without blocking the event loop.  The native
+        wait is issued in bounded slices, so cancelling the awaiting task stops
+        the wait within a slice instead of parking a thread for the remaining
+        timeout.  An event that a cancelled slice already consumed is delivered
+        to the next wait on this event set rather than being dropped.
+
+        Parameters
+        ----------
+        timeout_ms: int
+            The timeout in milliseconds. A value of 0 means to wait indefinitely.
+
+        Returns
+        -------
+        :obj:`~_event.EventData`
+            The event that was received.
+
+        Raises
+        ------
+        :class:`cuda.core.system.TimeoutError`
+            If the timeout expires before an event is received.
+        :class:`cuda.core.system.GpuIsLostError`
+            If the GPU has fallen off the bus or is otherwise inaccessible.
+        :class:`RuntimeError`
+            If another wait already borrows this event set.
+        :class:`ValueError`
+            If ``timeout_ms`` is negative.
         """
 
 class FanInfo:
