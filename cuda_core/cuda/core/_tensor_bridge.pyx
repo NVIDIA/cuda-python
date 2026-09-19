@@ -339,7 +339,7 @@ cpdef int sync_torch_stream(int32_t device_index,
 def view_as_torch_tensor(
     object obj,
     object stream_ptr,
-    view: StridedMemoryView | None = None
+    StridedMemoryView view: StridedMemoryView | None = None
 ) -> StridedMemoryView:
     """Create/populate a :class:`StridedMemoryView` from a ``torch.Tensor``.
 
@@ -392,7 +392,7 @@ def view_as_torch_tensor(
 
     # -- populate StridedMemoryView --
     if view is not None:
-        buf = <StridedMemoryView>view
+        buf = view
     else:
         buf = StridedMemoryView.__new__(StridedMemoryView)
 

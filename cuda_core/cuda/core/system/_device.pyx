@@ -1111,7 +1111,7 @@ cdef class Device:
         return Utilization(nvml.device_get_utilization_rates(self._handle))
 
 
-def get_topology_common_ancestor(device1: Device, device2: Device) -> GpuTopologyLevel:
+def get_topology_common_ancestor(Device device1: Device, Device device2: Device) -> GpuTopologyLevel:
     """
     Retrieve the common ancestor for two devices.
 
@@ -1137,7 +1137,7 @@ def get_topology_common_ancestor(device1: Device, device2: Device) -> GpuTopolog
     ]
 
 
-def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex | str) -> GpuP2PStatus:
+def get_p2p_status(Device device1: Device, Device device2: Device, index: GpuP2PCapsIndex | str) -> GpuP2PStatus:
     """
     Retrieve the P2P status between two devices.
 

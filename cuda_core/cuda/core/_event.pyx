@@ -228,7 +228,7 @@ cdef class Event:
         return self._ipc_descriptor
 
     @classmethod
-    def from_ipc_descriptor(cls, ipc_descriptor: IPCEventDescriptor) -> Event:
+    def from_ipc_descriptor(cls, IPCEventDescriptor ipc_descriptor: IPCEventDescriptor) -> Event:
         """Import an event that was exported from another process.
 
         Parameters
