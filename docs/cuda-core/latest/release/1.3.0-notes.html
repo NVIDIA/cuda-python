@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=b966aab5"></script>
+    <script src="../_static/documentation_options.js?v=8e9e20df"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev111';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev112';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -784,6 +784,14 @@
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>Added incremental linking to <a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a> through
+<code class="docutils literal notranslate"><span class="pre">LinkerOptions(incremental=True)</span></code> on nvJitLink 13.2 or newer. A partial
+native result is returned as a CUBIN and can be passed directly to another
+linker. <a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker.link" title="cuda.core.Linker.link"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Linker.link()</span></code></a> also accepts <code class="docutils literal notranslate"><span class="pre">&quot;ltoir&quot;</span></code> on nvJitLink 13.3 or
+newer so incremental LTO chains can retain IR until their final link. Direct
+PTX and CUBIN inputs are rejected for this target because they carry no LTOIR
+and nvJitLink would otherwise silently omit them.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2369">#2369</a>)</p></li>
 <li><p>Added the read-only <a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.last_prefetch_location" title="cuda.core.ManagedBuffer.last_prefetch_location"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ManagedBuffer.last_prefetch_location</span></code></a> property,
 which reports the destination requested by the most recent explicit
 prefetch across the buffer. It returns a <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> or <a class="reference internal" href="../generated/cuda.core.Host.html#cuda.core.Host" title="cuda.core.Host"><code class="xref py py-class docutils literal notranslate"><span class="pre">Host</span></code></a>,
