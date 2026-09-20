@@ -20,7 +20,8 @@ import pytest
 
 from cuda.bindings import nvml
 from cuda.core import system
-from cuda.core.system._async_events import _SLICE_MS, EventSetWaiting
+from cuda.core.system import _async_events
+from cuda.core.system._async_events import _MAX_WORKERS, _SLICE_MS, EventSetWaiting, _Dispatcher
 from cuda.core.system.typing import EventType, SystemEventType
 
 TIMEOUT = nvml.TimeoutError(nvml.Return.ERROR_TIMEOUT)
@@ -437,3 +438,105 @@ def test_native_sync_wait_cannot_borrow_an_async_lease():
             await task
 
     asyncio.run(main())
+
+
+# ============================================================================
+# Resource accounting, scheduling and cross-loop reuse
+# ============================================================================
+
+
+def test_registration_failure_frees_the_event_set_once(monkeypatch):
+    """N16: a failure after the native set exists must not leak or double free."""
+    gc.collect()  # drain sets owned by earlier tests before the fake allocator
+    created, freed = [], []
+
+    def create():
+        created.append(0x5150)
+        return 0x5150
+
+    def register(*args):
+        raise nvml.InvalidArgumentError(nvml.Return.ERROR_INVALID_ARGUMENT)
+
+    monkeypatch.setattr(nvml, "event_set_create", create)
+    monkeypatch.setattr(nvml, "event_set_free", freed.append)
+    monkeypatch.setattr(nvml, "device_register_events", register)
+
+    with pytest.raises(nvml.InvalidArgumentError):
+        system.Device(index=0).register_events([EventType.CLOCK])
+    gc.collect()
+    assert created == [0x5150]
+    assert freed.count(0x5150) == 1, f"our event set was freed {freed.count(0x5150)} times"
+
+
+def test_saturated_dispatcher_serialises_slices(monkeypatch):
+    """N21: one worker serves one slice at a time, and queueing is inside the budget."""
+    dispatcher = _Dispatcher(max_workers=1)
+    monkeypatch.setattr(_async_events, "_dispatcher", dispatcher)
+
+    holding = FakeWait(hold=True, deliver_at=0)
+    queued = FakeWait(deliver_at=0)
+    first, second = EventSetWaiting(), EventSetWaiting()
+
+    async def main():
+        held = asyncio.create_task(first.wait_async(holding, 0))
+        await spin_until(lambda: len(holding.calls) == 1)
+        waiting = asyncio.create_task(second.wait_async(queued, 400))
+        await asyncio.sleep(0.05)
+        assert queued.calls == [], "a queued slice must not reach the driver out of turn"
+        holding.release.set()
+        await held
+        return await waiting
+
+    started = time.monotonic()
+    assert asyncio.run(main()) is EVENT
+    elapsed_ms = (time.monotonic() - started) * 1000
+    assert holding.peak_in_flight == 1, "the bound must hold"
+    assert queued.peak_in_flight == 1
+    assert elapsed_ms < 400 + 4 * _SLICE_MS, f"queueing must stay inside the budget ({elapsed_ms:.0f} ms)"
+
+
+def test_event_set_is_reusable_across_event_loops():
+    """N22: serial reuse across loops is fine; a concurrent loop is rejected."""
+    state = EventSetWaiting()
+    fake = FakeWait(deliver_at=0)
+    assert asyncio.run(state.wait_async(fake, 100)) is EVENT
+    assert asyncio.run(state.wait_async(fake, 100)) is EVENT, "a fresh loop must not see a stale future"
+    assert state.is_waiting is False
+
+    holding = FakeWait(hold=True, deliver_at=0)
+    outcome = {}
+
+    def other_loop():
+        async def run():
+            outcome["result"] = await state.wait_async(holding, 0)
+
+        asyncio.run(run())
+
+    thread = threading.Thread(target=other_loop, name="other-loop")
+    thread.start()
+    try:
+        while not holding.calls:
+            time.sleep(0.001)
+        with pytest.raises(RuntimeError, match="already in flight"):
+            asyncio.run(state.wait_async(fake, 10))
+    finally:
+        holding.release.set()
+        thread.join()
+    assert outcome["result"] is EVENT
+
+
+def test_parameter_bounds_match_the_signatures():
+    """N23: the type and range errors come from the annotated signatures."""
+    events = system.Device(index=0).register_events([EventType.CLOCK])
+    with pytest.raises(TypeError):
+        events.wait(timeout_ms="soon")
+    with pytest.raises(TypeError):
+        asyncio.run(events.wait_async(timeout_ms="soon"))  # async def converts at await time
+    with pytest.raises(ValueError, match="timeout_ms"):
+        asyncio.run(events.wait_async(timeout_ms=-1))
+    with pytest.raises(OverflowError):
+        events.wait(timeout_ms=-1)
+
+
+def test_dispatcher_bound_is_finite():
+    assert 0 < _MAX_WORKERS <= 64
