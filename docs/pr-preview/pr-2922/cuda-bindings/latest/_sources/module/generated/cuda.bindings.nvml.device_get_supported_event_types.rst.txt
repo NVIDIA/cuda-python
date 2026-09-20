@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_supported\_event\_types
+=======================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_supported_event_types
