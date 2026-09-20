@@ -34,6 +34,7 @@ import math
 import queue
 import threading
 import time
+from typing import Any
 
 from cuda.bindings import nvml
 
@@ -129,13 +130,14 @@ class _Dispatcher:
     """
 
     def __init__(self, max_workers: int = _MAX_WORKERS) -> None:
-        self._queue = queue.SimpleQueue()
+        self._queue: queue.SimpleQueue[tuple[Any, ...]] = queue.SimpleQueue()
         self._max_workers = max_workers
-        self._threads = []
+        self._threads: list[threading.Thread] = []
         self._pending = 0
         self._lock = threading.Lock()
 
     def _run(self) -> None:
+        request: tuple[Any, ...] | None
         while True:
             try:
                 request = self._queue.get(timeout=_IDLE_POLL_S)
