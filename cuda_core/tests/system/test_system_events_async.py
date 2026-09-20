@@ -19,7 +19,6 @@ import weakref
 import pytest
 
 from cuda.bindings import nvml
-
 from cuda.core import system
 from cuda.core.system._async_events import _SLICE_MS, EventSetWaiting
 from cuda.core.system.typing import EventType, SystemEventType
@@ -297,13 +296,14 @@ def test_in_flight_wait_keeps_the_owner_alive():
     owner = Owner(fake)
     reference = weakref.ref(owner)
 
-    async def main():
-        task = asyncio.create_task(state.wait_async(owner.native_wait, 0))
+    async def main(wait_for_event):
+        task = asyncio.create_task(state.wait_async(wait_for_event, 0))
         await spin_until(lambda: len(fake.calls) == 1)
         fake.release.set()
         return await task
 
-    assert asyncio.run(main()) is EVENT
+    # the bound method the coroutine holds is what keeps the owner alive
+    assert asyncio.run(main(owner.native_wait)) is EVENT
     del owner
     gc.collect()
     assert reference() is None
@@ -327,7 +327,9 @@ def test_threads_are_reused_across_waits():
 
 def test_import_does_not_start_threads():
     code = "import cuda.core.system, threading; print(threading.active_count())"
-    result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True)
+    result = subprocess.run(  # noqa: S603 - fixed argv, no shell
+        [sys.executable, "-c", code], capture_output=True, text=True, check=True
+    )
     assert result.stdout.strip() == "1"
 
 

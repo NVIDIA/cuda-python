@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+cimport cython
+
 from libc.stdint cimport intptr_t
 
 import functools
@@ -168,11 +170,11 @@ cdef class RegisteredSystemEvents:
         native_wait = functools.partial(self._wait_slice, buffer_size=buffer_size)
         return self._waiting.wait(native_wait, timeout_ms, lambda payload: self._take_batch(payload, buffer_size))
 
-    def wait_async(self, timeout_ms: int = 0, buffer_size: int = 1):
+    @cython.annotation_typing(False)  # keep the cdef-class return as a hint, not a C type
+    async def wait_async(self, timeout_ms: int = 0, buffer_size: int = 1) -> SystemEvents:
         """
         Wait asynchronously for events in the system event set.
 
-        Returns a coroutine, so it is used as ``await events.wait_async(...)``.
         Behaves like :meth:`wait`, without blocking the event loop.  The native
         wait is issued in bounded slices, so cancelling the awaiting task stops
         the wait within a slice instead of parking a thread for the remaining
@@ -204,7 +206,7 @@ cdef class RegisteredSystemEvents:
         :class:`ValueError`
             If ``timeout_ms`` is negative.
         """
-        return self._waiting.wait_async(
+        return await self._waiting.wait_async(
             functools.partial(self._wait_slice, buffer_size=buffer_size),
             timeout_ms,
             functools.partial(self._batch_result, buffer_size=buffer_size),
