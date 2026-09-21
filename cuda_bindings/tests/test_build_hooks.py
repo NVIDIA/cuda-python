@@ -191,6 +191,8 @@ class TestBuildToolchainStamp:
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_record_writes_stamp(self, stamp):
-        # record_build_toolchain re-derives from env (CUDA_PYTHON_TOOLCHAIN unset → gnu).
+        # record_build_toolchain re-derives from env (CUDA_PYTHON_TOOLCHAIN unset →
+        # platform default: gnu on Linux, msvc on Windows).
         build_hooks.record_build_toolchain()
-        assert stamp.read_text().strip() == "gnu"
+        expected = "msvc" if sys.platform == "win32" else "gnu"
+        assert stamp.read_text().strip() == expected
