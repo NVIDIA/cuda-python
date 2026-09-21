@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=72ef3a78"></script>
+    <script src="../_static/documentation_options.js?v=1436da79"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev116';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev121';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -839,7 +839,9 @@ allocation granularity; the returned buffer reports the rounded size.</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, optional) – Keyword-only. The allocation itself is synchronous. A real stream is
 recorded as the buffer’s deallocation stream and synchronized when
 the buffer closes; with <cite>None</cite> or a default-stream token the legacy
-default stream of the resource’s device is recorded instead.</p></li>
+default stream of the resource’s device is recorded instead. A
+host-located resource records no default stream: its buffers close
+without a synchronization unless a real stream was given.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -849,8 +851,11 @@ default stream of the resource’s device is recorded instead.</p></li>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer">VirtualMemoryBuffer</a></p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><strong>CUDAError</strong></a> – If any CUDA driver API call fails during allocation. Nothing is
-    left allocated when this method raises.</p>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><strong>CUDAError</strong></a> – If any CUDA driver API call fails during allocation. Nothing is
+    left allocated when this method raises.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#OverflowError" title="(in Python v3.14)"><strong>OverflowError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">size</span></code> rounded up to the granularity does not fit in <code class="docutils literal notranslate"><span class="pre">size_t</span></code>.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -916,7 +921,10 @@ address range.</p>
 <li><p><strong>config</strong> (<a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><em>VirtualMemoryResourceOptions</em></a><em>, </em><em>optional</em>) – Configuration for the new physical memory chunk only. Existing
 chunks keep the access they were created with, and the resource’s
 own configuration is unchanged. It must name the resource’s
-<code class="docutils literal notranslate"><span class="pre">location_type</span></code> and passes the same checks as the constructor.</p></li>
+<code class="docutils literal notranslate"><span class="pre">location_type</span></code> and passes the same checks as the constructor.
+When <code class="docutils literal notranslate"><span class="pre">buf</span></code> already covers <code class="docutils literal notranslate"><span class="pre">new_size</span></code> there is no new chunk, so
+<code class="docutils literal notranslate"><span class="pre">config</span></code> has no effect. This method never changes the access of
+memory that is already mapped.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -933,6 +941,8 @@ buffer of the rounded size.</p>
     the constructor would reject it.</p></li>
 <li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">buf</span></code> is closed, or <code class="docutils literal notranslate"><span class="pre">config</span></code> requests GPUDirect RDMA on a
     device without support.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#OverflowError" title="(in Python v3.14)"><strong>OverflowError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">new_size</span></code> rounded up to the granularity does not fit in
+    <code class="docutils literal notranslate"><span class="pre">size_t</span></code>.</p></li>
 <li><p><a class="reference internal" href="cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><strong>CUDAError</strong></a> – If a driver call fails. <code class="docutils literal notranslate"><span class="pre">buf</span></code> is untouched when this method raises.</p></li>
 </ul>
 </dd>
