@@ -183,12 +183,12 @@ def stamp(tmp_path, monkeypatch):
     scratch = tmp_path / "build" / ".build-config"
     monkeypatch.setattr(build_hooks, "_BUILD_CONFIG_STAMP", scratch)
     monkeypatch.setattr(build_hooks, "force_build_ext", False)
-    monkeypatch.setattr(build_hooks, "_last_build_config", None)
     build_hooks._get_cuda_path.cache_clear()
     build_hooks._determine_cuda_major_version.cache_clear()
     get_cuda_path_or_home.cache_clear()
     monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
     monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+    monkeypatch.delenv("CUDA_PYTHON_COVERAGE", raising=False)
     return scratch
 
 
@@ -203,53 +203,48 @@ class TestBuildConfigStamp:
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_missing_stamp_forces_rebuild(self, stamp):
         # No stamp means the last build's config is unknown, so rebuild.
-        assert build_hooks._check_build_config("gnu", False, False) == "13"
+        cuda_major, key = build_hooks._check_build_config("gnu", False, False)
+        assert cuda_major == "13"
+        assert key == "cu13-gnu-opt"
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_same_config_does_not_force(self, stamp):
         _write_stamp(stamp, "cu13-gnu-opt")
-        assert build_hooks._check_build_config("gnu", False, False) == "13"
+        cuda_major, key = build_hooks._check_build_config("gnu", False, False)
+        assert cuda_major == "13"
         assert build_hooks.force_build_ext is False
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_changed_cuda_major_forces_rebuild(self, stamp):
         _write_stamp(stamp, "cu12-gnu-opt")
-        assert build_hooks._check_build_config("gnu", False, False) == "13"
+        cuda_major, _ = build_hooks._check_build_config("gnu", False, False)
+        assert cuda_major == "13"
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_changed_toolchain_forces_rebuild(self, stamp):
         _write_stamp(stamp, "cu13-gnu-opt")
-        assert build_hooks._check_build_config("llvm", False, False) == "13"
+        build_hooks._check_build_config("llvm", False, False)
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_changed_debug_forces_rebuild(self, stamp):
         _write_stamp(stamp, "cu13-gnu-opt")
-        assert build_hooks._check_build_config("gnu", True, False) == "13"
+        build_hooks._check_build_config("gnu", True, False)
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_changed_coverage_forces_rebuild(self, stamp):
         _write_stamp(stamp, "cu13-gnu-opt")
-        assert build_hooks._check_build_config("gnu", False, True) == "13"
+        build_hooks._check_build_config("gnu", False, True)
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_record_writes_stamp(self, stamp):
-        # _check_build_config sets _last_build_config; record writes it.
-        build_hooks._check_build_config("gnu", False, False)
-        build_hooks.record_build_config()
+        # record_build_config re-derives from env; pass debug=False to match.
+        build_hooks.record_build_config(False)
         assert stamp.read_text().strip() == "cu13-gnu-opt"
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_record_without_check_is_noop(self, stamp, monkeypatch):
-        # If the build never reached _check_build_config (e.g. metadata-only),
-        # record_build_config must not write a stamp.
-        monkeypatch.setattr(build_hooks, "_last_build_config", None)
-        build_hooks.record_build_config()
-        assert not stamp.exists()
 
 
 def _capture_cythonize_build_dir(monkeypatch, cuda_major):

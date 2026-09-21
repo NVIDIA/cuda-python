@@ -137,7 +137,7 @@ class build_ext(_build_ext):  # noqa: N801
         self._configure_windows_tensor_bridge()
         with self._parallel_source_compilation():
             super().build_extensions()
-        build_hooks.record_build_config()
+        build_hooks.record_build_config(self.debug)
 
 
 class build_py(_build_py):  # noqa: N801

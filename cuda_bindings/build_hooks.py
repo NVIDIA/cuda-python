@@ -213,8 +213,6 @@ _BUILD_DIR = Path(__file__).parent / "build"
 _BUILD_TOOLCHAIN_STAMP = _BUILD_DIR / ".build-toolchain"
 
 force_build_ext = False
-# Set by _check_build_toolchain; read by record_build_toolchain.
-_last_toolchain = None
 
 
 def _check_build_toolchain(toolchain):
@@ -223,9 +221,8 @@ def _check_build_toolchain(toolchain):
     Setuptools' freshness check does not include the extension flags, so a
     stale .so compiled by a previous toolchain would otherwise be packaged.
     """
-    global force_build_ext, _last_toolchain
+    global force_build_ext
 
-    _last_toolchain = toolchain
     try:
         previous = _BUILD_TOOLCHAIN_STAMP.read_text(encoding="utf-8").strip()
     except FileNotFoundError:
@@ -242,13 +239,12 @@ def record_build_toolchain() -> None:
     """Stamp the toolchain of the build that just completed.
 
     setup.py calls this after build_ext succeeds, so that a build which failed
-    partway through does not claim outputs it never produced.
+    partway through does not claim outputs it never produced. Re-derives the
+    toolchain name from the environment rather than caching it in a global.
     """
-    global _last_toolchain
-    if _last_toolchain is None:
-        return  # build never reached _check_build_toolchain (e.g. metadata-only)
+    name, *_ = _resolve_toolchain_name()
     _BUILD_TOOLCHAIN_STAMP.parent.mkdir(parents=True, exist_ok=True)
-    _BUILD_TOOLCHAIN_STAMP.write_text(_last_toolchain + "\n", encoding="utf-8")
+    _BUILD_TOOLCHAIN_STAMP.write_text(name + "\n", encoding="utf-8")
 
 
 # -----------------------------------------------------------------------

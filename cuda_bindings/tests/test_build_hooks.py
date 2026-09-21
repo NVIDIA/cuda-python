@@ -160,7 +160,6 @@ def stamp(tmp_path, monkeypatch):
     scratch = tmp_path / "build" / ".build-toolchain"
     monkeypatch.setattr(build_hooks, "_BUILD_TOOLCHAIN_STAMP", scratch)
     monkeypatch.setattr(build_hooks, "force_build_ext", False)
-    monkeypatch.setattr(build_hooks, "_last_toolchain", None)
     monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
     return scratch
 
@@ -175,7 +174,7 @@ class TestBuildToolchainStamp:
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_missing_stamp_forces_rebuild(self, stamp):
-        assert build_hooks._check_build_toolchain("gnu") is None
+        build_hooks._check_build_toolchain("gnu")
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="glm-5.2")
@@ -192,12 +191,6 @@ class TestBuildToolchainStamp:
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_record_writes_stamp(self, stamp):
-        build_hooks._check_build_toolchain("gnu")
+        # record_build_toolchain re-derives from env (CUDA_PYTHON_TOOLCHAIN unset → gnu).
         build_hooks.record_build_toolchain()
         assert stamp.read_text().strip() == "gnu"
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_record_without_check_is_noop(self, stamp, monkeypatch):
-        monkeypatch.setattr(build_hooks, "_last_toolchain", None)
-        build_hooks.record_build_toolchain()
-        assert not stamp.exists()

@@ -256,10 +256,6 @@ _BUILD_DIR = Path(__file__).parent / "build"
 _BUILD_CONFIG_STAMP = _BUILD_DIR / ".build-config"
 
 force_build_ext = False
-# Set by _check_build_config; read by record_build_config and _build_cuda_core
-# (for the cythonize build_dir). Cleared on module import so a fresh process
-# always re-derives it from the environment.
-_last_build_config = None
 
 
 def _build_config_key(cuda_major, toolchain, debug, coverage):
@@ -268,7 +264,7 @@ def _build_config_key(cuda_major, toolchain, debug, coverage):
 
 
 def _check_build_config(toolchain, debug, coverage):
-    """Return the CUDA major, and force a rebuild when the config changed.
+    """Return (cuda_major, config_key), and force a rebuild when the config changed.
 
     Cython's up-to-date check does not hash ``compile_time_env`` or the
     extension flags, so generated sources and compiled extensions from a
@@ -279,11 +275,10 @@ def _check_build_config(toolchain, debug, coverage):
     major, toolchain, debug/coverage) is therefore stamped and build_ext
     forced whenever it changes, so a stale .so is never packaged.
     """
-    global force_build_ext, _last_build_config
+    global force_build_ext
 
     cuda_major = _determine_cuda_major_version()
     key = _build_config_key(cuda_major, toolchain, debug, coverage)
-    _last_build_config = key
     try:
         previous = _BUILD_CONFIG_STAMP.read_text(encoding="utf-8").strip()
     except FileNotFoundError:
@@ -295,20 +290,23 @@ def _check_build_config(toolchain, debug, coverage):
         print(f"Build config of last build: {previous} (building {key}); forcing a full rebuild")
         force_build_ext = True
 
-    return cuda_major
+    return cuda_major, key
 
 
-def record_build_config() -> None:
+def record_build_config(debug) -> None:
     """Stamp the build configuration of the build that just completed.
 
-    setup.py calls this after build_ext succeeds, so that a build which
-    failed partway through does not claim outputs it never produced.
+    setup.py calls this (passing self.debug) after build_ext succeeds, so
+    that a build which failed partway through does not claim outputs it never
+    produced. All other inputs (toolchain, cuda_major, coverage) are
+    re-derived from the environment and the functools.cache.
     """
-    global _last_build_config
-    if _last_build_config is None:
-        return  # build never reached _check_build_config (e.g. metadata-only)
+    toolchain, *_ = _resolve_toolchain_name()
+    cuda_major = _determine_cuda_major_version()
+    coverage = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
+    key = _build_config_key(cuda_major, toolchain, debug, coverage)
     _BUILD_CONFIG_STAMP.parent.mkdir(parents=True, exist_ok=True)
-    _BUILD_CONFIG_STAMP.write_text(_last_build_config + "\n", encoding="utf-8")
+    _BUILD_CONFIG_STAMP.write_text(key + "\n", encoding="utf-8")
 
 
 def _relativize_extension_sources(extensions) -> None:
@@ -437,7 +435,7 @@ def _build_cuda_core(debug=False):
     # Deliberately after the cuda.bindings import above: this re-enters
     # _get_cuda_path() and reads cuda.h, which must not run before the
     # pathfinder import has repaired PEP 517 namespace shadowing.
-    cuda_major = _check_build_config(toolchain, debug, COMPILE_FOR_COVERAGE)
+    cuda_major, config_key = _check_build_config(toolchain, debug, COMPILE_FOR_COVERAGE)
 
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
     compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(cuda_major)}
@@ -456,7 +454,7 @@ def _build_cuda_core(debug=False):
         # this directory and compiles against the copies. Copies are refreshed by
         # mtime and never deleted, so remove build/ after renaming or deleting a
         # header under _cpp/.
-        build_dir="." if COMPILE_FOR_COVERAGE else str(_BUILD_DIR / "cython" / _last_build_config),
+        build_dir="." if COMPILE_FOR_COVERAGE else str(_BUILD_DIR / "cython" / config_key),
         nthreads=nthreads,
         compiler_directives=compiler_directives,
         compile_time_env=compile_time_env,
