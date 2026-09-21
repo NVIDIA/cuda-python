@@ -509,7 +509,7 @@ class TestResolveToolchain:
             assert cc is None and cxx is None
         else:
             assert name == "gnu"
-            assert (cc, cxx) == ("cc", "c++")
+            assert (cc, cxx) == ("gcc", "g++")
         assert "CC" not in os.environ and "CXX" not in os.environ
 
     @pytest.mark.agent_authored(model="glm-5.2")
@@ -552,6 +552,23 @@ class TestResolveToolchain:
         assert "-fuse-ld=lld" in largs
         # clang rejects the gcc-only flags that gnu uses; they must be absent.
         assert "-fpermissive" not in cargs
+        assert "-fno-var-tracking-assignments" not in cargs
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_gnu_sets_env_and_flags(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("gnu only valid on Linux")
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "gnu")
+        monkeypatch.delenv("CC", raising=False)
+        monkeypatch.delenv("CXX", raising=False)
+        monkeypatch.delenv("LDSHARED", raising=False)
+        name, cc, cxx, cargs, largs = build_hooks._resolve_toolchain()
+        assert name == "gnu"
+        assert (cc, cxx) == ("gcc", "g++")
+        assert os.environ["CC"] == "gcc"
+        assert os.environ["CXX"] == "g++"
+        # gcc-only flags are present (this is the point of P2: explicit gnu must use gcc, not generic cc)
+        assert "-fpermissive" not in cargs  # cuda.core gnu flags don't include it; bindings do
         assert "-fno-var-tracking-assignments" not in cargs
 
     @pytest.mark.agent_authored(model="glm-5.2")

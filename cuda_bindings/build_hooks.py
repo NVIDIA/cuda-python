@@ -96,7 +96,7 @@ def _get_cuda_path() -> str:
 _TOOLCHAINS_LINUX = ("gnu", "llvm")
 _TOOLCHAINS_WINDOWS = ("msvc",)
 _TOOLCHAIN_COMPILERS = {
-    "gnu": ("cc", "c++"),
+    "gnu": ("gcc", "g++"),
     "llvm": ("clang", "clang++"),
     "msvc": (None, None),
 }
@@ -119,16 +119,19 @@ def _resolve_toolchain_name():
             f"CUDA_PYTHON_TOOLCHAIN={name!r} is not supported on {platform_key}. Valid values: {', '.join(allowed)}."
         )
     cc, cxx = _TOOLCHAIN_COMPILERS[name]
-    return name, allowed, cc, cxx
+    explicit = bool(os.environ.get("CUDA_PYTHON_TOOLCHAIN", "").strip())
+    return name, allowed, cc, cxx, explicit
 
 
-def _apply_toolchain_env(name, allowed, cc, cxx):
-    """Set CC/CXX/LDSHARED for a non-default toolchain.
+def _apply_toolchain_env(cc, cxx, explicit):
+    """Set CC/CXX/LDSHARED for an explicitly-chosen toolchain.
 
-    The default path intentionally does not touch the env, so an externally-
-    set compiler (e.g. CC="sccache cc" in CI) keeps working.
+    The default path (CUDA_PYTHON_TOOLCHAIN unset) intentionally
+    does not touch the env, so an externally-set compiler (e.g.
+    CC="sccache cc" in CI) keeps working. An explicit CUDA_PYTHON_TOOLCHAIN
+    override (incl. =gnu) governs the compiler and overrides CC/CXX/LDSHARED.
     """
-    if name != allowed[0] and cc is not None:
+    if explicit and cc is not None:
         os.environ["CC"] = cc
         os.environ["CXX"] = cxx
         os.environ["LDSHARED"] = f"{cxx} -shared"
@@ -167,7 +170,7 @@ def _resolve_toolchain(debug=False, compile_for_coverage=False):
     Linux) selects clang/clang++ and lld and sets CC/CXX/LDSHARED so distutils'
     customize_compiler picks them up.
     """
-    name, allowed, cc, cxx = _resolve_toolchain_name()
+    name, _allowed, cc, cxx, explicit = _resolve_toolchain_name()
 
     extra_compile_args = []
     extra_link_args = []
@@ -202,7 +205,7 @@ def _resolve_toolchain(debug=False, compile_for_coverage=False):
         # related to free-threading builds.
         extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
 
-    _apply_toolchain_env(name, allowed, cc, cxx)
+    _apply_toolchain_env(cc, cxx, explicit)
 
     return name, cc, cxx, extra_compile_args, extra_link_args
 
