@@ -9,13 +9,6 @@ on:
     # Run every night at 11pm EST (4am UTC during EST, 3am UTC during EDT)
     # Using 4am UTC to be safe during EST (Nov-Mar)
     - cron: '0 4 * * *'
-  workflow_dispatch:
-    inputs:
-      dry-run:
-        description: 'Run in dry-run mode (preview only, no changes)'
-        required: false
-        default: false
-        type: boolean
 
 permissions:
   contents: write  # Required to push changes to gh-pages branch
@@ -50,15 +43,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_PAGES_PUBLISH_LOCK: cuda-python-gh-pages-publish
-        run: |
-          # Determine if we should run in dry-run mode
-          if [[ "${{ inputs.dry-run }}" == "true" ]]; then
-            echo "Running in dry-run mode (preview only)"
-            ./ci/cleanup-pr-previews --dry-run
-          else
-            echo "Running cleanup with push to gh-pages"
-            ./ci/cleanup-pr-previews --push
-          fi
+        run: ./ci/cleanup-pr-previews --push
 
       - name: Summary
         if: always()
@@ -67,9 +52,6 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           if [[ "${{ steps.cleanup.outcome }}" != "success" ]]; then
             echo "❌ Cleanup failed; no successful update was confirmed" >> $GITHUB_STEP_SUMMARY
-          elif [[ "${{ inputs.dry-run }}" == "true" ]]; then
-            echo "✅ Dry-run completed successfully" >> $GITHUB_STEP_SUMMARY
-            echo "No changes were made to the gh-pages branch" >> $GITHUB_STEP_SUMMARY
           else
             echo "✅ Cleanup completed; gh-pages is up to date" >> $GITHUB_STEP_SUMMARY
           fi

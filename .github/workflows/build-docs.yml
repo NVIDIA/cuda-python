@@ -233,10 +233,7 @@ jobs:
           echo "pr-number=${PR_NUMBER:-}" >> "$GITHUB_OUTPUT"
 
       - name: Set up artifact directories
-        run: |
-          mkdir -p artifacts/docs
-          # create an empty folder for removal use
-          mkdir -p artifacts/empty_docs
+        run: mkdir -p artifacts/docs
 
       - name: Build all docs
         if: ${{ inputs.component == 'all' }}
@@ -387,15 +384,11 @@ jobs:
           name: ${{ needs.build.outputs.deployment-artifact-name }}
           path: artifacts/docs/
 
-      - name: Set up deployment directories
-        run: mkdir -p artifacts/empty_docs
-
-      - name: Deploy or clean up doc preview
-        if: ${{ !inputs.is-release }}
+      - name: Deploy doc preview
+        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
         uses: ./.github/actions/doc_preview
         with:
-          source-folder: ${{ (github.ref_name != 'main' && 'artifacts/docs') ||
-                              'artifacts/empty_docs' }}
+          source-folder: artifacts/docs
           pr-number: ${{ needs.build.outputs.pr-number }}
 
       - name: Deploy doc update
@@ -409,4 +402,6 @@ jobs:
           target-folder: docs/
           commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ needs.build.outputs.docs-github-ref }}"
           clean: false
-          single-commit: true
+          # Rebase onto concurrent PR-preview or coverage deployments instead of
+          # force-pushing, which the gh-pages ruleset rejects.
+          force: false
