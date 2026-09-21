@@ -208,6 +208,54 @@ def _resolve_toolchain(debug=False, compile_for_coverage=False):
 
 
 # -----------------------------------------------------------------------
+# Toolchain stamp
+
+_BUILD_DIR = Path(__file__).parent / "build"
+
+# Records the toolchain of the last completed build, so setup.py can force
+# build_ext when it changes. Written by record_build_toolchain().
+_BUILD_TOOLCHAIN_STAMP = _BUILD_DIR / ".build-toolchain"
+
+force_build_ext = False
+# Set by _check_build_toolchain; read by record_build_toolchain.
+_last_toolchain = None
+
+
+def _check_build_toolchain(toolchain):
+    """Set force_build_ext when the toolchain changed since the last build.
+
+    Setuptools' freshness check does not include the extension flags, so a
+    stale .so compiled by a previous toolchain would otherwise be packaged.
+    """
+    global force_build_ext, _last_toolchain
+
+    _last_toolchain = toolchain
+    try:
+        previous = _BUILD_TOOLCHAIN_STAMP.read_text(encoding="utf-8").strip()
+    except FileNotFoundError:
+        previous = None
+
+    # A missing stamp means the last build's toolchain is unknown, so force too.
+    # On a first build that costs nothing: there are no artifacts to reuse.
+    if previous != toolchain:
+        print(f"Toolchain of last build: {previous} (building {toolchain}); forcing a full rebuild")
+        force_build_ext = True
+
+
+def record_build_toolchain() -> None:
+    """Stamp the toolchain of the build that just completed.
+
+    setup.py calls this after build_ext succeeds, so that a build which failed
+    partway through does not claim outputs it never produced.
+    """
+    global _last_toolchain
+    if _last_toolchain is None:
+        return  # build never reached _check_build_toolchain (e.g. metadata-only)
+    _BUILD_TOOLCHAIN_STAMP.parent.mkdir(parents=True, exist_ok=True)
+    _BUILD_TOOLCHAIN_STAMP.write_text(_last_toolchain + "\n", encoding="utf-8")
+
+
+# -----------------------------------------------------------------------
 # Extension preparation helpers
 
 
@@ -348,6 +396,10 @@ def _build_cuda_bindings(debug=False):
     cython_directives = {"language_level": 3, "embedsignature": True, "binding": True, "freethreading_compatible": True}
     if compile_for_coverage:
         cython_directives["linetrace"] = True
+
+    # Force a full rebuild when the toolchain changed since the last successful
+    # build, so a stale .so from a previous toolchain is never packaged.
+    _check_build_toolchain(toolchain)
 
     _extensions = cythonize(
         extensions,

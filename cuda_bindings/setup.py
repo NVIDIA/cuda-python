@@ -27,7 +27,12 @@ class build_ext(_build_ext):
     def build_extensions(self):
         if nthreads > 0:
             self.parallel = nthreads
+        # A stale .so from a previous toolchain looks perfectly fresh;
+        # see build_hooks._check_build_toolchain().
+        if build_hooks.force_build_ext:
+            self.force = True
         super().build_extensions()
+        build_hooks.record_build_toolchain()
 
 
 class build_py(_build_py):

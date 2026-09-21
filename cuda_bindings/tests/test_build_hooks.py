@@ -135,3 +135,52 @@ class TestCheckToolchainAvailable:
     def test_llvm_present_passes(self, monkeypatch):
         monkeypatch.setattr(build_hooks.shutil, "which", lambda name: "/bin/" + name)
         build_hooks._check_toolchain_available("llvm")
+
+
+@pytest.fixture
+def stamp(tmp_path, monkeypatch):
+    """Redirect the toolchain stamp to a scratch path."""
+    scratch = tmp_path / "build" / ".build-toolchain"
+    monkeypatch.setattr(build_hooks, "_BUILD_TOOLCHAIN_STAMP", scratch)
+    monkeypatch.setattr(build_hooks, "force_build_ext", False)
+    monkeypatch.setattr(build_hooks, "_last_toolchain", None)
+    monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+    return scratch
+
+
+def _write_stamp(stamp, toolchain):
+    stamp.parent.mkdir(parents=True, exist_ok=True)
+    stamp.write_text(toolchain + "\n")
+
+
+class TestBuildToolchainStamp:
+    """Tests for _check_build_toolchain() and record_build_toolchain()."""
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_missing_stamp_forces_rebuild(self, stamp):
+        assert build_hooks._check_build_toolchain("gnu") is None
+        assert build_hooks.force_build_ext is True
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_same_toolchain_does_not_force(self, stamp):
+        _write_stamp(stamp, "gnu")
+        build_hooks._check_build_toolchain("gnu")
+        assert build_hooks.force_build_ext is False
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_changed_toolchain_forces_rebuild(self, stamp):
+        _write_stamp(stamp, "gnu")
+        build_hooks._check_build_toolchain("llvm")
+        assert build_hooks.force_build_ext is True
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_record_writes_stamp(self, stamp):
+        build_hooks._check_build_toolchain("gnu")
+        build_hooks.record_build_toolchain()
+        assert stamp.read_text().strip() == "gnu"
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_record_without_check_is_noop(self, stamp, monkeypatch):
+        monkeypatch.setattr(build_hooks, "_last_toolchain", None)
+        build_hooks.record_build_toolchain()
+        assert not stamp.exists()
