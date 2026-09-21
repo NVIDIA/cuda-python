@@ -89,7 +89,9 @@ VmmRangeHandle  vmm_range(const DevicePtrHandle& h);   // empty for a non-VMM or
 There is exactly one ownership chain: `Buffer._h_ptr` -> `DevicePtrBox` (holds the range) ->
 `VmmRange` -> mappings -> reservations and allocations. The Cython buffer keeps no other
 reference; grow operations call `Buffer_check_open` and then `vmm_range(buf._h_ptr)`.
-`Buffer.close()` stays `_h_ptr.reset()`. A buffer's `size` is always a prefix of its range.
+`VirtualMemoryBuffer.close()` first refuses a capturing stream other than a default stream
+(see "The resource") and then resets `_h_ptr`, as `Buffer.close()` does; the release itself is
+the deleter chain below. A buffer's `size` is always a prefix of its range.
 
 The `DevicePtrHandle` must own the memory because graph memcpy nodes retain `buf._h_ptr` as an
 opaque owner; a non-owning handle would let a launched graph outlive its buffer. Any number of
@@ -145,7 +147,8 @@ what makes that safe: the allocation is released exactly once, when its last map
     did not come from this resource: `TypeError`. `cfg = config or self.config` passes
     `_check_config`, governs the new chunk only and is not stored on the resource. Let `req = align_up(new_size)` and `total` be
     the range total.
-  - `req <= buf.size`: return `buf`. The buffer already covers the request.
+  - `req <= buf.size`: return `buf`. The buffer already covers the request; `cfg` is not applied,
+    and the access of memory that is already mapped never changes.
   - `buf.size < req <= total`: return a new `VirtualMemoryBuffer` over the same range with size
     `req`; no driver call. This serves a shorter alias asking for what the range already maps.
   - `req > total`, in place: probe `cuMemAddressReserve(req - total, align=0, hint=base+total)`.

@@ -190,7 +190,14 @@ class VirtualMemoryResourceOptions:
         return granularity  # type: ignore[no-any-return]
 
 
-cdef inline size_t _align_up(size_t size, size_t gran) noexcept nogil:
+cdef inline size_t _align_up(size_t size, size_t gran) except? 0:
+    """Round ``size`` up to a multiple of ``gran``.
+
+    Raises ``OverflowError`` instead of wrapping when the rounded size does not
+    fit in ``size_t``.
+    """
+    if size > <size_t>-1 - (gran - 1):
+        raise OverflowError(f"size {size} rounded up to the {gran}-byte granularity does not fit in size_t")
     return (size + gran - 1) // gran * gran
 
 
@@ -418,7 +425,9 @@ cdef class VirtualMemoryResource(MemoryResource):
             Keyword-only. The allocation itself is synchronous. A real stream is
             recorded as the buffer's deallocation stream and synchronized when
             the buffer closes; with `None` or a default-stream token the legacy
-            default stream of the resource's device is recorded instead.
+            default stream of the resource's device is recorded instead. A
+            host-located resource records no default stream: its buffers close
+            without a synchronization unless a real stream was given.
 
         Returns
         -------
@@ -430,6 +439,8 @@ cdef class VirtualMemoryResource(MemoryResource):
         CUDAError
             If any CUDA driver API call fails during allocation. Nothing is
             left allocated when this method raises.
+        OverflowError
+            If ``size`` rounded up to the granularity does not fit in ``size_t``.
         """
         cdef Stream s = None
         if stream is not None:
@@ -514,6 +525,9 @@ cdef class VirtualMemoryResource(MemoryResource):
             chunks keep the access they were created with, and the resource's
             own configuration is unchanged. It must name the resource's
             ``location_type`` and passes the same checks as the constructor.
+            When ``buf`` already covers ``new_size`` there is no new chunk, so
+            ``config`` has no effect. This method never changes the access of
+            memory that is already mapped.
 
         Returns
         -------
@@ -531,6 +545,9 @@ cdef class VirtualMemoryResource(MemoryResource):
         RuntimeError
             If ``buf`` is closed, or ``config`` requests GPUDirect RDMA on a
             device without support.
+        OverflowError
+            If ``new_size`` rounded up to the granularity does not fit in
+            ``size_t``.
         CUDAError
             If a driver call fails. ``buf`` is untouched when this method raises.
         """

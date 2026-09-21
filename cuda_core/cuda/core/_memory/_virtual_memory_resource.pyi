@@ -152,7 +152,9 @@ class VirtualMemoryResource(MemoryResource):
             Keyword-only. The allocation itself is synchronous. A real stream is
             recorded as the buffer's deallocation stream and synchronized when
             the buffer closes; with `None` or a default-stream token the legacy
-            default stream of the resource's device is recorded instead.
+            default stream of the resource's device is recorded instead. A
+            host-located resource records no default stream: its buffers close
+            without a synchronization unless a real stream was given.
 
         Returns
         -------
@@ -164,6 +166,8 @@ class VirtualMemoryResource(MemoryResource):
         CUDAError
             If any CUDA driver API call fails during allocation. Nothing is
             left allocated when this method raises.
+        OverflowError
+            If ``size`` rounded up to the granularity does not fit in ``size_t``.
         """
     def modify_allocation(self, buf: Buffer, new_size: int, config: VirtualMemoryResourceOptions | None=None) -> VirtualMemoryBuffer:
         """
@@ -189,6 +193,9 @@ class VirtualMemoryResource(MemoryResource):
             chunks keep the access they were created with, and the resource's
             own configuration is unchanged. It must name the resource's
             ``location_type`` and passes the same checks as the constructor.
+            When ``buf`` already covers ``new_size`` there is no new chunk, so
+            ``config`` has no effect. This method never changes the access of
+            memory that is already mapped.
 
         Returns
         -------
@@ -206,6 +213,9 @@ class VirtualMemoryResource(MemoryResource):
         RuntimeError
             If ``buf`` is closed, or ``config`` requests GPUDirect RDMA on a
             device without support.
+        OverflowError
+            If ``new_size`` rounded up to the granularity does not fit in
+            ``size_t``.
         CUDAError
             If a driver call fails. ``buf`` is untouched when this method raises.
         """
