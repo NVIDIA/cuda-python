@@ -174,16 +174,13 @@ def _resolve_toolchain(debug=False, compile_for_coverage=False):
         extra_compile_args += ["/std:c++17"]
         if debug:
             raise RuntimeError("Debuggable builds are not supported on Windows.")
-    elif name == "gnu":
+    else:
+        # Common Linux compile flags.
         extra_compile_args += ["-std=c++17"]
-        if debug:
-            extra_compile_args += ["-g", "-O0", "-D _GLIBCXX_ASSERTIONS"]
-        else:
-            extra_compile_args += ["-g0", "-O2"]
-            extra_link_args += ["-Wl,--strip-all"]
-    elif name == "llvm":
-        extra_compile_args += ["-std=c++17"]
-        extra_link_args += ["-fuse-ld=lld"]
+        # Compiler-specific flags.
+        if name == "llvm":
+            extra_link_args += ["-fuse-ld=lld"]
+        # Common Linux debug/opt flags.
         if debug:
             extra_compile_args += ["-g", "-O0", "-D _GLIBCXX_ASSERTIONS"]
         else:

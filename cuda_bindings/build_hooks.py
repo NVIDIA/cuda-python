@@ -178,22 +178,15 @@ def _resolve_toolchain(debug=False, compile_for_coverage=False):
     if name == "msvc":
         if debug:
             raise RuntimeError("Debuggable builds are not supported on Windows.")
-    elif name == "gnu":
-        extra_compile_args += [
-            "-std=c++14",
-            "-fpermissive",
-            "-Wno-deprecated-declarations",
-            "-fno-var-tracking-assignments",
-        ]
-        if debug:
-            extra_compile_args += ["-g", "-O0", "-D _GLIBCXX_ASSERTIONS"]
-        else:
-            extra_compile_args += ["-g0", "-O3"]
-            extra_link_args += ["-Wl,--strip-all"]
-    elif name == "llvm":
-        # clang rejects -fpermissive and -fno-var-tracking-assignments (gcc-only).
+    else:
+        # Common Linux compile flags.
         extra_compile_args += ["-std=c++14", "-Wno-deprecated-declarations"]
-        extra_link_args += ["-fuse-ld=lld"]
+        # Compiler-specific flags.
+        if name == "gnu":
+            extra_compile_args += ["-fpermissive", "-fno-var-tracking-assignments"]
+        elif name == "llvm":
+            extra_link_args += ["-fuse-ld=lld"]
+        # Common Linux debug/opt flags.
         if debug:
             extra_compile_args += ["-g", "-O0", "-D _GLIBCXX_ASSERTIONS"]
         else:
