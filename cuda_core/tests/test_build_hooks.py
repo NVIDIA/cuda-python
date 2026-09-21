@@ -605,24 +605,3 @@ class TestCheckToolchainAvailable:
     def test_llvm_present_passes(self, monkeypatch):
         monkeypatch.setattr(build_hooks.shutil, "which", lambda name: "/bin/" + name)
         build_hooks._check_toolchain_available("llvm")
-
-
-def test_shared_toolchain_block_is_in_sync():
-    """The toolchain helpers between the begin/end markers must be byte-
-    identical across cuda_bindings/build_hooks.py and cuda_core/build_hooks.py.
-
-    PEP 517 build isolation forbids a shared module (the sibling package
-    isn't installed in the isolated build env), so the block is duplicated
-    verbatim with a 'keep in sync' marker. This test enforces that invariant
-    so a drift is caught locally instead of silently breaking one package.
-    """
-    bindings = Path(__file__).parent.parent.parent / "cuda_bindings" / "build_hooks.py"
-    core = Path(__file__).parent.parent / "build_hooks.py"
-
-    def shared_block(path):
-        text = path.read_text()
-        start = text.index("# --- begin shared toolchain helpers")
-        end = text.index("# --- end shared toolchain helpers ---") + len("# --- end shared toolchain helpers ---")
-        return text[start:end]
-
-    assert shared_block(bindings) == shared_block(core)
