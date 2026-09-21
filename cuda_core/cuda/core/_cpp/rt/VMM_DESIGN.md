@@ -201,3 +201,41 @@ pointer, was rejected:
   the driver needs no context for it, so nothing leaks.
 - Empty handles always carry a status; the in-place probe drains its status before falling back.
 - Factories that allocate are declared `except+` in `_rt.pxd`; deleters only destroy vectors.
+
+## Invariants
+
+Reservations and allocations are shared. After a move, one reservation holds every remapped
+chunk, and the old and new ranges share their allocations. The invariants below hold under that
+sharing. The rule that no deleter holds a C++ lock while it calls CUDA or Python is a property of
+the whole layer; see [DESIGN.md](DESIGN.md).
+
+1. A reservation is freed exactly once, with its original pointer and size.
+2. A reservation is freed only after every mapping inside it is unmapped.
+3. An allocation is released exactly once.
+4. An allocation is released only after its last mapping in any range is unmapped.
+5. A failed grow leaves the input unchanged and leaks nothing. Pointer, size, contents, access,
+   and free memory are as before the call.
+6. A grow leaves the input open. The input and the result see the same memory, whether the range
+   grew in place or moved.
+7. Every stream recorded by any owner of a range finishes before the range is unmapped, except as
+   invariant 8 states.
+8. A release never invalidates a graph capture. An explicit close on a capturing non-default
+   stream raises. A release from garbage collection, or one ordered on a default stream that
+   would disturb a capture, proceeds without ordering on that stream, warns once, and unmaps.
+9. Graph nodes and aliases keep the range alive. The range dies with its last owner, in any close
+   order.
+10. A chunk's access is fixed when the chunk is created and travels with its allocation. Every
+    mapping of the chunk applies the same descriptors. A grow's `config` governs only the new
+    chunk and never changes mapped memory.
+11. The mappings of a range are contiguous and ascending, and the range total is the sum of their
+    sizes. A buffer's size is a multiple of the granularity and a prefix of its range. A size that
+    cannot be rounded raises.
+12. A range is findable by its base address only while it is alive. The registry entry is removed
+    before the reservation is freed.
+13. Buffers from `allocate()` free themselves and never call `deallocate()`. `deallocate()` serves
+    only pointers wrapped with `Buffer.from_handle`.
+14. No operation needs a current context. A default-stream token is bound to the resource's
+    device context when it is recorded, and the release runs under that context. A host-located
+    resource records no default stream, so its release is ordered only on a stream the caller
+    passes.
+15. Buffers alive at interpreter shutdown are freed without a warning or an error.
