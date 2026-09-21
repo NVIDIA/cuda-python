@@ -136,8 +136,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/virtualenv-21.7.16-pyh5ded981_0.conda
-      - conda_source: cuda-bindings[643d8f92] @ ../../cuda_bindings
-      - conda_source: cuda-pathfinder[4adb9454] @ ../../cuda_pathfinder
+      - conda_source: cuda-bindings[602006b0] @ ../../cuda_bindings
+      - conda_source: cuda-pathfinder[df16ae7e] @ ../../cuda_pathfinder
   wheel:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -1463,21 +1463,21 @@ packages:
   run_exports: {}
   size: 15004
   timestamp: 1769438727085
-- conda: https://conda.anaconda.org/conda-forge/linux-64/uv-0.12.16-h841d291_0.conda
-  sha256: e4ea5a87694ec46af9e0c641c9bc3b50620bccd12c553d222fd5139f30d81ab3
-  md5: b30a65cc0fc9c2557f15b44f69b695b8
+- conda: https://conda.anaconda.org/conda-forge/linux-64/uv-0.12.17-h841d291_0.conda
+  sha256: aa738ebe975460d704145538752047f1b660944bce23472ee6908f506ff67a68
+  md5: 59ce6897b85483cb667bc9b59c9f3a42
   depends:
   - libgcc >=15
   - libstdcxx >=15
   - __glibc >=2.17,<3.0.a0
-  - liblzma >=5.8.3,<6.0a0
   - zstd >=1.5.7,<1.6.0a0
+  - liblzma >=5.8.3,<6.0a0
   constrains:
   - __glibc >=2.17
   license: Apache-2.0 OR MIT
   run_exports: {}
-  size: 17779428
-  timestamp: 1789739400024
+  size: 17839971
+  timestamp: 1789929235507
 - conda: https://conda.anaconda.org/conda-forge/linux-64/yaml-0.2.5-hebe6cf0_3.conda
   sha256: d164dfa75ecd538f6fd68765defcc06aa875bc697b9b215362d79a2a73125dd0
   md5: e741576fb8f89821ac7c1c537322a33d
@@ -1822,6 +1822,7 @@ packages:
   - python >=3.11
   - python
   license: MIT
+  license_family: MIT
   run_exports: {}
   size: 28536
   timestamp: 1789914745574
@@ -2048,7 +2049,7 @@ packages:
   run_exports: {}
   size: 3898042
   timestamp: 1789823772744
-- conda_source: cuda-bindings[643d8f92] @ ../../cuda_bindings
+- conda_source: cuda-bindings[602006b0] @ ../../cuda_bindings
   variants:
     c_stdlib: sysroot
     c_stdlib_version: '2.28'
@@ -2132,7 +2133,7 @@ packages:
   - conda: https://conda.anaconda.org/conda-forge/linux-64/rdma-core-65.0-h7b4f2e6_0.conda
   - conda: https://conda.anaconda.org/conda-forge/linux-64/readline-8.3-hd6e31c0_1.conda
   - conda: https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_h1df4ec4_4.conda
-  - conda: https://conda.anaconda.org/conda-forge/linux-64/uv-0.12.16-h841d291_0.conda
+  - conda: https://conda.anaconda.org/conda-forge/linux-64/uv-0.12.17-h841d291_0.conda
   - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_7.conda
   - conda: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2026.7.22-hbd8a1cb_0.conda
   - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-cccl_linux-64-13.3.4.3.1-ha770c72_0.conda
@@ -2150,8 +2151,8 @@ packages:
   - conda: https://conda.anaconda.org/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
   - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
   - conda: https://conda.anaconda.org/conda-forge/noarch/vcs_versioning-2.3.4-pyh5ded981_0.conda
-  - conda_source: cuda-pathfinder[4adb9454] @ ../../cuda_pathfinder
-- conda_source: cuda-pathfinder[4adb9454] @ ../../cuda_pathfinder
+  - conda_source: cuda-pathfinder[df16ae7e] @ ../../cuda_pathfinder
+- conda_source: cuda-pathfinder[df16ae7e] @ ../../cuda_pathfinder
   variants:
     target_platform: noarch
   depends:
@@ -2179,7 +2180,7 @@ packages:
   - conda: https://conda.anaconda.org/conda-forge/linux-64/python-3.14.7-hcd007b5_106_cp314.conda
   - conda: https://conda.anaconda.org/conda-forge/linux-64/readline-8.3-hd6e31c0_1.conda
   - conda: https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_h1df4ec4_4.conda
-  - conda: https://conda.anaconda.org/conda-forge/linux-64/uv-0.12.16-h841d291_0.conda
+  - conda: https://conda.anaconda.org/conda-forge/linux-64/uv-0.12.17-h841d291_0.conda
   - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_7.conda
   - conda: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2026.7.22-hbd8a1cb_0.conda
   - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
