@@ -357,13 +357,7 @@ cdef class GraphBuilder:
         A builder that is still building ends its capture first. The builder
         is closed even when that fails; the driver error is raised afterwards.
         """
-        cdef cydriver.CUresult err = GB_end_capture(self)
-        self._h_graph.reset()
-        self._h_stream.reset()
-        retry_deferred_cleanup()
-        self._state = CLOSED
-        self._stream = None
-        HANDLE_RETURN(err)
+        HANDLE_RETURN(GB_close(self))
 
     @property
     def is_closed(self) -> bool:
@@ -633,7 +627,8 @@ cdef class GraphBuilder:
 
         The returned builder inherits work dependencies from the provided builders.
         If joining fails partway, the builders that were not joined are closed
-        before the error propagates, so none is left capturing.
+        before the error propagates, so none is left capturing. A driver error
+        from one of those closes is attached to the propagating error as a note.
 
         Parameters
         ----------
@@ -662,19 +657,27 @@ cdef class GraphBuilder:
 
         # Join all onto the root builder
         root_bdr = graph_builders[root_idx]
+        cdef GraphBuilder unjoined
         try:
             for idx, builder in enumerate(graph_builders):
                 if idx == root_idx:
                     continue
                 root_bdr.stream.wait(builder.stream)
                 builder.close()
-        finally:
+        except BaseException:
             # A fork left open mid-capture crashed the interpreter when it was
-            # collected later (#2776). Close whatever the loop did not reach;
-            # on success every fork is already closed and this is a no-op.
+            # collected later (#2776). Close whatever the loop did not reach. A
+            # close that fails (a builder from another capture, which the
+            # refused wait has invalidated) must neither stop this sweep nor
+            # replace the error being raised, so its status is attached to
+            # that error as a note (error handling policy).
             for idx, builder in enumerate(graph_builders):
                 if idx != root_idx and not builder.is_closed:
-                    builder.close()
+                    unjoined = builder
+                    attach_rollback_failure(
+                        b"cuStreamEndCapture", GB_close(unjoined),
+                        b"failed while closing a graph builder that GraphBuilder.join did not join")
+            raise
 
         return root_bdr
 
@@ -1105,6 +1108,21 @@ cdef inline cydriver.CUresult GB_end_capture(GraphBuilder gb) noexcept:
         gb._state = CAPTURE_INVALIDATED
     else:
         gb._state = CAPTURE_ENDED
+    return err
+
+
+cdef inline cydriver.CUresult GB_close(GraphBuilder gb) noexcept:
+    """Close the builder and return the status of ending its capture.
+
+    The builder is closed whatever that status is. close() raises it; join()
+    attaches it to the error already propagating.
+    """
+    cdef cydriver.CUresult err = GB_end_capture(gb)
+    gb._h_graph.reset()
+    gb._h_stream.reset()
+    retry_deferred_cleanup()
+    gb._state = CLOSED
+    gb._stream = None
     return err
 
 

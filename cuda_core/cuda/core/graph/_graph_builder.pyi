@@ -281,7 +281,8 @@ class GraphBuilder:
 
         The returned builder inherits work dependencies from the provided builders.
         If joining fails partway, the builders that were not joined are closed
-        before the error propagates, so none is left capturing.
+        before the error propagates, so none is left capturing. A driver error
+        from one of those closes is attached to the propagating error as a note.
 
         Parameters
         ----------

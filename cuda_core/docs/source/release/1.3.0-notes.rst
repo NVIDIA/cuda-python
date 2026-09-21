@@ -75,7 +75,8 @@ Fixes and enhancements
   :meth:`~graph.GraphBuilder.end_building` and
   :meth:`~graph.GraphBuilder.close` end the capture and raise the driver
   error, after which the builder holds no graph. A failed ``join`` also closes
-  the forked builders it did not join. This does not extend to the body
+  the builders it did not join, even when closing one of them fails. This
+  does not extend to the body
   builder of a conditional node: an invalidated body capture leaves the parent
   graph invalid as well, and ending it may crash the process
   (`#2918 <https://github.com/NVIDIA/cuda-python/issues/2918>`__). Calling
