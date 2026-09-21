@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b6bd22f8ef64e899985668d55170be02666396c33bbb7787cd17cc3c6acfba24
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a7b7178cfb0e794181ba423ee5165219e30af7a6bad68db5b20076f8c3bf49c6
 from typing import Any, Optional
 import cython
 import ctypes
@@ -11871,7 +11871,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_st:
     @kernelParams.setter
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
-        self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
+        self._pvt_ptr[0].kernelParams = self._cykernelParams.ckernelParams
 
 
     @property
@@ -12122,7 +12122,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_v2_st:
     @kernelParams.setter
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
-        self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
+        self._pvt_ptr[0].kernelParams = self._cykernelParams.ckernelParams
 
 
     @property
@@ -12407,7 +12407,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_v3_st:
     @kernelParams.setter
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
-        self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
+        self._pvt_ptr[0].kernelParams = self._cykernelParams.ckernelParams
 
 
     @property
@@ -18602,7 +18602,7 @@ cdef class CUDA_LAUNCH_PARAMS_st:
     @kernelParams.setter
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
-        self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
+        self._pvt_ptr[0].kernelParams = self._cykernelParams.ckernelParams
 
 
 cdef class anon_struct12:
@@ -43779,8 +43779,8 @@ def cuLaunchKernel(f, unsigned int gridDimX, unsigned int gridDimY, unsigned int
     else:
         pf = int(CUfunction(f))
     cyf = <cydriver.CUfunction><void_ptr>pf
-    cykernelParams = _HelperKernelParams(kernelParams)
-    cdef void** cykernelParams_ptr = <void**><void_ptr>cykernelParams.ckernelParams
+    cdef _HelperKernelParams cykernelParams = _HelperKernelParams(kernelParams)
+    cdef void** cykernelParams_ptr = cykernelParams.ckernelParams
     with nogil:
         err = cydriver.cuLaunchKernel(cyf, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, cyhStream, cykernelParams_ptr, <void**>extra)
     return (_CUresult(err),)
@@ -44017,8 +44017,8 @@ def cuLaunchKernelEx(config : Optional[CUlaunchConfig], f, kernelParams, void_pt
         pf = int(CUfunction(f))
     cyf = <cydriver.CUfunction><void_ptr>pf
     cdef cydriver.CUlaunchConfig* cyconfig_ptr = <cydriver.CUlaunchConfig*>config._pvt_ptr if config is not None else NULL
-    cykernelParams = _HelperKernelParams(kernelParams)
-    cdef void** cykernelParams_ptr = <void**><void_ptr>cykernelParams.ckernelParams
+    cdef _HelperKernelParams cykernelParams = _HelperKernelParams(kernelParams)
+    cdef void** cykernelParams_ptr = cykernelParams.ckernelParams
     with nogil:
         err = cydriver.cuLaunchKernelEx(cyconfig_ptr, cyf, cykernelParams_ptr, <void**>extra)
     return (_CUresult(err),)
@@ -44127,8 +44127,8 @@ def cuLaunchCooperativeKernel(f, unsigned int gridDimX, unsigned int gridDimY, u
     else:
         pf = int(CUfunction(f))
     cyf = <cydriver.CUfunction><void_ptr>pf
-    cykernelParams = _HelperKernelParams(kernelParams)
-    cdef void** cykernelParams_ptr = <void**><void_ptr>cykernelParams.ckernelParams
+    cdef _HelperKernelParams cykernelParams = _HelperKernelParams(kernelParams)
+    cdef void** cykernelParams_ptr = cykernelParams.ckernelParams
     with nogil:
         err = cydriver.cuLaunchCooperativeKernel(cyf, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, cyhStream, cykernelParams_ptr)
     return (_CUresult(err),)

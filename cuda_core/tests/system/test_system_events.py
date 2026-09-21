@@ -10,6 +10,7 @@ pytestmark = skip_if_nvml_unsupported
 import helpers
 import pytest
 
+from cuda.core import Device as CudaDevice
 from cuda.core import system
 from cuda.core.system import typing
 
@@ -54,10 +55,12 @@ def test_pci_bus_id_from_gpu_id(gpu_id, expected):
 def test_system_event_device_resolves_pci_bus_id():
     # Round-trip: pack pci_info with the inverse of _pci_bus_id_from_gpu_id,
     # then resolve Device through SystemEvent.device.
-    if system.get_num_devices() == 0:
-        pytest.skip("No GPUs available")
+    cuda_devices = list(CudaDevice.get_all_devices())
+    if not cuda_devices:
+        pytest.skip("No CUDA devices available")
 
-    for device in system.Device.get_all_devices():
+    for cuda_device in cuda_devices:
+        device = cuda_device.to_system_device()
         pci = device.pci_info
         if pci.domain > 0xFFFF:
             pytest.skip(f"PCI domain {pci.domain:#x} does not fit in a packed gpu_id")
