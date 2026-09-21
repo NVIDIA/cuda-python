@@ -243,8 +243,10 @@ class TestBuildConfigStamp:
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_record_writes_stamp(self, stamp):
         # record_build_config re-derives from env; pass debug=False to match.
+        # Platform default toolchain: msvc on Windows, gnu on Linux.
+        toolchain = "msvc" if sys.platform == "win32" else "gnu"
         build_hooks.record_build_config(False)
-        assert stamp.read_text().strip() == "cu13-gnu-opt"
+        assert stamp.read_text().strip() == f"cu13-{toolchain}-opt"
 
 
 def _capture_cythonize_build_dir(monkeypatch, cuda_major):
@@ -288,8 +290,9 @@ class TestGeneratedSourceDirIsKeyed:
         dir_13 = _capture_cythonize_build_dir(monkeypatch, "13")
 
         assert dir_12 != dir_13
-        assert dir_12.name == "cu12-gnu-opt"
-        assert dir_13.name == "cu13-gnu-opt"
+        toolchain = "msvc" if sys.platform == "win32" else "gnu"
+        assert dir_12.name == f"cu12-{toolchain}-opt"
+        assert dir_13.name == f"cu13-{toolchain}-opt"
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_dir_is_anchored_not_relative_to_cwd(self, monkeypatch):
