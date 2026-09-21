@@ -28,6 +28,8 @@ prepare_metadata_for_build_wheel = _build_meta.prepare_metadata_for_build_wheel
 build_sdist = _build_meta.build_sdist
 get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
 
+# Note: There is no support guarantee for environment variables like CUDA_PYTHON_COVERAGE,
+# CUDA_PYTHON_TOOLCHAIN, etc. They may be removed or changed in the future.
 COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
 

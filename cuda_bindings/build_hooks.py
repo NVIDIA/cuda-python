@@ -30,6 +30,9 @@ get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
 get_requires_for_build_wheel = _build_meta.get_requires_for_build_wheel
 get_requires_for_build_editable = _build_meta.get_requires_for_build_editable
 
+# Note: There is no support guarantee for environment variables like
+# CUDA_PYTHON_TOOLCHAIN, etc. They may be removed or changed in the future.
+
 # Populated by _build_cuda_bindings(); consumed by setup.py.
 _extensions = None
 
