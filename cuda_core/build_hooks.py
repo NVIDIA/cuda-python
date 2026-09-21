@@ -250,50 +250,65 @@ _extensions = None
 # than the cwd, since a project can be built from anywhere.
 _BUILD_DIR = Path(__file__).parent / "build"
 
-# Records the CUDA major of the last completed build, so setup.py can force
-# build_ext when it changes. Written by record_build_major().
-_BUILD_MAJOR_STAMP = _BUILD_DIR / ".build-cuda-major"
+# Records the build configuration (CUDA major, toolchain, debug/coverage) of
+# the last completed build, so setup.py can force build_ext when it changes.
+# Written by record_build_config().
+_BUILD_CONFIG_STAMP = _BUILD_DIR / ".build-config"
 
 force_build_ext = False
+# Set by _check_build_config; read by record_build_config and _build_cuda_core
+# (for the cythonize build_dir). Cleared on module import so a fresh process
+# always re-derives it from the environment.
+_last_build_config = None
 
 
-def _check_build_major() -> str:
-    """Return the CUDA major to key build artifacts by, and set force_build_ext.
+def _build_config_key(cuda_major, toolchain, debug, coverage):
+    """Return a stable string key for the build configuration."""
+    return f"cu{cuda_major}-{toolchain}-{'debug' if debug else 'opt'}{'-cov' if coverage else ''}"
 
-    Cython's up-to-date check does not hash ``compile_time_env``, so generated
-    sources for one CUDA major would otherwise be reused for another. Keying
-    the generated-source directory fixes that, but not the compiled extension:
-    in an editable install it lands in the source tree under a name keyed by
-    the Python ABI tag alone, with nowhere to record the CUDA major. On a
-    cu12 -> cu13 -> cu12 round trip build_ext would find the older cu12
-    generated source next to the newer cu13 .so and skip the rebuild, so the
-    major is also stamped and build_ext forced whenever it changes.
+
+def _check_build_config(toolchain, debug, coverage):
+    """Return the CUDA major, and force a rebuild when the config changed.
+
+    Cython's up-to-date check does not hash ``compile_time_env`` or the
+    extension flags, so generated sources and compiled extensions from a
+    previous configuration would otherwise be reused. Keying the generated-
+    source directory fixes the generated C++, but not the compiled
+    extension: in an editable install it lands in the source tree under a
+    name keyed by the Python ABI tag alone. The build configuration (CUDA
+    major, toolchain, debug/coverage) is therefore stamped and build_ext
+    forced whenever it changes, so a stale .so is never packaged.
     """
-    global force_build_ext
+    global force_build_ext, _last_build_config
 
     cuda_major = _determine_cuda_major_version()
+    key = _build_config_key(cuda_major, toolchain, debug, coverage)
+    _last_build_config = key
     try:
-        previous = _BUILD_MAJOR_STAMP.read_text(encoding="utf-8").strip()
+        previous = _BUILD_CONFIG_STAMP.read_text(encoding="utf-8").strip()
     except FileNotFoundError:
         previous = None
 
-    # A missing stamp means the last build's major is unknown, so force too.
+    # A missing stamp means the last build's config is unknown, so force too.
     # On a first build that costs nothing: there are no artifacts to reuse.
-    if previous != cuda_major:
-        print(f"CUDA major of last build: {previous} (building {cuda_major}); forcing a full rebuild")
+    if previous != key:
+        print(f"Build config of last build: {previous} (building {key}); forcing a full rebuild")
         force_build_ext = True
 
     return cuda_major
 
 
-def record_build_major() -> None:
-    """Stamp the CUDA major of the build that just completed.
+def record_build_config() -> None:
+    """Stamp the build configuration of the build that just completed.
 
-    setup.py calls this after build_ext succeeds, so that a build which failed
-    partway through does not claim outputs it never produced.
+    setup.py calls this after build_ext succeeds, so that a build which
+    failed partway through does not claim outputs it never produced.
     """
-    _BUILD_MAJOR_STAMP.parent.mkdir(parents=True, exist_ok=True)
-    _BUILD_MAJOR_STAMP.write_text(_determine_cuda_major_version() + "\n", encoding="utf-8")
+    global _last_build_config
+    if _last_build_config is None:
+        return  # build never reached _check_build_config (e.g. metadata-only)
+    _BUILD_CONFIG_STAMP.parent.mkdir(parents=True, exist_ok=True)
+    _BUILD_CONFIG_STAMP.write_text(_last_build_config + "\n", encoding="utf-8")
 
 
 def _relativize_extension_sources(extensions) -> None:
@@ -422,7 +437,7 @@ def _build_cuda_core(debug=False):
     # Deliberately after the cuda.bindings import above: this re-enters
     # _get_cuda_path() and reads cuda.h, which must not run before the
     # pathfinder import has repaired PEP 517 namespace shadowing.
-    cuda_major = _check_build_major()
+    cuda_major = _check_build_config(toolchain, debug, COMPILE_FOR_COVERAGE)
 
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
     compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(cuda_major)}
@@ -441,7 +456,7 @@ def _build_cuda_core(debug=False):
         # this directory and compiles against the copies. Copies are refreshed by
         # mtime and never deleted, so remove build/ after renaming or deleting a
         # header under _cpp/.
-        build_dir="." if COMPILE_FOR_COVERAGE else str(_BUILD_DIR / "cython" / f"cu{cuda_major}"),
+        build_dir="." if COMPILE_FOR_COVERAGE else str(_BUILD_DIR / "cython" / _last_build_config),
         nthreads=nthreads,
         compiler_directives=compiler_directives,
         compile_time_env=compile_time_env,

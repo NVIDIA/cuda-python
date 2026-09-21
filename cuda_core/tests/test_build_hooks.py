@@ -173,48 +173,83 @@ class TestGetCudaMajorVersion:
 
 @pytest.fixture
 def stamp(tmp_path, monkeypatch):
-    """Redirect the build stamp to a scratch path.
+    """Redirect the build-config stamp to a scratch path.
 
-    _BUILD_MAJOR_STAMP is anchored to build_hooks.py rather than the working
-    directory, so it has to be replaced outright; chdir would not move it, and
-    record_build_major() would write into the real source tree.
+    _BUILD_CONFIG_STAMP is anchored to build_hooks.py rather than the
+    working directory, so it has to be replaced outright; chdir would
+    not move it, and record_build_config() would write into the
+    real source tree.
     """
-    scratch = tmp_path / "build" / ".build-cuda-major"
-    monkeypatch.setattr(build_hooks, "_BUILD_MAJOR_STAMP", scratch)
+    scratch = tmp_path / "build" / ".build-config"
+    monkeypatch.setattr(build_hooks, "_BUILD_CONFIG_STAMP", scratch)
     monkeypatch.setattr(build_hooks, "force_build_ext", False)
+    monkeypatch.setattr(build_hooks, "_last_build_config", None)
     build_hooks._get_cuda_path.cache_clear()
     build_hooks._determine_cuda_major_version.cache_clear()
     get_cuda_path_or_home.cache_clear()
     monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
+    monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
     return scratch
 
 
-def _write_stamp(stamp, cuda_major):
+def _write_stamp(stamp, config_key):
     stamp.parent.mkdir(parents=True, exist_ok=True)
-    stamp.write_text(cuda_major + "\n")
+    stamp.write_text(config_key + "\n")
 
 
-class TestBuildMajorStamp:
-    """Tests for _check_build_major() and record_build_major()."""
+class TestBuildConfigStamp:
+    """Tests for _check_build_config() and record_build_config()."""
 
+    @pytest.mark.agent_authored(model="glm-5.2")
     def test_missing_stamp_forces_rebuild(self, stamp):
-        # No stamp means the last build's major is unknown, so rebuild.
-        assert build_hooks._check_build_major() == "13"
+        # No stamp means the last build's config is unknown, so rebuild.
+        assert build_hooks._check_build_config("gnu", False, False) == "13"
         assert build_hooks.force_build_ext is True
 
-    def test_same_major_does_not_force(self, stamp):
-        _write_stamp(stamp, "13")
-        assert build_hooks._check_build_major() == "13"
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_same_config_does_not_force(self, stamp):
+        _write_stamp(stamp, "cu13-gnu-opt")
+        assert build_hooks._check_build_config("gnu", False, False) == "13"
         assert build_hooks.force_build_ext is False
 
-    def test_changed_major_forces_rebuild(self, stamp):
-        _write_stamp(stamp, "12")
-        assert build_hooks._check_build_major() == "13"
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_changed_cuda_major_forces_rebuild(self, stamp):
+        _write_stamp(stamp, "cu12-gnu-opt")
+        assert build_hooks._check_build_config("gnu", False, False) == "13"
         assert build_hooks.force_build_ext is True
 
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_changed_toolchain_forces_rebuild(self, stamp):
+        _write_stamp(stamp, "cu13-gnu-opt")
+        assert build_hooks._check_build_config("llvm", False, False) == "13"
+        assert build_hooks.force_build_ext is True
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_changed_debug_forces_rebuild(self, stamp):
+        _write_stamp(stamp, "cu13-gnu-opt")
+        assert build_hooks._check_build_config("gnu", True, False) == "13"
+        assert build_hooks.force_build_ext is True
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_changed_coverage_forces_rebuild(self, stamp):
+        _write_stamp(stamp, "cu13-gnu-opt")
+        assert build_hooks._check_build_config("gnu", False, True) == "13"
+        assert build_hooks.force_build_ext is True
+
+    @pytest.mark.agent_authored(model="glm-5.2")
     def test_record_writes_stamp(self, stamp):
-        build_hooks.record_build_major()
-        assert stamp.read_text().strip() == "13"
+        # _check_build_config sets _last_build_config; record writes it.
+        build_hooks._check_build_config("gnu", False, False)
+        build_hooks.record_build_config()
+        assert stamp.read_text().strip() == "cu13-gnu-opt"
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_record_without_check_is_noop(self, stamp, monkeypatch):
+        # If the build never reached _check_build_config (e.g. metadata-only),
+        # record_build_config must not write a stamp.
+        monkeypatch.setattr(build_hooks, "_last_build_config", None)
+        build_hooks.record_build_config()
+        assert not stamp.exists()
 
 
 def _capture_cythonize_build_dir(monkeypatch, cuda_major):
@@ -246,35 +281,36 @@ def _capture_cythonize_build_dir(monkeypatch, cuda_major):
 
 
 class TestGeneratedSourceDirIsKeyed:
-    """Generated C++ must not be shared between CUDA majors.
+    """Generated C++ must not be shared between build configurations.
 
-    Cython's up-to-date check does not hash compile_time_env, so without a
-    per-major directory a cu13 build's generated sources are handed to a cu12
-    compiler (and vice versa).
+    Cython's up-to-date check does not hash compile_time_env or the
+    extension flags, so without a per-config directory a cu13-gnu build's generated sources are handed to a cu13-llvm compiler (and vice versa).
     """
 
+    @pytest.mark.agent_authored(model="glm-5.2")
     def test_majors_use_different_dirs(self, monkeypatch):
         dir_12 = _capture_cythonize_build_dir(monkeypatch, "12")
         dir_13 = _capture_cythonize_build_dir(monkeypatch, "13")
 
         assert dir_12 != dir_13
-        assert dir_12.name == "cu12"
-        assert dir_13.name == "cu13"
+        assert dir_12.name == "cu12-gnu-opt"
+        assert dir_13.name == "cu13-gnu-opt"
 
+    @pytest.mark.agent_authored(model="glm-5.2")
     def test_dir_is_anchored_not_relative_to_cwd(self, monkeypatch):
         # Anchored to build_hooks.py, so it must agree with the stamp
         # regardless of where the build was invoked from.
         build_dir = _capture_cythonize_build_dir(monkeypatch, "13")
 
         assert build_dir.is_absolute()
-        assert build_dir.parent.parent == build_hooks._BUILD_MAJOR_STAMP.parent
+        assert build_dir.parent.parent == build_hooks._BUILD_CONFIG_STAMP.parent
 
 
 class TestSetuptoolsSourcePaths:
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_absolute_sources_are_made_relative(self, tmp_path, monkeypatch):
         monkeypatch.chdir(tmp_path)
-        generated = tmp_path / "build" / "cython" / "cu13" / "cuda" / "core" / "_device.cpp"
+        generated = tmp_path / "build" / "cython" / "cu13-gnu-opt" / "cuda" / "core" / "_device.cpp"
         relative = "cuda/core/_cpp/helper.cpp"
         extension = build_hooks.Extension("cuda.core._device", [str(generated), relative])
 
@@ -305,7 +341,7 @@ def _load_setup_py(monkeypatch):
 class TestForceReachesBuildExt:
     """The rebuild decision must actually be handed to setuptools.
 
-    _check_build_major() only sets a flag; if build_ext does not read it, a
+    _check_build_config() only sets a flag; if build_ext does not read it, a
     stale extension is silently kept because its mtime looks newer than the
     regenerated sources.
     """
