@@ -9,6 +9,15 @@
 New features
 ------------
 
+- Added incremental linking to :class:`Linker` through
+  ``LinkerOptions(incremental=True)`` on nvJitLink 13.2 or newer. A partial
+  native result is returned as a CUBIN and can be passed directly to another
+  linker. :meth:`Linker.link` also accepts ``"ltoir"`` on nvJitLink 13.3 or
+  newer so incremental LTO chains can retain IR until their final link. Direct
+  PTX and CUBIN inputs are rejected for this target because they carry no LTOIR
+  and nvJitLink would otherwise silently omit them.
+  (`#2369 <https://github.com/NVIDIA/cuda-python/issues/2369>`__)
+
 - Added the read-only :attr:`ManagedBuffer.last_prefetch_location` property,
   which reports the destination requested by the most recent explicit
   prefetch across the buffer. It returns a :class:`Device` or :class:`Host`,
