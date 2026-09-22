@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4517b012"></script>
+    <script src="../_static/documentation_options.js?v=72ef3a78"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev115';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev116';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -830,6 +830,30 @@ child-graph, event-record, event-wait, and host-callback nodes. Indexing
 with a node type that has no executable view is now also reported
 statically.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2482">#2482</a>)</p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code> can now be constructed for a
+device’s default pool (without options), and <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.memory_resource" title="cuda.core.Device.memory_resource"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Device.memory_resource</span></code></a>
+first accessed, while the calling thread is inside a <code class="docutils literal notranslate"><span class="pre">global</span></code> or
+<code class="docutils literal notranslate"><span class="pre">thread_local</span></code> stream capture. The constructor applies its
+release-threshold policy with pool attribute calls that the driver refuses
+during such a capture; it now makes them in relaxed capture mode and
+restores the thread’s previous mode, so the capture stays valid. Creating a
+new pool with options during such a capture is still refused by the driver.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2834">#2834</a>)</p></li>
+<li><p>Ending, closing, or collecting a top-level <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>
+whose capture was invalidated, or left unjoined by a
+<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.join" title="cuda.core.graph.GraphBuilder.join"><code class="xref py py-meth docutils literal notranslate"><span class="pre">join()</span></code></a> that failed partway, no longer crashes.
+<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.end_building" title="cuda.core.graph.GraphBuilder.end_building"><code class="xref py py-meth docutils literal notranslate"><span class="pre">end_building()</span></code></a> and
+<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.close" title="cuda.core.graph.GraphBuilder.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a> end the capture and raise the driver
+error, after which the builder holds no graph. A failed <code class="docutils literal notranslate"><span class="pre">join</span></code> also closes
+the builders it did not join, even when closing one of them fails. This
+does not extend to the body
+builder of a conditional node: an invalidated body capture leaves the parent
+graph invalid as well, and ending it may crash the process
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2918">#2918</a>). Calling
+<code class="docutils literal notranslate"><span class="pre">end_building</span></code> on a forked builder is now rejected with <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>;
+forked builders are ended by <code class="docutils literal notranslate"><span class="pre">join</span></code>.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2834">#2834</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2776">#2776</a>)</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> methods that create resources or synchronize now act on that
 device’s bound context, even when another device is current. They do not
 change which device is current. For example, <code class="docutils literal notranslate"><span class="pre">dev1.sync()</span></code> synchronizes
