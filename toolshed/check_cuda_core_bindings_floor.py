@@ -10,10 +10,11 @@ checked here, as a pre-commit hook and from cuda_core/tests/test_bindings_floor.
 
 1. The extras parse: each `cu<N>` extra pins exactly
    `cuda-bindings[...]>=<N>.<minor>.<patch>,==<N>.*`.
-2. ci/versions.yml builds each major against a CUDA Toolkit of the floor's
-   major.minor. The build requires the header's major.minor to equal the
-   cuda-bindings', so a toolkit pin in another minor cannot build the floor,
-   and a floor bump must move the pin (or the reverse).
+2. ci/versions.yml builds each major against a CUDA Toolkit of at least the
+   floor's major.minor. A toolkit below the floor's minor cannot build the
+   floor's cuda-bindings (the build requires the header cuda-bindings was
+   generated from); a toolkit ahead of the floor is the toolkit-bump window
+   described in cuda_core/AGENTS.md.
 3. No documentation page spells a floor out by hand; docs/source/conf.py
    provides |cuda-bindings-floor-cu12| and |cuda-bindings-floor-cu13|.
    Release notes are history and are exempt.
@@ -69,10 +70,11 @@ def ci_pin_problems(floors: dict[int, tuple[int, int, int]], versions_yml: str) 
             problems.append(f"{CI_VERSIONS}: no build or prev_build toolkit pin for CUDA {major} (floor {floor})")
             continue
         pinned_major, pinned_minor, key = pins[major]
-        if (pinned_major, pinned_minor) != floor[:2]:
+        if pinned_major != floor[0] or pinned_minor < floor[1]:
             problems.append(
                 f"{CI_VERSIONS}: cuda.{key}.version is {pinned_major}.{pinned_minor} but the CUDA {major} floor "
-                f"is cuda-bindings {'.'.join(map(str, floor))}; the toolkit and the floor must share major.minor"
+                f"is cuda-bindings {'.'.join(map(str, floor))}; the toolkit must not sit below the floor's "
+                "major.minor (ahead of it is the toolkit-bump window, see cuda_core/AGENTS.md)"
             )
     for major in pins:
         if major not in floors:

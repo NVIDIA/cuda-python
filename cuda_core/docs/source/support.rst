@@ -87,20 +87,23 @@ there.
      - ``cuda-bindings`` >= |cuda-bindings-floor-cu13|
 
 - **At run time**, ``import cuda.core`` requires an installed ``cuda-bindings`` of the same major
-  as the ``cuda-core`` build in use and at least as new as that build's floor. An older
+  as the ``cuda-core`` build in use, at least as new as that build's floor, and generated from a
+  ``cuda.h`` at least as new (by major.minor) as the one the build compiled against; the published
+  wheels are built against the floor's header, so the floor alone satisfies them. An older
   ``cuda-bindings`` fails at import with a message that names the version found, the version
   required, and the ``pip`` command that fixes it. A newer ``cuda-bindings`` of the same major is
   supported.
 - **At build time**, a source build requires ``cuda-bindings`` at or above the floor and a
-  ``cuda.h`` (``CUDA_PATH`` or ``CUDA_HOME``) of the same major.minor as that ``cuda-bindings``,
-  which is the header ``cuda-bindings`` itself was generated from. Any other configuration fails
-  the build with a message that names what was found and what is required. Building against an
-  older CUDA Toolkit than the floor's minor is not supported.
+  ``cuda.h`` (``CUDA_PATH`` or ``CUDA_HOME``) of the same major.minor as the header that
+  ``cuda-bindings`` was generated from. Any other configuration fails the build with a message
+  that names what was found and what is required. Building against an older CUDA Toolkit than
+  the floor's minor is not supported.
 - **The CUDA driver** is unaffected. Feature availability is decided by the driver alone: a
   feature the installed driver lacks raises when it is used, as before.
 
-A floor is raised only in a release that needs a newer ``cuda-bindings`` API, and every such
-change is listed under "Breaking Changes" in the :doc:`release notes <release>`.
+A floor moves with each ``cuda-core`` release, to the newest ``cuda-bindings`` of each major at
+that time, and in any release whose changes need a newer ``cuda-bindings`` API. Every move is
+listed under "Breaking Changes" in the :doc:`release notes <release>`.
 
 Python Version Support
 ----------------------

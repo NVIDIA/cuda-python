@@ -15,8 +15,12 @@ tree next to the tests, which every CI job that runs tests/ has.
 """
 
 import importlib.util
+import os
 import re
 import shutil
+import subprocess
+import sys
+import textwrap
 from pathlib import Path
 
 import pytest
@@ -28,8 +32,8 @@ from cuda.core._bindings_floor import (
     cuda_version_of,
     floors_from_extras,
     format_version,
+    header_minor,
     release_triple,
-    required_minimum,
 )
 
 CUDA_CORE = Path(__file__).resolve().parent.parent
@@ -133,24 +137,24 @@ def test_formatting_helpers():
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
-def test_required_minimum_is_the_floor_or_the_header_minor():
-    floor = (13, 4, 1)
-    header_at_floor = cuda_version_of(floor)
-    assert required_minimum(floor, header_at_floor) == floor
-    # A build against a newer header than the floor's minor demands that minor:
-    # the driver-pointer keys are derived from the header's macros.
-    assert required_minimum(floor, header_at_floor + 10) == (13, 5, 0)
-    # An older header cannot win over the floor.
-    assert required_minimum(floor, 13000) == floor
+def test_header_minor():
+    assert header_minor(13040) == (13, 4)
+    assert header_minor(12090) == (12, 9)
+    assert header_minor(13000) == (13, 0)
 
 
 class TestCheckInstalledBindings:
     FLOOR = (13, 4, 1)
     HEADER = cuda_version_of(FLOOR)
 
-    def check(self, installed, major=13, header=None, floor=None):
+    def check(self, installed, major=13, header=None, floor=None, installed_header=None):
+        """installed_header defaults to the header of the installed version's major.minor,
+        as a release of that version would have been generated from."""
+        if installed_header is None:
+            triple = release_triple(installed) or (major, 0, 0)
+            installed_header = cuda_version_of(triple)
         return check_installed_bindings(
-            installed, major, self.HEADER if header is None else header, floor or self.FLOOR, "1.3.0"
+            installed, installed_header, major, self.HEADER if header is None else header, floor or self.FLOOR, "1.3.0"
         )
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
@@ -173,24 +177,38 @@ class TestCheckInstalledBindings:
         message = str(excinfo.value)
         assert "requires cuda-bindings >= 13.4.1 for CUDA 13" in message
         assert "(found 13.3.1)" in message
-        assert "pip install -U 'cuda-bindings>=13.4.1,==13.*'" in message
+        assert 'pip install -U "cuda-bindings>=13.4.1,==13.*"' in message  # double quotes: cmd.exe too
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
-    def test_rejects_a_minor_older_than_the_header(self):
-        # Built against a header one minor above the floor; the floor itself no longer suffices.
-        with pytest.raises(ImportError, match=r"requires cuda-bindings >= 13\.5\.0"):
+    def test_rejects_bindings_generated_from_an_older_header_than_the_build(self):
+        # Built against 13.5 headers; a 13.4-generated cuda-bindings lacks table entries.
+        with pytest.raises(ImportError) as excinfo:
             self.check("13.4.1", header=self.HEADER + 10)
+        message = str(excinfo.value)
+        assert "was built against CUDA 13.5 headers" in message
+        assert "13.4.1 was generated from CUDA 13.4 headers" in message
+        assert 'pip install -U "cuda-bindings>=13.5.0,==13.*"' in message
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_header_rule_compares_headers_not_version_strings(self):
+        # A development cuda-bindings carries the previous release's version string
+        # (13.4.2.dev5) but was generated from the new 13.5 header: accepted.
+        floor = (13, 4, 2)
+        assert self.check("13.4.2.dev5+gabc", header=13050, floor=floor, installed_header=13050) == (13, 4, 2)
+        # The converse, a 13.5 version string generated from 13.4 headers, is rejected.
+        with pytest.raises(ImportError, match="was generated from CUDA 13.4 headers"):
+            self.check("13.5.0", header=13050, floor=floor, installed_header=13040)
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_the_floor_comes_from_the_build_record(self):
         # A build recorded with a lower floor (and header) accepts what the default floor rejects.
         assert self.check("13.3.0", header=cuda_version_of((13, 2, 0)), floor=(13, 2, 0)) == (13, 3, 0)
-        # A higher recorded floor rejects what the default floor accepts, even with the header at 13.4.
+        # A higher recorded floor rejects what the default floor accepts.
         with pytest.raises(ImportError) as excinfo:
             self.check("13.4.1", floor=(13, 5, 0))
         message = str(excinfo.value)
         assert "requires cuda-bindings >= 13.5.0 for CUDA 13" in message
-        assert "pip install -U 'cuda-bindings>=13.5.0,==13.*'" in message
+        assert 'pip install -U "cuda-bindings>=13.5.0,==13.*"' in message
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_rejects_another_major_than_the_build(self):
@@ -205,7 +223,7 @@ class TestCheckInstalledBindings:
         with pytest.raises(ImportError) as excinfo:
             self.check(installed, major=12, header=12090, floor=(12, 9, 8))
         message = str(excinfo.value)
-        assert "Install cuda-bindings 12.x (pip install 'cuda-bindings==12.*')" in message
+        assert 'Install cuda-bindings 12.x (pip install "cuda-bindings==12.*")' in message
         assert f"build for CUDA {installed.split('.')[0]} if one exists" in message
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
@@ -215,6 +233,78 @@ class TestCheckInstalledBindings:
             ImportError, match=rf"a cuda-bindings 13\.x release is required \(found {re.escape(installed)}\)"
         ):
             self.check(installed)
+
+
+class TestImportTimeCheck:
+    """`import cuda.core` runs check_installed_bindings against the installed build's record
+    before importing any extension module. A fake cuda.bindings in a child interpreter
+    exercises the reject paths end to end (issue #2783 asked for this test)."""
+
+    _CHILD = textwrap.dedent("""
+        import sys, types
+        fake = types.ModuleType("cuda.bindings")
+        fake.__version__ = {version!r}
+        driver = types.ModuleType("cuda.bindings.driver")
+        driver.CUDA_VERSION = {cuda_version}
+        fake.driver = driver
+        sys.modules["cuda.bindings"] = fake
+        sys.modules["cuda.bindings.driver"] = driver
+        try:
+            import cuda.core
+        except ImportError as exc:
+            print("IMPORTERROR:", exc)
+            raise SystemExit(0)
+        raise SystemExit("cuda.core imported with a fake cuda-bindings " + fake.__version__)
+    """)
+
+    @staticmethod
+    def _build():
+        from cuda.core import _build_info
+
+        return _build_info.CUDA_MAJOR, _build_info.CUDA_VERSION, tuple(_build_info.CUDA_BINDINGS_FLOOR)
+
+    def _import_error(self, version, cuda_version, tmp_path):
+        env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}  # the installed build, not a source tree
+        result = subprocess.run(  # noqa: S603
+            [sys.executable, "-c", self._CHILD.format(version=version, cuda_version=cuda_version)],
+            cwd=tmp_path,
+            env=env,
+            capture_output=True,
+            text=True,
+            stdin=subprocess.DEVNULL,
+            timeout=120,
+            check=False,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert result.stdout.startswith("IMPORTERROR:"), result.stdout
+        return result.stdout
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_below_the_floor_fails_at_import_with_the_fix(self, tmp_path):
+        major, cuda_version, floor = self._build()
+        below = f"{major}.0.1"
+        message = self._import_error(below, major * 1000, tmp_path)
+        assert f"requires cuda-bindings >= {format_version(floor)} for CUDA {major}" in message
+        assert f'pip install -U "cuda-bindings>={format_version(floor)},=={major}.*"' in message
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_bindings_from_an_older_header_fail_at_import(self, tmp_path):
+        major, cuda_version, floor = self._build()
+        # At the floor by version, but generated from a header one minor below the build's.
+        message = self._import_error(format_version(floor), cuda_version - 10, tmp_path)
+        assert f"was built against CUDA {major}.{header_minor(cuda_version)[1]} headers" in message
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_unparseable_version_fails_at_import(self, tmp_path):
+        major, cuda_version, floor = self._build()
+        # A major but no release triple. The build's major keeps the merged wheel on its cu<major>
+        # build; a foreign major (a shallow clone's 0.1.dev1) stops earlier there with "no build for CUDA 0".
+        no_triple = f"{major}.4"
+        message = self._import_error(no_triple, cuda_version, tmp_path)
+        assert f"a cuda-bindings {major}.x release is required (found {no_triple})" in message
+        # No major at all.
+        message = self._import_error("garbage", cuda_version, tmp_path)
+        assert "a cuda-bindings release must be installed (found version 'garbage')" in message
 
 
 class TestConsistencyHook:
@@ -238,10 +328,11 @@ class TestConsistencyHook:
         assert "pyproject.toml: the 'cu13' extra must pin cuda-bindings" in capsys.readouterr().err
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
-    def test_ci_toolkit_pins_must_sit_in_the_floors_minor(self, hook):
+    def test_ci_toolkit_pins_must_not_sit_below_the_floors_minor(self, hook):
         floors = {12: (12, 9, 8), 13: (13, 4, 1)}
         good = 'cuda:\n  build:\n    version: "13.4.2"\n  prev_build:\n    version: "12.9.1"\n'
         assert hook.ci_pin_problems(floors, good) == []
+        assert hook.ci_pin_problems(floors, good.replace("13.4.2", "13.5.0")) == []  # the toolkit-bump window
         stale = good.replace("13.4.2", "13.3.0")
         (problem,) = hook.ci_pin_problems(floors, stale)
         assert "cuda.build.version is 13.3 but the CUDA 13 floor is cuda-bindings 13.4.1" in problem

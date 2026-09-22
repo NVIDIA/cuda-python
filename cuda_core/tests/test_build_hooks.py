@@ -456,18 +456,23 @@ class TestParallelSourceCompilation:
             assert cmd.compiler.compile(["a.cpp"]) == "stock"
 
 
-def _fake_bindings(monkeypatch, version):
-    """Make the build see an installed cuda-bindings of `version` (None: not installed)."""
-    import types
+def _fake_bindings(monkeypatch, version, cuda_version=None):
+    """Make the build see an installed cuda-bindings of `version` (None: not installed),
+    generated from the header `cuda_version` (default: the header of its major.minor)."""
 
-    def import_cuda_bindings():
+    def installed_cuda_bindings():
         if version is None:
             raise ModuleNotFoundError("No module named 'cuda.bindings'", name="cuda.bindings")
-        module = types.ModuleType("cuda.bindings")
-        module.__version__ = version
-        return module
+        if cuda_version is not None:
+            return version, cuda_version
+        major, minor = (int(part) for part in version.split(".")[:2])
+        return version, major * 1000 + minor * 10
 
-    monkeypatch.setattr(build_hooks, "_import_cuda_bindings", import_cuda_bindings)
+    monkeypatch.setattr(build_hooks, "_installed_cuda_bindings", installed_cuda_bindings)
+
+
+def _floor_str(major):
+    return ".".join(str(part) for part in build_hooks._bindings_floors()[major])
 
 
 def _write_cuda_h(tmp_path, cuda_version):
@@ -529,29 +534,40 @@ class TestBuildConfigurationCheck:
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_bindings_of_another_major_fail(self, tmp_path, monkeypatch):
-        _fake_bindings(monkeypatch, "13.4.1")
+        _fake_bindings(monkeypatch, _floor_str(13))
         cuda_path = _write_cuda_h(tmp_path, 12090)
         with pytest.raises(
-            RuntimeError, match="Building cuda.core for CUDA 12, but the installed cuda-bindings is 13.4.1"
+            RuntimeError, match=f"Building cuda.core for CUDA 12, but the installed cuda-bindings is {_floor_str(13)}"
         ):
             build_hooks._check_build_configuration(cuda_path, "12")
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     @pytest.mark.parametrize("header", [13030, 13050, 12090])
     def test_header_minor_must_match_bindings(self, tmp_path, monkeypatch, header):
-        _fake_bindings(monkeypatch, "13.4.1")
+        _fake_bindings(monkeypatch, _floor_str(13))
         cuda_path = _write_cuda_h(tmp_path, header)
-        with pytest.raises(RuntimeError, match="same major.minor as its cuda-bindings"):
+        with pytest.raises(RuntimeError, match="must be built against the cuda.h its cuda-bindings was generated from"):
             build_hooks._check_build_configuration(cuda_path, "13")
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_header_is_read_even_when_the_major_override_is_set(self, tmp_path, monkeypatch):
         # CUDA_CORE_BUILD_MAJOR skips header detection of the major, not this check.
         monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
-        _fake_bindings(monkeypatch, "13.4.1")
+        _fake_bindings(monkeypatch, _floor_str(13))
         cuda_path = _write_cuda_h(tmp_path, 13030)
-        with pytest.raises(RuntimeError, match="same major.minor"):
+        with pytest.raises(RuntimeError, match="was generated from CUDA 13.4 headers"):
             build_hooks._check_build_configuration(cuda_path, "13")
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_development_bindings_pass_on_their_generated_header(self, tmp_path, monkeypatch):
+        """The header rule compares headers, not version strings: a cuda-bindings built from
+        main after a toolkit bump still carries the previous release's version string."""
+        floor = self.FLOOR[13]
+        new_header = floor[0] * 1000 + (floor[1] + 1) * 10
+        _fake_bindings(monkeypatch, f"{floor[0]}.{floor[1]}.{floor[2]}.dev5+gabcdef0", cuda_version=new_header)
+        cuda_path = _write_cuda_h(tmp_path, new_header)
+        build_hooks._check_build_configuration(cuda_path, "13")
+        assert f"CUDA_VERSION = {new_header}" in build_hooks._BUILD_INFO_PATH.read_text()
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_missing_bindings_is_a_build_error(self, tmp_path, monkeypatch):
@@ -608,14 +624,61 @@ class TestBindingsFloorsFromPyproject:
 
 
 class TestBuildRequirement:
+    """get_requires_for_build_wheel pins cuda-bindings for isolated builds: the floor, and the
+    header's minor when cuda.h is readable, so pip cannot pick a newer minor than the toolkit."""
+
+    @staticmethod
+    def _no_cuda_path():
+        raise RuntimeError("no CUDA")
+
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     @pytest.mark.parametrize("major", ["12", "13"])
-    def test_pins_the_floor_and_the_major(self, monkeypatch, major):
+    def test_pins_the_floor_and_the_major_without_a_header(self, monkeypatch, major):
         monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", major)
+        monkeypatch.setattr(build_hooks, "_get_cuda_path", self._no_cuda_path)
         build_hooks._determine_cuda_major_version.cache_clear()
         floor = build_hooks._bindings_floors()[int(major)]
         (requirement,) = build_hooks._get_cuda_bindings_require()
         assert requirement == f"cuda-bindings>={floor[0]}.{floor[1]}.{floor[2]},=={major}.*"
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_caps_at_the_headers_minor_when_cuda_h_is_readable(self, tmp_path, monkeypatch):
+        from packaging.specifiers import SpecifierSet
+
+        monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
+        build_hooks._determine_cuda_major_version.cache_clear()
+        floor = build_hooks._bindings_floors()[13]
+        cuda_path = _write_cuda_h(tmp_path, floor[0] * 1000 + (floor[1] + 1) * 10)
+        monkeypatch.setattr(build_hooks, "_get_cuda_path", lambda: cuda_path)
+        (requirement,) = build_hooks._get_cuda_bindings_require()
+        assert requirement == f"cuda-bindings>={floor[0]}.{floor[1]}.{floor[2]},==13.*,<13.{floor[1] + 2}"
+        specifiers = SpecifierSet(requirement.removeprefix("cuda-bindings"))
+        # The dev cuda-bindings built alongside a toolkit bump still carries the old minor's version string.
+        assert specifiers.contains(f"13.{floor[1]}.{floor[2] + 1}.dev133", prereleases=True)
+        assert specifiers.contains(f"13.{floor[1] + 1}.0")
+        assert not specifiers.contains(f"13.{floor[1] + 2}.0")  # a newer minor on PyPI stays out
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_requests_the_floor_alone_when_the_header_is_of_another_major(self, tmp_path, monkeypatch):
+        # CUDA_CORE_BUILD_MAJOR=13 with a CUDA 12 toolkit: the configuration check reports the mismatch.
+        monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
+        build_hooks._determine_cuda_major_version.cache_clear()
+        floor = build_hooks._bindings_floors()[13]
+        cuda_path = _write_cuda_h(tmp_path, 12090)
+        monkeypatch.setattr(build_hooks, "_get_cuda_path", lambda: cuda_path)
+        (requirement,) = build_hooks._get_cuda_bindings_require()
+        assert requirement == f"cuda-bindings>={floor[0]}.{floor[1]}.{floor[2]},==13.*"
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_requests_the_floor_alone_when_the_header_is_below_it(self, tmp_path, monkeypatch):
+        # The configuration check reports this mismatch in its own words.
+        monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
+        build_hooks._determine_cuda_major_version.cache_clear()
+        floor = build_hooks._bindings_floors()[13]
+        cuda_path = _write_cuda_h(tmp_path, floor[0] * 1000 + (floor[1] - 1) * 10)
+        monkeypatch.setattr(build_hooks, "_get_cuda_path", lambda: cuda_path)
+        (requirement,) = build_hooks._get_cuda_bindings_require()
+        assert requirement == f"cuda-bindings>={floor[0]}.{floor[1]}.{floor[2]},==13.*"
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_unsupported_major_names_the_supported_ones(self, monkeypatch):

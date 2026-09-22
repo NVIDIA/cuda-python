@@ -49,17 +49,33 @@ change that uses a `cuda-bindings` API newer than the old floor. To bump:
 
 1. Edit the `cuda-bindings` pin in the `cu12` or `cu13` extra in
    `pyproject.toml`. That is the only version to type.
-2. Align `ci/versions.yml`: the `build` (current major) and `prev_build` (prior
-   major) toolkit pins must share major.minor with the floors, or CI builds a
-   configuration the build rejects. The pre-commit hook
-   `check-cuda-core-bindings-floor` (`toolshed/check_cuda_core_bindings_floor.py`)
-   checks this, and that no documentation page spells a floor out by hand.
+2. Check `ci/versions.yml`: the `build` (current major) and `prev_build` (prior
+   major) toolkit pins must not sit below the floors' major.minor, or CI builds a
+   configuration the build rejects; a toolkit ahead of the floor is the bump
+   window described below. The pre-commit hook `check-cuda-core-bindings-floor`
+   (`toolshed/check_cuda_core_bindings_floor.py`) checks this, and that no
+   documentation page spells a floor out by hand.
 3. Add a "Breaking Changes" entry to the release notes naming the new floors.
    The support-policy table in `docs/source/support.rst` reads the floors and
    the release version at docs-build time; there is nothing to edit there.
 4. Refresh the pixi lock files if the pins moved past what they resolve.
 5. Pin `cuda-bindings` accordingly in the conda-forge `cuda-core` feedstock
    (outside this repository).
+
+### CUDA Toolkit minor bumps
+
+The build compares the toolkit's `cuda.h` with the header the installed
+`cuda-bindings` was generated from (`cuda.bindings.driver.CUDA_VERSION`), not
+with its version string, so the commit that moves `ci/versions.yml` to a new
+minor builds `cuda.core` against the `cuda-bindings` built from the same
+commit (isolated builds request `cuda-bindings` no newer than the toolkit's
+minor, a cap that admits that development build). The import-time check
+compares headers the same way. The floor stays
+where it is until a `cuda-bindings` release of the new minor exists on PyPI;
+until then the CI rows that install the literal floor (`BINDINGS_SOURCE=floor`)
+fail the header check and stay red. That window is accepted; do not add
+fallback logic for it. Order: bump the toolkit, release `cuda-bindings` for the
+new minor, then bump the floor here.
 
 ## Testing expectations
 
@@ -178,7 +194,7 @@ below are for contributors. Reviewers and agents should flag violations.
   uses `warnings.warn(..., CUDAWarning)`; a CUDA callback thread does nothing
   that needs the GIL and hands its work to the deferred-cleanup queue
   (`Py_AddPendingCall` is GIL-free and allowed there). The table in
-  `_cpp/DESIGN.md` ("Which channel to use") spells this out.
+  `_cpp/rt/DESIGN.md` ("Which channel to use") spells this out.
 - **`pw_*` runs user Python**: a `p_` pointer only calls the driver; its `pw_`
   twin also acquires the GIL on failure and runs the warning filters,
   `showwarning`, or `sys.unraisablehook`, any of which may call back into

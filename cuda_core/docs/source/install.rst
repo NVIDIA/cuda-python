@@ -71,8 +71,9 @@ Same as above, ``cuda.core`` can be installed in a CUDA 12 or 13 environment. Fo
 
 and likewise use ``cuda-version=13`` for CUDA 13.
 
-The conda-forge package pins ``cuda-bindings`` to the version it was built against, so a
-compatible ``cuda-bindings`` is installed alongside it.
+The conda-forge package depends on ``cuda-bindings`` of the same CUDA major; the
+``cuda-bindings`` floor of the release (see :ref:`cuda-core-bindings-floor`) applies to it as
+well.
 
 
 Development environment
@@ -162,9 +163,12 @@ Installing from Source
 A source build requires two things to agree (see :ref:`cuda-core-bindings-floor`):
 
 - ``cuda-bindings`` 12.x or 13.x at or above the release's floor for that major. An isolated
-  build (the default ``pip install``) installs it; other builds must provide it.
+  build (the default ``pip install``) installs one no newer than the toolkit's minor; other
+  builds must provide it.
 - A CUDA Toolkit, located through ``CUDA_PATH`` or ``CUDA_HOME``, whose ``cuda.h`` has the same
-  major.minor as that ``cuda-bindings``. The build fails early otherwise.
+  major.minor as the header that ``cuda-bindings`` was generated from. The build fails early
+  otherwise. To build against a particular ``cuda-bindings`` in an isolated build, constrain it
+  with ``PIP_CONSTRAINT``; or use ``--no-build-isolation`` with it installed.
 
 .. note::
 

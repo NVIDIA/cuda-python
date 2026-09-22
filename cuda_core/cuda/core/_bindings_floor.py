@@ -16,8 +16,9 @@ in ``pyproject.toml``, each of which pins ``cuda-bindings>=<floor>,==<major>.*``
 Everything else derives from them through :func:`floors_from_extras`:
 
 - the build backend (``build_hooks.py``) checks the installed cuda-bindings
-  and header against the floor and records the floor of the build in the
-  generated ``_build_info.py``;
+  against the floor, checks that the ``cuda.h`` it compiles against is the one
+  that cuda-bindings was generated from, and records the floor and the header
+  in the generated ``_build_info.py``;
 - ``cuda/core/__init__.py`` checks the installed cuda-bindings against that
   record with :func:`check_installed_bindings`;
 - the documentation reads the floors into substitutions (``docs/source/conf.py``);
@@ -41,7 +42,6 @@ __all__ = [
     "floors_from_extras",
     "format_version",
     "release_triple",
-    "required_minimum",
 ]
 
 _RELEASE_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)")
@@ -126,20 +126,14 @@ def bindings_requirement(floor: tuple[int, int, int]) -> str:
     return f"cuda-bindings>={format_version(floor)},=={floor[0]}.*"
 
 
-def required_minimum(floor: tuple[int, int, int], header_cuda_version: int) -> tuple[int, int, int]:
-    """The minimum cuda-bindings a build accepts at run time.
-
-    A build accepts the floor of its major series, and never a cuda-bindings
-    whose minor is older than the ``cuda.h`` the build compiled against: the
-    driver function-pointer keys the C++ layer looks up in cuda-bindings are
-    derived from that header's macros, so an older minor may lack them.
-    """
-    header_minor = (header_cuda_version // 1000, header_cuda_version // 10 % 100, 0)
-    return max(floor, header_minor)
+def header_minor(cuda_version: int) -> tuple[int, int]:
+    """The (major, minor) of a ``CUDA_VERSION`` macro value: 13040 -> (13, 4)."""
+    return cuda_version // 1000, cuda_version // 10 % 100
 
 
 def check_installed_bindings(
     installed_version: str,
+    installed_cuda_version: int,
     build_cuda_major: int,
     build_cuda_version: int,
     build_floor: tuple[int, int, int],
@@ -147,10 +141,18 @@ def check_installed_bindings(
 ) -> tuple[int, int, int]:
     """Validate the installed cuda-bindings against a build; return its triple.
 
-    ``build_cuda_major``, ``build_cuda_version`` and ``build_floor`` are the
-    build's record in ``_build_info.py``. Raises ImportError with an actionable
-    message when the installed cuda-bindings is not a release, is not of the
-    major this build was compiled for, or is older than the build's minimum.
+    ``installed_version`` and ``installed_cuda_version`` are the installed
+    cuda-bindings' ``__version__`` and ``driver.CUDA_VERSION`` (the ``cuda.h``
+    it was generated from, e.g. 13040); ``build_cuda_major``,
+    ``build_cuda_version`` and ``build_floor`` are the build's record in
+    ``_build_info.py``. Raises ImportError with an actionable message when the
+    installed cuda-bindings is not a release, is not of the major this build
+    was compiled for, is older than the floor, or was generated from an older
+    ``cuda.h`` minor than the build compiled against: the driver function
+    table the C++ layer looks up in cuda-bindings is keyed by that header's
+    macros, so an older minor may lack entries. Headers are compared as
+    ``CUDA_VERSION`` values, not version strings, because a development build
+    of cuda-bindings carries the previous release's version string.
     """
     installed = release_triple(installed_version)
     if installed is None:
@@ -160,13 +162,20 @@ def check_installed_bindings(
         raise ImportError(
             f"this cuda.core {core_version} build is for CUDA {build_cuda_major}, but the installed "
             f"cuda-bindings is {installed_version}. Install cuda-bindings {build_cuda_major}.x "
-            f"(pip install 'cuda-bindings=={build_cuda_major}.*'), or a cuda.core build for CUDA {major} if one exists."
+            f'(pip install "cuda-bindings=={build_cuda_major}.*"), or a cuda.core build for CUDA {major} if one exists.'
         )
-    minimum = required_minimum(build_floor, build_cuda_version)
-    if installed < minimum:
-        floor = format_version(minimum)
+    if installed < tuple(build_floor):
+        floor = format_version(build_floor)
         raise ImportError(
             f"cuda.core {core_version} requires cuda-bindings >= {floor} for CUDA {major} "
-            f"(found {installed_version}). Upgrade with: pip install -U 'cuda-bindings>={floor},=={major}.*'"
+            f'(found {installed_version}). Upgrade with: pip install -U "cuda-bindings>={floor},=={major}.*"'
+        )
+    built_against, generated_from = header_minor(build_cuda_version), header_minor(installed_cuda_version)
+    if generated_from < built_against:
+        needed = f"{built_against[0]}.{built_against[1]}"
+        raise ImportError(
+            f"cuda.core {core_version} was built against CUDA {needed} headers, but the installed cuda-bindings "
+            f"{installed_version} was generated from CUDA {generated_from[0]}.{generated_from[1]} headers. "
+            f'Install cuda-bindings {needed} or newer: pip install -U "cuda-bindings>={needed}.0,=={major}.*"'
         )
     return installed
