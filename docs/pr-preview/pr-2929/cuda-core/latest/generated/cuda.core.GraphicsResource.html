@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=3e8d1da3"></script>
+    <script src="../_static/documentation_options.js?v=d558c45c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev118';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev44';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -235,13 +235,6 @@
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../concurrency.html">
     Concurrency and Thread Safety
-  </a>
-</li>
-
-
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../error_handling.html">
-    Error Handling
   </a>
 </li>
 
@@ -477,13 +470,6 @@
 </li>
 
 
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../error_handling.html">
-    Error Handling
-  </a>
-</li>
-
-
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core API Reference
@@ -584,7 +570,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../concurrency.html">Concurrency and Thread Safety</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../error_handling.html">Error Handling</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Device.html">cuda.core.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Host.html">cuda.core.Host</a></li>
@@ -664,9 +649,6 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAError.html">cuda.core.CUDAError</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.NVRTCError.html">cuda.core.NVRTCError</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.copy_batch.html">cuda.core.utils.copy_batch</a></li>
@@ -886,7 +868,7 @@ The returned resource can be used as a context manager. If
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><strong>CUDAError</strong></a> – If the registration fails (e.g., no current GL context, invalid
+<li><p><strong>CUDAError</strong> – If the registration fails (e.g., no current GL context, invalid
     buffer name, or operating system error).</p></li>
 <li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If an unknown flag string is provided.</p></li>
 </ul>
@@ -930,7 +912,7 @@ Defaults to <code class="docutils literal notranslate"><span class="pre">None</s
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><strong>CUDAError</strong></a> – If the registration fails.</p></li>
+<li><p><strong>CUDAError</strong> – If the registration fails.</p></li>
 <li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If an unknown flag string is provided.</p></li>
 </ul>
 </dd>
@@ -965,7 +947,7 @@ unmapped.</p>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If the resource is already mapped or has been closed.</p></li>
-<li><p><a class="reference internal" href="cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><strong>CUDAError</strong></a> – If the mapping fails.</p></li>
+<li><p><strong>CUDAError</strong> – If the mapping fails.</p></li>
 </ul>
 </dd>
 </dl>
@@ -993,7 +975,7 @@ mapped buffer is closed. Otherwise the mapping stream is reused.</p>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If the resource is not currently mapped or has been closed.</p></li>
-<li><p><a class="reference internal" href="cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><strong>CUDAError</strong></a> – If the unmapping fails.</p></li>
+<li><p><strong>CUDAError</strong> – If the unmapping fails.</p></li>
 </ul>
 </dd>
 </dl>

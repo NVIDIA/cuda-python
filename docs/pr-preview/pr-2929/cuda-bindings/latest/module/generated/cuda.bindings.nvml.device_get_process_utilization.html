@@ -537,7 +537,6 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../release/13.5.0-notes.html">13.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.2-notes.html">13.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.1-notes.html">13.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.0-notes.html">13.4.0</a></li>
@@ -550,7 +549,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
@@ -1376,31 +1374,6 @@
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_get_process_utilization" title="Link to this definition">#</a></dt>
 <dd><p>Retrieves the current utilization and process ID.</p>
-<p>For Maxwell ™️ or newer fully supported devices.
-Reads recent utilization of GPU SM (3D/Compute), framebuffer, video encoder,
-and video decoder for processes running. Utilization values are returned as an
-array of utilization sample structures in the caller-supplied buffer pointed at
-by <code class="docutils literal notranslate"><span class="pre">utilization</span></code>. One utilization sample structure is returned per process
-running, that had some non-zero utilization during the last sample period. It
-includes the CPU timestamp at which the samples were recorded. Individual
-utilization values are returned as “unsigned int” values. If no valid sample
-entries are found since the last_seen_time_stamp, NVML_ERROR_NOT_FOUND is
-returned.
-To read utilization values, first determine the size of buffer required to hold
-the samples by invoking the function with <code class="docutils literal notranslate"><span class="pre">utilization</span></code> set to NULL. The
-caller should allocate a buffer of size process_samples_count *
-sizeof(nvmlProcessUtilizationSample_t). Invoke the function again with the
-allocated buffer passed in <code class="docutils literal notranslate"><span class="pre">utilization</span></code>, and <code class="docutils literal notranslate"><span class="pre">process_samples_count</span></code> set
-to the number of entries the buffer is sized for.
-On successful return, the function updates <code class="docutils literal notranslate"><span class="pre">process_samples_count</span></code> with the
-number of process utilization sample structures that were actually written.
-This may differ from a previously read value as instances are created or
-destroyed.
-last_seen_time_stamp represents the CPU timestamp in microseconds at which
-utilization samples were last read. Set it to 0 to read utilization based on
-all the samples maintained by the driver’s internal sample buffer. Set
-last_seen_time_stamp to a timeStamp retrieved from a previous query to read
-utilization since the previous query.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1411,7 +1384,8 @@ with timestamp greater than last_seen_time_stamp.</p></li>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>Pointer to caller-supplied buffer</dt><dd><p>in which guest process utilization samples are returned.</p>
+<dt>Pointer to caller-supplied</dt><dd><p>buffer in which guest process utilization samples are
+returned.</p>
 </dd>
 </dl>
 </p>
@@ -1420,10 +1394,6 @@ with timestamp greater than last_seen_time_stamp.</p></li>
 <dd class="field-odd"><p>nvmlProcessUtilizationSample_t</p>
 </dd>
 </dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>On MIG-enabled GPUs, querying process utilization is not currently supported.</p>
-</div>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><cite>nvmlDeviceGetProcessUtilization</cite></p>

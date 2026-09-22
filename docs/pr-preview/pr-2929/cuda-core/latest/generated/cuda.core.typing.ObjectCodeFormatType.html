@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=3e8d1da3"></script>
+    <script src="../_static/documentation_options.js?v=d558c45c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev118';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev44';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -233,13 +233,6 @@
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../concurrency.html">
     Concurrency and Thread Safety
-  </a>
-</li>
-
-
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../error_handling.html">
-    Error Handling
   </a>
 </li>
 
@@ -476,13 +469,6 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../error_handling.html">
-    Error Handling
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core API Reference
   </a>
@@ -582,7 +568,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../concurrency.html">Concurrency and Thread Safety</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../error_handling.html">Error Handling</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Device.html">cuda.core.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Host.html">cuda.core.Host</a></li>
@@ -662,9 +647,6 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAError.html">cuda.core.CUDAError</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.NVRTCError.html">cuda.core.NVRTCError</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.copy_batch.html">cuda.core.utils.copy_batch</a></li>
@@ -799,7 +781,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">CUBIN</span></code> — device-native CUDA binary.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">LTOIR</span></code> — LTO (link-time optimization) IR for later linking.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">FATBIN</span></code> — fat binary bundling multiple device images.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — host object containing device code.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — relocatable device object.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">LIBRARY</span></code> — device code library.</p></li>
 </ul>
 <dl class="simple">
@@ -809,7 +791,7 @@
     * <code class="docutils literal notranslate"><span class="pre">CUBIN</span></code> — device-native CUDA binary.
     * <code class="docutils literal notranslate"><span class="pre">LTOIR</span></code> — LTO (link-time optimization) IR for later linking.
     * <code class="docutils literal notranslate"><span class="pre">FATBIN</span></code> — fat binary bundling multiple device images.
-    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — host object containing device code.
+    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — relocatable device object.
     * <code class="docutils literal notranslate"><span class="pre">LIBRARY</span></code> — device code library.</p>
 </dd>
 <dt><strong>CUBIN</strong>: cubin</dt><dd><p>Output format for <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a>, <a class="reference internal" href="cuda.core.Linker.html#cuda.core.Linker.link" title="cuda.core.Linker.link"><code class="xref py py-meth docutils literal notranslate"><span class="pre">link()</span></code></a>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_bytes()</span></code>.
@@ -818,7 +800,7 @@
     * <code class="docutils literal notranslate"><span class="pre">CUBIN</span></code> — device-native CUDA binary.
     * <code class="docutils literal notranslate"><span class="pre">LTOIR</span></code> — LTO (link-time optimization) IR for later linking.
     * <code class="docutils literal notranslate"><span class="pre">FATBIN</span></code> — fat binary bundling multiple device images.
-    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — host object containing device code.
+    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — relocatable device object.
     * <code class="docutils literal notranslate"><span class="pre">LIBRARY</span></code> — device code library.</p>
 </dd>
 <dt><strong>LTOIR</strong>: ltoir</dt><dd><p>Output format for <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a>, <a class="reference internal" href="cuda.core.Linker.html#cuda.core.Linker.link" title="cuda.core.Linker.link"><code class="xref py py-meth docutils literal notranslate"><span class="pre">link()</span></code></a>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_bytes()</span></code>.
@@ -827,7 +809,7 @@
     * <code class="docutils literal notranslate"><span class="pre">CUBIN</span></code> — device-native CUDA binary.
     * <code class="docutils literal notranslate"><span class="pre">LTOIR</span></code> — LTO (link-time optimization) IR for later linking.
     * <code class="docutils literal notranslate"><span class="pre">FATBIN</span></code> — fat binary bundling multiple device images.
-    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — host object containing device code.
+    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — relocatable device object.
     * <code class="docutils literal notranslate"><span class="pre">LIBRARY</span></code> — device code library.</p>
 </dd>
 <dt><strong>FATBIN</strong>: fatbin</dt><dd><p>Output format for <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a>, <a class="reference internal" href="cuda.core.Linker.html#cuda.core.Linker.link" title="cuda.core.Linker.link"><code class="xref py py-meth docutils literal notranslate"><span class="pre">link()</span></code></a>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_bytes()</span></code>.
@@ -836,7 +818,7 @@
     * <code class="docutils literal notranslate"><span class="pre">CUBIN</span></code> — device-native CUDA binary.
     * <code class="docutils literal notranslate"><span class="pre">LTOIR</span></code> — LTO (link-time optimization) IR for later linking.
     * <code class="docutils literal notranslate"><span class="pre">FATBIN</span></code> — fat binary bundling multiple device images.
-    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — host object containing device code.
+    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — relocatable device object.
     * <code class="docutils literal notranslate"><span class="pre">LIBRARY</span></code> — device code library.</p>
 </dd>
 <dt><strong>OBJECT</strong>: object</dt><dd><p>Output format for <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a>, <a class="reference internal" href="cuda.core.Linker.html#cuda.core.Linker.link" title="cuda.core.Linker.link"><code class="xref py py-meth docutils literal notranslate"><span class="pre">link()</span></code></a>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_bytes()</span></code>.
@@ -845,7 +827,7 @@
     * <code class="docutils literal notranslate"><span class="pre">CUBIN</span></code> — device-native CUDA binary.
     * <code class="docutils literal notranslate"><span class="pre">LTOIR</span></code> — LTO (link-time optimization) IR for later linking.
     * <code class="docutils literal notranslate"><span class="pre">FATBIN</span></code> — fat binary bundling multiple device images.
-    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — host object containing device code.
+    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — relocatable device object.
     * <code class="docutils literal notranslate"><span class="pre">LIBRARY</span></code> — device code library.</p>
 </dd>
 <dt><strong>LIBRARY</strong>: library</dt><dd><p>Output format for <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a>, <a class="reference internal" href="cuda.core.Linker.html#cuda.core.Linker.link" title="cuda.core.Linker.link"><code class="xref py py-meth docutils literal notranslate"><span class="pre">link()</span></code></a>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_bytes()</span></code>.
@@ -854,7 +836,7 @@
     * <code class="docutils literal notranslate"><span class="pre">CUBIN</span></code> — device-native CUDA binary.
     * <code class="docutils literal notranslate"><span class="pre">LTOIR</span></code> — LTO (link-time optimization) IR for later linking.
     * <code class="docutils literal notranslate"><span class="pre">FATBIN</span></code> — fat binary bundling multiple device images.
-    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — host object containing device code.
+    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — relocatable device object.
     * <code class="docutils literal notranslate"><span class="pre">LIBRARY</span></code> — device code library.</p>
 </dd>
 </dl>

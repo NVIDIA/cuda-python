@@ -537,7 +537,6 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../release/13.5.0-notes.html">13.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.2-notes.html">13.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.1-notes.html">13.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.0-notes.html">13.4.0</a></li>
@@ -550,7 +549,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
@@ -1371,14 +1369,10 @@
 <dd><p>Sets maximum buffer space that is pinned in KB for use by <code class="docutils literal notranslate"><span class="pre">cuFileBufRegister</span></code> This takes place before the driver is opened. No-op if driver is already open.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>max_pinned_size</strong> (<em>size_t</em>) – maximum buffer space that is pinned in
-KB.</p>
+<dd class="field-odd"><p><strong>max_pinned_size</strong> (<em>size_t</em>) – maximum buffer space that is pinned
+in KB.</p>
 </dd>
 </dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is an advanced command and should be tuned based on supported GPU memory.</p>
-</div>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><cite>cuFileDriverSetMaxPinnedMemSize</cite></p>

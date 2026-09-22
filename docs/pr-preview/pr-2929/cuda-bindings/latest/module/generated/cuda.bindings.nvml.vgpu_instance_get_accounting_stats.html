@@ -537,7 +537,6 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../release/13.5.0-notes.html">13.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.2-notes.html">13.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.1-notes.html">13.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.0-notes.html">13.4.0</a></li>
@@ -550,7 +549,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
@@ -1376,28 +1374,18 @@
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.vgpu_instance_get_accounting_stats" title="Link to this definition">#</a></dt>
 <dd><p>Queries process’s accounting stats.</p>
-<p>For Maxwell ™️ or newer fully supported devices.
-Accounting stats capture GPU utilization and other statistics across the
-lifetime of a process, and can be queried during life time of the process or
-after its termination. The time field in <code class="docutils literal notranslate"><span class="pre">nvmlAccountingStats_t</span></code> is reported
-as 0 during the lifetime of the process and updated to actual running time
-after its termination. Accounting stats are kept in a circular buffer, newly
-created processes overwrite information about old processes.
-See <code class="docutils literal notranslate"><span class="pre">nvmlAccountingStats_t</span></code> for description of each returned metric. List of
-processes that can be queried can be retrieved from
-<code class="docutils literal notranslate"><span class="pre">nvmlVgpuInstanceGetAccountingPids</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vgpu_instance</strong> (<em>unsigned int</em>) – The identifier of the target vGPU
-instance.</p></li>
+<li><p><strong>vgpu_instance</strong> (<em>unsigned int</em>) – The identifier of the target
+vGPU instance.</p></li>
 <li><p><strong>pid</strong> (<em>unsigned int</em>) – Process Id of the target process to query
 stats for.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>Reference in which to return the process’s</dt><dd><p>accounting stats.</p>
+<dt>Reference in which to return the</dt><dd><p>process’s accounting stats.</p>
 </dd>
 </dl>
 </p>
@@ -1406,21 +1394,6 @@ stats for.</p></li>
 <dd class="field-odd"><p>nvmlAccountingStats_t</p>
 </dd>
 </dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Accounting Mode needs to be on. See <code class="docutils literal notranslate"><span class="pre">nvmlVgpuInstanceGetAccountingMode</span></code>.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Only compute and graphics applications stats can be queried. Monitoring
-applications stats can’t be queried since they don’t contribute to GPU
-utilization.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>In case of pid collision stats of only the latest process (that terminated
-last) will be reported.</p>
-</div>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><cite>nvmlVgpuInstanceGetAccountingStats</cite></p>
