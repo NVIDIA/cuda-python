@@ -406,6 +406,42 @@ cdef cudaError_t getDescInfo(const cudaChannelFormatDesc* d, int *numberOfChanne
     elif case_desc(d, 10, 10, 10, 2, cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized1010102):
         numberOfChannels[0] = 4
         format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT_101010_2
+    elif case_desc(d, 8, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X1):
+        numberOfChannels[0] = 1
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT8X1
+    elif case_desc(d, 8, 8, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X2):
+        numberOfChannels[0] = 2
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT8X2
+    elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X4):
+        numberOfChannels[0] = 4
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT8X4
+    elif case_desc(d, 8, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X1):
+        numberOfChannels[0] = 1
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT8X1
+    elif case_desc(d, 8, 8, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X2):
+        numberOfChannels[0] = 2
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT8X2
+    elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X4):
+        numberOfChannels[0] = 4
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT8X4
+    elif case_desc(d, 16, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X1):
+        numberOfChannels[0] = 1
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT16X1
+    elif case_desc(d, 16, 16, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X2):
+        numberOfChannels[0] = 2
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT16X2
+    elif case_desc(d, 16, 16, 16, 16, cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X4):
+        numberOfChannels[0] = 4
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT16X4
+    elif case_desc(d, 16, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X1):
+        numberOfChannels[0] = 1
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT16X1
+    elif case_desc(d, 16, 16, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X2):
+        numberOfChannels[0] = 2
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT16X2
+    elif case_desc(d, 16, 16, 16, 16, cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X4):
+        numberOfChannels[0] = 4
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT16X4
     else:
         return cudaErrorInvalidChannelDescriptor
 

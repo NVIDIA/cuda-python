@@ -655,6 +655,70 @@ def test_coredump_bool_uses_single_byte_storage():
     assert helper.pyObj() is False
 
 
+@pytest.mark.agent_authored(model="grok-4.7")
+def test_ffi_coverage_new_pointer_attributes():
+    new_attrs = [
+        driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MAPPING_SIZE,
+        driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_BLOCK_ID,
+        driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_HW_DECOMPRESS_CAPABLE,
+    ]
+    for attr in new_attrs:
+        helper = driver._HelperCUpointer_attribute(attr, 0, is_getter=True)
+        assert helper.cptr != 0
+        _ = helper.pyObj()
+
+
+@pytest.mark.agent_authored(model="grok-4.7")
+def test_ffi_coverage_mapping_base_addr():
+    helper = driver._HelperCUpointer_attribute(
+        driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MAPPING_BASE_ADDR, 0, is_getter=True
+    )
+    assert helper.cptr != 0
+    _ = helper.pyObj()
+
+
+@pytest.mark.agent_authored(model="grok-4.7")
+def test_ffi_coverage_new_mem_range_attributes():
+    new_attrs = [
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_TYPE,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_ID,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_TYPE,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_ID,
+    ]
+    for attr in new_attrs:
+        helper = driver._HelperCUmem_range_attribute(attr, 4)
+        assert helper.cptr != 0
+        assert helper.pyObj() == 0
+
+
+@pytest.mark.agent_authored(model="grok-4.7")
+def test_ffi_coverage_jit_option_new_int_attrs():
+    """These options encode the int value in the void* slot, so cptr is 1 when the value is 1."""
+    new_int_attrs = [
+        driver.CUjit_option.CU_JIT_POSITION_INDEPENDENT_CODE,
+        driver.CUjit_option.CU_JIT_MAX_THREADS_PER_BLOCK,
+        driver.CUjit_option.CU_JIT_OVERRIDE_DIRECTIVE_VALUES,
+    ]
+    for attr in new_int_attrs:
+        helper = driver._HelperCUjit_option(attr, 1)
+        assert helper.cptr == 1
+
+
+@pytest.mark.agent_authored(model="grok-4.7")
+def test_ffi_coverage_jit_wall_time_pointer_is_valid():
+    helper = driver._HelperCUjit_option(driver.CUjit_option.CU_JIT_WALL_TIME, 0.0)
+    ctypes.c_float.from_address(helper.cptr).value = 3.14
+    assert ctypes.c_float.from_address(helper.cptr).value == pytest.approx(3.14, rel=1e-5)
+
+
+@pytest.mark.agent_authored(model="grok-4.7")
+def test_ffi_coverage_coredump_generation_flags():
+    helper = driver._HelperCUcoredumpSettings(driver.CUcoredumpSettings.CU_COREDUMP_GENERATION_FLAGS, 0, is_getter=True)
+    assert helper.size() == ctypes.sizeof(ctypes.c_uint)
+    ctypes.c_uint.from_address(helper.cptr).value = 0xDEAD
+    assert helper.pyObj() == 0xDEAD
+
+
 def test_get_error_name_and_string():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
