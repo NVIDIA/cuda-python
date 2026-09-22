@@ -13,6 +13,7 @@ import os
 import re
 import shutil
 import sys
+import sysconfig
 import tempfile
 import zipfile
 from pathlib import Path
@@ -250,10 +251,19 @@ _extensions = None
 # than the cwd, since a project can be built from anywhere.
 _BUILD_DIR = Path(__file__).parent / "build"
 
+
+def _abi_stamp_path(stem):
+    """Return a stamp path scoped to this interpreter's extension ABI."""
+    extension_suffix = sysconfig.get_config_var("EXT_SUFFIX")
+    if not extension_suffix:
+        raise RuntimeError("Python's EXT_SUFFIX build configuration is unavailable")
+    return _BUILD_DIR / f"{stem}{extension_suffix}"
+
+
 # Records the build configuration (CUDA major, toolchain, debug/coverage) of
-# the last completed build, so setup.py can force build_ext when it changes.
-# Written by record_build_config().
-_BUILD_CONFIG_STAMP = _BUILD_DIR / ".build-config"
+# the last completed build for this extension ABI, so setup.py can force
+# build_ext when it changes. Written by record_build_config().
+_BUILD_CONFIG_STAMP = _abi_stamp_path(".build-config")
 
 force_build_ext = False
 
