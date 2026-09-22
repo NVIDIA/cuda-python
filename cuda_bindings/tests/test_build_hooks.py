@@ -39,6 +39,20 @@ def _load_build_hooks():
 build_hooks = _load_build_hooks()
 
 
+@pytest.fixture(autouse=True)
+def _isolate_toolchain_env():
+    names = ("CUDA_PYTHON_TOOLCHAIN", "CC", "CXX", "LDSHARED")
+    original = {name: os.environ[name] for name in names if name in os.environ}
+    for name in names:
+        os.environ.pop(name, None)
+    try:
+        yield
+    finally:
+        for name in names:
+            os.environ.pop(name, None)
+        os.environ.update(original)
+
+
 class TestResolveToolchain:
     """_resolve_toolchain: pick compiler/linker/flags from CUDA_PYTHON_TOOLCHAIN.
 

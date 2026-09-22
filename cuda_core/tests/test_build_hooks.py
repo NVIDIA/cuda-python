@@ -55,6 +55,20 @@ def _load_build_hooks():
 build_hooks = _load_build_hooks()
 
 
+@pytest.fixture(autouse=True)
+def _isolate_toolchain_env():
+    names = ("CUDA_PYTHON_TOOLCHAIN", "CC", "CXX", "LDSHARED")
+    original = {name: os.environ[name] for name in names if name in os.environ}
+    for name in names:
+        os.environ.pop(name, None)
+    try:
+        yield
+    finally:
+        for name in names:
+            os.environ.pop(name, None)
+        os.environ.update(original)
+
+
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_cuda_path_is_resolved_before_importing_bindings(monkeypatch):
     """PEP 517 namespace repair runs before cuda.bindings is imported."""
