@@ -559,9 +559,7 @@ def test_cuda_coredump_attr():
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_coredump_bool_uses_single_byte_storage():
-    helper = cuda._HelperCUcoredumpSettings(
-        cuda.CUcoredumpSettings.CU_COREDUMP_TRIGGER_HOST, 0, is_getter=True
-    )
+    helper = cuda._HelperCUcoredumpSettings(cuda.CUcoredumpSettings.CU_COREDUMP_TRIGGER_HOST, 0, is_getter=True)
     ctypes.c_uint32.from_address(helper.cptr).value = 0xFFFFFFFF
     ctypes.c_uint8.from_address(helper.cptr).value = 0
 
