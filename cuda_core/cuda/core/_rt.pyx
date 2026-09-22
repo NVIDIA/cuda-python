@@ -212,6 +212,8 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
         PreparedChildGraphUpdate& prepared, GraphHandle* out_child) except+
     void invalidate_child_graph_state "cuda_core::rt::invalidate_child_graph_state" (
         const GraphHandle& h_parent, cydriver.CUgraphNode owner_node) noexcept
+    void invalidate_root_graph_state "cuda_core::rt::invalidate_root_graph_state" (
+        const GraphHandle& h_root) noexcept
 
     # Graph exec handles
     GraphExecHandle create_graph_exec_handle "cuda_core::rt::create_graph_exec_handle" (
