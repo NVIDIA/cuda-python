@@ -172,6 +172,17 @@ def _write_stamp(stamp, toolchain):
 class TestBuildToolchainStamp:
     """Tests for _check_build_toolchain() and record_build_toolchain()."""
 
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_stamp_path_is_scoped_to_extension_abi(self, monkeypatch):
+        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-310-x86_64-linux-gnu.so")
+        python_310 = build_hooks._abi_stamp_path(".build-toolchain")
+        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-311-x86_64-linux-gnu.so")
+        python_311 = build_hooks._abi_stamp_path(".build-toolchain")
+
+        assert python_310 != python_311
+        assert python_310.name == ".build-toolchain.cpython-310-x86_64-linux-gnu.so"
+        assert python_311.name == ".build-toolchain.cpython-311-x86_64-linux-gnu.so"
+
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_missing_stamp_forces_rebuild(self, stamp):
         build_hooks._check_build_toolchain("gnu")
