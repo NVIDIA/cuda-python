@@ -303,18 +303,8 @@ def _check_build_config(toolchain, debug, coverage):
     return cuda_major, key
 
 
-def record_build_config(debug) -> None:
-    """Stamp the build configuration of the build that just completed.
-
-    setup.py calls this (passing self.debug) after build_ext succeeds, so
-    that a build which failed partway through does not claim outputs it never
-    produced. All other inputs (toolchain, cuda_major, coverage) are
-    re-derived from the environment and the functools.cache.
-    """
-    toolchain, *_ = _resolve_toolchain_name()
-    cuda_major = _determine_cuda_major_version()
-    coverage = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
-    key = _build_config_key(cuda_major, toolchain, debug, coverage)
+def record_build_config(key) -> None:
+    """Stamp the exact build configuration after the backend succeeds."""
     _BUILD_CONFIG_STAMP.parent.mkdir(parents=True, exist_ok=True)
     _BUILD_CONFIG_STAMP.write_text(key + "\n", encoding="utf-8")
 
@@ -475,7 +465,7 @@ def _build_cuda_core(debug=False):
     # MSVC linker output paths past MAX_PATH in deeper Windows checkouts.
     _relativize_extension_sources(_extensions)
 
-    return
+    return config_key
 
 
 def _add_cython_include_paths_to_pth(wheel_path: str) -> None:
@@ -560,20 +550,23 @@ def _add_cython_include_paths_to_pth(wheel_path: str) -> None:
 def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
     debug_default = sys.platform != "win32"  # Debug builds not supported on Windows
     debug = config_settings.get("debug", debug_default) if config_settings else debug_default
-    _build_cuda_core(debug=debug)
+    config_key = _build_cuda_core(debug=debug)
     wheel_name = _build_meta.build_editable(wheel_directory, config_settings, metadata_directory)
 
     # Patch the .pth file to add Cython include paths
     wheel_path = os.path.join(wheel_directory, wheel_name)
     _add_cython_include_paths_to_pth(wheel_path)
+    record_build_config(config_key)
 
     return wheel_name
 
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     debug = config_settings.get("debug", False) if config_settings else False
-    _build_cuda_core(debug=debug)
-    return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
+    config_key = _build_cuda_core(debug=debug)
+    wheel_name = _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
+    record_build_config(config_key)
+    return wheel_name
 
 
 def _get_cuda_bindings_require():
