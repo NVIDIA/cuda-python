@@ -26,7 +26,7 @@ dependencies are as follows:
 .. [#f1] Including ``cuda-python``.
 
 
-``cuda.core`` supports Python 3.10 - 3.14, on Linux (x86-64, arm64) and Windows (x86-64). **Experimental** free-threaded builds for Python 3.14 are also provided.
+``cuda.core`` supports Python 3.10 - 3.14, on Linux (x86-64, arm64) and Windows (x86-64, arm64). Windows on ARM (arm64) wheels are provided for CUDA 13 only and for Python 3.11 and newer, and require ``cuda.bindings`` 13.4.1 or newer. **Experimental** free-threaded builds for Python 3.14 are also provided.
 
 
 Free-threading Build Support
@@ -99,8 +99,8 @@ obtain the most recent build, use the following commands:
 
 Replace ``python312`` with your Python version (e.g. ``python310``, ``python311``,
 ``python313``, ``python314``, ``python314t``). For aarch64, replace ``linux-64``
-with ``linux-aarch64``; for Windows, use ``win-64``. Replace ``cu13`` with
-``cu12`` for CUDA 12.x environments.
+with ``linux-aarch64``; for Windows, use ``win-64`` (x86-64) or ``win-arm64``
+(ARM64). Replace ``cu13`` with ``cu12`` for CUDA 12.x environments.
 
 Development with uv
 ~~~~~~~~~~~~~~~~~~~
