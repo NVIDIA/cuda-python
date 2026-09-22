@@ -251,13 +251,110 @@ class TestBuildConfigStamp:
         build_hooks._check_build_config("gnu", False, True)
         assert build_hooks.force_build_ext is True
 
-    @pytest.mark.agent_authored(model="glm-5.2")
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_record_writes_stamp(self, stamp):
-        # record_build_config re-derives from env; pass debug=False to match.
-        # Platform default toolchain: msvc on Windows, gnu on Linux.
+        build_hooks.record_build_config("cu13-gnu-debug")
+        assert stamp.read_text().strip() == "cu13-gnu-debug"
+
+
+class TestBuildHookStamping:
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_wheel_records_exact_prepared_config_after_success(self, monkeypatch):
+        events = []
+
+        def prepare(debug):
+            events.append(("prepare", debug))
+            return "cu13-gnu-debug"
+
+        def build(wheel_directory, config_settings, metadata_directory):
+            events.append("build")
+            return "cuda_core.whl"
+
+        monkeypatch.setattr(build_hooks, "_build_cuda_core", prepare)
+        monkeypatch.setattr(build_hooks._build_meta, "build_wheel", build)
+        monkeypatch.setattr(build_hooks, "record_build_config", lambda key: events.append(("record", key)))
+
+        wheel_name = build_hooks.build_wheel("dist", {"debug": True}, "metadata")
+
+        assert wheel_name == "cuda_core.whl"
+        assert events == [("prepare", True), "build", ("record", "cu13-gnu-debug")]
+
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_editable_records_default_config_after_patch(self, monkeypatch):
+        events = []
+        expected_debug = sys.platform != "win32"
         toolchain = "msvc" if sys.platform == "win32" else "gnu"
-        build_hooks.record_build_config(False)
-        assert stamp.read_text().strip() == f"cu13-{toolchain}-opt"
+        expected_key = f"cu13-{toolchain}-{'debug' if expected_debug else 'opt'}"
+
+        def prepare(debug):
+            events.append(("prepare", debug))
+            return expected_key
+
+        monkeypatch.setattr(build_hooks, "_build_cuda_core", prepare)
+        monkeypatch.setattr(
+            build_hooks._build_meta,
+            "build_editable",
+            lambda *_args: events.append("build") or "cuda_core.whl",
+        )
+        monkeypatch.setattr(
+            build_hooks,
+            "_add_cython_include_paths_to_pth",
+            lambda wheel_path: events.append(("patch", wheel_path)),
+        )
+        monkeypatch.setattr(build_hooks, "record_build_config", lambda key: events.append(("record", key)))
+
+        wheel_name = build_hooks.build_editable("dist")
+
+        assert wheel_name == "cuda_core.whl"
+        assert events == [
+            ("prepare", expected_debug),
+            "build",
+            ("patch", os.path.join("dist", "cuda_core.whl")),
+            ("record", expected_key),
+        ]
+
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_failed_wheel_build_does_not_record_config(self, monkeypatch):
+        monkeypatch.setattr(
+            build_hooks,
+            "_build_cuda_core",
+            lambda debug: f"cu13-gnu-{'debug' if debug else 'opt'}",
+        )
+
+        def fail(*args):
+            raise RuntimeError("wheel build failed")
+
+        monkeypatch.setattr(build_hooks._build_meta, "build_wheel", fail)
+        monkeypatch.setattr(
+            build_hooks,
+            "record_build_config",
+            lambda _key: pytest.fail("failed build must not be stamped"),
+        )
+
+        with pytest.raises(RuntimeError, match="wheel build failed"):
+            build_hooks.build_wheel("dist", {"debug": True}, "metadata")
+
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_failed_editable_patch_does_not_record_config(self, monkeypatch):
+        monkeypatch.setattr(
+            build_hooks,
+            "_build_cuda_core",
+            lambda debug: f"cu13-gnu-{'debug' if debug else 'opt'}",
+        )
+        monkeypatch.setattr(build_hooks._build_meta, "build_editable", lambda *_args: "cuda_core.whl")
+
+        def fail(wheel_path):
+            raise RuntimeError("editable patch failed")
+
+        monkeypatch.setattr(build_hooks, "_add_cython_include_paths_to_pth", fail)
+        monkeypatch.setattr(
+            build_hooks,
+            "record_build_config",
+            lambda _key: pytest.fail("unpatched editable build must not be stamped"),
+        )
+
+        with pytest.raises(RuntimeError, match="editable patch failed"):
+            build_hooks.build_editable("dist", {"debug": True}, "metadata")
 
 
 def _capture_cythonize_build_dir(monkeypatch, cuda_major):
