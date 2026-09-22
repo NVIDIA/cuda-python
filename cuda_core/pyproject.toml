@@ -7,7 +7,9 @@ requires = [
     "setuptools>=80",
     "setuptools-scm[simple]>=8,!=10.1",
     "Cython>=3.2.5,<3.3",
-    "cuda-pathfinder>=1.5"
+    "cuda-pathfinder>=1.5",
+    # build_hooks.py reads the cuda-bindings floors from the cu12/cu13 extras below.
+    "tomli>=1.1.0; python_version < '3.11'",
 ]
 build-backend = "build_hooks"
 backend-path = ["."]
@@ -53,6 +55,11 @@ dependencies = [
     "backports.strenum; python_version < '3.11'",
 ]
 
+# The cuda-bindings pins below are the cuda-bindings *floors* of this release, one
+# per CUDA major, and the only place they are declared: build_hooks.py, the
+# import-time check, the docs and CI read them from here (see
+# cuda/core/_bindings_floor.py and the "Bumping the cuda-bindings floor"
+# checklist in AGENTS.md). Keep the form `>=<floor>,==<major>.*`.
 [project.optional-dependencies]
 cu12 = ["cuda-bindings[all]>=12.9.8,==12.*", "cuda-toolkit==12.*"]
 cu13 = ["cuda-bindings[all]>=13.4.1,==13.*", "cuda-toolkit==13.*"]

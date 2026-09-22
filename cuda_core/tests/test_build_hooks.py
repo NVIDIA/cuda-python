@@ -483,7 +483,7 @@ class TestBuildConfigurationCheck:
     major.minor as that cuda-bindings. Anything else is a build error that
     names what was found and what is required."""
 
-    FLOOR = build_hooks._load_bindings_floor().CUDA_BINDINGS_FLOOR
+    FLOOR = build_hooks._bindings_floors()
 
     @pytest.fixture(autouse=True)
     def _isolate_build_info(self, tmp_path, monkeypatch):
@@ -506,6 +506,17 @@ class TestBuildConfigurationCheck:
         assert floor[0] * 1000 + floor[1] * 10 == info.CUDA_VERSION
         assert floor == info.CUDA_BINDINGS_FLOOR
         assert version == info.CUDA_BINDINGS_BUILD_VERSION
+        # ci/tools/cuda_core_bindings_floor.py reads this record out of the wheel (BINDINGS_SOURCE=floor).
+        tool_path = Path(__file__).resolve().parents[2] / "ci" / "tools" / "cuda_core_bindings_floor.py"
+        if tool_path.is_file():  # absent from an sdist tree
+            spec = importlib.util.spec_from_file_location("cuda_core_bindings_floor_tool", tool_path)
+            tool = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(tool)
+            text = build_hooks._BUILD_INFO_PATH.read_text(encoding="utf-8")
+            assert tool.floor_from_source(text, major) == f"{floor[0]}.{floor[1]}.{floor[2]}"
+            other = 25 - major
+            with pytest.raises(SystemExit, match=f"records a CUDA {major} build, not CUDA {other}"):
+                tool.floor_from_source(text, other)
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_bindings_below_the_floor_fail(self, tmp_path, monkeypatch):
@@ -564,13 +575,45 @@ class TestBuildConfigurationCheck:
             build_hooks._check_build_configuration(cuda_path, "14")
 
 
+class TestBindingsFloorsFromPyproject:
+    """_bindings_floors() reads the cu<major> extras of pyproject.toml; a malformed extra fails the build."""
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_malformed_extra_is_a_build_error(self, tmp_path, monkeypatch):
+        pyproject = tmp_path / "pyproject.toml"
+        pyproject.write_text(
+            '[project]\nname = "cuda-core"\n[project.optional-dependencies]\ncu13 = ["cuda-bindings>=13.4"]\n'
+        )
+        monkeypatch.setattr(build_hooks, "_PYPROJECT_PATH", pyproject)
+        monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
+        build_hooks._bindings_floors.cache_clear()
+        build_hooks._determine_cuda_major_version.cache_clear()
+        try:
+            for call in (
+                lambda: build_hooks._check_build_configuration(str(tmp_path), "13"),
+                build_hooks._get_cuda_bindings_require,
+                lambda: build_hooks._build_define_macros("13"),
+            ):
+                with pytest.raises(RuntimeError, match=r"pyproject\.toml: the 'cu13' extra must pin cuda-bindings"):
+                    call()
+        finally:
+            build_hooks._bindings_floors.cache_clear()
+            build_hooks._determine_cuda_major_version.cache_clear()
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_the_checkout_declares_both_majors(self):
+        floors = build_hooks._bindings_floors()
+        assert list(floors) == [12, 13]
+        assert all(floor[0] == major for major, floor in floors.items())
+
+
 class TestBuildRequirement:
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     @pytest.mark.parametrize("major", ["12", "13"])
     def test_pins_the_floor_and_the_major(self, monkeypatch, major):
         monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", major)
         build_hooks._determine_cuda_major_version.cache_clear()
-        floor = build_hooks._load_bindings_floor().CUDA_BINDINGS_FLOOR[int(major)]
+        floor = build_hooks._bindings_floors()[int(major)]
         (requirement,) = build_hooks._get_cuda_bindings_require()
         assert requirement == f"cuda-bindings>={floor[0]}.{floor[1]}.{floor[2]},=={major}.*"
 
@@ -588,7 +631,7 @@ class TestDefineMacros:
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     @pytest.mark.parametrize("major", ["12", "13"])
     def test_major_and_floor_header_version(self, major):
-        floor = build_hooks._load_bindings_floor().CUDA_BINDINGS_FLOOR[int(major)]
+        floor = build_hooks._bindings_floors()[int(major)]
         assert build_hooks._build_define_macros(major) == [
             ("CUDA_CORE_BUILD_MAJOR", major),
             ("CUDA_CORE_MIN_CUDA_VERSION", str(floor[0] * 1000 + floor[1] * 10)),

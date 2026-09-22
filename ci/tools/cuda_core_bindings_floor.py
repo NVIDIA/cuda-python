@@ -14,10 +14,9 @@ ci/tools/env-vars). The floor is read from the wheel under test rather than
 from the checkout, so a nightly job that tests a wheel built from another
 commit reads that wheel's floor.
 
-The wheel carries the import-free module cuda/core/_bindings_floor.py, at top
-level in a single-major build and under cuda/core/cu<major>/ in the merged
-wheel; this script reads the CUDA_BINDINGS_FLOOR literal out of it (without
-running the module) and prints the entry for `major` as a dotted version.
+Each build records its floor in the generated cuda/core/_build_info.py (at top
+level in a single-major build, under cuda/core/cu<major>/ in the merged wheel);
+this script reads the CUDA_BINDINGS_FLOOR literal out of it without running it.
 """
 
 from __future__ import annotations
@@ -28,11 +27,11 @@ import sys
 import zipfile
 from pathlib import Path
 
-MODULE = "_bindings_floor.py"
+MODULE = "_build_info.py"
 
 
-def floors_from_source(source: str) -> dict[int, tuple[int, int, int]]:
-    """The CUDA_BINDINGS_FLOOR literal of _bindings_floor.py, parsed without executing it."""
+def _literal(source: str, name: str):
+    """The literal assigned to `name` at module level of `source`, parsed without executing it."""
     for node in ast.parse(source, MODULE).body:
         if isinstance(node, ast.AnnAssign):
             targets = [node.target]
@@ -40,16 +39,15 @@ def floors_from_source(source: str) -> dict[int, tuple[int, int, int]]:
             targets = node.targets
         else:
             continue
-        if node.value is not None and any(isinstance(t, ast.Name) and t.id == "CUDA_BINDINGS_FLOOR" for t in targets):
+        if node.value is not None and any(isinstance(t, ast.Name) and t.id == name for t in targets):
             return ast.literal_eval(node.value)
-    raise SystemExit(f"{MODULE} does not assign CUDA_BINDINGS_FLOOR")
+    raise SystemExit(f"{MODULE} does not assign {name}")
 
 
 def floor_from_source(source: str, major: int) -> str:
-    floors = floors_from_source(source)
-    if major not in floors:
-        raise SystemExit(f"CUDA {major} is not a supported major (floors: {sorted(floors)})")
-    return ".".join(str(part) for part in floors[major])
+    if _literal(source, "CUDA_MAJOR") != major:
+        raise SystemExit(f"{MODULE} records a CUDA {_literal(source, 'CUDA_MAJOR')} build, not CUDA {major}")
+    return ".".join(str(part) for part in _literal(source, "CUDA_BINDINGS_FLOOR"))
 
 
 def floor_from_wheel(wheel: Path, major: int) -> str:
@@ -58,7 +56,7 @@ def floor_from_wheel(wheel: Path, major: int) -> str:
         for candidate in (f"cuda/core/cu{major}/{MODULE}", f"cuda/core/{MODULE}"):
             if candidate in names:
                 return floor_from_source(zf.read(candidate).decode("utf-8"), major)
-    raise SystemExit(f"{wheel.name} contains no {MODULE}; is it a cuda-core wheel?")
+    raise SystemExit(f"{wheel.name} contains no build for CUDA {major} (no {MODULE}); is it a cuda-core wheel?")
 
 
 def main(argv: list[str] | None = None) -> int:

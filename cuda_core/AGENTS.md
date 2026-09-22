@@ -31,7 +31,35 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   or CUDA headers (`CUDA_HOME`/`CUDA_PATH`) and uses it for build decisions.
 - Source builds require CUDA headers available through `CUDA_HOME` or
   `CUDA_PATH`.
-- `cuda_core` expects `cuda.bindings` to be present and version-compatible.
+- `cuda_core` requires `cuda.bindings` at or above a per-major *floor* at build
+  and run time, and a `cuda.h` of the same major.minor as that `cuda.bindings`
+  at build time (NVIDIA/cuda-python#2783). The floors are declared once, by the
+  `cu12`/`cu13` extras in `pyproject.toml` (`cuda-bindings[all]>=<floor>,==<major>.*`);
+  `build_hooks.py`, the import-time check in `cuda/core/__init__.py`, the docs
+  and CI read them from there through `cuda/core/_bindings_floor.py`. The C++
+  branches on `CUDA_CORE_BUILD_MAJOR` only; whether a feature is available at
+  run time depends on the driver alone, never on the `cuda.bindings` version.
+
+### Bumping the cuda-bindings floor
+
+By policy the floor of each major is the newest `cuda-bindings` release of that
+major at the time of a `cuda.core` release, so the bump is a release step, not
+something each `cuda-bindings` minor triggers. It is also required by the first
+change that uses a `cuda-bindings` API newer than the old floor. To bump:
+
+1. Edit the `cuda-bindings` pin in the `cu12` or `cu13` extra in
+   `pyproject.toml`. That is the only version to type.
+2. Align `ci/versions.yml`: the `build` (current major) and `prev_build` (prior
+   major) toolkit pins must share major.minor with the floors, or CI builds a
+   configuration the build rejects. The pre-commit hook
+   `check-cuda-core-bindings-floor` (`toolshed/check_cuda_core_bindings_floor.py`)
+   checks this, and that no documentation page spells a floor out by hand.
+3. Add a "Breaking Changes" entry to the release notes naming the new floors.
+   The support-policy table in `docs/source/support.rst` reads the floors and
+   the release version at docs-build time; there is nothing to edit there.
+4. Refresh the pixi lock files if the pins moved past what they resolve.
+5. Pin `cuda-bindings` accordingly in the conda-forge `cuda-core` feedstock
+   (outside this repository).
 
 ## Testing expectations
 

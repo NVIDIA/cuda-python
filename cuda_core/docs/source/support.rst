@@ -72,8 +72,9 @@ CUDA library or CUDA driver versions. Refer to the individual module documentati
 Each ``cuda-core`` release declares, for each supported CUDA major version, a minimum
 ``cuda-bindings`` version, its *floor*: the newest ``cuda-bindings`` release of that major at the
 time of the ``cuda-core`` release, which is the version the published wheels are built against.
-The floors of the current release are recorded in ``cuda/core/_bindings_floor.py`` and in the
-``cu12``/``cu13`` extras of ``cuda-core``.
+The floors of the current release are declared by the ``cu12``/``cu13`` extras of ``cuda-core``
+(in ``pyproject.toml``); the build, the import-time check, this page and CI all read them from
+there.
 
 .. list-table:: ``cuda-bindings`` floors
    :header-rows: 1
@@ -81,9 +82,9 @@ The floors of the current release are recorded in ``cuda/core/_bindings_floor.py
    * - ``cuda-core`` version
      - CUDA 12
      - CUDA 13
-   * - 1.3.x
-     - ``cuda-bindings`` >= 12.9.8
-     - ``cuda-bindings`` >= 13.4.1
+   * - |release|
+     - ``cuda-bindings`` >= |cuda-bindings-floor-cu12|
+     - ``cuda-bindings`` >= |cuda-bindings-floor-cu13|
 
 - **At run time**, ``import cuda.core`` requires an installed ``cuda-bindings`` of the same major
   as the ``cuda-core`` build in use and at least as new as that build's floor. An older

@@ -17,6 +17,32 @@ from pathlib import Path
 sys.path.insert(0, str((Path(__file__).parents[3] / "cuda_python" / "docs" / "exts").absolute()))
 
 
+# -- cuda-bindings floors ----------------------------------------------------
+
+
+def _bindings_floor_substitutions() -> str:
+    """|cuda-bindings-floor-cu12| and |cuda-bindings-floor-cu13|, read from the
+    cu12/cu13 extras of pyproject.toml, the single place the floors are declared
+    (see cuda/core/_bindings_floor.py). Used by support.rst."""
+    import importlib.util
+
+    import tomllib
+
+    cuda_core = Path(__file__).parents[2]
+    spec = importlib.util.spec_from_file_location("_bindings_floor", cuda_core / "cuda" / "core" / "_bindings_floor.py")
+    floor = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(floor)
+    with open(cuda_core / "pyproject.toml", "rb") as f:
+        extras = tomllib.load(f)["project"]["optional-dependencies"]
+    return "".join(
+        f".. |cuda-bindings-floor-cu{major}| replace:: {floor.format_version(triple)}\n"
+        for major, triple in floor.floors_from_extras(extras).items()
+    )
+
+
+rst_prolog = _bindings_floor_substitutions()
+
+
 # -- Project information -----------------------------------------------------
 
 project = "cuda.core"

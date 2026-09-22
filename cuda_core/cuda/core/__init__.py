@@ -41,9 +41,7 @@ def _import_versioned_module() -> None:
     try:
         cuda_major = int(version_str.split(".")[0])
     except ValueError:
-        cuda_major = -1
-    if cuda_major not in (12, 13):
-        raise ImportError(f"cuda-bindings 12.x or 13.x must be installed (found {version_str})")
+        raise ImportError(f"a cuda-bindings release must be installed (found version {version_str!r})") from None
     try:
         floor = load_build_module("_bindings_floor", cuda_major)
         info = load_build_module("_build_info", cuda_major)
@@ -51,7 +49,9 @@ def _import_versioned_module() -> None:
         raise ImportError(
             f"this cuda.core installation has no build for CUDA {cuda_major} (installed cuda-bindings: {version_str})"
         ) from exc
-    floor.check_installed_bindings(version_str, info.CUDA_MAJOR, info.CUDA_VERSION, __version__)
+    floor.check_installed_bindings(
+        version_str, info.CUDA_MAJOR, info.CUDA_VERSION, info.CUDA_BINDINGS_FLOOR, __version__
+    )
 
     subdir = f"cu{cuda_major}"
     try:

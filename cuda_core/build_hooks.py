@@ -113,9 +113,12 @@ _PACKAGE_DIR = Path(__file__).parent / "cuda" / "core"
 _BUILD_INFO_PATH = _PACKAGE_DIR / "_build_info.py"
 
 
+_PYPROJECT_PATH = Path(__file__).parent / "pyproject.toml"
+
+
 @functools.cache
 def _load_bindings_floor():
-    """Load cuda/core/_bindings_floor.py, the floor's single source of truth.
+    """Load cuda/core/_bindings_floor.py, the floor logic (reading, formatting, checking).
 
     Loaded by file path: the package this backend builds is not importable
     during its own build, and the module is deliberately import-free.
@@ -125,6 +128,38 @@ def _load_bindings_floor():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+@functools.cache
+def _bindings_floors() -> dict:
+    """The cuda-bindings floor per CUDA major, from the cu<major> extras of pyproject.toml.
+
+    The extras are the single place the floors are declared; the build, the
+    import-time check, the docs and CI all derive from them (see
+    cuda/core/_bindings_floor.py). A malformed extra fails the build here.
+    """
+    try:
+        import tomllib
+    except ModuleNotFoundError:  # Python 3.10: tomli is in build-system.requires
+        import tomli as tomllib
+    with open(_PYPROJECT_PATH, "rb") as f:
+        extras = tomllib.load(f)["project"]["optional-dependencies"]
+    try:
+        return _load_bindings_floor().floors_from_extras(extras)
+    except ValueError as exc:
+        raise RuntimeError(f"{_PYPROJECT_PATH}: {exc}") from exc
+
+
+def _floor_for(cuda_major) -> tuple:
+    """The floor of `cuda_major`, or a build error naming the supported majors."""
+    floors = _bindings_floors()
+    major = int(cuda_major)
+    if major not in floors:
+        raise RuntimeError(
+            f"cuda.core does not support CUDA {major}; supported CUDA major versions: "
+            f"{', '.join(str(m) for m in floors)}"
+        )
+    return floors[major]
 
 
 def _read_cuda_h_version(cuda_path: str) -> int:
@@ -188,8 +223,8 @@ def _check_build_configuration(cuda_path: str, cuda_major: str) -> None:
     """Reject build configurations cuda.core does not support, then record the build.
 
     cuda.core supports one configuration per CUDA major series: the installed
-    cuda-bindings is at least the series' floor (cuda/core/_bindings_floor.py)
-    and the cuda.h it compiles against has the same major.minor as that
+    cuda-bindings is at least the series' floor (the cu<major> extra in
+    pyproject.toml) and the cuda.h it compiles against has the same major.minor as that
     cuda-bindings, which is the header cuda-bindings itself was generated from.
     The pip build requirement (get_requires_for_build_*) states the floor, but
     conda-forge, pixi and --no-build-isolation installs bypass it, so the check
@@ -201,12 +236,8 @@ def _check_build_configuration(cuda_path: str, cuda_major: str) -> None:
     """
     floor = _load_bindings_floor()
     major = int(cuda_major)
-    if major not in floor.CUDA_BINDINGS_FLOOR:
-        raise RuntimeError(
-            f"cuda.core does not support CUDA {major}; supported CUDA major versions: "
-            f"{', '.join(str(m) for m in floor.SUPPORTED_CUDA_MAJORS)}"
-        )
-    requirement = floor.pip_requirement(major)
+    floor_triple = _floor_for(major)
+    requirement = floor.bindings_requirement(floor_triple)
 
     try:
         bindings_version = _import_cuda_bindings().__version__
@@ -226,9 +257,9 @@ def _check_build_configuration(cuda_path: str, cuda_major: str) -> None:
             f"Building cuda.core for CUDA {major}, but the installed cuda-bindings is "
             f"{bindings_version}. Install '{requirement}'."
         )
-    if bindings < floor.CUDA_BINDINGS_FLOOR[major]:
+    if bindings < floor_triple:
         raise RuntimeError(
-            f"cuda.core requires cuda-bindings >= {floor.format_version(floor.CUDA_BINDINGS_FLOOR[major])} "
+            f"cuda.core requires cuda-bindings >= {floor.format_version(floor_triple)} "
             f"for CUDA {major}, but {bindings_version} is installed. Install '{requirement}'."
         )
 
@@ -242,16 +273,15 @@ def _check_build_configuration(cuda_path: str, cuda_major: str) -> None:
             "Point CUDA_PATH or CUDA_HOME at a matching CUDA Toolkit, or install matching cuda-bindings."
         )
     print(f"Build configuration: CUDA {header[0]}.{header[1]} headers, cuda-bindings {bindings_version}")
-    _write_build_info(major, cuda_version, floor.CUDA_BINDINGS_FLOOR[major], bindings_version)
+    _write_build_info(major, cuda_version, floor_triple, bindings_version)
 
 
 def _build_define_macros(cuda_major: str) -> list:
     """Preprocessor macros that carry the build decision into the C++ (see _cpp/rt/versions.hpp)."""
-    floor = _load_bindings_floor()
     major = int(cuda_major)
     return [
         ("CUDA_CORE_BUILD_MAJOR", str(major)),
-        ("CUDA_CORE_MIN_CUDA_VERSION", str(floor.cuda_version_of(floor.CUDA_BINDINGS_FLOOR[major]))),
+        ("CUDA_CORE_MIN_CUDA_VERSION", str(_load_bindings_floor().cuda_version_of(_floor_for(major)))),
     ]
 
 
@@ -602,14 +632,7 @@ def _get_cuda_bindings_require():
     Honored by isolated builds only; _check_build_configuration() enforces the
     same rule for every other build path.
     """
-    floor = _load_bindings_floor()
-    cuda_major = int(_determine_cuda_major_version())
-    if cuda_major not in floor.CUDA_BINDINGS_FLOOR:
-        raise RuntimeError(
-            f"cuda.core does not support CUDA {cuda_major}; supported CUDA major versions: "
-            f"{', '.join(str(m) for m in floor.SUPPORTED_CUDA_MAJORS)}"
-        )
-    return [floor.pip_requirement(cuda_major)]
+    return [_load_bindings_floor().bindings_requirement(_floor_for(_determine_cuda_major_version()))]
 
 
 def get_requires_for_build_editable(config_settings=None):
