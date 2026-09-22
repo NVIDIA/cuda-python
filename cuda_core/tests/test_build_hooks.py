@@ -200,6 +200,17 @@ def _write_stamp(stamp, config_key):
 class TestBuildConfigStamp:
     """Tests for _check_build_config() and record_build_config()."""
 
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_stamp_path_is_scoped_to_extension_abi(self, monkeypatch):
+        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-310-x86_64-linux-gnu.so")
+        python_310 = build_hooks._abi_stamp_path(".build-config")
+        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-311-x86_64-linux-gnu.so")
+        python_311 = build_hooks._abi_stamp_path(".build-config")
+
+        assert python_310 != python_311
+        assert python_310.name == ".build-config.cpython-310-x86_64-linux-gnu.so"
+        assert python_311.name == ".build-config.cpython-311-x86_64-linux-gnu.so"
+
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_missing_stamp_forces_rebuild(self, stamp):
         # No stamp means the last build's config is unknown, so rebuild.
