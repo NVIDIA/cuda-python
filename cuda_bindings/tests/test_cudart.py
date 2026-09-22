@@ -1392,3 +1392,34 @@ def test_struct_pointer_comparison(target):
     c = target(456)
     assert a != c
     assert hash(a) != hash(c)
+
+
+@pytest.mark.agent_authored(model="grok-4.7")
+def test_ffi_runtime_jit_wall_time_pointer_is_valid():
+    helper = runtime._HelperCudaJitOption(cudart.cudaJitOption.cudaJitWallTime, 0.0)
+    ctypes.c_float.from_address(helper.cptr).value = 3.14
+    assert ctypes.c_float.from_address(helper.cptr).value == pytest.approx(3.14, rel=1e-5)
+
+
+@pytest.mark.agent_authored(model="grok-4.7")
+def test_ffi_normalized_channel_kinds_construct():
+    """Normalized kinds must be constructible. cudaMallocArray acceptance is device-dependent."""
+    pairs = [
+        (8, 0, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X1),
+        (8, 8, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X2),
+        (8, 8, 8, 8, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X4),
+        (8, 0, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X1),
+        (8, 8, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X2),
+        (8, 8, 8, 8, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X4),
+        (16, 0, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X1),
+        (16, 16, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X2),
+        (16, 16, 16, 16, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X4),
+        (16, 0, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X1),
+        (16, 16, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X2),
+        (16, 16, 16, 16, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X4),
+    ]
+    for x, y, z, w, kind in pairs:
+        desc = cudart.cudaChannelFormatDesc()
+        desc.x, desc.y, desc.z, desc.w, desc.f = x, y, z, w, kind
+        assert desc.f == kind
+        assert desc.x == x

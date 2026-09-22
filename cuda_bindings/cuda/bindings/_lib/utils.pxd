@@ -155,4 +155,5 @@ cdef class _HelperCUcoredumpSettings:
 
     # Return values
     cdef cpp_bool _bool
+    cdef unsigned int _uint
     cdef char* _charstar
