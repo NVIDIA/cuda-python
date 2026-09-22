@@ -459,7 +459,9 @@ def test_pointer_get_attributes_device_ordinal():
     err, attrs = cuda.cuPointerGetAttributes(len(attributes), attributes, 0)
 
     assert err == cuda.CUresult.CUDA_SUCCESS
-    assert attrs == [cuda.CU_DEVICE_INVALID]
+    # Drivers use either negative sentinel for a null pointer. Both ensure the
+    # signed device ordinal is returned rather than an unsigned value.
+    assert attrs[0] in (cuda.CU_DEVICE_CPU, cuda.CU_DEVICE_INVALID)
 
 
 @pytest.mark.skipif(not supportsManagedMemory(), reason="When new attributes were introduced")
