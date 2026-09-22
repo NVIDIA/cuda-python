@@ -9,9 +9,15 @@
 # this module stays importable without CUDA or NVML installed.
 
 
-# Always True: kept for callers that read it before the cuda-bindings floor
-# made NVML support unconditional. Deprecated.
-CUDA_BINDINGS_NVML_IS_COMPATIBLE: bool = True
+from typing import TYPE_CHECKING
+
+# Always True since the cuda-bindings floor made NVML support unconditional;
+# kept for callers that read it. Assigned in a runtime-only block so that the
+# generated stub keeps the bare annotation the public API had (the API check
+# reports a changed attribute value otherwise).
+CUDA_BINDINGS_NVML_IS_COMPATIBLE: bool
+if not TYPE_CHECKING:
+    CUDA_BINDINGS_NVML_IS_COMPATIBLE = True
 
 
 # Please keep in sync with the equivalent implementation in

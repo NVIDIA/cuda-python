@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import enum
+
 from cuda.bindings import nvml as _nvml
-from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 from cuda.core._utils.pycompat import StrEnum
 
 __all__ = [
@@ -325,9 +326,9 @@ ThermalTarget.VCD_OUTLET.__doc__ = "Visual Computing Device Outlet temperature r
 
 
 # DeviceArch values are derived from cuda.bindings.nvml at definition time.
-# This uses FastEnum instead of StrEnum because the ordering of the values is
-# meaningful, e.g. Kepler "or later"
-class DeviceArch(_FastEnum):
+# An IntEnum rather than a StrEnum because the ordering of the values is
+# meaningful, e.g. Kepler "or later".
+class DeviceArch(enum.IntEnum):
     """
     Device architecture.
     """
@@ -346,7 +347,7 @@ class DeviceArch(_FastEnum):
 
 FieldId = _nvml.FieldId
 
-del _nvml, _FastEnum
+del _nvml
 
 
 del StrEnum

@@ -467,7 +467,8 @@ The resource handle design:
 2. **Encodes lifetimes structurally** via embedded handle dependencies.
 3. **Uses Cython's `cimport` mechanism** to share C++ code across modules without
    duplicate static/thread-local state.
-4. **Resolves CUDA driver symbols** dynamically through cuda-bindings' `__pyx_capi__` capsules.
+4. **Resolves CUDA driver symbols** through the driver entry points cuda-bindings resolves
+   (`_inspect_function_pointers()`), filled lazily by `ensure_fn_table()` on first use.
 5. **Provides overloaded accessors** (`as_cu`, `as_intptr`, `as_py`) since handles cannot
    have attributes without unnecessary Python object wrappers.
 

@@ -38,9 +38,7 @@ def _is_nvvm_available():
         return False
 
 
-nvvm_available = pytest.mark.skipif(
-    not _is_nvvm_available(), reason="NVVM not available (libNVVM not found or cuda-bindings < 12.9.0)"
-)
+nvvm_available = pytest.mark.skipif(not _is_nvvm_available(), reason="NVVM not available (libNVVM not found)")
 
 
 def _get_nvrtc_version_for_tests():

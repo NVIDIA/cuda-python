@@ -225,7 +225,7 @@ cdef void _dispatch_buffer_copy(
     else:
         _reject_unsupported_during_api_call(
             options.src_access_order,
-            "cuda.bindings and the driver to both report CUDA 13.2 or newer "
+            "the CUDA 13 build of cuda.core and a driver reporting CUDA 13.2 or newer "
             "(cuMemcpyWithAttributesAsync is unavailable here)",
         )
         # STREAM and ANY never require access sooner than stream order, so
@@ -498,8 +498,8 @@ cdef class Buffer:
             asynchronous copy
         options : :class:`~utils.CopyOptions`, optional
             Transfer hints (source access order, location hints, overlap mode).
-            Honored when cuda.bindings and the driver are both CUDA 13.2 or
-            newer. Not accepted with ``LEGACY_DEFAULT_STREAM``; use
+            Honored on the CUDA 13 build of ``cuda.core`` with a driver of CUDA
+            13.2 or newer. Not accepted with ``LEGACY_DEFAULT_STREAM``; use
             ``PER_THREAD_DEFAULT_STREAM`` instead. Not accepted with a
             capturing stream either, since a graph cannot represent these
             attributes; use :meth:`graph.GraphNode.memcpy` for a plain,
@@ -554,8 +554,8 @@ cdef class Buffer:
             asynchronous copy
         options : :class:`~utils.CopyOptions`, optional
             Transfer hints (source access order, location hints, overlap mode).
-            Honored when cuda.bindings and the driver are both CUDA 13.2 or
-            newer. Not accepted with ``LEGACY_DEFAULT_STREAM``; use
+            Honored on the CUDA 13 build of ``cuda.core`` with a driver of CUDA
+            13.2 or newer. Not accepted with ``LEGACY_DEFAULT_STREAM``; use
             ``PER_THREAD_DEFAULT_STREAM`` instead. Not accepted with a
             capturing stream either, since a graph cannot represent these
             attributes; use :meth:`graph.GraphNode.memcpy` for a plain,

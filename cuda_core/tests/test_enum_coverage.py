@@ -127,14 +127,8 @@ _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
 
 _MODULES.append(system_typing)
 
-_CLOCKS_EVENT_REASONS_STR_UNMAPPED = {
-    core_member
-    for binding_member, core_member in (
-        ("EVENT_REASON_BOARD_LIMIT", "BOARD_LIMIT"),
-        ("EVENT_REASON_RELIABILITY", "RELIABILITY"),
-    )
-    if binding_member not in nvml.ClocksEventReasons.__members__
-}
+# Every ClocksEventReasons member is mapped: the floor cuda-bindings has them all.
+_CLOCKS_EVENT_REASONS_STR_UNMAPPED = set()
 
 _CASES.extend(
     [

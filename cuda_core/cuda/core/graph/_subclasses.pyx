@@ -650,9 +650,10 @@ cdef class MemsetNode(GraphNode):
         Omitted parameters preserve their current values. ``dst_owner`` may
         only accompany a raw-address ``dst``.
 
-        With CUDA 12.2 through 13.1, the node's intended CUDA context must be
-        current when this method is called. CUDA driver and ``cuda.bindings``
-        versions 13.2 and newer preserve the recorded context automatically.
+        With drivers from CUDA 12.2 through 13.1, the node's intended CUDA
+        context must be current when this method is called. With the CUDA 13
+        build of ``cuda.core`` and a driver of CUDA 13.2 or newer, the recorded
+        context is preserved automatically.
 
         .. warning::
 
@@ -839,9 +840,10 @@ cdef class MemcpyNode(GraphNode):
         Multidimensional, pitched, offset, and array-backed memcpy nodes are
         not supported.
 
-        With CUDA 12.2 through 13.1, the node's intended CUDA context must be
-        current when this method is called. CUDA driver and ``cuda.bindings``
-        versions 13.2 and newer preserve the recorded context automatically.
+        With drivers from CUDA 12.2 through 13.1, the node's intended CUDA
+        context must be current when this method is called. With the CUDA 13
+        build of ``cuda.core`` and a driver of CUDA 13.2 or newer, the recorded
+        context is preserved automatically.
 
         .. warning::
 

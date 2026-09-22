@@ -68,9 +68,8 @@ def copy_batch(stream: Stream, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *
 
     Notes
     -----
-    Batching through ``cuMemcpyBatchAsync`` requires all three of:
-    ``cuda.core`` built against CUDA 13 headers, ``cuda.bindings`` 13.0 or
-    newer, and a driver reporting CUDA 13.0 or newer
+    Batching through ``cuMemcpyBatchAsync`` requires both the CUDA 13 build of
+    ``cuda.core`` and a driver reporting CUDA 13.0 or newer
     (``cuDriverGetVersion() >= 13000``). ``cuda.bindings`` binds only the
     CUDA 13.0 revision of the entry point, so a driver that predates it is
     refused even where it implements the earlier CUDA 12.8 signature.

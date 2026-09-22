@@ -25,7 +25,7 @@ Breaking Changes
   the ``cuda-bindings`` version are gone, and the error messages they produced with them; error
   messages that name a minimum now name a driver version. ``cuda.core.system`` always uses NVML
   through ``cuda-bindings``, so ``cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE`` is always
-  ``True`` and is deprecated. :mod:`cuda.core.checkpoint` requires the CUDA 13 build of
+  ``True``. :mod:`cuda.core.checkpoint` requires the CUDA 13 build of
   ``cuda.core`` (it did in effect before: the CUDA 12 ``cuda-bindings`` lack a type it uses) and
   now says so. The C++ layer calls the driver through the entry points ``cuda-bindings`` resolves
   rather than through its Cython wrappers, so a driver function that the installed driver lacks

@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+"""CUDA process checkpointing (Linux).
+
+Requires the CUDA 13 build of cuda.core (the driver structures it uses are
+CUDA 13 types) and a CUDA driver of version 12.8 or newer with checkpoint API
+support.
+"""
+
 import ctypes as _ctypes
 from collections.abc import Mapping
 from typing import Any

@@ -369,9 +369,9 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
 ELSE:
     def _read_preferred_location_v2(Buffer buf) -> Device | Host | None:
         # Symbols exist so _managed_buffer.py can import the v2 readers
-        # unconditionally. Their properties gate on both binding_version()
-        # and driver_version() >= (13, 0, 0), so these paths are unreachable
-        # on a CUDA 12 build.
+        # unconditionally. Their properties gate on the CUDA 13 build and
+        # driver_version() >= (13, 0, 0), so these paths are unreachable on a
+        # CUDA 12 build.
         raise NotImplementedError(
             "_read_preferred_location_v2 requires a CUDA 13 build of cuda.core"
         )

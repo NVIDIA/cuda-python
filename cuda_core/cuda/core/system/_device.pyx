@@ -108,12 +108,11 @@ _BRAND_TYPE_MAPPING = {
 }
 
 
-if hasattr(nvml.BrandType, "BRAND_NVIDIA_DLA"):
-    _BRAND_TYPE_MAPPING.update({
-        nvml.BrandType.BRAND_NVIDIA_DLA: "NVIDIA DLA",
-        nvml.BrandType.BRAND_NVIDIA_VGAMEDEV: "NVIDIA vGameDev",
-        nvml.BrandType.BRAND_NVIDIA_NPU: "NVIDIA NPU",
-    })
+_BRAND_TYPE_MAPPING.update({
+    nvml.BrandType.BRAND_NVIDIA_DLA: "NVIDIA DLA",
+    nvml.BrandType.BRAND_NVIDIA_VGAMEDEV: "NVIDIA vGameDev",
+    nvml.BrandType.BRAND_NVIDIA_NPU: "NVIDIA NPU",
+})
 
 
 _GPU_P2P_CAPS_INDEX_MAPPING = {
