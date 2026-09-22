@@ -406,7 +406,11 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
 
     // Resolve the table before any lock is taken: a fill acquires the GIL, and
     // nothing under ipc_import_mutex may (#2840). The raw p_ calls below rely on it.
-    ensure_fn_table(FnTable::driver);
+    if (!ensure_fn_table(FnTable::driver)) {
+        report_unavailable_fn(FnTable::driver, "cuMemPoolImportPointer");
+        err = CUDA_ERROR_NOT_INITIALIZED;
+        return {};
+    }
 
     if (use_ipc_ptr_cache()) {
         ExportDataKey key;

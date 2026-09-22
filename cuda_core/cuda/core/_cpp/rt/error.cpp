@@ -38,8 +38,8 @@ void format_cuda_error(char* buffer, size_t size, const char* operation, CUresul
                        const char* detail) noexcept {
     const char* error_name = nullptr;
     const char* error_description = nullptr;
-    bool decoded = p_cuGetErrorName && p_cuGetErrorString
-                   && DRIVER_CALL(cuGetErrorName, status, &error_name) == CUDA_SUCCESS
+    // With the table unavailable the trampolines fail and the numeric fallback is used.
+    bool decoded = DRIVER_CALL(cuGetErrorName, status, &error_name) == CUDA_SUCCESS
                    && DRIVER_CALL(cuGetErrorString, status, &error_description) == CUDA_SUCCESS;
     const char* outcome = detail ? detail : "failed";
     if (decoded) {
@@ -90,6 +90,11 @@ const char* take_last_error_detail(CUresult status) noexcept {
 void clear_last_error_detail() noexcept {
     last_error_detail[0] = 0;
     last_error_detail_status = CUDA_SUCCESS;
+}
+
+void note_driver_table_failure(const char* reason) noexcept {
+    std::snprintf(last_error_detail, sizeof(last_error_detail), "%s", reason);
+    last_error_detail_status = CUDA_ERROR_NOT_INITIALIZED;
 }
 
 namespace detail {

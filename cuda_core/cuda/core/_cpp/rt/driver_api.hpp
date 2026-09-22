@@ -112,7 +112,7 @@ namespace cuda_core::rt {
     X(cuGraphChildGraphNodeGetGraph, 10000)      \
     /* Linker */                                 \
     X(cuLinkDestroy, 5050)                       \
-    /* Graphics interop */                       \
+    /* Graphics interop; cuda-bindings requests 7000 (PTDS) or 3000 (legacy) */ \
     X(cuGraphicsUnmapResources, 7000)            \
     X(cuGraphicsUnregisterResource, 3000)        \
     /* Texture / surface / array (PR #467) */    \
@@ -167,15 +167,19 @@ bool fn_table_ready(FnTable table) noexcept;
 // report_message() when cuda-bindings cannot load the library, a key is
 // missing (the installed cuda-bindings does not match the header this build
 // compiled against), or a baseline driver function is null (the driver is
-// older than the CUDA major series supports). Never leaves a Python error set.
-// Implemented in py_driver_fns.cpp.
+// older than the CUDA major series supports). A failed fill is latched: later
+// calls return false at once without retrying. Preserves a pending Python
+// exception and never leaves one set. Implemented in py_driver_fns.cpp.
 bool ensure_fn_table(FnTable table) noexcept;
 
-// The reason the last fill of `table` failed, or nullptr. Implemented in py_driver_fns.cpp.
-const char* fn_table_error(FnTable table) noexcept;
+// Copy the reason the fill of `table` failed into `buffer`; false if it did
+// not fail. Implemented in py_driver_fns.cpp.
+bool fn_table_error(FnTable table, char* buffer, std::size_t size) noexcept;
 
-// Report, once per table, that `name` was called while unavailable: a gate
-// bug, or a failed fill (whose reason is included). Implemented in py_driver_fns.cpp.
+// Record that `name` was called while unavailable. After a failed fill the
+// fill's reason is attached to the error the caller raises (it was reported
+// when the fill failed); a null entry in a filled table is a gate bug and is
+// reported once per table. Implemented in py_driver_fns.cpp.
 void report_unavailable_fn(FnTable table, const char* name) noexcept;
 
 namespace detail {

@@ -66,6 +66,12 @@ void attach_rollback_failure(const char* operation, CUresult status, const char*
 const char* take_last_error_detail(CUresult status) noexcept;
 void clear_last_error_detail() noexcept;
 
+// Record why the driver function table is unavailable as the detail of the
+// CUDA_ERROR_NOT_INITIALIZED the trampoline is about to return (see
+// driver_api.hpp), so the raised CUDAError explains the failed fill instead
+// of suggesting that cuInit() was not called. Implemented in error.cpp.
+void note_driver_table_failure(const char* reason) noexcept;
+
 // Tests only: make the next context restoration on this thread fail with
 // `status`, leaving the target context current as a real failure would.
 // Implemented in context.cpp

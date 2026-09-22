@@ -18,8 +18,13 @@
 // values, one after the other.
 //
 // Failures never propagate as exceptions and never leave a Python error set:
-// they are recorded, reported through report_message(), and every affected
-// DRIVER_CALL then returns an error status from a trampoline (driver_api.hpp).
+// they are recorded, reported through report_message(), latched (a failed
+// table is not retried, so no call re-imports or re-warns), and every
+// affected DRIVER_CALL then returns an error status from a trampoline
+// (driver_api.hpp) with the reason attached to the raised error as a note.
+// A fill can run while a Python exception is propagating (a deleter making its
+// first driver call during unwinding), so the pending exception is saved
+// around the Python calls and restored afterwards.
 
 #include "py.hpp"
 #include "driver_api.hpp"
@@ -38,9 +43,43 @@ constexpr std::size_t kTables = 4;
 constexpr std::size_t kMaxEntries = 128;
 
 std::atomic<bool> table_ready[kTables];
+std::atomic<bool> table_failed[kTables];
 std::atomic<bool> unavailable_reported[kTables];
 std::mutex fill_mutex;
-char fill_error[kTables][512] = {};
+char fill_error[kTables][512] = {};  // guarded by fill_mutex
+
+// Saves the pending Python exception on construction and restores it on
+// destruction, so the Python calls in between start from a clean error state
+// and the caller's exception survives. Requires the GIL.
+class PendingExceptionGuard {
+public:
+    PendingExceptionGuard() noexcept {
+#if PY_VERSION_HEX >= 0x030C0000
+        exc_ = PyErr_GetRaisedException();
+#else
+        PyErr_Fetch(&type_, &value_, &traceback_);
+#endif
+    }
+    ~PendingExceptionGuard() {
+        PyErr_Clear();  // drop anything the guarded calls left set
+#if PY_VERSION_HEX >= 0x030C0000
+        PyErr_SetRaisedException(exc_);
+#else
+        PyErr_Restore(type_, value_, traceback_);
+#endif
+    }
+    PendingExceptionGuard(const PendingExceptionGuard&) = delete;
+    PendingExceptionGuard& operator=(const PendingExceptionGuard&) = delete;
+
+private:
+#if PY_VERSION_HEX >= 0x030C0000
+    PyObject* exc_ = nullptr;
+#else
+    PyObject* type_ = nullptr;
+    PyObject* value_ = nullptr;
+    PyObject* traceback_ = nullptr;
+#endif
+};
 
 std::size_t index_of(FnTable table) noexcept { return static_cast<std::size_t>(table); }
 
@@ -64,8 +103,15 @@ const char* library_name(FnTable table) noexcept {
     return "library";
 }
 
-// Copy the pending Python exception's text into buf and clear it.
-void take_python_error(char* buf, std::size_t size) noexcept {
+// Copy the pending Python exception's text into buf and clear it. Returns
+// true when the exception says nothing about cuda-bindings or the driver: an
+// interruption (KeyboardInterrupt, SystemExit) or exhaustion (MemoryError,
+// RecursionError). Such a failure is reported but not latched; the next call
+// tries again.
+bool take_python_error(char* buf, std::size_t size) noexcept {
+    const bool transient = PyErr_Occurred()
+                           && (!PyErr_ExceptionMatches(PyExc_Exception) || PyErr_ExceptionMatches(PyExc_MemoryError)
+                               || PyErr_ExceptionMatches(PyExc_RecursionError));
 #if PY_VERSION_HEX >= 0x030C0000
     PyObject* exc = PyErr_GetRaisedException();
 #else
@@ -82,12 +128,16 @@ void take_python_error(char* buf, std::size_t size) noexcept {
     Py_XDECREF(text);
     Py_XDECREF(exc);
     PyErr_Clear();
+    return transient;
 }
 
-void record_failure(FnTable table, const char* message) noexcept {
+void record_failure(FnTable table, const char* message, bool latch = true) noexcept {
     {
         std::lock_guard<std::mutex> lock(fill_mutex);
         std::snprintf(fill_error[index_of(table)], sizeof(fill_error[0]), "%s", message);
+    }
+    if (latch) {
+        table_failed[index_of(table)].store(true, std::memory_order_release);
     }
     report_message(message);
 }
@@ -98,15 +148,23 @@ bool fn_table_ready(FnTable table) noexcept {
     return table_ready[index_of(table)].load(std::memory_order_acquire);
 }
 
-const char* fn_table_error(FnTable table) noexcept {
+bool fn_table_error(FnTable table, char* buffer, std::size_t size) noexcept {
+    std::lock_guard<std::mutex> lock(fill_mutex);
     const char* text = fill_error[index_of(table)];
-    return text[0] ? text : nullptr;
+    if (!text[0]) {
+        return false;
+    }
+    std::snprintf(buffer, size, "%s", text);
+    return true;
 }
 
 bool ensure_fn_table(FnTable table) noexcept {
     const std::size_t idx = index_of(table);
     if (table_ready[idx].load(std::memory_order_acquire)) {
         return true;
+    }
+    if (table_failed[idx].load(std::memory_order_acquire)) {
+        return false;  // latched: the reason was reported when the fill failed
     }
     std::size_t count = 0;
     const FnEntry* entries = fn_table_entries(table, &count);
@@ -128,21 +186,22 @@ bool ensure_fn_table(FnTable table) noexcept {
         record_failure(table, "cuda.core cannot resolve driver functions while the interpreter is shutting down");
         return false;
     }
+    PendingExceptionGuard pending;
 
     PyObject* module = PyImport_ImportModule(module_name(table));
     if (module == nullptr) {
-        take_python_error(cause, sizeof(cause));
+        const bool transient = take_python_error(cause, sizeof(cause));
         std::snprintf(message, sizeof(message),
                       "cuda.core cannot import %s from the installed cuda-bindings: %s", module_name(table), cause);
-        record_failure(table, message);
+        record_failure(table, message, !transient);
         return false;
     }
     PyObject* pointers = PyObject_CallMethod(module, "_inspect_function_pointers", nullptr);
     Py_DECREF(module);
     if (pointers == nullptr) {
-        take_python_error(cause, sizeof(cause));
+        const bool transient = take_python_error(cause, sizeof(cause));
         std::snprintf(message, sizeof(message), "cuda-bindings could not load the %s: %s", library_name(table), cause);
-        record_failure(table, message);
+        record_failure(table, message, !transient);
         return false;
     }
     if (!PyDict_Check(pointers)) {
@@ -187,9 +246,10 @@ bool ensure_fn_table(FnTable table) noexcept {
         for (std::size_t i = 0; i < count; ++i) {
             if (values[i] == nullptr && entries[i].introduced <= CUDA_CORE_BUILD_MAJOR * 1000) {
                 std::snprintf(message, sizeof(message),
-                              "the installed CUDA driver does not provide %s, which every driver of the CUDA %d "
-                              "series provides; this cuda.core build requires a CUDA %d driver",
-                              entries[i].name, CUDA_CORE_BUILD_MAJOR, CUDA_CORE_BUILD_MAJOR);
+                              "the installed CUDA driver lacks %s, which every CUDA %d driver provides "
+                              "(introduced in CUDA %d.%d); this cuda.core build needs a newer driver",
+                              entries[i].name, CUDA_CORE_BUILD_MAJOR, entries[i].introduced / 1000,
+                              entries[i].introduced / 10 % 100);
                 record_failure(table, message);
                 return false;
             }
@@ -210,18 +270,28 @@ bool ensure_fn_table(FnTable table) noexcept {
 }
 
 void report_unavailable_fn(FnTable table, const char* name) noexcept {
-    // Once per table: the first unavailable call is the informative one.
-    if (unavailable_reported[index_of(table)].exchange(true)) {
-        return;
-    }
+    char reason[sizeof(fill_error[0])];
+    const bool failed_fill = fn_table_error(table, reason, sizeof(reason));
     char message[768];
-    if (const char* reason = fn_table_error(table)) {
+    if (failed_fill) {
         std::snprintf(message, sizeof(message), "cuda.core could not call %s: %s", name, reason);
     } else {
         std::snprintf(message, sizeof(message),
                       "internal cuda.core error, please report: %s was called but the installed %s does not "
                       "provide it; a feature gate is missing or wrong. The call returned an error instead.",
                       name, library_name(table));
+    }
+    if (table == FnTable::driver) {
+        // The trampoline returns CUDA_ERROR_NOT_INITIALIZED; the Cython error
+        // path attaches this as a note to the CUDAError it raises for it.
+        note_driver_table_failure(message);
+    }
+    if (failed_fill) {
+        return;  // the fill reported its reason when it failed; the note carries it to each raised error
+    }
+    // A gate bug: warn once per table, the first unavailable call is the informative one.
+    if (unavailable_reported[index_of(table)].exchange(true)) {
+        return;
     }
     report_message(message);
 }

@@ -141,7 +141,7 @@ def test_driver_calls_go_through_the_table():
     the table's own machinery and the sites under ipc_import_mutex, where the
     table is resolved before the lock and marked `// raw:`."""
     machinery = {"driver_api.hpp", "driver_api.cpp", "py_driver_fns.cpp", "internal.hpp"}
-    raw_call = re.compile(r"\bp_(cu|nv)\w+\(")
+    raw_call = re.compile(r"\bp_(cu|nv)\w+\b")  # calls and null checks alike
     offenders = []
     for path in HEADERS + SOURCES:
         if path.name in machinery:
