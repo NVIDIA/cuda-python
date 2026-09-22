@@ -111,7 +111,7 @@ version-check failure:
 2. **Stale tags** (a fork that has not fetched upstream in a while): you get a
    plausible-looking but wrong version, e.g. `13.0.4.dev650+g0d22cb44` when the
    real latest tag is `v13.4.2`. Nothing warns you. Note there is no leading
-   `v` — the tag prefix is stripped by `tag_regex`.
+   `v` — `setuptools-scm` strips the tag prefix.
 3. **No git metadata** (source zip): the build fails with
    `LookupError: setuptools-scm was unable to detect version`.
 
