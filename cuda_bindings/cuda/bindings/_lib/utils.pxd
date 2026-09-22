@@ -38,6 +38,7 @@ cdef class _HelperCUmemPool_attribute:
 
     # Return values
     cdef int _int_val
+    cdef unsigned int _uint_val
     cdef driver.cuuint64_t _cuuint64_t_val
 
 
@@ -167,4 +168,5 @@ cdef class _HelperCUcoredumpSettings:
 
     # Return values
     cdef cpp_bool _bool
+    cdef unsigned int _uint
     cdef char* _charstar
