@@ -11,11 +11,14 @@ from .conftest import unsupported_before
 
 def test_discover_gpus(all_devices, subtests):
     for device in all_devices:
-        with subtests.test(device_index=nvml.device_get_index(device)):
-            pci_info = nvml.device_get_pci_info_v3(device)
+        with (
+            subtests.test(device_index=nvml.device_get_index(device)),
+            unsupported_before(device, None),
+            contextlib.suppress(nvml.OperatingSystemError),
+        ):
             # Docs say this should be supported on PASCAL and later
-            with unsupported_before(device, None), contextlib.suppress(nvml.OperatingSystemError):
-                nvml.device_discover_gpus(pci_info.ptr)
+            pci_info = nvml.device_get_pci_info_v3(device)
+            nvml.device_discover_gpus(pci_info.ptr)
 
 
 def test_bridge_chip_hierarchy_t():

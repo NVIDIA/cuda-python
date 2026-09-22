@@ -11,17 +11,19 @@ import pytest
 
 @cache
 def hardware_supports_nvml():
-    """Try the simplest NVML API to verify basic functionality.
+    """Verify that NVML supports the device lookup used by cuda.core.
 
     Returns False on platforms where NVML is unsupported (e.g. Jetson Orin).
     """
     from cuda.bindings import nvml
-    from cuda.bindings._internal.utils import FunctionNotFoundError as NvmlSymbolNotFoundError  # noqa: F401
 
     nvml.init_v2()
     try:
-        nvml.system_get_driver_branch()
-    except (nvml.NotSupportedError, nvml.UnknownError):
+        if nvml.device_get_count_v2() == 0:
+            return False
+        device = nvml.device_get_handle_by_index_v2(0)
+        nvml.device_get_handle_by_uuid(nvml.device_get_uuid(device))
+    except (nvml.NotFoundError, nvml.NotSupportedError, nvml.UnknownError):
         return False
     else:
         return True
