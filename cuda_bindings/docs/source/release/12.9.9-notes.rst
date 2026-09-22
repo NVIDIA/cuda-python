@@ -6,7 +6,6 @@
 ``cuda-bindings`` 12.9.9 Release notes
 =======================================
 
-Released on TBD
 
 Changes
 -------
