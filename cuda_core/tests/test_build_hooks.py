@@ -216,13 +216,9 @@ class TestBuildConfigStamp:
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_stamp_path_is_scoped_to_extension_abi(self, monkeypatch):
-        monkeypatch.setattr(
-            build_hooks.sysconfig, "get_config_var", lambda name: ".cpython-310-x86_64-linux-gnu.so"
-        )
+        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-310-x86_64-linux-gnu.so")
         python_310 = build_hooks._abi_stamp_path(".build-config")
-        monkeypatch.setattr(
-            build_hooks.sysconfig, "get_config_var", lambda name: ".cpython-311-x86_64-linux-gnu.so"
-        )
+        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-311-x86_64-linux-gnu.so")
         python_311 = build_hooks._abi_stamp_path(".build-config")
 
         assert python_310 != python_311
@@ -312,7 +308,7 @@ class TestBuildHookStamping:
         monkeypatch.setattr(
             build_hooks._build_meta,
             "build_editable",
-            lambda *args: events.append("build") or "cuda_core.whl",
+            lambda *_args: events.append("build") or "cuda_core.whl",
         )
         monkeypatch.setattr(
             build_hooks,
@@ -333,7 +329,11 @@ class TestBuildHookStamping:
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_failed_wheel_build_does_not_record_config(self, monkeypatch):
-        monkeypatch.setattr(build_hooks, "_build_cuda_core", lambda debug: "cu13-gnu-debug")
+        monkeypatch.setattr(
+            build_hooks,
+            "_build_cuda_core",
+            lambda debug: f"cu13-gnu-{'debug' if debug else 'opt'}",
+        )
 
         def fail(*args):
             raise RuntimeError("wheel build failed")
@@ -342,7 +342,7 @@ class TestBuildHookStamping:
         monkeypatch.setattr(
             build_hooks,
             "record_build_config",
-            lambda key: pytest.fail("failed build must not be stamped"),
+            lambda _key: pytest.fail("failed build must not be stamped"),
         )
 
         with pytest.raises(RuntimeError, match="wheel build failed"):
@@ -350,8 +350,12 @@ class TestBuildHookStamping:
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_failed_editable_patch_does_not_record_config(self, monkeypatch):
-        monkeypatch.setattr(build_hooks, "_build_cuda_core", lambda debug: "cu13-gnu-debug")
-        monkeypatch.setattr(build_hooks._build_meta, "build_editable", lambda *args: "cuda_core.whl")
+        monkeypatch.setattr(
+            build_hooks,
+            "_build_cuda_core",
+            lambda debug: f"cu13-gnu-{'debug' if debug else 'opt'}",
+        )
+        monkeypatch.setattr(build_hooks._build_meta, "build_editable", lambda *_args: "cuda_core.whl")
 
         def fail(wheel_path):
             raise RuntimeError("editable patch failed")
@@ -360,7 +364,7 @@ class TestBuildHookStamping:
         monkeypatch.setattr(
             build_hooks,
             "record_build_config",
-            lambda key: pytest.fail("unpatched editable build must not be stamped"),
+            lambda _key: pytest.fail("unpatched editable build must not be stamped"),
         )
 
         with pytest.raises(RuntimeError, match="editable patch failed"):

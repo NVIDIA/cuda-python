@@ -188,13 +188,9 @@ class TestBuildToolchainStamp:
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_stamp_path_is_scoped_to_extension_abi(self, monkeypatch):
-        monkeypatch.setattr(
-            build_hooks.sysconfig, "get_config_var", lambda name: ".cpython-310-x86_64-linux-gnu.so"
-        )
+        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-310-x86_64-linux-gnu.so")
         python_310 = build_hooks._abi_stamp_path(".build-toolchain")
-        monkeypatch.setattr(
-            build_hooks.sysconfig, "get_config_var", lambda name: ".cpython-311-x86_64-linux-gnu.so"
-        )
+        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-311-x86_64-linux-gnu.so")
         python_311 = build_hooks._abi_stamp_path(".build-toolchain")
 
         assert python_310 != python_311
