@@ -660,6 +660,26 @@ static const GraphNodeBox* get_box(const GraphNodeHandle& h) {
     );
 }
 
+// Retire one box of a graph that CUDA has destroyed: detach its node handles,
+// drop its registry entry and attachments, and move it to the graveyard.
+// `graph` must be an iterator into hierarchy.graphs; the splice invalidates it.
+static void retire_graph(
+        GraphHierarchy& hierarchy,
+        std::list<GraphBox>::iterator graph) noexcept {
+    for (auto& entry : graph->node_handles.drain()) {
+        if (GraphNodeHandle h_node = entry.second.lock()) {
+            get_box(h_node)->resource = nullptr;
+        }
+    }
+    if (graph->resource) {
+        graph_registry.unregister_handle(graph->resource);
+        graph->resource = nullptr;
+    }
+    graph->attachments.clear();
+    hierarchy.graveyard.splice(
+        hierarchy.graveyard.end(), hierarchy.graphs, graph);
+}
+
 // graphs is ordered parent-before-child. Nulling a selected box marks its
 // later descendants, whose parent pointers remain valid after list splicing.
 // This permits one allocation-free sweep of the hierarchy.
@@ -682,21 +702,28 @@ void invalidate_child_graph_state(
                              graph->owner_node == owner_node;
         bool is_descendant = graph->parent &&
                              !graph->parent->resource;
-        if (!is_owned_root && !is_descendant) {
-            continue;
+        if (is_owned_root || is_descendant) {
+            retire_graph(hierarchy, graph);
         }
+    }
+}
 
-        // Empty node_handles and invalidate each one.
-        for (auto& entry : graph->node_handles.drain()) {
-            if (GraphNodeHandle h_node = entry.second.lock()) {
-                get_box(h_node)->resource = nullptr;
-            }
-        }
-        graph_registry.unregister_handle(graph->resource);
-        graph->resource = nullptr;
-        graph->attachments.clear();
-        hierarchy.graveyard.splice(
-            hierarchy.graveyard.end(), hierarchy.graphs, graph);
+// CUDA destroyed the root graph and, with it, every child. Retire every box
+// so that no registry entry resolves to the dead graphs and the hierarchy's
+// deleter finds no root to destroy.
+void invalidate_root_graph_state(const GraphHandle& h_root) noexcept {
+    if (!h_root) {
+        return;
+    }
+
+    GraphBox* root = get_box(h_root);
+    if (!root->resource || root->parent) {
+        return;
+    }
+    GraphHierarchy& hierarchy = *root->hierarchy;
+    for (auto it = hierarchy.graphs.begin();
+         it != hierarchy.graphs.end();) {
+        retire_graph(hierarchy, it++);
     }
 }
 
