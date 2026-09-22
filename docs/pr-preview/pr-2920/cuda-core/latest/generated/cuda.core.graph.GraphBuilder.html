@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=3e8d1da3"></script>
+    <script src="../_static/documentation_options.js?v=d4818e24"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev118';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev130';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -884,6 +884,8 @@ copied and its lifetime is tied to the graph.</p></li>
 <dt class="sig sig-object py" id="cuda.core.graph.GraphBuilder.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph.GraphBuilder.close" title="Link to this definition">#</a></dt>
 <dd><p>Destroy the graph builder.</p>
+<p>A builder that is still building ends its capture first. The builder
+is closed even when that fails; the driver error is raised afterwards.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -976,6 +978,21 @@ default is assigned.</p>
 <dt class="sig sig-object py" id="cuda.core.graph.GraphBuilder.end_building">
 <span class="sig-name descname"><span class="pre">end_building</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphBuilder.end_building" title="Link to this definition">#</a></dt>
 <dd><p>Ends the building process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If the builder is not building. A forked builder is ended by
+    <a class="reference internal" href="#cuda.core.graph.GraphBuilder.join" title="cuda.core.graph.GraphBuilder.join"><code class="xref py py-meth docutils literal notranslate"><span class="pre">join()</span></code></a>, not by this method.</p></li>
+<li><p><a class="reference internal" href="cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><strong>CUDAError</strong></a> – If the capture was invalidated, for example by a CUDA call that is
+    not permitted while capturing. The capture is ended and the
+    builder holds no graph afterwards, so <a class="reference internal" href="#cuda.core.graph.GraphBuilder.complete" title="cuda.core.graph.GraphBuilder.complete"><code class="xref py py-meth docutils literal notranslate"><span class="pre">complete()</span></code></a> and
+    <code class="xref py py-attr docutils literal notranslate"><span class="pre">graph_definition</span></code> are unavailable. This applies to a
+    top-level builder. An invalidated capture of a conditional body
+    leaves the parent builder’s graph invalid as well; ending it may
+    crash the process (see issue #2918).</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1038,7 +1055,10 @@ whether the branch executes.</p>
 <dt class="sig sig-object py" id="cuda.core.graph.GraphBuilder.join">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">graph_builders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphBuilder.join" title="Link to this definition">#</a></dt>
 <dd><p>Joins multiple graph builders into a single graph builder.</p>
-<p>The returned builder inherits work dependencies from the provided builders.</p>
+<p>The returned builder inherits work dependencies from the provided builders.
+If joining fails partway, the builders that were not joined are closed
+before the error propagates, so none is left capturing. A driver error
+from one of those closes is attached to the propagating error as a note.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>*graph_builders</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code>) – The graph builders to join.</p>

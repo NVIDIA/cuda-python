@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=3e8d1da3"></script>
+    <script src="../_static/documentation_options.js?v=d4818e24"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev118';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev130';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -860,8 +860,8 @@ the deallocation stream stored in the handle is used.</p>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword argument specifying the stream for the
 asynchronous copy</p></li>
 <li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">CopyOptions</span></code></a>, optional) – Transfer hints (source access order, location hints, overlap mode).
-Honored when cuda.bindings and the driver are both CUDA 13.2 or
-newer. Not accepted with <code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code>; use
+Honored on the CUDA 13 build of <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> with a driver of CUDA
+13.2 or newer. Not accepted with <code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code>; use
 <code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code> instead. Not accepted with a
 capturing stream either, since a graph cannot represent these
 attributes; use <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.memcpy" title="cuda.core.graph.GraphNode.memcpy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.memcpy()</span></code></a> for a plain,
@@ -909,8 +909,8 @@ is allocated using this buffer’s memory resource.</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword argument specifying the stream for the
 asynchronous copy</p></li>
 <li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">CopyOptions</span></code></a>, optional) – Transfer hints (source access order, location hints, overlap mode).
-Honored when cuda.bindings and the driver are both CUDA 13.2 or
-newer. Not accepted with <code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code>; use
+Honored on the CUDA 13 build of <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> with a driver of CUDA
+13.2 or newer. Not accepted with <code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code>; use
 <code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code> instead. Not accepted with a
 capturing stream either, since a graph cannot represent these
 attributes; use <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.memcpy" title="cuda.core.graph.GraphNode.memcpy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.memcpy()</span></code></a> for a plain,

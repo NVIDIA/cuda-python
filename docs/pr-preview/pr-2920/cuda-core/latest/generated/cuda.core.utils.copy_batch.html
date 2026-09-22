@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=3e8d1da3"></script>
+    <script src="../_static/documentation_options.js?v=d4818e24"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev118';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev130';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -826,9 +826,8 @@ uses stream-ordered defaults.</p></li>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>Batching through <code class="docutils literal notranslate"><span class="pre">cuMemcpyBatchAsync</span></code> requires all three of:
-<code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> built against CUDA 13 headers, <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> 13.0 or
-newer, and a driver reporting CUDA 13.0 or newer
+<p>Batching through <code class="docutils literal notranslate"><span class="pre">cuMemcpyBatchAsync</span></code> requires both the CUDA 13 build of
+<code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> and a driver reporting CUDA 13.0 or newer
 (<code class="docutils literal notranslate"><span class="pre">cuDriverGetVersion()</span> <span class="pre">&gt;=</span> <span class="pre">13000</span></code>). <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> binds only the
 CUDA 13.0 revision of the entry point, so a driver that predates it is
 refused even where it implements the earlier CUDA 12.8 signature.</p>

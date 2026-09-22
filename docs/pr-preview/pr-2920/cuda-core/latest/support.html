@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=3e8d1da3"></script>
+    <script src="_static/documentation_options.js?v=d4818e24"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev118';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev130';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -846,8 +846,9 @@ CUDA library or CUDA driver versions. Refer to the individual module documentati
 <p>Each <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> release declares, for each supported CUDA major version, a minimum
 <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version, its <em>floor</em>: the newest <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> release of that major at the
 time of the <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> release, which is the version the published wheels are built against.
-The floors of the current release are recorded in <code class="docutils literal notranslate"><span class="pre">cuda/core/_bindings_floor.py</span></code> and in the
-<code class="docutils literal notranslate"><span class="pre">cu12</span></code>/<code class="docutils literal notranslate"><span class="pre">cu13</span></code> extras of <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code>.</p>
+The floors of the current release are declared by the <code class="docutils literal notranslate"><span class="pre">cu12</span></code>/<code class="docutils literal notranslate"><span class="pre">cu13</span></code> extras of <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code>
+(in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>); the build, the import-time check, this page and CI all read them from
+there.</p>
 <div class="pst-scrollable-table-container"><table class="table" id="id2">
 <caption><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> floors</span><a class="headerlink" href="#id2" title="Link to this table">#</a></caption>
 <thead>
@@ -857,7 +858,7 @@ The floors of the current release are recorded in <code class="docutils literal 
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>1.3.x</p></td>
+<tr class="row-even"><td><p>1.2.1.dev130</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> &gt;= 12.9.8</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> &gt;= 13.4.1</p></td>
 </tr>
@@ -866,20 +867,23 @@ The floors of the current release are recorded in <code class="docutils literal 
 </div>
 <ul class="simple">
 <li><p><strong>At run time</strong>, <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cuda.core</span></code> requires an installed <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> of the same major
-as the <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> build in use and at least as new as that build’s floor. An older
+as the <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> build in use, at least as new as that build’s floor, and generated from a
+<code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> at least as new (by major.minor) as the one the build compiled against; the published
+wheels are built against the floor’s header, so the floor alone satisfies them. An older
 <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> fails at import with a message that names the version found, the version
 required, and the <code class="docutils literal notranslate"><span class="pre">pip</span></code> command that fixes it. A newer <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> of the same major is
 supported.</p></li>
 <li><p><strong>At build time</strong>, a source build requires <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> at or above the floor and a
-<code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> (<code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>) of the same major.minor as that <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>,
-which is the header <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> itself was generated from. Any other configuration fails
-the build with a message that names what was found and what is required. Building against an
-older CUDA Toolkit than the floor’s minor is not supported.</p></li>
+<code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> (<code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>) of the same major.minor as the header that
+<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> was generated from. Any other configuration fails the build with a message
+that names what was found and what is required. Building against an older CUDA Toolkit than
+the floor’s minor is not supported.</p></li>
 <li><p><strong>The CUDA driver</strong> is unaffected. Feature availability is decided by the driver alone: a
 feature the installed driver lacks raises when it is used, as before.</p></li>
 </ul>
-<p>A floor is raised only in a release that needs a newer <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> API, and every such
-change is listed under “Breaking Changes” in the <a class="reference internal" href="release.html"><span class="doc">release notes</span></a>.</p>
+<p>A floor moves with each <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> release, to the newest <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> of each major at
+that time, and in any release whose changes need a newer <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> API. Every move is
+listed under “Breaking Changes” in the <a class="reference internal" href="release.html"><span class="doc">release notes</span></a>.</p>
 </section>
 </section>
 <section id="python-version-support">

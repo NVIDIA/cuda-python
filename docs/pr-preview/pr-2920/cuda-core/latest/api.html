@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=3e8d1da3"></script>
+    <script src="_static/documentation_options.js?v=d4818e24"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev118';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev130';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -900,7 +900,7 @@ Use <a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.cor
 closing the buffer. Changing the recorded stream does not synchronize streams;
 the caller must order allocation and every access before the deallocation,
 using events or other CUDA synchronization mechanisms as needed. See
-<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/af883372e1df7ed77a298c29f5762ae1107db14e/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
+<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/a37c10a42e69bece1b4ecf4e7c0fbd077dd2b407/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
 for a complete example.</p>
 </section>
 <section id="cuda-compilation-toolchain">
@@ -997,14 +997,15 @@ Each subclass exposes attributes unique to its operation type.</p>
 methods: <a class="reference internal" href="generated/cuda.core.graph.KernelNode.html#cuda.core.graph.KernelNode" title="cuda.core.graph.KernelNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelNode</span></code></a>, <a class="reference internal" href="generated/cuda.core.graph.MemcpyNode.html#cuda.core.graph.MemcpyNode" title="cuda.core.graph.MemcpyNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemcpyNode</span></code></a>,
 <a class="reference internal" href="generated/cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode" title="cuda.core.graph.MemsetNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemsetNode</span></code></a>, <a class="reference internal" href="generated/cuda.core.graph.ChildGraphNode.html#cuda.core.graph.ChildGraphNode" title="cuda.core.graph.ChildGraphNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChildGraphNode</span></code></a>,
 <a class="reference internal" href="generated/cuda.core.graph.EventRecordNode.html#cuda.core.graph.EventRecordNode" title="cuda.core.graph.EventRecordNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventRecordNode</span></code></a>, <a class="reference internal" href="generated/cuda.core.graph.EventWaitNode.html#cuda.core.graph.EventWaitNode" title="cuda.core.graph.EventWaitNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventWaitNode</span></code></a>, and
-<a class="reference internal" href="generated/cuda.core.graph.HostCallbackNode.html#cuda.core.graph.HostCallbackNode" title="cuda.core.graph.HostCallbackNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">HostCallbackNode</span></code></a>. These methods require CUDA driver and
-<code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> versions 12.2 or newer. Updates affect future graph
+<a class="reference internal" href="generated/cuda.core.graph.HostCallbackNode.html#cuda.core.graph.HostCallbackNode" title="cuda.core.graph.HostCallbackNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">HostCallbackNode</span></code></a>. These methods require a CUDA driver of
+version 12.2 or newer. Updates affect future graph
 instantiations; executable graphs that were already instantiated continue
 using their previous parameters and retained resources. Omitted optional
 arguments preserve their current values where supported.
-On CUDA 12.2 through 13.1, the intended CUDA context must be current when
-updating memcpy or memset nodes. CUDA driver and <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> versions
-13.2 and newer preserve the recorded context automatically.
+With drivers from CUDA 12.2 through 13.1, the intended CUDA context must be
+current when updating memcpy or memset nodes. With the CUDA 13 build of
+<code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> and a driver of CUDA 13.2 or newer, the recorded context is
+preserved automatically.
 Multidimensional or array-backed memcpy nodes and clustered or cooperative
 kernel nodes cannot currently be updated. Clustered and cooperative kernel
 nodes also cannot currently be constructed explicitly.</p>
@@ -1074,8 +1075,8 @@ update or executable destruction. Raw integer addresses remain caller-owned.
 Memcpy and memset updates use the current CUDA context, which must match the
 original node context.</p>
 <p>Kernel, memcpy, and memset views also provide <code class="docutils literal notranslate"><span class="pre">is_enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">enable()</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">disable()</span></code>. Executable-node updates require CUDA driver and
-<code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> versions 12.2 or newer.</p>
+<code class="docutils literal notranslate"><span class="pre">disable()</span></code>. Executable-node updates require a CUDA driver of version 12.2
+or newer.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableGraphNode.html#cuda.core.graph.ExecutableGraphNode" title="cuda.core.graph.ExecutableGraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableGraphNode</span></code></a>()</p></td>
@@ -1209,8 +1210,8 @@ reported as a warning instead.</p>
 <h2>CUDA process checkpointing<a class="headerlink" href="#cuda-process-checkpointing" title="Link to this heading">#</a></h2>
 <p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.checkpoint</span></code> module wraps the CUDA driver process
 checkpoint APIs. These APIs are intended for Linux process checkpoint and
-restore workflows, and require a CUDA driver with checkpoint API support and
-a <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version that exposes those driver entry points.</p>
+restore workflows, and require the CUDA 13 build of <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> and a CUDA
+driver of version 12.8 or newer with checkpoint API support.</p>
 <p>Checkpointing is typically driven by a coordinator process acting on a target
 CUDA process, similar to attaching a debugger or sending a signal. The target
 process is identified by process ID. Linux and the CUDA driver enforce process
