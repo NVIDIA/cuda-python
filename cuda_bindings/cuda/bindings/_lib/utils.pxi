@@ -323,7 +323,6 @@ cdef class _HelperCUpointer_attribute:
             else:
                 self._cptr = <void*><void_ptr>init_value.getPtr()
         elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
-                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES,
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE,
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ACCESS_FLAGS,):
             self._uint = init_value
@@ -339,7 +338,7 @@ cdef class _HelperCUpointer_attribute:
             else:
                 self._cptr = <void*><void_ptr>init_value.getPtr()
         elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_HOST_POINTER,):
-            self._void = <void**><void_ptr>init_value
+            self._void = <void*><void_ptr>init_value
             self._cptr = <void*>&self._void
         elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_P2P_TOKENS,):
             if self._is_getter:
@@ -353,7 +352,8 @@ cdef class _HelperCUpointer_attribute:
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MAPPED,):
             self._bool = init_value
             self._cptr = <void*>&self._bool
-        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_BUFFER_ID,):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_BUFFER_ID,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES,):
             self._ull = init_value
             self._cptr = <void*>&self._ull
         elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_SIZE,):
@@ -380,7 +380,6 @@ cdef class _HelperCUpointer_attribute:
         if self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_CONTEXT,):
             return self._ctx
         elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
-                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES,
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE,
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ACCESS_FLAGS,):
             return self._uint
@@ -398,7 +397,8 @@ cdef class _HelperCUpointer_attribute:
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLE,
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MAPPED,):
             return self._bool
-        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_BUFFER_ID,):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_BUFFER_ID,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES,):
             return self._ull
         elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_SIZE,):
             return self._size
@@ -710,7 +710,7 @@ cdef class _HelperCUcoredumpSettings:
                 self._bool = init_value
 
             self._cptr = <void*>&self._bool
-            self._size = 1
+            self._size = sizeof(cpp_bool)
         else:
             raise TypeError('Unsupported attribute: {}'.format(attr.name))
 

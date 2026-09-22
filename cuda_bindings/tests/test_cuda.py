@@ -464,6 +464,17 @@ def test_pointer_get_attributes_device_ordinal():
     assert attrs[0] in (cuda.CU_DEVICE_CPU, cuda.CU_DEVICE_INVALID)
 
 
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_pointer_allowed_handle_types_preserves_64_bits():
+    helper = cuda._HelperCUpointer_attribute(
+        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES, 0, is_getter=True
+    )
+    expected = 1 << 40
+    ctypes.c_uint64.from_address(helper.cptr).value = expected
+
+    assert helper.pyObj() == expected
+
+
 @pytest.mark.skipif(not supportsManagedMemory(), reason="When new attributes were introduced")
 def test_cuda_mem_range_attr():
     (err,) = cuda.cuInit(0)
@@ -632,6 +643,18 @@ def test_cuda_coredump_attr():
 
     (err,) = cuda.cuCtxDestroy(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_coredump_bool_uses_single_byte_storage():
+    helper = cuda._HelperCUcoredumpSettings(
+        cuda.CUcoredumpSettings.CU_COREDUMP_TRIGGER_HOST, 0, is_getter=True
+    )
+    ctypes.c_uint32.from_address(helper.cptr).value = 0xFFFFFFFF
+    ctypes.c_uint8.from_address(helper.cptr).value = 0
+
+    assert helper.size() == ctypes.sizeof(ctypes.c_bool)
+    assert helper.pyObj() is False
 
 
 def test_get_error_name_and_string():
