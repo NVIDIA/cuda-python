@@ -33,6 +33,11 @@ on:
         required: false
         default: false
         type: boolean
+      pr-number:
+        description: "Pull request number for a non-release docs preview"
+        required: false
+        default: ""
+        type: string
       deploy-docs:
         description: "Deploy generated docs to GitHub Pages or preview branches"
         required: false
@@ -216,9 +221,21 @@ jobs:
           # --no-deps avoids re-resolving cuda-core from PyPI during tag releases.
           pip install --no-deps cuda_python*.whl
 
-      # This step sets the PR_NUMBER/BUILD_LATEST/BUILD_PREVIEW env vars.
+      # These steps set the PR_NUMBER/BUILD_LATEST/BUILD_PREVIEW env vars.
+      - name: Use caller-provided PR number
+        if: ${{ !inputs.is-release && inputs.pr-number != '' }}
+        env:
+          PR_NUMBER_INPUT: ${{ inputs.pr-number }}
+        run: |
+          if [[ ! "${PR_NUMBER_INPUT}" =~ ^[0-9]+$ ]]; then
+            echo "Invalid PR number: ${PR_NUMBER_INPUT}" >&2
+            exit 1
+          fi
+          echo "PR_NUMBER=${PR_NUMBER_INPUT}" >> "$GITHUB_ENV"
+          echo "BUILD_PREVIEW=1" >> "$GITHUB_ENV"
+
       - name: Get PR number
-        if: ${{ !inputs.is-release }}
+        if: ${{ !inputs.is-release && inputs.pr-number == '' }}
         uses: ./.github/actions/get_pr_number
 
       - name: Set up artifact directories

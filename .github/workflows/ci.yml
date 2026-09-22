@@ -86,15 +86,18 @@ jobs:
       skip: ${{ steps.get-should-skip.outputs.skip }}
       doc-only: ${{ steps.get-should-skip.outputs.doc_only }}
       base-ref: ${{ steps.get-should-skip.outputs.base_ref }}
+      build-docs: ${{ steps.get-should-skip.outputs.build_docs }}
+      pr-number: ${{ steps.get-should-skip.outputs.pr_number }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - name: Compute whether to skip builds and tests
+      - name: Compute build, test, and docs controls
         id: get-should-skip
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euxo pipefail
+          pr_number=""
           if ${{ startsWith(github.ref_name, 'pull-request/') }}; then
             pr_number="$(grep -Po '(\d+)$' <<< '${{ github.ref_name }}')"
             pr="$(gh pr view "${pr_number}" --json baseRefName,title)"
@@ -107,9 +110,35 @@ jobs:
             doc_only=false
             base_ref=""
           fi
+
+          build_docs=true
+          if [[ "${GITHUB_REF_TYPE}" != "tag" &&
+                "${GITHUB_REF_NAME}" != "main" &&
+                "${GITHUB_REF_NAME}" != release/* ]]; then
+            if [[ -z "${pr_number}" ]]; then
+              pr_number="$(gh api --method GET "repos/${GITHUB_REPOSITORY}/pulls" \
+                -f state=open \
+                -f "head=${GITHUB_REPOSITORY_OWNER}:${GITHUB_REF_NAME}" \
+                -f per_page=1 \
+                --jq '.[0].number // empty')"
+            fi
+            if [[ -z "${pr_number}" ]]; then
+              build_docs=false
+              message="No open pull request uses ${GITHUB_REPOSITORY_OWNER}:${GITHUB_REF_NAME} as its head; skipping the docs build and preview deployment."
+              echo "::notice title=Documentation build skipped::${message}"
+              {
+                echo "### Documentation build skipped"
+                echo
+                echo "${message}"
+              } >> "${GITHUB_STEP_SUMMARY}"
+            fi
+          fi
+
           echo "skip=${skip}" >> "$GITHUB_OUTPUT"
           echo "doc_only=${doc_only}" >> "$GITHUB_OUTPUT"
           echo "base_ref=${base_ref}" >> "$GITHUB_OUTPUT"
+          echo "build_docs=${build_docs}" >> "$GITHUB_OUTPUT"
+          echo "pr_number=${pr_number}" >> "$GITHUB_OUTPUT"
 
   # Detect which packages were touched by the PR so downstream build and test
   # jobs can avoid rebuilding/retesting packages unaffected by the change.
@@ -610,7 +639,8 @@ jobs:
 
   doc:
     name: Docs
-    if: ${{ github.repository_owner == 'nvidia' }}
+    if: ${{ github.repository_owner == 'nvidia' &&
+            needs.should-skip.outputs.build-docs == 'true' }}
     # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
     permissions:
       id-token: write
@@ -618,11 +648,13 @@ jobs:
       pull-requests: write
     needs:
       - ci-vars
+      - should-skip
       - build-linux-64
     secrets: inherit
     uses: ./.github/workflows/build-docs.yml
     with:
       is-release: ${{ github.ref_type == 'tag' }}
+      pr-number: ${{ needs.should-skip.outputs.pr-number }}
 
   precommit-windows:
     name: Pre-commit on Windows
@@ -697,6 +729,7 @@ jobs:
           fi
 
           doc_only="${{ needs.should-skip.outputs.doc-only }}"
+          build_docs="${{ needs.should-skip.outputs.build-docs }}"
           linux_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux || false }}"
           windows_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows || false }}"
           windows_arm64_supported="${{ needs.ci-vars.outputs.WINDOWS_ARM64_SUPPORTED }}"
@@ -714,14 +747,17 @@ jobs:
             fi
           }
 
-          # Control jobs, the universal linux build, docs, and Windows
-          # pre-commit checks always run.
+          # Control jobs, the universal linux build, and Windows pre-commit
+          # checks always run. Docs require an associated PR for branch runs.
           check_result "ci-vars"           "success"
           check_result "should-skip"       "success"
           check_result "detect-changes"    "success"
           check_result "build-linux-64"    "success"
-          check_result "doc"               "success"
           check_result "precommit-windows" "success"
+
+          doc_expected="skipped"
+          if [[ "$build_docs" == "true" ]]; then doc_expected="success"; fi
+          check_result "doc" "$doc_expected"
 
           # Optional platform builds and wheel tests share the platform plan.
           linux_expected="skipped"
