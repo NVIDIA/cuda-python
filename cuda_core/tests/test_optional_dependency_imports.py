@@ -18,7 +18,6 @@ def restore_optional_import_state():
     saved_nvvm_attempted = _program._nvvm_import_attempted
     saved_driver = _linker._driver
     saved_inited = _linker._inited
-    saved_nvjitlink = _linker._nvjitlink
     saved_nvjitlink_version = _linker._nvjitlink_version
     saved_use_nvjitlink = _linker._use_nvjitlink_backend
 
@@ -26,7 +25,6 @@ def restore_optional_import_state():
     _program._nvvm_import_attempted = False
     _linker._driver = None
     _linker._inited = False
-    _linker._nvjitlink = None
     _linker._nvjitlink_version = None
     _linker._use_nvjitlink_backend = None
 
@@ -36,7 +34,6 @@ def restore_optional_import_state():
     _program._nvvm_import_attempted = saved_nvvm_attempted
     _linker._driver = saved_driver
     _linker._inited = saved_inited
-    _linker._nvjitlink = saved_nvjitlink
     _linker._nvjitlink_version = saved_nvjitlink_version
     _linker._use_nvjitlink_backend = saved_use_nvjitlink
 
@@ -125,7 +122,6 @@ def test_decide_nvjitlink_or_driver_selects_nvjitlink_when_version_symbol_presen
 
     assert use_driver_backend is False
     assert _linker._use_nvjitlink_backend is True
-    assert _linker._nvjitlink is nvjitlink_module
     assert _linker._nvjitlink_version == (13, 4)
     assert version_calls == 1
 
@@ -151,5 +147,4 @@ def test_decide_nvjitlink_or_driver_does_not_call_version_when_symbol_missing(mo
         assert _linker._decide_nvjitlink_or_driver() is True
     assert called["inspect"] is True
     assert called["version"] is False
-    assert _linker._nvjitlink is None
     assert _linker._nvjitlink_version is None

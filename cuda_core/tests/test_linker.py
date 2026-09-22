@@ -39,10 +39,8 @@ if not is_culink_backend:
 
     nvJitLinkError = nvjitlink.nvJitLinkError
     nvjitlink_version = nvjitlink.version()
-    has_linked_ltoir_bindings = all(hasattr(nvjitlink, name) for name in ("get_linked_ltoir_size", "get_linked_ltoir"))
 else:
     nvjitlink_version = (0, 0)
-    has_linked_ltoir_bindings = False
 
     class nvJitLinkError(Exception):
         pass
@@ -343,7 +341,7 @@ class TestWhichBackendClassmethod:
         assert called, "_decide_nvjitlink_or_driver was not called"
 
     @pytest.mark.agent_authored(model="gpt-5.6")
-    def test_which_backend_caches_nvjitlink_module_and_version(self, monkeypatch):
+    def test_which_backend_caches_nvjitlink_version(self, monkeypatch):
         class NvJitLink:
             version_calls = 0
 
@@ -353,13 +351,11 @@ class TestWhichBackendClassmethod:
                 return (13, 4)
 
         monkeypatch.setattr(_linker, "_use_nvjitlink_backend", None)
-        monkeypatch.setattr(_linker, "_nvjitlink", None)
         monkeypatch.setattr(_linker, "_nvjitlink_version", None)
         monkeypatch.setattr(_linker, "_nvjitlink_bindings", NvJitLink)
         monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", lambda _nvjitlink: True)
 
         assert Linker.which_backend() == "nvJitLink"
-        assert _linker._nvjitlink is NvJitLink
         assert _linker._nvjitlink_version == (13, 4)
         assert NvJitLink.version_calls == 1
 
@@ -371,7 +367,6 @@ class TestWhichBackendClassmethod:
         """Regression test for #2408: old nvJitLink must not crash which_backend()."""
         monkeypatch.setattr(_linker, "_use_nvjitlink_backend", None)
         monkeypatch.setattr(_linker, "_driver", None)
-        monkeypatch.setattr(_linker, "_nvjitlink", None)
         monkeypatch.setattr(_linker, "_nvjitlink_version", None)
 
         monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", lambda _nvjitlink: False)
@@ -388,7 +383,6 @@ class TestWhichBackendClassmethod:
 
         monkeypatch.setattr(_linker, "_use_nvjitlink_backend", None)
         monkeypatch.setattr(_linker, "_driver", None)
-        monkeypatch.setattr(_linker, "_nvjitlink", None)
         monkeypatch.setattr(_linker, "_nvjitlink_version", None)
 
         def raise_missing(_nvjitlink):
@@ -562,26 +556,6 @@ def test_require_nvjitlink_version_accepts_boundary_version(monkeypatch):
     _linker._require_nvjitlink_version((13, 2), "incremental linking")
 
 
-@pytest.mark.agent_authored(model="gpt-5.6")
-def test_linked_ltoir_output_requires_new_enough_runtime(monkeypatch):
-    monkeypatch.setattr(_linker, "_nvjitlink_version", (13, 2))
-
-    with pytest.raises(RuntimeError, match=r"LTOIR output requires nvJitLink 13\.3 or newer; found 13\.2"):
-        _linker._linked_ltoir_output_module()
-
-
-@pytest.mark.agent_authored(model="gpt-5.6")
-def test_linked_ltoir_output_requires_new_enough_bindings(monkeypatch):
-    class NvJitLinkWithoutLinkedLtoir:
-        pass
-
-    monkeypatch.setattr(_linker, "_nvjitlink", NvJitLinkWithoutLinkedLtoir)
-    monkeypatch.setattr(_linker, "_nvjitlink_version", (13, 3))
-
-    with pytest.raises(RuntimeError, match="cuda-bindings with get_linked_ltoir_size and get_linked_ltoir"):
-        _linker._linked_ltoir_output_module()
-
-
 incremental_caller = r"""
 extern "C" __device__ int incremental_helper();
 extern "C" __global__ void incremental_kernel(int* result) {
@@ -657,7 +631,7 @@ def test_incremental_cubin_round_trip(init_cuda):
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 @pytest.mark.skipif(
-    is_culink_backend or nvjitlink_version < (13, 3) or not has_linked_ltoir_bindings,
+    is_culink_backend or nvjitlink_version < (13, 3),
     reason="linked LTOIR output requires nvJitLink 13.3 or newer and matching cuda-bindings",
 )
 def test_incremental_ltoir_round_trip(init_cuda):
@@ -683,7 +657,7 @@ def test_incremental_ltoir_round_trip(init_cuda):
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 @pytest.mark.skipif(
-    is_culink_backend or nvjitlink_version < (13, 3) or not has_linked_ltoir_bindings,
+    is_culink_backend or nvjitlink_version < (13, 3),
     reason="linked LTOIR output requires nvJitLink 13.3 or newer and matching cuda-bindings",
 )
 def test_complete_ltoir_round_trip_matches_direct_cubin(init_cuda):
@@ -729,7 +703,7 @@ def test_incremental_lto_cubin_round_trip(init_cuda):
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 @pytest.mark.skipif(
-    is_culink_backend or nvjitlink_version < (13, 3) or not has_linked_ltoir_bindings,
+    is_culink_backend or nvjitlink_version < (13, 3),
     reason="linked LTOIR output requires nvJitLink 13.3 or newer and matching cuda-bindings",
 )
 @pytest.mark.parametrize("non_ltoir_type", ("ptx", "cubin"))

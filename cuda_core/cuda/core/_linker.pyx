@@ -18,7 +18,6 @@ from cuda.bindings cimport cynvjitlink
 
 from ._rt cimport (
     as_cu,
-    as_intptr,
     as_py,
     create_culink_handle,
     create_nvjitlink_handle,
@@ -687,14 +686,13 @@ cdef inline object Linker_link(Linker self, str target_type):
                 'LTOIR output is not supported with "ptx" or "cubin" inputs; '
                 "they carry no LTOIR and would be omitted from the output"
             )
-        nvjitlink_module = _linked_ltoir_output_module()
+        _require_nvjitlink_version((13, 3), "LTOIR output")
 
     cdef cynvjitlink.nvJitLinkHandle c_nvjitlink_h
     cdef cydriver.CUlinkState c_culink_state
     cdef size_t c_output_size = 0
     cdef char* c_code_ptr
     cdef void* c_cubin_out = NULL
-    cdef intptr_t c_handle
 
     if self._use_nvjitlink:
         c_nvjitlink_h = as_cu(self._nvjitlink_handle)
@@ -717,10 +715,13 @@ cdef inline object Linker_link(Linker self, str target_type):
                 HANDLE_RETURN_NVJITLINK(c_nvjitlink_h,
                     cynvjitlink.nvJitLinkGetLinkedPtx(c_nvjitlink_h, c_code_ptr))
         else:
-            c_handle = as_intptr(self._nvjitlink_handle)
-            output_size = nvjitlink_module.get_linked_ltoir_size(c_handle)
-            code = bytearray(output_size)
-            nvjitlink_module.get_linked_ltoir(c_handle, code)
+            HANDLE_RETURN_NVJITLINK(c_nvjitlink_h,
+                cynvjitlink.nvJitLinkGetLinkedLTOIRSize(c_nvjitlink_h, &c_output_size))
+            code = bytearray(c_output_size)
+            c_code_ptr = <char*>(<bytearray>code)
+            with nogil:
+                HANDLE_RETURN_NVJITLINK(c_nvjitlink_h,
+                    cynvjitlink.nvJitLinkGetLinkedLTOIR(c_nvjitlink_h, c_code_ptr))
     else:
         c_culink_state = as_cu(self._culink_handle)
         try:
@@ -752,7 +753,6 @@ cdef inline void Linker_annotate_error_log(Linker self, object e):
 
 # TODO: revisit this treatment for py313t builds
 _driver = None  # populated if nvJitLink cannot be used
-_nvjitlink = None  # populated if nvJitLink can be used
 _nvjitlink_version = None
 _inited = False
 _use_nvjitlink_backend = None  # set by _decide_nvjitlink_or_driver()
@@ -770,23 +770,6 @@ def _require_nvjitlink_version(minimum_version: tuple[int, int], feature: str) -
         raise RuntimeError(f"{feature} requires nvJitLink {required} or newer; found {detected}")
 
 
-# TODO(#2783): Replace this Python-level dispatch with direct cimports once
-# the cuda-bindings runtime floor includes the linked-LTOIR getters.
-def _linked_ltoir_output_module():
-    """Return bindings that can retrieve linked LTOIR without a Cython dependency."""
-    _require_nvjitlink_version((13, 3), "LTOIR output")
-    missing = [
-        name
-        for name in ("get_linked_ltoir_size", "get_linked_ltoir")
-        if not hasattr(_nvjitlink, name)
-    ]
-    if missing:
-        raise RuntimeError(
-            "LTOIR output requires cuda-bindings with " + " and ".join(missing)
-        )
-    return _nvjitlink
-
-
 def _nvjitlink_has_version_symbol(nvjitlink) -> bool:
     # This condition is equivalent to testing for version >= 12.3
     return bool(nvjitlink._inspect_function_pointer("__nvJitLinkVersion"))
@@ -795,11 +778,10 @@ def _nvjitlink_has_version_symbol(nvjitlink) -> bool:
 # Note: this function is reused in the tests
 def _decide_nvjitlink_or_driver() -> bool:
     """Return True if falling back to the cuLink* driver APIs."""
-    global _driver, _nvjitlink, _nvjitlink_version, _use_nvjitlink_backend
+    global _driver, _nvjitlink_version, _use_nvjitlink_backend
     if _use_nvjitlink_backend is not None:
         return not _use_nvjitlink_backend
 
-    _nvjitlink = None
     _nvjitlink_version = None
 
     warn_txt_common = (
@@ -820,7 +802,6 @@ def _decide_nvjitlink_or_driver() -> bool:
         )
     else:
         if has_version_symbol:
-            _nvjitlink = _nvjitlink_bindings
             _nvjitlink_version = _nvjitlink_bindings.version()
             _use_nvjitlink_backend = True
             return False  # Use nvjitlink
