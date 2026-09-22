@@ -379,12 +379,10 @@ def test_pointer_get_attributes_device_ordinal():
         cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
     ]
 
-    attrs = cuda.cuPointerGetAttributes(len(attributes), attributes, 0)
+    err, attrs = cuda.cuPointerGetAttributes(len(attributes), attributes, 0)
 
-    # device ordinals are always small numbers.  A large number would indicate
-    # an overflow error.
-
-    assert abs(attrs[1][0]) < 256
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert attrs == [cuda.CU_DEVICE_INVALID]
 
 
 @pytest.mark.skipif(not supportsManagedMemory(), reason="When new attributes were introduced")
