@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.system\_get\_nvml\_version
+=============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: system_get_nvml_version
