@@ -1,13 +1,14 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Check that the shared toolchain helpers are byte-identical in both build_hooks.py files.
+"""Check that the shared build-helpers block is byte-identical in both build_hooks.py files.
 
-The block delimited by '# --- begin shared toolchain helpers' and
-'# --- end shared toolchain helpers ---' is duplicated verbatim between
+The block delimited by '# --- begin shared build helpers' and
+'# --- end shared build helpers ---' is duplicated verbatim between
 cuda_bindings/build_hooks.py and cuda_core/build_hooks.py (PEP 517 build
-isolation forbids a shared import). Run as a pre-commit hook so drift is
-caught at commit time.
+isolation forbids a shared import). It contains the toolchain helpers and
+the Cython cache helpers. Run as a pre-commit hook so drift is caught at
+commit time.
 """
 
 from __future__ import annotations
@@ -15,8 +16,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-_MARKER_START = "# --- begin shared toolchain helpers"
-_MARKER_END = "# --- end shared toolchain helpers ---"
+_MARKER_START = "# --- begin shared build helpers"
+_MARKER_END = "# --- end shared build helpers ---"
 
 ROOT = Path(__file__).resolve().parents[1]
 _BINDINGS = ROOT / "cuda_bindings" / "build_hooks.py"
@@ -38,7 +39,7 @@ def main() -> None:
     core_block = _shared_block(_CORE)
     if bindings_block != core_block:
         sys.exit(
-            "ERROR: shared toolchain helpers are out of sync between\n"
+            "ERROR: shared build helpers are out of sync between\n"
             f"  {_BINDINGS}\n"
             f"  {_CORE}\n"
             "Edit both files to match and commit again."
