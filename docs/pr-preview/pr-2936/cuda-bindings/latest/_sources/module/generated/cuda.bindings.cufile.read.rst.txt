@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.read
-=========================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: read
