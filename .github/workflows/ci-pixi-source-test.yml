@@ -84,6 +84,8 @@ jobs:
           # package version; a shallow checkout yields 0.1.dev1, which trips
           # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
           fetch-depth: 0
+          # third_party/cccl provides the CCCL headers cuda.core compiles against.
+          submodules: true
 
       - name: Setup pixi
         uses: ./.github/actions/setup-pixi
@@ -140,6 +142,8 @@ jobs:
           # package version; a shallow checkout yields 0.1.dev1, which trips
           # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
           fetch-depth: 0
+          # third_party/cccl provides the CCCL headers cuda.core compiles against.
+          submodules: true
 
       - name: Setup pixi
         uses: ./.github/actions/setup-pixi
@@ -196,6 +200,8 @@ jobs:
           # package version; a shallow checkout yields 0.1.dev1, which trips
           # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
           fetch-depth: 0
+          # third_party/cccl provides the CCCL headers cuda.core compiles against.
+          submodules: true
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main

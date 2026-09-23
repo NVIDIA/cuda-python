@@ -110,7 +110,7 @@ Development with uv
 
 .. code-block:: console
 
-   $ git clone https://github.com/NVIDIA/cuda-python.git
+   $ git clone --recurse-submodules https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_core
    $ uv venv
    $ source .venv/bin/activate   # On Windows: .venv\Scripts\activate
@@ -132,7 +132,7 @@ From the repository root:
 
 .. code-block:: console
 
-   $ git clone https://github.com/NVIDIA/cuda-python.git
+   $ git clone --recurse-submodules https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python
    $ pixi run -e cu13 test-core
 
@@ -151,11 +151,18 @@ Installing from Source
 
 .. code-block:: console
 
-   $ git clone https://github.com/NVIDIA/cuda-python.git
+   $ git clone --recurse-submodules https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_core
    $ pip install .
 
 ``cuda-bindings`` 12.x or 13.x is a required dependency.
+
+.. note::
+
+   ``--recurse-submodules`` is required: the build compiles against the CCCL
+   headers pinned in the ``cuda_core/third_party/cccl`` submodule, and fails
+   without them. For a clone that already exists, run
+   ``git submodule update --init cuda_core/third_party/cccl``.
 
 .. note::
 

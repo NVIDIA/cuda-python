@@ -31,6 +31,10 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   or CUDA headers (`CUDA_HOME`/`CUDA_PATH`) and uses it for build decisions.
 - Source builds require CUDA headers available through `CUDA_HOME` or
   `CUDA_PATH`.
+- CCCL headers come from the pinned `cuda_core/third_party/cccl` submodule, not
+  from the CTK, so the CCCL feature set does not vary with the build
+  environment. There is no fallback: a source build without the submodule
+  fails.
 - `cuda_core` expects `cuda.bindings` to be present and version-compatible.
 
 ## Testing expectations
