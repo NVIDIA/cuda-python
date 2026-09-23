@@ -138,11 +138,11 @@ jobs:
           base_worktree=""
 
           if [[ "${MAINTENANCE_KIND}" == "pull-request" ]]; then
-            maintenance_annotation="Merge the open all-workspace lockfile refresh PR at ${MAINTENANCE_URL}. Then update this branch and rerun CI."
-            maintenance_summary="Merge the open [all-workspace lockfile refresh PR](${MAINTENANCE_URL}), update this branch, and rerun CI."
+            maintenance_annotation="Merge the open all-workspace lockfile refresh PR at ${MAINTENANCE_URL} and then update this branch and rerun CI."
+            maintenance_summary="Merge the open [all-workspace lockfile refresh PR](${MAINTENANCE_URL}) and then update this branch and rerun CI."
           else
-            maintenance_annotation="No all-workspace lockfile refresh PR is open. Open ${MAINTENANCE_URL}, select Run workflow, run it against the default branch, merge the generated lockfile-refresh PR, update this branch, and rerun CI."
-            maintenance_summary="No all-workspace refresh PR is open. Open the [Pixi lockfile refresh workflow](${MAINTENANCE_URL}), select **Run workflow**, run it against the default branch, merge the generated lockfile-refresh PR, update this branch, and rerun CI."
+            maintenance_annotation="No all-workspace lockfile refresh PR is open. Open ${MAINTENANCE_URL} and select Run workflow. Run it against the default branch, merge the generated lockfile-refresh PR, update this branch, and rerun CI."
+            maintenance_summary="No all-workspace refresh PR is open. Open the [Pixi lockfile refresh workflow](${MAINTENANCE_URL}) and select **Run workflow**. Run it against the default branch, merge the generated lockfile-refresh PR, update this branch, and rerun CI."
           fi
 
           {
@@ -294,7 +294,7 @@ jobs:
       - name: Report fallback remediation
         if: ${{ failure() && steps.check.outputs.remediation-printed != 'true' }}
         run: |
-          echo "::error title=Pixi freshness check remediation::An earlier step failed before category-specific remediation could be produced. Rerun the job once. If it fails again, resolve the first operational error in the log. For base-maintenance drift, open ${REFRESH_WORKFLOW_URL}, select Run workflow, run it against the default branch, merge the generated lockfile-refresh PR, update this branch, and rerun CI."
+          echo "::error title=Pixi freshness check remediation::An earlier step failed before category-specific remediation could be produced. Rerun the job once. If it fails again, resolve the first operational error in the log. For base-maintenance drift, open ${REFRESH_WORKFLOW_URL} and select Run workflow. Run it against the default branch, merge the generated lockfile-refresh PR, update this branch, and rerun CI."
           {
             echo "### Pixi freshness check remediation"
             echo
@@ -302,6 +302,6 @@ jobs:
             echo
             echo "1. Rerun the job once to rule out a transient checkout, network, package-index, or solver failure."
             echo "2. If it fails again, resolve the first operational error in the log."
-            echo "3. For base-maintenance drift, open the [Pixi lockfile refresh workflow](${REFRESH_WORKFLOW_URL}), select **Run workflow**, run it against the default branch, merge the generated lockfile-refresh PR, update this branch, and rerun CI."
+            echo "3. For base-maintenance drift, open the [Pixi lockfile refresh workflow](${REFRESH_WORKFLOW_URL}) and select **Run workflow**. Run it against the default branch, merge the generated lockfile-refresh PR, update this branch, and rerun CI."
             echo "4. For a PR-induced stale lockfile, regenerate the affected lockfile with the pinned Pixi version, commit it to this PR, and rerun CI."
           } >> "${GITHUB_STEP_SUMMARY}"
