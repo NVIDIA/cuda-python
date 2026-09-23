@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_sram\_ecc\_error\_status
+========================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_sram_ecc_error_status
