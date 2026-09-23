@@ -538,6 +538,7 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.5.0-notes.html">13.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.4.2-notes.html">13.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.1-notes.html">13.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.0-notes.html">13.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.3.1-notes.html">13.3.1</a></li>
@@ -549,6 +550,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
@@ -1369,9 +1371,15 @@
 <dd><p>Driver models.  Windows only.</p>
 <p>See <cite>nvmlDriverModel_t</cite>.</p>
 <dl class="simple">
+<dt><strong>WDDM</strong>: 0</dt><dd><p>WDDM driver model – GPU treated as a display device.</p>
+</dd>
 <dt><strong>DRIVER_WDDM</strong>: 0</dt><dd><p>WDDM driver model – GPU treated as a display device.</p>
 </dd>
+<dt><strong>WDM</strong>: 1</dt><dd><p>WDM (TCC) model (deprecated) – GPU treated as a generic compute device.</p>
+</dd>
 <dt><strong>DRIVER_WDM</strong>: 1</dt><dd><p>WDM (TCC) model (deprecated) – GPU treated as a generic compute device.</p>
+</dd>
+<dt><strong>MCDM</strong>: 2</dt><dd><p>MCDM driver model – GPU treated as a Microsoft compute device.</p>
 </dd>
 <dt><strong>DRIVER_MCDM</strong>: 2</dt><dd><p>MCDM driver model – GPU treated as a Microsoft compute device.</p>
 </dd>

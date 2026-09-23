@@ -538,6 +538,7 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.5.0-notes.html">13.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.4.2-notes.html">13.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.1-notes.html">13.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.0-notes.html">13.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.3.1-notes.html">13.3.1</a></li>
@@ -549,6 +550,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
@@ -1367,6 +1369,18 @@
 <dt class="sig sig-object py" id="cuda.bindings.nvml.device_get_mps_compute_running_processes_v3">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">device_get_mps_compute_running_processes_v3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_get_mps_compute_running_processes_v3" title="Link to this definition">#</a></dt>
 <dd><p>Get information about processes with a Multi-Process Service (MPS) compute context on a device.</p>
+<p>For Volta ™️ or newer fully supported devices.
+This function returns information only about compute running processes (e.g.
+CUDA application which have active context) utilizing MPS. Any graphics
+applications (e.g. using OpenGL, DirectX) won’t be listed by this function.
+To query the current number of running compute processes, call this function
+with *info_count = 0. The return code will be NVML_ERROR_INSUFFICIENT_SIZE, or
+NVML_SUCCESS if none are running. For this call <code class="docutils literal notranslate"><span class="pre">infos</span></code> is allowed to be
+NULL.
+The usedGpuMemory field returned is all of the memory used by the application.
+Keep in mind that information returned by this call is dynamic and the number
+of elements might change in time. Allocate more space for <code class="docutils literal notranslate"><span class="pre">infos</span></code> table in
+case new compute processes are spawned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>device</strong> (<em>intptr_t</em>) – The device handle or MIG device handle.</p>
@@ -1382,6 +1396,14 @@
 <dd class="field-odd"><p>nvmlProcessInfo_t</p>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In MIG mode, if device handle is provided, the API returns aggregate
+information, only if the caller has appropriate privileges. Per-instance
+information can be queried by using specific MIG device handles. Querying per-
+instance information using MIG device handles is not supported if the device is
+in vGPU Host virtualization mode.</p>
+</div>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><cite>nvmlDeviceGetMPSComputeRunningProcesses_v3</cite></p>

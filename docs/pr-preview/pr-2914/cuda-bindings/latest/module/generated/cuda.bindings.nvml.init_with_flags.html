@@ -538,6 +538,7 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.5.0-notes.html">13.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.4.2-notes.html">13.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.1-notes.html">13.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.0-notes.html">13.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.3.1-notes.html">13.3.1</a></li>
@@ -549,6 +550,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
@@ -1367,12 +1369,27 @@
 <dt class="sig sig-object py" id="cuda.bindings.nvml.init_with_flags">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">init_with_flags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.init_with_flags" title="Link to this definition">#</a></dt>
 <dd><p>Initialize the NVML Library lazily, without allocating any device state, with additional init flags.</p>
+<p>A variant of <a class="reference internal" href="cuda.bindings.nvml.init_v2.html#cuda.bindings.nvml.init_v2" title="cuda.bindings.nvml.init_v2"><code class="xref py py-func docutils literal notranslate"><span class="pre">init_v2()</span></code></a>, this will initialize the NVML Library state
+without enumerating any discovered devices. An option to pass in additional
+flags is provided to modify the behavior of NVML Library init. The usage of
+these flags can be obtained from NVML_INIT_FLAG_*. These flags can be combined
+together.
+Other than the “flags” parameter, this method is completely identical to
+<a class="reference internal" href="cuda.bindings.nvml.init_v2.html#cuda.bindings.nvml.init_v2" title="cuda.bindings.nvml.init_v2"><code class="xref py py-func docutils literal notranslate"><span class="pre">init_v2()</span></code></a>.
+For all products.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>flags</strong> (<em>unsigned int</em>) – NVML_INIT_FLAG_* flags that can modify
-NVML Init behavior.</p>
+<dd class="field-odd"><p><strong>flags</strong> (<em>unsigned int</em>) – NVML_INIT_FLAG_* flags that can modify NVML
+Init behavior.</p>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A reference count of the number of initializations is maintained, and a
+corresponding call to <a class="reference internal" href="cuda.bindings.nvml.shutdown.html#cuda.bindings.nvml.shutdown" title="cuda.bindings.nvml.shutdown"><code class="xref py py-func docutils literal notranslate"><span class="pre">shutdown()</span></code></a> needs to be issued once usage of the
+NVML Library is complete. Shutdown will only occur after the reference count
+reaches zero.</p>
+</div>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><cite>nvmlInitWithFlags</cite></p>

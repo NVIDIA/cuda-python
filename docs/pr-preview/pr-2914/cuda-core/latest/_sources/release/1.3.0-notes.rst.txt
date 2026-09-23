@@ -9,6 +9,15 @@
 New features
 ------------
 
+- Added incremental linking to :class:`Linker` through
+  ``LinkerOptions(incremental=True)`` on nvJitLink 13.2 or newer. A partial
+  native result is returned as a CUBIN and can be passed directly to another
+  linker. :meth:`Linker.link` also accepts ``"ltoir"`` on nvJitLink 13.3 or
+  newer so incremental LTO chains can retain IR until their final link. Direct
+  PTX and CUBIN inputs are rejected for this target because they carry no LTOIR
+  and nvJitLink would otherwise silently omit them.
+  (`#2369 <https://github.com/NVIDIA/cuda-python/issues/2369>`__)
+
 - Added the read-only :attr:`ManagedBuffer.last_prefetch_location` property,
   which reports the destination requested by the most recent explicit
   prefetch across the buffer. It returns a :class:`Device` or :class:`Host`,
@@ -33,6 +42,48 @@ New features
 
 Fixes and enhancements
 ----------------------
+
+- A :class:`Program` that is collected as part of a reference cycle no longer
+  raises ``AttributeError`` from its destructor, and the source file it wrote
+  for a ``debug`` or ``lineinfo`` build is removed. The cyclic collector
+  clears object attributes before the destructor runs, and the destructor
+  read the program options to locate that file.
+  (`#2876 <https://github.com/NVIDIA/cuda-python/issues/2876>`__)
+
+- ``Graph.__getitem__`` now declares an overload for each node type that has
+  an executable view, so type checkers and editors see the precise view type:
+  indexing with a :class:`~graph.KernelNode` yields an
+  :class:`~graph.ExecutableKernelNode`, and so on for memset, memcpy,
+  child-graph, event-record, event-wait, and host-callback nodes. Indexing
+  with a node type that has no executable view is now also reported
+  statically.
+  (`#2482 <https://github.com/NVIDIA/cuda-python/issues/2482>`__)
+
+- :class:`~_memory.DeviceMemoryResource` can now be constructed for a
+  device's default pool (without options), and :attr:`Device.memory_resource`
+  first accessed, while the calling thread is inside a ``global`` or
+  ``thread_local`` stream capture. The constructor applies its
+  release-threshold policy with pool attribute calls that the driver refuses
+  during such a capture; it now makes them in relaxed capture mode and
+  restores the thread's previous mode, so the capture stays valid. Creating a
+  new pool with options during such a capture is still refused by the driver.
+  (`#2834 <https://github.com/NVIDIA/cuda-python/issues/2834>`__)
+
+- Ending, closing, or collecting a top-level :class:`~graph.GraphBuilder`
+  whose capture was invalidated, or left unjoined by a
+  :meth:`~graph.GraphBuilder.join` that failed partway, no longer crashes.
+  :meth:`~graph.GraphBuilder.end_building` and
+  :meth:`~graph.GraphBuilder.close` end the capture and raise the driver
+  error, after which the builder holds no graph. A failed ``join`` also closes
+  the builders it did not join, even when closing one of them fails. This
+  does not extend to the body
+  builder of a conditional node: an invalidated body capture leaves the parent
+  graph invalid as well, and ending it may crash the process
+  (`#2918 <https://github.com/NVIDIA/cuda-python/issues/2918>`__). Calling
+  ``end_building`` on a forked builder is now rejected with ``RuntimeError``;
+  forked builders are ended by ``join``.
+  (`#2834 <https://github.com/NVIDIA/cuda-python/issues/2834>`__,
+  `#2776 <https://github.com/NVIDIA/cuda-python/issues/2776>`__)
 
 - :class:`Device` methods that create resources or synchronize now act on that
   device's bound context, even when another device is current. They do not
@@ -104,3 +155,17 @@ Fixes and enhancements
 
 - :attr:`Stream.device` and related queries on a stream whose context is not
   current now restore the caller's context even when the device query fails.
+
+- Closing a :class:`DeviceMemoryResource` now revokes the peer access it
+  granted before the driver destroys the pool. The revocation used to be one
+  request that named every device, including the pool's own; the driver
+  rejects such a request as a whole, so it never took effect and a pool
+  created later could inherit that access through a recycled handle. Each
+  device is now revoked with its own request, so no single device can block
+  the others.
+  (`#2807 <https://github.com/NVIDIA/cuda-python/issues/2807>`__)
+
+- Calling ``discard()`` on the set-like :attr:`graph.GraphNode.pred` and
+  :attr:`graph.GraphNode.succ` views with an object that is not a
+  :class:`~graph.GraphNode` is now a no-op instead of raising ``TypeError``,
+  consistent with :class:`collections.abc.MutableSet` semantics.

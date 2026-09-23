@@ -538,6 +538,7 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.5.0-notes.html">13.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.4.2-notes.html">13.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.1-notes.html">13.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.0-notes.html">13.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.3.1-notes.html">13.3.1</a></li>
@@ -549,6 +550,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
@@ -1366,21 +1368,41 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.device_get_retired_pages_v2">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">device_get_retired_pages_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">cause</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvml.device_get_retired_pages_v2" title="Link to this definition">#</a></dt>
-<dd><p>Returns the list of retired pages by source, including pages that are pending retirement</p>
+<dd><p>Returns the list of retired pages by source, including pages that are pending retirement The address information provided from this API is the hardware address of the page that was retired. Note that this does not match the virtual address used in CUDA, but will match the address information in Xid 63.</p>
+<p>For Kepler ™️ or newer fully supported devices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>Device</em>) – The identifier of the target device.</p></li>
-<li><p><strong>cause</strong> (<a class="reference internal" href="cuda.bindings.nvml.PageRetirementCause.html#cuda.bindings.nvml.PageRetirementCause" title="cuda.bindings.nvml.PageRetirementCause"><em>PageRetirementCause</em></a>) – Filter page addresses by cause of retirement.</p></li>
+<li><p><strong>device</strong> (<em>intptr_t</em>) – The identifier of the target device.</p></li>
+<li><p><strong>cause</strong> (<a class="reference internal" href="cuda.bindings.nvml.PageRetirementCause.html#cuda.bindings.nvml.PageRetirementCause" title="cuda.bindings.nvml.PageRetirementCause"><em>PageRetirementCause</em></a>) – Filter page addresses by cause of
+retirement.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple of two arrays (addresses, timestamps).</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
+<dd class="field-even"><p><ul class="simple">
+<li><p>unsigned long long: Buffer to write the page addresses into.</p></li>
+<li><dl class="simple">
+<dt>unsigned long long: Buffer to write the timestamps of page</dt><dd><p>retirement, additional for _v2.</p>
 </dd>
 </dl>
+</li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A 2-tuple containing</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>nvmlDeviceGetRetiredPages_v2 adds an additional timestamps parameter to return
+the time of each page’s retirement. This is supported for Pascal and newer
+architecture.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><cite>nvmlDeviceGetRetiredPages_v2</cite></p>
+</div>
 </dd></dl>
 
 </section>
