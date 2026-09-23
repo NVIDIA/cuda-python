@@ -40,10 +40,7 @@ def classify(candidate: LockfileCheck, base: LockfileCheck | None) -> Classifica
         raise ValueError("candidate lockfile must be stale")
     if base is None or not base.stale:
         return Classification.PR_INDUCED
-    if (
-        base.original_blob == candidate.original_blob
-        and base.repaired_blob == candidate.repaired_blob
-    ):
+    if base.original_blob == candidate.original_blob and base.repaired_blob == candidate.repaired_blob:
         return Classification.BASE_MAINTENANCE
     return Classification.MIXED
 
