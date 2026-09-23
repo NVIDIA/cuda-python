@@ -738,7 +738,7 @@ class _NvlinkInfoMeta(type):
         To find the actual number of Nvlinks available on a device, use
         :py:attr:`Device.get_nvlink_count`.
 
-        .. version-deprecated:: 1.1.0
+        .. deprecated:: 1.1.0
             This property is deprecated and will be removed in a future release.
             Use :py:attr:`Device.get_nvlink_count` instead.
         """
@@ -1325,15 +1325,15 @@ class Device:
         """
     def get_cpu_affinity(self, scope: AffinityScope | str=AffinityScope.NODE) -> list[int]:
         """
-        Retrieves a list of indices of NUMA nodes or CPU sockets with the ideal
-        CPU affinity for the device.
+        Retrieves a list of logical CPU indices with the ideal CPU affinity for
+        the device.
 
         For Kepler™ or newer fully supported devices.
 
         Supported on Linux only.
 
         If requested scope is not applicable to the target topology, the API
-        will fall back to reporting the memory affinity for the immediate non-I/O
+        will fall back to reporting the CPU affinity for the immediate non-I/O
         ancestor of the device.
 
         Parameters
@@ -1345,8 +1345,9 @@ class Device:
         Returns
         -------
         list[int]
-            A list of indices of NUMA nodes or CPU sockets with the ideal memory
-            affinity for the device.
+            A list of logical CPU indices with the ideal CPU affinity for the
+            device.  Contrast :meth:`get_memory_affinity`, which returns NUMA
+            node / CPU socket indices.
         """
     def set_cpu_affinity(self) -> None:
         """
@@ -1564,7 +1565,7 @@ class Device:
 
         For devices with NVLink support.
 
-        .. version-changed:: 1.1.0
+        .. versionchanged:: 1.1.0
             Any link number not supported by this specific device will raise a `ValueError`.
         """
     def get_nvlink_count(self) -> int:
@@ -1573,7 +1574,7 @@ class Device:
 
         For devices with NVLink support.
 
-        .. version-added:: 1.1.0
+        .. versionadded:: 1.1.0
         """
     def get_nvlinks(self) -> Iterable[NvlinkInfo]:
         """
@@ -1581,7 +1582,7 @@ class Device:
 
         For devices with NVLink support.
 
-        .. version-added:: 1.1.0
+        .. versionadded:: 1.1.0
         """
     @property
     def pci_info(self) -> PciInfo:
