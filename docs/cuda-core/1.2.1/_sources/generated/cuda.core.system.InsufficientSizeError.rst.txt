@@ -1,0 +1,6 @@
+﻿cuda.core.system.InsufficientSizeError
+======================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: InsufficientSizeError
