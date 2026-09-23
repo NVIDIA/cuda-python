@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -29,14 +29,13 @@ USAGE: $0 [OPTIONS]
 
 OPTIONS:
     -n, --dry-run    Preview what would be deleted without actually deleting
-    --push           Commit and push changes to gh-pages (default: false, requires manual push)
+    --push           Commit and push from the scheduled GitHub Actions workflow
     -h, --help       Show this help message
 
 EXAMPLES:
     $0 -n                     # Preview what would be cleaned up (RECOMMENDED FIRST)
-    $0                        # Clean up folders locally (no push)
-    $0 --push                 # Clean up folders and push to gh-pages branch
-    $0 --dry-run --push       # Invalid combination (dry-run takes precedence)
+    $0                        # Clean up folders locally for inspection (no push)
+    $0 --dry-run --push       # Dry run; --push is ignored
 
 REQUIREMENTS:
     - GH_TOKEN environment variable must be set with appropriate permissions
@@ -45,8 +44,10 @@ REQUIREMENTS:
 
 SAFETY:
 Always run with --dry-run first to verify expected behavior before actual cleanup.
-The script will show a summary of what would be removed. Use --push to automatically
-commit and push changes, otherwise manual git operations are required.
+Without --push, changes are committed locally for inspection only.
+
+Remote updates are owned by the nightly "Cleanup: PR Preview Documentation"
+workflow so they share its deployment lock. Other push contexts are rejected.
 
 This script is specifically designed for the NVIDIA/cuda-python repository structure.
 EOF
@@ -79,6 +80,16 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# Remote cleanup is restricted to the nightly job so all preview deletions have
+# one owner and participate in the shared gh-pages concurrency queue.
+if [[ "$PUSH_CHANGES" == "true" && "$DRY_RUN" != "true" ]] &&
+   [[ "${GITHUB_ACTIONS:-}" != "true" ||
+      "${GITHUB_EVENT_NAME:-}" != "schedule" ||
+      "${GH_PAGES_PUBLISH_LOCK:-}" != "cuda-python-gh-pages-publish" ]]; then
+    echo -e "${RED}[ERROR]${NC} --push is reserved for the scheduled PR preview cleanup workflow" >&2
+    exit 1
+fi
 
 # Validate required tools and environment
 echo -e "${YELLOW}[INFO]${NC} Checking prerequisites..."
@@ -212,11 +223,12 @@ else
     }
     trap cleanup_worktree EXIT
 
-    # Ensure the local gh-pages branch is up-to-date
-    git fetch origin gh-pages:gh-pages
+    # Track the remote branch without overwriting a user's local gh-pages branch.
+    git fetch origin +refs/heads/gh-pages:refs/remotes/origin/gh-pages
+    GH_PAGES_SHA=$(git rev-parse refs/remotes/origin/gh-pages)
 
     echo -e "${YELLOW}[INFO]${NC} Creating git worktree for gh-pages branch..."
-    if ! git worktree add "$TEMP_DIR" gh-pages >/dev/null 2>&1; then
+    if ! git worktree add --detach "$TEMP_DIR" "$GH_PAGES_SHA" >/dev/null 2>&1; then
         echo -e "${RED}[ERROR]${NC} Failed to create git worktree for gh-pages branch" >&2
 
         # Check if the issue might be a leftover worktree registration
@@ -226,7 +238,7 @@ else
             rm -rf "$TEMP_DIR" >/dev/null 2>&1 || true
 
             # Try again
-            if ! git worktree add "$TEMP_DIR" gh-pages >/dev/null 2>&1; then
+            if ! git worktree add --detach "$TEMP_DIR" "$GH_PAGES_SHA" >/dev/null 2>&1; then
                 echo -e "${RED}[ERROR]${NC} Still unable to create worktree after cleanup" >&2
                 exit 1
             fi
@@ -267,13 +279,26 @@ $(if [[ ${#FOLDERS_TO_REMOVE[@]} -gt 20 ]]; then echo "... and $((${#FOLDERS_TO_
 
         if [[ "$PUSH_CHANGES" == "true" ]]; then
             echo -e "${YELLOW}[INFO]${NC} Pushing to gh-pages branch..."
-            git push origin gh-pages
-            CHANGES_PUSHED="true"
+            CHANGES_PUSHED="false"
+            for attempt in 1 2 3; do
+                if git push origin HEAD:refs/heads/gh-pages; then
+                    CHANGES_PUSHED="true"
+                    break
+                fi
+                if [[ "$attempt" -eq 3 ]]; then
+                    echo -e "${RED}[ERROR]${NC} Push to gh-pages rejected after ${attempt} attempts" >&2
+                    exit 1
+                fi
+                echo -e "${YELLOW}[INFO]${NC} gh-pages advanced; rebasing before retry $((attempt + 1))/3..."
+                git fetch origin +refs/heads/gh-pages:refs/remotes/origin/gh-pages
+                git rebase refs/remotes/origin/gh-pages
+            done
             echo -e "${GREEN}[SUCCESS]${NC} Cleanup completed! Removed ${REMOVED_COUNT} PR preview folders and pushed changes"
         else
             CHANGES_PUSHED="false"
             echo -e "${GREEN}[SUCCESS]${NC} Cleanup completed! Removed ${REMOVED_COUNT} PR preview folders"
-            echo -e "${YELLOW}[INFO]${NC} Changes have been committed locally but not pushed. Use 'git push origin gh-pages' to push manually."
+            echo -e "${YELLOW}[INFO]${NC} Changes have been committed locally for inspection but not pushed."
+            echo -e "${YELLOW}[INFO]${NC} The nightly PR preview cleanup workflow owns remote deletions."
             echo -e "${YELLOW}[WARNING]${NC} Worktree will be preserved for manual verification."
         fi
     else
