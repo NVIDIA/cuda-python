@@ -82,9 +82,8 @@ jobs:
             gh pr list \
               --state open \
               --head ci/pixi-lock-refresh/all \
-              --limit 1 \
-              --json url \
-              --jq '.[0].url // ""'
+              --json url,isCrossRepository \
+              --jq '[.[] | select(.isCrossRepository == false)][0].url // ""'
           )" || lookup_status=$?
           if ((lookup_status != 0)); then
             echo "::warning::Could not look up the open Pixi lockfile refresh PR; using the refresh workflow link instead."
