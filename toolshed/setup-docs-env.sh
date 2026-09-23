@@ -47,16 +47,15 @@ conda create -y -n "${ENV_NAME}" \
     pydata-sphinx-theme \
     pytest \
     scipy \
-    "sphinx<8.2.0" \
+    "sphinx>=9,<10" \
     sphinx-copybutton \
     myst-nb \
     enum_tools \
-    sphinx-toolbox \
     pyclibrary
 
 conda activate "${ENV_NAME}"
 python -m pip install --upgrade pip
-python -m pip install nvidia-sphinx-theme
+python -m pip install nvidia-sphinx-theme "sphinx-toolbox>=4.2.0"
 
 echo
 echo "✅ Environment '${ENV_NAME}' is ready."
