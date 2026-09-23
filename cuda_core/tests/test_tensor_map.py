@@ -149,6 +149,19 @@ class TestTensorMapDescriptorCreation:
         )
         assert desc is not None
 
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    def test_swizzle_via_options(self, dev, skip_if_no_tma):
+        # SWIZZLE_128B caps the innermost box at 128 bytes; 64 float32 is 256.
+        buf = dev.allocate(1024 * 4, stream=dev.default_stream)
+        with pytest.raises(ValueError, match="bytes128"):
+            _as_view(buf).as_tensor_map(
+                options=TensorMapDescriptorOptions(
+                    box_dim=(64,),
+                    data_type=np.float32,
+                    swizzle=TensorMapSwizzle.SWIZZLE_128B,
+                )
+            )
+
     def test_strided_memory_view_as_tensor_map_options_dict(self, dev, skip_if_no_tma):
         buf = dev.allocate(1024 * 4, stream=dev.default_stream)
         desc = _as_view(buf).as_tensor_map(
