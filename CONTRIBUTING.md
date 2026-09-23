@@ -49,7 +49,7 @@ correct.** Each package matches its own tag prefix:
 
 | Package | Tag pattern |
 | --- | --- |
-| `cuda-bindings`, `cuda-python` | `v*` (e.g. `v13.4.1`) |
+| `cuda-bindings`, `cuda-python` | `v*` (e.g. `v13.4.2`) |
 | `cuda-core` | `cuda-core-v*` (e.g. `cuda-core-v1.1.0`) |
 | `cuda-pathfinder` | `cuda-pathfinder-v*` (e.g. `cuda-pathfinder-v1.6.0`) |
 
@@ -110,8 +110,8 @@ version-check failure:
    `cuda-bindings` to that same bogus version.
 2. **Stale tags** (a fork that has not fetched upstream in a while): you get a
    plausible-looking but wrong version, e.g. `13.0.4.dev650+g0d22cb44` when the
-   real latest tag is `v13.4.1`. Nothing warns you. Note there is no leading
-   `v` — the tag prefix is stripped by `tag_regex`.
+   real latest tag is `v13.4.2`. Nothing warns you. Note there is no leading
+   `v` — `setuptools-scm` strips the tag prefix.
 3. **No git metadata** (source zip): the build fails with
    `LookupError: setuptools-scm was unable to detect version`.
 
@@ -219,16 +219,14 @@ The freshness check additionally fails when the check itself rewrote a lockfile.
 not canonical for the pinned pixi version, quietly normalizing the file instead,
 which leaves every later pixi run rewriting the committed lockfile.
 
-A scheduled workflow (`CI: pixi lockfile refresh`)
-runs `pixi update --no-install` per workspace and opens a dedicated PR when that
-lockfile changes, so broad dependency churn is reviewed as maintenance rather
-than landing inside unrelated feature work. The workflow can also be dispatched
-manually for one workspace or for all of them. Its dispatch input and every
-lockfile CI matrix resolve through `ci/tools/list_pixi_workspaces.py`, which
-derives the workspace list from the committed manifests, so a newly added
-workspace is picked up without editing any workflow. Human-readable workspace
-IDs remain the dispatch and display names; the inventory generates separate,
-ref-safe keys for refresh branches and workflow concurrency.
+A scheduled workflow (`CI: pixi lockfile refresh`) runs
+`pixi update --no-install` for every workspace in one job and opens one PR with
+all changed lockfiles, so broad dependency churn is reviewed as maintenance
+rather than landing inside unrelated feature work. The workflow can also be
+dispatched manually. Both lockfile workflows resolve their workspace lists
+through `ci/tools/list_pixi_workspaces.py`, which derives the inventory from the
+committed manifests, so a newly added workspace is picked up without editing a
+workflow.
 
 Refresh PRs use `GITHUB_TOKEN`. After one opens, a maintainer with write access
 must first select **Approve workflows to run** in the merge box, then assign

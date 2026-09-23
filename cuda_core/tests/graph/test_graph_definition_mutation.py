@@ -389,6 +389,20 @@ def test_add_wrong_type(init_cuda):
         node.succ.add(42)
 
 
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_discard_wrong_type_is_noop(init_cuda):
+    """Discarding a non-GraphNode is a no-op, matching MutableSet semantics."""
+    g = GraphDefinition()
+    owner = g.empty()
+    neighbor = g.empty()
+    owner.succ.add(neighbor)
+
+    owner.succ.discard("not a node")
+    owner.succ.discard(42)
+
+    assert owner.succ == {neighbor}
+
+
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_discard_absent_invalid_value_is_noop(init_cuda):
     graph = GraphDefinition()
