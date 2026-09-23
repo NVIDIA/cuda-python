@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c4646a20"></script>
+    <script src="../_static/documentation_options.js?v=0fedfaed"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,13 +53,13 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.4';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/13.4.3/module/nvml.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/nvml.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -119,6 +119,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -534,6 +537,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.5.0-notes.html">13.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.4.3-notes.html">13.4.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.4.2-notes.html">13.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.4.1-notes.html">13.4.1</a></li>
@@ -548,6 +552,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.0-notes.html">13.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.9-notes.html">12.9.9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.5-notes.html">12.9.5</a></li>
@@ -1389,7 +1394,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_create_gpu_instance_with_placement.html#cuda.bindings.nvml.device_create_gpu_instance_with_placement" title="cuda.bindings.nvml.device_create_gpu_instance_with_placement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_create_gpu_instance_with_placement</span></code></a>(...)</p></td>
 <td><p>Create GPU instance with the specified placement.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_discover_gpus.html#cuda.bindings.nvml.device_discover_gpus" title="cuda.bindings.nvml.device_discover_gpus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_discover_gpus</span></code></a>(intptr_t pci_info)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_discover_gpus.html#cuda.bindings.nvml.device_discover_gpus" title="cuda.bindings.nvml.device_discover_gpus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_discover_gpus</span></code></a>(pci_info)</p></td>
 <td><p>Request the OS and the NVIDIA kernel driver to rediscover a portion of the PCI subsystem looking for GPUs that were previously removed.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_accounting_buffer_size.html#cuda.bindings.nvml.device_get_accounting_buffer_size" title="cuda.bindings.nvml.device_get_accounting_buffer_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_accounting_buffer_size</span></code></a>(...)</p></td>
@@ -1867,7 +1872,7 @@
 <td><p>Check if any pages are pending retirement and need a reboot to fully retire.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_retired_pages_v2.html#cuda.bindings.nvml.device_get_retired_pages_v2" title="cuda.bindings.nvml.device_get_retired_pages_v2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_retired_pages_v2</span></code></a>(intptr_t device, ...)</p></td>
-<td><p>Returns the list of retired pages by source, including pages that are pending retirement</p></td>
+<td><p>Returns the list of retired pages by source, including pages that are pending retirement The address information provided from this API is the hardware address of the page that was retired.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_row_remapper_histogram.html#cuda.bindings.nvml.device_get_row_remapper_histogram" title="cuda.bindings.nvml.device_get_row_remapper_histogram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_row_remapper_histogram</span></code></a>(...)</p></td>
 <td><p>Get the row remapper histogram.</p></td>
@@ -1921,7 +1926,7 @@
 <td><p>Retrieve the common ancestor for two devices For all products.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_topology_nearest_gpus.html#cuda.bindings.nvml.device_get_topology_nearest_gpus" title="cuda.bindings.nvml.device_get_topology_nearest_gpus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_topology_nearest_gpus</span></code></a>(...)</p></td>
-<td><p>Retrieve the set of GPUs that are nearest to a given device at a specific interconnectivity level</p></td>
+<td><p>Retrieve the set of GPUs that are nearest to a given device at a specific interconnectivity level For all products.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_get_total_ecc_errors.html#cuda.bindings.nvml.device_get_total_ecc_errors" title="cuda.bindings.nvml.device_get_total_ecc_errors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_total_ecc_errors</span></code></a>(intptr_t device, ...)</p></td>
 <td><p>Retrieves the total ECC error counts for the device.</p></td>
@@ -1983,7 +1988,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_is_mig_device_handle.html#cuda.bindings.nvml.device_is_mig_device_handle" title="cuda.bindings.nvml.device_is_mig_device_handle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_is_mig_device_handle</span></code></a>(intptr_t device)</p></td>
 <td><p>Test if the given handle refers to a MIG device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_modify_drain_state.html#cuda.bindings.nvml.device_modify_drain_state" title="cuda.bindings.nvml.device_modify_drain_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_modify_drain_state</span></code></a>(intptr_t pci_info, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_modify_drain_state.html#cuda.bindings.nvml.device_modify_drain_state" title="cuda.bindings.nvml.device_modify_drain_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_modify_drain_state</span></code></a>(pci_info, ...)</p></td>
 <td><p>Modify the drain state of a GPU.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_on_same_board.html#cuda.bindings.nvml.device_on_same_board" title="cuda.bindings.nvml.device_on_same_board"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_on_same_board</span></code></a>(intptr_t device1, ...)</p></td>
@@ -2001,7 +2006,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_power_smoothing_update_preset_profile_param.html#cuda.bindings.nvml.device_power_smoothing_update_preset_profile_param" title="cuda.bindings.nvml.device_power_smoothing_update_preset_profile_param"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_power_smoothing_update_preset_profile_param</span></code></a>(...)</p></td>
 <td><p>Update the value of a specific profile parameter contained within <code class="docutils literal notranslate"><span class="pre">nvmlPowerSmoothingProfile_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_query_drain_state.html#cuda.bindings.nvml.device_query_drain_state" title="cuda.bindings.nvml.device_query_drain_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_query_drain_state</span></code></a>(intptr_t pci_info)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_query_drain_state.html#cuda.bindings.nvml.device_query_drain_state" title="cuda.bindings.nvml.device_query_drain_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_query_drain_state</span></code></a>(pci_info)</p></td>
 <td><p>Query the drain state of a GPU.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_read_prm_counters_v1.html#cuda.bindings.nvml.device_read_prm_counters_v1" title="cuda.bindings.nvml.device_read_prm_counters_v1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_read_prm_counters_v1</span></code></a>(intptr_t device, ...)</p></td>
@@ -2013,7 +2018,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_register_events.html#cuda.bindings.nvml.device_register_events" title="cuda.bindings.nvml.device_register_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_register_events</span></code></a>(intptr_t device, ...)</p></td>
 <td><p>Starts recording of events on a specified devices and add the events to specified <code class="docutils literal notranslate"><span class="pre">nvmlEventSet_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_remove_gpu_v2.html#cuda.bindings.nvml.device_remove_gpu_v2" title="cuda.bindings.nvml.device_remove_gpu_v2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_remove_gpu_v2</span></code></a>(intptr_t pci_info, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_remove_gpu_v2.html#cuda.bindings.nvml.device_remove_gpu_v2" title="cuda.bindings.nvml.device_remove_gpu_v2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_remove_gpu_v2</span></code></a>(pci_info, ...)</p></td>
 <td><p>This method will remove the specified GPU from the view of both NVML and the NVIDIA kernel driver as long as no other processes are attached.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_reset_gpu_locked_clocks.html#cuda.bindings.nvml.device_reset_gpu_locked_clocks" title="cuda.bindings.nvml.device_reset_gpu_locked_clocks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_reset_gpu_locked_clocks</span></code></a>(intptr_t device)</p></td>
@@ -2037,7 +2042,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_auto_boosted_clocks_enabled.html#cuda.bindings.nvml.device_set_auto_boosted_clocks_enabled" title="cuda.bindings.nvml.device_set_auto_boosted_clocks_enabled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_auto_boosted_clocks_enabled</span></code></a>(...)</p></td>
 <td><p>Try to set the current state of Auto Boosted clocks on a device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_clock_offsets.html#cuda.bindings.nvml.device_set_clock_offsets" title="cuda.bindings.nvml.device_set_clock_offsets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_clock_offsets</span></code></a>(intptr_t device, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_clock_offsets.html#cuda.bindings.nvml.device_set_clock_offsets" title="cuda.bindings.nvml.device_set_clock_offsets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_clock_offsets</span></code></a>(intptr_t device, info)</p></td>
 <td><p>Control current clock offset of some clock domain for a given PState.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.device_set_compute_mode.html#cuda.bindings.nvml.device_set_compute_mode" title="cuda.bindings.nvml.device_set_compute_mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_compute_mode</span></code></a>(intptr_t device, ...)</p></td>
@@ -2197,7 +2202,7 @@
 <td><p>Get compute instance profile capacity.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.gpu_instance_get_compute_instances.html#cuda.bindings.nvml.gpu_instance_get_compute_instances" title="cuda.bindings.nvml.gpu_instance_get_compute_instances"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_compute_instances</span></code></a>(...)</p></td>
-<td><p>Get Compute instances for given profile ID.</p></td>
+<td><p>Get compute instances for given profile ID.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.gpu_instance_get_creatable_vgpus.html#cuda.bindings.nvml.gpu_instance_get_creatable_vgpus" title="cuda.bindings.nvml.gpu_instance_get_creatable_vgpus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_creatable_vgpus</span></code></a>(...)</p></td>
 <td><p>Query the currently creatable vGPU types on a specific GPU Instance.</p></td>
@@ -2229,7 +2234,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.init_with_flags.html#cuda.bindings.nvml.init_with_flags" title="cuda.bindings.nvml.init_with_flags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_with_flags</span></code></a>(unsigned int flags)</p></td>
 <td><p>Initialize the NVML Library lazily, without allocating any device state, with additional init flags.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.set_vgpu_version.html#cuda.bindings.nvml.set_vgpu_version" title="cuda.bindings.nvml.set_vgpu_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vgpu_version</span></code></a>(intptr_t vgpu_version)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.set_vgpu_version.html#cuda.bindings.nvml.set_vgpu_version" title="cuda.bindings.nvml.set_vgpu_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vgpu_version</span></code></a>(vgpu_version)</p></td>
 <td><p>Override the preset range of vGPU versions supported by the NVIDIA vGPU Manager with a range set by an administrator.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.shutdown.html#cuda.bindings.nvml.shutdown" title="cuda.bindings.nvml.shutdown"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shutdown</span></code></a>()</p></td>
@@ -2287,7 +2292,7 @@
 <td><p>Gets name of the process with provided process id.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.system_get_topology_gpu_set.html#cuda.bindings.nvml.system_get_topology_gpu_set" title="cuda.bindings.nvml.system_get_topology_gpu_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_get_topology_gpu_set</span></code></a>(...)</p></td>
-<td><p>Retrieve the set of GPUs that have a CPU affinity with the given CPU number</p></td>
+<td><p>Retrieve the set of GPUs that have a CPU affinity with the given CPU number For all products.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.nvml.system_register_events.html#cuda.bindings.nvml.system_register_events" title="cuda.bindings.nvml.system_register_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_register_events</span></code></a>(...)</p></td>
 <td><p>Starts recording of events on system and add the events to specified <code class="docutils literal notranslate"><span class="pre">nvmlSystemEventSet_t</span></code>.</p></td>

@@ -42,6 +42,7 @@ cuda.core.ManagedBuffer
    .. autoattribute:: is_host_accessible
    .. autoattribute:: is_managed
    .. autoattribute:: is_mapped
+   .. autoattribute:: last_prefetch_location
    .. autoattribute:: memory_resource
    .. autoattribute:: owner
    .. autoattribute:: preferred_location

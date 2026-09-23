@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c4646a20"></script>
+    <script src="../_static/documentation_options.js?v=0fedfaed"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,13 +53,13 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.4';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/13.4.3/module/nvjitlink.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/nvjitlink.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -119,6 +119,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -534,6 +537,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.5.0-notes.html">13.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.4.3-notes.html">13.4.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.4.2-notes.html">13.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.4.1-notes.html">13.4.1</a></li>
@@ -548,6 +552,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.0-notes.html">13.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.9-notes.html">12.9.9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.5-notes.html">12.9.5</a></li>
@@ -1370,12 +1375,12 @@
 <dt class="sig sig-object py" id="cuda.bindings.nvjitlink.create">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uint32_t</span> <span class="pre">num_options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">intptr_t</span></span></span><a class="headerlink" href="#cuda.bindings.nvjitlink.create" title="Link to this definition">#</a></dt>
 <dd><p>nvJitLinkCreate creates an instance of <code class="docutils literal notranslate"><span class="pre">nvJitLinkHandle</span></code> with the given input options, and sets the output parameter <code class="docutils literal notranslate"><span class="pre">handle</span></code>.</p>
+<p>It supports options listed in <code class="docutils literal notranslate"><span class="pre">Supported</span> <span class="pre">Link</span> <span class="pre">Options</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_options</strong> (<em>uint32_t</em>) – Number of options passed.</p></li>
-<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>Array of size <code class="docutils literal notranslate"><span class="pre">num_options</span></code> of option
-strings. It can be:</p>
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>Array of size <code class="docutils literal notranslate"><span class="pre">num_options</span></code> of option strings. It can be:</p>
 <ul>
 <li><p>an <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> as the pointer address to the nested sequence, or</p></li>
 <li><p>a Python sequence of <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s, each of which is a pointer address
@@ -1493,6 +1498,7 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="sig sig-object py" id="cuda.bindings.nvjitlink.get_linked_cubin">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">get_linked_cubin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">handle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cubin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvjitlink.get_linked_cubin" title="Link to this definition">#</a></dt>
 <dd><p>nvJitLinkGetLinkedCubin gets the linked cubin.</p>
+<p>User is responsible for allocating enough space to hold the <code class="docutils literal notranslate"><span class="pre">cubin</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1511,6 +1517,7 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="sig sig-object py" id="cuda.bindings.nvjitlink.get_linked_ptx_size">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">get_linked_ptx_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">handle</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">size_t</span></span></span><a class="headerlink" href="#cuda.bindings.nvjitlink.get_linked_ptx_size" title="Link to this definition">#</a></dt>
 <dd><p>nvJitLinkGetLinkedPtxSize gets the size of the linked ptx.</p>
+<p>Linked PTX is only available when using the <code class="docutils literal notranslate"><span class="pre">-lto</span></code> option.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>handle</strong> (<em>intptr_t</em>) – nvJitLink handle.</p>
@@ -1532,6 +1539,8 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="sig sig-object py" id="cuda.bindings.nvjitlink.get_linked_ptx">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">get_linked_ptx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">handle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvjitlink.get_linked_ptx" title="Link to this definition">#</a></dt>
 <dd><p>nvJitLinkGetLinkedPtx gets the linked ptx.</p>
+<p>Linked PTX is only available when using the <code class="docutils literal notranslate"><span class="pre">-lto</span></code> option. User is
+responsible for allocating enough space to hold the <code class="docutils literal notranslate"><span class="pre">ptx</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1550,6 +1559,8 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="sig sig-object py" id="cuda.bindings.nvjitlink.get_linked_ltoir_size">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">get_linked_ltoir_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">handle</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">size_t</span></span></span><a class="headerlink" href="#cuda.bindings.nvjitlink.get_linked_ltoir_size" title="Link to this definition">#</a></dt>
 <dd><p>nvJitLinkGetLinkedLTOIRSize gets the size of the linked LTOIR.</p>
+<p>Linked LTOIR is only available when using the <code class="docutils literal notranslate"><span class="pre">-lto</span></code> option. The returned
+data is in LTOIR Container format (not raw bitcode).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>handle</strong> (<em>intptr_t</em>) – nvJitLink handle.</p>
@@ -1571,6 +1582,9 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="sig sig-object py" id="cuda.bindings.nvjitlink.get_linked_ltoir">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">get_linked_ltoir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">handle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ltoir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvjitlink.get_linked_ltoir" title="Link to this definition">#</a></dt>
 <dd><p>nvJitLinkGetLinkedLTOIR gets the linked LTOIR.</p>
+<p>Linked LTOIR is only available when using the <code class="docutils literal notranslate"><span class="pre">-lto</span></code> option. User is
+responsible for allocating enough space to hold the <code class="docutils literal notranslate"><span class="pre">ltoir</span></code>. The returned
+data is in LTOIR Container format (not raw bitcode).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1610,6 +1624,7 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="sig sig-object py" id="cuda.bindings.nvjitlink.get_error_log">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">get_error_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">handle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvjitlink.get_error_log" title="Link to this definition">#</a></dt>
 <dd><p>nvJitLinkGetErrorLog puts any error messages in the log.</p>
+<p>User is responsible for allocating enough space to hold the <code class="docutils literal notranslate"><span class="pre">log</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1649,6 +1664,7 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="sig sig-object py" id="cuda.bindings.nvjitlink.get_info_log">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">get_info_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">handle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvjitlink.get_info_log" title="Link to this definition">#</a></dt>
 <dd><p>nvJitLinkGetInfoLog puts any info messages in the log.</p>
+<p>User is responsible for allocating enough space to hold the <code class="docutils literal notranslate"><span class="pre">log</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

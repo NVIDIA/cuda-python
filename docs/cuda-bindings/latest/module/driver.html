@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c4646a20"></script>
+    <script src="../_static/documentation_options.js?v=0fedfaed"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,13 +53,13 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.4';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/13.4.3/module/driver.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -119,6 +119,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -534,6 +537,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.5.0-notes.html">13.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.4.3-notes.html">13.4.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.4.2-notes.html">13.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.4.1-notes.html">13.4.1</a></li>
@@ -548,6 +552,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.0-notes.html">13.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.9-notes.html">12.9.9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.5-notes.html">12.9.5</a></li>
@@ -4226,7 +4231,7 @@ whether the surface * is Multiplanar or not.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUctx_flags.CU_CTX_BLOCKING_SYNC">
-<span class="sig-name descname"><span class="pre">CU_CTX_BLOCKING_SYNC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUctx_flags.CU_CTX_BLOCKING_SYNC:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUctx_flags.CU_CTX_BLOCKING_SYNC" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_CTX_BLOCKING_SYNC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUctx_flags.CU_CTX_BLOCKING_SYNC" title="Link to this definition">#</a></dt>
 <dd><p>Set blocking synchronization as default scheduling</p>
 <p>[Deprecated]</p>
 </dd></dl>
@@ -5295,7 +5300,7 @@ whether the surface * is Multiplanar or not.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_SHARED_MEMORY_PER_BLOCK">
-<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_SHARED_MEMORY_PER_BLOCK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_SHARED_MEMORY_PER_BLOCK:</span> <span class="pre">8&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_SHARED_MEMORY_PER_BLOCK" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_SHARED_MEMORY_PER_BLOCK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK:</span> <span class="pre">8&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_SHARED_MEMORY_PER_BLOCK" title="Link to this definition">#</a></dt>
 <dd><p>Deprecated, use CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK</p>
 </dd></dl>
 
@@ -5325,7 +5330,7 @@ whether the surface * is Multiplanar or not.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_REGISTERS_PER_BLOCK">
-<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_REGISTERS_PER_BLOCK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_REGISTERS_PER_BLOCK:</span> <span class="pre">12&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_REGISTERS_PER_BLOCK" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_REGISTERS_PER_BLOCK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK:</span> <span class="pre">12&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_REGISTERS_PER_BLOCK" title="Link to this definition">#</a></dt>
 <dd><p>Deprecated, use CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK</p>
 </dd></dl>
 
@@ -5433,19 +5438,19 @@ whether the surface * is Multiplanar or not.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_WIDTH">
-<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_WIDTH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_WIDTH:</span> <span class="pre">27&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_WIDTH" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_WIDTH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_WIDTH:</span> <span class="pre">27&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_WIDTH" title="Link to this definition">#</a></dt>
 <dd><p>Deprecated, use CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_WIDTH</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_HEIGHT">
-<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_HEIGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_HEIGHT:</span> <span class="pre">28&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_HEIGHT" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_HEIGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_HEIGHT:</span> <span class="pre">28&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_HEIGHT" title="Link to this definition">#</a></dt>
 <dd><p>Deprecated, use CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_HEIGHT</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_NUMSLICES">
-<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_NUMSLICES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_NUMSLICES:</span> <span class="pre">29&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_NUMSLICES" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_NUMSLICES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_LAYERS:</span> <span class="pre">29&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_NUMSLICES" title="Link to this definition">#</a></dt>
 <dd><p>Deprecated, use CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_LAYERS</p>
 </dd></dl>
 
@@ -5889,7 +5894,7 @@ whether the surface * is Multiplanar or not.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED">
-<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED:</span> <span class="pre">102&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED:</span> <span class="pre">102&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED" title="Link to this definition">#</a></dt>
 <dd><p>Device supports virtual memory management APIs like <a class="reference internal" href="#cuda.bindings.driver.cuMemAddressReserve" title="cuda.bindings.driver.cuMemAddressReserve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemAddressReserve</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.cuMemCreate" title="cuda.bindings.driver.cuMemCreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemCreate</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.cuMemMap" title="cuda.bindings.driver.cuMemMap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemMap</span></code></a> and related APIs</p>
 </dd></dl>
 
@@ -8908,7 +8913,7 @@ details see <a class="reference internal" href="#cuda.bindings.driver.cuStreamBe
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_P2PAttribute.CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED">
-<span class="sig-name descname"><span class="pre">CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_P2PAttribute.CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_P2PAttribute.CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_P2PAttribute.CU_DEVICE_P2P_ATTRIBUTE_ACCESS_ACCESS_SUPPORTED:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_P2PAttribute.CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED" title="Link to this definition">#</a></dt>
 <dd><p>Accessing CUDA arrays over the link supported</p>
 </dd></dl>
 
@@ -9574,7 +9579,7 @@ device has on the memory referenced.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE">
-<span class="sig-name descname"><span class="pre">CU_MEM_LOCATION_TYPE_NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_MEM_LOCATION_TYPE_NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUmemLocationType.CU_MEM_LOCATION_TYPE_INVALID:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE" title="Link to this definition">#</a></dt>
 <dd><p>Location is unspecified. This is used when creating a managed memory pool to indicate no preferred location for the pool</p>
 </dd></dl>
 
@@ -24285,18 +24290,24 @@ Indicates whether the pool has hardware compresssion enabled</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pool</strong> (<a class="reference internal" href="#cuda.bindings.driver.CUmemoryPool" title="cuda.bindings.driver.CUmemoryPool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUmemoryPool</span></code></a> or <a class="reference internal" href="runtime.html#cuda.bindings.runtime.cudaMemPool_t" title="cuda.bindings.runtime.cudaMemPool_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPool_t</span></code></a>) – None</p></li>
-<li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.driver.CUmemPool_attribute" title="cuda.bindings.driver.CUmemPool_attribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUmemPool_attribute</span></code></a>) – None</p></li>
+<li><p><strong>pool</strong> (<a class="reference internal" href="#cuda.bindings.driver.CUmemoryPool" title="cuda.bindings.driver.CUmemoryPool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUmemoryPool</span></code></a> or <a class="reference internal" href="runtime.html#cuda.bindings.runtime.cudaMemPool_t" title="cuda.bindings.runtime.cudaMemPool_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPool_t</span></code></a>) – The memory pool to get attributes of</p></li>
+<li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.driver.CUmemPool_attribute" title="cuda.bindings.driver.CUmemPool_attribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUmemPool_attribute</span></code></a>) – The attribute to get</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>CUresult</em></p></li>
-<li><p><strong>value</strong> (<em>Any</em>) – None</p></li>
+<li><p><em>CUresult</em> – <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_SUCCESS" title="cuda.bindings.driver.CUresult.CUDA_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_SUCCESS</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_INITIALIZED" title="cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_INITIALIZED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_NOT_INITIALIZED</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_VALUE" title="cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_VALUE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code></a></p></li>
+<li><p><strong>value</strong> (<em>Any</em>) – Retrieved value</p></li>
 </ul>
 </p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.driver.cuMemAllocAsync" title="cuda.bindings.driver.cuMemAllocAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemAllocAsync</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.cuMemFreeAsync" title="cuda.bindings.driver.cuMemFreeAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemFreeAsync</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.cuDeviceGetDefaultMemPool" title="cuda.bindings.driver.cuDeviceGetDefaultMemPool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuDeviceGetDefaultMemPool</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.cuDeviceGetMemPool" title="cuda.bindings.driver.cuDeviceGetMemPool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuDeviceGetMemPool</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.cuMemPoolCreate" title="cuda.bindings.driver.cuMemPoolCreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemPoolCreate</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>On devices with a single locality domain, mempools created with <a class="reference internal" href="#cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN" title="cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN</span></code></a> and localityDomainId 0 are equivalent to full-device mempools created with <a class="reference internal" href="#cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE" title="cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_DEVICE</span></code></a>. The value of this attribute will be -1 for such mempools.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -31682,7 +31693,7 @@ a child graph, the child graph it is in is returned.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>CUresult</em> – <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_SUCCESS" title="cuda.bindings.driver.CUresult.CUDA_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_SUCCESS</span></code></a> <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_VALUE" title="cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_VALUE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code></a></p></li>
-<li><p><strong>*phGraph</strong> (<a class="reference internal" href="#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a>) – Pointer to return the containing graph</p></li>
+<li><p><strong>phGraph</strong> (<a class="reference internal" href="#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a>) – Pointer to return the containing graph</p></li>
 </ul>
 </p>
 </dd>
@@ -31729,7 +31740,7 @@ graphId together can uniquely identify the node.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>CUresult</em> – <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_SUCCESS" title="cuda.bindings.driver.CUresult.CUDA_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_SUCCESS</span></code></a> <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_VALUE" title="cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_VALUE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code></a></p></li>
-<li><p><strong>*toolsNodeId</strong> (<em>unsigned long long</em>) – Pointer to return the id used by tools</p></li>
+<li><p><strong>toolsNodeId</strong> (<em>unsigned long long</em>) – Pointer to return the id used by tools</p></li>
 </ul>
 </p>
 </dd>
@@ -31753,7 +31764,7 @@ match that referenced by <a class="reference internal" href="#cuda.bindings.driv
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>CUresult</em> – <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_SUCCESS" title="cuda.bindings.driver.CUresult.CUDA_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_SUCCESS</span></code></a> <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_VALUE" title="cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_VALUE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code></a></p></li>
-<li><p><strong>*graphId</strong> (<em>unsigned int</em>) – Pointer to return the graphId</p></li>
+<li><p><strong>graphId</strong> (<em>unsigned int</em>) – Pointer to return the graphId</p></li>
 </ul>
 </p>
 </dd>
@@ -31777,7 +31788,7 @@ will match that referenced by <a class="reference internal" href="#cuda.bindings
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>CUresult</em> – <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_SUCCESS" title="cuda.bindings.driver.CUresult.CUDA_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_SUCCESS</span></code></a> <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_VALUE" title="cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_VALUE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code></a></p></li>
-<li><p><strong>*graphId</strong> (<em>unsigned int</em>) – Pointer to return the graphId</p></li>
+<li><p><strong>graphId</strong> (<em>unsigned int</em>) – Pointer to return the graphId</p></li>
 </ul>
 </p>
 </dd>
@@ -35257,24 +35268,28 @@ returned. If <cite>resource</cite> is not mapped then
 <p>Returns in <cite>*pDevPtr</cite> a pointer through which the mapped graphics
 resource <cite>resource</cite> may be accessed. Returns in <cite>pSize</cite> the size of the
 memory in bytes which may be accessed from that pointer. The value set
-in <cite>pPointer</cite> may change every time that <cite>resource</cite> is mapped.</p>
+in <cite>pDevPtr</cite> may change every time that <cite>resource</cite> is mapped.</p>
 <p>If <cite>resource</cite> is not a buffer then it cannot be accessed via a pointer
 and <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_MAPPED_AS_POINTER" title="cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_MAPPED_AS_POINTER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_NOT_MAPPED_AS_POINTER</span></code></a> is returned. If
 <cite>resource</cite> is not mapped then <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_MAPPED" title="cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_MAPPED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_NOT_MAPPED</span></code></a> is
 returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>resource</strong> (<a class="reference internal" href="#cuda.bindings.driver.CUgraphicsResource" title="cuda.bindings.driver.CUgraphicsResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphicsResource</span></code></a>) – None</p>
+<dd class="field-odd"><p><strong>resource</strong> (<a class="reference internal" href="#cuda.bindings.driver.CUgraphicsResource" title="cuda.bindings.driver.CUgraphicsResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphicsResource</span></code></a>) – Mapped resource to access</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>CUresult</em></p></li>
-<li><p><strong>pDevPtr</strong> (<a class="reference internal" href="#cuda.bindings.driver.CUdeviceptr" title="cuda.bindings.driver.CUdeviceptr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUdeviceptr</span></code></a>) – None</p></li>
-<li><p><strong>pSize</strong> (<em>int</em>) – None</p></li>
+<li><p><em>CUresult</em> – <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_SUCCESS" title="cuda.bindings.driver.CUresult.CUDA_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_SUCCESS</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_DEINITIALIZED" title="cuda.bindings.driver.CUresult.CUDA_ERROR_DEINITIALIZED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_DEINITIALIZED</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_INITIALIZED" title="cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_INITIALIZED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_NOT_INITIALIZED</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_CONTEXT" title="cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_CONTEXT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_CONTEXT</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_VALUE" title="cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_VALUE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_HANDLE" title="cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_HANDLE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_HANDLE</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_MAPPED" title="cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_MAPPED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_NOT_MAPPED</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_MAPPED_AS_POINTER" title="cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_MAPPED_AS_POINTER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_NOT_MAPPED_AS_POINTER</span></code></a></p></li>
+<li><p><strong>pDevPtr</strong> (<a class="reference internal" href="#cuda.bindings.driver.CUdeviceptr" title="cuda.bindings.driver.CUdeviceptr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUdeviceptr</span></code></a>) – Returned pointer through which <cite>resource</cite> may be accessed</p></li>
+<li><p><strong>pSize</strong> (<em>int</em>) – Returned size of the buffer accessible starting at <cite>*pDevPtr</cite></p></li>
 </ul>
 </p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.driver.cuGraphicsMapResources" title="cuda.bindings.driver.cuGraphicsMapResources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuGraphicsMapResources</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.cuGraphicsSubResourceGetMappedArray" title="cuda.bindings.driver.cuGraphicsSubResourceGetMappedArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuGraphicsSubResourceGetMappedArray</span></code></a>, <a class="reference internal" href="runtime.html#cuda.bindings.runtime.cudaGraphicsResourceGetMappedPointer" title="cuda.bindings.runtime.cudaGraphicsResourceGetMappedPointer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphicsResourceGetMappedPointer</span></code></a></p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -38406,19 +38421,23 @@ is returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>resource</strong> (<a class="reference internal" href="#cuda.bindings.driver.CUgraphicsResource" title="cuda.bindings.driver.CUgraphicsResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphicsResource</span></code></a>) – None</p></li>
-<li><p><strong>index</strong> (<em>unsigned int</em>) – None</p></li>
-<li><p><strong>mipLevel</strong> (<em>unsigned int</em>) – None</p></li>
+<li><p><strong>resource</strong> (<a class="reference internal" href="#cuda.bindings.driver.CUgraphicsResource" title="cuda.bindings.driver.CUgraphicsResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphicsResource</span></code></a>) – Registered resource to access.</p></li>
+<li><p><strong>index</strong> (<em>unsigned int</em>) – Index for cubemap surfaces.</p></li>
+<li><p><strong>mipLevel</strong> (<em>unsigned int</em>) – Mipmap level for the subresource to access.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>CUresult</em></p></li>
-<li><p><strong>eglFrame</strong> (<a class="reference internal" href="#cuda.bindings.driver.CUeglFrame" title="cuda.bindings.driver.CUeglFrame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUeglFrame</span></code></a>) – None</p></li>
+<li><p><em>CUresult</em> – <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_SUCCESS" title="cuda.bindings.driver.CUresult.CUDA_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_SUCCESS</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_DEINITIALIZED" title="cuda.bindings.driver.CUresult.CUDA_ERROR_DEINITIALIZED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_DEINITIALIZED</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_INITIALIZED" title="cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_INITIALIZED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_NOT_INITIALIZED</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_CONTEXT" title="cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_CONTEXT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_CONTEXT</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_VALUE" title="cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_VALUE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_HANDLE" title="cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_HANDLE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_HANDLE</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_MAPPED" title="cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_MAPPED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_ERROR_NOT_MAPPED</span></code></a></p></li>
+<li><p><strong>eglFrame</strong> (<a class="reference internal" href="#cuda.bindings.driver.CUeglFrame" title="cuda.bindings.driver.CUeglFrame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUeglFrame</span></code></a>) – Returned eglFrame.</p></li>
 </ul>
 </p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.driver.cuGraphicsMapResources" title="cuda.bindings.driver.cuGraphicsMapResources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuGraphicsMapResources</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.cuGraphicsSubResourceGetMappedArray" title="cuda.bindings.driver.cuGraphicsSubResourceGetMappedArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuGraphicsSubResourceGetMappedArray</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.cuGraphicsResourceGetMappedPointer" title="cuda.bindings.driver.cuGraphicsResourceGetMappedPointer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuGraphicsResourceGetMappedPointer</span></code></a>, <a class="reference internal" href="runtime.html#cuda.bindings.runtime.cudaGraphicsResourceGetMappedEglFrame" title="cuda.bindings.runtime.cudaGraphicsResourceGetMappedEglFrame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphicsResourceGetMappedEglFrame</span></code></a></p>
+</div>
 </dd></dl>
 
 <dl class="py function">
