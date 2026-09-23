@@ -88,11 +88,16 @@ jobs:
           )" || lookup_status=$?
           if ((lookup_status != 0)); then
             echo "::warning::Could not look up the open Pixi lockfile refresh PR; using the refresh workflow link instead."
+            refresh_url=""
           fi
           if [[ -z "${refresh_url}" ]]; then
             refresh_url="${REFRESH_WORKFLOW_URL}"
+            maintenance_kind="workflow"
+          else
+            maintenance_kind="pull-request"
           fi
           echo "url=${refresh_url}" >> "${GITHUB_OUTPUT}"
+          echo "kind=${maintenance_kind}" >> "${GITHUB_OUTPUT}"
 
       # `pixi lock --check` exits 0 on a semantically current lock even when it
       # rewrites the file into the pinned version's canonical form (lockfile
@@ -100,9 +105,11 @@ jobs:
       # is invisible: the check prints "Updated lock file" and still passes,
       # while every later pixi run keeps rewriting the committed file (#2298).
       - name: Check all lockfiles
+        id: check
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           EVENT_NAME: ${{ github.event_name }}
+          MAINTENANCE_KIND: ${{ steps.maintenance.outputs.kind || 'workflow' }}
           MAINTENANCE_URL: ${{ steps.maintenance.outputs.url || env.REFRESH_WORKFLOW_URL }}
           PIXI_VERSION: ${{ steps.setup-pixi.outputs.pixi-version }}
           WORKSPACE_TIMEOUT: 20m
@@ -130,6 +137,14 @@ jobs:
           base_parent=""
           base_worktree=""
 
+          if [[ "${MAINTENANCE_KIND}" == "pull-request" ]]; then
+            maintenance_annotation="Merge the open all-workspace lockfile refresh PR at ${MAINTENANCE_URL}. Then update this branch and rerun CI."
+            maintenance_summary="Merge the open [all-workspace lockfile refresh PR](${MAINTENANCE_URL}), update this branch, and rerun CI."
+          else
+            maintenance_annotation="No all-workspace lockfile refresh PR is open. Open ${MAINTENANCE_URL}, select Run workflow, run it against the default branch, merge the generated lockfile-refresh PR, update this branch, and rerun CI."
+            maintenance_summary="No all-workspace refresh PR is open. Open the [Pixi lockfile refresh workflow](${MAINTENANCE_URL}), select **Run workflow**, run it against the default branch, merge the generated lockfile-refresh PR, update this branch, and rerun CI."
+          fi
+
           {
             echo "### Pixi lockfile freshness"
             echo
@@ -139,7 +154,9 @@ jobs:
 
           if [[ "${EVENT_NAME}" == "pull_request" ]]; then
             if [[ -z "${BASE_SHA}" ]]; then
-              echo "::error::The pull request base SHA is unavailable; cannot attribute stale lockfiles."
+              echo "::error::The pull request base SHA is unavailable, so stale lockfiles cannot be attributed. Rerun the workflow from a pull_request event; if the SHA is still missing, inspect the event payload and workflow configuration."
+              echo "| Workflow | Operational error: base SHA unavailable. Rerun from a pull-request event; if it remains missing, inspect the event payload and workflow configuration. |" >> "${GITHUB_STEP_SUMMARY}"
+              echo "remediation-printed=true" >> "${GITHUB_OUTPUT}"
               exit 1
             fi
             base_parent="$(mktemp -d "${RUNNER_TEMP}/pixi-lockfile-base.XXXXXX")"
@@ -159,14 +176,14 @@ jobs:
             candidate_repaired="$(git hash-object "${lockfile}")"
 
             if ((check_status == 124 || check_status == 137)); then
-              echo "::error::Timed out after ${WORKSPACE_TIMEOUT} while checking '${manifest}'."
-              echo "| \`${manifest}\` | Operational error: candidate check timed out. |" >> "${GITHUB_STEP_SUMMARY}"
+              echo "::error::Timed out after ${WORKSPACE_TIMEOUT} while checking '${manifest}'. Rerun the job. If it times out again, run 'pixi lock --check --manifest-path ${manifest}' with pixi ${PIXI_VERSION} and investigate solver, network, or package-index availability."
+              echo "| \`${manifest}\` | Operational error: candidate check timed out. Rerun the job; if it repeats, run \`pixi lock --check --manifest-path ${manifest}\` with pixi ${PIXI_VERSION} and investigate solver, network, or package-index availability. |" >> "${GITHUB_STEP_SUMMARY}"
               failed=1
               echo "::endgroup::"
               continue
             elif ((check_status != 0)) && [[ "${candidate_original}" == "${candidate_repaired}" ]]; then
-              echo "::error::pixi ${PIXI_VERSION} failed while checking '${manifest}' (exit ${check_status}) without producing a repaired lockfile."
-              echo "| \`${manifest}\` | Operational error: candidate check failed with exit ${check_status}. |" >> "${GITHUB_STEP_SUMMARY}"
+              echo "::error::pixi ${PIXI_VERSION} failed while checking '${manifest}' (exit ${check_status}) without producing a repaired lockfile. Resolve the Pixi error printed above and rerun the job; do not commit a lockfile change unless a later run classifies it as PR-induced."
+              echo "| \`${manifest}\` | Operational error: candidate check failed with exit ${check_status}. Resolve the Pixi error above and rerun; do not commit a lockfile change unless a later run classifies it as PR-induced. |" >> "${GITHUB_STEP_SUMMARY}"
               failed=1
               echo "::endgroup::"
               continue
@@ -204,14 +221,14 @@ jobs:
               base_repaired="$(git -C "${base_worktree}" hash-object "${lockfile}")"
 
               if ((base_status == 124 || base_status == 137)); then
-                echo "::error::Timed out after ${WORKSPACE_TIMEOUT} while checking '${manifest}' at base ${BASE_SHA}."
-                echo "| \`${manifest}\` | Operational error: base check timed out. |" >> "${GITHUB_STEP_SUMMARY}"
+                echo "::error::Timed out after ${WORKSPACE_TIMEOUT} while checking '${manifest}' at base ${BASE_SHA}. Rerun the job. If it times out again, check out ${BASE_SHA}, run 'pixi lock --check --manifest-path ${manifest}' with pixi ${PIXI_VERSION}, and resolve the operational problem before changing this PR's lockfile."
+                echo "| \`${manifest}\` | Operational error: base check timed out. Rerun the job; if it repeats, check out \`${BASE_SHA}\`, run \`pixi lock --check --manifest-path ${manifest}\` with pixi ${PIXI_VERSION}, and resolve the operational problem before changing this PR's lockfile. |" >> "${GITHUB_STEP_SUMMARY}"
                 failed=1
                 echo "::endgroup::"
                 continue
               elif ((base_status != 0)) && [[ "${base_original}" == "${base_repaired}" ]]; then
-                echo "::error::pixi ${PIXI_VERSION} failed while checking '${manifest}' at base ${BASE_SHA} (exit ${base_status}) without producing a repaired lockfile."
-                echo "| \`${manifest}\` | Operational error: base check failed with exit ${base_status}. |" >> "${GITHUB_STEP_SUMMARY}"
+                echo "::error::pixi ${PIXI_VERSION} failed while checking '${manifest}' at base ${BASE_SHA} (exit ${base_status}) without producing a repaired lockfile. Resolve the Pixi error printed above and rerun the job; do not change this PR's lockfile until base attribution succeeds."
+                echo "| \`${manifest}\` | Operational error: base check failed with exit ${base_status}. Resolve the Pixi error above and rerun; do not change this PR's lockfile until base attribution succeeds. |" >> "${GITHUB_STEP_SUMMARY}"
                 failed=1
                 echo "::endgroup::"
                 continue
@@ -243,16 +260,16 @@ jobs:
                 echo "| \`${manifest}\` | PR-induced: regenerate and commit the lockfile in this PR. |" >> "${GITHUB_STEP_SUMMARY}"
                 ;;
               base-maintenance)
-                echo "::error title=Base-maintenance Pixi lockfile change::Lockfile '${lockfile}' was already stale on the PR base; its original and repaired blobs match the candidate. Do not add this refresh to the feature PR. Resolve the base maintenance using ${MAINTENANCE_URL}, update the branch, and rerun CI."
-                echo "| \`${manifest}\` | Base maintenance: not introduced by this PR. Resolve the base [maintenance refresh](${MAINTENANCE_URL}), update the branch, and rerun CI. |" >> "${GITHUB_STEP_SUMMARY}"
+                echo "::error title=Base-maintenance Pixi lockfile change::Lockfile '${lockfile}' was already stale on the PR base; its original and repaired blobs match the candidate. Do not add this refresh to the feature PR. ${maintenance_annotation}"
+                echo "| \`${manifest}\` | Base maintenance: not introduced by this PR. Do not add this refresh to the feature PR. ${maintenance_summary} |" >> "${GITHUB_STEP_SUMMARY}"
                 ;;
               mixed-or-ambiguous)
-                echo "::error title=Mixed or ambiguous Pixi lockfile change::Lockfile '${lockfile}' is stale on both the PR base and candidate, but their original or repaired blobs differ. Refresh the base via ${MAINTENANCE_URL}, update the branch, then address any remaining PR-specific change."
-                echo "| \`${manifest}\` | Mixed or ambiguous: refresh the base via the [maintenance refresh](${MAINTENANCE_URL}), update the branch, then address any remaining PR-specific change. |" >> "${GITHUB_STEP_SUMMARY}"
+                echo "::error title=Mixed or ambiguous Pixi lockfile change::Lockfile '${lockfile}' is stale on both the PR base and candidate, but their original or repaired blobs differ. Refresh the base first. ${maintenance_annotation} Then address any remaining PR-specific lockfile change."
+                echo "| \`${manifest}\` | Mixed or ambiguous: refresh the base first. ${maintenance_summary} Then address any remaining PR-specific lockfile change. |" >> "${GITHUB_STEP_SUMMARY}"
                 ;;
               *)
-                echo "::error::Unknown lockfile freshness classification '${classification}' for '${manifest}'."
-                echo "| \`${manifest}\` | Operational error: unknown classification \`${classification}\`. |" >> "${GITHUB_STEP_SUMMARY}"
+                echo "::error::Unknown lockfile freshness classification '${classification}' for '${manifest}'. Rerun the job; if it repeats, report a workflow bug with this classification and the candidate/base blob IDs printed above."
+                echo "| \`${manifest}\` | Operational error: unknown classification \`${classification}\`. Rerun the job; if it repeats, report a workflow bug with the classification and blob IDs from the log. |" >> "${GITHUB_STEP_SUMMARY}"
                 ;;
             esac
             failed=1
@@ -267,4 +284,24 @@ jobs:
             rmdir "${base_parent}"
           fi
 
+          if ((failed != 0)); then
+            echo "remediation-printed=true" >> "${GITHUB_OUTPUT}"
+          fi
           exit "${failed}"
+
+      # Covers checkout, setup, inventory, Git, and other unexpected failures
+      # that occur before the check can emit category-specific remediation.
+      - name: Report fallback remediation
+        if: ${{ failure() && steps.check.outputs.remediation-printed != 'true' }}
+        run: |
+          echo "::error title=Pixi freshness check remediation::An earlier step failed before category-specific remediation could be produced. Rerun the job once. If it fails again, resolve the first operational error in the log. For base-maintenance drift, open ${REFRESH_WORKFLOW_URL}, select Run workflow, run it against the default branch, merge the generated lockfile-refresh PR, update this branch, and rerun CI."
+          {
+            echo "### Pixi freshness check remediation"
+            echo
+            echo "The job failed before category-specific remediation could be produced:"
+            echo
+            echo "1. Rerun the job once to rule out a transient checkout, network, package-index, or solver failure."
+            echo "2. If it fails again, resolve the first operational error in the log."
+            echo "3. For base-maintenance drift, open the [Pixi lockfile refresh workflow](${REFRESH_WORKFLOW_URL}), select **Run workflow**, run it against the default branch, merge the generated lockfile-refresh PR, update this branch, and rerun CI."
+            echo "4. For a PR-induced stale lockfile, regenerate the affected lockfile with the pinned Pixi version, commit it to this PR, and rerun CI."
+          } >> "${GITHUB_STEP_SUMMARY}"
