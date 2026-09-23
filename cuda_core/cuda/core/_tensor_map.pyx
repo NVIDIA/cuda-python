@@ -595,6 +595,12 @@ cdef class TensorMapDescriptor:
         l2_promotion = opts.l2_promotion
         oob_fill = opts.oob_fill
 
+        # Convert options to driver enum:
+        cdef cydriver.CUtensorMapInterleave c_interleave = interleave
+        cdef cydriver.CUtensorMapSwizzle c_swizzle = swizzle
+        cdef cydriver.CUtensorMapL2promotion c_l2_promotion = l2_promotion
+        cdef cydriver.CUtensorMapFloatOOBfill c_oob_fill = oob_fill
+
         _validate_tensor_map_view(view)
         # Keep both the original tensor object and the validated view alive.
         # For DLPack exporters, the view may hold the owning capsule whose
@@ -676,10 +682,10 @@ cdef class TensorMapDescriptor:
                         dl_tensor,
                         const_int_span(&c_box_sizes[0], <size_t>rank),
                         const_int_span(&c_elem_strides[0], <size_t>rank),
-                        <tma_interleave_layout><int>interleave,
-                        <tma_swizzle><int>swizzle,
-                        <tma_l2_fetch_size><int>l2_promotion,
-                        <tma_oob_fill><int>oob_fill,
+                        <tma_interleave_layout>c_interleave,
+                        <tma_swizzle>c_swizzle,
+                        <tma_l2_fetch_size>c_l2_promotion,
+                        <tma_oob_fill>c_oob_fill,
                     )
             except RuntimeError as err:
                 # RuntimeErrors here should in practice be CUDAErrors.
@@ -713,14 +719,6 @@ cdef class TensorMapDescriptor:
         _fill_global_strides(c_global_strides, view_shape, view_strides, rank, elem_size)
 
         cdef uint32_t c_rank = <uint32_t>rank
-        cdef int c_interleave_int = int(interleave)
-        cdef int c_swizzle_int = int(swizzle)
-        cdef int c_l2_promotion_int = int(l2_promotion)
-        cdef int c_oob_fill_int = int(oob_fill)
-        cdef cydriver.CUtensorMapInterleave c_interleave = <cydriver.CUtensorMapInterleave>c_interleave_int
-        cdef cydriver.CUtensorMapSwizzle c_swizzle = <cydriver.CUtensorMapSwizzle>c_swizzle_int
-        cdef cydriver.CUtensorMapL2promotion c_l2_promotion = <cydriver.CUtensorMapL2promotion>c_l2_promotion_int
-        cdef cydriver.CUtensorMapFloatOOBfill c_oob_fill = <cydriver.CUtensorMapFloatOOBfill>c_oob_fill_int
 
         with nogil:
             HANDLE_RETURN(cydriver.cuTensorMapEncodeTiled(
@@ -864,14 +862,10 @@ cdef class TensorMapDescriptor:
         cdef uint32_t c_rank = <uint32_t>rank
         cdef uint32_t c_channels = <uint32_t>channels_per_pixel
         cdef uint32_t c_pixels = <uint32_t>pixels_per_column
-        cdef int c_interleave_int = int(interleave)
-        cdef int c_swizzle_int = int(swizzle)
-        cdef int c_l2_promotion_int = int(l2_promotion)
-        cdef int c_oob_fill_int = int(oob_fill)
-        cdef cydriver.CUtensorMapInterleave c_interleave = <cydriver.CUtensorMapInterleave>c_interleave_int
-        cdef cydriver.CUtensorMapSwizzle c_swizzle = <cydriver.CUtensorMapSwizzle>c_swizzle_int
-        cdef cydriver.CUtensorMapL2promotion c_l2_promotion = <cydriver.CUtensorMapL2promotion>c_l2_promotion_int
-        cdef cydriver.CUtensorMapFloatOOBfill c_oob_fill = <cydriver.CUtensorMapFloatOOBfill>c_oob_fill_int
+        cdef cydriver.CUtensorMapInterleave c_interleave = <cydriver.CUtensorMapInterleave><int>interleave
+        cdef cydriver.CUtensorMapSwizzle c_swizzle = <cydriver.CUtensorMapSwizzle><int>swizzle
+        cdef cydriver.CUtensorMapL2promotion c_l2_promotion = <cydriver.CUtensorMapL2promotion><int>l2_promotion
+        cdef cydriver.CUtensorMapFloatOOBfill c_oob_fill = <cydriver.CUtensorMapFloatOOBfill><int>oob_fill
 
         with nogil:
             HANDLE_RETURN(cydriver.cuTensorMapEncodeIm2col(
@@ -1005,16 +999,11 @@ cdef class TensorMapDescriptor:
             cdef int c_upper_w = <int>pixel_box_upper_corner_width
             cdef uint32_t c_channels = <uint32_t>channels_per_pixel
             cdef uint32_t c_pixels = <uint32_t>pixels_per_column
-            cdef int c_interleave_int = int(interleave)
-            cdef int c_mode_int = int(mode)
-            cdef int c_swizzle_int = int(swizzle)
-            cdef int c_l2_promotion_int = int(l2_promotion)
-            cdef int c_oob_fill_int = int(oob_fill)
-            cdef cydriver.CUtensorMapInterleave c_interleave = <cydriver.CUtensorMapInterleave>c_interleave_int
-            cdef cydriver.CUtensorMapIm2ColWideMode c_mode = <cydriver.CUtensorMapIm2ColWideMode>c_mode_int
-            cdef cydriver.CUtensorMapSwizzle c_swizzle = <cydriver.CUtensorMapSwizzle>c_swizzle_int
-            cdef cydriver.CUtensorMapL2promotion c_l2_promotion = <cydriver.CUtensorMapL2promotion>c_l2_promotion_int
-            cdef cydriver.CUtensorMapFloatOOBfill c_oob_fill = <cydriver.CUtensorMapFloatOOBfill>c_oob_fill_int
+            cdef cydriver.CUtensorMapInterleave c_interleave = <cydriver.CUtensorMapInterleave><int>interleave
+            cdef cydriver.CUtensorMapIm2ColWideMode c_mode = <cydriver.CUtensorMapIm2ColWideMode><int>mode
+            cdef cydriver.CUtensorMapSwizzle c_swizzle = <cydriver.CUtensorMapSwizzle><int>swizzle
+            cdef cydriver.CUtensorMapL2promotion c_l2_promotion = <cydriver.CUtensorMapL2promotion><int>l2_promotion
+            cdef cydriver.CUtensorMapFloatOOBfill c_oob_fill = <cydriver.CUtensorMapFloatOOBfill><int>oob_fill
 
             with nogil:
                 HANDLE_RETURN(cydriver.cuTensorMapEncodeIm2colWide(
