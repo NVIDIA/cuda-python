@@ -1,0 +1,6 @@
+﻿cuda.bindings.cufile.Status
+===========================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autoenum:: Status
