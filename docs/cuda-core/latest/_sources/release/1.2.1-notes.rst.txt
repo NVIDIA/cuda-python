@@ -6,29 +6,8 @@
 ``cuda.core`` 1.2.1 Release Notes
 =================================
 
-New features
-------------
-
-- Added Windows on ARM (``win_arm64``) wheels. They are provided for CUDA 13
-  only and for Python 3.11 and newer, and require ``cuda.bindings`` 13.4.1 or
-  newer, the first release with Windows on ARM wheels of its own. CPython has
-  no Windows ARM64 build for Python 3.10. All wheels in this release are built
-  against the CUDA 13.4 toolkit, where 1.2.0 used 13.3; the supported CUDA and
-  driver versions are unchanged.
-
 Fixes and enhancements
 ----------------------
-
-- :attr:`system.Device.current_clock_event_reasons` and
-  :attr:`system.Device.supported_clock_event_reasons` now recognize the
-  ``BOARD_LIMIT`` and ``RELIABILITY`` clock-event reasons that CUDA 13.4
-  introduced, and ``system.typing.ClocksEventReasons`` gained the matching
-  members. Previously, a device that reported either reason made these
-  properties raise ``ValueError`` for an unknown reason bit.
-
-- :attr:`system.Device.brand` now reports ``"NVIDIA DLA"``,
-  ``"NVIDIA vGameDev"`` and ``"NVIDIA NPU"`` for the brand types that CUDA 13.4
-  introduced, instead of ``"Unknown"``.
 
 - :meth:`Buffer.from_handle` no longer requires a current CUDA context when
   the memory resource reports ``is_device_accessible`` as ``False``. Host-only
