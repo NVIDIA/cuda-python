@@ -1,0 +1,6 @@
+﻿cuda.core.system.NotFoundError
+==============================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: NotFoundError
