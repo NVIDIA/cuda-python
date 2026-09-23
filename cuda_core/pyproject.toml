@@ -108,7 +108,7 @@ include-package-data = false
 [tool.setuptools.package-data]
 "*" = ["*.pxd", "*.pyi", "py.typed"]
 "cuda.core._include" = ["*.h", "*.hpp"]
-"cuda.core._cpp" = ["*.h", "*.hpp"]
+"cuda.core._cpp" = ["**/*.h", "**/*.hpp"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
@@ -116,8 +116,6 @@ readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 [tool.setuptools_scm]
 root = ".."
 version_file = "cuda/core/_version.py"
-# Preserve a/b pre-release suffixes, but intentionally strip rc suffixes.
-tag_regex = "^cuda-core-(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)"
 git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "cuda-core-v*[0-9]*"]
 
 [tool.mypy]
@@ -154,6 +152,5 @@ build-verbosity = 1
 archs = "native"
 
 [tool.cibuildwheel.windows]
-archs = "AMD64"
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair --namespace-pkg cuda --exclude \"torch_cpu.dll;torch_python.dll\" -w {dest_dir} {wheel}"

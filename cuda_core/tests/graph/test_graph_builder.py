@@ -4,6 +4,7 @@
 """GraphBuilder stream capture tests."""
 
 import gc
+import sys
 import time
 import weakref
 
@@ -16,7 +17,17 @@ from helpers.misc import try_create_condition
 from packaging.version import Version
 
 import cuda.bindings
-from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, Program, ProgramOptions, StreamOptions, launch
+from cuda.core import (
+    CUDAWarning,
+    Device,
+    LaunchConfig,
+    LegacyPinnedMemoryResource,
+    Program,
+    ProgramOptions,
+    StreamOptions,
+    launch,
+)
+from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.graph import Graph, GraphBuilder, GraphCompleteOptions, GraphDefinition
 from cuda.core.graph._graph_builder import (
     _capture_callback_with_tail_failure_for_testing,
@@ -225,6 +236,71 @@ def test_graph_complete_after_close_forked(init_cuda):
     GraphBuilder.join(left, right)
     with pytest.raises(RuntimeError, match="^GraphBuilder has been closed"):
         right.complete()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_graph_join_failure_closes_unjoined_forks(init_cuda):
+    """A join that raises midway closes the forks it did not join (#2776).
+
+    The crash in #2776 was the builder's teardown after such an unjoined
+    capture, which GB_end_capture now handles; this checks that the forks are
+    closed and that ending the capture reports the unjoined work. The failure
+    is provoked by closing one fork's stream, which makes the root's wait on it
+    raise before the remaining forks are joined.
+    """
+    mod = compile_common_kernels()
+    empty_kernel = mod.get_kernel("empty_kernel")
+
+    gb = Device().create_graph_builder().begin_building()
+    gb, bad, left, right = gb.split(4)
+    launch(left, LaunchConfig(grid=1, block=1), empty_kernel)
+    bad.stream.close()
+    with pytest.raises(RuntimeError, match="^Stream has been closed"):
+        GraphBuilder.join(gb, bad, left, right)
+    assert bad.is_closed and left.is_closed and right.is_closed
+    del bad, left, right
+    gc.collect()
+
+    # The work captured on the abandoned fork was never joined back, so the
+    # driver refuses to end the capture; the builder still closes cleanly.
+    with pytest.raises(CUDAError, match="CUDA_ERROR_STREAM_CAPTURE_UNJOINED"):
+        gb.end_building()
+    gb.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_graph_join_failure_survives_failing_close(init_cuda):
+    """A close that fails inside join's cleanup does not strand later builders.
+
+    Joining a builder from another capture is refused by the driver, which
+    also invalidates that capture, so closing it afterwards fails. The cleanup
+    must still close the remaining builders and raise the join error; the
+    failed close is attached to it as a note (Python 3.11+) or reported as a
+    CUDAWarning (Python 3.10).
+    """
+    has_notes = sys.version_info >= (3, 11)
+    root = Device().create_graph_builder().begin_building()
+    root, fork = root.split(2)
+    other1 = Device().create_graph_builder().begin_building()
+    other2 = Device().create_graph_builder().begin_building()
+
+    with pytest.raises(CUDAError, match="^CUDA_ERROR_STREAM_CAPTURE_MERGE") as excinfo:
+        if has_notes:
+            GraphBuilder.join(root, other1, other2, fork)
+        else:
+            with pytest.warns(CUDAWarning, match="CUDA_ERROR_STREAM_CAPTURE_INVALIDATED"):
+                GraphBuilder.join(root, other1, other2, fork)
+    assert other1.is_closed and other2.is_closed and fork.is_closed
+    if has_notes:
+        (note,) = excinfo.value.__notes__
+        assert "cuStreamEndCapture failed while closing a graph builder" in note
+        assert "CUDA_ERROR_STREAM_CAPTURE_INVALIDATED" in note
+
+    # The refused wait invalidated the root's capture as well; ending it
+    # raises the driver error and the builder still closes cleanly.
+    with pytest.raises(CUDAError, match="^CUDA_ERROR_STREAM_CAPTURE_INVALIDATED"):
+        root.end_building()
+    root.close()
 
 
 def test_graph_update_after_source_close(init_cuda):
@@ -1020,3 +1096,80 @@ def test_if_then_requires_active_capture(init_cuda):
     gb.end_building()
     with pytest.raises(RuntimeError, match="Cannot add conditional node when not actively capturing"):
         gb.if_then(condition)
+
+
+_CAPTURE_MODES = ["global", "thread_local", "relaxed"]
+
+
+def _invalidate_capture(device):
+    """Invalidate this thread's capture with a call the driver refuses while a stream is capturing."""
+    with pytest.raises(CUDAError, match="CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED"):
+        device.sync()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.parametrize("mode", _CAPTURE_MODES)
+def test_end_building_invalidated_capture(init_cuda, mode):
+    """end_building() ends an invalidated capture, raises its error, and leaves a graph-less builder.
+
+    The driver discards the capture graph when it ends an invalidated capture,
+    so the builder must not destroy that graph again when closed or collected
+    (#2834).
+    """
+    device = Device()
+    stream = device.create_stream()
+    gb = stream.create_graph_builder().begin_building(mode=mode)
+    _invalidate_capture(device)
+    with pytest.raises(RuntimeError, match="invalidated"):
+        _ = gb.is_building
+    with pytest.raises(CUDAError, match="CUDA_ERROR_STREAM_CAPTURE_INVALIDATED"):
+        gb.end_building()
+    assert gb.is_building is False
+    with pytest.raises(RuntimeError, match="has no graph"):
+        gb.complete()
+    with pytest.raises(RuntimeError, match="has no graph"):
+        _ = gb.graph_definition
+    gb.close()
+    del gb
+    gc.collect()
+    # The stream is usable again.
+    stream.sync()
+    stream.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_close_invalidated_capture(init_cuda):
+    """close() on an invalidated capture closes the builder, then raises the driver error."""
+    device = Device()
+    gb = device.create_stream().create_graph_builder().begin_building()
+    _invalidate_capture(device)
+    with pytest.raises(CUDAError, match="CUDA_ERROR_STREAM_CAPTURE_INVALIDATED"):
+        gb.close()
+    assert gb.is_closed
+    gb.close()  # idempotent
+    del gb
+    gc.collect()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="warning capture is process-global")
+def test_collect_invalidated_capture(init_cuda):
+    """Dropping a builder whose capture was invalidated reports a CUDAWarning and does not crash."""
+    device = Device()
+    gb = device.create_stream().create_graph_builder().begin_building()
+    _invalidate_capture(device)
+    # gb is the last reference, so del runs __dealloc__ and ends the capture.
+    with pytest.warns(CUDAWarning, match="cuStreamEndCapture"):
+        del gb
+    gc.collect()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_end_building_forked_builder_rejected(init_cuda):
+    """A forked builder is ended by join(); end_building() is rejected without touching the capture."""
+    gb = Device().create_graph_builder().begin_building()
+    root, forked = gb.split(2)
+    with pytest.raises(RuntimeError, match="join"):
+        forked.end_building()
+    GraphBuilder.join(root, forked)
+    gb.end_building().complete()

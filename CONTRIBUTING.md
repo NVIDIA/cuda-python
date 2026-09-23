@@ -26,6 +26,7 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
     - [Pre-commit on Windows](#pre-commit-on-windows)
+  - [Pixi lockfiles](#pixi-lockfiles)
   - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
@@ -110,7 +111,7 @@ version-check failure:
 2. **Stale tags** (a fork that has not fetched upstream in a while): you get a
    plausible-looking but wrong version, e.g. `13.0.4.dev650+g0d22cb44` when the
    real latest tag is `v13.4.2`. Nothing warns you. Note there is no leading
-   `v` — the tag prefix is stripped by `tag_regex`.
+   `v` — `setuptools-scm` strips the tag prefix.
 3. **No git metadata** (source zip): the build fails with
    `LookupError: setuptools-scm was unable to detect version`.
 
@@ -178,6 +179,67 @@ commit` workflow.  To resolve this, you can either:
 
 2. Skip it by setting the environment variable `SKIP` to `lychee`.  This would
    be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
+
+## Pixi lockfiles
+
+The repository checks in a `pixi.lock` next to each `pixi.toml`. Those lockfiles
+pin the solved dependency graph used by local pixi workflows and by CI, so they
+must stay in sync with their manifests and easy to review.
+
+Contributor expectations:
+
+- If a PR changes a `pixi.toml`, update the corresponding `pixi.lock` in the
+  same PR. Regenerating one lockfile:
+
+  ```console
+  $ pixi lock --manifest-path cuda_core
+  ```
+
+  Use `--manifest-path .` for the repository-root environment. Regenerate with
+  the pixi version pinned in `ci/pixi-version.env`: different pixi versions
+  write different canonical forms, such as the `pixi.lock` format version or
+  the generated platform alias names, and CI requires the committed bytes to
+  match what the pinned version produces. The pin must remain at least 0.71.0,
+  which supplies the content-addressed source-build cache used by CI and writes
+  the repository's version 7 lockfiles.
+- If a PR does not intentionally change pixi dependencies or metadata, do not
+  include unrelated lockfile churn. `pixi run` can refresh a stale lockfile
+  implicitly; revert that noise unless the refresh is the point of the change.
+- If a lockfile changes, the PR description should briefly say why.
+- Isolate large dependency refreshes from feature work when possible. Prefer a
+  dedicated lockfile-only PR over mixing solver churn into an unrelated change.
+
+CI enforces the contract: `pixi lock --check` fails when a committed lockfile is
+stale, and pixi source-build jobs run with `PIXI_LOCKED=true` so they install from
+the committed lock rather than updating it during the job. If either check
+fails, regenerate and commit the affected lockfile.
+
+The freshness check additionally fails when the check itself rewrote a lockfile.
+`pixi lock --check` accepts a lock whose solution is current but whose bytes are
+not canonical for the pinned pixi version, quietly normalizing the file instead,
+which leaves every later pixi run rewriting the committed lockfile.
+
+A scheduled workflow (`CI: pixi lockfile refresh`) runs
+`pixi update --no-install` for every workspace in one job and opens one PR with
+all changed lockfiles, so broad dependency churn is reviewed as maintenance
+rather than landing inside unrelated feature work. The workflow can also be
+dispatched manually. Both lockfile workflows resolve their workspace lists
+through `ci/tools/list_pixi_workspaces.py`, which derives the inventory from the
+committed manifests, so a newly added workspace is picked up without editing a
+workflow.
+
+Refresh PRs use `GITHUB_TOKEN`. After one opens, a maintainer with write access
+must first select **Approve workflows to run** in the merge box, then assign
+themselves to the PR. Approval starts the queued `pull_request` runs; the
+human-generated `assigned` event creates the required
+**PR has assignee, labels, and milestone** `pull_request_target` check and gives
+the PR a clear owner.
+
+A future GitHub App integration could trigger both `pull_request` and
+`pull_request_target` workflows automatically.
+See GitHub's
+[token event documentation](https://docs.github.com/en/actions/concepts/security/github_token#when-github_token-triggers-workflow-runs)
+for the current behavior.
 
 ## Secret Scanning
 

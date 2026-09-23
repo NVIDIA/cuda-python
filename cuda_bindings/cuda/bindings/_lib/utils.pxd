@@ -11,10 +11,8 @@ from cpython.buffer cimport PyBuffer_Release, Py_buffer
 cdef class _HelperKernelParams:
     cdef Py_buffer _pybuffer
     cdef bint _pyobj_acquired
-    cdef void** _ckernelParams
+    cdef void** ckernelParams
     cdef char* _ckernelParamsData
-    cdef int _length
-    cdef bint _malloc_list_created
 
 cdef struct _HelperInputVoidPtrStruct:
     Py_buffer _pybuffer

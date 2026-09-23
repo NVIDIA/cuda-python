@@ -9,7 +9,7 @@ import sys
 
 import pyglet
 import pytest
-from cuda_python_test_helpers.graphics import is_gl_context_unavailable
+from cuda_python_test_helpers.graphics import is_gl_context_unavailable, open_gl_window
 
 from cuda.bindings import runtime as cudart
 
@@ -22,31 +22,6 @@ def _configure_pyglet_headless():
         if ctypes.util.find_library("EGL") is None:
             pytest.skip("No DISPLAY and no EGL runtime available for headless context.")
         pyglet.options["headless"] = True
-
-
-def _open_gl_window():
-    """Open a hidden window (or configure EGL headless). Returns the window or None.
-
-    Closes the window if switch_to() fails so a partially-constructed window does not leak.
-    """
-    if not pyglet.options.get("headless"):
-        # Hidden window path (WGL on Windows, GLX/WLS on Linux)
-        from pyglet import gl
-
-        config = gl.Config(double_buffer=False)
-        win = pyglet.window.Window(visible=False, config=config)
-        try:
-            win.switch_to()
-        except Exception:
-            with contextlib.suppress(Exception):
-                win.close()
-            raise
-        return win
-    else:
-        # Headless EGL path; pyglet will arrange a pbuffer-like headless context
-        from pyglet.gl import headless  # noqa: F401
-
-        return None
 
 
 def _allocate_gl_texture(win):
@@ -80,7 +55,7 @@ def _gl_context():
     _configure_pyglet_headless()
 
     try:
-        win = _open_gl_window()
+        win = open_gl_window()
     except Exception as e:
         if is_gl_context_unavailable(e):
             pytest.skip(f"Could not create GL context: {type(e).__name__}: {e}")

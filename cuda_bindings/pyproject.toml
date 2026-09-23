@@ -85,7 +85,6 @@ build-verbosity = 1
 archs = "native"
 
 [tool.cibuildwheel.windows]
-archs = "AMD64"
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
 
@@ -105,6 +104,4 @@ markers = [
 [tool.setuptools_scm]
 root = ".."
 version_file = "cuda/bindings/_version.py"
-# Preserve a/b pre-release suffixes, but intentionally strip rc suffixes.
-tag_regex = "^(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)"
 git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"]
