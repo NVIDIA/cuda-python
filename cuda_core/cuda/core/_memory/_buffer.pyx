@@ -63,14 +63,9 @@ cdef void _mr_dealloc_callback(
     cdef Stream stream
     try:
         if not h_stream:
-            print(
-                "Warning: no deallocation stream was recorded; falling back to "
-                "the default stream for mr.deallocate() during Buffer "
-                "destruction. This is an internal cuda-core error; please "
-                "report it with your CUDA driver, CUDA Toolkit, and "
-                "cuda-python versions.",
-                file=sys.stderr,
-            )
+            # No stream was recorded: host-only memory (Buffer._init records
+            # none) or a Buffer released before one was set. The default-stream
+            # token needs no CUDA context to construct.
             stream = default_stream()
         else:
             stream = Stream._from_handle(Stream, h_stream)
@@ -282,7 +277,9 @@ cdef class Buffer:
         is provided, the owner is kept alive but no deallocation is performed.
         When ``mr`` is provided, a deallocation stream is recorded at creation
         (``stream`` if given, otherwise ``default_stream()``). Recording a
-        default-stream token requires a CUDA context to be current.
+        default-stream token requires a CUDA context to be current. Host-only
+        resources (``mr.is_device_accessible`` is ``False``) record no stream
+        and need no context.
         """
         if mr is not None and owner is not None:
             raise ValueError("owner and memory resource cannot be both specified together")
@@ -292,22 +289,27 @@ cdef class Buffer:
         cdef uintptr_t c_ptr = <uintptr_t>(int(ptr))
         cdef Stream s
         cdef cydriver.CUresult _ds_status
+        cdef bint record_stream
         if mr is not None:
             s = Stream_accept(default_stream() if stream is None else stream)
+            # Host-only memory needs no CUDA context to free, so no deallocation
+            # stream is recorded and the driver is not called.
+            record_stream = mr.is_device_accessible
             self._h_ptr = deviceptr_create_with_mr(c_ptr, size, mr)
-            _ds_status = set_deallocation_stream(self._h_ptr, s._h_stream)
-            if _ds_status != cydriver.CUresult.CUDA_SUCCESS:
-                # Reset before raising: the DevicePtrHandle destructor would otherwise
-                # invoke _mr_dealloc_callback, which catches any inner exception and
-                # clears the exception state, swallowing the error we're about to raise.
-                self._h_ptr.reset()
-                if _ds_status == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
-                    raise RuntimeError(
-                        "Cannot record a default deallocation stream when no CUDA context is "
-                        "current. Call Device.set_current() first, or pass stream= with a "
-                        "non-default Stream."
-                    )
-                HANDLE_RETURN(_ds_status)
+            if record_stream:
+                _ds_status = set_deallocation_stream(self._h_ptr, s._h_stream)
+                if _ds_status != cydriver.CUresult.CUDA_SUCCESS:
+                    # Reset before raising: the DevicePtrHandle destructor would otherwise
+                    # invoke _mr_dealloc_callback, which catches any inner exception and
+                    # clears the exception state, swallowing the error we're about to raise.
+                    self._h_ptr.reset()
+                    if _ds_status == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
+                        raise RuntimeError(
+                            "Cannot record a default deallocation stream when no CUDA context is "
+                            "current. Call Device.set_current() first, or pass stream= with a "
+                            "non-default Stream."
+                        )
+                    HANDLE_RETURN(_ds_status)
         else:
             self._h_ptr = deviceptr_create_with_owner(c_ptr, owner)
         self._size = size
@@ -366,7 +368,9 @@ cdef class Buffer:
             Keyword-only. The stream used to order the buffer's deallocation
             when ``mr`` owns the pointer. Defaults to ``default_stream()``.
             Recording a default-stream token requires a CUDA context to be
-            current. If the buffer may be freed from a different host thread,
+            current. Host-only resources (``mr.is_device_accessible`` is
+            ``False``) record no stream and need no context. If the buffer may
+            be freed from a different host thread,
             pass a stream other than the per-thread default stream, which
             refers to a different stream on each thread.
 

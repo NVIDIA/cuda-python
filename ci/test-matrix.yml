@@ -59,8 +59,9 @@ linux:
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 't4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'amd64', PY_VER: '3.15',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'amd64', PY_VER: '3.15t', CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
+    # No Python 3.15 test jobs on this release branch: the build uses CUDA 13.4.2
+    # while these jobs test on 13.3.0, so they install published cuda-bindings
+    # 13.3.x, which has no cp315 wheels. 1.2.1 ships no 3.15 wheels either.
     # linux-aarch64
     - { ARCH: 'arm64', PY_VER: '3.10',  CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'arm64', PY_VER: '3.10',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
@@ -134,7 +135,7 @@ windows:
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
-    - { ARCH: 'amd64', PY_VER: '3.15',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
+    # No Python 3.15 test job here either; see the linux-64 note above.
     # special runners
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 't4',         GPU_COUNT: '2', DRIVER: 'latest',  DRIVER_MODE: 'TCC' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'h100',       GPU_COUNT: '2', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
