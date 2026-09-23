@@ -1,0 +1,29 @@
+﻿cuda.pathfinder.LocatedHeaderDir
+================================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autoclass:: LocatedHeaderDir
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LocatedHeaderDir.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LocatedHeaderDir.abs_path
+      ~LocatedHeaderDir.found_via
+   
+   
