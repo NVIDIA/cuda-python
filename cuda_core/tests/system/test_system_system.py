@@ -6,7 +6,7 @@
 import os
 
 import pytest
-from cuda_python_test_helpers.arch_check import skip_if_nvml_unsupported
+from cuda_python_test_helpers.arch_check import skip_if_nvml_device_apis_unsupported, skip_if_nvml_unsupported
 
 from cuda.bindings import driver
 from cuda.core import Device as CudaDevice
@@ -56,7 +56,7 @@ def test_nvml_version():
         assert 0 <= ver_patch[0] <= 99
 
 
-@skip_if_nvml_unsupported
+@skip_if_nvml_device_apis_unsupported
 def test_get_process_name():
     for cuda_device in CudaDevice.get_all_devices():
         device = cuda_device.to_system_device()
