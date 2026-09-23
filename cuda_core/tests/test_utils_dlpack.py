@@ -501,6 +501,33 @@ def test_dlpack_c_exchange_api_dltensor_from_py_object_scalar():
     assert not out.strides
 
 
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_dlpack_c_exchange_api_managed_tensor_export_failure_sets_exception():
+    """A view that DLPack cannot describe reports its BufferError through the
+    managed-tensor export entry point and leaves the output tensor NULL."""
+    api = _get_exchange_api()
+    swapped = np.dtype(np.int32).newbyteorder("S")
+    view = StridedMemoryView.from_array_interface(np.zeros(3, dtype=swapped))
+    out = ctypes.c_void_p(123)
+
+    with pytest.raises(BufferError, match="Non-native-endian"):
+        api.managed_tensor_from_py_object_no_sync(id(view), ctypes.byref(out))
+    assert not out.value
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_dlpack_c_exchange_api_dltensor_export_failure_sets_exception():
+    """A view that DLPack cannot describe reports its BufferError through the
+    borrowed DLTensor export entry point."""
+    api = _get_exchange_api()
+    swapped = np.dtype(np.int32).newbyteorder("S")
+    view = StridedMemoryView.from_array_interface(np.zeros(3, dtype=swapped))
+    out = _DLTensor()
+
+    with pytest.raises(BufferError, match="Non-native-endian"):
+        api.dltensor_from_py_object_no_sync(id(view), ctypes.byref(out))
+
+
 def test_dlpack_c_exchange_api_managed_tensor_roundtrip():
     """``managed_tensor_from_py_object_no_sync`` produces a managed tensor that
     ``managed_tensor_to_py_object_no_sync`` turns back into a StridedMemoryView.
@@ -560,6 +587,21 @@ def test_dlpack_c_exchange_api_to_py_object_null_tensor():
     with pytest.raises(RuntimeError, match="tensor cannot be NULL"):
         api.managed_tensor_to_py_object_no_sync(None, ctypes.byref(out_obj))
     assert not out_obj.value  # set to NULL before the error
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_dlpack_c_exchange_api_import_failure_sets_exception():
+    """Rejecting an unsupported DLPack device reports the underlying BufferError."""
+    api = _get_exchange_api()
+    tensor = _DLManagedTensorVersioned()
+    tensor.version = _DLPackVersion(1, 0)
+    tensor.dl_tensor.device = _DLDevice(7, 0)  # kDLVulkan is unsupported by cuda.core
+    tensor.dl_tensor.dtype = _DLDataType(0, 32, 1)
+    out_obj = ctypes.c_void_p(123)
+
+    with pytest.raises(BufferError, match="device not supported"):
+        api.managed_tensor_to_py_object_no_sync(ctypes.byref(tensor), ctypes.byref(out_obj))
+    assert not out_obj.value
 
 
 @pytest.mark.parametrize(
