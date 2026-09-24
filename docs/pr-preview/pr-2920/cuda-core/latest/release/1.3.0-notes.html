@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=d4818e24"></script>
+    <script src="../_static/documentation_options.js?v=b6740eaf"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev130';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev149';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -784,26 +784,29 @@
 <section id="breaking-changes">
 <h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> now requires a minimum <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version per CUDA major, at build time and
-at run time: 12.9.8 for CUDA 12 and 13.4.1 for CUDA 13 (see the
-<a class="reference internal" href="../support.html#cuda-core-bindings-floor"><span class="std std-ref">support policy</span></a>). <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cuda.core</span></code> with an older
-<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> fails with a message that names the required version and how to install it;
-<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-core[cu12]</span></code> / <code class="docutils literal notranslate"><span class="pre">[cu13]</span></code> installs a compatible version. A source build must
-also use a <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> of the same major.minor as its <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>; it fails early otherwise.
-Supported CUDA drivers and CUDA Toolkit libraries are unchanged. Previously any
-<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> of the right major was accepted, and an older one produced import errors for
-missing C functions, silently disabled features, or crashes.
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> now requires a minimum <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version per CUDA major, at build and run
+time: 12.9.8 for CUDA 12 and 13.4.1 for CUDA 13. See the
+<a class="reference internal" href="../support.html#cuda-core-bindings-floor"><span class="std std-ref">support policy</span></a>. <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cuda.core</span></code> with an older
+<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> fails with a message that names the required version and how to install it.
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-core[cu12]</span></code> or <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-core[cu13]</span></code> installs a compatible
+version. Supported CUDA drivers and CUDA Toolkit libraries are unchanged. Previously
+<code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> accepted any <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> of the right major, and an older one produced import
+errors for missing C functions, silently disabled features, or crashes.
 (<a class="github reference external" href="https://github.com/NVIDIA/cuda-python/issues/2783">NVIDIA/cuda-python#2783</a>)</p></li>
-<li><p>With the <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> floor in place, whether a feature is available now depends on the
-CUDA driver alone (and on the CUDA major of the <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> build). Checks that also inspected
-the <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version are gone, and the error messages they produced with them; error
-messages that name a minimum now name a driver version. <code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> always uses NVML
-through <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>, so <code class="docutils literal notranslate"><span class="pre">cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE</span></code> is always
-<code class="docutils literal notranslate"><span class="pre">True</span></code>. <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.checkpoint</span></code> requires the CUDA 13 build of
-<code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> (it did in effect before: the CUDA 12 <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> lack a type it uses) and
-now says so. The C++ layer calls the driver through the entry points <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> resolves
-rather than through its Cython wrappers, so a driver function that the installed driver lacks
-can no longer surface as <code class="docutils literal notranslate"><span class="pre">SystemError</span></code> from a C++ call.
+<li><p>A source build of <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> must use a <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> of the same major.minor as its
+<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>. If they differ, the build fails early.
+(<a class="github reference external" href="https://github.com/NVIDIA/cuda-python/issues/2783">NVIDIA/cuda-python#2783</a>)</p></li>
+<li><p>With the <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> floor in place, whether a feature is available now depends only on
+the CUDA driver and the <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> build’s CUDA major. The checks that also inspected the
+<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version are gone, and so are their error messages. Error messages that name a
+minimum now name a driver version. <code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> always uses NVML through
+<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>, so <code class="docutils literal notranslate"><span class="pre">cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE</span></code> is always <code class="docutils literal notranslate"><span class="pre">True</span></code>.
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.checkpoint</span></code> requires the CUDA 13 build of <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> and now says so. That
+requirement was already in effect, because the CUDA 12 <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> lack a type it uses.
+(<a class="github reference external" href="https://github.com/NVIDIA/cuda-python/issues/2783">NVIDIA/cuda-python#2783</a>)</p></li>
+<li><p>The C++ layer calls the driver through the entry points <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> resolves rather than
+through its Cython wrappers. As a result, a driver function that the installed driver lacks can
+no longer surface as <code class="docutils literal notranslate"><span class="pre">SystemError</span></code> from a C++ call.
 (<a class="github reference external" href="https://github.com/NVIDIA/cuda-python/issues/2783">NVIDIA/cuda-python#2783</a>)</p></li>
 </ul>
 </section>

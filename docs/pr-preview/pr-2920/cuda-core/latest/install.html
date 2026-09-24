@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=d4818e24"></script>
+    <script src="_static/documentation_options.js?v=b6740eaf"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev130';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev149';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -822,15 +822,15 @@ library are thread-safe. This is subject to change.</p></li>
 </section>
 <section id="installing-from-pypi">
 <h2>Installing from PyPI<a class="headerlink" href="#installing-from-pypi" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> works with <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> (part of <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code>) 12 or 13, at or above the
-release’s per-major floor (see <a class="reference internal" href="support.html#cuda-core-bindings-floor"><span class="std std-ref">cuda-bindings Version Requirements</span></a>); the <code class="docutils literal notranslate"><span class="pre">cu12</span></code> and <code class="docutils literal notranslate"><span class="pre">cu13</span></code> extras
-install a compatible version. Test dependencies now use the <code class="docutils literal notranslate"><span class="pre">cuda-toolkit</span></code> metapackage for improved dependency resolution. For example with CUDA 12:</p>
+<p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> works with <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> (part of <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code>) 12 or 13 at or above the
+release’s floor for that major. See <a class="reference internal" href="support.html#cuda-core-bindings-floor"><span class="std std-ref">cuda-bindings Version Requirements</span></a>. The <code class="docutils literal notranslate"><span class="pre">cu12</span></code> and <code class="docutils literal notranslate"><span class="pre">cu13</span></code>
+extras install a compatible version. Test dependencies now use the <code class="docutils literal notranslate"><span class="pre">cuda-toolkit</span></code> metapackage for improved dependency resolution. For example with CUDA 12:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>cuda-core<span class="o">[</span>cu12<span class="o">]</span>
 </pre></div>
 </div>
 <p>and likewise use <code class="docutils literal notranslate"><span class="pre">[cu13]</span></code> for CUDA 13.</p>
-<p>Upgrading <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> on its own can leave an older <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> installed than the new
-release requires; <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cuda.core</span></code> then reports the required version and the <code class="docutils literal notranslate"><span class="pre">pip</span></code> command
+<p>If you upgrade <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> alone, the installed <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> can be older than the new
+release requires. <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cuda.core</span></code> then reports the required version and the <code class="docutils literal notranslate"><span class="pre">pip</span></code> command
 that installs it.</p>
 </section>
 <section id="installing-from-conda-conda-forge">
@@ -840,9 +840,8 @@ that installs it.</p>
 </pre></div>
 </div>
 <p>and likewise use <code class="docutils literal notranslate"><span class="pre">cuda-version=13</span></code> for CUDA 13.</p>
-<p>The conda-forge package depends on <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> of the same CUDA major; the
-<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> floor of the release (see <a class="reference internal" href="support.html#cuda-core-bindings-floor"><span class="std std-ref">cuda-bindings Version Requirements</span></a>) applies to it as
-well.</p>
+<p>The conda-forge package depends on <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> of the same CUDA major. The
+<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> floor of the release also applies to it. See <a class="reference internal" href="support.html#cuda-core-bindings-floor"><span class="std std-ref">cuda-bindings Version Requirements</span></a>.</p>
 </section>
 <section id="development-environment">
 <h2>Development environment<a class="headerlink" href="#development-environment" title="Link to this heading">#</a></h2>
@@ -907,15 +906,16 @@ From the repository root:</p>
 <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
 </div>
-<p>A source build requires two things to agree (see <a class="reference internal" href="support.html#cuda-core-bindings-floor"><span class="std std-ref">cuda-bindings Version Requirements</span></a>):</p>
+<p>A source build has two requirements. See <a class="reference internal" href="support.html#cuda-core-bindings-floor"><span class="std std-ref">cuda-bindings Version Requirements</span></a>.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.x or 13.x at or above the release’s floor for that major. An isolated
-build (the default <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>) installs one no newer than the toolkit’s minor; other
-builds must provide it.</p></li>
+build, the default for <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>, installs a <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> no newer than the
+toolkit’s minor. Other builds must provide it.</p></li>
 <li><p>A CUDA Toolkit, located through <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>, whose <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> has the same
-major.minor as the header that <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> was generated from. The build fails early
-otherwise. To build against a particular <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> in an isolated build, constrain it
-with <code class="docutils literal notranslate"><span class="pre">PIP_CONSTRAINT</span></code>; or use <code class="docutils literal notranslate"><span class="pre">--no-build-isolation</span></code> with it installed.</p></li>
+major.minor as the header that <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> was generated from. If the versions differ,
+the build fails early. To build against a specific <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> in an isolated build,
+constrain it with <code class="docutils literal notranslate"><span class="pre">PIP_CONSTRAINT</span></code>. A build with <code class="docutils literal notranslate"><span class="pre">--no-build-isolation</span></code> uses the installed
+<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>

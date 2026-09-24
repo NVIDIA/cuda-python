@@ -11,8 +11,8 @@ through the NVIDIA Management Library (NVML).
 
 .. note::
    ``cuda.core.system`` uses NVML through ``cuda-bindings``. It has no requirement beyond the
-   ``cuda-bindings`` floor of the release (see :ref:`cuda-core-bindings-floor`); the NVML library
-   itself is loaded on first use, so importing the module needs neither CUDA nor NVML installed.
+   ``cuda-bindings`` floor of the release. See :ref:`cuda-core-bindings-floor`. The NVML library
+   loads on first use, so ``import cuda.core.system`` needs neither CUDA nor NVML installed.
 
 Basic functions
 ---------------

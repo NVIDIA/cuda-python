@@ -166,15 +166,15 @@ Parameter-bearing definition nodes expose subclass-specific ``update()``
 methods: :class:`~graph.KernelNode`, :class:`~graph.MemcpyNode`,
 :class:`~graph.MemsetNode`, :class:`~graph.ChildGraphNode`,
 :class:`~graph.EventRecordNode`, :class:`~graph.EventWaitNode`, and
-:class:`~graph.HostCallbackNode`. These methods require a CUDA driver of
-version 12.2 or newer. Updates affect future graph
+:class:`~graph.HostCallbackNode`. These methods require CUDA driver 12.2 or
+newer. Updates affect future graph
 instantiations; executable graphs that were already instantiated continue
 using their previous parameters and retained resources. Omitted optional
 arguments preserve their current values where supported.
-With drivers from CUDA 12.2 through 13.1, the intended CUDA context must be
-current when updating memcpy or memset nodes. With the CUDA 13 build of
-``cuda.core`` and a driver of CUDA 13.2 or newer, the recorded context is
-preserved automatically.
+With CUDA driver 12.2 through 13.1, an update of a memcpy or memset node
+requires the intended CUDA context to be current. With the CUDA 13 build of
+``cuda.core`` and CUDA driver 13.2 or newer, updates preserve the recorded
+context.
 Multidimensional or array-backed memcpy nodes and clustered or cooperative
 kernel nodes cannot currently be updated. Clustered and cooperative kernel
 nodes also cannot currently be constructed explicitly.
@@ -218,8 +218,7 @@ Memcpy and memset updates use the current CUDA context, which must match the
 original node context.
 
 Kernel, memcpy, and memset views also provide ``is_enabled``, ``enable()``, and
-``disable()``. Executable-node updates require a CUDA driver of version 12.2
-or newer.
+``disable()``. Executable-node updates require CUDA driver 12.2 or newer.
 
 .. autosummary::
    :toctree: generated/
@@ -335,8 +334,8 @@ CUDA process checkpointing
 
 The :mod:`cuda.core.checkpoint` module wraps the CUDA driver process
 checkpoint APIs. These APIs are intended for Linux process checkpoint and
-restore workflows, and require the CUDA 13 build of ``cuda.core`` and a CUDA
-driver of version 12.8 or newer with checkpoint API support.
+restore workflows. They require the CUDA 13 build of ``cuda.core`` and CUDA
+driver 12.8 or newer with checkpoint API support.
 
 Checkpointing is typically driven by a coordinator process acting on a target
 CUDA process, similar to attaching a debugger or sending a signal. The target
