@@ -89,15 +89,20 @@ cdef class EventData:
         return self._event_data.compute_instance_id
 
 
+from ._async_events import EventSetWaiting
+
+
 cdef class DeviceEvents:
     """
     Represents a set of events that can be waited on for a specific device.
     """
     cdef intptr_t _event_set
     cdef intptr_t _device_handle
+    cdef readonly object _waiting
 
     def __init__(self, device_handle: intptr_t, events: EventType | str | list[EventType | str]):
         self._event_set = 0
+        self._waiting = EventSetWaiting()
 
         cdef unsigned long long event_bitmask
         if isinstance(events, (str, EventType)):
@@ -168,5 +173,48 @@ cdef class DeviceEvents:
             If the timeout expires before an event is received.
         :class:`cuda.core.system.GpuIsLostError`
             If the GPU has fallen off the bus or is otherwise inaccessible.
+
+        Notes
+        -----
+        Only one wait may borrow this event set at a time; a second concurrent
+        wait (sync or async) raises :class:`RuntimeError`.
         """
-        return EventData(nvml.event_set_wait_v2(self._event_set, timeout_ms))
+        return EventData(self._waiting.wait(self._wait_slice, timeout_ms))
+
+    @cython.annotation_typing(False)  # keep the cdef-class return as a hint, not a C type
+    async def wait_async(self, timeout_ms: int = 0) -> EventData:
+        """
+        Wait asynchronously for an event in the event set.
+
+        Behaves like :meth:`wait`, without blocking the event loop.  The native
+        wait is issued in bounded slices, so cancelling the awaiting task stops
+        the wait within a slice instead of parking a thread for the remaining
+        timeout.  An event that a cancelled slice already consumed is delivered
+        to the next wait on this event set rather than being dropped.
+
+        Parameters
+        ----------
+        timeout_ms: int
+            The timeout in milliseconds. A value of 0 means to wait indefinitely.
+
+        Returns
+        -------
+        :obj:`~_event.EventData`
+            The event that was received.
+
+        Raises
+        ------
+        :class:`cuda.core.system.TimeoutError`
+            If the timeout expires before an event is received.
+        :class:`cuda.core.system.GpuIsLostError`
+            If the GPU has fallen off the bus or is otherwise inaccessible.
+        :class:`RuntimeError`
+            If another wait already borrows this event set.
+        :class:`ValueError`
+            If ``timeout_ms`` is negative.
+        """
+        return EventData(await self._waiting.wait_async(self._wait_slice, timeout_ms))
+
+    def _wait_slice(self, timeout_ms: int):
+        """One native wait of at most ``timeout_ms`` milliseconds."""
+        return nvml.event_set_wait_v2(self._event_set, timeout_ms)
