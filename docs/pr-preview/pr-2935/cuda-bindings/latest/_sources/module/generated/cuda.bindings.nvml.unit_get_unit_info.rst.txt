@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.unit\_get\_unit\_info
-========================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: unit_get_unit_info

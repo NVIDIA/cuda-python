@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_mig\_mode
-=========================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_mig_mode

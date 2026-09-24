@@ -1,6 +1,0 @@
-﻿cuda.core.typing.PCHStatusType
-==============================
-
-.. currentmodule:: cuda.core.typing
-
-.. autoenum:: PCHStatusType
