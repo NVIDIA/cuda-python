@@ -241,6 +241,70 @@ CUresult set_deallocation_stream(
     const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept;
 
 // ============================================================================
+// Virtual memory management (VMM_DESIGN.md)
+//
+// A VirtualMemoryResource buffer is a range of mappings. Each mapping holds
+// one physical allocation and one address reservation; the mapping deleter
+// unmaps, then the allocation is released and the reservation freed as their
+// last references go. A buffer's DevicePtrHandle owns the range.
+// ============================================================================
+
+// Create a physical allocation via cuMemCreate. The access descriptors are
+// applied to every mapping of this allocation. When the last reference is
+// released, cuMemRelease is called; the memory is freed once no mapping
+// remains. Returns empty handle on error (caller must check).
+MemAllocationHandle create_mem_allocation_handle(size_t size, const CUmemAllocationProp& prop,
+                                                 const CUmemAccessDesc* descs, size_t count);
+
+// Size of the allocation; the only size cuMemMap accepts for it.
+size_t mem_allocation_size(const MemAllocationHandle& h) noexcept;
+
+// Reserve an address range via cuMemAddressReserve. Pass alignment 0 for the
+// driver default. When the last reference is released, cuMemAddressFree is
+// called with the exact reserved pair. Returns empty handle on error.
+VaReservationHandle create_va_reservation_handle(size_t size, size_t alignment, CUdeviceptr hint);
+
+// Size of the reservation.
+size_t va_reservation_size(const VaReservationHandle& h) noexcept;
+
+// Map the whole allocation at ptr inside the reservation via cuMemMap and
+// apply the allocation's access descriptors. The mapping structurally depends
+// on both handles. When the last reference is released, cuMemUnmap is called
+// first. Returns empty handle on error, including a range outside the
+// reservation; a failed cuMemSetAccess unmaps before returning.
+VaMappingHandle create_va_mapping_handle(CUdeviceptr ptr, const MemAllocationHandle& h_alloc,
+                                         const VaReservationHandle& h_res);
+
+// Mapping accessors.
+size_t va_mapping_size(const VaMappingHandle& h) noexcept;
+MemAllocationHandle va_mapping_allocation(const VaMappingHandle& h) noexcept;
+
+// Create an empty range keyed by its base address. When the last reference is
+// released, every deallocation stream its owners recorded is synchronized
+// (capturing streams are skipped and reported), then the mappings are
+// destroyed. May throw std::bad_alloc.
+VmmRangeHandle create_vmm_range(CUdeviceptr base);
+
+// Recover the range of a VMM device pointer handle; empty for any other
+// handle, including a closed one.
+VmmRangeHandle vmm_range(const DevicePtrHandle& h);
+
+// Range accessors and mutators. Mutation is not synchronized: two buffers
+// that share a range must not be grown concurrently (caller's responsibility).
+size_t vmm_range_count(const VmmRangeHandle& range) noexcept;
+VaMappingHandle vmm_range_mapping(const VmmRangeHandle& range, size_t index) noexcept;
+size_t vmm_range_total(const VmmRangeHandle& range) noexcept;
+void vmm_range_reserve(const VmmRangeHandle& range, size_t count);   // may throw
+void vmm_range_append(const VmmRangeHandle& range, const VaMappingHandle& mapping);  // may throw
+
+// Create a device pointer handle that owns a range. The box records no
+// deallocation stream; set one with set_deallocation_stream. When the last
+// reference is released, the recorded stream is forwarded to the range and
+// the range reference dropped; the range deleter does the synchronization and
+// the unmapping. Returns empty handle for an empty range.
+DevicePtrHandle deviceptr_create_vmm(CUdeviceptr base, const VmmRangeHandle& range);
+
+// ============================================================================
 // Library handle functions
 // ============================================================================
 

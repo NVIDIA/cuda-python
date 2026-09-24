@@ -205,6 +205,18 @@ inline PyObject* as_py(const SurfObjectHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUsurfObject", as_intptr(h));
 }
 
+inline PyObject* as_py(const MemAllocationHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUmemGenericAllocationHandle", as_intptr(h));
+}
+
+inline PyObject* as_py(const VaReservationHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUdeviceptr", as_intptr(h));
+}
+
+inline PyObject* as_py(const VaMappingHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUdeviceptr", as_intptr(h));
+}
+
 // ============================================================================
 // Python-coupled API: the prototypes that take or return PyObject*
 // ============================================================================
