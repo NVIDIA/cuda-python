@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.FanControlPolicy
+===================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: FanControlPolicy
