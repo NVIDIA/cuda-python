@@ -39,9 +39,9 @@ def _reject_numa_host_on_cuda12(spec: _LocSpec) -> None:
     ``TypeError`` at the call boundary with actionable wording.
     """
     # The host-NUMA kinds map to CU_MEM_LOCATION_TYPE_HOST_NUMA{,_CURRENT},
-    # both added in CUDA 13: the CUDA 13 build passes them to the v2 driver
-    # entry points, which need a 13.0+ runtime driver as well (a build check
-    # alone is insufficient; PR #2054 / #2064 precedent).
+    # both added in CUDA 13. The CUDA 13 build passes them to the v2 driver
+    # entry points, which need a 13.0+ runtime driver as well. A build check
+    # alone is insufficient. See PR #2054 / #2064 for the precedent.
     if BUILD_CUDA_MAJOR >= 13 and driver_version() >= (13, 0, 0):
         return
     if spec.kind in ("host_numa", "host_numa_current"):

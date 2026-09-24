@@ -70,7 +70,7 @@ StreamHandle create_stream_handle(const ContextHandle& h_ctx, unsigned int flags
     CUstream stream = nullptr;
     GreenCtxHandle h_green = get_context_green_ctx(h_ctx);
     if (h_green) {
-        // Gated in Cython on driver >= 12.5 (cuGreenCtxStreamCreate's introduction).
+        // Cython gates this on driver >= 12.5, which introduced cuGreenCtxStreamCreate.
         err = DRIVER_CALL(cuGreenCtxStreamCreate, &stream, as_cu(h_green), flags, priority);
     } else {
         err = invoke_in_context_or_undo(

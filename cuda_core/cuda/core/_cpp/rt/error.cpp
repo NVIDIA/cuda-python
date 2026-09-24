@@ -38,7 +38,7 @@ void format_cuda_error(char* buffer, size_t size, const char* operation, CUresul
                        const char* detail) noexcept {
     const char* error_name = nullptr;
     const char* error_description = nullptr;
-    // With the table unavailable the trampolines fail and the numeric fallback is used.
+    // If the table is unavailable, the trampolines fail and the numeric branch below runs.
     bool decoded = DRIVER_CALL(cuGetErrorName, status, &error_name) == CUDA_SUCCESS
                    && DRIVER_CALL(cuGetErrorString, status, &error_description) == CUDA_SUCCESS;
     const char* outcome = detail ? detail : "failed";

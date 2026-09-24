@@ -2,29 +2,29 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// Filling the driver and compiler-library function tables from cuda-bindings.
+// This file fills the driver and compiler-library function tables from cuda-bindings.
 //
-// cuda-bindings loads each library and resolves its symbols once (for the
-// driver, with cuGetProcAddress). cuda.bindings._internal.<lib>
+// cuda-bindings loads each library and resolves its symbols once. For the
+// driver it uses cuGetProcAddress. cuda.bindings._internal.<lib>
 // ._inspect_function_pointers() returns that table as {name: address}, where a
 // zero address means the library does not provide the symbol. This file copies
 // the entries cuda.core uses into the p_ pointers declared in driver_api.hpp.
 //
-// The fill runs Python, so it acquires the GIL and must never run under a C++
-// lock (the GIL is the outermost lock; see DESIGN.md). The slot stores happen
-// under fill_mutex with no Python call inside, and the ready flag is published
-// with release semantics after them, so readers that see the flag see the
-// pointers. Two threads may both compute the table; they store identical
+// The fill runs Python, so it acquires the GIL. It must never run under a C++
+// lock, because the GIL is the outermost lock (see DESIGN.md). The slot stores
+// happen under fill_mutex with no Python call inside. The fill then publishes
+// the ready flag with release semantics, so a reader that sees the flag sees
+// the pointers. Two threads may both compute the table. They store identical
 // values, one after the other.
 //
-// Failures never propagate as exceptions and never leave a Python error set:
-// they are recorded, reported through report_message(), latched (a failed
-// table is not retried, so no call re-imports or re-warns), and every
-// affected DRIVER_CALL then returns an error status from a trampoline
-// (driver_api.hpp) with the reason attached to the raised error as a note.
-// A fill can run while a Python exception is propagating (a deleter making its
-// first driver call during unwinding), so the pending exception is saved
-// around the Python calls and restored afterwards.
+// A failure never propagates as an exception and never leaves a Python error
+// set. The fill records it, reports it through report_message(), and latches
+// it: no later call retries the table, re-imports, or re-warns. Every
+// affected DRIVER_CALL then returns an error status from a trampoline in
+// driver_api.hpp, and the raised error carries the reason as a note.
+// A fill can run while a Python exception propagates, for example when a
+// deleter makes its first driver call during unwinding. The fill saves the
+// pending exception before its Python calls and restores it afterwards.
 
 #include "py.hpp"
 #include "driver_api.hpp"
@@ -49,8 +49,8 @@ std::mutex fill_mutex;
 char fill_error[kTables][512] = {};  // guarded by fill_mutex
 
 // Saves the pending Python exception on construction and restores it on
-// destruction, so the Python calls in between start from a clean error state
-// and the caller's exception survives. Requires the GIL.
+// destruction. The Python calls in between start from a clean error state, and
+// the caller's exception survives. Requires the GIL.
 class PendingExceptionGuard {
 public:
     PendingExceptionGuard() noexcept {
@@ -103,11 +103,11 @@ const char* library_name(FnTable table) noexcept {
     return "library";
 }
 
-// Copy the pending Python exception's text into buf and clear it. Returns
+// Copies the pending Python exception's text into buf and clears it. Returns
 // true when the exception says nothing about cuda-bindings or the driver: an
-// interruption (KeyboardInterrupt, SystemExit) or exhaustion (MemoryError,
-// RecursionError). Such a failure is reported but not latched; the next call
-// tries again.
+// interruption such as KeyboardInterrupt or SystemExit, or exhaustion such as
+// MemoryError or RecursionError. The fill reports such a failure but does not
+// latch it, so the next call tries again.
 bool take_python_error(char* buf, std::size_t size) noexcept {
     const bool transient = PyErr_Occurred()
                            && (!PyErr_ExceptionMatches(PyExc_Exception) || PyErr_ExceptionMatches(PyExc_MemoryError)
@@ -164,7 +164,7 @@ bool ensure_fn_table(FnTable table) noexcept {
         return true;
     }
     if (table_failed[idx].load(std::memory_order_acquire)) {
-        return false;  // latched: the reason was reported when the fill failed
+        return false;  // latched: the fill reported its reason when it failed
     }
     std::size_t count = 0;
     const FnEntry* entries = fn_table_entries(table, &count);
@@ -173,7 +173,7 @@ bool ensure_fn_table(FnTable table) noexcept {
         return false;
     }
     if (!Py_IsInitialized() || py_is_finalizing()) {
-        record_failure(table, "cuda.core cannot resolve driver functions while the interpreter is shutting down");
+        record_failure(table, "cuda.core cannot resolve driver functions during interpreter shutdown");
         return false;
     }
 
@@ -183,7 +183,7 @@ bool ensure_fn_table(FnTable table) noexcept {
 
     GILAcquireGuard gil;
     if (!gil.acquired()) {
-        record_failure(table, "cuda.core cannot resolve driver functions while the interpreter is shutting down");
+        record_failure(table, "cuda.core cannot resolve driver functions during interpreter shutdown");
         return false;
     }
     PendingExceptionGuard pending;
@@ -217,8 +217,8 @@ bool ensure_fn_table(FnTable table) noexcept {
         if (item == nullptr) {
             Py_DECREF(pointers);
             std::snprintf(message, sizeof(message),
-                          "the installed cuda-bindings has no entry for %s (%s). cuda.core was compiled against a "
-                          "cuda.h that names this symbol differently than the cuda-bindings in use; install the "
+                          "the installed cuda-bindings has no entry for %s (%s). This cuda.core build used a "
+                          "cuda.h that names this symbol differently from the installed cuda-bindings. Install the "
                           "cuda-bindings this cuda.core requires",
                           entries[i].name, entries[i].key);
             record_failure(table, message);
@@ -239,15 +239,15 @@ bool ensure_fn_table(FnTable table) noexcept {
     Py_DECREF(pointers);
 
     // Every function introduced at or before the first release of the CUDA
-    // major series is present in every driver cuda.core supports; a null one
-    // means the driver is older than that. Newer functions may be null and are
-    // gated on the driver version in Cython.
+    // major series is present in every driver cuda.core supports. A null one
+    // means the driver is older than that. A newer function may be null, and
+    // the Cython layer gates its use on the driver version.
     if (table == FnTable::driver) {
         for (std::size_t i = 0; i < count; ++i) {
             if (values[i] == nullptr && entries[i].introduced <= CUDA_CORE_BUILD_MAJOR * 1000) {
                 std::snprintf(message, sizeof(message),
-                              "the installed CUDA driver lacks %s, which every CUDA %d driver provides "
-                              "(introduced in CUDA %d.%d); this cuda.core build needs a newer driver",
+                              "the installed CUDA driver lacks %s, which every CUDA %d driver provides. "
+                              "CUDA %d.%d introduced this function. This cuda.core build needs a newer driver",
                               entries[i].name, CUDA_CORE_BUILD_MAJOR, entries[i].introduced / 1000,
                               entries[i].introduced / 10 % 100);
                 record_failure(table, message);
@@ -277,19 +277,19 @@ void report_unavailable_fn(FnTable table, const char* name) noexcept {
         std::snprintf(message, sizeof(message), "cuda.core could not call %s: %s", name, reason);
     } else {
         std::snprintf(message, sizeof(message),
-                      "internal cuda.core error, please report: %s was called but the installed %s does not "
-                      "provide it; a feature gate is missing or wrong. The call returned an error instead.",
+                      "internal cuda.core error, please report: cuda.core called %s but the installed %s does not "
+                      "provide it. A feature gate is missing or wrong. The call returned an error instead.",
                       name, library_name(table));
     }
     if (table == FnTable::driver) {
-        // The trampoline returns CUDA_ERROR_NOT_INITIALIZED; the Cython error
-        // path attaches this as a note to the CUDAError it raises for it.
+        // The trampoline returns CUDA_ERROR_NOT_INITIALIZED. The Cython error
+        // path attaches this message as a note to the CUDAError it raises.
         note_driver_table_failure(message);
     }
     if (failed_fill) {
-        return;  // the fill reported its reason when it failed; the note carries it to each raised error
+        return;  // the fill reported its reason when it failed, and the note carries it to each raised error
     }
-    // A gate bug: warn once per table, the first unavailable call is the informative one.
+    // A gate bug: warn once per table. The first unavailable call is the informative one.
     if (unavailable_reported[index_of(table)].exchange(true)) {
         return;
     }

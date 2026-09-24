@@ -127,7 +127,7 @@ struct NvrtcProgramBox {
 
 NvrtcProgramHandle create_nvrtc_program_handle(nvrtcProgram prog) {
     // Resolve the table now, while the library that created `prog` is loaded,
-    // so the deleter never has to.
+    // so that the deleter never triggers a fill.
     ensure_fn_table(FnTable::nvrtc);
     auto box = std::shared_ptr<NvrtcProgramBox>(
         new NvrtcProgramBox{prog},

@@ -12,8 +12,8 @@ from cuda.core._utils.version cimport cy_driver_version  # no-cython-lint
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
     cdef inline bint _with_attributes_available():
-        # cuMemcpyWithAttributesAsync is a 13.2 driver API; cuda-bindings 13.4+
-        # (the floor) always exports it, so only the driver can lack it.
+        # cuMemcpyWithAttributesAsync is a 13.2 driver API. Every cuda-bindings at
+        # or above the 13.4 floor exports it, so only the driver can lack it.
         return cy_driver_version() >= (13, 2, 0)
 ELSE:
     cdef inline bint _with_attributes_available():

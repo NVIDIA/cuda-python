@@ -225,7 +225,7 @@ cdef void _dispatch_buffer_copy(
     else:
         _reject_unsupported_during_api_call(
             options.src_access_order,
-            "the CUDA 13 build of cuda.core and a driver reporting CUDA 13.2 or newer "
+            "the CUDA 13 build of cuda.core and a driver that reports CUDA 13.2 or newer "
             "(cuMemcpyWithAttributesAsync is unavailable here)",
         )
         # STREAM and ANY never require access sooner than stream order, so

@@ -38,7 +38,7 @@ def _is_nvvm_available():
         return False
 
 
-nvvm_available = pytest.mark.skipif(not _is_nvvm_available(), reason="NVVM not available (libNVVM not found)")
+nvvm_available = pytest.mark.skipif(not _is_nvvm_available(), reason="NVVM not available: libNVVM not found")
 
 
 def _get_nvrtc_version_for_tests():

@@ -203,9 +203,9 @@ cdef void _set_executable_node_enabled(
 
 
 cdef bint _check_node_get_params():
-    """Whether cuGraphNodeGetParams (CUDA 13.2) can be called.
+    """Whether cuGraphNodeGetParams, a 13.2 driver API, is available.
 
-    The CUDA 13 build always has the binding; only the driver can lack it."""
+    The CUDA 13 build always has the binding. Only the driver can lack it."""
     IF CUDA_CORE_BUILD_MAJOR >= 13:
         return cy_driver_version() >= (13, 2, 0)
     ELSE:
@@ -651,9 +651,9 @@ cdef class MemsetNode(GraphNode):
         only accompany a raw-address ``dst``.
 
         With drivers from CUDA 12.2 through 13.1, the node's intended CUDA
-        context must be current when this method is called. With the CUDA 13
-        build of ``cuda.core`` and a driver of CUDA 13.2 or newer, the recorded
-        context is preserved automatically.
+        context must be current when this method runs. With the CUDA 13 build
+        of ``cuda.core`` and a driver of CUDA 13.2 or newer, this method
+        preserves the recorded context.
 
         .. warning::
 
@@ -841,9 +841,9 @@ cdef class MemcpyNode(GraphNode):
         not supported.
 
         With drivers from CUDA 12.2 through 13.1, the node's intended CUDA
-        context must be current when this method is called. With the CUDA 13
-        build of ``cuda.core`` and a driver of CUDA 13.2 or newer, the recorded
-        context is preserved automatically.
+        context must be current when this method runs. With the CUDA 13 build
+        of ``cuda.core`` and a driver of CUDA 13.2 or newer, this method
+        preserves the recorded context.
 
         .. warning::
 

@@ -2,14 +2,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""The cuda-bindings version floor (cuda/core/_bindings_floor.py): reading it
-from the pyproject extras, the import-time check built on it, and the
-consistency hook that guards ci/versions.yml and the docs.
+"""Tests for the cuda-bindings version floor in cuda/core/_bindings_floor.py.
 
-Source-tree properties and pure functions only: no GPU, so this file also runs
-with --noconftest (conftest.py initializes CUDA). The consistency tests read
-pyproject.toml and ci/versions.yml from the checkout, so they need the source
-tree next to the tests, which every CI job that runs tests/ has.
+The tests cover the floor as read from the pyproject extras and the import-time check
+built on it. They also cover the consistency hook that guards ci/versions.yml and the docs.
+
+The tests check source-tree properties and pure functions and need no GPU. The file
+also runs with --noconftest, which skips the CUDA setup in conftest.py. The consistency
+tests read pyproject.toml and ci/versions.yml from the checkout. They need the source
+tree next to the tests. Every CI job that runs tests/ has it.
 
     pytest tests/test_bindings_floor.py -v --noconftest
 """
@@ -52,13 +53,13 @@ def _load(name, path):
 def hook():
     """toolshed/check_cuda_core_bindings_floor.py lives outside cuda_core/, so an sdist tree lacks it."""
     if not HOOK.is_file():
-        pytest.skip(f"{HOOK} is not in this tree; the hook tests need the monorepo checkout")
+        pytest.skip(f"{HOOK} is not in this tree. The hook tests need the monorepo checkout")
     return _load("check_cuda_core_bindings_floor", HOOK)
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_floor_module_is_import_free():
-    """build_hooks.py, conf.py and the hook load it by file path; it must stay standard-library only."""
+    """build_hooks.py, conf.py and the hook load it by file path, so it must stay standard-library only."""
     source = Path(floor_mod.__file__).read_text(encoding="utf-8")
     imports = re.findall(r"^\s*(?:from|import)\s+(\w+)", source, re.M)
     assert set(imports) <= {"__future__", "collections", "re"}
@@ -66,7 +67,7 @@ def test_floor_module_is_import_free():
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_floors_come_from_the_pyproject_extras(hook):
-    """The extras are the single source; reading them back gives one release triple per major."""
+    """The extras are the single source. read_floors() returns one release triple per major."""
     floors = hook.read_floors(REPO)
     assert sorted(floors) == [12, 13]
     for major, floor in floors.items():
@@ -156,7 +157,7 @@ class TestCheckInstalledBindings:
 
     def check(self, installed, major=13, header=None, floor=None, installed_header=None):
         """installed_header defaults to the header of the installed version's major.minor,
-        as a release of that version would have been generated from."""
+        the header that a release of that version was generated from."""
         if installed_header is None:
             triple = release_triple(installed) or (major, 0, 0)
             installed_header = cuda_version_of(triple)
@@ -170,8 +171,8 @@ class TestCheckInstalledBindings:
         [
             "13.4.1",
             "13.4.2",
-            "13.4.2.dev249+gabcdef0",  # main-built bindings in CI
-            "13.5.0b1",  # newer bindings than the build: supported
+            "13.4.2.dev249+gabcdef0",  # main-built cuda-bindings in CI
+            "13.5.0b1",  # newer cuda-bindings than the build: supported
         ],
     )
     def test_accepts_the_floor_and_newer(self, installed):
@@ -183,12 +184,12 @@ class TestCheckInstalledBindings:
             self.check("13.3.1")
         message = str(excinfo.value)
         assert "requires cuda-bindings >= 13.4.1 for CUDA 13" in message
-        assert "(found 13.3.1)" in message
-        assert 'pip install -U "cuda-bindings>=13.4.1,<14"' in message  # double quotes: cmd.exe too
+        assert "but cuda-bindings 13.3.1 is installed" in message
+        assert 'pip install -U "cuda-bindings>=13.4.1,<14"' in message  # double quotes work in cmd.exe too
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_rejects_bindings_generated_from_an_older_header_than_the_build(self):
-        # Built against 13.5 headers; a 13.4-generated cuda-bindings lacks table entries.
+        # The build uses 13.5 headers. A cuda-bindings generated from 13.4 lacks table entries.
         with pytest.raises(ImportError) as excinfo:
             self.check("13.4.1", header=self.HEADER + 10)
         message = str(excinfo.value)
@@ -200,17 +201,17 @@ class TestCheckInstalledBindings:
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_header_rule_compares_headers_not_version_strings(self):
-        # A development cuda-bindings carries the previous release's version string
-        # (13.4.2.dev5) but was generated from the new 13.5 header: accepted.
+        # A development cuda-bindings carries the previous release's version string,
+        # 13.4.2.dev5, but was generated from the new 13.5 header. The check accepts it.
         floor = (13, 4, 2)
         assert self.check("13.4.2.dev5+gabc", header=13050, floor=floor, installed_header=13050) == (13, 4, 2)
-        # The converse, a 13.5 version string generated from 13.4 headers, is rejected.
+        # The check rejects the converse, a 13.5 version string generated from 13.4 headers.
         with pytest.raises(ImportError, match="needs cuda-bindings 13.5 or newer"):
             self.check("13.5.0", header=13050, floor=floor, installed_header=13040)
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_the_floor_comes_from_the_build_record(self):
-        # A build recorded with a lower floor (and header) accepts what the default floor rejects.
+        # A build recorded with a lower floor and header accepts what the default floor rejects.
         assert self.check("13.3.0", header=cuda_version_of((13, 2, 0)), floor=(13, 2, 0)) == (13, 3, 0)
         # A higher recorded floor rejects what the default floor accepts.
         with pytest.raises(ImportError) as excinfo:
@@ -227,27 +228,29 @@ class TestCheckInstalledBindings:
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     @pytest.mark.parametrize("installed", ["11.8.0", "14.0.0"])
     def test_another_major_names_only_the_fix_it_knows(self, installed):
-        """A plain (single-build) install cannot know which other builds exist, so the message
-        must not promise one."""
+        """A single-build install cannot know which other builds exist, so the message must not
+        promise one."""
         with pytest.raises(ImportError) as excinfo:
             self.check(installed, major=12, header=12090, floor=(12, 9, 8))
         message = str(excinfo.value)
-        assert 'Install cuda-bindings 12.x (pip install "cuda-bindings==12.*")' in message
-        assert f"build for CUDA {installed.split('.')[0]} if one exists" in message
+        assert 'Install cuda-bindings 12.x with: pip install "cuda-bindings==12.*"' in message
+        assert f"If a cuda.core build for CUDA {installed.split('.')[0]} exists, install it instead." in message
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     @pytest.mark.parametrize("installed", ["0.1.dev1+g0d22cb444", "garbage"])
     def test_rejects_unparseable_versions(self, installed):
         with pytest.raises(
-            ImportError, match=rf"a cuda-bindings 13\.x release is required \(found {re.escape(installed)}\)"
+            ImportError,
+            match=rf"requires a cuda-bindings 13\.x release, "
+            rf"but the installed cuda-bindings version is {re.escape(installed)}",
         ):
             self.check(installed)
 
 
 class TestImportTimeCheck:
     """`import cuda.core` runs check_installed_bindings against the installed build's record
-    before importing any extension module. A fake cuda.bindings in a child interpreter
-    exercises the reject paths end to end (issue #2783 asked for this test)."""
+    before it imports any extension module. A fake cuda.bindings in a child interpreter
+    exercises the reject paths end to end. Issue #2783 asked for this test."""
 
     _CHILD = textwrap.dedent("""
         import sys, types
@@ -307,17 +310,21 @@ class TestImportTimeCheck:
     def test_unparseable_version_fails_at_import(self, tmp_path):
         major, cuda_version, floor = self._build()
         # A major but no release triple. The build's major keeps the merged wheel on its cu<major>
-        # build; a foreign major (a shallow clone's 0.1.dev1) stops earlier there with "no build for CUDA 0".
+        # build. A foreign major, such as a shallow clone's 0.1.dev1, stops earlier there with
+        # "no build for CUDA 0".
         no_triple = f"{major}.4"
         message = self._import_error(no_triple, cuda_version, tmp_path)
-        assert f"a cuda-bindings {major}.x release is required (found {no_triple})" in message
+        assert (
+            f"requires a cuda-bindings {major}.x release, but the installed cuda-bindings version is {no_triple}"
+            in message
+        )
         # No major at all.
         message = self._import_error("garbage", cuda_version, tmp_path)
-        assert "a cuda-bindings release must be installed (found version 'garbage')" in message
+        assert "requires a cuda-bindings release, but the installed cuda-bindings version is 'garbage'" in message
 
 
 class TestConsistencyHook:
-    """toolshed/check_cuda_core_bindings_floor.py, also the pre-commit hook."""
+    """Tests for toolshed/check_cuda_core_bindings_floor.py, which is also the pre-commit hook."""
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_the_checkout_is_consistent(self, hook):
@@ -326,7 +333,7 @@ class TestConsistencyHook:
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_a_malformed_extra_fails_the_hook(self, hook, tmp_path, capsys):
-        # check() returns before reading ci/versions.yml or the docs, so the tree needs only these two files.
+        # check() returns before it reads ci/versions.yml or the docs, so the tree needs only these two files.
         core = tmp_path / "cuda_core" / "cuda" / "core"
         core.mkdir(parents=True)
         shutil.copy(CUDA_CORE / "cuda" / "core" / "_bindings_floor.py", core)

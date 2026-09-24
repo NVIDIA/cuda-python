@@ -30,13 +30,16 @@ def hardware_supports_nvml():
 
 
 def _should_skip_nvml_tests() -> bool:
-    """Return True if NVML tests should be skipped on this system (a hardware-level NVML probe)."""
+    """Return True if the NVML tests should skip on this system.
+
+    The check is a hardware-level NVML probe.
+    """
     return not hardware_supports_nvml()
 
 
 skip_if_nvml_unsupported = pytest.mark.skipif(
     _should_skip_nvml_tests(),
-    reason="NVML support requires hardware that supports NVML",
+    reason="this hardware does not support NVML",
 )
 
 

@@ -56,7 +56,7 @@ dependencies = [
 ]
 
 # The cuda-bindings pins below are the cuda-bindings *floors* of this release, one
-# per CUDA major, and the only place they are declared: build_hooks.py, the
+# per CUDA major. This is the only place that declares them. build_hooks.py, the
 # import-time check, the docs and CI read them from here (see
 # cuda/core/_bindings_floor.py and the "Bumping the cuda-bindings floor"
 # checklist in AGENTS.md). Keep the form `>=<floor>,<<next major>`.

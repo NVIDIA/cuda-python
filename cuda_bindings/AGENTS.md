@@ -51,9 +51,10 @@ the `legacy_tests` subdirectory.
 
 - `CUDA_HOME` or `CUDA_PATH` must point to a valid CUDA Toolkit for source
   builds.
-- The toolkit's `cuda.h` must have the major.minor the generated sources came
-  from (`CUDA_VERSION` in `cuda/bindings/cydriver.pxd`). `build_hooks.py`
-  checks this before cythonize and fails with a message that names both.
+- The toolkit's `cuda.h` must have the same major.minor as the generated
+  sources, `CUDA_VERSION` in `cuda/bindings/cydriver.pxd`. `build_hooks.py`
+  checks this before cythonize and fails with a message that names both
+  versions.
 - `CUDA_PYTHON_PARALLEL_LEVEL` controls build parallelism.
 - Runtime behavior is affected by
   `CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM` and

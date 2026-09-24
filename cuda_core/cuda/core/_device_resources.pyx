@@ -212,9 +212,9 @@ cdef inline unsigned int _to_sm_count(object value) except? 0:
 cdef int _structured_split_checked = 0
 
 cdef inline bint _can_use_structured_sm_split():
-    """Whether the driver provides cuDevSmResourceSplit (13.1+). Cached.
+    """Whether the driver provides cuDevSmResourceSplit, a 13.1 driver API. Cached.
 
-    cuda-bindings 13.4+ (the floor) always exports it; only the driver can lack it."""
+    Every cuda-bindings at or above the 13.4 floor exports it. Only the driver can lack it."""
     global _structured_split_checked
     if _structured_split_checked != 0:
         return _structured_split_checked == 1

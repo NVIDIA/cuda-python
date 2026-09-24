@@ -144,7 +144,7 @@ def copy_batch(
     Notes
     -----
     Batching through ``cuMemcpyBatchAsync`` requires both the CUDA 13 build of
-    ``cuda.core`` and a driver reporting CUDA 13.0 or newer
+    ``cuda.core`` and a driver that reports CUDA 13.0 or newer
     (``cuDriverGetVersion() >= 13000``). ``cuda.bindings`` binds only the
     CUDA 13.0 revision of the entry point, so a driver that predates it is
     refused even where it implements the earlier CUDA 12.8 signature.
@@ -240,7 +240,7 @@ cdef void _reject_during_api_call_fallback(tuple attr_tuple):
     for i in range(len(attr_tuple)):
         _reject_unsupported_during_api_call(
             (<object>attr_tuple[i]).src_access_order,
-            "the CUDA 13 build of cuda.core and a driver reporting CUDA 13.0 or newer "
+            "the CUDA 13 build of cuda.core and a driver that reports CUDA 13.0 or newer "
             "(cuMemcpyBatchAsync is unavailable here)",
             index=i,
         )

@@ -2,17 +2,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""The C++ driver function table (cuda/core/_cpp/rt/py_driver_fns.cpp) when its fill fails.
+"""Tests for the C++ driver function table in cuda/core/_cpp/rt/py_driver_fns.cpp when its fill fails.
 
-The table is filled from ``cuda.bindings._internal.driver._inspect_function_pointers()`` on
-the first driver call. A child interpreter replaces that function so the fill fails in a
-controlled way, then makes driver calls through ``cuda.core`` and reports what happened.
-Expected: the failure is reported once as a :class:`CUDAWarning`, every affected call raises
-:class:`CUDAError` with the reason attached as a note, and the failure is latched (no second
-warning, no retry).
+The first driver call fills the table from ``cuda.bindings._internal.driver._inspect_function_pointers()``.
+A child interpreter replaces that function so that the fill fails in a controlled way. It then
+makes driver calls through ``cuda.core`` and reports what happened. The expected outcome:
+
+- The fill reports the failure once as a :class:`CUDAWarning`.
+- Every affected call raises :class:`CUDAError` with the reason attached as a note.
+- The failure latches: there is no second warning and no retry.
 
 The child needs a loadable CUDA driver and a visible device, so this module skips without them.
-Runs with ``--noconftest``.
+The module runs with ``--noconftest``.
 """
 
 import os
@@ -50,8 +51,8 @@ pytestmark = [
 
 
 def _table_keys() -> list[str]:
-    """The keys the fill looks up: "__" + the symbol cuda-bindings' loader requests for each
-    name in driver_api.hpp (cuStreamDestroy -> __cuStreamDestroy_v2)."""
+    """The keys the fill looks up: "__" + the symbol that the cuda-bindings loader requests for
+    each name in driver_api.hpp. For example, cuStreamDestroy maps to __cuStreamDestroy_v2."""
     if not LOADER.is_file():
         pytest.skip("needs the cuda_bindings source tree next to cuda_core")
     names = re.findall(
@@ -73,7 +74,7 @@ _CHILD = textwrap.dedent("""
     KEYS = {keys!r}
 
     def fake_inspect_function_pointers():
-        table = {{key: 1 for key in KEYS}}  # placeholder addresses; the fill fails before any call
+        table = {{key: 1 for key in KEYS}}  # placeholder addresses: the fill fails before any call
         {mutation}
         return table
 
@@ -85,7 +86,7 @@ _CHILD = textwrap.dedent("""
         warnings.simplefilter("always")
         for attempt in range(2):
             try:
-                # cuInit and the device query are Cython calls; the primary context
+                # cuInit and the device query are Cython calls. The primary context
                 # retain is the first call through the C++ table.
                 Device(0).set_current()
             except CUDAError as exc:
@@ -146,5 +147,5 @@ def test_missing_table_entry_names_the_mismatch(tmp_path):
     for line in attempts:
         assert "CUDAError: CUDA_ERROR_NOT_INITIALIZED" in line
         assert "has no entry for cuDevicePrimaryCtxRetain" in line
-        assert "install the cuda-bindings this cuda.core requires" in line
+        assert "Install the cuda-bindings this cuda.core requires" in line
     assert "CUDAWARNINGS 1" in lines

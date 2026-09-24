@@ -1,15 +1,15 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""build_hooks.py: the CUDA header check that runs before cythonize.
+"""Tests for the CUDA header check that build_hooks.py runs before cythonize.
 
-A cuda-bindings source tree is generated from one CUDA header set and compiles
-only against a toolkit of that major.minor; against another minor the C++
+A cuda-bindings source tree is generated from one CUDA header set. It compiles
+only against a toolkit of that major.minor. Against another minor, the C++
 compile fails with redefinition errors that do not name the cause. The check
 reads both versions and fails early with a message that does. No GPU needed.
 
-build_hooks.py is a PEP 517 backend, not an installed module, so it is loaded
-from source. It imports setuptools at the top; the ``test`` extra provides it.
+build_hooks.py is a PEP 517 backend, not an installed module, so the tests load
+it from source. It imports setuptools at the top, which the ``test`` extra provides.
 """
 
 import importlib.util
@@ -26,7 +26,7 @@ BUILD_HOOKS = Path(__file__).parents[1] / "build_hooks.py"
 @pytest.fixture(scope="module")
 def build_hooks():
     if not BUILD_HOOKS.is_file():
-        pytest.skip(f"{BUILD_HOOKS} is not in this tree; these tests need the source checkout")
+        pytest.skip(f"{BUILD_HOOKS} is not in this tree. These tests need the source checkout")
     spec = importlib.util.spec_from_file_location("cuda_bindings_build_hooks", BUILD_HOOKS)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -52,7 +52,7 @@ def test_generated_header_version_is_read_from_cydriver_pxd(build_hooks):
 def test_a_header_of_the_generated_major_minor_passes(build_hooks, tmp_path):
     generated = build_hooks._generated_cuda_version()
     build_hooks._check_cuda_headers(_write_cuda_h(tmp_path, generated))
-    # Only major.minor matters; the last digit (13041) is a toolkit patch.
+    # Only major.minor matters. The last digit, as in 13041, is a toolkit patch.
     build_hooks._check_cuda_headers(_write_cuda_h(tmp_path, generated + 1))
 
 
@@ -91,7 +91,7 @@ def test_the_build_checks_the_header_before_it_touches_the_tree(build_hooks, tmp
     monkeypatch.setattr(build_hooks, "_get_cuda_path", lambda: cuda_path)
 
     def not_reached():
-        raise AssertionError("the header check must run before the source tree is modified")
+        raise AssertionError("the header check must run before the build modifies the source tree")
 
     monkeypatch.setattr(build_hooks, "_rename_architecture_specific_files", not_reached)
     with pytest.raises(RuntimeError, match="source tree needs CUDA .* headers"):

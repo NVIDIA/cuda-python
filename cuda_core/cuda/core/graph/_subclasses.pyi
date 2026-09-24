@@ -138,9 +138,9 @@ class MemsetNode(GraphNode):
         only accompany a raw-address ``dst``.
 
         With drivers from CUDA 12.2 through 13.1, the node's intended CUDA
-        context must be current when this method is called. With the CUDA 13
-        build of ``cuda.core`` and a driver of CUDA 13.2 or newer, the recorded
-        context is preserved automatically.
+        context must be current when this method runs. With the CUDA 13 build
+        of ``cuda.core`` and a driver of CUDA 13.2 or newer, this method
+        preserves the recorded context.
 
         .. warning::
 
@@ -190,9 +190,9 @@ class MemcpyNode(GraphNode):
         not supported.
 
         With drivers from CUDA 12.2 through 13.1, the node's intended CUDA
-        context must be current when this method is called. With the CUDA 13
-        build of ``cuda.core`` and a driver of CUDA 13.2 or newer, the recorded
-        context is preserved automatically.
+        context must be current when this method runs. With the CUDA 13 build
+        of ``cuda.core`` and a driver of CUDA 13.2 or newer, this method
+        preserves the recorded context.
 
         .. warning::
 

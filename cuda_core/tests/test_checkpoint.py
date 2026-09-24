@@ -409,10 +409,10 @@ import ctypes
 from cuda.bindings import driver as _bindings_driver
 from cuda.core._utils.version import BUILD_CUDA_MAJOR
 
-# The helpers build CUcheckpointGpuPair, a CUDA 13 type the CUDA 12 bindings lack.
+# The helpers build CUcheckpointGpuPair, a CUDA 13 type that cuda-bindings 12.x lacks.
 needs_checkpoint_bindings = pytest.mark.skipif(
     BUILD_CUDA_MAJOR < 13,
-    reason="the checkpoint helpers use CUDA 13 binding types",
+    reason="the checkpoint helpers require the CUDA 13 build",
 )
 
 

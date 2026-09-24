@@ -301,7 +301,7 @@ Enhancements
   - ``nvvm.add_module_to_program``, ``nvvm.lazy_add_module_to_program``, ``nvvm.get_compiled_result``, ``nvvm.get_program_log`` (``buffer``)
 - For all ``cuda-bindings`` APIs, functions that accept a struct wrapper will accept the struct wrapper directly, rather than requiring getting the ``.ptr`` property.
 - Creating class instances in ``cuda-bindings`` should now be faster in most cases, because it requires 1 heap allocation rather than 2.
-- A source build now checks, before it compiles anything, that the CUDA Toolkit's ``cuda.h`` has the major.minor this source tree was generated from. A mismatch stops the build with a message that names the header found and the version needed. It used to surface as a long list of C++ redefinition errors.
+- Before a source build compiles anything, it now checks that the CUDA Toolkit's ``cuda.h`` has the major.minor this source tree was generated from. A mismatch stops the build with a message that names the header found and the version needed. Previously a mismatch surfaced as a long list of C++ redefinition errors.
 
 Behavior changes
 ----------------

@@ -19,10 +19,10 @@ SIZE = 4096
 def _options_honored():
     """True when cuMemcpyWithAttributesAsync will actually be used for options.
 
-    Mirrors _with_attributes_available() in _copy_attributes.pxd. CI runs a
-    matrix that includes CUDA 12 builds and pre-13.2 drivers (see
-    ci/test-matrix.yml), where this is False and the DURING_API_CALL tests
-    below must expect a RuntimeError instead of a successful copy.
+    Mirrors _with_attributes_available() in _copy_attributes.pxd. The CI
+    matrix in ci/test-matrix.yml includes CUDA 12 builds and pre-13.2
+    drivers. On those runs this returns False, and the DURING_API_CALL
+    tests below must expect a RuntimeError instead of a successful copy.
     """
     return BUILD_CUDA_MAJOR >= 13 and driver_version() >= (13, 2, 0)
 

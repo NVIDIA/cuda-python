@@ -3,18 +3,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-# cuda.core.system uses NVML through cuda.bindings.nvml, which every
-# cuda-bindings cuda.core accepts provides (cuda/core/_bindings_floor.py).
-# Loading the NVML library itself happens in initialize(), on first use, so
-# this module stays importable without CUDA or NVML installed.
+# cuda.core.system uses NVML through cuda.bindings.nvml. Every cuda-bindings
+# that cuda.core accepts provides the module. See cuda/core/_bindings_floor.py.
+# initialize() loads the NVML library itself on first use, so this module
+# stays importable without CUDA or NVML installed.
 
 
 from typing import TYPE_CHECKING
 
-# Always True since the cuda-bindings floor made NVML support unconditional;
-# kept for callers that read it. Assigned in a runtime-only block so that the
-# generated stub keeps the bare annotation the public API had (the API check
-# reports a changed attribute value otherwise).
+# Always True, because the cuda-bindings floor made NVML support unconditional.
+# Kept for callers that read it. The assignment sits in a runtime-only block so
+# that the generated stub keeps the bare annotation the public API had. The API
+# check reports a changed attribute value otherwise.
 CUDA_BINDINGS_NVML_IS_COMPATIBLE: bool
 if not TYPE_CHECKING:
     CUDA_BINDINGS_NVML_IS_COMPATIBLE = True

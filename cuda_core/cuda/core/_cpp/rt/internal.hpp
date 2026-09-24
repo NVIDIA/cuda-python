@@ -80,7 +80,7 @@ public:
     // The first argument is the resource being released; it is named in the
     // report so that independent failures are not collapsed by the warning
     // registry (see format_operation). The call goes through the function
-    // table like DRIVER_CALL: an unavailable entry is reported and yields an
+    // table like DRIVER_CALL: it reports an unavailable entry and yields an
     // error status, never a null dereference.
     template <typename First, typename... Rest>
     auto operator()(First&& first, Rest&&... rest) const noexcept {

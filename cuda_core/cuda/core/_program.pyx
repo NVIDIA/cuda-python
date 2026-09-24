@@ -758,8 +758,8 @@ def _get_nvvm_module() -> object:
         raise RuntimeError("NVVM module is not available (previous import attempt failed)")
 
     try:
-        # cuda.bindings.nvvm is present in every cuda-bindings cuda.core accepts;
-        # the probe checks that libnvvm itself can be loaded.
+        # Every cuda-bindings that cuda.core accepts provides cuda.bindings.nvvm.
+        # The probe checks that libnvvm itself loads.
         nvvm = _optional_cuda_import(
             "cuda.bindings.nvvm",
             probe_function=lambda module: module.version(),  # probe triggers libnvvm load

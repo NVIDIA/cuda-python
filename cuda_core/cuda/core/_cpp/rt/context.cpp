@@ -227,8 +227,8 @@ ContextHandle get_primary_context(int device_id) {
         [device_id](const ContextBox* b) {
             context_registry.unregister_handle(b->resource);
             // During interpreter shutdown, leave primary-context cleanup to
-            // process teardown (an unavailable table entry would need Python
-            // to report itself).
+            // process teardown. An unavailable table entry would need Python
+            // to report itself.
             if (Py_IsInitialized() && !py_is_finalizing()) {
                 GILReleaseGuard gil;
                 DRIVER_CALL(cuDevicePrimaryCtxRelease, device_id);

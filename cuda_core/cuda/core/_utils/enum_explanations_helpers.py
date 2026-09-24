@@ -4,13 +4,13 @@
 """Internal support for error-enum explanations.
 
 Driver and runtime error enums in ``cuda-bindings`` carry per-member
-``__doc__`` text (since 12.9.6 in the 12.x line and 13.2.0 in the 13.x line;
-every ``cuda-bindings`` that ``cuda.core`` accepts has it). This module
-normalizes those generated docstrings so user-facing ``CUDAError`` messages
-stay presentable.
+``__doc__`` text. ``cuda-bindings`` added the text in 12.9.6 on the 12.x line
+and in 13.2.0 on the 13.x line. Every ``cuda-bindings`` that ``cuda.core``
+accepts has it. This module normalizes those generated docstrings so that
+user-facing ``CUDAError`` messages stay presentable.
 
 The cleanup rules here were derived while validating generated enum docstrings
-in PR #1805. Keep them narrow and remove them when the codegen quirks are gone.
+in PR #1805. Keep them narrow. When the codegen quirks are gone, remove them.
 """
 
 from __future__ import annotations

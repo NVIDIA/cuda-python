@@ -232,8 +232,8 @@ def _capture_cythonize_build_dir(monkeypatch, cuda_major):
     # Builds resolve the CTK for include dirs; stub it so the test runs
     # where no toolkit is installed (e.g. the wheels CI jobs).
     monkeypatch.setattr(build_hooks, "_get_cuda_path", lambda: "/nonexistent-cuda")
-    # The configuration check reads that header and the installed cuda-bindings;
-    # it has its own tests (TestBuildConfigurationCheck).
+    # The configuration check reads that header and the installed cuda-bindings.
+    # TestBuildConfigurationCheck covers it.
     monkeypatch.setattr(build_hooks, "_check_build_configuration", lambda *_: None)
     monkeypatch.setattr(build_hooks, "cythonize", fake_cythonize)
     monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", cuda_major)
@@ -457,8 +457,9 @@ class TestParallelSourceCompilation:
 
 
 def _fake_bindings(monkeypatch, version, cuda_version=None):
-    """Make the build see an installed cuda-bindings of `version` (None: not installed),
-    generated from the header `cuda_version` (default: the header of its major.minor)."""
+    """Make the build see an installed cuda-bindings of `version`, generated from the header
+    `cuda_version`. None for `version` means not installed. `cuda_version` defaults to the
+    header of the version's major.minor."""
 
     def installed_cuda_bindings():
         if version is None:
@@ -486,7 +487,7 @@ class TestBuildConfigurationCheck:
     """_check_build_configuration() accepts exactly one configuration per CUDA
     major: cuda-bindings at or above the floor, and a cuda.h of the same
     major.minor as that cuda-bindings. Anything else is a build error that
-    names what was found and what is required."""
+    names what the check found and what it requires."""
 
     FLOOR = build_hooks._bindings_floors()
 
@@ -511,7 +512,7 @@ class TestBuildConfigurationCheck:
         assert floor[0] * 1000 + floor[1] * 10 == info.CUDA_VERSION
         assert floor == info.CUDA_BINDINGS_FLOOR
         assert version == info.CUDA_BINDINGS_BUILD_VERSION
-        # ci/tools/cuda_core_bindings_floor.py reads this record out of the wheel (BINDINGS_SOURCE=floor).
+        # ci/tools/cuda_core_bindings_floor.py reads this record out of the wheel when BINDINGS_SOURCE=floor.
         tool_path = Path(__file__).resolve().parents[2] / "ci" / "tools" / "cuda_core_bindings_floor.py"
         if tool_path.is_file():  # absent from an sdist tree
             spec = importlib.util.spec_from_file_location("cuda_core_bindings_floor_tool", tool_path)
@@ -537,7 +538,8 @@ class TestBuildConfigurationCheck:
         _fake_bindings(monkeypatch, _floor_str(13))
         cuda_path = _write_cuda_h(tmp_path, 12090)
         with pytest.raises(
-            RuntimeError, match=f"Building cuda.core for CUDA 12, but the installed cuda-bindings is {_floor_str(13)}"
+            RuntimeError,
+            match=f"This cuda.core build is for CUDA 12, but the installed cuda-bindings is {_floor_str(13)}",
         ):
             build_hooks._check_build_configuration(cuda_path, "12")
 
@@ -601,7 +603,7 @@ class TestBuildConfigurationCheck:
 
 
 class TestBindingsFloorsFromPyproject:
-    """_bindings_floors() reads the cu<major> extras of pyproject.toml; a malformed extra fails the build."""
+    """_bindings_floors() reads the cu<major> extras of pyproject.toml. A malformed extra fails the build."""
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_malformed_extra_is_a_build_error(self, tmp_path, monkeypatch):
@@ -633,8 +635,9 @@ class TestBindingsFloorsFromPyproject:
 
 
 class TestBuildRequirement:
-    """get_requires_for_build_wheel pins cuda-bindings for isolated builds: the floor, and the
-    header's minor when cuda.h is readable, so pip cannot pick a newer minor than the toolkit."""
+    """get_requires_for_build_wheel pins cuda-bindings for isolated builds. It pins the floor.
+    When cuda.h is readable, it also pins the header's minor, so pip cannot pick a newer minor
+    than the toolkit."""
 
     @staticmethod
     def _no_cuda_path():
@@ -698,7 +701,7 @@ class TestBuildRequirement:
 
 
 class TestDefineMacros:
-    """The C++ learns the build decision through two macros (see _cpp/rt/versions.hpp)."""
+    """The C++ learns the build decision through two macros. See _cpp/rt/versions.hpp."""
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     @pytest.mark.parametrize("major", ["12", "13"])

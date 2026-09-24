@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""CUDA process checkpointing (Linux).
+"""CUDA process checkpointing on Linux.
 
-Requires the CUDA 13 build of cuda.core (the driver structures it uses are
-CUDA 13 types) and a CUDA driver of version 12.8 or newer with checkpoint API
-support.
+This module requires the CUDA 13 build of cuda.core, because the driver
+structures it uses are CUDA 13 types. It also requires a CUDA driver of version
+12.8 or newer with checkpoint API support.
 """
 
 import ctypes as _ctypes
@@ -125,10 +125,10 @@ def _get_driver() -> Any:
     if _driver_capability_checked:
         return _driver
 
-    # Restoring onto other GPUs uses CUcheckpointGpuPair, a CUDA 13 type that
-    # the CUDA 12 build's cuda-bindings does not have.
+    # A restore onto other GPUs uses CUcheckpointGpuPair, a CUDA 13 type that
+    # cuda-bindings 12.x does not have.
     if _BUILD_CUDA_MAJOR < 13:
-        raise RuntimeError("CUDA checkpointing requires the CUDA 13 build of cuda.core (cuda-core[cu13]).")
+        raise RuntimeError("CUDA checkpointing requires the CUDA 13 build of cuda.core. Install cuda-core[cu13].")
 
     driver_ver = _driver_version()
     if driver_ver < _REQUIRED_DRIVER_VERSION:

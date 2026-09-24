@@ -74,8 +74,8 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
 
   # Resolve bindings based on BINDINGS_SOURCE (set by env-vars):
   #   main/backport → local wheel from artifacts dir
-  #   floor         → the oldest cuda-bindings the core wheel under test supports,
-  #                   read from that wheel, installed from PyPI
+  #   floor         → the oldest cuda-bindings that the cuda-core wheel under test
+  #                   supports, read from that wheel and installed from PyPI
   BINDINGS_ARGS=()
   if [[ "${BINDINGS_SOURCE}" == "floor" ]]; then
     CORE_WHL_FOR_FLOOR=("${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)

@@ -27,7 +27,7 @@ struct GraphicsResourceBox {
 }  // namespace
 
 GraphicsResourceHandle create_graphics_resource_handle(CUgraphicsResource resource) {
-    ensure_fn_table(FnTable::driver);  // the deleter calls the driver; resolve before it can run
+    ensure_fn_table(FnTable::driver);  // the deleter calls the driver: resolve the table before it can run
     auto box = std::shared_ptr<const GraphicsResourceBox>(
         new GraphicsResourceBox{resource},
         [](const GraphicsResourceBox* b) {
@@ -131,7 +131,7 @@ OpaqueArrayHandle create_array_handle_ref(CUarray arr) {
 }
 
 OpaqueArrayHandle create_array_handle_owning(CUarray arr) {
-    ensure_fn_table(FnTable::driver);  // the deleter calls the driver; resolve before it can run
+    ensure_fn_table(FnTable::driver);  // the deleter calls the driver: resolve the table before it can run
     if (!arr) {
         return {};
     }

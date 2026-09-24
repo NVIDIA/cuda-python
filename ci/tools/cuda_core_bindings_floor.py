@@ -10,13 +10,14 @@
 
 CI installs `cuda-bindings==<floor>` next to a freshly built cuda-core wheel to
 test the oldest cuda-bindings that wheel supports (BINDINGS_SOURCE=floor in
-ci/tools/env-vars). The floor is read from the wheel under test rather than
+ci/tools/env-vars). This script reads the floor from the wheel under test, not
 from the checkout, so a nightly job that tests a wheel built from another
 commit reads that wheel's floor.
 
-Each build records its floor in the generated cuda/core/_build_info.py (at top
-level in a single-major build, under cuda/core/cu<major>/ in the merged wheel);
-this script reads the CUDA_BINDINGS_FLOOR literal out of it without running it.
+Each build records its floor in the generated cuda/core/_build_info.py. A
+single-major build places the file at top level. The merged wheel places it
+under cuda/core/cu<major>/. This script parses the CUDA_BINDINGS_FLOOR literal
+out of it and never runs it.
 """
 
 from __future__ import annotations
@@ -31,7 +32,7 @@ MODULE = "_build_info.py"
 
 
 def _literal(source: str, name: str):
-    """The literal assigned to `name` at module level of `source`, parsed without executing it."""
+    """The literal that `source` assigns to `name` at module level. Parses the source and never runs it."""
     for node in ast.parse(source, MODULE).body:
         if isinstance(node, ast.AnnAssign):
             targets = [node.target]
@@ -56,7 +57,7 @@ def floor_from_wheel(wheel: Path, major: int) -> str:
         for candidate in (f"cuda/core/cu{major}/{MODULE}", f"cuda/core/{MODULE}"):
             if candidate in names:
                 return floor_from_source(zf.read(candidate).decode("utf-8"), major)
-    raise SystemExit(f"{wheel.name} contains no build for CUDA {major} (no {MODULE}); is it a cuda-core wheel?")
+    raise SystemExit(f"{wheel.name} contains no build for CUDA {major}: it has no {MODULE}. Is it a cuda-core wheel?")
 
 
 def main(argv: list[str] | None = None) -> int:

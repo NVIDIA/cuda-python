@@ -215,13 +215,13 @@ class ManagedBuffer(Buffer):
         as ``Host()``.
         """
         # The v2 path uses CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_{TYPE,ID},
-        # both added in CUDA 13: it exists in the CUDA 13 build only, and the
-        # runtime driver must be 13.0+ too; otherwise fall back to the legacy
+        # both added in CUDA 13. The path exists in the CUDA 13 build only, and
+        # the runtime driver must be 13.0+. Otherwise fall back to the legacy
         # device-ordinal path. See PR #2054 / #2064 for prior regressions.
         if BUILD_CUDA_MAJOR >= 13 and driver_version() >= (13, 0, 0):
             return _read_preferred_location_v2(self)
-        # CUDA 12 legacy path (no NUMA info available; also taken by a CUDA 13
-        # build when the runtime driver is still 12.x).
+        # CUDA 12 legacy path. No NUMA info is available. A CUDA 13 build also
+        # takes this path when the runtime driver is still 12.x.
         loc_id = _get_int_attr(self, _ATTR_PREFERRED)
         if loc_id == -2:
             return None

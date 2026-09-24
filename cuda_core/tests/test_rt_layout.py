@@ -101,8 +101,8 @@ def test_consumer_closure_is_types_and_the_python_seam():
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_cuda_version_is_named_only_in_versions_hpp():
     """The C++ may branch on CUDA_CORE_BUILD_MAJOR only. A `#if CUDA_VERSION >= 130x0`
-    fence compiled a feature out of source builds against an older header while the
-    run-time checks never noticed (https://github.com/NVIDIA/cuda-python/issues/2783);
+    fence compiled a feature out of source builds against an older header, and the
+    run-time checks never noticed. See https://github.com/NVIDIA/cuda-python/issues/2783.
     versions.hpp checks the header once and is the only file allowed to name it."""
     cpp = CORE / "_cpp"
     files = sorted(p for p in cpp.rglob("*") if p.suffix in (".hpp", ".h", ".cpp"))
@@ -114,9 +114,9 @@ def test_cuda_version_is_named_only_in_versions_hpp():
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_driver_function_table_matches_the_cuda_bindings_loader():
-    """driver_api.hpp lists each driver function with the CUDA version cuda-bindings
-    requests it at; that number decides which functions every supported driver
-    must provide. Check it against the loader cuda-bindings generates."""
+    """driver_api.hpp lists each driver function with the CUDA version that cuda-bindings
+    requests it at. That number decides which functions every supported driver must
+    provide. Check it against the loader that cuda-bindings generates."""
     loader = CORE.parents[2] / "cuda_bindings" / "cuda" / "bindings" / "_internal" / "driver_linux.pyx"
     if not loader.is_file():
         pytest.skip("cuda-bindings source is not next to cuda_core")
@@ -136,10 +136,10 @@ def test_driver_function_table_matches_the_cuda_bindings_loader():
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_driver_calls_go_through_the_table():
-    """Every driver call uses DRIVER_CALL (or a pw_ wrapper), which resolves the
+    """Every driver call uses DRIVER_CALL or a pw_ wrapper, which resolves the
     table on first use and never dereferences null. The only raw p_ calls are
-    the table's own machinery and the sites under ipc_import_mutex, where the
-    table is resolved before the lock and marked `// raw:`."""
+    the table's own machinery and the sites under ipc_import_mutex. Those sites
+    resolve the table before the lock and carry the `// raw:` mark."""
     machinery = {"driver_api.hpp", "driver_api.cpp", "py_driver_fns.cpp", "internal.hpp"}
     raw_call = re.compile(r"\bp_(cu|nv)\w+\b")  # calls and null checks alike
     offenders = []

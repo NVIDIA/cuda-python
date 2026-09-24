@@ -790,8 +790,8 @@ def _decide_nvjitlink_or_driver() -> bool:
         " For best results, consider upgrading to a recent version of"
     )
 
-    # cuda.bindings.nvjitlink is present in every cuda-bindings cuda.core accepts;
-    # only the nvJitLink library itself can be missing or too old.
+    # Every cuda-bindings that cuda.core accepts provides cuda.bindings.nvjitlink.
+    # Only the nvJitLink library itself can be missing or too old.
     from cuda.bindings._internal import nvjitlink
 
     try:

@@ -1641,7 +1641,7 @@ cdef inline int Device_ensure_cuda_initialized() except? -1:
             HANDLE_RETURN(cydriver.cuInit(0))
             _is_cuInit = True
         IF CUDA_CORE_BUILD_MAJOR >= 13:
-            # Added in cuda-bindings 13.3; absent from the 12.x line.
+            # cuda-bindings 13.3 added this function. The 12.x line does not have it.
             from cuda.bindings.utils import warn_if_cuda_major_version_mismatch
             warn_if_cuda_major_version_mismatch()
     return 0

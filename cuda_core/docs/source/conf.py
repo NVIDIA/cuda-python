@@ -21,9 +21,11 @@ sys.path.insert(0, str((Path(__file__).parents[3] / "cuda_python" / "docs" / "ex
 
 
 def _bindings_floor_substitutions() -> str:
-    """|cuda-bindings-floor-cu12| and |cuda-bindings-floor-cu13|, read from the
-    cu12/cu13 extras of pyproject.toml, the single place the floors are declared
-    (see cuda/core/_bindings_floor.py). Used by support.rst."""
+    """Return the rst_prolog that defines |cuda-bindings-floor-cu12| and |cuda-bindings-floor-cu13|.
+
+    The cu12 and cu13 extras of pyproject.toml are the single place that declares the floors.
+    See cuda/core/_bindings_floor.py. support.rst uses the substitutions.
+    """
     import importlib.util
 
     import tomllib

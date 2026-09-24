@@ -325,8 +325,8 @@ ThermalTarget.VCD_INLET.__doc__ = "Visual Computing Device Inlet temperature req
 ThermalTarget.VCD_OUTLET.__doc__ = "Visual Computing Device Outlet temperature requires visual computing device handle."
 
 
-# DeviceArch values are derived from cuda.bindings.nvml at definition time.
-# An IntEnum rather than a StrEnum because the ordering of the values is
+# DeviceArch takes its values from cuda.bindings.nvml at definition time.
+# It is an IntEnum rather than a StrEnum because the order of the values is
 # meaningful, e.g. Kepler "or later".
 class DeviceArch(enum.IntEnum):
     """

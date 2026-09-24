@@ -112,7 +112,7 @@ class VirtualMemoryResourceOptions:
         VirtualMemoryLocationType.HOST_NUMA_CURRENT: _l.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT,
     }
     _t = driver.CUmemAllocationType
-    # CUDA 13 added MANAGED to CUmemAllocationType; the CUDA 12 build has no such member.
+    # CUDA 13 added MANAGED to CUmemAllocationType. The CUDA 12 build has no such member.
     _allocation_type = {VirtualMemoryAllocationType.PINNED: _t.CU_MEM_ALLOCATION_TYPE_PINNED}  # noqa: RUF012
     if BUILD_CUDA_MAJOR >= 13:
         _allocation_type[VirtualMemoryAllocationType.MANAGED] = _t.CU_MEM_ALLOCATION_TYPE_MANAGED

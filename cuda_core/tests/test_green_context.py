@@ -156,7 +156,7 @@ def test_memory_node_updates_preserve_green_context(
     green_ctx,
 ):
     if BUILD_CUDA_MAJOR < 13 or driver_version() < (13, 2, 0):
-        pytest.skip("generic graph node parameter queries require the CUDA 13 build and driver 13.2+")
+        pytest.skip("cuGraphNodeGetParams requires the CUDA 13 build and driver 13.2+")
 
     memory_resource = LegacyPinnedMemoryResource()
     src = memory_resource.allocate(4)

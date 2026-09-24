@@ -8,7 +8,7 @@
 
 namespace cuda_core::rt {
 
-// The pointers. Null until ensure_fn_table() fills the table; see driver_api.hpp.
+// The pointers. Null until ensure_fn_table() fills the table. See driver_api.hpp.
 #define CUDA_CORE_DEFINE_DRIVER_FN(name, introduced) decltype(&name) p_##name = nullptr;
 CUDA_CORE_DRIVER_FUNCTIONS(CUDA_CORE_DEFINE_DRIVER_FN)
 #undef CUDA_CORE_DEFINE_DRIVER_FN
@@ -22,8 +22,8 @@ namespace {
 #define CUDA_CORE_STR(x) #x
 #define CUDA_CORE_XSTR(x) CUDA_CORE_STR(x)
 
-// "__" + the symbol cuda.h maps the public name to (macro-expanded), which is
-// how cuda-bindings keys its table; #name is the public name, unexpanded.
+// "__" + the macro-expanded symbol that cuda.h maps the public name to, which
+// is how cuda-bindings keys its table. #name is the public name, unexpanded.
 #define CUDA_CORE_DRIVER_FN_ENTRY(name, introduced) \
     {"__" CUDA_CORE_XSTR(name), #name, reinterpret_cast<void**>(&p_##name), introduced},
 

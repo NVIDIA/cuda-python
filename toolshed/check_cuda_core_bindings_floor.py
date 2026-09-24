@@ -5,17 +5,18 @@
 
 The floor of each CUDA major is declared once, by the `cu12`/`cu13` extras in
 cuda_core/pyproject.toml (see cuda_core/cuda/core/_bindings_floor.py). Most
-consumers read it from there, but two constraints cannot be derived and are
-checked here, as a pre-commit hook and from cuda_core/tests/test_bindings_floor.py:
+consumers read it from there. These constraints cannot be derived from it, so
+this script checks them, as a pre-commit hook and from
+cuda_core/tests/test_bindings_floor.py:
 
 1. The extras parse: each `cu<N>` extra pins exactly
    `cuda-bindings[...]>=<N>.<minor>.<patch>,<<N+1>`.
 2. ci/versions.yml builds each major against a CUDA Toolkit of at least the
    floor's major.minor. A toolkit below the floor's minor cannot build the
-   floor's cuda-bindings (the build requires the header cuda-bindings was
-   generated from); a toolkit ahead of the floor is the toolkit-bump window
-   described in cuda_core/AGENTS.md.
-3. No documentation page spells a floor out by hand; docs/source/conf.py
+   floor's cuda-bindings, because the build requires the header that
+   cuda-bindings was generated from. A toolkit ahead of the floor is the
+   toolkit-bump window described in cuda_core/AGENTS.md.
+3. No documentation page spells a floor out by hand. docs/source/conf.py
    provides |cuda-bindings-floor-cu12| and |cuda-bindings-floor-cu13|.
    Release notes are history and are exempt.
 
@@ -55,14 +56,14 @@ def load_floor_module(repo_root: Path):
 
 
 def read_floors(repo_root: Path) -> dict[int, tuple[int, int, int]]:
-    """The floors declared by the pyproject extras; ValueError if they do not parse."""
+    """The floors declared by the pyproject extras. Raises ValueError if they do not parse."""
     with open(repo_root / PYPROJECT, "rb") as f:
         extras = tomllib.load(f)["project"]["optional-dependencies"]
     return load_floor_module(repo_root).floors_from_extras(extras)
 
 
 def ci_pin_problems(floors: dict[int, tuple[int, int, int]], versions_yml: str) -> list[str]:
-    """Toolkit pins in ci/versions.yml whose major.minor is not the floor's."""
+    """Toolkit pins in ci/versions.yml that sit below the floor's major.minor."""
     pins = {int(major): (int(major), int(minor), key) for key, major, minor in _CI_PIN_RE.findall(versions_yml)}
     problems = []
     for major, floor in floors.items():
@@ -73,8 +74,8 @@ def ci_pin_problems(floors: dict[int, tuple[int, int, int]], versions_yml: str) 
         if pinned_major != floor[0] or pinned_minor < floor[1]:
             problems.append(
                 f"{CI_VERSIONS}: cuda.{key}.version is {pinned_major}.{pinned_minor} but the CUDA {major} floor "
-                f"is cuda-bindings {'.'.join(map(str, floor))}; the toolkit must not sit below the floor's "
-                "major.minor (ahead of it is the toolkit-bump window, see cuda_core/AGENTS.md)"
+                f"is cuda-bindings {'.'.join(map(str, floor))}. The toolkit must not sit below the floor's "
+                "major.minor. A toolkit ahead of the floor is the toolkit-bump window. See cuda_core/AGENTS.md"
             )
     for major in pins:
         if major not in floors:
@@ -83,7 +84,7 @@ def ci_pin_problems(floors: dict[int, tuple[int, int, int]], versions_yml: str) 
 
 
 def docs_problems(repo_root: Path) -> list[str]:
-    """Documentation pages (release notes excepted) that spell out a floor by hand."""
+    """Documentation pages that spell out a floor by hand. Release notes are exempt."""
     problems = []
     for path in sorted((repo_root / DOCS_SOURCE).rglob("*.rst")):
         if "release" in path.relative_to(repo_root / DOCS_SOURCE).parts:
@@ -91,8 +92,8 @@ def docs_problems(repo_root: Path) -> list[str]:
         for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
             if _HAND_WRITTEN_FLOOR_RE.search(line):
                 problems.append(
-                    f"{path.relative_to(repo_root).as_posix()}:{number}: spells out a cuda-bindings floor; "
-                    "use the |cuda-bindings-floor-cu<major>| substitution from conf.py"
+                    f"{path.relative_to(repo_root).as_posix()}:{number}: spells out a cuda-bindings floor. "
+                    "Use the |cuda-bindings-floor-cu<major>| substitution from conf.py"
                 )
     return problems
 

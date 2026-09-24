@@ -8,11 +8,12 @@ import re
 
 from cuda.core._utils.cuda_utils import driver, handle_return
 
-# The CUDA major series this build of cuda.core targets (12 or 13), from the
-# compile-time environment build_hooks.py sets. The installed cuda-bindings has
-# the same major (cuda/core/__init__.py enforces it at import). Python modules
-# that must branch on the series, where `IF CUDA_CORE_BUILD_MAJOR` is not
-# available, read this instead of comparing binding_version().
+# The CUDA major series that this build of cuda.core targets, 12 or 13. The
+# value comes from the compile-time environment that build_hooks.py sets. The
+# installed cuda-bindings has the same major, which cuda/core/__init__.py
+# enforces at import. Python modules that must branch on the series, where
+# `IF CUDA_CORE_BUILD_MAJOR` is not available, read this constant rather than
+# compare binding_version().
 BUILD_CUDA_MAJOR: int = CUDA_CORE_BUILD_MAJOR
 
 

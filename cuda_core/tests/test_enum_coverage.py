@@ -312,7 +312,7 @@ _UNBOUND_STR_ENUMS: set[StrEnum] = {
 }
 
 
-# CUdevWorkqueueConfigScope was added to the CUDA driver in 13.1; on the
+# CUDA 13.1 added CUdevWorkqueueConfigScope to the CUDA driver. On the
 # CUDA 12 build, WorkqueueSharingScopeType has no driver-side counterpart to
 # check against.
 if BUILD_CUDA_MAJOR >= 13:
