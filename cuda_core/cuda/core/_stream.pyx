@@ -127,13 +127,11 @@ cdef class Stream:
         return Stream._from_handle(cls, get_per_thread_stream())
 
     @classmethod
-    @cython.annotation_typing(False)
     def _init(cls, obj: IsStreamType | None = None, options: StreamOptions | None = None,
-              device_id: int | None = None, ctx: Context | None = None) -> Stream:
+              device_id: int | None = None, Context ctx: Context | None = None) -> Stream:
         cdef StreamHandle h_stream
         cdef cydriver.CUstream borrowed
         cdef ContextHandle h_context
-        cdef Context context
 
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
@@ -147,9 +145,8 @@ cdef class Stream:
 
         if ctx is None:
             raise RuntimeError("A CUDA context is required to create a stream")
-        context = <Context>ctx
-        Context_check_open(context)
-        h_context = context._h_context
+        Context_check_open(ctx)
+        h_context = ctx._h_context
 
         cdef StreamOptions opts = check_or_create_options(StreamOptions, options, "Stream options")
         nonblocking = opts.nonblocking
@@ -160,7 +157,7 @@ cdef class Stream:
         # TODO: we might want to consider memoizing high/low per CUDA context and avoid this call
         cdef int high, low
         cdef cydriver.CUresult res_code
-        res_code = context_get_stream_priority_range(context._h_context, &high, &low)
+        res_code = context_get_stream_priority_range(ctx._h_context, &high, &low)
         HANDLE_RETURN(res_code)
         cdef int prio
         if priority is not None:
