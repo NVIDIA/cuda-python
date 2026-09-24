@@ -31,7 +31,59 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   or CUDA headers (`CUDA_HOME`/`CUDA_PATH`) and uses it for build decisions.
 - Source builds require CUDA headers available through `CUDA_HOME` or
   `CUDA_PATH`.
-- `cuda_core` expects `cuda.bindings` to be present and version-compatible.
+- `cuda_core` requires `cuda-bindings` at or above a per-major *floor* at build
+  time and at run time. At build time it also requires a `cuda.h` of the same
+  major.minor as that `cuda-bindings` (NVIDIA/cuda-python#2783). The floors are
+  declared once, by the `cu12`/`cu13` extras in `pyproject.toml`
+  (`cuda-bindings[all]>=<floor>,<<next major>`). `build_hooks.py`, the
+  import-time check in `cuda/core/__init__.py`, the docs and CI read them from
+  there through `cuda/core/_bindings_floor.py`. The C++ branches on
+  `CUDA_CORE_BUILD_MAJOR` only. Whether a feature is available at run time
+  depends on the driver alone, never on the `cuda-bindings` version.
+
+### Bumping the cuda-bindings floor
+
+By policy, the floor of each major is the newest `cuda-bindings` release of
+that major at the time of a `cuda.core` release. The bump is therefore a
+release step. A `cuda-bindings` minor release does not trigger it. The first
+change that uses a `cuda-bindings` API newer than the old floor also requires
+a bump. To bump:
+
+1. Edit the `cuda-bindings` pin in the `cu12` or `cu13` extra in
+   `pyproject.toml`. That is the only version to type.
+2. Check `ci/versions.yml`. The `build` pin is the current major and the
+   `prev_build` pin is the prior major. Neither toolkit pin may sit below its
+   floor's major.minor, or CI builds a configuration that the build rejects. A
+   toolkit ahead of the floor is the bump window described below. The
+   pre-commit hook `check-cuda-core-bindings-floor`
+   (`toolshed/check_cuda_core_bindings_floor.py`) checks the pins. It also
+   checks that no documentation page spells a floor out by hand.
+3. Add to the release notes a "Breaking Changes" entry that names the new
+   floors. The support-policy table in `docs/source/support.rst` reads the
+   floors and the release version at docs-build time. It needs no edit.
+4. If the pins moved past what the pixi lock files resolve, refresh the lock
+   files.
+5. Pin `cuda-bindings` to match in the conda-forge `cuda-core` feedstock. The
+   feedstock lives outside this repository.
+
+### CUDA Toolkit minor bumps
+
+The build compares the toolkit's `cuda.h` with the header that the installed
+`cuda-bindings` was generated from (`cuda.bindings.driver.CUDA_VERSION`). It
+does not compare version strings. The commit that moves `ci/versions.yml` to a
+new minor therefore builds `cuda.core` against the `cuda-bindings` built from
+the same commit. Isolated builds request `cuda-bindings` no newer than the
+toolkit's minor, a cap that admits that development build. The import-time
+check compares headers the same way.
+
+The floor stays where it is until a `cuda-bindings` release of the new minor
+exists on PyPI. Until then, the CI rows that install the literal floor
+(`BINDINGS_SOURCE=floor`) fail the header check and stay red. That window is
+accepted. Do not add fallback logic for it. The order is:
+
+1. Bump the toolkit.
+2. Release `cuda-bindings` for the new minor.
+3. Bump the floor here.
 
 ## Testing expectations
 
@@ -91,10 +143,20 @@ and agents should flag violations.
   objects that are not meant to be shared (e.g., the thread-local `Device`) do not
   need such guards (see #2321). Reference-count integrity is guaranteed; cache
   value-identity/idempotency is not.
-- **Entry points assume the GIL is held**: the helpers in `_cpp/rt/`
-  are called from Cython with the GIL held and do not re-acquire it. Driver and
-  destructor callbacks run at arbitrary times, so they take the GIL (`with gil`)
-  and probe for interpreter shutdown before touching Python objects.
+- **Entry points work with or without the GIL**: Cython calls the helpers in
+  `_cpp/rt/` both inside and outside `with nogil` blocks. They never require
+  the GIL, release it around driver calls, and never acquire it while they
+  hold a C++ lock. The only paths that acquire it are the reporting wrappers
+  (`pw_*`, `report_*`) and the one-time driver function-table fill
+  (`ensure_fn_table()`, see `_cpp/rt/DESIGN.md`). Driver and destructor
+  callbacks run at arbitrary times, so they take the GIL (`with gil`) and probe
+  for interpreter shutdown before touching Python objects.
+- **Driver calls go through the table**: C++ calls the driver with
+  `DRIVER_CALL(name, args...)`. Its pointers come from the table that
+  cuda-bindings resolves, never from the Cython wrappers. If the installed
+  driver may lack a function, Cython gates it on `cy_driver_version()` at the
+  version cuda-bindings requests it at (the number in `driver_api.hpp`). The
+  C++ never checks a pointer for null.
 - **Lock ordering -- release the GIL before entering the driver**: any CUDA work
   reachable from a host callback or a retained object's `__del__` must release the
   GIL before calling the driver, to avoid GIL/driver-lock deadlocks (see the
@@ -140,7 +202,7 @@ below are for contributors. Reviewers and agents should flag violations.
   uses `warnings.warn(..., CUDAWarning)`; a CUDA callback thread does nothing
   that needs the GIL and hands its work to the deferred-cleanup queue
   (`Py_AddPendingCall` is GIL-free and allowed there). The table in
-  `_cpp/DESIGN.md` ("Which channel to use") spells this out.
+  `_cpp/rt/DESIGN.md` ("Which channel to use") spells this out.
 - **`pw_*` runs user Python**: a `p_` pointer only calls the driver; its `pw_`
   twin also acquires the GIL on failure and runs the warning filters,
   `showwarning`, or `sys.unraisablehook`, any of which may call back into

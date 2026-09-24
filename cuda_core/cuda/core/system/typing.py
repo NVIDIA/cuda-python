@@ -2,6 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import enum
+
+from cuda.bindings import nvml as _nvml
 from cuda.core._utils.pycompat import StrEnum
 
 __all__ = [
@@ -12,8 +15,10 @@ __all__ = [
     "ClocksEventReasons",
     "CoolerControl",
     "CoolerTarget",
+    "DeviceArch",
     "EventType",
     "FanControlPolicy",
+    "FieldId",
     "GpuP2PCapsIndex",
     "GpuP2PStatus",
     "GpuTopologyLevel",
@@ -320,44 +325,29 @@ ThermalTarget.VCD_INLET.__doc__ = "Visual Computing Device Inlet temperature req
 ThermalTarget.VCD_OUTLET.__doc__ = "Visual Computing Device Outlet temperature requires visual computing device handle."
 
 
-# DeviceArch values are derived from cuda.bindings.nvml at definition time, so
-# the class can only be defined when nvml is importable.
-try:
-    from cuda.bindings import nvml as _nvml
+# DeviceArch takes its values from cuda.bindings.nvml at definition time.
+# It is an IntEnum rather than a StrEnum because the order of the values is
+# meaningful, e.g. Kepler "or later".
+class DeviceArch(enum.IntEnum):
+    """
+    Device architecture.
+    """
 
-    try:
-        from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
-    except ImportError:
-        from enum import IntEnum as _FastEnum
+    KEPLER = int(_nvml.DeviceArch.KEPLER)
+    MAXWELL = int(_nvml.DeviceArch.MAXWELL)
+    PASCAL = int(_nvml.DeviceArch.PASCAL)
+    VOLTA = int(_nvml.DeviceArch.VOLTA)
+    TURING = int(_nvml.DeviceArch.TURING)
+    AMPERE = int(_nvml.DeviceArch.AMPERE)
+    ADA = int(_nvml.DeviceArch.ADA)
+    HOPPER = int(_nvml.DeviceArch.HOPPER)
+    BLACKWELL = int(_nvml.DeviceArch.BLACKWELL)
+    UNKNOWN = int(_nvml.DeviceArch.UNKNOWN)
 
-    # This uses FastEnum instead of StrEnum because the ordering of the values is
-    # meaningful, e.g. Kepler "or later"
-    class DeviceArch(_FastEnum):
-        """
-        Device architecture.
-        """
 
-        KEPLER = int(_nvml.DeviceArch.KEPLER)
-        MAXWELL = int(_nvml.DeviceArch.MAXWELL)
-        PASCAL = int(_nvml.DeviceArch.PASCAL)
-        VOLTA = int(_nvml.DeviceArch.VOLTA)
-        TURING = int(_nvml.DeviceArch.TURING)
-        AMPERE = int(_nvml.DeviceArch.AMPERE)
-        ADA = int(_nvml.DeviceArch.ADA)
-        HOPPER = int(_nvml.DeviceArch.HOPPER)
-        BLACKWELL = int(_nvml.DeviceArch.BLACKWELL)
-        UNKNOWN = int(_nvml.DeviceArch.UNKNOWN)
+FieldId = _nvml.FieldId
 
-    __all__.append("DeviceArch")
-
-    FieldId = _nvml.FieldId
-
-    __all__.append("FieldId")
-
-    del _nvml, _FastEnum
-
-except ImportError:
-    pass
+del _nvml
 
 
 del StrEnum

@@ -45,7 +45,9 @@ Starting ``cuda-core`` 0.4.0, **experimental** packages for the `free-threaded i
 Installing from PyPI
 --------------------
 
-``cuda.core`` works with ``cuda.bindings`` (part of ``cuda-python``) 12 or 13. Test dependencies now use the ``cuda-toolkit`` metapackage for improved dependency resolution. For example with CUDA 12:
+``cuda.core`` works with ``cuda-bindings`` (part of ``cuda-python``) 12 or 13 at or above the
+release's floor for that major. See :ref:`cuda-core-bindings-floor`. The ``cu12`` and ``cu13``
+extras install a compatible version. Test dependencies now use the ``cuda-toolkit`` metapackage for improved dependency resolution. For example with CUDA 12:
 
 .. code-block:: console
 
@@ -53,8 +55,9 @@ Installing from PyPI
 
 and likewise use ``[cu13]`` for CUDA 13.
 
-Note that using ``cuda.core`` with NVRTC installed from PyPI via ``pip install`` requires
-``cuda.bindings`` 12.8.0+. Likewise, with nvJitLink it requires 12.8.0+.
+If you upgrade ``cuda-core`` alone, the installed ``cuda-bindings`` can be older than the new
+release requires. ``import cuda.core`` then reports the required version and the ``pip`` command
+that installs it.
 
 
 Installing from Conda (conda-forge)
@@ -68,7 +71,8 @@ Same as above, ``cuda.core`` can be installed in a CUDA 12 or 13 environment. Fo
 
 and likewise use ``cuda-version=13`` for CUDA 13.
 
-Note that to use ``cuda.core`` with nvJitLink installed from conda-forge requires ``cuda.bindings`` 12.8.0+.
+The conda-forge package depends on ``cuda-bindings`` of the same CUDA major. The
+``cuda-bindings`` floor of the release also applies to it. See :ref:`cuda-core-bindings-floor`.
 
 
 Development environment
@@ -155,7 +159,16 @@ Installing from Source
    $ cd cuda-python/cuda_core
    $ pip install .
 
-``cuda-bindings`` 12.x or 13.x is a required dependency.
+A source build has two requirements. See :ref:`cuda-core-bindings-floor`.
+
+- ``cuda-bindings`` 12.x or 13.x at or above the release's floor for that major. An isolated
+  build, the default for ``pip install``, installs a ``cuda-bindings`` no newer than the
+  toolkit's minor. Other builds must provide it.
+- A CUDA Toolkit, located through ``CUDA_PATH`` or ``CUDA_HOME``, whose ``cuda.h`` has the same
+  major.minor as the header that ``cuda-bindings`` was generated from. If the versions differ,
+  the build fails early. To build against a specific ``cuda-bindings`` in an isolated build,
+  constrain it with ``PIP_CONSTRAINT``. A build with ``--no-build-isolation`` uses the installed
+  ``cuda-bindings``.
 
 .. note::
 

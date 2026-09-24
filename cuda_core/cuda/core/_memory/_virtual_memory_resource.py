@@ -21,7 +21,7 @@ from cuda.core._utils.cuda_utils import (
 from cuda.core._utils.cuda_utils import (
     _check_driver_error as raise_if_driver_error,
 )
-from cuda.core._utils.version import binding_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR
 from cuda.core.typing import (
     DevicePointerType,
     VirtualMemoryAccessType,
@@ -112,9 +112,9 @@ class VirtualMemoryResourceOptions:
         VirtualMemoryLocationType.HOST_NUMA_CURRENT: _l.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT,
     }
     _t = driver.CUmemAllocationType
-    # CUDA 13+ exposes MANAGED in CUmemAllocationType; older 12.x does not
+    # CUDA 13 added MANAGED to CUmemAllocationType. The CUDA 12 build has no such member.
     _allocation_type = {VirtualMemoryAllocationType.PINNED: _t.CU_MEM_ALLOCATION_TYPE_PINNED}  # noqa: RUF012
-    if binding_version() >= (13, 0, 0):
+    if BUILD_CUDA_MAJOR >= 13:
         _allocation_type[VirtualMemoryAllocationType.MANAGED] = _t.CU_MEM_ALLOCATION_TYPE_MANAGED
 
     @staticmethod

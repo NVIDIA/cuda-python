@@ -90,12 +90,73 @@ def test_umbrellas_are_named_only_by_their_cython_file():
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_consumer_closure_is_types_and_the_python_seam():
     closure = {p.name for p in include_closure(RT / "handles.hpp")}
-    assert closure == {"handles.hpp", "py.hpp", "types.hpp"}
+    assert closure == {"handles.hpp", "py.hpp", "types.hpp", "versions.hpp"}
     # Consumers are RTLD_LOCAL extensions that cannot link to _rt: nothing with storage.
     for name in sorted(closure):
         text = read(RT / name)
         assert not re.search(r'^extern (?!"C")', text, re.M), f"{name} declares an extern variable"
         assert not re.search(r"^(static|thread_local)\b", text, re.M), f"{name} defines storage"
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_cuda_version_is_named_only_in_versions_hpp():
+    """The C++ may branch on CUDA_CORE_BUILD_MAJOR only. A `#if CUDA_VERSION >= 130x0`
+    fence compiled a feature out of source builds against an older header, and the
+    run-time checks never noticed. See https://github.com/NVIDIA/cuda-python/issues/2783.
+    versions.hpp checks the header once and is the only file allowed to name it."""
+    cpp = CORE / "_cpp"
+    files = sorted(p for p in cpp.rglob("*") if p.suffix in (".hpp", ".h", ".cpp"))
+    assert len(files) > 20
+    spellers = sorted(p.relative_to(cpp).as_posix() for p in files if re.search(r"\bCUDA_VERSION\b", read(p)))
+    assert spellers == ["rt/versions.hpp"]
+    assert "CUDA_CORE_BUILD_MAJOR" in read(RT / "versions.hpp")
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_driver_function_table_matches_the_cuda_bindings_loader():
+    """driver_api.hpp lists each driver function with the CUDA version that cuda-bindings
+    requests it at. That number decides which functions every supported driver must
+    provide. Check it against the loader that cuda-bindings generates."""
+    loader = CORE.parents[2] / "cuda_bindings" / "cuda" / "bindings" / "_internal" / "driver_linux.pyx"
+    if not loader.is_file():
+        pytest.skip("cuda-bindings source is not next to cuda_core")
+    entries = re.findall(r"^\s*X\((cu\w+), (\d+)\)", read(RT / "driver_api.hpp"), re.M)
+    assert len(entries) >= 60
+    assert len({name for name, _ in entries}) == len(entries), "duplicate table entry"
+    requested = {}
+    for name, version in re.findall(r"cuGetProcAddress_v2\('(\w+)', <void \*\*>&__\w+, (\d+)", read(loader)):
+        requested.setdefault(name, set()).add(int(version))
+    mismatched = {
+        name: (int(introduced), sorted(requested.get(name, ())))
+        for name, introduced in entries
+        if int(introduced) not in requested.get(name, ())
+    }
+    assert mismatched == {}
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_driver_calls_go_through_the_table():
+    """Every driver call uses DRIVER_CALL or a pw_ wrapper, which resolves the
+    table on first use and never dereferences null. The only raw p_ calls are
+    the table's own machinery and the sites under ipc_import_mutex. Those sites
+    resolve the table before the lock and carry the `// raw:` mark."""
+    machinery = {"driver_api.hpp", "driver_api.cpp", "py_driver_fns.cpp", "internal.hpp"}
+    raw_call = re.compile(r"\bp_(cu|nv)\w+\b")  # calls and null checks alike
+    offenders = []
+    for path in HEADERS + SOURCES:
+        if path.name in machinery:
+            continue
+        for number, line in enumerate(read(path).splitlines(), 1):
+            if raw_call.search(line) and "// raw:" not in line and not line.lstrip().startswith("//"):
+                offenders.append(f"{path.name}:{number}")
+    assert offenders == []
+    marked = [
+        f"{path.name}:{number}"
+        for path in SOURCES
+        for number, line in enumerate(read(path).splitlines(), 1)
+        if "// raw:" in line
+    ]
+    assert {name.split(":")[0] for name in marked} == {"memory.cpp"}, marked
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")

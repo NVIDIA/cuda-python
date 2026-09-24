@@ -40,18 +40,11 @@ def _checkpoint_available():
 
 
 def _checkpoint_unavailable_can_skip(message):
-    if message.startswith(
+    return message.startswith(
         (
             "CUDA checkpointing is not supported by the installed NVIDIA driver.",
-            "CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. Found cuda.bindings ",
+            "CUDA checkpointing requires the CUDA 13 build of cuda.core",
         )
-    ):
-        return True
-
-    return (
-        checkpoint._binding_version()[0] == 12
-        and message
-        == "CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. Missing: CUcheckpointGpuPair"
     )
 
 
@@ -414,14 +407,12 @@ class TestInputValidation:
 import ctypes
 
 from cuda.bindings import driver as _bindings_driver
+from cuda.core._utils.version import BUILD_CUDA_MAJOR
 
-# The checkpoint functions, structs, and enums are generated and shipped
-# together from the same CUDA headers, so probe them as one atomic API surface.
-_HAS_CHECKPOINT_BINDINGS = all(hasattr(_bindings_driver, name) for name in checkpoint._REQUIRED_BINDING_ATTRS)
-
+# The helpers build CUcheckpointGpuPair, a CUDA 13 type that cuda-bindings 12.x lacks.
 needs_checkpoint_bindings = pytest.mark.skipif(
-    not _HAS_CHECKPOINT_BINDINGS,
-    reason="cuda.bindings does not expose the CUDA checkpoint API",
+    BUILD_CUDA_MAJOR < 13,
+    reason="the checkpoint helpers require the CUDA 13 build",
 )
 
 

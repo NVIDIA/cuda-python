@@ -72,18 +72,21 @@ bool make_deallocation_stream(const StreamHandle& h, DeallocationStream& out) no
 // one while holding a C++ lock; the GIL must be the outermost lock. Where a
 // lock must stay held, call the p_ pointer, keep the status, and report after
 // the lock is released (see deviceptr_import_ipc and DESIGN.md).
-template <auto& Function>
+template <auto& Function, FnTable Table = FnTable::driver>
 class WarnOnFailure {
 public:
     explicit WarnOnFailure(const char* operation) noexcept : operation_(operation) {}
 
     // The first argument is the resource being released; it is named in the
     // report so that independent failures are not collapsed by the warning
-    // registry (see format_operation).
+    // registry (see format_operation). The call goes through the function
+    // table like DRIVER_CALL: it reports an unavailable entry and yields an
+    // error status, never a null dereference.
     template <typename First, typename... Rest>
     auto operator()(First&& first, Rest&&... rest) const noexcept {
         const unsigned long long handle = handle_bits(first);
-        auto status = Function(std::forward<First>(first), std::forward<Rest>(rest)...);
+        auto status = detail::fn_or_unavailable(Function, Table, operation_)(
+            std::forward<First>(first), std::forward<Rest>(rest)...);
         report(status, handle);
         return status;
     }
@@ -129,9 +132,9 @@ const WarnOnFailure<p_cuGraphicsUnregisterResource> pw_cuGraphicsUnregisterResou
 const WarnOnFailure<p_cuLinkDestroy> pw_cuLinkDestroy{"cuLinkDestroy"};
 const WarnOnFailure<p_cuUserObjectRelease> pw_cuUserObjectRelease{"cuUserObjectRelease"};
 const WarnOnFailure<p_cuGraphReleaseUserObject> pw_cuGraphReleaseUserObject{"cuGraphReleaseUserObject"};
-const WarnOnFailure<p_nvrtcDestroyProgram> pw_nvrtcDestroyProgram{"nvrtcDestroyProgram"};
-const WarnOnFailure<p_nvvmDestroyProgram> pw_nvvmDestroyProgram{"nvvmDestroyProgram"};
-const WarnOnFailure<p_nvJitLinkDestroy> pw_nvJitLinkDestroy{"nvJitLinkDestroy"};
+const WarnOnFailure<p_nvrtcDestroyProgram, FnTable::nvrtc> pw_nvrtcDestroyProgram{"nvrtcDestroyProgram"};
+const WarnOnFailure<p_nvvmDestroyProgram, FnTable::nvvm> pw_nvvmDestroyProgram{"nvvmDestroyProgram"};
+const WarnOnFailure<p_nvJitLinkDestroy, FnTable::nvjitlink> pw_nvJitLinkDestroy{"nvJitLinkDestroy"};
 
 // Intrusive base for payloads transferred out of CUDA's callback.
 struct DeferredCleanupItem {

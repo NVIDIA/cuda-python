@@ -1057,13 +1057,6 @@ class Device:
         cuda.core.system.Device
             The corresponding system-level device instance used for NVML access.
         """
-        from cuda.core.system._system import CUDA_BINDINGS_NVML_IS_COMPATIBLE
-
-        if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-            raise RuntimeError(
-                "cuda.core.system.Device requires cuda-bindings 12.9.6+ for CUDA 12.x, or cuda-bindings 13.2.0+ for CUDA 13.x"
-            )
-
         from cuda.core.system import Device as SystemDevice
         return SystemDevice(uuid=self.uuid)
 
@@ -1647,11 +1640,9 @@ cdef inline int Device_ensure_cuda_initialized() except? -1:
         with _lock, nogil:
             HANDLE_RETURN(cydriver.cuInit(0))
             _is_cuInit = True
-        try:
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            # cuda-bindings 13.3 added this function. The 12.x line does not have it.
             from cuda.bindings.utils import warn_if_cuda_major_version_mismatch
-        except ImportError:
-            pass
-        else:
             warn_if_cuda_major_version_mismatch()
     return 0
 

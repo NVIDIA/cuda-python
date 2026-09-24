@@ -64,23 +64,41 @@ elif [[ "${1}" == "test" ]]; then
   # BINDINGS_SOURCE controls which cuda-bindings to install at test time:
   #   main      — use the just-built bindings wheel from this CI run
   #   backport  — fetch bindings from the prior (N-1) branch
-  #   published — install from PyPI (cuda-bindings==${TEST_CUDA_MAJOR}.${TEST_CUDA_MINOR}.*)
+  #   floor     — install from PyPI the oldest cuda-bindings that the cuda-core
+  #               wheel under test supports, its per-major floor (see
+  #               cuda_core/cuda/core/_bindings_floor.py and ci/tools/run-tests).
+  #               Selected when the test CTK minor differs from the minor the
+  #               wheel was built against. Those rows exercise a new cuda-core
+  #               with the floor cuda-bindings and older CTK libraries, the skew
+  #               that cuda-core supports. cuda-bindings older than the floor is
+  #               unsupported and fails at import
+  #               (https://github.com/NVIDIA/cuda-python/issues/2783).
   #
   # SKIP_CUDA_BINDINGS_TEST / SKIP_CYTHON_TEST control which *tests* to run
   # (they do NOT affect installation — that's BINDINGS_SOURCE's job).
 
   BUILD_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${BUILD_CUDA_VER})"
   TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${CUDA_VER})"
+  # CI builds the prior-major half of the cuda-core wheel against the prev_build
+  # toolkit in ci/versions.yml and the backport branch's bindings.
+  BUILD_PREV_CUDA_VER="$(sed -n '/prev_build:/,/version:/s/.*version: *"\([^"]*\)".*/\1/p' ci/versions.yml)"
+  BUILD_PREV_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${BUILD_PREV_CUDA_VER})"
 
   if [[ ${BUILD_CUDA_MAJOR} != ${TEST_CUDA_MAJOR} ]]; then
-    # Major mismatch (e.g. build=13.x, test=12.x): use the backport branch.
-    BINDINGS_SOURCE=backport
     SKIP_CUDA_BINDINGS_TEST=1
     SKIP_CYTHON_TEST=1
+    if [[ ${BUILD_PREV_CUDA_MINOR} != ${TEST_CUDA_MINOR} ]]; then
+      # Prior major, minor mismatch (e.g. built against 12.9, test=12.6): floor
+      # bindings from PyPI with the older CTK libraries.
+      BINDINGS_SOURCE=floor
+    else
+      # Prior major, same minor (e.g. build=13.x, test=12.9): the backport branch.
+      BINDINGS_SOURCE=backport
+    fi
   elif [[ ${BUILD_CUDA_MINOR} != ${TEST_CUDA_MINOR} ]]; then
-    # Same major, minor mismatch (e.g. build=13.2, test=13.0): use published
-    # bindings from PyPI to test the real-world backward-compat scenario.
-    BINDINGS_SOURCE=published
+    # Same major, minor mismatch (e.g. build=13.4, test=13.0): floor bindings
+    # from PyPI with the older CTK libraries.
+    BINDINGS_SOURCE=floor
     SKIP_CUDA_BINDINGS_TEST=1
     SKIP_CYTHON_TEST=1
   else

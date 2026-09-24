@@ -32,9 +32,6 @@ CUresult graph_node_set_params(CUgraphNode node, CUgraphNodeParams* params,
                                const ContextHandle& h_context,
                                CUresult* restore_status) noexcept {
     *restore_status = CUDA_SUCCESS;
-    if (!p_cuGraphNodeSetParams) {
-        return CUDA_ERROR_NOT_SUPPORTED;
-    }
     CUcontext previous = nullptr;
     int changed = 0;
     CUresult status = enter_context(h_context, &previous, &changed);
@@ -43,7 +40,7 @@ CUresult graph_node_set_params(CUgraphNode node, CUgraphNodeParams* params,
     }
     {
         GILReleaseGuard gil;
-        status = p_cuGraphNodeSetParams(node, params);
+        status = DRIVER_CALL(cuGraphNodeSetParams, node, params);
     }
     if (!changed) {
         return status;
@@ -149,15 +146,11 @@ CUresult rekey_attachments(
     if (!cloned_graph) {
         return CUDA_ERROR_INVALID_VALUE;
     }
-    if (!p_cuGraphNodeFindInClone) {
-        return CUDA_ERROR_NOT_SUPPORTED;
-    }
-
     GraphAttachmentMap remapped;
     while (!attachments.empty()) {
         auto attachment = attachments.extract(attachments.begin());
         CUgraphNode cloned_node = nullptr;
-        CUresult status = p_cuGraphNodeFindInClone(
+        CUresult status = DRIVER_CALL(cuGraphNodeFindInClone,
             &cloned_node, attachment.key(), cloned_graph);
         if (status != CUDA_SUCCESS) {
             return status;
@@ -210,22 +203,18 @@ void stage_graph_metadata(
 // must be populated before entry. The caller must release the GIL.
 CUresult rekey_graph_metadata(
         StagedGraphMetadataList& staged) {
-    if (!p_cuGraphNodeFindInClone || !p_cuGraphChildGraphNodeGetGraph) {
-        return CUDA_ERROR_NOT_SUPPORTED;
-    }
-
     CUresult status;
     for (size_t i = 0; i < staged.size(); ++i) {
         const GraphBox& source = *staged[i].source;
         GraphBox& clone = *staged[i].clone;
         if (i != 0) {
             CUgraphNode cloned_owner = nullptr;
-            status = p_cuGraphNodeFindInClone(
+            status = DRIVER_CALL(cuGraphNodeFindInClone,
                 &cloned_owner,
                 source.owner_node,
                 clone.parent->resource);
             if (status == CUDA_SUCCESS) {
-                status = p_cuGraphChildGraphNodeGetGraph(
+                status = DRIVER_CALL(cuGraphChildGraphNodeGetGraph,
                     cloned_owner, &clone.resource);
             }
             if (status != CUDA_SUCCESS) {
@@ -307,6 +296,7 @@ struct PreparedChildGraphUpdateState {
 };
 
 GraphHandle create_graph_handle(CUgraph graph) {
+    ensure_fn_table(FnTable::driver);  // the deleter calls the driver: resolve the table before it can run
     if (!graph) {
         return {};
     }
@@ -432,9 +422,9 @@ CUresult graph_commit_child_graph_update(
 
     CUresult status = CUDA_ERROR_NOT_SUPPORTED;
     CUgraph cloned_root = nullptr;
-    if (p_cuGraphChildGraphNodeGetGraph) {
+    {
         GILReleaseGuard gil;
-        status = p_cuGraphChildGraphNodeGetGraph(
+        status = DRIVER_CALL(cuGraphChildGraphNodeGetGraph,
             state.owner_node, &cloned_root);
         if (status == CUDA_SUCCESS) {
             state.staged.front().clone->resource = cloned_root;
@@ -504,19 +494,10 @@ CUresult graph_prepare_attachment(
     if (!box->resource) {
         return CUDA_ERROR_INVALID_VALUE;
     }
-    if (!p_cuGraphReleaseUserObject) {
-        return CUDA_ERROR_NOT_SUPPORTED;
-    }
-
     PreparedAttachment prepared(
         new PreparedAttachmentState(h_graph),
         PreparedAttachmentDeleter{rollback_prepared_attachment});
     if (owner0 || owner1) {
-        if (!p_cuUserObjectCreate || !p_cuUserObjectRelease ||
-            !p_cuGraphRetainUserObject) {
-            return CUDA_ERROR_NOT_SUPPORTED;
-        }
-
         ensure_deferred_cleanup_ready();
         prepared->replacement = new NodeAttachment(
             std::move(owner0), std::move(owner1));
@@ -538,7 +519,7 @@ CUresult graph_prepare_attachment(
         CUresult status;
         {
             GILReleaseGuard gil;
-            status = p_cuUserObjectCreate(
+            status = DRIVER_CALL(cuUserObjectCreate,
                 &object, cleanup_item,
                 reinterpret_cast<CUhostFn>(enqueue_cleanup),
                 1, CU_USER_OBJECT_NO_DESTRUCTOR_SYNC);
@@ -549,7 +530,7 @@ CUresult graph_prepare_attachment(
                 return status;
             }
             prepared->replacement->object = object;
-            status = p_cuGraphRetainUserObject(
+            status = DRIVER_CALL(cuGraphRetainUserObject,
                 box->resource, object, 1, CU_GRAPH_USER_OBJECT_MOVE);
             if (status != CUDA_SUCCESS) {
                 prepared->replacement_entry.mapped() = nullptr;
@@ -613,7 +594,7 @@ CUresult graph_commit_attachment(
         return CUDA_SUCCESS;
     }
     GILReleaseGuard gil;
-    return p_cuGraphReleaseUserObject(
+    return DRIVER_CALL(cuGraphReleaseUserObject,
         box->resource, previous->object, 1);
 }
 

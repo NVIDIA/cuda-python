@@ -165,45 +165,95 @@ functions, Cython generates calls through `_rt.so` at runtime.
 This ensures all static and thread-local state lives in a single shared library,
 avoiding the duplicate state problem.
 
-## CUDA driver function pointers via cuda-bindings' `__pyx_capi__`
+## CUDA driver function pointers from cuda-bindings
 
-**Problem**: cuda.core cannot directly call CUDA driver functions because:
+**Problem**: cuda.core cannot link against `libcuda.so` at build time, and it
+must not load the driver itself. cuda-bindings owns driver loading and symbol
+resolution. It resolves symbols with `cuGetProcAddress`, which also selects the
+ABI variant and the per-thread-default-stream variant.
 
-1. We don't want to link against `libcuda.so` at build time.
-2. The driver symbols must be resolved dynamically through cuda-bindings.
+Until #2783, the C++ called cuda-bindings' *Cython wrappers*, extracted from
+`cydriver.__pyx_capi__`. When the driver lacked a function, a wrapper raised a
+Python exception that C++ never saw and returned a sentinel `CUresult`. The
+exception surfaced later as `SystemError`. A wrapper could also be absent when
+the installed cuda-bindings was older than the build, so some pointers were
+optional and probed for null.
 
-**Solution**: The C++ code declares extern function pointer variables:
+**Solution**: `driver_api.hpp` lists every driver function that the C++ calls,
+with the CUDA version cuda-bindings requests it at:
 
 ```cpp
-// driver_api.hpp
-extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
-extern decltype(&cuMemPoolCreate) p_cuMemPoolCreate;
-// ... etc
+#define CUDA_CORE_DRIVER_FUNCTIONS(X) \
+    X(cuStreamCreateWithPriority, 5050) \
+    X(cuGreenCtxStreamCreate, 12050) \
+    ...
 ```
 
-At module import time, `_rt.pyx` populates these pointers by
-extracting them from `cuda.bindings.cydriver.__pyx_capi__`:
+The list declares the `p_cuXxx` pointers and builds a table of
+`{key, name, slot, introduced}` entries. The key is `"__"` plus the symbol that
+`cuda.h` maps the name to (`cuStreamDestroy` -> `"__cuStreamDestroy_v2"`). That
+is how cuda-bindings names the slot in
+`cuda.bindings._internal.driver._inspect_function_pointers()`. Because the key
+follows the header's macros, the build requires the header's major.minor to
+equal cuda-bindings' (see "Build-time version guards").
 
-```cython
-import cuda.bindings.cydriver as cydriver
+`ensure_fn_table()` (`py_driver_fns.cpp`) fills the table lazily, the first
+time a `DRIVER_CALL(name, args...)` finds its pointer null. `import cuda.core`
+therefore never touches the driver. The fill acquires the GIL, calls
+`_inspect_function_pointers()`, and copies every entry's address into its
+`p_` pointer under a mutex that is never held across a Python call. It then
+checks that every function introduced at or before the CUDA major series'
+first release is present. A null one means that the driver is older than the
+series, and the fill fails with that message.
 
-cdef void* _get_driver_fn(str name):
-    capsule = cydriver.__pyx_capi__[name]
-    return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
+After the fill, a pointer is either the driver's entry point or null. A null
+pointer means that the installed driver does not provide that newer function.
+Cython gates those functions on the driver version (`cy_driver_version()`). The
+C++ never gates them with a null check.
 
-p_cuStreamCreateWithPriority = _get_driver_fn("cuStreamCreateWithPriority")
-```
+A `DRIVER_CALL` that still finds null after the fill is a gate bug or a failed
+fill. It reports through `report_message()` and returns
+`CUDA_ERROR_NOT_INITIALIZED` from a trampoline of the right signature. It never
+dereferences null and never throws, so it is safe in `noexcept` deleters. The
+`pw_` wrappers go through the same path.
 
-The `__pyx_capi__` dictionary contains PyCapsules that Cython automatically
-generates for each `cdef` function declared in a `.pxd` file. Each capsule's
-name is the function's C signature; we query it with `PyCapsule_GetName()`
-rather than hardcoding signatures.
+Some owning handle constructors do not call the driver, but their deleter does
+(`create_graph_handle`, ...). Those constructors call `ensure_fn_table()` so
+that the fill never happens in a deleter. NVRTC, NVVM and nvJitLink have one
+table each. `create_*_handle` fills it after the library has loaded.
 
-This approach:
-- Avoids linking against `libcuda.so` at build time
-- Works on CPU-only machines (capsule extraction succeeds; actual driver calls
-  will return errors like `CUDA_ERROR_NO_DEVICE`)
-- Requires no custom capsule infrastructure—uses Cython's built-in mechanism
+Two rules follow:
+
+1. Do not make a `DRIVER_CALL` while the caller holds a C++ lock, because the
+   fill acquires the GIL. Resolve the table before the lock
+   (`ensure_fn_table(FnTable::driver)`) and use the raw pointer inside it,
+   marked `// raw:` (see `deviceptr_import_ipc`).
+2. If the Cython layer gates a driver function, gate it at the version
+   cuda-bindings requests it at (the number in the table), not at the version
+   the driver first shipped it.
+
+`tests/test_rt_layout.py` checks the table against cuda-bindings' loader. It
+also checks that no raw `p_` call exists outside the machinery and the marked
+lines.
+
+## Build-time version guards
+
+cuda.core supports one build configuration per CUDA major series. The `cuda.h`
+it compiles against has the same major.minor as the cuda-bindings it is built
+with, and that cuda-bindings is at or above the series' floor
+(`cuda/core/_bindings_floor.py`). `build_hooks.py` enforces both before
+compilation and defines `CUDA_CORE_BUILD_MAJOR` and
+`CUDA_CORE_MIN_CUDA_VERSION` for the C++ compiler. `versions.hpp`, the first
+include of the tree, re-checks `cuda.h` against them with `#error`.
+
+The C++ branches on `CUDA_CORE_BUILD_MAJOR` only, and only where the two major
+series differ. Minor-version fences (`#if CUDA_VERSION >= 130x0`) are not
+allowed. They compiled features out of source builds against an older header.
+The run-time checks looked at cuda-bindings and the driver, so they never
+noticed (https://github.com/NVIDIA/cuda-python/issues/2783). The driver-version
+gates in Cython, never the C++ layer, decide whether the *driver* provides a
+function. `tests/test_rt_layout.py` enforces that `versions.hpp` is the only
+file under `_cpp/` that names `CUDA_VERSION`.
 
 ## Key Implementation Details
 
@@ -233,8 +283,13 @@ Handle destructors may run from any thread. The implementation includes RAII gua
 - Handle Python finalization gracefully (avoid GIL operations during shutdown)
 - Ensure Python object manipulation happens with GIL held
 
-The handle API functions are safe to call with or without the GIL held. They
-will release the GIL (if necessary) before calling CUDA driver API functions.
+The handle API functions work with or without the GIL held. Cython calls most
+of them from `with nogil` blocks and some with the GIL held. They never require
+the GIL and never acquire it while they hold a C++ lock. If necessary, they
+release the GIL before they call CUDA driver API functions. The only places
+that acquire the GIL are the reporting paths (`pw_*`, `report_*`) and the
+one-time function-table fill (`ensure_fn_table()`). Neither may run while a
+C++ lock is held.
 
 **The GIL is the outermost lock.** Code that holds a C++ lock (a registry's
 mutex, `ipc_import_mutex`, any `std::mutex`) must not acquire or reacquire the
@@ -368,9 +423,10 @@ exactly one of these; none is ever dropped.
 
 ### `p_` versus `pw_`
 
-A `p_` function pointer calls the driver and nothing else. Its `pw_` twin calls
-the driver and, if the call fails, acquires the GIL and runs Python: the warning
-filters, `showwarning`, or `sys.unraisablehook`. Any of those can be user code,
+A `DRIVER_CALL` (a `p_` function pointer) calls the driver and nothing else,
+once the table is filled. Its `pw_` twin calls the driver and, if the call
+fails, acquires the GIL and runs Python: the warning filters, `showwarning`, or
+`sys.unraisablehook`. Any of those can be user code,
 and user code can call back into cuda.core. This is the one place where the
 handle layer runs code it does not control, and it is the entry point through
 which a thread holding a C++ lock can deadlock (see "GIL Management").
@@ -420,7 +476,8 @@ The resource handle design:
 2. **Encodes lifetimes structurally** via embedded handle dependencies.
 3. **Uses Cython's `cimport` mechanism** to share C++ code across modules without
    duplicate static/thread-local state.
-4. **Resolves CUDA driver symbols** dynamically through cuda-bindings' `__pyx_capi__` capsules.
+4. **Resolves CUDA driver symbols** through the driver entry points that cuda-bindings
+   resolves (`_inspect_function_pointers()`), filled lazily by `ensure_fn_table()` on first use.
 5. **Provides overloaded accessors** (`as_cu`, `as_intptr`, `as_py`) since handles cannot
    have attributes without unnecessary Python object wrappers.
 

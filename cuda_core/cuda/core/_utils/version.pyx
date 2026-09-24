@@ -8,6 +8,14 @@ import re
 
 from cuda.core._utils.cuda_utils import driver, handle_return
 
+# The CUDA major series that this build of cuda.core targets, 12 or 13. The
+# value comes from the compile-time environment that build_hooks.py sets. The
+# installed cuda-bindings has the same major, which cuda/core/__init__.py
+# enforces at import. Python modules that must branch on the series, where
+# `IF CUDA_CORE_BUILD_MAJOR` is not available, read this constant rather than
+# compare binding_version().
+BUILD_CUDA_MAJOR: int = CUDA_CORE_BUILD_MAJOR
+
 
 def _parse_version_triple(version_str: str) -> tuple[int, int, int]:
     """Parse a PEP 440 version string into a (major, minor, patch) triple.
@@ -38,15 +46,7 @@ def driver_version() -> tuple[int, int, int]:
     return (ver // 1000, (ver // 10) % 100, ver % 10)
 
 
-cdef tuple _cached_binding_version = None
 cdef tuple _cached_driver_version = None
-
-
-cdef tuple cy_binding_version():
-    global _cached_binding_version
-    if _cached_binding_version is None:
-        _cached_binding_version = binding_version()
-    return _cached_binding_version
 
 
 cdef tuple cy_driver_version():

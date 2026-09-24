@@ -20,7 +20,7 @@ from cuda.core import (
     launch,
 )
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
-from cuda.core._utils.version import binding_version, driver_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 from cuda.core.graph import GraphDefinition
 from cuda.core.typing import WorkqueueSharingScopeType
 
@@ -155,8 +155,8 @@ def test_memory_node_updates_preserve_green_context(
     init_cuda,
     green_ctx,
 ):
-    if driver_version() < (13, 2, 0) or binding_version() < (13, 2, 0):
-        pytest.skip("generic graph node parameter queries require CUDA 13.2+")
+    if BUILD_CUDA_MAJOR < 13 or driver_version() < (13, 2, 0):
+        pytest.skip("cuGraphNodeGetParams requires the CUDA 13 build and driver 13.2+")
 
     memory_resource = LegacyPinnedMemoryResource()
     src = memory_resource.allocate(4)
@@ -408,7 +408,7 @@ class TestSMResourceSplit:
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_by_count_discovery_respects_alignment(self, sm_resource):
         """CUDA 12 SplitByCount discovery returns an aligned SM count."""
-        if binding_version()[0] != 12:
+        if BUILD_CUDA_MAJOR != 12:
             pytest.skip("test covers the CUDA 12 SplitByCount path")
 
         groups, _ = sm_resource.split(SMResourceOptions(count=None))

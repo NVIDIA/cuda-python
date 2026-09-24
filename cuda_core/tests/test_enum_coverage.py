@@ -14,9 +14,11 @@ from typing import Any
 import pytest
 
 import cuda.core
+import cuda.core.system.typing as system_typing
 import cuda.core.typing
-from cuda.bindings import driver
-from cuda.core import system
+from cuda.bindings import driver, nvml
+from cuda.core._utils.version import BUILD_CUDA_MAJOR
+from cuda.core.system import _device, _system_events
 
 if sys.version_info >= (3, 11):
     from enum import StrEnum
@@ -123,175 +125,162 @@ _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
     ),
 ]
 
-if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-    # Populated below only when NVML bindings are compatible, so that importing
-    # this module on an incompatible host does not raise ImportError.
-    import cuda.core.system.typing as system_typing
-    from cuda.bindings import nvml
-    from cuda.core.system import _device, _system_events
+_MODULES.append(system_typing)
 
-    _MODULES.append(system_typing)
+# Every ClocksEventReasons member is mapped: the floor cuda-bindings has them all.
+_CLOCKS_EVENT_REASONS_STR_UNMAPPED = set()
 
-    _CLOCKS_EVENT_REASONS_STR_UNMAPPED = {
-        core_member
-        for binding_member, core_member in (
-            ("EVENT_REASON_BOARD_LIMIT", "BOARD_LIMIT"),
-            ("EVENT_REASON_RELIABILITY", "RELIABILITY"),
-        )
-        if binding_member not in nvml.ClocksEventReasons.__members__
-    }
-
-    _CASES.extend(
-        [
-            (
-                nvml.DeviceAddressingModeType,
-                system_typing.AddressingMode,
-                _device._ADDRESSING_MODE_MAPPING,
-                # NONE means "no special addressing mode is active"; not a valid target
-                {"DEVICE_ADDRESSING_MODE_NONE"},
-                set(),
-            ),
-            (
-                nvml.BrandType,
-                None,  # maps to plain str, not a StrEnum
-                _device._BRAND_TYPE_MAPPING,
-                # COUNT is a sentinel, not a real brand
-                {"BRAND_COUNT"},
-                set(),
-            ),
-            (
-                nvml.GpuP2PStatus,
-                system_typing.GpuP2PStatus,
-                _device._GPU_P2P_STATUS_MAPPING,
-                # Both the typo'd (SUPPORED) and corrected (SUPPORTED) spellings
-                # share the same integer value; the mapping covers both via aliases
-                {"P2P_STATUS_CHIPSET_NOT_SUPPORED"},
-                set(),
-            ),
-            (
-                nvml.ClocksEventReasons,
-                system_typing.ClocksEventReasons,
-                _device._CLOCKS_EVENT_REASONS_MAPPING,
-                set(),
-                _CLOCKS_EVENT_REASONS_STR_UNMAPPED,
-            ),
-            (
-                nvml.EventType,
-                system_typing.EventType,
-                _device._EVENT_TYPE_MAPPING,
-                set(),
-                set(),
-            ),
-            (
-                nvml.FanControlPolicy,
-                system_typing.FanControlPolicy,
-                _device._FAN_CONTROL_POLICY_MAPPING,
-                set(),
-                set(),
-            ),
-            (
-                nvml.CoolerControl,
-                system_typing.CoolerControl,
-                _device._COOLER_CONTROL_MAPPING,
-                # NONE means no signal; COUNT is a sentinel
-                {"THERMAL_COOLER_SIGNAL_NONE", "THERMAL_COOLER_SIGNAL_COUNT"},
-                set(),
-            ),
-            (
-                nvml.CoolerTarget,
-                system_typing.CoolerTarget,
-                _device._COOLER_TARGET_MAPPING,
-                # GPU_RELATED is a composite bitmask (GPU | MEMORY | POWER_SUPPLY);
-                # the wrapper expands it into individual targets instead of mapping
-                # it as a single entry
-                {"THERMAL_GPU_RELATED"},
-                set(),
-            ),
-            (
-                nvml.ThermalController,
-                system_typing.ThermalController,
-                _device._THERMAL_CONTROLLER_MAPPING,
-                {"NONE"},
-                {"NONE"},
-            ),
-            (
-                nvml.ThermalTarget,
-                system_typing.ThermalTarget,
-                _device._THERMAL_TARGET_MAPPING,
-                # UNKNOWN is a fallback sentinel; handled by .get()
-                {"UNKNOWN"},
-                set(),
-            ),
-            (
-                nvml.NvlinkVersion,
-                None,  # maps to tuple, not a StrEnum
-                _device._NVLINK_VERSION_MAPPING,
-                # VERSION_INVALID is a sentinel for "no NvLink present"
-                {"VERSION_INVALID"},
-                set(),
-            ),
-            (
-                nvml.SystemEventType,
-                system_typing.SystemEventType,
-                _system_events._SYSTEM_EVENT_TYPE_MAPPING,
-                set(),
-                set(),
-            ),
-            (
-                nvml.AffinityScope,
-                system_typing.AffinityScope,
-                _device._AFFINITY_SCOPE_MAPPING,
-                set(),
-                set(),
-            ),
-            (
-                nvml.GpuP2PCapsIndex,
-                system_typing.GpuP2PCapsIndex,
-                _device._GPU_P2P_CAPS_INDEX_MAPPING,
-                set(),
-                set(),
-            ),
-            (
-                nvml.GpuTopologyLevel,
-                system_typing.GpuTopologyLevel,
-                _device._GPU_TOPOLOGY_LEVEL_MAPPING,
-                set(),
-                set(),
-            ),
-            (
-                nvml.ClockId,
-                system_typing.ClockId,
-                _device._CLOCK_ID_MAPPING,
-                # APP_CLOCK_TARGET and APP_CLOCK_DEFAULT are deprecated; COUNT is a sentinel
-                {"APP_CLOCK_TARGET", "APP_CLOCK_DEFAULT", "COUNT"},
-                set(),
-            ),
-            (
-                nvml.ClockType,
-                system_typing.ClockType,
-                _device._CLOCK_TYPE_MAPPING,
-                # COUNT is a sentinel
-                {"CLOCK_COUNT"},
-                set(),
-            ),
-            (
-                nvml.InforomObject,
-                system_typing.InforomObject,
-                _device._INFOROM_OBJECT_MAPPING,
-                # COUNT is a sentinel
-                {"INFOROM_COUNT"},
-                set(),
-            ),
-            (
-                nvml.TemperatureThresholds,
-                system_typing.TemperatureThresholds,
-                _device._TEMPERATURE_THRESHOLD_MAPPING,
-                # COUNT is a sentinel
-                {"TEMPERATURE_THRESHOLD_COUNT"},
-                set(),
-            ),
-        ]
-    )
+_CASES.extend(
+    [
+        (
+            nvml.DeviceAddressingModeType,
+            system_typing.AddressingMode,
+            _device._ADDRESSING_MODE_MAPPING,
+            # NONE means "no special addressing mode is active"; not a valid target
+            {"DEVICE_ADDRESSING_MODE_NONE"},
+            set(),
+        ),
+        (
+            nvml.BrandType,
+            None,  # maps to plain str, not a StrEnum
+            _device._BRAND_TYPE_MAPPING,
+            # COUNT is a sentinel, not a real brand
+            {"BRAND_COUNT"},
+            set(),
+        ),
+        (
+            nvml.GpuP2PStatus,
+            system_typing.GpuP2PStatus,
+            _device._GPU_P2P_STATUS_MAPPING,
+            # Both the typo'd (SUPPORED) and corrected (SUPPORTED) spellings
+            # share the same integer value; the mapping covers both via aliases
+            {"P2P_STATUS_CHIPSET_NOT_SUPPORED"},
+            set(),
+        ),
+        (
+            nvml.ClocksEventReasons,
+            system_typing.ClocksEventReasons,
+            _device._CLOCKS_EVENT_REASONS_MAPPING,
+            set(),
+            _CLOCKS_EVENT_REASONS_STR_UNMAPPED,
+        ),
+        (
+            nvml.EventType,
+            system_typing.EventType,
+            _device._EVENT_TYPE_MAPPING,
+            set(),
+            set(),
+        ),
+        (
+            nvml.FanControlPolicy,
+            system_typing.FanControlPolicy,
+            _device._FAN_CONTROL_POLICY_MAPPING,
+            set(),
+            set(),
+        ),
+        (
+            nvml.CoolerControl,
+            system_typing.CoolerControl,
+            _device._COOLER_CONTROL_MAPPING,
+            # NONE means no signal; COUNT is a sentinel
+            {"THERMAL_COOLER_SIGNAL_NONE", "THERMAL_COOLER_SIGNAL_COUNT"},
+            set(),
+        ),
+        (
+            nvml.CoolerTarget,
+            system_typing.CoolerTarget,
+            _device._COOLER_TARGET_MAPPING,
+            # GPU_RELATED is a composite bitmask (GPU | MEMORY | POWER_SUPPLY);
+            # the wrapper expands it into individual targets instead of mapping
+            # it as a single entry
+            {"THERMAL_GPU_RELATED"},
+            set(),
+        ),
+        (
+            nvml.ThermalController,
+            system_typing.ThermalController,
+            _device._THERMAL_CONTROLLER_MAPPING,
+            {"NONE"},
+            {"NONE"},
+        ),
+        (
+            nvml.ThermalTarget,
+            system_typing.ThermalTarget,
+            _device._THERMAL_TARGET_MAPPING,
+            # UNKNOWN is a fallback sentinel; handled by .get()
+            {"UNKNOWN"},
+            set(),
+        ),
+        (
+            nvml.NvlinkVersion,
+            None,  # maps to tuple, not a StrEnum
+            _device._NVLINK_VERSION_MAPPING,
+            # VERSION_INVALID is a sentinel for "no NvLink present"
+            {"VERSION_INVALID"},
+            set(),
+        ),
+        (
+            nvml.SystemEventType,
+            system_typing.SystemEventType,
+            _system_events._SYSTEM_EVENT_TYPE_MAPPING,
+            set(),
+            set(),
+        ),
+        (
+            nvml.AffinityScope,
+            system_typing.AffinityScope,
+            _device._AFFINITY_SCOPE_MAPPING,
+            set(),
+            set(),
+        ),
+        (
+            nvml.GpuP2PCapsIndex,
+            system_typing.GpuP2PCapsIndex,
+            _device._GPU_P2P_CAPS_INDEX_MAPPING,
+            set(),
+            set(),
+        ),
+        (
+            nvml.GpuTopologyLevel,
+            system_typing.GpuTopologyLevel,
+            _device._GPU_TOPOLOGY_LEVEL_MAPPING,
+            set(),
+            set(),
+        ),
+        (
+            nvml.ClockId,
+            system_typing.ClockId,
+            _device._CLOCK_ID_MAPPING,
+            # APP_CLOCK_TARGET and APP_CLOCK_DEFAULT are deprecated; COUNT is a sentinel
+            {"APP_CLOCK_TARGET", "APP_CLOCK_DEFAULT", "COUNT"},
+            set(),
+        ),
+        (
+            nvml.ClockType,
+            system_typing.ClockType,
+            _device._CLOCK_TYPE_MAPPING,
+            # COUNT is a sentinel
+            {"CLOCK_COUNT"},
+            set(),
+        ),
+        (
+            nvml.InforomObject,
+            system_typing.InforomObject,
+            _device._INFOROM_OBJECT_MAPPING,
+            # COUNT is a sentinel
+            {"INFOROM_COUNT"},
+            set(),
+        ),
+        (
+            nvml.TemperatureThresholds,
+            system_typing.TemperatureThresholds,
+            _device._TEMPERATURE_THRESHOLD_MAPPING,
+            # COUNT is a sentinel
+            {"TEMPERATURE_THRESHOLD_COUNT"},
+            set(),
+        ),
+    ]
+)
 
 
 # StrEnum subclasses that intentionally have no associated cuda_binding.
@@ -323,11 +312,10 @@ _UNBOUND_STR_ENUMS: set[StrEnum] = {
 }
 
 
-# CUdevWorkqueueConfigScope was added to the CUDA driver in 13.1 (missing
-# from the 13.0.0 cuda.h and earlier); on cuda-bindings for CUDA 12.x or
-# 13.0.x, WorkqueueSharingScopeType has no driver-side counterpart to
+# CUDA 13.1 added CUdevWorkqueueConfigScope to the CUDA driver. On the
+# CUDA 12 build, WorkqueueSharingScopeType has no driver-side counterpart to
 # check against.
-if hasattr(driver, "CUdevWorkqueueConfigScope"):
+if BUILD_CUDA_MAJOR >= 13:
     _CASES.append(
         (
             driver.CUdevWorkqueueConfigScope,

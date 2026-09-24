@@ -8,7 +8,7 @@ def get_user_mode_driver_version() -> tuple[int, ...]:
     Get the user-mode (UMD / CUDA) driver version.
 
     This is the most commonly needed version when checking CUDA driver
-    compatibility.  It works with all ``cuda-bindings`` versions.
+    compatibility.
 
     Returns
     -------
