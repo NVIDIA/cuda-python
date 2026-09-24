@@ -12,7 +12,7 @@ def pytest_configure(config):
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
     if not config.getoption("verbose"):
         return
-    if hasattr(config.option, "iterations"):  # pytest-freethreaded runs all tests at least twice
+    if getattr(config.option, "iterations", 1) > 1:  # pytest-freethreaded runs all tests at least twice
         return
     if getattr(config.option, "count", 1) > 1:  # pytest-repeat
         return
