@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.VgpuSchedulerSetParams
+=========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: VgpuSchedulerSetParams
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VgpuSchedulerSetParams.__init__
+      ~VgpuSchedulerSetParams.from_buffer
+      ~VgpuSchedulerSetParams.from_data
+      ~VgpuSchedulerSetParams.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VgpuSchedulerSetParams.ptr
+      ~VgpuSchedulerSetParams.vgpu_sched_data
+      ~VgpuSchedulerSetParams.vgpu_sched_data_with_arr
+   
+   
