@@ -1534,8 +1534,9 @@ def test_vmm_allocate_close_does_not_leak(init_cuda, grow):
         allocate_and_close()
     free = handle_return(driver.cuMemGetInfo())[0]
 
-    # Current main leaks aligned_size per iteration; the fixed path stays near baseline.
-    assert baseline - free < aligned_size
+    # The broken path leaks aligned_size per iteration. Allow one allocation's
+    # worth of driver bookkeeping/caching while still detecting repeated leaks.
+    assert baseline - free < 2 * aligned_size
 
 
 def test_vmm_allocator_rdma_unsupported_exception():

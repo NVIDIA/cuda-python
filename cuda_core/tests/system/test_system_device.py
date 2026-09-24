@@ -3,7 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from cuda_python_test_helpers.arch_check import skip_if_nvml_unsupported, unsupported_before
+from cuda_python_test_helpers.arch_check import (
+    skip_if_nvml_device_apis_unsupported,
+    skip_if_nvml_unsupported,
+    unsupported_before,
+)
 
 pytestmark = skip_if_nvml_unsupported
 
@@ -86,6 +90,7 @@ def test_device_bar1_memory(subtests):
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
+@skip_if_nvml_device_apis_unsupported
 def test_device_cpu_affinity(subtests):
     for device in system.Device.get_all_devices():
         with subtests.test(device_index=device.index):
@@ -97,6 +102,7 @@ def test_device_cpu_affinity(subtests):
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
+@skip_if_nvml_device_apis_unsupported
 def test_affinity(subtests):
     for device in system.Device.get_all_devices():
         for scope in typing.AffinityScope.__members__.values():
@@ -128,6 +134,7 @@ def test_numa_node_id(subtests):
             assert numa_node_id >= -1
 
 
+@skip_if_nvml_device_apis_unsupported
 def test_device_cuda_compute_capability():
     for cuda_device in CudaDevice.get_all_devices():
         device = cuda_device.to_system_device()
@@ -166,6 +173,7 @@ def test_device_name():
         assert len(name) > 0
 
 
+@skip_if_nvml_device_apis_unsupported
 def test_device_pci_info(subtests):
     for cuda_device in CudaDevice.get_all_devices():
         device = cuda_device.to_system_device()
@@ -272,6 +280,7 @@ def test_unpack_bitmask_single_value():
 
 @pytest.mark.parallel_threads_limit(4)  # timeouts are slow
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Events not supported on WSL or Windows")
+@skip_if_nvml_device_apis_unsupported
 def test_register_events():
     # This is not the world's greatest test.  All of the events are pretty
     # infrequent and hard to simulate.  So all we do here is register an event,
@@ -311,6 +320,7 @@ def test_device_brand():
         assert isinstance(brand, str)
 
 
+@skip_if_nvml_device_apis_unsupported
 def test_device_pci_bus_id():
     for cuda_device in CudaDevice.get_all_devices():
         device = cuda_device.to_system_device()
@@ -379,6 +389,7 @@ def test_c2c_mode_enabled(subtests):
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Persistence mode not supported on WSL or Windows")
 @pytest.mark.thread_unsafe(reason="device persistence mode is global state")
+@skip_if_nvml_device_apis_unsupported
 def test_persistence_mode_enabled(subtests):
     for device in system.Device.get_all_devices():
         with subtests.test(device_index=device.index):
@@ -499,6 +510,7 @@ def test_addressing_mode(subtests):
             assert addressing_mode is None or addressing_mode in typing.AddressingMode.__members__.values()
 
 
+@skip_if_nvml_device_apis_unsupported
 def test_display_mode():
     for device in system.Device.get_all_devices():
         is_display_connected = device.is_display_connected
@@ -562,6 +574,7 @@ def test_get_nearest_gpus():
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
+@skip_if_nvml_device_apis_unsupported
 def test_get_minor_number():
     for device in system.Device.get_all_devices():
         minor_number = device.minor_number
@@ -684,6 +697,7 @@ def test_clock_event_reasons(subtests):
             assert all(isinstance(reason, typing.ClocksEventReasons) for reason in reasons)
 
 
+@skip_if_nvml_device_apis_unsupported
 def test_fan(subtests):
     for cuda_device in CudaDevice.get_all_devices():
         device = cuda_device.to_system_device()
@@ -735,6 +749,7 @@ def test_fan(subtests):
                     fan_info.set_default_speed()
 
 
+@skip_if_nvml_device_apis_unsupported
 def test_cooler(subtests):
     for cuda_device in CudaDevice.get_all_devices():
         device = cuda_device.to_system_device()
@@ -757,6 +772,7 @@ def test_cooler(subtests):
 
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
+@skip_if_nvml_device_apis_unsupported
 def test_temperature(subtests):
     for device in system.Device.get_all_devices():
         device_index = device.index
@@ -895,6 +911,7 @@ def test_pstates(subtests):
                 assert isinstance(utilization.dec_threshold, int)
 
 
+@skip_if_nvml_device_apis_unsupported
 def test_compute_running_processes(subtests):
     for cuda_device in CudaDevice.get_all_devices():
         device = cuda_device.to_system_device()
@@ -916,6 +933,7 @@ def test_compute_running_processes(subtests):
                         proc.compute_instance_id  # noqa: B018
 
 
+@skip_if_nvml_device_apis_unsupported
 def test_nvlink(subtests):
     for device in system.Device.get_all_devices():
         device_index = device.index
@@ -1012,6 +1030,7 @@ def test_mig(subtests):
                 assert isinstance(mig_device, system.Device)
 
 
+@skip_if_nvml_device_apis_unsupported
 def test_uuid():
     for device in system.Device.get_all_devices():
         uuid = device.uuid
