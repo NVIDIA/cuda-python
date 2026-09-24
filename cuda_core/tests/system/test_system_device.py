@@ -671,9 +671,9 @@ def test_clock(subtests):
                 assert isinstance(current_mhz, int)
                 assert current_mhz >= 0
 
-                # Docs say this should work on PASCAL or newer, but experimentally,
-                # is also unsupported on other hardware.
-                with unsupported_before(device, DeviceArch.MAXWELL):
+                # Clock offsets can be unsupported for individual clock domains
+                # even on newer devices (for example, memory clocks on GB300).
+                with unsupported_before(device, None):
                     try:
                         offsets = clock.get_offsets(pstate)
                     except (system.InvalidArgumentError, system.NotFoundError):
