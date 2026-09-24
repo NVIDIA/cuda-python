@@ -3,7 +3,7 @@
 
 .. This code was automatically generated with version 13.4.1. Do not modify it directly.
 
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=03c58049a86a77a6113432e5935ea831b2fd6d6980b3f98f20b0025d043e801a
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=817c17584c36925aa69bec8d5dc3c4056f0cc7b0166b320d063602f87bf6a347
 -----
 nvrtc
 -----
@@ -958,4 +958,3 @@ Enable stack canaries in device code. Stack canaries make it more difficult to e
   - ``--utf-8`` (``-utf-8``)
 
 Set the source and execution character set to UTF-8 on platforms where that isn't already the default.
-
