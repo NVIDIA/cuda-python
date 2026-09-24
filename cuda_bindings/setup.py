@@ -1,9 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
 # SPDX-License-Identifier: Apache-2.0
 
-import functools
 import os
-import subprocess
 from warnings import warn
 
 import build_hooks
@@ -24,29 +23,16 @@ else:
 coverage_mode = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
 
-def _is_clang(compiler):
-    @functools.lru_cache
-    def _check(compiler_cxx):
-        try:
-            output = subprocess.check_output([*compiler_cxx, "--version"])  # noqa: S603
-        except subprocess.CalledProcessError:
-            return False
-        lines = output.decode().splitlines()
-        return len(lines) > 0 and "clang" in lines[0]
-
-    if not hasattr(compiler, "compiler_cxx"):
-        return False
-    return _check(tuple(compiler.compiler_cxx))
-
-
 class build_ext(_build_ext):
     def build_extensions(self):
         if nthreads > 0:
             self.parallel = nthreads
-        if _is_clang(self.compiler):
-            for ext in self.extensions:
-                ext.extra_compile_args = [a for a in ext.extra_compile_args if a != "-fno-var-tracking-assignments"]
+        # A stale .so from a previous toolchain looks perfectly fresh;
+        # see build_hooks._check_build_toolchain().
+        if build_hooks.force_build_ext:
+            self.force = True
         super().build_extensions()
+        build_hooks.record_build_toolchain()
 
 
 class build_py(_build_py):
