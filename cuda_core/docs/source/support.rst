@@ -98,8 +98,8 @@ there.
   ``cuda-bindings`` was generated from. Any other configuration fails the build with a message
   that names what was found and what is required. Building against an older CUDA Toolkit than
   the floor's minor is not supported.
-- **The CUDA driver** is unaffected. Feature availability is decided by the driver alone: a
-  feature the installed driver lacks raises when it is used, as before.
+- **The CUDA driver** is unaffected by the floor. Feature availability is decided by the driver alone: a
+  feature the installed driver lacks raises when it is used.
 
 A floor moves with each ``cuda-core`` release, to the newest ``cuda-bindings`` of each major at
 that time, and in any release whose changes need a newer ``cuda-bindings`` API. Every move is

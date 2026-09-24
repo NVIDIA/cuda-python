@@ -59,10 +59,10 @@ dependencies = [
 # per CUDA major, and the only place they are declared: build_hooks.py, the
 # import-time check, the docs and CI read them from here (see
 # cuda/core/_bindings_floor.py and the "Bumping the cuda-bindings floor"
-# checklist in AGENTS.md). Keep the form `>=<floor>,==<major>.*`.
+# checklist in AGENTS.md). Keep the form `>=<floor>,<<next major>`.
 [project.optional-dependencies]
-cu12 = ["cuda-bindings[all]>=12.9.8,==12.*", "cuda-toolkit==12.*"]
-cu13 = ["cuda-bindings[all]>=13.4.1,==13.*", "cuda-toolkit==13.*"]
+cu12 = ["cuda-bindings[all]>=12.9.8,<13", "cuda-toolkit==12.*"]
+cu13 = ["cuda-bindings[all]>=13.4.1,<14", "cuda-toolkit==13.*"]
 
 [dependency-groups]
 test = [

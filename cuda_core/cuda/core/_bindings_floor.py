@@ -12,7 +12,7 @@ against. See https://github.com/NVIDIA/cuda-python/issues/2783 and the support
 policy in the documentation.
 
 The floors are declared in exactly one place: the ``cu12`` and ``cu13`` extras
-in ``pyproject.toml``, each of which pins ``cuda-bindings>=<floor>,==<major>.*``.
+in ``pyproject.toml``, each of which pins ``cuda-bindings>=<floor>,<<next major>``.
 Everything else derives from them through :func:`floors_from_extras`:
 
 - the build backend (``build_hooks.py``) checks the installed cuda-bindings
@@ -36,6 +36,7 @@ import re
 from collections.abc import Mapping, Sequence
 
 __all__ = [
+    "SUPPORT_URL",
     "bindings_requirement",
     "check_installed_bindings",
     "cuda_version_of",
@@ -53,7 +54,12 @@ _REQUIREMENT_RE = re.compile(
     r"^\s*cuda-bindings(?=[\[<>=!~;\s]|$)\s*(?:\[[^\]]*\])?\s*(?P<specifiers>[^;]*?)\s*(?:;.*)?$"
 )
 _FLOOR_SPEC_RE = re.compile(r"^>=(\d+)\.(\d+)\.(\d+)$")
+# The upper bound: `<14` (also `<14.0`, `<14.0.0`) or the equivalent `==13.*`.
+_UPPER_SPEC_RE = re.compile(r"^<(\d+)(?:\.0)*$")
 _MAJOR_SPEC_RE = re.compile(r"^==(\d+)\.\*$")
+
+# The support policy section the error messages refer to.
+SUPPORT_URL = "https://nvidia.github.io/cuda-python/cuda-core/latest/support.html#cuda-core-bindings-floor"
 
 
 def release_triple(version: str) -> tuple[int, int, int] | None:
@@ -83,11 +89,12 @@ def floors_from_extras(extras: Mapping[str, Sequence[str]]) -> dict[int, tuple[i
     """The floor per CUDA major, from the ``cu<major>`` extras of ``pyproject.toml``.
 
     ``extras`` is the parsed ``[project.optional-dependencies]`` table. Each
-    ``cu<N>`` extra must list exactly one cuda-bindings requirement of the
-    form ``cuda-bindings[...]>=<major>.<minor>.<patch>,==<N>.*`` (the order
-    of the two specifiers does not matter). Anything else raises ValueError
-    naming the extra, so a typo fails the build and the pre-commit hook
-    instead of shifting the floor silently.
+    ``cu<N>`` extra must list exactly one cuda-bindings requirement with two
+    specifiers, in either order: the floor, ``>=<N>.<minor>.<patch>``, and an
+    upper bound that excludes the next major, ``<<N+1>`` (``==<N>.*`` is also
+    accepted). Anything else raises ValueError naming the extra, so a typo
+    fails the build and the pre-commit hook instead of shifting the floor
+    silently.
     """
     floors: dict[int, tuple[int, int, int]] = {}
     for extra, requirements in extras.items():
@@ -103,17 +110,16 @@ def floors_from_extras(extras: Mapping[str, Sequence[str]]) -> dict[int, tuple[i
         requirement, requirement_match = matches[0]
         specifiers = [s.strip() for s in requirement_match.group("specifiers").split(",") if s.strip()]
         floor_matches = [fm for s in specifiers if (fm := _FLOOR_SPEC_RE.match(s)) is not None]
-        major_matches = [mm for s in specifiers if (mm := _MAJOR_SPEC_RE.match(s)) is not None]
-        if len(specifiers) != 2 or len(floor_matches) != 1 or len(major_matches) != 1:
+        confined = [cm for s in specifiers if (cm := _confined_major(s)) is not None]
+        if len(specifiers) != 2 or len(floor_matches) != 1 or len(confined) != 1:
             raise ValueError(
-                f"the {extra!r} extra must pin cuda-bindings as '>=<major>.<minor>.<patch>,==<major>.*', "
-                f"found {requirement!r}"
+                f"the {extra!r} extra must pin cuda-bindings as '>=<floor>,<<next major>' "
+                f"(for example '>=13.4.1,<14'), found {requirement!r}"
             )
         floor = (int(floor_matches[0].group(1)), int(floor_matches[0].group(2)), int(floor_matches[0].group(3)))
-        pinned_major = int(major_matches[0].group(1))
-        if floor[0] != major or pinned_major != major:
+        if floor[0] != major or confined[0] != major:
             raise ValueError(
-                f"the {extra!r} extra pins cuda-bindings {requirement!r}, whose majors do not match CUDA {major}"
+                f"the {extra!r} extra pins cuda-bindings {requirement!r}, which does not confine it to CUDA {major}"
             )
         floors[major] = floor
     if not floors:
@@ -121,9 +127,23 @@ def floors_from_extras(extras: Mapping[str, Sequence[str]]) -> dict[int, tuple[i
     return dict(sorted(floors.items()))
 
 
-def bindings_requirement(floor: tuple[int, int, int]) -> str:
-    """The pip requirement that pins cuda-bindings to ``floor`` and its major, without extras."""
-    return f"cuda-bindings>={format_version(floor)},=={floor[0]}.*"
+def _confined_major(specifier: str) -> int | None:
+    """The one major a specifier confines cuda-bindings to: ``<14`` -> 13, ``==13.*`` -> 13, else None."""
+    if (m := _UPPER_SPEC_RE.match(specifier)) is not None:
+        return int(m.group(1)) - 1
+    if (m := _MAJOR_SPEC_RE.match(specifier)) is not None:
+        return int(m.group(1))
+    return None
+
+
+def bindings_requirement(floor: tuple[int, int, int], below: tuple[int, ...] | None = None) -> str:
+    """The pip requirement for cuda-bindings at or above ``floor`` and below ``below``, without extras.
+
+    ``below`` defaults to the next major: ``(13, 4, 1)`` gives ``cuda-bindings>=13.4.1,<14``;
+    with ``below=(13, 5)`` it gives ``cuda-bindings>=13.4.1,<13.5``.
+    """
+    upper = format_version(below) if below is not None else str(floor[0] + 1)
+    return f"cuda-bindings>={format_version(floor)},<{upper}"
 
 
 def header_minor(cuda_version: int) -> tuple[int, int]:
@@ -168,14 +188,15 @@ def check_installed_bindings(
         floor = format_version(build_floor)
         raise ImportError(
             f"cuda.core {core_version} requires cuda-bindings >= {floor} for CUDA {major} "
-            f'(found {installed_version}). Upgrade with: pip install -U "cuda-bindings>={floor},=={major}.*"'
+            f'(found {installed_version}). Upgrade with: pip install -U "cuda-bindings>={floor},<{major + 1}"'
         )
     built_against, generated_from = header_minor(build_cuda_version), header_minor(installed_cuda_version)
     if generated_from < built_against:
         needed = f"{built_against[0]}.{built_against[1]}"
         raise ImportError(
-            f"cuda.core {core_version} was built against CUDA {needed} headers, but the installed cuda-bindings "
-            f"{installed_version} was generated from CUDA {generated_from[0]}.{generated_from[1]} headers. "
-            f'Install cuda-bindings {needed} or newer: pip install -U "cuda-bindings>={needed}.0,=={major}.*"'
+            f"cuda.core {core_version} was compiled against CUDA {needed} headers and needs cuda-bindings "
+            f"{needed} or newer, but cuda-bindings {installed_version} is installed. This does not require a "
+            f"newer CUDA driver or toolkit: cuda.core supports older CUDA {major}.x versions at run time, "
+            f'see {SUPPORT_URL}. Upgrade with: pip install -U "cuda-bindings>={needed}.0,<{major + 1}"'
         )
     return installed

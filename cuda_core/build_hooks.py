@@ -176,9 +176,14 @@ def _floor_for(cuda_major) -> tuple:
     return floors[major]
 
 
+def _cuda_h_path(cuda_path: str) -> str:
+    """The cuda.h under cuda_path, with symlinks such as /usr/local/cuda resolved for messages."""
+    return os.path.realpath(os.path.join(cuda_path, "include", "cuda.h"))
+
+
 def _read_cuda_h_version(cuda_path: str) -> int:
     """The CUDA_VERSION macro (e.g. 13040 for 13.4) of the cuda.h under cuda_path."""
-    cuda_h = os.path.join(cuda_path, "include", "cuda.h")
+    cuda_h = _cuda_h_path(cuda_path)
     try:
         with open(cuda_h, encoding="utf-8") as f:
             for line in f:
@@ -281,12 +286,13 @@ def _check_build_configuration(cuda_path: str, cuda_major: str) -> None:
     header = floor.header_minor(cuda_version)
     generated_from = floor.header_minor(bindings_cuda_version)
     if header != generated_from:
+        needed, found = f"{generated_from[0]}.{generated_from[1]}", f"{header[0]}.{header[1]}"
         raise RuntimeError(
-            f"cuda.h under {cuda_path} is CUDA {header[0]}.{header[1]}, but the installed cuda-bindings "
-            f"{bindings_version} was generated from CUDA {generated_from[0]}.{generated_from[1]} headers. "
-            "cuda.core must be built against the cuda.h its cuda-bindings was generated from. Point "
-            "CUDA_PATH or CUDA_HOME at that CUDA Toolkit, or install a matching cuda-bindings (for an "
-            "isolated build, constrain it with PIP_CONSTRAINT or build with --no-build-isolation)."
+            f"cuda.core needs CUDA {needed} headers to build with the installed cuda-bindings {bindings_version}, "
+            f"but {_cuda_h_path(cuda_path)} is CUDA {found}. This is a build-time requirement only: at run time "
+            f"cuda.core supports older CUDA {major}.x drivers and toolkits, see {floor.SUPPORT_URL}. Point "
+            f"CUDA_PATH or CUDA_HOME at a CUDA {needed} toolkit, or install cuda-bindings {found}.x. For an "
+            "isolated build, constrain cuda-bindings with PIP_CONSTRAINT or build with --no-build-isolation."
         )
     print(f"Build configuration: CUDA {header[0]}.{header[1]} headers, cuda-bindings {bindings_version}")
     _write_build_info(major, cuda_version, floor_triple, bindings_version)
@@ -665,7 +671,7 @@ def _get_cuda_bindings_require():
         return [floor.bindings_requirement(floor_triple)]
     if header[0] != floor_triple[0] or header[1] < floor_triple[1]:
         return [floor.bindings_requirement(floor_triple)]
-    return [f"{floor.bindings_requirement(floor_triple)},<{header[0]}.{header[1] + 1}"]
+    return [floor.bindings_requirement(floor_triple, below=(header[0], header[1] + 1))]
 
 
 def get_requires_for_build_editable(config_settings=None):

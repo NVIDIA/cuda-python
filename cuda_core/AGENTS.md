@@ -34,7 +34,7 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
 - `cuda_core` requires `cuda.bindings` at or above a per-major *floor* at build
   and run time, and a `cuda.h` of the same major.minor as that `cuda.bindings`
   at build time (NVIDIA/cuda-python#2783). The floors are declared once, by the
-  `cu12`/`cu13` extras in `pyproject.toml` (`cuda-bindings[all]>=<floor>,==<major>.*`);
+  `cu12`/`cu13` extras in `pyproject.toml` (`cuda-bindings[all]>=<floor>,<<next major>`);
   `build_hooks.py`, the import-time check in `cuda/core/__init__.py`, the docs
   and CI read them from there through `cuda/core/_bindings_floor.py`. The C++
   branches on `CUDA_CORE_BUILD_MAJOR` only; whether a feature is available at

@@ -77,12 +77,15 @@ def test_floors_come_from_the_pyproject_extras(hook):
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_floors_from_extras_accepts_the_declared_form():
     extras = {
-        "cu12": ["cuda-bindings[all]>=12.9.8,==12.*", "cuda-toolkit==12.*"],
-        "cu13": ["cuda-bindings[all]==13.*,>=13.4.1", "cuda-toolkit==13.*"],
+        "cu12": ["cuda-bindings[all]>=12.9.8,<13", "cuda-toolkit==12.*"],
+        "cu13": ["cuda-bindings[all]<14,>=13.4.1", "cuda-toolkit==13.*"],
         "test": ["pytest"],
     }
     assert floors_from_extras(extras) == {12: (12, 9, 8), 13: (13, 4, 1)}
-    assert floors_from_extras({"cu13": ['cuda-bindings>=13.4.1,==13.* ; python_version >= "3.10"']}) == {13: (13, 4, 1)}
+    assert floors_from_extras({"cu13": ['cuda-bindings>=13.4.1,<14 ; python_version >= "3.10"']}) == {13: (13, 4, 1)}
+    # Other spellings of the same upper bound.
+    assert floors_from_extras({"cu13": ["cuda-bindings>=13.4.1,<14.0"]}) == {13: (13, 4, 1)}
+    assert floors_from_extras({"cu13": ["cuda-bindings>=13.4.1,==13.*"]}) == {13: (13, 4, 1)}
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
@@ -90,12 +93,15 @@ def test_floors_from_extras_accepts_the_declared_form():
     ("extras", "message"),
     [
         ({"cu13": ["cuda-toolkit==13.*"]}, "exactly one cuda-bindings requirement, found 0"),
-        ({"cu13": ["cuda-bindings>=13.4.1", "cuda-bindings==13.*"]}, "exactly one cuda-bindings requirement, found 2"),
+        ({"cu13": ["cuda-bindings>=13.4.1", "cuda-bindings<14"]}, "exactly one cuda-bindings requirement, found 2"),
         ({"cu13": ["cuda-bindings>=13.4.1"]}, "must pin cuda-bindings as"),
-        ({"cu13": ["cuda-bindings>=13.4,==13.*"]}, "must pin cuda-bindings as"),
-        ({"cu13": ["cuda-bindings>=13.4.1,==13.*,<14"]}, "must pin cuda-bindings as"),
-        ({"cu13": ["cuda-bindings>=12.9.8,==13.*"]}, "majors do not match CUDA 13"),
-        ({"cu13": ["cuda-bindings>=13.4.1,==12.*"]}, "majors do not match CUDA 13"),
+        ({"cu13": ["cuda-bindings>=13.4,<14"]}, "must pin cuda-bindings as"),
+        ({"cu13": ["cuda-bindings>=13.4.1,<14,==13.*"]}, "must pin cuda-bindings as"),
+        ({"cu13": ["cuda-bindings>=13.4.1,<13.5"]}, "must pin cuda-bindings as"),  # a minor, not a major
+        ({"cu13": ["cuda-bindings>=12.9.8,<14"]}, "does not confine it to CUDA 13"),
+        ({"cu13": ["cuda-bindings>=13.4.1,<13"]}, "does not confine it to CUDA 13"),
+        ({"cu13": ["cuda-bindings>=13.4.1,<15"]}, "does not confine it to CUDA 13"),
+        ({"cu13": ["cuda-bindings>=13.4.1,==12.*"]}, "does not confine it to CUDA 13"),
         ({"test": ["pytest"]}, "declares no cu<major> extra"),
     ],
 )
@@ -106,7 +112,7 @@ def test_floors_from_extras_rejects_other_forms(extras, message):
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_floors_from_extras_ignores_lookalike_names():
-    extras = {"cu13": ["cuda-bindings-extra>=1.0", "cuda-bindings>=13.4.1,==13.*"]}
+    extras = {"cu13": ["cuda-bindings-extra>=1.0", "cuda-bindings>=13.4.1,<14"]}
     assert floors_from_extras(extras) == {13: (13, 4, 1)}
 
 
@@ -133,7 +139,8 @@ def test_formatting_helpers():
     assert format_version((13, 4, 1)) == "13.4.1"
     assert cuda_version_of((13, 4, 1)) == 13040
     assert cuda_version_of((12, 9, 8)) == 12090
-    assert bindings_requirement((13, 4, 1)) == "cuda-bindings>=13.4.1,==13.*"
+    assert bindings_requirement((13, 4, 1)) == "cuda-bindings>=13.4.1,<14"
+    assert bindings_requirement((13, 4, 1), below=(13, 5)) == "cuda-bindings>=13.4.1,<13.5"
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
@@ -177,7 +184,7 @@ class TestCheckInstalledBindings:
         message = str(excinfo.value)
         assert "requires cuda-bindings >= 13.4.1 for CUDA 13" in message
         assert "(found 13.3.1)" in message
-        assert 'pip install -U "cuda-bindings>=13.4.1,==13.*"' in message  # double quotes: cmd.exe too
+        assert 'pip install -U "cuda-bindings>=13.4.1,<14"' in message  # double quotes: cmd.exe too
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_rejects_bindings_generated_from_an_older_header_than_the_build(self):
@@ -185,9 +192,11 @@ class TestCheckInstalledBindings:
         with pytest.raises(ImportError) as excinfo:
             self.check("13.4.1", header=self.HEADER + 10)
         message = str(excinfo.value)
-        assert "was built against CUDA 13.5 headers" in message
-        assert "13.4.1 was generated from CUDA 13.4 headers" in message
-        assert 'pip install -U "cuda-bindings>=13.5.0,==13.*"' in message
+        assert "was compiled against CUDA 13.5 headers and needs cuda-bindings 13.5 or newer" in message
+        assert "but cuda-bindings 13.4.1 is installed" in message
+        assert "This does not require a newer CUDA driver or toolkit" in message
+        assert floor_mod.SUPPORT_URL in message
+        assert 'pip install -U "cuda-bindings>=13.5.0,<14"' in message
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_header_rule_compares_headers_not_version_strings(self):
@@ -196,7 +205,7 @@ class TestCheckInstalledBindings:
         floor = (13, 4, 2)
         assert self.check("13.4.2.dev5+gabc", header=13050, floor=floor, installed_header=13050) == (13, 4, 2)
         # The converse, a 13.5 version string generated from 13.4 headers, is rejected.
-        with pytest.raises(ImportError, match="was generated from CUDA 13.4 headers"):
+        with pytest.raises(ImportError, match="needs cuda-bindings 13.5 or newer"):
             self.check("13.5.0", header=13050, floor=floor, installed_header=13040)
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
@@ -208,7 +217,7 @@ class TestCheckInstalledBindings:
             self.check("13.4.1", floor=(13, 5, 0))
         message = str(excinfo.value)
         assert "requires cuda-bindings >= 13.5.0 for CUDA 13" in message
-        assert 'pip install -U "cuda-bindings>=13.5.0,==13.*"' in message
+        assert 'pip install -U "cuda-bindings>=13.5.0,<14"' in message
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_rejects_another_major_than_the_build(self):
@@ -285,14 +294,14 @@ class TestImportTimeCheck:
         below = f"{major}.0.1"
         message = self._import_error(below, major * 1000, tmp_path)
         assert f"requires cuda-bindings >= {format_version(floor)} for CUDA {major}" in message
-        assert f'pip install -U "cuda-bindings>={format_version(floor)},=={major}.*"' in message
+        assert f'pip install -U "cuda-bindings>={format_version(floor)},<{major + 1}"' in message
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_bindings_from_an_older_header_fail_at_import(self, tmp_path):
         major, cuda_version, floor = self._build()
         # At the floor by version, but generated from a header one minor below the build's.
         message = self._import_error(format_version(floor), cuda_version - 10, tmp_path)
-        assert f"was built against CUDA {major}.{header_minor(cuda_version)[1]} headers" in message
+        assert f"was compiled against CUDA {major}.{header_minor(cuda_version)[1]} headers" in message
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_unparseable_version_fails_at_import(self, tmp_path):
@@ -322,7 +331,7 @@ class TestConsistencyHook:
         core.mkdir(parents=True)
         shutil.copy(CUDA_CORE / "cuda" / "core" / "_bindings_floor.py", core)
         (tmp_path / "cuda_core" / "pyproject.toml").write_text(
-            '[project.optional-dependencies]\ncu13 = ["cuda-bindings[all]>=13.4,==13.*"]\n', encoding="utf-8"
+            '[project.optional-dependencies]\ncu13 = ["cuda-bindings[all]>=13.4,<14"]\n', encoding="utf-8"
         )
         assert hook.main(["--repo-root", str(tmp_path)]) == 1
         assert "pyproject.toml: the 'cu13' extra must pin cuda-bindings" in capsys.readouterr().err

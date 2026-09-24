@@ -12,6 +12,7 @@ import contextlib
 import functools
 import glob
 import os
+import re
 import shutil
 import sys
 import sysconfig
@@ -32,6 +33,13 @@ get_requires_for_build_editable = _build_meta.get_requires_for_build_editable
 
 # Populated by _build_cuda_bindings(); consumed by setup.py.
 _extensions = None
+
+# The generated sources declare the types and functions of one CUDA header set;
+# cydriver.pxd records which. The install docs state the resulting build rule.
+_CYDRIVER_PXD = Path(__file__).resolve().parent / "cuda" / "bindings" / "cydriver.pxd"
+_GENERATED_VERSION_RE = re.compile(r"^cdef enum:\s*CUDA_VERSION\s*=\s*(\d+)\s*$")
+_CUDA_H_VERSION_RE = re.compile(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$")
+_INSTALL_URL = "https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html#installing-from-source"
 
 
 # Please keep in sync with the copy in cuda_core/build_hooks.py.
@@ -78,6 +86,72 @@ def _get_cuda_path() -> str:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
     print("CUDA path:", cuda_path)
     return cuda_path
+
+
+# -----------------------------------------------------------------------
+# CUDA header check
+
+
+def _cuda_h_path(cuda_path: str) -> str:
+    """The cuda.h under cuda_path, with symlinks such as /usr/local/cuda resolved for messages."""
+    return os.path.realpath(os.path.join(cuda_path, "include", "cuda.h"))
+
+
+def _read_version_macro(path: str, pattern: re.Pattern) -> int | None:
+    """The integer on the first line of ``path`` that matches ``pattern``, or None if no line does."""
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            m = pattern.match(line)
+            if m:
+                return int(m.group(1))
+    return None
+
+
+def _read_cuda_h_version(cuda_path: str) -> int:
+    """The CUDA_VERSION macro (e.g. 13040 for 13.4) of the cuda.h under cuda_path."""
+    cuda_h = _cuda_h_path(cuda_path)
+    try:
+        version = _read_version_macro(cuda_h, _CUDA_H_VERSION_RE)
+    except OSError:
+        version = None
+    if version is None:
+        raise RuntimeError(
+            f"Cannot read CUDA_VERSION from {cuda_h}. "
+            "Ensure CUDA_PATH or CUDA_HOME points to a CUDA Toolkit with include/cuda.h."
+        )
+    return version
+
+
+def _generated_cuda_version() -> int:
+    """The CUDA_VERSION of the headers this source tree was generated from (cuda/bindings/cydriver.pxd)."""
+    version = _read_version_macro(str(_CYDRIVER_PXD), _GENERATED_VERSION_RE)
+    if version is None:
+        raise RuntimeError(f"Cannot read CUDA_VERSION from {_CYDRIVER_PXD}")
+    return version
+
+
+def _major_minor(cuda_version: int) -> str:
+    """13040 -> \"13.4\"."""
+    return f"{cuda_version // 1000}.{cuda_version // 10 % 100}"
+
+
+def _check_cuda_headers(cuda_path: str) -> None:
+    """Reject a toolkit whose cuda.h is not the major.minor this source tree was generated from.
+
+    Against another minor, the C++ compile fails with a long list of
+    redefinition and undeclared-type errors that do not name the cause
+    (https://github.com/NVIDIA/cuda-python/issues/2783). Runs before
+    cythonize, which is the first step that touches the source tree.
+    """
+    generated = _generated_cuda_version()
+    needed, found = _major_minor(generated), _major_minor(_read_cuda_h_version(cuda_path))
+    if found != needed:
+        raise RuntimeError(
+            f"This cuda-bindings source tree needs CUDA {needed} headers, but {_cuda_h_path(cuda_path)} is "
+            f"CUDA {found}. This is a build-time requirement only: at run time cuda-bindings supports any "
+            f"CUDA {generated // 1000}.x toolkit, see {_INSTALL_URL}. Point CUDA_PATH or CUDA_HOME at a "
+            f"CUDA {needed} toolkit, or build from cuda-bindings {found}.x sources."
+        )
 
 
 # -----------------------------------------------------------------------
@@ -142,6 +216,7 @@ def _build_cuda_bindings(debug=False):
     global _extensions
 
     cuda_path = _get_cuda_path()
+    _check_cuda_headers(cuda_path)
 
     if os.environ.get("PARALLEL_LEVEL") is not None:
         warn(

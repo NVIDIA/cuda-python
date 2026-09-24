@@ -9,7 +9,7 @@ consumers read it from there, but two constraints cannot be derived and are
 checked here, as a pre-commit hook and from cuda_core/tests/test_bindings_floor.py:
 
 1. The extras parse: each `cu<N>` extra pins exactly
-   `cuda-bindings[...]>=<N>.<minor>.<patch>,==<N>.*`.
+   `cuda-bindings[...]>=<N>.<minor>.<patch>,<<N+1>`.
 2. ci/versions.yml builds each major against a CUDA Toolkit of at least the
    floor's major.minor. A toolkit below the floor's minor cannot build the
    floor's cuda-bindings (the build requires the header cuda-bindings was
