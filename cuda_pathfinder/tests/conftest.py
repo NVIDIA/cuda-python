@@ -2,7 +2,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import importlib
+import os
+from pathlib import Path
+
 import pytest
+
+
+def pytest_sessionstart(session):
+    if os.environ.get("CUDA_PYTHON_TEST_INSTALLED_WHEELS") == "1":
+        checkout = Path(__file__).resolve().parents[2]
+        module = importlib.import_module("cuda.pathfinder")
+        module_path = Path(module.__file__).resolve()
+        print(f"{module.__name__}: {module_path}")
+        if module_path.is_relative_to(checkout):
+            raise pytest.UsageError(f"{module.__name__} imported from the checkout: {module_path}")
 
 
 def pytest_configure(config):
