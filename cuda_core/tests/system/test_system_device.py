@@ -182,7 +182,8 @@ def test_device_pci_info(subtests):
     for cuda_device in CudaDevice.get_all_devices():
         device = cuda_device.to_system_device()
         with subtests.test(device_index=device.index):
-            pci_info = device.pci_info
+            with unsupported_before(device, None):
+                pci_info = device.pci_info
             assert isinstance(pci_info, _device.PciInfo)
 
             assert isinstance(pci_info.bus_id, str)
@@ -712,9 +713,10 @@ def test_fan(subtests):
         device_index = device.index
         num_fans = None
         # The fan APIs are only supported on discrete devices with fans,
-        # but when they are not available `device.num_fans` returns 0.
+        # but when they are not available `device.num_fans` usually returns 0.
         with subtests.test(device_index=device_index, fan_api="get_num_fans"):
-            value = device.num_fans
+            with unsupported_before(device, None):
+                value = device.num_fans
             assert isinstance(value, int)
             assert value >= 0
             num_fans = value
@@ -763,11 +765,13 @@ def test_cooler(subtests):
         device = cuda_device.to_system_device()
         with subtests.test(device_index=device.index):
             # The cooler APIs are only supported on discrete devices with fans,
-            # but when they are not available `device.num_fans` returns 0.
-            if device.num_fans == 0:
+            # but when they are not available `device.num_fans` usually returns 0.
+            with unsupported_before(device, None):
+                num_fans = device.num_fans
+            if num_fans == 0:
                 pytest.skip("Device has no coolers to test")
 
-            with unsupported_before(device, DeviceArch.MAXWELL):
+            with unsupported_before(device, None):
                 cooler_info = device.cooler
 
             assert isinstance(cooler_info, _device.CoolerInfo)
