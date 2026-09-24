@@ -377,12 +377,23 @@ def test_pointer_get_attributes_device_ordinal():
         cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
     ]
 
-    attrs = cuda.cuPointerGetAttributes(len(attributes), attributes, 0)
+    err, attrs = cuda.cuPointerGetAttributes(len(attributes), attributes, 0)
 
-    # device ordinals are always small numbers.  A large number would indicate
-    # an overflow error.
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    # Drivers use either negative sentinel for a null pointer. Both ensure the
+    # signed device ordinal is returned rather than an unsigned value.
+    assert attrs[0] in (cuda.CU_DEVICE_CPU, cuda.CU_DEVICE_INVALID)
 
-    assert abs(attrs[1][0]) < 256
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_pointer_allowed_handle_types_preserves_64_bits():
+    helper = cuda._HelperCUpointer_attribute(
+        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES, 0, is_getter=True
+    )
+    expected = 1 << 40
+    ctypes.c_uint64.from_address(helper.cptr).value = expected
+
+    assert helper.pyObj() == expected
 
 
 @pytest.mark.skipif(not supportsManagedMemory(), reason="When new attributes were introduced")
@@ -542,6 +553,120 @@ def test_cuda_coredump_attr():
     assert attr_list[1] == b"corefile"
     assert attr_list[2] == b"corepipe"
     assert attr_list[3] is True
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_coredump_bool_uses_single_byte_storage():
+    helper = cuda._HelperCUcoredumpSettings(cuda.CUcoredumpSettings.CU_COREDUMP_TRIGGER_HOST, 0, is_getter=True)
+    ctypes.c_uint32.from_address(helper.cptr).value = 0xFFFFFFFF
+    ctypes.c_uint8.from_address(helper.cptr).value = 0
+
+    assert helper.size() == ctypes.sizeof(ctypes.c_bool)
+    assert helper.pyObj() is False
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_coverage_new_pointer_attributes():
+    """Smoke-test that every newly added CUpointer_attribute branch can be
+    constructed without raising TypeError."""
+    new_attrs = [
+        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MAPPING_SIZE,
+        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_BLOCK_ID,
+        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_HW_DECOMPRESS_CAPABLE,
+        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_LOCALITY_DOMAIN_ORDINAL,
+    ]
+    for attr in new_attrs:
+        helper = cuda._HelperCUpointer_attribute(attr, 0, is_getter=True)
+        assert helper.cptr != 0
+        _ = helper.pyObj()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_coverage_mapping_base_addr():
+    """CU_POINTER_ATTRIBUTE_MAPPING_BASE_ADDR uses the CUdeviceptr getter path."""
+    helper = cuda._HelperCUpointer_attribute(
+        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MAPPING_BASE_ADDR, 0, is_getter=True
+    )
+    assert helper.cptr != 0
+    _ = helper.pyObj()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_coverage_new_mempool_attributes():
+    """Smoke-test all newly added CUmemPool_attribute branches."""
+    int_attrs = [
+        cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_ALLOCATION_TYPE,
+        cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCATION_ID,
+        cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCATION_TYPE,
+        cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_HW_DECOMPRESS_ENABLED,
+        cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCALITY_DOMAIN_ID,
+    ]
+    for attr in int_attrs:
+        helper = cuda._HelperCUmemPool_attribute(attr, 0, is_getter=True)
+        assert helper.cptr != 0
+        assert helper.pyObj() == 0
+
+    uint_attr = cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_EXPORT_HANDLE_TYPES
+    helper = cuda._HelperCUmemPool_attribute(uint_attr, 0, is_getter=True)
+    assert helper.cptr != 0
+    assert helper.pyObj() == 0
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_coverage_new_mem_range_attributes():
+    """Smoke-test all newly added CUmem_range_attribute branches (scalar int)."""
+    new_attrs = [
+        cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_TYPE,
+        cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_ID,
+        cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_TYPE,
+        cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_ID,
+    ]
+    for attr in new_attrs:
+        helper = cuda._HelperCUmem_range_attribute(attr, 4)
+        assert helper.cptr != 0
+        assert helper.pyObj() == 0
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_coverage_jit_option_new_int_attrs():
+    """Newly added int-type CUjit_option branches should construct without TypeError.
+
+    These options use the value-cast pattern: the int value is encoded directly
+    in the void* slot (cptr == NULL when value is 0, which is expected).
+    """
+    new_int_attrs = [
+        cuda.CUjit_option.CU_JIT_POSITION_INDEPENDENT_CODE,
+        cuda.CUjit_option.CU_JIT_MAX_THREADS_PER_BLOCK,
+        cuda.CUjit_option.CU_JIT_OVERRIDE_DIRECTIVE_VALUES,
+    ]
+    for attr in new_int_attrs:
+        helper = cuda._HelperCUjit_option(attr, 1)
+        assert helper.cptr == 1  # value is encoded as pointer
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_coverage_jit_option_binary_loader_thread_count():
+    """CU_JIT_BINARY_LOADER_THREAD_COUNT is unsigned int, value-cast like other uint options."""
+    helper = cuda._HelperCUjit_option(cuda.CUjit_option.CU_JIT_BINARY_LOADER_THREAD_COUNT, 4)
+    assert helper.cptr != 0
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_coverage_jit_wall_time_pointer_is_valid():
+    """CU_JIT_WALL_TIME must give CUDA a valid writable float address, not a garbage pointer."""
+    helper = cuda._HelperCUjit_option(cuda.CUjit_option.CU_JIT_WALL_TIME, 0.0)
+    # Write a sentinel float via ctypes to confirm the pointer is addressable.
+    ctypes.c_float.from_address(helper.cptr).value = 3.14
+    assert ctypes.c_float.from_address(helper.cptr).value == pytest.approx(3.14, rel=1e-5)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_coverage_coredump_generation_flags():
+    """CU_COREDUMP_GENERATION_FLAGS is an unsigned int bitmask."""
+    helper = cuda._HelperCUcoredumpSettings(cuda.CUcoredumpSettings.CU_COREDUMP_GENERATION_FLAGS, 0, is_getter=True)
+    assert helper.size() == ctypes.sizeof(ctypes.c_uint)
+    ctypes.c_uint.from_address(helper.cptr).value = 0xDEAD
+    assert helper.pyObj() == 0xDEAD
 
 
 def test_get_error_name_and_string():

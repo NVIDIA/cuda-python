@@ -244,12 +244,23 @@ cdef class _HelperCUmemPool_attribute:
                             cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT,
                             cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH,
                             cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_CURRENT,
-                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_HIGH,):
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_HIGH,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_MAX_POOL_SIZE,):
             if self._is_getter:
                 self._cuuint64_t_val = _driver["cuuint64_t"]()
                 self._cptr = <void*><void_ptr>self._cuuint64_t_val.getPtr()
             else:
                 self._cptr = <void*><void_ptr>init_value.getPtr()
+        elif self._attr in (cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_ALLOCATION_TYPE,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_LOCATION_ID,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_LOCATION_TYPE,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_HW_DECOMPRESS_ENABLED,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_LOCALITY_DOMAIN_ID,):
+            self._int_val = init_value
+            self._cptr = <void*>&self._int_val
+        elif self._attr in (cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_EXPORT_HANDLE_TYPES,):
+            self._uint_val = init_value
+            self._cptr = <void*>&self._uint_val
         else:
             raise TypeError('Unsupported attribute: {}'.format(attr.name))
 
@@ -270,8 +281,17 @@ cdef class _HelperCUmemPool_attribute:
                             cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT,
                             cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH,
                             cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_CURRENT,
-                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_HIGH,):
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_HIGH,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_MAX_POOL_SIZE,):
             return self._cuuint64_t_val
+        elif self._attr in (cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_ALLOCATION_TYPE,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_LOCATION_ID,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_LOCATION_TYPE,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_HW_DECOMPRESS_ENABLED,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_LOCALITY_DOMAIN_ID,):
+            return self._int_val
+        elif self._attr in (cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_EXPORT_HANDLE_TYPES,):
+            return self._uint_val
         else:
             raise TypeError('Unsupported attribute value: {}'.format(self._attr))
 
@@ -283,7 +303,11 @@ cdef class _HelperCUmem_range_attribute:
         self._attr = attr.value
         if self._attr in (cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,
                           cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION,
-                          cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,):
+                          cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
+                          cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_TYPE,
+                          cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_ID,
+                          cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_TYPE,
+                          cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_ID,):
             self._cptr = <void*>&self._int_val
         elif self._attr in (cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY,):
             self._cptr = _callocWrapper(1, self._data_size)
@@ -302,7 +326,11 @@ cdef class _HelperCUmem_range_attribute:
     def pyObj(self):
         if self._attr in (cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,
                           cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION,
-                          cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,):
+                          cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
+                          cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_TYPE,
+                          cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_ID,
+                          cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_TYPE,
+                          cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_ID,):
             return self._int_val
         elif self._attr in (cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY,):
             return [self._int_val_list[idx] for idx in range(int(self._data_size/4))]
@@ -322,7 +350,6 @@ cdef class _HelperCUpointer_attribute:
             else:
                 self._cptr = <void*><void_ptr>init_value.getPtr()
         elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
-                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES,
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE,
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ACCESS_FLAGS,):
             self._uint = init_value
@@ -338,7 +365,7 @@ cdef class _HelperCUpointer_attribute:
             else:
                 self._cptr = <void*><void_ptr>init_value.getPtr()
         elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_HOST_POINTER,):
-            self._void = <void**><void_ptr>init_value
+            self._void = <void*><void_ptr>init_value
             self._cptr = <void*>&self._void
         elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_P2P_TOKENS,):
             if self._is_getter:
@@ -352,10 +379,12 @@ cdef class _HelperCUpointer_attribute:
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MAPPED,):
             self._bool = init_value
             self._cptr = <void*>&self._bool
-        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_BUFFER_ID,):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_BUFFER_ID,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES,):
             self._ull = init_value
             self._cptr = <void*>&self._ull
-        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_SIZE,):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_SIZE,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MAPPING_SIZE,):
             self._size = init_value
             self._cptr = <void*>&self._size
         elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE,):
@@ -364,6 +393,21 @@ cdef class _HelperCUpointer_attribute:
                 self._cptr = <void*><void_ptr>self._mempool.getPtr()
             else:
                 self._cptr = <void*><void_ptr>init_value.getPtr()
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MAPPING_BASE_ADDR,):
+            if self._is_getter:
+                self._devptr = _driver["CUdeviceptr"]()
+                self._cptr = <void*><void_ptr>self._devptr.getPtr()
+            else:
+                self._cptr = <void*><void_ptr>init_value.getPtr()
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMORY_BLOCK_ID,):
+            self._ull = init_value
+            self._cptr = <void*>&self._ull
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_HW_DECOMPRESS_CAPABLE,):
+            self._bool = init_value
+            self._cptr = <void*>&self._bool
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_LOCALITY_DOMAIN_ORDINAL,):
+            self._int = init_value
+            self._cptr = <void*>&self._int
         else:
             raise TypeError('Unsupported attribute: {}'.format(attr.name))
 
@@ -379,11 +423,11 @@ cdef class _HelperCUpointer_attribute:
         if self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_CONTEXT,):
             return self._ctx
         elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
-                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
-                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES,
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE,
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ACCESS_FLAGS,):
             return self._uint
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,):
+            return self._int
         elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_POINTER,
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_START_ADDR,):
             return self._devptr
@@ -396,12 +440,22 @@ cdef class _HelperCUpointer_attribute:
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLE,
                             cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MAPPED,):
             return self._bool
-        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_BUFFER_ID,):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_BUFFER_ID,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES,):
             return self._ull
-        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_SIZE,):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_SIZE,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MAPPING_SIZE,):
             return self._size
         elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE,):
             return self._mempool
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MAPPING_BASE_ADDR,):
+            return self._devptr
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMORY_BLOCK_ID,):
+            return self._ull
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_HW_DECOMPRESS_CAPABLE,):
+            return self._bool
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_LOCALITY_DOMAIN_ORDINAL,):
+            return self._int
         else:
             raise TypeError('Unsupported attribute value: {}'.format(self._attr))
 
@@ -455,12 +509,17 @@ cdef class _HelperCUjit_option:
                           cydriver.CUjit_option_enum.CU_JIT_REFERENCED_KERNEL_COUNT,
                           cydriver.CUjit_option_enum.CU_JIT_REFERENCED_VARIABLE_COUNT,
                           cydriver.CUjit_option_enum.CU_JIT_MIN_CTA_PER_SM,
-                          cydriver.CUjit_option_enum.CU_JIT_SPLIT_COMPILE,):
+                          cydriver.CUjit_option_enum.CU_JIT_SPLIT_COMPILE,
+                          cydriver.CUjit_option_enum.CU_JIT_BINARY_LOADER_THREAD_COUNT,):
             self._uint = init_value
             self._cptr = <void*><void_ptr>self._uint
         elif self._attr in (cydriver.CUjit_option_enum.CU_JIT_WALL_TIME,):
             self._float = init_value
-            self._cptr = <void*><void_ptr>self._float
+            # CU_JIT_WALL_TIME is an OUT option: CUDA writes the elapsed float
+            # back through the pointer.  Use the address of _float so CUDA has
+            # valid storage to write into, rather than value-casting the float
+            # (which would produce a garbage address).
+            self._cptr = <void*>&self._float
         elif self._attr in (cydriver.CUjit_option_enum.CU_JIT_INFO_LOG_BUFFER,
                             cydriver.CUjit_option_enum.CU_JIT_ERROR_LOG_BUFFER):
             self._charstar = init_value
@@ -479,7 +538,10 @@ cdef class _HelperCUjit_option:
                             cydriver.CUjit_option_enum.CU_JIT_PREC_DIV,
                             cydriver.CUjit_option_enum.CU_JIT_PREC_SQRT,
                             cydriver.CUjit_option_enum.CU_JIT_FMA,
-                            cydriver.CUjit_option_enum.CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES,):
+                            cydriver.CUjit_option_enum.CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES,
+                            cydriver.CUjit_option_enum.CU_JIT_POSITION_INDEPENDENT_CODE,
+                            cydriver.CUjit_option_enum.CU_JIT_MAX_THREADS_PER_BLOCK,
+                            cydriver.CUjit_option_enum.CU_JIT_OVERRIDE_DIRECTIVE_VALUES,):
             self._int = init_value
             self._cptr = <void*><void_ptr>self._int
         elif self._attr in (cydriver.CUjit_option_enum.CU_JIT_CACHE_MODE,):
@@ -520,7 +582,11 @@ cdef class _HelperCudaJitOption:
             self._cptr = <void*><void_ptr>self._uint
         elif self._attr in (cyruntime.cudaJitOption.cudaJitWallTime,):
             self._float = init_value
-            self._cptr = <void*><void_ptr>self._float
+            # cudaJitWallTime is an OUT option: CUDA writes the elapsed float
+            # back through the pointer.  Use the address of _float so CUDA has
+            # valid storage to write into, rather than value-casting the float
+            # (which would produce a garbage address).
+            self._cptr = <void*>&self._float
         elif self._attr in (cyruntime.cudaJitOption.cudaJitInfoLogBuffer,
                             cyruntime.cudaJitOption.cudaJitErrorLogBuffer):
             self._charstar = init_value
@@ -751,7 +817,13 @@ cdef class _HelperCUcoredumpSettings:
                 self._bool = init_value
 
             self._cptr = <void*>&self._bool
-            self._size = 1
+            self._size = sizeof(cpp_bool)
+        elif self._attrib in (cydriver.CUcoredumpSettings_enum.CU_COREDUMP_GENERATION_FLAGS,):
+            if self._is_getter == False:
+                self._uint = init_value
+
+            self._cptr = <void*>&self._uint
+            self._size = sizeof(unsigned int)
         else:
             raise TypeError('Unsupported attribute: {}'.format(attr.name))
 
@@ -779,5 +851,7 @@ cdef class _HelperCUcoredumpSettings:
                             cydriver.CUcoredumpSettings_enum.CU_COREDUMP_LIGHTWEIGHT,
                             cydriver.CUcoredumpSettings_enum.CU_COREDUMP_ENABLE_USER_TRIGGER,):
             return self._bool
+        elif self._attrib in (cydriver.CUcoredumpSettings_enum.CU_COREDUMP_GENERATION_FLAGS,):
+            return self._uint
         else:
             raise TypeError('Unsupported attribute value: {}'.format(self._attrib))
