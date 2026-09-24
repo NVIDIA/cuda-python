@@ -4,6 +4,7 @@
 import functools
 import importlib
 import inspect
+import os
 import pathlib
 import sys
 from contextlib import contextmanager
@@ -28,6 +29,17 @@ except ImportError as e:
     importlib.invalidate_caches()
 
 pytest_plugins = ["cuda_python_test_helpers._pytest_plugin"]
+
+
+def pytest_sessionstart(session):
+    if os.environ.get("CUDA_PYTHON_TEST_INSTALLED_WHEELS") == "1":
+        checkout = pathlib.Path(__file__).resolve().parents[2]
+        for name in ("cuda.pathfinder", "cuda.bindings"):
+            module = importlib.import_module(name)
+            module_path = pathlib.Path(module.__file__).resolve()
+            print(f"{name}: {module_path}")
+            if module_path.is_relative_to(checkout):
+                raise pytest.UsageError(f"{name} imported from the checkout: {module_path}")
 
 
 def pytest_configure(config):
