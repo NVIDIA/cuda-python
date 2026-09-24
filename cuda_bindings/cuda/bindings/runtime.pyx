@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=685208d88a179bf2a468215105cfd8d90c9def1f1187bd1cef500ddbb69b50e7
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=21c0ed447e3e318a82a853cf7516c12214c48d0ceb0d9beb2be05157a8434ce1
 from typing import Any, Optional
 import cython
 import ctypes
@@ -8024,12 +8024,10 @@ cdef class cudaArraySparseProperties:
         else:
             self._pvt_ptr = <cyruntime.cudaArraySparseProperties *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._tileExtent = anon_struct0(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._tileExtent._owner = self
     def __dealloc__(self):
-        pass
+        self._tileExtent = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -8483,30 +8481,24 @@ cdef class cudaMemcpy3DParms:
         else:
             self._pvt_ptr = <cyruntime.cudaMemcpy3DParms *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._srcArray = cudaArray_t(_ptr=<void_ptr>&self._pvt_ptr[0].srcArray)
-
-
         self._srcPos = cudaPos(_ptr=<void_ptr>&self._pvt_ptr[0].srcPos)
-
-
+        self._srcPos._owner = self
         self._srcPtr = cudaPitchedPtr(_ptr=<void_ptr>&self._pvt_ptr[0].srcPtr)
-
-
+        self._srcPtr._owner = self
         self._dstArray = cudaArray_t(_ptr=<void_ptr>&self._pvt_ptr[0].dstArray)
-
-
         self._dstPos = cudaPos(_ptr=<void_ptr>&self._pvt_ptr[0].dstPos)
-
-
+        self._dstPos._owner = self
         self._dstPtr = cudaPitchedPtr(_ptr=<void_ptr>&self._pvt_ptr[0].dstPtr)
-
-
+        self._dstPtr._owner = self
         self._extent = cudaExtent(_ptr=<void_ptr>&self._pvt_ptr[0].extent)
-
+        self._extent._owner = self
     def __dealloc__(self):
-        pass
+        self._srcPos = None
+        self._srcPtr = None
+        self._dstPos = None
+        self._dstPtr = None
+        self._extent = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -8677,15 +8669,11 @@ cdef class cudaMemcpyNodeParams:
         else:
             self._pvt_ptr = <cyruntime.cudaMemcpyNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-
-
         self._copyParams = cudaMemcpy3DParms(_ptr=<void_ptr>&self._pvt_ptr[0].copyParams)
-
+        self._copyParams._owner = self
     def __dealloc__(self):
-        pass
+        self._copyParams = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -8800,30 +8788,24 @@ cdef class cudaMemcpy3DPeerParms:
         else:
             self._pvt_ptr = <cyruntime.cudaMemcpy3DPeerParms *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._srcArray = cudaArray_t(_ptr=<void_ptr>&self._pvt_ptr[0].srcArray)
-
-
         self._srcPos = cudaPos(_ptr=<void_ptr>&self._pvt_ptr[0].srcPos)
-
-
+        self._srcPos._owner = self
         self._srcPtr = cudaPitchedPtr(_ptr=<void_ptr>&self._pvt_ptr[0].srcPtr)
-
-
+        self._srcPtr._owner = self
         self._dstArray = cudaArray_t(_ptr=<void_ptr>&self._pvt_ptr[0].dstArray)
-
-
         self._dstPos = cudaPos(_ptr=<void_ptr>&self._pvt_ptr[0].dstPos)
-
-
+        self._dstPos._owner = self
         self._dstPtr = cudaPitchedPtr(_ptr=<void_ptr>&self._pvt_ptr[0].dstPtr)
-
-
+        self._dstPtr._owner = self
         self._extent = cudaExtent(_ptr=<void_ptr>&self._pvt_ptr[0].extent)
-
+        self._extent._owner = self
     def __dealloc__(self):
-        pass
+        self._srcPos = None
+        self._srcPtr = None
+        self._dstPos = None
+        self._dstPtr = None
+        self._extent = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -9163,10 +9145,7 @@ cdef class cudaMemsetParamsV2:
         else:
             self._pvt_ptr = <cyruntime.cudaMemsetParamsV2 *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -9444,10 +9423,7 @@ cdef class cudaHostNodeParams:
         else:
             self._pvt_ptr = <cyruntime.cudaHostNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._fn = cudaHostFn_t(_ptr=<void_ptr>&self._pvt_ptr[0].fn)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -9531,13 +9507,8 @@ cdef class cudaHostNodeParamsV2:
         else:
             self._pvt_ptr = <cyruntime.cudaHostNodeParamsV2 *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._fn = cudaHostFn_t(_ptr=<void_ptr>&self._pvt_ptr[0].fn)
-
-
         self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -9642,10 +9613,7 @@ cdef class anon_struct1:
         self._pvt_ptr = <cyruntime.cudaResourceDesc *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._array = cudaArray_t(_ptr=<void_ptr>&self._pvt_ptr[0].res.array.array)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -9698,10 +9666,7 @@ cdef class anon_struct2:
         self._pvt_ptr = <cyruntime.cudaResourceDesc *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._mipmap = cudaMipmappedArray_t(_ptr=<void_ptr>&self._pvt_ptr[0].res.mipmap.mipmap)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -9762,12 +9727,10 @@ cdef class anon_struct3:
         self._pvt_ptr = <cyruntime.cudaResourceDesc *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._desc = cudaChannelFormatDesc(_ptr=<void_ptr>&self._pvt_ptr[0].res.linear.desc)
-
+        self._desc._owner = self
     def __dealloc__(self):
-        pass
+        self._desc = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].res.linear
     def __repr__(self):
@@ -9854,12 +9817,10 @@ cdef class anon_struct4:
         self._pvt_ptr = <cyruntime.cudaResourceDesc *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._desc = cudaChannelFormatDesc(_ptr=<void_ptr>&self._pvt_ptr[0].res.pitch2D.desc)
-
+        self._desc._owner = self
     def __dealloc__(self):
-        pass
+        self._desc = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].res.pitch2D
     def __repr__(self):
@@ -9994,21 +9955,19 @@ cdef class anon_union0:
         self._pvt_ptr = <cyruntime.cudaResourceDesc *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._array = anon_struct1(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._array._owner = self
         self._mipmap = anon_struct2(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._mipmap._owner = self
         self._linear = anon_struct3(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._linear._owner = self
         self._pitch2D = anon_struct4(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._pitch2D._owner = self
     def __dealloc__(self):
-        pass
+        self._array = None
+        self._mipmap = None
+        self._linear = None
+        self._pitch2D = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].res
     def __repr__(self):
@@ -10105,11 +10064,10 @@ cdef class cudaResourceDesc:
         else:
             self._pvt_ptr = <cyruntime.cudaResourceDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._res = anon_union0(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._res._owner = self
     def __dealloc__(self):
+        self._res = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -10970,11 +10928,10 @@ cdef class cudaMemLocation:
         else:
             self._pvt_ptr = <cyruntime.cudaMemLocation *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._localized = anon_struct6(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._localized._owner = self
     def __dealloc__(self):
+        self._localized = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -11054,12 +11011,10 @@ cdef class cudaMemAccessDesc:
         else:
             self._pvt_ptr = <cyruntime.cudaMemAccessDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._location = cudaMemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].location)
-
+        self._location._owner = self
     def __dealloc__(self):
-        pass
+        self._location = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -11145,12 +11100,10 @@ cdef class cudaMemPoolProps:
         else:
             self._pvt_ptr = <cyruntime.cudaMemPoolProps *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._location = cudaMemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].location)
-
+        self._location._owner = self
     def __dealloc__(self):
-        pass
+        self._location = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -11315,16 +11268,13 @@ cdef class cudaMemAllocNodeParams:
         else:
             self._pvt_ptr = <cyruntime.cudaMemAllocNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._poolProps = cudaMemPoolProps(_ptr=<void_ptr>&self._pvt_ptr[0].poolProps)
-
+        self._poolProps._owner = self
     def __dealloc__(self):
-
+        self._poolProps = None
         if self._accessDescs is not NULL:
             free(self._accessDescs)
             self._pvt_ptr[0].accessDescs = NULL
-
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -11374,8 +11324,12 @@ cdef class cudaMemAllocNodeParams:
 
     @property
     def accessDescs(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].accessDescs + x*sizeof(cyruntime.cudaMemAccessDesc) for x in range(self._accessDescs_length)]
-        return [cudaMemAccessDesc(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].accessDescs == NULL:
+            return []
+        out_accessDescs = [cudaMemAccessDesc() for _idx in range(self._accessDescs_length)]
+        for _idx in range(len(out_accessDescs)):
+            string.memcpy(<cyruntime.cudaMemAccessDesc*><void_ptr>out_accessDescs[_idx].getPtr(), &self._pvt_ptr[0].accessDescs[_idx], sizeof(cyruntime.cudaMemAccessDesc))
+        return out_accessDescs
     @accessDescs.setter
     def accessDescs(self, val):
         cdef cyruntime.cudaMemAccessDesc* _accessDescs_new
@@ -11386,10 +11340,6 @@ cdef class cudaMemAllocNodeParams:
             self._pvt_ptr[0].accessDescs = NULL
         else:
             if self._accessDescs_length != <size_t>len(val):
-                # Allocate and fill a new buffer before touching the
-                # live state so a failure leaves this object unchanged
-                # (strong exception guarantee); the old buffer is only
-                # freed once the resize is known to succeed.
                 _accessDescs_new = <cyruntime.cudaMemAccessDesc*> calloc(len(val), sizeof(cyruntime.cudaMemAccessDesc))
                 if _accessDescs_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaMemAccessDesc)))
@@ -11402,7 +11352,6 @@ cdef class cudaMemAllocNodeParams:
             else:
                 for idx in range(len(val)):
                     string.memcpy(&self._accessDescs[idx], (<cudaMemAccessDesc>val[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
-
 
 
     @property
@@ -11472,16 +11421,13 @@ cdef class cudaMemAllocNodeParamsV2:
         else:
             self._pvt_ptr = <cyruntime.cudaMemAllocNodeParamsV2 *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._poolProps = cudaMemPoolProps(_ptr=<void_ptr>&self._pvt_ptr[0].poolProps)
-
+        self._poolProps._owner = self
     def __dealloc__(self):
-
+        self._poolProps = None
         if self._accessDescs is not NULL:
             free(self._accessDescs)
             self._pvt_ptr[0].accessDescs = NULL
-
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -11531,8 +11477,12 @@ cdef class cudaMemAllocNodeParamsV2:
 
     @property
     def accessDescs(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].accessDescs + x*sizeof(cyruntime.cudaMemAccessDesc) for x in range(self._accessDescs_length)]
-        return [cudaMemAccessDesc(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].accessDescs == NULL:
+            return []
+        out_accessDescs = [cudaMemAccessDesc() for _idx in range(self._accessDescs_length)]
+        for _idx in range(len(out_accessDescs)):
+            string.memcpy(<cyruntime.cudaMemAccessDesc*><void_ptr>out_accessDescs[_idx].getPtr(), &self._pvt_ptr[0].accessDescs[_idx], sizeof(cyruntime.cudaMemAccessDesc))
+        return out_accessDescs
     @accessDescs.setter
     def accessDescs(self, val):
         cdef cyruntime.cudaMemAccessDesc* _accessDescs_new
@@ -11543,10 +11493,6 @@ cdef class cudaMemAllocNodeParamsV2:
             self._pvt_ptr[0].accessDescs = NULL
         else:
             if self._accessDescs_length != <size_t>len(val):
-                # Allocate and fill a new buffer before touching the
-                # live state so a failure leaves this object unchanged
-                # (strong exception guarantee); the old buffer is only
-                # freed once the resize is known to succeed.
                 _accessDescs_new = <cyruntime.cudaMemAccessDesc*> calloc(len(val), sizeof(cyruntime.cudaMemAccessDesc))
                 if _accessDescs_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaMemAccessDesc)))
@@ -11559,7 +11505,6 @@ cdef class cudaMemAllocNodeParamsV2:
             else:
                 for idx in range(len(val)):
                     string.memcpy(&self._accessDescs[idx], (<cudaMemAccessDesc>val[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
-
 
 
     @property
@@ -11675,15 +11620,13 @@ cdef class cudaMemcpyAttributes:
         else:
             self._pvt_ptr = <cyruntime.cudaMemcpyAttributes *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._srcLocHint = cudaMemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].srcLocHint)
-
-
+        self._srcLocHint._owner = self
         self._dstLocHint = cudaMemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].dstLocHint)
-
+        self._dstLocHint._owner = self
     def __dealloc__(self):
-        pass
+        self._srcLocHint = None
+        self._dstLocHint = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -11863,12 +11806,10 @@ cdef class anon_struct7:
         self._pvt_ptr = <cyruntime.cudaMemcpy3DOperand *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._locHint = cudaMemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].op.ptr.locHint)
-
+        self._locHint._owner = self
     def __dealloc__(self):
-        pass
+        self._locHint = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].op.ptr
     def __repr__(self):
@@ -11957,15 +11898,11 @@ cdef class anon_struct8:
         self._pvt_ptr = <cyruntime.cudaMemcpy3DOperand *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._array = cudaArray_t(_ptr=<void_ptr>&self._pvt_ptr[0].op.array.array)
-
-
         self._offset = cudaOffset3D(_ptr=<void_ptr>&self._pvt_ptr[0].op.array.offset)
-
+        self._offset._owner = self
     def __dealloc__(self):
-        pass
+        self._offset = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].op.array
     def __repr__(self):
@@ -12034,15 +11971,13 @@ cdef class anon_union3:
         self._pvt_ptr = <cyruntime.cudaMemcpy3DOperand *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._ptr = anon_struct7(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._ptr._owner = self
         self._array = anon_struct8(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._array._owner = self
     def __dealloc__(self):
-        pass
+        self._ptr = None
+        self._array = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].op
     def __repr__(self):
@@ -12107,11 +12042,10 @@ cdef class cudaMemcpy3DOperand:
         else:
             self._pvt_ptr = <cyruntime.cudaMemcpy3DOperand *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._op = anon_union3(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._op._owner = self
     def __dealloc__(self):
+        self._op = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -12188,18 +12122,16 @@ cdef class cudaMemcpy3DBatchOp:
         else:
             self._pvt_ptr = <cyruntime.cudaMemcpy3DBatchOp *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._src = cudaMemcpy3DOperand(_ptr=<void_ptr>&self._pvt_ptr[0].src)
-
-
+        self._src._owner = self
         self._dst = cudaMemcpy3DOperand(_ptr=<void_ptr>&self._pvt_ptr[0].dst)
-
-
+        self._dst._owner = self
         self._extent = cudaExtent(_ptr=<void_ptr>&self._pvt_ptr[0].extent)
-
+        self._extent._owner = self
     def __dealloc__(self):
-        pass
+        self._src = None
+        self._dst = None
+        self._extent = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -12731,12 +12663,10 @@ cdef class cudaDeviceProp:
         else:
             self._pvt_ptr = <cyruntime.cudaDeviceProp *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._uuid = cudaUUID_t(_ptr=<void_ptr>&self._pvt_ptr[0].uuid)
-
+        self._uuid._owner = self
     def __dealloc__(self):
-        pass
+        self._uuid = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -14218,12 +14148,10 @@ cdef class anon_union4:
         self._pvt_ptr = <cyruntime.cudaExternalMemoryHandleDesc *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._win32 = anon_struct9(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._win32._owner = self
     def __dealloc__(self):
-        pass
+        self._win32 = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].handle
     def __repr__(self):
@@ -14311,11 +14239,10 @@ cdef class cudaExternalMemoryHandleDesc:
         else:
             self._pvt_ptr = <cyruntime.cudaExternalMemoryHandleDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._handle = anon_union4(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._handle._owner = self
     def __dealloc__(self):
+        self._handle = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -14507,15 +14434,13 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
         else:
             self._pvt_ptr = <cyruntime.cudaExternalMemoryMipmappedArrayDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._formatDesc = cudaChannelFormatDesc(_ptr=<void_ptr>&self._pvt_ptr[0].formatDesc)
-
-
+        self._formatDesc._owner = self
         self._extent = cudaExtent(_ptr=<void_ptr>&self._pvt_ptr[0].extent)
-
+        self._extent._owner = self
     def __dealloc__(self):
-        pass
+        self._formatDesc = None
+        self._extent = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -14685,12 +14610,10 @@ cdef class anon_union5:
         self._pvt_ptr = <cyruntime.cudaExternalSemaphoreHandleDesc *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._win32 = anon_struct10(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._win32._owner = self
     def __dealloc__(self):
-        pass
+        self._win32 = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].handle
     def __repr__(self):
@@ -14774,11 +14697,10 @@ cdef class cudaExternalSemaphoreHandleDesc:
         else:
             self._pvt_ptr = <cyruntime.cudaExternalSemaphoreHandleDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._handle = anon_union5(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._handle._owner = self
     def __dealloc__(self):
+        self._handle = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -14991,18 +14913,16 @@ cdef class anon_struct13:
         self._pvt_ptr = <cyruntime.cudaExternalSemaphoreSignalParams *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._fence = anon_struct11(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._fence._owner = self
         self._nvSciSync = anon_union6(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._nvSciSync._owner = self
         self._keyedMutex = anon_struct12(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._keyedMutex._owner = self
     def __dealloc__(self):
-        pass
+        self._fence = None
+        self._nvSciSync = None
+        self._keyedMutex = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].params
     def __repr__(self):
@@ -15087,12 +15007,10 @@ cdef class cudaExternalSemaphoreSignalParams:
         else:
             self._pvt_ptr = <cyruntime.cudaExternalSemaphoreSignalParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._params = anon_struct13(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._params._owner = self
     def __dealloc__(self):
-        pass
+        self._params = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -15307,18 +15225,16 @@ cdef class anon_struct16:
         self._pvt_ptr = <cyruntime.cudaExternalSemaphoreWaitParams *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._fence = anon_struct14(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._fence._owner = self
         self._nvSciSync = anon_union7(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._nvSciSync._owner = self
         self._keyedMutex = anon_struct15(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._keyedMutex._owner = self
     def __dealloc__(self):
-        pass
+        self._fence = None
+        self._nvSciSync = None
+        self._keyedMutex = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].params
     def __repr__(self):
@@ -15403,12 +15319,10 @@ cdef class cudaExternalSemaphoreWaitParams:
         else:
             self._pvt_ptr = <cyruntime.cudaExternalSemaphoreWaitParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._params = anon_struct16(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._params._owner = self
     def __dealloc__(self):
-        pass
+        self._params = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -15871,22 +15785,19 @@ cdef class cudaDevResource_st:
         else:
             self._pvt_ptr = <cyruntime.cudaDevResource_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._sm = cudaDevSmResource(_ptr=<void_ptr>&self._pvt_ptr[0].sm)
-
-
+        self._sm._owner = self
         self._wqConfig = cudaDevWorkqueueConfigResource(_ptr=<void_ptr>&self._pvt_ptr[0].wqConfig)
-
-
+        self._wqConfig._owner = self
         self._wq = cudaDevWorkqueueResource(_ptr=<void_ptr>&self._pvt_ptr[0].wq)
-
+        self._wq._owner = self
     def __dealloc__(self):
-
+        self._sm = None
+        self._wqConfig = None
+        self._wq = None
         if self._nextResource is not NULL:
             free(self._nextResource)
             self._pvt_ptr[0].nextResource = NULL
-
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -15996,8 +15907,12 @@ cdef class cudaDevResource_st:
 
     @property
     def nextResource(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].nextResource + x*sizeof(cyruntime.cudaDevResource_st) for x in range(self._nextResource_length)]
-        return [cudaDevResource_st(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].nextResource == NULL:
+            return []
+        out_nextResource = [cudaDevResource_st() for _idx in range(self._nextResource_length)]
+        for _idx in range(len(out_nextResource)):
+            string.memcpy(<cyruntime.cudaDevResource_st*><void_ptr>out_nextResource[_idx].getPtr(), &self._pvt_ptr[0].nextResource[_idx], sizeof(cyruntime.cudaDevResource_st))
+        return out_nextResource
     @nextResource.setter
     def nextResource(self, val):
         cdef cyruntime.cudaDevResource_st* _nextResource_new
@@ -16008,10 +15923,6 @@ cdef class cudaDevResource_st:
             self._pvt_ptr[0].nextResource = NULL
         else:
             if self._nextResource_length != <size_t>len(val):
-                # Allocate and fill a new buffer before touching the
-                # live state so a failure leaves this object unchanged
-                # (strong exception guarantee); the old buffer is only
-                # freed once the resize is known to succeed.
                 _nextResource_new = <cyruntime.cudaDevResource_st*> calloc(len(val), sizeof(cyruntime.cudaDevResource_st))
                 if _nextResource_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaDevResource_st)))
@@ -16024,7 +15935,6 @@ cdef class cudaDevResource_st:
             else:
                 for idx in range(len(val)):
                     string.memcpy(&self._nextResource[idx], (<cudaDevResource_st>val[idx])._pvt_ptr, sizeof(cyruntime.cudaDevResource_st))
-
 
 
 cdef class cudalibraryHostUniversalFunctionAndDataTable:
@@ -16171,15 +16081,13 @@ cdef class cudaKernelNodeParams:
         else:
             self._pvt_ptr = <cyruntime.cudaKernelNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._gridDim = dim3(_ptr=<void_ptr>&self._pvt_ptr[0].gridDim)
-
-
+        self._gridDim._owner = self
         self._blockDim = dim3(_ptr=<void_ptr>&self._pvt_ptr[0].blockDim)
-
+        self._blockDim._owner = self
     def __dealloc__(self):
-        pass
+        self._gridDim = None
+        self._blockDim = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -16264,7 +16172,7 @@ cdef class cudaKernelNodeParams:
     @kernelParams.setter
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
-        self._pvt_ptr[0].kernelParams = self._cykernelParams.ckernelParams
+        self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
 
 
     @property
@@ -16335,23 +16243,16 @@ cdef class cudaKernelNodeParamsV2:
         else:
             self._pvt_ptr = <cyruntime.cudaKernelNodeParamsV2 *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._kern = cudaKernel_t(_ptr=<void_ptr>&self._pvt_ptr[0].kern)
-
-
         self._cuFunc = cudaFunction_t(_ptr=<void_ptr>&self._pvt_ptr[0].cuFunc)
-
-
         self._gridDim = dim3(_ptr=<void_ptr>&self._pvt_ptr[0].gridDim)
-
-
+        self._gridDim._owner = self
         self._blockDim = dim3(_ptr=<void_ptr>&self._pvt_ptr[0].blockDim)
-
-
+        self._blockDim._owner = self
         self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-
     def __dealloc__(self):
+        self._gridDim = None
+        self._blockDim = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -16496,7 +16397,7 @@ cdef class cudaKernelNodeParamsV2:
     @kernelParams.setter
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
-        self._pvt_ptr[0].kernelParams = self._cykernelParams.ckernelParams
+        self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
 
 
     @property
@@ -16565,16 +16466,12 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-
         if self._extSemArray is not NULL:
             free(self._extSemArray)
             self._pvt_ptr[0].extSemArray = NULL
-
-
         if self._paramsArray is not NULL:
             free(self._paramsArray)
             self._pvt_ptr[0].paramsArray = NULL
-
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -16628,8 +16525,12 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
 
     @property
     def paramsArray(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].paramsArray + x*sizeof(cyruntime.cudaExternalSemaphoreSignalParams) for x in range(self._paramsArray_length)]
-        return [cudaExternalSemaphoreSignalParams(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].paramsArray == NULL:
+            return []
+        out_paramsArray = [cudaExternalSemaphoreSignalParams() for _idx in range(self._paramsArray_length)]
+        for _idx in range(len(out_paramsArray)):
+            string.memcpy(<cyruntime.cudaExternalSemaphoreSignalParams*><void_ptr>out_paramsArray[_idx].getPtr(), &self._pvt_ptr[0].paramsArray[_idx], sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
+        return out_paramsArray
     @paramsArray.setter
     def paramsArray(self, val):
         cdef cyruntime.cudaExternalSemaphoreSignalParams* _paramsArray_new
@@ -16640,10 +16541,6 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                # Allocate and fill a new buffer before touching the
-                # live state so a failure leaves this object unchanged
-                # (strong exception guarantee); the old buffer is only
-                # freed once the resize is known to succeed.
                 _paramsArray_new = <cyruntime.cudaExternalSemaphoreSignalParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
                 if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaExternalSemaphoreSignalParams)))
@@ -16656,7 +16553,6 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
             else:
                 for idx in range(len(val)):
                     string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
-
 
 
     @property
@@ -16702,21 +16598,14 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
         else:
             self._pvt_ptr = <cyruntime.cudaExternalSemaphoreSignalNodeParamsV2 *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-
     def __dealloc__(self):
-
         if self._extSemArray is not NULL:
             free(self._extSemArray)
             self._pvt_ptr[0].extSemArray = NULL
-
-
         if self._paramsArray is not NULL:
             free(self._paramsArray)
             self._pvt_ptr[0].paramsArray = NULL
-
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -16776,8 +16665,12 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
 
     @property
     def paramsArray(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].paramsArray + x*sizeof(cyruntime.cudaExternalSemaphoreSignalParams) for x in range(self._paramsArray_length)]
-        return [cudaExternalSemaphoreSignalParams(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].paramsArray == NULL:
+            return []
+        out_paramsArray = [cudaExternalSemaphoreSignalParams() for _idx in range(self._paramsArray_length)]
+        for _idx in range(len(out_paramsArray)):
+            string.memcpy(<cyruntime.cudaExternalSemaphoreSignalParams*><void_ptr>out_paramsArray[_idx].getPtr(), &self._pvt_ptr[0].paramsArray[_idx], sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
+        return out_paramsArray
     @paramsArray.setter
     def paramsArray(self, val):
         cdef cyruntime.cudaExternalSemaphoreSignalParams* _paramsArray_new
@@ -16788,10 +16681,6 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                # Allocate and fill a new buffer before touching the
-                # live state so a failure leaves this object unchanged
-                # (strong exception guarantee); the old buffer is only
-                # freed once the resize is known to succeed.
                 _paramsArray_new = <cyruntime.cudaExternalSemaphoreSignalParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
                 if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaExternalSemaphoreSignalParams)))
@@ -16804,7 +16693,6 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
             else:
                 for idx in range(len(val)):
                     string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
-
 
 
     @property
@@ -16865,16 +16753,12 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-
         if self._extSemArray is not NULL:
             free(self._extSemArray)
             self._pvt_ptr[0].extSemArray = NULL
-
-
         if self._paramsArray is not NULL:
             free(self._paramsArray)
             self._pvt_ptr[0].paramsArray = NULL
-
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -16928,8 +16812,12 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
 
     @property
     def paramsArray(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].paramsArray + x*sizeof(cyruntime.cudaExternalSemaphoreWaitParams) for x in range(self._paramsArray_length)]
-        return [cudaExternalSemaphoreWaitParams(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].paramsArray == NULL:
+            return []
+        out_paramsArray = [cudaExternalSemaphoreWaitParams() for _idx in range(self._paramsArray_length)]
+        for _idx in range(len(out_paramsArray)):
+            string.memcpy(<cyruntime.cudaExternalSemaphoreWaitParams*><void_ptr>out_paramsArray[_idx].getPtr(), &self._pvt_ptr[0].paramsArray[_idx], sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
+        return out_paramsArray
     @paramsArray.setter
     def paramsArray(self, val):
         cdef cyruntime.cudaExternalSemaphoreWaitParams* _paramsArray_new
@@ -16940,10 +16828,6 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                # Allocate and fill a new buffer before touching the
-                # live state so a failure leaves this object unchanged
-                # (strong exception guarantee); the old buffer is only
-                # freed once the resize is known to succeed.
                 _paramsArray_new = <cyruntime.cudaExternalSemaphoreWaitParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
                 if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaExternalSemaphoreWaitParams)))
@@ -16956,7 +16840,6 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
             else:
                 for idx in range(len(val)):
                     string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
-
 
 
     @property
@@ -17002,21 +16885,14 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
         else:
             self._pvt_ptr = <cyruntime.cudaExternalSemaphoreWaitNodeParamsV2 *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-
     def __dealloc__(self):
-
         if self._extSemArray is not NULL:
             free(self._extSemArray)
             self._pvt_ptr[0].extSemArray = NULL
-
-
         if self._paramsArray is not NULL:
             free(self._paramsArray)
             self._pvt_ptr[0].paramsArray = NULL
-
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -17076,8 +16952,12 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
 
     @property
     def paramsArray(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].paramsArray + x*sizeof(cyruntime.cudaExternalSemaphoreWaitParams) for x in range(self._paramsArray_length)]
-        return [cudaExternalSemaphoreWaitParams(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].paramsArray == NULL:
+            return []
+        out_paramsArray = [cudaExternalSemaphoreWaitParams() for _idx in range(self._paramsArray_length)]
+        for _idx in range(len(out_paramsArray)):
+            string.memcpy(<cyruntime.cudaExternalSemaphoreWaitParams*><void_ptr>out_paramsArray[_idx].getPtr(), &self._pvt_ptr[0].paramsArray[_idx], sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
+        return out_paramsArray
     @paramsArray.setter
     def paramsArray(self, val):
         cdef cyruntime.cudaExternalSemaphoreWaitParams* _paramsArray_new
@@ -17088,10 +16968,6 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                # Allocate and fill a new buffer before touching the
-                # live state so a failure leaves this object unchanged
-                # (strong exception guarantee); the old buffer is only
-                # freed once the resize is known to succeed.
                 _paramsArray_new = <cyruntime.cudaExternalSemaphoreWaitParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
                 if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaExternalSemaphoreWaitParams)))
@@ -17104,7 +16980,6 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
             else:
                 for idx in range(len(val)):
                     string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
-
 
 
     @property
@@ -17188,13 +17063,8 @@ cdef class cudaConditionalNodeParams:
         else:
             self._pvt_ptr = <cyruntime.cudaConditionalNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._handle = cudaGraphConditionalHandle(_ptr=<void_ptr>&self._pvt_ptr[0].handle)
-
-
         self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -17323,10 +17193,7 @@ cdef class cudaChildGraphNodeParams:
         else:
             self._pvt_ptr = <cyruntime.cudaChildGraphNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._graph = cudaGraph_t(_ptr=<void_ptr>&self._pvt_ptr[0].graph)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -17401,13 +17268,8 @@ cdef class cudaEventRecordNodeParams:
         else:
             self._pvt_ptr = <cyruntime.cudaEventRecordNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._event = cudaEvent_t(_ptr=<void_ptr>&self._pvt_ptr[0].event)
-
-
         self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -17487,10 +17349,7 @@ cdef class cudaEventWaitNodeParams:
         else:
             self._pvt_ptr = <cyruntime.cudaEventWaitNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._event = cudaEvent_t(_ptr=<void_ptr>&self._pvt_ptr[0].event)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -17596,44 +17455,43 @@ cdef class cudaGraphNodeParams:
         else:
             self._pvt_ptr = <cyruntime.cudaGraphNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._kernel = cudaKernelNodeParamsV2(_ptr=<void_ptr>&self._pvt_ptr[0].kernel)
-
-
+        self._kernel._owner = self
         self._memcpy = cudaMemcpyNodeParams(_ptr=<void_ptr>&self._pvt_ptr[0].memcpy)
-
-
+        self._memcpy._owner = self
         self._memset = cudaMemsetParamsV2(_ptr=<void_ptr>&self._pvt_ptr[0].memset)
-
-
+        self._memset._owner = self
         self._host = cudaHostNodeParamsV2(_ptr=<void_ptr>&self._pvt_ptr[0].host)
-
-
+        self._host._owner = self
         self._graph = cudaChildGraphNodeParams(_ptr=<void_ptr>&self._pvt_ptr[0].graph)
-
-
+        self._graph._owner = self
         self._eventWait = cudaEventWaitNodeParams(_ptr=<void_ptr>&self._pvt_ptr[0].eventWait)
-
-
+        self._eventWait._owner = self
         self._eventRecord = cudaEventRecordNodeParams(_ptr=<void_ptr>&self._pvt_ptr[0].eventRecord)
-
-
+        self._eventRecord._owner = self
         self._extSemSignal = cudaExternalSemaphoreSignalNodeParamsV2(_ptr=<void_ptr>&self._pvt_ptr[0].extSemSignal)
-
-
+        self._extSemSignal._owner = self
         self._extSemWait = cudaExternalSemaphoreWaitNodeParamsV2(_ptr=<void_ptr>&self._pvt_ptr[0].extSemWait)
-
-
+        self._extSemWait._owner = self
         self._alloc = cudaMemAllocNodeParamsV2(_ptr=<void_ptr>&self._pvt_ptr[0].alloc)
-
-
+        self._alloc._owner = self
         self._free = cudaMemFreeNodeParams(_ptr=<void_ptr>&self._pvt_ptr[0].free)
-
-
+        self._free._owner = self
         self._conditional = cudaConditionalNodeParams(_ptr=<void_ptr>&self._pvt_ptr[0].conditional)
-
+        self._conditional._owner = self
     def __dealloc__(self):
+        self._kernel = None
+        self._memcpy = None
+        self._memset = None
+        self._host = None
+        self._graph = None
+        self._eventWait = None
+        self._eventRecord = None
+        self._extSemSignal = None
+        self._extSemWait = None
+        self._alloc = None
+        self._free = None
+        self._conditional = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -17963,13 +17821,8 @@ cdef class cudaGraphInstantiateParams_st:
         else:
             self._pvt_ptr = <cyruntime.cudaGraphInstantiateParams_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._uploadStream = cudaStream_t(_ptr=<void_ptr>&self._pvt_ptr[0].uploadStream)
-
-
         self._errNode_out = cudaGraphNode_t(_ptr=<void_ptr>&self._pvt_ptr[0].errNode_out)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -18088,13 +17941,8 @@ cdef class cudaGraphExecUpdateResultInfo_st:
         else:
             self._pvt_ptr = <cyruntime.cudaGraphExecUpdateResultInfo_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._errorNode = cudaGraphNode_t(_ptr=<void_ptr>&self._pvt_ptr[0].errorNode)
-
-
         self._errorFromNode = cudaGraphNode_t(_ptr=<void_ptr>&self._pvt_ptr[0].errorFromNode)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -18273,15 +18121,13 @@ cdef class anon_union11:
         self._pvt_ptr = <cyruntime.cudaGraphKernelNodeUpdate *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._gridDim = dim3(_ptr=<void_ptr>&self._pvt_ptr[0].updateData.gridDim)
-
-
+        self._gridDim._owner = self
         self._param = anon_struct17(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._param._owner = self
     def __dealloc__(self):
-        pass
+        self._gridDim = None
+        self._param = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].updateData
     def __repr__(self):
@@ -18366,14 +18212,11 @@ cdef class cudaGraphKernelNodeUpdate:
         else:
             self._pvt_ptr = <cyruntime.cudaGraphKernelNodeUpdate *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._node = cudaGraphDeviceNode_t(_ptr=<void_ptr>&self._pvt_ptr[0].node)
-
-
         self._updateData = anon_union11(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._updateData._owner = self
     def __dealloc__(self):
+        self._updateData = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -18614,10 +18457,7 @@ cdef class anon_struct19:
         self._pvt_ptr = <cyruntime.cudaLaunchAttributeValue *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._event = cudaEvent_t(_ptr=<void_ptr>&self._pvt_ptr[0].programmaticEvent.event)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -18782,10 +18622,7 @@ cdef class anon_struct21:
         self._pvt_ptr = <cyruntime.cudaLaunchAttributeValue *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._event = cudaEvent_t(_ptr=<void_ptr>&self._pvt_ptr[0].launchCompletionEvent.event)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -18856,10 +18693,7 @@ cdef class anon_struct22:
         self._pvt_ptr = <cyruntime.cudaLaunchAttributeValue *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._devNode = cudaGraphDeviceNode_t(_ptr=<void_ptr>&self._pvt_ptr[0].deviceUpdatableKernelNode.devNode)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -19041,30 +18875,28 @@ cdef class cudaLaunchAttributeValue:
         else:
             self._pvt_ptr = <cyruntime.cudaLaunchAttributeValue *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._accessPolicyWindow = cudaAccessPolicyWindow(_ptr=<void_ptr>&self._pvt_ptr[0].accessPolicyWindow)
-
-
+        self._accessPolicyWindow._owner = self
         self._clusterDim = anon_struct18(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._clusterDim._owner = self
         self._programmaticEvent = anon_struct19(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._programmaticEvent._owner = self
         self._memSyncDomainMap = cudaLaunchMemSyncDomainMap(_ptr=<void_ptr>&self._pvt_ptr[0].memSyncDomainMap)
-
-
+        self._memSyncDomainMap._owner = self
         self._preferredClusterDim = anon_struct20(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._preferredClusterDim._owner = self
         self._launchCompletionEvent = anon_struct21(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._launchCompletionEvent._owner = self
         self._deviceUpdatableKernelNode = anon_struct22(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._deviceUpdatableKernelNode._owner = self
     def __dealloc__(self):
-        pass
+        self._accessPolicyWindow = None
+        self._clusterDim = None
+        self._programmaticEvent = None
+        self._memSyncDomainMap = None
+        self._preferredClusterDim = None
+        self._launchCompletionEvent = None
+        self._deviceUpdatableKernelNode = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -19363,12 +19195,10 @@ cdef class cudaLaunchAttribute_st:
         else:
             self._pvt_ptr = <cyruntime.cudaLaunchAttribute_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._val = cudaLaunchAttributeValue(_ptr=<void_ptr>&self._pvt_ptr[0].val)
-
+        self._val._owner = self
     def __dealloc__(self):
-        pass
+        self._val = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -19468,12 +19298,10 @@ cdef class anon_union12:
         self._pvt_ptr = <cyruntime.cudaAsyncNotificationInfo *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._overBudget = anon_struct23(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._overBudget._owner = self
     def __dealloc__(self):
-        pass
+        self._overBudget = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].info
     def __repr__(self):
@@ -19525,11 +19353,10 @@ cdef class cudaAsyncNotificationInfo:
         else:
             self._pvt_ptr = <cyruntime.cudaAsyncNotificationInfo *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._info = anon_union12(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._info._owner = self
     def __dealloc__(self):
+        self._info = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -19860,10 +19687,7 @@ cdef class cudaGraphRecaptureCallbackData:
         else:
             self._pvt_ptr = <cyruntime.cudaGraphRecaptureCallbackData *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._callbackFunc = cudaGraphRecaptureCallback_t(_ptr=<void_ptr>&self._pvt_ptr[0].callbackFunc)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -19956,12 +19780,10 @@ cdef class cudaEglPlaneDesc_st:
         else:
             self._pvt_ptr = <cyruntime.cudaEglPlaneDesc_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._channelDesc = cudaChannelFormatDesc(_ptr=<void_ptr>&self._pvt_ptr[0].channelDesc)
-
+        self._channelDesc._owner = self
     def __dealloc__(self):
-        pass
+        self._channelDesc = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -20175,11 +19997,10 @@ cdef class cudaEglFrame_st:
         else:
             self._pvt_ptr = <cyruntime.cudaEglFrame_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._frame = anon_union13(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._frame._owner = self
     def __dealloc__(self):
+        self._frame = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
