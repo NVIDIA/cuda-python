@@ -84,7 +84,30 @@ class PinnedMemoryResource(_MemPool):
     """
     def __init__(self, options: PinnedMemoryResourceOptions | None=None) -> None: ...
     def allocate(self, size: int, *, stream: Stream | GraphBuilder) -> Buffer:
-        """Allocate a host-pinned buffer asynchronously on the supplied stream."""
+        """Allocate a host-pinned buffer asynchronously on the supplied stream.
+
+        Parameters
+        ----------
+        size : int
+            The size of the buffer to allocate, in bytes.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream on which to perform the allocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
+
+        Returns
+        -------
+        Buffer
+            The allocated buffer object, which is accessible from the host and
+            from the device that the stream belongs to.
+
+        Raises
+        ------
+        RuntimeError
+            If the stream's device does not support the requested host memory
+            pool. Use :class:`LegacyPinnedMemoryResource` when stream-ordered
+            allocation is not required.
+        """
     def __reduce__(self) -> tuple[object, ...]: ...
     @staticmethod
     def from_registry(uuid: uuid.UUID) -> PinnedMemoryResource:
