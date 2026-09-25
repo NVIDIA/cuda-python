@@ -12,7 +12,6 @@ patched environment.
 import importlib
 import logging
 import os
-import sys
 from unittest.mock import patch
 
 import pytest
@@ -138,24 +137,23 @@ def test_attaches_only_a_null_handler():
 # ---------------------------------------------------------------------------
 
 
-def _reload_dependents():
-    """Reload the modules that captured LOGGER at import time."""
-    for name in (
-        "cuda.pathfinder._dynamic_libs.search_steps",
-        "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib",
-    ):
-        if name in sys.modules:
-            importlib.reload(sys.modules[name])
-
-
 @pytest.fixture
-def enabled_cascade():
-    """Enable logging and rebind it into the search modules."""
-    reload_with_env("DEBUG")
-    _reload_dependents()
-    yield
-    reload_with_env(None)
-    _reload_dependents()
+def enabled_cascade(monkeypatch):
+    """Enable logging and rebind it into the search modules.
+
+    The consumers bind LOGGER by value at import, so the fixture sets that one
+    attribute on each of them rather than reloading them. Reloading would also
+    rebind their classes, and a module that imported FindResult before the
+    reload then holds a different class object than the one the reloaded
+    search_steps returns, so equality between the two fails and unrelated test
+    modules break depending on execution order.
+    """
+    from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib, search_steps
+
+    logger = reload_with_env("DEBUG").LOGGER
+    assert logger is not None, "logging should be enabled under a valid level"
+    for consumer in (search_steps, load_nvidia_dynamic_lib):
+        monkeypatch.setattr(consumer, "LOGGER", logger)
 
 
 def _unresolvable_context():
@@ -232,9 +230,12 @@ def test_successful_resolution_logs_resolved_path(enabled_cascade, caplog):
 @pytest.mark.agent_authored(model="claude-opus-5")
 def test_silent_when_disabled(caplog):
     """With the env var unset, the same call sites emit nothing."""
-    reload_with_env(None)
-    _reload_dependents()
     from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as mod
+    from cuda.pathfinder._dynamic_libs import search_steps as steps
+
+    # Disabled is the default, so assert it rather than reloading into it.
+    assert reload_with_env(None).LOGGER is None
+    assert mod.LOGGER is None and steps.LOGGER is None
     from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 
     loaded = LoadedDL("/x/libcudart.so.12", False, 1, "conda")
