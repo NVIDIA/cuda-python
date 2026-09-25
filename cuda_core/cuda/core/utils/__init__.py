@@ -17,6 +17,10 @@ from cuda.core._memoryview import (
     StridedMemoryView,
     args_viewable_as_strided_memory,
 )
+from cuda.core.utils._logging import (
+    register_cuda_log_bridge,
+    unregister_cuda_log_bridge,
+)
 from cuda.core.utils._program_cache import (
     FileStreamProgramCache,
     InMemoryProgramCache,
@@ -38,4 +42,6 @@ __all__ = [
     "discard_prefetch_batch",
     "make_program_cache_key",
     "prefetch_batch",
+    "register_cuda_log_bridge",
+    "unregister_cuda_log_bridge",
 ]
