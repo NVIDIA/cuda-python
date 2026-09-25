@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cuda.bindings cimport cydriver
-from cuda.core._resource_handles cimport ContextHandle, GreenCtxHandle
+from cuda.core._rt cimport ContextHandle, GreenCtxHandle
 
 
 cdef class SMResource:

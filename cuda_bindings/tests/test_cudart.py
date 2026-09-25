@@ -12,6 +12,7 @@ import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 from cuda import pathfinder
 from cuda.bindings import runtime
+from cuda_python_test_helpers import driver_version_less_than
 
 
 def isSuccess(err):
@@ -20,12 +21,6 @@ def isSuccess(err):
 
 def assertSuccess(err):
     assert isSuccess(err)
-
-
-def driverVersionLessThan(target):
-    err, version = cudart.cudaDriverGetVersion()
-    assertSuccess(err)
-    return version < target
 
 
 def supportsMemoryPool():
@@ -39,7 +34,16 @@ def supportsSparseTexturesDeviceFilter():
 
 
 def supportsCudaAPI(name):
-    return name in dir(cuda) or dir(cudart)
+    return name in dir(cuda) or name in dir(cudart)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_supportsCudaAPI():
+    # Guards the operator precedence: `name in dir(cuda) or dir(cudart)` parses
+    # as `(name in dir(cuda)) or dir(cudart)`, which is truthy for every name.
+    assert supportsCudaAPI("cudaMalloc") is True  # runtime module
+    assert supportsCudaAPI("cuInit") is True  # driver module
+    assert supportsCudaAPI("this_is_not_a_cuda_api") is False
 
 
 def test_cudart_memcpy():
@@ -294,6 +298,9 @@ def test_cudart_cudaGraphGetEdges_edgeData_outlives_call():
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
+            # cudaGraphEdgeData_st layout: from_port(1), to_port(1), type(1), reserved[5]
+            raw = (ctypes.c_uint8 * 8).from_address(ed.getPtr())
+            assert bytes(raw[3:]) == b"\x00" * 5
     finally:
         (err,) = cudart.cudaGraphDestroy(graph)
         assertSuccess(err)
@@ -333,6 +340,9 @@ def test_cudart_cudaGraphNodeGetDependencies_edgeData_outlives_call():
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
+            # cudaGraphEdgeData_st layout: from_port(1), to_port(1), type(1), reserved[5]
+            raw = (ctypes.c_uint8 * 8).from_address(ed.getPtr())
+            assert bytes(raw[3:]) == b"\x00" * 5
     finally:
         (err,) = cudart.cudaGraphDestroy(graph)
         assertSuccess(err)
@@ -504,7 +514,7 @@ def test_cudart_cudaGetDeviceProperties():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(11030) or not supportsMemoryPool(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supportsMemoryPool(), reason="When new attributes were introduced"
 )
 def test_cudart_MemPool_attr():
     poolProps = cudart.cudaMemPoolProps()
@@ -1445,7 +1455,7 @@ def test_cudart_func_callback():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(12030) or not supportsCudaAPI("cudaGraphConditionalHandleCreate"),
+    driver_version_less_than(12030) or not supportsCudaAPI("cudaGraphConditionalHandleCreate"),
     reason="Conditional graph APIs required",
 )
 def test_cudart_conditional():
@@ -1503,7 +1513,7 @@ def test_getLocalRuntimeVersion():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphGetId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cudaGraphGetId"),
     reason="Requires CUDA 13.1+",
 )
 def test_cudaGraphGetId():
@@ -1530,7 +1540,7 @@ def test_cudaGraphGetId():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphExecGetId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cudaGraphExecGetId"),
     reason="Requires CUDA 13.1+",
 )
 def test_cudaGraphExecGetId():
@@ -1577,7 +1587,7 @@ def test_cudaGraphExecGetId():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphNodeGetLocalId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cudaGraphNodeGetLocalId"),
     reason="Requires CUDA 13.1+",
 )
 def test_cudaGraphNodeGetLocalId():
@@ -1619,7 +1629,7 @@ def test_cudaGraphNodeGetLocalId():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphNodeGetToolsId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cudaGraphNodeGetToolsId"),
     reason="Requires CUDA 13.1+",
 )
 def test_cudaGraphNodeGetToolsId():
@@ -1648,7 +1658,7 @@ def test_cudaGraphNodeGetToolsId():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphNodeGetContainingGraph"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cudaGraphNodeGetContainingGraph"),
     reason="Requires CUDA 13.1+",
 )
 def test_cudaGraphNodeGetContainingGraph():
@@ -1695,7 +1705,7 @@ def test_cudaGraphNodeGetContainingGraph():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cudaStreamGetDevResource"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cudaStreamGetDevResource"),
     reason="Requires CUDA 13.1+",
 )
 def test_cudaStreamGetDevResource():
@@ -1714,7 +1724,7 @@ def test_cudaStreamGetDevResource():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDeviceGetDevResource"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cudaDeviceGetDevResource"),
     reason="Requires CUDA 13.1+",
 )
 def test_cudaDeviceGetDevResource():
@@ -1729,7 +1739,7 @@ def test_cudaDeviceGetDevResource():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDeviceGetExecutionCtx"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cudaDeviceGetExecutionCtx"),
     reason="Requires CUDA 13.1+",
 )
 def test_cudaExecutionCtxGetDevResource():
@@ -1747,7 +1757,7 @@ def test_cudaExecutionCtxGetDevResource():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDeviceGetExecutionCtx"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cudaDeviceGetExecutionCtx"),
     reason="Requires CUDA 13.1+",
 )
 def test_cudaExecutionCtxGetDevice():
@@ -1767,7 +1777,7 @@ def test_cudaExecutionCtxGetDevice():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDeviceGetExecutionCtx"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cudaDeviceGetExecutionCtx"),
     reason="Requires CUDA 13.1+",
 )
 def test_cudaExecutionCtxGetId():
@@ -1795,7 +1805,7 @@ def test_cudaExecutionCtxGetId():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDevSmResourceSplit"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cudaDevSmResourceSplit"),
     reason="Requires CUDA 13.1+",
 )
 def test_cudaDevSmResourceSplit():
@@ -1864,7 +1874,7 @@ def test_cudaDevSmResourceSplit():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDevSmResourceSplitByCount"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cudaDevSmResourceSplitByCount"),
     reason="Requires CUDA 13.1+",
 )
 def test_cudaDevSmResourceSplitByCount():
@@ -1887,7 +1897,7 @@ def test_cudaDevSmResourceSplitByCount():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDevResourceGenerateDesc"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cudaDevResourceGenerateDesc"),
     reason="Requires CUDA 13.1+",
 )
 def test_cudaDevResourceGenerateDesc():
@@ -1904,7 +1914,7 @@ def test_cudaDevResourceGenerateDesc():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGreenCtxCreate"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cudaGreenCtxCreate"),
     reason="Requires CUDA 13.1+",
 )
 def test_cudaGreenCtxCreate():
@@ -1935,7 +1945,7 @@ def test_cudaGreenCtxCreate():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cudaExecutionCtxStreamCreate"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cudaExecutionCtxStreamCreate"),
     reason="Requires CUDA 13.1+",
 )
 def test_cudaExecutionCtxStreamCreate():
@@ -1956,7 +1966,7 @@ def test_cudaExecutionCtxStreamCreate():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphConditionalHandleCreate_v2"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cudaGraphConditionalHandleCreate_v2"),
     reason="Requires CUDA 13.1+",
 )
 def test_cudaGraphConditionalHandleCreate_v2():
@@ -1975,3 +1985,65 @@ def test_cudaGraphConditionalHandleCreate_v2():
 
     (err,) = cudart.cudaGraphDestroy(graph)
     assertSuccess(err)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_phase2_normalized_channel_kinds_round_trip():
+    """Normalized 8/16-bit channel kinds passed validity but hit the else-branch
+    in the case_desc chain and returned cudaErrorInvalidChannelDescriptor.
+    Verify they no longer error at the binding layer (CUDA may still reject
+    the format on a given device, which is fine)."""
+    pairs = [
+        (8, 0, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X1),
+        (8, 8, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X2),
+        (8, 8, 8, 8, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X4),
+        (8, 0, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X1),
+        (8, 8, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X2),
+        (8, 8, 8, 8, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X4),
+        (16, 0, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X1),
+        (16, 16, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X2),
+        (16, 16, 16, 16, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X4),
+        (16, 0, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X1),
+        (16, 16, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X2),
+        (16, 16, 16, 16, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X4),
+    ]
+    for x, y, z, w, kind in pairs:
+        desc = cudart.cudaChannelFormatDesc()
+        desc.x, desc.y, desc.z, desc.w, desc.f = x, y, z, w, kind
+        assert desc.f == kind
+        assert desc.x == x
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_phase2_new_yuv_channel_kinds_descriptor_construction():
+    """CUDA 13.3/13.4 packed and multi-planar YUV kinds can be placed in a
+    cudaChannelFormatDesc without raising a Python exception.  Whether CUDA's
+    runtime accepts the descriptor for a given operation (e.g. cudaMallocArray)
+    is hardware-dependent and is not asserted here — getDescInfo is only called
+    from the EGL frame conversion path, not from cudaMallocArray."""
+    three_ch_8 = [
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar420,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar422,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar444,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar420,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar422,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar444,
+    ]
+    three_ch_16 = [
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar420,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar422,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar444,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar420,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar422,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar444,
+    ]
+    four_ch_8 = [
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed422,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed444,
+    ]
+    for bits, w_bit, kinds in ((8, 0, three_ch_8), (16, 0, three_ch_16), (8, 8, four_ch_8)):
+        for kind in kinds:
+            desc = cudart.cudaChannelFormatDesc()
+            desc.x, desc.y, desc.z, desc.w, desc.f = bits, bits, bits, w_bit, kind
+            assert desc.f == kind
+            assert desc.x == bits

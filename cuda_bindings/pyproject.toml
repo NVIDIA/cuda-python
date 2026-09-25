@@ -21,7 +21,6 @@ license-files = ["LICENSE"]
 requires-python = ">=3.10"
 classifiers = [
     "Intended Audience :: Developers",
-    "Topic :: Database",
     "Topic :: Scientific/Engineering",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.10",
@@ -56,6 +55,9 @@ test = [
     "pytest-randomly==4.1.0",
     "pyglet==2.1.14",
 ]
+test-ft = [
+    "pytest-run-parallel==0.10.0",
+]
 
 [project.urls]
 Repository = "https://github.com/NVIDIA/cuda-python"
@@ -83,13 +85,12 @@ build-verbosity = 1
 archs = "native"
 
 [tool.cibuildwheel.windows]
-archs = "AMD64"
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
 
 [tool.pytest.ini_options]
 required_plugins = "pytest-benchmark"
-addopts = "--benchmark-disable --showlocals"
+addopts = "--benchmark-disable --showlocals --durations=20"
 norecursedirs = ["tests/cython", "examples"]
 xfail_strict = true
 # Keep this authorship marker registry in sync across all pytest config roots.
@@ -103,6 +104,4 @@ markers = [
 [tool.setuptools_scm]
 root = ".."
 version_file = "cuda/bindings/_version.py"
-# Preserve a/b pre-release suffixes, but intentionally strip rc suffixes.
-tag_regex = "^(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)"
 git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"]

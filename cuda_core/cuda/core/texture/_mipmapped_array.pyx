@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from cuda.bindings cimport cydriver
+from cuda.core._context cimport Context
 from cuda.core.texture._array cimport _array_from_handle
 from cuda.core.texture._array import (
     _ARRAYFORMAT_TO_CU,
@@ -12,7 +13,7 @@ from cuda.core.texture._array import (
     _validate_array_shape,
     _validate_format_channels,
 )
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     OpaqueArrayHandle,
     MipmappedArrayHandle,
     as_intptr,
@@ -20,10 +21,7 @@ from cuda.core._resource_handles cimport (
     create_mipmapped_array_handle,
     get_last_error,
 )
-from cuda.core._utils.cuda_utils cimport (
-    HANDLE_RETURN,
-    _get_current_device_id,
-)
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 from dataclasses import dataclass
 
@@ -108,6 +106,7 @@ cdef class MipmappedArray:
             returned :class:`OpaqueArray`; the underlying storage is released only
             when this :class:`MipmappedArray` is destroyed.
         """
+        MipmappedArray_check_open(self)
         lvl = int(level)
         if lvl < 0:
             raise ValueError(f"level must be >= 0, got {lvl}")
@@ -128,6 +127,11 @@ cdef class MipmappedArray:
     def handle(self):
         """The underlying ``CUmipmappedArray`` as an integer."""
         return as_intptr(self._handle)
+
+    @property
+    def is_closed(self) -> bool:
+        """Whether this mipmapped array has been closed."""
+        return self._handle.get() == NULL
 
     @property
     def shape(self):
@@ -185,9 +189,8 @@ cdef class MipmappedArray:
             f"num_levels={self._num_levels})"
         )
 
-
-def _create_mipmapped_array(options):
-    """Allocate a new :class:`MipmappedArray` on the current device.
+def _create_mipmapped_array(options, Context ctx, int device_id):
+    """Allocate a new :class:`MipmappedArray` on the specified device.
 
     Backs :meth:`cuda.core.Device.create_mipmapped_array`. ``options`` is a
     :class:`MipmappedArrayOptions` (or a mapping accepted by it); its fields are
@@ -216,7 +219,8 @@ def _create_mipmapped_array(options):
         Flags=flags,
     )
 
-    cdef MipmappedArrayHandle h = create_mipmapped_array_handle(desc3d, c_levels)
+    cdef MipmappedArrayHandle h = create_mipmapped_array_handle(
+        ctx._h_context, desc3d, c_levels)
     if not h:
         HANDLE_RETURN(get_last_error())
 
@@ -227,5 +231,5 @@ def _create_mipmapped_array(options):
     self._num_channels = opts.num_channels
     self._num_levels = <unsigned int>opts.num_levels
     self._surface_load_store = bool(opts.is_surface_load_store)
-    self._device_id = _get_current_device_id()
+    self._device_id = device_id
     return self

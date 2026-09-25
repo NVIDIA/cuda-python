@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import os
+from pathlib import Path
 
 import pytest
 
@@ -77,7 +77,7 @@ def test_empty_parent_paths():
 def test_empty_sub_dirs(test_tree):
     parent_paths = test_tree["parent_paths"]
     result = find_sub_dirs(parent_paths, ())
-    expected = [p for p in parent_paths if os.path.isdir(p)]
+    expected = [p for p in parent_paths if Path(p).is_dir()]
     assert sorted(result) == sorted(expected)
 
 

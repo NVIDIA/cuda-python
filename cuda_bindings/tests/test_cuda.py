@@ -2,27 +2,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
-import os.path
 import shutil
-import subprocess
-import sys
 import textwrap
 
 import numpy as np
 import pytest
 from cuda_python_test_helpers.mempool import xfail_if_mempool_oom
+from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 from cuda.bindings import driver
-
-
-def driverVersionLessThan(target):
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, version = cuda.cuDriverGetVersion()
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    return version < target
+from cuda_python_test_helpers import driver_version_less_than
 
 
 def supportsMemoryPool():
@@ -265,7 +256,7 @@ def test_cuda_CUstreamBatchMemOpParams():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(11030) or not supportsMemoryPool(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supportsMemoryPool(), reason="When new attributes were introduced"
 )
 def test_cuda_memPool_attr():
     poolProps = cuda.CUmemPoolProps()
@@ -328,7 +319,7 @@ def test_cuda_memPool_attr():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
 )
 def test_cuda_pointer_attr():
     err, ptr = cuda.cuMemAllocManaged(0x1000, cuda.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value)
@@ -379,19 +370,30 @@ def test_cuda_pointer_attr():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
 )
 def test_pointer_get_attributes_device_ordinal():
     attributes = [
         cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
     ]
 
-    attrs = cuda.cuPointerGetAttributes(len(attributes), attributes, 0)
+    err, attrs = cuda.cuPointerGetAttributes(len(attributes), attributes, 0)
 
-    # device ordinals are always small numbers.  A large number would indicate
-    # an overflow error.
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    # Drivers use either negative sentinel for a null pointer. Both ensure the
+    # signed device ordinal is returned rather than an unsigned value.
+    assert attrs[0] in (cuda.CU_DEVICE_CPU, cuda.CU_DEVICE_INVALID)
 
-    assert abs(attrs[1][0]) < 256
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_pointer_allowed_handle_types_preserves_64_bits():
+    helper = cuda._HelperCUpointer_attribute(
+        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES, 0, is_getter=True
+    )
+    expected = 1 << 40
+    ctypes.c_uint64.from_address(helper.cptr).value = expected
+
+    assert helper.pyObj() == expected
 
 
 @pytest.mark.skipif(not supportsManagedMemory(), reason="When new attributes were introduced")
@@ -457,7 +459,9 @@ def test_cuda_mem_range_attr(device):
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
-@pytest.mark.skipif(driverVersionLessThan(11040) or not supportsMemoryPool(), reason="Mempool for graphs not supported")
+@pytest.mark.skipif(
+    driver_version_less_than(11040) or not supportsMemoryPool(), reason="Mempool for graphs not supported"
+)
 @pytest.mark.thread_unsafe(reason="used high memory can be higher if threaded.")
 def test_cuda_graphMem_attr(device):
     err, stream = cuda.cuStreamCreate(0)
@@ -516,7 +520,7 @@ def test_cuda_graphMem_attr(device):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(12010)
+    driver_version_less_than(12010)
     or not supportsCudaAPI("cuCoredumpSetAttributeGlobal")
     or not supportsCudaAPI("cuCoredumpGetAttributeGlobal"),
     reason="Coredump API not present",
@@ -551,6 +555,120 @@ def test_cuda_coredump_attr():
     assert attr_list[3] is True
 
 
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_coredump_bool_uses_single_byte_storage():
+    helper = cuda._HelperCUcoredumpSettings(cuda.CUcoredumpSettings.CU_COREDUMP_TRIGGER_HOST, 0, is_getter=True)
+    ctypes.c_uint32.from_address(helper.cptr).value = 0xFFFFFFFF
+    ctypes.c_uint8.from_address(helper.cptr).value = 0
+
+    assert helper.size() == ctypes.sizeof(ctypes.c_bool)
+    assert helper.pyObj() is False
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_coverage_new_pointer_attributes():
+    """Smoke-test that every newly added CUpointer_attribute branch can be
+    constructed without raising TypeError."""
+    new_attrs = [
+        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MAPPING_SIZE,
+        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_BLOCK_ID,
+        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_HW_DECOMPRESS_CAPABLE,
+        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_LOCALITY_DOMAIN_ORDINAL,
+    ]
+    for attr in new_attrs:
+        helper = cuda._HelperCUpointer_attribute(attr, 0, is_getter=True)
+        assert helper.cptr != 0
+        _ = helper.pyObj()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_coverage_mapping_base_addr():
+    """CU_POINTER_ATTRIBUTE_MAPPING_BASE_ADDR uses the CUdeviceptr getter path."""
+    helper = cuda._HelperCUpointer_attribute(
+        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MAPPING_BASE_ADDR, 0, is_getter=True
+    )
+    assert helper.cptr != 0
+    _ = helper.pyObj()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_coverage_new_mempool_attributes():
+    """Smoke-test all newly added CUmemPool_attribute branches."""
+    int_attrs = [
+        cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_ALLOCATION_TYPE,
+        cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCATION_ID,
+        cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCATION_TYPE,
+        cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_HW_DECOMPRESS_ENABLED,
+        cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCALITY_DOMAIN_ID,
+    ]
+    for attr in int_attrs:
+        helper = cuda._HelperCUmemPool_attribute(attr, 0, is_getter=True)
+        assert helper.cptr != 0
+        assert helper.pyObj() == 0
+
+    uint_attr = cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_EXPORT_HANDLE_TYPES
+    helper = cuda._HelperCUmemPool_attribute(uint_attr, 0, is_getter=True)
+    assert helper.cptr != 0
+    assert helper.pyObj() == 0
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_coverage_new_mem_range_attributes():
+    """Smoke-test all newly added CUmem_range_attribute branches (scalar int)."""
+    new_attrs = [
+        cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_TYPE,
+        cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_ID,
+        cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_TYPE,
+        cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_ID,
+    ]
+    for attr in new_attrs:
+        helper = cuda._HelperCUmem_range_attribute(attr, 4)
+        assert helper.cptr != 0
+        assert helper.pyObj() == 0
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_coverage_jit_option_new_int_attrs():
+    """Newly added int-type CUjit_option branches should construct without TypeError.
+
+    These options use the value-cast pattern: the int value is encoded directly
+    in the void* slot (cptr == NULL when value is 0, which is expected).
+    """
+    new_int_attrs = [
+        cuda.CUjit_option.CU_JIT_POSITION_INDEPENDENT_CODE,
+        cuda.CUjit_option.CU_JIT_MAX_THREADS_PER_BLOCK,
+        cuda.CUjit_option.CU_JIT_OVERRIDE_DIRECTIVE_VALUES,
+    ]
+    for attr in new_int_attrs:
+        helper = cuda._HelperCUjit_option(attr, 1)
+        assert helper.cptr == 1  # value is encoded as pointer
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_coverage_jit_option_binary_loader_thread_count():
+    """CU_JIT_BINARY_LOADER_THREAD_COUNT is unsigned int, value-cast like other uint options."""
+    helper = cuda._HelperCUjit_option(cuda.CUjit_option.CU_JIT_BINARY_LOADER_THREAD_COUNT, 4)
+    assert helper.cptr != 0
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_coverage_jit_wall_time_pointer_is_valid():
+    """CU_JIT_WALL_TIME must give CUDA a valid writable float address, not a garbage pointer."""
+    helper = cuda._HelperCUjit_option(cuda.CUjit_option.CU_JIT_WALL_TIME, 0.0)
+    # Write a sentinel float via ctypes to confirm the pointer is addressable.
+    ctypes.c_float.from_address(helper.cptr).value = 3.14
+    assert ctypes.c_float.from_address(helper.cptr).value == pytest.approx(3.14, rel=1e-5)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_coverage_coredump_generation_flags():
+    """CU_COREDUMP_GENERATION_FLAGS is an unsigned int bitmask."""
+    helper = cuda._HelperCUcoredumpSettings(cuda.CUcoredumpSettings.CU_COREDUMP_GENERATION_FLAGS, 0, is_getter=True)
+    assert helper.size() == ctypes.sizeof(ctypes.c_uint)
+    ctypes.c_uint.from_address(helper.cptr).value = 0xDEAD
+    assert helper.pyObj() == 0xDEAD
+
+
 def test_get_error_name_and_string():
     err, device = cuda.cuDeviceGet(0)
     _, s = cuda.cuGetErrorString(err)
@@ -566,7 +684,7 @@ def test_get_error_name_and_string():
 
 
 # TODO: cuStreamGetCaptureInfo_v2
-@pytest.mark.skipif(driverVersionLessThan(11030), reason="Driver too old for cuStreamGetCaptureInfo_v2")
+@pytest.mark.skipif(driver_version_less_than(11030), reason="Driver too old for cuStreamGetCaptureInfo_v2")
 def test_stream_capture():
     pass
 
@@ -636,7 +754,7 @@ def test_invalid_repr_attribute():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(12020)
+    driver_version_less_than(12020)
     or not supportsCudaAPI("cuGraphAddNode")
     or not supportsCudaAPI("cuGraphNodeSetParams")
     or not supportsCudaAPI("cuGraphExecNodeSetParams"),
@@ -748,7 +866,7 @@ def test_graph_poly():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(12040) or not supportsCudaAPI("cuDeviceGetDevResource"),
+    driver_version_less_than(12040) or not supportsCudaAPI("cuDeviceGetDevResource"),
     reason="Polymorphic graph APIs required",
 )
 def test_cuDeviceGetDevResource(device):
@@ -768,7 +886,7 @@ def test_cuDeviceGetDevResource(device):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(12030) or not supportsCudaAPI("cuGraphConditionalHandleCreate"),
+    driver_version_less_than(12030) or not supportsCudaAPI("cuGraphConditionalHandleCreate"),
     reason="Conditional graph APIs required",
 )
 def test_conditional(ctx):
@@ -830,14 +948,14 @@ def test_all_CUresult_codes():
     assert num_good >= 76  # CTK 11.0.3_450.51.06
 
 
-@pytest.mark.skipif(driverVersionLessThan(12030), reason="Driver too old for cuKernelGetName")
+@pytest.mark.skipif(driver_version_less_than(12030), reason="Driver too old for cuKernelGetName")
 def test_cuKernelGetName_failure():
     err, name = cuda.cuKernelGetName(0)
     assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
     assert name is None
 
 
-@pytest.mark.skipif(driverVersionLessThan(12030), reason="Driver too old for cuFuncGetName")
+@pytest.mark.skipif(driver_version_less_than(12030), reason="Driver too old for cuFuncGetName")
 def test_cuFuncGetName_failure():
     err, name = cuda.cuFuncGetName(0)
     assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
@@ -845,7 +963,7 @@ def test_cuFuncGetName_failure():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(12080) or not supportsCudaAPI("cuCheckpointProcessGetState"),
+    driver_version_less_than(12080) or not supportsCudaAPI("cuCheckpointProcessGetState"),
     reason="When API was introduced",
 )
 def test_cuCheckpointProcessGetState_failure():
@@ -887,7 +1005,7 @@ def test_struct_pointer_comparison(target):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphGetId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphGetId"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphGetId(device, ctx):
@@ -914,7 +1032,7 @@ def test_cuGraphGetId(device, ctx):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphExecGetId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphExecGetId"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphExecGetId(device, ctx):
@@ -995,6 +1113,9 @@ def test_cuGraphGetEdges_edgeData_outlives_call(device, ctx):
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
+            # CUgraphEdgeData_st layout: from_port(1), to_port(1), type(1), reserved[5]
+            raw = (ctypes.c_uint8 * 8).from_address(ed.getPtr())
+            assert bytes(raw[3:]) == b"\x00" * 5
     finally:
         (err,) = cuda.cuGraphDestroy(graph)
         assert err == cuda.CUresult.CUDA_SUCCESS
@@ -1034,13 +1155,16 @@ def test_cuGraphNodeGetDependencies_edgeData_outlives_call(device, ctx):
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
+            # CUgraphEdgeData_st layout: from_port(1), to_port(1), type(1), reserved[5]
+            raw = (ctypes.c_uint8 * 8).from_address(ed.getPtr())
+            assert bytes(raw[3:]) == b"\x00" * 5
     finally:
         (err,) = cuda.cuGraphDestroy(graph)
         assert err == cuda.CUresult.CUDA_SUCCESS
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphNodeGetLocalId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphNodeGetLocalId"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphNodeGetLocalId(device, ctx):
@@ -1082,7 +1206,7 @@ def test_cuGraphNodeGetLocalId(device, ctx):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphNodeGetToolsId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphNodeGetToolsId"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphNodeGetToolsId(device, ctx):
@@ -1111,7 +1235,7 @@ def test_cuGraphNodeGetToolsId(device, ctx):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphNodeGetContainingGraph"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphNodeGetContainingGraph"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphNodeGetContainingGraph(device, ctx):
@@ -1158,7 +1282,7 @@ def test_cuGraphNodeGetContainingGraph(device, ctx):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuStreamGetDevResource"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuStreamGetDevResource"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuStreamGetDevResource(device, ctx):
@@ -1177,7 +1301,7 @@ def test_cuStreamGetDevResource(device, ctx):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuDevSmResourceSplit"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuDevSmResourceSplit"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuDevSmResourceSplit(device, ctx):
@@ -1294,10 +1418,7 @@ def test_array_setter_no_double_free_after_clearing_with_empty_list():
         params.attrs = [cuda.CUlaunchAttribute() for _ in range(8)]
         """
     )
-    proc = subprocess.run([sys.executable, "-c", code], capture_output=True, cwd=os.path.dirname(__file__))  # noqa: S603
-    assert proc.returncode == 0, (
-        f"reproducer subprocess exited with code {proc.returncode}; stderr: {proc.stderr.decode(errors='replace')}"
-    )
+    run_python_snippet(code)
 
 
 def test_dealloc_clears_array_field_in_external_struct():

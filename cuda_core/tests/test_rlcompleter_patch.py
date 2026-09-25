@@ -16,13 +16,12 @@ a fresh subprocess with a controlled combination of `PYTHONINSPECT` and
 `CUDA_CORE_DONT_FIX_TAB_COMPLETION`.
 """
 
-import os
 import subprocess
 import sys
-import tempfile
 import textwrap
 
 import pytest
+from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 
 from cuda.core import Device
 
@@ -59,30 +58,14 @@ _PROBE_SCRIPT = textwrap.dedent("""
 
 
 def _run_probe(*, pythoninspect: bool, opt_out: bool = False) -> subprocess.CompletedProcess:
-    env = os.environ.copy()
-    # Don't let parent-environment values bleed into the subprocess.
-    env.pop("CUDA_CORE_DONT_FIX_TAB_COMPLETION", None)
-    # Drop PYTHONPATH so the subprocess can't find a source-tree cuda.core
-    # via an inherited path entry; we want it to import the installed wheel.
-    env.pop("PYTHONPATH", None)
-    if opt_out:
-        env["CUDA_CORE_DONT_FIX_TAB_COMPLETION"] = "1"
-    # `python -c` puts the parent's CWD at the head of sys.path. If pytest is
-    # run from `cuda_core/` (which contains a `cuda/core/` source tree), that
-    # source tree shadows the installed package. Run the subprocess from a
-    # neutral temp dir to avoid this.
-    with tempfile.TemporaryDirectory() as tmpdir:
-        return subprocess.run(  # noqa: S603
-            [sys.executable, "-c", _PROBE_SCRIPT],
-            capture_output=True,
-            text=True,
-            env=env,
-            check=False,
-            # PYTHONINSPECT keeps the interpreter alive after `-c`; close stdin
-            # so the implicit REPL exits immediately.
-            stdin=subprocess.DEVNULL,
-            cwd=tmpdir,
-        )
+    return run_python_snippet(
+        _PROBE_SCRIPT,
+        # The child must import the installed wheel, not a source tree
+        # reachable through an inherited PYTHONPATH.
+        unset_env=("CUDA_CORE_DONT_FIX_TAB_COMPLETION", "PYTHONPATH"),
+        extra_env={"CUDA_CORE_DONT_FIX_TAB_COMPLETION": "1"} if opt_out else None,
+        check=False,
+    )
 
 
 def test_patched_completion_succeeds_on_non_ipc_resource():
@@ -107,3 +90,50 @@ def test_opt_out_env_var_disables_patch_even_when_interactive():
     result = _run_probe(pythoninspect=True, opt_out=True)
     assert result.returncode == 0, f"stderr: {result.stderr}\nstdout: {result.stdout}"
     assert "crash: RuntimeError" in result.stdout, result.stdout
+
+
+# Imports cuda.core and reports whether the rlcompleter patch was installed.
+# No CUDA device is needed: the opt-out is evaluated at import time. The
+# stdlib rlcompleter module has no `property` attribute of its own, so its
+# presence is exactly the signal that the patch ran.
+_OPT_OUT_PROBE_SCRIPT = textwrap.dedent("""
+    import rlcompleter
+
+    import cuda.core  # noqa: F401
+
+    print(f"patched: {hasattr(rlcompleter, 'property')}")
+""")
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize(
+    ("value", "expect_patched"),
+    [
+        # Empty / whitespace-only means "not set": `export VAR=` is the usual
+        # way to neutralize a variable in a shell profile or container spec.
+        ("", True),
+        ("   ", True),
+        # Integer values keep their long-standing meaning.
+        ("0", True),
+        ("00", True),
+        ("1", False),
+        ("2", False),
+        # Non-integer values are honored as an opt-out.
+        ("true", False),
+        ("yes", False),
+    ],
+)
+def test_opt_out_env_var_values(value, expect_patched):
+    """`CUDA_CORE_DONT_FIX_TAB_COMPLETION` must never break `import cuda.core`.
+
+    The opt-out used to be read with a bare `int(...)` at import time, so any
+    value that is not a base-10 integer -- including the empty string -- raised
+    `ValueError: invalid literal for int() with base 10: ''` out of
+    `cuda/core/__init__.py` and made the package unimportable.
+    """
+    result = run_python_snippet(
+        _OPT_OUT_PROBE_SCRIPT,
+        unset_env=("PYTHONPATH",),
+        extra_env={"CUDA_CORE_DONT_FIX_TAB_COMPLETION": value},
+    )
+    assert result.stdout.strip() == f"patched: {expect_patched}", result.stdout

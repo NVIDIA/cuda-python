@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -27,10 +27,9 @@ import sys
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import List
 
 
-def run_command(cmd: List[str], cwd: Path | None = None, env: dict = os.environ) -> subprocess.CompletedProcess:
+def run_command(cmd: list[str], cwd: Path | None = None, env: dict = os.environ) -> subprocess.CompletedProcess:
     """Run a command with error handling."""
     print(f"Running: {' '.join(cmd)}")
     if cwd:
@@ -78,7 +77,7 @@ def print_wheel_directory_structure(wheel_path: Path, filter_prefix: str = "cuda
         print(f"Warning: Could not list wheel contents: {e}", file=sys.stderr)
 
 
-def merge_wheels(wheels: List[Path], output_dir: Path, show_wheel_contents: bool = True) -> Path:
+def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool = True) -> Path:
     """Merge multiple wheels into a single wheel with version-specific binaries."""
     print("\n=== Merging wheels ===", file=sys.stderr)
     print(f"Input wheels: {[w.name for w in wheels]}", file=sys.stderr)
@@ -134,9 +133,11 @@ def merge_wheels(wheels: List[Path], output_dir: Path, show_wheel_contents: bool
         # Copy version-specific directories from each wheel into versioned subdirectories
         base_dir = Path("cuda") / "core"
 
+        versioned_dirs = set()
         for i, wheel_dir in enumerate(extracted_wheels):
             cuda_version = wheels[i].name.split(".cu")[1].split(".")[0]
             versioned_dir = base_wheel / base_dir / f"cu{cuda_version}"
+            versioned_dirs.add(versioned_dir.name)
 
             # Copy entire directory tree from source wheel to versioned directory
             print(f"  Copying {wheel_dir / base_dir} to {versioned_dir}", file=sys.stderr)
@@ -146,24 +147,16 @@ def merge_wheels(wheels: List[Path], output_dir: Path, show_wheel_contents: bool
             os.truncate(versioned_dir / "__init__.py", 0)
 
         print("\n=== Removing files from cuda/core/ directory ===", file=sys.stderr)
-        items_to_keep = (
-            "__init__.py",
-            "_version.py",
-            "_include",
-            "_cpp",  # Headers for Cython development
-            "cu12",
-            "cu13",
-        )
-        # _resource_handles is shared (not CUDA-version-specific) and must stay
-        # at top level. It's imported early in __init__.py before versioned code.
-        items_to_keep_prefix = ("_resource_handles",)
+        # Only what cuda/core/__init__.py uses before it rewrites __path__ to the
+        # versioned subpackage stays at top level: it imports _version, then
+        # redirects every later import into the versioned tree. Anything else
+        # left at top level is a dead copy that nothing imports.
+        items_to_keep = {"__init__.py", "_version.py", *versioned_dirs}
         all_items = os.scandir(base_wheel / base_dir)
         removed_count = 0
         for f in all_items:
             f_abspath = f.path
             if f.name in items_to_keep:
-                continue
-            if any(f.name.startswith(prefix) for prefix in items_to_keep_prefix):
                 continue
             if f.is_dir():
                 print(f"  Removing directory: {f.name}", file=sys.stderr)
@@ -173,6 +166,11 @@ def merge_wheels(wheels: List[Path], output_dir: Path, show_wheel_contents: bool
                 os.remove(f_abspath)
             removed_count += 1
         print(f"Removed {removed_count} items from cuda/core/ directory", file=sys.stderr)
+        remaining = {entry.name for entry in os.scandir(base_wheel / base_dir)}
+        if remaining != items_to_keep:
+            raise RuntimeError(
+                f"unexpected top level under cuda/core/: {sorted(remaining)} (expected {sorted(items_to_keep)})"
+            )
 
         # Repack the merged wheel
         output_dir.mkdir(parents=True, exist_ok=True)

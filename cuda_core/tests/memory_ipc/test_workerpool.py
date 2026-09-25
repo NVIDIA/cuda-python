@@ -7,6 +7,7 @@ from itertools import cycle
 
 import pytest
 from helpers.buffers import PatternGen
+from helpers.constants import POOL_SIZE
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 
@@ -14,7 +15,6 @@ NBYTES = 64
 NWORKERS = 2
 NMRS = 3
 NTASKS = 20
-POOL_SIZE = 2097152
 
 # these tests spawn new processes and files which fails for very many threads
 pytestmark = pytest.mark.parallel_threads_limit(4)
@@ -36,30 +36,33 @@ class TestIpcWorkerPool:
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
         buffers = []
+        stream = device.default_stream
 
         try:
-            buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            buffers = [mr.allocate(NBYTES, stream=stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            stream.sync()
 
             with mp.Pool(NWORKERS) as pool:
                 pool.map(self.process_buffer, buffers)
 
-            pgen = PatternGen(device, NBYTES)
+            pgen = PatternGen(device, NBYTES, stream=stream)
             for buffer in buffers:
                 pgen.verify_buffer(buffer, seed=True)
         finally:
             for buffer in buffers:
                 buffer.close()
-            # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
-            device.sync()
+            stream.sync()
             for mr in mrs:
                 mr.close()
 
     def process_buffer(self, buffer):
         device = Device(buffer.memory_resource.device_id)
         device.set_current()
-        pgen = PatternGen(device, NBYTES)
+        stream = device.default_stream
+        pgen = PatternGen(device, NBYTES, stream=stream)
         pgen.fill_buffer(buffer, seed=True)
         buffer.close()
+        stream.sync()
 
 
 class TestIpcWorkerPoolUsingIPCDescriptors:
@@ -82,9 +85,11 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
         buffers = []
+        stream = device.default_stream
 
         try:
-            buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            buffers = [mr.allocate(NBYTES, stream=stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            stream.sync()
 
             with mp.Pool(NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
                 pool.starmap(
@@ -92,14 +97,13 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
                     [(mrs.index(buffer.memory_resource), buffer.ipc_descriptor) for buffer in buffers],
                 )
 
-            pgen = PatternGen(device, NBYTES)
+            pgen = PatternGen(device, NBYTES, stream=stream)
             for buffer in buffers:
                 pgen.verify_buffer(buffer, seed=True)
         finally:
             for buffer in buffers:
                 buffer.close()
-            # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
-            device.sync()
+            stream.sync()
             for mr in mrs:
                 mr.close()
 
@@ -107,10 +111,12 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         mr = self.mrs[mr_idx]
         device = Device(mr.device_id)
         device.set_current()
-        buffer = Buffer.from_ipc_descriptor(mr, buffer_desc, stream=device.default_stream)
-        pgen = PatternGen(device, NBYTES)
+        stream = device.default_stream
+        buffer = Buffer.from_ipc_descriptor(mr, buffer_desc, stream=stream)
+        pgen = PatternGen(device, NBYTES, stream=stream)
         pgen.fill_buffer(buffer, seed=True)
         buffer.close()
+        stream.sync()
 
 
 class TestIpcWorkerPoolUsingRegistry:
@@ -136,27 +142,30 @@ class TestIpcWorkerPoolUsingRegistry:
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
         buffers = []
+        stream = device.default_stream
 
         try:
-            buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            buffers = [mr.allocate(NBYTES, stream=stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            stream.sync()
 
             with mp.Pool(NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
                 pool.starmap(self.process_buffer, [(device, pickle.dumps(buffer)) for buffer in buffers])
 
-            pgen = PatternGen(device, NBYTES)
+            pgen = PatternGen(device, NBYTES, stream=stream)
             for buffer in buffers:
                 pgen.verify_buffer(buffer, seed=True)
         finally:
             for buffer in buffers:
                 buffer.close()
-            # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
-            device.sync()
+            stream.sync()
             for mr in mrs:
                 mr.close()
 
     def process_buffer(self, device, buffer_s):
         device.set_current()
         buffer = pickle.loads(buffer_s)  # noqa: S301
-        pgen = PatternGen(device, NBYTES)
+        stream = device.default_stream
+        pgen = PatternGen(device, NBYTES, stream=stream)
         pgen.fill_buffer(buffer, seed=True)
         buffer.close()
+        stream.sync()

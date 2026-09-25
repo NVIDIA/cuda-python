@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from cuda.core._resource_handles cimport ContextHandle, GreenCtxHandle
+from cuda.core._rt cimport ContextHandle, GreenCtxHandle
 
 cdef class Context:
     """Cython declaration for Context class.
@@ -23,3 +23,9 @@ cdef class Context:
     cdef Context _from_green_ctx(type cls, GreenCtxHandle h_green_ctx, int device_id)
 
     cpdef close(self)
+
+
+cdef inline int Context_check_open(Context self) except -1:
+    if not self._h_context:
+        raise RuntimeError("Context has been closed")
+    return 0

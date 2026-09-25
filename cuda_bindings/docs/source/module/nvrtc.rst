@@ -1,7 +1,9 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9f44170e12fd85fa04fcd599a18d0b6474ec7920be8f28a5c097000eb3ccb0e0
+.. This code was automatically generated with version 13.4.1. Do not modify it directly.
+
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=03c58049a86a77a6113432e5935ea831b2fd6d6980b3f98f20b0025d043e801a
 -----
 nvrtc
 -----
@@ -121,12 +123,17 @@ Bundled Headers Installation
 NVRTC defines the following types and functions for bundled headers installation and management.
 
 .. autoclass:: cuda.bindings.nvrtc.nvrtcBundledHeadersInfo
+.. autoclass:: cuda.bindings.nvrtc.nvrtcBundledHeadersInfo
 .. autofunction:: cuda.bindings.nvrtc.nvrtcInstallBundledHeaders
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetBundledHeadersInfo
 .. autofunction:: cuda.bindings.nvrtc.nvrtcRemoveBundledHeaders
 .. autoattribute:: cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS
 
-    Flags for nvrtcInstallBundledHeaders.Skip installation if version marker exists and version matches. This is the default behavior when flags=0.
+    Flags for nvrtcInstallBundledHeaders.
+
+
+
+    Skip installation if version marker exists and version matches. This is the default behavior when flags=0.
 
 .. autoattribute:: cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_FORCE_OVERWRITE
 
@@ -416,6 +423,26 @@ Enables (disables) the contraction of floating-point multiplies and adds/subtrac
 
 
 
+  - ``--fno-signed-zeros`` (``-fno-signed-zeros``)
+
+This option instructs the optimizer not to distinguish between +-0.
+
+
+
+
+
+
+
+  - ``--ffinite-math-only`` (``-ffinite-math-only``)
+
+This option instructs the optimizer to assume that values are not nan or +-inf.
+
+
+
+
+
+
+
   - ``--use_fast_math`` (``-use_fast_math``)
 
 Make use of fast math operations. ``--use_fast_math`` implies ``--ftz=true`` ``--prec-div=false`` ``--prec-sqrt=false`` ``--fmad=true``.
@@ -594,9 +621,9 @@ The preprocessor by default adds the directory of each input sources to the incl
 
 
 
-  - ``--std={c++03|c++11|c++14|c++17|c++20}`` (``-std``)
+  - ``--std={c++03|c++11|c++14|c++17|c++20|c++23}`` (``-std``)
 
-Set language dialect to C++03, C++11, C++14, C++17 or C++20
+Set language dialect to C++03, C++11, C++14, C++17, C++20, or C++23
 
 
 
@@ -730,9 +757,29 @@ Generate warnings when member initializers are reordered.
 
 
 
+  - ``--Wconversion`` (``-Wconversion``)
+
+Generate a warning when an implicit numeric conversion may narrow the value in the target type (e.g. ``long`` ``long`` narrowed to ``int``)
+
+
+
+
+
+
+
   - ``--warning-as-error=`` <kind>,... (``-Werror``)
 
 Make warnings of the specified kinds into errors. The following is the list of warning kinds accepted by this option:
+
+
+
+
+
+
+
+  - ``--fmax-errors=`` <number> (``-fmax-errors``)
+
+Specify the maximum number of errors to emit before compilation is aborted; <number> must be greater than 0.
 
 
 
@@ -901,4 +948,14 @@ Enable stack canaries in device code. Stack canaries make it more difficult to e
 
 
   - ``--fdevice-time-trace=<file-name>`` (``-fdevice-time-trace=<file-name>``) Enables the time profiler, outputting a JSON file based on given <file-name>. Results can be analyzed on chrome://tracing for a flamegraph visualization.
+
+
+
+
+
+
+
+  - ``--utf-8`` (``-utf-8``)
+
+Set the source and execution character set to UTF-8 on platforms where that isn't already the default.
 

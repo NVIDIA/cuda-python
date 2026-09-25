@@ -77,6 +77,14 @@ Memory management
    ManagedMemoryResourceOptions
    VirtualMemoryResourceOptions
 
+A :class:`Buffer` records the stream that will order its eventual deallocation.
+Use :meth:`Buffer.set_deallocation_stream` to replace that stream without
+closing the buffer. Changing the recorded stream does not synchronize streams;
+the caller must order allocation and every access before the deallocation,
+using events or other CUDA synchronization mechanisms as needed. See
+:cuda-core-example:`buffer_deallocation_stream.py <buffer_deallocation_stream.py>`
+for a complete example.
+
 
 CUDA compilation toolchain
 --------------------------
@@ -191,6 +199,41 @@ nodes also cannot currently be constructed explicitly.
    graph.WhileNode
    graph.SwitchNode
 
+Executable node views
+`````````````````````
+
+Index an executable :class:`~graph.Graph` with a definition node to update that
+node in the executable, for example
+``graph[kernel_node].update(config=config, kernel=kernel, args=args)``.
+The returned view retains the executable and source node, while CUDA validates
+that the node is associated with the executable.
+
+Executable graphs do not support reading back current node parameters, so
+updates take a complete replacement. Buffer operands, kernels, events, kernel
+arguments, and callback bindings are retained for every future launch that may
+use them. Superseded resources remain retained until a successful whole-graph
+update or executable destruction. Raw integer addresses remain caller-owned.
+Memcpy and memset updates use the current CUDA context, which must match the
+original node context.
+
+Kernel, memcpy, and memset views also provide ``is_enabled``, ``enable()``, and
+``disable()``. Executable-node updates require CUDA driver and
+``cuda.bindings`` versions 12.2 or newer.
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   graph.ExecutableGraphNode
+   graph.ExecutableKernelNode
+   graph.ExecutableMemcpyNode
+   graph.ExecutableMemsetNode
+   graph.ExecutableHostCallbackNode
+   graph.ExecutableChildGraphNode
+   graph.ExecutableEventRecordNode
+   graph.ExecutableEventWaitNode
+
 
 Graphics interoperability
 -------------------------
@@ -269,6 +312,23 @@ The associated enumerations —
 alongside the other ``cuda.core`` enumerations.
 
 
+Errors and warnings
+-------------------
+
+Failed CUDA calls raise exceptions; see :doc:`error_handling` for the
+guarantees an exception provides and for the situations in which a failure is
+reported as a warning instead.
+
+.. currentmodule:: cuda.core
+
+.. autosummary::
+   :toctree: generated/
+
+   CUDAError
+   NVRTCError
+   CUDAWarning
+
+
 CUDA process checkpointing
 --------------------------
 
@@ -342,6 +402,7 @@ Utility functions
    :toctree: generated/
 
    utils.args_viewable_as_strided_memory
+   utils.copy_batch
    utils.prefetch_batch
    utils.discard_batch
    utils.discard_prefetch_batch
@@ -349,3 +410,20 @@ Utility functions
    :template: autosummary/cyclass.rst
 
    utils.StridedMemoryView
+
+Data transfer options
+`````````````````````
+
+.. currentmodule:: cuda.core
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: dataclass.rst
+
+   utils.CopyOptions
+
+   :template: class.rst
+
+   utils.MemcpySrcAccessOrder
+   utils.MemcpyOverlapMode

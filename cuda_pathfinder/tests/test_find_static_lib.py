@@ -52,7 +52,7 @@ def _located_static_lib_asserts(located_static_lib):
     assert isinstance(located_static_lib.filename, str)
     assert isinstance(located_static_lib.found_via, str)
     assert located_static_lib.found_via in ("site-packages", "conda", "CUDA_PATH")
-    assert os.path.isfile(located_static_lib.abs_path)
+    assert Path(located_static_lib.abs_path).is_file()
 
 
 @pytest.mark.usefixtures("clear_find_static_lib_cache")
@@ -69,10 +69,10 @@ def test_locate_static_lib(info_summary_append, libname):
 
     info_summary_append(f"abs_path={quote_for_shell(lib_path)}")
     _located_static_lib_asserts(located_lib)
-    assert os.path.isfile(lib_path)
+    assert Path(lib_path).is_file()
     assert lib_path == located_lib.abs_path
     expected_filename = located_lib.filename
-    assert os.path.basename(lib_path) == expected_filename
+    assert Path(lib_path).name == expected_filename
 
 
 @pytest.mark.usefixtures("clear_find_static_lib_cache")
@@ -81,7 +81,7 @@ def test_locate_static_lib_search_order(monkeypatch, tmp_path):
     conda_rel_path = CUDADEVRT_INFO["conda_rel_paths"][0]
 
     site_pkg_rel = CUDADEVRT_INFO["site_packages_dirs"][0]
-    site_packages_lib_dir = tmp_path / "site-packages" / Path(site_pkg_rel.replace("/", os.sep))
+    site_packages_lib_dir = tmp_path / "site-packages" / Path(site_pkg_rel)
     site_packages_path = _make_static_lib_file(site_packages_lib_dir, filename)
 
     conda_prefix = tmp_path / "conda-prefix"
@@ -143,6 +143,41 @@ def test_locate_static_lib_conda_rel_path_fallback(monkeypatch, tmp_path):
     assert located_lib.found_via == "conda"
 
 
+@pytest.mark.parametrize(
+    ("target_arch", "expected_ctk_dirs", "expected_conda_dirs", "expected_site_packages_dirs"),
+    (
+        (
+            "x64",
+            (os.path.join("lib", "x64"),),
+            (os.path.join("lib", "x64"), "lib"),
+            ("nvidia/cu13/lib/x64", "nvidia/cuda_runtime/lib/x64"),
+        ),
+        (
+            "arm64",
+            (os.path.join("lib", "arm64"),),
+            (os.path.join("lib", "arm64"),),
+            ("nvidia/cu13/lib/arm64",),
+        ),
+    ),
+)
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_cudadevrt_windows_paths_follow_python_arch(
+    monkeypatch,
+    target_arch,
+    expected_ctk_dirs,
+    expected_conda_dirs,
+    expected_site_packages_dirs,
+):
+    monkeypatch.setattr(find_static_lib_module, "IS_WINDOWS", True)
+    monkeypatch.setattr(find_static_lib_module, "windows_python_arch", lambda: target_arch)
+
+    info = find_static_lib_module._cudadevrt_info()
+
+    assert info["ctk_rel_paths"] == expected_ctk_dirs
+    assert info["conda_rel_paths"] == expected_conda_dirs
+    assert info["site_packages_dirs"] == expected_site_packages_dirs
+
+
 @pytest.mark.usefixtures("clear_find_static_lib_cache")
 def test_find_static_lib_not_found_error_includes_cuda_home_directory_listing(monkeypatch, tmp_path):
     filename = CUDADEVRT_INFO["filename"]
@@ -167,7 +202,7 @@ def test_find_static_lib_not_found_error_includes_cuda_home_directory_listing(mo
         find_static_lib("cudadevrt")
 
     message = str(exc_info.value)
-    expected_missing_file = os.path.join(str(lib_dir), filename)
+    expected_missing_file = lib_dir / filename
     assert f"No such file: {expected_missing_file}" in message
     assert f'listdir("{lib_dir}"):' in message
     assert "README.txt" in message

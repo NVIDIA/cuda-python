@@ -1,8 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests verifying that the LibDescriptor registry faithfully represents
-the existing data tables in supported_nvidia_libs.py."""
+"""Tests for the canonical library descriptors and their legacy projections."""
 
 import pytest
 
@@ -54,12 +53,12 @@ def test_registry_has_no_extra_entries():
 
 @pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
 def test_linux_sonames_match(name):
-    assert LIB_DESCRIPTORS[name].linux_sonames == SUPPORTED_LINUX_SONAMES.get(name, ())
+    assert tuple(reversed(LIB_DESCRIPTORS[name].linux_sonames)) == SUPPORTED_LINUX_SONAMES.get(name, ())
 
 
 @pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
 def test_windows_dlls_match(name):
-    assert LIB_DESCRIPTORS[name].windows_dlls == SUPPORTED_WINDOWS_DLLS.get(name, ())
+    assert tuple(reversed(LIB_DESCRIPTORS[name].windows_dlls)) == SUPPORTED_WINDOWS_DLLS.get(name, ())
 
 
 @pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
@@ -153,3 +152,38 @@ def test_descriptor_is_frozen():
     desc = LIB_DESCRIPTORS["cudart"]
     with pytest.raises(AttributeError):
         desc.name = "bogus"  # type: ignore[misc]
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_linux_sonames_are_authored_in_runtime_preference_order():
+    desc = LIB_DESCRIPTORS["cudart"]
+
+    assert desc.linux_sonames == ("libcudart.so.13", "libcudart.so.12")
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_linux_sonames_preserve_explicit_unversioned_name():
+    desc = LIB_DESCRIPTORS["nvcudla"]
+
+    assert desc.linux_sonames == ("libnvcudla.so",)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_linux_sonames_prefer_versioned_name_over_declared_unversioned_name():
+    desc = LIB_DESCRIPTORS["nvvm"]
+
+    assert desc.linux_sonames == ("libnvvm.so.4", "libnvvm.so")
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_windows_dlls_are_authored_in_runtime_preference_order():
+    desc = LIB_DESCRIPTORS["nvvm"]
+
+    assert desc.windows_dlls == ("nvvm70.dll", "nvvm64_40_0.dll", "nvvm64.dll")
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_cufft_mp_sonames_preserve_abi_preference():
+    desc = LIB_DESCRIPTORS["cufftMp"]
+
+    assert desc.linux_sonames == ("libcufftMp.so.12", "libcufftMp.so.11")

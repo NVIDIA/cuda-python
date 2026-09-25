@@ -2,13 +2,50 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=73b6eb59cbe4fda520d37939d18d4625eb3818e37689796be45025a8aa877473
+# This code was automatically generated across versions from 12.0.1 to 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d783bc46a513ae0becbc9385c3be40ba64809b0fd834e5ed3189b94bd287436d
 
 
 # <<<< PREAMBLE CONTENT >>>>
 
+cimport cpython as _cyb_cpython
+from libc.stdint cimport (
+    intptr_t,
+    uint32_t,
+)
+
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
+
+cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
+    cdef intptr_t ptr
+    cdef int flags = _cyb_cpython.PyBUF_ANY_CONTIGUOUS
+    if not readonly:
+        flags |= _cyb_cpython.PyBUF_WRITABLE
+    cdef int status = -1
+    cdef _cyb_cpython.Py_buffer view
+    if buf is None:
+        ptr = 0
+    elif isinstance(buf, int):
+        ptr = <intptr_t>buf
+    else:
+        try:
+            status = _cyb_cpython.PyObject_GetBuffer(buf, &view, flags)
+            if size != -1:
+                assert view.len == size
+            assert view.ndim == 1
+        except Exception as e:
+            adj = "writable " if not readonly else ""
+            raise ValueError(
+                "buf must be None, a Python int representing the pointer "
+                f"address to a valid buffer, or a 1D contiguous {adj}"
+                f"buffer, of size {size}"
+            ) from e
+        else:
+            ptr = <intptr_t>view.buf
+        finally:
+            if status == 0:
+                _cyb_cpython.PyBuffer_Release(&view)
+    return ptr
 
 
 # <<<< END OF PREAMBLE CONTENT >>>>
@@ -16,7 +53,7 @@ from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
 cimport cython  # NOQA
 
 from ._internal.utils cimport (get_resource_ptr, get_nested_resource_ptr, nested_resource, nullable_unique_ptr,
-                               get_buffer_pointer, get_resource_ptrs)
+                               get_resource_ptrs)
 
 from libcpp.vector cimport vector
 
@@ -115,16 +152,16 @@ cpdef destroy(intptr_t handle):
 cpdef intptr_t create(uint32_t num_options, options) except -1:
     """nvJitLinkCreate creates an instance of ``nvJitLinkHandle`` with the given input options, and sets the output parameter ``handle``.
 
+    It supports options listed in ``Supported Link Options``.
+
     Args:
         num_options (uint32_t): Number of options passed.
-        options (object): Array of size ``num_options`` of option
-            strings. It can be:
+        options (object): Array of size ``num_options`` of option strings. It can be:
 
             - an :class:`int` as the pointer address to the nested sequence, or
             - a Python sequence of :class:`int`\s, each of which is a pointer address
               to a valid sequence of 'char', or
             - a nested Python sequence of ``str``.
-
 
     Returns:
         intptr_t: Address of nvJitLink handle.
@@ -143,6 +180,7 @@ cpdef intptr_t create(uint32_t num_options, options) except -1:
 cpdef add_data(intptr_t handle, int input_type, data, size_t size, name):
     """nvJitLinkAddData adds data image to the link.
 
+
     Args:
         handle (intptr_t): nvJitLink handle.
         input_type (InputType): kind of input.
@@ -152,7 +190,7 @@ cpdef add_data(intptr_t handle, int input_type, data, size_t size, name):
 
     .. seealso:: `nvJitLinkAddData`
     """
-    cdef void* _data_ = get_buffer_pointer(data, size, readonly=True)
+    cdef void* _data_ = <void *>_cyb_get_buffer_pointer(data, size, readonly=True)
     if not isinstance(name, str):
         raise TypeError("name must be a Python str")
     cdef bytes _temp_name_ = (<str>name).encode()
@@ -164,6 +202,7 @@ cpdef add_data(intptr_t handle, int input_type, data, size_t size, name):
 
 cpdef add_file(intptr_t handle, int input_type, file_name):
     """nvJitLinkAddFile reads data from file and links it in.
+
 
     Args:
         handle (intptr_t): nvJitLink handle.
@@ -184,6 +223,7 @@ cpdef add_file(intptr_t handle, int input_type, file_name):
 cpdef complete(intptr_t handle):
     """nvJitLinkComplete does the actual link.
 
+
     Args:
         handle (intptr_t): nvJitLink handle.
 
@@ -196,6 +236,7 @@ cpdef complete(intptr_t handle):
 
 cpdef size_t get_linked_cubin_size(intptr_t handle) except? 0:
     """nvJitLinkGetLinkedCubinSize gets the size of the linked cubin.
+
 
     Args:
         handle (intptr_t): nvJitLink handle.
@@ -215,13 +256,15 @@ cpdef size_t get_linked_cubin_size(intptr_t handle) except? 0:
 cpdef get_linked_cubin(intptr_t handle, cubin):
     """nvJitLinkGetLinkedCubin gets the linked cubin.
 
+    User is responsible for allocating enough space to hold the ``cubin``.
+
     Args:
         handle (intptr_t): nvJitLink handle.
         cubin (bytes): The linked cubin.
 
     .. seealso:: `nvJitLinkGetLinkedCubin`
     """
-    cdef void* _cubin_ = get_buffer_pointer(cubin, -1, readonly=False)
+    cdef void* _cubin_ = <void *>_cyb_get_buffer_pointer(cubin, -1, readonly=False)
     with nogil:
         __status__ = nvJitLinkGetLinkedCubin(<Handle>handle, <void*>_cubin_)
     check_status(__status__)
@@ -229,6 +272,8 @@ cpdef get_linked_cubin(intptr_t handle, cubin):
 
 cpdef size_t get_linked_ptx_size(intptr_t handle) except? 0:
     """nvJitLinkGetLinkedPtxSize gets the size of the linked ptx.
+
+    Linked PTX is only available when using the ``-lto`` option.
 
     Args:
         handle (intptr_t): nvJitLink handle.
@@ -248,13 +293,16 @@ cpdef size_t get_linked_ptx_size(intptr_t handle) except? 0:
 cpdef get_linked_ptx(intptr_t handle, ptx):
     """nvJitLinkGetLinkedPtx gets the linked ptx.
 
+    Linked PTX is only available when using the ``-lto`` option. User is
+    responsible for allocating enough space to hold the ``ptx``.
+
     Args:
         handle (intptr_t): nvJitLink handle.
         ptx (bytes): The linked PTX.
 
     .. seealso:: `nvJitLinkGetLinkedPtx`
     """
-    cdef void* _ptx_ = get_buffer_pointer(ptx, -1, readonly=False)
+    cdef void* _ptx_ = <void *>_cyb_get_buffer_pointer(ptx, -1, readonly=False)
     with nogil:
         __status__ = nvJitLinkGetLinkedPtx(<Handle>handle, <char*>_ptx_)
     check_status(__status__)
@@ -262,6 +310,7 @@ cpdef get_linked_ptx(intptr_t handle, ptx):
 
 cpdef size_t get_error_log_size(intptr_t handle) except? 0:
     """nvJitLinkGetErrorLogSize gets the size of the error log.
+
 
     Args:
         handle (intptr_t): nvJitLink handle.
@@ -281,13 +330,15 @@ cpdef size_t get_error_log_size(intptr_t handle) except? 0:
 cpdef get_error_log(intptr_t handle, log):
     """nvJitLinkGetErrorLog puts any error messages in the log.
 
+    User is responsible for allocating enough space to hold the ``log``.
+
     Args:
         handle (intptr_t): nvJitLink handle.
         log (bytes): The error log.
 
     .. seealso:: `nvJitLinkGetErrorLog`
     """
-    cdef void* _log_ = get_buffer_pointer(log, -1, readonly=False)
+    cdef void* _log_ = <void *>_cyb_get_buffer_pointer(log, -1, readonly=False)
     with nogil:
         __status__ = nvJitLinkGetErrorLog(<Handle>handle, <char*>_log_)
     check_status(__status__)
@@ -295,6 +346,7 @@ cpdef get_error_log(intptr_t handle, log):
 
 cpdef size_t get_info_log_size(intptr_t handle) except? 0:
     """nvJitLinkGetInfoLogSize gets the size of the info log.
+
 
     Args:
         handle (intptr_t): nvJitLink handle.
@@ -314,13 +366,15 @@ cpdef size_t get_info_log_size(intptr_t handle) except? 0:
 cpdef get_info_log(intptr_t handle, log):
     """nvJitLinkGetInfoLog puts any info messages in the log.
 
+    User is responsible for allocating enough space to hold the ``log``.
+
     Args:
         handle (intptr_t): nvJitLink handle.
         log (bytes): The info log.
 
     .. seealso:: `nvJitLinkGetInfoLog`
     """
-    cdef void* _log_ = get_buffer_pointer(log, -1, readonly=False)
+    cdef void* _log_ = <void *>_cyb_get_buffer_pointer(log, -1, readonly=False)
     with nogil:
         __status__ = nvJitLinkGetInfoLog(<Handle>handle, <char*>_log_)
     check_status(__status__)
@@ -329,9 +383,9 @@ cpdef get_info_log(intptr_t handle, log):
 cpdef tuple version():
     """nvJitLinkVersion returns the current version of nvJitLink.
 
+
     Returns:
         A 2-tuple containing:
-
         - unsigned int: The major version.
         - unsigned int: The minor version.
 
@@ -347,6 +401,9 @@ cpdef tuple version():
 
 cpdef size_t get_linked_ltoir_size(intptr_t handle) except? 0:
     """nvJitLinkGetLinkedLTOIRSize gets the size of the linked LTOIR.
+
+    Linked LTOIR is only available when using the ``-lto`` option. The returned
+    data is in LTOIR Container format (not raw bitcode).
 
     Args:
         handle (intptr_t): nvJitLink handle.
@@ -366,13 +423,17 @@ cpdef size_t get_linked_ltoir_size(intptr_t handle) except? 0:
 cpdef get_linked_ltoir(intptr_t handle, ltoir):
     """nvJitLinkGetLinkedLTOIR gets the linked LTOIR.
 
+    Linked LTOIR is only available when using the ``-lto`` option. User is
+    responsible for allocating enough space to hold the ``ltoir``. The returned
+    data is in LTOIR Container format (not raw bitcode).
+
     Args:
         handle (intptr_t): nvJitLink handle.
         ltoir (bytes): The linked LTOIR in Container format.
 
     .. seealso:: `nvJitLinkGetLinkedLTOIR`
     """
-    cdef void* _ltoir_ = get_buffer_pointer(ltoir, -1, readonly=False)
+    cdef void* _ltoir_ = <void *>_cyb_get_buffer_pointer(ltoir, -1, readonly=False)
     with nogil:
         __status__ = nvJitLinkGetLinkedLTOIR(<Handle>handle, <void*>_ltoir_)
     check_status(__status__)

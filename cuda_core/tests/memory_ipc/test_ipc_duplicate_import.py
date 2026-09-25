@@ -20,7 +20,6 @@ from cuda.core import Buffer, Device
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
-POOL_SIZE = 2097152
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
 
@@ -72,7 +71,9 @@ class TestIpcDuplicateImport:
         mr = ipc_memory_resource
 
         log("allocating buffer")
-        buffer = mr.allocate(NBYTES, stream=ipc_device.default_stream)
+        stream = ipc_device.default_stream
+        buffer = mr.allocate(NBYTES, stream=stream)
+        stream.sync()
 
         # Start the child process.
         log("starting child")

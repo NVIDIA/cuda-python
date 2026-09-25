@@ -18,7 +18,7 @@ import sys
 import cupy as cp
 import numpy as np
 
-from cuda.core import Device
+from cuda.core import Device, Stream
 from cuda.core.utils import StridedMemoryView
 
 
@@ -39,7 +39,8 @@ def main():
 
     device = Device()
     device.set_current()
-    stream = device.create_stream()
+    cupy_stream = cp.cuda.get_current_stream()
+    stream = Stream.from_handle(cupy_stream.ptr)
     buffer = None
 
     try:
@@ -63,7 +64,6 @@ def main():
         buffer = device.memory_resource.allocate(gpu_array.nbytes, stream=stream)
         buffer_array = cp.from_dlpack(buffer).view(dtype=cp.float32).reshape(gpu_array.shape)
         buffer_array[...] = gpu_array
-        device.sync()
 
         buffer_view = StridedMemoryView.from_buffer(
             buffer,
@@ -77,7 +77,6 @@ def main():
     finally:
         if buffer is not None:
             buffer.close(stream)
-        stream.close()
 
 
 if __name__ == "__main__":
