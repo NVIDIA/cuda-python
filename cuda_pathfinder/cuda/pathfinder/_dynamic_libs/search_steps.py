@@ -28,6 +28,7 @@ from typing import NoReturn, cast
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.search_platform import PLATFORM, SearchPlatform
+from cuda.pathfinder._utils.diagnostic_log import LOGGER, search_extra
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.path_sort import numeric_aware_path_sort_key
 
@@ -64,6 +65,20 @@ class SearchContext:
     def raise_not_found(self) -> NoReturn:
         err = ", ".join(self.error_messages)
         att = "\n".join(self.attachments)
+        if LOGGER is not None:
+            # The exception below already carries this information, always on.
+            # Logging it too gives consumers the candidate list as structured
+            # fields rather than as text they would have to parse back out.
+            LOGGER.error(
+                "search failed for %s: no candidate matched",
+                self.lib_searched_for,
+                extra=search_extra(
+                    self.libname,
+                    pathfinder_searched_for=self.lib_searched_for,
+                    pathfinder_error_messages=list(self.error_messages),
+                    pathfinder_attachments=list(self.attachments),
+                ),
+            )
         raise DynamicLibNotFoundError(f'Failure finding "{self.lib_searched_for}": {err}\n{att}')
 
 
@@ -277,6 +292,28 @@ def run_find_steps(ctx: SearchContext, steps: tuple[FindStep, ...]) -> FindResul
     """Run find steps in order, returning the first hit."""
     for step in steps:
         result = step(ctx)
+        if LOGGER is not None:
+            if result is None:
+                LOGGER.debug(
+                    "step %s: no match for %s",
+                    step.__name__,
+                    ctx.lib_searched_for,
+                    extra=search_extra(ctx.libname, pathfinder_step=step.__name__, pathfinder_matched=False),
+                )
+            else:
+                LOGGER.debug(
+                    "step %s: matched %s via %s",
+                    step.__name__,
+                    result.abs_path,
+                    result.found_via,
+                    extra=search_extra(
+                        ctx.libname,
+                        pathfinder_step=step.__name__,
+                        pathfinder_matched=True,
+                        pathfinder_abs_path=result.abs_path,
+                        pathfinder_found_via=result.found_via,
+                    ),
+                )
         if result is not None:
             return result
     return None
