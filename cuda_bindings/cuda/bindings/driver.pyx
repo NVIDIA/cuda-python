@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=09b7034a85e8350f14d2f4170ff1d2ecfd97fc292bfd920ee428dafc0e9ecf1e
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=175f5b5d51fbe64e7d8f5eca92e8b557cab5dea406091f66e10a4d19400dcefa
 from typing import Any, Optional
 import cython
 import ctypes
@@ -11826,7 +11826,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_st:
     @kernelParams.setter
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
-        self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
+        self._pvt_ptr[0].kernelParams = self._cykernelParams.ckernelParams
 
 
     @property
@@ -12070,7 +12070,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_v2_st:
     @kernelParams.setter
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
-        self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
+        self._pvt_ptr[0].kernelParams = self._cykernelParams.ckernelParams
 
 
     @property
@@ -12348,7 +12348,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_v3_st:
     @kernelParams.setter
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
-        self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
+        self._pvt_ptr[0].kernelParams = self._cykernelParams.ckernelParams
 
 
     @property
@@ -18425,7 +18425,7 @@ cdef class CUDA_LAUNCH_PARAMS_st:
     @kernelParams.setter
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
-        self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
+        self._pvt_ptr[0].kernelParams = self._cykernelParams.ckernelParams
 
 
 cdef class anon_struct12:
@@ -43462,7 +43462,7 @@ def cuLaunchKernel(f, unsigned int gridDimX, unsigned int gridDimY, unsigned int
         pf = int(CUfunction(f))
     cyf = <cydriver.CUfunction><void_ptr>pf
     cdef _HelperKernelParams cykernelParams = _HelperKernelParams(kernelParams)
-    cdef void** cykernelParams_ptr = <void**><void_ptr>cykernelParams.ckernelParams
+    cdef void** cykernelParams_ptr = cykernelParams.ckernelParams
     with nogil:
         err = cydriver.cuLaunchKernel(cyf, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, cyhStream, cykernelParams_ptr, <void**>extra)
     return (_CUresult(err),)
@@ -43700,7 +43700,7 @@ def cuLaunchKernelEx(config : Optional[CUlaunchConfig], f, kernelParams, void_pt
     cyf = <cydriver.CUfunction><void_ptr>pf
     cdef cydriver.CUlaunchConfig* cyconfig_ptr = <cydriver.CUlaunchConfig*>config._pvt_ptr if config is not None else NULL
     cdef _HelperKernelParams cykernelParams = _HelperKernelParams(kernelParams)
-    cdef void** cykernelParams_ptr = <void**><void_ptr>cykernelParams.ckernelParams
+    cdef void** cykernelParams_ptr = cykernelParams.ckernelParams
     with nogil:
         err = cydriver.cuLaunchKernelEx(cyconfig_ptr, cyf, cykernelParams_ptr, <void**>extra)
     return (_CUresult(err),)
@@ -43810,7 +43810,7 @@ def cuLaunchCooperativeKernel(f, unsigned int gridDimX, unsigned int gridDimY, u
         pf = int(CUfunction(f))
     cyf = <cydriver.CUfunction><void_ptr>pf
     cdef _HelperKernelParams cykernelParams = _HelperKernelParams(kernelParams)
-    cdef void** cykernelParams_ptr = <void**><void_ptr>cykernelParams.ckernelParams
+    cdef void** cykernelParams_ptr = cykernelParams.ckernelParams
     with nogil:
         err = cydriver.cuLaunchCooperativeKernel(cyf, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, cyhStream, cykernelParams_ptr)
     return (_CUresult(err),)
