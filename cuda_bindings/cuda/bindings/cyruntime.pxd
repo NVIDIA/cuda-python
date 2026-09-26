@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c3643e519b69bdb09b9c4c6ff3ecd3aebb180636d00e9a7bd2fe129cbed3eeb4
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f18e04577ef4372076f7baaf4adeeb91967e3c809bfdd0e4b1224d0d9ded81e2
 from libc.stdint cimport uint32_t, uint64_t
 
 
@@ -2673,6 +2673,9 @@ cdef extern from 'cuda_runtime_api.h':
 # CUDA_EGL_MAX_PLANES is defined as 3 in cuda_egl_interop.h; hardcoded to avoid EGL deps
 cdef enum:
     CUDA_EGL_MAX_PLANES = 3
+
+# cudaDevSmResourceGroupLocalityDomainIdAny is defined as (~0u) in driver_types.h; the
+# pyclibrary-based cython-gen parser can't evaluate that expression, so hardcode the value
 
 # libraryPropertyType_t (starts lowercase, outside type pattern)
 cdef extern from 'library_types.h':
