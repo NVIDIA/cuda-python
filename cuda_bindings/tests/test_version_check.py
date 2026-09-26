@@ -84,6 +84,27 @@ class TestVersionCompatibilityCheck:
             warn_if_cuda_major_version_mismatch()
             assert len(w) == 0
 
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    def test_warning_not_suppressed_when_env_var_is_zero(self):
+        """``=0`` is how a user says "no, keep warning me".
+
+        A bare truthiness test on the raw string made ``=0`` suppress the
+        warning -- the opposite of what the warning itself tells the user to
+        type, and the opposite of the other boolean knobs in this repository
+        (``CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM``,
+        ``CUDA_CORE_DONT_FIX_TAB_COMPLETION``), which both parse with ``int()``.
+        """
+        with (
+            mock.patch.object(driver, "CUDA_VERSION", 13000),
+            mock.patch.object(driver, "cuDriverGetVersion", return_value=(driver.CUresult.CUDA_SUCCESS, 12080)),
+            mock.patch.dict(os.environ, {"CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING": "0"}),
+            warnings.catch_warnings(record=True) as w,
+        ):
+            warnings.simplefilter("always")
+            warn_if_cuda_major_version_mismatch()
+            assert len(w) == 1
+            assert issubclass(w[0].category, UserWarning)
+
     def test_error_when_driver_version_fails(self):
         """Should raise RuntimeError if cuDriverGetVersion fails."""
         with (

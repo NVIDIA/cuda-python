@@ -16,7 +16,7 @@ from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._launch_config import LaunchConfig
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._program import ObjectCodeFormatType
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     LibraryHandle,
     KernelHandle,
     create_library_handle_from_file,
@@ -741,13 +741,13 @@ cdef class ObjectCode:
 
     @staticmethod
     def from_object(module: bytes | str, *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
-        """Create an :class:`ObjectCode` instance from an existing object code.
+        """Create an :class:`ObjectCode` instance from a host object containing device code.
 
         Parameters
         ----------
         module : bytes | str
-            Either a bytes object containing the in-memory object code to load, or
-            a file path string pointing to the on-disk object code to load.
+            Either a bytes object containing the in-memory host object to load, or
+            a file path string pointing to the on-disk host object to load.
         name : str | None
             A human-readable identifier representing this code object.
         symbol_mapping : dict | None
