@@ -8,7 +8,7 @@ from libc.string cimport memcpy as c_memcpy
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     OpaqueHandle,
     make_opaque_malloc,
     make_opaque_py,

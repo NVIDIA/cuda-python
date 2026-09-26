@@ -21,6 +21,7 @@ from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
 
+import cython
 from dataclasses import dataclass
 import multiprocessing
 import platform  # no-cython-lint
@@ -109,6 +110,7 @@ cdef class PinnedMemoryResource(_MemPool):
     See :class:`DeviceMemoryResource` for more details on IPC usage patterns.
     """
 
+    @cython.annotation_typing(False)
     def __init__(self, options: PinnedMemoryResourceOptions | None = None) -> None:
         _PMR_init(self, options)
 

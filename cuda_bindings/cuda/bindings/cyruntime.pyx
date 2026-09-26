@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=034f6c5c936d547d3106aa249f8f85b67389eac8b90ab569aa74815f08d699af
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d40a4f5510e4271a0984232f64fe01ac712187b248fb15167fbc8e40f024d512
 from ._internal cimport runtime as _runtime
 
 cdef cudaError_t cudaDeviceReset() except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -1361,6 +1361,10 @@ cdef cudaError_t cudaGraphNodeGetParams(cudaGraphNode_t node, cudaGraphNodeParam
 
 cdef cudaError_t cudaStreamBeginRecaptureToGraph(cudaStream_t stream, cudaStreamCaptureMode mode, cudaGraph_t graph, cudaGraphRecaptureCallbackData* callbackData) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _runtime._cudaStreamBeginRecaptureToGraph(stream, mode, graph, callbackData)
+
+
+cdef cudaError_t cudaMemGetLocationInfo(void* devPtr, size_t size, size_t summaryGranularity, size_t samplingGranularity, cudaMemLocation* location_out) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _runtime._cudaMemGetLocationInfo(devPtr, size, summaryGranularity, samplingGranularity, location_out)
 
 
 ###############################################################################

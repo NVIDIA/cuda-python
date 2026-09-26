@@ -4,7 +4,7 @@
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._resource_handles cimport GraphExecHandle, GraphHandle, StreamHandle
+from cuda.core._rt cimport GraphExecHandle, GraphHandle, StreamHandle
 from cuda.core._stream cimport Stream
 
 
