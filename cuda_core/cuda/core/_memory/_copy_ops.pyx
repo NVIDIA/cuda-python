@@ -12,7 +12,7 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_coerce_batch
 from cuda.core._memory._copy_attributes cimport _to_cu_memcpy_attributes  # no-cython-lint
-from cuda.core._resource_handles cimport as_cu
+from cuda.core._rt cimport as_cu
 from cuda.core._stream cimport Stream, Stream_accept, Stream_is_legacy_default_token
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 

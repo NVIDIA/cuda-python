@@ -13,6 +13,7 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils cimport check_or_create_options  # no-cython-lint
 from cuda.core._utils.cuda_utils import CUDAError  # no-cython-lint
 
+import cython
 from dataclasses import dataclass
 import threading
 from typing import TYPE_CHECKING
@@ -97,6 +98,7 @@ cdef class ManagedMemoryResource(_MemPool):
     memory pools.
     """
 
+    @cython.annotation_typing(False)
     def __init__(self, options: ManagedMemoryResourceOptions | None = None) -> None:
         _MMR_init(self, options)
 
@@ -117,9 +119,9 @@ cdef class ManagedMemoryResource(_MemPool):
         ManagedBuffer
             A :class:`ManagedBuffer` (a :class:`Buffer` subclass) that
             exposes the property-style advice API
-            (``read_mostly``, ``preferred_location``, ``accessed_by``)
-            and instance methods (``prefetch``, ``discard``,
-            ``discard_prefetch``).
+            (``read_mostly``, ``preferred_location``,
+            ``last_prefetch_location``, ``accessed_by``) and instance methods
+            (``prefetch``, ``discard``, ``discard_prefetch``).
         """
         MP_check_open(self)
         assert isinstance(stream, Stream), "Only Stream is supported for managed memory allocations"

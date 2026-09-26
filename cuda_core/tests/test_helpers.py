@@ -2,8 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import sys
 import time
 import types
+from unittest.mock import Mock
 
 import pytest
 from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer, thread_unsafe_on_windows
@@ -351,3 +353,87 @@ def test_oom_diagnostics_probe_basics_is_live_and_cheap(init_cuda):
     assert snapshot.pool_va_ok is None
     assert snapshot.get_mem_pool_ok is None
     assert snapshot.capped_pool_create_ok is None
+
+
+# ---------------------------------------------------------------------------
+# GL helper tests
+# ---------------------------------------------------------------------------
+
+import pytest
+from cuda_python_test_helpers.graphics import is_gl_context_unavailable, open_gl_window
+
+
+@pytest.mark.thread_unsafe(reason="patches the process-wide pyglet module")
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_open_gl_window_cleans_up_failed_construction(monkeypatch):
+    windows = set()
+    partial_window = Mock()
+    previous_context = Mock()
+
+    def fail_window(**_kwargs):
+        windows.add(partial_window)
+        raise RuntimeError
+
+    pyglet = types.ModuleType("pyglet")
+    pyglet.options = {}
+    pyglet.app = types.SimpleNamespace(windows=windows)
+    pyglet.gl = types.SimpleNamespace(Config=Mock(), current_context=previous_context)
+    pyglet.window = types.SimpleNamespace(Window=fail_window)
+    monkeypatch.setitem(sys.modules, "pyglet", pyglet)
+
+    with pytest.raises(RuntimeError):
+        open_gl_window()
+
+    assert partial_window.close.called
+    assert previous_context.set_current.called
+
+
+class _PygletError(Exception):
+    pass
+
+
+# Simulate a pyglet-namespaced exception by name.
+def _make_pyglet_exc(name, module="pyglet.window"):
+    cls = type(name, (_PygletError,), {})
+    cls.__module__ = module
+    return cls
+
+
+@pytest.mark.human_reviewed
+@pytest.mark.parametrize(
+    "exc",
+    [
+        _make_pyglet_exc("NoSuchDisplayException")("x"),
+        _make_pyglet_exc("NoSuchConfigException")("x"),
+        _make_pyglet_exc("NoSuchScreenModeException")("x"),
+        _make_pyglet_exc("WindowException")("x"),
+        _make_pyglet_exc("ContextException")("x"),
+        _make_pyglet_exc("MissingFunctionException", module="pyglet.gl.lib")("x"),
+        FileNotFoundError("Could not find module 'opengl32' (or one of its dependencies)."),
+        AttributeError("opengl32"),
+        ImportError('Library "GL" not found.'),
+        ImportError('Library "EGL" not found.'),
+    ],
+)
+def test_is_gl_context_unavailable_accepts_genuine(exc):
+    assert is_gl_context_unavailable(exc) is True
+
+
+@pytest.mark.human_reviewed
+@pytest.mark.parametrize(
+    "exc",
+    [
+        # pyglet exception names that are not context-creation failures
+        _make_pyglet_exc("GLException")("GL_INVALID_ENUM"),
+        _make_pyglet_exc("ImageException")("x"),
+        # Built-in exceptions that do not mention opengl32 / GL library
+        TypeError("bug"),
+        AttributeError("'NoneType' object has no attribute 'Config'"),
+        FileNotFoundError("No such file: /tmp/missing"),
+        ImportError("No module named 'foo'"),
+        OSError("disk full"),
+        RuntimeError("bug"),
+    ],
+)
+def test_is_gl_context_unavailable_rejects_unrelated(exc):
+    assert is_gl_context_unavailable(exc) is False

@@ -9,7 +9,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._module cimport Kernel
-from cuda.core._resource_handles cimport as_cu
+from cuda.core._rt cimport as_cu
 from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,

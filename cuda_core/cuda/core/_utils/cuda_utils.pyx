@@ -27,17 +27,55 @@ from cuda.bindings.nvjitlink import nvJitLinkError
 from cpython.buffer cimport PyObject_GetBuffer, PyBuffer_Release, Py_buffer, PyBUF_SIMPLE
 
 from cuda.bindings cimport cynvrtc, cynvvm, cynvjitlink
+from cuda.core._rt cimport (
+    register_warning_category,
+    take_last_error_detail,
+)
 
 from cuda.core._utils.driver_cu_result_explanations import DRIVER_CU_RESULT_EXPLANATIONS
 from cuda.core._utils.runtime_cuda_error_explanations import RUNTIME_CUDA_ERROR_EXPLANATIONS
 
 
 class CUDAError(Exception):
-    pass
+    """Raised when a CUDA driver or runtime call fails.
+
+    The message names the CUDA error and, when one is known, explains it. A
+    secondary failure observed while the error was being raised, such as a
+    failed restoration of the caller's CUDA context, is attached as a note
+    (``__notes__``) on Python 3.11 and newer and appended to the message on
+    older interpreters. See the error handling page of the ``cuda.core``
+    documentation for the guarantees an exception provides.
+    """
+
+
+class CUDAWarning(RuntimeWarning):
+    """Warning issued when ``cuda.core`` hits a CUDA error it cannot raise.
+
+    ``cuda.core`` raises exceptions for failures in ordinary calls. Some failures
+    happen where no exception can propagate: while a resource is released by the
+    garbage collector or by a CUDA callback, including the driver calls that
+    switch and restore the CUDA context around such a release. Those failures
+    are reported as this warning instead, and the affected resource may have
+    leaked.
+
+    Filter on this category to make such failures fatal in tests::
+
+        warnings.filterwarnings("error", category=cuda.core.CUDAWarning)
+
+    Because the report comes from a destructor, an escalated warning cannot be
+    raised into user code; it is delivered through :func:`sys.unraisablehook`
+    (which pytest surfaces as ``PytestUnraisableExceptionWarning``).
+
+    .. versionadded:: 1.3.0
+    """
+
+
+# Route the C++ handle layer's non-propagating reports through this category.
+register_warning_category(<PyObject*>CUDAWarning)
 
 
 class NVRTCError(CUDAError):
-    pass
+    """Raised when an NVRTC call fails; the compiler log is appended when available."""
 
 
 
@@ -131,23 +169,40 @@ cdef object _RUNTIME_SUCCESS = runtime.cudaError_t.cudaSuccess
 cdef object _NVRTC_SUCCESS = nvrtc.nvrtcResult.NVRTC_SUCCESS
 
 
+cdef inline void _attach_detail(exc, str detail):
+    # PEP 678 notes (Python 3.11+) keep the detail separable from the message;
+    # older interpreters get it appended to the message instead.
+    add_note = getattr(exc, "add_note", None)
+    if add_note is not None:
+        add_note(detail)
+    else:
+        exc.args = (f"{exc.args[0]} ({detail})", *exc.args[1:])
+
+
 cpdef inline int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
     if error == cydriver.CUresult.CUDA_SUCCESS:
         return 0
     cdef const char* name
+    cdef const char* desc
+    # A context-scoped helper in the handle layer may have recorded why this
+    # status needs more explanation (e.g. the caller's context was not restored).
+    cdef const char* detail = take_last_error_detail(error)
     name_err = cydriver.cuGetErrorName(error, &name)
     if name_err != cydriver.CUresult.CUDA_SUCCESS:
         raise CUDAError(f"UNEXPECTED ERROR CODE: {error}")
+    desc_err = cydriver.cuGetErrorString(error, &desc)
     with gil:
         # TODO: consider lower this to Cython
         expl = DRIVER_CU_RESULT_EXPLANATIONS.get(int(error))
         if expl is not None:
-            raise CUDAError(f"{name.decode()}: {expl}")
-    cdef const char* desc
-    desc_err = cydriver.cuGetErrorString(error, &desc)
-    if desc_err != cydriver.CUresult.CUDA_SUCCESS:
-        raise CUDAError(f"{name.decode()}")
-    raise CUDAError(f"{name.decode()}: {desc.decode()}")
+            exc = CUDAError(f"{name.decode()}: {expl}")
+        elif desc_err != cydriver.CUresult.CUDA_SUCCESS:
+            exc = CUDAError(name.decode())
+        else:
+            exc = CUDAError(f"{name.decode()}: {desc.decode()}")
+        if detail != NULL:
+            _attach_detail(exc, detail.decode())
+        raise exc
 
 
 cpdef inline int _check_runtime_error(error) except?-1:
@@ -277,24 +332,26 @@ def is_nested_sequence(obj: object) -> bool:
 
 class Transaction:
     """
-    A context manager for transactional operations with undo capability.
+    A context manager for transactional operations with failure and exit callbacks.
 
-    The Transaction class allows you to register undo actions (callbacks) that will be executed
-    if the transaction is not committed before exiting the context. This is useful for managing
-    resources or operations that need to be rolled back in case of errors or early exits.
+    Failure callbacks are executed in LIFO order if the transaction exits without being committed.
+    Exit callbacks always run: in LIFO order on rollback or FIFO order during commit.
 
     Usage:
         with Transaction() as txn:
-            txn.append(some_cleanup_function, arg1, arg2)
+            txn.on_failure(some_cleanup_function, arg1, arg2)
+            txn.on_exit(some_finalize_function, arg1, arg2)
             # ... perform operations ...
-            txn.commit()  # Disarm undo actions; nothing will be rolled back on exit
+            txn.commit()
 
     Methods:
-        append(fn, *args, **kwargs): Register an undo action to be called on rollback.
-        commit(): Disarm all undo actions; nothing will be rolled back on exit.
+        on_failure(fn, *args, **kwargs): Register a callback to be called on rollback.
+        on_exit(fn, *args, **kwargs): Register a callback to be called on rollback or commit.
+        commit(): Disarm failure callbacks and run exit callbacks.
     """
     def __init__(self) -> None:
         self._stack = ExitStack()
+        self._on_exit: list[Callable[[], Any]] = []
         self._entered = False
 
     def __enter__(self):
@@ -305,23 +362,36 @@ class Transaction:
     def __exit__(self, exc_type, exc, tb):
         # If exit callbacks remain, they'll run in LIFO order.
         self._entered = False
+        self._on_exit.clear()
         return self._stack.__exit__(exc_type, exc, tb)
 
-    def append(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
-        """
-        Register an undo action (runs if the with-block exits without commit()).
-        Values are bound now via partial so late mutations don't bite you.
-        """
+    def _register(self, callback: Callable[[], Any], on_commit: bool) -> None:
         if not self._entered:
-            raise RuntimeError("Transaction must be entered before append()")
-        self._stack.callback(partial(fn, *args, **kwargs))
+            raise RuntimeError("Transaction must be entered before registering callbacks")
+        # The ExitStack copy runs on rollback (LIFO, interleaved with the failure
+        # callbacks); the _on_exit copy runs at commit(). commit() disarms the stack
+        # before running _on_exit, so exactly one of the two ever fires.
+        self._stack.callback(callback)
+        if on_commit:
+            self._on_exit.append(callback)
+
+    def on_failure(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
+        """Register a failure callback (runs if the with-block exits without commit())."""
+        self._register(partial(fn, *args, **kwargs), on_commit=False)
+
+    def on_exit(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
+        """Register an exit callback (runs exactly once, on rollback or during commit())."""
+        self._register(partial(fn, *args, **kwargs), on_commit=True)
 
     def commit(self) -> None:
         """
-        Disarm all undo actions. After this, exiting the with-block does nothing.
+        Disarm all failure callbacks, then run exit callbacks in FIFO order.
         """
         # pop_all() empties this stack so no callbacks are triggered on exit.
         self._stack.pop_all()
+        for fn in self._on_exit:
+            fn()
+        self._on_exit.clear()
 
 
 # Track whether we've already warned about fork method

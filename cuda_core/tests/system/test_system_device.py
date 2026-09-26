@@ -167,7 +167,8 @@ def test_device_name():
 
 
 def test_device_pci_info(subtests):
-    for device in system.Device.get_all_devices():
+    for cuda_device in CudaDevice.get_all_devices():
+        device = cuda_device.to_system_device()
         with subtests.test(device_index=device.index):
             pci_info = device.pci_info
             assert isinstance(pci_info, _device.PciInfo)
@@ -316,7 +317,7 @@ def test_device_pci_bus_id():
         pci_bus_id = device.pci_info.bus_id
         assert isinstance(pci_bus_id, str)
 
-        new_device = system.Device(pci_bus_id=device.pci_info.bus_id)
+        new_device = system.Device(pci_bus_id=pci_bus_id)
         assert new_device.index == device.index
 
 
@@ -443,6 +444,19 @@ def test_field_values(subtests):
             field_values.validate()
             assert len(field_values) == 1
             assert field_values[0].value <= old_value
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_field_value_decodes_signed_long_long():
+    """SIGNED_LONG_LONG decodes from nvmlValue_t.sll_val as a Python int."""
+    field_value = nvml.FieldValue()
+    field_value.nvml_return = int(nvml.Return.SUCCESS)
+    field_value.value_type = int(nvml.ValueType.SIGNED_LONG_LONG)
+    field_value.value.sll_val[0] = -45
+
+    value = _device.FieldValue(field_value).value
+    assert value == -45
+    assert type(value) is int
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
@@ -671,7 +685,8 @@ def test_clock_event_reasons(subtests):
 
 
 def test_fan(subtests):
-    for device in system.Device.get_all_devices():
+    for cuda_device in CudaDevice.get_all_devices():
+        device = cuda_device.to_system_device()
         device_index = device.index
         num_fans = None
         # The fan APIs are only supported on discrete devices with fans,
@@ -721,7 +736,8 @@ def test_fan(subtests):
 
 
 def test_cooler(subtests):
-    for device in system.Device.get_all_devices():
+    for cuda_device in CudaDevice.get_all_devices():
+        device = cuda_device.to_system_device()
         with subtests.test(device_index=device.index):
             # The cooler APIs are only supported on discrete devices with fans,
             # but when they are not available `device.num_fans` returns 0.
@@ -1000,5 +1016,5 @@ def test_uuid():
     for device in system.Device.get_all_devices():
         uuid = device.uuid
         assert isinstance(uuid, str)
-        assert uuid.startswith(("GPU-", "MIG-"))
+        assert uuid.startswith(("GPU-", "MIG-", "DLA-"))
         assert uuid == device.uuid

@@ -174,6 +174,54 @@ def record_build_major() -> None:
     _BUILD_MAJOR_STAMP.write_text(_determine_cuda_major_version() + "\n", encoding="utf-8")
 
 
+def _relativize_extension_sources(extensions) -> None:
+    """Keep absolute source paths out of setuptools' temporary build tree."""
+    for extension in extensions:
+        extension.sources = [
+            os.path.relpath(source, start=Path.cwd()) if os.path.isabs(source) else source
+            for source in extension.sources
+        ]
+
+
+def _extension_sources(mod_name):
+    """The module's .pyx plus its C++, if any: every .cpp under
+    cuda/core/_cpp/<stem>/, or the single legacy file cuda/core/_cpp/<stem>.cpp.
+    Example: _tensor_map.pyx compiles _cpp/tensor_map.cpp."""
+    sources = [f"cuda/core/{mod_name}.pyx"]
+    cpp_stem = Path("cuda", "core", "_cpp", mod_name.lstrip("_"))
+    if cpp_stem.is_dir():
+        cpp_sources = sorted(str(path) for path in cpp_stem.rglob("*.cpp"))
+        if not cpp_sources:
+            raise RuntimeError(f"{cpp_stem}/ exists but contains no .cpp files")
+        sources.extend(cpp_sources)
+    elif cpp_stem.with_suffix(".cpp").is_file():
+        sources.append(str(cpp_stem.with_suffix(".cpp")))
+    return sources
+
+
+def _extension_depends():
+    """Headers whose edits must rebuild an extension: every header under a
+    directory-form module's cuda/core/_cpp/<stem>/ (a single-file module has
+    none).
+
+    The same list serves every extension. A module that cimports a
+    directory-form module compiles against the header its .pxd names, and
+    cythonize copies each `depends` entry into its build directory before
+    compiling, so the copied header finds its sibling includes beside it
+    (quoted includes resolve next to the copy, not in the source tree).
+    Listing the whole directory keeps the rule free of include parsing; the
+    cost is that every extension rebuilds when any of these headers changes,
+    exactly as editing the one monolithic header did before the split."""
+    cpp = Path("cuda", "core", "_cpp")
+    return sorted(
+        str(path)
+        for module_dir in cpp.iterdir()
+        if module_dir.is_dir()
+        for path in module_dir.rglob("*")
+        if path.suffix in (".h", ".hpp")
+    )
+
+
 def _build_cuda_core(debug=False):
     # Customizing the build hooks is needed because we must defer cythonization until cuda-bindings,
     # now a required build-time dependency that's dynamically installed via the other hook below,
@@ -218,18 +266,6 @@ def _build_cuda_core(debug=False):
                 continue
             yield mod
 
-    def get_sources(mod_name):
-        """Get source files for a module, including any .cpp files."""
-        sources = [f"cuda/core/{mod_name}.pyx"]
-
-        # Add module-specific .cpp file from _cpp/ directory if it exists
-        # Example: _resource_handles.pyx finds _cpp/resource_handles.cpp.
-        cpp_file = f"cuda/core/_cpp/{mod_name.lstrip('_')}.cpp"
-        if os.path.exists(cpp_file):
-            sources.append(cpp_file)
-
-        return sources
-
     all_include_dirs = [os.path.join(cuda_path, "include")]
     extra_compile_args = []
     extra_link_args = []
@@ -245,17 +281,19 @@ def _build_cuda_core(debug=False):
             extra_compile_args += ["-g", "-O0"]
             extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]
         else:
-            extra_compile_args += ["-O2"]
+            extra_compile_args += ["-g0", "-O2"]
             extra_link_args += ["-Wl,--strip-all"]
     if COMPILE_FOR_COVERAGE:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
         # related to free-threading builds.
         extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
 
+    depends = _extension_depends()
     ext_modules = tuple(
         Extension(
             f"cuda.core.{mod.replace(os.path.sep, '.')}",
-            sources=get_sources(mod),
+            sources=_extension_sources(mod),
+            depends=depends,
             include_dirs=[
                 "cuda/core/_include",
                 "cuda/core/_cpp",
@@ -286,12 +324,20 @@ def _build_cuda_core(debug=False):
         # CUDA_PYTHON_COVERAGE deliberately generates in-tree so the sources can
         # be packaged; every other build gets its own per-configuration cache,
         # anchored alongside the stamp so both resolve the same from any cwd.
+        # Cython also copies each extension's extern headers and `depends` under
+        # this directory and compiles against the copies. Copies are refreshed by
+        # mtime and never deleted, so remove build/ after renaming or deleting a
+        # header under _cpp/.
         build_dir="." if COMPILE_FOR_COVERAGE else str(_BUILD_DIR / "cython" / f"cu{cuda_major}"),
         nthreads=nthreads,
         compiler_directives=compiler_directives,
         compile_time_env=compile_time_env,
         **extra_cythonize_kwargs,
     )
+    # Cython returns generated sources under the absolute build_dir above.
+    # setuptools mirrors absolute source paths into build/temp, which can push
+    # MSVC linker output paths past MAX_PATH in deeper Windows checkouts.
+    _relativize_extension_sources(_extensions)
 
     return
 

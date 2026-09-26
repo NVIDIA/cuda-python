@@ -259,6 +259,26 @@ cdef cudaError_t getDescInfo(const cudaChannelFormatDesc* d, int *numberOfChanne
     elif d[0].f in (cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized1010102,):
         if (d[0].x != 10) or (d[0].y != 10) or (d[0].z != 10) or (d[0].w != 2):
             return cudaErrorInvalidChannelDescriptor
+    elif d[0].f in (cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed422,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed444,):
+        if (d[0].x != 8) or (d[0].y != 8) or (d[0].z != 8) or (d[0].w != 8):
+            return cudaErrorInvalidChannelDescriptor
+    elif d[0].f in (cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar420,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar422,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar444,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar420,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar422,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar444,):
+        if (d[0].x != 8) or (d[0].y != 8) or (d[0].z != 8) or (d[0].w != 0):
+            return cudaErrorInvalidChannelDescriptor
+    elif d[0].f in (cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar420,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar422,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar444,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar420,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar422,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar444,):
+        if (d[0].x != 16) or (d[0].y != 16) or (d[0].z != 16) or (d[0].w != 0):
+            return cudaErrorInvalidChannelDescriptor
     else:
         return cudaErrorInvalidChannelDescriptor
 
@@ -414,12 +434,104 @@ cdef cudaError_t getDescInfo(const cudaChannelFormatDesc* d, int *numberOfChanne
     elif case_desc(d, 10, 10, 10, 2, cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized1010102):
         numberOfChannels[0] = 4
         format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT_101010_2
+    # 2a: normalized 8/16-bit kinds — validated above but previously had no case_desc arm
+    elif case_desc(d, 8, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X1):
+        numberOfChannels[0] = 1
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT8X1
+    elif case_desc(d, 8, 8, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X2):
+        numberOfChannels[0] = 2
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT8X2
+    elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X4):
+        numberOfChannels[0] = 4
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT8X4
+    elif case_desc(d, 8, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X1):
+        numberOfChannels[0] = 1
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT8X1
+    elif case_desc(d, 8, 8, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X2):
+        numberOfChannels[0] = 2
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT8X2
+    elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X4):
+        numberOfChannels[0] = 4
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT8X4
+    elif case_desc(d, 16, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X1):
+        numberOfChannels[0] = 1
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT16X1
+    elif case_desc(d, 16, 16, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X2):
+        numberOfChannels[0] = 2
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT16X2
+    elif case_desc(d, 16, 16, 16, 16, cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X4):
+        numberOfChannels[0] = 4
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT16X4
+    elif case_desc(d, 16, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X1):
+        numberOfChannels[0] = 1
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT16X1
+    elif case_desc(d, 16, 16, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X2):
+        numberOfChannels[0] = 2
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT16X2
+    elif case_desc(d, 16, 16, 16, 16, cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X4):
+        numberOfChannels[0] = 4
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT16X4
+    # 2b: CUDA 13.3/13.4 packed and multi-planar YUV kinds
+    elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed422):
+        numberOfChannels[0] = 4
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT8_PACKED_422
+    elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed444):
+        numberOfChannels[0] = 4
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT8_PACKED_444
+    elif case_desc(d, 8, 8, 8, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar420):
+        numberOfChannels[0] = 3
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT8_SEMIPLANAR_420
+    elif case_desc(d, 16, 16, 16, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar420):
+        numberOfChannels[0] = 3
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT16_SEMIPLANAR_420
+    elif case_desc(d, 8, 8, 8, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar422):
+        numberOfChannels[0] = 3
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT8_SEMIPLANAR_422
+    elif case_desc(d, 16, 16, 16, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar422):
+        numberOfChannels[0] = 3
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT16_SEMIPLANAR_422
+    elif case_desc(d, 8, 8, 8, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar444):
+        numberOfChannels[0] = 3
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT8_SEMIPLANAR_444
+    elif case_desc(d, 16, 16, 16, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar444):
+        numberOfChannels[0] = 3
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT16_SEMIPLANAR_444
+    elif case_desc(d, 8, 8, 8, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar420):
+        numberOfChannels[0] = 3
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT8_PLANAR_420
+    elif case_desc(d, 16, 16, 16, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar420):
+        numberOfChannels[0] = 3
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT16_PLANAR_420
+    elif case_desc(d, 8, 8, 8, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar422):
+        numberOfChannels[0] = 3
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT8_PLANAR_422
+    elif case_desc(d, 16, 16, 16, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar422):
+        numberOfChannels[0] = 3
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT16_PLANAR_422
+    elif case_desc(d, 8, 8, 8, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar444):
+        numberOfChannels[0] = 3
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT8_PLANAR_444
+    elif case_desc(d, 16, 16, 16, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar444):
+        numberOfChannels[0] = 3
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT16_PLANAR_444
     else:
         return cudaErrorInvalidChannelDescriptor
 
     if d[0].f in (cudaChannelFormatKind.cudaChannelFormatKindNV12,
                   cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed6H,
-                  cudaChannelFormatKind.cudaChannelFormatKindSignedBlockCompressed6H,):
+                  cudaChannelFormatKind.cudaChannelFormatKindSignedBlockCompressed6H,
+                  cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar420,
+                  cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar420,
+                  cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar422,
+                  cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar422,
+                  cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar444,
+                  cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar444,
+                  cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar420,
+                  cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar420,
+                  cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar422,
+                  cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar422,
+                  cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar444,
+                  cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar444,):
         if numberOfChannels[0] != 3:
             return cudaErrorInvalidChannelDescriptor
     else:
@@ -536,6 +648,49 @@ cdef cudaError_t getChannelFormatDescFromDriverDesc(cudaChannelFormatDesc* pRunt
         channel_size = 8
     elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UNORM_INT_101010_2:
         pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized1010102
+    # 2b: CUDA 13.3/13.4 packed and multi-planar YUV formats
+    elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UINT8_PACKED_422:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed422
+        channel_size = 8
+    elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UINT8_PACKED_444:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed444
+        channel_size = 8
+    elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UINT8_SEMIPLANAR_420:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar420
+        channel_size = 8
+    elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UINT16_SEMIPLANAR_420:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar420
+        channel_size = 16
+    elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UINT8_SEMIPLANAR_422:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar422
+        channel_size = 8
+    elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UINT16_SEMIPLANAR_422:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar422
+        channel_size = 16
+    elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UINT8_SEMIPLANAR_444:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar444
+        channel_size = 8
+    elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UINT16_SEMIPLANAR_444:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar444
+        channel_size = 16
+    elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UINT8_PLANAR_420:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar420
+        channel_size = 8
+    elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UINT16_PLANAR_420:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar420
+        channel_size = 16
+    elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UINT8_PLANAR_422:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar422
+        channel_size = 8
+    elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UINT16_PLANAR_422:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar422
+        channel_size = 16
+    elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UINT8_PLANAR_444:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar444
+        channel_size = 8
+    elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UINT16_PLANAR_444:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar444
+        channel_size = 16
     else:
         return cudaErrorInvalidChannelDescriptor
 

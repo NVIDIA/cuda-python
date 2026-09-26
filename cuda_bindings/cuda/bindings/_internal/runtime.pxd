@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=afc5b9003f3efc6f826b46b17b5294f581a00a97f82beaad39634b5037b7669a
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0ffe9d8d30b5d068a7a7a368d66ca9f4904fbc62224f8617c3968dd73f017e25
 from ..cyruntime cimport *
 
 # EGL/GL/VDPAU helper declarations (implementations included in runtime_linux/windows.pyx)
@@ -337,3 +337,4 @@ cdef cudaError_t _cudaMemcpyWithAttributesAsync(void* dst, const void* src, size
 cdef cudaError_t _cudaMemcpy3DWithAttributesAsync(cudaMemcpy3DBatchOp* op, unsigned long long flags, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t _cudaGraphNodeGetParams(cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t _cudaStreamBeginRecaptureToGraph(cudaStream_t stream, cudaStreamCaptureMode mode, cudaGraph_t graph, cudaGraphRecaptureCallbackData* callbackData) except ?cudaErrorCallRequiresNewerDriver nogil
+cdef cudaError_t _cudaMemGetLocationInfo(void* devPtr, size_t size, size_t summaryGranularity, size_t samplingGranularity, cudaMemLocation* location_out) except ?cudaErrorCallRequiresNewerDriver nogil
