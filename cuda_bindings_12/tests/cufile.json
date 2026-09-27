@@ -1,7 +1,9 @@
 {
     // NOTE : Application can override custom configuration via export CUFILE_ENV_PATH_JSON=<filepath>
     // e.g : export CUFILE_ENV_PATH_JSON="/home/<xxx>/cufile.json"
-
+            "properties" : {
+                    "allow_compat_mode" : true
+            },
 
             "execution" : {
                     // max number of workitems in the queue;

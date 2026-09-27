@@ -6,7 +6,15 @@ import warnings
 
 import pytest
 
-from cuda.bindings import nvml
+from cuda.bindings import driver, nvml
+
+
+def _driver_version_at_least_13_4():
+    (status,) = driver.cuInit(0)
+    assert status == driver.CUresult.CUDA_SUCCESS
+    status, version = driver.cuDriverGetVersion()
+    assert status == driver.CUresult.CUDA_SUCCESS
+    return version >= 13040
 
 
 def assert_nvml_is_initialized():
@@ -37,6 +45,7 @@ def test_devices_are_the_same_architecture(all_devices):
 
 @pytest.mark.skipif(sys.platform == "win32", reason="Test not supported on Windows")
 @pytest.mark.thread_unsafe(reason="nvml init affects other threads")
+@pytest.mark.skipif(_driver_version_at_least_13_4(), reason="Init behavior changed in CUDA 13.4")
 def test_init_ref_count():
     """
     Verifies that we can call NVML shutdown and init(2) multiple times, and that ref counting works
