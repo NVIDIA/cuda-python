@@ -31,4 +31,4 @@ body:
         - label: Finalize the announcement update
         - label: Send out the announcement internally (on `#swcuda-python`)
         - label: Send out the announcement externally (GitHub Release -> Announcement)
-        - label: For a `cuda-bindings` release, make sure MAJOR and MAJOR-1 releases are made, as well as releases of `cuda-python` for MAJOR and MAJOR-1
+        - label: For a `cuda-bindings` release, confirm which supported release lines are in scope using `ci/versions.yml`, and release the matching `cuda-python` package for each planned line
