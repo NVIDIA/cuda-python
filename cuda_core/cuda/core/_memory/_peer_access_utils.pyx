@@ -14,7 +14,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._memory._device_memory_resource cimport DeviceMemoryResource
 from cuda.core._memory._location cimport cumemlocation_from_id
 from cuda.core._memory._memory_pool cimport MP_check_open
-from cuda.core._resource_handles cimport as_cu
+from cuda.core._rt cimport as_cu
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 from libcpp.vector cimport vector

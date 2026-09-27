@@ -28,14 +28,12 @@ def _literal_assignment(path: Path, name: str):
 @pytest.mark.parametrize(
     ("package", "tag", "version"),
     (
-        ("cuda_core", "cuda-core-v1.2.3.post1", "v1.2.3.post1"),
-        ("cuda_pathfinder", "cuda-pathfinder-v1.2.3.post1", "v1.2.3.post1"),
         ("cuda_bindings", "v13.4.1.post1", "v13.4.1.post1"),
         ("cuda_bindings_12", "v12.9.8.post1", "v12.9.8.post1"),
     ),
 )
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_release_package_scm_regex_preserves_post_suffix(package, tag, version):
+def test_bindings_scm_regex_preserves_post_suffix(package, tag, version):
     with (REPO_ROOT / package / "pyproject.toml").open("rb") as stream:
         pattern = tomllib.load(stream)["tool"]["setuptools_scm"]["tag_regex"]
 

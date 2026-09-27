@@ -120,8 +120,8 @@ class ChildErrorHarness:
 
     @pytest.mark.thread_unsafe(
         reason=(
-            "pytest-run-parallel reuses the same instance and ipc fixtures across "
-            "workers; Process(target=self.child_main) pickles that shared state (#2784)"
+            "pytest-run-parallel shares the ipc fixtures across workers; "
+            "Process(target=...) pickles that shared state (#2784)"
         )
     )
     @pytest.mark.flaky(reruns=2)
@@ -134,9 +134,12 @@ class ChildErrorHarness:
         self._extra_mrs = []
 
         try:
-            # Start a child process to generate error info.
+            # Start a child process to generate error info. Target a fresh
+            # instance: pickling ``self`` would also ship state left behind by
+            # an earlier attempt, such as a buffer whose resource is closed.
             pipe = [multiprocessing.Queue() for _ in range(2)]
-            process = multiprocessing.Process(target=self.child_main, args=(pipe, self.device, self.mr))
+            child = type(self)()
+            process = multiprocessing.Process(target=child.child_main, args=(pipe, self.device, self.mr))
             process.start()
 
             # Interact.

@@ -17,7 +17,7 @@ SCM_DESCRIBE_MATCH_BY_MAJOR = {
     "13": "v13.4.*",
 }
 
-build_major = os.environ.get("CUDA_PYTHON_BUILD_MAJOR", "13")
+build_major = os.environ.get("CUDA_PYTHON_BUILD_MAJOR")
 if build_major not in {"12", "13"}:
     raise ValueError(f"CUDA_PYTHON_BUILD_MAJOR must be 12 or 13, got {build_major!r}")
 

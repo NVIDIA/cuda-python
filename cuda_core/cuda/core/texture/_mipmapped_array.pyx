@@ -13,7 +13,7 @@ from cuda.core.texture._array import (
     _validate_array_shape,
     _validate_format_channels,
 )
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     OpaqueArrayHandle,
     MipmappedArrayHandle,
     as_intptr,

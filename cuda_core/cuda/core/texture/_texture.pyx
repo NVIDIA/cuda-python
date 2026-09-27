@@ -19,7 +19,7 @@ from cuda.core.texture._array import (
 from cuda.core._memory._buffer cimport Buffer, Buffer_check_open
 from cuda.core.texture._mipmapped_array cimport MipmappedArray, MipmappedArray_check_open
 from cuda.core.texture._mipmapped_array import MipmappedArray as _PyMipmappedArray
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     ContextHandle,
     TexObjectHandle,
     as_cu,

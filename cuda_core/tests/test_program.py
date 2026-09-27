@@ -2,10 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import gc
+import os
 import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import warnings
 
 import pytest
@@ -404,6 +407,55 @@ def test_program_init_invalid_code_format():
     code = 12345
     with pytest.raises(TypeError):
         Program(code, "c++")
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="replaces the process-global sys.unraisablehook and tempfile.mkstemp")
+@pytest.mark.parametrize("cleared_first", ["options", "program"])
+def test_program_collected_in_reference_cycle_is_quiet(cleared_first, monkeypatch):
+    """A Program collected as part of a reference cycle is destroyed quietly and removes its debug source (#2876).
+
+    The cyclic collector clears the attributes of every object in the cycle
+    before it runs __dealloc__, in allocation order: either the ProgramOptions
+    loses its fields first, or the Program loses its _options first. Neither
+    may be consulted in __dealloc__. A failure there is only visible through
+    sys.unraisablehook, so the hook is replaced to observe it.
+    """
+    written = []
+    real_mkstemp = tempfile.mkstemp
+
+    def recording_mkstemp(*args, **kwargs):
+        fd, path = real_mkstemp(*args, **kwargs)
+        written.append(path)
+        return fd, path
+
+    monkeypatch.setattr(tempfile, "mkstemp", recording_mkstemp)
+    unraisable = []
+    monkeypatch.setattr(sys, "unraisablehook", unraisable.append)
+
+    code = 'extern "C" __global__ void my_kernel() {}'
+    # arch is passed explicitly so the current device is not queried; debug=True
+    # makes the Program write its source to a temp file for cuda-gdb.
+    options = ProgramOptions(arch="sm_90", debug=True)
+    if cleared_first == "options":
+        # The cycle is allocated between the options and the Program, so the
+        # collector clears the ProgramOptions before it frees the Program.
+        cycle = []
+        cycle.append(cycle)
+        program = Program(code, "c++", options)
+        cycle.append(program)
+    else:
+        # The cycle is allocated after the Program, so the collector clears the
+        # Program's own attributes, including _options, before it frees it.
+        program = Program(code, "c++", options)
+        cycle = [program]
+        cycle.append(cycle)
+    assert written and all(os.path.exists(path) for path in written)
+    del options, program, cycle
+    gc.collect()
+
+    assert unraisable == []
+    assert not any(os.path.exists(path) for path in written)
 
 
 # arch is passed explicitly so the current device is not queried.

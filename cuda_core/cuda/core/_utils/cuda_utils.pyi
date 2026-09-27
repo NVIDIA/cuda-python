@@ -12,9 +12,40 @@ _keep_nvrtc_in_stub: nvrtc.nvrtcResult
 _keep_runtime_in_stub: runtime.cudaError_t
 _fork_warning_checked = False
 
-class CUDAError(Exception): ...
+class CUDAError(Exception):
+    """Raised when a CUDA driver or runtime call fails.
 
-class NVRTCError(CUDAError): ...
+    The message names the CUDA error and, when one is known, explains it. A
+    secondary failure observed while the error was being raised, such as a
+    failed restoration of the caller's CUDA context, is attached as a note
+    (``__notes__``) on Python 3.11 and newer and appended to the message on
+    older interpreters. See the error handling page of the ``cuda.core``
+    documentation for the guarantees an exception provides.
+    """
+
+class CUDAWarning(RuntimeWarning):
+    """Warning issued when ``cuda.core`` hits a CUDA error it cannot raise.
+
+    ``cuda.core`` raises exceptions for failures in ordinary calls. Some failures
+    happen where no exception can propagate: while a resource is released by the
+    garbage collector or by a CUDA callback, including the driver calls that
+    switch and restore the CUDA context around such a release. Those failures
+    are reported as this warning instead, and the affected resource may have
+    leaked.
+
+    Filter on this category to make such failures fatal in tests::
+
+        warnings.filterwarnings("error", category=cuda.core.CUDAWarning)
+
+    Because the report comes from a destructor, an escalated warning cannot be
+    raised into user code; it is delivered through :func:`sys.unraisablehook`
+    (which pytest surfaces as ``PytestUnraisableExceptionWarning``).
+
+    .. versionadded:: 1.3.0
+    """
+
+class NVRTCError(CUDAError):
+    """Raised when an NVRTC call fails; the compiler log is appended when available."""
 
 class ComputeCapability(NamedTuple):
     """A named tuple of (major, minor) CUDA compute capability version numbers."""
@@ -23,33 +54,34 @@ class ComputeCapability(NamedTuple):
 
 class Transaction:
     """
-    A context manager for transactional operations with undo capability.
+    A context manager for transactional operations with failure and exit callbacks.
 
-    The Transaction class allows you to register undo actions (callbacks) that will be executed
-    if the transaction is not committed before exiting the context. This is useful for managing
-    resources or operations that need to be rolled back in case of errors or early exits.
+    Failure callbacks are executed in LIFO order if the transaction exits without being committed.
+    Exit callbacks always run: in LIFO order on rollback or FIFO order during commit.
 
     Usage:
         with Transaction() as txn:
-            txn.append(some_cleanup_function, arg1, arg2)
+            txn.on_failure(some_cleanup_function, arg1, arg2)
+            txn.on_exit(some_finalize_function, arg1, arg2)
             # ... perform operations ...
-            txn.commit()  # Disarm undo actions; nothing will be rolled back on exit
+            txn.commit()
 
     Methods:
-        append(fn, *args, **kwargs): Register an undo action to be called on rollback.
-        commit(): Disarm all undo actions; nothing will be rolled back on exit.
+        on_failure(fn, *args, **kwargs): Register a callback to be called on rollback.
+        on_exit(fn, *args, **kwargs): Register a callback to be called on rollback or commit.
+        commit(): Disarm failure callbacks and run exit callbacks.
     """
     def __init__(self) -> None: ...
     def __enter__(self): ...
     def __exit__(self, exc_type, exc, tb): ...
-    def append(self, fn: Callable[..., Any], /, *args: Any, **kwargs) -> None:
-        """
-        Register an undo action (runs if the with-block exits without commit()).
-        Values are bound now via partial so late mutations don't bite you.
-        """
+    def _register(self, callback: Callable[[], Any], on_commit: bool) -> None: ...
+    def on_failure(self, fn: Callable[..., Any], /, *args: Any, **kwargs) -> None:
+        """Register a failure callback (runs if the with-block exits without commit())."""
+    def on_exit(self, fn: Callable[..., Any], /, *args: Any, **kwargs) -> None:
+        """Register an exit callback (runs exactly once, on rollback or during commit())."""
     def commit(self) -> None:
         """
-        Disarm all undo actions. After this, exiting the with-block does nothing.
+        Disarm all failure callbacks, then run exit callbacks in FIFO order.
         """
 
 def cast_to_3_tuple(label: str, cfg: int | tuple[int, ...]) -> tuple[int, int, int]: ...

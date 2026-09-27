@@ -3,7 +3,7 @@
 
 .. This code was automatically generated with version 13.4.1. Do not modify it directly.
 
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8fb799afff57074126fc28394dc578e31f2d13bffcbecea17a8e14da87e419c7
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=36581a940ea8eab6240dfa90b5b0598bb90a5cfa8364156b1626801c89c39a2d
 ------
 driver
 ------
@@ -2624,7 +2624,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUjit_option.CU_JIT_FALLBACK_STRATEGY
 
 
-        Specifies choice of fallback strategy if matching cubin is not found. Choice is based on supplied :py:obj:`~.CUjit_fallback`. This option cannot be used with cuLink\* APIs as the linker requires exact matches.
+        Specifies choice of fallback strategy if matching cubin is not found. Choice is based on supplied :py:obj:`~.CUjit_fallback`. This option cannot be used with cuLink* APIs as the linker requires exact matches.
 
         Option type: unsigned int for enumerated type :py:obj:`~.CUjit_fallback`
 

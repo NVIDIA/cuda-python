@@ -1,16 +1,34 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import warnings
 from contextlib import contextmanager
 
+from cuda.core import CUDAWarning
 from cuda.core._utils.cuda_utils import driver, handle_return
 
 __all__ = [
     "assert_device_operations_use_bound_context",
+    "assert_no_cuda_warning",
     "current_context_handle",
     "no_current_context",
     "use_context",
 ]
+
+
+@contextmanager
+def assert_no_cuda_warning():
+    """Fail if a :class:`CUDAWarning` is issued inside the block.
+
+    Cleanup paths cannot raise, so a driver failure there surfaces only as a
+    warning; this makes such a failure a test failure. Tests using it must be
+    marked ``thread_unsafe``: warning capture is process-global.
+    """
+    with warnings.catch_warnings(record=True) as records:
+        warnings.simplefilter("always", CUDAWarning)
+        yield
+    cuda_warnings = [str(record.message) for record in records if issubclass(record.category, CUDAWarning)]
+    assert not cuda_warnings, f"unexpected CUDAWarning(s): {cuda_warnings}"
 
 
 def current_context_handle():

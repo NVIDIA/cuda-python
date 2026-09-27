@@ -166,7 +166,7 @@ def test_cli_writes_package_json_from_stdin_to_github_env(tmp_path, capsys, monk
 
     assert capsys.readouterr().out == ""
     assert output.read_text(encoding="utf-8").splitlines() == [
-        "BUILD_CTK_VER=13.4.1",
+        "BUILD_CTK_VER=13.4.2",
         "BINDINGS_PACKAGE_ROOT=cuda_bindings",
         "BINDINGS_REGISTRY_ORIGIN=tag",
     ]

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.4.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a696e744ee4520d7a8db8937f28c9ae9b92ff208900c1aba6b3dcf866a960e64
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a7028b3fc77724f1ea7c5c49302cfe8524b85554b73eaf754231ac9bfc26c0f7
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -20,7 +20,9 @@ cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) excep
         flags |= _cyb_cpython.PyBUF_WRITABLE
     cdef int status = -1
     cdef _cyb_cpython.Py_buffer view
-    if isinstance(buf, int):
+    if buf is None:
+        ptr = 0
+    elif isinstance(buf, int):
         ptr = <intptr_t>buf
     else:
         try:
@@ -31,7 +33,7 @@ cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) excep
         except Exception as e:
             adj = "writable " if not readonly else ""
             raise ValueError(
-                "buf must be either a Python int representing the pointer "
+                "buf must be None, a Python int representing the pointer "
                 f"address to a valid buffer, or a 1D contiguous {adj}"
                 f"buffer, of size {size}"
             ) from e
@@ -149,14 +151,13 @@ cpdef intptr_t create(options, size_t options_count) except -1:
     """nvFatbinCreate creates a new handle.
 
     Args:
-        options (object): An array of strings, each containing a
-            single option. It can be:
+        options (object): An array of strings, each containing a single
+            option. It can be:
 
             - an :class:`int` as the pointer address to the nested sequence, or
             - a Python sequence of :class:`int`\s, each of which is a pointer address
               to a valid sequence of 'char', or
             - a nested Python sequence of ``str``.
-
         options_count (size_t): Number of options.
 
     Returns:
@@ -180,8 +181,8 @@ cpdef add_ptx(intptr_t handle, code, size_t size, arch, identifier, options_cmd_
         handle (intptr_t): nvFatbin handle.
         code (bytes): The PTX code.
         size (size_t): The size of the PTX code.
-        arch (str): The numerical architecture that this PTX is for
-            (the XX of any sm_XX, lto_XX, or compute_XX).
+        arch (str): The numerical architecture that this PTX is for (the
+            XX of any sm_XX, lto_XX, or compute_XX).
         identifier (str): Name of the PTX, useful when extracting the
             fatbin with tools like cuobjdump.
         options_cmd_line (str): Options used during JIT compilation.
@@ -213,10 +214,10 @@ cpdef add_cubin(intptr_t handle, code, size_t size, arch, identifier):
         handle (intptr_t): nvFatbin handle.
         code (bytes): The cubin.
         size (size_t): The size of the cubin.
-        arch (str): The numerical architecture that this cubin is for
-            (the XX of any sm_XX, lto_XX, or compute_XX).
-        identifier (str): Name of the cubin, useful when extracting
-            the fatbin with tools like cuobjdump.
+        arch (str): The numerical architecture that this cubin is for (the
+            XX of any sm_XX, lto_XX, or compute_XX).
+        identifier (str): Name of the cubin, useful when extracting the
+            fatbin with tools like cuobjdump.
 
     .. seealso:: `nvFatbinAddCubin`
     """
@@ -241,10 +242,10 @@ cpdef add_ltoir(intptr_t handle, code, size_t size, arch, identifier, options_cm
         handle (intptr_t): nvFatbin handle.
         code (bytes): The LTOIR code.
         size (size_t): The size of the LTOIR code.
-        arch (str): The numerical architecture that this LTOIR is for
-            (the XX of any sm_XX, lto_XX, or compute_XX).
-        identifier (str): Name of the LTOIR, useful when extracting
-            the fatbin with tools like cuobjdump.
+        arch (str): The numerical architecture that this LTOIR is for (the
+            XX of any sm_XX, lto_XX, or compute_XX).
+        identifier (str): Name of the LTOIR, useful when extracting the
+            fatbin with tools like cuobjdump.
         options_cmd_line (str): Options used during JIT compilation.
 
     .. seealso:: `nvFatbinAddLTOIR`
@@ -305,7 +306,6 @@ cpdef tuple version():
 
     Returns:
         A 2-tuple containing:
-
         - unsigned int: The major version.
         - unsigned int: The minor version.
 
@@ -320,6 +320,17 @@ cpdef tuple version():
 
 
 cpdef add_index(intptr_t handle, code, size_t size, identifier):
+    """nvFatbinAddIndex adds an index file to the fatbinary.
+
+    Args:
+        handle (intptr_t): nvFatbin handle.
+        code (bytes): The index.
+        size (size_t): The size of the index.
+        identifier (str): Name of the index, useful when extracting the
+            fatbin with tools like cuobjdump.
+
+    .. seealso:: `nvFatbinAddIndex`
+    """
     cdef void* _code_ = <void *>_cyb_get_buffer_pointer(code, size, readonly=True)
     if not isinstance(identifier, str):
         raise TypeError("identifier must be a Python str")
@@ -353,8 +364,8 @@ cpdef add_tile_ir(intptr_t handle, code, size_t size, identifier, options_cmd_li
         handle (intptr_t): nvFatbin handle.
         code (bytes): The Tile IR.
         size (size_t): The size of the Tile IR.
-        identifier (str): Name of the Tile IR, useful when extracting
-            the fatbin with tools like cuobjdump.
+        identifier (str): Name of the Tile IR, useful when extracting the
+            fatbin with tools like cuobjdump.
         options_cmd_line (str): Options used during JIT compilation.
 
     .. seealso:: `nvFatbinAddTileIR`

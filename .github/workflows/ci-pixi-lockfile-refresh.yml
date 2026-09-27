@@ -2,9 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Scheduled (and on-demand) pixi lockfile refresh. Each workspace gets its own
-# PR so a benchmark or docs environment cannot drag unrelated package churn
-# into review. See #2298.
+# Scheduled (and on-demand) pixi lockfile refresh. All workspaces are updated
+# in one job and, when anything changes, one PR. See #2298 and #2849.
 
 name: "CI: pixi lockfile refresh"
 
@@ -15,14 +14,7 @@ on:
     # documents scheduled runs being delayed or dropped.
     - cron: "17 3 * * 1"
       timezone: "America/New_York"
-  workflow_dispatch:
-    inputs:
-      package:
-        description: >
-          Pixi workspace id to refresh, or "all". Valid ids come from
-          ci/tools/list_pixi_workspaces.py; an unknown id fails the run.
-        type: string
-        default: all
+  workflow_dispatch: {}
 
 defaults:
   run:
@@ -31,47 +23,17 @@ defaults:
 permissions: {}
 
 jobs:
-  # Job-level `if` cannot use `matrix` (evaluated before expansion), and the
-  # workspace list must not drift from the committed manifests, so resolve the
-  # requested workspaces here and pass them to refresh as a dynamic matrix.
-  plan:
-    name: Select workspaces
+  refresh:
+    name: pixi update (all workspaces)
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-    outputs:
-      matrix: ${{ steps.select.outputs.matrix }}
-    steps:
-      - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-
-      - name: Select workspaces to refresh
-        id: select
-        env:
-          PACKAGE: ${{ inputs.package || 'all' }}
-        run: |
-          workspaces="$(python3 ci/tools/list_pixi_workspaces.py --select "${PACKAGE}")"
-          echo "matrix=$(jq -c '{include: .}' <<<"${workspaces}")" >> "${GITHUB_OUTPUT}"
-
-  refresh:
-    name: "pixi update (${{ matrix.id }})"
-    needs: plan
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 195
     permissions:
       contents: write
       pull-requests: write
     concurrency:
-      group: pixi-lock-refresh-${{ matrix.branch_key }}
+      group: pixi-lock-refresh
       cancel-in-progress: false
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -83,44 +45,94 @@ jobs:
         id: setup-pixi
         uses: ./.github/actions/setup-pixi
 
-      - name: Update lockfile without installing
-        run: pixi update --no-install --manifest-path "${{ matrix.manifest }}"
-
       # Pixi 0.73.0's update and lock-read paths can serialize the same solve
       # differently (#2804). Canonicalize with the same operation used by the
       # freshness workflow before opening the PR.
-      - name: Canonicalize the updated lockfile
-        run: pixi lock --check --manifest-path "${{ matrix.manifest }}"
-
-      - name: Verify canonicalization is byte-stable
+      - name: Update and canonicalize all lockfiles
+        id: update
         env:
-          LOCKFILE: ${{ matrix.lockfile }}
-          MANIFEST: ${{ matrix.manifest }}
           PIXI_VERSION: ${{ steps.setup-pixi.outputs.pixi-version }}
+          WORKSPACE_TIMEOUT: 30m
         run: |
-          canonical_blob="$(git hash-object "${LOCKFILE}")"
-          pixi lock --check --manifest-path "${MANIFEST}"
-          verified_blob="$(git hash-object "${LOCKFILE}")"
-          if [ "${canonical_blob}" != "${verified_blob}" ]; then
-            echo "::error::pixi ${PIXI_VERSION} rewrote ${LOCKFILE} on a second consecutive pixi lock --check; refusing to open an unstable refresh PR."
-            exit 1
-          fi
+          workspaces="$(python3 ci/tools/list_pixi_workspaces.py)"
+          workspace_rows="$(
+            jq -ce '
+              if type != "array" or length == 0 then
+                error("workspace inventory must be a non-empty array")
+              elif any(.[];
+                type != "object"
+                or (.manifest | type != "string")
+                or (.lockfile | type != "string")
+                or .manifest == ""
+                or .lockfile == ""
+              ) then
+                error("each workspace must have non-empty string manifest and lockfile fields")
+              else
+                .[]
+              end
+            ' <<<"${workspaces}"
+          )"
+
+          while IFS= read -r workspace; do
+            manifest="$(jq -r '.manifest' <<<"${workspace}")"
+            lockfile="$(jq -r '.lockfile' <<<"${workspace}")"
+            echo "::group::pixi update (${manifest})"
+
+            workspace_status=0
+            # The single-quoted script expands its variables in the child shell.
+            # shellcheck disable=SC2016
+            timeout --kill-after=1m "${WORKSPACE_TIMEOUT}" \
+              bash --noprofile --norc -xeuo pipefail -c '
+                manifest="$1"
+                lockfile="$2"
+                pixi_version="$3"
+
+                pixi update --no-install --manifest-path "${manifest}"
+                pixi lock --check --manifest-path "${manifest}"
+
+                canonical_blob="$(git hash-object "${lockfile}")"
+                pixi lock --check --manifest-path "${manifest}"
+                verified_blob="$(git hash-object "${lockfile}")"
+                if [ "${canonical_blob}" != "${verified_blob}" ]; then
+                  echo "::error::pixi ${pixi_version} rewrote ${lockfile} on a second consecutive pixi lock --check; refusing to open an unstable refresh PR."
+                  exit 1
+                fi
+              ' bash "${manifest}" "${lockfile}" "${PIXI_VERSION}" \
+              || workspace_status=$?
+
+            if ((workspace_status == 124 || workspace_status == 137)); then
+              echo "::error::Timed out after ${WORKSPACE_TIMEOUT} while refreshing '${manifest}'."
+            elif ((workspace_status != 0)); then
+              echo "::error::Failed to refresh '${manifest}' (exit ${workspace_status})."
+            fi
+            echo "::endgroup::"
+            if ((workspace_status != 0)); then
+              exit "${workspace_status}"
+            fi
+          done <<<"${workspace_rows}"
+
+          {
+            echo "lockfiles<<EOF"
+            jq -r '.[].lockfile' <<<"${workspaces}"
+            echo "EOF"
+          } >> "${GITHUB_OUTPUT}"
 
       - name: Compose PR body
         id: pr-body
         env:
-          WORKSPACE_ID: ${{ matrix.id }}
-          MANIFEST: ${{ matrix.manifest }}
           PIXI_VERSION: ${{ steps.setup-pixi.outputs.pixi-version }}
         run: |
           body_path="${RUNNER_TEMP}/pixi-lock-refresh-body.md"
           {
-            echo "Automated lockfile refresh for \`${WORKSPACE_ID}\` using pixi" \
+            echo "Automated lockfile refresh for all workspaces using pixi" \
               "\`${PIXI_VERSION}\` (\`pixi update --no-install\`, followed by" \
               "byte-stable \`pixi lock --check\` canonicalization)."
             echo
-            echo "This PR is workspace-scoped so other packages are not forced to review"
-            echo "unrelated solver churn. See #2298."
+            echo "Lockfiles included in the refresh:"
+            python3 ci/tools/list_pixi_workspaces.py \
+              | jq -r '.[] | "- `\(.lockfile)`"'
+            echo
+            echo "See #2298 and #2849."
             echo
             echo "> [!IMPORTANT]"
             echo "> This PR was opened with \`GITHUB_TOKEN\`. A maintainer with write access must:"
@@ -140,16 +152,13 @@ jobs:
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           token: ${{ github.token }}
-          add-paths: ${{ matrix.lockfile }}
-          commit-message: |
-            chore: refresh pixi.lock for ${{ matrix.id }}
-
-            Scheduled pixi update --no-install for this workspace only.
+          add-paths: ${{ steps.update.outputs.lockfiles }}
+          commit-message: "chore: refresh pixi lockfiles"
           signoff: true
           sign-commits: true
-          branch: ci/pixi-lock-refresh/${{ matrix.branch_key }}
+          branch: ci/pixi-lock-refresh/all
           delete-branch: true
-          title: "chore: refresh pixi.lock (${{ matrix.id }})"
+          title: "chore: refresh pixi lockfiles"
           labels: |
             CI/CD
             dependencies
@@ -164,10 +173,8 @@ jobs:
       - name: Summarize
         run: |
           {
-            echo "### pixi lock refresh (${{ matrix.id }})"
+            echo "### pixi lock refresh (all workspaces)"
             echo ""
-            echo "- Manifest: \`${{ matrix.manifest }}\`"
-            echo "- Lockfile: \`${{ matrix.lockfile }}\`"
             echo "- Operation: \`${{ steps.cpr.outputs.pull-request-operation }}\`"
             if [ -n "${{ steps.cpr.outputs.pull-request-url }}" ]; then
               echo "- PR: ${{ steps.cpr.outputs.pull-request-url }}"

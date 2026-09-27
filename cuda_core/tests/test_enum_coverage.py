@@ -370,21 +370,33 @@ def test_wrapper_covers_all_binding_members(binding, str_enum, mapping, binding_
 
     # Reverse check: every StrEnum member must also appear in the mapping.
     if str_enum is not None:
+        required_count = len(required)
         if mapping is not None:
             required_str = set(str_enum.__members__) - str_enum_unmapped
             covered_str = {m.name for m in (*mapping.keys(), *mapping.values()) if isinstance(m, str_enum)}
             missing_str = required_str - covered_str
             assert not missing_str, f"{str_enum.__name__} has members not covered by the wrapper mapping: {missing_str}"
 
-        # For checking a StrEnum against a cuda_binding enum directly, without a
-        # mapping, the best we can do is count them, since it's reasonable that
-        # they have been renamed for clarity.  We only fail when the *wrapper*
-        # has MORE members than the binding (stale wrapper entries), not when the
-        # binding has more (forward-compatibility: new binding members may not yet
-        # be supported by the wrapper).
-        required_count = len(required)
-        covered_str_enum = set(str_enum.__members__) - str_enum_unmapped
-        covered_count = len(covered_str_enum)
+            # Count wrapper coverage by the *distinct binding values* each wrapper
+            # member maps to, rather than by wrapper member name.  This resolves
+            # deprecated wrapper aliases (e.g. GpuP2PCapsIndex.PROP, kept for API
+            # stability) to the binding member they actually target (e.g. PCI), so
+            # they don't inflate the count against a binding enum that has already
+            # collapsed its own equivalent aliases out of `__members__`.
+            covered_count = len(
+                {int(v) for k, v in mapping.items() if isinstance(k, str_enum) and isinstance(v, binding)}
+            )
+        else:
+            # For checking a StrEnum against a cuda_binding enum directly, without a
+            # mapping, the best we can do is count them, since it's reasonable that
+            # they have been renamed for clarity.
+            covered_str_enum = set(str_enum.__members__) - str_enum_unmapped
+            covered_count = len(covered_str_enum)
+
+        # We only fail when the *wrapper* has MORE members than the binding
+        # (stale wrapper entries), not when the binding has more
+        # (forward-compatibility: new binding members may not yet be supported
+        # by the wrapper).
         if covered_count > required_count:
             raise AssertionError(
                 f"`{str_enum.__module__}.{str_enum.__qualname__}` has {covered_count} members, "

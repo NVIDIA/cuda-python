@@ -9,7 +9,7 @@ from libc.stdint cimport uintptr_t
 from cuda.bindings cimport cydriver
 from cuda.core._context cimport Context
 from cuda.core._memory._buffer cimport Buffer, MemoryResource
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     ContextHandle,
     create_context_bound_legacy_stream,
     deviceptr_alloc_raw,

@@ -5,7 +5,7 @@
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, MemoryResource
 from cuda.core._memory._ipc cimport IPCDataForMR
-from cuda.core._resource_handles cimport MemoryPoolHandle
+from cuda.core._rt cimport MemoryPoolHandle
 from cuda.core._stream cimport Stream
 
 

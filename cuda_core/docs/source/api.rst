@@ -312,6 +312,23 @@ The associated enumerations —
 alongside the other ``cuda.core`` enumerations.
 
 
+Errors and warnings
+-------------------
+
+Failed CUDA calls raise exceptions; see :doc:`error_handling` for the
+guarantees an exception provides and for the situations in which a failure is
+reported as a warning instead.
+
+.. currentmodule:: cuda.core
+
+.. autosummary::
+   :toctree: generated/
+
+   CUDAError
+   NVRTCError
+   CUDAWarning
+
+
 CUDA process checkpointing
 --------------------------
 

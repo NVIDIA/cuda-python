@@ -12,10 +12,15 @@ import sys
 import numpy as np
 import pyglet
 import pytest
-from cuda_python_test_helpers.graphics import is_gl_context_unavailable, open_gl_window
+from cuda_python_test_helpers.graphics import (
+    is_gl_context_unavailable,
+    open_gl_window,
+    select_headless_egl_device_for_cuda,
+)
 
 from cuda.core import (
     Buffer,
+    Device,
     GraphicsResource,
 )
 from cuda.core._utils.cuda_utils import CUDAError
@@ -51,11 +56,19 @@ def _register_gl_image(tex_id, target):
 
 
 def _configure_pyglet_headless():
-    """On headless Linux: enable EGL mode or skip if EGL is absent."""
+    """On headless Linux: enable EGL mode, matched to the current CUDA device, or skip if EGL is absent."""
     if sys.platform.startswith("linux") and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
         if ctypes.util.find_library("EGL") is None:
             pytest.skip("No DISPLAY and no EGL runtime available for headless context.")
         pyglet.options["headless"] = True
+
+        # CUDA_VISIBLE_DEVICES does not reorder EGL's device enumeration, so on
+        # headless multi-GPU systems EGL device 0 may not be the physical GPU
+        # backing the currently-selected CUDA device. Pick the
+        # EGL device that the driver reports as corresponding to it.
+        egl_device = select_headless_egl_device_for_cuda(Device().device_id)
+        if egl_device is not None:
+            pyglet.options["headless_device"] = egl_device
 
 
 def _allocate_gl_buffer(win, nbytes):
