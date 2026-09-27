@@ -68,12 +68,16 @@ def test_uses_configured_fallback_before_first_release_tag(tmp_path):
 def test_reachable_release_disables_override(tmp_path):
     repo, _ = make_repo(tmp_path)
     git(repo, "tag", "v12.9.0")
+    assert pretend_version(repo, SHA, RELEASED_12) is None
+    git(repo, "commit", "--allow-empty", "-m", "after 12.9.0")
     assert pretend_version(repo, SHA, RELEASED_12) == "12.9.8.dev0+gabcdef0"
     git(repo, "tag", "v12.9.7")
+    git(repo, "commit", "--allow-empty", "-m", "after 12.9.7")
     assert pretend_version(repo, SHA, RELEASED_12) == "12.9.8.dev0+gabcdef0"
     git(repo, "tag", "v12.9.8a1")
     assert pretend_version(repo, SHA, RELEASED_12) is None
 
+    git(repo, "commit", "--allow-empty", "-m", "after 12.9.8a1")
     git(repo, "tag", "v12.9.8")
     assert pretend_version(repo, SHA, RELEASED_12) is None
     git(repo, "commit", "--allow-empty", "-m", "post-release")
@@ -116,6 +120,7 @@ def test_configured_package_uses_its_root_and_scm_tag_regex(tmp_path):
     git(repo, "tag", "v12.9.99")
     git(repo, "tag", "v13.3.99")
     git(repo, "tag", "v13.2.1")
+    git(repo, "commit", "--allow-empty", "-m", "after 13.2.1")
     assert pretend_version(repo, SHA, ALTERNATE_13) == "13.2.2.dev0+gabcdef0"
 
     git(repo, "tag", "v13.2.2a1")
