@@ -72,64 +72,32 @@ jobs:
           WORKPLAN: ${{ inputs.workplan }}
         run: |
           set -euo pipefail
-          # Native jq on Windows emits CRLF, so treat CR as an input delimiter too.
-          IFS=$'\t\r' read -r \
-            current_root maintenance_root current_variant maintenance_variant < <(
-              jq -er '
-                (.package_roots[] | select(.release_status == "current")) as $current
-                | (.package_roots[] | select(.release_status == "maintenance")) as $maintenance
-                | [$current.package_root, $maintenance.package_root,
-                   $current.cuda_variant, $maintenance.cuda_variant]
-                | @tsv
-              ' <<< "$BINDINGS_CONFIG"
-            )
-
-          IFS=$'\t\r' read -r \
-            pathfinder_source build_pathfinder build_bindings build_core build_cuda_python \
-            test_bindings test_core build_bindings_current build_bindings_maintenance \
-            build_cuda_python_current build_cuda_python_maintenance test_bindings_current \
-            test_bindings_maintenance test_core_current test_core_maintenance < <(
-              jq -er \
-                --arg current "$current_root" \
-                --arg maintenance "$maintenance_root" \
-                --arg current_variant "$current_variant" \
-                --arg maintenance_variant "$maintenance_variant" '
-                  [.sources.pathfinder,
-                   .modules.pathfinder.needs_build,
-                   .modules.bindings.needs_build,
-                   .modules.core.needs_build,
-                   .modules.python.needs_build,
-                   .modules.bindings.needs_test,
-                   .modules.core.needs_test,
-                   .modules.bindings.package_roots[$current].needs_build,
-                   .modules.bindings.package_roots[$maintenance].needs_build,
-                   .modules.python.package_roots[$current].needs_build,
-                   .modules.python.package_roots[$maintenance].needs_build,
-                   .modules.bindings.package_roots[$current].needs_test,
-                   .modules.bindings.package_roots[$maintenance].needs_test,
-                   .modules.core.cuda_majors[$current_variant].needs_test,
-                   .modules.core.cuda_majors[$maintenance_variant].needs_test]
-                  | @tsv
-                ' <<< "$WORKPLAN"
-            )
-
-          {
-            echo "PATHFINDER_SOURCE=$pathfinder_source"
-            echo "BUILD_PATHFINDER=$build_pathfinder"
-            echo "BUILD_BINDINGS=$build_bindings"
-            echo "BUILD_BINDINGS_CURRENT=$build_bindings_current"
-            echo "BUILD_BINDINGS_MAINTENANCE=$build_bindings_maintenance"
-            echo "BUILD_CORE=$build_core"
-            echo "BUILD_CUDA_PYTHON=$build_cuda_python"
-            echo "BUILD_CUDA_PYTHON_CURRENT=$build_cuda_python_current"
-            echo "BUILD_CUDA_PYTHON_MAINTENANCE=$build_cuda_python_maintenance"
-            echo "TEST_BINDINGS=$test_bindings"
-            echo "TEST_BINDINGS_CURRENT=$test_bindings_current"
-            echo "TEST_BINDINGS_MAINTENANCE=$test_bindings_maintenance"
-            echo "TEST_CORE=$test_core"
-            echo "TEST_CORE_CURRENT=$test_core_current"
-            echo "TEST_CORE_MAINTENANCE=$test_core_maintenance"
-          } >> "$GITHUB_ENV"
+          jq -er --argjson config "$BINDINGS_CONFIG" '
+            . as $plan
+            | ($config.package_roots | map(select(.release_status == "current"))
+               | if length == 1 then .[0] else error("expected one current bindings package root") end) as $current
+            | ($config.package_roots | map(select(.release_status == "maintenance"))
+               | if length == 1 then .[0] else error("expected one maintenance bindings package root") end) as $maintenance
+            | {
+                PATHFINDER_SOURCE: $plan.sources.pathfinder,
+                BUILD_PATHFINDER: $plan.modules.pathfinder.needs_build,
+                BUILD_BINDINGS: $plan.modules.bindings.needs_build,
+                BUILD_BINDINGS_CURRENT: $plan.modules.bindings.package_roots[$current.package_root].needs_build,
+                BUILD_BINDINGS_MAINTENANCE: $plan.modules.bindings.package_roots[$maintenance.package_root].needs_build,
+                BUILD_CORE: $plan.modules.core.needs_build,
+                BUILD_CUDA_PYTHON: $plan.modules.python.needs_build,
+                BUILD_CUDA_PYTHON_CURRENT: $plan.modules.python.package_roots[$current.package_root].needs_build,
+                BUILD_CUDA_PYTHON_MAINTENANCE: $plan.modules.python.package_roots[$maintenance.package_root].needs_build,
+                TEST_BINDINGS: $plan.modules.bindings.needs_test,
+                TEST_BINDINGS_CURRENT: $plan.modules.bindings.package_roots[$current.package_root].needs_test,
+                TEST_BINDINGS_MAINTENANCE: $plan.modules.bindings.package_roots[$maintenance.package_root].needs_test,
+                TEST_CORE: $plan.modules.core.needs_test,
+                TEST_CORE_CURRENT: $plan.modules.core.cuda_majors[$current.cuda_variant].needs_test,
+                TEST_CORE_MAINTENANCE: $plan.modules.core.cuda_majors[$maintenance.cuda_variant].needs_test
+              }
+            | to_entries[]
+            | if .value == null then error("missing workplan value for \(.key)") else "\(.key)=\(.value)" end
+          ' <<< "$WORKPLAN" >> "$GITHUB_ENV"
 
       - name: Install latest rapidsai/sccache
         if: ${{ startsWith(inputs.host-platform, 'linux') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}

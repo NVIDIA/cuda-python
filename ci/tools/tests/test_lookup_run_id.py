@@ -131,6 +131,14 @@ def _lookup(fake_gh, runs, artifacts, *args, workflow="CI", cwd=None):
     )
 
 
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_lookup_requires_explicit_mode(fake_gh):
+    result = _lookup(fake_gh, [], {}, "v13.3.1")
+
+    assert result.returncode == 1
+    assert "--tag <git-tag>" in result.stderr
+
+
 @pytest.mark.agent_authored(model="gpt-5.6")
 class TestBranchLookup:
     def test_filters_successful_runs_before_applying_limit(self, fake_gh):
