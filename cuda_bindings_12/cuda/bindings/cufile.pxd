@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated with version 12.9.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7de7c59ce5ce65a5fccef9b4a9566185b99213e3bb66b87256e52bda1e9cf089
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d258ab09c1e0f379fdda911b1088aaecef867845f2c2a93095a0a311679d95e2
 
 
 
@@ -51,7 +51,7 @@ ctypedef CUFileStringConfigParameter_t _StringConfigParameter
 # Functions
 ###############################################################################
 
-cpdef intptr_t handle_register(intptr_t descr) except? 0
+cpdef intptr_t handle_register(descr) except? 0
 cpdef void handle_deregister(intptr_t fh) except*
 cpdef buf_register(intptr_t buf_ptr_base, size_t length, int flags)
 cpdef buf_deregister(intptr_t buf_ptr_base)
@@ -63,8 +63,8 @@ cpdef driver_set_max_direct_io_size(size_t max_direct_io_size)
 cpdef driver_set_max_cache_size(size_t max_cache_size)
 cpdef driver_set_max_pinned_mem_size(size_t max_pinned_size)
 cpdef intptr_t batch_io_set_up(unsigned nr) except? 0
-cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, intptr_t iocbp, unsigned int flags)
-cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, intptr_t iocbp, intptr_t timeout)
+cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, iocbp, unsigned int flags)
+cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, iocbp, intptr_t timeout)
 cpdef batch_io_cancel(intptr_t batch_idp)
 cpdef void batch_io_destroy(intptr_t batch_idp) except*
 cpdef read_async(intptr_t fh, intptr_t buf_ptr_base, intptr_t size_p, intptr_t file_offset_p, intptr_t buf_ptr_offset_p, intptr_t bytes_read_p, intptr_t stream)

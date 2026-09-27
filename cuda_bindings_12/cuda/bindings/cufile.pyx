@@ -3,14 +3,25 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated with version 12.9.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3f4b1b8c4b79253c33c049ec2b53fc2e6cf7fe58912d71ec5505cb8b3cca6a98
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d62f6263d1fb1fb7c7c55516972f8e40d6b019462e47ae11127db8f8ef5a805d
 
 
 # <<<< PREAMBLE CONTENT >>>>
 
 cimport cpython as _cyb_cpython
 cimport cpython.buffer as _cyb_cpython_buffer
+from cpython.buffer cimport (
+    PyBUF_SIMPLE as _cyb_PyBUF_SIMPLE,
+    PyBuffer_Release as _cyb_PyBuffer_Release,
+    PyObject_GetBuffer as _cyb_PyObject_GetBuffer,
+    Py_buffer as _cyb_Py_buffer,
+)
 cimport cpython.memoryview as _cyb_cpython_memoryview
+from cpython.object cimport PyObject as _cyb_PyObject
+from cpython.ref cimport (
+    Py_CLEAR as _cyb_Py_CLEAR,
+    Py_XINCREF as _cyb_Py_XINCREF,
+)
 from libc.stdint cimport intptr_t
 from libc.stdlib cimport (
     calloc as _cyb_calloc,
@@ -20,6 +31,7 @@ from libc.stdlib cimport (
 from libc.string cimport (
     memcmp as _cyb_memcmp,
     memcpy as _cyb_memcpy,
+    memmove as _cyb_memmove,
 )
 from libcpp cimport bool as _cyb_bool
 
@@ -49,7 +61,7 @@ cdef _cyb_from_buffer(buffer, size, lowpp_type):
             raise ValueError("buffer itemsize must be 1 byte")
         if view.len != size:
             raise ValueError(f"buffer length must be {size} bytes")
-        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
+        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, view.readonly != 0, buffer)
     finally:
         _cyb_cpython.PyBuffer_Release(&view)
 
@@ -103,24 +115,24 @@ cdef class _py_anon_pod1:
     """
     cdef:
         cuda_bindings_cufile__anon_pod1 *_ptr
-        object _owner
-        bint _owned
+        _cyb_PyObject *_owner
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_calloc(1, sizeof((<CUfileDescr_t*>NULL).handle))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod1")
-        self._owner = None
-        self._owned = True
+        self._owner = NULL
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_cufile__anon_pod1 *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner == NULL and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
+        _cyb_Py_CLEAR(self._owner)
+        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod1 object at {hex(id(self))}>"
@@ -150,14 +162,20 @@ cdef class _py_anon_pod1:
         pass
 
     def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_malloc(sizeof((<CUfileDescr_t*>NULL).handle))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating _py_anon_pod1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileDescr_t*>NULL).handle))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod1 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof((<CUfileDescr_t*>NULL).handle):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof((<CUfileDescr_t*>NULL).handle), view.len)
+                    )
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof((<CUfileDescr_t*>NULL).handle))
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
         else:
             setattr(self, key, val)
 
@@ -214,12 +232,11 @@ cdef class _py_anon_pod1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileDescr_t*>NULL).handle))
-            obj._owner = None
-            obj._owned = True
+            obj._owner = NULL
         else:
             obj._ptr = <cuda_bindings_cufile__anon_pod1 *>ptr
-            obj._owner = owner
-            obj._owned = False
+            obj._owner = <_cyb_PyObject *>owner
+            _cyb_Py_XINCREF(obj._owner)
         obj._readonly = readonly
         return obj
 
@@ -248,24 +265,24 @@ cdef class _py_anon_pod3:
     """
     cdef:
         cuda_bindings_cufile__anon_pod3 *_ptr
-        object _owner
-        bint _owned
+        _cyb_PyObject *_owner
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_calloc(1, sizeof((<CUfileIOParams_t*>NULL).u.batch))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod3")
-        self._owner = None
-        self._owned = True
+        self._owner = NULL
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_cufile__anon_pod3 *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner == NULL and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
+        _cyb_Py_CLEAR(self._owner)
+        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod3 object at {hex(id(self))}>"
@@ -295,14 +312,20 @@ cdef class _py_anon_pod3:
         pass
 
     def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating _py_anon_pod3")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u.batch))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod3 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof((<CUfileIOParams_t*>NULL).u.batch):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof((<CUfileIOParams_t*>NULL).u.batch), view.len)
+                    )
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof((<CUfileIOParams_t*>NULL).u.batch))
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
         else:
             setattr(self, key, val)
 
@@ -381,12 +404,11 @@ cdef class _py_anon_pod3:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch))
-            obj._owner = None
-            obj._owned = True
+            obj._owner = NULL
         else:
             obj._ptr = <cuda_bindings_cufile__anon_pod3 *>ptr
-            obj._owner = owner
-            obj._owned = False
+            obj._owner = <_cyb_PyObject *>owner
+            _cyb_Py_XINCREF(obj._owner)
         obj._readonly = readonly
         return obj
 
@@ -441,9 +463,10 @@ cdef class IOEvents:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -610,9 +633,10 @@ cdef class Descr:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -748,24 +772,24 @@ cdef class _py_anon_pod2:
     """
     cdef:
         cuda_bindings_cufile__anon_pod2 *_ptr
-        object _owner
-        bint _owned
+        _cyb_PyObject *_owner
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_calloc(1, sizeof((<CUfileIOParams_t*>NULL).u))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod2")
-        self._owner = None
-        self._owned = True
+        self._owner = NULL
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_cufile__anon_pod2 *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner == NULL and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
+        _cyb_Py_CLEAR(self._owner)
+        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod2 object at {hex(id(self))}>"
@@ -795,14 +819,20 @@ cdef class _py_anon_pod2:
         pass
 
     def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating _py_anon_pod2")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod2 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof((<CUfileIOParams_t*>NULL).u):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof((<CUfileIOParams_t*>NULL).u), view.len)
+                    )
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof((<CUfileIOParams_t*>NULL).u))
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
         else:
             setattr(self, key, val)
 
@@ -853,12 +883,11 @@ cdef class _py_anon_pod2:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u))
-            obj._owner = None
-            obj._owned = True
+            obj._owner = NULL
         else:
             obj._ptr = <cuda_bindings_cufile__anon_pod2 *>ptr
-            obj._owner = owner
-            obj._owned = False
+            obj._owner = <_cyb_PyObject *>owner
+            _cyb_Py_XINCREF(obj._owner)
         obj._readonly = readonly
         return obj
 
@@ -915,9 +944,10 @@ cdef class IOParams:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -1256,28 +1286,35 @@ cdef int check_status(ReturnT status) except 1 nogil:
 # Wrapper functions
 ###############################################################################
 
-cpdef intptr_t handle_register(intptr_t descr) except? 0:
+cpdef intptr_t handle_register(descr) except? 0:
     """cuFileHandleRegister is required, and performs extra checking that is memoized to provide increased performance on later cuFile operations.
 
+    Description cuFileHandleRegister registers the open file descriptor for use
+    with cuFile IO operations.
+    This API will ensure that the file’s descriptor is checked for GPUDirect
+    Storage support and returns a valid file handle on CU_FILE_SUCCESS.
+
     Args:
-        descr (intptr_t): ``CUfileDescr_t`` file descriptor (OS
-            agnostic).
+        descr (intptr_t): ``CUfileDescr_t`` file descriptor (OS agnostic).
 
     Returns:
-        intptr_t: ``CUfileHandle_t`` opaque file handle for IO
-            operations.
+        intptr_t: ``CUfileHandle_t`` opaque file handle for IO operations.
 
+    .. note::
+        the file needs to be opened in O_DIRECT mode to support GPUDirect Storage.
     .. seealso:: `cuFileHandleRegister`
     """
+    cdef intptr_t _descr_ptr_ = int(descr)
     cdef Handle fh
     with nogil:
-        __status__ = cuFileHandleRegister(&fh, <CUfileDescr_t*>descr)
+        __status__ = cuFileHandleRegister(&fh, <CUfileDescr_t*>_descr_ptr_)
     check_status(__status__)
     return <intptr_t>fh
 
 
 cpdef void handle_deregister(intptr_t fh) except*:
     """releases a registered filehandle from cuFile.
+
 
     Args:
         fh (intptr_t): ``CUfileHandle_t`` file handle.
@@ -1291,12 +1328,19 @@ cpdef void handle_deregister(intptr_t fh) except*:
 cpdef buf_register(intptr_t buf_ptr_base, size_t length, int flags):
     """register an existing cudaMalloced memory with cuFile to pin for GPUDirect Storage access or register host allocated memory with cuFile.
 
+
     Args:
         buf_ptr_base (intptr_t): buffer pointer allocated.
-        length (size_t): size of memory region from the above
-            specified bufPtr.
+        length (size_t): size of memory region from the above specified
+            bufPtr.
         flags (int): CU_FILE_RDMA_REGISTER.
 
+    .. note::
+        This memory will be use to perform GPU direct DMA from the supported storage.
+    .. note::
+        This API is intended for usecases where the memory is used as streaming buffer
+        that is reused across multiple cuFile IO operations before calling
+        ``cuFileBufDeregister``.
     .. seealso:: `cuFileBufRegister`
     """
     with nogil:
@@ -1306,6 +1350,7 @@ cpdef buf_register(intptr_t buf_ptr_base, size_t length, int flags):
 
 cpdef buf_deregister(intptr_t buf_ptr_base):
     """deregister an already registered device or host memory from cuFile.
+
 
     Args:
         buf_ptr_base (intptr_t): buffer pointer to deregister.
@@ -1320,6 +1365,7 @@ cpdef buf_deregister(intptr_t buf_ptr_base):
 cpdef driver_open():
     """Initialize the cuFile library and open the nvidia-fs driver.
 
+
     .. seealso:: `cuFileDriverOpen`
     """
     with nogil:
@@ -1330,6 +1376,7 @@ cpdef driver_open():
 cpdef use_count():
     """returns use count of cufile drivers at that moment by the process.
 
+
     .. seealso:: `cuFileUseCount`
     """
     with nogil:
@@ -1339,6 +1386,7 @@ cpdef use_count():
 
 cpdef driver_get_properties(intptr_t props):
     """Gets the Driver session properties.
+
 
     Args:
         props (intptr_t): to set.
@@ -1353,12 +1401,15 @@ cpdef driver_get_properties(intptr_t props):
 cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
     """Sets whether the Read/Write APIs use polling to do IO operations.
 
-    Args:
-        poll (bint): boolean to indicate whether to use poll mode or
-            not.
-        poll_threshold_size (size_t): max IO size to use for POLLING
-            mode in KB.
 
+    Args:
+        poll (bint): boolean to indicate whether to use poll mode or not.
+        poll_threshold_size (size_t): max IO size to use for POLLING mode
+            in KB.
+
+    .. note::
+        This is an advanced command and should be tuned based on available system
+        memory.
     .. seealso:: `cuFileDriverSetPollMode`
     """
     with nogil:
@@ -1369,10 +1420,13 @@ cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
 cpdef driver_set_max_direct_io_size(size_t max_direct_io_size):
     """Control parameter to set max IO size(KB) used by the library to talk to nvidia-fs driver.
 
-    Args:
-        max_direct_io_size (size_t): maximum allowed direct io size in
-            KB.
 
+    Args:
+        max_direct_io_size (size_t): maximum allowed direct io size in KB.
+
+    .. note::
+        This is an advanced command and should be tuned based on available system
+        memory.
     .. seealso:: `cuFileDriverSetMaxDirectIOSize`
     """
     with nogil:
@@ -1383,10 +1437,13 @@ cpdef driver_set_max_direct_io_size(size_t max_direct_io_size):
 cpdef driver_set_max_cache_size(size_t max_cache_size):
     """Control parameter to set maximum GPU memory reserved per device by the library for internal buffering.
 
-    Args:
-        max_cache_size (size_t): The maximum GPU buffer space per
-            device used for internal use in KB.
 
+    Args:
+        max_cache_size (size_t): The maximum GPU buffer space per device
+            used for internal use in KB.
+
+    .. note::
+        This is an advanced command and should be tuned based on supported GPU memory.
     .. seealso:: `cuFileDriverSetMaxCacheSize`
     """
     with nogil:
@@ -1397,10 +1454,13 @@ cpdef driver_set_max_cache_size(size_t max_cache_size):
 cpdef driver_set_max_pinned_mem_size(size_t max_pinned_size):
     """Sets maximum buffer space that is pinned in KB for use by ``cuFileBufRegister``.
 
-    Args:
-        max_pinned_size (size_t): maximum buffer space that is pinned
-            in KB.
 
+    Args:
+        max_pinned_size (size_t): maximum buffer space that is pinned in
+            KB.
+
+    .. note::
+        This is an advanced command and should be tuned based on supported GPU memory.
     .. seealso:: `cuFileDriverSetMaxPinnedMemSize`
     """
     with nogil:
@@ -1416,15 +1476,17 @@ cpdef intptr_t batch_io_set_up(unsigned nr) except? 0:
     return <intptr_t>batch_idp
 
 
-cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, intptr_t iocbp, unsigned int flags):
+cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, iocbp, unsigned int flags):
+    cdef intptr_t _iocbp_ptr_ = int(iocbp)
     with nogil:
-        __status__ = cuFileBatchIOSubmit(<BatchHandle>batch_idp, nr, <CUfileIOParams_t*>iocbp, flags)
+        __status__ = cuFileBatchIOSubmit(<BatchHandle>batch_idp, nr, <CUfileIOParams_t*>_iocbp_ptr_, flags)
     check_status(__status__)
 
 
-cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, intptr_t iocbp, intptr_t timeout):
+cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, iocbp, intptr_t timeout):
+    cdef intptr_t _iocbp_ptr_ = int(iocbp)
     with nogil:
-        __status__ = cuFileBatchIOGetStatus(<BatchHandle>batch_idp, min_nr, <unsigned*>nr, <CUfileIOEvents_t*>iocbp, <timespec*>timeout)
+        __status__ = cuFileBatchIOGetStatus(<BatchHandle>batch_idp, min_nr, <unsigned*>nr, <CUfileIOEvents_t*>_iocbp_ptr_, <timespec*>timeout)
     check_status(__status__)
 
 
@@ -1466,9 +1528,14 @@ cpdef stream_deregister(intptr_t stream):
 cpdef int get_version() except? 0:
     """Get the cuFile library version.
 
+    The version is returned as (1000 major + 10 minor). For example, CUFILE 1.7.0
+    would be represented by 1070.
+
     Returns:
         int: Pointer to an integer where the version will be stored.
 
+    .. note::
+        This is useful for applications that need to inquire the library.
     .. seealso:: `cuFileGetVersion`
     """
     cdef int version
