@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pytest
 import tomllib
+from packaging.version import Version
 
 from ci.tools.bindings_config import load_config
 
@@ -55,9 +56,11 @@ def test_bindings_scm_regex_preserves_post_suffix(package, tag, version):
         ("cuda_bindings", "v13.4.1rc2.dev3", "13.4.1rc2.dev3"),
         ("cuda_bindings_12", "v12.9.8", "12.9.8"),
         ("cuda_bindings_12", "v12.9.8.post2", "12.9.8.post2"),
-        ("cuda_bindings_12", "v12.9.8a2", None),
-        ("cuda_bindings_12", "v12.9.8rc2", None),
-        ("cuda_bindings_12", "v12.9.8.dev2", None),
+        ("cuda_bindings_12", "v12.9.8a2", "12.9.8a2"),
+        ("cuda_bindings_12", "v12.9.8rc2", "12.9.8rc2"),
+        ("cuda_bindings_12", "v12.9.8.dev2", "12.9.8.dev2"),
+        ("cuda_bindings_12", "v12.9.08", None),
+        ("cuda_bindings", "v13.4.01", None),
     ),
 )
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -89,3 +92,15 @@ def test_metapackage_scm_metadata_matches_bindings_sources():
 
         assert tag_regexes[major] == scm["tag_regex"]
         assert describe_matches[major] == scm["git_describe_command"][-1]
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_maintenance_fallback_matches_bindings_and_exceeds_shipped_release():
+    fallback = _literal_assignment(REPO_ROOT / "cuda_python" / "setup.py", "MAINTENANCE_FALLBACK_VERSION")
+    with (REPO_ROOT / "cuda_bindings_12" / "pyproject.toml").open("rb") as stream:
+        bindings_fallback = tomllib.load(stream)["tool"]["setuptools_scm"]["fallback_version"]
+    with (REPO_ROOT / "cuda_bindings_12" / "pixi.toml").open("rb") as stream:
+        pixi_version = tomllib.load(stream)["package"]["version"]
+
+    assert fallback == bindings_fallback == pixi_version
+    assert Version(fallback) > Version("12.9.9")

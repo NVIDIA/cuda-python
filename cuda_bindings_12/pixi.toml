@@ -15,6 +15,7 @@ cuda-version = ["12.*"]
 cuda-bindings = { path = "." }
 pytest = ">=6.2.4"
 pytest-benchmark = ">=3.4.1"
+pytest-subtests = ">=0.11.0"
 pytest-randomly = "*"
 pytest-repeat = "*"
 pyglet = ">=2.1.9"
@@ -84,7 +85,7 @@ nvidia-sphinx-theme = "*"
 
 [package]
 name = "cuda-bindings"
-version = "12.9.8.dev0"
+version = "12.9.10.dev0"
 
 [package.build]
 backend = { name = "pixi-build-python", version = "*" }

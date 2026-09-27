@@ -16,7 +16,12 @@ RELEASED_12 = bindings_config.BindingsPackage(
     package_root="cuda_bindings_12",
     toolkit_version="12.9.1",
     release_status="maintenance",
-    tag_regex=r"^(?P<version>v12\.9\.\d+(?:\.post\d+)?)$",
+    tag_regex=(
+        r"^(?P<version>v12\.9\.(?:0|[1-9][0-9]*)"
+        r"(?:(?:a|b|rc)(?:0|[1-9][0-9]*))?"
+        r"(?:\.post(?:0|[1-9][0-9]*))?"
+        r"(?:\.dev(?:0|[1-9][0-9]*))?)$"
+    ),
 )
 ALTERNATE_13 = bindings_config.BindingsPackage(
     package_root="alternate_bindings",
@@ -67,7 +72,7 @@ def test_reachable_release_disables_override(tmp_path):
     git(repo, "tag", "v12.9.7")
     assert pretend_version(repo, SHA, RELEASED_12) == "12.9.8.dev0+gabcdef0"
     git(repo, "tag", "v12.9.8a1")
-    assert pretend_version(repo, SHA, RELEASED_12) == "12.9.8.dev0+gabcdef0"
+    assert pretend_version(repo, SHA, RELEASED_12) is None
 
     git(repo, "tag", "v12.9.8")
     assert pretend_version(repo, SHA, RELEASED_12) is None
@@ -81,6 +86,17 @@ def test_reachable_post_release_disables_override(tmp_path):
     git(repo, "tag", "v12.9.8.post1")
 
     assert pretend_version(repo, SHA, RELEASED_12) is None
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_tagged_post_release_below_next_patch_fallback_disables_override(tmp_path):
+    repo, _ = make_repo(tmp_path, fallback_version="12.9.10.dev0")
+    git(repo, "tag", "v12.9.9.post1")
+
+    assert pretend_version(repo, SHA, RELEASED_12) is None
+
+    git(repo, "commit", "--allow-empty", "-m", "after post release")
+    assert pretend_version(repo, SHA, RELEASED_12) == "12.9.10.dev0+gabcdef0"
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")

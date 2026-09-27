@@ -54,7 +54,21 @@ def has_reachable_release(
     releases = (
         version for tag in process.stdout.splitlines() if (version := package.version_from_tag(tag)) is not None
     )
-    return any(release >= minimum_release for release in releases)
+    if any(release >= minimum_release for release in releases):
+        return True
+
+    # A post-release tag may be below the next-patch development fallback.
+    # At the tagged commit, let setuptools-scm use the exact release tag.
+    head_tags = subprocess.run(
+        ["git", "tag", "--points-at", "HEAD", "--list"],  # noqa: S607
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+    )
+    if head_tags.returncode != 0:
+        detail = head_tags.stderr.strip() or f"git tag exited with status {head_tags.returncode}"
+        raise RuntimeError(f"could not inspect tags at HEAD for {package.package_root!r}: {detail}")
+    return any(package.version_from_tag(tag) is not None for tag in head_tags.stdout.splitlines())
 
 
 def pretend_version(

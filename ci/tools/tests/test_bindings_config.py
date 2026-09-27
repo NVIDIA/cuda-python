@@ -13,6 +13,7 @@ import yaml
 
 from ci.tools.bindings_config import (
     BindingsConfigError,
+    BindingsPackage,
     load_config,
     main,
     resolve_release_bindings_package,
@@ -80,11 +81,26 @@ def test_live_registry_has_ordered_package_roots_and_release_statuses():
 def test_tag_matching_uses_each_packages_scm_regex():
     config = validate_config(valid_config())
     assert config.match_tag("v12.9.8").package_root == "cuda_bindings_12"
-    assert config.match_tag("v12.9.8a1") is None
+    assert config.match_tag("v12.9.8a1").package_root == "cuda_bindings_12"
+    assert config.match_tag("v12.9.8rc1").package_root == "cuda_bindings_12"
+    assert config.match_tag("v12.9.8.dev1").package_root == "cuda_bindings_12"
     assert config.match_tag("v13.4.0b1").package_root == "cuda_bindings"
     assert config.match_tag("v13.4.0rc1").package_root == "cuda_bindings"
     assert config.match_tag("v13.4.0.dev1").package_root == "cuda_bindings"
     assert config.match_tag("v13.4.2.post1").package_root == "cuda_bindings"
+
+
+@pytest.mark.parametrize("tag", ("v12.9.09", "v12.9.10rc01", "v13.4.01", "v13.4.1.post01"))
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_live_registry_rejects_noncanonical_bindings_tags(tag):
+    assert load_config().match_tag(tag) is None
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_bindings_parser_rejects_noncanonical_tag_with_permissive_scm_pattern():
+    package = BindingsPackage("cuda_bindings", "13.4.2", "current", r"^(?P<version>v13\.4\.\d+)$")
+
+    assert package.version_from_tag("v13.4.01") is None
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")

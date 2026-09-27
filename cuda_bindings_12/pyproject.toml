@@ -52,6 +52,7 @@ test = [
     "numpy>=1.21.1",
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",
+    "pytest-subtests>=0.11.0",
     "pyglet>=2.1.9"
 ]
 
@@ -148,9 +149,9 @@ exclude = ["cuda/bindings/_version.py"]
 [tool.setuptools_scm]
 root = ".."
 version_file = "cuda/bindings/_version.py"
-# Preserve post releases but deliberately exclude prerelease suffixes (a/b/rc).
-tag_regex = "^(?P<version>v12\\.9\\.\\d+(?:\\.post\\d+)?)$"
+# Accept canonical prerelease, post-release, and development tags.
+tag_regex = "^(?P<version>v12\\.9\\.(?:0|[1-9][0-9]*)(?:(?:a|b|rc)(?:0|[1-9][0-9]*))?(?:\\.post(?:0|[1-9][0-9]*))?(?:\\.dev(?:0|[1-9][0-9]*))?)$"
 # Main only contains the original v12.9.0 tag. Ignore it so development builds
 # do not regress below the already-released 12.9.x wheels.
 git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v12.9.[1-9]*"]
-fallback_version = "12.9.8.dev0"
+fallback_version = "12.9.10.dev0"

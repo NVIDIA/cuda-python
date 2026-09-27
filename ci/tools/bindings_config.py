@@ -99,6 +99,8 @@ class BindingsPackage:
         match = regex.fullmatch(tag) if fullmatch else regex.match(tag)
         if match is None:
             return None
+        if _RELEASE_VERSION_PATTERN.fullmatch(match.group("version").removeprefix("v")) is None:
+            return None
         try:
             version = parse_pep440_version(match.group("version"), f"release tag {tag!r}")
         except BindingsConfigError:
