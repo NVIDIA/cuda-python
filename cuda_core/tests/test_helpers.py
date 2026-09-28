@@ -2,8 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import sys
 import time
 import types
+from unittest.mock import Mock
 
 import pytest
 from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer, thread_unsafe_on_windows
@@ -354,11 +356,36 @@ def test_oom_diagnostics_probe_basics_is_live_and_cheap(init_cuda):
 
 
 # ---------------------------------------------------------------------------
-# GL context availability predicate tests
+# GL helper tests
 # ---------------------------------------------------------------------------
 
 import pytest
-from cuda_python_test_helpers.graphics import is_gl_context_unavailable
+from cuda_python_test_helpers.graphics import is_gl_context_unavailable, open_gl_window
+
+
+@pytest.mark.thread_unsafe(reason="patches the process-wide pyglet module")
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_open_gl_window_cleans_up_failed_construction(monkeypatch):
+    windows = set()
+    partial_window = Mock()
+    previous_context = Mock()
+
+    def fail_window(**_kwargs):
+        windows.add(partial_window)
+        raise RuntimeError
+
+    pyglet = types.ModuleType("pyglet")
+    pyglet.options = {}
+    pyglet.app = types.SimpleNamespace(windows=windows)
+    pyglet.gl = types.SimpleNamespace(Config=Mock(), current_context=previous_context)
+    pyglet.window = types.SimpleNamespace(Window=fail_window)
+    monkeypatch.setitem(sys.modules, "pyglet", pyglet)
+
+    with pytest.raises(RuntimeError):
+        open_gl_window()
+
+    assert partial_window.close.called
+    assert previous_context.set_current.called
 
 
 class _PygletError(Exception):

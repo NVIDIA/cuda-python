@@ -12,10 +12,15 @@ import sys
 import numpy as np
 import pyglet
 import pytest
-from cuda_python_test_helpers.graphics import is_gl_context_unavailable
+from cuda_python_test_helpers.graphics import (
+    is_gl_context_unavailable,
+    open_gl_window,
+    select_headless_egl_device_for_cuda,
+)
 
 from cuda.core import (
     Buffer,
+    Device,
     GraphicsResource,
 )
 from cuda.core._utils.cuda_utils import CUDAError
@@ -51,34 +56,19 @@ def _register_gl_image(tex_id, target):
 
 
 def _configure_pyglet_headless():
-    """On headless Linux: enable EGL mode or skip if EGL is absent."""
+    """On headless Linux: enable EGL mode, matched to the current CUDA device, or skip if EGL is absent."""
     if sys.platform.startswith("linux") and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
         if ctypes.util.find_library("EGL") is None:
             pytest.skip("No DISPLAY and no EGL runtime available for headless context.")
         pyglet.options["headless"] = True
 
-
-def _open_gl_window():
-    """Open a hidden window (or configure EGL headless). Returns the window or None.
-
-    Closes the window if switch_to() fails so a partially-constructed window does not leak.
-    """
-    if not pyglet.options.get("headless"):
-        from pyglet import gl
-
-        config = gl.Config(double_buffer=False)
-        win = pyglet.window.Window(visible=False, config=config)
-        try:
-            win.switch_to()
-        except Exception:
-            with contextlib.suppress(Exception):
-                win.close()
-            raise
-        return win
-    else:
-        from pyglet.gl import headless  # noqa: F401
-
-        return None
+        # CUDA_VISIBLE_DEVICES does not reorder EGL's device enumeration, so on
+        # headless multi-GPU systems EGL device 0 may not be the physical GPU
+        # backing the currently-selected CUDA device. Pick the
+        # EGL device that the driver reports as corresponding to it.
+        egl_device = select_headless_egl_device_for_cuda(Device().device_id)
+        if egl_device is not None:
+            pyglet.options["headless_device"] = egl_device
 
 
 def _allocate_gl_buffer(win, nbytes):
@@ -132,7 +122,7 @@ def _gl_context_and_buffer(nbytes=1024):
     _configure_pyglet_headless()
 
     try:
-        win = _open_gl_window()
+        win = open_gl_window()
     except Exception as e:
         if is_gl_context_unavailable(e):
             pytest.skip(f"Could not create GL context: {type(e).__name__}: {e}")
@@ -160,7 +150,7 @@ def _gl_context_and_texture(width=16, height=16):
     _configure_pyglet_headless()
 
     try:
-        win = _open_gl_window()
+        win = open_gl_window()
     except Exception as e:
         if is_gl_context_unavailable(e):
             pytest.skip(f"Could not create GL context: {type(e).__name__}: {e}")

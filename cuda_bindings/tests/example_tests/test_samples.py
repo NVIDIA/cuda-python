@@ -46,6 +46,8 @@ def test_sample(sample_key: str) -> None:
     result = run_sample(plan)
 
     if result.status == "WAIVED":
+        if result.detail.startswith("unmet package requirement(s):"):
+            pytest.fail(f"sample dependencies are not satisfied: {result.detail}")
         pytest.skip(result.detail or "sample waived")
     if result.status == "PASS":
         return

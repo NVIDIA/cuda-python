@@ -8,15 +8,18 @@ from libc.stddef cimport size_t
 from libcpp.vector cimport vector
 from cuda.bindings cimport cydriver
 from cuda.core.graph._graph_node cimport GraphNode, GN_check_valid
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     GraphHandle,
     GraphNodeHandle,
     as_cu,
     graph_node_get_graph,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
-from collections.abc import Iterator, MutableSet, Set
-from typing import Any
+import cython
+from collections.abc import Iterable, Iterator, MutableSet, Set
+from typing import Any, TypeVar
+
+_S = TypeVar("_S")
 
 
 # ---- Python MutableSet wrapper ----------------------------------------------
@@ -32,7 +35,7 @@ class AdjacencySetProxy(MutableSet[GraphNode]):
 
     # Used by operators such as &|^ to create non-proxy views when needed.
     @classmethod
-    def _from_iterable(cls, it) -> set[GraphNode]:
+    def _from_iterable(cls, it: Iterable[_S]) -> set[_S]:
         return set(it)
 
     # --- abstract methods required by MutableSet ---
@@ -57,6 +60,7 @@ class AdjacencySetProxy(MutableSet[GraphNode]):
             return
         (<_AdjacencySetCore>self._core).add_edge(<GraphNode>value)
 
+    @cython.annotation_typing(False)
     def discard(self, value: GraphNode) -> None:
         (<_AdjacencySetCore>self._core).check_owner_mutable()
         if value not in self:
@@ -105,7 +109,7 @@ class AdjacencySetProxy(MutableSet[GraphNode]):
         if new:
             (<_AdjacencySetCore>self._core).add_edges(new)
 
-    def __ior__(self, it: Set[Any]) -> "AdjacencySetProxy":
+    def __ior__(self, it: Set[Any]) -> "AdjacencySetProxy":  # type: ignore[misc]
         """Add edges to all nodes in *it* in a single driver call."""
         self.update(it)
         return self

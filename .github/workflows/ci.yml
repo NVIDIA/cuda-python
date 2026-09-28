@@ -33,9 +33,11 @@ jobs:
     outputs:
       CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
       CUDA_PREV_BUILD_VER: ${{ steps.get-vars.outputs.cuda_prev_build_ver }}
+      WINDOWS_ARM64_SUPPORTED: ${{ steps.get-vars.outputs.windows_arm64_supported }}
+      WINDOWS_ARM64_SINGLE_CUDA_MAJOR: ${{ steps.get-vars.outputs.windows_arm64_single_cuda_major }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
       - name: Get CUDA build versions
@@ -46,6 +48,33 @@ jobs:
 
           cuda_prev_build_ver=$(yq '.cuda.prev_build.version' ci/versions.yml)
           echo "cuda_prev_build_ver=$cuda_prev_build_ver" >> $GITHUB_OUTPUT
+
+          # Windows ARM64 is available starting with CUDA 13.4.
+          if [[ "$cuda_build_ver" =~ ^([0-9]+)\.([0-9]+)(\.|$) ]]; then
+            cuda_build_major="${BASH_REMATCH[1]}"
+            cuda_build_minor="${BASH_REMATCH[2]}"
+          else
+            echo "Invalid CUDA build version: $cuda_build_ver" >&2
+            exit 1
+          fi
+          if (( cuda_build_major > 13 || (cuda_build_major == 13 && cuda_build_minor >= 4) )); then
+            windows_arm64_supported=true
+          else
+            windows_arm64_supported=false
+          fi
+          echo "windows_arm64_supported=$windows_arm64_supported" >> $GITHUB_OUTPUT
+
+          # No CUDA 13 windows-arm64 toolkit exists for a major other than the
+          # current one (windows-arm64 support started mid-way through the 13.x
+          # series), so cuda.core can only be built against a single CUDA major
+          # while the build major is still 13. Once the build major advances to
+          # 14, a CUDA 13 windows-arm64 toolkit will exist as the prior major.
+          if [[ "$cuda_build_major" == "13" ]]; then
+            windows_arm64_single_cuda_major=true
+          else
+            windows_arm64_single_cuda_major=false
+          fi
+          echo "windows_arm64_single_cuda_major=$windows_arm64_single_cuda_major" >> $GITHUB_OUTPUT
 
   should-skip:
     if: ${{ github.repository_owner == 'nvidia' }}
@@ -59,7 +88,7 @@ jobs:
       base-ref: ${{ steps.get-should-skip.outputs.base_ref }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Compute whether to skip builds and tests
         id: get-should-skip
         env:
@@ -112,7 +141,7 @@ jobs:
       workplan: ${{ steps.workplan.outputs.workplan }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           # Treeless clone: the commit graph is needed to resolve the PR merge
           # base and classify its changed paths, but historical blobs aren't.
@@ -260,7 +289,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
           filter: blob:none
@@ -311,7 +340,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
           filter: blob:none
@@ -413,6 +442,31 @@ jobs:
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
+
+  # Windows ARM64 is available starting with CUDA 13.4. Build only the current
+  # CUDA major because no prior-major toolkit or wheel artifacts exist.
+  build-windows-arm64:
+    needs:
+      - ci-vars
+      - should-skip
+      - detect-changes
+    name: Build win-arm64, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+    if: ${{ github.repository_owner == 'nvidia' &&
+            !fromJSON(needs.should-skip.outputs.skip) &&
+            !fromJSON(needs.should-skip.outputs.doc-only) &&
+            needs.ci-vars.outputs.WINDOWS_ARM64_SUPPORTED == 'true' &&
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows }}
+    permissions:
+      actions: read
+      contents: read
+    secrets: inherit
+    uses: ./.github/workflows/build-wheel.yml
+    with:
+      host-platform: win-arm64
+      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
+      single-cuda-major: ${{ needs.ci-vars.outputs.WINDOWS_ARM64_SINGLE_CUDA_MAJOR == 'true' }}
 
   # NOTE: test-sdist jobs are split by platform (mirroring build-* and test-wheel-*)
   # so platform-specific sources (e.g. cuda_bindings/*_windows.pyx selected by
@@ -580,13 +634,13 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
           persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: '3.13'
 
@@ -613,6 +667,7 @@ jobs:
       - build-linux-64
       - build-linux-aarch64
       - build-windows
+      - build-windows-arm64
       - test-sdist-linux
       - test-sdist-windows
       - test-linux-64
@@ -644,6 +699,7 @@ jobs:
           doc_only="${{ needs.should-skip.outputs.doc-only }}"
           linux_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux || false }}"
           windows_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows || false }}"
+          windows_arm64_supported="${{ needs.ci-vars.outputs.WINDOWS_ARM64_SUPPORTED }}"
           build_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.sdist_tests || false }}"
           run_core_api_check="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.core_api_checks || false }}"
           is_pr="${{ startsWith(github.ref_name, 'pull-request/') }}"
@@ -679,6 +735,12 @@ jobs:
           check_result "build-linux-aarch64" "$linux_expected"
           check_result "build-windows"       "$windows_expected"
 
+          windows_arm64_expected="skipped"
+          if [[ "$windows_arm64_supported" == "true" ]]; then
+            windows_arm64_expected="$windows_expected"
+          fi
+          check_result "build-windows-arm64" "$windows_arm64_expected"
+
           # Sdist tests follow build selection; wheel tests follow the platform plan.
           expected="skipped"
           if [[ "$doc_only" != "true" && "$build_selected" == "true" ]]; then
@@ -697,8 +759,8 @@ jobs:
           if [[ "$run_core_api_check" == "true" ]]; then expected="success"; fi
           check_result "api-check-core-vs-release" "$expected"
 
-          expected="skipped"
-          if [[ "$is_pr" == "true" && "$run_core_api_check" == "true" ]]; then expected="success"; fi
-          check_result "api-check-core-vs-base" "$expected"
+          # API compatibility checks against the merge base (api-check-core-vs-base)
+          # are purely informational, since it is fine for API to drift during development
+          # when it hasn't been released yet.
 
           [[ "$status" == "success" ]]

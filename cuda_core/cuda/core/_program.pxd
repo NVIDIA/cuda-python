@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from ._linker cimport Linker
-from ._resource_handles cimport NvrtcProgramHandle, NvvmProgramHandle
+from ._rt cimport NvrtcProgramHandle, NvvmProgramHandle
 
 
 cdef class Program:
@@ -21,4 +21,5 @@ cdef class Program:
         str _code_type          # Normalised code_type ("c++", "ptx", "nvvm")
         str _pch_status         # PCH creation outcome after compile
         bytes _nvrtc_name       # Source filepath given to NVRTC; a real path for debug builds
+        bytes _debug_source     # Temp file this Program wrote for cuda-gdb, or None
         list _extra_options     # NVRTC options Program adds on top of ProgramOptions

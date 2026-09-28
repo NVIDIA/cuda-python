@@ -20,19 +20,23 @@ import warnings
 from dataclasses import dataclass
 from typing import Protocol, TYPE_CHECKING
 
-from cuda.core._context cimport Context
+from cuda.core._context cimport (
+    Context,
+    Context_check_open,
+)
 from cuda.core._device_resources cimport DeviceResources
 from cuda.core._event import Event, EventOptions
 
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport context_get_device
+from cuda.core._rt cimport (
     ContextHandle,
     EventHandle,
     StreamHandle,
     create_context_handle_ref,
-    create_event_handle_noctx,
+    create_event_handle_for_stream,
     create_stream_handle,
     create_stream_handle_with_owner,
-    get_current_context,
+    context_get_stream_priority_range,
     get_last_error,
     get_legacy_stream,
     get_per_thread_stream,
@@ -129,10 +133,7 @@ cdef class Stream:
         cdef StreamHandle h_stream
         cdef cydriver.CUstream borrowed
         cdef ContextHandle h_context
-
-        # Extract context handle if provided
-        if ctx is not None:
-            h_context = (<Context>ctx)._h_context
+        cdef Context context
 
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
@@ -144,6 +145,12 @@ cdef class Stream:
             h_stream = create_stream_handle_with_owner(borrowed, obj)
             return Stream._from_handle(cls, h_stream)
 
+        if ctx is None:
+            raise RuntimeError("A CUDA context is required to create a stream")
+        context = <Context>ctx
+        Context_check_open(context)
+        h_context = context._h_context
+
         cdef StreamOptions opts = check_or_create_options(StreamOptions, options, "Stream options")
         nonblocking = opts.nonblocking
         priority = opts.priority
@@ -153,14 +160,8 @@ cdef class Stream:
         # TODO: we might want to consider memoizing high/low per CUDA context and avoid this call
         cdef int high, low
         cdef cydriver.CUresult res_code
-        with nogil:
-            res_code = cydriver.cuCtxGetStreamPriorityRange(&high, &low)
-        if res_code != cydriver.CUresult.CUDA_SUCCESS:
-            if res_code == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
-                raise RuntimeError(
-                    "No current CUDA context. Call dev.set_current() before creating streams."
-                )
-            HANDLE_RETURN(res_code)
+        res_code = context_get_stream_priority_range(context._h_context, &high, &low)
+        HANDLE_RETURN(res_code)
         cdef int prio
         if priority is not None:
             prio = priority
@@ -366,9 +367,14 @@ cdef class Stream:
                     f" got {type(event_or_stream)}"
                 ) from e
 
-        # Wait on stream via temporary event
+        # Wait on stream via a temporary event created in that stream's own
+        # context; an event from the current context would be rejected by
+        # cuEventRecord when the streams live on different devices.
         with nogil:
-            h_event = create_event_handle_noctx(cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+            h_event = create_event_handle_for_stream(
+                as_cu(stream._h_stream), cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+            if not h_event:
+                HANDLE_RETURN(get_last_error())
             HANDLE_RETURN(cydriver.cuEventRecord(as_cu(h_event), as_cu(stream._h_stream)))
             # TODO: support flags other than 0?
             HANDLE_RETURN(cydriver.cuStreamWaitEvent(as_cu(self._h_stream), as_cu(h_event), 0))
@@ -558,10 +564,7 @@ cdef inline int Stream_get_ctx(Stream self, ContextHandle* h_context) except?-1 
 
 cdef inline int Stream_get_ctx_device(Stream self, ContextHandle* h_context, int* device_id) except?-1:
     """Resolve the stream's context handle and device ID."""
-    cdef cydriver.CUcontext ctx
     cdef cydriver.CUdevice target_dev
-    cdef ContextHandle current_context
-    cdef bint switch_context
     cdef bint is_default = Stream_is_default_token(self)
 
     with nogil:
@@ -569,14 +572,9 @@ cdef inline int Stream_get_ctx_device(Stream self, ContextHandle* h_context, int
         if self._device_id >= 0 and not is_default:
             device_id[0] = self._device_id
         else:
-            # Get device ID from context, switching context temporarily if needed
-            current_context = get_current_context()
-            switch_context = (as_cu(current_context) != as_cu(h_context[0]))
-            if switch_context:
-                HANDLE_RETURN(cydriver.cuCtxPushCurrent(as_cu(h_context[0])))
-            HANDLE_RETURN(cydriver.cuCtxGetDevice(&target_dev))
-            if switch_context:
-                HANDLE_RETURN(cydriver.cuCtxPopCurrent(&ctx))
+            # Query the device with the stream's context current. The handle
+            # layer restores the caller's context, including on failure.
+            HANDLE_RETURN(context_get_device(h_context[0], &target_dev))
             device_id[0] = <int>target_dev
             if not is_default:
                 self._device_id = device_id[0]

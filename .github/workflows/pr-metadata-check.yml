@@ -26,17 +26,22 @@ jobs:
     if: github.repository_owner == 'NVIDIA'
     runs-on: ubuntu-latest
     steps:
-      - name: Check for assignee, labels, and milestone
+      - name: Check metadata and blocking labels
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IS_BOT: ${{ github.actor == 'dependabot[bot]' || github.actor == 'pre-commit-ci[bot]' || github.actor == 'copy-pr-bot[bot]' }}
+          # Keyed on the PR author, not the actor: a maintainer labelling a bot
+          # PR re-triggers this workflow as themselves. Any bot author is
+          # exempt from positive metadata because bots cannot set an assignee
+          # or milestone (e.g. github-actions[bot] on a generated refresh PR).
+          # Blocking labels are still enforced below.
+          IS_BOT: ${{ github.event.pull_request.user.type == 'Bot' || github.event.pull_request.user.login == 'dependabot[bot]' || github.event.pull_request.user.login == 'pre-commit-ci[bot]' || github.event.pull_request.user.login == 'copy-pr-bot[bot]' || github.event.pull_request.user.login == 'github-actions[bot]' }}
           IS_DRAFT: ${{ github.event.pull_request.draft }}
         run: |
-          if [ "$IS_BOT" = "true" ] || [ "$IS_DRAFT" = "true" ]; then
-            echo "Skipping check for bot or draft PR."
+          if [ "$IS_DRAFT" = "true" ]; then
+            echo "Skipping check for draft PR."
             exit 0
           fi
 
@@ -44,12 +49,52 @@ jobs:
           # when labels/milestone are added shortly after PR creation).
           PR_JSON=$(gh pr view "${PR_NUMBER}" --repo "${GH_REPO}" \
             --json assignees,labels,milestone \
-            --jq '{assignees: .assignees, labels: .labels, milestone: (.milestone.title // empty)}')
+            --jq '{assignees: .assignees, labels: .labels, milestone: (.milestone.title // "")}')
           ASSIGNEES=$(echo "$PR_JSON" | jq '.assignees')
           LABELS=$(echo "$PR_JSON" | jq '.labels')
           MILESTONE=$(echo "$PR_JSON" | jq -r '.milestone')
 
           ERRORS=""
+
+          # Blocking labels are an explicit maintainer safety control, so they
+          # apply to every non-draft PR, including PRs authored by bots.
+          BLOCKED_LABELS=$(jq -r '
+            (["blocked", "do not merge"]) as $blocking
+            | .[]
+            | .name as $n
+            | if ($blocking | index($n | ascii_downcase)) != null
+              then $n
+              else empty
+              end
+          ' <<<"$LABELS")
+          while IFS= read -r label; do
+            [ -n "$label" ] || continue
+            ERRORS="${ERRORS}- **Blocked label detected**: label \`$label\` prevents merging. Remove it when the PR is ready.\n"
+          done <<<"$BLOCKED_LABELS"
+
+          # Bots cannot provide positive metadata such as an assignee or
+          # milestone. Once blocking labels have been checked, exempt them
+          # from the remaining requirements.
+          if [ "$IS_BOT" = "true" ]; then
+            if [ -n "$ERRORS" ]; then
+              echo "::error::This PR has a label that prevents merging. See the job summary for details."
+              {
+                echo "## PR Blocking Label Check Failed"
+                echo ""
+                printf '%b' "$ERRORS"
+                echo ""
+                echo "Please update the PR at: $PR_URL"
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            fi
+
+            {
+              echo "## PR Blocking Label Check Passed"
+              echo ""
+              echo "Bot-authored PR; positive metadata requirements are exempt."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
 
           ASSIGNEE_COUNT=$(echo "$ASSIGNEES" | jq 'length')
           if [ "$ASSIGNEE_COUNT" -eq 0 ]; then
@@ -97,23 +142,6 @@ jobs:
           if [ -z "$MILESTONE" ]; then
             ERRORS="${ERRORS}- **Missing milestone**: assign a milestone to this PR.\n"
           fi
-
-          # Block PRs with labels that indicate they are not ready to merge.
-          # Match blocked label names exactly (case-insensitively); emit the
-          # original spelling from the payload so error text matches GitHub.
-          BLOCKED_LABELS=$(jq -r '
-            (["blocked", "do not merge"]) as $blocking
-            | .[]
-            | .name as $n
-            | if ($blocking | index($n | ascii_downcase)) != null
-              then $n
-              else empty
-              end
-          ' <<<"$LABELS")
-          while IFS= read -r label; do
-            [ -n "$label" ] || continue
-            ERRORS="${ERRORS}- **Blocked label detected**: label \`$label\` prevents merging. Remove it when the PR is ready.\n"
-          done <<<"$BLOCKED_LABELS"
 
           if [ -n "$ERRORS" ]; then
             echo "::error::This PR is missing required metadata. See the job summary for details."

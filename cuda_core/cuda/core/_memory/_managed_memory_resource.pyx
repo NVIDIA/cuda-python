@@ -119,9 +119,9 @@ cdef class ManagedMemoryResource(_MemPool):
         ManagedBuffer
             A :class:`ManagedBuffer` (a :class:`Buffer` subclass) that
             exposes the property-style advice API
-            (``read_mostly``, ``preferred_location``, ``accessed_by``)
-            and instance methods (``prefetch``, ``discard``,
-            ``discard_prefetch``).
+            (``read_mostly``, ``preferred_location``,
+            ``last_prefetch_location``, ``accessed_by``) and instance methods
+            (``prefetch``, ``discard``, ``discard_prefetch``).
         """
         MP_check_open(self)
         assert isinstance(stream, Stream), "Only Stream is supported for managed memory allocations"
