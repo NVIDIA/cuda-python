@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.GpuFabricState
+=================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: GpuFabricState

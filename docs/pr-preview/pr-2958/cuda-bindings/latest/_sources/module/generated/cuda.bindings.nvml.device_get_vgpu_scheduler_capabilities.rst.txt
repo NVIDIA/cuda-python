@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_vgpu\_scheduler\_capabilities
+=============================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_vgpu_scheduler_capabilities
