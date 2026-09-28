@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.gpu\_instance\_get\_vgpu\_type\_creatable\_placements
-========================================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: gpu_instance_get_vgpu_type_creatable_placements
