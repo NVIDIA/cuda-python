@@ -53,6 +53,12 @@ TEST_INFRA_PLATFORMS = {
     "ci/tools/setup-sanitizer": "linux",
 }
 
+CI_PIPELINE_FILES = {
+    "ci/ci-pipeline.mmd",
+    "ci/ci-pipeline.svg",
+    "ci/tools/generate_ci_pipeline.py",
+}
+
 
 def compute_workplan(
     paths: list[str],
@@ -67,6 +73,7 @@ def compute_workplan(
     test_changes: set[str] = set()
     test_platforms: set[str] = set()
     force_all = not merge_base or not baseline_run_id
+    check_ci_pipeline = force_all or any(path in CI_PIPELINE_FILES for path in paths)
 
     if not force_all:
         for path in paths:
@@ -76,6 +83,9 @@ def compute_workplan(
 
             if platform := TEST_INFRA_PLATFORMS.get(path):
                 test_platforms.add(platform)
+                continue
+
+            if path in CI_PIPELINE_FILES:
                 continue
 
             if path_parts[0] == "ci" or (
@@ -119,6 +129,7 @@ def compute_workplan(
                 force_all = True
                 break
 
+    check_ci_pipeline = check_ci_pipeline or force_all
     if force_all:
         builds = set(MODULES)
         tests = set(MODULES)
@@ -147,6 +158,7 @@ def compute_workplan(
             "platforms": {platform: platform in test_platforms for platform in PLATFORMS},
             "sdist_tests": bool(builds),
             "core_api_checks": force_all or "core" in source_changes,
+            "ci_pipeline": check_ci_pipeline,
         },
         "merge_base": merge_base,
         "baseline": {

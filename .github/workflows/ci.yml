@@ -276,6 +276,32 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+  check-ci-pipeline-diagram:
+    name: Check CI pipeline diagram
+    if: >-
+      ${{ !fromJSON(needs.should-skip.outputs.skip) &&
+          fromJSON(needs.detect-changes.outputs.workplan).jobs.ci_pipeline }}
+    runs-on: ubuntu-latest
+    needs:
+      - should-skip
+      - detect-changes
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38  # v6.5.0
+        with:
+          node-version: '22'
+
+      - name: Check generated diagram
+        run: python3 ci/tools/generate_ci_pipeline.py --check
+
   api-check-core-vs-release:
     name: API check (cuda_core vs. latest release)
     if: >-
@@ -675,6 +701,7 @@ jobs:
       - test-windows
       - api-check-core-vs-release
       - api-check-core-vs-base
+      - check-ci-pipeline-diagram
       - doc
       - precommit-windows
     steps:
@@ -702,6 +729,7 @@ jobs:
           windows_arm64_supported="${{ needs.ci-vars.outputs.WINDOWS_ARM64_SUPPORTED }}"
           build_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.sdist_tests || false }}"
           run_core_api_check="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.core_api_checks || false }}"
+          check_ci_pipeline="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.ci_pipeline || false }}"
           is_pr="${{ startsWith(github.ref_name, 'pull-request/') }}"
           status="success"
           check_result() {
@@ -722,6 +750,10 @@ jobs:
           check_result "build-linux-64"    "success"
           check_result "doc"               "success"
           check_result "precommit-windows" "success"
+
+          ci_pipeline_expected="skipped"
+          if [[ "$check_ci_pipeline" == "true" ]]; then ci_pipeline_expected="success"; fi
+          check_result "check-ci-pipeline-diagram" "$ci_pipeline_expected"
 
           # Optional platform builds and wheel tests share the platform plan.
           linux_expected="skipped"
