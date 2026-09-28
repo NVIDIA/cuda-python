@@ -1,0 +1,145 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+language: en-US
+tone_instructions: |
+  Be direct, technical, brief. No praise, emojis, headings, or collapsible menus.
+  Start each comment with one prefix:
+  - suggestion: optional improvement;
+  - important: must-fix/high-impact risk;
+  - critical: blocking correctness/security/data-loss.
+
+reviews:
+  profile: chill
+
+  high_level_summary: true
+  high_level_summary_in_walkthrough: true
+  poem: false
+  in_progress_fortune: false
+  sequence_diagrams: false
+  estimate_code_review_effort: false
+  collapse_walkthrough: true
+
+  # Reduce noisy status/details sections.
+  request_changes_workflow: false
+  review_status: false
+  review_details: false
+  enable_prompt_for_ai_agents: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - "^main$"
+    ignore_usernames:
+      - "copy-pr-bot[bot]"
+      - "dependabot[bot]"
+      - "github-actions[bot]"
+
+  tools:
+    gitleaks:
+      enabled: true
+    markdownlint:
+      enabled: true
+    shellcheck:
+      enabled: true
+
+  # Keep Autofix available, but disable the other finishing touch actions.
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: false
+    simplify:
+      enabled: false
+
+  pre_merge_checks:
+    docstrings:
+      mode: "off"
+    title:
+      mode: "off"
+    description:
+      mode: "off"
+    issue_assessment:
+      mode: "off"
+    custom_checks: []
+
+  path_instructions:
+    - path: "cuda_bindings/**/*"
+      instructions: |
+        Focus on Cython binding correctness, CUDA driver/runtime API and ABI stability, error-code propagation,
+        resource ownership and reference counting, GIL handling, cross-platform behavior, and NVRTC/nvJitLink
+        coverage. Flag direct edits to generated sources that should instead be made at their generation source.
+        Avoid style-only comments already covered by pre-commit.
+
+    - path: "cuda_core/**/*"
+      instructions: |
+        Focus on Python API stability, stream ordering, CUDA resource lifetime and ownership, CUDA Array Interface
+        compatibility, host/device memory semantics, error translation, and free-threading correctness. Check that
+        public behavior changes have corresponding tests and documentation. Avoid style-only comments already
+        covered by pre-commit.
+
+    - path: "cuda_pathfinder/**/*"
+      instructions: |
+        Focus on deterministic path resolution across Linux and Windows, wheel and conda layouts, dynamic-library
+        loading and cache semantics, and explicit behavior when the CUDA Toolkit is missing or partially installed.
+        Check that errors preserve the package's public exception contracts.
+
+    - path: "cuda_python/**/*"
+      instructions: |
+        Focus on metapackage correctness, dependency and version pins, wheel and sdist contents, and documentation
+        aggregation. Keep runtime functionality in the component packages and verify that packaging changes preserve
+        compatibility among cuda-python, cuda-bindings, cuda-core, and cuda-pathfinder.
+
+    - path: "benchmarks/**/*"
+      instructions: |
+        Check that benchmark changes measure meaningful workloads, keep comparison axes and benchmark identifiers
+        comparable, avoid excessive runtime, and preserve useful comparison data.
+
+    - path: "ci/**/*"
+      instructions: |
+        For CI and build scripts, focus on matrix correctness, the GPU-versus-CPU job split, targeted build and test
+        behavior, cache and artifact handling, environment setup, clear failure modes, and avoiding unnecessary
+        expensive jobs.
+
+    - path: ".github/**/*"
+      instructions: |
+        For GitHub workflows and repository automation, focus on least-privilege permissions, event triggers, matrix
+        generation, status and check behavior, security boundaries, and avoiding unnecessary CI fanout.
+
+    - path: "**/*.pyx"
+      instructions: |
+        Focus on typed-memoryview safety, GIL and nogil correctness, exception specifications, fused-type behavior,
+        Python reference ownership, and consistency with related declarations and generated type stubs.
+
+    - path: "**/*.pxd"
+      instructions: |
+        Focus on declaration and implementation consistency, typed-memoryview safety, GIL and nogil correctness,
+        exception specifications, fused-type behavior, and API or ABI impact on Cython consumers.
+
+knowledge_base:
+  opt_out: false
+  code_guidelines:
+    filePatterns:
+      - "AGENTS.md"
+      - "CONTRIBUTING.md"
+      - "cuda_bindings/AGENTS.md"
+      - "cuda_core/AGENTS.md"
+      - "cuda_core/tests/AGENTS.md"
+      - "cuda_pathfinder/AGENTS.md"
+      - "cuda_python/AGENTS.md"
+      - "benchmarks/cuda_bindings/AGENTS.md"
+      - "benchmarks/cuda_core/AGENTS.md"
+      - "cuda_bindings/README.md"
+      - "cuda_core/README.md"
+      - "cuda_pathfinder/DESCRIPTION.rst"
+      - "cuda_python/DESCRIPTION.rst"
+      - "cuda_bindings/docs/source/contribute.rst"
+      - "cuda_core/docs/source/contribute.rst"
+      - "cuda_core/docs/source/concurrency.rst"
+      - "cuda_core/docs/source/error_handling.rst"
+      - "cuda_pathfinder/docs/source/contribute.rst"
+      - "cuda_bindings/docs/source/release.rst"
+      - "cuda_core/docs/source/release.rst"
+      - "cuda_pathfinder/docs/source/release.rst"
+      - "cuda_python/docs/source/release.rst"
