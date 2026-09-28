@@ -77,13 +77,23 @@ flowchart TB
     GITHUB_ARTIFACTS -. "wheel fetch" .-> RELEASE
 
     classDef triggerStyle fill:#e8f4fd,stroke:#2196F3,stroke-width:2px,color:#1976D2
+    classDef triggerNodeStyle fill:#ffffff,stroke:#2196F3,stroke-width:2px,color:#333333
     classDef buildStyle fill:#f3e5f5,stroke:#9C27B0,stroke-width:2px,color:#7B1FA2
+    classDef buildNodeStyle fill:#ffffff,stroke:#9C27B0,stroke-width:2px,color:#333333
     classDef artifactStyle fill:#fff3e0,stroke:#FF9800,stroke-width:2px,color:#F57C00
+    classDef artifactNodeStyle fill:#ffffff,stroke:#FF9800,stroke-width:2px,color:#333333
     classDef testStyle fill:#e8f5e8,stroke:#4CAF50,stroke-width:2px,color:#388E3C
+    classDef testNodeStyle fill:#ffffff,stroke:#4CAF50,stroke-width:2px,color:#333333
     classDef releaseStyle fill:#ffebee,stroke:#f44336,stroke-width:2px,color:#D32F2F
+    classDef releaseNodeStyle fill:#ffffff,stroke:#f44336,stroke-width:2px,color:#333333
 
-    class TRIGGER,T1,T2,T3 triggerStyle
-    class BUILD,BUILD_PLATFORMS,B1,B2,B3,BUILD_DETAILS buildStyle
-    class ARTIFACTS,GITHUB_ARTIFACTS,GITHUB_CACHE,GA1,GC1 artifactStyle
-    class TEST,TEST_PLATFORMS,TS1,TS2,TS3,TEST_DETAILS,ARTIFACT_FLOWS testStyle
-    class RELEASE,RELEASE_STAGES,R1,R2,R3,RELEASE_DETAILS releaseStyle
+    class TRIGGER triggerStyle
+    class T1,T2,T3 triggerNodeStyle
+    class BUILD,BUILD_PLATFORMS buildStyle
+    class B1,B2,B3,BUILD_DETAILS buildNodeStyle
+    class ARTIFACTS,GITHUB_ARTIFACTS,GITHUB_CACHE artifactStyle
+    class GA1,GC1 artifactNodeStyle
+    class TEST,TEST_PLATFORMS testStyle
+    class TS1,TS2,TS3,TEST_DETAILS,ARTIFACT_FLOWS testNodeStyle
+    class RELEASE,RELEASE_STAGES releaseStyle
+    class R1,R2,R3,RELEASE_DETAILS releaseNodeStyle
