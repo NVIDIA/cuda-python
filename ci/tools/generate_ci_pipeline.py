@@ -63,6 +63,7 @@ def _render() -> bytes:
             "--multipass",
             "--precision",
             "2",
+            "--final-newline",
             "--quiet",
         ]
         subprocess.run(  # noqa: S603 - fixed command and temporary paths.
