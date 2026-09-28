@@ -40,15 +40,21 @@ if platform_is_wsl():
     pytest.skip("skipping cuFile tests on WSL", allow_module_level=True)
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(scope="module")
 def cufile_env_json():
-    """Use the compat-enabled test configuration for all cuFile tests."""
+    """Set CUFILE_ENV_PATH_JSON environment variable for async tests."""
     original_value = os.environ.get("CUFILE_ENV_PATH_JSON")
-    config_path = pathlib.Path(__file__).with_name("cufile.json")
-    assert config_path.is_file()
+
+    # Use /etc/cufile.json if it exists, otherwise fallback to cufile.json in tests directory
+    if os.path.exists("/etc/cufile.json"):
+        config_path = "/etc/cufile.json"
+    else:
+        # Get absolute path to cufile.json in the same directory as this test file
+        test_dir = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(test_dir, "cufile.json")
 
     logging.info(f"Using cuFile config: {config_path}")
-    os.environ["CUFILE_ENV_PATH_JSON"] = str(config_path)
+    os.environ["CUFILE_ENV_PATH_JSON"] = config_path
     yield
     # Restore original value or remove if it wasn't set
     if original_value is not None:
@@ -1711,9 +1717,7 @@ def test_set_get_parameter_bool():
     (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    original_allow_compat_mode = None
     try:
-        original_allow_compat_mode = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE)
         # Test setting and getting various boolean parameters
 
         # Test poll mode
@@ -1777,13 +1781,7 @@ def test_set_get_parameter_bool():
         assert retrieved_value is True, f"Stream memops bypass mismatch: set True, got {retrieved_value}"
 
     finally:
-        try:
-            if original_allow_compat_mode is not None:
-                cufile.set_parameter_bool(
-                    cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE, original_allow_compat_mode
-                )
-        finally:
-            cuda.cuDevicePrimaryCtxRelease(device)
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
 @pytest.mark.skipif(
