@@ -326,6 +326,9 @@ After editing it, regenerate the SVG with:
 python ci/tools/generate_ci_pipeline.py
 ```
 
+The generator requires Docker and Node.js. It renders with a pinned Mermaid CLI
+container so local and CI output remain identical.
+
 ### Pipeline Execution Details
 
 **Parallel Execution**: The CI pipeline leverages parallel execution to optimize build and test times:

@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 import argparse
-import json
+import os
 import shutil
 import subprocess
 import sys
@@ -19,7 +19,10 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SOURCE = REPO_ROOT / "ci" / "ci-pipeline.mmd"
 OUTPUT = REPO_ROOT / "ci" / "ci-pipeline.svg"
-MERMAID_CLI_VERSION = "12.0.0"
+MERMAID_CLI_IMAGE = (
+    "ghcr.io/mermaid-js/mermaid-cli/mermaid-cli"
+    "@sha256:fa995339034aae7e5cd4f61482248b7f5c51be355b1a6f6eda11a2bbf8401f5f"  # 12.0.0
+)
 SVGO_VERSION = "4.1.0"
 SPDX_HEADER = (
     "<!-- SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->\n"
@@ -28,37 +31,42 @@ SPDX_HEADER = (
 
 
 def _render() -> bytes:
+    docker = shutil.which("docker")
     npx = shutil.which("npx")
-    if npx is None:
-        raise RuntimeError("npx is required; install Node.js 22.13 or newer")
+    if docker is None or npx is None:
+        raise RuntimeError("Docker and npx are required; install Docker and Node.js 16 or newer")
 
     with tempfile.TemporaryDirectory(prefix="cuda-python-ci-pipeline-") as temporary_directory:
-        rendered_path = Path(temporary_directory) / "ci-pipeline.svg"
-        optimized_path = Path(temporary_directory) / "ci-pipeline-optimized.svg"
-        puppeteer_config_path = Path(temporary_directory) / "puppeteer-config.json"
-        puppeteer_config_path.write_text(
-            json.dumps({"args": ["--no-sandbox", "--disable-setuid-sandbox"]}),
-            encoding="utf-8",
-        )
+        temporary_path = Path(temporary_directory)
+        source_path = temporary_path / SOURCE.name
+        rendered_path = temporary_path / "ci-pipeline.svg"
+        optimized_path = temporary_path / "ci-pipeline-optimized.svg"
+        shutil.copyfile(SOURCE, source_path)
+
+        user_args = []
+        if hasattr(os, "getuid") and hasattr(os, "getgid"):
+            user_args = ["--user", f"{os.getuid()}:{os.getgid()}"]
         command = [
-            npx,
-            "--yes",
-            "--package",
-            f"@mermaid-js/mermaid-cli@{MERMAID_CLI_VERSION}",
-            "mmdc",
+            docker,
+            "run",
+            "--rm",
+            *user_args,
+            "--env",
+            "HOME=/tmp",
+            "--volume",
+            f"{temporary_path}:/data",
+            MERMAID_CLI_IMAGE,
             "--input",
-            str(SOURCE),
+            f"/data/{source_path.name}",
             "--output",
-            str(rendered_path),
+            f"/data/{rendered_path.name}",
             "--backgroundColor",
             "white",
             "--size",
             "1400",
             "--no-font-embed",
-            "--puppeteerConfigFile",
-            str(puppeteer_config_path),
         ]
-        subprocess.run(command, cwd=REPO_ROOT, check=True)  # noqa: S603 - fixed command and repository paths.
+        subprocess.run(command, cwd=REPO_ROOT, check=True)  # noqa: S603 - fixed command and paths.
         optimize_command = [
             npx,
             "--yes",
