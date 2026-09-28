@@ -77,8 +77,7 @@ def _compile_tag_regex(pattern: str, label: str) -> re.Pattern[str]:
 class BindingsPackage:
     package_root: str
     toolkit_version: str
-    release_status: str | None
-    tag_regex: str
+    release_status: str
 
     @property
     def ctk_target(self) -> str:
@@ -93,25 +92,10 @@ class BindingsPackage:
     def cuda_variant(self) -> str:
         return f"cu{self.cuda_major}"
 
-    def scm_version_from_tag(self, tag: str, *, fullmatch: bool = True) -> Version | None:
-        """Return the PEP 440 version captured by this package root's SCM regex."""
-        regex = _compile_tag_regex(self.tag_regex, f"{self.package_root} setuptools-scm tag_regex")
-        match = regex.fullmatch(tag) if fullmatch else regex.match(tag)
-        if match is None:
-            return None
-        if _RELEASE_VERSION_PATTERN.fullmatch(match.group("version").removeprefix("v")) is None:
-            return None
-        try:
-            version = parse_pep440_version(match.group("version"), f"release tag {tag!r}")
-        except BindingsConfigError:
-            return None
-        return None if version.local is not None else version
-
     def version_from_tag(self, tag: str) -> Version | None:
         """Return a matching release version for this configured package root."""
-        version = self.scm_version_from_tag(tag)
-        toolkit = parse_pep440_version(self.toolkit_version, f"{self.package_root}.toolkit_version")
-        if version is None or version.release[:2] != toolkit.release[:2]:
+        version = parse_prefixed_version(tag, "v")
+        if version is None or f"{version.release[0]}.{version.release[1]}" != self.ctk_target:
             return None
         return version
 
@@ -123,7 +107,6 @@ class BindingsPackage:
             "package_root": self.package_root,
             "toolkit_version": self.toolkit_version,
             "release_status": self.release_status,
-            "tag_regex": self.tag_regex,
             "ctk_target": self.ctk_target,
             "cuda_major": self.cuda_major,
             "cuda_variant": self.cuda_variant,
@@ -181,22 +164,8 @@ def parse_package_root(value: Any, label: str = "package_root") -> str:
     return package_root
 
 
-def _read_tag_regex(repo_root: Path, package_root: str) -> str:
-    path = repo_root / package_root / "pyproject.toml"
-    try:
-        with path.open("rb") as stream:
-            pyproject = tomllib.load(stream)
-        pattern = pyproject["tool"]["setuptools_scm"]["tag_regex"]
-    except (OSError, KeyError, TypeError, tomllib.TOMLDecodeError) as error:
-        raise BindingsConfigError(f"could not read [tool.setuptools_scm].tag_regex from {path}: {error}") from error
-    if not isinstance(pattern, str) or not pattern:
-        raise BindingsConfigError(f"[tool.setuptools_scm].tag_regex in {path} must be a non-empty string")
-    _compile_tag_regex(pattern, f"[tool.setuptools_scm].tag_regex in {path}")
-    return pattern
-
-
-def _legacy_tag_regex(repo_root: Path, package_root: str) -> str | None:
-    """Return legacy SCM metadata, or None for pre-setuptools-scm trees."""
+def _legacy_tag_pattern(repo_root: Path, package_root: str) -> re.Pattern[str] | None:
+    """Return a tagged tree's custom SCM parser, if one was configured."""
     path = repo_root / package_root / "pyproject.toml"
     try:
         with path.open("rb") as stream:
@@ -204,13 +173,13 @@ def _legacy_tag_regex(repo_root: Path, package_root: str) -> str | None:
     except (OSError, tomllib.TOMLDecodeError) as error:
         raise BindingsConfigError(f"could not inspect legacy package metadata {path}: {error}") from error
 
-    tool = pyproject.get("tool")
-    if not isinstance(tool, dict) or "setuptools_scm" not in tool:
-        return None
-    return _read_tag_regex(repo_root, package_root)
+    pattern = pyproject.get("tool", {}).get("setuptools_scm", {}).get("tag_regex")
+    if pattern is not None and (not isinstance(pattern, str) or not pattern):
+        raise BindingsConfigError(f"[tool.setuptools_scm].tag_regex in {path} must be a non-empty string")
+    return _compile_tag_regex(pattern, f"[tool.setuptools_scm].tag_regex in {path}") if pattern else None
 
 
-def _package(package_root: str, raw: Any, repo_root: Path) -> BindingsPackage:
+def _package(package_root: str, raw: Any) -> BindingsPackage:
     package_root = parse_package_root(package_root, "CUDA bindings package root")
     data = _mapping(
         raw,
@@ -229,7 +198,6 @@ def _package(package_root: str, raw: Any, repo_root: Path) -> BindingsPackage:
             f"{package_root}.release_status",
             _NAME_PATTERN,
         ),
-        tag_regex=_read_tag_regex(repo_root, package_root),
     )
 
 
@@ -241,42 +209,30 @@ def _validate_release_statuses(packages: tuple[BindingsPackage, ...]) -> None:
         )
 
 
-def _validate_scm_conformance(packages: tuple[BindingsPackage, ...]) -> None:
-    for package in packages:
-        tag = f"v{package.toolkit_version}"
-        version = package.version_from_tag(tag)
-        expected = parse_pep440_version(package.toolkit_version, f"{package.package_root}.toolkit_version")
-        if version != expected:
-            raise BindingsConfigError(
-                f"{package.package_root} setuptools-scm tag_regex must match its configured toolkit release tag {tag!r}"
-            )
-
-
-def validate_config(raw: Any, repo_root: Path = REPO_ROOT) -> BindingsConfig:
+def validate_config(raw: Any) -> BindingsConfig:
     root = _mapping(raw, "versions configuration", {"schema_version", "cuda"})
     if type(root["schema_version"]) is not int or root["schema_version"] != SCHEMA_VERSION:
         raise BindingsConfigError(f"schema_version must be {SCHEMA_VERSION}")
     cuda = _mapping(root["cuda"], "cuda", {"bindings"})
     bindings = _mapping(cuda["bindings"], "cuda.bindings", {"package_roots"})
     raw_package_roots = _mapping(bindings["package_roots"], "cuda.bindings.package_roots")
-    packages = tuple(_package(package_root, value, repo_root) for package_root, value in raw_package_roots.items())
+    packages = tuple(_package(package_root, value) for package_root, value in raw_package_roots.items())
     _validate_release_statuses(packages)
     cuda_majors = [package.cuda_major for package in packages]
     if len(set(cuda_majors)) != len(cuda_majors):
         raise BindingsConfigError("CUDA bindings cuda_major values must be unique")
-    _validate_scm_conformance(packages)
     return BindingsConfig(
         schema_version=SCHEMA_VERSION,
         package_roots=packages,
     )
 
 
-def load_config(path: Path = DEFAULT_CONFIG, repo_root: Path = REPO_ROOT) -> BindingsConfig:
+def load_config(path: Path = DEFAULT_CONFIG) -> BindingsConfig:
     try:
         raw = yaml.safe_load(path.read_text(encoding="utf-8"))
     except (OSError, yaml.YAMLError) as error:
         raise BindingsConfigError(f"could not read {path}: {error}") from error
-    return validate_config(raw, repo_root)
+    return validate_config(raw)
 
 
 def _tag_tree_config(release_source_root: Path) -> tuple[BindingsConfig | None, Any, Path | None]:
@@ -303,7 +259,7 @@ def _tag_tree_config(release_source_root: Path) -> tuple[BindingsConfig | None, 
     if "schema_version" not in raw:
         return None, raw, config_path
     try:
-        return validate_config(raw, release_source_root), raw, config_path
+        return validate_config(raw), raw, config_path
     except BindingsConfigError as error:
         raise BindingsConfigError(f"invalid schema-2 tagged config {config_path}: {error}") from error
 
@@ -317,7 +273,7 @@ def _legacy_toolkit_version(raw: Any, release_version: Version, control_config_p
     if value is not None:
         return _text(value, "legacy cuda.build.version", _TOOLKIT_VERSION_PATTERN)
 
-    control = load_config(control_config_path, control_config_path.parent.parent)
+    control = load_config(control_config_path)
     target = release_version.release[:2]
     if len(target) != 2:
         raise BindingsConfigError(f"legacy release version has no CUDA minor: {release_version}")
@@ -345,12 +301,15 @@ def _legacy_release_package(
     if not (release_source_root / package_root).is_dir():
         raise BindingsConfigError(f"legacy release package root is missing: {package_root}")
 
-    tag_regex = _legacy_tag_regex(release_source_root, package_root)
-    if tag_regex is None:
-        release_version = parse_prefixed_version(release_tag, "v")
+    tag_pattern = _legacy_tag_pattern(release_source_root, package_root)
+    if tag_pattern is not None:
+        # Historical release trees can deliberately omit a prerelease suffix
+        # from the SCM version captured by their custom regex.
+        match = tag_pattern.match(release_tag)
+        parsed_tag = match.group("version") if match else ""
     else:
-        probe = BindingsPackage(package_root, "1.0.0", None, tag_regex)
-        release_version = probe.scm_version_from_tag(release_tag, fullmatch=False)
+        parsed_tag = release_tag
+    release_version = parse_prefixed_version(parsed_tag, "v")
     if release_version is None:
         raise BindingsConfigError(f"legacy source metadata does not match release tag: {release_tag!r}")
     return {
@@ -452,7 +411,6 @@ def main(argv: list[str] | None = None) -> int:
     """Emit normalized registry JSON or export one package for GitHub Actions."""
     parser = ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
-    parser.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     output = parser.add_mutually_exclusive_group()
     output.add_argument("--package-roots", action="store_true", help="print normalized package-root records")
     output.add_argument(
@@ -497,7 +455,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             if args.release_source_root is not None or args.control_config is not None:
                 parser.error("--release-source-root and --control-config require --release-tag")
-            config = load_config(args.config, args.repo_root)
+            config = load_config(args.config)
             if args.package_roots:
                 value = [package.to_dict() for package in config.package_roots]
             elif args.release_status:

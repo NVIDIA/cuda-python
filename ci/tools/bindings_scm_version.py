@@ -95,7 +95,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--sha", required=True)
     args = parser.parse_args(argv)
 
-    package = bindings_config.load_config(args.config, args.repo_root).get_package(args.package_root)
+    package = bindings_config.load_config(args.config).get_package(args.package_root)
     version = pretend_version(args.repo_root, args.sha, package)
     if version is not None:
         print(version)

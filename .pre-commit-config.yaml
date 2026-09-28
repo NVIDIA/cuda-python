@@ -59,7 +59,7 @@ repos:
         types: [text]
 
       - id: check-bindings-config
-        name: Check bindings registry tracks package metadata
+        name: Validate bindings package-root registry
         entry: python -m ci.tools.bindings_config
         language: python
         additional_dependencies: [packaging==26.0, pyyaml==6.0.3]

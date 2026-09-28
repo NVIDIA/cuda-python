@@ -16,18 +16,11 @@ RELEASED_12 = bindings_config.BindingsPackage(
     package_root="cuda_bindings_12",
     toolkit_version="12.9.1",
     release_status="maintenance",
-    tag_regex=(
-        r"^(?P<version>v12\.9\.(?:0|[1-9][0-9]*)"
-        r"(?:(?:a|b|rc)(?:0|[1-9][0-9]*))?"
-        r"(?:\.post(?:0|[1-9][0-9]*))?"
-        r"(?:\.dev(?:0|[1-9][0-9]*))?)$"
-    ),
 )
 ALTERNATE_13 = bindings_config.BindingsPackage(
     package_root="alternate_bindings",
     toolkit_version="13.2.0",
     release_status="current",
-    tag_regex=r"^(?P<version>v13\.2\.\d+(?:(?:a|b|rc)\d+)?(?:\.post\d+)?)$",
 )
 
 
@@ -42,10 +35,7 @@ def make_repo(
 ) -> tuple[Path, Path]:
     config = tmp_path / package.package_root / "pyproject.toml"
     config.parent.mkdir(parents=True)
-    config.write_text(
-        (f"[tool.setuptools_scm]\nfallback_version = \"{fallback_version}\"\ntag_regex = '{package.tag_regex}'\n"),
-        encoding="utf-8",
-    )
+    config.write_text(f'[tool.setuptools_scm]\nfallback_version = "{fallback_version}"\n', encoding="utf-8")
     git(tmp_path, "init")
     git(tmp_path, "config", "user.name", "CUDA Python CI")
     git(tmp_path, "config", "user.email", "cuda-python@nvidia.com")
@@ -113,7 +103,7 @@ def test_rejects_development_fallback_for_another_ctk_target(tmp_path):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_configured_package_uses_its_root_and_scm_tag_regex(tmp_path):
+def test_configured_package_uses_its_root_and_release_family(tmp_path):
     repo, config = make_repo(tmp_path, ALTERNATE_13, "13.2.2.dev0")
     assert config == repo / "alternate_bindings" / "pyproject.toml"
 
@@ -128,20 +118,11 @@ def test_configured_package_uses_its_root_and_scm_tag_regex(tmp_path):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_cli_selects_released_12_from_requested_repo_root(tmp_path, capsys, monkeypatch):
+def test_cli_selects_released_12_from_requested_repo_root(tmp_path, capsys):
     configured_package = bindings_config.load_config().get_package("cuda_bindings_12")
     make_repo(tmp_path, configured_package)
-    load_config = bindings_config.load_config
-    seen_roots = []
-
-    def record_repo_root(path, repo_root):
-        seen_roots.append(repo_root)
-        return load_config(path)
-
-    monkeypatch.setattr(bindings_config, "load_config", record_repo_root)
 
     result = main(["--repo-root", str(tmp_path), "--package-root", "cuda_bindings_12", "--sha", SHA])
 
     assert result == 0
-    assert seen_roots == [tmp_path]
     assert capsys.readouterr().out.strip() == "12.9.8.dev0+gabcdef0"

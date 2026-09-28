@@ -10,20 +10,6 @@ from setuptools_scm import get_version
 
 # The standalone metapackage sdist has neither ci/versions.yml nor the
 # sibling bindings pyprojects. CI tests keep these selectors in sync with them.
-SCM_TAG_REGEX_BY_MAJOR = {
-    "12": (
-        r"^(?P<version>v12\.9\.(?:0|[1-9][0-9]*)"
-        r"(?:(?:a|b|rc)(?:0|[1-9][0-9]*))?"
-        r"(?:\.post(?:0|[1-9][0-9]*))?"
-        r"(?:\.dev(?:0|[1-9][0-9]*))?)$"
-    ),
-    "13": (
-        r"^(?P<version>v13\.4\.(?:0|[1-9][0-9]*)"
-        r"(?:(?:a|b|rc)(?:0|[1-9][0-9]*))?"
-        r"(?:\.post(?:0|[1-9][0-9]*))?"
-        r"(?:\.dev(?:0|[1-9][0-9]*))?)$"
-    ),
-}
 SCM_DESCRIBE_MATCH_BY_MAJOR = {
     "12": "v12.9.[1-9]*",
     "13": "v13.4.*",
@@ -39,7 +25,6 @@ version_options = {
     "relative_to": __file__,
     "dist_name": "cuda-python",
     # Keep metapackage tag selection identical to its bindings source line.
-    "tag_regex": SCM_TAG_REGEX_BY_MAJOR[build_major],
     "git_describe_command": [
         "git",
         "describe",

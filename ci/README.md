@@ -28,11 +28,11 @@ verification procedure in that repository's own documentation.
 `ci/versions.yml` is the authoritative public registry for CUDA bindings
 package roots. Each mapping key is a repository-relative package root; its
 record declares an exact toolkit build/test pin and a `release_status` of
-`current` or `maintenance`. A package root's
-`[tool.setuptools_scm].tag_regex` defines its accepted tag syntax and release
-family. Update that SCM metadata together with the toolkit pin when a package
-moves to a new toolkit minor; registry validation rejects a configuration
-where the two disagree.
+`current` or `maintenance`. Release routing uses the tag's CUDA major/minor
+and the toolkit pin to select a root. Bindings and metapackage builds use
+setuptools-scm's default tag parser. Each root's `git_describe_command`
+selects its tag series for source builds; update its `--match` pattern when
+the root moves to a new toolkit minor.
 
 The Python helpers share registry parsing and validation, so they are modules
 in the repository-private `cuda-python-ci-tools` distribution rather than
@@ -45,7 +45,7 @@ python -m pip install -e ./ci
 
 Use `ci.tools.bindings_config` instead of reading the YAML directly. It
 validates the registry and emits normalized JSON with the configured values
-plus the source SCM tag regex and derived CTK target and CUDA ABI major/variant:
+plus the derived CTK target and CUDA ABI major/variant:
 
 ```console
 python -m ci.tools.bindings_config

@@ -98,8 +98,7 @@ jobs:
           trap 'rm -rf -- "$snapshot"' EXIT
           git archive "$HEAD_SHA" | tar -x -C "$snapshot"
           BINDINGS_CONFIG=$(python -m ci.tools.bindings_config \
-            --config "$snapshot/ci/versions.yml" \
-            --repo-root "$snapshot")
+            --config "$snapshot/ci/versions.yml")
 
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
           echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT

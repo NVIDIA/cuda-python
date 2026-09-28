@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import json
-import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -98,7 +97,6 @@ def synthetic_package(package_root: str, ctk_target: str, release_status: str) -
         package_root=package_root,
         toolkit_version=f"{ctk_target}.0",
         release_status=release_status,
-        tag_regex=rf"^(?P<version>v{re.escape(ctk_target)}\.\d+)$",
     )
 
 
