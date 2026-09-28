@@ -4,15 +4,23 @@
 title: CUDA Python CI Pipeline Flow
 config:
   theme: base
-  look: classic
+  look: handDrawn
   layout: elk
+  handDrawnSeed: 2740
   deterministicIds: true
   deterministicIDSeed: cuda-python-ci-pipeline
   htmlLabels: true
+  themeVariables:
+    fontFamily: "Comic Sans MS, Comic Sans, cursive"
+    fontSize: 14px
   flowchart:
     curve: basis
-    nodeSpacing: 35
-    rankSpacing: 45
+    diagramPadding: 8
+    minNodeWidth: 140
+    nodeSpacing: 24
+    padding: 10
+    rankSpacing: 24
+    wrappingWidth: 300
 ---
 flowchart TB
     subgraph TRIGGER["TRIGGER EVENTS"]

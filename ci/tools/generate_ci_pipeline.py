@@ -19,6 +19,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SOURCE = REPO_ROOT / "ci" / "ci-pipeline.mmd"
 OUTPUT = REPO_ROOT / "ci" / "ci-pipeline.svg"
 MERMAID_CLI_VERSION = "12.0.0"
+SVGO_VERSION = "4.1.0"
 SPDX_HEADER = (
     "<!-- SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->\n"
     "<!-- SPDX-License-Identifier: Apache-2.0 -->\n"
@@ -32,6 +33,7 @@ def _render() -> bytes:
 
     with tempfile.TemporaryDirectory(prefix="cuda-python-ci-pipeline-") as temporary_directory:
         rendered_path = Path(temporary_directory) / "ci-pipeline.svg"
+        optimized_path = Path(temporary_directory) / "ci-pipeline-optimized.svg"
         command = [
             npx,
             "--yes",
@@ -49,7 +51,26 @@ def _render() -> bytes:
             "--no-font-embed",
         ]
         subprocess.run(command, cwd=REPO_ROOT, check=True)  # noqa: S603 - fixed command and repository paths.
-        return SPDX_HEADER.encode("utf-8") + rendered_path.read_bytes()
+        optimize_command = [
+            npx,
+            "--yes",
+            "--package",
+            f"svgo@{SVGO_VERSION}",
+            "svgo",
+            str(rendered_path),
+            "--output",
+            str(optimized_path),
+            "--multipass",
+            "--precision",
+            "2",
+            "--quiet",
+        ]
+        subprocess.run(  # noqa: S603 - fixed command and temporary paths.
+            optimize_command,
+            cwd=REPO_ROOT,
+            check=True,
+        )
+        return SPDX_HEADER.encode("utf-8") + optimized_path.read_bytes()
 
 
 def main() -> int:
