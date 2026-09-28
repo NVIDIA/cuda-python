@@ -10,7 +10,6 @@ from cuda.core import (
     ManagedMemoryResourceOptions,
     TensorMapDescriptor,
 )
-from cuda.core._dlpack import DLDeviceType
 from cuda.core._tensor_map import (
     TensorMapDataType,
     TensorMapDescriptorOptions,
@@ -20,8 +19,6 @@ from cuda.core._tensor_map import (
     TensorMapOOBFill,
     TensorMapSwizzle,
     _coerce_tensor_map_descriptor_options,
-    _require_view_device,
-    _resolve_data_type,
 )
 from cuda.core.utils import StridedMemoryView
 
@@ -53,15 +50,6 @@ class _DeviceArray:
             "data": (int(buf.handle), False),
             "version": 3,
         }
-
-
-class _MockTensorMapView:
-    def __init__(self, device_type, device_id):
-        self._device_type = device_type
-        self._device_id = device_id
-
-    def __dlpack_device__(self):
-        return (self._device_type, self._device_id)
 
 
 def _as_view(obj):
@@ -160,6 +148,19 @@ class TestTensorMapDescriptorCreation:
             )
         )
         assert desc is not None
+
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    def test_swizzle_via_options(self, dev, skip_if_no_tma):
+        # SWIZZLE_128B caps the innermost box at 128 bytes; 64 float32 is 256.
+        buf = dev.allocate(1024 * 4, stream=dev.default_stream)
+        with pytest.raises(ValueError, match="bytes128"):
+            _as_view(buf).as_tensor_map(
+                options=TensorMapDescriptorOptions(
+                    box_dim=(64,),
+                    data_type=np.float32,
+                    swizzle=TensorMapSwizzle.SWIZZLE_128B,
+                )
+            )
 
     def test_strided_memory_view_as_tensor_map_options_dict(self, dev, skip_if_no_tma):
         buf = dev.allocate(1024 * 4, stream=dev.default_stream)
@@ -301,6 +302,47 @@ class TestTensorMapDescriptorValidation:
                 data_type=TensorMapDataType.FLOAT32,
             )
 
+    # No skip_if_no_tma: element_strides are checked before any TMA-specific work.
+    @pytest.mark.parametrize("stride", [0, -1], ids=["zero", "negative"])
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_element_strides_must_be_positive(self, dev, stride):
+        buf = dev.allocate(1024 * 4, stream=dev.default_stream)
+        with pytest.raises(ValueError, match=r"element_strides\[0\] must be positive"):
+            _as_view(buf).as_tensor_map(
+                box_dim=(64,),
+                element_strides=(stride,),
+                data_type=TensorMapDataType.FLOAT32,
+            )
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_innermost_box_dim_must_be_multiple_of_16_bytes(self, dev, skip_if_no_tma):
+        buf = dev.allocate(1024 * 4, stream=dev.default_stream)
+        with pytest.raises(ValueError, match="multiple of 16"):
+            _as_view(buf).as_tensor_map(
+                box_dim=(1,),
+                data_type=TensorMapDataType.FLOAT32,
+            )
+
+    # No skip_if_no_tma: the dtype is resolved before any TMA-specific work.
+    @pytest.mark.parametrize(
+        ("dtype", "data_type"),
+        [(np.float32, np.complex128), (np.complex64, None)],
+        ids=["explicit_unsupported", "tensor_dtype_unsupported"],
+    )
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    def test_unsupported_data_type(self, dev, dtype, data_type):
+        buf = dev.allocate(32 * np.dtype(dtype).itemsize, stream=dev.default_stream)
+        tensor = _DeviceArray(buf, (32,), dtype=dtype)
+        with pytest.raises(ValueError, match="Unsupported dtype"):
+            _as_view(tensor).as_tensor_map(box_dim=(32,), data_type=data_type)
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_cannot_infer_data_type(self, dev):
+        buf = dev.allocate(64, stream=dev.default_stream)
+        view = StridedMemoryView.from_buffer(buf, shape=(16,), itemsize=4, dtype=None)
+        with pytest.raises(ValueError, match="Cannot infer TMA data type"):
+            view.as_tensor_map(box_dim=(16,))
+
     def test_invalid_data_type(self, dev, skip_if_no_tma):
         buf = dev.allocate(1024 * 4, stream=dev.default_stream)
         with pytest.raises(TypeError, match="data_type must be"):
@@ -429,7 +471,32 @@ class TestTensorMapReplaceAddress:
 class TestTensorMapMultiDeviceValidation:
     """Test multi-device validation for descriptor creation."""
 
-    def test_from_tiled_rejects_tensor_from_other_device(self, init_cuda):
+    # The device check runs before any rank/shape validation, so a plain 1D
+    # buffer reaches it on every entry point.
+    @pytest.mark.parametrize(
+        ("operation", "call"),
+        [
+            pytest.param(
+                r"TensorMapDescriptor\._from_tiled",
+                lambda view: view.as_tensor_map(box_dim=(64,), data_type=TensorMapDataType.FLOAT32),
+                id="from_tiled",
+            ),
+            pytest.param(
+                r"TensorMapDescriptor\._from_im2col",
+                lambda view: TensorMapDescriptor._from_im2col(
+                    view,
+                    pixel_box_lower_corner=(0,),
+                    pixel_box_upper_corner=(4,),
+                    channels_per_pixel=64,
+                    pixels_per_column=4,
+                    data_type=TensorMapDataType.FLOAT32,
+                ),
+                id="from_im2col",
+            ),
+        ],
+    )
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    def test_rejects_tensor_from_other_device(self, init_cuda, operation, call):
         if len(Device.get_all_devices()) < 2:
             pytest.skip("requires multi-GPU")
 
@@ -440,14 +507,38 @@ class TestTensorMapMultiDeviceValidation:
         buf1 = dev1.allocate(1024 * 4, stream=dev1.default_stream)
         dev0.set_current()
 
-        with pytest.raises(
-            ValueError,
-            match=r"TensorMapDescriptor\._from_tiled expects tensor on device 0, got 1",
-        ):
-            _as_view(buf1).as_tensor_map(
-                box_dim=(64,),
-                data_type=TensorMapDataType.FLOAT32,
-            )
+        with pytest.raises(ValueError, match=rf"{operation} expects tensor on device 0, got 1"):
+            call(_as_view(buf1))
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_from_im2col_wide_rejects_tensor_from_other_device(self, init_cuda):
+        if len(Device.get_all_devices()) < 2:
+            pytest.skip("requires multi-GPU")
+
+        dev0 = Device(0)
+        dev1 = Device(1)
+
+        dev1.set_current()
+        buf1 = dev1.allocate(1024 * 4, stream=dev1.default_stream)
+        dev0.set_current()
+
+        try:
+            with pytest.raises(
+                ValueError,
+                match=r"TensorMapDescriptor\._from_im2col_wide expects tensor on device 0, got 1",
+            ):
+                TensorMapDescriptor._from_im2col_wide(
+                    _as_view(buf1),
+                    pixel_box_lower_corner_width=0,
+                    pixel_box_upper_corner_width=4,
+                    channels_per_pixel=64,
+                    pixels_per_column=4,
+                    data_type=TensorMapDataType.FLOAT32,
+                )
+        except RuntimeError as exc:
+            if "requires a CUDA 13+ build" in str(exc):
+                pytest.skip("Im2col-wide requires cuda.core built with CUDA 13+")
+            raise
 
     def test_from_tiled_accepts_managed_buffer_on_nonzero_device(self, init_cuda):
         if len(Device.get_all_devices()) < 2:
@@ -467,23 +558,6 @@ class TestTensorMapMultiDeviceValidation:
             data_type=TensorMapDataType.FLOAT32,
         )
         assert desc is not None
-
-
-class TestTensorMapDeviceValidation:
-    """Test device validation behavior for tensor-map-compatible views."""
-
-    def test_require_view_device_accepts_same_cuda_device(self):
-        _require_view_device(_MockTensorMapView(DLDeviceType.kDLCUDA, 1), 1, "op")
-
-    def test_require_view_device_rejects_different_cuda_device(self):
-        with pytest.raises(ValueError, match=r"op expects tensor on device 0, got 1"):
-            _require_view_device(_MockTensorMapView(DLDeviceType.kDLCUDA, 1), 0, "op")
-
-    def test_require_view_device_allows_cuda_host_memory(self):
-        _require_view_device(_MockTensorMapView(DLDeviceType.kDLCUDAHost, 0), 1, "op")
-
-    def test_require_view_device_allows_cuda_managed_memory(self):
-        _require_view_device(_MockTensorMapView(DLDeviceType.kDLCUDAManaged, 0), 1, "op")
 
 
 class TestTensorMapIm2col:
@@ -652,17 +726,6 @@ class TestTensorMapIm2colWide:
             )
 
 
-class _DtypeView:
-    """Minimal stand-in for a StridedMemoryView exposing only ``.dtype``.
-
-    ``_resolve_data_type`` reads nothing else off the view, so this keeps the
-    host-only tests free of any GPU allocation.
-    """
-
-    def __init__(self, dtype):
-        self.dtype = dtype
-
-
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 class TestTensorMapHelpers:
     """Host-only coverage for the arg-marshalling helpers' input-validation branches.
@@ -688,19 +751,6 @@ class TestTensorMapHelpers:
     def test_options_rejects_invalid(self, kwargs, match):
         with pytest.raises(TypeError, match=match):
             TensorMapDescriptorOptions(**kwargs)
-
-    @pytest.mark.parametrize(
-        ("view_dtype", "data_type", "match"),
-        [
-            (None, np.complex128, "Unsupported dtype"),  # explicit unsupported dtype
-            (None, None, "Cannot infer TMA data type"),  # nothing to infer from
-            (np.dtype(np.complex64), None, "Unsupported dtype"),  # view's dtype unsupported
-        ],
-        ids=["explicit_unsupported", "cannot_infer", "view_dtype_unsupported"],
-    )
-    def test_resolve_data_type_rejects(self, view_dtype, data_type, match):
-        with pytest.raises(ValueError, match=match):
-            _resolve_data_type(_DtypeView(view_dtype), data_type)
 
     def test_coerce_requires_box_dim_without_options(self):
         with pytest.raises(TypeError, match="box_dim is required unless options is provided"):

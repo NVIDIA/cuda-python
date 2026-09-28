@@ -55,6 +55,17 @@ def _load_build_hooks():
 build_hooks = _load_build_hooks()
 
 
+@pytest.mark.agent_authored(model="grok-4.6")
+def test_get_cccl_include_dirs_requires_initialized_submodule(tmp_path, monkeypatch):
+    monkeypatch.setattr(build_hooks, "_CCCL_SUBMODULE_DIR", tmp_path / "cccl")
+    build_hooks._get_cccl_include_dirs.cache_clear()
+    try:
+        with pytest.raises(RuntimeError, match="CCCL submodule"):
+            build_hooks._get_cccl_include_dirs()
+    finally:
+        build_hooks._get_cccl_include_dirs.cache_clear()
+
+
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_cuda_path_is_resolved_before_importing_bindings(monkeypatch):
     """PEP 517 namespace repair runs before cuda.bindings is imported."""
@@ -230,8 +241,10 @@ def _capture_cythonize_build_dir(monkeypatch, cuda_major):
         return []
 
     # Builds resolve the CTK for include dirs; stub it so the test runs
-    # where no toolkit is installed (e.g. the wheels CI jobs).
+    # where no toolkit is installed (e.g. the wheels CI jobs). The CCCL
+    # submodule is also absent from those checkouts.
     monkeypatch.setattr(build_hooks, "_get_cuda_path", lambda: "/nonexistent-cuda")
+    monkeypatch.setattr(build_hooks, "_get_cccl_include_dirs", lambda: ["/nonexistent-cccl"])
     monkeypatch.setattr(build_hooks, "cythonize", fake_cythonize)
     monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", cuda_major)
     build_hooks._determine_cuda_major_version.cache_clear()

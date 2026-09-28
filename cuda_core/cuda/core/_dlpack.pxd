@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -32,7 +32,9 @@ cdef extern from "_include/dlpack.h" nogil:
         _DLDeviceType device_type
         int32_t device_id
 
-    cdef enum DLDataTypeCode:
+    # A typedef, like DLDeviceType above: `cdef enum` would have Cython spell
+    # C temporaries `enum DLDataTypeCode`, which the header does not declare.
+    ctypedef enum DLDataTypeCode:
         kDLInt
         kDLUInt
         kDLFloat

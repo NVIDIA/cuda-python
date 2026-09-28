@@ -1,9 +1,11 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 line-length = 120
 respect-gitignore = true
 target-version = "py310"
+# Submodules carry their own linting configuration; never lint them from here.
+extend-exclude = ["third_party"]
 
 [format]
 indent-style = "space"

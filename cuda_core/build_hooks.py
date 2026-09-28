@@ -124,6 +124,12 @@ def _determine_cuda_major_version() -> str:
 # used later by setup()
 _extensions = None
 
+# CCCL is pinned as a submodule so the CCCL feature set cuda.core compiles
+# against does not vary with whatever CCCL the build environment's CTK ships.
+# It lives inside cuda_core/ so that it travels with the package: cibuildwheel
+# copies only this directory into its Linux container.
+_CCCL_SUBMODULE_DIR = Path(__file__).resolve().parent / "third_party" / "cccl"
+
 # Where per-configuration build artifacts live. Anchored to this file rather
 # than the cwd, since a project can be built from anywhere.
 _BUILD_DIR = Path(__file__).parent / "build"
@@ -186,7 +192,7 @@ def _relativize_extension_sources(extensions) -> None:
 def _extension_sources(mod_name):
     """The module's .pyx plus its C++, if any: every .cpp under
     cuda/core/_cpp/<stem>/, or the single legacy file cuda/core/_cpp/<stem>.cpp.
-    Example: _tensor_map.pyx compiles _cpp/tensor_map.cpp."""
+    Example: _rt.pyx compiles every .cpp under _cpp/rt/."""
     sources = [f"cuda/core/{mod_name}.pyx"]
     cpp_stem = Path("cuda", "core", "_cpp", mod_name.lstrip("_"))
     if cpp_stem.is_dir():
@@ -220,6 +226,31 @@ def _extension_depends():
         for path in module_dir.rglob("*")
         if path.suffix in (".h", ".hpp")
     )
+
+
+@functools.cache
+def _get_cccl_include_dirs() -> list[str]:
+    """Return the include dirs providing the CCCL headers to compile against.
+
+    Always the pinned submodule, never the CTK's CCCL: cuda.core's feature set
+    must not vary with whatever the build environment happens to ship, so a
+    missing submodule is a build error rather than a fallback.
+
+    Only libcu++ is listed: a CCCL checkout keeps one include root per
+    component (see the "GitHub" section of CCCL's README) and cuda.core
+    includes nothing from cub or thrust.
+    """
+    libcudacxx_include = _CCCL_SUBMODULE_DIR / "libcudacxx" / "include"
+
+    # <cuda/tma> is where _tensor_map.pyx gets cuda::make_tma_descriptor, and
+    # it postdates the rest of the layout, so it doubles as the version check.
+    if not (libcudacxx_include / "cuda" / "tma").is_file():
+        raise RuntimeError(
+            f"The CCCL submodule at {_CCCL_SUBMODULE_DIR} is missing or not initialized. Run\n"
+            "    git submodule update --init cuda_core/third_party/cccl"
+        )
+
+    return [str(libcudacxx_include)]
 
 
 def _build_cuda_core(debug=False):
@@ -266,12 +297,19 @@ def _build_cuda_core(debug=False):
                 continue
             yield mod
 
-    all_include_dirs = [os.path.join(cuda_path, "include")]
+    # CCCL first: a CTK also ships parts of it directly under include/ (e.g.
+    # <cuda/std/*> in 12.x), which must not shadow the version we pin.
+    all_include_dirs = [
+        *_get_cccl_include_dirs(),
+        os.path.join(cuda_path, "include"),
+    ]
+
     extra_compile_args = []
     extra_link_args = []
     extra_cythonize_kwargs = {}
     if sys.platform == "win32":
-        extra_compile_args += ["/std:c++17"]
+        # CCCL headers #error without the conforming MSVC preprocessor.
+        extra_compile_args += ["/std:c++17", "/Zc:preprocessor"]
         if debug:
             raise RuntimeError("Debuggable builds are not supported on Windows.")
     else:
