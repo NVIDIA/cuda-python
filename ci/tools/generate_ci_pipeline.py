@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import shutil
 import subprocess
 import sys
@@ -34,6 +35,11 @@ def _render() -> bytes:
     with tempfile.TemporaryDirectory(prefix="cuda-python-ci-pipeline-") as temporary_directory:
         rendered_path = Path(temporary_directory) / "ci-pipeline.svg"
         optimized_path = Path(temporary_directory) / "ci-pipeline-optimized.svg"
+        puppeteer_config_path = Path(temporary_directory) / "puppeteer-config.json"
+        puppeteer_config_path.write_text(
+            json.dumps({"args": ["--no-sandbox", "--disable-setuid-sandbox"]}),
+            encoding="utf-8",
+        )
         command = [
             npx,
             "--yes",
@@ -49,6 +55,8 @@ def _render() -> bytes:
             "--size",
             "1400",
             "--no-font-embed",
+            "--puppeteerConfigFile",
+            str(puppeteer_config_path),
         ]
         subprocess.run(command, cwd=REPO_ROOT, check=True)  # noqa: S603 - fixed command and repository paths.
         optimize_command = [
