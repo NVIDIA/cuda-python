@@ -9,9 +9,11 @@ on:
     # Run every night at 11pm EST (4am UTC during EST, 3am UTC during EDT)
     # Using 4am UTC to be safe during EST (Nov-Mar)
     - cron: '0 4 * * *'
+  # Manual verification lives in inspect-pr-previews.yml, which is read-only.
 
 permissions:
   contents: write  # Required to push changes to gh-pages branch
+  pull-requests: write  # Required to retire sticky preview comments
 
 jobs:
   cleanup:

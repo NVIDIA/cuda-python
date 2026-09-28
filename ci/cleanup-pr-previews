@@ -47,7 +47,8 @@ Always run with --dry-run first to verify expected behavior before actual cleanu
 Without --push, changes are committed locally for inspection only.
 
 Remote updates are owned by the nightly "Cleanup: PR Preview Documentation"
-workflow so they share its deployment lock. Other push contexts are rejected.
+workflow so they share its deployment lock. The manual inspection workflow is
+read-only, and other push contexts are rejected.
 
 This script is specifically designed for the NVIDIA/cuda-python repository structure.
 EOF
@@ -111,6 +112,29 @@ fi
 
 echo -e "${GREEN}[INFO]${NC} All prerequisites satisfied"
 
+update_preview_comment() {
+    local pr_number="$1"
+    local status_message="$2"
+    local comment_body
+    local comment_id
+
+    printf -v comment_body 'Doc Preview CI\n:---:\n%s\n<!-- Sticky Pull Request Commentpr-preview -->' "$status_message"
+    comment_id=$(gh api --paginate repos/"${REPOSITORY}"/issues/"${pr_number}"/comments \
+        --header "Accept: application/vnd.github+json" \
+        --jq '.[] | select(.body | contains("<!-- Sticky Pull Request Commentpr-preview -->")) | .id' \
+        | tail -n 1)
+
+    if [[ -n "$comment_id" ]]; then
+        gh api --method PATCH repos/"${REPOSITORY}"/issues/comments/"${comment_id}" \
+            --header "Accept: application/vnd.github+json" \
+            -f body="$comment_body" >/dev/null
+    else
+        gh api --method POST repos/"${REPOSITORY}"/issues/"${pr_number}"/comments \
+            --header "Accept: application/vnd.github+json" \
+            -f body="$comment_body" >/dev/null
+    fi
+}
+
 # Fetch PR preview folders from gh-pages branch
 echo -e "${YELLOW}[INFO]${NC} Fetching PR preview folders from gh-pages branch..."
 
@@ -129,6 +153,7 @@ echo -e "${GREEN}[INFO]${NC} Found $(echo "$PR_FOLDERS" | wc -l) PR preview fold
 
 # Check each PR folder
 FOLDERS_TO_REMOVE=()
+CLOSED_PRS=()
 TOTAL_FOLDERS=0
 OPEN_PRS=0
 
@@ -157,6 +182,7 @@ while IFS= read -r folder; do
         "closed")
             echo -e "${RED}[REMOVE]${NC} PR #${PR_NUMBER} is closed"
             FOLDERS_TO_REMOVE+=("$folder")
+            CLOSED_PRS+=("$PR_NUMBER")
             ;;
         "not_found")
             echo -e "${RED}[REMOVE]${NC} PR #${PR_NUMBER} not found (may have been deleted)"
@@ -194,6 +220,13 @@ if [[ "$DRY_RUN" == "true" ]]; then
     echo -e "${YELLOW}[DRY RUN]${NC} Would remove ${#FOLDERS_TO_REMOVE[@]} folders (run without --dry-run to actually remove)"
 else
     echo -e "${RED}[CLEANUP]${NC} Proceeding to remove ${#FOLDERS_TO_REMOVE[@]} folders..."
+
+    if [[ "$PUSH_CHANGES" == "true" ]]; then
+        for pr_number in "${CLOSED_PRS[@]}"; do
+            update_preview_comment "$pr_number" \
+                "Preview retired because the pull request was closed or merged. The nightly cleanup removes its published files."
+        done
+    fi
 
     # Create a git worktree for gh-pages branch
     TEMP_DIR="./gh-pages-cleanup"

@@ -220,10 +220,14 @@ jobs:
           # --no-deps avoids re-resolving cuda-core from PyPI during tag releases.
           pip install --no-deps cuda_python*.whl
 
-      # This step sets the PR_NUMBER/BUILD_LATEST/BUILD_PREVIEW env vars.
+      # PR CI uses pull-request/<number> refs regardless of the target branch.
       - name: Get PR number
-        if: ${{ !inputs.is-release }}
+        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         uses: ./.github/actions/get_pr_number
+
+      - name: Mark latest docs build
+        if: ${{ !inputs.is-release && !startsWith(github.ref_name, 'pull-request/') }}
+        run: echo "BUILD_LATEST=1" >> "$GITHUB_ENV"
 
       - name: Record deployment metadata
         id: deployment-metadata
@@ -273,7 +277,7 @@ jobs:
           mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
 
       - name: Write rendered docs file list
-        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         run: |
           find "${GITHUB_WORKSPACE}/artifacts/docs" -type f -name '*.html' ! -path '*/_static/*' \
             | LC_ALL=C sort > lychee-rendered-html-files.txt
@@ -284,7 +288,7 @@ jobs:
           wc -l lychee-rendered-html-files.txt
 
       - name: Restore lychee cache
-        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         id: restore-lychee-cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
@@ -294,7 +298,7 @@ jobs:
             docs-rendered-lychee-${{ env.PR_NUMBER }}-
 
       - name: Check rendered docs links
-        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         uses: lycheeverse/lychee-action@6da1d14f3a43098a294b7696d93d938aa8d20fc0  # unreleased: supports v0.24.x archive layout
         with:
           # PR-preview canonical URLs are checked by the preview deployment workflow.
@@ -325,7 +329,7 @@ jobs:
           token: ${{ github.token }}
 
       - name: Save lychee cache
-        if: ${{ always() && !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') && steps.restore-lychee-cache.outputs.cache-hit != 'true' && steps.restore-lychee-cache.outputs.cache-primary-key != '' }}
+        if: ${{ always() && !inputs.is-release && startsWith(github.ref_name, 'pull-request/') && steps.restore-lychee-cache.outputs.cache-hit != 'true' && steps.restore-lychee-cache.outputs.cache-primary-key != '' }}
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: .lycheecache
@@ -385,14 +389,14 @@ jobs:
           path: artifacts/docs/
 
       - name: Deploy doc preview
-        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        if: ${{ inputs.deploy-docs && !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         uses: ./.github/actions/doc_preview
         with:
           source-folder: artifacts/docs
           pr-number: ${{ needs.build.outputs.pr-number }}
 
       - name: Deploy doc update
-        if: ${{ github.ref_name == 'main' || inputs.is-release }}
+        if: ${{ inputs.deploy-docs && (github.ref_name == 'main' || inputs.is-release) }}
         uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445  # v4.9.0
         with:
           git-config-name: cuda-python-bot

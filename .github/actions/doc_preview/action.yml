@@ -19,7 +19,7 @@ runs:
   using: composite
   steps:
     - name: Deploy doc preview
-      if: ${{ github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+      if: ${{ startsWith(github.ref_name, 'pull-request/') }}
       uses: JamesIves/github-pages-deploy-action@d92aa235d04922e8f08b40ce78cc5442fcfbfa2f  # v4.8.0
       with:
         git-config-name: cuda-python-bot
@@ -34,7 +34,7 @@ runs:
         force: false
 
     - name: Leave a comment after deployment
-      if: ${{ github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+      if: ${{ startsWith(github.ref_name, 'pull-request/') }}
       uses: marocchino/sticky-pull-request-comment@d4d6b0936434b21bc8345ad45a440c5f7d2c40ff  # v3.0.3
       with:
         header: pr-preview
