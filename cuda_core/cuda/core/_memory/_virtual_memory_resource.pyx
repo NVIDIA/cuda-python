@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-from libc.stdint cimport uintptr_t
 from libc.string cimport memset
 from libcpp.vector cimport vector
 
@@ -44,7 +43,7 @@ from cuda.core._rt cimport (
     vmm_range_reserve,
     vmm_range_total,
 )
-from cuda.core._stream cimport Stream, Stream_accept, Stream_is_default_token
+from cuda.core._stream cimport Stream, Stream_accept, Stream_handle_is_default_token, Stream_is_default_token
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, check_or_create_options
 
 from dataclasses import dataclass, field
@@ -201,11 +200,6 @@ cdef inline size_t _align_up(size_t size, size_t gran) except? 0:
     return (size + gran - 1) // gran * gran
 
 
-cdef inline bint _is_default_token(cydriver.CUstream s) noexcept nogil:
-    cdef uintptr_t h = <uintptr_t>s
-    return h == 0 or h == <uintptr_t>cydriver.CU_STREAM_LEGACY or h == <uintptr_t>cydriver.CU_STREAM_PER_THREAD
-
-
 cdef bint _stream_is_capturing(cydriver.CUstream s) except -1:
     cdef cydriver.CUstreamCaptureStatus cap_status
     IF CUDA_CORE_BUILD_MAJOR >= 13:
@@ -257,18 +251,17 @@ cdef class VirtualMemoryBuffer(Buffer):
         """
         cdef Stream s
         cdef StreamHandle h
-        cdef cydriver.CUstream raw
         if not self._h_ptr:
             return
         if stream is not None:
             s = Stream_accept(stream)
-            raw = as_cu(s._h_stream)
+            h = s._h_stream
         else:
+            # Empty when no stream was recorded (host-located memory).
             h = deallocation_stream(self._h_ptr)
-            raw = as_cu(h)
         # Default-stream tokens are checked by the range deleter under their
         # bound context; a real stream can be checked here and refused.
-        if not _is_default_token(raw) and _stream_is_capturing(raw):
+        if h and not Stream_handle_is_default_token(as_cu(h)) and _stream_is_capturing(as_cu(h)):
             raise RuntimeError(
                 "cannot close a VirtualMemoryResource buffer on a capturing stream: "
                 "virtual memory deallocation is synchronous and cannot be captured"
@@ -302,8 +295,8 @@ cdef class VirtualMemoryResource(MemoryResource):
     """
 
     cdef:
-        public object device
-        public object config
+        readonly object device
+        readonly object config
 
     def __init__(self, device_id: Device | int, config: VirtualMemoryResourceOptions | None = None) -> None:
         self.device = Device(device_id)
