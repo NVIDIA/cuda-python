@@ -289,10 +289,6 @@ jobs:
         if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
         uses: lycheeverse/lychee-action@6da1d14f3a43098a294b7696d93d938aa8d20fc0  # unreleased: supports v0.24.x archive layout
         with:
-          # PR-preview canonical URLs are checked by the preview deployment workflow.
-          # The cuda-bindings #id links are docutils "problematic" anchors from generated API docs.
-          # TODO: Remove this exclusion after cybind stops emitting those problematic anchors.
-          # Preferred Networks rejects hosted-runner GETs, but the URL is browser reachable.
           args: >-
             --files-from ${{ github.workspace }}/lychee-rendered-html-files.txt
             --include-fragments=full

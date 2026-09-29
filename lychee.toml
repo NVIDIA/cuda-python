@@ -5,8 +5,12 @@
 # .github/workflows/build-docs.yml. See https://lychee.cli.rs/usage/config/.
 
 exclude = [
+    # PR-preview canonical URLs are checked by the preview deployment workflow.
     '^https://nvidia\.github\.io/cuda-python/pr-preview/pr-[0-9]+/',
+    # The cuda-bindings #id links are docutils "problematic" anchors from generated API docs.
+    # TODO: Remove this exclusion after cybind stops emitting those problematic anchors.
     '^file://.*/cuda-bindings/latest/module/(driver|runtime)\.html#id[0-9]+$',
+    # Preferred Networks rejects hosted-runner GETs, but the URL is browser reachable.
     '^https://www\.preferred\.jp/en/?$',
     # Self-referencing anchor added in PR #2965 (Development on Windows).
     # The anchor exists on main after that PR merges, so this exclude can
