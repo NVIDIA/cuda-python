@@ -41,7 +41,7 @@ build_hooks = _load_build_hooks()
 
 @pytest.fixture(autouse=True)
 def _isolate_toolchain_env():
-    names = ("CUDA_PYTHON_TOOLCHAIN", "CC", "CXX", "LDSHARED")
+    names = ("CUDA_PYTHON_TOOLCHAIN", "CC", "CXX", "LDSHARED", "CUDA_PYTHON_CYTHON_CACHE_DIR")
     original = {name: os.environ[name] for name in names if name in os.environ}
     for name in names:
         os.environ.pop(name, None)
@@ -221,3 +221,77 @@ class TestBuildToolchainStamp:
         build_hooks.record_build_toolchain()
         expected = "msvc" if sys.platform == "win32" else "gnu"
         assert stamp.read_text().strip() == expected
+
+
+# ---------------------------------------------------------------------------
+# Cython cache path helper (workaround for cython/cython#7532)
+#
+# These tests cover the configuration-digest workaround in build_hooks.py.
+# They can be deleted together with the `_cython_cache_path` helper once
+# cython/cython#7532 is resolved in a released Cython version and
+# cuda-python's minimum Cython version includes the fix.
+# See https://github.com/cython/cython/issues/7532
+
+
+_test_helpers_root = Path(__file__).parents[2] / "cuda_python_test_helpers"
+if _test_helpers_root.is_dir() and str(_test_helpers_root) not in sys.path:
+    sys.path.insert(0, str(_test_helpers_root))
+
+from cuda_python_test_helpers.cython_cache import POSIX_ONLY_CACHE, CythonAliasMixin, CythonCachePathMixin
+
+
+class TestCythonCachePath(CythonCachePathMixin):
+    """`_cython_cache_path` tests specific to cuda.bindings.
+
+    Inherits the common tests from CythonCachePathMixin; the mixin
+    covers the package-agnostic behavior. cuda.bindings does not pass
+    ``compile_time_env`` or ``cuda_major``, so the debug-only partition is
+    tested here.
+    """
+
+    build_hooks = build_hooks
+    package = "cuda-bindings"
+
+    @POSIX_ONLY_CACHE
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_changed_debug_changes_namespace(self, monkeypatch, tmp_path):
+        """``debug`` partitions the namespace."""
+        self._set_env(monkeypatch, str(tmp_path))
+        p1 = build_hooks._cython_cache_path("cuda-bindings", debug=False)
+        p2 = build_hooks._cython_cache_path("cuda-bindings", debug=True)
+        assert p1 != p2
+
+
+class TestCythonCacheSmokeTest:
+    """Real Cython cache miss/hit through `_cython_cache_path`.
+
+    The actual cythonize exercise lives in
+    ``cuda_python_test_helpers.cython_cache`` so it is shared with
+    ``cuda_core/tests/test_build_hooks.py``.
+    """
+
+    @POSIX_ONLY_CACHE
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_cache_miss_then_hit(self, monkeypatch, tmp_path, capsys):
+        from cuda_python_test_helpers.cython_cache import (
+            cython_cache_miss_then_hit,
+        )
+
+        cache_root = tmp_path / "cython-cache"
+        cache_root.mkdir()
+        monkeypatch.setenv("CUDA_PYTHON_CYTHON_CACHE_DIR", str(cache_root))
+
+        cache_path = build_hooks._cython_cache_path(
+            "cuda-bindings",
+            compiler_directives={"language_level": 3},
+            language_level=3,
+            cplus=True,
+        )
+        assert cache_path is not None
+        cython_cache_miss_then_hit(cache_path, tmp_path, capsys)
+
+
+class TestCythonAlias(CythonAliasMixin):
+    """`_stable_cython_alias` tests for cuda.bindings."""
+
+    build_hooks = build_hooks

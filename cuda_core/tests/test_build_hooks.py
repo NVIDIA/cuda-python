@@ -22,6 +22,7 @@ import os
 import sys
 import tempfile
 import threading
+import types
 from distutils.ccompiler import CCompiler
 from pathlib import Path
 from unittest import mock
@@ -57,7 +58,7 @@ build_hooks = _load_build_hooks()
 
 @pytest.fixture(autouse=True)
 def _isolate_toolchain_env():
-    names = ("CUDA_PYTHON_TOOLCHAIN", "CC", "CXX", "LDSHARED")
+    names = ("CUDA_PYTHON_TOOLCHAIN", "CC", "CXX", "LDSHARED", "CUDA_PYTHON_CYTHON_CACHE_DIR")
     original = {name: os.environ[name] for name in names if name in os.environ}
     for name in names:
         os.environ.pop(name, None)
@@ -371,11 +372,11 @@ class TestBuildHookStamping:
             build_hooks.build_editable("dist", {"debug": True}, "metadata")
 
 
-def _capture_cythonize_build_dir(monkeypatch, cuda_major):
-    """Run the cythonize setup for one CUDA major and report its build_dir.
+def _capture_cythonize_kwargs(monkeypatch, cuda_major):
+    """Run the cythonize setup for one CUDA major and report its keyword arguments.
 
     cythonize() is replaced, so nothing is generated or compiled: this only
-    observes which directory the build was about to write into.
+    observes how the build was configured.
     """
     captured = {}
 
@@ -396,7 +397,11 @@ def _capture_cythonize_build_dir(monkeypatch, cuda_major):
     monkeypatch.setattr(sys, "path", list(sys.path))
 
     build_hooks._build_cuda_core()
-    return Path(captured["build_dir"])
+    return captured
+
+
+def _capture_cythonize_build_dir(monkeypatch, cuda_major):
+    return Path(_capture_cythonize_kwargs(monkeypatch, cuda_major)["build_dir"])
 
 
 class TestGeneratedSourceDirIsKeyed:
@@ -725,3 +730,135 @@ class TestCheckToolchainAvailable:
     def test_llvm_present_passes(self, monkeypatch):
         monkeypatch.setattr(build_hooks.shutil, "which", lambda name: "/bin/" + name)
         build_hooks._check_toolchain_available("llvm")
+
+
+# ---------------------------------------------------------------------------
+# Cython cache path helper (workaround for cython/cython#7532)
+#
+# These tests cover the configuration-digest workaround in build_hooks.py.
+# They can be deleted together with the `_cython_cache_path` helper once
+# cython/cython#7532 is resolved in a released Cython version and
+# cuda-python's minimum Cython version includes the fix.
+# See https://github.com/cython/cython/issues/7532
+
+
+_test_helpers_root = Path(__file__).parents[2] / "cuda_python_test_helpers"
+if _test_helpers_root.is_dir() and str(_test_helpers_root) not in sys.path:
+    sys.path.insert(0, str(_test_helpers_root))
+
+from cuda_python_test_helpers.cython_cache import POSIX_ONLY_CACHE, CythonAliasMixin, CythonCachePathMixin
+
+
+class TestCudaCoreCythonIncludePath:
+    """How `_build_cuda_core` assembles `include_path` for cythonize().
+
+    `_stable_cython_alias` itself (creation, cleanup, cross-env cache hits) is
+    covered generically by `TestCythonAlias` below. These tests cover only
+    `_build_cuda_core`'s own wiring: which aliases it adds, in what order, and
+    the cache-disabled / bindings-unavailable fallbacks.
+    """
+
+    @staticmethod
+    def _fake_bindings(monkeypatch):
+        bindings = types.ModuleType("cuda.bindings")
+        bindings.__file__ = "/random-build-env/cuda/bindings/__init__.py"
+        bindings.__version__ = "13.0"
+        monkeypatch.setitem(sys.modules, "cuda.bindings", bindings)
+        monkeypatch.setattr(sys.modules["cuda"], "bindings", bindings, raising=False)
+
+    @POSIX_ONLY_CACHE
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_cache_enabled_includes_bindings_and_stdlib_aliases(self, monkeypatch, tmp_path):
+        self._fake_bindings(monkeypatch)
+        monkeypatch.setenv("CUDA_PYTHON_CYTHON_CACHE_DIR", str(tmp_path))
+
+        captured = _capture_cythonize_kwargs(monkeypatch, "13")
+
+        assert captured["include_path"] == [".", ".cython-bindings", ".cython-stdlib"]
+
+    @POSIX_ONLY_CACHE
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_cache_enabled_without_bindings_omits_bindings_alias(self, monkeypatch, tmp_path):
+        monkeypatch.setitem(sys.modules, "cuda.bindings", None)  # forces ImportError
+        monkeypatch.setenv("CUDA_PYTHON_CYTHON_CACHE_DIR", str(tmp_path))
+
+        captured = _capture_cythonize_kwargs(monkeypatch, "13")
+
+        assert captured["include_path"] == [".", ".cython-stdlib"]
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_cache_disabled_skips_aliasing(self, monkeypatch):
+        monkeypatch.setitem(sys.modules, "cuda.bindings", None)  # forces ImportError
+        monkeypatch.delenv("CUDA_PYTHON_CYTHON_CACHE_DIR", raising=False)
+
+        captured = _capture_cythonize_kwargs(monkeypatch, "13")
+
+        assert captured["include_path"] == ["."]
+
+
+class TestCythonCachePath(CythonCachePathMixin):
+    """`_cython_cache_path` tests specific to cuda.core.
+
+    Inherits the common tests from CythonCachePathMixin; the mixin
+    covers the package-agnostic behavior. cuda.core passes ``compile_time_env``
+    and ``cuda_major``, so those partitions are tested here.
+    """
+
+    build_hooks = build_hooks
+    package = "cuda-core"
+
+    @POSIX_ONLY_CACHE
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_changed_compile_time_env_changes_namespace(self, monkeypatch, tmp_path):
+        """Different ``compile_time_env`` values map to different namespaces."""
+        self._set_env(monkeypatch, str(tmp_path))
+        p1 = build_hooks._cython_cache_path("cuda-core", compile_time_env={"CUDA_CORE_BUILD_MAJOR": 12})
+        p2 = build_hooks._cython_cache_path("cuda-core", compile_time_env={"CUDA_CORE_BUILD_MAJOR": 13})
+        assert p1 != p2
+
+    @POSIX_ONLY_CACHE
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_changed_debug_or_cuda_major_changes_namespace(self, monkeypatch, tmp_path):
+        """``debug`` and ``cuda_major`` each partition the namespace."""
+        self._set_env(monkeypatch, str(tmp_path))
+        p1 = build_hooks._cython_cache_path("cuda-core", debug=False, cuda_major="12")
+        p2 = build_hooks._cython_cache_path("cuda-core", debug=True, cuda_major="12")
+        p3 = build_hooks._cython_cache_path("cuda-core", debug=False, cuda_major="13")
+        assert p1 != p2
+        assert p1 != p3
+        assert p2 != p3
+
+
+class TestCythonCacheSmokeTest:
+    """Real Cython cache miss/hit through `_cython_cache_path`.
+
+    The actual cythonize exercise lives in
+    ``cuda_python_test_helpers.cython_cache`` so it is shared with
+    ``cuda_bindings/tests/test_build_hooks.py``.
+    """
+
+    @POSIX_ONLY_CACHE
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_cache_miss_then_hit(self, monkeypatch, tmp_path, capsys):
+        from cuda_python_test_helpers.cython_cache import (
+            cython_cache_miss_then_hit,
+        )
+
+        cache_root = tmp_path / "cython-cache"
+        cache_root.mkdir()
+        monkeypatch.setenv("CUDA_PYTHON_CYTHON_CACHE_DIR", str(cache_root))
+
+        cache_path = build_hooks._cython_cache_path(
+            "cuda-core",
+            compiler_directives={"language_level": 3},
+            language_level=3,
+            cplus=False,
+        )
+        assert cache_path is not None
+        cython_cache_miss_then_hit(cache_path, tmp_path, capsys)
+
+
+class TestCythonAlias(CythonAliasMixin):
+    """`_stable_cython_alias` tests for cuda.core."""
+
+    build_hooks = build_hooks
