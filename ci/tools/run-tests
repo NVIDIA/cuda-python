@@ -114,6 +114,10 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     # instead of being waived. Samples with heavier/unavailable deps stay waived.
     echo "Installing optional sample deps (nvtx, pillow)"
     pip install nvtx pillow || echo "Warning: optional sample deps install failed; affected samples will be waived"
+    # curand: some samples (vectorAdd, parallelHistogram) call cp.random,
+    # which dlopens libcurand at runtime. 
+    echo "Installing optional sample deps (curand)"
+    pip install "cuda-toolkit[curand]==${TEST_CUDA_MAJOR_MINOR}.*" || echo "Warning: curand install failed; affected samples will be waived"
     echo "Installed packages before core tests:"
     pip list
     echo "Running core tests"
