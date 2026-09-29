@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_set\_rusd\_settings\_v1
+==================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_set_rusd_settings_v1

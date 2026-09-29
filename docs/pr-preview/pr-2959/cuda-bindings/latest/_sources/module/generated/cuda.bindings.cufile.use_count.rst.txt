@@ -1,0 +1,6 @@
+﻿cuda.bindings.cufile.use\_count
+===============================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autofunction:: use_count
