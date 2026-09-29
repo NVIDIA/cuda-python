@@ -23,9 +23,11 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     - [Recommended clone](#recommended-clone)
     - [Fixing an existing clone](#fixing-an-existing-clone)
     - [Symptoms of a bad clone](#symptoms-of-a-bad-clone)
+  - [Development on Windows](#development-on-windows)
+    - [Enabling git symlinks](#enabling-git-symlinks)
+    - [Pre-commit lychee workaround](#pre-commit-lychee-workaround)
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
-    - [Pre-commit on Windows](#pre-commit-on-windows)
   - [Pixi lockfiles](#pixi-lockfiles)
   - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
@@ -41,6 +43,11 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
 
 
 ## Cloning the repository
+
+> **Windows contributors (not WSL):** configure Git for symlinks *before*
+> cloning, or the shared PEP 517 build-hook file lands as a text stub instead
+> of a working symlink. See [Enabling git symlinks](#enabling-git-symlinks)
+> under Development on Windows.
 
 Every package in this repository derives its version from git tags using
 [`setuptools-scm`](https://setuptools-scm.readthedocs.io/), so **how you clone
@@ -128,6 +135,55 @@ hyphens replaced by underscores: `..._FOR_CUDA_BINDINGS`, `..._FOR_CUDA_CORE`,
 genuinely cannot provide tags; it is not a substitute for a correct clone.
 
 
+## Development on Windows
+
+This section collects the Windows-specific setup a contributor needs when
+working outside of WSL. WSL contributors can follow the Linux flow in the rest
+of this document.
+
+### Enabling git symlinks
+
+The `cuda_core` PEP 517 backend shares source-of-truth helper files with
+`cuda_bindings` via symbolic links. Git materializes symlinks by default on
+Linux and macOS, but on Windows it needs to be configured before cloning,
+otherwise the "symlinks" land in your working tree as plain text files that
+contain the target path — enough to look right in `git status`, but not enough
+to actually build.
+
+1. **Enable Windows Developer Mode** so Git can create symlinks without
+   Administrator privileges. Open *Settings* → *System* → *For developers* and
+   turn on *Developer Mode*.
+
+2. **Enable Git symlink support globally** so newly-cloned repositories inherit
+   the setting:
+
+   ```console
+   $ git config --global core.symlinks true
+   ```
+
+Then clone as usual (see [Cloning the repository](#cloning-the-repository)).
+
+If you already cloned without these settings, run the `git config` command
+above, then reset the affected files so Git re-materializes them as symlinks:
+
+```console
+$ git rm --cached cuda_core/_toolchain_shared.py
+$ git checkout HEAD -- cuda_core/_toolchain_shared.py
+```
+
+### Pre-commit lychee workaround
+
+For development on Windows (not WSL), the `lychee` pre-commit task will not
+work when running `pre-commit run --all-files`. This problem does not occur
+if you install the pre-commit hook and run it automatically as part of your
+`git commit` workflow. To resolve this, you can either:
+
+1. Run `pre-commit` in Git Bash, rather than directly in PowerShell or cmd
+
+2. Skip it by setting the environment variable `SKIP` to `lychee`. This would
+   be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
+
+
 ## Type stubs for cuda.core
 
 `cuda.core` is a PEP 561-compliant package: it ships a `py.typed` marker and
@@ -168,17 +224,7 @@ between commits, leaving stale headers or out-of-date stubs in the history.
 If the hook isn't installed, `pre-commit run` (and CI) will print a visible
 warning reminding you to run `pre-commit install`.
 
-### Pre-commit on Windows
-
-For development on Windows (not WSL), the `lychee` pre-commit task will not work
-when running `pre-commit run --all-files`.  This problem does not occur if you
-install the pre-commit hook and run it automatically as part of your `git
-commit` workflow.  To resolve this, you can either:
-
-1. Run `pre-commit` in Git Bash, rather than directly in PowerShell or cmd
-
-2. Skip it by setting the environment variable `SKIP` to `lychee`.  This would
-   be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
+Windows contributors: see [Pre-commit lychee workaround](#pre-commit-lychee-workaround) under Development on Windows.
 
 ## Pixi lockfiles
 

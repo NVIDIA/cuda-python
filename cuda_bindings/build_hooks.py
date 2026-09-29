@@ -86,78 +86,16 @@ def _get_cuda_path() -> str:
 # -----------------------------------------------------------------------
 # Toolchain selection
 #
-# The helpers below (down to the end-of-shared-block marker) are duplicated
-# verbatim in cuda_core/build_hooks.py. Keep them in sync. Only the
-# per-package _resolve_toolchain() flag assembly that follows is package-
+# The shared helpers live in _toolchain_shared.py, symlinked into cuda_core/.
+# Only the per-package _resolve_toolchain() flag assembly below is package-
 # specific (it differs because the two packages use different C++ standards
 # and opt levels).
 
-# --- begin shared toolchain helpers (keep in sync) ---
-_TOOLCHAINS_LINUX = ("gnu", "llvm")
-_TOOLCHAINS_WINDOWS = ("msvc",)
-_TOOLCHAIN_COMPILERS = {
-    "gnu": ("gcc", "g++"),
-    "llvm": ("clang", "clang++"),
-    "msvc": (None, None),
-}
-
-
-def _resolve_toolchain_name():
-    """Read CUDA_PYTHON_TOOLCHAIN, validate it, return (name, allowed, cc, cxx).
-
-    The default toolchain (gnu on Linux, msvc on Windows) is the first entry
-    of the platform's allowed tuple. cc/cxx are the compiler binaries for the
-    toolchain (None for msvc, which distutils discovers via the MSVC env).
-    """
-    if sys.platform == "win32":
-        platform_key, allowed = "win32", _TOOLCHAINS_WINDOWS
-    else:
-        platform_key, allowed = "linux", _TOOLCHAINS_LINUX
-    name = os.environ.get("CUDA_PYTHON_TOOLCHAIN", allowed[0]).strip().lower()
-    if name not in allowed:
-        raise RuntimeError(
-            f"CUDA_PYTHON_TOOLCHAIN={name!r} is not supported on {platform_key}. Valid values: {', '.join(allowed)}."
-        )
-    cc, cxx = _TOOLCHAIN_COMPILERS[name]
-    explicit = bool(os.environ.get("CUDA_PYTHON_TOOLCHAIN", "").strip())
-    return name, allowed, cc, cxx, explicit
-
-
-def _apply_toolchain_env(cc, cxx, explicit):
-    """Set CC/CXX/LDSHARED for an explicitly-chosen toolchain.
-
-    The default path (CUDA_PYTHON_TOOLCHAIN unset) intentionally
-    does not touch the env, so an externally-set compiler (e.g.
-    CC="sccache cc" in CI) keeps working. An explicit CUDA_PYTHON_TOOLCHAIN
-    override (incl. =gnu) governs the compiler and overrides CC/CXX/LDSHARED.
-    """
-    if explicit and cc is not None:
-        os.environ["CC"] = cc
-        os.environ["CXX"] = cxx
-        os.environ["LDSHARED"] = f"{cxx} -shared"
-
-
-def _check_toolchain_available(name):
-    """Preflight: verify the selected toolchain's tools are on PATH.
-
-    No-op for the platform default (distutils discovers those). For llvm,
-    probes clang, clang++, and ld.lld so a missing toolchain fails fast with a
-    helpful message instead of a cryptic compile error.
-    """
-    if name != "llvm":
-        return
-    tools = ("clang", "clang++", "ld.lld")
-    missing = [t for t in tools if shutil.which(t) is None]
-    if missing:
-        raise RuntimeError(
-            f"CUDA_PYTHON_TOOLCHAIN=llvm but required tool(s) not found on PATH: "
-            f"{', '.join(missing)}. Install clang and lld "
-            f"(e.g. `apt install clang lld` or `dnf install clang lld`) "
-            f"or set CUDA_PYTHON_TOOLCHAIN=gnu."
-        )
-
-
-# --- end shared toolchain helpers ---
+from _toolchain_shared import (  # noqa: E402
+    _apply_toolchain_env,
+    _check_toolchain_available,
+    _resolve_toolchain_name,
+)
 
 
 def _resolve_toolchain(debug=False, compile_for_coverage=False):

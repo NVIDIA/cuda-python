@@ -16,6 +16,7 @@ These tests require Cython to be installed (build_hooks.py imports it).
 
 import importlib.util
 import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -28,9 +29,20 @@ import setuptools  # noqa: F401
 
 
 def _load_build_hooks():
-    """Load build_hooks module from source without polluting sys.path."""
-    build_hooks_path = Path(__file__).parent.parent / "build_hooks.py"
-    spec = importlib.util.spec_from_file_location("build_hooks", build_hooks_path)
+    """Load build_hooks module from source without polluting sys.path.
+
+    build_hooks.py does `from _toolchain_shared import ...` at module top,
+    so pre-load the shared module into sys.modules first. Modifying sys.path
+    to make the import work naturally would let cuda_bindings/ shadow the
+    installed cuda.bindings package for the rest of the test session.
+    """
+    build_hooks_dir = Path(__file__).parent.parent
+    shared_spec = importlib.util.spec_from_file_location("_toolchain_shared", build_hooks_dir / "_toolchain_shared.py")
+    shared_module = importlib.util.module_from_spec(shared_spec)
+    sys.modules["_toolchain_shared"] = shared_module
+    shared_spec.loader.exec_module(shared_module)
+
+    spec = importlib.util.spec_from_file_location("build_hooks", build_hooks_dir / "build_hooks.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -158,13 +170,13 @@ class TestCheckToolchainAvailable:
         def fake_which(name):
             return None if name in ("clang", "clang++", "ld.lld") else "/bin/" + name
 
-        monkeypatch.setattr(build_hooks.shutil, "which", fake_which)
+        monkeypatch.setattr(shutil, "which", fake_which)
         with pytest.raises(RuntimeError, match="clang and lld"):
             build_hooks._check_toolchain_available("llvm")
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_llvm_present_passes(self, monkeypatch):
-        monkeypatch.setattr(build_hooks.shutil, "which", lambda name: "/bin/" + name)
+        monkeypatch.setattr(shutil, "which", lambda name: "/bin/" + name)
         build_hooks._check_toolchain_available("llvm")
 
 
