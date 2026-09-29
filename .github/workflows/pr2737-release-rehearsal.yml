@@ -1,0 +1,266 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+# Disposable PR2737 controller; never merge into the product branch.
+name: PR2737 CUDA12 release rehearsal
+'on':
+  push:
+    branches:
+    - rwgk/pr2737-cuda12-release-rehearsal-b00b677
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: pr2737-release-rehearsal-${{ github.ref }}
+  cancel-in-progress: true
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    outputs:
+      bindings-config: ${{ steps.resolve.outputs.bindings-config }}
+      workplan: ${{ steps.resolve.outputs.workplan }}
+      bindings-package: ${{ steps.resolve.outputs.bindings-package }}
+      maintenance-package: ${{ steps.resolve.outputs.maintenance-package }}
+    steps:
+    - name: Checkout exact final source without push credentials
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: b00b677be366fd3638c78e26b99aa5b238602646
+        fetch-depth: 0
+        filter: blob:none
+        persist-credentials: false
+    - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+      with:
+        python-version: '3.12'
+    - name: Install source-pinned CI tools
+      run: python -m pip install -e ./ci
+    - name: Guard context and resolve exact source release plan
+      id: resolve
+      run: |
+        test "$GITHUB_REPOSITORY" = NVIDIA/cuda-python
+        test "$GITHUB_REF_TYPE" = branch
+        test "$GITHUB_REF_NAME" = rwgk/pr2737-cuda12-release-rehearsal-b00b677
+        case "$GITHUB_EVENT_NAME" in push|workflow_dispatch) ;; *) exit 1;; esac
+        test "$(git rev-parse HEAD)" = b00b677be366fd3638c78e26b99aa5b238602646
+        set +e
+        git ls-remote --exit-code --tags origin refs/tags/v12.9.99 >/dev/null
+        status=$?
+        set -e
+        if [[ "$status" -ne 2 ]]; then
+          echo 'error: could not prove synthetic remote tag absent' >&2
+          exit 1
+        fi
+        python -m ci.tools.compute_ci_plan --release-tag v12.9.99 --github-output "$GITHUB_OUTPUT"
+        python - <<'PY'
+        import json
+        import os
+        from pathlib import Path
+        from ci.tools.bindings_config import load_config, resolve_release_bindings_package
+        from ci.tools.check_release_notes import check_release_notes
+
+        registry = load_config()
+        root = Path.cwd()
+        package = resolve_release_bindings_package("v12.9.99", root, root / "ci/versions.yml")
+        assert package == {"package_root": "cuda_bindings_12", "toolkit_version": "12.9.1", "release_version": "12.9.99", "release_registry_origin": "tag"}, package
+        expected = [(Path("cuda_bindings_12/docs/source/release/12.9.99-notes.rst"), "missing")]
+        missing = check_release_notes("v12.9.99", "cuda-bindings", root, package)
+        assert missing == expected, missing
+        real = resolve_release_bindings_package("v12.9.9", root, root / "ci/versions.yml")
+        assert check_release_notes("v12.9.9", "cuda-bindings", root, real) == []
+        current = registry.package_for_release_status("current")
+        current_tag = "v" + current.toolkit_version
+        selected = resolve_release_bindings_package(current_tag, root, root / "ci/versions.yml")
+        assert selected["package_root"] == current.package_root
+        output = Path(os.environ["GITHUB_OUTPUT"])
+        with output.open("a") as stream:
+            stream.write("bindings-package=" + json.dumps(package, separators=(",", ":")) + "\n")
+            stream.write("maintenance-package=" + json.dumps(registry.package_for_release_status("maintenance").to_dict(), separators=(",", ":")) + "\n")
+        print("Expected synthetic-note rejection:", missing)
+        print("Existing 12.9.9 release note: valid")
+        print("Current-line tag selection:", selected)
+        PY
+        python -m ci.tools.compute_ci_plan --release-tag v12.9.99 > /tmp/rehearsal-plan.json
+        python - <<'PY'
+        import json
+        from pathlib import Path
+        data = json.loads(Path("/tmp/rehearsal-plan.json").read_text())
+        plan = data.get("workplan", data)
+        assert plan["modules"]["bindings"]["package_roots"]["cuda_bindings_12"] == {"needs_build": True, "needs_test": True}
+        assert plan["modules"]["bindings"]["package_roots"]["cuda_bindings"] == {"needs_build": False, "needs_test": False}
+        assert not plan["modules"]["core"]["needs_build"]
+        assert not plan["modules"]["core"]["needs_test"]
+        assert plan["sources"]["pathfinder"] == "published"
+        assert plan["baseline"] == {"run_id": "", "sha": ""}
+        PY
+  build:
+    needs: resolve
+    strategy:
+      fail-fast: false
+      matrix:
+        host-platform:
+        - linux-64
+        - linux-aarch64
+        - win-64
+    uses: ./.github/workflows/build-wheel.yml
+    with:
+      host-platform: ${{ matrix.host-platform }}
+      bindings-config: ${{ needs.resolve.outputs.bindings-config }}
+      workplan: ${{ needs.resolve.outputs.workplan }}
+  sdist-linux:
+    needs:
+    - resolve
+    - build
+    uses: ./.github/workflows/test-sdist-linux.yml
+    with:
+      host-platform: linux-64
+      bindings-package: ${{ needs.resolve.outputs.maintenance-package }}
+      workplan: ${{ needs.resolve.outputs.workplan }}
+  sdist-windows:
+    needs:
+    - resolve
+    - build
+    uses: ./.github/workflows/test-sdist-windows.yml
+    with:
+      host-platform: win-64
+      bindings-package: ${{ needs.resolve.outputs.maintenance-package }}
+      workplan: ${{ needs.resolve.outputs.workplan }}
+  test-linux:
+    needs:
+    - resolve
+    - build
+    strategy:
+      fail-fast: false
+      matrix:
+        host-platform:
+        - linux-64
+        - linux-aarch64
+    uses: ./.github/workflows/test-wheel-linux.yml
+    with:
+      host-platform: ${{ matrix.host-platform }}
+      build-type: pull-request
+      sha: b00b677be366fd3638c78e26b99aa5b238602646
+      nruns: 1
+      bindings-config: ${{ needs.resolve.outputs.bindings-config }}
+      workplan: ${{ needs.resolve.outputs.workplan }}
+  test-windows:
+    needs:
+    - resolve
+    - build
+    uses: ./.github/workflows/test-wheel-windows.yml
+    with:
+      host-platform: win-64
+      build-type: pull-request
+      sha: b00b677be366fd3638c78e26b99aa5b238602646
+      nruns: 1
+      bindings-config: ${{ needs.resolve.outputs.bindings-config }}
+      workplan: ${{ needs.resolve.outputs.workplan }}
+  docs:
+    needs:
+    - resolve
+    - build
+    uses: ./.github/workflows/build-docs.yml
+    with:
+      component: cuda-bindings
+      git-tag: v12.9.99
+      run-id: ${{ format('{0}', github.run_id) }}
+      is-release: true
+      deploy-docs: false
+      bindings-package: ${{ needs.resolve.outputs.bindings-package }}
+  validate-artifacts:
+    needs:
+    - resolve
+    - build
+    - sdist-linux
+    - sdist-windows
+    - test-linux
+    - test-windows
+    - docs
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BINDINGS_PACKAGE: ${{ needs.resolve.outputs.bindings-package }}
+    steps:
+    - name: Checkout exact final source without push credentials
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: b00b677be366fd3638c78e26b99aa5b238602646
+        fetch-depth: 0
+        filter: blob:none
+        persist-credentials: false
+    - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+      with:
+        python-version: '3.12'
+    - name: Install source-pinned CI tools
+      run: python -m pip install -e ./ci
+    - name: Archive exact source and validate release payload
+      run: |
+        test "$(git rev-parse HEAD)" = b00b677be366fd3638c78e26b99aa5b238602646
+        if git show-ref --verify --quiet refs/tags/v12.9.99; then exit 1; fi
+        git -c tag.gpgSign=false tag v12.9.99 b00b677be366fd3638c78e26b99aa5b238602646
+        mkdir -p release
+        git archive --format=tar.gz --prefix=cuda-python-v12.9.99/ --output=release/cuda-python-v12.9.99.tar.gz refs/tags/v12.9.99
+        sha256sum release/cuda-python-v12.9.99.tar.gz > release/cuda-python-v12.9.99.tar.gz.sha256sum
+        ./ci/tools/download-wheels "$GITHUB_RUN_ID" cuda-bindings "$GITHUB_REPOSITORY" release/wheels v12.9.99 "$BINDINGS_PACKAGE"
+        python -m ci.tools.validate_release_wheels v12.9.99 cuda-bindings release/wheels --bindings-package "$BINDINGS_PACKAGE" --release-source-root .
+        ./ci/tools/download-wheels "$GITHUB_RUN_ID" cuda-python "$GITHUB_REPOSITORY" release/metapackage v12.9.99 "$BINDINGS_PACKAGE"
+        python -m ci.tools.validate_release_wheels v12.9.99 cuda-python release/metapackage --bindings-package "$BINDINGS_PACKAGE" --release-source-root .
+        gh run view "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --json databaseId,event,headBranch,headSha,url,workflowName > release/controller-run.json
+        python - <<'PY'
+        import email
+        import hashlib
+        import json
+        import os
+        import tarfile
+        import zipfile
+        from pathlib import Path
+        from packaging.requirements import Requirement
+        from packaging.utils import canonicalize_name
+
+        source_sha = "b00b677be366fd3638c78e26b99aa5b238602646"
+        tag = "v12.9.99"
+        controller = json.loads(Path("release/controller-run.json").read_text())
+        assert controller["headSha"] == os.environ["GITHUB_SHA"], controller
+        assert controller["headBranch"] == "rwgk/pr2737-cuda12-release-rehearsal-b00b677", controller
+        assert controller["event"] in ("push", "workflow_dispatch"), controller
+        wheels = sorted(Path("release/wheels").glob("*.whl"))
+        metas = sorted(Path("release/metapackage").glob("*.whl"))
+        assert len(wheels) == 18, len(wheels)
+        assert len(metas) == 1, metas
+        inventory = []
+        for path in [*wheels, *metas]:
+            with zipfile.ZipFile(path) as archive:
+                members = [name for name in archive.namelist() if name.endswith(".dist-info/METADATA")]
+                assert len(members) == 1, members
+                metadata = email.message_from_bytes(archive.read(members[0]))
+            assert metadata["Version"] == "12.9.99", (path, metadata["Version"])
+            expected_name = "cuda-python" if path in metas else "cuda-bindings"
+            assert canonicalize_name(metadata["Name"]) == expected_name, (path, metadata["Name"])
+            if path in metas:
+                reqs = [Requirement(value) for value in metadata.get_all("Requires-Dist", [])]
+                pins = [str(req.specifier) for req in reqs if canonicalize_name(req.name) == "cuda-bindings"]
+                assert pins == ["==12.9.99"], pins
+            inventory.append({"file": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()})
+        with tarfile.open(f"release/cuda-python-{tag}.tar.gz") as archive:
+            metadata = archive.extractfile(f"cuda-python-{tag}/.git_archival.txt").read().decode()
+        fields = dict(line.split(": ", 1) for line in metadata.splitlines() if ": " in line)
+        assert fields["node"] == source_sha, fields
+        assert f"tag: {tag}" in fields["ref-names"].split(", "), fields
+        manifest = {"source_sha": source_sha, "controller_sha": os.environ["GITHUB_SHA"], "controller_run": controller,
+                    "local_only_tag": tag, "bindings_package": json.loads(os.environ["BINDINGS_PACKAGE"]),
+                    "wheel_inventory": inventory, "archive_metadata": fields,
+                    "release_notes": {"synthetic_12_9_99": "expected missing-note rejection", "real_12_9_9": "passed"},
+                    "limitations": ["No remote tag or actual tag-event discovery", "No publication or Pages deployment", "Synthetic version is not a release approval"]}
+        Path("release/manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+        with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a") as stream:
+            stream.write("Exact source: `" + source_sha + "`. Controller: `" + os.environ["GITHUB_SHA"] + "`.\n\n")
+            stream.write("Validated 18 CUDA 12 wheels, one metapackage wheel, and exact tagged-source archive. Synthetic release note was deliberately rejected; existing 12.9.9 notes passed. No remote tag, release publication, or docs deployment.\n")
+        PY
+    - name: Upload publication-incapable release evidence
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      with:
+        name: pr2737-cuda12-release-evidence
+        path: release/
+        retention-days: 30

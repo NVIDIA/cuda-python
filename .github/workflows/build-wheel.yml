@@ -65,6 +65,19 @@ jobs:
           # but not historical blobs.
           fetch-depth: 0
           filter: blob:none
+          ref: b00b677be366fd3638c78e26b99aa5b238602646
+          persist-credentials: false
+
+      - name: Pin exact source and create runner-local synthetic release tag
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          test "$(git rev-parse HEAD)" = b00b677be366fd3638c78e26b99aa5b238602646
+          if git show-ref --verify --quiet refs/tags/v12.9.99; then
+            echo 'error: synthetic tag already exists in this checkout' >&2
+            exit 1
+          fi
+          git -c tag.gpgSign=false tag v12.9.99 b00b677be366fd3638c78e26b99aa5b238602646
+          test "$(git rev-parse refs/tags/v12.9.99)" = b00b677be366fd3638c78e26b99aa5b238602646
 
       - name: Resolve package-specific workplan gates
         env:
@@ -172,7 +185,7 @@ jobs:
         env:
           HOST_PLATFORM: ${{ inputs.host-platform }}
           PY_VER: ${{ matrix.python-version }}
-          SHA: ${{ github.sha }}
+          SHA: b00b677be366fd3638c78e26b99aa5b238602646
         run: ./ci/tools/env-vars build
 
       - name: Dump environment

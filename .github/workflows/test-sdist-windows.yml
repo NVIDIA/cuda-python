@@ -54,6 +54,19 @@ jobs:
           # the commit graph (`git describe`) but not historical blobs.
           fetch-depth: 0
           filter: blob:none
+          ref: b00b677be366fd3638c78e26b99aa5b238602646
+          persist-credentials: false
+
+      - name: Pin exact source and create runner-local synthetic release tag
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          test "$(git rev-parse HEAD)" = b00b677be366fd3638c78e26b99aa5b238602646
+          if git show-ref --verify --quiet refs/tags/v12.9.99; then
+            echo 'error: synthetic tag already exists in this checkout' >&2
+            exit 1
+          fi
+          git -c tag.gpgSign=false tag v12.9.99 b00b677be366fd3638c78e26b99aa5b238602646
+          test "$(git rev-parse refs/tags/v12.9.99)" = b00b677be366fd3638c78e26b99aa5b238602646
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
@@ -73,7 +86,7 @@ jobs:
         run: |
           version="$(python -m ci.tools.bindings_scm_version \
             --package-root "${BINDINGS_ROOT}" \
-            --sha "$GITHUB_SHA")"
+            --sha "b00b677be366fd3638c78e26b99aa5b238602646")"
           if [[ -n "$version" ]]; then
             echo "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_BINDINGS=${version}" >> "$GITHUB_ENV"
             echo "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_PYTHON=${version}" >> "$GITHUB_ENV"
@@ -148,7 +161,7 @@ jobs:
         if: ${{ env.BUILD_BINDINGS != 'true' && env.BUILD_CORE == 'true' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
-          name: cuda-bindings-python312-cuda${{ fromJSON(inputs.bindings-package).toolkit_version }}-${{ inputs.host-platform }}-${{ github.sha }}
+          name: cuda-bindings-python312-cuda${{ fromJSON(inputs.bindings-package).toolkit_version }}-${{ inputs.host-platform }}-b00b677be366fd3638c78e26b99aa5b238602646
           path: ${{ env.BINDINGS_ROOT }}/dist
 
       - name: Constrain cuda.core to the local cuda.bindings wheel
