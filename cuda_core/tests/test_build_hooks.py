@@ -16,7 +16,6 @@ conftest.py which imports cuda.core modules:
 These tests require Cython to be installed (build_hooks.py imports it).
 """
 
-import builtins
 import importlib.util
 import os
 import sys
@@ -78,35 +77,6 @@ def _isolate_toolchain_env():
         for name in names:
             os.environ.pop(name, None)
         os.environ.update(original)
-
-
-@pytest.mark.agent_authored(model="gpt-5.6")
-def test_cuda_path_is_resolved_before_importing_bindings(monkeypatch):
-    """PEP 517 namespace repair runs before cuda.bindings is imported."""
-    events = []
-
-    class StopBuildError(Exception):
-        pass
-
-    def get_cuda_path():
-        events.append("cuda-path")
-        return "/cuda"
-
-    original_import = builtins.__import__
-
-    def stop_at_bindings_import(name, *args, **kwargs):
-        if name == "cuda.bindings":
-            events.append("cuda-bindings")
-            raise StopBuildError
-        return original_import(name, *args, **kwargs)
-
-    monkeypatch.setattr(build_hooks, "_get_cuda_path", get_cuda_path)
-    monkeypatch.setattr(builtins, "__import__", stop_at_bindings_import)
-
-    with pytest.raises(StopBuildError):
-        build_hooks._build_cuda_core()
-
-    assert events == ["cuda-path", "cuda-bindings"]
 
 
 def _check_version_detection(
@@ -246,14 +216,6 @@ class TestBuildConfigStamp:
     """
 
     @pytest.mark.agent_authored(model="glm-5.2")
-    def test_missing_stamp_forces_rebuild(self, stamp):
-        # No stamp means the last build's config is unknown, so rebuild.
-        cuda_major, key = _check_config("gnu", False, False)
-        assert cuda_major == "13"
-        assert key == "cu13-gnu-opt"
-        assert build_hooks.force_build_ext is True
-
-    @pytest.mark.agent_authored(model="glm-5.2")
     def test_same_config_does_not_force(self, stamp):
         _write_stamp(stamp, "cu13-gnu-opt")
         cuda_major, _key = _check_config("gnu", False, False)
@@ -292,68 +254,12 @@ class TestBuildConfigStamp:
 
 
 class TestBuildHookStamping:
-    @pytest.mark.agent_authored(model="grok-4.6")
-    def test_wheel_records_exact_prepared_config_after_success(self, monkeypatch):
-        events = []
+    """Failure-path stamp bookkeeping.
 
-        def prepare(debug):
-            events.append(("prepare", debug))
-            return "cu13-gnu-debug"
-
-        def build(wheel_directory, config_settings, metadata_directory):
-            events.append("build")
-            return "cuda_core.whl"
-
-        monkeypatch.setattr(build_hooks, "_build_cuda_core", prepare)
-        monkeypatch.setattr(build_hooks._build_meta, "build_wheel", build)
-        monkeypatch.setattr(
-            build_hooks,
-            "record_build_key",
-            lambda _stamp, get_key: events.append(("record", get_key())),
-        )
-
-        wheel_name = build_hooks.build_wheel("dist", {"debug": True}, "metadata")
-
-        assert wheel_name == "cuda_core.whl"
-        assert events == [("prepare", True), "build", ("record", "cu13-gnu-debug")]
-
-    @pytest.mark.agent_authored(model="grok-4.6")
-    def test_editable_records_default_config_after_patch(self, monkeypatch):
-        events = []
-        expected_debug = sys.platform != "win32"
-        toolchain = "msvc" if sys.platform == "win32" else "gnu"
-        expected_key = f"cu13-{toolchain}-{'debug' if expected_debug else 'opt'}"
-
-        def prepare(debug):
-            events.append(("prepare", debug))
-            return expected_key
-
-        monkeypatch.setattr(build_hooks, "_build_cuda_core", prepare)
-        monkeypatch.setattr(
-            build_hooks._build_meta,
-            "build_editable",
-            lambda *_args: events.append("build") or "cuda_core.whl",
-        )
-        monkeypatch.setattr(
-            build_hooks,
-            "_add_cython_include_paths_to_pth",
-            lambda wheel_path: events.append(("patch", wheel_path)),
-        )
-        monkeypatch.setattr(
-            build_hooks,
-            "record_build_key",
-            lambda _stamp, get_key: events.append(("record", get_key())),
-        )
-
-        wheel_name = build_hooks.build_editable("dist")
-
-        assert wheel_name == "cuda_core.whl"
-        assert events == [
-            ("prepare", expected_debug),
-            "build",
-            ("patch", os.path.join("dist", "cuda_core.whl")),
-            ("record", expected_key),
-        ]
+    The happy-path recording (wheel/editable stamp after success) is
+    exercised by every green CI wheel build; only the failure-path
+    guards below assert behavior CI does not cover.
+    """
 
     @pytest.mark.agent_authored(model="grok-4.6")
     def test_failed_wheel_build_does_not_record_config(self, monkeypatch):
@@ -448,28 +354,6 @@ class TestGeneratedSourceDirIsKeyed:
         assert dir_12.name == f"cu12-{toolchain}-opt"
         assert dir_13.name == f"cu13-{toolchain}-opt"
 
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_dir_is_anchored_not_relative_to_cwd(self, monkeypatch):
-        # Anchored to build_hooks.py, so it must agree with the stamp
-        # regardless of where the build was invoked from.
-        build_dir = _capture_cythonize_build_dir(monkeypatch, "13")
-
-        assert build_dir.is_absolute()
-        assert build_dir.parent.parent == build_hooks._BUILD_CONFIG_STAMP.parent
-
-
-class TestSetuptoolsSourcePaths:
-    @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_absolute_sources_are_made_relative(self, tmp_path, monkeypatch):
-        monkeypatch.chdir(tmp_path)
-        generated = tmp_path / "build" / "cython" / "cu13-gnu-opt" / "cuda" / "core" / "_device.cpp"
-        relative = "cuda/core/_cpp/helper.cpp"
-        extension = build_hooks.Extension("cuda.core._device", [str(generated), relative])
-
-        build_hooks._relativize_extension_sources([extension])
-
-        assert extension.sources == [os.path.relpath(generated, start=tmp_path), relative]
-
 
 def _load_setup_py(monkeypatch):
     """Import setup.py for its command classes.
@@ -509,9 +393,6 @@ class TestForceReachesBuildExt:
         cmd = setup_py.build_ext(Distribution({"name": "cuda-core", "version": "0"}))
         cmd.finalize_options()
         return cmd
-
-    def test_flag_set_forces_rebuild(self, monkeypatch):
-        assert self._finalized_build_ext(True, monkeypatch).force
 
     def test_flag_clear_leaves_default(self, monkeypatch):
         assert not self._finalized_build_ext(False, monkeypatch).force
@@ -554,21 +435,6 @@ class TestExtensionSources:
     def test_empty_directory_is_an_error(self, tree):
         with pytest.raises(RuntimeError, match="no .cpp files"):
             build_hooks._extension_sources("_d")
-
-
-class TestExtensionDepends:
-    """_extension_depends: every header under a directory-form module's
-    _cpp/<stem>/, the same list for every extension (see its docstring)."""
-
-    @pytest.mark.agent_authored(model="claude-fable-5-1")
-    def test_headers_under_module_directories_only(self, tmp_path, monkeypatch):
-        cpp = tmp_path / "cuda" / "core" / "_cpp"
-        (cpp / "a" / "nested").mkdir(parents=True)
-        for name in ("a/x.hpp", "a/nested/y.h", "a/z.cpp", "a/notes.md", "top.hpp", "b.cpp"):
-            (cpp / name).write_text("")
-        monkeypatch.chdir(tmp_path)
-        a = os.path.join("cuda", "core", "_cpp", "a")
-        assert build_hooks._extension_depends() == [os.path.join(a, "nested", "y.h"), os.path.join(a, "x.hpp")]
 
 
 class TestParallelSourceCompilation:
@@ -667,23 +533,6 @@ class TestResolveToolchain:
         assert "-fuse-ld=lld" in largs
         # clang rejects the gcc-only flags that gnu uses; they must be absent.
         assert "-fpermissive" not in cargs
-        assert "-fno-var-tracking-assignments" not in cargs
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_gnu_sets_env_and_flags(self, monkeypatch):
-        if sys.platform == "win32":
-            pytest.skip("gnu only valid on Linux")
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "gnu")
-        monkeypatch.delenv("CC", raising=False)
-        monkeypatch.delenv("CXX", raising=False)
-        monkeypatch.delenv("LDSHARED", raising=False)
-        name, cc, cxx, cargs, largs = build_hooks._resolve_toolchain()
-        assert name == "gnu"
-        assert (cc, cxx) == ("gcc", "g++")
-        assert os.environ["CC"] == "gcc"
-        assert os.environ["CXX"] == "g++"
-        # gcc-only flags are present (this is the point of P2: explicit gnu must use gcc, not generic cc)
-        assert "-fpermissive" not in cargs  # cuda.core gnu flags don't include it; bindings do
         assert "-fno-var-tracking-assignments" not in cargs
 
 

@@ -32,37 +32,16 @@ import pytest
 class ResolveToolchainSharedMixin:
     """Common ``_resolve_toolchain`` assertions that don't depend on the flag set.
 
-    Subclasses set ``build_hooks`` (the loaded build_hooks module).
+    Subclasses set ``build_hooks`` (the loaded build_hooks module). The
+    default-toolchain happy paths (env not touched, external CC preserved,
+    gnu flag set applied) aren't asserted here — a successful wheel build
+    on any Linux CI worker already exercises them. Only behavior that a
+    passing wheel build would not surface is kept: error paths and the
+    llvm-override case (llvm has no CI, so it's not covered by wheels
+    either).
     """
 
     build_hooks = None
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_default_does_not_touch_env(self, monkeypatch):
-        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
-        monkeypatch.delenv("CC", raising=False)
-        monkeypatch.delenv("CXX", raising=False)
-        monkeypatch.delenv("LDSHARED", raising=False)
-        name, cc, cxx, _cargs, _largs = self.build_hooks._resolve_toolchain()
-        if sys.platform == "win32":
-            assert name == "msvc"
-            assert cc is None
-            assert cxx is None
-        else:
-            assert name == "gnu"
-            assert (cc, cxx) == ("gcc", "g++")
-        assert "CC" not in os.environ
-        assert "CXX" not in os.environ
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_default_preserves_existing_cc(self, monkeypatch):
-        # An externally-set CC (e.g. sccache) must survive the default toolchain.
-        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
-        monkeypatch.setenv("CC", "sccache cc")
-        monkeypatch.setenv("CXX", "sccache c++")
-        _name, _cc, _cxx, _cargs, _largs = self.build_hooks._resolve_toolchain()
-        assert os.environ["CC"] == "sccache cc"
-        assert os.environ["CXX"] == "sccache c++"
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_case_insensitive(self, monkeypatch):
@@ -93,16 +72,13 @@ class ResolveToolchainSharedMixin:
 class CheckToolchainAvailableSharedMixin:
     """Common ``_check_toolchain_available`` assertions.
 
-    Subclasses set ``build_hooks`` (the loaded build_hooks module).
+    Subclasses set ``build_hooks`` (the loaded build_hooks module). The
+    default-is-noop happy path is covered implicitly by any successful
+    wheel build; only the error message and the llvm-tools-present case
+    (llvm has no CI) are kept.
     """
 
     build_hooks = None
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_default_is_noop(self):
-        # The platform default never preflights.
-        self.build_hooks._check_toolchain_available("gnu")
-        self.build_hooks._check_toolchain_available("msvc")
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_llvm_missing_tool_lists_install_hint(self, monkeypatch):

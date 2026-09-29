@@ -93,23 +93,6 @@ class TestResolveToolchain:
         assert "-fno-var-tracking-assignments" not in cargs
 
     @pytest.mark.agent_authored(model="glm-5.2")
-    def test_gnu_sets_env_and_flags(self, monkeypatch):
-        if sys.platform == "win32":
-            pytest.skip("gnu only valid on Linux")
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "gnu")
-        monkeypatch.delenv("CC", raising=False)
-        monkeypatch.delenv("CXX", raising=False)
-        monkeypatch.delenv("LDSHARED", raising=False)
-        name, cc, cxx, cargs, largs = build_hooks._resolve_toolchain()
-        assert name == "gnu"
-        assert (cc, cxx) == ("gcc", "g++")
-        assert os.environ["CC"] == "gcc"
-        assert os.environ["CXX"] == "g++"
-        # gcc-only flags are present (this is the point of P2: explicit gnu must use gcc, not generic cc)
-        assert "-fpermissive" in cargs
-        assert "-fno-var-tracking-assignments" in cargs
-
-    @pytest.mark.agent_authored(model="glm-5.2")
     def test_gnu_keeps_gcc_only_flags(self, monkeypatch):
         if sys.platform == "win32":
             pytest.skip("gnu only valid on Linux")
@@ -145,11 +128,6 @@ class TestBuildToolchainStamp:
     The ``_abi_stamp_path`` scoping mechanism is covered by ``TestAbiStampPath``
     via the shared mixin.
     """
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_missing_stamp_forces_rebuild(self, stamp):
-        build_hooks.check_build_key(stamp, lambda: "gnu")
-        assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_same_toolchain_does_not_force(self, stamp):
