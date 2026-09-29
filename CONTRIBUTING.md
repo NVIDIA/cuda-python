@@ -166,8 +166,8 @@ If you already cloned without these settings, run the `git config` command
 above, then reset the affected files so Git re-materializes them as symlinks:
 
 ```console
-$ git rm --cached cuda_core/_toolchain_shared.py
-$ git checkout HEAD -- cuda_core/_toolchain_shared.py
+$ git rm --cached cuda_core/_build_shared.py
+$ git checkout HEAD -- cuda_core/_build_shared.py
 ```
 
 ### Pre-commit lychee workaround

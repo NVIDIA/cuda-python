@@ -12,7 +12,6 @@ import glob
 import os
 import re
 import sys
-import sysconfig
 import tempfile
 import zipfile
 from pathlib import Path
@@ -32,63 +31,17 @@ get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
 COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
 
-# Please keep in sync with the copy in cuda_bindings/build_hooks.py.
-def _import_get_cuda_path_or_home():
-    """Import get_cuda_path_or_home, working around PEP 517 namespace shadowing.
+# The shared helpers live in _build_shared.py (canonical file in
+# cuda_bindings/, symlinked here). Only the per-package assembly below
+# (flag sets, stamp bookkeeping, PEP 517 hooks) is package-specific.
 
-    See https://github.com/NVIDIA/cuda-python/issues/1824 for why this helper is needed.
-    """
-    try:
-        import cuda.pathfinder
-    except ModuleNotFoundError as exc:
-        if exc.name not in ("cuda", "cuda.pathfinder"):
-            raise
-        try:
-            import cuda
-        except ModuleNotFoundError:
-            cuda = None
-
-        for p in sys.path:
-            sp_cuda = Path(p) / "cuda"
-            if (sp_cuda / "pathfinder").is_dir():
-                cuda.__path__ = list(cuda.__path__) + [str(sp_cuda)]
-                break
-        else:
-            raise ModuleNotFoundError(
-                "cuda-pathfinder is not installed in the build environment. "
-                "Ensure 'cuda-pathfinder>=1.5' is in build-system.requires."
-            )
-        import cuda.pathfinder
-
-    pathfinder_dir = Path(cuda.pathfinder.__file__).parent
-    print(
-        f"Using cuda-pathfinder {cuda.pathfinder.__version__} from {pathfinder_dir}",
-        file=sys.stderr,
-    )
-    return cuda.pathfinder.get_cuda_path_or_home
-
-
-@functools.cache
-def _get_cuda_path() -> str:
-    get_cuda_path_or_home = _import_get_cuda_path_or_home()
-    cuda_path = get_cuda_path_or_home()
-    if not cuda_path:
-        raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
-    print("CUDA path:", cuda_path)
-    return cuda_path
-
-
-# -----------------------------------------------------------------------
-# Toolchain selection
-#
-# The shared helpers live in _toolchain_shared.py (canonical file in
-# cuda_bindings/, symlinked here). Only the per-package _resolve_toolchain()
-# flag assembly below is package-specific (it differs because the two packages
-# use different C++ standards and opt levels).
-
-from _toolchain_shared import (  # noqa: E402
+from _build_shared import (  # noqa: E402
+    _BUILD_DIR,
+    _abi_stamp_path,
     _apply_toolchain_env,
     _check_toolchain_available,
+    _get_cuda_path,
+    _import_get_cuda_path_or_home,  # noqa: F401  (re-export for tests)
     _resolve_toolchain_name,
 )
 
@@ -183,19 +136,6 @@ def _determine_cuda_major_version() -> str:
 
 # used later by setup()
 _extensions = None
-
-# Where per-configuration build artifacts live. Anchored to this file rather
-# than the cwd, since a project can be built from anywhere.
-_BUILD_DIR = Path(__file__).parent / "build"
-
-
-def _abi_stamp_path(stem):
-    """Return a stamp path scoped to this interpreter's extension ABI."""
-    extension_suffix = sysconfig.get_config_var("EXT_SUFFIX")
-    if not extension_suffix:
-        raise RuntimeError("Python's EXT_SUFFIX build configuration is unavailable")
-    return _BUILD_DIR / f"{stem}{extension_suffix}"
-
 
 # Records the build configuration (CUDA major, toolchain, debug/coverage) of
 # the last completed build for this extension ABI, so setup.py can force

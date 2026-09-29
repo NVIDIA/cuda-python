@@ -143,5 +143,6 @@ inline-quotes = "double"
 "toolshed/**" = ["T201"]
 "ci/**" = ["T201"]
 "**/build_hooks.py" = ["T201"]
+"**/_build_shared.py" = ["T201"]
 "**/docs/**/conf.py" = ["T201", "ARG001"]
 "cuda_pathfinder/**/dynamic_lib_subprocess.py" = ["T201"]

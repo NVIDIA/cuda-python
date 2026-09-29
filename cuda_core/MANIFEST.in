@@ -7,6 +7,6 @@ recursive-include cuda/core/_cpp *.cpp *.h *.hpp
 recursive-include cuda/core/_include *.h *.hpp
 include cuda/core/py.typed
 include NOTICE
-# _toolchain_shared.py is a symlink to cuda_bindings/_toolchain_shared.py;
+# _build_shared.py is a symlink to cuda_bindings/_build_shared.py;
 # setuptools follows the symlink so the sdist contains the resolved content.
-include _toolchain_shared.py
+include _build_shared.py

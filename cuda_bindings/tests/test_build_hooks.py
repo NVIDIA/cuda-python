@@ -18,6 +18,7 @@ import importlib.util
 import os
 import shutil
 import sys
+import sysconfig
 from pathlib import Path
 
 # build_hooks.py imports Cython and setuptools at the top level; both are
@@ -31,15 +32,15 @@ import setuptools  # noqa: F401
 def _load_build_hooks():
     """Load build_hooks module from source without polluting sys.path.
 
-    build_hooks.py does `from _toolchain_shared import ...` at module top,
+    build_hooks.py does `from _build_shared import ...` at module top,
     so pre-load the shared module into sys.modules first. Modifying sys.path
     to make the import work naturally would let cuda_bindings/ shadow the
     installed cuda.bindings package for the rest of the test session.
     """
     build_hooks_dir = Path(__file__).parent.parent
-    shared_spec = importlib.util.spec_from_file_location("_toolchain_shared", build_hooks_dir / "_toolchain_shared.py")
+    shared_spec = importlib.util.spec_from_file_location("_build_shared", build_hooks_dir / "_build_shared.py")
     shared_module = importlib.util.module_from_spec(shared_spec)
-    sys.modules["_toolchain_shared"] = shared_module
+    sys.modules["_build_shared"] = shared_module
     shared_spec.loader.exec_module(shared_module)
 
     spec = importlib.util.spec_from_file_location("build_hooks", build_hooks_dir / "build_hooks.py")
@@ -200,9 +201,9 @@ class TestBuildToolchainStamp:
 
     @pytest.mark.agent_authored(model="grok-4.6")
     def test_stamp_path_is_scoped_to_extension_abi(self, monkeypatch):
-        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-310-x86_64-linux-gnu.so")
+        monkeypatch.setattr(sysconfig, "get_config_var", lambda _name: ".cpython-310-x86_64-linux-gnu.so")
         python_310 = build_hooks._abi_stamp_path(".build-toolchain")
-        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-311-x86_64-linux-gnu.so")
+        monkeypatch.setattr(sysconfig, "get_config_var", lambda _name: ".cpython-311-x86_64-linux-gnu.so")
         python_311 = build_hooks._abi_stamp_path(".build-toolchain")
 
         assert python_310 != python_311
