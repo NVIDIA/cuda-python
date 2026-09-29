@@ -104,4 +104,4 @@ markers = [
 [tool.setuptools_scm]
 root = ".."
 version_file = "cuda/bindings/_version.py"
-git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"]
+git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v13.4.*"]

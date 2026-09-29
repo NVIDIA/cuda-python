@@ -85,7 +85,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.vars.outputs.tag }}
         run: |
-          run_id=$(./ci/tools/lookup-run-id "${TAG}" "${{ github.repository }}")
+          run_id=$(./ci/tools/lookup-run-id --tag "${TAG}" "${{ github.repository }}")
           echo "run-id=${run_id}" >> "$GITHUB_OUTPUT"
 
       - name: Create draft release

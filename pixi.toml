@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -43,7 +43,15 @@ cmd = [
 cmd = [
     "bash",
     "-c",
-    'pixi run --manifest-path "$PIXI_PROJECT_ROOT/cuda_bindings" -e "$PIXI_ENVIRONMENT_NAME" test',
+    '''
+if [[ "$PIXI_ENVIRONMENT_NAME" == "cu12" ]]; then
+  pixi run --manifest-path "$PIXI_PROJECT_ROOT/cuda_bindings_12" \
+    -e "$PIXI_ENVIRONMENT_NAME" test
+else
+  pixi run --manifest-path "$PIXI_PROJECT_ROOT/cuda_bindings" \
+    -e "$PIXI_ENVIRONMENT_NAME" test
+fi
+''',
 ]
 
 [target.linux.tasks.test-core]
