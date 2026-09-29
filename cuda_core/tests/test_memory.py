@@ -6,6 +6,7 @@ import gc
 import multiprocessing as mp
 import sys
 import textwrap
+import threading
 import warnings
 
 from cuda.bindings import driver
@@ -1508,9 +1509,16 @@ def test_vmm_allocator_grow_allocation(handle_type):
     assert buffer.size == original_size
     assert int(buffer.handle) != 0
 
-    # Requests the buffer already covers return the same object.
-    assert vmm_mr.modify_allocation(grown_buffer, 4 * MIB) is grown_buffer
-    assert vmm_mr.modify_allocation(grown_buffer, 2 * MIB) is grown_buffer
+    # Requests the buffer already covers return a full alias, never the buffer
+    # itself, so closing the result never closes the input.
+    same = vmm_mr.modify_allocation(grown_buffer, 4 * MIB)
+    smaller = vmm_mr.modify_allocation(grown_buffer, 2 * MIB)
+    assert same is not grown_buffer and smaller is not grown_buffer
+    assert same.size == smaller.size == grown_buffer.size
+    assert int(same.handle) == int(smaller.handle) == int(grown_buffer.handle)
+    same.close()
+    smaller.close()
+    _vmm_fill(grown_buffer, 0x11)  # the input is still mapped
 
     # Clean up
     buffer.close()
@@ -1612,11 +1620,11 @@ def test_vmm_unaligned_and_repeated_grow_close_cleanly(init_cuda):
         third = mr.modify_allocation(second, 3 * gran)
         assert third.size == 3 * gran
 
-        # A shorter alias asking for what its range already maps keeps the base.
+        # A second grow of the input builds its own result. The input's range
+        # is immutable, so this grow cannot reuse the chunk ``second`` added.
         alias = mr.modify_allocation(buf, 2 * gran)
-        assert alias.size >= 2 * gran
-        if int(second.handle) == int(buf.handle):
-            assert int(alias.handle) == int(buf.handle)
+        assert alias is not buf
+        assert alias.size == 2 * gran
 
         # Every buffer maps the first chunk.
         _vmm_fill(third, 0x77)
@@ -1626,6 +1634,45 @@ def test_vmm_unaligned_and_repeated_grow_close_cleanly(init_cuda):
         buf.close()
         alias.close()
         second.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="spawns worker threads that grow shared buffers")
+def test_vmm_concurrent_grows_of_aliased_buffers_are_memory_safe(init_cuda):
+    """Growing and closing aliases of one buffer from several threads never crashes.
+
+    Reduced from the reproduction on PR #2917. A range is immutable, so a grow
+    reads the input's range and builds a new one, and ``modify_allocation``
+    never returns its input, so closing a result never closes a buffer another
+    thread is using. Which grow extends in place and which moves is undefined;
+    the process must survive and every buffer must close cleanly.
+    """
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    nthreads = 4
+    errors = []
+
+    def work(buf, i, gate):
+        try:
+            gate.wait()
+            for j in range(6):
+                mr.modify_allocation(buf, (i * 8 + j + 2) * 2 * MIB).close()
+        except BaseException as exc:  # pragma: no cover - surfaced below
+            errors.append(exc)
+
+    with assert_no_cuda_warning():
+        for _ in range(8):
+            root = mr.allocate(2 * MIB)
+            alias = mr.modify_allocation(root, 8 * MIB)
+            gate = threading.Barrier(nthreads)
+            threads = [threading.Thread(target=work, args=(root if i % 2 else alias, i, gate)) for i in range(nthreads)]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join()
+            alias.close()
+            root.close()
+    assert errors == []
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")

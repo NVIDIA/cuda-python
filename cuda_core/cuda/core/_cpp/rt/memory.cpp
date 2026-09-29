@@ -8,7 +8,6 @@
 #include "driver_api.hpp"
 #include "error.hpp"
 #include "internal.hpp"
-#include "vmm_range.hpp"
 #include <cstddef>
 #include <cstring>
 #include <memory>
@@ -123,6 +122,15 @@ struct DevicePtrBox {
     // const DevicePtrHandle. Built with make_deallocation_stream so default-
     // stream tokens carry a bound context.
     mutable DeallocationStream deallocation;
+};
+
+// The box behind a VirtualMemoryResource buffer: the range of mappings it
+// owns (VMM_DESIGN.md). Every handle on a VirtualMemoryBuffer comes from
+// deviceptr_create_vmm, so vmm_range() downcasts without a tag; there are no
+// virtual functions, so other boxes pay nothing. A size-zero buffer has an
+// empty range.
+struct VmmDevicePtrBox : DevicePtrBox {
+    VmmRangeHandle range;
 };
 }  // namespace
 
@@ -306,24 +314,29 @@ DevicePtrHandle deviceptr_create_mapped_graphics(
 // ============================================================================
 
 DevicePtrHandle deviceptr_create_vmm(CUdeviceptr base, const VmmRangeHandle& range) {
-    if (!range) {
+    if (!range) {  // a null handle; an empty range is valid
         err = CUDA_ERROR_INVALID_VALUE;
         return {};
     }
-    auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{base, DeallocationStream{}},
-        // Init-capture: a plain copy of the `const&` parameter would be const.
-        [range = range](DevicePtrBox* b) mutable {
+    auto box = std::shared_ptr<VmmDevicePtrBox>(
+        new VmmDevicePtrBox{{base, DeallocationStream{}}, range},
+        [](VmmDevicePtrBox* b) {
             GILReleaseGuard gil;
-            // Hand the recorded stream to the range, then drop the range: if
-            // this was the last owner, the range deleter synchronizes every
-            // recorded stream and unmaps. The box never blocks itself.
-            vmm_range_forward_stream(*range, b->deallocation);
+            // Order the release on this buffer's recorded stream, then free
+            // the box, which drops the range: every mapping this buffer was
+            // the last to hold unmaps, and its reservation and allocation
+            // follow.
+            vmm_sync_before_release(b->deallocation);
             delete b;
-            range.reset();
         }
     );
     return DevicePtrHandle(box, &box->resource);
+}
+
+VmmRangeHandle vmm_range(const DevicePtrHandle& h) noexcept {
+    // Only for handles from deviceptr_create_vmm; the VirtualMemoryBuffer
+    // class guarantees that for its callers.
+    return h ? static_cast<VmmDevicePtrBox*>(get_box(h))->range : VmmRangeHandle{};
 }
 
 // ============================================================================

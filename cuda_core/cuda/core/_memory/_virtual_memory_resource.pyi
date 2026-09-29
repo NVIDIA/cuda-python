@@ -93,11 +93,11 @@ class VirtualMemoryBuffer(Buffer):
     def close(self, stream: Stream | GraphBuilder | None=None) -> None:
         """Release this buffer's share of its address range.
 
-        The mappings, reservations and physical allocations go away when the
-        last buffer that maps them closes. Before it unmaps, the resource
-        synchronizes every deallocation stream the buffers of the range
-        recorded. Virtual memory deallocation is synchronous and cannot be
-        captured. When the stream this close uses, given or recorded, is not
+        Each mapping, reservation and physical allocation goes away when the
+        last buffer that holds it closes. Before this buffer's share is
+        released, its deallocation stream is synchronized, as for every
+        :class:`Buffer`. Virtual memory deallocation is synchronous and cannot
+        be captured. When the stream this close uses, given or recorded, is not
         a default stream and is capturing, the call raises and leaves the
         buffer open. A default stream is checked when the range is released
         instead: if synchronizing it would disturb a capture in its context,
@@ -173,14 +173,14 @@ class VirtualMemoryResource(MemoryResource):
         """
         Grow a buffer of this resource to at least ``new_size`` bytes.
 
-        The buffer passed in stays open and usable. The returned buffer aliases
-        it: both map the same physical memory, which is freed when the last of
-        the two closes. When the driver can extend the address range in place,
-        the returned buffer has the same pointer; otherwise it has a new one and
-        the existing contents are reachable through both.
+        The buffer passed in stays open and usable, and is never returned. The
+        returned buffer aliases it: both map the same physical memory, which is
+        freed when the last of the two closes. When the driver can extend the
+        address range in place, the returned buffer has the same pointer;
+        otherwise it has a new one and the existing contents are reachable
+        through both. Closing the returned buffer never closes ``buf``.
 
-        This method is not thread-safe with respect to two buffers that share an
-        address range.
+        Concurrent calls on buffers that alias one another are safe.
 
         Parameters
         ----------
@@ -200,8 +200,9 @@ class VirtualMemoryResource(MemoryResource):
         Returns
         -------
         VirtualMemoryBuffer
-            ``buf`` itself when it already covers ``new_size``; otherwise a new
-            buffer of the rounded size.
+            A new buffer of at least ``new_size`` and at least ``buf.size``
+            bytes. When ``buf`` already covers the request, the result is a
+            full alias of it and no driver call is made.
 
         Raises
         ------

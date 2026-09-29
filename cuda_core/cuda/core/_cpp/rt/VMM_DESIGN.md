@@ -76,42 +76,57 @@ access; if access fails it unmaps and returns empty. The eight VMM entry points,
 ### The range and the device pointer
 
 ```
-struct VmmRange {                             // one per buffer base address
-    std::vector<VaMappingHandle> mappings;    // ascending, contiguous; sum of sizes = range total
-    std::mutex mu;                            // guards `streams`; nothing under it takes the GIL
-    std::vector<DeallocationStream> streams;  // every stream a dying owner forwarded, deduplicated
-};
-using VmmRangeHandle = std::shared_ptr<VmmRange>;      // deleter: sync each stream, then destroy
-DevicePtrHandle deviceptr_create_vmm(CUdeviceptr base, VmmRangeHandle range);
-VmmRangeHandle  vmm_range(const DevicePtrHandle& h);   // empty for a non-VMM or closed handle
+using VmmRange = std::vector<VaMappingHandle>;      // ascending, contiguous; sum of sizes = range total
+using VmmRangeHandle = std::shared_ptr<const VmmRange>;   // immutable once built
+VmmRangeHandle  create_vmm_range(const std::vector<VaMappingHandle>& mappings);
+DevicePtrHandle deviceptr_create_vmm(CUdeviceptr base, const VmmRangeHandle& range);
+VmmRangeHandle  vmm_range(const DevicePtrHandle& h);   // the range; only for handles from deviceptr_create_vmm
 ```
+
+A range is a list of mapping handles and nothing else. It is built once and never changes. A
+grow reads the input's range, copies the list, appends the new mapping (or, when the buffer
+moves, replaces every entry with a mapping at the new address) and wraps the copy in a new range
+for the result. The input's range is untouched. Mapping handles are shared between the two
+ranges, so each mapping unmaps once, when the last range that holds it goes; a chunk that only
+the result holds is unmapped as soon as the result closes.
+
+Every buffer therefore owns exactly one range and records exactly one deallocation stream, and
+two buffers never share mutable state. A full alias (a request the input already covers) shares
+the input's range object, which is safe because it is immutable. This is what makes concurrent
+grows of aliased buffers safe without a lock: they read a shared immutable list and write only
+their own locals. Which grow extends in place and which one moves depends on what address space
+the driver has free when each probe runs, exactly as for a single thread.
 
 There is exactly one ownership chain: `Buffer._h_ptr` -> `DevicePtrBox` (holds the range) ->
 `VmmRange` -> mappings -> reservations and allocations. The Cython buffer keeps no other
-reference; grow operations call `Buffer_check_open` and then `vmm_range(buf._h_ptr)`.
+reference; grow operations call `Buffer_check_open`, copy `buf._h_ptr` into a local (to isolate
+it from concurrent operations that might, e.g., call `close()`), and then call `vmm_range()` on the copy.
 `VirtualMemoryBuffer.close()` first refuses a capturing stream other than a default stream
 (see "The resource") and then resets `_h_ptr`, as `Buffer.close()` does; the release itself is
-the deleter chain below. A buffer's `size` is always a prefix of its range.
+the deleter below. A buffer's `size` is always a prefix of its range.
 
 The `DevicePtrHandle` must own the memory because graph memcpy nodes retain `buf._h_ptr` as an
 opaque owner; a non-owning handle would let a launched graph outlive its buffer. Any number of
 owners may therefore exist at once: aliases from a grow, and graph attachments.
 
-Deleters:
+The box behind a VMM handle is a `VmmDevicePtrBox`: a `DevicePtrBox` with a `VmmRangeHandle`
+member and no virtual functions, so other boxes pay nothing. Every handle on a
+`VirtualMemoryBuffer` comes from `deviceptr_create_vmm`, so `modify_allocation` checks the Python
+class and `vmm_range(h)` downcasts the box without a tag, the way `deallocation_stream(h)` reads
+the stream. A size-zero buffer has a VMM box over an empty range.
 
-- `DevicePtrBox`, VMM flavor: release the GIL; append this box's recorded `DeallocationStream` to
-  the range under `mu` (skipping an empty stream and duplicates); release `mu`; drop the range
-  reference. It never blocks.
-- `VmmRange`: release the GIL; unless the interpreter is finalizing, for each forwarded stream
-  check the capture status and skip the stream with one report when a sync would disturb a
-  capture (the stream is capturing, or it is the legacy stream while a blocking stream in its
-  context is capturing), otherwise synchronize it under its bound context with the thread's
-  capture mode switched to relaxed for the call, so a capture on an unrelated stream is not
-  invalidated. Then, whether or not the syncs succeeded, destroy the mappings. Each mapping unmaps; the reservations free and the allocations release as
-  their last references go. Every forwarded stream is synchronized because two aliases may have
-  recorded different streams; synchronizing only the last one to die would unmap under work
-  queued on the other. This is the first blocking deleter in the layer, and it may run inside
-  the deferred-cleanup drain on the main thread, with the GIL released.
+Deleter of a `VmmDevicePtrBox`: release the GIL; unless the
+interpreter is finalizing or no stream was recorded, check the capture status of the recorded
+stream and skip it with one report when a sync would disturb a capture (the stream is capturing,
+or it is the legacy stream while a blocking stream in its context is capturing), otherwise
+synchronize it under its bound context with the thread's capture mode switched to relaxed for
+the call, so a capture on an unrelated stream is not invalidated. Then drop the range: each
+mapping this buffer was the last to hold unmaps, and its reservation frees and its allocation
+releases as their last references go. This is the same model as every other `Buffer`: the
+recorded stream orders the release of this buffer's memory, and a caller who touches that memory
+from another stream must order that work before the close. The deleter blocks on the sync, like
+the pool-backed deleters block on the free, and it may run inside the deferred-cleanup drain on
+the main thread, with the GIL released.
 
 Allocations are shared by two ranges after a grow that moves the buffer. Shared ownership is
 what makes that safe: the allocation is released exactly once, when its last mapping goes.
@@ -147,24 +162,30 @@ what makes that safe: the allocation is released exactly once, when its last map
     did not come from this resource: `TypeError`. `cfg = config or self.config` passes
     `_check_config`, governs the new chunk only and is not stored on the resource. Let `req = align_up(new_size)` and `total` be
     the range total.
-  - `req <= buf.size`: return `buf`. The buffer already covers the request; `cfg` is not applied,
-    and the access of memory that is already mapped never changes.
-  - `buf.size < req <= total`: return a new `VirtualMemoryBuffer` over the same range with size
-    `req`; no driver call. This serves a shorter alias asking for what the range already maps.
-  - `req > total`, in place: probe `cuMemAddressReserve(req - total, align=0, hint=base+total)`.
-    If the driver grants the hint, create the new allocation with `cfg`'s descriptors and its
-    mapping as locals; `mappings.reserve(n+1)`; create a second `DevicePtrHandle` on the same
-    range, copying the input's recorded deallocation stream; build the new buffer; `push_back`
-    the mapping as the last, non-throwing step. If the driver grants another address, drop the
-    reservation and move the buffer instead. If the probe fails, drain the status with
-    `get_last_error()` and move the buffer.
-  - `req > total`, moved: reserve `req` with `addr_align`; map every mapping in the range (shared
-    allocation handles, their own descriptors) at `base_new + offset`; create and map the new
-    allocation; build the new range (copying the input's recorded stream), handle, and buffer.
-  - Both paths return a new buffer and leave the input open. See "Why `modify_allocation`
-    returns a new buffer" below.
-  - `modify_allocation` is not thread-safe with respect to two buffers that share a range; that
-    synchronization is the caller's responsibility, as elsewhere in cuda.core.
+  - `req <= total`: return a new `VirtualMemoryBuffer` over the same range with size
+    `max(req, buf.size)`; no driver call. The range already maps the request, so `cfg` is not
+    applied and the access of memory that is already mapped never changes. The result is a full
+    alias of the input when the input already covers the request; `buf` itself is never returned,
+    so closing the result never closes `buf`.
+  - `req > total`, in place: copy the input's mapping list; probe
+    `cuMemAddressReserve(req - total, align=0, hint=base+total)`. If the driver grants the hint,
+    create the new allocation with `cfg`'s descriptors and its mapping as locals, append the
+    mapping to the copy, build a new range from it, and create the result's `DevicePtrHandle` on
+    that range at the same base, copying the input's recorded deallocation stream. If the driver
+    grants another address, drop the reservation and move the buffer instead. If the probe fails,
+    drain the status with `get_last_error()` and move the buffer.
+  - `req > total`, moved: reserve `req` with `addr_align`; map every mapping in the copied list
+    (shared allocation handles, their own descriptors) at `base_new + offset`, replacing the copy's
+    entries; create and map the new allocation; build the new range, handle (copying the input's
+    recorded stream), and buffer.
+  - Every path returns a new buffer and leaves the input open and its range unchanged. See "Why
+    `modify_allocation` returns a new buffer" below.
+  - Concurrent calls on buffers that alias one another are safe: each reads an immutable range
+    and writes only its own locals. Which call extends in place and which one moves depends on
+    what address space the driver has free when each probe runs, exactly as for a single thread.
+    Closing a buffer while another thread passes it to `modify_allocation` is unsupported
+    (concurrency.rst); the call copies the input handle first, so that misuse defers the release
+    rather than crashing.
 - `deallocate(ptr, size, *, stream=None)` stays for the `MemoryResource` contract. It serves
   pointers wrapped with `Buffer.from_handle(ptr, size, mr=self)`: synchronize `stream` if given,
   `cuMemUnmap`, `cuMemAddressFree`. It handles one reservation, and the caller must have released
@@ -217,21 +238,21 @@ the whole layer; see [DESIGN.md](DESIGN.md).
    and free memory are as before the call.
 6. A grow leaves the input open. The input and the result see the same memory, whether the range
    grew in place or moved.
-7. Every stream recorded by any owner of a range finishes before the range is unmapped, except as
-   invariant 8 states.
+7. The stream a buffer recorded finishes before that buffer's share of its range is released,
+   except as invariant 8 states. A mapping that another buffer still holds stays mapped.
 8. A release never invalidates a graph capture. An explicit close on a capturing non-default
    stream raises. A release from garbage collection, or one ordered on a default stream that
    would disturb a capture, proceeds without ordering on that stream, warns once, and unmaps.
-9. Graph nodes and aliases keep the range alive. The range dies with its last owner, in any close
-   order.
+9. Graph nodes and aliases keep the mappings alive. A mapping dies with the last range that holds
+   it, in any close order. A range is immutable once built.
 10. A chunk's access is fixed when the chunk is created and travels with its allocation. Every
     mapping of the chunk applies the same descriptors. A grow's `config` governs only the new
     chunk and never changes mapped memory.
 11. The mappings of a range are contiguous and ascending, and the range total is the sum of their
     sizes. A buffer's size is a multiple of the granularity and a prefix of its range. A size that
     cannot be rounded raises.
-12. A range is findable by its base address only while it is alive. The registry entry is removed
-    before the reservation is freed.
+12. Every handle on a `VirtualMemoryBuffer` points at a VMM box whose range is the buffer's
+    mappings; a size-zero buffer's range is empty.
 13. Buffers from `allocate()` free themselves and never call `deallocate()`. `deallocate()` serves
     only pointers wrapped with `Buffer.from_handle`.
 14. No operation needs a current context. A default-stream token is bound to the resource's

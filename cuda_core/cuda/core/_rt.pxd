@@ -7,6 +7,7 @@ from libc.stddef cimport size_t
 from libc.stdint cimport intptr_t
 
 from libcpp.memory cimport shared_ptr, unique_ptr
+from libcpp.vector cimport vector
 
 from cuda.bindings cimport cydriver
 from cuda.bindings cimport cynvrtc
@@ -72,7 +73,7 @@ cdef extern from "_cpp/rt/handles.hpp" namespace "cuda_core::rt":
     ctypedef shared_ptr[const MemAllocationValue] MemAllocationHandle
     ctypedef shared_ptr[const VaReservationValue] VaReservationHandle
     ctypedef shared_ptr[const VaMappingValue] VaMappingHandle
-    ctypedef shared_ptr[VmmRange] VmmRangeHandle
+    ctypedef shared_ptr[const VmmRange] VmmRangeHandle
 
     # Type-erased shared owner for resources attached to graph node slots.
     # Typed handles above assign directly to an OpaqueHandle (shared control
@@ -306,13 +307,10 @@ cdef VaMappingHandle create_va_mapping_handle(
     const VaReservationHandle& h_res) except+ nogil
 cdef size_t va_mapping_size(const VaMappingHandle& h) noexcept nogil
 cdef MemAllocationHandle va_mapping_allocation(const VaMappingHandle& h) noexcept nogil
-cdef VmmRangeHandle create_vmm_range(cydriver.CUdeviceptr base) except+ nogil
-cdef VmmRangeHandle vmm_range(const DevicePtrHandle& h) except+ nogil
-cdef size_t vmm_range_count(const VmmRangeHandle& range) noexcept nogil
-cdef VaMappingHandle vmm_range_mapping(const VmmRangeHandle& range, size_t index) noexcept nogil
+cdef VmmRangeHandle create_vmm_range(const vector[VaMappingHandle]& mappings) except+ nogil
+cdef VmmRangeHandle vmm_range(const DevicePtrHandle& h) noexcept nogil
+cdef vector[VaMappingHandle] vmm_range_mappings(const VmmRangeHandle& range) except+ nogil
 cdef size_t vmm_range_total(const VmmRangeHandle& range) noexcept nogil
-cdef void vmm_range_reserve(const VmmRangeHandle& range, size_t count) except+ nogil
-cdef void vmm_range_append(const VmmRangeHandle& range, const VaMappingHandle& mapping) except+ nogil
 cdef DevicePtrHandle deviceptr_create_vmm(
     cydriver.CUdeviceptr base, const VmmRangeHandle& range) except+ nogil
 

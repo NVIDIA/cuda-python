@@ -29,7 +29,6 @@ from cuda.core._rt cimport (
     create_va_reservation_handle,
     create_vmm_range,
     deallocation_stream,
-    deviceptr_create_ref,
     deviceptr_create_vmm,
     get_last_error,
     get_primary_context,
@@ -37,10 +36,7 @@ from cuda.core._rt cimport (
     set_deallocation_stream,
     va_mapping_allocation,
     vmm_range,
-    vmm_range_append,
-    vmm_range_count,
-    vmm_range_mapping,
-    vmm_range_reserve,
+    vmm_range_mappings,
     vmm_range_total,
 )
 from cuda.core._stream cimport Stream, Stream_accept, Stream_handle_is_default_token, Stream_is_default_token
@@ -232,11 +228,11 @@ cdef class VirtualMemoryBuffer(Buffer):
     def close(self, stream: Stream | GraphBuilder | None = None) -> None:
         """Release this buffer's share of its address range.
 
-        The mappings, reservations and physical allocations go away when the
-        last buffer that maps them closes. Before it unmaps, the resource
-        synchronizes every deallocation stream the buffers of the range
-        recorded. Virtual memory deallocation is synchronous and cannot be
-        captured. When the stream this close uses, given or recorded, is not
+        Each mapping, reservation and physical allocation goes away when the
+        last buffer that holds it closes. Before this buffer's share is
+        released, its deallocation stream is synchronized, as for every
+        :class:`Buffer`. Virtual memory deallocation is synchronous and cannot
+        be captured. When the stream this close uses, given or recorded, is not
         a default stream and is capturing, the call raises and leaves the
         buffer open. A default stream is checked when the range is released
         instead: if synchronizing it would disturb a capture in its context,
@@ -449,15 +445,16 @@ cdef class VirtualMemoryResource(MemoryResource):
         cdef MemAllocationHandle h_alloc
         cdef VaReservationHandle h_res
         cdef VaMappingHandle h_map
+        cdef vector[VaMappingHandle] mappings
         cdef VmmRangeHandle rng
         cdef DevicePtrHandle h_ptr
 
         if size == 0:
-            # Nothing to reserve or map; an empty buffer with a non-owning handle.
-            # A real stream is still recorded so that a later grow inherits it;
-            # a default-stream token is not, which keeps this path free of
-            # driver calls.
-            h_ptr = deviceptr_create_ref(0)
+            # Nothing to reserve or map: a VMM box over an empty range, so the
+            # buffer is a VirtualMemoryBuffer like every other. A real stream is
+            # still recorded so that a later grow inherits it; a default-stream
+            # token is not, which keeps this path free of driver calls.
+            h_ptr = deviceptr_create_vmm(0, create_vmm_range(mappings))
             if s is not None and not Stream_is_default_token(s):
                 HANDLE_RETURN(set_deallocation_stream(h_ptr, s._h_stream))
             return Buffer_from_deviceptr_handle(h_ptr, 0, self, None, VirtualMemoryBuffer)
@@ -484,8 +481,8 @@ cdef class VirtualMemoryResource(MemoryResource):
         if not h_map:
             _raise_last_error()
 
-        rng = create_vmm_range(as_cu(h_res))
-        vmm_range_append(rng, h_map)
+        mappings.push_back(h_map)
+        rng = create_vmm_range(mappings)
         h_ptr = deviceptr_create_vmm(as_cu(h_res), rng)
         if not h_ptr:
             _raise_last_error()
@@ -498,14 +495,14 @@ cdef class VirtualMemoryResource(MemoryResource):
         """
         Grow a buffer of this resource to at least ``new_size`` bytes.
 
-        The buffer passed in stays open and usable. The returned buffer aliases
-        it: both map the same physical memory, which is freed when the last of
-        the two closes. When the driver can extend the address range in place,
-        the returned buffer has the same pointer; otherwise it has a new one and
-        the existing contents are reachable through both.
+        The buffer passed in stays open and usable, and is never returned. The
+        returned buffer aliases it: both map the same physical memory, which is
+        freed when the last of the two closes. When the driver can extend the
+        address range in place, the returned buffer has the same pointer;
+        otherwise it has a new one and the existing contents are reachable
+        through both. Closing the returned buffer never closes ``buf``.
 
-        This method is not thread-safe with respect to two buffers that share an
-        address range.
+        Concurrent calls on buffers that alias one another are safe.
 
         Parameters
         ----------
@@ -525,8 +522,9 @@ cdef class VirtualMemoryResource(MemoryResource):
         Returns
         -------
         VirtualMemoryBuffer
-            ``buf`` itself when it already covers ``new_size``; otherwise a new
-            buffer of the rounded size.
+            A new buffer of at least ``new_size`` and at least ``buf.size``
+            bytes. When ``buf`` already covers the request, the result is a
+            full alias of it and no driver call is made.
 
         Raises
         ------
@@ -545,59 +543,71 @@ cdef class VirtualMemoryResource(MemoryResource):
             If a driver call fails. ``buf`` is untouched when this method raises.
         """
         cdef Buffer b
+        cdef DevicePtrHandle h_in
+        cdef size_t in_size
         cdef VmmRangeHandle rng, rng_new
         cdef object cfg
         cdef cydriver.CUmemAllocationProp prop
         cdef vector[cydriver.CUmemAccessDesc] descs
-        cdef size_t gran, req, total, add, count, addr_align, offset, i, chunk
+        cdef vector[VaMappingHandle] mappings
+        cdef size_t gran, req, total, add, addr_align, offset, i
         cdef cydriver.CUdeviceptr base, base_new
         cdef MemAllocationHandle h_alloc, a
         cdef VaReservationHandle h_res, h_res_new
-        cdef VaMappingHandle h_map, m, m2
-        cdef DevicePtrHandle h_ptr2, h_ptr_new
+        cdef VaMappingHandle h_map, m2
+        cdef DevicePtrHandle h_ptr_new
         cdef object new_buf
 
-        if not isinstance(buf, Buffer):
-            raise TypeError(f"buf must be a Buffer, got {type(buf).__name__}")
+        # Every VirtualMemoryBuffer handle comes from deviceptr_create_vmm, so
+        # the class check is what makes vmm_range() below valid.
+        if not isinstance(buf, VirtualMemoryBuffer):
+            raise TypeError(f"buf must be a VirtualMemoryBuffer, got {type(buf).__name__}")
         b = <Buffer>buf
         Buffer_check_open(b)
+        # Read the input's handle and size once. The handle copy keeps the
+        # input's box alive for the rest of the call, so a close from another
+        # thread (unsupported; see concurrency.rst) defers the release instead
+        # of emptying what this call reads.
+        h_in = b._h_ptr
+        in_size = b._size
         if b.memory_resource is not self:
             raise TypeError("buf was not allocated by this VirtualMemoryResource")
         cfg = self.config if config is None else check_or_create_options(
             VirtualMemoryResourceOptions, config, "VirtualMemoryResource options", keep_none=False
         )
         self._check_config(cfg)
-        if b._size == 0:
+        if in_size == 0:
             # An empty buffer maps nothing; the request is a fresh allocation
             # that inherits the stream the empty buffer recorded, if any.
             new_buf = self._allocate(cfg, new_size, None)
-            self._copy_deallocation_stream((<Buffer>new_buf)._h_ptr, b._h_ptr)
+            self._copy_deallocation_stream((<Buffer>new_buf)._h_ptr, h_in)
             return new_buf
-        rng = vmm_range(b._h_ptr)
-        if not rng:
-            raise TypeError("buf was not allocated by VirtualMemoryResource.allocate")
+        rng = vmm_range(h_in)
 
         self._fill_prop(cfg, &prop)
         self._fill_access(cfg, &prop, descs)
         gran = self._granularity(cfg, &prop)
         req = _align_up(new_size, gran)
         total = vmm_range_total(rng)
-        base = as_cu(b._h_ptr)
+        base = as_cu(h_in)
 
-        if req <= b._size:
-            return buf
         if req <= total:
-            # A shorter alias asking for what the range already maps.
-            h_ptr2 = deviceptr_create_vmm(base, rng)
-            if not h_ptr2:
+            # The range already maps the request: a new buffer over the same
+            # range, at least as large as the input, with no driver call. The
+            # result is a distinct object, so closing it never closes ``buf``.
+            h_ptr_new = deviceptr_create_vmm(base, rng)
+            if not h_ptr_new:
                 _raise_last_error()
-            self._copy_deallocation_stream(h_ptr2, b._h_ptr)
-            return Buffer_from_deviceptr_handle(h_ptr2, req, self, None, VirtualMemoryBuffer)
+            self._copy_deallocation_stream(h_ptr_new, h_in)
+            return Buffer_from_deviceptr_handle(
+                h_ptr_new, req if req > in_size else in_size, self, None, VirtualMemoryBuffer)
 
         # The new chunk is a whole number of granules; the result covers it.
         add = _align_up(req - total, gran)
         req = total + add
-        count = vmm_range_count(rng)
+        # The result's range is built from a copy of the input's mappings; the
+        # input's range is immutable and never changes.
+        mappings = vmm_range_mappings(rng)
 
         # Grow in place: reserve the range right after the current one. The
         # driver raises alignment 0 to its default, so the hint is well formed.
@@ -616,16 +626,13 @@ cdef class VirtualMemoryResource(MemoryResource):
                 h_map = create_va_mapping_handle(base + total, h_alloc, h_res)
             if not h_map:
                 _raise_last_error()
-            vmm_range_reserve(rng, count + 1)
-            h_ptr2 = deviceptr_create_vmm(base, rng)
-            if not h_ptr2:
+            mappings.push_back(h_map)
+            rng_new = create_vmm_range(mappings)
+            h_ptr_new = deviceptr_create_vmm(base, rng_new)
+            if not h_ptr_new:
                 _raise_last_error()
-            self._copy_deallocation_stream(h_ptr2, b._h_ptr)
-            new_buf = Buffer_from_deviceptr_handle(h_ptr2, req, self, None, VirtualMemoryBuffer)
-            # Last step, and it cannot throw after the reserve above: the input
-            # buffer is untouched if anything before this raised.
-            vmm_range_append(rng, h_map)
-            return new_buf
+            self._copy_deallocation_stream(h_ptr_new, h_in)
+            return Buffer_from_deviceptr_handle(h_ptr_new, req, self, None, VirtualMemoryBuffer)
 
         # Move: a new range that maps every existing allocation, then the new one.
         # The allocations are shared with the input buffer's range.
@@ -635,19 +642,15 @@ cdef class VirtualMemoryResource(MemoryResource):
         if not h_res_new:
             _raise_last_error()
         base_new = as_cu(h_res_new)
-        rng_new = create_vmm_range(base_new)
-        vmm_range_reserve(rng_new, count + 1)
         offset = 0
-        for i in range(count):
-            m = vmm_range_mapping(rng, i)
-            a = va_mapping_allocation(m)
-            chunk = mem_allocation_size(a)
+        for i in range(mappings.size()):
+            a = va_mapping_allocation(mappings[i])
             with nogil:
                 m2 = create_va_mapping_handle(base_new + offset, a, h_res_new)
             if not m2:
                 _raise_last_error()
-            vmm_range_append(rng_new, m2)
-            offset += chunk
+            offset += mem_allocation_size(a)
+            mappings[i] = m2  # the input's range still holds the old mapping
         with nogil:
             h_alloc = create_mem_allocation_handle(add, prop, descs.data(), descs.size())
         if not h_alloc:
@@ -656,11 +659,12 @@ cdef class VirtualMemoryResource(MemoryResource):
             m2 = create_va_mapping_handle(base_new + offset, h_alloc, h_res_new)
         if not m2:
             _raise_last_error()
-        vmm_range_append(rng_new, m2)
+        mappings.push_back(m2)
+        rng_new = create_vmm_range(mappings)
         h_ptr_new = deviceptr_create_vmm(base_new, rng_new)
         if not h_ptr_new:
             _raise_last_error()
-        self._copy_deallocation_stream(h_ptr_new, b._h_ptr)
+        self._copy_deallocation_stream(h_ptr_new, h_in)
         return Buffer_from_deviceptr_handle(h_ptr_new, req, self, None, VirtualMemoryBuffer)
 
     def deallocate(self, ptr: DevicePointerType, size: int, *, stream: Stream | GraphBuilder | None = None) -> None:

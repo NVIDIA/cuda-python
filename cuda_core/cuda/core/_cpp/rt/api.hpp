@@ -5,6 +5,7 @@
 #pragma once
 
 #include "types.hpp"
+#include <vector>
 #include <cuda.h>
 #include <nvrtc.h>
 #include <cstddef>
@@ -246,7 +247,8 @@ CUresult set_deallocation_stream(
 // A VirtualMemoryResource buffer is a range of mappings. Each mapping holds
 // one physical allocation and one address reservation; the mapping deleter
 // unmaps, then the allocation is released and the reservation freed as their
-// last references go. A buffer's DevicePtrHandle owns the range.
+// last references go. A buffer's DevicePtrHandle owns the range. Ranges are
+// immutable: a grow builds a new range for its result.
 // ============================================================================
 
 // Create a physical allocation via cuMemCreate. The access descriptors are
@@ -279,29 +281,28 @@ VaMappingHandle create_va_mapping_handle(CUdeviceptr ptr, const MemAllocationHan
 size_t va_mapping_size(const VaMappingHandle& h) noexcept;
 MemAllocationHandle va_mapping_allocation(const VaMappingHandle& h) noexcept;
 
-// Create an empty range keyed by its base address. When the last reference is
-// released, every deallocation stream its owners recorded is synchronized
-// (capturing streams are skipped and reported), then the mappings are
-// destroyed. May throw std::bad_alloc.
-VmmRangeHandle create_vmm_range(CUdeviceptr base);
+// Build an immutable range from mappings in ascending, contiguous order. A
+// grow builds a new range for its result and never changes the input's.
+// May throw std::bad_alloc.
+VmmRangeHandle create_vmm_range(const std::vector<VaMappingHandle>& mappings);
 
-// Recover the range of a VMM device pointer handle; empty for any other
-// handle, including a closed one.
-VmmRangeHandle vmm_range(const DevicePtrHandle& h);
+// The range of a device pointer handle created by deviceptr_create_vmm. Only
+// for such handles: the caller (VirtualMemoryBuffer) guarantees the origin.
+// Empty for an empty handle.
+VmmRangeHandle vmm_range(const DevicePtrHandle& h) noexcept;
 
-// Range accessors and mutators. Mutation is not synchronized: two buffers
-// that share a range must not be grown concurrently (caller's responsibility).
-size_t vmm_range_count(const VmmRangeHandle& range) noexcept;
-VaMappingHandle vmm_range_mapping(const VmmRangeHandle& range, size_t index) noexcept;
+// Range accessors: a copy of the mapping list, which a grow extends and turns
+// into a new range, and the range total. Reads of an immutable range need no
+// synchronization.
+std::vector<VaMappingHandle> vmm_range_mappings(const VmmRangeHandle& range);  // may throw
 size_t vmm_range_total(const VmmRangeHandle& range) noexcept;
-void vmm_range_reserve(const VmmRangeHandle& range, size_t count);   // may throw
-void vmm_range_append(const VmmRangeHandle& range, const VaMappingHandle& mapping);  // may throw
 
-// Create a device pointer handle that owns a range. The box records no
-// deallocation stream; set one with set_deallocation_stream. When the last
-// reference is released, the recorded stream is forwarded to the range and
-// the range reference dropped; the range deleter does the synchronization and
-// the unmapping. Returns empty handle for an empty range.
+// Create a device pointer handle whose box owns a range (an empty range for
+// a size-zero buffer). The box records no deallocation stream; set one with
+// set_deallocation_stream. When the last reference is released, the recorded
+// stream is synchronized (skipped with a report when that would disturb a
+// capture) and the box freed, which unmaps every mapping this buffer was the
+// last to hold. Returns empty handle for a null range handle.
 DevicePtrHandle deviceptr_create_vmm(CUdeviceptr base, const VmmRangeHandle& range);
 
 // ============================================================================

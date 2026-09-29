@@ -8,6 +8,7 @@
 #include <nvrtc.h>
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 // Forward declaration for NVVM - avoids nvvm.h dependency
 // Use void* to match cuda.bindings.cynvvm's typedef
@@ -77,12 +78,14 @@ using SurfObjectHandle = std::shared_ptr<const SurfObjectValue>;
 
 // Virtual memory management: a physical allocation (cuMemCreate), an address
 // reservation (cuMemAddressReserve), one mapping of a whole allocation into a
-// reservation (cuMemMap), and the range of mappings a buffer owns.
+// reservation (cuMemMap), and the range of mappings a buffer owns. A range is
+// the buffer's mappings in ascending, contiguous order; it is immutable once
+// built, and a grow builds a new one for its result (VMM_DESIGN.md).
 using MemAllocationHandle = std::shared_ptr<const MemAllocationValue>;
 using VaReservationHandle = std::shared_ptr<const VaReservationValue>;
 using VaMappingHandle = std::shared_ptr<const VaMappingValue>;
-struct VmmRange;
-using VmmRangeHandle = std::shared_ptr<VmmRange>;
+using VmmRange = std::vector<VaMappingHandle>;
+using VmmRangeHandle = std::shared_ptr<const VmmRange>;
 
 using DevicePtrHandle = std::shared_ptr<const CUdeviceptr>;
 

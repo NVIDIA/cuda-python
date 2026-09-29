@@ -185,16 +185,11 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
     MemAllocationHandle va_mapping_allocation "cuda_core::rt::va_mapping_allocation" (
         const VaMappingHandle& h) noexcept nogil
     VmmRangeHandle create_vmm_range "cuda_core::rt::create_vmm_range" (
-        cydriver.CUdeviceptr base) except+ nogil
-    VmmRangeHandle vmm_range "cuda_core::rt::vmm_range" (const DevicePtrHandle& h) except+ nogil
-    size_t vmm_range_count "cuda_core::rt::vmm_range_count" (const VmmRangeHandle& range) noexcept nogil
-    VaMappingHandle vmm_range_mapping "cuda_core::rt::vmm_range_mapping" (
-        const VmmRangeHandle& range, size_t index) noexcept nogil
+        const vector[VaMappingHandle]& mappings) except+ nogil
+    VmmRangeHandle vmm_range "cuda_core::rt::vmm_range" (const DevicePtrHandle& h) noexcept nogil
+    vector[VaMappingHandle] vmm_range_mappings "cuda_core::rt::vmm_range_mappings" (
+        const VmmRangeHandle& range) except+ nogil
     size_t vmm_range_total "cuda_core::rt::vmm_range_total" (const VmmRangeHandle& range) noexcept nogil
-    void vmm_range_reserve "cuda_core::rt::vmm_range_reserve" (
-        const VmmRangeHandle& range, size_t count) except+ nogil
-    void vmm_range_append "cuda_core::rt::vmm_range_append" (
-        const VmmRangeHandle& range, const VaMappingHandle& mapping) except+ nogil
     DevicePtrHandle deviceptr_create_vmm "cuda_core::rt::deviceptr_create_vmm" (
         cydriver.CUdeviceptr base, const VmmRangeHandle& range) except+ nogil
 

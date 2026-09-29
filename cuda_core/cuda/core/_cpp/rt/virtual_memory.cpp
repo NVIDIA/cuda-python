@@ -12,10 +12,8 @@
 #include "driver_api.hpp"
 #include "error.hpp"
 #include "internal.hpp"
-#include "vmm_range.hpp"
 #include <cstddef>
 #include <memory>
-#include <mutex>
 #include <utility>
 #include <vector>
 
@@ -165,33 +163,6 @@ MemAllocationHandle va_mapping_allocation(const VaMappingHandle& h) noexcept {
 // Ranges
 // ============================================================================
 
-// Base address -> live range, so a DevicePtrHandle can be recognized as a VMM
-// buffer and its range recovered. Two buffers that share a base share the
-// range. The range deleter removes the entry before it frees the reservation,
-// so the address cannot be re-reserved while the key is present.
-static HandleRegistry<CUdeviceptr, VmmRangeHandle> vmm_range_registry;
-
-namespace detail {
-void vmm_range_forward_stream(VmmRange& range, const DeallocationStream& stream) noexcept {
-    if (!stream.h_stream) {
-        return;
-    }
-    const CUstream s = as_cu(stream.h_stream);
-    const CUcontext ctx = as_cu(get_stream_context(stream.h_stream));
-    std::lock_guard<std::mutex> lock(range.mu);
-    for (const DeallocationStream& recorded : range.streams) {
-        if (as_cu(recorded.h_stream) == s && as_cu(get_stream_context(recorded.h_stream)) == ctx) {
-            return;
-        }
-    }
-    try {
-        range.streams.push_back(stream);
-    } catch (...) {
-        range.stream_dropped = true;  // reported by the range deleter, outside the lock
-    }
-}
-}  // namespace detail
-
 // True when synchronizing `stream` would disturb a graph capture: the stream
 // is capturing, or it is the legacy stream while a blocking stream in its
 // context is capturing (the query reports that as
@@ -258,71 +229,41 @@ static void sync_recorded_stream(const DeallocationStream& ds, bool& capture_ski
     }
 }
 
-VmmRangeHandle create_vmm_range(CUdeviceptr base) {
-    auto range = VmmRangeHandle(
-        new VmmRange(base),
-        [](VmmRange* r) {
-            GILReleaseGuard gil;
-            vmm_range_registry.unregister_handle(r->base);
-            if (!py_is_finalizing()) {
-                bool capture_skipped = false;
-                for (const DeallocationStream& ds : r->streams) {
-                    sync_recorded_stream(ds, capture_skipped);
-                }
-                if (capture_skipped) {
-                    report_message(
-                        "a VirtualMemoryResource buffer was released while its deallocation stream "
-                        "is capturing, or is the legacy stream while another stream in its context is "
-                        "capturing; the range was unmapped without synchronizing that stream");
-                }
-                if (r->stream_dropped) {
-                    report_message(
-                        "a VirtualMemoryResource buffer could not record a deallocation stream "
-                        "(out of memory); the range was unmapped without synchronizing it");
-                }
-            }
-            delete r;  // mappings unmap; reservations free and allocations release
-        }
-    );
-    vmm_range_registry.register_handle(base, range);
-    return range;
-}
-
-VmmRangeHandle vmm_range(const DevicePtrHandle& h) {
-    return h ? vmm_range_registry.lookup(as_cu(h)) : VmmRangeHandle{};
-}
-
-size_t vmm_range_count(const VmmRangeHandle& range) noexcept {
-    return range ? range->mappings.size() : 0;
-}
-
-VaMappingHandle vmm_range_mapping(const VmmRangeHandle& range, size_t index) noexcept {
-    if (!range || index >= range->mappings.size()) {
-        return {};
+namespace detail {
+void vmm_sync_before_release(const DeallocationStream& stream) noexcept {
+    // Order the release on this buffer's stream, as the other DevicePtrBox
+    // deleters do, unless the interpreter is finalizing or the sync would
+    // disturb a capture. A host-located buffer recorded no stream.
+    if (!stream.h_stream || py_is_finalizing()) {
+        return;
     }
-    return range->mappings[index];
+    bool capture_skipped = false;
+    sync_recorded_stream(stream, capture_skipped);
+    if (capture_skipped) {
+        report_message(
+            "a VirtualMemoryResource buffer was released while its deallocation stream "
+            "is capturing, or is the legacy stream while another stream in its context is "
+            "capturing; the buffer was unmapped without synchronizing that stream");
+    }
+}
+}  // namespace detail
+
+VmmRangeHandle create_vmm_range(const std::vector<VaMappingHandle>& mappings) {
+    return std::make_shared<const VmmRange>(mappings);
+}
+
+std::vector<VaMappingHandle> vmm_range_mappings(const VmmRangeHandle& range) {
+    return range ? *range : VmmRange{};
 }
 
 size_t vmm_range_total(const VmmRangeHandle& range) noexcept {
     size_t total = 0;
     if (range) {
-        for (const VaMappingHandle& m : range->mappings) {
+        for (const VaMappingHandle& m : *range) {
             total += va_mapping_size(m);
         }
     }
     return total;
-}
-
-void vmm_range_reserve(const VmmRangeHandle& range, size_t count) {
-    if (range) {
-        range->mappings.reserve(count);
-    }
-}
-
-void vmm_range_append(const VmmRangeHandle& range, const VaMappingHandle& mapping) {
-    if (range && mapping) {
-        range->mappings.push_back(mapping);
-    }
 }
 
 }  // namespace cuda_core::rt

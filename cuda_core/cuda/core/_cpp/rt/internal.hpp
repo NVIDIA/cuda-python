@@ -62,6 +62,12 @@ ContextHandle deallocation_context(const DeallocationStream& stream) noexcept;
 // Implemented in stream.cpp
 bool make_deallocation_stream(const StreamHandle& h, DeallocationStream& out) noexcept;
 
+// Implemented in virtual_memory.cpp. Synchronize the stream a VMM buffer
+// recorded before its mappings are released. Skips the sync, with a report
+// when a capture is the reason, if no stream was recorded, the interpreter is
+// finalizing, or the sync would disturb a graph capture (VMM_DESIGN.md).
+void vmm_sync_before_release(const DeallocationStream& stream) noexcept;
+
 // Decorate a status-returning cleanup call to report whenever it fails. CUDA
 // calls (CUresult) are reported with the error name and description; NVRTC,
 // NVVM and nvJitLink calls (integer status codes) with the raw code.

@@ -172,7 +172,9 @@ Fixes and enhancements
   :class:`VirtualMemoryBuffer` and leaves the buffer passed in open; the two
   alias the same physical memory, which is freed when the last of them closes,
   and the pointer is preserved when the driver grants the adjacent address
-  range. A request the buffer already covers returns the buffer itself, and
+  range. The result is always a new buffer, so closing it never closes the
+  buffer passed in; a request the buffer already covers returns a full alias
+  without a driver call, and
   :attr:`Buffer.size` after a grow is the aligned total. The ``config``
   argument applies to the chunk that call adds and is no longer stored on the
   resource (`#2909 <https://github.com/NVIDIA/cuda-python/issues/2909>`__);
