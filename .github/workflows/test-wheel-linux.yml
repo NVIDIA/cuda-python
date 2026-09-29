@@ -361,6 +361,11 @@ jobs:
       - name: Set up test repetition on nightly runs
         run: echo "PYTEST_ADDOPTS=\"--count=${{ inputs.nruns }}\"" >> "$GITHUB_ENV"
 
+      - name: Register problem matchers
+        # compute-sanitizer findings in the test output become annotations
+        # on the job page. Sanitizer runs are Linux-only.
+        run: echo "::add-matcher::.github/matchers/compute-sanitizer.json"
+
       # ── Standard test steps (skipped for nightly modes) ──
       - name: Run cuda.pathfinder tests with see_what_works
         if: ${{ inputs.test-mode == 'standard' && env.TEST_PATHFINDER == 'true' }}

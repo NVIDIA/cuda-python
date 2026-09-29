@@ -75,6 +75,13 @@ jobs:
           fetch-depth: 0
           filter: blob:none
 
+      - name: Register problem matchers
+        # Compiler and Cython errors from the wheel builds become annotations
+        # on the job page. Linux builds run inside a container, so their
+        # paths do not map onto the checkout and those annotations stay at
+        # the job level instead of linking into the diff.
+        run: echo "::add-matcher::.github/matchers/compiler.json"
+
       - name: Install latest rapidsai/sccache
         if: ${{ startsWith(inputs.host-platform, 'linux') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}
         run: |
