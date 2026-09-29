@@ -21,6 +21,22 @@ from warnings import warn
 from setuptools import build_meta as _build_meta
 from setuptools.extension import Extension
 
+# The shared helpers live in _build_shared.py (canonical file in
+# cuda_bindings/, symlinked into cuda_core/). Only the per-package assembly
+# below (flag sets, stamp bookkeeping, PEP 517 hooks) is package-specific.
+from _build_shared import (
+    _abi_stamp_path,
+    _apply_toolchain_env,
+    _check_toolchain_available,
+    _cython_cache_path,
+    _get_cuda_path,
+    _import_get_cuda_path_or_home,  # noqa: F401  (re-export for tests)
+    _resolve_toolchain_name,
+    _stable_cython_alias,
+    check_build_key,
+    record_build_key,  # noqa: F401  (setup.py stamps the toolchain via this)
+)
+
 # Metadata hooks delegate directly to setuptools -- no CUDA needed.
 prepare_metadata_for_build_editable = _build_meta.prepare_metadata_for_build_editable
 prepare_metadata_for_build_wheel = _build_meta.prepare_metadata_for_build_wheel
@@ -35,24 +51,6 @@ get_requires_for_build_editable = _build_meta.get_requires_for_build_editable
 
 # Populated by _build_cuda_bindings(); consumed by setup.py.
 _extensions = None
-
-
-# The shared helpers live in _build_shared.py (canonical file in
-# cuda_bindings/, symlinked into cuda_core/). Only the per-package assembly
-# below (flag sets, stamp bookkeeping, PEP 517 hooks) is package-specific.
-
-from _build_shared import (  # noqa: E402
-    _abi_stamp_path,
-    _apply_toolchain_env,
-    _check_toolchain_available,
-    _cython_cache_path,
-    _get_cuda_path,
-    _import_get_cuda_path_or_home,  # noqa: F401  (re-export for tests)
-    _resolve_toolchain_name,
-    _stable_cython_alias,
-    check_build_key,
-    record_build_key,  # noqa: F401  (setup.py stamps the toolchain via this)
-)
 
 
 def _resolve_toolchain(debug=False, compile_for_coverage=False):

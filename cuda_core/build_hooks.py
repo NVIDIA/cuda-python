@@ -22,22 +22,10 @@ from Cython.Compiler import Options as _CythonOptions
 from setuptools import Extension
 from setuptools import build_meta as _build_meta
 
-prepare_metadata_for_build_editable = _build_meta.prepare_metadata_for_build_editable
-prepare_metadata_for_build_wheel = _build_meta.prepare_metadata_for_build_wheel
-build_sdist = _build_meta.build_sdist
-get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
-
-# Note: There is no support guarantee for environment variables like CUDA_PYTHON_COVERAGE,
-# CUDA_PYTHON_TOOLCHAIN, CUDA_PYTHON_CYTHON_CACHE_DIR, etc. They may be removed
-# or changed in the future.
-COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
-
-
 # The shared helpers live in _build_shared.py (canonical file in
 # cuda_bindings/, symlinked here). Only the per-package assembly below
 # (flag sets, stamp bookkeeping, PEP 517 hooks) is package-specific.
-
-from _build_shared import (  # noqa: E402
+from _build_shared import (
     _BUILD_DIR,
     _abi_stamp_path,
     _apply_toolchain_env,
@@ -50,6 +38,16 @@ from _build_shared import (  # noqa: E402
     check_build_key,
     record_build_key,
 )
+
+prepare_metadata_for_build_editable = _build_meta.prepare_metadata_for_build_editable
+prepare_metadata_for_build_wheel = _build_meta.prepare_metadata_for_build_wheel
+build_sdist = _build_meta.build_sdist
+get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
+
+# Note: There is no support guarantee for environment variables like CUDA_PYTHON_COVERAGE,
+# CUDA_PYTHON_TOOLCHAIN, CUDA_PYTHON_CYTHON_CACHE_DIR, etc. They may be removed
+# or changed in the future.
+COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
 
 def _resolve_toolchain(debug=False, compile_for_coverage=False):

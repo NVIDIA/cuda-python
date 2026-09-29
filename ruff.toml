@@ -73,7 +73,7 @@ ignore = [
 exclude = ["**/_version.py"]
 
 [lint.isort]
-known-first-party = ["cuda"]
+known-first-party = ["cuda", "_build_shared"]
 
 [lint.flake8-quotes]
 inline-quotes = "double"
