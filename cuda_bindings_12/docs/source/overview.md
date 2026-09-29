@@ -302,6 +302,7 @@ maximize performance ({numref}`Figure 1`).
 Screenshot of Nsight Compute CLI output of `cuda.bindings` example.
 ```
 
+(preparing-kernel-arguments)=
 ## Preparing kernel arguments
 
 The `cuLaunchKernel` API bindings retain low-level CUDA argument preparation requirements:
