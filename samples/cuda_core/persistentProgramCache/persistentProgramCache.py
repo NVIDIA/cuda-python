@@ -48,6 +48,7 @@ from pathlib import Path
 try:
     import cupy as cp
     import numpy as np
+
     from cuda.core import (
         Device,
         EventOptions,
@@ -369,9 +370,7 @@ def cache_dir_arg(value: str) -> Path:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Persistent cuda.core program cache for generated CUDA kernels"
-    )
+    parser = argparse.ArgumentParser(description="Persistent cuda.core program cache for generated CUDA kernels")
     parser.add_argument("--device", type=int, default=0, help="CUDA device id")
     parser.add_argument("--m", type=positive_int, default=512, help="Rows of A and C")
     parser.add_argument("--n", type=positive_int, default=512, help="Columns of B and C")
