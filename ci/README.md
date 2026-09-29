@@ -97,9 +97,10 @@ until the CUDA 13 maintenance source has a home. Then:
 1. Update `ci/versions.yml`: remove the retired CUDA 12 root, mark the CUDA
    13 root `maintenance`, mark the CUDA 14 root `current`, and set each exact
    toolkit build/test version.
-2. Align each root's `pyproject.toml` SCM tag regex and version fallback with
-   its release family. Update other per-root packaging, pixi environments,
-   documentation, and dependent package constraints for the supported lines.
+2. Align each root's `pyproject.toml` `git_describe_command --match` selector
+   and version fallback with its release family. Update other per-root packaging,
+   pixi environments, documentation, and dependent package constraints for the
+   supported lines.
 3. Build and test both roots and their dependent packages on the supported
    platforms. Validate release selection and run publication-incapable dry
    runs for tags from each line before releasing from the new layout.
