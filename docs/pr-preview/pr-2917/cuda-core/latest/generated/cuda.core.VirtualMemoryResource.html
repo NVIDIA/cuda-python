@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=23ce5013"></script>
+    <script src="../_static/documentation_options.js?v=120c8ab6"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev122';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev148';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -906,13 +906,13 @@ host-located resource, which has no context to synchronize in.</p></li>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><span class="pre">VirtualMemoryBuffer</span></a></span></span><a class="headerlink" href="#cuda.core.VirtualMemoryResource.modify_allocation" title="Link to this definition">#</a></dt>
 <dd><p>Grow a buffer of this resource to at least <code class="docutils literal notranslate"><span class="pre">new_size</span></code> bytes.</p>
-<p>The buffer passed in stays open and usable. The returned buffer aliases
-it: both map the same physical memory, which is freed when the last of
-the two closes. When the driver can extend the address range in place,
-the returned buffer has the same pointer; otherwise it has a new one and
-the existing contents are reachable through both.</p>
-<p>This method is not thread-safe with respect to two buffers that share an
-address range.</p>
+<p>The buffer passed in stays open and usable, and is never returned. The
+returned buffer aliases it: both map the same physical memory, which is
+freed when the last of the two closes. When the driver can extend the
+address range in place, the returned buffer has the same pointer;
+otherwise it has a new one and the existing contents are reachable
+through both. Closing the returned buffer never closes <code class="docutils literal notranslate"><span class="pre">buf</span></code>.</p>
+<p>Concurrent calls on buffers that alias one another are safe.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -928,8 +928,9 @@ memory that is already mapped.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">buf</span></code> itself when it already covers <code class="docutils literal notranslate"><span class="pre">new_size</span></code>; otherwise a new
-buffer of the rounded size.</p>
+<dd class="field-even"><p>A new buffer of at least <code class="docutils literal notranslate"><span class="pre">new_size</span></code> and at least <code class="docutils literal notranslate"><span class="pre">buf.size</span></code>
+bytes. When <code class="docutils literal notranslate"><span class="pre">buf</span></code> already covers the request, the result is a
+full alias of it and no driver call is made.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer">VirtualMemoryBuffer</a></p>
@@ -953,24 +954,12 @@ buffer of the rounded size.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResource.config">
 <span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryResource.config" title="Link to this definition">#</a></dt>
-<dd><p>object</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>config</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResource.device">
 <span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryResource.device" title="Link to this definition">#</a></dt>
-<dd><p>object</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>device</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResource.device_id">

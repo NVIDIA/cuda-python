@@ -66,6 +66,32 @@ Fixes and enhancements
   statically.
   (`#2482 <https://github.com/NVIDIA/cuda-python/issues/2482>`__)
 
+- :class:`~_memory.DeviceMemoryResource` can now be constructed for a
+  device's default pool (without options), and :attr:`Device.memory_resource`
+  first accessed, while the calling thread is inside a ``global`` or
+  ``thread_local`` stream capture. The constructor applies its
+  release-threshold policy with pool attribute calls that the driver refuses
+  during such a capture; it now makes them in relaxed capture mode and
+  restores the thread's previous mode, so the capture stays valid. Creating a
+  new pool with options during such a capture is still refused by the driver.
+  (`#2834 <https://github.com/NVIDIA/cuda-python/issues/2834>`__)
+
+- Ending, closing, or collecting a top-level :class:`~graph.GraphBuilder`
+  whose capture was invalidated, or left unjoined by a
+  :meth:`~graph.GraphBuilder.join` that failed partway, no longer crashes.
+  :meth:`~graph.GraphBuilder.end_building` and
+  :meth:`~graph.GraphBuilder.close` end the capture and raise the driver
+  error, after which the builder holds no graph. A failed ``join`` also closes
+  the builders it did not join, even when closing one of them fails. This
+  does not extend to the body
+  builder of a conditional node: an invalidated body capture leaves the parent
+  graph invalid as well, and ending it may crash the process
+  (`#2918 <https://github.com/NVIDIA/cuda-python/issues/2918>`__). Calling
+  ``end_building`` on a forked builder is now rejected with ``RuntimeError``;
+  forked builders are ended by ``join``.
+  (`#2834 <https://github.com/NVIDIA/cuda-python/issues/2834>`__,
+  `#2776 <https://github.com/NVIDIA/cuda-python/issues/2776>`__)
+
 - :class:`Device` methods that create resources or synchronize now act on that
   device's bound context, even when another device is current. They do not
   change which device is current. For example, ``dev1.sync()`` synchronizes
@@ -172,7 +198,9 @@ Fixes and enhancements
   :class:`VirtualMemoryBuffer` and leaves the buffer passed in open; the two
   alias the same physical memory, which is freed when the last of them closes,
   and the pointer is preserved when the driver grants the adjacent address
-  range. A request the buffer already covers returns the buffer itself, and
+  range. The result is always a new buffer, so closing it never closes the
+  buffer passed in; a request the buffer already covers returns a full alias
+  without a driver call, and
   :attr:`Buffer.size` after a grow is the aligned total. The ``config``
   argument applies to the chunk that call adds and is no longer stored on the
   resource (`#2909 <https://github.com/NVIDIA/cuda-python/issues/2909>`__);
