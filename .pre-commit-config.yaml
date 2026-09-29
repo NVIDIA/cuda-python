@@ -73,7 +73,7 @@ repos:
         files: '^cuda_core/tests/.*\.py$'
 
       - id: check-build-hooks-sync
-        name: Check shared toolchain block is in sync across build_hooks.py files
+        name: Check shared build_hooks.py blocks are in sync
         entry: python ./toolshed/check_build_hooks_sync.py
         language: python
         files: '^(cuda_bindings|cuda_core)/build_hooks\.py$'
