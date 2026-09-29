@@ -26,7 +26,6 @@ from setuptools.extension import Extension
 # below (flag sets, stamp bookkeeping, PEP 517 hooks) is package-specific.
 from _build_shared import (
     _abi_stamp_path,
-    _apply_toolchain_env,
     _check_toolchain_available,
     _cython_cache_path,
     _get_cuda_path,
@@ -35,6 +34,7 @@ from _build_shared import (
     _stable_cython_alias,
     check_build_key,
     record_build_key,  # noqa: F401  (setup.py stamps the toolchain via this)
+    resolve_toolchain,
 )
 
 # Metadata hooks delegate directly to setuptools -- no CUDA needed.
@@ -51,49 +51,6 @@ get_requires_for_build_editable = _build_meta.get_requires_for_build_editable
 
 # Populated by _build_cuda_bindings(); consumed by setup.py.
 _extensions = None
-
-
-def _resolve_toolchain(debug=False, compile_for_coverage=False):
-    """Resolve the C/C++ toolchain from CUDA_PYTHON_TOOLCHAIN.
-
-    Returns (name, cc, cxx, extra_compile_args, extra_link_args). The default
-    toolchain (gnu on Linux, msvc on Windows) reproduces the previous build
-    behavior and does not touch CC/CXX/LDSHARED, so an externally-set compiler
-    (e.g. CC="sccache cc") keeps working. A non-default toolchain (llvm on
-    Linux) selects clang/clang++ and lld and sets CC/CXX/LDSHARED so distutils'
-    customize_compiler picks them up.
-    """
-    name, _allowed, cc, cxx, explicit = _resolve_toolchain_name()
-
-    extra_compile_args = []
-    extra_link_args = []
-
-    if name == "msvc":
-        if debug:
-            raise RuntimeError("Debuggable builds are not supported on Windows.")
-    else:
-        # Common Linux compile flags.
-        extra_compile_args += ["-std=c++14", "-Wno-deprecated-declarations"]
-        # Compiler-specific flags.
-        if name == "gnu":
-            extra_compile_args += ["-fpermissive", "-fno-var-tracking-assignments"]
-        elif name == "llvm":
-            extra_link_args += ["-fuse-ld=lld"]
-        # Common Linux debug/opt flags.
-        if debug:
-            extra_compile_args += ["-g", "-O0", "-D _GLIBCXX_ASSERTIONS"]
-        else:
-            extra_compile_args += ["-g0", "-O3"]
-            extra_link_args += ["-Wl,--strip-all"]
-
-    if compile_for_coverage:
-        # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
-        # related to free-threading builds.
-        extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
-
-    _apply_toolchain_env(cc, cxx, explicit)
-
-    return name, cc, cxx, extra_compile_args, extra_link_args
 
 
 # -----------------------------------------------------------------------
@@ -202,7 +159,7 @@ def _build_cuda_bindings(debug=False):
     # Resolve the C/C++ toolchain (CUDA_PYTHON_TOOLCHAIN). The default (gnu on
     # Linux, msvc on Windows) reproduces the previous build behavior and does
     # not touch CC/CXX, so an externally-set compiler (e.g. sccache) survives.
-    toolchain, _cc, _cxx, extra_compile_args, extra_link_args = _resolve_toolchain(
+    toolchain, _cc, _cxx, extra_compile_args, extra_link_args = resolve_toolchain(
         debug=debug, compile_for_coverage=compile_for_coverage
     )
     _check_toolchain_available(toolchain)

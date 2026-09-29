@@ -507,35 +507,6 @@ class TestParallelSourceCompilation:
             assert cmd.compiler.compile(["a.cpp"]) == "stock"
 
 
-class TestResolveToolchain:
-    """cuda.core-specific ``_resolve_toolchain`` assertions.
-
-    Shared behavior (default no-touch, sccache preservation, case-insensitive
-    parsing, invalid-value error, llvm-overrides-external-CC) is covered by
-    ``TestResolveToolchainShared`` via the shared mixin. The tests here assert
-    the cuda.core-specific flag set: neither gnu nor llvm adds
-    ``-fpermissive`` / ``-fno-var-tracking-assignments`` (those are bindings-only).
-    """
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_llvm_sets_env_and_flags(self, monkeypatch):
-        if sys.platform == "win32":
-            pytest.skip("llvm only valid on Linux")
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
-        monkeypatch.delenv("CC", raising=False)
-        monkeypatch.delenv("CXX", raising=False)
-        monkeypatch.delenv("LDSHARED", raising=False)
-        name, cc, cxx, cargs, largs = build_hooks._resolve_toolchain()
-        assert name == "llvm"
-        assert (cc, cxx) == ("clang", "clang++")
-        assert os.environ["CC"] == "clang"
-        assert os.environ["CXX"] == "clang++"
-        assert "-fuse-ld=lld" in largs
-        # clang rejects the gcc-only flags that gnu uses; they must be absent.
-        assert "-fpermissive" not in cargs
-        assert "-fno-var-tracking-assignments" not in cargs
-
-
 # ---------------------------------------------------------------------------
 # Cython cache path helper (workaround for cython/cython#7532)
 #

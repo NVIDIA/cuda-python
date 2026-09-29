@@ -195,6 +195,55 @@ def _check_toolchain_available(name):
         )
 
 
+def _build_flags(name, debug, compile_for_coverage):
+    """Compile/link flags for a resolved toolchain (shared across backends).
+
+    The two backends used to carry slightly different flag sets — bindings had
+    ``-std=c++14``, ``-fpermissive``, ``-fno-var-tracking-assignments``, and
+    ``-Wno-deprecated-declarations``; core had ``-std=c++17`` and no MSVC
+    ``/std:``. See https://github.com/NVIDIA/cuda-python/issues/1882 for the
+    audit that traced the difference to legacy drift, not intent.
+    """
+    extra_compile_args = []
+    extra_link_args = []
+
+    if name == "msvc":
+        extra_compile_args += ["/std:c++17"]
+    else:
+        extra_compile_args += ["-std=c++17"]
+        if name == "llvm":
+            extra_link_args += ["-fuse-ld=lld"]
+        if debug:
+            extra_compile_args += ["-g", "-O0", "-D _GLIBCXX_ASSERTIONS"]
+        else:
+            extra_compile_args += ["-g0", "-O2"]
+            extra_link_args += ["-Wl,--strip-all"]
+
+    if compile_for_coverage:
+        # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
+        # related to free-threading builds.
+        extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
+
+    return extra_compile_args, extra_link_args
+
+
+def resolve_toolchain(debug=False, compile_for_coverage=False):
+    """Resolve the C/C++ toolchain from CUDA_PYTHON_TOOLCHAIN.
+
+    Returns (name, cc, cxx, extra_compile_args, extra_link_args). The default
+    toolchain (gnu on Linux, msvc on Windows) does not touch CC/CXX/LDSHARED,
+    so an externally-set compiler (e.g. CC="sccache cc") keeps working. An
+    explicit CUDA_PYTHON_TOOLCHAIN (llvm on Linux) sets CC/CXX/LDSHARED to
+    the toolchain's binaries so distutils' customize_compiler picks them up.
+    """
+    name, _allowed, cc, cxx, explicit = _resolve_toolchain_name()
+    if name == "msvc" and debug:
+        raise RuntimeError("Debuggable builds are not supported on Windows.")
+    extra_compile_args, extra_link_args = _build_flags(name, debug, compile_for_coverage)
+    _apply_toolchain_env(cc, cxx, explicit)
+    return name, cc, cxx, extra_compile_args, extra_link_args
+
+
 # -----------------------------------------------------------------------
 # Cython generated-source cache (opt-in via CUDA_PYTHON_CYTHON_CACHE_DIR)
 #

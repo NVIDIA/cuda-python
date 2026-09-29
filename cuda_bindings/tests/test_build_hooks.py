@@ -64,44 +64,6 @@ def _isolate_toolchain_env():
         os.environ.update(original)
 
 
-class TestResolveToolchain:
-    """cuda.bindings-specific ``_resolve_toolchain`` assertions.
-
-    Shared behavior (default no-touch, sccache preservation, case-insensitive
-    parsing, invalid-value error, llvm-overrides-external-CC) is covered by
-    ``TestResolveToolchainShared`` further down via the shared mixin. The
-    tests here assert the bindings-specific flag set: gnu adds
-    ``-fpermissive`` and ``-fno-var-tracking-assignments``; core does not.
-    """
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_llvm_sets_env_and_flags(self, monkeypatch):
-        if sys.platform == "win32":
-            pytest.skip("llvm only valid on Linux")
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
-        monkeypatch.delenv("CC", raising=False)
-        monkeypatch.delenv("CXX", raising=False)
-        monkeypatch.delenv("LDSHARED", raising=False)
-        name, cc, cxx, cargs, largs = build_hooks._resolve_toolchain()
-        assert name == "llvm"
-        assert (cc, cxx) == ("clang", "clang++")
-        assert os.environ["CC"] == "clang"
-        assert os.environ["CXX"] == "clang++"
-        assert "-fuse-ld=lld" in largs
-        # clang rejects the gcc-only flags that gnu uses; they must be absent.
-        assert "-fpermissive" not in cargs
-        assert "-fno-var-tracking-assignments" not in cargs
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_gnu_keeps_gcc_only_flags(self, monkeypatch):
-        if sys.platform == "win32":
-            pytest.skip("gnu only valid on Linux")
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "gnu")
-        _name, _cc, _cxx, cargs, _largs = build_hooks._resolve_toolchain()
-        assert "-fpermissive" in cargs
-        assert "-fno-var-tracking-assignments" in cargs
-
-
 @pytest.fixture
 def stamp(tmp_path, monkeypatch):
     """Redirect the toolchain stamp to a scratch path and reset the shared force flag."""
