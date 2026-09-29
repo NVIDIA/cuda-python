@@ -1,0 +1,7 @@
+# REMOVE THIS FILE BEFORE MERGING THIS PR
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+# These suppressions work around a chicken-and-egg situation.
+^https://github\.com/NVIDIA/cuda-python/tree/main/cuda_bindings_12$
+^https://github\.com/NVIDIA/cuda-python/tree/main/cuda_bindings_12/examples$
+^https://github\.com/NVIDIA/cuda-python/blob/main/cuda_bindings_12/examples/0_Introduction/simpleCubemapTexture_test\.py$

@@ -37,6 +37,25 @@ cuda_bindings/cuda/bindings/_internal/runtime.pyx
 cuda_bindings/cuda/bindings/_internal/runtime_ptds.pyx
 cuda_bindings/cuda/bindings/utils/_get_handle.pyx
 
+# CUDA 12 bindings source generation
+cuda_bindings_12/cuda/bindings/_bindings/cyruntime.pxd
+cuda_bindings_12/cuda/bindings/_bindings/cyruntime.pyx
+cuda_bindings_12/cuda/bindings/_bindings/cyruntime_ptds.pxd
+cuda_bindings_12/cuda/bindings/_bindings/cyruntime_ptds.pyx
+cuda_bindings_12/cuda/bindings/_internal/cufile.pyx
+cuda_bindings_12/cuda/bindings/_internal/driver.pyx
+cuda_bindings_12/cuda/bindings/_internal/nvfatbin.pyx
+cuda_bindings_12/cuda/bindings/_internal/nvjitlink.pyx
+cuda_bindings_12/cuda/bindings/_internal/nvml.pyx
+cuda_bindings_12/cuda/bindings/_internal/nvrtc.pyx
+cuda_bindings_12/cuda/bindings/_internal/nvvm.pyx
+cuda_bindings_12/cuda/bindings/cyruntime.pxd
+cuda_bindings_12/cuda/bindings/cyruntime.pyx
+cuda_bindings_12/cuda/bindings/cyruntime_functions.pxi
+cuda_bindings_12/cuda/bindings/cyruntime_types.pxi
+cuda_bindings_12/cuda/bindings/runtime.pxd
+cuda_bindings_12/cuda/bindings/runtime.pyx
+
 # Version files from setuptools_scm
 _version.py
 
