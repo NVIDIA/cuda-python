@@ -47,6 +47,8 @@ from _build_shared import (  # noqa: E402
     _import_get_cuda_path_or_home,  # noqa: F401  (re-export for tests)
     _resolve_toolchain_name,
     _stable_cython_alias,
+    check_build_key,
+    record_build_key,
 )
 
 
@@ -168,20 +170,10 @@ def _check_build_config(toolchain, debug, coverage):
     forced whenever it changes, so a stale .so is never packaged.
     """
     global force_build_ext
-
     cuda_major = _determine_cuda_major_version()
     key = _build_config_key(cuda_major, toolchain, debug, coverage)
-    try:
-        previous = _BUILD_CONFIG_STAMP.read_text(encoding="utf-8").strip()
-    except FileNotFoundError:
-        previous = None
-
-    # A missing stamp means the last build's config is unknown, so force too.
-    # On a first build that costs nothing: there are no artifacts to reuse.
-    if previous != key:
-        print(f"Build config of last build: {previous} (building {key}); forcing a full rebuild")
+    if check_build_key(_BUILD_CONFIG_STAMP, lambda: key):
         force_build_ext = True
-
     return cuda_major, key
 
 
@@ -192,8 +184,7 @@ def record_build_config(key) -> None:
     passing the key already checked rather than re-deriving from ambient
     state (setuptools' `build_ext.debug` is not `config_settings["debug"]`).
     """
-    _BUILD_CONFIG_STAMP.parent.mkdir(parents=True, exist_ok=True)
-    _BUILD_CONFIG_STAMP.write_text(key + "\n", encoding="utf-8")
+    record_build_key(_BUILD_CONFIG_STAMP, lambda: key)
 
 
 def _relativize_extension_sources(extensions) -> None:

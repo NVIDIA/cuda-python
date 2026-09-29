@@ -50,6 +50,8 @@ from _build_shared import (  # noqa: E402
     _import_get_cuda_path_or_home,  # noqa: F401  (re-export for tests)
     _resolve_toolchain_name,
     _stable_cython_alias,
+    check_build_key,
+    record_build_key,
 )
 
 
@@ -98,45 +100,39 @@ def _resolve_toolchain(debug=False, compile_for_coverage=False):
 
 # -----------------------------------------------------------------------
 # Toolchain stamp
+#
+# The mechanics (read/compare/write) live in _build_shared as check_build_key
+# and record_build_key; the key here is just the toolchain name.
 
-# Records the toolchain of the last completed build for this extension ABI,
-# so setup.py can force build_ext when it changes. Written by
-# record_build_toolchain().
 _BUILD_TOOLCHAIN_STAMP = _abi_stamp_path(".build-toolchain")
 
 force_build_ext = False
 
 
-def _check_build_toolchain(toolchain):
-    """Set force_build_ext when the toolchain changed since the last build.
+def _current_toolchain_key() -> str:
+    """Re-derive the toolchain name from the environment for stamping."""
+    name, *_ = _resolve_toolchain_name()
+    return name
+
+
+def _check_build_toolchain(toolchain: str) -> None:
+    """Force build_ext when the toolchain changed since the last successful build.
 
     Setuptools' freshness check does not include the extension flags, so a
     stale .so compiled by a previous toolchain would otherwise be packaged.
     """
     global force_build_ext
-
-    try:
-        previous = _BUILD_TOOLCHAIN_STAMP.read_text(encoding="utf-8").strip()
-    except FileNotFoundError:
-        previous = None
-
-    # A missing stamp means the last build's toolchain is unknown, so force too.
-    # On a first build that costs nothing: there are no artifacts to reuse.
-    if previous != toolchain:
-        print(f"Toolchain of last build: {previous} (building {toolchain}); forcing a full rebuild")
+    if check_build_key(_BUILD_TOOLCHAIN_STAMP, lambda: toolchain):
         force_build_ext = True
 
 
 def record_build_toolchain() -> None:
     """Stamp the toolchain of the build that just completed.
 
-    setup.py calls this after build_ext succeeds, so that a build which failed
-    partway through does not claim outputs it never produced. Re-derives the
-    toolchain name from the environment rather than caching it in a global.
+    setup.py calls this after build_ext succeeds so a build that failed
+    partway through does not claim outputs it never produced.
     """
-    name, *_ = _resolve_toolchain_name()
-    _BUILD_TOOLCHAIN_STAMP.parent.mkdir(parents=True, exist_ok=True)
-    _BUILD_TOOLCHAIN_STAMP.write_text(name + "\n", encoding="utf-8")
+    record_build_key(_BUILD_TOOLCHAIN_STAMP, _current_toolchain_key)
 
 
 # -----------------------------------------------------------------------

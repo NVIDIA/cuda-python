@@ -95,6 +95,36 @@ def _abi_stamp_path(stem):
     return _BUILD_DIR / f"{stem}{extension_suffix}"
 
 
+def check_build_key(stamp, get_key) -> bool:
+    """Return True when ``get_key()`` differs from the value in ``stamp``.
+
+    Each backend supplies a package-specific ``get_key`` callable (e.g. the
+    toolchain name for cuda.bindings, or a composite ``cu{major}-{toolchain}-
+    {opt|debug}[-cov]`` key for cuda.core). The caller uses the returned bool
+    to flip its own ``force_build_ext`` module global, so the mutation stays
+    package-local and setup.py can keep reading ``build_hooks.force_build_ext``
+    without any re-export tricks.
+
+    A missing stamp counts as a change, which forces a rebuild on the first
+    build after this helper is introduced. That is the intended cost.
+    """
+    key = get_key()
+    try:
+        previous = stamp.read_text(encoding="utf-8").strip()
+    except FileNotFoundError:
+        previous = None
+    if previous != key:
+        print(f"Build key of last build: {previous} (building {key}); forcing a full rebuild")
+        return True
+    return False
+
+
+def record_build_key(stamp, get_key) -> None:
+    """Stamp ``get_key()`` at ``stamp``, creating parent directories as needed."""
+    stamp.parent.mkdir(parents=True, exist_ok=True)
+    stamp.write_text(get_key() + "\n", encoding="utf-8")
+
+
 # -----------------------------------------------------------------------
 # Toolchain selection
 
