@@ -336,6 +336,7 @@ jobs:
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_CUDA_MAJOR }}
+            CUDA_PYTHON_WERROR=1
             PIP_BUILD_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core.txt
             PIP_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core.txt
             CC="/host/${{ env.SCCACHE_PATH }} cc"
@@ -350,6 +351,7 @@ jobs:
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_CUDA_MAJOR }}
+            CUDA_PYTHON_WERROR=1
             PIP_BUILD_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-core.txt)"
             PIP_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-core.txt)"
           # check cache stats before leaving cibuildwheel
@@ -623,6 +625,7 @@ jobs:
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_PREV_CUDA_MAJOR }}
+            CUDA_PYTHON_WERROR=1
             PIP_BUILD_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core-prev.txt
             PIP_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core-prev.txt
             CC="/host/${{ env.SCCACHE_PATH }} cc"
@@ -637,6 +640,7 @@ jobs:
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_PREV_CUDA_MAJOR }}
+            CUDA_PYTHON_WERROR=1
             PIP_BUILD_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-core-prev.txt)"
             PIP_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-core-prev.txt)"
           # check cache stats before leaving cibuildwheel

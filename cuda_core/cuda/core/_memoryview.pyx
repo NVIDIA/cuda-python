@@ -1046,7 +1046,7 @@ cdef class _StridedMemoryViewProxy:
 
 cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     cdef int dldevice, device_id
-    cdef bint is_device_accessible, is_readonly
+    cdef bint is_device_accessible, is_readonly = False
     is_device_accessible = False
     dldevice, device_id = obj.__dlpack_device__()
     if dldevice == _kDLCPU:
@@ -1079,10 +1079,10 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
             stream=int(stream_ptr) if stream_ptr else None)
 
     cdef void* data = NULL
-    cdef DLTensor* dl_tensor
+    cdef DLTensor* dl_tensor = NULL
     cdef DLManagedTensorVersioned* dlm_tensor_ver
     cdef DLManagedTensor* dlm_tensor
-    cdef const char *used_name
+    cdef const char *used_name = NULL
     if cpython.PyCapsule_IsValid(
             capsule, DLPACK_VERSIONED_TENSOR_UNUSED_NAME):
         data = cpython.PyCapsule_GetPointer(

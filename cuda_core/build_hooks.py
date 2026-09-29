@@ -31,6 +31,11 @@ get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
 # Note: There is no support guarantee for environment variables like CUDA_PYTHON_COVERAGE,
 # CUDA_PYTHON_TOOLCHAIN, etc. They may be removed or changed in the future.
 COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
+# CUDA_PYTHON_WERROR=1 turns C/C++ compiler warnings into errors. CI sets it
+# for the wheel builds; it is off by default because source builds run on
+# compilers we do not control. Meant for optimized builds: a debug build
+# (-O0) trips the _FORTIFY_SOURCE "#warning" on glibc toolchains.
+WARNINGS_AS_ERRORS = bool(int(os.environ.get("CUDA_PYTHON_WERROR", "0")))
 
 
 # Please keep in sync with the copy in cuda_bindings/build_hooks.py.
@@ -192,6 +197,22 @@ def _resolve_toolchain(debug=False, compile_for_coverage=False):
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
         # related to free-threading builds.
         extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
+
+    if WARNINGS_AS_ERRORS:
+        # The MSVC exemptions cover warnings that Cython's utility code
+        # produces in every module and the .pyx sources cannot fix:
+        # - C4551 ("function call missing argument list"), hundreds per
+        #   module.
+        # - C4244 (narrowing): the overflow-check helpers that
+        #   @cython.overflowcheck(True) instantiates for _layout.pxd narrow
+        #   int64 to int inside Cython's own code.
+        # gcc and clang need no exemption. The one generated warning they
+        # report, the unused @overload wrappers of Graph.__getitem__, is
+        # silenced by a pragma in cuda/core/graph/_graph_builder.pyx.
+        if name == "msvc":
+            extra_compile_args += ["/WX", "/wd4551", "/wd4244"]
+        else:
+            extra_compile_args += ["-Werror"]
 
     _apply_toolchain_env(cc, cxx, explicit)
 
