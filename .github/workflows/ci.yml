@@ -707,6 +707,10 @@ jobs:
           check_run_annotations: none
           comment_mode: failures
           compare_to_earlier_commit: false
+          # The run is on copy-pr-bot's pull-request/N mirror of the PR head, so
+          # the PR lives in a fork: find it by commit search, not by branch.
+          search_pull_requests: true
+          pull_request_build: commit
 
       - name: Publish test results (by configuration)
         # One section per test-results file, so a failure is listed under
@@ -724,6 +728,9 @@ jobs:
           max-annotations: 0
           fail-on-error: false
           fail-on-empty: false
+          # false = publish as a check run on the commit; true writes the same
+          # report to the job summary instead and creates no check.
+          use-actions-summary: false
 
       - name: Exit
         env:
