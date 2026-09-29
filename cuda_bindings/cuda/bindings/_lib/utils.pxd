@@ -5,6 +5,7 @@ cimport cuda.bindings.driver as driver
 cimport cuda.bindings.cydriver as cydriver
 cimport cuda.bindings.cyruntime as cyruntime
 from libcpp.vector cimport vector
+from libcpp cimport bool as cpp_bool
 from cpython.buffer cimport PyBuffer_Release, Py_buffer
 
 cdef class _HelperKernelParams:
@@ -35,6 +36,7 @@ cdef class _HelperCUmemPool_attribute:
 
     # Return values
     cdef int _int_val
+    cdef unsigned int _uint_val
     cdef driver.cuuint64_t _cuuint64_t_val
 
 
@@ -60,7 +62,7 @@ cdef class _HelperCUpointer_attribute:
     cdef unsigned int _uint
     cdef int _int
     cdef driver.CUdeviceptr _devptr
-    cdef void** _void
+    cdef void* _void
     cdef driver.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS _token
     cdef bint _bool
     cdef unsigned long long _ull
@@ -163,5 +165,6 @@ cdef class _HelperCUcoredumpSettings:
     cdef object _references  # keeps caller bytes alive so _charstar stays valid
 
     # Return values
-    cdef bint _bool
+    cdef cpp_bool _bool
+    cdef unsigned int _uint
     cdef char* _charstar

@@ -12,6 +12,38 @@ guide for package-specific conventions and workflows.
 - `cuda_core/`: High-level Pythonic CUDA APIs built on top of bindings.
 - `cuda_python/`: Metapackage and docs aggregation.
 
+# Git-derived version lifecycle
+
+Package versions are derived from reachable Git tags by `setuptools-scm`.
+Allow its standard tag parsing and version progression to govern versions; do
+not add custom tag parsing or manufacture a version when an appropriate tag is
+already reachable from the commit being built.
+
+For each package tag namespace and target release `X.Y.Z`:
+
+- Reserve `aN` (alpha) tags for internal purposes. Do not use them as public
+  release milestones.
+- Before the first retained tag for a new version line exists, an internal
+  preview build may create a local, lightweight `X.Y.Za0.dev0` tag at a
+  validated ancestor. The synthetic tag must remain local to the build and
+  must never be pushed.
+- Use `X.Y.Za0` for the first retained internal milestone. Untagged descendants
+  then naturally become `X.Y.Za1.devN` under the standard `setuptools-scm`
+  version scheme. A later exact `aN` milestone requires an explicit decision;
+  do not create a tag for every pull request or build.
+- When any tag for `X.Y.Z` in the package's namespace is reachable, do not
+  create a synthetic tag. Let `setuptools-scm` derive the version from the
+  existing history.
+- Treat pushed tags as immutable. Correct an unsuitable tagged state with a
+  new versioned milestone rather than moving or replacing the existing tag.
+
+Use the package's established tag namespace, such as `vX.Y.Z...` for
+`cuda-bindings` and `cuda-python`, `cuda-core-vX.Y.Z...` for `cuda-core`, and
+`cuda-pathfinder-vX.Y.Z...` for `cuda-pathfinder`. Builds that support the
+pre-tag bootstrap should validate the resulting release tuple rather than
+hard-code the expected alpha/development suffix, and should report the
+effective `git describe` result for traceability.
+
 # Pull requests
 
 Treat the canonical upstream repository as read-only by default. For normal
