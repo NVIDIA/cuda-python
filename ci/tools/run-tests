@@ -8,6 +8,18 @@
 
 set -euo pipefail
 
+# Test-report layout for CI logs (see ci/tools/fold_pytest_sections.py):
+#   -rsxXfE orders the short test summary as skips, xfails, xpasses, failures, errors,
+#   so the FAILED/ERROR one-liners end up right above the final count line.
+#   fold_pytest_log wraps the warnings, durations, pytest-run-parallel, and skip-list
+#   sections in collapsed GitHub log groups. Pipe pytest's stdout only: the ::error
+#   annotations from pytest-github-actions-annotate-failures go to stderr, and the
+#   runner honors a workflow command only at the start of a line of its own stream.
+CI_TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fold_pytest_log() {
+  python "${CI_TOOLS_DIR}/fold_pytest_sections.py"
+}
+
 # Check if the script was called with exactly 1 argument
 if [[ ${#} -ne 1 ]]; then
   echo "Error: This script requires exactly 1 argument. You provided ${#}"
@@ -62,9 +74,9 @@ elif [[ "${test_module}" == "bindings" ]]; then
       "cuda-toolkit==${TEST_CUDA_MAJOR_MINOR}.*"
   fi
   echo "Running bindings tests"
-  ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/
+  ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/ | fold_pytest_log
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/cython
+    ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/cython | fold_pytest_log
   fi
   popd
 elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
@@ -111,11 +123,11 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     echo "Installed packages before core tests:"
     pip list
     echo "Running core tests"
-    ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/
+    ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize --exclude-warning-annotations "${PYTEST_PARALLEL_ARGS[@]}" tests/ | fold_pytest_log
     # Currently our CI always installs the latest bindings (from either major version).
     # This is not compatible with the test requirements.
     if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-      ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/cython
+      ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize --exclude-warning-annotations "${PYTEST_PARALLEL_ARGS[@]}" tests/cython | fold_pytest_log
     fi
     popd
   elif [[ "${test_module}" == "nightly-cuda-core" ]]; then
