@@ -58,7 +58,7 @@ build_hooks = _load_build_hooks()
 
 @pytest.fixture(autouse=True)
 def _isolate_toolchain_env():
-    names = ("CUDA_PYTHON_TOOLCHAIN", "CC", "CXX", "LDSHARED", "CUDA_PYTHON_CYTHON_CACHE_DIR")
+    names = ("CUDA_PYTHON_TOOLCHAIN", "CC", "CXX", "LDSHARED", "LDCXXSHARED", "CUDA_PYTHON_CYTHON_CACHE_DIR")
     original = {name: os.environ[name] for name in names if name in os.environ}
     for name in names:
         os.environ.pop(name, None)
@@ -618,7 +618,7 @@ class TestResolveToolchain:
     """_resolve_toolchain: pick compiler/linker/flags from CUDA_PYTHON_TOOLCHAIN.
 
     The default toolchain (gnu on Linux, msvc on Windows) must reproduce the
-    previous build behavior exactly and must not touch CC/CXX/LDSHARED, so an
+    previous build behavior exactly and must not touch CC/CXX/LDCXXSHARED, so an
     externally-set compiler (e.g. the sccache wrapper in CI) survives.
     """
 
@@ -628,6 +628,7 @@ class TestResolveToolchain:
         monkeypatch.delenv("CC", raising=False)
         monkeypatch.delenv("CXX", raising=False)
         monkeypatch.delenv("LDSHARED", raising=False)
+        monkeypatch.delenv("LDCXXSHARED", raising=False)
         name, cc, cxx, _cargs, _largs = build_hooks._resolve_toolchain()
         if sys.platform == "win32":
             assert name == "msvc"
@@ -636,6 +637,7 @@ class TestResolveToolchain:
             assert name == "gnu"
             assert (cc, cxx) == ("gcc", "g++")
         assert "CC" not in os.environ and "CXX" not in os.environ
+        assert "LDCXXSHARED" not in os.environ
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_default_preserves_existing_cc(self, monkeypatch):
@@ -672,8 +674,10 @@ class TestResolveToolchain:
         name, cc, cxx, cargs, largs = build_hooks._resolve_toolchain()
         assert name == "llvm"
         assert (cc, cxx) == ("clang", "clang++")
-        assert os.environ["CC"] == "clang"
-        assert os.environ["CXX"] == "clang++"
+        assert os.environ["CC"].split()[0] == "clang"
+        assert os.environ["CXX"].split()[0] == "clang++"
+        assert os.environ["LDCXXSHARED"].startswith("clang++")
+        assert "LDSHARED" not in os.environ
         assert "-fuse-ld=lld" in largs
         # clang rejects the gcc-only flags that gnu uses; they must be absent.
         assert "-fpermissive" not in cargs
@@ -690,8 +694,10 @@ class TestResolveToolchain:
         name, cc, cxx, cargs, largs = build_hooks._resolve_toolchain()
         assert name == "gnu"
         assert (cc, cxx) == ("gcc", "g++")
-        assert os.environ["CC"] == "gcc"
-        assert os.environ["CXX"] == "g++"
+        assert os.environ["CC"].split()[0] == "gcc"
+        assert os.environ["CXX"].split()[0] == "g++"
+        assert os.environ["LDCXXSHARED"].startswith("g++")
+        assert "LDSHARED" not in os.environ
         # gcc-only flags are present (this is the point of P2: explicit gnu must use gcc, not generic cc)
         assert "-fpermissive" not in cargs  # cuda.core gnu flags don't include it; bindings do
         assert "-fno-var-tracking-assignments" not in cargs
@@ -705,7 +711,94 @@ class TestResolveToolchain:
         monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
         monkeypatch.setenv("CC", "sccache cc")
         _name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
+        assert os.environ["CC"].split()[0] == "clang"
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_explicit_toolchain_preserves_sysconfig_ldcxxshared_extras(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("gnu/llvm only valid on Linux")
+        extras = "-shared -Wl,-O1 -Wl,-Bsymbolic-functions"
+        values = {
+            "CC": "gcc",
+            "CXX": "g++",
+            "LDSHARED": f"gcc {extras}",
+            "LDCXXSHARED": f"g++ {extras}",
+        }
+        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda name: values.get(name))
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
+        build_hooks._resolve_toolchain()
         assert os.environ["CC"] == "clang"
+        assert os.environ["CXX"] == "clang++"
+        assert os.environ["LDCXXSHARED"] == f"clang++ {extras}"
+        assert "LDSHARED" not in os.environ
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_explicit_gnu_keeps_conda_sysconfig_flags(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("gnu/llvm only valid on Linux")
+        prefix = "-pthread -B /compat"
+        extras = f"{prefix} -shared -Wl,-rpath,/lib"
+        values = {
+            "CC": f"gcc {prefix}",
+            "CXX": f"g++ {prefix}",
+            "LDSHARED": f"gcc {extras}",
+            "LDCXXSHARED": f"g++ {extras}",
+        }
+        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda name: values.get(name))
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "gnu")
+        build_hooks._resolve_toolchain()
+        assert os.environ["CC"] == values["CC"]
+        assert os.environ["CXX"] == values["CXX"]
+        assert os.environ["LDCXXSHARED"] == values["LDCXXSHARED"]
+        assert "LDSHARED" not in os.environ
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_explicit_llvm_keeps_conda_sysconfig_flags(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("gnu/llvm only valid on Linux")
+        prefix = "-pthread -B /compat"
+        extras = f"{prefix} -shared -Wl,-rpath,/lib"
+        values = {
+            "CC": f"gcc {prefix}",
+            "CXX": f"g++ {prefix}",
+            "LDSHARED": f"gcc {extras}",
+            "LDCXXSHARED": f"g++ {extras}",
+        }
+        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda name: values.get(name))
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
+        build_hooks._resolve_toolchain()
+        assert os.environ["CC"] == f"clang {prefix}"
+        assert os.environ["CXX"] == f"clang++ {prefix}"
+        assert os.environ["LDCXXSHARED"] == f"clang++ {extras}"
+        assert "LDSHARED" not in os.environ
+
+
+class TestWithCompiler:
+    """_with_compiler: replace the compiler executable, keep following flags."""
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_replaces_leading_compiler_keeps_flags(self):
+        assert build_hooks._with_compiler("g++ -shared -Wl,-O1", "clang++") == "clang++ -shared -Wl,-O1"
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_keeps_flags_that_were_part_of_sysconfig_cxx(self):
+        assert (
+            build_hooks._with_compiler("g++ -pthread -B /compat -shared -Wl,-rpath,/lib", "clang++")
+            == "clang++ -pthread -B /compat -shared -Wl,-rpath,/lib"
+        )
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_replaces_prefixed_compiler_path(self):
+        assert (
+            build_hooks._with_compiler("x86_64-linux-gnu-gcc -shared -Wl,-z,relro", "clang")
+            == "clang -shared -Wl,-z,relro"
+        )
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_compiler_only_command_returns_compiler(self):
+        assert build_hooks._with_compiler("g++", "clang++") == "clang++"
+        assert build_hooks._with_compiler("", "clang++") == "clang++"
+        assert build_hooks._with_compiler(None, "clang++") == "clang++"
 
 
 class TestCheckToolchainAvailable:

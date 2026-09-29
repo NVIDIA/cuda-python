@@ -131,18 +131,37 @@ def _resolve_toolchain_name():
     return name, allowed, cc, cxx, explicit
 
 
+def _with_compiler(command, compiler):
+    """Replace leading compiler token(s); keep following flags.
+
+    Conda sysconfig CC/CXX/LDCXXSHARED look like
+    ``g++ -pthread -B .../python_compiler_compat``; only the executable
+    changes so those flags stay on the compiler and the linker command.
+    """
+    if not command or not str(command).strip():
+        return compiler
+    parts = command.split()
+    i = 0
+    while i < len(parts) and not parts[i].startswith("-"):
+        i += 1
+    return " ".join([compiler, *parts[i:]])
+
+
 def _apply_toolchain_env(cc, cxx, explicit):
-    """Set CC/CXX/LDSHARED for an explicitly-chosen toolchain.
+    """Set CC/CXX/LDCXXSHARED for an explicitly-chosen toolchain.
 
     The default path (CUDA_PYTHON_TOOLCHAIN unset) intentionally
     does not touch the env, so an externally-set compiler (e.g.
     CC="sccache cc" in CI) keeps working. An explicit CUDA_PYTHON_TOOLCHAIN
-    override (incl. =gnu) governs the compiler and overrides CC/CXX/LDSHARED.
+    override (incl. =gnu) governs the compiler and overrides CC/CXX.
+    Trailing sysconfig flags on CC/CXX/LDCXXSHARED (rpath, -pthread, -B, ...)
+    are kept; LDSHARED is left unset so distutils rewrites it from CC.
     """
     if explicit and cc is not None:
-        os.environ["CC"] = cc
-        os.environ["CXX"] = cxx
-        os.environ["LDSHARED"] = f"{cxx} -shared"
+        os.environ["CC"] = _with_compiler(sysconfig.get_config_var("CC"), cc)
+        os.environ["CXX"] = _with_compiler(sysconfig.get_config_var("CXX"), cxx)
+        ldcxxshared = sysconfig.get_config_var("LDCXXSHARED") or sysconfig.get_config_var("LDSHARED")
+        os.environ["LDCXXSHARED"] = _with_compiler(ldcxxshared, cxx) if ldcxxshared else f"{cxx} -shared"
 
 
 def _check_toolchain_available(name):
@@ -298,9 +317,9 @@ def _resolve_toolchain(debug=False, compile_for_coverage=False):
 
     Returns (name, cc, cxx, extra_compile_args, extra_link_args). The default
     toolchain (gnu on Linux, msvc on Windows) reproduces the previous build
-    behavior and does not touch CC/CXX/LDSHARED, so an externally-set compiler
+    behavior and does not touch CC/CXX/LDCXXSHARED, so an externally-set compiler
     (e.g. CC="sccache cc") keeps working. A non-default toolchain (llvm on
-    Linux) selects clang/clang++ and lld and sets CC/CXX/LDSHARED so distutils'
+    Linux) selects clang/clang++ and lld and sets CC/CXX/LDCXXSHARED so distutils'
     customize_compiler picks them up.
     """
     name, _allowed, cc, cxx, explicit = _resolve_toolchain_name()
