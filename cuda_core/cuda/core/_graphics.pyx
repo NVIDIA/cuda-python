@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Sequence
 
 from cuda.bindings cimport cydriver
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     create_graphics_resource_handle,
     deviceptr_create_mapped_graphics,
     as_cu,
@@ -43,6 +43,12 @@ def _parse_register_flags(flags: str | Sequence[str] | None) -> int:
                 f"Valid flags: {', '.join(sorted(_REGISTER_FLAGS))}"
             ) from None
     return result
+
+
+cdef inline int GraphicsResource_check_open(GraphicsResource self) except -1:
+    if not self._handle:
+        raise RuntimeError("GraphicsResource has been closed")
+    return 0
 
 
 cdef class GraphicsResource:
@@ -251,8 +257,7 @@ cdef class GraphicsResource:
         """
         cdef cydriver.CUdeviceptr dev_ptr = 0
         cdef size_t size = 0
-        if not self._handle:
-            raise RuntimeError("GraphicsResource has been closed")
+        GraphicsResource_check_open(self)
         if self._get_mapped_buffer() is not None:
             raise RuntimeError("GraphicsResource is already mapped")
 
@@ -294,8 +299,7 @@ cdef class GraphicsResource:
         CUDAError
             If the unmapping fails.
         """
-        if not self._handle:
-            raise RuntimeError("GraphicsResource has been closed")
+        GraphicsResource_check_open(self)
         cdef object buf_obj = self._get_mapped_buffer()
         if buf_obj is None:
             raise RuntimeError("GraphicsResource is not mapped")
@@ -346,6 +350,11 @@ cdef class GraphicsResource:
     def handle(self) -> int:
         """The raw ``CUgraphicsResource`` handle as a Python int."""
         return as_intptr(self._handle)
+
+    @property
+    def is_closed(self) -> bool:
+        """Whether this graphics resource has been closed."""
+        return self._handle.get() == NULL
 
     @property
     def resource_handle(self) -> int:

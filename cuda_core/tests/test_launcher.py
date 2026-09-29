@@ -4,7 +4,7 @@
 import ctypes
 
 import helpers
-from cuda_python_test_helpers.marks import requires_module
+from cuda_python_test_helpers.marks import requires_module, skipif_need_cuda_headers
 from helpers.misc import StreamWrapper
 
 try:
@@ -13,7 +13,6 @@ except ImportError:
     cp = None
 import numpy as np
 import pytest
-from conftest import skipif_need_cuda_headers
 
 from cuda.core import (
     Device,
@@ -22,9 +21,10 @@ from cuda.core import (
     LegacyPinnedMemoryResource,
     Program,
     ProgramOptions,
+    StreamOptions,
     launch,
 )
-from cuda.core._memory._legacy import _SynchronousMemoryResource
+from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.typing import ObjectCodeFormatType, SourceCodeType
 
@@ -202,6 +202,47 @@ def test_to_native_launch_config_pdl():
     )
 
 
+@pytest.mark.parametrize(
+    ("initial_priority", "updated_priority"),
+    ((-1, 0), (0, -1), (0, 5)),
+)
+def test_launch_config_priority_getter_setter(init_cuda, initial_priority, updated_priority):
+    """Direct attribute assignment (unlike __init__) is not range-checked."""
+    config = LaunchConfig(grid=1, block=1, priority=initial_priority)
+
+    assert config.priority == initial_priority
+    config.priority = updated_priority
+    assert config.priority == updated_priority
+
+
+@pytest.mark.parametrize(
+    ("priority", "expected_num_attrs"),
+    ((None, 0), (0, 0), (-1, 1)),
+)
+def test_to_native_launch_config_priority(init_cuda, priority, expected_num_attrs):
+    """LaunchConfig priority maps to the native attribute for nonzero values.
+
+    priority=0 (and the None default, which is stored as 0) is treated the
+    same as unset (numAttrs=0), matching the truthy check used both here and
+    in the bound LaunchConfig._to_native_launch_config method.
+    """
+    from cuda.bindings import driver
+    from cuda.core._launch_config import _to_native_launch_config
+
+    config = LaunchConfig(grid=2, block=4, priority=priority)
+    native = _to_native_launch_config(config)
+
+    assert config.priority == (priority or 0)
+    assert native.numAttrs == expected_num_attrs
+    if expected_num_attrs == 0:
+        assert list(native.attrs) == []
+        return
+
+    attr = native.attrs[0]
+    assert attr.id == driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PRIORITY
+    assert attr.value.priority == priority
+
+
 @skipif_need_cuda_headers
 def test_pdl_primary_secondary_overlap_same_stream():
     """Primary + secondary PDL launch on one stream can overlap on Hopper+.
@@ -218,7 +259,7 @@ def test_pdl_primary_secondary_overlap_same_stream():
     if dev.compute_capability < (9, 0):
         pytest.skip("Programmatic Dependent Launch requires compute capability >= 9.0")
     dev.set_current()
-    stream = dev.create_stream(options={"nonblocking": True})
+    stream = dev.create_stream(options=StreamOptions(nonblocking=True))
 
     # clock64 budgets are in GPU cycles; keep the post-trigger window long enough
     # for the secondary to boot, but short enough for a unit test.
@@ -364,6 +405,95 @@ def test_to_native_launch_config_cluster_branch():
     assert (attr.value.clusterDim.x, attr.value.clusterDim.y, attr.value.clusterDim.z) == (2, 2, 2)
 
 
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_launch_config_cluster_scheduling_policy(monkeypatch):
+    """Ctor, getter/setter, and native attrs for all policy strings."""
+    from cuda.bindings import driver
+    from cuda.core import _launch_config as _lc_mod
+    from cuda.core._launch_config import _to_native_launch_config
+
+    class _FakeDev:
+        compute_capability = (9, 0)
+
+    monkeypatch.setattr(_lc_mod, "Device", lambda: _FakeDev())
+    pref = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
+
+    for policy in LaunchConfig._CLUSTER_SCHED_POLICY_TO_DRIVER:
+        cfg = LaunchConfig(grid=1, block=1)
+        assert cfg.cluster_scheduling_policy_preference is None
+        cfg.cluster_scheduling_policy_preference = policy
+        assert cfg.cluster_scheduling_policy_preference is policy
+
+        cfg = LaunchConfig(grid=2, block=4, cluster_scheduling_policy_preference=policy)
+        assert cfg.cluster_scheduling_policy_preference is policy
+        native = _to_native_launch_config(cfg)
+        assert native.numAttrs == 1
+        assert native.attrs[0].id == pref
+        assert int(native.attrs[0].value.clusterSchedulingPolicyPreference) == int(
+            getattr(driver.CUclusterSchedulingPolicy, f"CU_CLUSTER_SCHEDULING_POLICY_{policy}")
+        )
+        cfg.cluster_scheduling_policy_preference = None
+        assert cfg.cluster_scheduling_policy_preference is None
+
+    cfg = LaunchConfig(
+        grid=(2, 1, 1),
+        block=32,
+        cluster=(2, 1, 1),
+        cluster_scheduling_policy_preference="SPREAD",
+    )
+    native = _to_native_launch_config(cfg)
+    assert native.numAttrs == 2
+    attr_ids = {attr.id for attr in native.attrs}
+    assert driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION in attr_ids
+    assert pref in attr_ids
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_launch_config_cluster_scheduling_policy_rejected(monkeypatch):
+    """Invalid values and pre-Hopper devices are rejected."""
+    from cuda.core import _launch_config as _lc_mod
+
+    with pytest.raises(ValueError, match="not a valid cluster_scheduling_policy_preference"):
+        LaunchConfig(grid=1, block=1, cluster_scheduling_policy_preference="NOT_A_POLICY")
+
+    class _FakeDev:
+        compute_capability = (8, 6)
+
+    looked_up = []
+    monkeypatch.setattr(_lc_mod, "Device", lambda: looked_up.append(1) or _FakeDev())
+    with pytest.raises(CUDAError, match="cluster launch attributes are not supported"):
+        LaunchConfig(
+            grid=2,
+            block=32,
+            cluster_scheduling_policy_preference="SPREAD",
+        )
+    assert looked_up, "Device was not looked up via the module global; mock did not take effect"
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_launch_cluster_scheduling_policy_smoke(init_cuda):
+    """launch() accepts each policy on Hopper+ (skip on CC < 9.0)."""
+    dev = Device()
+    if dev.compute_capability < (9, 0):
+        pytest.skip("Cluster scheduling policy requires compute capability >= 9.0")
+
+    prog = Program('extern "C" __global__ void noop() {}', SourceCodeType.CXX)
+    kernel = prog.compile(ObjectCodeFormatType.CUBIN).get_kernel("noop")
+    stream = dev.default_stream
+    for policy in LaunchConfig._CLUSTER_SCHED_POLICY_TO_DRIVER:
+        launch(
+            stream,
+            LaunchConfig(
+                grid=1,
+                block=32,
+                cluster=(2, 1, 1),
+                cluster_scheduling_policy_preference=policy,
+            ),
+            kernel,
+        )
+    stream.sync()
+
+
 def test_launch_invalid_values(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, SourceCodeType.CXX)
@@ -483,7 +613,7 @@ def test_launch_scalar_argument(python_type, cpp_type, init_value):
 def test_cooperative_launch():
     dev = Device()
     dev.set_current()
-    s = dev.create_stream(options={"nonblocking": True})
+    s = dev.create_stream(options=StreamOptions(nonblocking=True))
 
     # CUDA kernel templated on type T
     code = r"""
@@ -756,3 +886,142 @@ def test_kernel_arg_python_isinstance_fallbacks():
 
     holder = ParamHolder([MyBool(1), MyFloat(1.5), MyComplex(1 + 2j)])
     assert holder.ptr != 0
+
+
+_NUMPY_SUBCLASS_FALLBACK_PARAMS = [
+    # One case per prepare_numpy_arg isinstance-fallback branch (exact type is
+    # skipped because type(arg) is the subclass). Values catch width/sign mixups.
+    (np.bool_, np.bool_, "bool", True),
+    (np.int8, np.int8, "signed char", -42),
+    (np.int16, np.int16, "signed short", -1234),
+    (np.int32, np.int32, "signed int", -123456),
+    (np.int64, np.int64, "signed long long", -123456789),
+    (np.uint8, np.uint8, "unsigned char", 200),
+    (np.uint16, np.uint16, "unsigned short", 60000),
+    (np.uint32, np.uint32, "unsigned int", 4000000000),
+    (np.uint64, np.uint64, "unsigned long long", 0x1_0000_0001),
+    (np.float64, np.float64, "double", 2.718281828),
+]
+_NUMPY_SUBCLASS_FALLBACK_IDS = [
+    "numpy_bool",
+    "numpy_int8",
+    "numpy_int16",
+    "numpy_int32",
+    "numpy_int64",
+    "numpy_uint8",
+    "numpy_uint16",
+    "numpy_uint32",
+    "numpy_uint64",
+    "numpy_float64",
+]
+if helpers.CCCL_INCLUDE_PATHS is not None:
+    _NUMPY_SUBCLASS_FALLBACK_PARAMS += [
+        (np.float16, np.float16, "half", 0.78),
+        (np.complex64, np.complex64, "cuda::std::complex<float>", 1 + 2j),
+        (np.complex128, np.complex128, "cuda::std::complex<double>", -3 - 4j),
+    ]
+    _NUMPY_SUBCLASS_FALLBACK_IDS += ["numpy_float16", "numpy_complex64", "numpy_complex128"]
+
+
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
+@pytest.mark.parametrize(
+    ("base_type", "np_dtype", "cpp_type", "raw_value"),
+    _NUMPY_SUBCLASS_FALLBACK_PARAMS,
+    ids=_NUMPY_SUBCLASS_FALLBACK_IDS,
+)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_launch_numpy_scalar_subclass_fallback(base_type, np_dtype, cpp_type, raw_value):
+    """Subclassed numpy scalars take prepare_numpy_arg's isinstance fallback and reach the kernel (readback)."""
+
+    class Subclassed(base_type):
+        pass
+
+    scalar = Subclassed(raw_value)
+    expected = np_dtype(raw_value)
+
+    dev = Device()
+    dev.set_current()
+
+    mr = LegacyPinnedMemoryResource()
+    b = mr.allocate(np.dtype(np_dtype).itemsize)
+    arr = np.from_dlpack(b).view(np_dtype)
+    arr[:] = 0
+
+    code = r"""
+    template <typename T>
+    __global__ void write_scalar(T* arr, T val) {
+        arr[0] = val;
+    }
+    """
+    if helpers.CCCL_INCLUDE_PATHS is not None:
+        code = (
+            r"""
+        #include <cuda_fp16.h>
+        #include <cuda/std/complex>
+        """
+            + code
+        )
+
+    arch = "".join(f"{i}" for i in dev.compute_capability)
+    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=helpers.CCCL_INCLUDE_PATHS)
+    prog = Program(code, code_type="c++", options=pro_opts)
+    ker_name = f"write_scalar<{cpp_type}>"
+    mod = prog.compile("cubin", name_expressions=(ker_name,))
+    ker = mod.get_kernel(ker_name)
+
+    stream = dev.default_stream
+    config = LaunchConfig(grid=1, block=1)
+    launch(stream, config, ker, arr.ctypes.data, scalar)
+    stream.sync()
+
+    assert arr[0] == expected
+
+
+# Truncates to 1 if the launcher packs the handle as uint32 instead of uint64.
+_UINT64_HANDLE_VALUE = 0x1_0000_0001
+
+
+def _compile_write_ull_kernel(dev):
+    code = r"""
+    extern "C" __global__ void write_ull(unsigned long long *out, unsigned long long val) {
+        *out = val;
+    }
+    """
+    arch = "".join(f"{i}" for i in dev.compute_capability)
+    prog = Program(code, code_type="c++", options=ProgramOptions(std="c++17", arch=f"sm_{arch}"))
+    return prog.compile("cubin", name_expressions=("write_ull",)).get_kernel("write_ull")
+
+
+def _assert_kernel_sees_ull(dev, kernel_arg, expected):
+    mr = LegacyPinnedMemoryResource()
+    buf = mr.allocate(np.dtype(np.uint64).itemsize)
+    try:
+        arr = np.from_dlpack(buf).view(np.uint64)
+        arr[:] = 0
+        ker = _compile_write_ull_kernel(dev)
+        stream = dev.default_stream
+        launch(stream, LaunchConfig(grid=1, block=1), ker, arr.ctypes.data, kernel_arg)
+        stream.sync()
+        assert int(arr[0]) == int(expected)
+    finally:
+        buf.close()
+
+
+@pytest.mark.parametrize("use_subclass", [False, True], ids=["exact_type", "subclass_fallback"])
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_launch_graph_conditional_handle_as_kernel_arg(init_cuda, use_subclass):
+    """CUgraphConditionalHandle is packed as its uint64 value (readback)."""
+    from cuda.bindings import driver
+
+    if not hasattr(driver, "CUgraphConditionalHandle"):
+        pytest.skip("CUgraphConditionalHandle requires cuda-bindings 12.3+")
+
+    class SubclassedHandle(driver.CUgraphConditionalHandle):
+        pass
+
+    handle_cls = SubclassedHandle if use_subclass else driver.CUgraphConditionalHandle
+    handle = handle_cls(_UINT64_HANDLE_VALUE)
+
+    dev = Device()
+    dev.set_current()
+    _assert_kernel_sees_ull(dev, handle, _UINT64_HANDLE_VALUE)

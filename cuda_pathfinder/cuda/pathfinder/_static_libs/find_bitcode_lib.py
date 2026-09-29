@@ -27,6 +27,8 @@ class LocatedBitcodeLib:
 
 
 class _BitcodeLibInfo(TypedDict):
+    """Bitcode-library metadata with ordered alternatives searched first-to-last."""
+
     filename: str
     rel_path: str
     site_packages_dirs: tuple[str, ...]

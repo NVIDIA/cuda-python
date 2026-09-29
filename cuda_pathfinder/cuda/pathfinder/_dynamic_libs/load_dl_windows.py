@@ -120,15 +120,14 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) 
     return buffer.value
 
 
-def check_if_already_loaded_from_elsewhere(desc: LibDescriptor, have_abs_path: bool) -> LoadedDL | None:
+def check_if_already_loaded_from_elsewhere(desc: LibDescriptor) -> LoadedDL | None:
     for dll_name in desc.windows_dlls:
         handle = kernel32.GetModuleHandleW(dll_name)
         if handle:
             abs_path = abs_path_for_dynamic_library(desc.name, handle)
-            if have_abs_path and desc.requires_add_dll_directory:
-                # This is a side-effect if the pathfinder loads the library via
-                # load_with_abs_path(). To make the side-effect more deterministic,
-                # activate it even if the library was already loaded from elsewhere.
+            if desc.requires_add_dll_directory:
+                # Match load_with_abs_path(): lazy component DLLs need the directory
+                # of the module that is actually loaded, regardless of how it arrived.
                 add_dll_directory(abs_path)
             return LoadedDL(abs_path, True, ctypes_handle_to_unsigned_int(handle), "was-already-loaded-from-elsewhere")
     return None
@@ -149,8 +148,7 @@ def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded
     """
-    # Reverse tabulated names to achieve new -> old search order.
-    for dll_name in reversed(desc.windows_dlls):
+    for dll_name in desc.windows_dlls:
         handle = kernel32.LoadLibraryExW(dll_name, None, 0)
         if handle:
             abs_path = abs_path_for_dynamic_library(desc.name, handle)

@@ -5,10 +5,12 @@ import gc
 
 import numpy as np
 import pytest
+from helpers.contexts import current_context_handle, no_current_context
 
 import cuda.core
 from cuda.core import (
     Device,
+    LegacyPinnedMemoryResource,
 )
 from cuda.core.texture import (
     MipmappedArrayOptions,
@@ -43,6 +45,107 @@ def test_surface_object_init_disabled():
 def test_resource_descriptor_init_disabled():
     with pytest.raises(RuntimeError, match=r"^ResourceDescriptor cannot be instantiated"):
         ResourceDescriptor()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_texture_resources_target_receiver_context(device_x2):
+    dev0, dev1 = device_x2
+    dev0.set_current()
+    ctx0 = dev0.context
+    dev1.set_current()
+    ctx1_handle = current_context_handle()
+
+    with dev0.create_opaque_array(
+        OpaqueArrayOptions(
+            shape=(8, 8),
+            format=ArrayFormatType.UINT8,
+            num_channels=4,
+            is_surface_load_store=True,
+        )
+    ) as array:
+        assert array.device == dev0
+        assert current_context_handle() == ctx1_handle
+        with dev0.create_mipmapped_array(
+            MipmappedArrayOptions(
+                shape=(8, 8),
+                format=ArrayFormatType.UINT8,
+                num_channels=4,
+                num_levels=2,
+            )
+        ) as mipmap:
+            assert mipmap.device == dev0
+            assert current_context_handle() == ctx1_handle
+            with mipmap.get_level(0) as level:
+                assert level.device == dev0
+                assert current_context_handle() == ctx1_handle
+                resource = ResourceDescriptor.from_opaque_array(array)
+                with (
+                    dev0.create_texture_object(resource=resource, options=TextureObjectOptions()) as texture,
+                    dev0.create_surface_object(resource=resource) as surface,
+                ):
+                    assert texture.device == dev0
+                    assert surface.device == dev0
+                    assert current_context_handle() == ctx1_handle
+    assert current_context_handle() == ctx1_handle
+    assert int(ctx0.handle) != ctx1_handle
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_texture_resources_restore_no_current_context(deinit_cuda):
+    device = Device(0)
+    device.set_current()
+
+    with no_current_context():
+        with (
+            device.create_opaque_array(
+                OpaqueArrayOptions(
+                    shape=(8, 8),
+                    format=ArrayFormatType.UINT8,
+                    num_channels=4,
+                )
+            ) as array,
+            device.create_texture_object(resource=ResourceDescriptor.from_opaque_array(array)) as texture,
+        ):
+            assert array.device == device
+            assert texture.device == device
+            assert current_context_handle() == 0
+        assert current_context_handle() == 0
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_texture_creation_rejects_mismatched_receiver(device_x2):
+    dev0, dev1 = device_x2
+    dev0.set_current()
+    with dev0.create_opaque_array(
+        OpaqueArrayOptions(
+            shape=(8, 8),
+            format=ArrayFormatType.UINT8,
+            num_channels=4,
+            is_surface_load_store=True,
+        )
+    ) as array:
+        resource = ResourceDescriptor.from_opaque_array(array)
+        dev1.set_current()
+        ctx1_handle = current_context_handle()
+        with pytest.raises(ValueError, match="resource belongs to device 0"):
+            dev1.create_texture_object(resource=resource)
+        with pytest.raises(ValueError, match="resource belongs to device 0"):
+            dev1.create_surface_object(resource=resource)
+        assert current_context_handle() == ctx1_handle
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5")
+def test_texture_linear_accepts_pinned_buffer(init_cuda):
+    """Pinned memory is device-accessible and not bound to any device, so a
+    pinned buffer is a valid linear texture backing whose device check is
+    skipped (device_id == -1) rather than failed (#2311)."""
+    mr = LegacyPinnedMemoryResource()
+    with mr.allocate(256) as buf:
+        assert buf.device_id == -1
+
+        resource = ResourceDescriptor.from_linear(buf, format=ArrayFormatType.UINT8, num_channels=1)
+        with init_cuda.create_texture_object(resource=resource) as texture:
+            assert texture.device == init_cuda
 
 
 def test_array_2d_create_and_properties(init_cuda):
@@ -713,6 +816,77 @@ def test_texture_surface_close_is_idempotent(init_cuda):
     assert tex.handle == 0
     tex.close()
     tex_arr.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_arrays_rejected_before_active_operations(init_cuda):
+    device = Device()
+    stream = device.create_stream()
+    arr = device.create_opaque_array(OpaqueArrayOptions(shape=(8,), format=ArrayFormatType.UINT8, num_channels=1))
+    array_resource = ResourceDescriptor.from_opaque_array(arr)
+    arr.close()
+
+    assert arr.is_closed
+    assert bool(arr) is True  # Preserve backward-compatible truthiness after close.
+    with pytest.raises(RuntimeError, match="OpaqueArray has been closed"):
+        arr.copy_from(bytearray(8), stream=stream)
+    with pytest.raises(RuntimeError, match="OpaqueArray has been closed"):
+        ResourceDescriptor.from_opaque_array(arr)
+    with pytest.raises(RuntimeError, match="OpaqueArray has been closed"):
+        device.create_texture_object(resource=array_resource, options=TextureObjectOptions())
+
+    mip = device.create_mipmapped_array(
+        MipmappedArrayOptions(
+            shape=(8, 8),
+            format=ArrayFormatType.UINT8,
+            num_channels=1,
+            num_levels=2,
+        )
+    )
+    mip_resource = ResourceDescriptor.from_mipmapped_array(mip)
+    mip.close()
+
+    assert mip.is_closed
+    assert bool(mip) is True  # Preserve backward-compatible truthiness after close.
+    with pytest.raises(RuntimeError, match="MipmappedArray has been closed"):
+        mip.get_level(0)
+    with pytest.raises(RuntimeError, match="MipmappedArray has been closed"):
+        ResourceDescriptor.from_mipmapped_array(mip)
+    with pytest.raises(RuntimeError, match="MipmappedArray has been closed"):
+        device.create_texture_object(resource=mip_resource, options=TextureObjectOptions())
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_texture_and_surface_state_tracks_close(init_cuda):
+    device = Device()
+    texture_array = device.create_opaque_array(
+        OpaqueArrayOptions(shape=(8,), format=ArrayFormatType.UINT8, num_channels=1)
+    )
+    texture = device.create_texture_object(
+        resource=ResourceDescriptor.from_opaque_array(texture_array),
+        options=TextureObjectOptions(),
+    )
+    assert not texture.is_closed
+    texture.close()
+    assert texture.is_closed
+    assert bool(texture) is True  # Preserve backward-compatible truthiness after close.
+
+    surface_array = device.create_opaque_array(
+        OpaqueArrayOptions(
+            shape=(8, 8),
+            format=ArrayFormatType.UINT8,
+            num_channels=4,
+            is_surface_load_store=True,
+        )
+    )
+    surface = device.create_surface_object(resource=ResourceDescriptor.from_opaque_array(surface_array))
+    assert not surface.is_closed
+    surface.close()
+    assert surface.is_closed
+    assert bool(surface) is True  # Preserve backward-compatible truthiness after close.
+
+    texture_array.close()
+    surface_array.close()
 
 
 # --- Negative-path validation tests ------------------------------------------

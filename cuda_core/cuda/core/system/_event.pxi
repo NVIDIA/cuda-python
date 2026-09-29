@@ -29,6 +29,8 @@ cdef class EventData:
     """
     Data about a single event.
     """
+    cdef object _event_data
+
     def __init__(self, event_data: nvml.EventData):
         self._event_data = event_data
 

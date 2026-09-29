@@ -57,6 +57,7 @@ _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
         # We have some explicitly unsupported memory location types
         {
             "CU_MEM_LOCATION_TYPE_NONE",
+            "CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN",
             "CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT",
             "CU_MEM_LOCATION_TYPE_INVISIBLE",
             "CU_MEM_LOCATION_TYPE_MAX",
@@ -92,6 +93,9 @@ _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
         # We have some explicitly unsupported memory location types
         {
             "CU_MEM_LOCATION_TYPE_NONE",
+            # Requires a separate locality-domain id; cuda-core memory-resource
+            # options currently expose only device and host/NUMA placement.
+            "CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN",
             "CU_MEM_LOCATION_TYPE_INVISIBLE",
             "CU_MEM_LOCATION_TYPE_MAX",
             "CU_MEM_LOCATION_TYPE_INVALID",
@@ -128,6 +132,15 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
 
     _MODULES.append(system_typing)
 
+    _CLOCKS_EVENT_REASONS_STR_UNMAPPED = {
+        core_member
+        for binding_member, core_member in (
+            ("EVENT_REASON_BOARD_LIMIT", "BOARD_LIMIT"),
+            ("EVENT_REASON_RELIABILITY", "RELIABILITY"),
+        )
+        if binding_member not in nvml.ClocksEventReasons.__members__
+    }
+
     _CASES.extend(
         [
             (
@@ -160,7 +173,7 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
                 system_typing.ClocksEventReasons,
                 _device._CLOCKS_EVENT_REASONS_MAPPING,
                 set(),
-                set(),
+                _CLOCKS_EVENT_REASONS_STR_UNMAPPED,
             ),
             (
                 nvml.EventType,
@@ -357,21 +370,33 @@ def test_wrapper_covers_all_binding_members(binding, str_enum, mapping, binding_
 
     # Reverse check: every StrEnum member must also appear in the mapping.
     if str_enum is not None:
+        required_count = len(required)
         if mapping is not None:
             required_str = set(str_enum.__members__) - str_enum_unmapped
             covered_str = {m.name for m in (*mapping.keys(), *mapping.values()) if isinstance(m, str_enum)}
             missing_str = required_str - covered_str
             assert not missing_str, f"{str_enum.__name__} has members not covered by the wrapper mapping: {missing_str}"
 
-        # For checking a StrEnum against a cuda_binding enum directly, without a
-        # mapping, the best we can do is count them, since it's reasonable that
-        # they have been renamed for clarity.  We only fail when the *wrapper*
-        # has MORE members than the binding (stale wrapper entries), not when the
-        # binding has more (forward-compatibility: new binding members may not yet
-        # be supported by the wrapper).
-        required_count = len(required)
-        covered_str_enum = set(str_enum.__members__) - str_enum_unmapped
-        covered_count = len(covered_str_enum)
+            # Count wrapper coverage by the *distinct binding values* each wrapper
+            # member maps to, rather than by wrapper member name.  This resolves
+            # deprecated wrapper aliases (e.g. GpuP2PCapsIndex.PROP, kept for API
+            # stability) to the binding member they actually target (e.g. PCI), so
+            # they don't inflate the count against a binding enum that has already
+            # collapsed its own equivalent aliases out of `__members__`.
+            covered_count = len(
+                {int(v) for k, v in mapping.items() if isinstance(k, str_enum) and isinstance(v, binding)}
+            )
+        else:
+            # For checking a StrEnum against a cuda_binding enum directly, without a
+            # mapping, the best we can do is count them, since it's reasonable that
+            # they have been renamed for clarity.
+            covered_str_enum = set(str_enum.__members__) - str_enum_unmapped
+            covered_count = len(covered_str_enum)
+
+        # We only fail when the *wrapper* has MORE members than the binding
+        # (stale wrapper entries), not when the binding has more
+        # (forward-compatibility: new binding members may not yet be supported
+        # by the wrapper).
         if covered_count > required_count:
             raise AssertionError(
                 f"`{str_enum.__module__}.{str_enum.__qualname__}` has {covered_count} members, "

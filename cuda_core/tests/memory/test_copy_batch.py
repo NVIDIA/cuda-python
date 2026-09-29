@@ -14,6 +14,7 @@ from helpers.buffers import (
     compare_equal_buffers,
     make_scratch_buffer,
     set_buffer,
+    thread_unsafe_on_windows,
 )
 from helpers.copy_batch import COPY_BATCH_SIZE
 
@@ -22,6 +23,7 @@ from cuda.core._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM
 from cuda.core.utils import copy_batch
 
 
+@thread_unsafe_on_windows
 class TestCopyBatchCore:
     """Each transfer direction moves the expected bytes."""
 
@@ -107,6 +109,7 @@ class TestCopyBatchCore:
         copy_stream.sync()
 
 
+@thread_unsafe_on_windows
 class TestCopyBatchEquivalence:
     """Batched results must agree with the already-tested per-buffer path.
 
@@ -212,6 +215,7 @@ class TestCopyBatchEquivalence:
 class TestCopyBatchStreamSemantics:
     """Where the batch sits in stream order, and what it cannot be part of."""
 
+    @pytest.mark.thread_unsafe(reason="shared copy_stream and buffers must not interleave")
     @pytest.mark.agent_authored(model="Claude Opus 5")
     def test_ordered_between_prior_and_later_stream_work(self, device_bufs, copy_stream):
         """The batch must observe prior stream work and precede later work.
@@ -275,13 +279,34 @@ class TestCopyBatchStreamSemantics:
             gb.close()
 
     @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-    @pytest.mark.parametrize(
-        "default_stream",
-        [LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM],
-        ids=["legacy", "per_thread"],
-    )
-    def test_default_stream_token_is_rejected(self, init_cuda, h2d_bufs, default_stream):
-        """Default-stream tokens must be rejected with a clear TypeError."""
+    def test_legacy_default_stream_token_is_rejected(self, init_cuda, h2d_bufs):
+        """LEGACY_DEFAULT_STREAM must be rejected with a clear TypeError.
+
+        cuMemcpyBatchAsync rejects the legacy token outright
+        (CUDA_ERROR_INVALID_VALUE); copy_batch surfaces this before ever
+        calling the driver.
+        """
         srcs, dsts = h2d_bufs
-        with pytest.raises(TypeError, match="default-stream token"):
-            copy_batch(default_stream, srcs, dsts)
+        with pytest.raises(TypeError, match="LEGACY_DEFAULT_STREAM"):
+            copy_batch(LEGACY_DEFAULT_STREAM, srcs, dsts)
+
+    @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+    @thread_unsafe_on_windows
+    def test_per_thread_default_stream_token_is_accepted(self, copy_batch_device):
+        """PER_THREAD_DEFAULT_STREAM is a real stream to the driver and works
+        like any explicit stream for copy_batch, unlike LEGACY_DEFAULT_STREAM.
+        """
+        pinned_mr = LegacyPinnedMemoryResource()
+        device_mr = copy_batch_device.memory_resource
+        src = pinned_mr.allocate(COPY_BATCH_SIZE)
+        dst = device_mr.allocate(COPY_BATCH_SIZE, stream=PER_THREAD_DEFAULT_STREAM)
+        set_buffer(src, 99)
+
+        copy_batch(PER_THREAD_DEFAULT_STREAM, [src], [dst])
+        copy_batch_device.sync()
+
+        assert compare_buffer_to_constant(dst, 99)
+
+        src.close(PER_THREAD_DEFAULT_STREAM)
+        dst.close(PER_THREAD_DEFAULT_STREAM)
+        copy_batch_device.sync()

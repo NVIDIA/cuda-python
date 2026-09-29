@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import glob
 import os
+import sysconfig
 from typing import TypeAlias, cast
 
 from cuda.pathfinder._headers.header_descriptor_catalog import (
@@ -35,6 +36,20 @@ def platform_include_subdirs(desc: HeaderDescriptor) -> tuple[str, ...]:
     if IS_WINDOWS:
         return cast(tuple[str, ...], desc.include_subdirs_windows + desc.include_subdirs)
     return cast(tuple[str, ...], desc.include_subdirs)
+
+
+def system_install_dir_patterns(desc: HeaderDescriptor) -> tuple[str, ...]:
+    """Return platform-aware, expanded system include-directory patterns."""
+    patterns: list[str] = []
+    if IS_WINDOWS:
+        patterns.extend(os.path.expandvars(pattern) for pattern in desc.system_install_dirs_windows)
+        return tuple(patterns)
+    if desc.use_linux_multiarch_include_dir:
+        multiarch = sysconfig.get_config_var("MULTIARCH")
+        if isinstance(multiarch, str) and multiarch:
+            patterns.append(os.path.join("/usr/include", multiarch))
+    patterns.extend(os.path.expandvars(pattern) for pattern in desc.system_install_dirs)
+    return tuple(patterns)
 
 
 def resolve_conda_anchor(desc: HeaderDescriptor, conda_prefix: str) -> str | None:

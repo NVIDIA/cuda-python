@@ -60,7 +60,7 @@ def _load_driver_lib_no_cache(desc: LibDescriptor) -> LoadedDL:
     native loader mechanisms, so the full CTK search cascade (site-packages,
     conda, CUDA_PATH, canary) is unnecessary.
     """
-    loaded = LOADER.check_if_already_loaded_from_elsewhere(desc, False)
+    loaded = LOADER.check_if_already_loaded_from_elsewhere(desc)
     if loaded is not None:
         return loaded
     loaded = LOADER.load_with_system_search(desc)
@@ -174,9 +174,7 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
     find = run_find_steps(ctx, EARLY_FIND_STEPS)
 
     # Phase 2: Cross-cutting — already-loaded check and dependency loading.
-    # The already-loaded check on Windows uses the "have we found a path?"
-    # flag to decide whether to apply AddDllDirectory side-effects.
-    loaded = LOADER.check_if_already_loaded_from_elsewhere(desc, find is not None)
+    loaded = LOADER.check_if_already_loaded_from_elsewhere(desc)
     load_dependencies(desc, load_nvidia_dynamic_lib)
     if loaded is not None:
         return loaded
@@ -275,12 +273,21 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
 
         4. **Environment variables**
 
-           - If set, use ``CUDA_PATH`` or ``CUDA_HOME`` (in that order).
-             On Windows, this is the typical way system-installed CTK DLLs are
-             located. Note that the NVIDIA CTK installer automatically
+           - First search library-specific roots declared by the descriptor,
+             such as ``CUDNN_PATH`` and ``NCCL_HOME``, using their
+             platform-specific product layouts. Then use ``CUDA_PATH`` or
+             ``CUDA_HOME`` (in that order).
+             On Windows, ``CUDA_PATH`` is the typical way system-installed CTK
+             DLLs are located. Note that the NVIDIA CTK installer automatically
              adds ``CUDA_PATH`` to the system-wide environment.
 
-        5. **CTK root canary probe (discoverable libs only)**
+        5. **Windows Program Files (configured libraries only)**
+
+           - Search descriptor-configured standalone installation roots, such
+             as versioned x64 cuDNN directories under ``ProgramFiles``, using
+             the general per-library anchor layout.
+
+        6. **CTK root canary probe (discoverable libs only)**
 
            - For selected libraries whose shared object doesn't reside on the
              standard linker path (currently ``nvvm``), attempt to derive CTK
@@ -298,8 +305,8 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         0. Already loaded in the current process
         1. OS default mechanisms (``dlopen`` / ``LoadLibraryExW``)
 
-        The CTK-specific steps (site-packages, conda, ``CUDA_PATH``, canary
-        probe) are skipped entirely.
+        The non-driver steps (site-packages, conda, environment roots,
+        ``ProgramFiles``, and canary probe) are skipped entirely.
 
     Notes:
         The search is performed **per library**. There is currently no mechanism to

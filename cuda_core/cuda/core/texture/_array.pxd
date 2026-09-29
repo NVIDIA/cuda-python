@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cuda.bindings cimport cydriver
-from cuda.core._resource_handles cimport OpaqueArrayHandle
+from cuda.core._rt cimport OpaqueArrayHandle
 
 
 cdef class OpaqueArray:
@@ -19,6 +19,12 @@ cdef class OpaqueArray:
         bint _surface_load_store
 
     cpdef close(self)
+
+
+cdef inline int OpaqueArray_check_open(OpaqueArray self) except -1:
+    if not self._handle:
+        raise RuntimeError("OpaqueArray has been closed")
+    return 0
 
 
 # Wrap an existing OpaqueArrayHandle as a OpaqueArray, querying the driver for the

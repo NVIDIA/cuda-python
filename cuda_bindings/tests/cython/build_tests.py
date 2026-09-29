@@ -34,7 +34,10 @@ def _bindings_source_root() -> Path:
 
 def main() -> None:
     script_dir = Path(__file__).resolve().parent
-    pyx_files = sorted(str(p) for p in script_dir.glob("test_*.pyx"))
+    # Avoid appending the absolute checkout path under build/temp: the
+    # concatenated path can exceed Windows' path limit. These files are siblings.
+    os.chdir(script_dir)
+    pyx_files = sorted(p.name for p in script_dir.glob("test_*.pyx"))
     if not pyx_files:
         raise SystemExit(f"no test_*.pyx files under {script_dir}")
 
@@ -46,13 +49,8 @@ def main() -> None:
         compiler_directives={"freethreading_compatible": True},
     )
 
-    # `build_ext --inplace` places the compiled .so relative to the current
-    # working directory, but pixi runs this task from the project root. pytest
-    # imports each extension by bare module name (see test_cython.py), which
-    # only resolves when the .so sits in tests/cython (the dir pytest puts on
-    # sys.path). chdir here so the .so lands next to its .pyx regardless of the
-    # invoking cwd.
-    os.chdir(script_dir)
+    # pytest imports each extension by bare module name (see test_cython.py),
+    # so build in-place next to its .pyx regardless of the invoking cwd.
     sys.argv = [sys.argv[0], "build_ext", "--inplace"]
     setup(name="cuda_bindings_cython_tests", ext_modules=ext_modules)
 

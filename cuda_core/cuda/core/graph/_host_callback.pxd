@@ -4,7 +4,7 @@
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._resource_handles cimport OpaqueHandle
+from cuda.core._rt cimport OpaqueHandle
 
 
 cdef bint _is_py_host_trampoline(cydriver.CUhostFn fn) noexcept nogil

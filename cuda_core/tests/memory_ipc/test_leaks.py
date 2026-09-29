@@ -102,8 +102,10 @@ class Irreducible:
 def test_pass_object(ipc_device, ipc_memory_resource, launcher, getobject):
     """Check for fd leaks when an object is sent as a subprocess argument."""
     mr = ipc_memory_resource
+    stream = ipc_device.default_stream
     with CheckFDLeaks():
-        obj = getobject(mr, ipc_device.default_stream)
+        obj = getobject(mr, stream)
+        stream.sync()
         try:
             launcher(obj, number=2)
         finally:
