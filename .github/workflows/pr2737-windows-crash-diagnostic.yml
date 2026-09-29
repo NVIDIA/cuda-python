@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "PR2737: Windows native crash diagnostic"
+
+on:
+  push:
+    branches:
+      - rwgk/pr2737-windows-crash-diagnostic-17e19e2
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  windows:
+    name: Retry original Windows row with child crash reporting
+    uses: NVIDIA/cuda-python/.github/workflows/test-wheel-windows.yml@17e19e25b6b20eee6a5c13c8b39befd1b2b11a38
+    with:
+      build-type: pull-request
+      host-platform: win-64
+      sha: 17e19e25b6b20eee6a5c13c8b39befd1b2b11a38
+      run-id: '36581675565'
+      nruns: 1
+      test-mode: standard
+      # Preserve the exact registry and workplan recorded by job 109459281652.
+      bindings-config: >-
+        {"package_roots":[{"ctk_target":"12.9","cuda_major":"12","cuda_variant":"cu12","package_root":"cuda_bindings_12","release_status":"maintenance","toolkit_version":"12.9.1"},{"ctk_target":"13.4","cuda_major":"13","cuda_variant":"cu13","package_root":"cuda_bindings","release_status":"current","toolkit_version":"13.4.2"}],"schema_version":2}
+      workplan: >-
+        {"baseline":{"run_id":"","sha":""},"jobs":{"core_api_checks":true,"platforms":{"linux":true,"windows":true},"sdist_package_roots":{"cuda_bindings":true,"cuda_bindings_12":true},"sdist_tests":true,"test_cuda_majors":{"cu12":true,"cu13":true}},"merge_base":"36e4d40a664f08ca88b30a50c3553da56d4ef3c2","modules":{"bindings":{"needs_build":true,"needs_test":true,"package_roots":{"cuda_bindings":{"needs_build":true,"needs_test":true},"cuda_bindings_12":{"needs_build":true,"needs_test":true}}},"core":{"cuda_majors":{"cu12":{"needs_build":true,"needs_test":true},"cu13":{"needs_build":true,"needs_test":true}},"needs_build":true,"needs_test":true},"pathfinder":{"needs_build":true,"needs_test":true},"python":{"needs_build":true,"needs_test":true,"package_roots":{"cuda_bindings":{"needs_build":true,"needs_test":true},"cuda_bindings_12":{"needs_build":true,"needs_test":true}}}},"sources":{"pathfinder":"artifact"}}
+      matrix_filter: >-
+        map(select(.ARCH == "amd64" and .PY_VER == "3.14t" and
+          .CUDA_VER == "13.0.2" and .LOCAL_CTK == "0" and
+          .GPU == "a100" and .GPU_COUNT == "1" and
+          .DRIVER == "latest" and .DRIVER_MODE == "MCDM"))
+        | if length != 1 then error("expected exactly the original Windows row") else . end
+        | map(.ENV = ((.ENV // {}) + {PYTHONFAULTHANDLER: "1", PYTHONUNBUFFERED: "1"}))
