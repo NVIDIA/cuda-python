@@ -13,6 +13,29 @@ guide for package-specific conventions and workflows.
 - `cuda_core/`: High-level Pythonic CUDA APIs built on top of bindings.
 - `cuda_python/`: Metapackage and docs aggregation.
 
+## Synchronized code blocks
+
+Use matching `BEGIN SYNCED <group>` and `END SYNCED <group>` comments for
+deliberately duplicated snippets whose contents must remain byte-for-byte
+identical. The group name identifies all copies; the boundaries define the
+shared snippet, not the surrounding file.
+
+- Before editing a marked block, search from the repository root for its exact
+  `BEGIN SYNCED <group>` marker, for example with `rg -n -F`. Read every copy
+  and update them together, including copies outside the current package.
+- Compare the complete marked blocks after editing. Also check required
+  imports and surrounding assumptions, such as relative directory depth,
+  which may live outside the markers.
+- During review, identify groups touched by the diff and compare every copy,
+  including files absent from the diff. Use the base revision too when markers
+  were removed or renamed. Report drift, missing boundaries, and newly copied
+  snippets that omit the markers as review findings.
+- Preserve both markers when copying a snippet. If a copy must diverge,
+  explain why and explicitly revise the group membership; do not remove or
+  rename a marker merely to conceal drift.
+- In the work or review summary, name the groups and files compared, or state
+  why verification could not be completed.
+
 # Git-derived version lifecycle
 
 Package versions are derived from reachable Git tags by `setuptools-scm`.
