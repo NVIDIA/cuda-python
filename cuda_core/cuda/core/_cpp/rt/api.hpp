@@ -233,6 +233,7 @@ DevicePtrHandle deviceptr_import_ipc(
 
 // Access the deallocation stream for a device pointer handle (read-only).
 // For non-owning handles, the stream is not used but can still be accessed.
+// Returns an empty handle for an empty device pointer handle.
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept;
 
 // Set the deallocation stream for a device pointer handle.

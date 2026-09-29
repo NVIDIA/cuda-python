@@ -146,9 +146,10 @@ static DevicePtrBox* get_box(const DevicePtrHandle& h) {
     );
 }
 
-// Return the stream that orders a device pointer's deallocation.
+// Return the stream that orders a device pointer's deallocation; empty for an
+// empty handle, as set_deallocation_stream rejects one.
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept {
-    return get_box(h)->deallocation.h_stream;
+    return h ? get_box(h)->deallocation.h_stream : StreamHandle{};
 }
 
 // Replace the stream that orders a device pointer's deallocation.
