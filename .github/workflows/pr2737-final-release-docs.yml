@@ -1,0 +1,89 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+# Disposable validation controller; never merge into the product branch.
+name: PR2737 final-source release docs
+'on':
+  push:
+    branches:
+    - rwgk/pr2737-release-docs-17e19e2
+permissions:
+  contents: read
+  actions: read
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+jobs:
+  verify-source:
+    runs-on: ubuntu-latest
+    outputs:
+      bindings-package: ${{ steps.verify.outputs.bindings-package }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: 17e19e25b6b20eee6a5c13c8b39befd1b2b11a38
+        fetch-depth: 0
+        filter: blob:none
+        persist-credentials: false
+    - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+      with:
+        python-version: '3.12'
+    - run: python -m pip install -e ./ci
+    - id: verify
+      name: Verify exact docs-only source delta and release routing
+      run: |
+        test "$GITHUB_REPOSITORY" = NVIDIA/cuda-python
+        test "$GITHUB_REF_NAME" = rwgk/pr2737-release-docs-17e19e2
+        test "$(git rev-parse HEAD)" = 17e19e25b6b20eee6a5c13c8b39befd1b2b11a38
+        python - <<'SCRIPT'
+        import json
+        import os
+        import subprocess
+        from pathlib import Path
+        from ci.tools.bindings_config import resolve_release_bindings_package
+        expected = {
+            "cuda_bindings_12/docs/source/overview.md",
+            "cuda_bindings_12/docs/source/release/11.7.1-notes.md",
+            "cuda_bindings_12/docs/source/release/11.8.0-notes.md",
+            "cuda_bindings_12/docs/source/release/12.X.Y-notes.rst",
+        }
+        changed = set(subprocess.check_output(["git", "diff", "--name-only", "b00b677be366fd3638c78e26b99aa5b238602646", "17e19e25b6b20eee6a5c13c8b39befd1b2b11a38"], text=True).splitlines())
+        assert changed == expected, changed
+        package = resolve_release_bindings_package("v12.9.99", Path.cwd(), Path("ci/versions.yml"))
+        assert package["package_root"] == "cuda_bindings_12" and package["release_registry_origin"] == "tag", package
+        with Path(os.environ["GITHUB_OUTPUT"]).open("a") as stream:
+            stream.write("bindings-package=" + json.dumps(package) + "\n")
+        with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a") as stream:
+            stream.write("Docs source `17e19e25b6b20eee6a5c13c8b39befd1b2b11a38`. Unchanged package wheels from `b00b677be366fd3638c78e26b99aa5b238602646`, run36579081279. Only four authored docs differ. No publication.\n")
+        SCRIPT
+  docs:
+    needs: verify-source
+    uses: ./.github/workflows/build-docs.yml
+    with:
+      component: cuda-bindings
+      git-tag: v12.9.99
+      run-id: '36579081279'
+      is-release: true
+      deploy-docs: false
+      bindings-package: ${{ needs.verify-source.outputs.bindings-package }}
+  verify-rendered-links:
+    needs: docs
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+      with:
+        name: release-docs-dry-run-cuda-bindings-v12.9.99
+        path: docs
+    - name: Check actual rendered link targets
+      run: |
+        python - <<'SCRIPT'
+        from pathlib import Path
+        root = Path("docs/cuda-bindings/12.9.99")
+        overview = (root / "overview.html").read_text()
+        assert 'id="preparing-kernel-arguments"' in overview
+        assert 'href="#preparing-kernel-arguments"' in overview
+        notes_117 = (root / "release/11.7.1-notes.html").read_text()
+        notes_118 = (root / "release/11.8.0-notes.html").read_text()
+        assert 'id="cuda-bindings-11-7-1-source-builds"' in notes_117
+        assert 'href="11.7.1-notes.html#cuda-bindings-11-7-1-source-builds"' in notes_118
+        print("Both repaired release-doc links resolve to rendered targets.")
+        SCRIPT

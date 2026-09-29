@@ -59,17 +59,25 @@ jobs:
       run:
         shell: bash -el {0}
     steps:
+      - name: Reject publication from this disposable docs workflow
+        if: ${{ inputs.deploy-docs }}
+        run: exit 1
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
-          ref: ${{ inputs.git-tag }}
+          ref: 17e19e25b6b20eee6a5c13c8b39befd1b2b11a38
+          persist-credentials: false
+
+      - name: Verify exact docs source
+        run: test "$(git rev-parse HEAD)" = 17e19e25b6b20eee6a5c13c8b39befd1b2b11a38
 
       - name: Checkout docs control plane
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           ref: ${{ github.sha }}
           path: .ci-control
+          persist-credentials: false
 
       - name: Install CI tool dependencies
         run: python3 -m pip install -e ./.ci-control/ci
@@ -379,12 +387,8 @@ jobs:
           path: .lycheecache
           key: ${{ steps.restore-lychee-cache.outputs.cache-primary-key }}
 
-      - name: Upload docs GitHub Pages artifact
-        if: ${{ inputs.deploy-docs }}
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
-        with:
-          path: artifacts/
-          retention-days: 3
+      - name: Verify exact synthetic release docs layout
+        run: test -f artifacts/docs/cuda-bindings/12.9.99/index.html
 
       - name: Upload dry-run docs artifact
         if: ${{ !inputs.deploy-docs || (inputs.is-release && inputs.docs-branch != 'gh-pages') }}
@@ -392,24 +396,4 @@ jobs:
         with:
           name: release-docs-dry-run-${{ inputs.component }}-${{ inputs.git-tag }}
           path: artifacts/docs/
-          retention-days: 3
-
-      - name: Deploy or clean up doc preview
-        if: ${{ inputs.deploy-docs && !inputs.is-release }}
-        uses: ./.github/actions/doc_preview
-        with:
-          source-folder: ${{ (github.ref_name != 'main' && 'artifacts/docs') ||
-                              'artifacts/empty_docs' }}
-          pr-number: ${{ env.PR_NUMBER }}
-
-      - name: Deploy doc update
-        if: ${{ inputs.deploy-docs && (github.ref_name == 'main' || inputs.is-release) }}
-        uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445  # v4.9.0
-        with:
-          git-config-name: cuda-python-bot
-          git-config-email: cuda-python-bot@users.noreply.github.com
-          branch: ${{ inputs.docs-branch }}
-          folder: artifacts/docs/
-          target-folder: docs/
-          commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ env.CUDA_PYTHON_DOCS_GITHUB_REF }}"
-          clean: false
+          retention-days: 30
