@@ -305,10 +305,7 @@ jobs:
             --retry-wait-time 5
             --timeout 30
             --no-progress
-            --exclude '^https://nvidia\.github\.io/cuda-python/pr-preview/pr-[0-9]+/'
-            --exclude '^file://.*/cuda-bindings/latest/module/(driver|runtime)\.html#id[0-9]+$'
-            --exclude '^https://www\.preferred\.jp/en/?$'
-            --exclude '^https://github\.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING\.md#development-on-windows$'
+            --config ${{ github.workspace }}/lychee.toml
           fail: true
           failIfEmpty: true
           format: markdown

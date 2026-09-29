@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Configuration for lychee, the doc link-checker invoked from
+# .github/workflows/build-docs.yml. See https://lychee.cli.rs/usage/config/.
+
+exclude = [
+    '^https://nvidia\.github\.io/cuda-python/pr-preview/pr-[0-9]+/',
+    '^file://.*/cuda-bindings/latest/module/(driver|runtime)\.html#id[0-9]+$',
+    '^https://www\.preferred\.jp/en/?$',
+    # Self-referencing anchor added in PR #2965 (Development on Windows).
+    # The anchor exists on main after that PR merges, so this exclude can
+    # be removed then.
+    '^https://github\.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING\.md#development-on-windows$',
+]
