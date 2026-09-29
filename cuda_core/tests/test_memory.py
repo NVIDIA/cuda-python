@@ -1644,8 +1644,9 @@ def test_vmm_concurrent_grows_of_aliased_buffers_are_memory_safe(init_cuda):
     Reduced from the reproduction on PR #2917. A range is immutable, so a grow
     reads the input's range and builds a new one, and ``modify_allocation``
     never returns its input, so closing a result never closes a buffer another
-    thread is using. Which grow extends in place and which moves is undefined;
-    the process must survive and every buffer must close cleanly.
+    thread is using. Which grow extends in place and which one moves depends on
+    the address space the driver has free, as for one thread; the process must
+    survive and every buffer must close cleanly.
     """
     device = _vmm_device_or_skip()
     mr = _vmm_resource(device)
@@ -1669,7 +1670,8 @@ def test_vmm_concurrent_grows_of_aliased_buffers_are_memory_safe(init_cuda):
             for t in threads:
                 t.start()
             for t in threads:
-                t.join()
+                t.join(timeout=CHILD_TIMEOUT_SEC)
+            assert not any(t.is_alive() for t in threads), "a grow thread did not finish"
             alias.close()
             root.close()
     assert errors == []
