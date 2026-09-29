@@ -521,3 +521,15 @@ jobs:
             "${DESELECTS[@]}" \
             tests/
           popd
+
+      - name: Upload test results
+        # JUnit XML written by run-tests, one file per suite. The final
+        # "Check job status" job in ci.yml merges every job's files into the
+        # "Test Results" checks. The name must be unique per job in the run.
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: test-results-${{ inputs.test-mode }}-${{ inputs.host-platform }}-py${{ matrix.PY_VER }}-cu${{ matrix.CUDA_VER }}-${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}-${{ matrix.GPU }}-x${{ matrix.GPU_COUNT }}-${{ matrix.DRIVER }}-${{ matrix.DRIVER_MODE }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14
