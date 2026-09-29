@@ -308,6 +308,7 @@ jobs:
             --exclude '^https://nvidia\.github\.io/cuda-python/pr-preview/pr-[0-9]+/'
             --exclude '^file://.*/cuda-bindings/latest/module/(driver|runtime)\.html#id[0-9]+$'
             --exclude '^https://www\.preferred\.jp/en/?$'
+            --exclude '^https://github\.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING\.md#development-on-windows$'
           fail: true
           failIfEmpty: true
           format: markdown
