@@ -80,9 +80,9 @@ elif [[ "${test_module}" == "bindings" ]]; then
       "cuda-toolkit==${TEST_CUDA_MAJOR_MINOR}.*"
   fi
   echo "Running bindings tests"
-  ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" --junitxml "${TEST_RESULTS_DIR}/junit-bindings.xml" tests/ | fold_pytest_log
+  ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize --exclude-warning-annotations "${PYTEST_PARALLEL_ARGS[@]}" --junitxml "${TEST_RESULTS_DIR}/junit-bindings.xml" tests/ | fold_pytest_log
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" --junitxml "${TEST_RESULTS_DIR}/junit-bindings-cython.xml" tests/cython | fold_pytest_log
+    ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize --exclude-warning-annotations "${PYTEST_PARALLEL_ARGS[@]}" --junitxml "${TEST_RESULTS_DIR}/junit-bindings-cython.xml" tests/cython | fold_pytest_log
   fi
   popd
 elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then

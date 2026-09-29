@@ -447,7 +447,7 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_core
-          pytest -rxXs -v tests/test_utils.py tests/example_tests/
+          pytest -rsxXfE -v --exclude-warning-annotations --junitxml "${GITHUB_WORKSPACE}/test-results/junit-pytorch-interop.xml" tests/test_utils.py tests/example_tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
 
       - name: Run numba-cuda tests
@@ -476,10 +476,11 @@ jobs:
           pushd numba-cuda-mlir-released
           pip install --upgrade "pip>=25.1"
           pip install --group test
-          pytest -rxXs -v \
+          pytest -rsxXfE -v --exclude-warning-annotations \
+            --junitxml "${GITHUB_WORKSPACE}/test-results/junit-numba-cuda-mlir.xml" \
             --ignore=tests/benchmarks \
             --ignore=tests/doc_examples \
-            tests/
+            tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
 
       - name: Checkout released cuda-core tests at matching tag
@@ -517,9 +518,10 @@ jobs:
               --deselect 'tests/test_memory.py::test_non_managed_resources_report_not_managed[pinned]'
             )
           fi
-          pytest -rxXs -v --randomly-dont-reorganize \
+          pytest -rsxXfE -v --randomly-dont-reorganize \
+            --junitxml "${GITHUB_WORKSPACE}/test-results/junit-cuda-core-released.xml" \
             "${DESELECTS[@]}" \
-            tests/
+            tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
 
       - name: Upload test results

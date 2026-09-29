@@ -464,7 +464,7 @@ jobs:
         if: ${{ inputs.test-mode == 'nightly-pytorch' }}
         run: |
           pushd cuda_core
-          pytest -rxXs -v tests/test_utils.py tests/example_tests/
+          pytest -rsxXfE -v --exclude-warning-annotations --junitxml "${GITHUB_WORKSPACE}/test-results/junit-pytorch-interop.xml" tests/test_utils.py tests/example_tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
 
       - name: Run numba-cuda tests
@@ -495,10 +495,11 @@ jobs:
           # Skip tests/benchmarks/ and tests/doc_examples/ — they import the
           # numba package at collection time, which cuSIMT intentionally does
           # not depend on. See NVIDIA/numba-cuda-mlir#136.
-          pytest -rxXs -v \
+          pytest -rsxXfE -v --exclude-warning-annotations \
+            --junitxml "${GITHUB_WORKSPACE}/test-results/junit-numba-cuda-mlir.xml" \
             --ignore=tests/benchmarks \
             --ignore=tests/doc_examples \
-            tests/
+            tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
 
       - name: Checkout released cuda-core tests at matching tag
@@ -531,9 +532,10 @@ jobs:
               --deselect 'tests/test_enum_coverage.py::test_wrapper_covers_all_binding_members[NvlinkVersion]'
             )
           fi
-          pytest -rxXs -v --randomly-dont-reorganize \
+          pytest -rsxXfE -v --randomly-dont-reorganize \
+            --junitxml "${GITHUB_WORKSPACE}/test-results/junit-cuda-core-released.xml" \
             "${DESELECTS[@]}" \
-            tests/
+            tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
 
       - name: Upload test results
