@@ -227,16 +227,18 @@ jobs:
         with:
           package-dir: ./cuda_bindings/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          extras: uv
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
-          CIBW_BEFORE_BUILD_LINUX: 'python -m pip install --upgrade "pip>=25.3"'
-          CIBW_BEFORE_BUILD_WINDOWS: 'python -m pip install --upgrade "pip>=25.3" delvewheel'
+          # build[uv]: same PEP 517 orchestration, with uv instead of pip.
+          # extras: uv puts uv on PATH (required on Windows).
+          CIBW_BUILD_FRONTEND: "build[uv]"
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
-            PIP_BUILD_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-bindings.txt
-            PIP_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-bindings.txt
+            UV_BUILD_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-bindings.txt
+            UV_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-bindings.txt
             CC="/host/${{ env.SCCACHE_PATH }} cc"
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
@@ -248,17 +250,13 @@ jobs:
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
-            PIP_BUILD_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-bindings.txt)"
-            PIP_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-bindings.txt)"
-          # check cache stats before leaving cibuildwheel
-          CIBW_BEFORE_TEST_LINUX: >
+            UV_BUILD_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-bindings.txt)"
+            UV_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-bindings.txt)"
+          # Dump sccache stats during repair; no dummy test stage.
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
             "/host/${{ env.SCCACHE_PATH }}" --show-adv-stats &&
-            "/host/${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_bindings.json
-          # force the test stage to be run (so that before-test is not skipped)
-          # TODO: we might want to think twice on adding this, it does a lot of
-          # things before reaching this command.
-          CIBW_TEST_COMMAND: >
-            echo "ok!"
+            "/host/${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_bindings.json &&
+            auditwheel repair -w {dest_dir} {wheel}
 
       - name: Report sccache stats (cuda.bindings)
         if: ${{ env.BUILD_BINDINGS == 'true' && !startsWith(inputs.host-platform, 'win') }}
@@ -327,18 +325,19 @@ jobs:
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          extras: uv
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
-          CIBW_BEFORE_BUILD_LINUX: 'python -m pip install --upgrade "pip>=25.3"'
-          CIBW_BEFORE_BUILD_WINDOWS: 'python -m pip install --upgrade "pip>=25.3" delvewheel'
+          # See the cuda.bindings step above for UV_* vs PIP_*.
+          CIBW_BUILD_FRONTEND: "build[uv]"
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_CUDA_MAJOR }}
             CUDA_PYTHON_WERROR=1
-            PIP_BUILD_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core.txt
-            PIP_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core.txt
+            UV_BUILD_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core.txt
+            UV_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core.txt
             CC="/host/${{ env.SCCACHE_PATH }} cc"
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
@@ -352,17 +351,13 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_CUDA_MAJOR }}
             CUDA_PYTHON_WERROR=1
-            PIP_BUILD_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-core.txt)"
-            PIP_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-core.txt)"
-          # check cache stats before leaving cibuildwheel
-          CIBW_BEFORE_TEST_LINUX: >
-            "/host${{ env.SCCACHE_PATH }}" --show-adv-stats &&
-            "/host${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_core.json
-          # force the test stage to be run (so that before-test is not skipped)
-          # TODO: we might want to think twice on adding this, it does a lot of
-          # things before reaching this command.
-          CIBW_TEST_COMMAND: >
-            echo "ok!"
+            UV_BUILD_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-core.txt)"
+            UV_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-core.txt)"
+          # Dump sccache stats during repair; no dummy test stage.
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
+            "/host/${{ env.SCCACHE_PATH }}" --show-adv-stats &&
+            "/host/${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_core.json &&
+            auditwheel repair -w {dest_dir} {wheel}
 
       - name: Report sccache stats (cuda.core)
         if: ${{ env.BUILD_CORE == 'true' && !startsWith(inputs.host-platform, 'win') }}
@@ -616,18 +611,19 @@ jobs:
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          extras: uv
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
-          CIBW_BEFORE_BUILD_LINUX: 'python -m pip install --upgrade "pip>=25.3"'
-          CIBW_BEFORE_BUILD_WINDOWS: 'python -m pip install --upgrade "pip>=25.3" delvewheel'
+          # See the cuda.bindings step above for UV_* vs PIP_*.
+          CIBW_BUILD_FRONTEND: "build[uv]"
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_PREV_CUDA_MAJOR }}
             CUDA_PYTHON_WERROR=1
-            PIP_BUILD_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core-prev.txt
-            PIP_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core-prev.txt
+            UV_BUILD_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core-prev.txt
+            UV_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core-prev.txt
             CC="/host/${{ env.SCCACHE_PATH }} cc"
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
@@ -641,17 +637,13 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_PREV_CUDA_MAJOR }}
             CUDA_PYTHON_WERROR=1
-            PIP_BUILD_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-core-prev.txt)"
-            PIP_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-core-prev.txt)"
-          # check cache stats before leaving cibuildwheel
-          CIBW_BEFORE_TEST_LINUX: >
-            "/host${{ env.SCCACHE_PATH }}" --show-adv-stats &&
-            "/host${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_core_prev.json
-          # force the test stage to be run (so that before-test is not skipped)
-          # TODO: we might want to think twice on adding this, it does a lot of
-          # things before reaching this command.
-          CIBW_TEST_COMMAND: >
-            echo "ok!"
+            UV_BUILD_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-core-prev.txt)"
+            UV_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-core-prev.txt)"
+          # Dump sccache stats during repair; no dummy test stage.
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
+            "/host/${{ env.SCCACHE_PATH }}" --show-adv-stats &&
+            "/host/${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_core_prev.json &&
+            auditwheel repair -w {dest_dir} {wheel}
 
       - name: Report sccache stats (cuda.core prev)
         if: ${{ !inputs.single-cuda-major && env.BUILD_CORE == 'true' && !startsWith(inputs.host-platform, 'win') }}
