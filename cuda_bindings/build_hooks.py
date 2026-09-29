@@ -15,6 +15,7 @@ import shutil
 import sys
 import sysconfig
 import tempfile
+from pathlib import Path
 from warnings import warn
 
 from setuptools import build_meta as _build_meta
@@ -29,7 +30,8 @@ get_requires_for_build_wheel = _build_meta.get_requires_for_build_wheel
 get_requires_for_build_editable = _build_meta.get_requires_for_build_editable
 
 # Note: There is no support guarantee for environment variables like
-# CUDA_PYTHON_TOOLCHAIN, etc. They may be removed or changed in the future.
+# CUDA_PYTHON_TOOLCHAIN, CUDA_PYTHON_CYTHON_CACHE_DIR, etc. They may be
+# removed or changed in the future.
 
 # Populated by _build_cuda_bindings(); consumed by setup.py.
 _extensions = None
@@ -43,9 +45,11 @@ from _build_shared import (  # noqa: E402
     _abi_stamp_path,
     _apply_toolchain_env,
     _check_toolchain_available,
+    _cython_cache_path,
     _get_cuda_path,
     _import_get_cuda_path_or_home,  # noqa: F401  (re-export for tests)
     _resolve_toolchain_name,
+    _stable_cython_alias,
 )
 
 
@@ -191,6 +195,7 @@ def _build_cuda_bindings(debug=False):
     All CUDA-dependent logic (cythonization) is deferred to this function so
     that metadata queries do not require a CUDA toolkit installation.
     """
+    import Cython
     from Cython.Build import cythonize
     from Cython.Compiler import Options as _CythonOptions
 
@@ -281,13 +286,36 @@ def _build_cuda_bindings(debug=False):
     # build, so a stale .so from a previous toolchain is never packaged.
     _check_build_toolchain(toolchain)
 
-    _extensions = cythonize(
-        extensions,
-        nthreads=nthreads,
-        build_dir="." if compile_for_coverage else "build/cython",
+    cache_path = _cython_cache_path(
+        "cuda-bindings",
         compiler_directives=cython_directives,
-        **extra_cythonize_kwargs,
+        language_level=3,
+        cplus=True,
+        debug=debug,
     )
+
+    def _do_cythonize(cython_include_path):
+        global _extensions
+        _extensions = cythonize(
+            extensions,
+            nthreads=nthreads,
+            build_dir="." if compile_for_coverage else "build/cython",
+            compiler_directives=cython_directives,
+            include_path=cython_include_path,
+            cache=cache_path,
+            **extra_cythonize_kwargs,
+        )
+
+    if cache_path is not None:
+        # Alias Cython's bundled .pxd declarations under a stable worktree-relative
+        # path so Cython's cache fingerprint sees the same path on every run
+        # despite PEP 517 build environments landing under randomized temp prefixes.
+        stdlib_target = Path(Cython.__file__).parent / "Includes"
+        stdlib_alias = Path(__file__).parent / ".cython-stdlib"
+        with _stable_cython_alias(stdlib_target, stdlib_alias) as rel_stdlib:
+            _do_cythonize([".", rel_stdlib])
+    else:
+        _do_cythonize(["."])
 
 
 # -----------------------------------------------------------------------

@@ -16,6 +16,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 
+import Cython as _Cython
 from Cython.Build import cythonize
 from Cython.Compiler import Options as _CythonOptions
 from setuptools import Extension
@@ -27,7 +28,8 @@ build_sdist = _build_meta.build_sdist
 get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
 
 # Note: There is no support guarantee for environment variables like CUDA_PYTHON_COVERAGE,
-# CUDA_PYTHON_TOOLCHAIN, etc. They may be removed or changed in the future.
+# CUDA_PYTHON_TOOLCHAIN, CUDA_PYTHON_CYTHON_CACHE_DIR, etc. They may be removed
+# or changed in the future.
 COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
 
@@ -40,9 +42,11 @@ from _build_shared import (  # noqa: E402
     _abi_stamp_path,
     _apply_toolchain_env,
     _check_toolchain_available,
+    _cython_cache_path,
     _get_cuda_path,
     _import_get_cuda_path_or_home,  # noqa: F401  (re-export for tests)
     _resolve_toolchain_name,
+    _stable_cython_alias,
 )
 
 
@@ -255,6 +259,7 @@ def _build_cuda_core(debug=False):
     # This is needed for editable installs where meta path finders don't work for Cython
     # We need to add the directory containing the 'cuda' package so Cython can resolve
     # "from cuda.bindings cimport cydriver"
+    cuda_package_dir = None
     try:
         import cuda.bindings
 
@@ -326,23 +331,54 @@ def _build_cuda_core(debug=False):
     _CythonOptions.warning_errors = True
     if COMPILE_FOR_COVERAGE:
         compiler_directives["linetrace"] = True
-    _extensions = cythonize(
-        ext_modules,
-        verbose=True,
-        language_level=3,
-        # CUDA_PYTHON_COVERAGE deliberately generates in-tree so the sources can
-        # be packaged; every other build gets its own per-configuration cache,
-        # anchored alongside the stamp so both resolve the same from any cwd.
-        # Cython also copies each extension's extern headers and `depends` under
-        # this directory and compiles against the copies. Copies are refreshed by
-        # mtime and never deleted, so remove build/ after renaming or deleting a
-        # header under _cpp/.
-        build_dir="." if COMPILE_FOR_COVERAGE else str(_BUILD_DIR / "cython" / config_key),
-        nthreads=nthreads,
+    cache_path = _cython_cache_path(
+        "cuda-core",
         compiler_directives=compiler_directives,
         compile_time_env=compile_time_env,
-        **extra_cythonize_kwargs,
+        language_level=3,
+        cplus=True,
+        debug=debug,
+        cuda_major=cuda_major,
     )
+
+    def _do_cythonize(cython_include_path):
+        global _extensions
+        _extensions = cythonize(
+            ext_modules,
+            verbose=True,
+            language_level=3,
+            # CUDA_PYTHON_COVERAGE deliberately generates in-tree so the sources can
+            # be packaged; every other build gets its own per-configuration cache,
+            # anchored alongside the stamp so both resolve the same from any cwd.
+            # Cython also copies each extension's extern headers and `depends` under
+            # this directory and compiles against the copies. Copies are refreshed by
+            # mtime and never deleted, so remove build/ after renaming or deleting a
+            # header under _cpp/.
+            build_dir="." if COMPILE_FOR_COVERAGE else str(_BUILD_DIR / "cython" / config_key),
+            nthreads=nthreads,
+            compiler_directives=compiler_directives,
+            compile_time_env=compile_time_env,
+            include_path=cython_include_path,
+            cache=cache_path,
+            **extra_cythonize_kwargs,
+        )
+
+    if cache_path is not None:
+        # Alias both Cython's bundled .pxd declarations and cuda.bindings declarations
+        # under stable worktree-relative paths so Cython's cache fingerprint stays
+        # stable across PEP 517 builds (which install deps under randomized prefixes).
+        stdlib_target = Path(_Cython.__file__).parent / "Includes"
+        stdlib_alias = Path(__file__).parent / ".cython-stdlib"
+        bindings_alias = Path(__file__).parent / ".cython-bindings"
+
+        with _stable_cython_alias(stdlib_target, stdlib_alias) as rel_stdlib:
+            if cuda_package_dir is not None:
+                with _stable_cython_alias(cuda_package_dir, bindings_alias) as rel_bindings:
+                    _do_cythonize([".", rel_bindings, rel_stdlib])
+            else:
+                _do_cythonize([".", rel_stdlib])
+    else:
+        _do_cythonize(["."])
     # Cython returns generated sources under the absolute build_dir above.
     # setuptools mirrors absolute source paths into build/temp, which can push
     # MSVC linker output paths past MAX_PATH in deeper Windows checkouts.

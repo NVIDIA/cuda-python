@@ -5,7 +5,8 @@
 
 This file is the single source of truth for helpers duplicated between the two
 backends: CUDA_PYTHON_TOOLCHAIN resolution, the PEP 517 pathfinder-shadowing
-workaround, and the extension-ABI-scoped build stamp path helper.
+workaround, the extension-ABI-scoped build stamp path helper, and the
+CUDA_PYTHON_CYTHON_CACHE_DIR opt-in Cython cache helpers.
 `cuda_core/_build_shared.py` is a symlink to this file, so both backends
 resolve the shared code through their own `backend-path`.
 
@@ -13,12 +14,16 @@ Per-package logic (extension list, flag assembly, stamp bookkeeping, PEP 517
 hooks) stays in each package's `build_hooks.py`.
 """
 
+import contextlib
 import functools
+import hashlib
 import os
 import shutil
 import sys
 import sysconfig
+import uuid
 from pathlib import Path
+from warnings import warn
 
 # -----------------------------------------------------------------------
 # CUDA path resolution (via cuda.pathfinder, with a PEP 517 shim)
@@ -155,3 +160,134 @@ def _check_toolchain_available(name):
             f"(e.g. `apt install clang lld` or `dnf install clang lld`) "
             f"or set CUDA_PYTHON_TOOLCHAIN=gnu."
         )
+
+
+# -----------------------------------------------------------------------
+# Cython generated-source cache (opt-in via CUDA_PYTHON_CYTHON_CACHE_DIR)
+#
+# Workaround for Cython issue #7532: Cython's native cache fingerprint omits
+# `compiler_directives`, so builds with different directives (e.g. linetrace
+# for coverage) could reuse stale generated C/C++ output. This helper
+# namespaces the Cython cache by package and a digest of output-affecting
+# build configuration so distinct configurations get distinct caches.
+#
+# Removal: once cython/cython#7532 is resolved in a released Cython version
+# and cuda-python's minimum Cython version includes the fix, this helper
+# and its workaround-specific tests can be deleted; cythonize() can then be
+# called with `cache=<root>` (or `cache=True`) without per-config namespacing.
+# See https://github.com/cython/cython/issues/7532
+
+
+def _cython_cache_path(
+    package,
+    *,
+    compiler_directives=None,
+    compile_time_env=None,
+    language_level=None,
+    cplus=None,
+    debug=False,
+    cuda_major=None,
+):
+    """Return a per-configuration Cython cache directory, or None to disable caching.
+
+    Returns None when CUDA_PYTHON_CYTHON_CACHE_DIR is unset, so cythonize()
+    is called without ``cache=`` and existing workflows are unchanged.
+    """
+    cache_root = os.environ.get("CUDA_PYTHON_CYTHON_CACHE_DIR")
+    if not cache_root:
+        return None
+    if sys.platform == "win32":
+        warn(
+            "CUDA_PYTHON_CYTHON_CACHE_DIR is set but Cython caching via symlinks "
+            "is not supported on Windows; caching will be disabled.",
+            stacklevel=2,
+        )
+        return None
+
+    h = hashlib.sha256()
+    h.update(package.encode("utf-8"))
+    # The Python version running cythonize affects generated C code
+    # (e.g. CYTHON_COMPRESS_STRINGS: zstd on 3.14, zlib on 3.12/3.13).
+    h.update(f"python={sys.version_info.major}.{sys.version_info.minor}".encode())
+
+    def _update(name, value):
+        h.update(name.encode("utf-8"))
+        h.update(repr(value).encode("utf-8"))
+
+    # compiler_directives are not in Cython's native fingerprint (#7532).
+    if compiler_directives:
+        for key in sorted(compiler_directives):
+            _update(f"directive:{key}", compiler_directives[key])
+    # compile_time_env, language_level, and cplus are already in Cython's
+    # fingerprint, but we include them so the namespace stays correct even
+    # if Cython's fingerprint logic changes.
+    if compile_time_env:
+        for key in sorted(compile_time_env):
+            _update(f"compile_time_env:{key}", compile_time_env[key])
+    if language_level is not None:
+        _update("language_level", language_level)
+    if cplus is not None:
+        _update("cplus", cplus)
+    # debug toggles gdb_debug in cythonize(), which affects generated code.
+    _update("debug", debug)
+    if cuda_major is not None:
+        _update("cuda_major", cuda_major)
+
+    return os.path.join(cache_root, f"{package}-{h.hexdigest()[:16]}")
+
+
+@contextlib.contextmanager
+def _stable_cython_alias(target: Path, alias: Path):
+    """Atomically create a stable directory symlink alias for a Cython include tree.
+
+    Cython's cache fingerprint includes the absolute path of each resolved
+    .pxd dependency (via ``file_hash()``). PEP 517 build environments install
+    dependencies under randomized temporary prefixes, making those paths
+    unstable across runs. This context manager creates a fixed, worktree-
+    relative symlink so Cython sees a stable lexical path.
+
+    The symlink is created in the *package directory* (the directory containing
+    this shared file — i.e. cuda_bindings/ or cuda_core/ depending on which
+    backend loaded us; Python does not resolve `__file__` through symlinks),
+    not in the cwd, to keep aliases package-local and avoid cross-package
+    races.
+
+    alias must not already exist as a real file or directory; if it is a
+    symlink (including a dangling one) it is atomically replaced.
+
+    On exit the alias is removed only if it still points at ``target`` (a
+    racing replacement will not be deleted).
+
+    POSIX only: directory symlinks require no elevated privileges on Linux.
+    """
+    # Resolve the *parent* directory (must exist), then append the name.
+    # We deliberately do not follow a symlink that may already sit at alias.
+    if not alias.is_absolute():
+        alias = Path(__file__).parent / alias
+    alias = alias.parent.resolve() / alias.name
+    target = target.resolve()
+
+    if alias.exists() and not alias.is_symlink():
+        raise RuntimeError(
+            f"Cannot create Cython include alias at {alias}: a real file or directory already exists there."
+        )
+
+    tmp_alias = alias.with_name(f".{alias.name}.{uuid.uuid4().hex[:8]}.tmp")
+    try:
+        os.symlink(target, tmp_alias, target_is_directory=True)
+        try:
+            os.replace(tmp_alias, alias)
+        except BaseException:
+            tmp_alias.unlink(missing_ok=True)
+            raise
+        rel = os.path.relpath(alias, start=Path.cwd())
+        yield rel
+    finally:
+        tmp_alias.unlink(missing_ok=True)
+        # Only remove the alias we created; leave it alone if something else
+        # has already replaced it (readlink will differ).
+        try:
+            if alias.is_symlink() and Path(os.readlink(alias)).resolve() == target:
+                alias.unlink()
+        except OSError:
+            pass
