@@ -30,6 +30,9 @@ get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
 get_requires_for_build_wheel = _build_meta.get_requires_for_build_wheel
 get_requires_for_build_editable = _build_meta.get_requires_for_build_editable
 
+# Note: There is no support guarantee for environment variables like
+# CUDA_PYTHON_TOOLCHAIN, etc. They may be removed or changed in the future.
+
 # Populated by _build_cuda_bindings(); consumed by setup.py.
 _extensions = None
 
@@ -78,6 +81,180 @@ def _get_cuda_path() -> str:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
     print("CUDA path:", cuda_path)
     return cuda_path
+
+
+# -----------------------------------------------------------------------
+# Toolchain selection
+#
+# The helpers below (down to the end-of-shared-block marker) are duplicated
+# verbatim in cuda_core/build_hooks.py. Keep them in sync. Only the
+# per-package _resolve_toolchain() flag assembly that follows is package-
+# specific (it differs because the two packages use different C++ standards
+# and opt levels).
+
+# --- begin shared toolchain helpers (keep in sync) ---
+_TOOLCHAINS_LINUX = ("gnu", "llvm")
+_TOOLCHAINS_WINDOWS = ("msvc",)
+_TOOLCHAIN_COMPILERS = {
+    "gnu": ("gcc", "g++"),
+    "llvm": ("clang", "clang++"),
+    "msvc": (None, None),
+}
+
+
+def _resolve_toolchain_name():
+    """Read CUDA_PYTHON_TOOLCHAIN, validate it, return (name, allowed, cc, cxx).
+
+    The default toolchain (gnu on Linux, msvc on Windows) is the first entry
+    of the platform's allowed tuple. cc/cxx are the compiler binaries for the
+    toolchain (None for msvc, which distutils discovers via the MSVC env).
+    """
+    if sys.platform == "win32":
+        platform_key, allowed = "win32", _TOOLCHAINS_WINDOWS
+    else:
+        platform_key, allowed = "linux", _TOOLCHAINS_LINUX
+    name = os.environ.get("CUDA_PYTHON_TOOLCHAIN", allowed[0]).strip().lower()
+    if name not in allowed:
+        raise RuntimeError(
+            f"CUDA_PYTHON_TOOLCHAIN={name!r} is not supported on {platform_key}. Valid values: {', '.join(allowed)}."
+        )
+    cc, cxx = _TOOLCHAIN_COMPILERS[name]
+    explicit = bool(os.environ.get("CUDA_PYTHON_TOOLCHAIN", "").strip())
+    return name, allowed, cc, cxx, explicit
+
+
+def _apply_toolchain_env(cc, cxx, explicit):
+    """Set CC/CXX/LDSHARED for an explicitly-chosen toolchain.
+
+    The default path (CUDA_PYTHON_TOOLCHAIN unset) intentionally
+    does not touch the env, so an externally-set compiler (e.g.
+    CC="sccache cc" in CI) keeps working. An explicit CUDA_PYTHON_TOOLCHAIN
+    override (incl. =gnu) governs the compiler and overrides CC/CXX/LDSHARED.
+    """
+    if explicit and cc is not None:
+        os.environ["CC"] = cc
+        os.environ["CXX"] = cxx
+        os.environ["LDSHARED"] = f"{cxx} -shared"
+
+
+def _check_toolchain_available(name):
+    """Preflight: verify the selected toolchain's tools are on PATH.
+
+    No-op for the platform default (distutils discovers those). For llvm,
+    probes clang, clang++, and ld.lld so a missing toolchain fails fast with a
+    helpful message instead of a cryptic compile error.
+    """
+    if name != "llvm":
+        return
+    tools = ("clang", "clang++", "ld.lld")
+    missing = [t for t in tools if shutil.which(t) is None]
+    if missing:
+        raise RuntimeError(
+            f"CUDA_PYTHON_TOOLCHAIN=llvm but required tool(s) not found on PATH: "
+            f"{', '.join(missing)}. Install clang and lld "
+            f"(e.g. `apt install clang lld` or `dnf install clang lld`) "
+            f"or set CUDA_PYTHON_TOOLCHAIN=gnu."
+        )
+
+
+# --- end shared toolchain helpers ---
+
+
+def _resolve_toolchain(debug=False, compile_for_coverage=False):
+    """Resolve the C/C++ toolchain from CUDA_PYTHON_TOOLCHAIN.
+
+    Returns (name, cc, cxx, extra_compile_args, extra_link_args). The default
+    toolchain (gnu on Linux, msvc on Windows) reproduces the previous build
+    behavior and does not touch CC/CXX/LDSHARED, so an externally-set compiler
+    (e.g. CC="sccache cc") keeps working. A non-default toolchain (llvm on
+    Linux) selects clang/clang++ and lld and sets CC/CXX/LDSHARED so distutils'
+    customize_compiler picks them up.
+    """
+    name, _allowed, cc, cxx, explicit = _resolve_toolchain_name()
+
+    extra_compile_args = []
+    extra_link_args = []
+
+    if name == "msvc":
+        if debug:
+            raise RuntimeError("Debuggable builds are not supported on Windows.")
+    else:
+        # Common Linux compile flags.
+        extra_compile_args += ["-std=c++14", "-Wno-deprecated-declarations"]
+        # Compiler-specific flags.
+        if name == "gnu":
+            extra_compile_args += ["-fpermissive", "-fno-var-tracking-assignments"]
+        elif name == "llvm":
+            extra_link_args += ["-fuse-ld=lld"]
+        # Common Linux debug/opt flags.
+        if debug:
+            extra_compile_args += ["-g", "-O0", "-D _GLIBCXX_ASSERTIONS"]
+        else:
+            extra_compile_args += ["-g0", "-O3"]
+            extra_link_args += ["-Wl,--strip-all"]
+
+    if compile_for_coverage:
+        # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
+        # related to free-threading builds.
+        extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
+
+    _apply_toolchain_env(cc, cxx, explicit)
+
+    return name, cc, cxx, extra_compile_args, extra_link_args
+
+
+# -----------------------------------------------------------------------
+# Toolchain stamp
+
+_BUILD_DIR = Path(__file__).parent / "build"
+
+
+def _abi_stamp_path(stem):
+    """Return a stamp path scoped to this interpreter's extension ABI."""
+    extension_suffix = sysconfig.get_config_var("EXT_SUFFIX")
+    if not extension_suffix:
+        raise RuntimeError("Python's EXT_SUFFIX build configuration is unavailable")
+    return _BUILD_DIR / f"{stem}{extension_suffix}"
+
+
+# Records the toolchain of the last completed build for this extension ABI,
+# so setup.py can force build_ext when it changes. Written by
+# record_build_toolchain().
+_BUILD_TOOLCHAIN_STAMP = _abi_stamp_path(".build-toolchain")
+
+force_build_ext = False
+
+
+def _check_build_toolchain(toolchain):
+    """Set force_build_ext when the toolchain changed since the last build.
+
+    Setuptools' freshness check does not include the extension flags, so a
+    stale .so compiled by a previous toolchain would otherwise be packaged.
+    """
+    global force_build_ext
+
+    try:
+        previous = _BUILD_TOOLCHAIN_STAMP.read_text(encoding="utf-8").strip()
+    except FileNotFoundError:
+        previous = None
+
+    # A missing stamp means the last build's toolchain is unknown, so force too.
+    # On a first build that costs nothing: there are no artifacts to reuse.
+    if previous != toolchain:
+        print(f"Toolchain of last build: {previous} (building {toolchain}); forcing a full rebuild")
+        force_build_ext = True
+
+
+def record_build_toolchain() -> None:
+    """Stamp the toolchain of the build that just completed.
+
+    setup.py calls this after build_ext succeeds, so that a build which failed
+    partway through does not claim outputs it never produced. Re-derives the
+    toolchain name from the environment rather than caching it in a global.
+    """
+    name, *_ = _resolve_toolchain_name()
+    _BUILD_TOOLCHAIN_STAMP.parent.mkdir(parents=True, exist_ok=True)
+    _BUILD_TOOLCHAIN_STAMP.write_text(name + "\n", encoding="utf-8")
 
 
 # -----------------------------------------------------------------------
@@ -155,6 +332,17 @@ def _build_cuda_bindings(debug=False):
 
     compile_for_coverage = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
+    # Resolve the C/C++ toolchain (CUDA_PYTHON_TOOLCHAIN). The default (gnu on
+    # Linux, msvc on Windows) reproduces the previous build behavior and does
+    # not touch CC/CXX, so an externally-set compiler (e.g. sccache) survives.
+    toolchain, _cc, _cxx, extra_compile_args, extra_link_args = _resolve_toolchain(
+        debug=debug, compile_for_coverage=compile_for_coverage
+    )
+    _check_toolchain_available(toolchain)
+    extra_cythonize_kwargs = {}
+    if debug and sys.platform != "win32":
+        extra_cythonize_kwargs["gdb_debug"] = True
+
     # Prepare compile/link arguments
     include_path_list = [os.path.join(cuda_path, "include")]
     include_dirs = [
@@ -166,31 +354,6 @@ def _build_cuda_bindings(debug=False):
     else:
         cudalib_subdirs = ["lib64", "lib"]
     library_dirs.extend(os.path.join(cuda_path, subdir) for subdir in cudalib_subdirs)
-
-    extra_compile_args = []
-    extra_link_args = []
-    extra_cythonize_kwargs = {}
-    if sys.platform == "win32":
-        if debug:
-            raise RuntimeError("Debuggable builds are not supported on Windows.")
-    else:
-        extra_compile_args += [
-            "-std=c++14",
-            "-fpermissive",
-            "-Wno-deprecated-declarations",
-            "-fno-var-tracking-assignments",
-        ]
-        if debug:
-            extra_cythonize_kwargs["gdb_debug"] = True
-            extra_compile_args += ["-g", "-O0"]
-            extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]
-        else:
-            extra_compile_args += ["-g0", "-O3"]
-            extra_link_args += ["-Wl,--strip-all"]
-    if compile_for_coverage:
-        # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
-        # related to free-threading builds.
-        extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
 
     # Rename architecture-specific files
     dst_files = _rename_architecture_specific_files()
@@ -235,6 +398,10 @@ def _build_cuda_bindings(debug=False):
     cython_directives = {"language_level": 3, "embedsignature": True, "binding": True, "freethreading_compatible": True}
     if compile_for_coverage:
         cython_directives["linetrace"] = True
+
+    # Force a full rebuild when the toolchain changed since the last successful
+    # build, so a stale .so from a previous toolchain is never packaged.
+    _check_build_toolchain(toolchain)
 
     _extensions = cythonize(
         extensions,

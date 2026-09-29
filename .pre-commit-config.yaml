@@ -72,6 +72,13 @@ repos:
         language: python
         files: '^cuda_core/tests/.*\.py$'
 
+      - id: check-build-hooks-sync
+        name: Check shared toolchain block is in sync across build_hooks.py files
+        entry: python ./toolshed/check_build_hooks_sync.py
+        language: python
+        files: '^(cuda_bindings|cuda_core)/build_hooks\.py$'
+        pass_filenames: false
+
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
         entry: bash -c
