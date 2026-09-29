@@ -1,6 +1,0 @@
-﻿cuda.core.system.UninitializedError
-===================================
-
-.. currentmodule:: cuda.core.system
-
-.. autoexception:: UninitializedError
