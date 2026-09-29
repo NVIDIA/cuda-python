@@ -1,0 +1,6 @@
+﻿cuda.core.system.DriverNotLoadedError
+=====================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: DriverNotLoadedError
