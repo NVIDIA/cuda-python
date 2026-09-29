@@ -95,19 +95,23 @@ def _abi_stamp_path(stem):
     return _BUILD_DIR / f"{stem}{extension_suffix}"
 
 
-def check_build_key(stamp, get_key) -> bool:
-    """Return True when ``get_key()`` differs from the value in ``stamp``.
+# Set to True by ``check_build_key`` when the current key differs from the
+# stamped one. Each ``build_hooks.py`` re-exports this via module-level
+# ``__getattr__`` so setup.py's ``build_hooks.force_build_ext`` attribute
+# read continues to work transparently.
+force_build_ext = False
+
+
+def check_build_key(stamp, get_key) -> None:
+    """Compare ``get_key()`` against the value in ``stamp`` and flip force_build_ext.
 
     Each backend supplies a package-specific ``get_key`` callable (e.g. the
     toolchain name for cuda.bindings, or a composite ``cu{major}-{toolchain}-
-    {opt|debug}[-cov]`` key for cuda.core). The caller uses the returned bool
-    to flip its own ``force_build_ext`` module global, so the mutation stays
-    package-local and setup.py can keep reading ``build_hooks.force_build_ext``
-    without any re-export tricks.
-
-    A missing stamp counts as a change, which forces a rebuild on the first
-    build after this helper is introduced. That is the intended cost.
+    {opt|debug}[-cov]`` key for cuda.core). A missing stamp counts as a
+    change, which forces a rebuild on the first build after this helper is
+    introduced. That is the intended cost.
     """
+    global force_build_ext
     key = get_key()
     try:
         previous = stamp.read_text(encoding="utf-8").strip()
@@ -115,8 +119,7 @@ def check_build_key(stamp, get_key) -> bool:
         previous = None
     if previous != key:
         print(f"Build key of last build: {previous} (building {key}); forcing a full rebuild")
-        return True
-    return False
+        force_build_ext = True
 
 
 def record_build_key(stamp, get_key) -> None:

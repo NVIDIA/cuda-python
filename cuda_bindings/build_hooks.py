@@ -51,7 +51,7 @@ from _build_shared import (  # noqa: E402
     _resolve_toolchain_name,
     _stable_cython_alias,
     check_build_key,
-    record_build_key,
+    record_build_key,  # noqa: F401  (setup.py stamps the toolchain via this)
 )
 
 
@@ -101,12 +101,11 @@ def _resolve_toolchain(debug=False, compile_for_coverage=False):
 # -----------------------------------------------------------------------
 # Toolchain stamp
 #
-# The mechanics (read/compare/write) live in _build_shared as check_build_key
-# and record_build_key; the key here is just the toolchain name.
+# The stamp mechanics (read/compare/flip force_build_ext / write) live in
+# _build_shared as check_build_key and record_build_key. Here we only define
+# what's package-specific: the stamp path and the key-gen callable.
 
 _BUILD_TOOLCHAIN_STAMP = _abi_stamp_path(".build-toolchain")
-
-force_build_ext = False
 
 
 def _current_toolchain_key() -> str:
@@ -115,24 +114,15 @@ def _current_toolchain_key() -> str:
     return name
 
 
-def _check_build_toolchain(toolchain: str) -> None:
-    """Force build_ext when the toolchain changed since the last successful build.
+def __getattr__(name):
+    # force_build_ext is owned by _build_shared so both backends share the
+    # same rebuild-force signal; re-export it here so setup.py's
+    # ``build_hooks.force_build_ext`` attribute read stays unchanged.
+    if name == "force_build_ext":
+        import _build_shared
 
-    Setuptools' freshness check does not include the extension flags, so a
-    stale .so compiled by a previous toolchain would otherwise be packaged.
-    """
-    global force_build_ext
-    if check_build_key(_BUILD_TOOLCHAIN_STAMP, lambda: toolchain):
-        force_build_ext = True
-
-
-def record_build_toolchain() -> None:
-    """Stamp the toolchain of the build that just completed.
-
-    setup.py calls this after build_ext succeeds so a build that failed
-    partway through does not claim outputs it never produced.
-    """
-    record_build_key(_BUILD_TOOLCHAIN_STAMP, _current_toolchain_key)
+        return _build_shared.force_build_ext
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 # -----------------------------------------------------------------------
@@ -280,7 +270,7 @@ def _build_cuda_bindings(debug=False):
 
     # Force a full rebuild when the toolchain changed since the last successful
     # build, so a stale .so from a previous toolchain is never packaged.
-    _check_build_toolchain(toolchain)
+    check_build_key(_BUILD_TOOLCHAIN_STAMP, lambda: toolchain)
 
     cache_path = _cython_cache_path(
         "cuda-bindings",

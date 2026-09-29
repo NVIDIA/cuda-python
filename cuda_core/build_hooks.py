@@ -145,11 +145,9 @@ _extensions = None
 
 # Records the build configuration (CUDA major, toolchain, debug/coverage) of
 # the last completed build for this extension ABI, so setup.py can force
-# build_ext when it changes. Written by record_build_config() after the
-# PEP 517 backend succeeds.
+# build_ext when it changes. Stamp mechanics (read/compare/flip force_build_ext
+# / write) live in _build_shared as check_build_key / record_build_key.
 _BUILD_CONFIG_STAMP = _abi_stamp_path(".build-config")
-
-force_build_ext = False
 
 
 def _build_config_key(cuda_major, toolchain, debug, coverage):
@@ -157,34 +155,15 @@ def _build_config_key(cuda_major, toolchain, debug, coverage):
     return f"cu{cuda_major}-{toolchain}-{'debug' if debug else 'opt'}{'-cov' if coverage else ''}"
 
 
-def _check_build_config(toolchain, debug, coverage):
-    """Return (cuda_major, config_key), and force a rebuild when the config changed.
+def __getattr__(name):
+    # force_build_ext is owned by _build_shared so both backends share the
+    # same rebuild-force signal; re-export it here so setup.py's
+    # ``build_hooks.force_build_ext`` attribute read stays unchanged.
+    if name == "force_build_ext":
+        import _build_shared
 
-    Cython's up-to-date check does not hash ``compile_time_env`` or the
-    extension flags, so generated sources and compiled extensions from a
-    previous configuration would otherwise be reused. Keying the generated-
-    source directory fixes the generated C++, but not the compiled
-    extension: in an editable install it lands in the source tree under a
-    name keyed by the Python ABI tag alone. The build configuration (CUDA
-    major, toolchain, debug/coverage) is therefore stamped and build_ext
-    forced whenever it changes, so a stale .so is never packaged.
-    """
-    global force_build_ext
-    cuda_major = _determine_cuda_major_version()
-    key = _build_config_key(cuda_major, toolchain, debug, coverage)
-    if check_build_key(_BUILD_CONFIG_STAMP, lambda: key):
-        force_build_ext = True
-    return cuda_major, key
-
-
-def record_build_config(key) -> None:
-    """Stamp the exact configuration that `_build_cuda_core()` prepared.
-
-    The PEP 517 hooks call this after the wheel or editable build succeeds,
-    passing the key already checked rather than re-deriving from ambient
-    state (setuptools' `build_ext.debug` is not `config_settings["debug"]`).
-    """
-    record_build_key(_BUILD_CONFIG_STAMP, lambda: key)
+        return _build_shared.force_build_ext
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def _relativize_extension_sources(extensions) -> None:
@@ -314,7 +293,9 @@ def _build_cuda_core(debug=False):
     # Deliberately after the cuda.bindings import above: this re-enters
     # _get_cuda_path() and reads cuda.h, which must not run before the
     # pathfinder import has repaired PEP 517 namespace shadowing.
-    cuda_major, config_key = _check_build_config(toolchain, debug, COMPILE_FOR_COVERAGE)
+    cuda_major = _determine_cuda_major_version()
+    config_key = _build_config_key(cuda_major, toolchain, debug, COMPILE_FOR_COVERAGE)
+    check_build_key(_BUILD_CONFIG_STAMP, lambda: config_key)
 
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
     compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(cuda_major)}
@@ -466,7 +447,7 @@ def build_editable(wheel_directory, config_settings=None, metadata_directory=Non
     # Patch the .pth file to add Cython include paths
     wheel_path = os.path.join(wheel_directory, wheel_name)
     _add_cython_include_paths_to_pth(wheel_path)
-    record_build_config(config_key)
+    record_build_key(_BUILD_CONFIG_STAMP, lambda: config_key)
 
     return wheel_name
 
@@ -475,7 +456,7 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     debug = config_settings.get("debug", False) if config_settings else False
     config_key = _build_cuda_core(debug=debug)
     wheel_name = _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
-    record_build_config(config_key)
+    record_build_key(_BUILD_CONFIG_STAMP, lambda: config_key)
     return wheel_name
 
 

@@ -198,16 +198,15 @@ class TestGetCudaMajorVersion:
 
 @pytest.fixture
 def stamp(tmp_path, monkeypatch):
-    """Redirect the build-config stamp to a scratch path.
+    """Redirect the build-config stamp to a scratch path and reset the shared force flag.
 
-    _BUILD_CONFIG_STAMP is anchored to build_hooks.py rather than the
-    working directory, so it has to be replaced outright; chdir would
-    not move it, and record_build_config() would write into the
-    real source tree.
+    _BUILD_CONFIG_STAMP is anchored to build_hooks.py rather than the working
+    directory, so it has to be replaced outright; chdir would not move it, and
+    ``record_build_key`` would write into the real source tree.
     """
     scratch = tmp_path / "build" / ".build-config"
     monkeypatch.setattr(build_hooks, "_BUILD_CONFIG_STAMP", scratch)
-    monkeypatch.setattr(build_hooks, "force_build_ext", False)
+    monkeypatch.setattr(sys.modules["_build_shared"], "force_build_ext", False)
     build_hooks._get_cuda_path.cache_clear()
     build_hooks._determine_cuda_major_version.cache_clear()
     get_cuda_path_or_home.cache_clear()
@@ -222,17 +221,34 @@ def _write_stamp(stamp, config_key):
     stamp.write_text(config_key + "\n")
 
 
-class TestBuildConfigStamp:
-    """cuda.core-specific ``_check_build_config`` / ``record_build_config`` tests.
+def _check_config(toolchain, debug, coverage):
+    """Compute cuda_major + key and call the shared check_build_key.
 
-    The ``_abi_stamp_path`` scoping mechanism itself is covered by
-    ``TestAbiStampPath`` via the shared mixin.
+    Mirrors what ``_build_cuda_core`` does at build time; kept in one place
+    so the tests can just parameterize the inputs.
+    """
+    cuda_major = build_hooks._determine_cuda_major_version()
+    key = build_hooks._build_config_key(cuda_major, toolchain, debug, coverage)
+    build_hooks.check_build_key(build_hooks._BUILD_CONFIG_STAMP, lambda: key)
+    return cuda_major, key
+
+
+class TestBuildConfigStamp:
+    """cuda.core-specific stamp bookkeeping tests.
+
+    The check/record mechanics themselves live in ``_build_shared`` and are
+    called through ``check_build_key`` / ``record_build_key``. The tests here
+    assert core-specific behavior: the stamp value is the composite
+    ``cu{major}-{toolchain}-{opt|debug}[-cov]`` key.
+
+    The ``_abi_stamp_path`` scoping mechanism is covered by ``TestAbiStampPath``
+    via the shared mixin.
     """
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_missing_stamp_forces_rebuild(self, stamp):
         # No stamp means the last build's config is unknown, so rebuild.
-        cuda_major, key = build_hooks._check_build_config("gnu", False, False)
+        cuda_major, key = _check_config("gnu", False, False)
         assert cuda_major == "13"
         assert key == "cu13-gnu-opt"
         assert build_hooks.force_build_ext is True
@@ -240,38 +256,38 @@ class TestBuildConfigStamp:
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_same_config_does_not_force(self, stamp):
         _write_stamp(stamp, "cu13-gnu-opt")
-        cuda_major, key = build_hooks._check_build_config("gnu", False, False)
+        cuda_major, _key = _check_config("gnu", False, False)
         assert cuda_major == "13"
         assert build_hooks.force_build_ext is False
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_changed_cuda_major_forces_rebuild(self, stamp):
         _write_stamp(stamp, "cu12-gnu-opt")
-        cuda_major, _ = build_hooks._check_build_config("gnu", False, False)
+        cuda_major, _key = _check_config("gnu", False, False)
         assert cuda_major == "13"
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_changed_toolchain_forces_rebuild(self, stamp):
         _write_stamp(stamp, "cu13-gnu-opt")
-        build_hooks._check_build_config("llvm", False, False)
+        _check_config("llvm", False, False)
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_changed_debug_forces_rebuild(self, stamp):
         _write_stamp(stamp, "cu13-gnu-opt")
-        build_hooks._check_build_config("gnu", True, False)
+        _check_config("gnu", True, False)
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_changed_coverage_forces_rebuild(self, stamp):
         _write_stamp(stamp, "cu13-gnu-opt")
-        build_hooks._check_build_config("gnu", False, True)
+        _check_config("gnu", False, True)
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="grok-4.6")
     def test_record_writes_stamp(self, stamp):
-        build_hooks.record_build_config("cu13-gnu-debug")
+        build_hooks.record_build_key(stamp, lambda: "cu13-gnu-debug")
         assert stamp.read_text().strip() == "cu13-gnu-debug"
 
 
@@ -290,7 +306,11 @@ class TestBuildHookStamping:
 
         monkeypatch.setattr(build_hooks, "_build_cuda_core", prepare)
         monkeypatch.setattr(build_hooks._build_meta, "build_wheel", build)
-        monkeypatch.setattr(build_hooks, "record_build_config", lambda key: events.append(("record", key)))
+        monkeypatch.setattr(
+            build_hooks,
+            "record_build_key",
+            lambda _stamp, get_key: events.append(("record", get_key())),
+        )
 
         wheel_name = build_hooks.build_wheel("dist", {"debug": True}, "metadata")
 
@@ -319,7 +339,11 @@ class TestBuildHookStamping:
             "_add_cython_include_paths_to_pth",
             lambda wheel_path: events.append(("patch", wheel_path)),
         )
-        monkeypatch.setattr(build_hooks, "record_build_config", lambda key: events.append(("record", key)))
+        monkeypatch.setattr(
+            build_hooks,
+            "record_build_key",
+            lambda _stamp, get_key: events.append(("record", get_key())),
+        )
 
         wheel_name = build_hooks.build_editable("dist")
 
@@ -345,8 +369,8 @@ class TestBuildHookStamping:
         monkeypatch.setattr(build_hooks._build_meta, "build_wheel", fail)
         monkeypatch.setattr(
             build_hooks,
-            "record_build_config",
-            lambda _key: pytest.fail("failed build must not be stamped"),
+            "record_build_key",
+            lambda *_args: pytest.fail("failed build must not be stamped"),
         )
 
         with pytest.raises(RuntimeError, match="wheel build failed"):
@@ -367,8 +391,8 @@ class TestBuildHookStamping:
         monkeypatch.setattr(build_hooks, "_add_cython_include_paths_to_pth", fail)
         monkeypatch.setattr(
             build_hooks,
-            "record_build_config",
-            lambda _key: pytest.fail("unpatched editable build must not be stamped"),
+            "record_build_key",
+            lambda *_args: pytest.fail("unpatched editable build must not be stamped"),
         )
 
         with pytest.raises(RuntimeError, match="editable patch failed"):

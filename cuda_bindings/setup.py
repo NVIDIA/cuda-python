@@ -28,11 +28,12 @@ class build_ext(_build_ext):
         if nthreads > 0:
             self.parallel = nthreads
         # A stale .so from a previous toolchain looks perfectly fresh;
-        # see build_hooks._check_build_toolchain().
+        # see _build_shared.check_build_key(), which flips force_build_ext
+        # when the toolchain in build_hooks._BUILD_TOOLCHAIN_STAMP changed.
         if build_hooks.force_build_ext:
             self.force = True
         super().build_extensions()
-        build_hooks.record_build_toolchain()
+        build_hooks.record_build_key(build_hooks._BUILD_TOOLCHAIN_STAMP, build_hooks._current_toolchain_key)
 
 
 class build_py(_build_py):

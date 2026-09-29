@@ -121,10 +121,10 @@ class TestResolveToolchain:
 
 @pytest.fixture
 def stamp(tmp_path, monkeypatch):
-    """Redirect the toolchain stamp to a scratch path."""
+    """Redirect the toolchain stamp to a scratch path and reset the shared force flag."""
     scratch = tmp_path / "build" / ".build-toolchain"
     monkeypatch.setattr(build_hooks, "_BUILD_TOOLCHAIN_STAMP", scratch)
-    monkeypatch.setattr(build_hooks, "force_build_ext", False)
+    monkeypatch.setattr(sys.modules["_build_shared"], "force_build_ext", False)
     monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
     return scratch
 
@@ -135,34 +135,39 @@ def _write_stamp(stamp, toolchain):
 
 
 class TestBuildToolchainStamp:
-    """cuda.bindings-specific ``_check_build_toolchain`` / ``record_build_toolchain`` tests.
+    """cuda.bindings-specific stamp bookkeeping tests.
 
-    The ``_abi_stamp_path`` scoping mechanism itself is covered by
-    ``TestAbiStampPath`` via the shared mixin.
+    The check/record mechanics themselves live in ``_build_shared`` and are
+    called through ``check_build_key`` / ``record_build_key``. The tests here
+    assert bindings-specific behavior: the stamp value is just the toolchain
+    name, and ``record`` re-derives that name from the environment.
+
+    The ``_abi_stamp_path`` scoping mechanism is covered by ``TestAbiStampPath``
+    via the shared mixin.
     """
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_missing_stamp_forces_rebuild(self, stamp):
-        build_hooks._check_build_toolchain("gnu")
+        build_hooks.check_build_key(stamp, lambda: "gnu")
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_same_toolchain_does_not_force(self, stamp):
         _write_stamp(stamp, "gnu")
-        build_hooks._check_build_toolchain("gnu")
+        build_hooks.check_build_key(stamp, lambda: "gnu")
         assert build_hooks.force_build_ext is False
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_changed_toolchain_forces_rebuild(self, stamp):
         _write_stamp(stamp, "gnu")
-        build_hooks._check_build_toolchain("llvm")
+        build_hooks.check_build_key(stamp, lambda: "llvm")
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_record_writes_stamp(self, stamp):
-        # record_build_toolchain re-derives from env (CUDA_PYTHON_TOOLCHAIN unset →
+        # _current_toolchain_key re-derives from env (CUDA_PYTHON_TOOLCHAIN unset →
         # platform default: gnu on Linux, msvc on Windows).
-        build_hooks.record_build_toolchain()
+        build_hooks.record_build_key(stamp, build_hooks._current_toolchain_key)
         expected = "msvc" if sys.platform == "win32" else "gnu"
         assert stamp.read_text().strip() == expected
 

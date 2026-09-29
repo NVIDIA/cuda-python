@@ -58,7 +58,7 @@ class build_ext(_build_ext):  # noqa: N801
         super().finalize_options()
         # A stale .so from a previous build configuration (CUDA major,
         # toolchain, debug/coverage) looks perfectly fresh; see
-        # build_hooks._check_build_config().
+        # _build_shared.check_build_key() over the _BUILD_CONFIG_STAMP.
         if build_hooks.force_build_ext:
             self.force = True
 
