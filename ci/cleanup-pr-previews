@@ -29,7 +29,7 @@ USAGE: $0 [OPTIONS]
 
 OPTIONS:
     -n, --dry-run    Preview what would be deleted without actually deleting
-    --push           Commit and push from the scheduled GitHub Actions workflow
+    --push           Commit and push from the cleanup GitHub Actions workflow
     -h, --help       Show this help message
 
 EXAMPLES:
@@ -46,9 +46,9 @@ SAFETY:
 Always run with --dry-run first to verify expected behavior before actual cleanup.
 Without --push, changes are committed locally for inspection only.
 
-Remote updates are owned by the nightly "Cleanup: PR Preview Documentation"
-workflow so they share its deployment lock. The manual inspection workflow is
-read-only, and other push contexts are rejected.
+Remote updates are owned by the scheduled or manually dispatched "Cleanup: PR
+Preview Documentation" workflow so they share its deployment lock. Other push
+contexts are rejected.
 
 This script is specifically designed for the NVIDIA/cuda-python repository structure.
 EOF
@@ -82,13 +82,14 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Remote cleanup is restricted to the nightly job so all preview deletions have
-# one owner and participate in the shared gh-pages concurrency queue.
+# Remote cleanup is restricted to the cleanup workflow so all preview deletions
+# participate in the shared gh-pages concurrency queue.
 if [[ "$PUSH_CHANGES" == "true" && "$DRY_RUN" != "true" ]] &&
    [[ "${GITHUB_ACTIONS:-}" != "true" ||
-      "${GITHUB_EVENT_NAME:-}" != "schedule" ||
+      ("${GITHUB_EVENT_NAME:-}" != "schedule" &&
+       "${GITHUB_EVENT_NAME:-}" != "workflow_dispatch") ||
       "${GH_PAGES_PUBLISH_LOCK:-}" != "cuda-python-gh-pages-publish" ]]; then
-    echo -e "${RED}[ERROR]${NC} --push is reserved for the scheduled PR preview cleanup workflow" >&2
+    echo -e "${RED}[ERROR]${NC} --push is reserved for the scheduled or manually dispatched PR preview cleanup workflow" >&2
     exit 1
 fi
 
@@ -119,10 +120,12 @@ update_preview_comment() {
     local comment_id
 
     printf -v comment_body 'Doc Preview CI\n:---:\n%s\n<!-- Sticky Pull Request Commentpr-preview -->' "$status_message"
-    comment_id=$(gh api --paginate repos/"${REPOSITORY}"/issues/"${pr_number}"/comments \
+    if ! comment_id=$(gh api --paginate repos/"${REPOSITORY}"/issues/"${pr_number}"/comments \
         --header "Accept: application/vnd.github+json" \
         --jq '.[] | select(.body | contains("<!-- Sticky Pull Request Commentpr-preview -->")) | .id' \
-        | tail -n 1)
+        | tail -n 1); then
+        return 1
+    fi
 
     if [[ -n "$comment_id" ]]; then
         gh api --method PATCH repos/"${REPOSITORY}"/issues/comments/"${comment_id}" \
@@ -220,13 +223,6 @@ if [[ "$DRY_RUN" == "true" ]]; then
     echo -e "${YELLOW}[DRY RUN]${NC} Would remove ${#FOLDERS_TO_REMOVE[@]} folders (run without --dry-run to actually remove)"
 else
     echo -e "${RED}[CLEANUP]${NC} Proceeding to remove ${#FOLDERS_TO_REMOVE[@]} folders..."
-
-    if [[ "$PUSH_CHANGES" == "true" ]]; then
-        for pr_number in "${CLOSED_PRS[@]}"; do
-            update_preview_comment "$pr_number" \
-                "Preview retired because the pull request was closed or merged. The nightly cleanup removes its published files."
-        done
-    fi
 
     # Create a git worktree for gh-pages branch
     TEMP_DIR="./gh-pages-cleanup"
@@ -327,11 +323,17 @@ $(if [[ ${#FOLDERS_TO_REMOVE[@]} -gt 20 ]]; then echo "... and $((${#FOLDERS_TO_
                 git rebase refs/remotes/origin/gh-pages
             done
             echo -e "${GREEN}[SUCCESS]${NC} Cleanup completed! Removed ${REMOVED_COUNT} PR preview folders and pushed changes"
+            for pr_number in "${CLOSED_PRS[@]}"; do
+                if ! update_preview_comment "$pr_number" \
+                    "Preview removed because the pull request was closed or merged."; then
+                    echo -e "${YELLOW}[WARNING]${NC} Could not update the preview comment for PR #${pr_number}; continuing" >&2
+                fi
+            done
         else
             CHANGES_PUSHED="false"
             echo -e "${GREEN}[SUCCESS]${NC} Cleanup completed! Removed ${REMOVED_COUNT} PR preview folders"
             echo -e "${YELLOW}[INFO]${NC} Changes have been committed locally for inspection but not pushed."
-            echo -e "${YELLOW}[INFO]${NC} The nightly PR preview cleanup workflow owns remote deletions."
+            echo -e "${YELLOW}[INFO]${NC} The PR preview cleanup workflow owns remote deletions."
             echo -e "${YELLOW}[WARNING]${NC} Worktree will be preserved for manual verification."
         fi
     else
