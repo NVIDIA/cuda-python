@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_irq\_num
+========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_irq_num

@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.TimeoutError
+===============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: TimeoutError
