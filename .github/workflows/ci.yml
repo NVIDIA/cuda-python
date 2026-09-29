@@ -732,34 +732,6 @@ jobs:
           # report to the job summary instead and creates no check.
           use-actions-summary: false
 
-      - name: Publish test results (junit-report)
-        # Third reporter under evaluation: worded status columns and room for
-        # our own explanatory text ahead of its tables.
-        if: ${{ needs.should-skip.outputs.skip != 'true' }}
-        continue-on-error: true
-        uses: mikepenz/action-junit-report@a9170d5795813c01ab4901ffb045b52bab4ab09d  # v6.5.0
-        with:
-          check_name: Test Results (junit-report)
-          report_paths: test-results/**/*.xml
-          job_summary: true
-          job_summary_text: |
-            **How to read this report.** CI runs the test suites once per configuration,
-            where a configuration is a platform, a Python version, a CUDA version, and a
-            GPU. The table below merges the JUnit files from every configuration, so its
-            counts are test executions: a test that fails on three configurations counts
-            three times. A *failure* is an assertion or exception inside the test body.
-            An *error* is an exception outside it, in fixture setup or teardown or during
-            collection. Per-configuration counts are in the "Test Results (by
-            configuration)" check.
-          summary: Counts are test executions across all configurations. See the per-configuration check for the breakdown by platform.
-          include_time_in_summary: true
-          skip_annotations: true
-          check_annotations: false
-          comment: true
-          updateComment: true
-          fail_on_failure: false
-          require_tests: false
-
       - name: Exit
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
