@@ -52,8 +52,8 @@ jobs:
         fi
         mkdir -p release
         gh run view 36579081279 --repo "$GITHUB_REPOSITORY" --json databaseId,event,headBranch,headSha,url,workflowName,status,conclusion > release/artifact-run.json
-        gh api --paginate --slurp 'repos/NVIDIA/cuda-python/actions/runs/36579081279/jobs?per_page=100' \
-          --jq '[.[] | .jobs[] | {id,name,status,conclusion,html_url,started_at,completed_at}]' > release/prerequisite-jobs.json
+        gh api --paginate --slurp 'repos/NVIDIA/cuda-python/actions/runs/36579081279/jobs?per_page=100' |
+          jq '[.[] | .jobs[] | {id,name,status,conclusion,html_url,started_at,completed_at}]' > release/prerequisite-jobs.json
         python - <<'PY'
         import json
         from pathlib import Path
