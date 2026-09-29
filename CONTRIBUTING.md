@@ -150,9 +150,8 @@ otherwise the "symlinks" land in your working tree as plain text files that
 contain the target path — enough to look right in `git status`, but not enough
 to actually build.
 
-1. **Enable Windows Developer Mode** so Git can create symlinks without
-   Administrator privileges. Open *Settings* → *System* → *For developers* and
-   turn on *Developer Mode*.
+1. **[Activate Developer Mode](https://learn.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development#activate-developer-mode)**
+   so Git can create symlinks without Administrator privileges.
 
 2. **Enable Git symlink support globally** so newly-cloned repositories inherit
    the setting:
