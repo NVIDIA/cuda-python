@@ -317,120 +317,50 @@ The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and
 
 ### CI Pipeline Flow
 
-![CUDA Python CI Pipeline Flow](ci/ci-pipeline.svg)
-
-Alternative Mermaid diagram representation:
-
 ```mermaid
 flowchart TD
-    %% Trigger Events
-    subgraph TRIGGER["🔄 TRIGGER EVENTS"]
-        T1["• Push to main branch"]
-        T2["• Pull request<br/>• Manual workflow dispatch"]
-        T1 --- T2
-    end
-
-    %% Build Stage
-    subgraph BUILD["🔨 BUILD STAGE"]
-        subgraph BUILD_PLATFORMS["Parallel Platform Builds"]
-            B1["linux-64<br/>(Self-hosted)"]
-            B2["linux-aarch64<br/>(Self-hosted)"]
-            B3["win-64<br/>(GitHub-hosted)"]
-        end
-        BUILD_DETAILS["• Python versions: 3.10, 3.11, 3.12, 3.13, 3.14<br/>• CUDA build lines: configured 12.9 and 13.x<br/>• Components: cuda-core, cuda-bindings 12/13,<br/>  cuda-pathfinder, cuda-python"]
-    end
-
-    %% Artifact Storage
-    subgraph ARTIFACTS["📦 ARTIFACT STORAGE"]
-        subgraph GITHUB_ARTIFACTS["GitHub Artifacts"]
-            GA1["• Wheel files (.whl)<br/>• Test artifacts<br/>• Documentation<br/>(30-day retention)"]
-        end
-        subgraph GITHUB_CACHE["GitHub Cache"]
-            GC1["• Mini CTK cache"]
-        end
-    end
-
-    %% Test Stage
-    subgraph TEST["🧪 TEST STAGE"]
-        subgraph TEST_PLATFORMS["Parallel Platform Tests"]
-            TS1["linux-64<br/>(Self-hosted)"]
-            TS2["linux-aarch64<br/>(Self-hosted)"]
-            TS3["win-64<br/>(GitHub-hosted)"]
-        end
-        TEST_DETAILS["• Download wheels from artifacts<br/>• Test against multiple CUDA runtime versions<br/>• Run Python unit tests, Cython tests, examples"]
-        ARTIFACT_FLOWS["Artifact Flows:<br/>• cuda_bindings_12 → CUDA 12 tests<br/>• cuda_bindings → CUDA 13 tests"]
-    end
-
-    %% Release Pipeline
-    subgraph RELEASE["🚀 RELEASE PIPELINE"]
-        subgraph RELEASE_STAGES["Sequential Release Steps"]
-            R1["Validation<br/>• Artifact integrity<br/>• Git tag verification"]
-            R2["Publishing<br/>• PyPI/TestPyPI<br/>• Component or all releases"]
-            R3["Documentation<br/>• GitHub Pages<br/>• Release notes"]
-            R1 --> R2 --> R3
-        end
-        RELEASE_DETAILS["• Manual workflow dispatch with run ID<br/>• Supports individual component or full releases"]
-    end
-
-    %% Main Flow
-    TRIGGER --> BUILD
-    BUILD -.->|"wheel upload"| ARTIFACTS
-    ARTIFACTS -.-> TEST
-    TEST --> RELEASE
-
-    %% Artifact Flow Arrows (Cache Reuse)
-    GITHUB_CACHE -.->|"mini CTK reuse"| BUILD
-    GITHUB_CACHE -.->|"mini CTK reuse"| TEST
-
-    %% Artifact Flow Arrows (Wheel Fetch)
-    GITHUB_ARTIFACTS -.->|"wheel fetch"| TEST
-    GITHUB_ARTIFACTS -.->|"wheel fetch"| RELEASE
-
-    %% Styling
-    classDef triggerStyle fill:#e8f4fd,stroke:#2196F3,stroke-width:2px,color:#1976D2
-    classDef buildStyle fill:#f3e5f5,stroke:#9C27B0,stroke-width:2px,color:#7B1FA2
-    classDef artifactStyle fill:#fff3e0,stroke:#FF9800,stroke-width:2px,color:#F57C00
-    classDef testStyle fill:#e8f5e8,stroke:#4CAF50,stroke-width:2px,color:#388E3C
-    classDef releaseStyle fill:#ffebee,stroke:#f44336,stroke-width:2px,color:#D32F2F
-
-    class TRIGGER,T1,T2 triggerStyle
-    class BUILD,BUILD_PLATFORMS,B1,B2,B3,BUILD_DETAILS buildStyle
-    class ARTIFACTS,GITHUB_ARTIFACTS,GITHUB_CACHE,GA1,GC1 artifactStyle
-    class TEST,TEST_PLATFORMS,TS1,TS2,TS3,TEST_DETAILS,ARTIFACT_FLOWS testStyle
-    class RELEASE,RELEASE_STAGES,R1,R2,R3,RELEASE_DETAILS releaseStyle
+    PR[Main, approved PR, or manual dispatch] --> PLAN[Select affected packages and dependencies]
+    TAG[Immutable package release tag] --> SELECT[Select package from tagged source]
+    PLAN --> BUILD[Build wheels and source distributions]
+    SELECT --> BUILD
+    BUILD --> TEST[GPU tests and package validation]
+    BUILD --> DOCS[Documentation builds]
+    TEST --> ARTIFACTS[Artifacts identified by source SHA and build matrix]
+    DOCS --> ARTIFACTS
+    ARTIFACTS --> DRY[Manual release dry run for exact tag and CI run]
+    DRY --> PUBLISH[Explicit full release for selected component]
 ```
 
-### Pipeline Execution Details
-
-**Parallel Execution**: The CI pipeline leverages parallel execution to optimize build and test times:
-- **Build Stage**: Different architectures/operating systems (linux-64, linux-aarch64, win-64) are built in parallel across their respective runners
-- **Test Stage**: Different architectures/operating systems/CUDA versions are tested in parallel; documentation preview is also built in parallel with testing
+The [CI workflow](.github/workflows/ci.yml) defines the supported platform,
+Python, and CUDA matrices. Build and test jobs run in parallel across their
+configured runners. Package selection and artifact validation are shared
+through the [CI tools](ci/README.md).
 
 ### CUDA-major Artifact Flow
 
-#### Main Branch
-- **Build** → **Test** → **Documentation** → **Potential Release**
-- CUDA 12.9 bindings are maintained in `cuda_bindings_12/`; CUDA 13 bindings are maintained in `cuda_bindings/`
-- The conditional workplan builds the changed bindings package root and reuses the unaffected root's baseline artifacts
-- Artifacts include their Python version, CUDA Toolkit version, platform, and source SHA where applicable
-- Shared dependency changes and scheduled runs cover both CUDA majors across all supported platforms
+- CUDA 12.9 bindings live in `cuda_bindings_12/`; CUDA 13 bindings live in
+  `cuda_bindings/`. The registry assigns their maintenance and current roles.
+- Development CI builds changed roots and affected dependents, reusing a
+  validated baseline for unaffected roots. Shared changes and scheduled runs
+  cover both CUDA majors.
+- A bindings tag selects one line's bindings and metapackage. Its release
+  validation uses published Pathfinder and does not require a CUDA Core or
+  other-major release.
+- Artifacts identify their Python version, toolkit, platform, and source SHA
+  where applicable. Release workflows require the exact tag's successful CI.
 
-#### Historical 12.9.x Branch
-- The branch is retained as a read-only record of historical releases; do not add new backports
-- Routine and emergency CUDA 12.9 fixes, builds, tests, documentation, and releases use `cuda_bindings_12/` on `main`
-- Main CI and releases do not fetch package artifacts from the legacy branch
-- CUDA 12 ownership, regeneration, and cross-root drift rules are documented in
-  [`cuda_bindings_12/MAINTENANCE.md`](cuda_bindings_12/MAINTENANCE.md)
+### Release Branches
 
-### Key Infrastructure Details
+`main` integrates changes for both supported majors. Short release branches
+can stabilize a selected release or carry urgent fixes while development
+continues. Return applicable fixes to `main` and assess both source roots.
+The historical `12.9.x` branch is retained for diagnosis of old releases;
+new main CI and releases do not fetch package artifacts from that branch.
 
-- **Self-hosted runners**: Used for Linux builds and GPU testing (more resources, faster builds)
-- **GitHub-hosted runners**: Used for Windows builds and general tasks
-- **Artifact retention**: 30 days for GitHub Artifacts (wheels, docs, tests)
-- **Cache retention**: GitHub Cache for build dependencies and environments
-- **Security**: All commits must be signed, untrusted code blocked
-- **Parallel execution**: Matrix builds across Python versions and platforms
-- **Component isolation**: Each component (core, bindings, pathfinder, python) can be built/released independently
+The [bindings release guide](.github/RELEASE-bindings.md) covers release scope,
+manual backport automation, source and control revisions, and validation.
+The [CUDA 12 maintenance guide](cuda_bindings_12/MAINTENANCE.md) links the
+shared regeneration and cross-root review policy.
 
 ## Code coverage
 

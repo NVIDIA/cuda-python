@@ -62,12 +62,29 @@ python -m pytest --noconftest ci/tools/tests
 
 The public wheel builder requires one `current` package root and one
 `maintenance` package root with different CUDA ABI majors.
+This is deliberately a two-line policy. The mapping keeps package paths out of
+workflow conditionals; it does not promise arbitrary numbers of supported
+lines. `cuda_bindings_12` names a stable ABI-major source tree, while `current`
+and `maintenance` describe release roles that can change at the next major.
+
+The standalone `cuda-python` source distribution contains its own small tag
+selector map because it cannot import repository CI tooling. The pre-commit
+metadata check keeps those selectors, bindings packaging, and the maintenance
+version fallback aligned with the registry. Run it explicitly with:
+
+```console
+python -m ci.tools.bindings_config --check-package-metadata
+```
 
 ## Maintaining Both Bindings Roots
 
-`main` is the source of truth for both bindings release lines. The old
+`main` is the integration branch for both bindings release lines. The old
 `12.9.x` branch remains available as a record of earlier releases; develop
-new CUDA 12 fixes and releases in `cuda_bindings_12/` on `main`. The
+new CUDA 12 changes in `cuda_bindings_12/` on `main`. Short release branches
+may stabilize a selected version or carry urgent fixes while `main` advances.
+The [bindings release guide](../.github/RELEASE-bindings.md) describes branch
+creation, backport automation, independent release validation, and returning
+fixes to `main`. The
 [CUDA 12 maintenance guide](../cuda_bindings_12/MAINTENANCE.md) identifies the
 maintenance root.
 
@@ -87,6 +104,20 @@ is no general deterministic check for semantic equivalence of handwritten
 code across the two roots. Where files are intentionally identical, a narrowly
 scoped byte-for-byte check can be added after establishing that invariant.
 
+Major-line maintenance can include deliberately selected compatibility work
+such as a new Python version or a new API supported by that toolkit. A frozen
+patch release has a narrower scope: fixes and release prerequisites approved
+for that release. State which policy applies in the release checklist and
+notes; a maintenance label alone does not promise a fixes-only release.
+
+Keep generator development and continuous toolkit qualification independent
+of this source layout. A cybind change should be exercised against both
+supported consumers before its generated output is imported. Record the
+generator revision and toolkit inputs for each import, including any manual
+post-generation adjustment. File seals establish content integrity, not
+generation provenance. Moving QA directories or redesigning cybind asset
+storage is not required to maintain both roots here.
+
 ## Changing Supported Release Lines
 
 When support moves from CUDA 12/13 to CUDA 13/14, keep the CUDA 13 source in
@@ -105,5 +136,6 @@ until the CUDA 13 maintenance source has a home. Then:
    platforms. Validate release selection and run publication-incapable dry
    runs for tags from each line before releasing from the new layout.
 
-The same branch policy applies after the rollover: `main` owns the current
-and maintenance roots; retired release branches are retained for history.
+The same branch policy applies after the rollover: `main` integrates the
+current and maintenance roots, short release branches stabilize releases,
+and retired release branches are retained for history.

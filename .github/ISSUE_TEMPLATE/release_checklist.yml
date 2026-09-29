@@ -10,7 +10,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        This checklist is for cuda-core releases as well as cuda-bindings patches. Please go through this checklist and ensure all tasks are completed. See [RELEASE-core.md](../RELEASE-core.md) for detailed guidance on each step (cuda.core).
+        This checklist is for cuda-core releases as well as cuda-bindings patches. See [RELEASE-core.md](../RELEASE-core.md) for cuda.core and [RELEASE-bindings.md](../RELEASE-bindings.md) for bindings release scope, stabilization branches, and validation.
 
   - type: checkboxes
     id: subpackage-tasks
@@ -18,13 +18,13 @@ body:
       label: Tasks for cuda-core and cuda-bindings patch release
       options:
         - label: File an internal nvbug to communicate test plan & release schedule with QA
-        - label: Ensure all pending PRs are reviewed, tested, and merged
+        - label: Record the release scope and ensure all PRs selected for this release are reviewed, tested, and merged
         - label: Check (or update if needed) the dependency requirements
         - label: Sweep deprecations whose stated removal version has arrived (`grep -rn 'deprecated::' cuda_core/cuda`) and remove any that are due
         - label: "Finalize the doc update, including release notes (\"Note: Touching docstrings/type annotations in code is OK during code freeze, apply your best judgement!\")"
         - label: Update the docs for the new version
-        - label: Create a public release tag
-        - label: Wait for the tag-triggered CI run to complete, and use that run ID for release workflows (this will upload the release to PyPI)
+        - label: Record the exact source commit, workflow control revision, and selected package root before creating the approved public release tag
+        - label: Wait for the exact tag-triggered CI run to pass and complete a release dry run before approving publication
         - label: Publish the release at https://github.com/NVIDIA/cuda-python/releases (this will trigger the conda package update)
         - label: Approve the conda-package update PR
         - label: Post-release QA
@@ -32,3 +32,4 @@ body:
         - label: Send out the announcement internally (on `#swcuda-python`)
         - label: Send out the announcement externally (GitHub Release -> Announcement)
         - label: For a `cuda-bindings` release, confirm which supported release lines are in scope using `ci/versions.yml`, and release the matching `cuda-python` package for each planned line
+        - label: For a bindings stabilization or emergency branch, link the PRs returning applicable fixes to `main` and record their applicability to both bindings roots
