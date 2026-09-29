@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from ci.tools import bindings_config
-from ci.tools.bindings_scm_version import main, pretend_version, read_fallback_version
+from ci.tools.bindings_scm_version import main, pretend_version, read_version_config
 
 SHA = "abcdef0123456789"
 RELEASED_12 = bindings_config.BindingsPackage(
@@ -35,7 +35,14 @@ def make_repo(
 ) -> tuple[Path, Path]:
     config = tmp_path / package.package_root / "pyproject.toml"
     config.parent.mkdir(parents=True)
-    config.write_text(f'[tool.setuptools_scm]\nfallback_version = "{fallback_version}"\n', encoding="utf-8")
+    selector = (
+        f"v{package.ctk_target}.[1-9]*" if package.release_status == "maintenance" else f"v{package.ctk_target}.*"
+    )
+    config.write_text(
+        f'[tool.setuptools_scm]\nfallback_version = "{fallback_version}"\n'
+        f'git_describe_command = ["git", "describe", "--tags", "--long", "--match", "{selector}"]\n',
+        encoding="utf-8",
+    )
     git(tmp_path, "init")
     git(tmp_path, "config", "user.name", "CUDA Python CI")
     git(tmp_path, "config", "user.email", "cuda-python@nvidia.com")
@@ -54,43 +61,35 @@ def test_uses_configured_fallback_before_first_release_tag(tmp_path):
     assert pretend_version(repo, SHA, RELEASED_12) == "12.9.8.dev0+gabcdef0"
 
 
-@pytest.mark.agent_authored(model="gpt-5.6")
-def test_reachable_release_disables_override(tmp_path):
+@pytest.mark.agent_authored(model="gpt-6-astra")
+def test_pre_maintenance_tag_is_excluded_by_source_build_selector(tmp_path):
     repo, _ = make_repo(tmp_path)
     git(repo, "tag", "v12.9.0")
-    assert pretend_version(repo, SHA, RELEASED_12) is None
+    assert pretend_version(repo, SHA, RELEASED_12) == "12.9.8.dev0+gabcdef0"
     git(repo, "commit", "--allow-empty", "-m", "after 12.9.0")
     assert pretend_version(repo, SHA, RELEASED_12) == "12.9.8.dev0+gabcdef0"
-    git(repo, "tag", "v12.9.7")
-    git(repo, "commit", "--allow-empty", "-m", "after 12.9.7")
-    assert pretend_version(repo, SHA, RELEASED_12) == "12.9.8.dev0+gabcdef0"
-    git(repo, "tag", "v12.9.8a1")
-    assert pretend_version(repo, SHA, RELEASED_12) is None
-
-    git(repo, "commit", "--allow-empty", "-m", "after 12.9.8a1")
-    git(repo, "tag", "v12.9.8")
-    assert pretend_version(repo, SHA, RELEASED_12) is None
-    git(repo, "commit", "--allow-empty", "-m", "post-release")
-    assert pretend_version(repo, SHA, RELEASED_12) is None
 
 
-@pytest.mark.agent_authored(model="gpt-5.6")
-def test_reachable_post_release_disables_override(tmp_path):
-    repo, _ = make_repo(tmp_path)
-    git(repo, "tag", "v12.9.8.post1")
-
-    assert pretend_version(repo, SHA, RELEASED_12) is None
-
-
-@pytest.mark.agent_authored(model="gpt-6-sol")
-def test_tagged_post_release_below_next_patch_fallback_disables_override(tmp_path):
+@pytest.mark.parametrize("tag", ("v12.9.7", "v12.9.8a0.dev0", "v12.9.8a1", "v12.9.9.post1"))
+@pytest.mark.agent_authored(model="gpt-6-astra")
+def test_matching_tag_and_its_descendants_use_standard_scm_progression(tmp_path, tag):
     repo, _ = make_repo(tmp_path, fallback_version="12.9.10.dev0")
-    git(repo, "tag", "v12.9.9.post1")
+    git(repo, "tag", tag)
 
     assert pretend_version(repo, SHA, RELEASED_12) is None
 
-    git(repo, "commit", "--allow-empty", "-m", "after post release")
-    assert pretend_version(repo, SHA, RELEASED_12) == "12.9.10.dev0+gabcdef0"
+    git(repo, "commit", "--allow-empty", "-m", "after matching tag")
+    assert pretend_version(repo, SHA, RELEASED_12) is None
+
+
+@pytest.mark.agent_authored(model="gpt-6-astra")
+def test_unreachable_matching_tag_does_not_disable_fallback(tmp_path):
+    repo, _ = make_repo(tmp_path)
+    git(repo, "commit", "--allow-empty", "-m", "future release")
+    git(repo, "tag", "v12.9.8")
+    git(repo, "checkout", "--detach", "HEAD^")
+
+    assert pretend_version(repo, SHA, RELEASED_12) == "12.9.8.dev0+gabcdef0"
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -99,21 +98,20 @@ def test_rejects_development_fallback_for_another_ctk_target(tmp_path):
     config.write_text('[tool.setuptools_scm]\nfallback_version = "13.0.0.dev0"\n', encoding="utf-8")
 
     with pytest.raises(ValueError, match="CUDA 12.9 development fallback"):
-        read_fallback_version(config, RELEASED_12.ctk_target)
+        read_version_config(config, RELEASED_12.ctk_target)
 
 
-@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.agent_authored(model="gpt-6-astra")
 def test_configured_package_uses_its_root_and_release_family(tmp_path):
     repo, config = make_repo(tmp_path, ALTERNATE_13, "13.2.2.dev0")
     assert config == repo / "alternate_bindings" / "pyproject.toml"
 
     git(repo, "tag", "v12.9.99")
     git(repo, "tag", "v13.3.99")
-    git(repo, "tag", "v13.2.1")
-    git(repo, "commit", "--allow-empty", "-m", "after 13.2.1")
     assert pretend_version(repo, SHA, ALTERNATE_13) == "13.2.2.dev0+gabcdef0"
 
-    git(repo, "tag", "v13.2.2a1")
+    git(repo, "tag", "v13.2.1")
+    git(repo, "commit", "--allow-empty", "-m", "after 13.2.1")
     assert pretend_version(repo, SHA, ALTERNATE_13) is None
 
 

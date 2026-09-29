@@ -154,3 +154,107 @@ def test_main_rejects_unsafe_resolved_package_root(tmp_path, capsys):
 
     assert main(args) == 2
     assert "normalized repository-relative POSIX path" in capsys.readouterr().err
+
+
+def legacy_release_args(tmp_path: Path, component: str, package: dict[str, object] | None) -> list[str]:
+    control_config = tmp_path / "control" / "ci" / "versions.yml"
+    control_config.parent.mkdir(parents=True, exist_ok=True)
+    control_config.write_text(
+        (Path(__file__).parents[2] / "versions.yml").read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    args = [
+        "--git-tag",
+        "v12.9.8",
+        "--component",
+        component,
+        "--repo-root",
+        str(tmp_path / "tagged"),
+        "--legacy-notes-root",
+        str(tmp_path / "control"),
+    ]
+    if package is not None:
+        args.extend(("--bindings-package", json.dumps(package)))
+    return args
+
+
+@pytest.mark.parametrize(
+    ("component", "package"), (("cuda-bindings", "cuda_bindings_12"), ("cuda-python", "cuda_python"))
+)
+@pytest.mark.agent_authored(model="gpt-6-astra")
+def test_legacy_release_uses_matching_control_notes_with_warning(tmp_path, capsys, component, package):
+    notes = write_notes(tmp_path / "control", package, "12.9.8")
+
+    assert main(legacy_release_args(tmp_path, component, resolved_12_package())) == 0
+
+    warning = capsys.readouterr().err
+    assert "WARNING: legacy tag v12.9.8 has no tagged release notes" in warning
+    assert str(notes) in warning
+
+
+@pytest.mark.parametrize("notes_tree", ("tagged", "control"))
+@pytest.mark.agent_authored(model="gpt-6-astra")
+def test_legacy_metapackage_without_separate_notes_uses_matching_bindings_notes(tmp_path, capsys, notes_tree):
+    package = "cuda_bindings" if notes_tree == "tagged" else "cuda_bindings_12"
+    notes = write_notes(tmp_path / notes_tree, package, "12.9.8")
+
+    assert main(legacy_release_args(tmp_path, "cuda-python", resolved_12_package())) == 0
+
+    warning = capsys.readouterr().err
+    assert "WARNING: historical cuda-python release has no separate metapackage notes" in warning
+    assert str(notes) in warning
+
+
+@pytest.mark.parametrize("component", ("cuda-bindings", "cuda-python"))
+@pytest.mark.parametrize("context", ("absent", "tag", "no-notes-root"))
+@pytest.mark.agent_authored(model="gpt-6-astra")
+def test_control_notes_cannot_bypass_strict_release_check(tmp_path, capsys, component, context):
+    write_notes(tmp_path / "control", "cuda_bindings_12", "12.9.8")
+    write_notes(tmp_path / "control", "cuda_python", "12.9.8")
+    package = None if context == "absent" else resolved_12_package()
+    if context == "tag":
+        package["release_registry_origin"] = "tag"
+    args = legacy_release_args(tmp_path, component, package)
+    if context == "no-notes-root":
+        index = args.index("--legacy-notes-root")
+        del args[index : index + 2]
+
+    assert main(args) == 1
+    assert "ERROR: missing or empty release notes" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("component", ("cuda-bindings", "cuda-python"))
+@pytest.mark.parametrize("notes_version", ("12.9.7", "12.9.9"))
+@pytest.mark.agent_authored(model="gpt-6-astra")
+def test_legacy_release_rejects_other_version_notes(tmp_path, capsys, component, notes_version):
+    write_notes(tmp_path / "control", "cuda_bindings_12", notes_version)
+    write_notes(tmp_path / "control", "cuda_python", notes_version)
+
+    assert main(legacy_release_args(tmp_path, component, resolved_12_package())) == 1
+    assert "No matching nonempty historical release notes found" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize(("component", "package"), (("cuda-bindings", "cuda_bindings"), ("cuda-python", "cuda_python")))
+@pytest.mark.parametrize("empty_tree", ("tagged", "control"))
+@pytest.mark.agent_authored(model="gpt-6-astra")
+def test_legacy_fallback_does_not_hide_empty_component_notes(tmp_path, capsys, component, package, empty_tree):
+    control_package = "cuda_bindings_12" if component == "cuda-bindings" else package
+    write_notes(tmp_path / "control", control_package, "12.9.8")
+    if component == "cuda-python":
+        write_notes(tmp_path / "tagged", "cuda_bindings", "12.9.8")
+    empty_package = package if empty_tree == "tagged" else control_package
+    write_notes(tmp_path / empty_tree, empty_package, "12.9.8", content="")
+
+    assert main(legacy_release_args(tmp_path, component, resolved_12_package())) == 1
+    assert "ERROR: missing or empty release notes" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("component", ("cuda-bindings", "cuda-python"))
+@pytest.mark.agent_authored(model="gpt-6-astra")
+def test_legacy_fallback_rejects_resolver_version_mismatch(tmp_path, capsys, component):
+    write_notes(tmp_path / "control", "cuda_bindings_12", "12.9.8")
+    write_notes(tmp_path / "control", "cuda_python", "12.9.8")
+    package = resolved_12_package()
+    package["release_version"] = "12.9.9"
+
+    assert main(legacy_release_args(tmp_path, component, package)) == 2
+    assert "does not match release tag" in capsys.readouterr().err

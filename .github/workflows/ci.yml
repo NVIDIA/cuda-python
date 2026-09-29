@@ -277,11 +277,10 @@ jobs:
             echo "Reusable artifacts: run \`${run_id}\` at \`${merge_base}\` on \`${BASE_REF}\`."
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Test CI workplan planner
-        run: >-
-          python3 -m pytest -q --noconftest
-          ci/tools/tests/test_bindings_config.py
-          ci/tools/tests/test_compute_ci_plan.py
+      - name: Validate bindings package metadata and test CI tools
+        run: |
+          python3 -m ci.tools.bindings_config --check-package-metadata
+          python3 -m pytest -q --noconftest ci/tools/tests
 
       - name: Compute CI workplan
         id: workplan

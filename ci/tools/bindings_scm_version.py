@@ -20,10 +20,11 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 COMMIT_PATTERN = re.compile(r"[0-9a-fA-F]{7,64}")
 
 
-def read_fallback_version(path: Path, ctk_target: str) -> Version:
+def read_version_config(path: Path, ctk_target: str) -> tuple[Version, str]:
     try:
         with path.open("rb") as stream:
-            value = tomllib.load(stream)["tool"]["setuptools_scm"]["fallback_version"]
+            scm = tomllib.load(stream)["tool"]["setuptools_scm"]
+            value = scm["fallback_version"]
     except (OSError, KeyError, TypeError, tomllib.TOMLDecodeError) as error:
         raise ValueError(f"could not read [tool.setuptools_scm].fallback_version from {path}: {error}") from error
     if not isinstance(value, str):
@@ -32,43 +33,28 @@ def read_fallback_version(path: Path, ctk_target: str) -> Version:
     target = bindings_config.parse_pep440_version(ctk_target, "CTK target")
     if version.dev is None or version.release[:2] != target.release[:2]:
         raise ValueError(f"expected a CUDA {ctk_target} development fallback in {path}, got {value!r}")
-    return version
+    command = scm.get("git_describe_command")
+    if (
+        not isinstance(command, list)
+        or not all(isinstance(part, str) for part in command)
+        or command.count("--match") != 1
+        or command[-1] == "--match"
+    ):
+        raise ValueError(f"expected one git_describe_command --match selector in {path}")
+    return version, command[command.index("--match") + 1]
 
 
-def has_reachable_release(
-    repo_root: Path,
-    package: bindings_config.BindingsPackage,
-    minimum_release: Version,
-) -> bool:
-    process = subprocess.run(
-        ["git", "tag", "--merged", "HEAD", "--list"],  # noqa: S607
+def has_reachable_tag(repo_root: Path, tag_selector: str) -> bool:
+    process = subprocess.run(  # noqa: S603 - selector is a validated argument; no shell is invoked.
+        ["git", "tag", "--merged", "HEAD", "--list", tag_selector],  # noqa: S607
         cwd=repo_root,
         capture_output=True,
         text=True,
     )
     if process.returncode != 0:
         detail = process.stderr.strip() or f"git tag exited with status {process.returncode}"
-        raise RuntimeError(
-            f"could not inspect reachable tags for bindings package root {package.package_root!r}: {detail}"
-        )
-    releases = (
-        version for tag in process.stdout.splitlines() if (version := package.version_from_tag(tag)) is not None
-    )
-    if any(release >= minimum_release for release in releases):
-        return True
-
-    # A post-release tag may be below the next-patch development fallback.
-    # At the tagged commit, let setuptools-scm use the exact release tag.
-    head_tags = subprocess.run(
-        ["git", "tag", "--points-at", "HEAD", "--list"],  # noqa: S607
-        cwd=repo_root,
-        capture_output=True,
-        text=True,
-    )
-    if head_tags.returncode != 0:
-        detail = head_tags.stderr.strip() or f"git tag exited with status {head_tags.returncode}"
-        raise RuntimeError(f"could not inspect tags at HEAD for {package.package_root!r}: {detail}")
-    return any(package.version_from_tag(tag) is not None for tag in head_tags.stdout.splitlines())
+        raise RuntimeError(f"could not inspect reachable tags matching {tag_selector!r}: {detail}")
+    return bool(process.stdout.strip())
 
 
 def pretend_version(
@@ -80,8 +66,10 @@ def pretend_version(
     if COMMIT_PATTERN.fullmatch(commit_sha) is None:
         raise ValueError(f"expected a 7-64 digit hexadecimal commit SHA, got {commit_sha!r}")
     config_path = repo_root / package.package_root / "pyproject.toml"
-    fallback_version = read_fallback_version(config_path, package.ctk_target)
-    if has_reachable_release(repo_root, package, fallback_version):
+    fallback_version, tag_selector = read_version_config(config_path, package.ctk_target)
+    # Once a matching tag is reachable, standard SCM progression is authoritative,
+    # including descendants of prerelease and post-release tags below the fallback.
+    if has_reachable_tag(repo_root, tag_selector):
         return None
 
     return f"{fallback_version}+g{commit_sha[:7].lower()}"

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import io
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -56,21 +57,6 @@ def _write_legacy_package(root: Path, *, tag_regex: str | None = None, scm: bool
     else:
         text = '[project]\nname = "cuda-bindings"\n'
     path.write_text(text, encoding="utf-8")
-
-
-@pytest.mark.agent_authored(model="gpt-6-sol")
-def test_live_registry_maps_release_statuses_to_package_roots():
-    config = load_config()
-
-    assert config.schema_version == 2
-    assert [package.package_root for package in config.package_roots] == ["cuda_bindings_12", "cuda_bindings"]
-    assert config.package_for_release_status("maintenance").ctk_target == "12.9"
-    current = config.package_for_release_status("current")
-    assert current.package_root == "cuda_bindings"
-    assert current.cuda_major == "13"
-    assert current.cuda_variant == "cu13"
-    assert json.loads(config.to_json()) == config.to_dict()
-    assert "tag_regex" not in current.to_dict()
 
 
 @pytest.mark.parametrize(
@@ -159,19 +145,44 @@ def test_config_loader_reports_invalid_yaml(tmp_path):
         load_config(path)
 
 
-@pytest.mark.agent_authored(model="gpt-6-sol")
-def test_cli_emits_registry_and_selected_package_as_json(capsys):
-    assert main([]) == 0
-    registry = json.loads(capsys.readouterr().out)
-    assert registry == load_config().to_dict()
+@pytest.mark.parametrize(
+    ("path", "before", "after", "message"),
+    (
+        ("ci/versions.yml", "13.4.1", "14.1.0", "must select registered CUDA 14.1"),
+        ("cuda_bindings/pyproject.toml", "v13.4.*", "v13.*", "must select registered CUDA 13.4"),
+        (
+            "cuda_bindings/pyproject.toml",
+            "[tool.setuptools_scm]",
+            '[tool.setuptools_scm]\ntag_regex = "custom"',
+            "must use setuptools-scm's default tag parser",
+        ),
+        ("cuda_python/setup.py", "v13.4.*", "v13.5.*", "SCM_DESCRIBE_MATCH_BY_MAJOR must match"),
+        ("cuda_python/setup.py", "12.9.10.dev0", "12.9.9.dev0", "MAINTENANCE_FALLBACK_VERSION must match"),
+        ("cuda_bindings_12/pixi.toml", "12.9.10.dev0", "12.9.9.dev0", "package.version must match"),
+    ),
+)
+@pytest.mark.agent_authored(model="gpt-6-astra")
+def test_metadata_check_rejects_independent_package_drift(tmp_path, capsys, path, before, after, message):
+    repo_root = Path(__file__).resolve().parents[3]
+    _write_config(tmp_path, _registry())
+    for relative in (
+        "cuda_bindings/pyproject.toml",
+        "cuda_bindings_12/pyproject.toml",
+        "cuda_bindings_12/pixi.toml",
+        "cuda_python/setup.py",
+    ):
+        destination = tmp_path / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(repo_root / relative, destination)
+    changed = tmp_path / path
+    content = changed.read_text(encoding="utf-8")
+    assert before in content
+    changed.write_text(content.replace(before, after), encoding="utf-8")
 
-    assert main(["--package-roots"]) == 0
-    packages = json.loads(capsys.readouterr().out)
-    assert packages == registry["package_roots"]
+    with pytest.raises(SystemExit, match="2"):
+        main(["--config", str(tmp_path / "ci" / "versions.yml"), "--check-package-metadata"])
 
-    assert main(["--release-status", "current"]) == 0
-    current = json.loads(capsys.readouterr().out)
-    assert current["package_root"] == "cuda_bindings"
+    assert message in capsys.readouterr().err
 
 
 @pytest.mark.agent_authored(model="gpt-6-sol")

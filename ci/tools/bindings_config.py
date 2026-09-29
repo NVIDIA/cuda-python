@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import ast
 import json
 import re
 import sys
@@ -235,6 +236,75 @@ def load_config(path: Path = DEFAULT_CONFIG) -> BindingsConfig:
     return validate_config(raw)
 
 
+def check_package_metadata(config: BindingsConfig, repo_root: Path) -> None:
+    """Check current source-build metadata without constraining historical trees."""
+    selectors: dict[str, str] = {}
+    maintenance_fallback = None
+    for package in config.package_roots:
+        path = repo_root / package.package_root / "pyproject.toml"
+        try:
+            with path.open("rb") as stream:
+                scm = tomllib.load(stream)["tool"]["setuptools_scm"]
+        except (OSError, tomllib.TOMLDecodeError, KeyError, TypeError) as error:
+            raise BindingsConfigError(f"could not read SCM metadata from {path}: {error}") from error
+        if not isinstance(scm, dict) or "tag_regex" in scm:
+            raise BindingsConfigError(f"{path} must use setuptools-scm's default tag parser")
+        command = scm.get("git_describe_command")
+        if (
+            not isinstance(command, list)
+            or not all(isinstance(part, str) for part in command)
+            or command.count("--match") != 1
+            or command[-1] == "--match"
+        ):
+            raise BindingsConfigError(f"{path} must specify one git_describe_command --match selector")
+        selector = command[command.index("--match") + 1]
+        # The second form excludes the pre-maintenance .0 tag on main.
+        if selector not in {f"v{package.ctk_target}.*", f"v{package.ctk_target}.[1-9]*"}:
+            raise BindingsConfigError(
+                f"{path} --match must select registered CUDA {package.ctk_target}, got {selector!r}"
+            )
+        selectors[package.cuda_major] = selector
+        if package.release_status == "maintenance":
+            maintenance_fallback = scm.get("fallback_version")
+            if not isinstance(maintenance_fallback, str):
+                raise BindingsConfigError(f"{path} must declare a maintenance fallback_version")
+            fallback = parse_pep440_version(maintenance_fallback, f"{path} fallback_version")
+            if fallback.dev is None or fallback.release[:2] != tuple(map(int, package.ctk_target.split("."))):
+                raise BindingsConfigError(
+                    f"{path} fallback_version must be a CUDA {package.ctk_target} development version"
+                )
+
+    setup_path = repo_root / "cuda_python" / "setup.py"
+    names = {"SCM_DESCRIBE_MATCH_BY_MAJOR", "MAINTENANCE_FALLBACK_VERSION"}
+    try:
+        tree = ast.parse(setup_path.read_text(encoding="utf-8"))
+        metadata = {
+            target.id: ast.literal_eval(node.value)
+            for node in tree.body
+            if isinstance(node, ast.Assign)
+            for target in node.targets
+            if isinstance(target, ast.Name) and target.id in names
+        }
+    except (OSError, SyntaxError, ValueError) as error:
+        raise BindingsConfigError(f"could not read literal build metadata from {setup_path}: {error}") from error
+    if metadata.get("SCM_DESCRIBE_MATCH_BY_MAJOR") != selectors:
+        raise BindingsConfigError(f"{setup_path} SCM_DESCRIBE_MATCH_BY_MAJOR must match the bindings package selectors")
+    if metadata.get("MAINTENANCE_FALLBACK_VERSION") != maintenance_fallback:
+        raise BindingsConfigError(
+            f"{setup_path} MAINTENANCE_FALLBACK_VERSION must match the maintenance bindings package"
+        )
+
+    maintenance = config.package_for_release_status("maintenance")
+    pixi_path = repo_root / maintenance.package_root / "pixi.toml"
+    try:
+        with pixi_path.open("rb") as stream:
+            pixi_version = tomllib.load(stream)["package"]["version"]
+    except (OSError, tomllib.TOMLDecodeError, KeyError, TypeError) as error:
+        raise BindingsConfigError(f"could not read package version from {pixi_path}: {error}") from error
+    if pixi_version != maintenance_fallback:
+        raise BindingsConfigError(f"{pixi_path} package.version must match the maintenance bindings fallback_version")
+
+
 def _tag_tree_config(release_source_root: Path) -> tuple[BindingsConfig | None, Any, Path | None]:
     """Load a schema-2 tag-tree registry and retain legacy metadata."""
     config_path = next(
@@ -419,6 +489,11 @@ def main(argv: list[str] | None = None) -> int:
         help="print the package root with this release status",
     )
     output.add_argument("--release-tag", help="resolve a release tag against its source tree")
+    output.add_argument(
+        "--check-package-metadata",
+        action="store_true",
+        help="check package metadata in the source tree containing --config (ci/versions.yml)",
+    )
     parser.add_argument("--release-source-root", type=Path)
     parser.add_argument("--control-config", type=Path)
     commands = parser.add_subparsers(dest="command")
@@ -435,6 +510,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.package_roots
                 or args.release_status
                 or args.release_tag
+                or args.check_package_metadata
                 or args.release_source_root is not None
                 or args.control_config is not None
             ):
@@ -456,6 +532,9 @@ def main(argv: list[str] | None = None) -> int:
             if args.release_source_root is not None or args.control_config is not None:
                 parser.error("--release-source-root and --control-config require --release-tag")
             config = load_config(args.config)
+            if args.check_package_metadata:
+                check_package_metadata(config, args.config.resolve().parent.parent)
+                return 0
             if args.package_roots:
                 value = [package.to_dict() for package in config.package_roots]
             elif args.release_status:

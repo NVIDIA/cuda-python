@@ -6,6 +6,12 @@
 Usage:
     python -m ci.tools.check_release_notes --git-tag <tag> --component <component>
 
+Tags predating the package registry may use --legacy-notes-root with an explicit
+legacy release resolver result. Missing tagged notes then fall back to matching
+control-tree notes, with a warning. Historical cuda-python releases without
+separate metapackage notes may use matching cuda-bindings notes. Empty notes and
+registry-bearing releases remain strict; a matching nonempty note is required.
+
 Exit codes:
     0 — release notes present and non-empty (or .post version, skipped)
     1 — release notes missing or empty
@@ -141,11 +147,51 @@ def check_release_notes(
     return _check_release_target(version, package, repo_root)
 
 
+def _legacy_notes_fallback(
+    git_tag: str,
+    version: str,
+    component: str,
+    package: str,
+    bindings_root: str,
+    repo_root: Path,
+    legacy_notes_root: Path,
+) -> tuple[str, Path] | None:
+    """Find existing historical notes without masking an empty notes file."""
+    control_bindings = bindings_config.load_config(legacy_notes_root / "ci/versions.yml").match_tag(git_tag)
+    control_package = package
+    if component == "cuda-bindings":
+        if control_bindings is None:
+            return None
+        control_package = control_bindings.package_root
+    problems = _check_release_target(version, control_package, legacy_notes_root)
+    if not problems:
+        return component, legacy_notes_root / notes_path(control_package, version)
+    if problems != [(notes_path(control_package, version), "missing")]:
+        return None
+    if component == "cuda-python":
+        # Some historical metapackage releases published only bindings notes.
+        candidates = [(repo_root, bindings_root)]
+        if control_bindings is not None:
+            candidates.append((legacy_notes_root, control_bindings.package_root))
+        for root, candidate_package in candidates:
+            problems = _check_release_target(version, candidate_package, root)
+            if not problems:
+                return "cuda-bindings", root / notes_path(candidate_package, version)
+            if problems != [(notes_path(candidate_package, version), "missing")]:
+                return None
+    return None
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--git-tag", required=True)
     parser.add_argument("--component", required=True, choices=list(COMPONENTS))
     parser.add_argument("--repo-root", default=Path("."), type=Path)
+    parser.add_argument(
+        "--legacy-notes-root",
+        type=Path,
+        help="control tree containing historical notes; used only with a validated legacy release resolver result",
+    )
     parser.add_argument(
         "--bindings-package",
         default="",
@@ -158,6 +204,14 @@ def main(argv: list[str] | None = None) -> int:
         if bindings_package is not None and not isinstance(bindings_package, dict):
             raise ValueError("resolved CUDA bindings package must be a JSON object")
         target = _release_target_from_tag(args.git_tag, args.component, bindings_package)
+        legacy_bindings_root = None
+        if (
+            args.legacy_notes_root is not None
+            and args.component in {"cuda-bindings", "cuda-python"}
+            and bindings_package is not None
+            and bindings_package.get("release_registry_origin") == "control"
+        ):
+            legacy_bindings_root, _ = _resolved_bindings_target(bindings_package, args.git_tag)
     except (bindings_config.BindingsConfigError, json.JSONDecodeError, ValueError) as error:
         print(f"ERROR: invalid CUDA bindings configuration: {error}", file=sys.stderr)
         return 2
@@ -178,6 +232,40 @@ def main(argv: list[str] | None = None) -> int:
     if not problems:
         print(f"Release notes present for tag {args.git_tag}, component {args.component}.")
         return 0
+
+    if legacy_bindings_root is not None and problems == [(notes_path(package, version), "missing")]:
+        try:
+            fallback = _legacy_notes_fallback(
+                args.git_tag,
+                version,
+                args.component,
+                package,
+                legacy_bindings_root,
+                args.repo_root,
+                args.legacy_notes_root,
+            )
+        except bindings_config.BindingsConfigError as error:
+            print(f"ERROR: invalid control-tree CUDA bindings configuration: {error}", file=sys.stderr)
+            return 2
+        if fallback is not None:
+            notes_component, path = fallback
+            if notes_component != args.component:
+                print(
+                    "WARNING: historical cuda-python release has no separate metapackage notes; "
+                    f"using matching cuda-bindings release notes from {path}.",
+                    file=sys.stderr,
+                )
+            else:
+                print(
+                    f"WARNING: legacy tag {args.git_tag} has no tagged release notes for {args.component}; "
+                    f"using historical release notes from {path}.",
+                    file=sys.stderr,
+                )
+            return 0
+        print(
+            f"No matching nonempty historical release notes found using {args.legacy_notes_root}.",
+            file=sys.stderr,
+        )
 
     print(f"ERROR: missing or empty release notes for tag {args.git_tag}:", file=sys.stderr)
     for path, reason in problems:

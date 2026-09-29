@@ -59,11 +59,11 @@ repos:
         types: [text]
 
       - id: check-bindings-config
-        name: Validate bindings package-root registry
-        entry: python -m ci.tools.bindings_config
+        name: Validate bindings registry and package metadata
+        entry: python -m ci.tools.bindings_config --check-package-metadata
         language: python
         additional_dependencies: [packaging==26.0, pyyaml==6.0.3]
-        files: '^(ci/versions\.yml|cuda_bindings(?:_[^/]+)?/pyproject\.toml)$'
+        files: '^(ci/versions\.yml|cuda_bindings(?:_[^/]+)?/(pyproject|pixi)\.toml|cuda_python/setup\.py)$'
         pass_filenames: false
 
       - id: check-pixi-cuda-version
