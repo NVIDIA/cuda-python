@@ -899,26 +899,21 @@ cdef int _smv_managed_tensor_allocator(
 cdef int _smv_managed_tensor_from_py_object_no_sync(
     void* py_object,
     DLManagedTensorVersioned** out,
-) noexcept with gil:
+) except -1 with gil:
     cdef DLManagedTensorVersioned* dlm_tensor_ver = NULL
-    cdef object caught = None
     if out == NULL:
-        cpython.PyErr_SetString(RuntimeError, b"out cannot be NULL")
-        return -1
+        raise RuntimeError("out cannot be NULL")
     out[0] = NULL
     cdef object obj = <object>py_object
     if not isinstance(obj, StridedMemoryView):
-        cpython.PyErr_SetString(TypeError, b"py_object must be a StridedMemoryView")
-        return -1
+        raise TypeError("py_object must be a StridedMemoryView")
     try:
         dlm_tensor_ver = _smv_allocate_dlm_tensor_versioned()
         _smv_fill_managed_tensor_versioned(dlm_tensor_ver, <StridedMemoryView>obj)
-    except Exception as exc:
+    except BaseException:
+        # Rollback must also run for KeyboardInterrupt.
         _smv_versioned_deleter(dlm_tensor_ver)
-        caught = exc
-    if caught is not None:
-        cpython.PyErr_SetObject(type(caught), caught)
-        return -1
+        raise
     out[0] = dlm_tensor_ver
     return 0
 
@@ -926,53 +921,33 @@ cdef int _smv_managed_tensor_from_py_object_no_sync(
 cdef int _smv_managed_tensor_to_py_object_no_sync(
     DLManagedTensorVersioned* tensor,
     void** out_py_object,
-) noexcept with gil:
-    cdef object capsule
-    cdef object py_view
-    cdef object caught = None
+) except -1 with gil:
     if out_py_object == NULL:
-        cpython.PyErr_SetString(RuntimeError, b"out_py_object cannot be NULL")
-        return -1
+        raise RuntimeError("out_py_object cannot be NULL")
     out_py_object[0] = NULL
     if tensor == NULL:
-        cpython.PyErr_SetString(RuntimeError, b"tensor cannot be NULL")
-        return -1
-    try:
-        capsule = cpython.PyCapsule_New(
-            <void*>tensor,
-            DLPACK_VERSIONED_TENSOR_UNUSED_NAME,
-            _smv_pycapsule_deleter,
-        )
-        py_view = _smv_from_dlpack_capsule(capsule, capsule)
-        cpython.Py_INCREF(py_view)
-        out_py_object[0] = <void*>py_view
-    except Exception as exc:
-        caught = exc
-    if caught is not None:
-        cpython.PyErr_SetObject(type(caught), caught)
-        return -1
+        raise RuntimeError("tensor cannot be NULL")
+    cdef object capsule = cpython.PyCapsule_New(
+        <void*>tensor,
+        DLPACK_VERSIONED_TENSOR_UNUSED_NAME,
+        _smv_pycapsule_deleter,
+    )
+    cdef object py_view = _smv_from_dlpack_capsule(capsule, capsule)
+    cpython.Py_INCREF(py_view)
+    out_py_object[0] = <void*>py_view
     return 0
 
 
 cdef int _smv_dltensor_from_py_object_no_sync(
     void* py_object,
     DLTensor* out,
-) noexcept with gil:
-    cdef object caught = None
+) except -1 with gil:
     if out == NULL:
-        cpython.PyErr_SetString(RuntimeError, b"out cannot be NULL")
-        return -1
+        raise RuntimeError("out cannot be NULL")
     cdef object obj = <object>py_object
     if not isinstance(obj, StridedMemoryView):
-        cpython.PyErr_SetString(TypeError, b"py_object must be a StridedMemoryView")
-        return -1
-    try:
-        _smv_setup_dltensor_borrowed(out, <StridedMemoryView>obj)
-    except Exception as exc:
-        caught = exc
-    if caught is not None:
-        cpython.PyErr_SetObject(type(caught), caught)
-        return -1
+        raise TypeError("py_object must be a StridedMemoryView")
+    _smv_setup_dltensor_borrowed(out, <StridedMemoryView>obj)
     return 0
 
 
@@ -980,10 +955,9 @@ cdef int _smv_current_work_stream(
     _DLDeviceType device_type,
     int32_t device_id,
     void** out_current_stream,
-) noexcept with gil:
+) except -1 with gil:
     if out_current_stream == NULL:
-        cpython.PyErr_SetString(RuntimeError, b"out_current_stream cannot be NULL")
-        return -1
+        raise RuntimeError("out_current_stream cannot be NULL")
     # cuda.core has no global/current stream state today.
     out_current_stream[0] = NULL
     return 0
