@@ -25,7 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # /// script
-# dependencies = ["cuda-python>=13.0.0", "cuda-core>=1.0.0", "cupy-cuda13x>=14.0.0"]
+# dependencies = ["cuda-python>=13.0.0", "cuda-core>=1.0.0", "cupy-cuda13x>=14.0.0", "nvidia-curand"]
 # ///
 
 """
@@ -48,8 +48,6 @@ zero-copy view it as a CuPy array to check the result.
 
 import sys
 from pathlib import Path
-
-import numpy as np
 
 # Add parent directory to path to import utilities
 sys.path.insert(0, str(Path(__file__).parent.parent / "Utilities"))
@@ -98,8 +96,8 @@ def _demo_float_cupy(stream, kernel, num_elements, verify):
     print(f"\n[1] vectorAdd<float> on {num_elements} CuPy-allocated elements")
     dtype = cp.float32
 
-    a = cp.asarray(np.random.rand(num_elements).astype(np.float32))
-    b = cp.asarray(np.random.rand(num_elements).astype(np.float32))
+    a = cp.random.rand(num_elements).astype(dtype)
+    b = cp.random.rand(num_elements).astype(dtype)
     c = cp.empty(num_elements, dtype=dtype)
     _launch_add(stream, kernel, num_elements, a.data.ptr, b.data.ptr, c.data.ptr)
 
@@ -120,8 +118,8 @@ def _demo_double_owned_buffer(device, stream, kernel, num_elements, verify):
     print(f"\n[2] vectorAdd<double> on {num_elements} elements with device.allocate() output")
     dtype = cp.float64
 
-    a = cp.asarray(np.random.rand(num_elements).astype(np.float64))
-    b = cp.asarray(np.random.rand(num_elements).astype(np.float64))
+    a = cp.random.rand(num_elements).astype(dtype)
+    b = cp.random.rand(num_elements).astype(dtype)
 
     out_bytes = num_elements * dtype().itemsize
     out_buf = device.allocate(out_bytes, stream=stream)
