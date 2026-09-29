@@ -703,7 +703,10 @@ jobs:
         with:
           check_name: Test Results (aggregate)
           files: test-results/**/*.xml
-          report_individual_runs: true
+          # false: one entry per failing test ("All N runs failed"). true groups
+          # by message text, and platform-specific paths in the traceback split
+          # one failure into several "k out of N runs" entries.
+          report_individual_runs: false
           check_run_annotations: none
           comment_mode: failures
           compare_to_earlier_commit: false
@@ -726,7 +729,9 @@ jobs:
           list-suites: failed
           list-tests: failed
           max-annotations: 0
-          fail-on-error: false
+          # The check turns red when any test failed; the step's continue-on-error
+          # keeps that away from the gate below.
+          fail-on-error: true
           fail-on-empty: false
           # false = publish as a check run on the commit; true writes the same
           # report to the job summary instead and creates no check.
