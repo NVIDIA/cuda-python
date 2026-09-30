@@ -20,10 +20,13 @@ The ``cuda.bindings`` module has the following support policy:
    documentation.)
 4. The module supports all Python versions following the `CPython EOL schedule`_. As of writing
    Python 3.10 - 3.14 are supported.
-5. The module exposes a Cython layer from which types and functions could be ``cimport``'d. While
-   we strive to keep this layer stable, due to Cython limitations a new *minor* release of this
-   module could require Cython layer users to rebuild their projects and update their pinning to
-   this module.
+5. The module exposes a Cython layer (modules beginning with the ``cy`` prefix) from which types and 
+   functions can be ``cimport``'d. While we strive to keep this layer stable, due to Cython limitations
+   a new *minor* release of this module could require Cython layer users to rebuild their projects and 
+   update their pinning to this module.
+6. The higher-level modules in ``cuda.bindings`` (without the ``cy`` prefix) do not have any
+   ABI stability guarantees, so while they can be ``cimport``'d, they will require a rebuild for
+   a specific version of ``cuda.bindings``.
 
 Free-threading Build Support
 ----------------------------
