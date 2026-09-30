@@ -141,6 +141,18 @@ class TestResolveToolchain:
         assert "-fpermissive" in cargs
         assert "-fno-var-tracking-assignments" in cargs
 
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_llvm_keeps_sccache_prefix(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("llvm only valid on Linux")
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
+        monkeypatch.setenv("CC", "sccache cc")
+        monkeypatch.setenv("CXX", "sccache c++")
+        _name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
+        assert os.environ["CC"] == "sccache clang"
+        assert os.environ["CXX"] == "sccache clang++"
+        assert os.environ["LDSHARED"] == "sccache clang++ -shared"
+
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_gnu_keeps_gcc_only_flags(self, monkeypatch):
         if sys.platform == "win32":
