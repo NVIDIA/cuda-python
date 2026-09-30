@@ -85,7 +85,6 @@ build-verbosity = 1
 archs = "native"
 
 [tool.cibuildwheel.windows]
-before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
 
 [tool.pytest.ini_options]

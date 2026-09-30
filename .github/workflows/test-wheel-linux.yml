@@ -467,9 +467,32 @@ jobs:
           pytest -rxXs -v tests/test_utils.py tests/example_tests/
           popd
 
+      - name: Checkout numba-cuda tests at matching tag
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' && env.NUMBA_CUDA_VER != '' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: NVIDIA/numba-cuda
+          ref: v${{ env.NUMBA_CUDA_VER }}
+          path: numba-cuda-released
+
       - name: Run numba-cuda tests
-        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
-        run: python -m numba.runtests numba.cuda.tests
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' && env.NUMBA_CUDA_VER != '' }}
+        env:
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: |
+          if [[ "${LOCAL_CTK}" != 1 ]]; then
+            # Let numba-cuda skip inputs that require toolkit executables.
+            export NUMBA_CUDA_TEST_WHEEL_ONLY=1
+          fi
+          # Run from numba-cuda's testing/ dir so its pytest.ini kicks in
+          # (consider_namespace_packages=true + --pyargs numba.cuda.tests).
+          # -k "not TestIpc": numba-cuda v0.30.4 accesses CUipcMemHandle.reserved,
+          # which cuda-bindings intentionally removed. numba-cuda is EOL upstream,
+          # so no fix is coming. See cuda-python#2748. The affected tests all
+          # live in the two TestIpcMemory/TestIpcStaged classes in test_ipc.py.
+          pushd numba-cuda-released/testing
+          pytest -v -k "not TestIpc"
+          popd
 
       - name: Checkout numba-cuda-mlir tests at matching tag
         if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}
@@ -495,9 +518,13 @@ jobs:
           # Skip tests/benchmarks/ and tests/doc_examples/ — they import the
           # numba package at collection time, which cuSIMT intentionally does
           # not depend on. See NVIDIA/numba-cuda-mlir#136.
+          # test_device_record_copy (WithRecord variant): flaky NaN vs NaN
+          # compare from uninitialized np.recarray memory. See
+          # NVIDIA/numba-cuda-mlir#341.
           pytest -rxXs -v \
             --ignore=tests/benchmarks \
             --ignore=tests/doc_examples \
+            --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_devicerecord.py::TestCudaDeviceRecordWithRecord::test_device_record_copy' \
             tests/
           popd
 
@@ -520,8 +547,8 @@ jobs:
           # patterns that pytest 9.1 rejects; the main-side fix (#2212) has
           # not yet shipped in a cuda-core release.
           pip install "pytest<9.1"
-          # Version-gated deselect: drops automatically when a newer
-          # cuda-core release with the wrapper-mapping update ships.
+          # Version-gated deselects: drop automatically when a newer
+          # cuda-core release ships that removes each source.
           DESELECTS=()
           if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${CUDA_CORE_RELEASED_VER}') <= Version('1.0.1') else 1)"; then
             # NvlinkVersion: v1.0.1's wrapper mapping predates
@@ -529,6 +556,15 @@ jobs:
             # Expected drift on this mode until released cuda-core catches up.
             DESELECTS+=(
               --deselect 'tests/test_enum_coverage.py::test_wrapper_covers_all_binding_members[NvlinkVersion]'
+            )
+          fi
+          if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${CUDA_CORE_RELEASED_VER}') <= Version('1.2.1') else 1)"; then
+            # test_frozen_driver_table_covers_all_curesult_members: v1.2.1's
+            # frozen table (capped at CTK 13.1.1) predates 3 CUresult members
+            # added by main cuda-bindings 13.4.1. Reverted on main by #2792;
+            # drop this deselect once a cuda-core release with the revert ships.
+            DESELECTS+=(
+              --deselect 'tests/test_utils_enum_explanations_helpers.py::test_frozen_driver_table_covers_all_curesult_members'
             )
           fi
           pytest -rxXs -v --randomly-dont-reorganize \
