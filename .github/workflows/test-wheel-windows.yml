@@ -107,6 +107,10 @@ jobs:
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          # Test sources must match the wheels under test (nightly runs
+          # reuse wheels built from an older commit of main).
+          ref: ${{ inputs.sha || github.sha }}
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
