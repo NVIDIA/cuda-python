@@ -143,6 +143,12 @@ jobs:
           dependencies: "jq wget libgl1 libegl1 g++ util-linux"
           dependent_exes: "jq wget"
 
+      - name: Set up yq
+        # The container image has no yq; ci/tools/env-vars reads ci/versions.yml with it.
+        uses: ./.github/actions/setup_yq_linux
+        with:
+          arch: ${{ matrix.ARCH }}
+
       - name: Install GPU driver
         if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
         env:
