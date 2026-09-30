@@ -19,7 +19,7 @@ config:
     minNodeWidth: 140
     nodeSpacing: 24
     padding: 10
-    rankSpacing: 24
+    rankSpacing: 48
     wrappingWidth: 300
 ---
 flowchart TB
@@ -38,7 +38,7 @@ flowchart TB
     end
 
     subgraph ARTIFACTS["ARTIFACT STORAGE"]
-        direction LR
+        direction TB
         subgraph GITHUB_ARTIFACTS["GitHub Artifacts"]
             GA1["Wheel files (.whl)<br/>Test artifacts<br/>Documentation<br/>(30-day retention)"]
         end
