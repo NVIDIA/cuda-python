@@ -126,7 +126,12 @@ cdef class SMResourceOptions:
     backfill: bool | SequenceABC[bool] = False
 
 
-@dataclass
+# init=False: Cython 3.3 wraps the dataclass-generated __init__ in a
+# critical_section and then warns (promoted to an error by our
+# warning_errors=True build) that the __post_init__ call inside it is
+# unprotected Python attribute access. A hand-written __init__ sidesteps
+# that; construction of a not-yet-shared object needs no lock anyway.
+@dataclass(init=False)
 cdef class WorkqueueResourceOptions:
     """Customizable :obj:`WorkqueueResource.configure` options.
 
@@ -147,13 +152,19 @@ cdef class WorkqueueResourceOptions:
     sharing_scope: WorkqueueSharingScopeType | str | None = None
     concurrency_limit: int | None = None
 
-    def __post_init__(self):
+    def __init__(
+        self,
+        sharing_scope: WorkqueueSharingScopeType | str | None = None,
+        concurrency_limit: int | None = None,
+    ):
         from cuda.core.typing import WorkqueueSharingScopeType
-        check_str_enum(self.sharing_scope, WorkqueueSharingScopeType, allow_none=True)
-        if self.concurrency_limit is not None and self.concurrency_limit < 1:
+        check_str_enum(sharing_scope, WorkqueueSharingScopeType, allow_none=True)
+        if concurrency_limit is not None and concurrency_limit < 1:
             raise ValueError(
-                f"concurrency_limit must be >= 1, got {self.concurrency_limit}"
+                f"concurrency_limit must be >= 1, got {concurrency_limit}"
             )
+        self.sharing_scope = sharing_scope
+        self.concurrency_limit = concurrency_limit
 
 
 cdef inline int _validate_split_field_length(
