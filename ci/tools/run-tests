@@ -162,10 +162,12 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     elif [[ "${test_module}" == "nightly-numba-cuda" ]]; then
       echo "Installing pathfinder + bindings + core + test deps + numba-cuda"
       # numba-cuda's test-cuXX group deps (can't use --group for a wheel install):
+      # numpy<2.5: numba-cuda 0.30.4 references np.row_stack, removed in numpy 2.5. See NVIDIA/numba-cuda#907.
       PIP_ARGS+=(
         "cuda-toolkit[curand,cublas]==${TEST_CUDA_MAJOR_MINOR}.*"
         "numba-cuda[cu${TEST_CUDA_MAJOR}]"
         "cupy-cuda${TEST_CUDA_MAJOR}x"
+        "numpy<2.5"
         psutil cffi pytest-xdist pytest-benchmark filecheck ml_dtypes statistics
       )
     elif [[ "${test_module}" == "nightly-numba-cuda-mlir" ]]; then
@@ -173,9 +175,10 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
       # curand/cublas + cupy: some numba-cuda-mlir tests (e.g.
       # test_fortran_contiguous) call cp.random, which dlopens libcurand at
       # runtime. Mirror the numba-cuda branch, which installs the same libs.
+      # cccl: NVRTC needs <nv/target> for cooperative_groups / curand_kernel.h.
       PIP_ARGS+=(
         "numba-cuda-mlir[cu${TEST_CUDA_MAJOR}]"
-        "cuda-toolkit[curand,cublas]==${TEST_CUDA_MAJOR_MINOR}.*"
+        "cuda-toolkit[curand,cublas,cccl]==${TEST_CUDA_MAJOR_MINOR}.*"
         "cupy-cuda${TEST_CUDA_MAJOR}x"
       )
     fi
