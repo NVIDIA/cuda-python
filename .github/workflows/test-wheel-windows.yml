@@ -467,9 +467,9 @@ jobs:
           if [[ "${LOCAL_CTK}" != 1 ]]; then
             export NUMBA_CUDA_TEST_WHEEL_ONLY=1
           fi
-          # See linux step for rationale on running from testing/ and the test_ipc skip.
+          # See linux step for rationale on running from testing/ and -k.
           pushd numba-cuda-released/testing
-          pytest -v --ignore-glob="**/test_ipc.py"
+          pytest -v -k "not TestIpc"
           popd
 
       - name: Checkout numba-cuda-mlir tests at matching tag

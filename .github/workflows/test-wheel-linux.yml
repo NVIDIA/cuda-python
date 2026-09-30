@@ -486,11 +486,12 @@ jobs:
           fi
           # Run from numba-cuda's testing/ dir so its pytest.ini kicks in
           # (consider_namespace_packages=true + --pyargs numba.cuda.tests).
-          # test_ipc: numba-cuda v0.30.4 accesses CUipcMemHandle.reserved, which
-          # cuda-bindings intentionally removed. numba-cuda is EOL upstream, so
-          # no fix is coming. See cuda-python#2748.
+          # -k "not TestIpc": numba-cuda v0.30.4 accesses CUipcMemHandle.reserved,
+          # which cuda-bindings intentionally removed. numba-cuda is EOL upstream,
+          # so no fix is coming. See cuda-python#2748. The affected tests all
+          # live in the two TestIpcMemory/TestIpcStaged classes in test_ipc.py.
           pushd numba-cuda-released/testing
-          pytest -v --ignore-glob="**/test_ipc.py"
+          pytest -v -k "not TestIpc"
           popd
 
       - name: Checkout numba-cuda-mlir tests at matching tag
