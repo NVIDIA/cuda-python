@@ -470,10 +470,15 @@ jobs:
       - name: Run numba-cuda tests
         if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
         run: |
+          # --import-mode=importlib: numba-cuda's on-disk layout is
+          # site-packages/numba_cuda/numba/cuda/tests/... where numba/ is a
+          # namespace subdir (no __init__.py). Default prepend import mode
+          # stops there and imports each test file as `cuda.tests.<...>`,
+          # which collides with cuda-bindings' top-level cuda package.
           # test_ipc: numba-cuda v0.30.4 accesses CUipcMemHandle.reserved, which
           # cuda-bindings intentionally removed. numba-cuda is EOL upstream, so
           # no fix is coming. See cuda-python#2748.
-          pytest -v --pyargs numba.cuda.tests --ignore-glob="**/test_ipc.py"
+          pytest -v --import-mode=importlib --pyargs numba.cuda.tests --ignore-glob="**/test_ipc.py"
 
       - name: Checkout numba-cuda-mlir tests at matching tag
         if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}

@@ -454,8 +454,8 @@ jobs:
         if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
-          # See linux step for rationale on the test_ipc skip.
-          pytest -v --pyargs numba.cuda.tests --ignore-glob="**/test_ipc.py"
+          # See linux step for rationale on --import-mode and the test_ipc skip.
+          pytest -v --import-mode=importlib --pyargs numba.cuda.tests --ignore-glob="**/test_ipc.py"
 
       - name: Checkout numba-cuda-mlir tests at matching tag
         if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}
