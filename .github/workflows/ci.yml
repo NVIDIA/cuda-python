@@ -683,9 +683,21 @@ jobs:
       - doc
       - precommit-windows
     steps:
-      # Merge every test job's JUnit XML into two checks on the commit. Both
-      # steps are informational: continue-on-error keeps them from changing
-      # the gate below, and neither fails on test failures.
+      # Merge every test job's JUnit XML into two checks on the commit, and
+      # post one comment on the PR that links to both. Every step here is
+      # informational: continue-on-error keeps it from changing the gate
+      # below, and none of them fails on test failures.
+      #
+      # Only mirror branches have a PR to comment on, and the local
+      # get_pr_number action needs the repository checked out.
+      - name: Checkout repository
+        if: ${{ needs.should-skip.outputs.skip != 'true' && startsWith(github.ref_name, 'pull-request/') }}
+        continue-on-error: true
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
       - name: Download test results
         if: ${{ needs.should-skip.outputs.skip != 'true' }}
         continue-on-error: true
@@ -696,7 +708,8 @@ jobs:
 
       - name: Publish test results (aggregate)
         # One entry per distinct test across the whole matrix, with the
-        # number of runs that failed; also posts a PR comment on failures.
+        # number of runs that failed.
+        id: aggregate
         if: ${{ needs.should-skip.outputs.skip != 'true' }}
         continue-on-error: true
         uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3  # v2.24.0
@@ -708,7 +721,8 @@ jobs:
           # one failure into several "k out of N runs" entries.
           report_individual_runs: false
           check_run_annotations: none
-          comment_mode: failures
+          # The comment step below covers both checks.
+          comment_mode: "off"
           compare_to_earlier_commit: false
           # The run is on copy-pr-bot's pull-request/N mirror of the PR head, so
           # the PR lives in a fork: find it by commit search, not by branch.
@@ -718,6 +732,7 @@ jobs:
       - name: Publish test results (by configuration)
         # One section per test-results file, so a failure is listed under
         # the job configuration that produced it.
+        id: by-config
         if: ${{ needs.should-skip.outputs.skip != 'true' }}
         continue-on-error: true
         uses: dorny/test-reporter@a6ddd83ac95ff4586f5d3aceeb314d9a1841db95  # v3.0.0
@@ -725,7 +740,6 @@ jobs:
           name: Test Results (by configuration)
           path: test-results/**/*.xml
           reporter: python-xunit
-          list-files: failed
           list-suites: failed
           list-tests: failed
           max-annotations: 0
@@ -736,6 +750,26 @@ jobs:
           # false = publish as a check run on the commit; true writes the same
           # report to the job summary instead and creates no check.
           use-actions-summary: false
+
+      - name: Get PR number
+        if: ${{ needs.should-skip.outputs.skip != 'true' && startsWith(github.ref_name, 'pull-request/') }}
+        continue-on-error: true
+        uses: ./.github/actions/get_pr_number
+
+      # One line with the counts and a link to each check, recreated at the
+      # bottom of the thread on every run. The counts are dorny's: test
+      # executions summed over every configuration.
+      - name: Post the test-results comment
+        if: ${{ needs.should-skip.outputs.skip != 'true' && startsWith(github.ref_name, 'pull-request/') && env.PR_NUMBER != '' }}
+        continue-on-error: true
+        uses: marocchino/sticky-pull-request-comment@d4d6b0936434b21bc8345ad45a440c5f7d2c40ff  # v3.0.3
+        with:
+          header: test-results
+          number: ${{ env.PR_NUMBER }}
+          recreate: true
+          message: |
+            Test results for ${{ github.sha }}: ${{ steps.by-config.outputs.passed }} passed, ${{ steps.by-config.outputs.failed }} failed and ${{ steps.by-config.outputs.skipped }} skipped.
+            [Results in aggregate](${{ steps.aggregate.outputs.json && fromJSON(steps.aggregate.outputs.json).check_url || '' }}) | [Results by configuration](${{ steps.by-config.outputs.url_html }})
 
       - name: Exit
         env:
