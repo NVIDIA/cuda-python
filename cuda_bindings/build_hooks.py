@@ -151,9 +151,9 @@ def _check_cuda_headers(cuda_path: str) -> None:
     if found != needed:
         raise RuntimeError(
             f"This cuda-bindings source tree needs CUDA {needed} headers, but {_cuda_h_path(cuda_path)} is "
-            f"CUDA {found}. This is a build-time requirement only: at run time cuda-bindings supports any "
-            f"CUDA {generated // 1000}.x toolkit, see {_INSTALL_URL}. Point CUDA_PATH or CUDA_HOME at a "
-            f"CUDA {needed} toolkit, or build from cuda-bindings {found}.x sources."
+            f"CUDA {found}. This is a build-time requirement only: at run time this cuda-bindings build can be "
+            f"used with any CUDA {generated // 1000}.x toolkit, see {_INSTALL_URL}. Point CUDA_PATH or CUDA_HOME "
+            f"at a CUDA {needed} toolkit, or build from cuda-bindings {found}.x sources."
         )
 
 
