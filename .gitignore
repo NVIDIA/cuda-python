@@ -8,6 +8,8 @@ __pycache__/
 
 # CUDA Python specific
 .cache/
+.cython-stdlib
+.cython-bindings
 .lycheecache
 .pytest_cache/
 .benchmarks/

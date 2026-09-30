@@ -22,6 +22,7 @@ import os
 import sys
 import tempfile
 import threading
+import types
 from distutils.ccompiler import CCompiler
 from pathlib import Path
 from unittest import mock
@@ -53,6 +54,20 @@ def _load_build_hooks():
 
 # Load the module once at import time
 build_hooks = _load_build_hooks()
+
+
+@pytest.fixture(autouse=True)
+def _isolate_toolchain_env():
+    names = ("CUDA_PYTHON_TOOLCHAIN", "CC", "CXX", "LDSHARED", "CUDA_PYTHON_CYTHON_CACHE_DIR")
+    original = {name: os.environ[name] for name in names if name in os.environ}
+    for name in names:
+        os.environ.pop(name, None)
+    try:
+        yield
+    finally:
+        for name in names:
+            os.environ.pop(name, None)
+        os.environ.update(original)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -173,55 +188,195 @@ class TestGetCudaMajorVersion:
 
 @pytest.fixture
 def stamp(tmp_path, monkeypatch):
-    """Redirect the build stamp to a scratch path.
+    """Redirect the build-config stamp to a scratch path.
 
-    _BUILD_MAJOR_STAMP is anchored to build_hooks.py rather than the working
-    directory, so it has to be replaced outright; chdir would not move it, and
-    record_build_major() would write into the real source tree.
+    _BUILD_CONFIG_STAMP is anchored to build_hooks.py rather than the
+    working directory, so it has to be replaced outright; chdir would
+    not move it, and record_build_config() would write into the
+    real source tree.
     """
-    scratch = tmp_path / "build" / ".build-cuda-major"
-    monkeypatch.setattr(build_hooks, "_BUILD_MAJOR_STAMP", scratch)
+    scratch = tmp_path / "build" / ".build-config"
+    monkeypatch.setattr(build_hooks, "_BUILD_CONFIG_STAMP", scratch)
     monkeypatch.setattr(build_hooks, "force_build_ext", False)
     build_hooks._get_cuda_path.cache_clear()
     build_hooks._determine_cuda_major_version.cache_clear()
     get_cuda_path_or_home.cache_clear()
     monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
+    monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+    monkeypatch.delenv("CUDA_PYTHON_COVERAGE", raising=False)
     return scratch
 
 
-def _write_stamp(stamp, cuda_major):
+def _write_stamp(stamp, config_key):
     stamp.parent.mkdir(parents=True, exist_ok=True)
-    stamp.write_text(cuda_major + "\n")
+    stamp.write_text(config_key + "\n")
 
 
-class TestBuildMajorStamp:
-    """Tests for _check_build_major() and record_build_major()."""
+class TestBuildConfigStamp:
+    """Tests for _check_build_config() and record_build_config()."""
 
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_stamp_path_is_scoped_to_extension_abi(self, monkeypatch):
+        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-310-x86_64-linux-gnu.so")
+        python_310 = build_hooks._abi_stamp_path(".build-config")
+        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-311-x86_64-linux-gnu.so")
+        python_311 = build_hooks._abi_stamp_path(".build-config")
+
+        assert python_310 != python_311
+        assert python_310.name == ".build-config.cpython-310-x86_64-linux-gnu.so"
+        assert python_311.name == ".build-config.cpython-311-x86_64-linux-gnu.so"
+
+    @pytest.mark.agent_authored(model="glm-5.2")
     def test_missing_stamp_forces_rebuild(self, stamp):
-        # No stamp means the last build's major is unknown, so rebuild.
-        assert build_hooks._check_build_major() == "13"
+        # No stamp means the last build's config is unknown, so rebuild.
+        cuda_major, key = build_hooks._check_build_config("gnu", False, False)
+        assert cuda_major == "13"
+        assert key == "cu13-gnu-opt"
         assert build_hooks.force_build_ext is True
 
-    def test_same_major_does_not_force(self, stamp):
-        _write_stamp(stamp, "13")
-        assert build_hooks._check_build_major() == "13"
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_same_config_does_not_force(self, stamp):
+        _write_stamp(stamp, "cu13-gnu-opt")
+        cuda_major, key = build_hooks._check_build_config("gnu", False, False)
+        assert cuda_major == "13"
         assert build_hooks.force_build_ext is False
 
-    def test_changed_major_forces_rebuild(self, stamp):
-        _write_stamp(stamp, "12")
-        assert build_hooks._check_build_major() == "13"
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_changed_cuda_major_forces_rebuild(self, stamp):
+        _write_stamp(stamp, "cu12-gnu-opt")
+        cuda_major, _ = build_hooks._check_build_config("gnu", False, False)
+        assert cuda_major == "13"
         assert build_hooks.force_build_ext is True
 
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_changed_toolchain_forces_rebuild(self, stamp):
+        _write_stamp(stamp, "cu13-gnu-opt")
+        build_hooks._check_build_config("llvm", False, False)
+        assert build_hooks.force_build_ext is True
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_changed_debug_forces_rebuild(self, stamp):
+        _write_stamp(stamp, "cu13-gnu-opt")
+        build_hooks._check_build_config("gnu", True, False)
+        assert build_hooks.force_build_ext is True
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_changed_coverage_forces_rebuild(self, stamp):
+        _write_stamp(stamp, "cu13-gnu-opt")
+        build_hooks._check_build_config("gnu", False, True)
+        assert build_hooks.force_build_ext is True
+
+    @pytest.mark.agent_authored(model="grok-4.6")
     def test_record_writes_stamp(self, stamp):
-        build_hooks.record_build_major()
-        assert stamp.read_text().strip() == "13"
+        build_hooks.record_build_config("cu13-gnu-debug")
+        assert stamp.read_text().strip() == "cu13-gnu-debug"
 
 
-def _capture_cythonize_build_dir(monkeypatch, cuda_major):
-    """Run the cythonize setup for one CUDA major and report its build_dir.
+class TestBuildHookStamping:
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_wheel_records_exact_prepared_config_after_success(self, monkeypatch):
+        events = []
+
+        def prepare(debug):
+            events.append(("prepare", debug))
+            return "cu13-gnu-debug"
+
+        def build(wheel_directory, config_settings, metadata_directory):
+            events.append("build")
+            return "cuda_core.whl"
+
+        monkeypatch.setattr(build_hooks, "_build_cuda_core", prepare)
+        monkeypatch.setattr(build_hooks._build_meta, "build_wheel", build)
+        monkeypatch.setattr(build_hooks, "record_build_config", lambda key: events.append(("record", key)))
+
+        wheel_name = build_hooks.build_wheel("dist", {"debug": True}, "metadata")
+
+        assert wheel_name == "cuda_core.whl"
+        assert events == [("prepare", True), "build", ("record", "cu13-gnu-debug")]
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_editable_records_default_config_after_patch(self, monkeypatch):
+        events = []
+        expected_debug = sys.platform != "win32"
+        toolchain = "msvc" if sys.platform == "win32" else "gnu"
+        expected_key = f"cu13-{toolchain}-{'debug' if expected_debug else 'opt'}"
+
+        def prepare(debug):
+            events.append(("prepare", debug))
+            return expected_key
+
+        monkeypatch.setattr(build_hooks, "_build_cuda_core", prepare)
+        monkeypatch.setattr(
+            build_hooks._build_meta,
+            "build_editable",
+            lambda *_args: events.append("build") or "cuda_core.whl",
+        )
+        monkeypatch.setattr(
+            build_hooks,
+            "_add_cython_include_paths_to_pth",
+            lambda wheel_path: events.append(("patch", wheel_path)),
+        )
+        monkeypatch.setattr(build_hooks, "record_build_config", lambda key: events.append(("record", key)))
+
+        wheel_name = build_hooks.build_editable("dist")
+
+        assert wheel_name == "cuda_core.whl"
+        assert events == [
+            ("prepare", expected_debug),
+            "build",
+            ("patch", os.path.join("dist", "cuda_core.whl")),
+            ("record", expected_key),
+        ]
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_failed_wheel_build_does_not_record_config(self, monkeypatch):
+        monkeypatch.setattr(
+            build_hooks,
+            "_build_cuda_core",
+            lambda debug: f"cu13-gnu-{'debug' if debug else 'opt'}",
+        )
+
+        def fail(*args):
+            raise RuntimeError("wheel build failed")
+
+        monkeypatch.setattr(build_hooks._build_meta, "build_wheel", fail)
+        monkeypatch.setattr(
+            build_hooks,
+            "record_build_config",
+            lambda _key: pytest.fail("failed build must not be stamped"),
+        )
+
+        with pytest.raises(RuntimeError, match="wheel build failed"):
+            build_hooks.build_wheel("dist", {"debug": True}, "metadata")
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_failed_editable_patch_does_not_record_config(self, monkeypatch):
+        monkeypatch.setattr(
+            build_hooks,
+            "_build_cuda_core",
+            lambda debug: f"cu13-gnu-{'debug' if debug else 'opt'}",
+        )
+        monkeypatch.setattr(build_hooks._build_meta, "build_editable", lambda *_args: "cuda_core.whl")
+
+        def fail(wheel_path):
+            raise RuntimeError("editable patch failed")
+
+        monkeypatch.setattr(build_hooks, "_add_cython_include_paths_to_pth", fail)
+        monkeypatch.setattr(
+            build_hooks,
+            "record_build_config",
+            lambda _key: pytest.fail("unpatched editable build must not be stamped"),
+        )
+
+        with pytest.raises(RuntimeError, match="editable patch failed"):
+            build_hooks.build_editable("dist", {"debug": True}, "metadata")
+
+
+def _capture_cythonize_kwargs(monkeypatch, cuda_major):
+    """Run the cythonize setup for one CUDA major and report its keyword arguments.
 
     cythonize() is replaced, so nothing is generated or compiled: this only
-    observes which directory the build was about to write into.
+    observes how the build was configured.
     """
     captured = {}
 
@@ -245,39 +400,45 @@ def _capture_cythonize_build_dir(monkeypatch, cuda_major):
     monkeypatch.setattr(sys, "path", list(sys.path))
 
     build_hooks._build_cuda_core()
-    return Path(captured["build_dir"])
+    return captured
+
+
+def _capture_cythonize_build_dir(monkeypatch, cuda_major):
+    return Path(_capture_cythonize_kwargs(monkeypatch, cuda_major)["build_dir"])
 
 
 class TestGeneratedSourceDirIsKeyed:
-    """Generated C++ must not be shared between CUDA majors.
+    """Generated C++ must not be shared between build configurations.
 
-    Cython's up-to-date check does not hash compile_time_env, so without a
-    per-major directory a cu13 build's generated sources are handed to a cu12
-    compiler (and vice versa).
+    Cython's up-to-date check does not hash compile_time_env or the
+    extension flags, so without a per-config directory a cu13-gnu build's generated sources are handed to a cu13-llvm compiler (and vice versa).
     """
 
+    @pytest.mark.agent_authored(model="glm-5.2")
     def test_majors_use_different_dirs(self, monkeypatch):
         dir_12 = _capture_cythonize_build_dir(monkeypatch, "12")
         dir_13 = _capture_cythonize_build_dir(monkeypatch, "13")
 
         assert dir_12 != dir_13
-        assert dir_12.name == "cu12"
-        assert dir_13.name == "cu13"
+        toolchain = "msvc" if sys.platform == "win32" else "gnu"
+        assert dir_12.name == f"cu12-{toolchain}-opt"
+        assert dir_13.name == f"cu13-{toolchain}-opt"
 
+    @pytest.mark.agent_authored(model="glm-5.2")
     def test_dir_is_anchored_not_relative_to_cwd(self, monkeypatch):
         # Anchored to build_hooks.py, so it must agree with the stamp
         # regardless of where the build was invoked from.
         build_dir = _capture_cythonize_build_dir(monkeypatch, "13")
 
         assert build_dir.is_absolute()
-        assert build_dir.parent.parent == build_hooks._BUILD_MAJOR_STAMP.parent
+        assert build_dir.parent.parent == build_hooks._BUILD_CONFIG_STAMP.parent
 
 
 class TestSetuptoolsSourcePaths:
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_absolute_sources_are_made_relative(self, tmp_path, monkeypatch):
         monkeypatch.chdir(tmp_path)
-        generated = tmp_path / "build" / "cython" / "cu13" / "cuda" / "core" / "_device.cpp"
+        generated = tmp_path / "build" / "cython" / "cu13-gnu-opt" / "cuda" / "core" / "_device.cpp"
         relative = "cuda/core/_cpp/helper.cpp"
         extension = build_hooks.Extension("cuda.core._device", [str(generated), relative])
 
@@ -308,7 +469,7 @@ def _load_setup_py(monkeypatch):
 class TestForceReachesBuildExt:
     """The rebuild decision must actually be handed to setuptools.
 
-    _check_build_major() only sets a flag; if build_ext does not read it, a
+    _check_build_config() only sets a flag; if build_ext does not read it, a
     stale extension is silently kept because its mtime looks newer than the
     regenerated sources.
     """
@@ -729,3 +890,253 @@ class TestDefineMacros:
         monkeypatch.setattr(sys, "path", list(sys.path))
         build_hooks._build_cuda_core()
         assert captured["macros"] == {tuple(build_hooks._build_define_macros("13"))}
+
+
+class TestResolveToolchain:
+    """_resolve_toolchain: pick compiler/linker/flags from CUDA_PYTHON_TOOLCHAIN.
+
+    The default toolchain (gnu on Linux, msvc on Windows) must reproduce the
+    previous build behavior exactly and must not touch CC/CXX/LDSHARED, so an
+    externally-set compiler (e.g. the sccache wrapper in CI) survives.
+    """
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_default_does_not_touch_env(self, monkeypatch):
+        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+        monkeypatch.delenv("CC", raising=False)
+        monkeypatch.delenv("CXX", raising=False)
+        monkeypatch.delenv("LDSHARED", raising=False)
+        name, cc, cxx, _cargs, _largs = build_hooks._resolve_toolchain()
+        if sys.platform == "win32":
+            assert name == "msvc"
+            assert cc is None and cxx is None
+        else:
+            assert name == "gnu"
+            assert (cc, cxx) == ("gcc", "g++")
+        assert "CC" not in os.environ and "CXX" not in os.environ
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_default_preserves_existing_cc(self, monkeypatch):
+        # An externally-set CC (e.g. sccache) must survive the default toolchain.
+        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+        monkeypatch.setenv("CC", "sccache cc")
+        monkeypatch.setenv("CXX", "sccache c++")
+        _name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
+        assert os.environ["CC"] == "sccache cc"
+        assert os.environ["CXX"] == "sccache c++"
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_case_insensitive(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("llvm only valid on Linux")
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "LLVM")
+        name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
+        assert name == "llvm"
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_invalid_value_raises(self, monkeypatch):
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "icc")
+        with pytest.raises(RuntimeError, match="not supported"):
+            build_hooks._resolve_toolchain()
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_llvm_sets_env_and_flags(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("llvm only valid on Linux")
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
+        monkeypatch.delenv("CC", raising=False)
+        monkeypatch.delenv("CXX", raising=False)
+        monkeypatch.delenv("LDSHARED", raising=False)
+        name, cc, cxx, cargs, largs = build_hooks._resolve_toolchain()
+        assert name == "llvm"
+        assert (cc, cxx) == ("clang", "clang++")
+        assert os.environ["CC"] == "clang"
+        assert os.environ["CXX"] == "clang++"
+        assert "-fuse-ld=lld" in largs
+        # clang rejects the gcc-only flags that gnu uses; they must be absent.
+        assert "-fpermissive" not in cargs
+        assert "-fno-var-tracking-assignments" not in cargs
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_gnu_sets_env_and_flags(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("gnu only valid on Linux")
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "gnu")
+        monkeypatch.delenv("CC", raising=False)
+        monkeypatch.delenv("CXX", raising=False)
+        monkeypatch.delenv("LDSHARED", raising=False)
+        name, cc, cxx, cargs, largs = build_hooks._resolve_toolchain()
+        assert name == "gnu"
+        assert (cc, cxx) == ("gcc", "g++")
+        assert os.environ["CC"] == "gcc"
+        assert os.environ["CXX"] == "g++"
+        # gcc-only flags are present (this is the point of P2: explicit gnu must use gcc, not generic cc)
+        assert "-fpermissive" not in cargs  # cuda.core gnu flags don't include it; bindings do
+        assert "-fno-var-tracking-assignments" not in cargs
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_llvm_overrides_external_cc(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("llvm only valid on Linux")
+        # An explicit non-default toolchain governs the compiler, so a stale
+        # external CC (e.g. "sccache cc") is replaced, not kept.
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
+        monkeypatch.setenv("CC", "sccache cc")
+        _name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
+        assert os.environ["CC"] == "clang"
+
+
+class TestCheckToolchainAvailable:
+    """_check_toolchain_available: fast, helpful failure when a tool is missing."""
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_default_is_noop(self):
+        # The platform default never preflights.
+        build_hooks._check_toolchain_available("gnu")
+        build_hooks._check_toolchain_available("msvc")
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_llvm_missing_tool_lists_install_hint(self, monkeypatch):
+        def fake_which(name):
+            return None if name in ("clang", "clang++", "ld.lld") else "/bin/" + name
+
+        monkeypatch.setattr(build_hooks.shutil, "which", fake_which)
+        with pytest.raises(RuntimeError, match="clang and lld"):
+            build_hooks._check_toolchain_available("llvm")
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_llvm_present_passes(self, monkeypatch):
+        monkeypatch.setattr(build_hooks.shutil, "which", lambda name: "/bin/" + name)
+        build_hooks._check_toolchain_available("llvm")
+
+
+# ---------------------------------------------------------------------------
+# Cython cache path helper (workaround for cython/cython#7532)
+#
+# These tests cover the configuration-digest workaround in build_hooks.py.
+# They can be deleted together with the `_cython_cache_path` helper once
+# cython/cython#7532 is resolved in a released Cython version and
+# cuda-python's minimum Cython version includes the fix.
+# See https://github.com/cython/cython/issues/7532
+
+
+_test_helpers_root = Path(__file__).parents[2] / "cuda_python_test_helpers"
+if _test_helpers_root.is_dir() and str(_test_helpers_root) not in sys.path:
+    sys.path.insert(0, str(_test_helpers_root))
+
+from cuda_python_test_helpers.cython_cache import POSIX_ONLY_CACHE, CythonAliasMixin, CythonCachePathMixin
+
+
+class TestCudaCoreCythonIncludePath:
+    """How `_build_cuda_core` assembles `include_path` for cythonize().
+
+    `_stable_cython_alias` itself (creation, cleanup, cross-env cache hits) is
+    covered generically by `TestCythonAlias` below. These tests cover only
+    `_build_cuda_core`'s own wiring: which aliases it adds, in what order, and
+    the cache-disabled / bindings-unavailable fallbacks.
+    """
+
+    @staticmethod
+    def _fake_bindings(monkeypatch):
+        bindings = types.ModuleType("cuda.bindings")
+        bindings.__file__ = "/random-build-env/cuda/bindings/__init__.py"
+        bindings.__version__ = "13.0"
+        monkeypatch.setitem(sys.modules, "cuda.bindings", bindings)
+        monkeypatch.setattr(sys.modules["cuda"], "bindings", bindings, raising=False)
+
+    @POSIX_ONLY_CACHE
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_cache_enabled_includes_bindings_and_stdlib_aliases(self, monkeypatch, tmp_path):
+        self._fake_bindings(monkeypatch)
+        monkeypatch.setenv("CUDA_PYTHON_CYTHON_CACHE_DIR", str(tmp_path))
+
+        captured = _capture_cythonize_kwargs(monkeypatch, "13")
+
+        assert captured["include_path"] == [".", ".cython-bindings", ".cython-stdlib"]
+
+    @POSIX_ONLY_CACHE
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_cache_enabled_without_bindings_omits_bindings_alias(self, monkeypatch, tmp_path):
+        monkeypatch.setitem(sys.modules, "cuda.bindings", None)  # forces ImportError
+        monkeypatch.setenv("CUDA_PYTHON_CYTHON_CACHE_DIR", str(tmp_path))
+
+        captured = _capture_cythonize_kwargs(monkeypatch, "13")
+
+        assert captured["include_path"] == [".", ".cython-stdlib"]
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_cache_disabled_skips_aliasing(self, monkeypatch):
+        monkeypatch.setitem(sys.modules, "cuda.bindings", None)  # forces ImportError
+        monkeypatch.delenv("CUDA_PYTHON_CYTHON_CACHE_DIR", raising=False)
+
+        captured = _capture_cythonize_kwargs(monkeypatch, "13")
+
+        assert captured["include_path"] == ["."]
+
+
+class TestCythonCachePath(CythonCachePathMixin):
+    """`_cython_cache_path` tests specific to cuda.core.
+
+    Inherits the common tests from CythonCachePathMixin; the mixin
+    covers the package-agnostic behavior. cuda.core passes ``compile_time_env``
+    and ``cuda_major``, so those partitions are tested here.
+    """
+
+    build_hooks = build_hooks
+    package = "cuda-core"
+
+    @POSIX_ONLY_CACHE
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_changed_compile_time_env_changes_namespace(self, monkeypatch, tmp_path):
+        """Different ``compile_time_env`` values map to different namespaces."""
+        self._set_env(monkeypatch, str(tmp_path))
+        p1 = build_hooks._cython_cache_path("cuda-core", compile_time_env={"CUDA_CORE_BUILD_MAJOR": 12})
+        p2 = build_hooks._cython_cache_path("cuda-core", compile_time_env={"CUDA_CORE_BUILD_MAJOR": 13})
+        assert p1 != p2
+
+    @POSIX_ONLY_CACHE
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_changed_debug_or_cuda_major_changes_namespace(self, monkeypatch, tmp_path):
+        """``debug`` and ``cuda_major`` each partition the namespace."""
+        self._set_env(monkeypatch, str(tmp_path))
+        p1 = build_hooks._cython_cache_path("cuda-core", debug=False, cuda_major="12")
+        p2 = build_hooks._cython_cache_path("cuda-core", debug=True, cuda_major="12")
+        p3 = build_hooks._cython_cache_path("cuda-core", debug=False, cuda_major="13")
+        assert p1 != p2
+        assert p1 != p3
+        assert p2 != p3
+
+
+class TestCythonCacheSmokeTest:
+    """Real Cython cache miss/hit through `_cython_cache_path`.
+
+    The actual cythonize exercise lives in
+    ``cuda_python_test_helpers.cython_cache`` so it is shared with
+    ``cuda_bindings/tests/test_build_hooks.py``.
+    """
+
+    @POSIX_ONLY_CACHE
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_cache_miss_then_hit(self, monkeypatch, tmp_path, capsys):
+        from cuda_python_test_helpers.cython_cache import (
+            cython_cache_miss_then_hit,
+        )
+
+        cache_root = tmp_path / "cython-cache"
+        cache_root.mkdir()
+        monkeypatch.setenv("CUDA_PYTHON_CYTHON_CACHE_DIR", str(cache_root))
+
+        cache_path = build_hooks._cython_cache_path(
+            "cuda-core",
+            compiler_directives={"language_level": 3},
+            language_level=3,
+            cplus=False,
+        )
+        assert cache_path is not None
+        cython_cache_miss_then_hit(cache_path, tmp_path, capsys)
+
+
+class TestCythonAlias(CythonAliasMixin):
+    """`_stable_cython_alias` tests for cuda.core."""
+
+    build_hooks = build_hooks

@@ -159,5 +159,4 @@ build-verbosity = 1
 archs = "native"
 
 [tool.cibuildwheel.windows]
-before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair --namespace-pkg cuda --exclude \"torch_cpu.dll;torch_python.dll\" -w {dest_dir} {wheel}"
