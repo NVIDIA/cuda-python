@@ -127,18 +127,28 @@ def _resolve_toolchain_name():
     return name, allowed, cc, cxx, explicit
 
 
+def _with_sccache(current, compiler):
+    """Keep CC="sccache cc" as CC="sccache clang" when the toolchain picks a compiler."""
+    if current:
+        launcher = current.split()[0]
+        if os.path.basename(launcher) == "sccache":
+            return f"{launcher} {compiler}"
+    return compiler
+
+
 def _apply_toolchain_env(cc, cxx, explicit):
     """Set CC/CXX/LDSHARED for an explicitly-chosen toolchain.
 
     The default path (CUDA_PYTHON_TOOLCHAIN unset) intentionally
     does not touch the env, so an externally-set compiler (e.g.
     CC="sccache cc" in CI) keeps working. An explicit CUDA_PYTHON_TOOLCHAIN
-    override (incl. =gnu) governs the compiler and overrides CC/CXX/LDSHARED.
+    override (incl. =gnu) governs the compiler. An existing sccache prefix
+    is kept (CC="sccache cc" + llvm -> CC="sccache clang").
     """
     if explicit and cc is not None:
-        os.environ["CC"] = cc
-        os.environ["CXX"] = cxx
-        os.environ["LDSHARED"] = f"{cxx} -shared"
+        os.environ["CC"] = _with_sccache(os.environ.get("CC", ""), cc)
+        os.environ["CXX"] = _with_sccache(os.environ.get("CXX", ""), cxx)
+        os.environ["LDSHARED"] = f"{os.environ['CXX']} -shared"
 
 
 def _check_toolchain_available(name):
