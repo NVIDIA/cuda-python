@@ -128,20 +128,6 @@ class ComputeWorkplanTest(unittest.TestCase):
                 assert not selected(plan, "needs_test")
                 assert not selected_platforms(plan)
 
-        for path in (
-            "ci/ci-pipeline.mmd",
-            "ci/ci-pipeline.svg",
-            "ci/tools/generate_ci_pipeline.py",
-        ):
-            with self.subTest(path=path):
-                plan = plan_for(path)
-                assert not selected(plan, "needs_build")
-                assert not selected(plan, "needs_test")
-                assert not selected_platforms(plan)
-                assert plan["jobs"]["ci_pipeline"]
-
-        assert not plan_for("notes.md")["jobs"]["ci_pipeline"]
-
     def test_unknown_path_and_missing_baseline_force_all(self) -> None:
         for plan in (
             plan_for("new-top-level-file"),

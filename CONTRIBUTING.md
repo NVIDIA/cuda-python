@@ -317,17 +317,7 @@ The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and
 
 ### CI Pipeline Flow
 
-![CUDA Python CI Pipeline Flow](ci/ci-pipeline.svg)
-
-The reviewable diagram source is [`ci/ci-pipeline.mmd`](ci/ci-pipeline.mmd).
-After editing it, regenerate the SVG with:
-
-```console
-python ci/tools/generate_ci_pipeline.py
-```
-
-The generator requires Docker and Node.js. It renders with a pinned Mermaid CLI
-container so local and CI output remain identical.
+The CI pipeline diagram is maintained as Mermaid source in [`ci/ci-pipeline.mmd`](ci/ci-pipeline.mmd).
 
 ### Pipeline Execution Details
 
