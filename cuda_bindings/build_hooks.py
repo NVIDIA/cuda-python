@@ -176,9 +176,10 @@ def _build_cuda_bindings(debug=False):
     # Linux, msvc on Windows) reproduces the previous build behavior and does
     # not touch CC/CXX, so an externally-set compiler (e.g. sccache) survives.
     #
-    # cxx_std=14: c++17 regresses launch.launch_{256,512}_args by ~15% via
-    # gcc's variadic-template expansion; bindings keeps c++14 until we have a
-    # cheaper fix. See PR #2965 discussion.
+    # cxx_std=14: c++17 costs ~3% geomean but that is inside the ~2% noise
+    # floor; the real signal is a ~15% regression on
+    # launch.launch_{256,512}_args from gcc's c++17 variadic-template
+    # expansion. See PR #2965 discussion.
     toolchain, _cc, _cxx, extra_compile_args, extra_link_args = resolve_toolchain(
         cxx_std=14, debug=debug, compile_for_coverage=compile_for_coverage, tweak=_tweak_flags
     )
