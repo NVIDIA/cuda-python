@@ -24,6 +24,14 @@ Lifetime management of the CUDA objects
 All of the Python classes do not manage the lifetime of the underlying CUDA C objects. It is the user's responsibility to use the appropriate APIs to explicitly destruct the objects following the CUDA Programming Guide.
 
 
+Initial values of wrapped structs
+=================================
+
+The Python classes that wrap CUDA C structs (for example :class:`~cuda.bindings.driver.CUDA_MEMCPY3D` or :class:`~cuda.bindings.runtime.cudaDeviceProp`) zero-initialize the memory they allocate. A newly constructed instance has every member set to zero, including members that are not exposed as Python attributes (such as ``reserved`` fields, which are no longer exposed but are still part of the underlying C struct and so remain zero). This matches the common C idiom of ``struct S s = {0};``, so you only need to set the members you care about.
+
+This applies only to memory owned by the Python object. If you construct a class from an existing pointer (for example, by passing the address of an existing C struct), the wrapper uses that memory as is and its contents are not modified.
+
+
 Getting and setting attributes of extension types
 =================================================
 
