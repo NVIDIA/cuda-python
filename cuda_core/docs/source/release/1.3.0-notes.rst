@@ -169,3 +169,7 @@ Fixes and enhancements
   :attr:`graph.GraphNode.succ` views with an object that is not a
   :class:`~graph.GraphNode` is now a no-op instead of raising ``TypeError``,
   consistent with :class:`collections.abc.MutableSet` semantics.
+
+- The ``StridedMemoryView`` DLPack C exchange API now preserves the underlying
+  Python exception when an export or import fails, as required by the DLPack
+  contract, instead of returning ``-1`` with no exception set.
