@@ -469,7 +469,14 @@ jobs:
 
       - name: Run numba-cuda tests
         if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
-        run: python -m numba.runtests numba.cuda.tests
+        run: |
+          # pytest<9: numba-cuda's subTest-based tests break under pytest 9's
+          # xdist subtest handling. See NVIDIA/numba-cuda#637.
+          pip install "pytest<9"
+          # test_ipc: numba-cuda v0.30.4 accesses CUipcMemHandle.reserved, which
+          # cuda-bindings intentionally removed. numba-cuda is EOL upstream, so
+          # no fix is coming. See cuda-python#2748.
+          pytest -v --pyargs numba.cuda.tests --ignore-glob="**/test_ipc.py"
 
       - name: Checkout numba-cuda-mlir tests at matching tag
         if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}
@@ -495,9 +502,13 @@ jobs:
           # Skip tests/benchmarks/ and tests/doc_examples/ — they import the
           # numba package at collection time, which cuSIMT intentionally does
           # not depend on. See NVIDIA/numba-cuda-mlir#136.
+          # test_device_record_copy (WithRecord variant): flaky NaN vs NaN
+          # compare from uninitialized np.recarray memory. See
+          # NVIDIA/numba-cuda-mlir#341.
           pytest -rxXs -v \
             --ignore=tests/benchmarks \
             --ignore=tests/doc_examples \
+            --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_devicerecord.py::TestCudaDeviceRecordWithRecord::test_device_record_copy' \
             tests/
           popd
 

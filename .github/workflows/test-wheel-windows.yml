@@ -453,7 +453,10 @@ jobs:
       - name: Run numba-cuda tests
         if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: python -m numba.runtests numba.cuda.tests
+        run: |
+          # See linux step for rationale (pytest<9 and test_ipc skip).
+          pip install "pytest<9"
+          pytest -v --pyargs numba.cuda.tests --ignore-glob="**/test_ipc.py"
 
       - name: Checkout numba-cuda-mlir tests at matching tag
         if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}
@@ -476,9 +479,11 @@ jobs:
           pushd numba-cuda-mlir-released
           pip install --upgrade "pip>=25.1"
           pip install --group test
+          # See linux step for rationale on the --deselect.
           pytest -rxXs -v \
             --ignore=tests/benchmarks \
             --ignore=tests/doc_examples \
+            --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_devicerecord.py::TestCudaDeviceRecordWithRecord::test_device_record_copy' \
             tests/
           popd
 
