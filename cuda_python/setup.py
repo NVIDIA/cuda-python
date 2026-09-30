@@ -30,7 +30,10 @@ setup(
     version=version,
     install_requires=[
         f"cuda-bindings{matcher}{version}",
-        "cuda-core~=1.2.0",
+        # Unpinned: cuda-core releases on its own cadence and declares its own
+        # cuda-bindings floors. A pin here would make older cuda-python releases
+        # unresolvable after a cuda-core release.
+        "cuda-core",
         "cuda-pathfinder~=1.1",
     ],
     extras_require={

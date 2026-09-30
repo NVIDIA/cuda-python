@@ -81,7 +81,11 @@ elif [[ "${1}" == "test" ]]; then
   TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${CUDA_VER})"
   # CI builds the prior-major half of the cuda-core wheel against the prev_build
   # toolkit in ci/versions.yml and the backport branch's bindings.
-  BUILD_PREV_CUDA_VER="$(sed -n '/prev_build:/,/version:/s/.*version: *"\([^"]*\)".*/\1/p' ci/versions.yml)"
+  if ! command -v yq >/dev/null 2>&1; then
+    echo "Error: yq is required to read ci/versions.yml" >&2
+    exit 1
+  fi
+  BUILD_PREV_CUDA_VER="$(yq -r '.cuda.prev_build.version' ci/versions.yml)"
   BUILD_PREV_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${BUILD_PREV_CUDA_VER})"
 
   if [[ ${BUILD_CUDA_MAJOR} != ${TEST_CUDA_MAJOR} ]]; then

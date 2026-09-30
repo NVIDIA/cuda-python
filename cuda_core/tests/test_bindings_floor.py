@@ -42,6 +42,15 @@ REPO = CUDA_CORE.parent
 HOOK = REPO / "toolshed" / "check_cuda_core_bindings_floor.py"
 
 
+def _pyproject_extras():
+    try:
+        import tomllib
+    except ModuleNotFoundError:  # Python 3.10
+        import tomli as tomllib
+    with open(CUDA_CORE / "pyproject.toml", "rb") as f:
+        return tomllib.load(f)["project"]["optional-dependencies"]
+
+
 def _load(name, path):
     spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
@@ -290,6 +299,15 @@ class TestImportTimeCheck:
         assert result.returncode == 0, result.stdout + result.stderr
         assert result.stdout.startswith("IMPORTERROR:"), result.stdout
         return result.stdout
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_the_build_record_comes_from_the_compiler(self):
+        # _build_info is an extension module: CUDA_VERSION is the macro of the cuda.h the
+        # compiler resolved, and the major and floor come from the compile-time environment.
+        major, cuda_version, floor = self._build()
+        assert cuda_version // 1000 == major == floor[0]
+        assert header_minor(cuda_version) >= header_minor(cuda_version_of(floor))
+        assert floor == floor_mod.floors_from_extras(_pyproject_extras())[major]
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_below_the_floor_fails_at_import_with_the_fix(self, tmp_path):

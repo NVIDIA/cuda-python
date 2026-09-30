@@ -11,7 +11,7 @@
 // present at build time, and that cuda-bindings is at or above the series'
 // floor (see cuda/core/_bindings_floor.py and
 // https://github.com/NVIDIA/cuda-python/issues/2783). build_hooks.py enforces
-// both before it compiles and passes the decision down as two macros:
+// both before it compiles and passes the decision down as three macros:
 //
 //   CUDA_CORE_BUILD_MAJOR        the CUDA major series of the build, 12 or 13.
 //                                The only version the C++ may branch on, as
@@ -19,9 +19,15 @@
 //                                for a difference between major series.
 //   CUDA_CORE_MIN_CUDA_VERSION   the floor's major.minor as a CUDA_VERSION
 //                                value, for example 13040.
+//   CUDA_CORE_BINDINGS_CUDA_VERSION
+//                                the CUDA_VERSION of the header that the
+//                                installed cuda-bindings was generated from.
 //
-// This file checks cuda.h against both macros again, so that a build that
-// bypasses build_hooks.py still cannot compile against an unsupported header.
+// This file checks cuda.h against all three macros again, so that a build that
+// bypasses build_hooks.py still cannot compile against an unsupported header,
+// and so that the cuda.h the compiler resolves is the one build_hooks.py read.
+// The driver entry-point table is keyed by that header's macros, so cuda.h must
+// have the major.minor of the header cuda-bindings was generated from.
 // No other file may use a minor-version fence such as
 // `#if CUDA_VERSION >= 130x0`. Such fences compiled features out of source
 // builds against an older header, and the run-time checks, which looked at
@@ -44,5 +50,11 @@
 #ifdef CUDA_CORE_MIN_CUDA_VERSION
 #if CUDA_VERSION < CUDA_CORE_MIN_CUDA_VERSION
 #error "cuda.h is older than the floor of this cuda.core release for its CUDA major series (see the cuda.core support policy)"
+#endif
+#endif
+
+#ifdef CUDA_CORE_BINDINGS_CUDA_VERSION
+#if (CUDA_VERSION / 10) != (CUDA_CORE_BINDINGS_CUDA_VERSION / 10)
+#error "the cuda.h the compiler resolved is not of the major.minor that the installed cuda-bindings was generated from (check CUDA_PATH, CUDA_HOME and the compiler's include path)"
 #endif
 #endif

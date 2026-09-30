@@ -17,8 +17,9 @@ Everything else derives from them through :func:`floors_from_extras`:
 
 - The build backend, ``build_hooks.py``, checks the installed cuda-bindings
   against the floor. It checks that the ``cuda.h`` that it compiles against is
-  the one that cuda-bindings was generated from. It records the floor and the
-  header in the generated ``_build_info.py``.
+  the one that cuda-bindings was generated from. It passes the floor to the
+  ``_build_info`` extension module, which records it next to the header the
+  compiler used.
 - ``cuda/core/__init__.py`` checks the installed cuda-bindings against that
   record with :func:`check_installed_bindings`.
 - The documentation reads the floors into substitutions in ``docs/source/conf.py``.
@@ -164,7 +165,7 @@ def check_installed_bindings(
     and ``driver.CUDA_VERSION`` of the installed cuda-bindings. The latter is
     the ``cuda.h`` that it was generated from, for example 13040.
     ``build_cuda_major``, ``build_cuda_version`` and ``build_floor`` are the
-    build's record in ``_build_info.py``.
+    build's record in the ``_build_info`` extension module.
 
     Raises ImportError with an actionable message unless the installed
     cuda-bindings passes all of these checks:

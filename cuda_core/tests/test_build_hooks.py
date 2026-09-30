@@ -652,38 +652,15 @@ class TestBuildConfigurationCheck:
 
     FLOOR = build_hooks._bindings_floors()
 
-    @pytest.fixture(autouse=True)
-    def _isolate_build_info(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(build_hooks, "_BUILD_INFO_PATH", tmp_path / "_build_info.py")
-
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     @pytest.mark.parametrize("major", [12, 13])
-    def test_floor_bindings_and_matching_header_pass_and_are_recorded(self, tmp_path, monkeypatch, major):
+    def test_floor_bindings_and_matching_header_pass(self, tmp_path, monkeypatch, major):
         floor = self.FLOOR[major]
-        version = f"{floor[0]}.{floor[1]}.{floor[2] + 1}.dev3+gabcdef0"
-        _fake_bindings(monkeypatch, version)
-        cuda_path = _write_cuda_h(tmp_path, floor[0] * 1000 + floor[1] * 10)
-
-        build_hooks._check_build_configuration(cuda_path, str(major))
-
-        spec = importlib.util.spec_from_file_location("_build_info_under_test", build_hooks._BUILD_INFO_PATH)
-        info = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(info)
-        assert major == info.CUDA_MAJOR
-        assert floor[0] * 1000 + floor[1] * 10 == info.CUDA_VERSION
-        assert floor == info.CUDA_BINDINGS_FLOOR
-        assert version == info.CUDA_BINDINGS_BUILD_VERSION
-        # ci/tools/cuda_core_bindings_floor.py reads this record out of the wheel when BINDINGS_SOURCE=floor.
-        tool_path = Path(__file__).resolve().parents[2] / "ci" / "tools" / "cuda_core_bindings_floor.py"
-        if tool_path.is_file():  # absent from an sdist tree
-            spec = importlib.util.spec_from_file_location("cuda_core_bindings_floor_tool", tool_path)
-            tool = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(tool)
-            text = build_hooks._BUILD_INFO_PATH.read_text(encoding="utf-8")
-            assert tool.floor_from_source(text, major) == f"{floor[0]}.{floor[1]}.{floor[2]}"
-            other = 25 - major
-            with pytest.raises(SystemExit, match=f"records a CUDA {major} build, not CUDA {other}"):
-                tool.floor_from_source(text, other)
+        header = floor[0] * 1000 + floor[1] * 10
+        _fake_bindings(monkeypatch, f"{floor[0]}.{floor[1]}.{floor[2] + 1}.dev3+gabcdef0")
+        cuda_path = _write_cuda_h(tmp_path, header)
+        # Returns the header cuda-bindings was generated from, for the versions.hpp cross-check.
+        assert build_hooks._check_build_configuration(cuda_path, str(major)) == header
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_bindings_below_the_floor_fail(self, tmp_path, monkeypatch):
@@ -692,7 +669,6 @@ class TestBuildConfigurationCheck:
         cuda_path = _write_cuda_h(tmp_path, 13040)
         with pytest.raises(RuntimeError, match=r"requires cuda-bindings >= 13\.\d+\.\d+ for CUDA 13"):
             build_hooks._check_build_configuration(cuda_path, "13")
-        assert not build_hooks._BUILD_INFO_PATH.exists()
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_bindings_of_another_major_fail(self, tmp_path, monkeypatch):
@@ -738,8 +714,7 @@ class TestBuildConfigurationCheck:
         new_header = floor[0] * 1000 + (floor[1] + 1) * 10
         _fake_bindings(monkeypatch, f"{floor[0]}.{floor[1]}.{floor[2]}.dev5+gabcdef0", cuda_version=new_header)
         cuda_path = _write_cuda_h(tmp_path, new_header)
-        build_hooks._check_build_configuration(cuda_path, "13")
-        assert f"CUDA_VERSION = {new_header}" in build_hooks._BUILD_INFO_PATH.read_text()
+        assert build_hooks._check_build_configuration(cuda_path, "13") == new_header
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_missing_bindings_is_a_build_error(self, tmp_path, monkeypatch):
@@ -862,7 +837,7 @@ class TestBuildRequirement:
 
 
 class TestDefineMacros:
-    """The C++ learns the build decision through two macros. See _cpp/rt/versions.hpp."""
+    """The C++ learns the build decision through three macros. See _cpp/rt/versions.hpp."""
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     @pytest.mark.parametrize("major", ["12", "13"])
@@ -872,6 +847,20 @@ class TestDefineMacros:
             ("CUDA_CORE_BUILD_MAJOR", major),
             ("CUDA_CORE_MIN_CUDA_VERSION", str(floor[0] * 1000 + floor[1] * 10)),
         ]
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_the_bindings_header_is_a_third_macro(self):
+        # versions.hpp compares the compiler's cuda.h with it by major.minor.
+        assert build_hooks._build_define_macros("13", 13040)[2] == ("CUDA_CORE_BINDINGS_CUDA_VERSION", "13040")
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_the_floor_reaches_the_cython_compile_time_environment(self, monkeypatch):
+        # cuda/core/_build_info.pyx records it next to the header the compiler resolved.
+        captured = _capture_cythonize_kwargs(monkeypatch, "13")
+        assert captured["compile_time_env"] == {
+            "CUDA_CORE_BUILD_MAJOR": 13,
+            "CUDA_CORE_BINDINGS_FLOOR": build_hooks._bindings_floors()[13],
+        }
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_extensions_receive_the_macros(self, monkeypatch):

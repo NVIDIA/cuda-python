@@ -242,9 +242,16 @@ cuda.core supports one build configuration per CUDA major series. The `cuda.h`
 it compiles against has the same major.minor as the cuda-bindings it is built
 with, and that cuda-bindings is at or above the series' floor
 (`cuda/core/_bindings_floor.py`). `build_hooks.py` enforces both before
-compilation and defines `CUDA_CORE_BUILD_MAJOR` and
-`CUDA_CORE_MIN_CUDA_VERSION` for the C++ compiler. `versions.hpp`, the first
-include of the tree, re-checks `cuda.h` against them with `#error`.
+compilation and defines three macros for the C++ compiler:
+`CUDA_CORE_BUILD_MAJOR`, `CUDA_CORE_MIN_CUDA_VERSION` (the floor's header) and
+`CUDA_CORE_BINDINGS_CUDA_VERSION` (the header that the installed cuda-bindings
+was generated from). `versions.hpp`, the first include of the tree, re-checks
+the `cuda.h` that the compiler resolved against all three with `#error`, so
+the compiler's header can never silently differ from the one `build_hooks.py`
+read. The `cuda.core._build_info` extension records `CUDA_VERSION` from that
+same `cuda.h`, with the major and the floor from the Cython compile-time
+environment; `cuda/core/__init__.py` checks the installed cuda-bindings
+against that record at import.
 
 The C++ branches on `CUDA_CORE_BUILD_MAJOR` only, and only where the two major
 series differ. Minor-version fences (`#if CUDA_VERSION >= 130x0`) are not
