@@ -219,6 +219,9 @@ def _build_cuda_core(debug=False):
     # Resolve the C/C++ toolchain (CUDA_PYTHON_TOOLCHAIN). The default (gnu on
     # Linux, msvc on Windows) reproduces the previous build behavior and does
     # not touch CC/CXX, so an externally-set compiler (e.g. sccache) survives.
+    #
+    # cxx_std=17: cuda.core uses c++17 features (structured bindings,
+    # if-constexpr, etc.) in its C++ helper code under cuda/core/_cpp/.
     toolchain, _cc, _cxx, extra_compile_args, extra_link_args = resolve_toolchain(
         cxx_std=17, debug=debug, compile_for_coverage=COMPILE_FOR_COVERAGE
     )

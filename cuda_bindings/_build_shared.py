@@ -198,10 +198,9 @@ def _check_toolchain_available(name):
 def _build_flags(name, cxx_std, debug, compile_for_coverage):
     """Compile/link flags for a resolved toolchain (shared across backends).
 
-    ``cxx_std`` is required — the two backends can legitimately differ (bindings
-    stays on ``c++14`` to avoid a c++17 variadic-template regression on the
-    kernel-launch code paths; core is on ``c++17``), and there is no defensible
-    shared default. See https://github.com/NVIDIA/cuda-python/issues/1882.
+    ``cxx_std`` is supplied by the caller; each backend picks its own value at
+    the ``resolve_toolchain`` call site with a comment explaining why. See
+    also https://github.com/NVIDIA/cuda-python/issues/1882.
     """
     extra_compile_args = []
     extra_link_args = []
@@ -235,10 +234,10 @@ def resolve_toolchain(*, cxx_std, debug=False, compile_for_coverage=False, tweak
     explicit CUDA_PYTHON_TOOLCHAIN (llvm on Linux) sets CC/CXX/LDSHARED to
     the toolchain's binaries so distutils' customize_compiler picks them up.
 
-    ``cxx_std`` is required — each backend chooses its own C++ standard.
-    ``tweak`` is an optional post-hook ``(name, cargs, largs) -> (cargs, largs)``
-    for package-specific flag layering (e.g. bindings adds
-    ``-Wno-deprecated-declarations``).
+    ``cxx_std`` is required — each backend chooses its own C++ standard at
+    its call site. ``tweak`` is an optional post-hook
+    ``(name, cargs, largs) -> (cargs, largs)`` for package-specific flag
+    layering.
     """
     name, _allowed, cc, cxx, explicit = _resolve_toolchain_name()
     if name == "msvc" and debug:

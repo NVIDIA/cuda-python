@@ -175,6 +175,10 @@ def _build_cuda_bindings(debug=False):
     # Resolve the C/C++ toolchain (CUDA_PYTHON_TOOLCHAIN). The default (gnu on
     # Linux, msvc on Windows) reproduces the previous build behavior and does
     # not touch CC/CXX, so an externally-set compiler (e.g. sccache) survives.
+    #
+    # cxx_std=14: c++17 regresses launch.launch_{256,512}_args by ~15% via
+    # gcc's variadic-template expansion; bindings keeps c++14 until we have a
+    # cheaper fix. See PR #2965 discussion.
     toolchain, _cc, _cxx, extra_compile_args, extra_link_args = resolve_toolchain(
         cxx_std=14, debug=debug, compile_for_coverage=compile_for_coverage, tweak=_tweak_flags
     )

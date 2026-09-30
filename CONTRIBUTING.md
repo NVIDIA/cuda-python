@@ -174,6 +174,11 @@ $ git rm --cached cuda_core/_build_shared.py
 $ git checkout HEAD -- cuda_core/_build_shared.py
 ```
 
+In practice, deleting the checkout and re-cloning after the two steps at
+the top of this section (Developer Mode + `git config --global core.symlinks
+true`) is usually simpler and less error-prone than repairing an existing
+clone in place.
+
 ### Pre-commit lychee workaround
 
 For development on Windows (not WSL), the `lychee` pre-commit task will not
