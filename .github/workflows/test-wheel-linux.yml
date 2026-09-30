@@ -520,8 +520,8 @@ jobs:
           # patterns that pytest 9.1 rejects; the main-side fix (#2212) has
           # not yet shipped in a cuda-core release.
           pip install "pytest<9.1"
-          # Version-gated deselect: drops automatically when a newer
-          # cuda-core release with the wrapper-mapping update ships.
+          # Version-gated deselects: drop automatically when a newer
+          # cuda-core release ships that removes each source.
           DESELECTS=()
           if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${CUDA_CORE_RELEASED_VER}') <= Version('1.0.1') else 1)"; then
             # NvlinkVersion: v1.0.1's wrapper mapping predates
@@ -529,6 +529,15 @@ jobs:
             # Expected drift on this mode until released cuda-core catches up.
             DESELECTS+=(
               --deselect 'tests/test_enum_coverage.py::test_wrapper_covers_all_binding_members[NvlinkVersion]'
+            )
+          fi
+          if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${CUDA_CORE_RELEASED_VER}') <= Version('1.2.1') else 1)"; then
+            # test_frozen_driver_table_covers_all_curesult_members: v1.2.1's
+            # frozen table (capped at CTK 13.1.1) predates 3 CUresult members
+            # added by main cuda-bindings 13.4.1. Reverted on main by #2792;
+            # drop this deselect once a cuda-core release with the revert ships.
+            DESELECTS+=(
+              --deselect 'tests/test_utils_enum_explanations_helpers.py::test_frozen_driver_table_covers_all_curesult_members'
             )
           fi
           pytest -rxXs -v --randomly-dont-reorganize \

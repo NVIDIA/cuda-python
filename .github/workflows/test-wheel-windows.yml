@@ -517,6 +517,12 @@ jobs:
               --deselect 'tests/test_memory.py::test_non_managed_resources_report_not_managed[pinned]'
             )
           fi
+          if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${CUDA_CORE_RELEASED_VER}') <= Version('1.2.1') else 1)"; then
+            # See linux step for rationale (#2792 revert).
+            DESELECTS+=(
+              --deselect 'tests/test_utils_enum_explanations_helpers.py::test_frozen_driver_table_covers_all_curesult_members'
+            )
+          fi
           pytest -rxXs -v --randomly-dont-reorganize \
             "${DESELECTS[@]}" \
             tests/
