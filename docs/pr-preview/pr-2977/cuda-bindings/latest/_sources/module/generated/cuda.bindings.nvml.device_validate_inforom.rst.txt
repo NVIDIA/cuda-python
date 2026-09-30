@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_validate\_inforom
+============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_validate_inforom
