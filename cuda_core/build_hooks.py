@@ -13,6 +13,7 @@ import glob
 import hashlib
 import os
 import re
+import shlex
 import shutil
 import sys
 import sysconfig
@@ -132,20 +133,21 @@ def _resolve_toolchain_name():
 
 
 def _with_compiler(command, compiler):
-    """Replace the leading compiler on a sysconfig linker command; keep flags.
+    """Replace the leading compiler on a linker command; keep flags.
 
     Conda ``LDCXXSHARED`` looks like ``g++ -pthread -B .../python_compiler_compat
     -shared ...``. Only the executable changes so those flags stay on the
-    link line. CC/CXX are not rewritten this way: they may already be a
+    link line. The command is tokenized with shlex so quoted arguments
+    survive. CC/CXX are not rewritten this way: they may already be a
     launcher plus compiler (``sccache cc``).
     """
-    if not command or not str(command).strip():
+    if not command or not command.strip():
         return compiler
-    parts = command.split()
+    parts = shlex.split(command)
     i = 0
     while i < len(parts) and not parts[i].startswith("-"):
         i += 1
-    return " ".join([compiler, *parts[i:]])
+    return shlex.join([compiler, *parts[i:]])
 
 
 def _with_sccache(current, compiler):
@@ -169,13 +171,20 @@ def _apply_toolchain_env(cc, cxx, explicit):
     CC="sccache cc" in CI) keeps working. An explicit CUDA_PYTHON_TOOLCHAIN
     override (incl. =gnu) sets CC/CXX to the toolchain compiler; an existing
     sccache prefix is kept (CC="sccache cc" + llvm -> CC="sccache clang").
-    Sysconfig extras on LDCXXSHARED (rpath, -pthread, -B, ...) are kept;
-    LDSHARED is left unset so distutils rewrites it from CC.
+    Extras on LDCXXSHARED (rpath, -pthread, -B, ...) are kept, taken from the
+    environment if set there and from sysconfig otherwise; only the compiler
+    is swapped. LDSHARED is left unset so distutils rewrites it from CC.
     """
     if explicit and cc is not None:
         os.environ["CC"] = _with_sccache(os.environ.get("CC", ""), cc)
         os.environ["CXX"] = _with_sccache(os.environ.get("CXX", ""), cxx)
-        ldcxxshared = sysconfig.get_config_var("LDCXXSHARED") or sysconfig.get_config_var("LDSHARED")
+        # An LDCXXSHARED the user already exported takes precedence over
+        # sysconfig's, as CC/CXX do; either way only the compiler is swapped.
+        ldcxxshared = (
+            os.environ.get("LDCXXSHARED")
+            or sysconfig.get_config_var("LDCXXSHARED")
+            or sysconfig.get_config_var("LDSHARED")
+        )
         os.environ["LDCXXSHARED"] = _with_compiler(ldcxxshared, cxx) if ldcxxshared else f"{cxx} -shared"
 
 
