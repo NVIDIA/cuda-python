@@ -108,6 +108,10 @@ This affects the following fields:
   ``cudaPointerAttributes.reserved``, ``cudaPointerAttributes.unused``,
   ``cudaResourceViewDesc.reserved``
 
+It is no longer possible to get or set these bytes directly.  To create a
+wrapped struct from a buffer (for example, for pickling), see
+:ref:`tips-setting-raw-struct-bytes`.
+
 Bugfixes
 --------
 
