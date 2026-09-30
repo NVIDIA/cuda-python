@@ -206,7 +206,10 @@ def _build_flags(name, cxx_std, debug, compile_for_coverage):
     extra_link_args = []
 
     if name == "msvc":
-        extra_compile_args += [f"/std:c++{cxx_std}"]
+        # Modern setuptools' MSVCCompiler no longer forces /Ox on release
+        # builds, so pick /O2 explicitly for symmetry with Linux and to keep
+        # the effective flag set legible in one place.
+        extra_compile_args += [f"/std:c++{cxx_std}", "/O2"]
     else:
         extra_compile_args += [f"-std=c++{cxx_std}"]
         if name == "llvm":

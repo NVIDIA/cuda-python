@@ -75,6 +75,19 @@ class ResolveToolchainSharedMixin:
         self.build_hooks.resolve_toolchain(cxx_std=17)
         assert os.environ["CC"] == "clang"
 
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_msvc_sets_std_and_opt(self, monkeypatch):
+        if sys.platform != "win32":
+            pytest.skip("msvc only valid on Windows")
+        # Modern setuptools' MSVCCompiler doesn't force an opt level; a
+        # regression that dropped ``/O2`` from the shared flag set would
+        # still let every Windows wheel build pass, just at whatever
+        # default cl.exe picks. Assert the flag is emitted.
+        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+        _name, _cc, _cxx, cargs, _largs = self.build_hooks.resolve_toolchain(cxx_std=17)
+        assert "/std:c++17" in cargs
+        assert "/O2" in cargs
+
 
 class CheckToolchainAvailableSharedMixin:
     """Common ``_check_toolchain_available`` assertions.
