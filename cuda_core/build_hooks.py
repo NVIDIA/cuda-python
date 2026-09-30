@@ -132,11 +132,12 @@ def _resolve_toolchain_name():
 
 
 def _with_compiler(command, compiler):
-    """Replace leading compiler token(s); keep following flags.
+    """Replace the leading compiler on a sysconfig linker command; keep flags.
 
-    Conda sysconfig CC/CXX/LDCXXSHARED look like
-    ``g++ -pthread -B .../python_compiler_compat``; only the executable
-    changes so those flags stay on the compiler and the linker command.
+    Conda ``LDCXXSHARED`` looks like ``g++ -pthread -B .../python_compiler_compat
+    -shared ...``. Only the executable changes so those flags stay on the
+    link line. CC/CXX are not rewritten this way: they may already be a
+    launcher plus compiler (``sccache cc``).
     """
     if not command or not str(command).strip():
         return compiler
@@ -147,19 +148,33 @@ def _with_compiler(command, compiler):
     return " ".join([compiler, *parts[i:]])
 
 
+def _with_sccache(current, compiler):
+    """Keep a leading sccache token when the toolchain picks a compiler.
+
+    CI sets ``CC="sccache cc"`` or ``CC="/host/.../sccache cc"``. An explicit
+    toolchain then becomes ``CC="sccache clang"`` rather than a bare compiler.
+    """
+    if current:
+        launcher = current.split()[0]
+        if os.path.basename(launcher) == "sccache":
+            return f"{launcher} {compiler}"
+    return compiler
+
+
 def _apply_toolchain_env(cc, cxx, explicit):
     """Set CC/CXX/LDCXXSHARED for an explicitly-chosen toolchain.
 
     The default path (CUDA_PYTHON_TOOLCHAIN unset) intentionally
     does not touch the env, so an externally-set compiler (e.g.
     CC="sccache cc" in CI) keeps working. An explicit CUDA_PYTHON_TOOLCHAIN
-    override (incl. =gnu) governs the compiler and overrides CC/CXX.
-    Trailing sysconfig flags on CC/CXX/LDCXXSHARED (rpath, -pthread, -B, ...)
-    are kept; LDSHARED is left unset so distutils rewrites it from CC.
+    override (incl. =gnu) sets CC/CXX to the toolchain compiler; an existing
+    sccache prefix is kept (CC="sccache cc" + llvm -> CC="sccache clang").
+    Sysconfig extras on LDCXXSHARED (rpath, -pthread, -B, ...) are kept;
+    LDSHARED is left unset so distutils rewrites it from CC.
     """
     if explicit and cc is not None:
-        os.environ["CC"] = _with_compiler(sysconfig.get_config_var("CC"), cc)
-        os.environ["CXX"] = _with_compiler(sysconfig.get_config_var("CXX"), cxx)
+        os.environ["CC"] = _with_sccache(os.environ.get("CC", ""), cc)
+        os.environ["CXX"] = _with_sccache(os.environ.get("CXX", ""), cxx)
         ldcxxshared = sysconfig.get_config_var("LDCXXSHARED") or sysconfig.get_config_var("LDSHARED")
         os.environ["LDCXXSHARED"] = _with_compiler(ldcxxshared, cxx) if ldcxxshared else f"{cxx} -shared"
 

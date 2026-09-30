@@ -113,8 +113,8 @@ class TestResolveToolchain:
         name, cc, cxx, cargs, largs = build_hooks._resolve_toolchain()
         assert name == "llvm"
         assert (cc, cxx) == ("clang", "clang++")
-        assert os.environ["CC"].split()[0] == "clang"
-        assert os.environ["CXX"].split()[0] == "clang++"
+        assert os.environ["CC"] == "clang"
+        assert os.environ["CXX"] == "clang++"
         assert os.environ["LDCXXSHARED"].startswith("clang++")
         assert "LDSHARED" not in os.environ
         assert "-fuse-ld=lld" in largs
@@ -133,8 +133,8 @@ class TestResolveToolchain:
         name, cc, cxx, cargs, largs = build_hooks._resolve_toolchain()
         assert name == "gnu"
         assert (cc, cxx) == ("gcc", "g++")
-        assert os.environ["CC"].split()[0] == "gcc"
-        assert os.environ["CXX"].split()[0] == "g++"
+        assert os.environ["CC"] == "gcc"
+        assert os.environ["CXX"] == "g++"
         assert os.environ["LDCXXSHARED"].startswith("g++")
         assert "LDSHARED" not in os.environ
         # gcc-only flags are present (this is the point of P2: explicit gnu must use gcc, not generic cc)
@@ -149,6 +149,31 @@ class TestResolveToolchain:
         _name, _cc, _cxx, cargs, _largs = build_hooks._resolve_toolchain()
         assert "-fpermissive" in cargs
         assert "-fno-var-tracking-assignments" in cargs
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_llvm_keeps_sccache_prefix(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("llvm only valid on Linux")
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
+        monkeypatch.setenv("CC", "sccache cc")
+        monkeypatch.setenv("CXX", "sccache c++")
+        _name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
+        assert os.environ["CC"] == "sccache clang"
+        assert os.environ["CXX"] == "sccache clang++"
+        assert "LDSHARED" not in os.environ
+        assert os.environ["LDCXXSHARED"].startswith("clang++")
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_llvm_keeps_host_sccache_path(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("llvm only valid on Linux")
+        launcher = "/host/usr/local/bin/sccache"
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
+        monkeypatch.setenv("CC", f"{launcher} cc")
+        monkeypatch.setenv("CXX", f"{launcher} c++")
+        _name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
+        assert os.environ["CC"] == f"{launcher} clang"
+        assert os.environ["CXX"] == f"{launcher} clang++"
 
     @pytest.mark.agent_authored(model="grok-4.6")
     def test_explicit_toolchain_preserves_sysconfig_ldcxxshared_extras(self, monkeypatch):
@@ -184,8 +209,8 @@ class TestResolveToolchain:
         monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda name: values.get(name))
         monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "gnu")
         build_hooks._resolve_toolchain()
-        assert os.environ["CC"] == values["CC"]
-        assert os.environ["CXX"] == values["CXX"]
+        assert os.environ["CC"] == "gcc"
+        assert os.environ["CXX"] == "g++"
         assert os.environ["LDCXXSHARED"] == values["LDCXXSHARED"]
         assert "LDSHARED" not in os.environ
 
@@ -204,10 +229,30 @@ class TestResolveToolchain:
         monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda name: values.get(name))
         monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
         build_hooks._resolve_toolchain()
-        assert os.environ["CC"] == f"clang {prefix}"
-        assert os.environ["CXX"] == f"clang++ {prefix}"
+        assert os.environ["CC"] == "clang"
+        assert os.environ["CXX"] == "clang++"
         assert os.environ["LDCXXSHARED"] == f"clang++ {extras}"
         assert "LDSHARED" not in os.environ
+
+
+class TestWithSccache:
+    """_with_sccache: keep a leading sccache token, swap the compiler."""
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_keeps_sccache_and_swaps_compiler(self):
+        assert build_hooks._with_sccache("sccache cc", "clang") == "sccache clang"
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_keeps_absolute_sccache_path(self):
+        assert (
+            build_hooks._with_sccache("/host/usr/local/bin/sccache cc", "clang") == "/host/usr/local/bin/sccache clang"
+        )
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    def test_bare_or_unrelated_cc_returns_compiler(self):
+        assert build_hooks._with_sccache("", "clang") == "clang"
+        assert build_hooks._with_sccache("gcc", "clang") == "clang"
+        assert build_hooks._with_sccache("ccache gcc", "clang") == "clang"
 
 
 class TestWithCompiler:
