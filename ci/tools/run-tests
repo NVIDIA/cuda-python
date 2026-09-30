@@ -205,6 +205,15 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
       if [[ -n "${GITHUB_ENV:-}" ]]; then
         echo "NUMBA_CUDA_MLIR_VER=${installed_ver}" >> "${GITHUB_ENV}"
       fi
+    elif [[ "${test_module}" == "nightly-numba-cuda" ]]; then
+      # Expose the installed numba-cuda version so the workflow can
+      # actions/checkout the matching v<X.Y.Z> tag from NVIDIA/numba-cuda
+      # (the wheel does not ship test_*.py files at a pytest-discoverable
+      # top level; upstream's testing/pytest.ini is required to run them).
+      installed_ver=$(pip show numba-cuda | awk '/^Version:/{print $2}')
+      if [[ -n "${GITHUB_ENV:-}" ]]; then
+        echo "NUMBA_CUDA_VER=${installed_ver}" >> "${GITHUB_ENV}"
+      fi
     fi
   fi
 fi

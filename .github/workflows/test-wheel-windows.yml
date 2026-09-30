@@ -450,12 +450,27 @@ jobs:
           pytest -rxXs -v tests/test_utils.py tests/example_tests/
           popd
 
+      - name: Checkout numba-cuda tests at matching tag
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' && env.NUMBA_CUDA_VER != '' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: NVIDIA/numba-cuda
+          ref: v${{ env.NUMBA_CUDA_VER }}
+          path: numba-cuda-released
+
       - name: Run numba-cuda tests
-        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' && env.NUMBA_CUDA_VER != '' }}
+        env:
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
-          # See linux step for rationale on --import-mode and the test_ipc skip.
-          pytest -v --import-mode=importlib --pyargs numba.cuda.tests --ignore-glob="**/test_ipc.py"
+          if [[ "${LOCAL_CTK}" != 1 ]]; then
+            export NUMBA_CUDA_TEST_WHEEL_ONLY=1
+          fi
+          # See linux step for rationale on running from testing/ and the test_ipc skip.
+          pushd numba-cuda-released/testing
+          pytest -v --ignore-glob="**/test_ipc.py"
+          popd
 
       - name: Checkout numba-cuda-mlir tests at matching tag
         if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}
