@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.UnknownError
+===============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: UnknownError
