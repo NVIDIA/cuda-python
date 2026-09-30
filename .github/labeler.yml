@@ -7,11 +7,15 @@
 
 cuda.bindings:
   - changed-files:
-    - any-glob-to-any-file: 'cuda_bindings/**'
+    - any-glob-to-any-file:
+      - 'cuda_bindings/**'
+      - 'samples/cuda_bindings/**'
 
 cuda.core:
   - changed-files:
-    - any-glob-to-any-file: 'cuda_core/**'
+    - any-glob-to-any-file:
+      - 'cuda_core/**'
+      - 'samples/cuda_core/**'
 
 cuda.pathfinder:
   - changed-files:

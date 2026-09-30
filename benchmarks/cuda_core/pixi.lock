@@ -92,7 +92,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/setuptools-84.0.0-pyh332efcf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/virtualenv-21.13.0-pyh5ded981_0.conda
-      - conda_source: cuda-core[e1dab705] @ ../../cuda_core
+      - conda_source: cuda-core[6e4be029] @ ../../cuda_core
   wheel:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -1435,7 +1435,7 @@ packages:
   run_exports: {}
   size: 3992006
   timestamp: 1790490865505
-- conda_source: cuda-core[e1dab705] @ ../../cuda_core
+- conda_source: cuda-core[6e4be029] @ ../../cuda_core
   variants:
     c_stdlib: sysroot
     c_stdlib_version: '2.28'

@@ -13,7 +13,7 @@ cuda-core: Pythonic access to CUDA core functionalities
 
 * `Repository <https://github.com/NVIDIA/cuda-python/tree/main/cuda_core>`_
 * `Documentation <https://nvidia.github.io/cuda-python/cuda-core/>`_
-* `Examples <https://github.com/NVIDIA/cuda-python/tree/main/cuda_core/examples>`_
+* `Examples <https://github.com/NVIDIA/cuda-python/tree/main/samples/cuda_core>`_
 * `Issue tracker <https://github.com/NVIDIA/cuda-python/issues/>`_
 
 ``cuda.core`` is currently under active development. Feedback and suggestions are welcome!
