@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_multi\_gpu\_board
+=================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_multi_gpu_board
