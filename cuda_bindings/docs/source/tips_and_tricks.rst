@@ -31,6 +31,27 @@ The Python classes that wrap CUDA C structs (for example :class:`~cuda.bindings.
 
 This applies only to memory owned by the Python object. If you construct a class from an existing pointer (for example, by passing the address of an existing C struct), the wrapper uses that memory as is and its contents are not modified.
 
+.. _tips-setting-raw-struct-bytes:
+
+Setting raw bytes of structs
+============================
+
+For the legacy modules ``driver``, ``runtime`` and ``nvrtc``, you can set the raw bytes of a struct using ``ctypes.memcpy``.
+This is generally only necessary for operations like unpickling where you need to create an object from raw bytes, and should
+usually be avoided.
+
+For example:
+
+.. code::
+
+   handle = driver.CUipcMemHandle()
+   ctypes.memmove(handle.getPtr(), payload, driver.CU_IPC_HANDLE_SIZE)
+
+For all other non-legacy modules, including ``_v2`` modules, you can use the ``from_buffer`` classmethod:
+
+.. code::
+
+   handle = _v2.driver.IpcMemHandle.from_buffer(payload)
 
 Getting and setting attributes of extension types
 =================================================
