@@ -655,6 +655,8 @@ def test_ffi_coverage_jit_option_binary_loader_thread_count():
 def test_ffi_coverage_jit_wall_time_pointer_is_valid():
     """CU_JIT_WALL_TIME must give CUDA a valid writable float address, not a garbage pointer."""
     helper = cuda._HelperCUjit_option(cuda.CUjit_option.CU_JIT_WALL_TIME, 0.0)
+    # Guard against NULL so a regression fails instead of segfaulting.
+    assert helper.cptr != 0
     # Write a sentinel float via ctypes to confirm the pointer is addressable.
     ctypes.c_float.from_address(helper.cptr).value = 3.14
     assert ctypes.c_float.from_address(helper.cptr).value == pytest.approx(3.14, rel=1e-5)
