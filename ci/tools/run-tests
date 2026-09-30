@@ -163,11 +163,13 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
       echo "Installing pathfinder + bindings + core + test deps + numba-cuda"
       # numba-cuda's test-cuXX group deps (can't use --group for a wheel install):
       # numpy<2.5: numba-cuda 0.30.4 references np.row_stack, removed in numpy 2.5. See NVIDIA/numba-cuda#907.
+      # pytest<9: numba-cuda's subTest usage breaks under pytest 9 + xdist. See NVIDIA/numba-cuda#637.
       PIP_ARGS+=(
         "cuda-toolkit[curand,cublas]==${TEST_CUDA_MAJOR_MINOR}.*"
         "numba-cuda[cu${TEST_CUDA_MAJOR}]"
         "cupy-cuda${TEST_CUDA_MAJOR}x"
         "numpy<2.5"
+        "pytest<9"
         psutil cffi pytest-xdist pytest-benchmark filecheck ml_dtypes statistics
       )
     elif [[ "${test_module}" == "nightly-numba-cuda-mlir" ]]; then

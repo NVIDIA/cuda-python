@@ -470,9 +470,6 @@ jobs:
       - name: Run numba-cuda tests
         if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
         run: |
-          # pytest<9: numba-cuda's subTest-based tests break under pytest 9's
-          # xdist subtest handling. See NVIDIA/numba-cuda#637.
-          pip install "pytest<9"
           # test_ipc: numba-cuda v0.30.4 accesses CUipcMemHandle.reserved, which
           # cuda-bindings intentionally removed. numba-cuda is EOL upstream, so
           # no fix is coming. See cuda-python#2748.
