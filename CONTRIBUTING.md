@@ -162,10 +162,14 @@ to actually build.
 
 Then clone as usual (see [Cloning the repository](#cloning-the-repository)).
 
-If you already cloned without these settings, run the `git config` command
-above, then reset the affected files so Git re-materializes them as symlinks:
+If you already cloned without these settings, note that `git clone` probes
+symlink support at clone time and writes `core.symlinks=false` into the
+repo-local config when the probe fails. Repo-local config overrides
+`--global`, so you must clear it *inside the existing clone* — the global
+setting alone won't take effect:
 
 ```console
+$ git config core.symlinks true          # no --global — clears the repo-local override
 $ git rm --cached cuda_core/_build_shared.py
 $ git checkout HEAD -- cuda_core/_build_shared.py
 ```

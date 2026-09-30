@@ -388,11 +388,18 @@ class TestForceReachesBuildExt:
 
         setup_py = _load_setup_py(monkeypatch)
         assert setup_py.build_hooks is build_hooks
-        monkeypatch.setattr(build_hooks, "force_build_ext", force_flag)
+        # Patch _build_shared, not build_hooks: build_hooks.force_build_ext
+        # comes from a module __getattr__, so monkey-patching it on build_hooks
+        # creates a real attribute that shadows the __getattr__ fallback and
+        # persists across teardown, poisoning any later stamp-fixture reset.
+        monkeypatch.setattr(sys.modules["_build_shared"], "force_build_ext", force_flag)
 
         cmd = setup_py.build_ext(Distribution({"name": "cuda-core", "version": "0"}))
         cmd.finalize_options()
         return cmd
+
+    def test_flag_set_forces_rebuild(self, monkeypatch):
+        assert self._finalized_build_ext(True, monkeypatch).force
 
     def test_flag_clear_leaves_default(self, monkeypatch):
         assert not self._finalized_build_ext(False, monkeypatch).force
@@ -531,6 +538,26 @@ from cuda_python_test_helpers.cython_cache import POSIX_ONLY_CACHE, CythonAliasM
 
 class TestResolveToolchainShared(ResolveToolchainSharedMixin):
     build_hooks = build_hooks
+
+
+class TestResolveToolchain:
+    """cuda.core-specific ``resolve_toolchain(cxx_std=17)`` assertions."""
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_llvm_sets_env_and_flags(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("llvm only valid on Linux")
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
+        monkeypatch.delenv("CC", raising=False)
+        monkeypatch.delenv("CXX", raising=False)
+        monkeypatch.delenv("LDSHARED", raising=False)
+        name, cc, cxx, cargs, largs = build_hooks.resolve_toolchain(cxx_std=17)
+        assert name == "llvm"
+        assert (cc, cxx) == ("clang", "clang++")
+        assert "-fuse-ld=lld" in largs
+        assert "-std=c++17" in cargs
+        # -Wno-deprecated-declarations is bindings-only.
+        assert "-Wno-deprecated-declarations" not in cargs
 
 
 class TestCheckToolchainAvailable(CheckToolchainAvailableSharedMixin):

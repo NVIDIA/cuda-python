@@ -138,6 +138,28 @@ class TestResolveToolchainShared(ResolveToolchainSharedMixin):
     build_hooks = build_hooks
 
 
+class TestResolveToolchain:
+    """cuda.bindings-specific ``resolve_toolchain(cxx_std=14, tweak=_tweak_flags)`` assertions."""
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_llvm_sets_env_and_flags(self, monkeypatch):
+        if sys.platform == "win32":
+            pytest.skip("llvm only valid on Linux")
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
+        monkeypatch.delenv("CC", raising=False)
+        monkeypatch.delenv("CXX", raising=False)
+        monkeypatch.delenv("LDSHARED", raising=False)
+        name, cc, cxx, cargs, largs = build_hooks.resolve_toolchain(cxx_std=14, tweak=build_hooks._tweak_flags)
+        assert name == "llvm"
+        assert (cc, cxx) == ("clang", "clang++")
+        assert "-fuse-ld=lld" in largs
+        # bindings keeps c++14 (avoids the c++17 variadic-template regression
+        # on kernel launch) and layers on -Wno-deprecated-declarations via
+        # _tweak_flags.
+        assert "-std=c++14" in cargs
+        assert "-Wno-deprecated-declarations" in cargs
+
+
 class TestCheckToolchainAvailable(CheckToolchainAvailableSharedMixin):
     build_hooks = build_hooks
 

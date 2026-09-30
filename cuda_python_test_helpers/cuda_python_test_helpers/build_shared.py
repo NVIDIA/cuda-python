@@ -26,31 +26,43 @@ import pytest
 
 
 class ResolveToolchainSharedMixin:
-    """Common ``resolve_toolchain`` assertions covering the shared flag policy.
+    """Common ``resolve_toolchain`` assertions that don't depend on the flag set.
 
     Subclasses set ``build_hooks`` (the loaded build_hooks module). The
-    default-toolchain happy paths (env not touched, external CC preserved,
-    gnu compile) are exercised by every green Linux wheel build in CI, so
-    they aren't asserted here. Only behavior that a passing wheel build
-    would not surface is kept: error paths, the llvm-override case, and the
-    llvm flag set (llvm has no CI, so it's not covered by wheels either).
+    ``cxx_std`` value passed here is arbitrary — these tests exercise the
+    env/name/error mechanics, not flag content. Per-package tests assert the
+    specific standard each backend chooses (``c++14`` for bindings, ``c++17``
+    for core) and the presence of any package-specific tweaks.
     """
 
     build_hooks = None
+
+    @pytest.mark.agent_authored(model="glm-5.2")
+    def test_default_preserves_existing_cc(self, monkeypatch):
+        # An externally-set CC (e.g. sccache) must survive the default toolchain.
+        # A green wheel build alone wouldn't catch a regression here: if the
+        # default toolchain silently overwrote CC, the build would still pass —
+        # only sccache would stop working, and sccache-summary only warns.
+        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+        monkeypatch.setenv("CC", "sccache cc")
+        monkeypatch.setenv("CXX", "sccache c++")
+        self.build_hooks.resolve_toolchain(cxx_std=17)
+        assert os.environ["CC"] == "sccache cc"
+        assert os.environ["CXX"] == "sccache c++"
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_case_insensitive(self, monkeypatch):
         if sys.platform == "win32":
             pytest.skip("llvm only valid on Linux")
         monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "LLVM")
-        name, _cc, _cxx, _cargs, _largs = self.build_hooks.resolve_toolchain()
+        name, _cc, _cxx, _cargs, _largs = self.build_hooks.resolve_toolchain(cxx_std=17)
         assert name == "llvm"
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_invalid_value_raises(self, monkeypatch):
         monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "icc")
         with pytest.raises(RuntimeError, match="not supported"):
-            self.build_hooks.resolve_toolchain()
+            self.build_hooks.resolve_toolchain(cxx_std=17)
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_llvm_overrides_external_cc(self, monkeypatch):
@@ -60,24 +72,8 @@ class ResolveToolchainSharedMixin:
         # external CC (e.g. "sccache cc") is replaced, not kept.
         monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
         monkeypatch.setenv("CC", "sccache cc")
-        _name, _cc, _cxx, _cargs, _largs = self.build_hooks.resolve_toolchain()
+        self.build_hooks.resolve_toolchain(cxx_std=17)
         assert os.environ["CC"] == "clang"
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_llvm_sets_env_and_flags(self, monkeypatch):
-        if sys.platform == "win32":
-            pytest.skip("llvm only valid on Linux")
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
-        monkeypatch.delenv("CC", raising=False)
-        monkeypatch.delenv("CXX", raising=False)
-        monkeypatch.delenv("LDSHARED", raising=False)
-        name, cc, cxx, cargs, largs = self.build_hooks.resolve_toolchain()
-        assert name == "llvm"
-        assert (cc, cxx) == ("clang", "clang++")
-        assert os.environ["CC"] == "clang"
-        assert os.environ["CXX"] == "clang++"
-        assert "-fuse-ld=lld" in largs
-        assert "-std=c++17" in cargs
 
 
 class CheckToolchainAvailableSharedMixin:

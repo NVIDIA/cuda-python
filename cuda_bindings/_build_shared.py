@@ -195,22 +195,21 @@ def _check_toolchain_available(name):
         )
 
 
-def _build_flags(name, debug, compile_for_coverage):
+def _build_flags(name, cxx_std, debug, compile_for_coverage):
     """Compile/link flags for a resolved toolchain (shared across backends).
 
-    The two backends used to carry slightly different flag sets — bindings had
-    ``-std=c++14``, ``-fpermissive``, ``-fno-var-tracking-assignments``, and
-    ``-Wno-deprecated-declarations``; core had ``-std=c++17`` and no MSVC
-    ``/std:``. See https://github.com/NVIDIA/cuda-python/issues/1882 for the
-    audit that traced the difference to legacy drift, not intent.
+    ``cxx_std`` is required — the two backends can legitimately differ (bindings
+    stays on ``c++14`` to avoid a c++17 variadic-template regression on the
+    kernel-launch code paths; core is on ``c++17``), and there is no defensible
+    shared default. See https://github.com/NVIDIA/cuda-python/issues/1882.
     """
     extra_compile_args = []
     extra_link_args = []
 
     if name == "msvc":
-        extra_compile_args += ["/std:c++17"]
+        extra_compile_args += [f"/std:c++{cxx_std}"]
     else:
-        extra_compile_args += ["-std=c++17"]
+        extra_compile_args += [f"-std=c++{cxx_std}"]
         if name == "llvm":
             extra_link_args += ["-fuse-ld=lld"]
         if debug:
@@ -227,7 +226,7 @@ def _build_flags(name, debug, compile_for_coverage):
     return extra_compile_args, extra_link_args
 
 
-def resolve_toolchain(debug=False, compile_for_coverage=False):
+def resolve_toolchain(*, cxx_std, debug=False, compile_for_coverage=False, tweak=None):
     """Resolve the C/C++ toolchain from CUDA_PYTHON_TOOLCHAIN.
 
     Returns (name, cc, cxx, extra_compile_args, extra_link_args). The default
@@ -235,11 +234,18 @@ def resolve_toolchain(debug=False, compile_for_coverage=False):
     so an externally-set compiler (e.g. CC="sccache cc") keeps working. An
     explicit CUDA_PYTHON_TOOLCHAIN (llvm on Linux) sets CC/CXX/LDSHARED to
     the toolchain's binaries so distutils' customize_compiler picks them up.
+
+    ``cxx_std`` is required — each backend chooses its own C++ standard.
+    ``tweak`` is an optional post-hook ``(name, cargs, largs) -> (cargs, largs)``
+    for package-specific flag layering (e.g. bindings adds
+    ``-Wno-deprecated-declarations``).
     """
     name, _allowed, cc, cxx, explicit = _resolve_toolchain_name()
     if name == "msvc" and debug:
         raise RuntimeError("Debuggable builds are not supported on Windows.")
-    extra_compile_args, extra_link_args = _build_flags(name, debug, compile_for_coverage)
+    extra_compile_args, extra_link_args = _build_flags(name, cxx_std, debug, compile_for_coverage)
+    if tweak is not None:
+        extra_compile_args, extra_link_args = tweak(name, extra_compile_args, extra_link_args)
     _apply_toolchain_env(cc, cxx, explicit)
     return name, cc, cxx, extra_compile_args, extra_link_args
 

@@ -220,7 +220,7 @@ def _build_cuda_core(debug=False):
     # Linux, msvc on Windows) reproduces the previous build behavior and does
     # not touch CC/CXX, so an externally-set compiler (e.g. sccache) survives.
     toolchain, _cc, _cxx, extra_compile_args, extra_link_args = resolve_toolchain(
-        debug=debug, compile_for_coverage=COMPILE_FOR_COVERAGE
+        cxx_std=17, debug=debug, compile_for_coverage=COMPILE_FOR_COVERAGE
     )
     _check_toolchain_available(toolchain)
     extra_cythonize_kwargs = {}

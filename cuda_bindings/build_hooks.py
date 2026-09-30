@@ -54,6 +54,22 @@ _extensions = None
 
 
 # -----------------------------------------------------------------------
+# Toolchain flag tweaks
+
+
+def _tweak_flags(name, extra_compile_args, extra_link_args):
+    """cuda.bindings-specific flag layering on top of _build_shared._build_flags.
+
+    ``cudaMemcpy*Array*`` and ``cudaGetDriverEntryPoint`` are deprecated but
+    still supported; the resulting warnings (~38 in the 13.4 headers) are not
+    interesting today and would break the build once #2966 lands ``-Werror``.
+    """
+    if name != "msvc":
+        extra_compile_args = [*extra_compile_args, "-Wno-deprecated-declarations"]
+    return extra_compile_args, extra_link_args
+
+
+# -----------------------------------------------------------------------
 # Toolchain stamp
 #
 # The stamp mechanics (read/compare/flip force_build_ext / write) live in
@@ -160,7 +176,7 @@ def _build_cuda_bindings(debug=False):
     # Linux, msvc on Windows) reproduces the previous build behavior and does
     # not touch CC/CXX, so an externally-set compiler (e.g. sccache) survives.
     toolchain, _cc, _cxx, extra_compile_args, extra_link_args = resolve_toolchain(
-        debug=debug, compile_for_coverage=compile_for_coverage
+        cxx_std=14, debug=debug, compile_for_coverage=compile_for_coverage, tweak=_tweak_flags
     )
     _check_toolchain_available(toolchain)
     extra_cythonize_kwargs = {}
