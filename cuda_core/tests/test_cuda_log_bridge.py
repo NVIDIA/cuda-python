@@ -88,3 +88,71 @@ def test_cuda_driver_log_written_to_file(tmp_path):
     assert "CUDA_ERROR_INVALID_DEVICE" in content and "cuDeviceGet" in content, (
         f"Expected cuDeviceGet return error in log file, got:\n{content}"
     )
+
+
+# 使用方式3: 动态绑定解绑 register -> unregister -> 再register
+def test_cuda_driver_log_rebind_logger(caplog):
+    driver.cuInit(0)
+
+    name_a, name_b = "cuda.driver.rebind_a", "cuda.driver.rebind_b"
+
+    # 先绑定 logger_a，确认能收到日志
+    register_cuda_log_bridge(logging.getLogger(name_a))
+    with caplog.at_level(logging.ERROR, logger=name_a):
+        driver.cuDeviceGet(9999)
+    assert any(r.name == name_a for r in caplog.records)
+
+    # 换绑到 logger_b：必须先 unregister 释放驱动侧 slot，再用新 logger register
+    unregister_cuda_log_bridge()
+    caplog.clear()
+    register_cuda_log_bridge(logging.getLogger(name_b))
+    with caplog.at_level(logging.ERROR, logger=name_b):
+        driver.cuDeviceGet(9999)
+
+    # 旧 logger 不应再收到任何消息，新 logger 应正常收到
+    assert not any(r.name == name_a for r in caplog.records)
+    assert any(r.name == name_b for r in caplog.records)
+
+
+# 使用方式4: 日志过滤 —— logger 的 level 阈值对驱动日志同样生效
+def test_cuda_driver_log_level_filtering(caplog):
+    driver.cuInit(0)
+
+    logger_name = "cuda.driver.level_test"
+    register_cuda_log_bridge(logging.getLogger(logger_name))
+
+    # 阈值设为 CRITICAL：ERROR 级别的驱动日志应被过滤，caplog 收不到任何记录
+    with caplog.at_level(logging.CRITICAL, logger=logger_name):
+        driver.cuDeviceGet(9999)
+    assert not any(r.name == logger_name for r in caplog.records)
+
+    # 放低阈值到 ERROR：同样的错误应该能被捕获到
+    with caplog.at_level(logging.ERROR, logger=logger_name):
+        driver.cuDeviceGet(9999)
+    assert any(r.name == logger_name for r in caplog.records)
+
+
+# 使用方式5: 监控/告警集成 —— 用自定义 Handler 统计驱动错误次数，
+# 可据此接入 Prometheus/Datadog 等监控系统做告警
+def test_cuda_driver_log_alert_counter():
+    driver.cuInit(0)
+
+    class ErrorCounterHandler(logging.Handler):
+        def __init__(self):
+            super().__init__(level=logging.ERROR)
+            self.count = 0
+
+        def emit(self, record):
+            self.count += 1
+
+    logger_obj = logging.getLogger("cuda.driver.alert_test")
+    counter_handler = ErrorCounterHandler()
+    logger_obj.addHandler(counter_handler)
+
+    try:
+        register_cuda_log_bridge(logger_obj)
+        driver.cuDeviceGet(9999)
+    finally:
+        logger_obj.removeHandler(counter_handler)
+
+    assert counter_handler.count >= 1, "Expected at least one ERROR-level driver log to be counted"
