@@ -17,13 +17,6 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  # TEMP for #2748: fire the nightly workflow on PR pushes so this PR can verify
-  # the numba-cuda and numba-cuda-mlir fixes without waiting for the 2:17 AM cron.
-  # REVERT before merging.
-  push:
-    branches:
-      - "main"
-      - "pull-request/[0-9]+"
   schedule:
     # 2:17 AM UTC daily, after the midnight main CI build finishes.
     # Avoid minute 0 because GitHub documents high scheduled-workflow load
