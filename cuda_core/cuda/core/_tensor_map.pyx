@@ -599,7 +599,7 @@ cdef class TensorMapDescriptor:
         cdef intptr_t global_address = view.ptr
         shape = view.shape
 
-        cdef int rank = len(shape)
+        cdef int rank = <int>len(shape)
         if rank < 1 or rank > 5:
             raise ValueError(
                 f"Tensor rank must be between 1 and 5, got {rank}")
@@ -831,7 +831,7 @@ cdef class TensorMapDescriptor:
         cdef intptr_t global_address = view.ptr
         shape = view.shape
 
-        cdef int rank = len(shape)
+        cdef int rank = <int>len(shape)
         if rank < 3 or rank > 5:
             raise ValueError(
                 f"Im2col tensor rank must be between 3 and 5, got {rank}")
@@ -990,7 +990,7 @@ cdef class TensorMapDescriptor:
             cdef intptr_t global_address = view.ptr
             shape = view.shape
 
-            cdef int rank = len(shape)
+            cdef int rank = <int>len(shape)
             if rank < 3 or rank > 5:
                 raise ValueError(
                     f"Im2col-wide tensor rank must be between 3 and 5, got {rank}")

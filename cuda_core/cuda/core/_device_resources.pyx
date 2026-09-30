@@ -166,7 +166,7 @@ cdef inline int _resolve_group_count(SMResourceOptions options) except?-1:
         n_groups = 1
         count_is_scalar = True
     elif is_sequence(count):
-        n_groups = len(count)
+        n_groups = <int>len(count)
         if n_groups == 0:
             raise ValueError("count sequence must not be empty")
         count_is_scalar = False
@@ -347,7 +347,7 @@ cdef object _split_with_count_api(SMResource sm, SMResourceOptions options, bint
     cdef cydriver.CUdevResource* result = NULL
     cdef cydriver.CUdevResource remaining
     cdef list groups = []
-    cdef int i
+    cdef unsigned int i
 
     result = <cydriver.CUdevResource*>malloc(nb_groups * sizeof(cydriver.CUdevResource))
     if result == NULL:

@@ -104,6 +104,7 @@ accepted. Do not add fallback logic for it. The order is:
   - `CUDA_CORE_BUILD_MAJOR`
   - `CUDA_PYTHON_PARALLEL_LEVEL`
   - `CUDA_PYTHON_COVERAGE`
+  - `CUDA_PYTHON_WERROR` (compiler warnings become errors; CI wheel builds set it)
 
 ## Editing guidance
 

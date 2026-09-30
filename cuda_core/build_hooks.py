@@ -38,6 +38,11 @@ get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
 # CUDA_PYTHON_TOOLCHAIN, CUDA_PYTHON_CYTHON_CACHE_DIR, etc. They may be removed
 # or changed in the future.
 COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
+# CUDA_PYTHON_WERROR=1 turns C/C++ compiler warnings into errors. CI sets it
+# for the wheel builds; it is off by default because source builds run on
+# compilers we do not control. Meant for optimized builds: a debug build
+# (-O0) trips the _FORTIFY_SOURCE "#warning" on glibc toolchains.
+WARNINGS_AS_ERRORS = bool(int(os.environ.get("CUDA_PYTHON_WERROR", "0")))
 
 
 # Please keep in sync with the copy in cuda_bindings/build_hooks.py.
@@ -246,18 +251,28 @@ def _resolve_toolchain_name():
     return name, allowed, cc, cxx, explicit
 
 
+def _with_sccache(current, compiler):
+    """Keep CC="sccache cc" as CC="sccache clang" when the toolchain picks a compiler."""
+    if current:
+        launcher = current.split()[0]
+        if os.path.basename(launcher) == "sccache":
+            return f"{launcher} {compiler}"
+    return compiler
+
+
 def _apply_toolchain_env(cc, cxx, explicit):
     """Set CC/CXX/LDSHARED for an explicitly-chosen toolchain.
 
     The default path (CUDA_PYTHON_TOOLCHAIN unset) intentionally
     does not touch the env, so an externally-set compiler (e.g.
     CC="sccache cc" in CI) keeps working. An explicit CUDA_PYTHON_TOOLCHAIN
-    override (incl. =gnu) governs the compiler and overrides CC/CXX/LDSHARED.
+    override (incl. =gnu) governs the compiler. An existing sccache prefix
+    is kept (CC="sccache cc" + llvm -> CC="sccache clang").
     """
     if explicit and cc is not None:
-        os.environ["CC"] = cc
-        os.environ["CXX"] = cxx
-        os.environ["LDSHARED"] = f"{cxx} -shared"
+        os.environ["CC"] = _with_sccache(os.environ.get("CC", ""), cc)
+        os.environ["CXX"] = _with_sccache(os.environ.get("CXX", ""), cxx)
+        os.environ["LDSHARED"] = f"{os.environ['CXX']} -shared"
 
 
 def _check_toolchain_available(name):
@@ -444,6 +459,22 @@ def _resolve_toolchain(debug=False, compile_for_coverage=False):
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
         # related to free-threading builds.
         extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
+
+    if WARNINGS_AS_ERRORS:
+        # The MSVC exemptions cover warnings that Cython's utility code
+        # produces in every module and the .pyx sources cannot fix:
+        # - C4551 ("function call missing argument list"), hundreds per
+        #   module.
+        # - C4244 (narrowing): the overflow-check helpers that
+        #   @cython.overflowcheck(True) instantiates for _layout.pxd narrow
+        #   int64 to int inside Cython's own code.
+        # gcc and clang need no exemption. The one generated warning they
+        # report, the unused @overload wrappers of Graph.__getitem__, is
+        # silenced by a pragma in cuda/core/graph/_graph_builder.pyx.
+        if name == "msvc":
+            extra_compile_args += ["/WX", "/wd4551", "/wd4244"]
+        else:
+            extra_compile_args += ["-Werror"]
 
     _apply_toolchain_env(cc, cxx, explicit)
 

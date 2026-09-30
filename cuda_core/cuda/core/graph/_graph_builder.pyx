@@ -73,6 +73,18 @@ else:
     def overload(f):
         return f
 
+# Each ``@overload`` stub of ``Graph.__getitem__`` still compiles to a static
+# wrapper function that nothing references, because only the final definition
+# is bound. gcc and clang report those under -Wunused-function, so this file
+# turns that warning off for its own translation unit. The guard keeps the
+# pragma away from MSVC, whose equivalent warning is off at the default level.
+cdef extern from *:
+    """
+    #if defined(__GNUC__)
+    #pragma GCC diagnostic ignored "-Wunused-function"
+    #endif
+    """
+
 __all__ = ['Graph', 'GraphBuilder', 'GraphCompleteOptions', 'GraphDebugPrintOptions']
 
 

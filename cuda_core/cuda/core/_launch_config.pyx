@@ -270,7 +270,7 @@ cdef class LaunchConfig:
             attr.value.priority = self.priority
             self._attrs.push_back(attr)
 
-        drv_cfg.numAttrs = self._attrs.size()
+        drv_cfg.numAttrs = <unsigned int>self._attrs.size()
         drv_cfg.attrs = self._attrs.data()
 
         return drv_cfg

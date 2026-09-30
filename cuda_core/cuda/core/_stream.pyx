@@ -512,7 +512,7 @@ cpdef Stream default_stream():
 
     cdef int use_ptds = 0
     if use_ptds_raw != NULL:
-        use_ptds = strtol(use_ptds_raw, NULL, 10)
+        use_ptds = <int>strtol(use_ptds_raw, NULL, 10)
 
     # value is non-zero, including for weird stuff like 123foo
     if use_ptds:
