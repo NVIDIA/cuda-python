@@ -9,6 +9,8 @@ from cuda_python_test_helpers.arch_check import (
     unsupported_before,
 )
 
+# Keep device-API gating on individual tests: system-level NVML queries in
+# this module remain supported on platforms with partial device API support.
 pytestmark = skip_if_nvml_unsupported
 
 import array

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import functools
 import multiprocessing as mp
 import sys
 
@@ -1506,6 +1507,25 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
     assert ("release", NEW_HANDLE) in calls
 
 
+def _vmm_allocate_and_close(mr, requested_size, grow):
+    buf = mr.allocate(requested_size)
+    if grow:
+        buf = mr.modify_allocation(buf, 2 * buf.size)
+    aligned_size = buf.size
+    buf.close()
+    return aligned_size
+
+
+@functools.cache
+def _warm_up_vmm_allocate_and_close(device_id, grow):
+    device = Device(device_id)
+    mr = VirtualMemoryResource(
+        device,
+        config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
+    )
+    return _vmm_allocate_and_close(mr, 8 * 1024 * 1024, grow)
+
+
 @pytest.mark.thread_unsafe(reason="cuMemGetInfo measures process-wide free memory")
 @pytest.mark.parametrize("grow", [False, True], ids=["allocate", "grow"])
 def test_vmm_allocate_close_does_not_leak(init_cuda, grow):
@@ -1513,30 +1533,20 @@ def test_vmm_allocate_close_does_not_leak(init_cuda, grow):
     if not device.properties.virtual_memory_management_supported:
         pytest.skip("Virtual memory management is not supported on this device")
 
+    aligned_size = _warm_up_vmm_allocate_and_close(device.device_id, grow)
     mr = VirtualMemoryResource(
         device,
         config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
     )
     requested_size = 8 * 1024 * 1024
 
-    def allocate_and_close():
-        buf = mr.allocate(requested_size)
-        if grow:
-            buf = mr.modify_allocation(buf, 2 * buf.size)
-        aligned_size = buf.size
-        buf.close()
-        return aligned_size
-
-    aligned_size = allocate_and_close()  # Warm up and learn the aligned allocation size.
-
     baseline = handle_return(driver.cuMemGetInfo())[0]
     for _ in range(8):
-        allocate_and_close()
+        _vmm_allocate_and_close(mr, requested_size, grow)
     free = handle_return(driver.cuMemGetInfo())[0]
 
-    # The broken path leaks aligned_size per iteration. Allow one allocation's
-    # worth of driver bookkeeping/caching while still detecting repeated leaks.
-    assert baseline - free < 2 * aligned_size
+    # A leak would cost at least one allocation per iteration.
+    assert baseline - free < aligned_size
 
 
 def test_vmm_allocator_rdma_unsupported_exception():

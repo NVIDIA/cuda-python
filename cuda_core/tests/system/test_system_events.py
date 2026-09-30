@@ -5,6 +5,8 @@
 
 from cuda_python_test_helpers.arch_check import skip_if_nvml_device_apis_unsupported, skip_if_nvml_unsupported
 
+# Keep device-API gating on individual tests so the pure event conversion and
+# wrapping tests still run on platforms with partial device API support.
 pytestmark = skip_if_nvml_unsupported
 
 import helpers
