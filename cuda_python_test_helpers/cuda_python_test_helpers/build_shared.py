@@ -88,6 +88,27 @@ class ResolveToolchainSharedMixin:
         assert "/std:c++17" in cargs
         assert "/O2" in cargs
 
+    @pytest.mark.agent_authored(model="opus-4.7")
+    def test_warnings_as_errors_off_by_default(self, monkeypatch):
+        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+        _name, _cc, _cxx, cargs, _largs = self.build_hooks.resolve_toolchain(cxx_std=17)
+        assert "-Werror" not in cargs
+        assert "/WX" not in cargs
+
+    @pytest.mark.agent_authored(model="opus-4.7")
+    def test_warnings_as_errors_on(self, monkeypatch):
+        # Guard: a regression that dropped the flag from the shared set would
+        # still let every wheel build pass; assert the exact tokens land per
+        # platform so a future refactor can't silently disable CI's Werror.
+        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+        _name, _cc, _cxx, cargs, _largs = self.build_hooks.resolve_toolchain(cxx_std=17, warnings_as_errors=True)
+        if sys.platform == "win32":
+            assert "/WX" in cargs
+            assert "/wd4551" in cargs
+            assert "/wd4244" in cargs
+        else:
+            assert "-Werror" in cargs
+
 
 class CheckToolchainAvailableSharedMixin:
     """Common ``_check_toolchain_available`` assertions.

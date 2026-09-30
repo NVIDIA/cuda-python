@@ -195,7 +195,7 @@ def _check_toolchain_available(name):
         )
 
 
-def _build_flags(name, cxx_std, debug, compile_for_coverage):
+def _build_flags(name, cxx_std, debug, compile_for_coverage, warnings_as_errors):
     """Compile/link flags for a resolved toolchain (shared across backends).
 
     ``cxx_std`` is supplied by the caller; each backend picks its own value at
@@ -220,6 +220,18 @@ def _build_flags(name, cxx_std, debug, compile_for_coverage):
             extra_compile_args += ["-g0", "-O2"]
             extra_link_args += ["-Wl,--strip-all"]
 
+    if warnings_as_errors:
+        # The MSVC exemptions cover warnings that Cython's utility code
+        # produces in every module and the .pyx sources cannot fix:
+        # C4551 ("function call missing argument list"), hundreds per module,
+        # and C4244 (narrowing) from the overflow-check helpers that
+        # @cython.overflowcheck(True) instantiates. gcc/clang need no
+        # exemption after #2966's source cleanups. See #2966.
+        if name == "msvc":
+            extra_compile_args += ["/WX", "/wd4551", "/wd4244"]
+        else:
+            extra_compile_args += ["-Werror"]
+
     if compile_for_coverage:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
         # related to free-threading builds.
@@ -228,7 +240,7 @@ def _build_flags(name, cxx_std, debug, compile_for_coverage):
     return extra_compile_args, extra_link_args
 
 
-def resolve_toolchain(*, cxx_std, debug=False, compile_for_coverage=False, tweak=None):
+def resolve_toolchain(*, cxx_std, debug=False, compile_for_coverage=False, warnings_as_errors=False, tweak=None):
     """Resolve the C/C++ toolchain from CUDA_PYTHON_TOOLCHAIN.
 
     Returns (name, cc, cxx, extra_compile_args, extra_link_args). The default
@@ -238,14 +250,17 @@ def resolve_toolchain(*, cxx_std, debug=False, compile_for_coverage=False, tweak
     the toolchain's binaries so distutils' customize_compiler picks them up.
 
     ``cxx_std`` is required — each backend chooses its own C++ standard at
-    its call site. ``tweak`` is an optional post-hook
+    its call site. ``warnings_as_errors`` opts into ``-Werror`` (or ``/WX``
+    with Cython-utility-code exemptions on MSVC); each backend gates this on
+    its own env var since the two backends' source cleanups are on
+    independent timelines. ``tweak`` is an optional post-hook
     ``(name, cargs, largs) -> (cargs, largs)`` for package-specific flag
     layering.
     """
     name, _allowed, cc, cxx, explicit = _resolve_toolchain_name()
     if name == "msvc" and debug:
         raise RuntimeError("Debuggable builds are not supported on Windows.")
-    extra_compile_args, extra_link_args = _build_flags(name, cxx_std, debug, compile_for_coverage)
+    extra_compile_args, extra_link_args = _build_flags(name, cxx_std, debug, compile_for_coverage, warnings_as_errors)
     if tweak is not None:
         extra_compile_args, extra_link_args = tweak(name, extra_compile_args, extra_link_args)
     _apply_toolchain_env(cc, cxx, explicit)

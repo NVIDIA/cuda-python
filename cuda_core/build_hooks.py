@@ -47,6 +47,11 @@ get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
 # CUDA_PYTHON_TOOLCHAIN, CUDA_PYTHON_CYTHON_CACHE_DIR, etc. They may be removed
 # or changed in the future.
 COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
+# CUDA_PYTHON_WERROR=1 turns C/C++ compiler warnings into errors. CI sets it
+# for the wheel builds; it is off by default because source builds run on
+# compilers we do not control. Meant for optimized builds: a debug build
+# (-O0) trips the _FORTIFY_SOURCE "#warning" on glibc toolchains.
+WARNINGS_AS_ERRORS = bool(int(os.environ.get("CUDA_PYTHON_WERROR", "0")))
 
 
 @functools.cache
@@ -223,7 +228,10 @@ def _build_cuda_core(debug=False):
     # cxx_std=17: cuda.core uses c++17 features (structured bindings,
     # if-constexpr, etc.) in its C++ helper code under cuda/core/_cpp/.
     toolchain, _cc, _cxx, extra_compile_args, extra_link_args = resolve_toolchain(
-        cxx_std=17, debug=debug, compile_for_coverage=COMPILE_FOR_COVERAGE
+        cxx_std=17,
+        debug=debug,
+        compile_for_coverage=COMPILE_FOR_COVERAGE,
+        warnings_as_errors=WARNINGS_AS_ERRORS,
     )
     _check_toolchain_available(toolchain)
     extra_cythonize_kwargs = {}
