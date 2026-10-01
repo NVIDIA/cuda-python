@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def authored_inputs(root: Path) -> list[Path]:
-    """Select existing tracked Markdown and reStructuredText outside qa/."""
+    """Select tracked Markdown and reStructuredText outside qa/, skipping symlinks."""
     result = subprocess.run(
         ["git", "ls-files", "-z", "--", "*.md", "*.rst"],  # noqa: S607
         cwd=root,
@@ -25,7 +25,7 @@ def authored_inputs(root: Path) -> list[Path]:
         if not name or name.startswith("qa/"):
             continue
         path = root / name
-        if path.is_file():
+        if path.is_file() and not path.is_symlink():
             paths.append(path)
     return sorted(paths)
 
