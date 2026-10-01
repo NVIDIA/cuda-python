@@ -167,14 +167,11 @@ MemAllocationHandle va_mapping_allocation(const VaMappingHandle& h) noexcept {
 // is capturing, or it is the legacy stream while a blocking stream in its
 // context is capturing (the query reports that as
 // CUDA_ERROR_STREAM_CAPTURE_IMPLICIT). cuStreamSynchronize would invalidate
-// such a capture; cuStreamGetCaptureInfo does not.
+// such a capture; cuStreamIsCapturing does not. It is the query
+// cuStreamGetCaptureInfo makes first, with one signature on every CUDA major.
 static bool sync_would_disturb_capture(CUstream stream) noexcept {
     CUstreamCaptureStatus status = CU_STREAM_CAPTURE_STATUS_NONE;
-#if CUDA_CORE_BUILD_MAJOR >= 13
-    const CUresult result = DRIVER_CALL(cuStreamGetCaptureInfo, stream, &status, nullptr, nullptr, nullptr, nullptr, nullptr);
-#else
-    const CUresult result = DRIVER_CALL(cuStreamGetCaptureInfo, stream, &status, nullptr, nullptr, nullptr, nullptr);
-#endif
+    const CUresult result = DRIVER_CALL(cuStreamIsCapturing, stream, &status);
     if (result == CUDA_ERROR_STREAM_CAPTURE_IMPLICIT) {
         return true;
     }

@@ -70,8 +70,9 @@ size_t mem_allocation_size(...) noexcept;  size_t va_reservation_size(...) noexc
 Factories return the handle and put the status in thread-local `err`, as the other factories do;
 an empty input handle sets `err` too, so an empty result always carries a status.
 `create_va_mapping_handle` checks that the range lies inside the reservation, maps, and applies
-access; if access fails it unmaps and returns empty. The eight VMM entry points, plus
-`cuStreamSynchronize` and `cuStreamGetCaptureInfo`, join the `driver_api` pointer table.
+access; if access fails it unmaps and returns empty. The seven VMM entry points, plus
+`cuStreamSynchronize`, `cuStreamIsCapturing` and `cuThreadExchangeStreamCaptureMode`, join the
+`driver_api` function table.
 
 ### The range and the device pointer
 

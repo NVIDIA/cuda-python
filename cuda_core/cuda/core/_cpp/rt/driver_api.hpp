@@ -137,8 +137,7 @@ namespace cuda_core::rt {
     X(cuMemSetAccess, 10020)                     \
     /* cuda-bindings requests 7000 (PTDS) or 2000 (legacy) */ \
     X(cuStreamSynchronize, 7000)                 \
-    /* cuda.h maps to _v3 (12030) on the CUDA 13 header, _v2 (11030) on CUDA 12 */ \
-    X(cuStreamGetCaptureInfo, 12030)             \
+    X(cuStreamIsCapturing, 10000)                \
     X(cuThreadExchangeStreamCaptureMode, 10010)
 
 #define CUDA_CORE_DECLARE_DRIVER_FN(name, introduced) extern decltype(&name) p_##name;
