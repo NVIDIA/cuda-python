@@ -150,7 +150,9 @@ def _with_compiler(command, compiler):
     prefix_end = 0
     if parts and os.path.basename(parts[0]) == "env":
         prefix_end = 1
-        while prefix_end < len(parts) and "=" in parts[prefix_end] and not parts[prefix_end].startswith("-"):
+        # Match setuptools' _split_env: any token with ``=`` is an env operand
+        # (covers both ``VAR=value`` and ``--unset=VAR`` long options).
+        while prefix_end < len(parts) and "=" in parts[prefix_end]:
             prefix_end += 1
     # Everything else before the first flag is the old compiler (or a launcher
     # for it; setuptools takes the launcher from CXX instead).

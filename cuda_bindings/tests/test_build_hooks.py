@@ -253,6 +253,11 @@ class TestWithCompiler:
             build_hooks._with_compiler("env LIBRARY_PATH=/custom/lib g++ -shared", "clang++")
             == "env LIBRARY_PATH=/custom/lib clang++ -shared"
         )
+        # env long options (--unset=VAR) also treated as prefix, same as setuptools' _split_env
+        assert (
+            build_hooks._with_compiler("env --unset=LD_LIBRARY_PATH g++ -shared", "clang++")
+            == "env --unset=LD_LIBRARY_PATH clang++ -shared"
+        )
 
 
 class TestDistutilsLinkerIntegration:
