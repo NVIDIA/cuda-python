@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=11827bb18f0653afd95163d1d140a0ec529d3d025b1ca1da61f96ee88f48d948
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=149bd04cef4a762c554f5f82eaf15ab823a608acea1fca906b5981dfa96baa8a
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -24523,7 +24523,7 @@ cdef class NvlinkFirmwareInfo:
         """NvlinkFirmwareVersion: OUT - NVLINK firmware version."""
         return NvlinkFirmwareVersion.from_ptr(
             <intptr_t>&(self._ptr[0].firmwareVersion),
-            100,
+            self._ptr[0].numValidEntries,
             readonly=self._readonly,
             owner=self,
         )
@@ -24533,20 +24533,12 @@ cdef class NvlinkFirmwareInfo:
         if self._readonly:
             raise ValueError("This NvlinkFirmwareInfo instance is read-only")
         cdef NvlinkFirmwareVersion val_ = val
-        if len(val) != 100:
-            raise ValueError(f"Expected length { 100 } for field firmware_version, got {len(val)}")
-        _cyb_memcpy(<void *>&(self._ptr[0].firmwareVersion), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkFirmwareVersion_t) * 100)
-
-    @property
-    def num_valid_entries(self):
-        """int: OUT - Number of valid firmware entries."""
-        return self._ptr[0].numValidEntries
-
-    @num_valid_entries.setter
-    def num_valid_entries(self, val):
-        if self._readonly:
-            raise ValueError("This NvlinkFirmwareInfo instance is read-only")
-        self._ptr[0].numValidEntries = val
+        if len(val) > 100:
+            raise ValueError(f"Expected length < 100 for field firmware_version, got {len(val)}")
+        self._ptr[0].numValidEntries = len(val)
+        if len(val) == 0:
+            return
+        _cyb_memcpy(<void *>&(self._ptr[0].firmwareVersion), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkFirmwareVersion_t) * self._ptr[0].numValidEntries)
 
     @staticmethod
     def from_buffer(buffer):
