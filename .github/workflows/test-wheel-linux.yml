@@ -140,14 +140,9 @@ jobs:
           # for artifact fetching, graphics libs, g++ required for cffi in
           # example; util-linux for `nsenter` (custom-DRIVER rows re-exec
           # install_gpu_driver.sh onto the host through nsenter)
-          dependencies: "jq wget libgl1 libegl1 g++ util-linux"
-          dependent_exes: "jq wget"
-
-      - name: Set up yq
-        # The container image has no yq; ci/tools/env-vars reads ci/versions.yml with it.
-        uses: ./.github/actions/setup_yq_linux
-        with:
-          arch: ${{ matrix.ARCH }}
+          # yq: ci/tools/env-vars reads ci/versions.yml with it
+          dependencies: "jq wget libgl1 libegl1 g++ util-linux yq"
+          dependent_exes: "jq wget yq"
 
       - name: Install GPU driver
         if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}

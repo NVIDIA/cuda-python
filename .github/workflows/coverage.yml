@@ -80,14 +80,8 @@ jobs:
         uses: ./.github/actions/install_unix_deps
         continue-on-error: false
         with:
-          dependencies: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1"
-          dependent_exes: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1"
-
-      - name: Set up yq
-        # The container image has no yq; ci/tools/env-vars reads ci/versions.yml with it.
-        uses: ./.github/actions/setup_yq_linux
-        with:
-          arch: amd64
+          dependencies: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1 yq"
+          dependent_exes: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1 yq"
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main

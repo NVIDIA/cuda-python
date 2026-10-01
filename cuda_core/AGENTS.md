@@ -66,6 +66,10 @@ a bump. To bump:
 5. Pin `cuda-bindings` to match in the conda-forge `cuda-core` feedstock. The
    feedstock lives outside this repository.
 
+A `cuda-core` release also bumps the `cuda-core~=X.Y.0` pin in
+`cuda_python/setup.py`, followed by a `cuda-python` release (see
+`.github/RELEASE-core.md`).
+
 ### CUDA Toolkit minor bumps
 
 The build compares the toolkit's `cuda.h` with the header that the installed

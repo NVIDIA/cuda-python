@@ -440,8 +440,13 @@ which a thread holding a C++ lock can deadlock (see "GIL Management").
 
 Python exceptions raised by that code never become C++ exceptions: the C API
 reports them as return codes, and `report_message` hands them to
-`sys.unraisablehook`. Nothing on the report path may allocate or throw, since a
-deleter is `noexcept`.
+`sys.unraisablehook`. The one exception is `KeyboardInterrupt`: a SIGINT that
+fires inside the warnings machinery is not swallowed. `report_message` emits
+the warning again and re-arms the interrupt with `PyErr_SetInterrupt()`, so
+Python raises it at the next bytecode boundary in the caller's code. The
+function-table fill does the same when its Python calls are interrupted
+(`take_python_error` in `py_driver_fns.cpp`). Nothing on the report path may
+allocate or throw, since a deleter is `noexcept`.
 
 So: use `pw_` only in deleters and cleanup paths that hold no C++ lock and have
 finished updating the layer's own state. Where a lock must stay held, call

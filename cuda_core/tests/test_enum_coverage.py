@@ -127,9 +127,6 @@ _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
 
 _MODULES.append(system_typing)
 
-# Every ClocksEventReasons member is mapped: the floor cuda-bindings has them all.
-_CLOCKS_EVENT_REASONS_STR_UNMAPPED = set()
-
 _CASES.extend(
     [
         (
@@ -162,7 +159,7 @@ _CASES.extend(
             system_typing.ClocksEventReasons,
             _device._CLOCKS_EVENT_REASONS_MAPPING,
             set(),
-            _CLOCKS_EVENT_REASONS_STR_UNMAPPED,
+            set(),
         ),
         (
             nvml.EventType,

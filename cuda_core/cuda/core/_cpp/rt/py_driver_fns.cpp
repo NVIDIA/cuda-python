@@ -107,11 +107,19 @@ const char* library_name(FnTable table) noexcept {
 // true when the exception says nothing about cuda-bindings or the driver: an
 // interruption such as KeyboardInterrupt or SystemExit, or exhaustion such as
 // MemoryError or RecursionError. The fill reports such a failure but does not
-// latch it, so the next call tries again.
-bool take_python_error(char* buf, std::size_t size) noexcept {
+// latch the table as failed, so the next call tries again.
+//
+// Sets *interrupted when the exception was a KeyboardInterrupt. The fill runs
+// in noexcept code reached from deleters and nogil blocks, so it cannot
+// propagate the exception, but the caller re-arms the interrupt with
+// PyErr_SetInterrupt() once its own Python work (the warning) is done. Python
+// then raises KeyboardInterrupt at the next bytecode boundary, so the user
+// sees the interrupt, not the CUDAError from the failed call.
+bool take_python_error(char* buf, std::size_t size, bool* interrupted) noexcept {
     const bool transient = PyErr_Occurred()
                            && (!PyErr_ExceptionMatches(PyExc_Exception) || PyErr_ExceptionMatches(PyExc_MemoryError)
                                || PyErr_ExceptionMatches(PyExc_RecursionError));
+    *interrupted = PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_KeyboardInterrupt);
 #if PY_VERSION_HEX >= 0x030C0000
     PyObject* exc = PyErr_GetRaisedException();
 #else
@@ -124,7 +132,10 @@ bool take_python_error(char* buf, std::size_t size) noexcept {
 #endif
     PyObject* text = exc ? PyObject_Str(exc) : nullptr;
     const char* utf8 = text ? PyUnicode_AsUTF8(text) : nullptr;
-    std::snprintf(buf, size, "%s", utf8 ? utf8 : "unknown error");
+    if (utf8 == nullptr || *utf8 == '\0') {
+        utf8 = exc ? Py_TYPE(exc)->tp_name : "unknown error";  // str(KeyboardInterrupt()) is empty
+    }
+    std::snprintf(buf, size, "%s", utf8);
     Py_XDECREF(text);
     Py_XDECREF(exc);
     PyErr_Clear();
@@ -188,20 +199,27 @@ bool ensure_fn_table(FnTable table) noexcept {
     }
     PendingExceptionGuard pending;
 
+    bool interrupted = false;
     PyObject* module = PyImport_ImportModule(module_name(table));
     if (module == nullptr) {
-        const bool transient = take_python_error(cause, sizeof(cause));
+        const bool transient = take_python_error(cause, sizeof(cause), &interrupted);
         std::snprintf(message, sizeof(message),
                       "cuda.core cannot import %s from the installed cuda-bindings: %s", module_name(table), cause);
         record_failure(table, message, !transient);
+        if (interrupted) {
+            PyErr_SetInterrupt();  // after the warning: the handler must not consume the interrupt
+        }
         return false;
     }
     PyObject* pointers = PyObject_CallMethod(module, "_inspect_function_pointers", nullptr);
     Py_DECREF(module);
     if (pointers == nullptr) {
-        const bool transient = take_python_error(cause, sizeof(cause));
+        const bool transient = take_python_error(cause, sizeof(cause), &interrupted);
         std::snprintf(message, sizeof(message), "cuda-bindings could not load the %s: %s", library_name(table), cause);
         record_failure(table, message, !transient);
+        if (interrupted) {
+            PyErr_SetInterrupt();  // after the warning: the handler must not consume the interrupt
+        }
         return false;
     }
     if (!PyDict_Check(pointers)) {
@@ -227,7 +245,7 @@ bool ensure_fn_table(FnTable table) noexcept {
         void* address = PyLong_AsVoidPtr(item);
         if (address == nullptr && PyErr_Occurred()) {
             Py_DECREF(pointers);
-            take_python_error(cause, sizeof(cause));
+            take_python_error(cause, sizeof(cause), &interrupted);
             std::snprintf(message, sizeof(message),
                           "internal cuda.core error, please report: the entry for %s in %s is not an address: %s",
                           entries[i].key, module_name(table), cause);

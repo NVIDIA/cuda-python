@@ -97,8 +97,10 @@ current release. The build, the import-time check, this page, and CI all read th
   as the header that ``cuda-bindings`` was generated from. Any other configuration fails the
   build with a message that names what was found and what is required. ``cuda.core`` does not
   support a build against a CUDA Toolkit older than the floor's minor.
-- **The CUDA driver** is unaffected by the floor. Feature availability is decided by the driver alone: a
-  feature the installed driver lacks raises when it is used.
+- **The CUDA driver.** The floor does not change the driver requirement. A ``cuda-core`` build
+  works with every driver of its CUDA major. An older driver can lack some of the build's
+  features. In that case ``cuda-core`` never crashes or returns a wrong result; depending on the
+  feature, it may raise an error or emulate the feature.
 
 A floor moves with each ``cuda-core`` release, to the newest ``cuda-bindings`` of each major at
 that time. It also moves in any release whose changes need a newer ``cuda-bindings`` API. The

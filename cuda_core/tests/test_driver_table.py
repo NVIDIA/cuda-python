@@ -12,8 +12,9 @@ makes driver calls through ``cuda.core`` and reports what happened. The expected
 - Every affected call raises :class:`CUDAError` with the reason attached as a note.
 - The failure latches: there is no second warning and no retry.
 
-The child needs a loadable CUDA driver and a visible device, so this module skips without them.
-The module runs with ``--noconftest``.
+The driver-table tests need a loadable CUDA driver and a visible device, so they skip without
+them. The interrupt test uses the NVRTC table and needs only libnvrtc. The module runs with
+``--noconftest``.
 """
 
 import os
@@ -44,10 +45,19 @@ def _gpu_available() -> bool:
         return False
 
 
-pytestmark = [
-    pytest.mark.skipif(not _gpu_available(), reason="the child needs a CUDA driver and a visible device"),
-    pytest.mark.thread_unsafe(reason="spawns child interpreters"),
-]
+def _nvrtc_available() -> bool:
+    try:
+        from cuda.bindings import nvrtc
+
+        status, *_ = nvrtc.nvrtcVersion()
+        return int(status) == 0
+    except Exception:
+        return False
+
+
+pytestmark = pytest.mark.thread_unsafe(reason="spawns child interpreters")
+needs_gpu = pytest.mark.skipif(not _gpu_available(), reason="the child needs a CUDA driver and a visible device")
+needs_nvrtc = pytest.mark.skipif(not _nvrtc_available(), reason="the child needs libnvrtc")
 
 
 def _table_keys() -> list[str]:
@@ -100,10 +110,9 @@ _CHILD = textwrap.dedent("""
 """)
 
 
-def _run_child(mutation: str, tmp_path: Path) -> str:
-    code = _CHILD.format(keys=_table_keys(), mutation=mutation)
+def _run_code(code: str, tmp_path: Path) -> subprocess.CompletedProcess:
     env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
-    result = subprocess.run(  # noqa: S603
+    return subprocess.run(  # noqa: S603
         [sys.executable, "-c", code],
         cwd=tmp_path,
         env=env,
@@ -113,6 +122,10 @@ def _run_child(mutation: str, tmp_path: Path) -> str:
         timeout=180,
         check=False,
     )
+
+
+def _run_child(mutation: str, tmp_path: Path) -> str:
+    result = _run_code(_CHILD.format(keys=_table_keys(), mutation=mutation), tmp_path)
     assert result.returncode == 0, result.stdout + result.stderr
     return result.stdout
 
@@ -123,6 +136,7 @@ def _build_major() -> int:
     return _build_info.CUDA_MAJOR
 
 
+@needs_gpu
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_null_baseline_entry_fails_the_fill_once_and_latches(tmp_path):
     out = _run_child('table["__cuGetErrorName"] = 0', tmp_path)
@@ -138,6 +152,7 @@ def test_null_baseline_entry_fails_the_fill_once_and_latches(tmp_path):
     assert "lacks cuGetErrorName" in warning
 
 
+@needs_gpu
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_missing_table_entry_names_the_mismatch(tmp_path):
     out = _run_child('table.pop("__cuDevicePrimaryCtxRetain", None)', tmp_path)
@@ -149,3 +164,46 @@ def test_missing_table_entry_names_the_mismatch(tmp_path):
         assert "has no entry for cuDevicePrimaryCtxRetain" in line
         assert "Install the cuda-bindings this cuda.core requires" in line
     assert "CUDAWARNINGS 1" in lines
+
+
+_INTERRUPTED_CHILD = textwrap.dedent("""
+    import warnings
+    import cuda.bindings._internal.nvrtc as loader
+
+    real_inspect = loader._inspect_function_pointers
+
+    def interrupting_inspect():
+        raise KeyboardInterrupt  # Ctrl-C while cuda-bindings loads the library
+
+    loader._inspect_function_pointers = interrupting_inspect
+    from cuda.core import Program, ProgramOptions
+
+    try:
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            # The NVRTC handle constructor fills the NVRTC table; the Program is dropped at
+            # once, so its deleter also reports through the table.
+            Program('extern "C" __global__ void k() {}', "c++", options=ProgramOptions(arch="sm_80"))
+            for _ in range(3):
+                pass  # the re-armed interrupt fires at a bytecode boundary
+        print("NOT INTERRUPTED", flush=True)
+    except KeyboardInterrupt:
+        print("INTERRUPTED", flush=True)
+    for w in caught:
+        print("WARNING:", str(w.message), flush=True)
+    loader._inspect_function_pointers = real_inspect  # let the shutdown deleters fill the table
+""")
+
+
+@needs_nvrtc
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_keyboard_interrupt_during_a_fill_reaches_the_user(tmp_path):
+    """A KeyboardInterrupt raised inside the fill cannot propagate from the noexcept C++, so
+    it is re-armed: the user's code sees it at the next bytecode boundary, the fill's warning
+    still names it, and the reporting path does not swallow it as an unraisable exception."""
+    result = _run_code(_INTERRUPTED_CHILD, tmp_path)
+    assert result.returncode == 0, result.stdout + result.stderr
+    lines = result.stdout.splitlines()
+    assert "INTERRUPTED" in lines, result.stdout + result.stderr
+    assert any(line.startswith("WARNING:") and "KeyboardInterrupt" in line for line in lines), result.stdout
+    assert "Exception ignored" not in result.stderr, result.stderr

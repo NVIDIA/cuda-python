@@ -124,11 +124,8 @@ class CopyOptions:
 
 
 # CUDA 12.8 added CUmemcpySrcAccessOrder and CUmemcpyFlags. Every
-# cuda-bindings that cuda.core accepts has them. Keyed by ``str``: under
-# ``python_version = "3.10"`` mypy resolves StrEnum to the unstubbed backports
-# shim and so infers the members as plain ``str``. StrEnum members are ``str``
-# instances, so this holds on every version. The values are wrapped in
-# ``int()`` because the driver enums are untyped.
+# cuda-bindings that cuda.core accepts has them. Keyed by ``str`` (StrEnum
+# members are ``str``; mypy on 3.10 cannot see the enum) and valued as ``int``.
 _src_order = driver.CUmemcpySrcAccessOrder
 _flags = driver.CUmemcpyFlags
 _SRC_ACCESS_ORDER_TO_DRIVER: dict[str, int] = {
