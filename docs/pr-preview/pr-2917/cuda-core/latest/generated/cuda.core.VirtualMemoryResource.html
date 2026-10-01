@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=120c8ab6"></script>
+    <script src="../_static/documentation_options.js?v=38b74d6c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev148';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev171';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -812,6 +812,11 @@ in cuda.core should already meet the common needs.</p>
 <p>Every buffer this resource returns is a <a class="reference internal" href="cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a> that
 owns its address reservations, physical allocations and mappings; closing
 the buffer releases them. <a class="reference internal" href="#cuda.core.VirtualMemoryResource.deallocate" title="cuda.core.VirtualMemoryResource.deallocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">deallocate()</span></code></a> is not involved in that path.</p>
+<p>Virtual memory is unmapped synchronously, so closing a buffer waits for
+the work queued on its deallocation stream. A buffer released by the
+garbage collector waits at that point instead. To control when the wait
+happens, close the buffer explicitly or record an idle stream with
+<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.set_deallocation_stream" title="cuda.core.Buffer.set_deallocation_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.set_deallocation_stream()</span></code></a>.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResource.__init__">
