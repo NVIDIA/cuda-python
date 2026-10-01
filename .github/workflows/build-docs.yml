@@ -309,10 +309,6 @@ jobs:
         if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         uses: lycheeverse/lychee-action@6da1d14f3a43098a294b7696d93d938aa8d20fc0  # unreleased: supports v0.24.x archive layout
         with:
-          # PR-preview canonical URLs are checked by the preview deployment workflow.
-          # The cuda-bindings #id links are docutils "problematic" anchors from generated API docs.
-          # TODO: Remove this exclusion after cybind stops emitting those problematic anchors.
-          # Preferred Networks rejects hosted-runner GETs, but the URL is browser reachable.
           args: >-
             --files-from ${{ github.workspace }}/lychee-rendered-html-files.txt
             --include-fragments=full
@@ -325,9 +321,7 @@ jobs:
             --retry-wait-time 5
             --timeout 30
             --no-progress
-            --exclude '^https://nvidia\.github\.io/cuda-python/pr-preview/pr-[0-9]+/'
-            --exclude '^file://.*/cuda-bindings/latest/module/(driver|runtime)\.html#id[0-9]+$'
-            --exclude '^https://www\.preferred\.jp/en/?$'
+            --config ${{ github.workspace }}/lychee.toml
           fail: true
           failIfEmpty: true
           format: markdown
