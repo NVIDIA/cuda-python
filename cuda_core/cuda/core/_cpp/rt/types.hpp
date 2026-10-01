@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "versions.hpp"
 #include <cuda.h>
 #include <nvrtc.h>
 #include <cstdint>

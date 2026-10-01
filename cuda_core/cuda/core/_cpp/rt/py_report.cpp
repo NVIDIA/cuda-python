@@ -22,6 +22,12 @@ std::atomic<PyObject*> warning_category{nullptr};
 // warning was promoted to an error), the failure is written as an unraisable
 // exception, the CPython convention for exceptions in destructors. Falls back
 // to stderr when the interpreter cannot be used.
+//
+// A KeyboardInterrupt is never swallowed here. The warnings machinery runs
+// Python code, so a pending SIGINT (one the user typed, or one that a failed
+// table fill re-armed; see py_driver_fns.cpp) can fire inside it. The warning
+// is then emitted again and the interrupt re-armed with PyErr_SetInterrupt(),
+// so Python raises it at the next bytecode boundary in the caller's code.
 void report_message(const char* message) noexcept {
     PyObject* category = warning_category.load(std::memory_order_acquire);
     if (category && Py_IsInitialized() && !py_is_finalizing()) {
@@ -29,10 +35,20 @@ void report_message(const char* message) noexcept {
         if (gil.acquired()) {
             // Deleters can run while a Python exception is propagating; keep it.
             PendingExceptionGuard pending;
+            bool interrupted = false;
             if (PyErr_WarnEx(category, message, 1) != 0) {
-                PyObject* subject = PyUnicode_FromString(message);
-                PyErr_WriteUnraisable(subject);
-                Py_XDECREF(subject);
+                interrupted = PyErr_ExceptionMatches(PyExc_KeyboardInterrupt);
+                if (interrupted) {
+                    PyErr_Clear();
+                }
+                if (!interrupted || PyErr_WarnEx(category, message, 1) != 0) {
+                    PyObject* subject = PyUnicode_FromString(message);
+                    PyErr_WriteUnraisable(subject);
+                    Py_XDECREF(subject);
+                }
+            }
+            if (interrupted) {
+                PyErr_SetInterrupt();
             }
             return;
         }

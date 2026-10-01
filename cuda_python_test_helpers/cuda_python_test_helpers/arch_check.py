@@ -30,24 +30,16 @@ def hardware_supports_nvml():
 
 
 def _should_skip_nvml_tests() -> bool:
-    """Return True if NVML tests should be skipped on this system.
+    """Return True if the NVML tests should skip on this system.
 
-    Checks cuda.core's compatibility gate first (if cuda.core is installed),
-    then falls back to a hardware-level NVML probe.
+    The check is a hardware-level NVML probe.
     """
-    try:
-        from cuda.core import system
-
-        if not system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-            return True
-    except ImportError:
-        pass  # cuda.core not installed; skip the compat gate
     return not hardware_supports_nvml()
 
 
 skip_if_nvml_unsupported = pytest.mark.skipif(
     _should_skip_nvml_tests(),
-    reason="NVML support requires cuda.bindings version 12.9.6+ for CUDA 12.x or 13.2.0+ for CUDA 13.x, and hardware that supports NVML",
+    reason="this hardware does not support NVML",
 )
 
 

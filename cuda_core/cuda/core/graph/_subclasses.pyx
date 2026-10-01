@@ -60,14 +60,13 @@ from cuda.core._rt cimport (
     make_opaque_py,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
-from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
+from cuda.core._utils.version cimport cy_driver_version
 
 from cuda.core.graph._host_callback cimport (
     _is_py_host_trampoline,
     _resolve_host_callback,
 )
 
-from cuda.core._utils.cuda_utils import driver, handle_return
 from cuda.core.typing import GraphConditionalType
 
 __all__ = [
@@ -97,22 +96,12 @@ __all__ = [
 ]
 
 
-cdef bint _has_cuGraphNodeGetParams = False
-cdef bint _version_checked = False
-
-
 cdef void _require_graph_node_update_support() except *:
     cdef tuple version = cy_driver_version()
     if version < (12, 2, 0):
         raise RuntimeError(
             "Graph node mutation requires CUDA driver 12.2 or newer; "
             f"using driver version {'.'.join(map(str, version))}"
-        )
-    version = cy_binding_version()
-    if version < (12, 2, 0):
-        raise RuntimeError(
-            "Graph node mutation requires cuda.bindings 12.2 or newer; "
-            f"using cuda.bindings version {'.'.join(map(str, version))}"
         )
 
 
@@ -214,14 +203,22 @@ cdef void _set_executable_node_enabled(
 
 
 cdef bint _check_node_get_params():
-    global _has_cuGraphNodeGetParams, _version_checked
-    if not _version_checked:
-        from cuda.core._utils.version import binding_version, driver_version
-        _has_cuGraphNodeGetParams = (
-            driver_version() >= (13, 2, 0) and binding_version() >= (13, 2, 0)
-        )
-        _version_checked = True
-    return _has_cuGraphNodeGetParams
+    """Whether cuGraphNodeGetParams, a 13.2 driver API, is available.
+
+    The CUDA 13 build always has the binding. Only the driver can lack it."""
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        return cy_driver_version() >= (13, 2, 0)
+    ELSE:
+        return False
+
+
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    cdef void _node_get_params(
+            cydriver.CUgraphNode node,
+            cydriver.CUgraphNodeParams* params) except *:
+        c_memset(params, 0, sizeof(params[0]))
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphNodeGetParams(node, params))
 
 
 cdef void _reject_unsupported_kernel_node(
@@ -653,9 +650,10 @@ cdef class MemsetNode(GraphNode):
         Omitted parameters preserve their current values. ``dst_owner`` may
         only accompany a raw-address ``dst``.
 
-        With CUDA 12.2 through 13.1, the node's intended CUDA context must be
-        current when this method is called. CUDA driver and ``cuda.bindings``
-        versions 13.2 and newer preserve the recorded context automatically.
+        With drivers from CUDA 12.2 through 13.1, the node's intended CUDA
+        context must be current when this method runs. With the CUDA 13 build
+        of ``cuda.core`` and a driver of CUDA 13.2 or newer, this method
+        preserves the recorded context.
 
         .. warning::
 
@@ -671,7 +669,7 @@ cdef class MemsetNode(GraphNode):
         cdef cydriver.CUcontext ctx = NULL
         cdef cydriver.CUDA_MEMSET_NODE_PARAMS current
         cdef cydriver.CUgraphNodeParams params
-        cdef object queried
+        cdef cydriver.CUgraphNodeParams queried  # no-cython-lint
 
         if dst is None and dst_owner is not None:
             raise ValueError("dst_owner requires dst")
@@ -684,11 +682,14 @@ cdef class MemsetNode(GraphNode):
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphMemsetNodeGetParams(
                 node, &current))
-        if _check_node_get_params():
-            queried = handle_return(driver.cuGraphNodeGetParams(
-                <uintptr_t>node))
-            ctx = <cydriver.CUcontext><uintptr_t>int(queried.memset.ctx)
-        else:
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            if _check_node_get_params():
+                _node_get_params(node, &queried)
+                ctx = queried.memset.ctx
+            else:
+                with nogil:
+                    HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+        ELSE:
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
 
@@ -839,9 +840,10 @@ cdef class MemcpyNode(GraphNode):
         Multidimensional, pitched, offset, and array-backed memcpy nodes are
         not supported.
 
-        With CUDA 12.2 through 13.1, the node's intended CUDA context must be
-        current when this method is called. CUDA driver and ``cuda.bindings``
-        versions 13.2 and newer preserve the recorded context automatically.
+        With drivers from CUDA 12.2 through 13.1, the node's intended CUDA
+        context must be current when this method runs. With the CUDA 13 build
+        of ``cuda.core`` and a driver of CUDA 13.2 or newer, this method
+        preserves the recorded context.
 
         .. warning::
 
@@ -861,7 +863,7 @@ cdef class MemcpyNode(GraphNode):
         cdef cydriver.CUgraphNodeParams params
         cdef cydriver.CUmemorytype c_dst_type
         cdef cydriver.CUmemorytype c_src_type
-        cdef object queried
+        cdef cydriver.CUgraphNodeParams queried  # no-cython-lint
 
         if dst is None and dst_owner is not None:
             raise ValueError("dst_owner requires dst")
@@ -875,12 +877,14 @@ cdef class MemcpyNode(GraphNode):
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphMemcpyNodeGetParams(
                 node, &params.memcpy.copyParams))
-        if _check_node_get_params():
-            queried = handle_return(driver.cuGraphNodeGetParams(
-                <uintptr_t>node))
-            ctx = <cydriver.CUcontext><uintptr_t>int(
-                queried.memcpy.copyCtx)
-        else:
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            if _check_node_get_params():
+                _node_get_params(node, &queried)
+                ctx = queried.memcpy.copyCtx
+            else:
+                with nogil:
+                    HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+        ELSE:
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
         params.memcpy.copyCtx = ctx
@@ -1262,47 +1266,52 @@ cdef class ConditionalNode(GraphNode):
             n._cond_type = cydriver.CU_GRAPH_COND_TYPE_IF
             n._branches = ()
             return n
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            return ConditionalNode._create_from_driver_params(h_node)
+        ELSE:
+            raise AssertionError("unreachable: cuGraphNodeGetParams needs the CUDA 13 build")
 
-        cdef cydriver.CUgraphNode node = as_cu(h_node)
-        params = handle_return(driver.cuGraphNodeGetParams(
-            <uintptr_t>node))
-        cond_params = params.conditional
-        cdef int cond_type_int = int(cond_params.type)
-        cdef unsigned int size = int(cond_params.size)
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        @staticmethod
+        cdef ConditionalNode _create_from_driver_params(GraphNodeHandle h_node):
+            cdef ConditionalNode n
+            cdef cydriver.CUgraphNode node = as_cu(h_node)
+            cdef cydriver.CUgraphNodeParams params
+            _node_get_params(node, &params)
+            cdef int cond_type_int = <int>params.conditional.type
+            cdef unsigned int size = params.conditional.size
 
-        cdef GraphCondition condition = GraphCondition.__new__(GraphCondition)
-        condition._c_handle = <cydriver.CUgraphConditionalHandle>(
-            <unsigned long long>int(cond_params.handle))
+            cdef GraphCondition condition = GraphCondition.__new__(GraphCondition)
+            condition._c_handle = params.conditional.handle
 
-        cdef GraphHandle h_graph = graph_node_get_graph(h_node)
-        cdef list branch_list = []
-        cdef unsigned int i
-        cdef GraphHandle h_branch
-        if cond_params.phGraph_out is not None:
-            for i in range(size):
-                h_branch = create_child_graph_handle(
-                    <cydriver.CUgraph><uintptr_t>int(cond_params.phGraph_out[i]),
-                    h_graph, node)
-                branch_list.append(GraphDefinition._from_handle(h_branch))
-        cdef tuple branches = tuple(branch_list)
+            cdef GraphHandle h_graph = graph_node_get_graph(h_node)
+            cdef list branch_list = []
+            cdef unsigned int i
+            cdef GraphHandle h_branch
+            if params.conditional.phGraph_out != NULL:
+                for i in range(size):
+                    h_branch = create_child_graph_handle(
+                        params.conditional.phGraph_out[i], h_graph, node)
+                    branch_list.append(GraphDefinition._from_handle(h_branch))
+            cdef tuple branches = tuple(branch_list)
 
-        cdef type cls
-        if cond_type_int == <int>cydriver.CU_GRAPH_COND_TYPE_IF:
-            if size == 1:
-                cls = IfNode
+            cdef type cls
+            if cond_type_int == <int>cydriver.CU_GRAPH_COND_TYPE_IF:
+                if size == 1:
+                    cls = IfNode
+                else:
+                    cls = IfElseNode
+            elif cond_type_int == <int>cydriver.CU_GRAPH_COND_TYPE_WHILE:
+                cls = WhileNode
             else:
-                cls = IfElseNode
-        elif cond_type_int == <int>cydriver.CU_GRAPH_COND_TYPE_WHILE:
-            cls = WhileNode
-        else:
-            cls = SwitchNode
+                cls = SwitchNode
 
-        n = cls.__new__(cls)
-        n._h_node = h_node
-        n._condition = condition
-        n._cond_type = <cydriver.CUgraphConditionalNodeType>cond_type_int
-        n._branches = branches
-        return n
+            n = cls.__new__(cls)
+            n._h_node = h_node
+            n._condition = condition
+            n._cond_type = <cydriver.CUgraphConditionalNodeType>cond_type_int
+            n._branches = branches
+            return n
 
     def __repr__(self) -> str:
         return f"<ConditionalNode handle=0x{as_intptr(self._h_node):x}>"

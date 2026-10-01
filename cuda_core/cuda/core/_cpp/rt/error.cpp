@@ -38,9 +38,9 @@ void format_cuda_error(char* buffer, size_t size, const char* operation, CUresul
                        const char* detail) noexcept {
     const char* error_name = nullptr;
     const char* error_description = nullptr;
-    bool decoded = p_cuGetErrorName && p_cuGetErrorString
-                   && p_cuGetErrorName(status, &error_name) == CUDA_SUCCESS
-                   && p_cuGetErrorString(status, &error_description) == CUDA_SUCCESS;
+    // If the table is unavailable, the trampolines fail and the numeric branch below runs.
+    bool decoded = DRIVER_CALL(cuGetErrorName, status, &error_name) == CUDA_SUCCESS
+                   && DRIVER_CALL(cuGetErrorString, status, &error_description) == CUDA_SUCCESS;
     const char* outcome = detail ? detail : "failed";
     if (decoded) {
         std::snprintf(buffer, size, "%s %s: %s: %s", operation, outcome, error_name, error_description);
@@ -92,6 +92,11 @@ void clear_last_error_detail() noexcept {
     last_error_detail_status = CUDA_SUCCESS;
 }
 
+void note_driver_table_failure(const char* reason) noexcept {
+    std::snprintf(last_error_detail, sizeof(last_error_detail), "%s", reason);
+    last_error_detail_status = CUDA_ERROR_NOT_INITIALIZED;
+}
+
 namespace detail {
 // Record that the caller's context was not restored as the detail of the
 // CUresult about to be returned and raised: the operation status if the
@@ -100,13 +105,13 @@ namespace detail {
 void note_context_not_restored(CUcontext previous, CUresult operation_status,
                                CUresult restore_status) noexcept {
     CUcontext current = nullptr;
-    if (p_cuCtxGetCurrent(&current) != CUDA_SUCCESS) {
+    if (DRIVER_CALL(cuCtxGetCurrent, &current) != CUDA_SUCCESS) {
         current = nullptr;
     }
     char cause[128] = {0};
     if (operation_status != CUDA_SUCCESS) {
         const char* error_name = nullptr;
-        if (p_cuGetErrorName && p_cuGetErrorName(restore_status, &error_name) == CUDA_SUCCESS) {
+        if (DRIVER_CALL(cuGetErrorName, restore_status, &error_name) == CUDA_SUCCESS) {
             std::snprintf(cause, sizeof(cause), " after this failure (cuCtxSetCurrent: %s)", error_name);
         } else {
             std::snprintf(cause, sizeof(cause), " after this failure (cuCtxSetCurrent: CUDA error %d)",

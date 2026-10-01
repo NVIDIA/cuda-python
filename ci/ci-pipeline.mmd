@@ -1,0 +1,99 @@
+---
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+title: CUDA Python CI Pipeline Flow
+config:
+  theme: base
+  look: handDrawn
+  layout: elk
+  handDrawnSeed: 2740
+  deterministicIds: true
+  deterministicIDSeed: cuda-python-ci-pipeline
+  htmlLabels: true
+  themeVariables:
+    fontFamily: "Comic Sans MS, Comic Sans, cursive"
+    fontSize: 14px
+  flowchart:
+    curve: basis
+    diagramPadding: 8
+    minNodeWidth: 140
+    nodeSpacing: 24
+    padding: 10
+    rankSpacing: 48
+    wrappingWidth: 300
+---
+flowchart TB
+    subgraph TRIGGER["TRIGGER EVENTS"]
+        direction LR
+        T1["Push to main branch"] ~~~ T2["Pull request"] ~~~ T3["Manual workflow dispatch"]
+    end
+
+    subgraph BUILD["BUILD STAGE"]
+        direction TB
+        subgraph BUILD_PLATFORMS["Parallel Platform Builds"]
+            direction LR
+            B1["linux-64<br/>(Self-hosted)"] ~~~ B2["linux-aarch64<br/>(Self-hosted)"] ~~~ B3["win-64<br/>(GitHub-hosted)"]
+        end
+        BUILD_DETAILS["Python versions: 3.10, 3.11, 3.12, 3.13, 3.14<br/>CUDA version: 13.0.0 (build-time)<br/>Components: cuda-core, cuda-bindings,<br/>cuda-pathfinder, cuda-python"]
+    end
+
+    subgraph ARTIFACTS["ARTIFACT STORAGE"]
+        direction TB
+        subgraph GITHUB_ARTIFACTS["GitHub Artifacts"]
+            GA1["Wheel files (.whl)<br/>Test artifacts<br/>Documentation<br/>(30-day retention)"]
+        end
+        subgraph GITHUB_CACHE["GitHub Cache"]
+            GC1["Mini CTK cache"]
+        end
+    end
+
+    subgraph TEST["TEST STAGE"]
+        direction TB
+        subgraph TEST_PLATFORMS["Parallel Platform Tests"]
+            direction LR
+            TS1["linux-64<br/>(Self-hosted)"] ~~~ TS2["linux-aarch64<br/>(Self-hosted)"] ~~~ TS3["win-64<br/>(GitHub-hosted)"]
+        end
+        TEST_DETAILS["Download wheels from artifacts<br/>Test against multiple CUDA runtime versions<br/>Run Python unit tests, Cython tests, and examples"]
+        ARTIFACT_FLOWS["Artifact Flows:<br/>cuda-pathfinder: main to backport<br/>cuda-bindings: backport to main"]
+    end
+
+    subgraph RELEASE["RELEASE PIPELINE"]
+        direction TB
+        subgraph RELEASE_STAGES["Sequential Release Steps"]
+            direction LR
+            R1["Validation<br/>Artifact integrity<br/>Git tag verification"] --> R2["Publishing<br/>PyPI/TestPyPI<br/>Component or all releases"] --> R3["Documentation<br/>GitHub Pages<br/>Release notes"]
+        end
+        RELEASE_DETAILS["Manual workflow dispatch with run ID<br/>Supports individual component or full releases"]
+    end
+
+    TRIGGER --> BUILD
+    BUILD -. "wheel upload" .-> ARTIFACTS
+    ARTIFACTS --> TEST
+    TEST --> RELEASE
+
+    GITHUB_CACHE -. "mini CTK reuse" .-> BUILD
+    GITHUB_CACHE -. "mini CTK reuse" .-> TEST
+    GITHUB_ARTIFACTS -. "wheel fetch" .-> TEST
+    GITHUB_ARTIFACTS -. "wheel fetch" .-> RELEASE
+
+    classDef triggerStyle fill:#e8f4fd,stroke:#2196F3,stroke-width:2px,color:#1976D2
+    classDef triggerNodeStyle fill:#ffffff,stroke:#2196F3,stroke-width:2px,color:#333333
+    classDef buildStyle fill:#f3e5f5,stroke:#9C27B0,stroke-width:2px,color:#7B1FA2
+    classDef buildNodeStyle fill:#ffffff,stroke:#9C27B0,stroke-width:2px,color:#333333
+    classDef artifactStyle fill:#fff3e0,stroke:#FF9800,stroke-width:2px,color:#F57C00
+    classDef artifactNodeStyle fill:#ffffff,stroke:#FF9800,stroke-width:2px,color:#333333
+    classDef testStyle fill:#e8f5e8,stroke:#4CAF50,stroke-width:2px,color:#388E3C
+    classDef testNodeStyle fill:#ffffff,stroke:#4CAF50,stroke-width:2px,color:#333333
+    classDef releaseStyle fill:#ffebee,stroke:#f44336,stroke-width:2px,color:#D32F2F
+    classDef releaseNodeStyle fill:#ffffff,stroke:#f44336,stroke-width:2px,color:#333333
+
+    class TRIGGER triggerStyle
+    class T1,T2,T3 triggerNodeStyle
+    class BUILD,BUILD_PLATFORMS buildStyle
+    class B1,B2,B3,BUILD_DETAILS buildNodeStyle
+    class ARTIFACTS,GITHUB_ARTIFACTS,GITHUB_CACHE artifactStyle
+    class GA1,GC1 artifactNodeStyle
+    class TEST,TEST_PLATFORMS testStyle
+    class TS1,TS2,TS3,TEST_DETAILS,ARTIFACT_FLOWS testNodeStyle
+    class RELEASE,RELEASE_STAGES releaseStyle
+    class R1,R2,R3,RELEASE_DETAILS releaseNodeStyle

@@ -65,7 +65,7 @@ MemAllocationHandle create_mem_allocation_handle(size_t size, const CUmemAllocat
     std::vector<CUmemAccessDesc> access(descs, descs + count);
     GILReleaseGuard gil;
     CUmemGenericAllocationHandle handle = 0;
-    if (CUDA_SUCCESS != (err = p_cuMemCreate(&handle, size, &prop, 0))) {
+    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemCreate, &handle, size, &prop, 0))) {
         return {};
     }
     auto box = std::shared_ptr<const MemAllocationBox>(
@@ -90,7 +90,7 @@ size_t mem_allocation_size(const MemAllocationHandle& h) noexcept {
 VaReservationHandle create_va_reservation_handle(size_t size, size_t alignment, CUdeviceptr hint) {
     GILReleaseGuard gil;
     CUdeviceptr ptr = 0;
-    if (CUDA_SUCCESS != (err = p_cuMemAddressReserve(&ptr, size, alignment, hint, 0))) {
+    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemAddressReserve, &ptr, size, alignment, hint, 0))) {
         return {};
     }
     auto box = std::shared_ptr<const VaReservationBox>(
@@ -127,13 +127,13 @@ VaMappingHandle create_va_mapping_handle(CUdeviceptr ptr, const MemAllocationHan
     }
 
     GILReleaseGuard gil;
-    if (CUDA_SUCCESS != (err = p_cuMemMap(ptr, alloc->size, 0, alloc->resource.raw, 0))) {
+    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemMap, ptr, alloc->size, 0, alloc->resource.raw, 0))) {
         return {};
     }
     // cuMemSetAccess rejects an empty descriptor list; a mapping with no
     // descriptors is mapped but not accessible, which is what the caller asked for.
     if (!alloc->access.empty()) {
-        const CUresult status = p_cuMemSetAccess(ptr, alloc->size, alloc->access.data(), alloc->access.size());
+        const CUresult status = DRIVER_CALL(cuMemSetAccess, ptr, alloc->size, alloc->access.data(), alloc->access.size());
         if (status != CUDA_SUCCESS) {
             pw_cuMemUnmap(ptr, alloc->size);
             err = status;
@@ -170,10 +170,10 @@ MemAllocationHandle va_mapping_allocation(const VaMappingHandle& h) noexcept {
 // such a capture; cuStreamGetCaptureInfo does not.
 static bool sync_would_disturb_capture(CUstream stream) noexcept {
     CUstreamCaptureStatus status = CU_STREAM_CAPTURE_STATUS_NONE;
-#if CUDA_VERSION >= 13000
-    const CUresult result = p_cuStreamGetCaptureInfo(stream, &status, nullptr, nullptr, nullptr, nullptr, nullptr);
+#if CUDA_CORE_BUILD_MAJOR >= 13
+    const CUresult result = DRIVER_CALL(cuStreamGetCaptureInfo, stream, &status, nullptr, nullptr, nullptr, nullptr, nullptr);
 #else
-    const CUresult result = p_cuStreamGetCaptureInfo(stream, &status, nullptr, nullptr, nullptr, nullptr);
+    const CUresult result = DRIVER_CALL(cuStreamGetCaptureInfo, stream, &status, nullptr, nullptr, nullptr, nullptr);
 #endif
     if (result == CUDA_ERROR_STREAM_CAPTURE_IMPLICIT) {
         return true;
@@ -205,10 +205,10 @@ static void sync_recorded_stream(const DeallocationStream& ds, bool& capture_ski
         capture_skipped = true;
     } else {
         CUstreamCaptureMode mode = CU_STREAM_CAPTURE_MODE_RELAXED;
-        const CUresult swapped = p_cuThreadExchangeStreamCaptureMode(&mode);  // `mode` now holds the previous mode
-        status = p_cuStreamSynchronize(s);
+        const CUresult swapped = DRIVER_CALL(cuThreadExchangeStreamCaptureMode, &mode);  // `mode` now holds the previous mode
+        status = DRIVER_CALL(cuStreamSynchronize, s);
         if (swapped == CUDA_SUCCESS) {
-            p_cuThreadExchangeStreamCaptureMode(&mode);  // restore the previous mode
+            DRIVER_CALL(cuThreadExchangeStreamCaptureMode, &mode);  // restore the previous mode
         }
     }
     const CUresult restore = exit_context(previous, changed, CUDA_SUCCESS);

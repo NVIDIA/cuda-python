@@ -35,13 +35,6 @@ def test_kernel_mode_driver_version():
         assert 0 <= ver_patch[0] <= 99
 
 
-def test_kernel_mode_driver_version_requires_nvml():
-    if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-        pytest.skip("NVML is available, cannot test the error path")
-    with pytest.raises(RuntimeError, match="requires NVML support"):
-        system.get_kernel_mode_driver_version()
-
-
 @skip_if_nvml_unsupported
 def test_nvml_version():
     nvml_version = system.get_nvml_version()
