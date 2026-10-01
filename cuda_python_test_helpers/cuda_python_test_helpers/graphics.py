@@ -106,6 +106,31 @@ def open_gl_window():
     return None
 
 
+def gl_context_not_on_nvidia_gpu_reason() -> str | None:
+    """Return a skip reason if the current GL context is not on an NVIDIA GPU, else None.
+
+    CUDA-GL interop requires the GL context to be rendered by an NVIDIA GPU.
+    When the context is created on a GPU from another vendor (e.g. on
+    multi-vendor GPU systems), `cuGraphicsGLRegister*` fails with
+    `CUDA_ERROR_UNKNOWN`, which is indistinguishable from a real failure at
+    the call site. Caller must have a current GL context.
+    """
+    from pyglet.gl import gl
+
+    def _get_string(name):
+        value = gl.glGetString(name)
+        return ctypes.cast(value, ctypes.c_char_p).value.decode(errors="replace") if value else ""
+
+    vendor = _get_string(gl.GL_VENDOR)
+    if "NVIDIA" in vendor:
+        return None
+    renderer = _get_string(gl.GL_RENDERER)
+    return (
+        f"GL context is not on an NVIDIA GPU (GL_VENDOR={vendor!r}, GL_RENDERER={renderer!r}); "
+        "CUDA-GL interop requires one."
+    )
+
+
 _GL_CONTEXT_UNAVAILABLE_EXC_NAMES = frozenset(
     {
         "NoSuchDisplayException",
