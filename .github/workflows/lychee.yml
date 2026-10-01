@@ -50,6 +50,8 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
+          # Keep SCM history/tags without downloading historical source blobs.
+          filter: blob:none
           persist-credentials: false
 
       - name: Set up Python
