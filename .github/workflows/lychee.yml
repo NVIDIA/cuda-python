@@ -9,6 +9,10 @@ on:
     types: [opened, reopened, synchronize]
   workflow_call:
     inputs:
+      concurrency-suffix:
+        description: "Keep a caller's test mode separate from its full run"
+        type: string
+        default: full
       refresh-cache:
         description: "Check links afresh and publish a new cache baseline"
         type: boolean
@@ -24,7 +28,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ github.event_name }}-${{ inputs.refresh-cache || false }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ github.event_name }}-${{ inputs.refresh-cache || false }}-${{ inputs.concurrency-suffix || 'full' }}
   cancel-in-progress: true
 
 defaults:

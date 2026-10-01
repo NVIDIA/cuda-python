@@ -21,6 +21,8 @@ gh workflow run lychee.yml --repo NVIDIA/cuda-python --ref REF \
   -f refresh-cache=true
 gh workflow run lychee.yml --repo NVIDIA/cuda-python --ref REF \
   -f refresh-cache=false
+gh workflow run ci-nightly.yml --repo NVIDIA/cuda-python --ref REF \
+  -f documentation-links-only=true
 gh run list --repo NVIDIA/cuda-python --branch REF
 ```
 
@@ -32,6 +34,11 @@ write branch-scoped caches. After merge, nightly refreshes run on `main` and
 publish the baseline that all PRs can read, including fork PRs. Separate
 authored/rendered namespaces include the checker version and checking policy;
 documentation edits do not invalidate previously successful external checks.
+
+The nightly documentation-only mode exercises the reusable-workflow call and
+status gate, plus standalone CI-tool tests. It skips wheel lookup and requires
+all wheel/GPU jobs to remain skipped. The scheduled/default nightly mode still
+runs the complete existing suite.
 
 For the same source-based docs build locally:
 
