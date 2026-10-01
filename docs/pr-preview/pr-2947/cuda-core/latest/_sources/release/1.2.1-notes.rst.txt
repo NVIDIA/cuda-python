@@ -10,13 +10,8 @@ Fixes and enhancements
 ----------------------
 
 - :attr:`system.Device.uuid_without_prefix` preserves UUIDs that NVML already
-  reports without a prefix, including on Orin. This also allows
+  reports without a prefix, such as on Orin. This also allows
   :meth:`system.Device.to_cuda_device` to match those devices correctly.
-  (`#2947 <https://github.com/NVIDIA/cuda-python/pull/2947>`__)
-
-- :meth:`system.Device.get_nvlink_count` and :meth:`system.Device.get_nvlinks`
-  now raise :class:`system.NotSupportedError` when Orin does not support
-  NVLink queries, instead of reading an unpopulated NVML field result.
   (`#2947 <https://github.com/NVIDIA/cuda-python/pull/2947>`__)
 
 - :meth:`Buffer.from_handle` no longer requires a current CUDA context when
