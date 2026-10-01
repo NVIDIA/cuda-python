@@ -134,16 +134,26 @@ def _with_compiler(command, compiler):
     Conda ``LDCXXSHARED`` looks like ``g++ -pthread -B .../python_compiler_compat
     -shared ...``. Only the executable changes so those flags stay on the
     link line. The command is tokenized with shlex so quoted arguments
-    survive. CC/CXX are not rewritten this way: they may already be a
-    launcher plus compiler (``sccache cc``).
+    survive, and a leading ``env VAR=value`` prefix is preserved. CC/CXX are
+    not rewritten this way: they may already be a launcher plus compiler
+    (``sccache cc``).
     """
     if not command or not command.strip():
         return compiler
     parts = shlex.split(command)
-    i = 0
+    # Keep an ``env VAR=value ...`` prefix: setuptools' C++ link step splits it
+    # off before it substitutes the compiler, so it still reaches the link line.
+    prefix_end = 0
+    if parts and os.path.basename(parts[0]) == "env":
+        prefix_end = 1
+        while prefix_end < len(parts) and "=" in parts[prefix_end] and not parts[prefix_end].startswith("-"):
+            prefix_end += 1
+    # Everything else before the first flag is the old compiler (or a launcher
+    # for it; setuptools takes the launcher from CXX instead).
+    i = prefix_end
     while i < len(parts) and not parts[i].startswith("-"):
         i += 1
-    return shlex.join([compiler, *parts[i:]])
+    return shlex.join([*parts[:prefix_end], compiler, *parts[i:]])
 
 
 def _with_sccache(current, compiler):
