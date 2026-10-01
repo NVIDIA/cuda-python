@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.HwbcEntry
+============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: HwbcEntry
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HwbcEntry.__init__
+      ~HwbcEntry.from_buffer
+      ~HwbcEntry.from_data
+      ~HwbcEntry.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~HwbcEntry.firmware_version
+      ~HwbcEntry.hwbc_id
+      ~HwbcEntry.ptr
+   
+   

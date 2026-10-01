@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_mig\_device\_handle\_by\_index
+==============================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_mig_device_handle_by_index
