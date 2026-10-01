@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import ctypes
 import sys
 import time
 import types
@@ -360,7 +361,11 @@ def test_oom_diagnostics_probe_basics_is_live_and_cheap(init_cuda):
 # ---------------------------------------------------------------------------
 
 import pytest
-from cuda_python_test_helpers.graphics import is_gl_context_unavailable, open_gl_window
+from cuda_python_test_helpers.graphics import (
+    gl_context_not_on_nvidia_gpu_reason,
+    is_gl_context_unavailable,
+    open_gl_window,
+)
 
 
 @pytest.mark.thread_unsafe(reason="patches the process-wide pyglet module")
@@ -437,3 +442,28 @@ def test_is_gl_context_unavailable_accepts_genuine(exc):
 )
 def test_is_gl_context_unavailable_rejects_unrelated(exc):
     assert is_gl_context_unavailable(exc) is False
+
+
+def _patch_gl_vendor(monkeypatch, vendor):
+    # Only GL_VENDOR is answered; any other query (e.g. GL_RENDERER) returns NULL.
+    gl = types.SimpleNamespace(
+        GL_VENDOR=1,
+        GL_RENDERER=2,
+        glGetString=lambda name: ctypes.c_char_p(vendor if name == 1 else None),
+    )
+    monkeypatch.setitem(sys.modules, "pyglet.gl", types.SimpleNamespace(gl=gl))
+
+
+@pytest.mark.thread_unsafe(reason="patches the process-wide pyglet.gl module")
+def test_gl_context_not_on_nvidia_gpu_reason_accepts_nvidia(monkeypatch):
+    _patch_gl_vendor(monkeypatch, b"NVIDIA Corporation")
+    assert gl_context_not_on_nvidia_gpu_reason() is None
+
+
+@pytest.mark.thread_unsafe(reason="patches the process-wide pyglet.gl module")
+@pytest.mark.parametrize("vendor", [b"AMD", b"Mesa", None])
+def test_gl_context_not_on_nvidia_gpu_reason_rejects_other_vendors(monkeypatch, vendor):
+    _patch_gl_vendor(monkeypatch, vendor)
+    reason = gl_context_not_on_nvidia_gpu_reason()
+    assert reason is not None
+    assert "not on an NVIDIA GPU" in reason
