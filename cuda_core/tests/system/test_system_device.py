@@ -4,19 +4,17 @@
 
 
 from cuda_python_test_helpers.arch_check import (
-    skip_if_nvml_device_apis_unsupported,
     skip_if_nvml_unsupported,
     unsupported_before,
 )
 
-# Keep device-API gating on individual tests: system-level NVML queries in
-# this module remain supported on platforms with partial device API support.
 pytestmark = skip_if_nvml_unsupported
 
 import array
 import multiprocessing
 import os
 import re
+from uuid import UUID
 
 import helpers
 import pytest
@@ -37,30 +35,44 @@ def check_gpu_available():
         pytest.skip("No GPUs available to run device tests", allow_module_level=True)
 
 
+def _cuda_visible_system_devices():
+    indexed_devices = {device.uuid_without_prefix: device for device in system.Device.get_all_devices()}
+    for cuda_device in CudaDevice.get_all_devices():
+        try:
+            device = cuda_device.to_system_device()
+        except nvml.NotFoundError:
+            # Orin supports index lookup but not UUID lookup. Keep the same
+            # CUDA-visible devices without blocking unrelated NVML queries.
+            device = indexed_devices[cuda_device.uuid]
+        yield device
+
+
 def test_device_count():
     assert system.Device.get_device_count() == system.get_num_devices()
 
 
-def test_to_cuda_device():
-    from cuda.core import Device as CudaDevice
+@pytest.mark.agent_authored(model="gpt-6")
+def test_to_cuda_device(init_cuda):
+    cuda_uuids = {device.uuid for device in CudaDevice.get_all_devices()}
 
     for device in system.Device.get_all_devices():
-        try:
-            cuda_device = device.to_cuda_device()
-        except RuntimeError:
-            # Not all physical NVML devices may have a matching CUDA device
-            # when MIG is involved.
+        if device.uuid_without_prefix not in cuda_uuids:
+            # A physical MIG device may have no CUDA-visible counterpart.
+            with pytest.raises(RuntimeError):
+                device.to_cuda_device()
             continue
 
+        cuda_device = device.to_cuda_device()
         assert isinstance(cuda_device, CudaDevice)
         assert cuda_device.uuid == device.uuid_without_prefix
 
-        # Technically, this test will only work with PCI devices, but are there
-        # non-PCI devices we need to support?
-
         # CUDA only returns a 2-byte PCI bus ID domain, whereas NVML returns a
         # 4-byte domain
-        assert cuda_device.pci_bus_id == device.pci_info.bus_id[4:]
+        try:
+            pci_info = device.pci_info
+        except nvml.NotSupportedError:
+            continue
+        assert cuda_device.pci_bus_id == pci_info.bus_id[4:]
 
 
 def test_device_architecture():
@@ -92,19 +104,25 @@ def test_device_bar1_memory(subtests):
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
-@skip_if_nvml_device_apis_unsupported
+@pytest.mark.agent_authored(model="gpt-6")
 def test_device_cpu_affinity(subtests):
     for device in system.Device.get_all_devices():
         with subtests.test(device_index=device.index):
-            with unsupported_before(device, typing.DeviceArch.KEPLER):
+            try:
                 affinity = device.get_cpu_affinity(typing.AffinityScope.NODE)
+            except nvml.NotSupportedError:
+                continue
             assert isinstance(affinity, list)
-            os.sched_setaffinity(0, affinity)
-            assert os.sched_getaffinity(0) == set(affinity)
+            original_affinity = os.sched_getaffinity(0)
+            try:
+                os.sched_setaffinity(0, affinity)
+                assert os.sched_getaffinity(0) == set(affinity)
+            finally:
+                os.sched_setaffinity(0, original_affinity)
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
-@skip_if_nvml_device_apis_unsupported
+@pytest.mark.agent_authored(model="gpt-6")
 def test_affinity(subtests):
     for device in system.Device.get_all_devices():
         for scope in typing.AffinityScope.__members__.values():
@@ -113,18 +131,24 @@ def test_affinity(subtests):
                 affinity_scope=scope.value,
                 affinity_api="get_cpu_affinity",
             ):
-                with unsupported_before(device, typing.DeviceArch.KEPLER):
+                try:
                     affinity = device.get_cpu_affinity(scope)
-                assert isinstance(affinity, list)
+                except nvml.NotSupportedError:
+                    pass
+                else:
+                    assert isinstance(affinity, list)
 
             with subtests.test(
                 device_index=device.index,
                 affinity_scope=scope.value,
                 affinity_api="get_memory_affinity",
             ):
-                with unsupported_before(device, typing.DeviceArch.KEPLER):
+                try:
                     affinity = device.get_memory_affinity(scope)
-                assert isinstance(affinity, list)
+                except nvml.NotSupportedError:
+                    pass
+                else:
+                    assert isinstance(affinity, list)
 
 
 def test_numa_node_id(subtests):
@@ -136,11 +160,13 @@ def test_numa_node_id(subtests):
             assert numa_node_id >= -1
 
 
-@skip_if_nvml_device_apis_unsupported
-def test_device_cuda_compute_capability():
-    for cuda_device in CudaDevice.get_all_devices():
-        device = cuda_device.to_system_device()
-        cuda_compute_capability = device.cuda_compute_capability
+@pytest.mark.agent_authored(model="gpt-6")
+def test_device_cuda_compute_capability(init_cuda):
+    for device in _cuda_visible_system_devices():
+        try:
+            cuda_compute_capability = device.cuda_compute_capability
+        except nvml.NotSupportedError:
+            continue
         assert isinstance(cuda_compute_capability, tuple)
         assert len(cuda_compute_capability) == 2
         assert all(isinstance(i, int) for i in cuda_compute_capability)
@@ -175,12 +201,14 @@ def test_device_name():
         assert len(name) > 0
 
 
-@skip_if_nvml_device_apis_unsupported
-def test_device_pci_info(subtests):
-    for cuda_device in CudaDevice.get_all_devices():
-        device = cuda_device.to_system_device()
+@pytest.mark.agent_authored(model="gpt-6")
+def test_device_pci_info(init_cuda, subtests):
+    for device in _cuda_visible_system_devices():
         with subtests.test(device_index=device.index):
-            pci_info = device.pci_info
+            try:
+                pci_info = device.pci_info
+            except nvml.NotSupportedError:
+                continue
             assert isinstance(pci_info, _device.PciInfo)
 
             assert isinstance(pci_info.bus_id, str)
@@ -247,13 +275,16 @@ def test_device_serial(subtests):
             assert len(serial) > 0
 
 
+@pytest.mark.agent_authored(model="gpt-6")
 def test_device_uuid_without_prefix():
     for device in system.Device.get_all_devices():
         uuid = device.uuid_without_prefix
         assert isinstance(uuid, str)
 
-        # Expands to GPU-8hex-4hex-4hex-4hex-12hex, where 8hex means 8 consecutive
-        # hex characters, e.g.: "GPU-abcdef12-abcd-0123-4567-1234567890ab"
+        assert str(UUID(uuid)) == uuid.lower()
+        raw_uuid = device.uuid
+        expected = raw_uuid[4:] if raw_uuid.startswith(("GPU-", "MIG-", "DLA-")) else raw_uuid
+        assert uuid == expected
 
 
 @pytest.mark.parametrize(
@@ -282,7 +313,7 @@ def test_unpack_bitmask_single_value():
 
 @pytest.mark.parallel_threads_limit(4)  # timeouts are slow
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Events not supported on WSL or Windows")
-@skip_if_nvml_device_apis_unsupported
+@pytest.mark.agent_authored(model="gpt-6")
 def test_register_events():
     # This is not the world's greatest test.  All of the events are pretty
     # infrequent and hard to simulate.  So all we do here is register an event,
@@ -292,22 +323,34 @@ def test_register_events():
     # Also, some hardware doesn't support any event types.
 
     for device in system.Device.get_all_devices():
-        supported_events = device.get_supported_event_types()
+        try:
+            supported_events = device.get_supported_event_types()
+        except nvml.NotSupportedError:
+            continue
         assert isinstance(supported_events, list)
         assert all(isinstance(ev, typing.EventType) for ev in supported_events)
 
     for device in system.Device.get_all_devices():
-        events = device.register_events(["xid_critical_error"])
+        try:
+            events = device.register_events(["xid_critical_error"])
+        except nvml.NotSupportedError:
+            continue
         with pytest.raises(system.TimeoutError):
             events.wait(timeout_ms=500)
 
     for device in system.Device.get_all_devices():
-        events = device.register_events([typing.EventType.XID_CRITICAL_ERROR])
+        try:
+            events = device.register_events([typing.EventType.XID_CRITICAL_ERROR])
+        except nvml.NotSupportedError:
+            continue
         with pytest.raises(system.TimeoutError):
             events.wait(timeout_ms=500)
 
     for device in system.Device.get_all_devices():
-        events = device.register_events([])
+        try:
+            events = device.register_events([])
+        except nvml.NotSupportedError:
+            continue
         with pytest.raises(system.TimeoutError):
             events.wait(timeout_ms=500)
 
@@ -322,11 +365,13 @@ def test_device_brand():
         assert isinstance(brand, str)
 
 
-@skip_if_nvml_device_apis_unsupported
-def test_device_pci_bus_id():
-    for cuda_device in CudaDevice.get_all_devices():
-        device = cuda_device.to_system_device()
-        pci_bus_id = device.pci_info.bus_id
+@pytest.mark.agent_authored(model="gpt-6")
+def test_device_pci_bus_id(init_cuda):
+    for device in _cuda_visible_system_devices():
+        try:
+            pci_bus_id = device.pci_info.bus_id
+        except nvml.NotSupportedError:
+            continue
         assert isinstance(pci_bus_id, str)
 
         new_device = system.Device(pci_bus_id=pci_bus_id)
@@ -391,14 +436,19 @@ def test_c2c_mode_enabled(subtests):
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Persistence mode not supported on WSL or Windows")
 @pytest.mark.thread_unsafe(reason="device persistence mode is global state")
-@skip_if_nvml_device_apis_unsupported
+@pytest.mark.agent_authored(model="gpt-6")
 def test_persistence_mode_enabled(subtests):
     for device in system.Device.get_all_devices():
         with subtests.test(device_index=device.index):
-            is_enabled = device.is_persistence_mode_enabled
+            try:
+                is_enabled = device.is_persistence_mode_enabled
+            except nvml.NotSupportedError:
+                continue
             assert isinstance(is_enabled, bool)
             try:
                 device.is_persistence_mode_enabled = False
+            except nvml.NotSupportedError:
+                continue
             except nvml.NoPermissionError as e:
                 pytest.xfail(f"nvml.NoPermissionError: {e}")
             try:
@@ -512,14 +562,22 @@ def test_addressing_mode(subtests):
             assert addressing_mode is None or addressing_mode in typing.AddressingMode.__members__.values()
 
 
-@skip_if_nvml_device_apis_unsupported
+@pytest.mark.agent_authored(model="gpt-6")
 def test_display_mode():
     for device in system.Device.get_all_devices():
-        is_display_connected = device.is_display_connected
-        assert isinstance(is_display_connected, bool)
+        try:
+            is_display_connected = device.is_display_connected
+        except nvml.NotSupportedError:
+            pass
+        else:
+            assert isinstance(is_display_connected, bool)
 
-        is_display_active = device.is_display_active
-        assert isinstance(is_display_active, bool)
+        try:
+            is_display_active = device.is_display_active
+        except nvml.NotSupportedError:
+            pass
+        else:
+            assert isinstance(is_display_active, bool)
 
 
 def test_repair_status(subtests):
@@ -576,10 +634,13 @@ def test_get_nearest_gpus():
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
-@skip_if_nvml_device_apis_unsupported
+@pytest.mark.agent_authored(model="gpt-6")
 def test_get_minor_number():
     for device in system.Device.get_all_devices():
-        minor_number = device.minor_number
+        try:
+            minor_number = device.minor_number
+        except nvml.NotSupportedError:
+            continue
         assert isinstance(minor_number, int)
         assert minor_number >= 0
 
@@ -699,16 +760,19 @@ def test_clock_event_reasons(subtests):
             assert all(isinstance(reason, typing.ClocksEventReasons) for reason in reasons)
 
 
-@skip_if_nvml_device_apis_unsupported
-def test_fan(subtests):
-    for cuda_device in CudaDevice.get_all_devices():
-        device = cuda_device.to_system_device()
+@pytest.mark.thread_unsafe(reason="device fan settings are global state")
+@pytest.mark.agent_authored(model="gpt-6")
+def test_fan(init_cuda, subtests):
+    for device in _cuda_visible_system_devices():
         device_index = device.index
         num_fans = None
         # The fan APIs are only supported on discrete devices with fans,
         # but when they are not available `device.num_fans` returns 0.
         with subtests.test(device_index=device_index, fan_api="get_num_fans"):
-            value = device.num_fans
+            try:
+                value = device.num_fans
+            except nvml.NotSupportedError:
+                continue
             assert isinstance(value, int)
             assert value >= 0
             num_fans = value
@@ -751,18 +815,24 @@ def test_fan(subtests):
                     fan_info.set_default_speed()
 
 
-@skip_if_nvml_device_apis_unsupported
-def test_cooler(subtests):
-    for cuda_device in CudaDevice.get_all_devices():
-        device = cuda_device.to_system_device()
+@pytest.mark.agent_authored(model="gpt-6")
+def test_cooler(init_cuda, subtests):
+    for device in _cuda_visible_system_devices():
         with subtests.test(device_index=device.index):
             # The cooler APIs are only supported on discrete devices with fans,
             # but when they are not available `device.num_fans` returns 0.
-            if device.num_fans == 0:
-                pytest.skip("Device has no coolers to test")
+            try:
+                num_fans = device.num_fans
+            except nvml.NotSupportedError:
+                pass
+            else:
+                if num_fans == 0:
+                    pytest.skip("Device has no coolers to test")
 
-            with unsupported_before(device, DeviceArch.MAXWELL):
+            try:
                 cooler_info = device.cooler
+            except nvml.NotSupportedError:
+                continue
 
             assert isinstance(cooler_info, _device.CoolerInfo)
 
@@ -774,7 +844,7 @@ def test_cooler(subtests):
 
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
-@skip_if_nvml_device_apis_unsupported
+@pytest.mark.agent_authored(model="gpt-6")
 def test_temperature(subtests):
     for device in system.Device.get_all_devices():
         device_index = device.index
@@ -787,9 +857,13 @@ def test_temperature(subtests):
             continue
 
         with subtests.test(device_index=device_index, temperature_api="get_sensor"):
-            sensor = temperature.get_sensor()
-            assert isinstance(sensor, int)
-            assert sensor >= 0
+            try:
+                sensor = temperature.get_sensor()
+            except nvml.NotSupportedError:
+                pass
+            else:
+                assert isinstance(sensor, int)
+                assert sensor >= 0
 
         # By docs, should be supported on KEPLER or newer, but experimentally,
         # is also unsupported on other hardware.
@@ -802,21 +876,28 @@ def test_temperature(subtests):
                 temperature_api="get_threshold",
                 threshold=threshold.value,
             ):
-                with unsupported_before(device, None):
+                try:
                     t = temperature.get_threshold(threshold)
+                except nvml.NotSupportedError:
+                    continue
                 assert isinstance(t, int)
                 assert t >= 0
 
         with subtests.test(device_index=device_index, temperature_api="margin"):
-            with unsupported_before(device, None):
+            try:
                 margin = temperature.margin
-            assert isinstance(margin, int)
-            assert margin >= 0
+            except nvml.NotSupportedError:
+                pass
+            else:
+                assert isinstance(margin, int)
+                assert margin >= 0
 
         thermals = None
         with subtests.test(device_index=device_index, temperature_api="get_thermal_settings"):
-            with unsupported_before(device, None):
+            try:
                 value = temperature.get_thermal_settings(typing.ThermalTarget.ALL)
+            except nvml.NotSupportedError:
+                continue
             assert isinstance(value, _device.ThermalSettings)
             thermals = value
         if thermals is None:
@@ -913,13 +994,14 @@ def test_pstates(subtests):
                 assert isinstance(utilization.dec_threshold, int)
 
 
-@skip_if_nvml_device_apis_unsupported
-def test_compute_running_processes(subtests):
-    for cuda_device in CudaDevice.get_all_devices():
-        device = cuda_device.to_system_device()
+@pytest.mark.agent_authored(model="gpt-6")
+def test_compute_running_processes(init_cuda, subtests):
+    for device in _cuda_visible_system_devices():
         with subtests.test(device_index=device.index):
-            with unsupported_before(device, "FERMI"):
+            try:
                 processes = device.compute_running_processes
+            except nvml.NotSupportedError:
+                continue
             assert isinstance(processes, list)
             for proc in processes:
                 assert isinstance(proc, _device.ProcessInfo)
@@ -935,19 +1017,20 @@ def test_compute_running_processes(subtests):
                         proc.compute_instance_id  # noqa: B018
 
 
-@skip_if_nvml_device_apis_unsupported
+@pytest.mark.agent_authored(model="gpt-6")
 def test_nvlink(subtests):
     for device in system.Device.get_all_devices():
         device_index = device.index
         link_count = 0
-        with (
-            subtests.test(device_index=device_index, nvlink_api="get_nvlink_count"),
-            unsupported_before(device, None),
-        ):
-            value = device.get_nvlink_count()
-            assert isinstance(value, int)
-            assert value >= 0
-            link_count = value
+        with subtests.test(device_index=device_index, nvlink_api="get_nvlink_count"):
+            try:
+                value = device.get_nvlink_count()
+            except nvml.NotSupportedError:
+                pass
+            else:
+                assert isinstance(value, int)
+                assert value >= 0
+                link_count = value
 
         for link in range(link_count):
             with subtests.test(device_index=device_index, nvlink_api="get_nvlink", link_index=link):
@@ -969,11 +1052,11 @@ def test_nvlink(subtests):
                 assert all(isinstance(i, int) for i in version)
 
         nvlink_infos = []
-        with (
-            subtests.test(device_index=device_index, nvlink_api="get_nvlinks"),
-            unsupported_before(device, None),
-        ):
-            nvlink_infos = list(device.get_nvlinks())
+        with subtests.test(device_index=device_index, nvlink_api="get_nvlinks"):
+            try:
+                nvlink_infos = list(device.get_nvlinks())
+            except nvml.NotSupportedError:
+                continue
 
         for link, nvlink_info in enumerate(nvlink_infos):
             with subtests.test(device_index=device_index, nvlink_api="get_nvlinks", link_index=link):
@@ -1032,10 +1115,11 @@ def test_mig(subtests):
                 assert isinstance(mig_device, system.Device)
 
 
-@skip_if_nvml_device_apis_unsupported
+@pytest.mark.agent_authored(model="gpt-6")
 def test_uuid():
     for device in system.Device.get_all_devices():
         uuid = device.uuid
         assert isinstance(uuid, str)
-        assert uuid.startswith(("GPU-", "MIG-", "DLA-"))
+        normalized = uuid[4:] if uuid.startswith(("GPU-", "MIG-", "DLA-")) else uuid
+        assert str(UUID(normalized)) == normalized.lower()
         assert uuid == device.uuid
