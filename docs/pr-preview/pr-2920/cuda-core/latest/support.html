@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=a009878f"></script>
+    <script src="_static/documentation_options.js?v=ab37431f"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev165';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev173';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -857,7 +857,7 @@ current release. The build, the import-time check, this page, and CI all read th
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>1.2.1.dev165</p></td>
+<tr class="row-even"><td><p>1.2.1.dev173</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> &gt;= 12.9.8</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> &gt;= 13.4.1</p></td>
 </tr>
@@ -877,8 +877,10 @@ requires a <code class="docutils literal notranslate"><span class="pre">cuda.h</
 as the header that <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> was generated from. Any other configuration fails the
 build with a message that names what was found and what is required. <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> does not
 support a build against a CUDA Toolkit older than the floor’s minor.</p></li>
-<li><p><strong>The CUDA driver</strong> is unaffected by the floor. Feature availability is decided by the driver alone: a
-feature the installed driver lacks raises when it is used.</p></li>
+<li><p><strong>The CUDA driver.</strong> The floor does not change the driver requirement. A <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> build
+works with every driver of its CUDA major. An older driver can lack some of the build’s
+features. In that case <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> never crashes or returns a wrong result; depending on the
+feature, it may raise an error or emulate the feature.</p></li>
 </ul>
 <p>A floor moves with each <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> release, to the newest <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> of each major at
 that time. It also moves in any release whose changes need a newer <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> API. The
