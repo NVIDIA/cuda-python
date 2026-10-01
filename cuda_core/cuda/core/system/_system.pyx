@@ -47,11 +47,17 @@ else:
 if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     try:
         from cuda.bindings import nvml
+        # _nvml_context imports cuda.bindings.nvml itself, so it has to be
+        # inside the same try: importing it after nvml failed would raise the
+        # very ImportError this block exists to absorb.
+        from cuda.core.system._nvml_context import initialize
     except ImportError:
         CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
 
-    from cuda.core.system._nvml_context import initialize
-else:
+# Deliberately a second `if`, not an `else` on the one above: the flag can be
+# cleared by the import that just failed, and the non-NVML fallbacks are
+# exactly what every consumer below reaches for once it is False.
+if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from cuda.core._utils.cuda_utils import driver, handle_return, runtime
 
 
