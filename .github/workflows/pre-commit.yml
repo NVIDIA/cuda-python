@@ -47,6 +47,10 @@ jobs:
       # Minor version used by setup-python and as the cache restore-key prefix.
       PYTHON_VERSION: "3.14"
     steps:
+      - name: Enable Git symlinks (Windows, must precede checkout)
+        if: runner.os == 'Windows'
+        run: git config --global core.symlinks true
+
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
