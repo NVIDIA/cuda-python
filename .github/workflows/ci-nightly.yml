@@ -13,7 +13,7 @@
 name: "CI: Nightly optional-deps"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}-${{ inputs.documentation-links-only || false }}
   cancel-in-progress: true
 
 on:
@@ -24,6 +24,10 @@ on:
     - cron: "17 2 * * *"
   workflow_dispatch:
     inputs:
+      documentation-links-only:
+        description: "Test the nightly link checker without wheel or GPU jobs"
+        type: boolean
+        default: false
       run-id:
         description: >
           Override the CI run ID to download artifacts from.
@@ -39,6 +43,7 @@ jobs:
       contents: read
     uses: ./.github/workflows/lychee.yml
     with:
+      concurrency-suffix: ${{ inputs.documentation-links-only && 'links-only' || 'full' }}
       refresh-cache: true
 
   test-ci-tools-for-release:
@@ -58,7 +63,7 @@ jobs:
           python -m pytest -v --noconftest ci/tools/tests
 
   find-wheels:
-    if: ${{ github.repository_owner == 'nvidia' }}
+    if: ${{ github.repository_owner == 'nvidia' && !inputs.documentation-links-only }}
     runs-on: ubuntu-latest
     outputs:
       RUN_ID: ${{ steps.find.outputs.run_id }}
@@ -338,7 +343,20 @@ jobs:
       - test-standard-linux-aarch64
     steps:
       - name: Exit
+        env:
+          LINKS_ONLY: ${{ inputs.documentation-links-only || false }}
+          NEEDS_JSON: ${{ toJSON(needs) }}
         run: |
+          if [[ "${LINKS_ONLY}" == "true" ]]; then
+            # GPU jobs depend on find-wheels and must stay skipped in this mode.
+            jq -e 'all(to_entries[];
+              if .key == "documentation-links" or .key == "test-ci-tools-for-release"
+              then .value.result == "success"
+              else .value.result == "skipped"
+              end)' <<< "${NEEDS_JSON}"
+            exit 0
+          fi
+
           # If any dependency was cancelled or failed, that's a failure.
           #
           # See ci.yml for the full rationale on why we must use always()
