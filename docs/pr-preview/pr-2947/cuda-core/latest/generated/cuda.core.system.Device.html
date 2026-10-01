@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=555069fd"></script>
+    <script src="../_static/documentation_options.js?v=c6d0678e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev150';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev152';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1011,6 +1011,11 @@ affinity for the device.</p>
 <span class="sig-name descname"><span class="pre">get_nvlink_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system.Device.get_nvlink_count" title="Link to this definition">#</a></dt>
 <dd><p>Get the number of NVLink links on this device.</p>
 <p>For devices with NVLink support.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.system.NotSupportedError.html#cuda.core.system.NotSupportedError" title="cuda.core.system.NotSupportedError"><strong>cuda.core.system.NotSupportedError</strong></a> – If the device does not support NVLink queries.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1461,9 +1466,10 @@ currently supported.</p>
 <dd><p>Retrieves the globally unique immutable UUID associated with this
 device, as a 5 part hexadecimal string, that augments the immutable,
 board serial identifier.</p>
-<p>In the upstream NVML C++ API, the UUID includes a <code class="docutils literal notranslate"><span class="pre">gpu-</span></code> or <code class="docutils literal notranslate"><span class="pre">mig-</span></code>
-prefix.  If you need a <cite>uuid</cite> without that prefix (for example, to
-interact with CUDA), use the <cite>uuid_without_prefix</cite> property.</p>
+<p>Returns the UUID exactly as reported by NVML.  It usually includes a
+<code class="docutils literal notranslate"><span class="pre">GPU-</span></code>, <code class="docutils literal notranslate"><span class="pre">MIG-</span></code>, or <code class="docutils literal notranslate"><span class="pre">DLA-</span></code> prefix, but some platforms report an
+unprefixed UUID.  To interact with CUDA, use the <cite>uuid_without_prefix</cite>
+property.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1472,9 +1478,10 @@ interact with CUDA), use the <cite>uuid_without_prefix</cite> property.</p>
 <dd><p>Retrieves the globally unique immutable UUID associated with this
 device, as a 5 part hexadecimal string, that augments the immutable,
 board serial identifier.</p>
-<p>In the upstream NVML C++ API, the UUID includes a <code class="docutils literal notranslate"><span class="pre">gpu-</span></code> or <code class="docutils literal notranslate"><span class="pre">mig-</span></code>
-prefix.  This property returns it without the prefix, to match the UUIDs
-used in CUDA.  If you need the prefix, use the <cite>uuid</cite> property.</p>
+<p>Removes a <code class="docutils literal notranslate"><span class="pre">GPU-</span></code>, <code class="docutils literal notranslate"><span class="pre">MIG-</span></code>, or <code class="docutils literal notranslate"><span class="pre">DLA-</span></code> prefix when present, to match
+the UUIDs used in CUDA.  An already unprefixed UUID is returned
+unchanged.  For the UUID exactly as reported by NVML, use the <cite>uuid</cite>
+property.</p>
 </dd></dl>
 
 </dd></dl>

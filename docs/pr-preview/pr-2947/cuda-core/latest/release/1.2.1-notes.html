@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=555069fd"></script>
+    <script src="../_static/documentation_options.js?v=c6d0678e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev150';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev152';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -785,6 +785,14 @@
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p><a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.uuid_without_prefix" title="cuda.core.system.Device.uuid_without_prefix"><code class="xref py py-attr docutils literal notranslate"><span class="pre">system.Device.uuid_without_prefix</span></code></a> preserves UUIDs that NVML already
+reports without a prefix, including on Orin. This also allows
+<a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.to_cuda_device" title="cuda.core.system.Device.to_cuda_device"><code class="xref py py-meth docutils literal notranslate"><span class="pre">system.Device.to_cuda_device()</span></code></a> to match those devices correctly.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2947">#2947</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.get_nvlink_count" title="cuda.core.system.Device.get_nvlink_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">system.Device.get_nvlink_count()</span></code></a> and <a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.get_nvlinks" title="cuda.core.system.Device.get_nvlinks"><code class="xref py py-meth docutils literal notranslate"><span class="pre">system.Device.get_nvlinks()</span></code></a>
+now raise <a class="reference internal" href="../generated/cuda.core.system.NotSupportedError.html#cuda.core.system.NotSupportedError" title="cuda.core.system.NotSupportedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">system.NotSupportedError</span></code></a> when Orin does not support
+NVLink queries, instead of reading an unpopulated NVML field result.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2947">#2947</a>)</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.from_handle" title="cuda.core.Buffer.from_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_handle()</span></code></a> no longer requires a current CUDA context when
 the memory resource reports <code class="docutils literal notranslate"><span class="pre">is_device_accessible</span></code> as <code class="docutils literal notranslate"><span class="pre">False</span></code>. Host-only
 memory records no deallocation stream, so creating and closing such buffers
