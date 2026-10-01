@@ -43,6 +43,9 @@ jobs:
     timeout-minutes: 60
     runs-on: windows-2022
     steps:
+      - name: Enable Git symlinks (Windows, must precede checkout)
+        run: git config --global core.symlinks true
+
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
