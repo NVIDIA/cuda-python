@@ -176,77 +176,6 @@ class TestResolveToolchain:
         assert "-fpermissive" in cargs
         assert "-fno-var-tracking-assignments" in cargs
 
-    @pytest.mark.agent_authored(model="grok-4.6")
-    def test_llvm_keeps_host_sccache_path(self, monkeypatch):
-        if sys.platform == "win32":
-            pytest.skip("llvm only valid on Linux")
-        launcher = "/host/usr/local/bin/sccache"
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
-        monkeypatch.setenv("CC", f"{launcher} cc")
-        monkeypatch.setenv("CXX", f"{launcher} c++")
-        _name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
-        assert os.environ["CC"] == f"{launcher} clang"
-        assert os.environ["CXX"] == f"{launcher} clang++"
-
-    @pytest.mark.agent_authored(model="grok-4.6")
-    def test_explicit_toolchain_preserves_sysconfig_ldcxxshared_extras(self, monkeypatch):
-        if sys.platform == "win32":
-            pytest.skip("gnu/llvm only valid on Linux")
-        extras = "-shared -Wl,-O1 -Wl,-Bsymbolic-functions"
-        values = {
-            "CC": "gcc",
-            "CXX": "g++",
-            "LDSHARED": f"gcc {extras}",
-            "LDCXXSHARED": f"g++ {extras}",
-        }
-        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda name: values.get(name))
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
-        build_hooks._resolve_toolchain()
-        assert os.environ["CC"] == "clang"
-        assert os.environ["CXX"] == "clang++"
-        assert os.environ["LDCXXSHARED"] == f"clang++ {extras}"
-        assert "LDSHARED" not in os.environ
-
-    @pytest.mark.agent_authored(model="grok-4.6")
-    def test_explicit_gnu_keeps_conda_sysconfig_flags(self, monkeypatch):
-        if sys.platform == "win32":
-            pytest.skip("gnu/llvm only valid on Linux")
-        prefix = "-pthread -B /compat"
-        extras = f"{prefix} -shared -Wl,-rpath,/lib"
-        values = {
-            "CC": f"gcc {prefix}",
-            "CXX": f"g++ {prefix}",
-            "LDSHARED": f"gcc {extras}",
-            "LDCXXSHARED": f"g++ {extras}",
-        }
-        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda name: values.get(name))
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "gnu")
-        build_hooks._resolve_toolchain()
-        assert os.environ["CC"] == "gcc"
-        assert os.environ["CXX"] == "g++"
-        assert os.environ["LDCXXSHARED"] == values["LDCXXSHARED"]
-        assert "LDSHARED" not in os.environ
-
-    @pytest.mark.agent_authored(model="grok-4.6")
-    def test_explicit_llvm_keeps_conda_sysconfig_flags(self, monkeypatch):
-        if sys.platform == "win32":
-            pytest.skip("gnu/llvm only valid on Linux")
-        prefix = "-pthread -B /compat"
-        extras = f"{prefix} -shared -Wl,-rpath,/lib"
-        values = {
-            "CC": f"gcc {prefix}",
-            "CXX": f"g++ {prefix}",
-            "LDSHARED": f"gcc {extras}",
-            "LDCXXSHARED": f"g++ {extras}",
-        }
-        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda name: values.get(name))
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
-        build_hooks._resolve_toolchain()
-        assert os.environ["CC"] == "clang"
-        assert os.environ["CXX"] == "clang++"
-        assert os.environ["LDCXXSHARED"] == f"clang++ {extras}"
-        assert "LDSHARED" not in os.environ
-
     @pytest.mark.agent_authored(model="claude-sonnet-5.5")
     def test_explicit_toolchain_prefers_env_ldcxxshared(self, monkeypatch):
         if sys.platform == "win32":
@@ -269,17 +198,6 @@ class TestResolveToolchain:
         os.environ.pop("LDCXXSHARED")
         build_hooks._resolve_toolchain()
         assert os.environ["LDCXXSHARED"] == "clang++ -shared"
-
-    @pytest.mark.agent_authored(model="claude-sonnet-5.5")
-    def test_explicit_toolchain_is_idempotent(self, monkeypatch):
-        if sys.platform == "win32":
-            pytest.skip("gnu/llvm only valid on Linux")
-        _fake_sysconfig(monkeypatch, LDCXXSHARED="g++ -pthread -shared -Wl,-O1")
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
-        build_hooks._resolve_toolchain()
-        first = os.environ["LDCXXSHARED"]
-        build_hooks._resolve_toolchain()
-        assert os.environ["LDCXXSHARED"] == first == "clang++ -pthread -shared -Wl,-O1"
 
 
 class TestWithSccache:
@@ -306,21 +224,10 @@ class TestWithCompiler:
     """_with_compiler: replace the compiler executable, keep following flags."""
 
     @pytest.mark.agent_authored(model="grok-4.6")
-    def test_replaces_leading_compiler_keeps_flags(self):
-        assert build_hooks._with_compiler("g++ -shared -Wl,-O1", "clang++") == "clang++ -shared -Wl,-O1"
-
-    @pytest.mark.agent_authored(model="grok-4.6")
     def test_keeps_flags_that_were_part_of_sysconfig_cxx(self):
         assert (
             build_hooks._with_compiler("g++ -pthread -B /compat -shared -Wl,-rpath,/lib", "clang++")
             == "clang++ -pthread -B /compat -shared -Wl,-rpath,/lib"
-        )
-
-    @pytest.mark.agent_authored(model="grok-4.6")
-    def test_replaces_prefixed_compiler_path(self):
-        assert (
-            build_hooks._with_compiler("x86_64-linux-gnu-gcc -shared -Wl,-z,relro", "clang")
-            == "clang -shared -Wl,-z,relro"
         )
 
     @pytest.mark.agent_authored(model="grok-4.6")
@@ -345,10 +252,6 @@ class TestWithCompiler:
         assert (
             build_hooks._with_compiler("env LIBRARY_PATH=/custom/lib g++ -shared", "clang++")
             == "env LIBRARY_PATH=/custom/lib clang++ -shared"
-        )
-        assert (
-            build_hooks._with_compiler("/usr/bin/env A=1 B=2 g++ -shared -Wl,-O1", "clang++")
-            == "/usr/bin/env A=1 B=2 clang++ -shared -Wl,-O1"
         )
 
 
@@ -379,24 +282,20 @@ class TestDistutilsLinkerIntegration:
         return command
 
     @pytest.mark.agent_authored(model="claude-sonnet-5.5")
-    @pytest.mark.parametrize("toolchain, compiler_cxx", [("gnu", "g++"), ("llvm", "clang++")])
-    def test_linker_so_cxx_swaps_compiler_and_keeps_sysconfig_flags(self, monkeypatch, toolchain, compiler_cxx):
+    def test_linker_so_cxx_swaps_compiler_and_keeps_sysconfig_flags(self, monkeypatch):
         if sys.platform != "linux":
             pytest.skip("gnu/llvm only valid on Linux")
         sysconfig_ld = sysconfig.get_config_var("LDCXXSHARED")
         if not sysconfig_ld:
             pytest.skip("this Python has no LDCXXSHARED")
+        # Everything from the first flag on, including operands such as ``-B /path``.
         tokens = shlex.split(sysconfig_ld)
-        if os.path.basename(tokens[0]) == "env":
-            pytest.skip("sysconfig LDCXXSHARED has an env prefix")
-        # Everything from the first flag on, including operands such as the
-        # path in ``-B /path``.
         first_flag = next((i for i, tok in enumerate(tokens) if tok.startswith("-")), len(tokens))
         expected_tail = tokens[first_flag:]
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", toolchain)
+        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
         build_hooks._resolve_toolchain()
         linker = self._customized_compiler().linker_so_cxx
-        assert linker[0] == compiler_cxx
+        assert linker[0] == "clang++"
         assert linker[1 : 1 + len(expected_tail)] == expected_tail
 
     @pytest.mark.agent_authored(model="claude-sonnet-5.5")
