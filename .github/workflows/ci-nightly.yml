@@ -32,6 +32,15 @@ on:
         default: ''
 
 jobs:
+  documentation-links:
+    name: "Nightly: Documentation links"
+    if: ${{ github.repository_owner == 'nvidia' }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/lychee.yml
+    with:
+      refresh-cache: true
+
   test-ci-tools-for-release:
     name: "Nightly: CI tools for release"
     if: ${{ github.repository_owner == 'nvidia' }}
@@ -313,6 +322,7 @@ jobs:
     if: ${{ always() && github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     needs:
+      - documentation-links
       - test-ci-tools-for-release
       - find-wheels
       - test-pytorch-linux
@@ -334,7 +344,8 @@ jobs:
           # See ci.yml for the full rationale on why we must use always()
           # and explicitly check each result rather than relying on the
           # default behaviour.
-          if ${{ needs.test-ci-tools-for-release.result == 'cancelled' ||
+          if ${{ needs.documentation-links.result != 'success' ||
+                 needs.test-ci-tools-for-release.result == 'cancelled' ||
                  needs.test-ci-tools-for-release.result == 'failure' ||
                  needs.find-wheels.result != 'success' }}; then
             exit 1
