@@ -2616,6 +2616,7 @@ it possible to access invalid memory.</p></li>
 </li>
 <li><p>For all <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> APIs, functions that accept a struct wrapper will accept the struct wrapper directly, rather than requiring getting the <code class="docutils literal notranslate"><span class="pre">.ptr</span></code> property.</p></li>
 <li><p>Creating class instances in <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> should now be faster in most cases, because it requires 1 heap allocation rather than 2.</p></li>
+<li><p>Before a source build compiles anything, it now checks that the CUDA Toolkit’s <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> has the major.minor the source tree was generated from. A mismatch stops the build with a message that names the header found and the version needed. Previously a mismatch surfaced as a long list of C++ redefinition errors.</p></li>
 </ul>
 </section>
 <section id="behavior-changes">
