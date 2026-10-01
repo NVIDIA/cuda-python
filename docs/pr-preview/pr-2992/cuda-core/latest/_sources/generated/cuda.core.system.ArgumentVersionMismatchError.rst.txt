@@ -1,0 +1,6 @@
+﻿cuda.core.system.ArgumentVersionMismatchError
+=============================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: ArgumentVersionMismatchError
