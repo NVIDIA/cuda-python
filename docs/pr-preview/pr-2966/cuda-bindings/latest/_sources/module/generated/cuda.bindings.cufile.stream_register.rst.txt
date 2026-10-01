@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.stream\_register
-=====================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: stream_register

@@ -1,6 +1,0 @@
-﻿cuda.pathfinder.locate\_nvidia\_header\_directory
-=================================================
-
-.. currentmodule:: cuda.pathfinder
-
-.. autofunction:: locate_nvidia_header_directory

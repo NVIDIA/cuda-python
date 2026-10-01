@@ -1,6 +1,0 @@
-﻿cuda.core.system.typing.GpuTopologyLevel
-========================================
-
-.. currentmodule:: cuda.core.system.typing
-
-.. autoenum:: GpuTopologyLevel
