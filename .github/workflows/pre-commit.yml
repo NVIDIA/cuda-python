@@ -12,8 +12,6 @@ on:
     # pull-request/N mirrors. Only main needs a push check.
     branches:
       - "main"
-      # Temporary: bootstrap this workflow before it is on the default branch.
-      - "rwgk/maint/pre-commit-actions"
   workflow_dispatch: {}
 
 concurrency:
