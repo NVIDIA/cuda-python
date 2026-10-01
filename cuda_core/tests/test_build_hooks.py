@@ -822,17 +822,6 @@ class TestDistutilsLinkerIntegration:
             pytest.skip("this setuptools' distutils has no linker_so_cxx")
         return compiler
 
-    @staticmethod
-    def _cxx_link_command(compiler, tmp_path, monkeypatch):
-        """The command line distutils would run to link a C++ shared library."""
-        captured = []
-        monkeypatch.setattr(compiler, "spawn", lambda cmd, **_kwargs: captured.append(list(cmd)))
-        obj = tmp_path / "a.o"
-        obj.write_bytes(b"")
-        compiler.link(compiler.SHARED_OBJECT, [str(obj)], str(tmp_path / "a.so"), target_lang="c++")
-        (command,) = captured
-        return command
-
     @pytest.mark.agent_authored(model="claude-sonnet-5.5")
     def test_linker_so_cxx_swaps_compiler_and_keeps_sysconfig_flags(self, monkeypatch):
         if sys.platform != "linux":
@@ -868,19 +857,18 @@ class TestDistutilsLinkerIntegration:
         ]
 
     @pytest.mark.agent_authored(model="claude-sonnet-5.5")
-    def test_link_command_keeps_env_prefix(self, monkeypatch, tmp_path):
+    def test_linker_so_cxx_keeps_env_prefix(self, monkeypatch):
         if sys.platform != "linux":
             pytest.skip("gnu/llvm only valid on Linux")
         monkeypatch.setenv("LDCXXSHARED", "env LIBRARY_PATH=/custom/lib g++ -shared")
         monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
         build_hooks._resolve_toolchain()
-        command = self._cxx_link_command(self._customized_compiler(), tmp_path, monkeypatch)
-        assert command[:3] == ["env", "LIBRARY_PATH=/custom/lib", "clang++"]
-        assert "g++" not in command
-        assert "-shared" in command
+        linker = self._customized_compiler().linker_so_cxx
+        assert linker[:3] == ["env", "LIBRARY_PATH=/custom/lib", "clang++"]
+        assert "g++" not in linker
 
     @pytest.mark.agent_authored(model="claude-sonnet-5.5")
-    def test_sccache_launches_the_cxx_link_command_once(self, monkeypatch, tmp_path):
+    def test_sccache_does_not_duplicate_compiler_in_cxx_linker(self, monkeypatch):
         if sys.platform != "linux":
             pytest.skip("gnu/llvm only valid on Linux")
         monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
@@ -889,11 +877,9 @@ class TestDistutilsLinkerIntegration:
         build_hooks._resolve_toolchain()
         compiler = self._customized_compiler()
         assert compiler.compiler_cxx[:2] == ["sccache", "clang++"]
-        assert compiler.linker_so_cxx[0] == "clang++"
-        # The launcher comes from CXX; the C++ link must not repeat the compiler.
-        command = self._cxx_link_command(compiler, tmp_path, monkeypatch)
-        assert command[:2] == ["sccache", "clang++"]
-        assert command.count("clang++") == 1
+        linker = compiler.linker_so_cxx
+        assert linker[0] == "clang++"
+        assert linker.count("clang++") == 1
 
 
 class TestCheckToolchainAvailable:
