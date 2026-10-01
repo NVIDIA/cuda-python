@@ -62,9 +62,14 @@ platforms as appropriate for each release.
 ## Check (or update if needed) the dependency requirements
 
 Review `cuda_core/pyproject.toml` and verify that all dependency
-requirements are current.
+requirements are current. The `cu12`/`cu13` extras declare the
+`cuda-bindings` floors; see "Bumping the cuda-bindings floor" in
+`cuda_core/AGENTS.md`.
 
-Update the cuda_core dependency in `cuda_python/setup.py`.
+Update the `cuda-core` pin in `cuda_python/setup.py` to the new minor
+series (`cuda-core~=X.Y.0`), and plan a `cuda-python` release right after
+this one. Until that release, `pip install cuda-python` resolves to the
+previous `cuda-core`.
 
 ---
 

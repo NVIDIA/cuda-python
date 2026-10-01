@@ -6,13 +6,79 @@ from cuda.core._version import __version__
 
 
 def _import_versioned_module() -> None:
+    """Check that the installed cuda-bindings is supported, then select the build for it.
+
+    The published wheel carries one build per CUDA major series, as the
+    subpackages ``cuda.core.cu12`` and ``cuda.core.cu13``. A conda or local
+    build carries one build at the top level. Each build records the CUDA
+    header that it compiled against and its cuda-bindings floor in the
+    ``_build_info`` extension module. The installed cuda-bindings
+    must be of the build's major, at least as new as the floor, and generated
+    from a ``cuda.h`` at least as new as the build's. See
+    ``_bindings_floor.check_installed_bindings``. If it is not, import fails
+    here with an actionable message instead of later with a missing C function
+    or a silently disabled feature.
+    """
     import importlib
+    import os
 
-    from cuda import bindings
+    from cuda.core import _bindings_floor
 
-    cuda_major = bindings.__version__.split(".")[0]
-    if cuda_major not in ("12", "13"):
-        raise ImportError("cuda.bindings 12.x or 13.x must be installed")
+    try:
+        from cuda import bindings
+    except ModuleNotFoundError as exc:
+        if exc.name in ("cuda", "cuda.bindings"):
+            raise ImportError("cuda.core requires cuda-bindings. Install cuda-core[cu12] or cuda-core[cu13]") from None
+        raise
+
+    def load_build_info(cuda_major: int):
+        # Prefer this major's build in the merged wheel, then fall back to a plain build.
+        try:
+            return importlib.import_module(f".cu{cuda_major}._build_info", __package__)
+        except ModuleNotFoundError as exc:
+            if exc.name != f"{__package__}.cu{cuda_major}":
+                raise
+        return importlib.import_module("._build_info", __package__)
+
+    def missing_build_message(cuda_major: int) -> str:
+        here = os.path.dirname(__file__)
+        builds = sorted(
+            int(name[2:])
+            for name in os.listdir(here)
+            if name.startswith("cu") and name[2:].isdigit() and os.path.isdir(os.path.join(here, name))
+        )
+        if builds:
+            return (
+                f"This cuda.core installation has builds for CUDA {' and '.join(map(str, builds))}, not for "
+                f"CUDA {cuda_major}. The installed cuda-bindings is {version_str}."
+            )
+        return (
+            "This cuda.core has not been built: cuda/core/_build_info is missing. "
+            "Build it with pip install, or reinstall the package."
+        )
+
+    version_str = bindings.__version__
+    # The major decides which build to consult. _bindings_floor validates everything else.
+    try:
+        cuda_major = int(version_str.split(".")[0])
+    except ValueError:
+        raise ImportError(
+            f"cuda.core requires a cuda-bindings release, but the installed cuda-bindings version is {version_str!r}"
+        ) from None
+    try:
+        info = load_build_info(cuda_major)
+    except ModuleNotFoundError as exc:
+        raise ImportError(missing_build_message(cuda_major)) from exc
+    # By module object: the `cuda` namespace package need not carry a `bindings` attribute.
+    bindings_driver = importlib.import_module("cuda.bindings.driver")
+    _bindings_floor.check_installed_bindings(
+        version_str,
+        int(bindings_driver.CUDA_VERSION),
+        info.CUDA_MAJOR,
+        info.CUDA_VERSION,
+        info.CUDA_BINDINGS_FLOOR,
+        __version__,
+    )
 
     subdir = f"cu{cuda_major}"
     try:

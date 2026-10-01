@@ -14,6 +14,7 @@ from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
 )
+from cuda.core._utils.version cimport cy_driver_version
 
 import cython
 import warnings
@@ -171,7 +172,14 @@ cdef class Stream:
             prio = high
 
         # C++ creates the stream and returns owning handle with context dependency.
-        # For green contexts, the C++ layer auto-dispatches to cuGreenCtxStreamCreate.
+        # For green contexts, the C++ layer auto-dispatches to cuGreenCtxStreamCreate,
+        # a 12.5 driver API. cuGreenCtxCreate itself is 12.4. The driver alone
+        # decides availability. The gate lives here, not in C++.
+        if context.is_green and cy_driver_version() < (12, 5, 0):
+            raise RuntimeError(
+                "Green context stream creation requires CUDA driver 12.5 or newer "
+                f"(current driver: {'.'.join(map(str, cy_driver_version()))})"
+            )
         h_stream = create_stream_handle(h_context, flags, prio)
         if not h_stream:
             res_code = get_last_error()
@@ -181,11 +189,6 @@ cdef class Stream:
                 raise ValueError(
                     "Green context streams must be non-blocking. "
                     "Use StreamOptions(nonblocking=True) or omit the option (True is the default)."
-                )
-            elif res_code == cydriver.CUresult.CUDA_ERROR_NOT_SUPPORTED:
-                raise RuntimeError(
-                    "cuGreenCtxStreamCreate is not available. "
-                    "Green context stream creation requires CUDA 12.5 or newer."
                 )
             else:
                 HANDLE_RETURN(res_code)
