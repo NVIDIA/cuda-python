@@ -89,7 +89,7 @@ def _normalize_copy_options(
 
 
 def copy_batch(
-    stream: Stream,
+    Stream stream: Stream,
     srcs: Sequence[Buffer],
     dsts: Sequence[Buffer],
     *,

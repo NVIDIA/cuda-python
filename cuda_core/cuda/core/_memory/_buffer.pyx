@@ -393,7 +393,8 @@ cdef class Buffer:
 
     @classmethod
     def from_ipc_descriptor(
-        cls, mr: DeviceMemoryResource | PinnedMemoryResource, ipc_descriptor: IPCBufferDescriptor,
+        cls, mr: DeviceMemoryResource | PinnedMemoryResource,
+        IPCBufferDescriptor ipc_descriptor: IPCBufferDescriptor,
         *, stream: Stream
     ) -> Buffer:
         """Import a buffer that was exported from another process.
@@ -485,7 +486,7 @@ cdef class Buffer:
         self.close()
         return False
 
-    def copy_to(self, dst: Buffer | None = None, *, stream: Stream | GraphBuilder,
+    def copy_to(self, Buffer dst: Buffer | None = None, *, stream: Stream | GraphBuilder,
                 options: CopyOptions | None = None) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
 
@@ -535,7 +536,7 @@ cdef class Buffer:
                                  "buffer does not have a memory_resource)")
             dst = self._memory_resource.allocate(src_size, stream=s)
         else:
-            Buffer_check_open(<Buffer>dst)
+            Buffer_check_open(dst)
 
         cdef size_t dst_size = dst._size
         if dst_size != src_size:
@@ -546,7 +547,7 @@ cdef class Buffer:
             as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, s, options, "copy_to")
         return dst
 
-    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder,
+    def copy_from(self, Buffer src: Buffer, *, stream: Stream | GraphBuilder,
                   options: CopyOptions | None = None) -> None:
         """Copy from the src buffer to this buffer asynchronously on the given stream.
 
