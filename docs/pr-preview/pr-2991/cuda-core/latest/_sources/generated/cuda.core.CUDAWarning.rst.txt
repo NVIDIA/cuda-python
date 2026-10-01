@@ -1,0 +1,6 @@
+﻿cuda.core.CUDAWarning
+=====================
+
+.. currentmodule:: cuda.core
+
+.. autoexception:: CUDAWarning

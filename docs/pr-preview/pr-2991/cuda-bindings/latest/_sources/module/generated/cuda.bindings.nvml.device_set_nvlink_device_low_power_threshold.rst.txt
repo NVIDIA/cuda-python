@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_set\_nvlink\_device\_low\_power\_threshold
+=====================================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_set_nvlink_device_low_power_threshold
