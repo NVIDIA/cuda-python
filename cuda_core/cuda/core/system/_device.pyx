@@ -244,9 +244,10 @@ cdef class Device:
         device, as a 5 part hexadecimal string, that augments the immutable,
         board serial identifier.
 
-        In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
-        prefix.  If you need a `uuid` without that prefix (for example, to
-        interact with CUDA), use the `uuid_without_prefix` property.
+        Returns the UUID exactly as reported by NVML.  It usually includes a
+        ``GPU-``, ``MIG-``, or ``DLA-`` prefix, but some platforms report an
+        unprefixed UUID.  To interact with CUDA, use the `uuid_without_prefix`
+        property.
         """
         return nvml.device_get_uuid(self._handle)
 
@@ -257,12 +258,15 @@ cdef class Device:
         device, as a 5 part hexadecimal string, that augments the immutable,
         board serial identifier.
 
-        In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
-        prefix.  This property returns it without the prefix, to match the UUIDs
-        used in CUDA.  If you need the prefix, use the `uuid` property.
+        Removes a ``GPU-``, ``MIG-``, or ``DLA-`` prefix when present, to match
+        the UUIDs used in CUDA.  An already unprefixed UUID is returned
+        unchanged.  For the UUID exactly as reported by NVML, use the `uuid`
+        property.
         """
-        # NVML UUIDs have a `gpu-` or `mig-` prefix.  We remove that here.
-        return nvml.device_get_uuid(self._handle)[4:]
+        uuid = self.uuid
+        if uuid.startswith(("GPU-", "MIG-", "DLA-")):
+            return uuid[4:]
+        return uuid
 
     @property
     def pci_bus_id(self) -> str:
@@ -914,7 +918,19 @@ cdef class Device:
         For devices with NVLink support.
 
         .. version-added:: 1.1.0
+
+        Raises
+        ------
+        :class:`cuda.core.system.NotSupportedError`
+            If the device does not support NVLink queries.
         """
+        # Orin's field query may succeed without populating its output. Check
+        # NVLink support through the native query before reading that output.
+        try:
+            nvml.device_get_nvlink_state(self._handle, 0)
+        except nvml.InvalidArgumentError:
+            # A device with no link 0 can still report a valid count of zero.
+            pass
         return self.get_field_values([FieldId.DEV_NVLINK_LINK_COUNT])[0].value
 
     def get_nvlinks(self) -> Iterable[NvlinkInfo]:
