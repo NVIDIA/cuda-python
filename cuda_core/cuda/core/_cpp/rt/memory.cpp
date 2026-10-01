@@ -365,6 +365,10 @@ DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject*
         [mr, size](DevicePtrBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
+                // The last reference may go while an exception propagates
+                // through the releasing caller; deallocate() must run with a
+                // clean error state and leave that exception in place.
+                PendingExceptionGuard pending;
                 if (mr_dealloc_cb) {
                     const DeallocationStream& stream = b->deallocation;
                     cleanup_in_context(

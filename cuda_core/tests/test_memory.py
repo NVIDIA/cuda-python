@@ -897,6 +897,30 @@ def test_mr_deallocation_failure_warns():
 
 
 @pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_mr_deallocation_during_exception_keeps_the_exception():
+    """A Buffer released while an exception propagates leaves that exception in place.
+
+    The deleter calls ``mr.deallocate`` on the Python thread. It must start
+    with a clean error state and restore the pending exception afterwards.
+    Before the fix, reporting a failed ``deallocate`` cleared the pending
+    exception, and the caller returned an error with no exception set, which
+    Python reports as ``SystemError`` (found in review of #2917).
+    """
+    device = Device()
+    device.set_current()
+    FailingMR, _ = make_instrumented_memory_resource(deallocate_error=RuntimeError("expected deallocation failure"))
+    mr = FailingMR(device)
+
+    def reject(buf):
+        raise TypeError("rejected")
+
+    with pytest.warns(CUDAWarning, match="expected deallocation failure"), pytest.raises(TypeError, match="rejected"):
+        # The temporary Buffer is released while TypeError propagates.
+        reject(Buffer.from_handle(1, 1024, mr=mr))
+
+
+@pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
 @pytest.mark.parametrize("replace_stream", [False, True])
 def test_mr_deallocation_without_current_context(init_cuda, replace_stream):

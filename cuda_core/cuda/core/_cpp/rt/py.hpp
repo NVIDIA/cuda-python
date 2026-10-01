@@ -94,6 +94,45 @@ private:
     bool acquired_;
 };
 
+// Save the Python exception in flight and restore it on scope exit, dropping
+// anything the scope itself raised. A deleter may run while an exception is
+// propagating through the caller that released the last reference; Python
+// code it calls (a MemoryResource's deallocate, the warnings machinery) must
+// start with a clean error state and must not leave that exception cleared,
+// or the caller returns an error with no exception set. Allocates nothing.
+// Construct with the GIL held and destroy before releasing it.
+class PendingExceptionGuard {
+public:
+    PendingExceptionGuard() noexcept {
+#if PY_VERSION_HEX >= 0x030C0000
+        pending_ = PyErr_GetRaisedException();
+#else
+        PyErr_Fetch(&type_, &value_, &tb_);
+#endif
+    }
+
+    ~PendingExceptionGuard() {
+        PyErr_Clear();
+#if PY_VERSION_HEX >= 0x030C0000
+        PyErr_SetRaisedException(pending_);
+#else
+        PyErr_Restore(type_, value_, tb_);
+#endif
+    }
+
+    PendingExceptionGuard(const PendingExceptionGuard&) = delete;
+    PendingExceptionGuard& operator=(const PendingExceptionGuard&) = delete;
+
+private:
+#if PY_VERSION_HEX >= 0x030C0000
+    PyObject* pending_ = nullptr;
+#else
+    PyObject* type_ = nullptr;
+    PyObject* value_ = nullptr;
+    PyObject* tb_ = nullptr;
+#endif
+};
+
 // as_py() - convert handle to Python wrapper object (returns new reference)
 namespace detail {
 // n.b. class lookup is not cached to avoid deadlock hazard, see DESIGN.md
