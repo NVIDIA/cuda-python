@@ -1507,6 +1507,9 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
     assert ("release", NEW_HANDLE) in calls
 
 
+VMM_LEAK_TEST_REQUESTED_SIZE = 8 * 1024 * 1024
+
+
 def _vmm_allocate_and_close(mr, requested_size, grow):
     buf = mr.allocate(requested_size)
     if grow:
@@ -1523,7 +1526,7 @@ def _warm_up_vmm_allocate_and_close(device_id, grow):
         device,
         config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
     )
-    return _vmm_allocate_and_close(mr, 8 * 1024 * 1024, grow)
+    return _vmm_allocate_and_close(mr, VMM_LEAK_TEST_REQUESTED_SIZE, grow)
 
 
 @pytest.mark.thread_unsafe(reason="cuMemGetInfo measures process-wide free memory")
@@ -1538,11 +1541,9 @@ def test_vmm_allocate_close_does_not_leak(init_cuda, grow):
         device,
         config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
     )
-    requested_size = 8 * 1024 * 1024
-
     baseline = handle_return(driver.cuMemGetInfo())[0]
     for _ in range(8):
-        _vmm_allocate_and_close(mr, requested_size, grow)
+        _vmm_allocate_and_close(mr, VMM_LEAK_TEST_REQUESTED_SIZE, grow)
     free = handle_return(driver.cuMemGetInfo())[0]
 
     # A leak would cost at least one allocation per iteration.
