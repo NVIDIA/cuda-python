@@ -14,6 +14,7 @@ import hashlib
 import importlib.util
 import os
 import re
+import shlex
 import shutil
 import sys
 import sysconfig
@@ -251,8 +252,42 @@ def _resolve_toolchain_name():
     return name, allowed, cc, cxx, explicit
 
 
+def _with_compiler(command, compiler):
+    """Replace the leading compiler on a linker command; keep flags.
+
+    Conda ``LDCXXSHARED`` looks like ``g++ -pthread -B .../python_compiler_compat
+    -shared ...``. Only the executable changes so those flags stay on the
+    link line. The command is tokenized with shlex so quoted arguments
+    survive, and a leading ``env VAR=value`` prefix is preserved. CC/CXX are
+    not rewritten this way: they may already be a launcher plus compiler
+    (``sccache cc``).
+    """
+    if not command or not command.strip():
+        return compiler
+    parts = shlex.split(command)
+    # Keep an ``env VAR=value ...`` prefix: setuptools' C++ link step splits it
+    # off before it substitutes the compiler, so it still reaches the link line.
+    prefix_end = 0
+    if parts and os.path.basename(parts[0]) == "env":
+        prefix_end = 1
+        # Match setuptools' _split_env: any token with ``=`` is an env operand
+        # (covers both ``VAR=value`` and ``--unset=VAR`` long options).
+        while prefix_end < len(parts) and "=" in parts[prefix_end]:
+            prefix_end += 1
+    # Everything else before the first flag is the old compiler (or a launcher
+    # for it; setuptools takes the launcher from CXX instead).
+    i = prefix_end
+    while i < len(parts) and not parts[i].startswith("-"):
+        i += 1
+    return shlex.join([*parts[:prefix_end], compiler, *parts[i:]])
+
+
 def _with_sccache(current, compiler):
-    """Keep CC="sccache cc" as CC="sccache clang" when the toolchain picks a compiler."""
+    """Keep a leading sccache token when the toolchain picks a compiler.
+
+    CI sets ``CC="sccache cc"`` or ``CC="/host/.../sccache cc"``. An explicit
+    toolchain then becomes ``CC="sccache clang"`` rather than a bare compiler.
+    """
     if current:
         launcher = current.split()[0]
         if os.path.basename(launcher) == "sccache":
@@ -261,18 +296,28 @@ def _with_sccache(current, compiler):
 
 
 def _apply_toolchain_env(cc, cxx, explicit):
-    """Set CC/CXX/LDSHARED for an explicitly-chosen toolchain.
+    """Set CC/CXX/LDCXXSHARED for an explicitly-chosen toolchain.
 
     The default path (CUDA_PYTHON_TOOLCHAIN unset) intentionally
     does not touch the env, so an externally-set compiler (e.g.
     CC="sccache cc" in CI) keeps working. An explicit CUDA_PYTHON_TOOLCHAIN
-    override (incl. =gnu) governs the compiler. An existing sccache prefix
-    is kept (CC="sccache cc" + llvm -> CC="sccache clang").
+    override (incl. =gnu) sets CC/CXX to the toolchain compiler; an existing
+    sccache prefix is kept (CC="sccache cc" + llvm -> CC="sccache clang").
+    Extras on LDCXXSHARED (rpath, -pthread, -B, ...) are kept, taken from the
+    environment if set there and from sysconfig otherwise; only the compiler
+    is swapped. LDSHARED is left unset so distutils rewrites it from CC.
     """
     if explicit and cc is not None:
         os.environ["CC"] = _with_sccache(os.environ.get("CC", ""), cc)
         os.environ["CXX"] = _with_sccache(os.environ.get("CXX", ""), cxx)
-        os.environ["LDSHARED"] = f"{os.environ['CXX']} -shared"
+        # An LDCXXSHARED the user already exported takes precedence over
+        # sysconfig's, as CC/CXX do; either way only the compiler is swapped.
+        ldcxxshared = (
+            os.environ.get("LDCXXSHARED")
+            or sysconfig.get_config_var("LDCXXSHARED")
+            or sysconfig.get_config_var("LDSHARED")
+        )
+        os.environ["LDCXXSHARED"] = _with_compiler(ldcxxshared, cxx) if ldcxxshared else f"{cxx} -shared"
 
 
 def _check_toolchain_available(name):
@@ -428,9 +473,9 @@ def _resolve_toolchain(debug=False, compile_for_coverage=False):
 
     Returns (name, cc, cxx, extra_compile_args, extra_link_args). The default
     toolchain (gnu on Linux, msvc on Windows) reproduces the previous build
-    behavior and does not touch CC/CXX/LDSHARED, so an externally-set compiler
+    behavior and does not touch CC/CXX/LDCXXSHARED, so an externally-set compiler
     (e.g. CC="sccache cc") keeps working. A non-default toolchain (llvm on
-    Linux) selects clang/clang++ and lld and sets CC/CXX/LDSHARED so distutils'
+    Linux) selects clang/clang++ and lld and sets CC/CXX/LDCXXSHARED so distutils'
     customize_compiler picks them up.
     """
     name, _allowed, cc, cxx, explicit = _resolve_toolchain_name()
