@@ -38,9 +38,7 @@ def _is_nvvm_available():
         return False
 
 
-nvvm_available = pytest.mark.skipif(
-    not _is_nvvm_available(), reason="NVVM not available (libNVVM not found or cuda-bindings < 12.9.0)"
-)
+nvvm_available = pytest.mark.skipif(not _is_nvvm_available(), reason="NVVM not available: libNVVM not found")
 
 
 def _get_nvrtc_version_for_tests():
@@ -60,19 +58,9 @@ def _get_nvrtc_version_for_tests():
     # CUDAError from a successfully loaded library propagates (real bug).
 
 
-def _has_nvrtc_pch_apis_for_tests():
-    required = (
-        "nvrtcGetPCHHeapSize",
-        "nvrtcSetPCHHeapSize",
-        "nvrtcGetPCHCreateStatus",
-        "nvrtcGetPCHHeapSizeRequired",
-    )
-    return all(hasattr(nvrtc, name) for name in required)
-
-
 nvrtc_pch_available = pytest.mark.skipif(
-    (_get_nvrtc_version_for_tests() or 0) < 12800 or not _has_nvrtc_pch_apis_for_tests(),
-    reason="PCH runtime APIs require NVRTC >= 12.8 bindings",
+    (_get_nvrtc_version_for_tests() or 0) < 12800,
+    reason="PCH runtime APIs require NVRTC >= 12.8",
 )
 
 bundled_headers_available = pytest.mark.skipif(

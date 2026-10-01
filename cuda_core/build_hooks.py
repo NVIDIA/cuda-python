@@ -11,6 +11,7 @@ import contextlib
 import functools
 import glob
 import hashlib
+import importlib.util
 import os
 import re
 import shutil
@@ -80,6 +81,52 @@ def _import_get_cuda_path_or_home():
     return cuda.pathfinder.get_cuda_path_or_home
 
 
+def _import_cuda_bindings():
+    """Import cuda.bindings and work around PEP 517 namespace shadowing.
+
+    The problem and the repair are the same as in _import_get_cuda_path_or_home().
+    See https://github.com/NVIDIA/cuda-python/issues/1824. In an isolated build,
+    the project's own ``cuda/`` directory is the whole ``cuda`` namespace. The
+    cuda-bindings that pip installed into the build environment is not importable
+    until this function adds its ``cuda/`` directory to the namespace path.
+    Raises ModuleNotFoundError when no cuda-bindings is installed.
+
+    importlib.metadata is no alternative: pip's in-process hook runner forwards
+    ``find_distributions`` without the requested name, so it reports this
+    project's own metadata for any name.
+    """
+    try:
+        import cuda.bindings
+    except ModuleNotFoundError as exc:
+        if exc.name not in ("cuda", "cuda.bindings"):
+            raise
+        import cuda
+
+        for p in sys.path:
+            sp_cuda = Path(p) / "cuda"
+            if (sp_cuda / "bindings").is_dir():
+                cuda.__path__ = list(cuda.__path__) + [str(sp_cuda)]
+                break
+        else:
+            raise
+        import cuda.bindings
+    return cuda.bindings
+
+
+def _installed_cuda_bindings() -> tuple:
+    """(version string, CUDA_VERSION) of the cuda-bindings in the build environment.
+
+    ``cuda.bindings.driver.CUDA_VERSION`` is the ``CUDA_VERSION`` macro of the
+    ``cuda.h`` that the installed cuda-bindings was generated from, for example
+    13040. The header rule compares against it because it is exact. The version
+    string is not exact: a development build inherits it from the previous
+    release's tag. Raises ModuleNotFoundError when no cuda-bindings is installed.
+    """
+    bindings = _import_cuda_bindings()
+    driver = importlib.import_module("cuda.bindings.driver")
+    return bindings.__version__, int(driver.CUDA_VERSION)
+
+
 @functools.cache
 def _get_cuda_path() -> str:
     get_cuda_path_or_home = _import_get_cuda_path_or_home()
@@ -88,6 +135,79 @@ def _get_cuda_path() -> str:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
     print("CUDA path:", cuda_path)
     return cuda_path
+
+
+_PACKAGE_DIR = Path(__file__).parent / "cuda" / "core"
+_PYPROJECT_PATH = Path(__file__).parent / "pyproject.toml"
+
+
+@functools.cache
+def _load_bindings_floor():
+    """Load cuda/core/_bindings_floor.py, the module that reads, formats and checks the floor.
+
+    The load is by file path: the package that this backend builds is not
+    importable during its own build. The module deliberately uses the standard
+    library only.
+    """
+    path = _PACKAGE_DIR / "_bindings_floor.py"
+    spec = importlib.util.spec_from_file_location("_cuda_core_bindings_floor", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+@functools.cache
+def _bindings_floors() -> dict:
+    """The cuda-bindings floor per CUDA major, from the cu<major> extras of pyproject.toml.
+
+    The extras are the single place that declares the floors. The build, the
+    import-time check, the docs and CI all derive from them. See
+    cuda/core/_bindings_floor.py. A malformed extra fails the build here.
+    """
+    try:
+        import tomllib
+    except ModuleNotFoundError:  # Python 3.10: tomli is in build-system.requires
+        import tomli as tomllib
+    with open(_PYPROJECT_PATH, "rb") as f:
+        extras = tomllib.load(f)["project"]["optional-dependencies"]
+    try:
+        return _load_bindings_floor().floors_from_extras(extras)
+    except ValueError as exc:
+        raise RuntimeError(f"{_PYPROJECT_PATH}: {exc}") from exc
+
+
+def _floor_for(cuda_major) -> tuple:
+    """The floor of `cuda_major`, or a build error that names the supported majors."""
+    floors = _bindings_floors()
+    major = int(cuda_major)
+    if major not in floors:
+        raise RuntimeError(
+            f"cuda.core does not support CUDA {major}. The supported CUDA major versions are "
+            f"{', '.join(str(m) for m in floors)}."
+        )
+    return floors[major]
+
+
+def _cuda_h_path(cuda_path: str) -> str:
+    """The cuda.h under cuda_path, with symlinks such as /usr/local/cuda resolved for messages."""
+    return os.path.realpath(os.path.join(cuda_path, "include", "cuda.h"))
+
+
+def _read_cuda_h_version(cuda_path: str) -> int:
+    """The CUDA_VERSION macro of the cuda.h under cuda_path, for example 13040 for 13.4."""
+    cuda_h = _cuda_h_path(cuda_path)
+    try:
+        with open(cuda_h, encoding="utf-8") as f:
+            for line in f:
+                m = re.match(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$", line)
+                if m:
+                    return int(m.group(1))
+    except OSError:
+        pass
+    raise RuntimeError(
+        f"Cannot read CUDA_VERSION from {cuda_h}. "
+        "Ensure CUDA_PATH or CUDA_HOME points to a CUDA Toolkit with include/cuda.h."
+    )
 
 
 # -----------------------------------------------------------------------
@@ -374,7 +494,9 @@ def _determine_cuda_major_version() -> str:
     2. CUDA_VERSION macro in cuda.h from CUDA_PATH or CUDA_HOME
 
     Since CUDA_PATH or CUDA_HOME is required for the build (to provide include
-    directories), the cuda.h header should always be available.
+    directories), the cuda.h header should always be available. The override
+    only skips this detection. _check_build_configuration() still reads the
+    header and rejects one whose major disagrees.
     """
     # Explicit override, e.g. in CI.
     cuda_major = os.environ.get("CUDA_CORE_BUILD_MAJOR")
@@ -383,28 +505,103 @@ def _determine_cuda_major_version() -> str:
         return cuda_major
 
     # Derive from the CUDA headers (the authoritative source for what we compile against).
-    cuda_path = _get_cuda_path()
-    cuda_h = os.path.join(cuda_path, "include", "cuda.h")
     try:
-        with open(cuda_h, encoding="utf-8") as f:
-            for line in f:
-                m = re.match(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$", line)
-                if m:
-                    v = int(m.group(1))
-                    # CUDA_VERSION is e.g. 12020 for 12.2.
-                    cuda_major = str(v // 1000)
-                    print("CUDA MAJOR VERSION:", cuda_major)
-                    return cuda_major
-    except OSError:
-        pass
+        cuda_version = _read_cuda_h_version(_get_cuda_path())
+    except RuntimeError as exc:
+        # CUDA_PATH or CUDA_HOME is required for the build, so we should not reach
+        # here in normal circumstances. Raise an error to make the issue clear.
+        raise RuntimeError(
+            "Cannot determine CUDA major version. "
+            "Set CUDA_CORE_BUILD_MAJOR environment variable, or ensure CUDA_PATH or CUDA_HOME "
+            "points to a valid CUDA installation with include/cuda.h."
+        ) from exc
+    # CUDA_VERSION is e.g. 12020 for 12.2.
+    cuda_major = str(cuda_version // 1000)
+    print("CUDA MAJOR VERSION:", cuda_major)
+    return cuda_major
 
-    # CUDA_PATH or CUDA_HOME is required for the build, so we should not reach here
-    # in normal circumstances. Raise an error to make the issue clear.
-    raise RuntimeError(
-        "Cannot determine CUDA major version. "
-        "Set CUDA_CORE_BUILD_MAJOR environment variable, or ensure CUDA_PATH or CUDA_HOME "
-        "points to a valid CUDA installation with include/cuda.h."
-    )
+
+def _check_build_configuration(cuda_path: str, cuda_major: str) -> int:
+    """Reject build configurations that cuda.core does not support.
+
+    Returns the ``CUDA_VERSION`` of the header that the installed cuda-bindings
+    was generated from, for _build_define_macros().
+
+    cuda.core supports one configuration per CUDA major series. The installed
+    cuda-bindings is at least the floor of the series, the cu<major> extra in
+    pyproject.toml. The cuda.h that it compiles against has the major.minor of
+    the header that cuda-bindings was generated from, its driver.CUDA_VERSION.
+    The pip build requirement in get_requires_for_build_* states both, but
+    conda-forge, pixi and --no-build-isolation installs bypass it. The check
+    therefore lives here, where every build path passes.
+
+    Without this check, a too-old cuda-bindings surfaces late as an ImportError
+    at module init or as a feature that is silently compiled out. A mismatched
+    header surfaces as an unclear Cython error. See
+    https://github.com/NVIDIA/cuda-python/issues/2783.
+    """
+    floor = _load_bindings_floor()
+    major = int(cuda_major)
+    floor_triple = _floor_for(major)
+    requirement = floor.bindings_requirement(floor_triple)
+
+    try:
+        bindings_version, bindings_cuda_version = _installed_cuda_bindings()
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "cuda.core requires cuda-bindings to build. Isolated builds install it automatically. "
+            f"For other builds, install '{requirement}'."
+        ) from exc
+    bindings = floor.release_triple(bindings_version)
+    if bindings is None:
+        raise RuntimeError(
+            f"Cannot parse the installed cuda-bindings version {bindings_version!r}. "
+            "A shallow git clone of cuda-bindings reports a bogus version. See CONTRIBUTING.md."
+        )
+    if bindings[0] != major:
+        raise RuntimeError(
+            f"This cuda.core build is for CUDA {major}, but the installed cuda-bindings is "
+            f"{bindings_version}. Install '{requirement}'."
+        )
+    if bindings < floor_triple:
+        raise RuntimeError(
+            f"cuda.core requires cuda-bindings >= {floor.format_version(floor_triple)} "
+            f"for CUDA {major}, but {bindings_version} is installed. Install '{requirement}'."
+        )
+
+    cuda_version = _read_cuda_h_version(cuda_path)
+    header = floor.header_minor(cuda_version)
+    generated_from = floor.header_minor(bindings_cuda_version)
+    if header != generated_from:
+        needed, found = f"{generated_from[0]}.{generated_from[1]}", f"{header[0]}.{header[1]}"
+        raise RuntimeError(
+            f"cuda.core needs CUDA {needed} headers to build with the installed cuda-bindings {bindings_version}, "
+            f"but {_cuda_h_path(cuda_path)} is CUDA {found}. This is a build-time requirement only: at run time "
+            f"cuda.core supports older CUDA {major}.x drivers and toolkits, see {floor.SUPPORT_URL}. Point "
+            f"CUDA_PATH or CUDA_HOME at a CUDA {needed} toolkit, or install cuda-bindings {found}.x. For an "
+            "isolated build, constrain cuda-bindings with PIP_CONSTRAINT or build with --no-build-isolation."
+        )
+    print(f"Build configuration: CUDA {header[0]}.{header[1]} headers, cuda-bindings {bindings_version}")
+    return bindings_cuda_version
+
+
+def _build_define_macros(cuda_major: str, bindings_cuda_version: int | None = None) -> list:
+    """Preprocessor macros that carry the build decision into the C++. See _cpp/rt/versions.hpp.
+
+    ``bindings_cuda_version`` is the header that the installed cuda-bindings was
+    generated from, as _check_build_configuration() returns it. versions.hpp
+    fails the compile unless the ``cuda.h`` the compiler resolved has the same
+    major.minor, so the Python read of ``cuda.h`` can never silently disagree
+    with the compiler's.
+    """
+    major = int(cuda_major)
+    macros = [
+        ("CUDA_CORE_BUILD_MAJOR", str(major)),
+        ("CUDA_CORE_MIN_CUDA_VERSION", str(_load_bindings_floor().cuda_version_of(_floor_for(major)))),
+    ]
+    if bindings_cuda_version is not None:
+        macros.append(("CUDA_CORE_BINDINGS_CUDA_VERSION", str(bindings_cuda_version)))
+    return macros
 
 
 # used later by setup()
@@ -543,10 +740,10 @@ def _build_cuda_core(debug=False):
     # "from cuda.bindings cimport cydriver"
     cuda_package_dir = None
     try:
-        import cuda.bindings
+        cuda_bindings = _import_cuda_bindings()
 
-        bindings_path = Path(cuda.bindings.__file__).parent  # .../cuda/bindings/
-        print(f"Using cuda-bindings {cuda.bindings.__version__} from {bindings_path}", file=sys.stderr)
+        bindings_path = Path(cuda_bindings.__file__).parent  # .../cuda/bindings/
+        print(f"Using cuda-bindings {cuda_bindings.__version__} from {bindings_path}", file=sys.stderr)
         cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings/ (contains cuda/)
         if str(cuda_package_dir) not in sys.path:
             sys.path.insert(0, str(cuda_package_dir))
@@ -584,6 +781,12 @@ def _build_cuda_core(debug=False):
     if debug and sys.platform != "win32":
         extra_cythonize_kwargs["gdb_debug"] = True
 
+    # Deliberately after the cuda.bindings import above: this re-enters
+    # _get_cuda_path() and reads cuda.h, which must not run before the
+    # pathfinder import has repaired PEP 517 namespace shadowing.
+    cuda_major, config_key = _check_build_config(toolchain, debug, COMPILE_FOR_COVERAGE)
+    bindings_cuda_version = _check_build_configuration(cuda_path, cuda_major)
+
     depends = _extension_depends()
     ext_modules = tuple(
         Extension(
@@ -595,6 +798,9 @@ def _build_cuda_core(debug=False):
                 "cuda/core/_cpp",
             ]
             + all_include_dirs,
+            # The C++ branches on the CUDA major series only. _cpp/rt/versions.hpp
+            # checks the cuda.h the compiler resolved against these macros.
+            define_macros=_build_define_macros(cuda_major, bindings_cuda_version),
             language="c++",
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
@@ -602,13 +808,13 @@ def _build_cuda_core(debug=False):
         for mod in module_names()
     )
 
-    # Deliberately after the cuda.bindings import above: this re-enters
-    # _get_cuda_path() and reads cuda.h, which must not run before the
-    # pathfinder import has repaired PEP 517 namespace shadowing.
-    cuda_major, config_key = _check_build_config(toolchain, debug, COMPILE_FOR_COVERAGE)
-
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
-    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(cuda_major)}
+    # cuda/core/_build_info.pyx records both, next to the CUDA_VERSION of the
+    # cuda.h the compiler resolved; cuda/core/__init__.py reads them at import.
+    compile_time_env = {
+        "CUDA_CORE_BUILD_MAJOR": int(cuda_major),
+        "CUDA_CORE_BINDINGS_FLOOR": tuple(_floor_for(cuda_major)),
+    }
     compiler_directives = {"embedsignature": True, "warn.deprecated.IF": False, "freethreading_compatible": True}
     _CythonOptions.warning_errors = True
     if COMPILE_FOR_COVERAGE:
@@ -771,8 +977,31 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
 
 
 def _get_cuda_bindings_require():
-    cuda_major = _determine_cuda_major_version()
-    return [f"cuda-bindings=={cuda_major}.*"]
+    """The cuda-bindings build requirement for isolated builds.
+
+    The requirement is the floor of the CUDA major that the build targets,
+    capped at the minor of the header when cuda.h is readable. Without the cap,
+    pip installs the newest cuda-bindings of the major. A newer minor on PyPI
+    then causes a header mismatch that an isolated build cannot fix from the
+    outside. The cap is not a pin: a cuda-bindings built from main right after
+    a toolkit bump carries the previous release's version string, such as
+    13.4.3.devN, with the new header. The header rule in
+    _check_build_configuration() judges it, not pip.
+
+    When the minor of the header is below the minor of the floor, the
+    requirement is the floor alone, so that the configuration check reports the
+    mismatch in its own words. Only isolated builds honor the requirement. The
+    configuration check covers every build path.
+    """
+    floor = _load_bindings_floor()
+    floor_triple = _floor_for(_determine_cuda_major_version())
+    try:
+        header = floor.header_minor(_read_cuda_h_version(_get_cuda_path()))
+    except RuntimeError:
+        return [floor.bindings_requirement(floor_triple)]
+    if header[0] != floor_triple[0] or header[1] < floor_triple[1]:
+        return [floor.bindings_requirement(floor_triple)]
+    return [floor.bindings_requirement(floor_triple, below=(header[0], header[1] + 1))]
 
 
 def get_requires_for_build_editable(config_settings=None):

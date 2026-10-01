@@ -3,10 +3,8 @@
 
 import pytest
 
+from cuda.bindings import nvml
 from cuda.core import system
-
-if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-    from cuda.bindings import nvml
 
 
 def _nvlink_count_field(count, status):
@@ -18,7 +16,6 @@ def _nvlink_count_field(count, status):
     return field
 
 
-@pytest.mark.skipif(not system.CUDA_BINDINGS_NVML_IS_COMPATIBLE, reason="Compatible NVML bindings are required")
 @pytest.mark.thread_unsafe(reason="Temporarily replaces process-global NVML functions")
 @pytest.mark.agent_authored(model="gpt-6")
 def test_nvlink_zero_count_does_not_require_link_state(monkeypatch):
@@ -34,7 +31,6 @@ def test_nvlink_zero_count_does_not_require_link_state(monkeypatch):
     assert list(device.get_nvlinks()) == []
 
 
-@pytest.mark.skipif(not system.CUDA_BINDINGS_NVML_IS_COMPATIBLE, reason="Compatible NVML bindings are required")
 @pytest.mark.thread_unsafe(reason="Temporarily replaces process-global NVML functions")
 @pytest.mark.parametrize("method", ["get_nvlink_count", "get_nvlinks"])
 @pytest.mark.parametrize(

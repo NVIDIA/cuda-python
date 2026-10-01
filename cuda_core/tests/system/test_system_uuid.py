@@ -3,13 +3,10 @@
 
 import pytest
 
+from cuda.bindings import nvml
 from cuda.core import system
 
-if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-    from cuda.bindings import nvml
 
-
-@pytest.mark.skipif(not system.CUDA_BINDINGS_NVML_IS_COMPATIBLE, reason="Compatible NVML bindings are required")
 @pytest.mark.thread_unsafe(reason="Temporarily replaces a process-global NVML function")
 @pytest.mark.parametrize("prefix", ["GPU-", "MIG-", "DLA-", ""])
 @pytest.mark.agent_authored(model="gpt-6")
@@ -23,7 +20,6 @@ def test_device_uuid_preserves_unprefixed_value(monkeypatch, prefix):
     assert device.uuid_without_prefix == expected_uuid
 
 
-@pytest.mark.skipif(not system.CUDA_BINDINGS_NVML_IS_COMPATIBLE, reason="Compatible NVML bindings are required")
 @pytest.mark.thread_unsafe(reason="Temporarily replaces a process-global NVML function")
 @pytest.mark.parametrize(
     ("exception_name", "status_name"),
