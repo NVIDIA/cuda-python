@@ -35,7 +35,7 @@ from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
     parse_dynamic_lib_subprocess_payload,
 )
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import ALL_AVAILABLE_LIBNAMES
-from cuda.pathfinder._utils.diagnostic_log import LOGGER, search_extra
+from cuda.pathfinder._utils.diagnostic_log import LOGGER
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 if TYPE_CHECKING:
@@ -163,32 +163,11 @@ def _try_ctk_root_canary(ctx: SearchContext) -> str | None:
     return None
 
 
-def _log_resolved(loaded: LoadedDL, libname: str) -> LoadedDL:
-    """Log a successful resolution and return it unchanged."""
-    if LOGGER is not None:
-        LOGGER.info(
-            "resolved %s to %s via %s",
-            libname,
-            loaded.abs_path,
-            loaded.found_via,
-            extra=search_extra(
-                libname,
-                pathfinder_abs_path=loaded.abs_path,
-                pathfinder_found_via=loaded.found_via,
-                pathfinder_was_already_loaded=loaded.was_already_loaded_from_elsewhere,
-            ),
-        )
-    return loaded
-
-
 def _load_lib_no_cache(libname: str) -> LoadedDL:
     desc = LIB_DESCRIPTORS[libname]
 
     if libname in _DRIVER_ONLY_LIBNAMES:
-        return _log_resolved(_load_driver_lib_no_cache(desc), libname)
-
-    if LOGGER is not None:
-        LOGGER.debug("starting search for %s", libname, extra=search_extra(libname))
+        return _load_driver_lib_no_cache(desc)
 
     ctx = SearchContext(desc)
 
@@ -199,30 +178,24 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
     loaded = LOADER.check_if_already_loaded_from_elsewhere(desc)
     load_dependencies(desc, load_nvidia_dynamic_lib)
     if loaded is not None:
-        return _log_resolved(loaded, libname)
+        return loaded
 
     # Phase 3: Load from found path, or fall back to system search + late find.
     if find is not None:
-        return _log_resolved(LOADER.load_with_abs_path(desc, find.abs_path, find.found_via), libname)
+        return LOADER.load_with_abs_path(desc, find.abs_path, find.found_via)
 
     loaded = LOADER.load_with_system_search(desc)
     if loaded is not None:
-        return _log_resolved(loaded, libname)
-    if LOGGER is not None:
-        LOGGER.debug(
-            "system search did not resolve %s; trying late find steps",
-            libname,
-            extra=search_extra(libname, pathfinder_step="load_with_system_search", pathfinder_matched=False),
-        )
+        return loaded
 
     find = run_find_steps(ctx, LATE_FIND_STEPS)
     if find is not None:
-        return _log_resolved(LOADER.load_with_abs_path(desc, find.abs_path, find.found_via), libname)
+        return LOADER.load_with_abs_path(desc, find.abs_path, find.found_via)
 
     if desc.ctk_root_canary_anchor_libnames:
         canary_abs_path = _try_ctk_root_canary(ctx)
         if canary_abs_path is not None:
-            return _log_resolved(LOADER.load_with_abs_path(desc, canary_abs_path, "system-ctk-root"), libname)
+            return LOADER.load_with_abs_path(desc, canary_abs_path, "system-ctk-root")
 
     ctx.raise_not_found()
 
@@ -355,4 +328,7 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
             f"Library name {libname!r} is known but not available on {_PLATFORM_NAME}. "
             f"Supported names on {_PLATFORM_NAME}: {sorted(ALL_AVAILABLE_LIBNAMES)}"
         )
-    return _load_lib_no_cache(libname)
+    loaded = _load_lib_no_cache(libname)
+    if LOGGER is not None:
+        LOGGER.info("loaded %s from %s (found via %s)", libname, loaded.abs_path, loaded.found_via)
+    return loaded
