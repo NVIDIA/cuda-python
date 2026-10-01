@@ -918,19 +918,7 @@ cdef class Device:
         For devices with NVLink support.
 
         .. version-added:: 1.1.0
-
-        Raises
-        ------
-        :class:`cuda.core.system.NotSupportedError`
-            If the device does not support NVLink queries.
         """
-        # Orin's field query may succeed without populating its output. Check
-        # NVLink support through the native query before reading that output.
-        try:
-            nvml.device_get_nvlink_state(self._handle, 0)
-        except nvml.InvalidArgumentError:
-            # A device with no link 0 can still report a valid count of zero.
-            pass
         return self.get_field_values([FieldId.DEV_NVLINK_LINK_COUNT])[0].value
 
     def get_nvlinks(self) -> Iterable[NvlinkInfo]:

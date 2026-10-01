@@ -1576,11 +1576,6 @@ class Device:
         For devices with NVLink support.
 
         .. version-added:: 1.1.0
-
-        Raises
-        ------
-        :class:`cuda.core.system.NotSupportedError`
-            If the device does not support NVLink queries.
         """
     def get_nvlinks(self) -> Iterable[NvlinkInfo]:
         """
