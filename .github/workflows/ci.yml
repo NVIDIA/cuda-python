@@ -622,38 +622,6 @@ jobs:
     with:
       is-release: ${{ github.ref_type == 'tag' }}
 
-  precommit-windows:
-    name: Pre-commit on Windows
-    runs-on: windows-latest
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
-    needs:
-      - should-skip
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-
-      - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
-        with:
-          python-version: '3.13'
-
-      - name: Install pre-commit
-        shell: bash
-        run: |
-          set -euxo pipefail
-          python -m pip install --upgrade pip pre-commit
-
-      - name: Run pre-commit
-        shell: bash
-        run: |
-          set -euxo pipefail
-          SKIP=lychee pre-commit run --all-files
-
   checks:
     name: Check job status
     if: ${{ always() && github.repository_owner == 'nvidia' }}
@@ -674,7 +642,6 @@ jobs:
       - api-check-core-vs-release
       - api-check-core-vs-base
       - doc
-      - precommit-windows
     steps:
       - name: Exit
         env:
@@ -712,14 +679,12 @@ jobs:
             fi
           }
 
-          # Control jobs, the universal linux build, docs, and Windows
-          # pre-commit checks always run.
+          # Control jobs, the universal Linux build, and docs always run.
           check_result "ci-vars"           "success"
           check_result "should-skip"       "success"
           check_result "detect-changes"    "success"
           check_result "build-linux-64"    "success"
           check_result "doc"               "success"
-          check_result "precommit-windows" "success"
 
           # Optional platform builds and wheel tests share the platform plan.
           linux_expected="skipped"

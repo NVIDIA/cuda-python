@@ -257,6 +257,10 @@ default-environment = "docs"
 cmd = ["$PIXI_PROJECT_ROOT/docs/build_docs.sh", "latest-only"]
 default-environment = "docs"
 
+[target.linux.tasks.docs-build-all-latest]
+cmd = ["bash", "$PIXI_PROJECT_ROOT/../ci/tools/build_docs_for_link_check.sh"]
+default-environment = "docs"
+
 [target.linux.tasks.docs-debug]
 cmd = ["$PIXI_PROJECT_ROOT/docs/build_docs.sh", "latest-only"]
 env = { SPHINXOPTS = "-v -j 1 -d build/.doctrees" }
