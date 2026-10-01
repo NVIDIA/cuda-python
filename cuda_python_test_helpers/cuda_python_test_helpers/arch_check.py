@@ -28,6 +28,25 @@ def hardware_supports_nvml():
         nvml.shutdown()
 
 
+@cache
+def hardware_supports_nvml_device_apis():
+    """Verify that NVML supports the device lookup required by cuda.core."""
+    from cuda.bindings import nvml
+
+    nvml.init_v2()
+    try:
+        if nvml.device_get_count_v2() == 0:
+            return False
+        device = nvml.device_get_handle_by_index_v2(0)
+        nvml.device_get_handle_by_uuid(nvml.device_get_uuid(device))
+    except (nvml.NotFoundError, nvml.NotSupportedError, nvml.UnknownError):
+        return False
+    else:
+        return True
+    finally:
+        nvml.shutdown()
+
+
 def _should_skip_nvml_tests() -> bool:
     """Return True if NVML tests should be skipped on this system.
 
@@ -47,6 +66,11 @@ def _should_skip_nvml_tests() -> bool:
 skip_if_nvml_unsupported = pytest.mark.skipif(
     _should_skip_nvml_tests(),
     reason="NVML support requires cuda.bindings version 12.9.6+ for CUDA 12.x or 13.2.0+ for CUDA 13.x, and hardware that supports NVML",
+)
+
+skip_if_nvml_device_apis_unsupported = pytest.mark.skipif(
+    _should_skip_nvml_tests() or not hardware_supports_nvml_device_apis(),
+    reason="NVML device APIs are incomplete or unavailable on this platform",
 )
 
 

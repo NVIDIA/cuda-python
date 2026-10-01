@@ -35,16 +35,16 @@ def test_to_system_device(init_cuda):
     if not _system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
         with pytest.raises(RuntimeError):
             device.to_system_device()
-        return
+        pytest.skip("NVML support requires cuda.bindings version 12.9.6+ for CUDA 12.x or 13.2.0+ for CUDA 13.x")
 
-    from cuda.core import system
+    from cuda_python_test_helpers.arch_check import hardware_supports_nvml_device_apis
+
+    if not hardware_supports_nvml_device_apis():
+        pytest.skip("NVML device APIs are incomplete or unavailable on this platform")
+
     from cuda.core.system import Device as SystemDevice
 
-    try:
-        system_device = device.to_system_device()
-    except system.NotFoundError:
-        # Orin enumerates NVML devices but does not support lookup by UUID.
-        return
+    system_device = device.to_system_device()
     assert isinstance(system_device, SystemDevice)
     assert system_device.uuid_without_prefix == device.uuid
 
