@@ -124,9 +124,15 @@ the call, so a capture on an unrelated stream is not invalidated. Then drop the 
 mapping this buffer was the last to hold unmaps, and its reservation frees and its allocation
 releases as their last references go. This is the same model as every other `Buffer`: the
 recorded stream orders the release of this buffer's memory, and a caller who touches that memory
-from another stream must order that work before the close. The deleter blocks on the sync, like
-the pool-backed deleters block on the free, and it may run inside the deferred-cleanup drain on
-the main thread, with the GIL released.
+from another stream must order that work before the close. The deleter blocks until that work
+completes. `cuMemUnmap` is not stream-ordered, so waiting is the only way to honor the order;
+`_SynchronousMemoryResource` and `LegacyPinnedMemoryResource` wait the same way in
+`deallocate()`, while pool-backed buffers never block because `cuMemFreeAsync` is stream-ordered.
+The wait happens wherever the last reference goes: an explicit `close()`, a garbage collection,
+or the deferred-cleanup drain on the main thread, with the GIL released. A caller who needs to
+control when it happens closes the buffer explicitly or records an idle deallocation stream.
+Emulating stream order with a host callback that hands the release to the deferred-cleanup
+queue is planned as a follow-up for every synchronous release in cuda.core.
 
 Allocations are shared by two ranges after a grow that moves the buffer. Shared ownership is
 what makes that safe: the allocation is released exactly once, when its last mapping goes.

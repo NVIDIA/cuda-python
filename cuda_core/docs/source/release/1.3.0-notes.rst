@@ -210,8 +210,10 @@ Fixes and enhancements
   Buffers from ``allocate()`` free themselves when they close and no longer
   call :meth:`VirtualMemoryResource.deallocate`, which now serves pointers
   wrapped with :meth:`Buffer.from_handle`. A buffer records the stream passed
-  to ``allocate()`` and the last close of an aliased range synchronizes every
-  recorded stream before it unmaps. ``modify_allocation`` accepts only buffers
+  to ``allocate()``, and closing it waits for the work queued on that stream
+  before it unmaps, because ``cuMemUnmap`` is not stream-ordered; close the
+  buffer explicitly, or record an idle deallocation stream, to control when
+  that wait happens. ``modify_allocation`` accepts only buffers
   this resource returned. ``location_type="host"`` requires
   ``handle_type=None``, which the driver requires. ``allocate(0)`` returns an
   empty buffer without a driver call.

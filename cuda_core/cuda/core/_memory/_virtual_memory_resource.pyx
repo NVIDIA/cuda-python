@@ -229,10 +229,11 @@ cdef class VirtualMemoryBuffer(Buffer):
         """Release this buffer's share of its address range.
 
         Each mapping, reservation and physical allocation goes away when the
-        last buffer that holds it closes. Before this buffer's share is
-        released, its deallocation stream is synchronized, as for every
-        :class:`Buffer`. Virtual memory deallocation is synchronous and cannot
-        be captured. When the stream this close uses, given or recorded, is not
+        last buffer that holds it closes. Virtual memory is unmapped
+        synchronously, so this call waits for the work queued on the
+        deallocation stream before it releases this buffer's share; a buffer
+        released by the garbage collector waits at that point instead. The
+        unmap cannot be captured. When the stream this close uses, given or recorded, is not
         a default stream and is capturing, the call raises and leaves the
         buffer open. A default stream is checked when the range is released
         instead: if synchronizing it would disturb a capture in its context,
@@ -288,11 +289,18 @@ cdef class VirtualMemoryResource(MemoryResource):
     Every buffer this resource returns is a :class:`VirtualMemoryBuffer` that
     owns its address reservations, physical allocations and mappings; closing
     the buffer releases them. :meth:`deallocate` is not involved in that path.
+
+    Virtual memory is unmapped synchronously, so closing a buffer waits for
+    the work queued on its deallocation stream. A buffer released by the
+    garbage collector waits at that point instead. To control when the wait
+    happens, close the buffer explicitly or record an idle stream with
+    :meth:`Buffer.set_deallocation_stream`.
     """
 
     cdef:
         readonly object device
         readonly object config
+        object __weakref__
 
     def __init__(self, device_id: Device | int, config: VirtualMemoryResourceOptions | None = None) -> None:
         self.device = Device(device_id)
