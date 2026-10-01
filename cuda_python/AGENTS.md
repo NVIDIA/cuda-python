@@ -20,5 +20,15 @@ monorepo.
   component packages rather than here.
 - Be careful when changing dependency/version logic in `setup.py`; preserve
   compatibility between metapackage versioning and subpackage constraints.
+
+## Release coupling
+
+- `setup.py` pins `cuda-core` to a minor series (`cuda-core~=X.Y.0`). Every
+  `cuda-core` release must bump that pin, and a `cuda-python` release should
+  follow right after, so that `pip install cuda-python` resolves to the new
+  `cuda-core`. The `cuda-core` release checklist (`.github/RELEASE-core.md`)
+  has this step.
+- Users should pin `cuda-python` alone. A separate `cuda-core` pin next to it
+  can make the install unresolvable after a `cuda-core` release.
 - If you update docs structure, ensure `docs/build_all_docs.sh` still collects
   docs from `cuda_python`, `cuda_bindings`, `cuda_core`, and `cuda_pathfinder`.

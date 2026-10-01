@@ -20,7 +20,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._rt cimport ContextHandle, GreenCtxHandle, as_cu, get_context_green_ctx
 from cuda.core._utils.cuda_utils cimport check_or_create_options, HANDLE_RETURN
 from cuda.core._utils.cuda_utils import is_sequence
-from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
+from cuda.core._utils.version cimport cy_driver_version
 from cuda.core._utils.validators import check_str_enum
 
 
@@ -47,18 +47,10 @@ cdef inline int _check_green_ctx_support() except?-1:
     if _green_ctx_checked == -1:
         raise RuntimeError(_green_ctx_err_msg)
     cdef tuple drv = cy_driver_version()
-    cdef tuple bind = cy_binding_version()
     if drv < (12, 4, 0):
         _green_ctx_err_msg = (
             "Green context support requires CUDA driver 12.4 or newer "
             f"(current driver: {'.'.join(map(str, drv))})"
-        )
-        _green_ctx_checked = -1
-        raise RuntimeError(_green_ctx_err_msg)
-    if bind < (12, 4, 0):
-        _green_ctx_err_msg = (
-            "Green context support requires cuda.bindings 12.4 or newer "
-            f"(current bindings: {'.'.join(map(str, bind))})"
         )
         _green_ctx_checked = -1
         raise RuntimeError(_green_ctx_err_msg)
@@ -73,18 +65,10 @@ cdef inline int _check_workqueue_support() except?-1:
     if _workqueue_checked == -1:
         raise RuntimeError(_workqueue_err_msg)
     cdef tuple drv = cy_driver_version()
-    cdef tuple bind = cy_binding_version()
     if drv < (13, 1, 0):
         _workqueue_err_msg = (
             "WorkqueueResource requires CUDA driver 13.1 or newer "
             f"(current driver: {'.'.join(map(str, drv))})"
-        )
-        _workqueue_checked = -1
-        raise RuntimeError(_workqueue_err_msg)
-    if bind < (13, 1, 0):
-        _workqueue_err_msg = (
-            "WorkqueueResource requires cuda.bindings 13.1 or newer "
-            f"(current bindings: {'.'.join(map(str, bind))})"
         )
         _workqueue_checked = -1
         raise RuntimeError(_workqueue_err_msg)
@@ -225,20 +209,17 @@ cdef inline unsigned int _to_sm_count(object value) except? 0:
     return <unsigned int>(value)
 
 
-IF CUDA_CORE_BUILD_MAJOR >= 13:
-    from cuda.core._rt cimport sm_resource_split, has_sm_resource_split
-
 cdef int _structured_split_checked = 0
 
 cdef inline bint _can_use_structured_sm_split():
-    """Check if cuDevSmResourceSplit (13.1+) is available. Cached."""
+    """Whether the driver provides cuDevSmResourceSplit, a 13.1 driver API. Cached.
+
+    Every cuda-bindings at or above the 13.4 floor exports it. Only the driver can lack it."""
     global _structured_split_checked
     if _structured_split_checked != 0:
         return _structured_split_checked == 1
     IF CUDA_CORE_BUILD_MAJOR >= 13:
-        if (has_sm_resource_split()
-                and cy_driver_version() >= (13, 1, 0)
-                and cy_binding_version() >= (13, 1, 0)):
+        if cy_driver_version() >= (13, 1, 0):
             _structured_split_checked = 1
             return True
     _structured_split_checked = -1
@@ -326,13 +307,13 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
 
             memset(&remaining, 0, sizeof(cydriver.CUdevResource))
             with nogil:
-                HANDLE_RETURN(sm_resource_split(
+                HANDLE_RETURN(cydriver.cuDevSmResourceSplit(
                     result,
                     <unsigned int>(n_groups),
                     &sm._resource,
                     &remaining,
                     0,
-                    <void*>params,
+                    params,
                 ))
 
             if result != NULL:
