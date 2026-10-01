@@ -52,6 +52,7 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   - `CUDA_CORE_BUILD_MAJOR`
   - `CUDA_PYTHON_PARALLEL_LEVEL`
   - `CUDA_PYTHON_COVERAGE`
+  - `CUDA_PYTHON_WERROR` (compiler warnings become errors; CI wheel builds set it)
 
 ## Editing guidance
 

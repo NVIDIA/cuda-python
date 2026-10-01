@@ -284,6 +284,10 @@ Changes
   (and the redundant ``sample_count`` — which was only ever the array's own size —
   is no longer part of the returned value; use ``len(result)`` instead).
 
+- ``nvml.NvlinkFirmwareInfo``: The ``firmware_version`` member now returns only
+  valid entries.  The ``num_valid_entries`` member is removed, as its design made
+  it possible to access invalid memory.
+
 Enhancements
 ------------
 

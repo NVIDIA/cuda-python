@@ -215,3 +215,7 @@ Fixes and enhancements
   this resource returned. ``location_type="host"`` requires
   ``handle_type=None``, which the driver requires. ``allocate(0)`` returns an
   empty buffer without a driver call.
+
+- The ``StridedMemoryView`` DLPack C exchange API now preserves the underlying
+  Python exception when an export or import fails, as required by the DLPack
+  contract, instead of returning ``-1`` with no exception set.
