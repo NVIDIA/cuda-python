@@ -2592,6 +2592,9 @@ a tuple <code class="docutils literal notranslate"><span class="pre">(sample_cou
 contained one element. It is now correctly returned as a properly-sized array
 (and the redundant <code class="docutils literal notranslate"><span class="pre">sample_count</span></code> — which was only ever the array’s own size —
 is no longer part of the returned value; use <code class="docutils literal notranslate"><span class="pre">len(result)</span></code> instead).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.NvlinkFirmwareInfo</span></code>: The <code class="docutils literal notranslate"><span class="pre">firmware_version</span></code> member now returns only
+valid entries.  The <code class="docutils literal notranslate"><span class="pre">num_valid_entries</span></code> member is removed, as its design made
+it possible to access invalid memory.</p></li>
 </ul>
 </section>
 <section id="enhancements">
