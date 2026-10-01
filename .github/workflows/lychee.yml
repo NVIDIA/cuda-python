@@ -19,9 +19,6 @@ on:
         description: "Check links afresh and publish a new cache baseline"
         type: boolean
         default: false
-  push:
-    # Temporary bootstrap trigger; remove after manual dispatch is available.
-    branches: ["rwgk/maint/lychee-pr-nightly"]
 
 permissions:
   contents: read

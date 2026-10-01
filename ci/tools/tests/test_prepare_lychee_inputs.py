@@ -29,6 +29,19 @@ def test_authored_inputs_use_tracked_documents_and_exclude_qa(tmp_path):
 
 
 @pytest.mark.agent_authored(model="gpt-6")
+def test_authored_inputs_skip_tracked_symlinks_and_keep_their_real_target(tmp_path):
+    subprocess.run(["git", "init", "--quiet", str(tmp_path)], check=True)  # noqa: S603, S607
+    target = tmp_path / "README.md"
+    target.write_text("[Guide](docs/guide.rst)\n", encoding="utf-8")
+    package = tmp_path / "cuda_python"
+    package.mkdir()
+    (package / "README.md").symlink_to("../README.md")
+    subprocess.run(["git", "add", "--", "README.md", "cuda_python/README.md"], cwd=tmp_path, check=True)  # noqa: S607
+
+    assert authored_inputs(tmp_path) == [target]
+
+
+@pytest.mark.agent_authored(model="gpt-6")
 def test_rendered_inputs_include_all_components_and_exclude_static_assets(tmp_path):
     expected = ["cuda-bindings/latest/api.html", "cuda-core/latest/guide.html", "latest/index.html"]
     for name in [*expected, "cuda-core/latest/_static/theme.html", "_static/vendor/embed.html", "versions.json"]:
