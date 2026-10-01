@@ -66,7 +66,8 @@ jobs:
       - name: Build all documentation from sources
         if: ${{ matrix.kind == 'rendered' }}
         run: |
-          export CUDA_PYTHON_DOCS_GITHUB_REF="$(git rev-parse HEAD)"
+          CUDA_PYTHON_DOCS_GITHUB_REF=$(git rev-parse HEAD)
+          export CUDA_PYTHON_DOCS_GITHUB_REF
           pixi run --manifest-path cuda_core/pixi.toml -e docs docs-build-all-latest
 
       - name: Prepare link-check inputs and cache policy
