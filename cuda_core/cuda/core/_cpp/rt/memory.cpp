@@ -123,6 +123,15 @@ struct DevicePtrBox {
     // stream tokens carry a bound context.
     mutable DeallocationStream deallocation;
 };
+
+// The box behind a VirtualMemoryResource buffer: the range of mappings it
+// owns (VMM_DESIGN.md). Every handle on a VirtualMemoryBuffer comes from
+// deviceptr_create_vmm, so vmm_range() downcasts without a tag; there are no
+// virtual functions, so other boxes pay nothing. A size-zero buffer has an
+// empty range.
+struct VmmDevicePtrBox : DevicePtrBox {
+    VmmRangeHandle range;
+};
 }  // namespace
 
 // Recovers the owning DevicePtrBox from the aliased CUdeviceptr pointer.
@@ -137,9 +146,10 @@ static DevicePtrBox* get_box(const DevicePtrHandle& h) {
     );
 }
 
-// Return the stream that orders a device pointer's deallocation.
+// Return the stream that orders a device pointer's deallocation; empty for an
+// empty handle, as set_deallocation_stream rejects one.
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept {
-    return get_box(h)->deallocation.h_stream;
+    return h ? get_box(h)->deallocation.h_stream : StreamHandle{};
 }
 
 // Replace the stream that orders a device pointer's deallocation.
@@ -301,6 +311,36 @@ DevicePtrHandle deviceptr_create_mapped_graphics(
 }
 
 // ============================================================================
+// Virtual memory ranges (VMM_DESIGN.md)
+// ============================================================================
+
+DevicePtrHandle deviceptr_create_vmm(CUdeviceptr base, const VmmRangeHandle& range) {
+    if (!range) {  // a null handle; an empty range is valid
+        err = CUDA_ERROR_INVALID_VALUE;
+        return {};
+    }
+    auto box = std::shared_ptr<VmmDevicePtrBox>(
+        new VmmDevicePtrBox{{base, DeallocationStream{}}, range},
+        [](VmmDevicePtrBox* b) {
+            GILReleaseGuard gil;
+            // Order the release on this buffer's recorded stream, then free
+            // the box, which drops the range: every mapping this buffer was
+            // the last to hold unmaps, and its reservation and allocation
+            // follow.
+            vmm_sync_before_release(b->deallocation);
+            delete b;
+        }
+    );
+    return DevicePtrHandle(box, &box->resource);
+}
+
+VmmRangeHandle vmm_range(const DevicePtrHandle& h) noexcept {
+    // Only for handles from deviceptr_create_vmm; the VirtualMemoryBuffer
+    // class guarantees that for its callers.
+    return h ? static_cast<VmmDevicePtrBox*>(get_box(h))->range : VmmRangeHandle{};
+}
+
+// ============================================================================
 // MemoryResource-owned Device Pointer Handles
 // ============================================================================
 
@@ -325,6 +365,10 @@ DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject*
         [mr, size](DevicePtrBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
+                // The last reference may go while an exception propagates
+                // through the releasing caller; deallocate() must run with a
+                // clean error state and leave that exception in place.
+                PendingExceptionGuard pending;
                 if (mr_dealloc_cb) {
                     const DeallocationStream& stream = b->deallocation;
                     cleanup_in_context(

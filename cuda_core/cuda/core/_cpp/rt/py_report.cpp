@@ -34,12 +34,7 @@ void report_message(const char* message) noexcept {
         GILAcquireGuard gil;
         if (gil.acquired()) {
             // Deleters can run while a Python exception is propagating; keep it.
-#if PY_VERSION_HEX >= 0x030C0000
-            PyObject* pending = PyErr_GetRaisedException();
-#else
-            PyObject *pending_type, *pending_value, *pending_tb;
-            PyErr_Fetch(&pending_type, &pending_value, &pending_tb);
-#endif
+            PendingExceptionGuard pending;
             bool interrupted = false;
             if (PyErr_WarnEx(category, message, 1) != 0) {
                 interrupted = PyErr_ExceptionMatches(PyExc_KeyboardInterrupt);
@@ -52,11 +47,6 @@ void report_message(const char* message) noexcept {
                     Py_XDECREF(subject);
                 }
             }
-#if PY_VERSION_HEX >= 0x030C0000
-            PyErr_SetRaisedException(pending);
-#else
-            PyErr_Restore(pending_type, pending_value, pending_tb);
-#endif
             if (interrupted) {
                 PyErr_SetInterrupt();
             }

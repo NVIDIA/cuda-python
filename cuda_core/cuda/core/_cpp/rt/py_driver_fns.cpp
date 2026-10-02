@@ -48,39 +48,6 @@ std::atomic<bool> unavailable_reported[kTables];
 std::mutex fill_mutex;
 char fill_error[kTables][512] = {};  // guarded by fill_mutex
 
-// Saves the pending Python exception on construction and restores it on
-// destruction. The Python calls in between start from a clean error state, and
-// the caller's exception survives. Requires the GIL.
-class PendingExceptionGuard {
-public:
-    PendingExceptionGuard() noexcept {
-#if PY_VERSION_HEX >= 0x030C0000
-        exc_ = PyErr_GetRaisedException();
-#else
-        PyErr_Fetch(&type_, &value_, &traceback_);
-#endif
-    }
-    ~PendingExceptionGuard() {
-        PyErr_Clear();  // drop anything the guarded calls left set
-#if PY_VERSION_HEX >= 0x030C0000
-        PyErr_SetRaisedException(exc_);
-#else
-        PyErr_Restore(type_, value_, traceback_);
-#endif
-    }
-    PendingExceptionGuard(const PendingExceptionGuard&) = delete;
-    PendingExceptionGuard& operator=(const PendingExceptionGuard&) = delete;
-
-private:
-#if PY_VERSION_HEX >= 0x030C0000
-    PyObject* exc_ = nullptr;
-#else
-    PyObject* type_ = nullptr;
-    PyObject* value_ = nullptr;
-    PyObject* traceback_ = nullptr;
-#endif
-};
-
 std::size_t index_of(FnTable table) noexcept { return static_cast<std::size_t>(table); }
 
 const char* module_name(FnTable table) noexcept {
