@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import os
 import shutil
+import tempfile
 import textwrap
 
 import numpy as np
@@ -13,6 +15,7 @@ from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 from cuda.bindings import driver
+from cuda.bindings._internal.utils import FunctionNotFoundError
 from cuda_python_test_helpers import driver_version_less_than
 
 
@@ -972,6 +975,59 @@ def test_cuCheckpointProcessGetState_failure():
     err, state = cuda.cuCheckpointProcessGetState(123434)
     assert err != cuda.CUresult.CUDA_SUCCESS
     assert state is None
+
+
+@pytest.mark.skipif(
+    driver_version_less_than(12090),
+    reason="cuLogs* functions were introduced in CUDA 12.9",
+)
+def test_culogs_functions_are_resolved():
+    """
+    Regression test for https://github.com/NVIDIA/cuda-python/issues/2979
+
+    cuLogsRegisterCallback, cuLogsUnregisterCallback, cuLogsCurrent,
+    cuLogsDumpToFile, and cuLogsDumpToMemory were introduced in CUDA 12.9,
+    but were incorrectly requested from cuGetProcAddress_v2 with version
+    12080 (CUDA 12.8). On a driver that enforces the requested symbol
+    version, that mismatch causes the internal function pointer to never
+    be resolved, so calling the function raises FunctionNotFoundError
+    instead of actually invoking the driver.
+
+    cuLogsRegisterCallback, cuLogsUnregisterCallback, cuLogsCurrent, and
+    cuLogsDumpToFile are called directly below since they can be exercised
+    safely without a real log message or a fixed-size memory buffer. We
+    deliberately avoid calling cuLogsDumpToMemory with a real buffer here:
+    it writes a driver-chosen amount of data into the caller-supplied
+    buffer, which makes it unsafe to invoke blindly in a regression test.
+    Instead, its resolution is verified the same way
+    test_private_function_pointer_inspector does: by inspecting the
+    internal function pointer directly.
+    """
+    from cuda.bindings._internal.driver import _inspect_function_pointer
+
+    try:
+        err, callback_handle = cuda.cuLogsRegisterCallback(0, None)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+        err, _ = cuda.cuLogsCurrent(0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            log_path = f.name
+        try:
+            err, _ = cuda.cuLogsDumpToFile(None, log_path.encode(), 0)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+        finally:
+            os.remove(log_path)
+
+        (err,) = cuda.cuLogsUnregisterCallback(callback_handle)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+    except FunctionNotFoundError as e:
+        pytest.fail(f"cuLogs* function unexpectedly not found on the driver: {e}")
+
+    assert _inspect_function_pointer("__cuLogsDumpToMemory") != 0, (
+        "cuLogsDumpToMemory was not resolved by cuGetProcAddress_v2"
+    )
 
 
 def test_private_function_pointer_inspector():
