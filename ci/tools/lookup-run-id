@@ -100,12 +100,41 @@ done
 if [[ "${MODE}" == "branch" ]]; then
     echo "Looking up latest successful '${WORKFLOW_NAME}' run on branch: ${REF}" >&2
 
-    RUN_DATA=$(gh run list \
+    RUN_LIST_DATA=$(gh run list \
         --repo "${REPOSITORY}" \
         --branch "${REF}" \
         --workflow "${WORKFLOW_NAME}" \
         --json databaseId,workflowName,status,conclusion,headSha,headBranch,createdAt,url \
         --limit 100)
+
+    # The workflow-runs REST endpoint accepts a workflow file name or ID, not the
+    # display name used by callers. Branch artifact lookups currently target CI.
+    WORKFLOW_API_ID="${WORKFLOW_NAME}"
+    if [[ "${WORKFLOW_API_ID}" == "CI" ]]; then
+        WORKFLOW_API_ID="ci.yml"
+    fi
+
+    REST_RUN_DATA=$(gh api --method GET \
+        "repos/${REPOSITORY}/actions/workflows/${WORKFLOW_API_ID}/runs" \
+        -f "branch=${REF}" \
+        -f "status=success" \
+        -F "per_page=100" \
+        --jq '[
+            .workflow_runs[] | {
+                databaseId: .id,
+                workflowName: (.name // ""),
+                status: (.status // ""),
+                conclusion: (.conclusion // ""),
+                headSha: (.head_sha // ""),
+                headBranch: (.head_branch // ""),
+                createdAt: (.created_at // ""),
+                url: (.html_url // .url // "")
+            }
+        ]')
+
+    RUN_DATA=$(jq -s 'add | unique_by(.databaseId)' \
+        <(printf '%s\n' "${RUN_LIST_DATA}") \
+        <(printf '%s\n' "${REST_RUN_DATA}"))
 
     CANDIDATE_RUNS=$(echo "${RUN_DATA}" | jq -r \
         --arg branch "${REF}" '

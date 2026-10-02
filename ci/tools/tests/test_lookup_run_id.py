@@ -19,6 +19,50 @@ import re
 import sys
 
 args = sys.argv[1:]
+
+
+def _option_value(option):
+    try:
+        return args[args.index(option) + 1]
+    except (ValueError, IndexError):
+        return None
+
+
+def _field_values():
+    values = []
+    for index, arg in enumerate(args):
+        if arg in ("-f", "--raw-field", "-F", "--field"):
+            try:
+                values.append(args[index + 1])
+            except IndexError:
+                print(f"{arg} requires a value", file=sys.stderr)
+                raise SystemExit(2)
+    return values
+
+
+def _endpoint():
+    skip_next = False
+    for arg in args[1:]:
+        if skip_next:
+            skip_next = False
+            continue
+        if arg in (
+            "-f",
+            "--raw-field",
+            "-F",
+            "--field",
+            "--jq",
+            "--method",
+            "-X",
+        ):
+            skip_next = True
+            continue
+        if arg.startswith("-"):
+            continue
+        return arg
+    return None
+
+
 if args[:2] == ["run", "list"]:
     runs = json.loads(os.environ["FAKE_RUNS"])
     try:
@@ -48,6 +92,25 @@ if args[:2] == ["run", "view"]:
     raise SystemExit(0)
 
 if args[:1] == ["api"]:
+    endpoint = _endpoint()
+    if endpoint and "/actions/workflows/" in endpoint and endpoint.endswith("/runs"):
+        if not endpoint.endswith("/actions/workflows/ci.yml/runs"):
+            print(f"unexpected workflow run endpoint: {endpoint}", file=sys.stderr)
+            raise SystemExit(2)
+        if _option_value("--method") != "GET":
+            print("workflow run lookup must use GET", file=sys.stderr)
+            raise SystemExit(2)
+        fields = _field_values()
+        if "branch=12.9.x" not in fields or "status=success" not in fields or "per_page=100" not in fields:
+            print(f"unexpected workflow run fields: {fields!r}", file=sys.stderr)
+            raise SystemExit(2)
+        if "--jq" not in args:
+            print("workflow run lookup must normalize with --jq", file=sys.stderr)
+            raise SystemExit(2)
+        runs = json.loads(os.environ["FAKE_REST_RUNS"])
+        print(json.dumps(runs))
+        raise SystemExit(0)
+
     if "--paginate" not in args or "--jq" not in args:
         print("artifact lookup must be paginated and filtered", file=sys.stderr)
         raise SystemExit(2)
@@ -103,11 +166,12 @@ def fake_gh(tmp_path):
     return fake_bin
 
 
-def _lookup(fake_gh, runs, artifacts, *args, workflow="CI"):
+def _lookup(fake_gh, runs, artifacts, *args, workflow="CI", rest_runs=None):
     env = os.environ.copy()
     env.update(
         {
             "FAKE_ARTIFACTS": json.dumps(artifacts),
+            "FAKE_REST_RUNS": json.dumps(runs if rest_runs is None else rest_runs),
             "FAKE_RUNS": json.dumps(runs),
             "GH_TOKEN": "test-token",
             "PATH": f"{fake_gh}{os.pathsep}{env['PATH']}",
@@ -145,6 +209,31 @@ class TestBranchLookup:
 
         assert result.returncode == 0, result.stderr
         assert result.stdout.strip() == "50"
+
+    def test_unions_direct_rest_runs_with_run_list_results(self, fake_gh):
+        runs = [_run(100, "2026-03-10T12:00:00Z")]
+        rest_runs = [
+            _run(300, "2026-09-22T12:00:00Z"),
+            _run(100, "2026-03-10T12:00:00Z"),
+        ]
+        artifacts = {
+            "300": [{"name": "cuda-python-wheel", "expired": False}],
+            "100": [{"name": "old-wheel", "expired": False}],
+        }
+
+        result = _lookup(
+            fake_gh,
+            runs,
+            artifacts,
+            "--branch",
+            "12.9.x",
+            "--artifact",
+            "cuda-python-wheel",
+            rest_runs=rest_runs,
+        )
+
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == "300"
 
     def test_selects_newest_run_with_filename_workflow_selector(self, fake_gh):
         runs = [
