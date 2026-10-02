@@ -29,6 +29,7 @@ from _build_shared import (
     _abi_stamp_path,
     _check_toolchain_available,
     _cython_cache_path,
+    _get_cuda_path,
     _stable_cython_alias,
     check_build_key,
     record_build_key,
@@ -60,46 +61,10 @@ COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 WARNINGS_AS_ERRORS = bool(int(os.environ.get("CUDA_PYTHON_WERROR", "0")))
 
 
-# Please keep in sync with the copy in cuda_bindings/build_hooks.py.
-def _import_get_cuda_path_or_home():
-    """Import get_cuda_path_or_home, working around PEP 517 namespace shadowing.
-
-    See https://github.com/NVIDIA/cuda-python/issues/1824 for why this helper is needed.
-    """
-    try:
-        import cuda.pathfinder
-    except ModuleNotFoundError as exc:
-        if exc.name not in ("cuda", "cuda.pathfinder"):
-            raise
-        try:
-            import cuda
-        except ModuleNotFoundError:
-            cuda = None
-
-        for p in sys.path:
-            sp_cuda = Path(p) / "cuda"
-            if (sp_cuda / "pathfinder").is_dir():
-                cuda.__path__ = list(cuda.__path__) + [str(sp_cuda)]
-                break
-        else:
-            raise ModuleNotFoundError(
-                "cuda-pathfinder is not installed in the build environment. "
-                "Ensure 'cuda-pathfinder>=1.5' is in build-system.requires."
-            )
-        import cuda.pathfinder
-
-    pathfinder_dir = Path(cuda.pathfinder.__file__).parent
-    print(
-        f"Using cuda-pathfinder {cuda.pathfinder.__version__} from {pathfinder_dir}",
-        file=sys.stderr,
-    )
-    return cuda.pathfinder.get_cuda_path_or_home
-
-
 def _import_cuda_bindings():
     """Import cuda.bindings and work around PEP 517 namespace shadowing.
 
-    The problem and the repair are the same as in _import_get_cuda_path_or_home().
+    The problem and the repair are the same as in _build_shared._import_get_cuda_path_or_home().
     See https://github.com/NVIDIA/cuda-python/issues/1824. In an isolated build,
     the project's own ``cuda/`` directory is the whole ``cuda`` namespace. The
     cuda-bindings that pip installed into the build environment is not importable
@@ -140,16 +105,6 @@ def _installed_cuda_bindings() -> tuple:
     bindings = _import_cuda_bindings()
     driver = importlib.import_module("cuda.bindings.driver")
     return bindings.__version__, int(driver.CUDA_VERSION)
-
-
-@functools.cache
-def _get_cuda_path() -> str:
-    get_cuda_path_or_home = _import_get_cuda_path_or_home()
-    cuda_path = get_cuda_path_or_home()
-    if not cuda_path:
-        raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
-    print("CUDA path:", cuda_path)
-    return cuda_path
 
 
 _PACKAGE_DIR = Path(__file__).parent / "cuda" / "core"

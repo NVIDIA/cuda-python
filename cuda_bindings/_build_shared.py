@@ -17,7 +17,7 @@ Only what genuinely differs per package is parameterized, via the arguments of
 ``resolve_toolchain``: the C++ standard, warnings-as-errors, and an optional
 ``tweak`` hook for flags a single package needs.
 
-Besides the toolchain, this module owns the machinery that both backends use
+Besides the toolchain, this module owns the CUDA path lookup and the machinery that both backends use
 around cythonize and build_ext: the opt-in Cython generated-source cache and
 the build stamps that force a rebuild when the build configuration changed.
 
@@ -26,6 +26,7 @@ CUDA_PYTHON_TOOLCHAIN. They may be removed or changed in the future.
 """
 
 import contextlib
+import functools
 import hashlib
 import os
 import shlex
@@ -35,6 +36,55 @@ import sysconfig
 import uuid
 from pathlib import Path
 from warnings import warn
+
+# -----------------------------------------------------------------------
+# CUDA path
+
+
+def _import_get_cuda_path_or_home():
+    """Import get_cuda_path_or_home, working around PEP 517 namespace shadowing.
+
+    See https://github.com/NVIDIA/cuda-python/issues/1824 for why this helper is needed.
+    """
+    try:
+        import cuda.pathfinder
+    except ModuleNotFoundError as exc:
+        if exc.name not in ("cuda", "cuda.pathfinder"):
+            raise
+        try:
+            import cuda
+        except ModuleNotFoundError:
+            cuda = None
+
+        for p in sys.path:
+            sp_cuda = Path(p) / "cuda"
+            if (sp_cuda / "pathfinder").is_dir():
+                cuda.__path__ = list(cuda.__path__) + [str(sp_cuda)]
+                break
+        else:
+            raise ModuleNotFoundError(
+                "cuda-pathfinder is not installed in the build environment. "
+                "Ensure 'cuda-pathfinder>=1.5' is in build-system.requires."
+            )
+        import cuda.pathfinder
+
+    pathfinder_dir = Path(cuda.pathfinder.__file__).parent
+    print(
+        f"Using cuda-pathfinder {cuda.pathfinder.__version__} from {pathfinder_dir}",
+        file=sys.stderr,
+    )
+    return cuda.pathfinder.get_cuda_path_or_home
+
+
+@functools.cache
+def _get_cuda_path() -> str:
+    get_cuda_path_or_home = _import_get_cuda_path_or_home()
+    cuda_path = get_cuda_path_or_home()
+    if not cuda_path:
+        raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
+    print("CUDA path:", cuda_path)
+    return cuda_path
+
 
 # -----------------------------------------------------------------------
 # Toolchain selection

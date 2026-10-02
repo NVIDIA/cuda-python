@@ -9,7 +9,6 @@
 
 import atexit
 import contextlib
-import functools
 import glob
 import os
 import re
@@ -28,6 +27,7 @@ from _build_shared import (
     _abi_stamp_path,
     _check_toolchain_available,
     _cython_cache_path,
+    _get_cuda_path,
     _resolve_toolchain_name,
     _stable_cython_alias,
     check_build_key,
@@ -65,52 +65,6 @@ _CYDRIVER_PXD = Path(__file__).resolve().parent / "cuda" / "bindings" / "cydrive
 _GENERATED_VERSION_RE = re.compile(r"^cdef enum:\s*CUDA_VERSION\s*=\s*(\d+)\s*$")
 _CUDA_H_VERSION_RE = re.compile(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$")
 _INSTALL_URL = "https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html#installing-from-source"
-
-
-# Please keep in sync with the copy in cuda_core/build_hooks.py.
-def _import_get_cuda_path_or_home():
-    """Import get_cuda_path_or_home, working around PEP 517 namespace shadowing.
-
-    See https://github.com/NVIDIA/cuda-python/issues/1824 for why this helper is needed.
-    """
-    try:
-        import cuda.pathfinder
-    except ModuleNotFoundError as exc:
-        if exc.name not in ("cuda", "cuda.pathfinder"):
-            raise
-        try:
-            import cuda
-        except ModuleNotFoundError:
-            cuda = None
-
-        for p in sys.path:
-            sp_cuda = Path(p) / "cuda"
-            if (sp_cuda / "pathfinder").is_dir():
-                cuda.__path__ = list(cuda.__path__) + [str(sp_cuda)]
-                break
-        else:
-            raise ModuleNotFoundError(
-                "cuda-pathfinder is not installed in the build environment. "
-                "Ensure 'cuda-pathfinder>=1.5' is in build-system.requires."
-            )
-        import cuda.pathfinder
-
-    pathfinder_dir = Path(cuda.pathfinder.__file__).parent
-    print(
-        f"Using cuda-pathfinder {cuda.pathfinder.__version__} from {pathfinder_dir}",
-        file=sys.stderr,
-    )
-    return cuda.pathfinder.get_cuda_path_or_home
-
-
-@functools.cache
-def _get_cuda_path() -> str:
-    get_cuda_path_or_home = _import_get_cuda_path_or_home()
-    cuda_path = get_cuda_path_or_home()
-    if not cuda_path:
-        raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
-    print("CUDA path:", cuda_path)
-    return cuda_path
 
 
 # -----------------------------------------------------------------------
