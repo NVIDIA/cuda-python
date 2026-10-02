@@ -4,8 +4,7 @@
 
 """Tests for cuda_bindings/build_hooks.py build infrastructure.
 
-Mirrors the toolchain tests in cuda_core/tests/test_build_hooks.py. These
-tests do NOT require cuda.bindings to be built/installed since they test
+These tests do NOT require cuda.bindings to be built/installed since they test
 build-time infrastructure. Run with --noconftest to avoid loading conftest.py
 which imports cuda.bindings modules:
 
@@ -63,11 +62,6 @@ def _isolate_toolchain_env():
         for name in names:
             os.environ.pop(name, None)
         os.environ.update(original)
-
-
-def _fake_sysconfig(monkeypatch, **values):
-    """Pin sysconfig.get_config_var so linker-command assertions are exact."""
-    monkeypatch.setattr(_build_shared.sysconfig, "get_config_var", lambda name: values.get(name))
 
 
 @pytest.fixture

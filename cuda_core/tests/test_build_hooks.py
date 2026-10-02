@@ -75,11 +75,6 @@ def _isolate_toolchain_env():
         os.environ.update(original)
 
 
-def _fake_sysconfig(monkeypatch, **values):
-    """Pin sysconfig.get_config_var so linker-command assertions are exact."""
-    monkeypatch.setattr(_build_shared.sysconfig, "get_config_var", lambda name: values.get(name))
-
-
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_cuda_path_is_resolved_before_importing_bindings(monkeypatch):
     """PEP 517 namespace repair runs before cuda.bindings is imported."""
