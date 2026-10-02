@@ -21,6 +21,33 @@ updates:
         patterns: ["*"]
         update-types: ["major", "minor", "patch"]
 
+  # Group quarterly hook revision updates, preserving SHA pins and frozen comments.
+  - package-ecosystem: pre-commit
+    directory: /
+    schedule:
+      interval: "quarterly"
+      time: "09:00"
+      timezone: "America/Los_Angeles"
+
+    open-pull-requests-limit: 1
+
+    # Match hook repositories, leaving additional_dependencies pins unchanged.
+    allow:
+      - dependency-name: "https://github.com/*"
+    # Lychee's hook revision, LYCHEE_VERSION argument, and CI binary pin must
+    # be upgraded together in a coordinated manual update.
+    ignore:
+      - dependency-name: "https://github.com/lycheeverse/lychee"
+
+    groups:
+      pre-commit-quarterly:
+        applies-to: version-updates
+        patterns: ["*"]
+
+    assignees: [rwgk]
+    labels: [CI/CD, dependencies]
+    milestone: 54
+
   # GitHub Actions updates targeting the 12.9.x branch
   - package-ecosystem: github-actions
     directory: /
