@@ -228,9 +228,9 @@ separately so its local hook and CI binary stay aligned. The local lychee hook
 keeps its current behavior until a stable release supports an explicit cache
 location.
 
-See [the pre-commit workflow guide](ci/README-pre-commit-migration.md) for manual
-workflow testing. The existing pre-commit.ci service remains required until the
-required-check cutover is complete.
+See [the pre-commit migration procedure](ci/README-pre-commit-migration.md) for
+manual workflow testing and the required-check cutover. The existing
+pre-commit.ci service remains required until that cutover is complete.
 
 To set yourself up for running pre-commit checks locally and to catch issues before pushing your changes, follow these steps:
 
