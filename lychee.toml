@@ -4,6 +4,13 @@
 # Configuration for lychee, the doc link-checker invoked from
 # .github/workflows/build-docs.yml. See https://lychee.cli.rs/usage/config/.
 
+# Hosted-runner GETs of github.com blob HTML often return 503. GITHUB_TOKEN
+# only helps repo-root API checks, not /blob/ pages, so fetch the same file
+# from raw.githubusercontent.com instead.
+remap = [
+    '^https://github\.com/([^/]+)/([^/]+)/blob/(.*) https://raw.githubusercontent.com/$1/$2/$3',
+]
+
 exclude = [
     # PR-preview canonical URLs are checked by the preview deployment workflow.
     '^https://nvidia\.github\.io/cuda-python/pr-preview/pr-[0-9]+/',
