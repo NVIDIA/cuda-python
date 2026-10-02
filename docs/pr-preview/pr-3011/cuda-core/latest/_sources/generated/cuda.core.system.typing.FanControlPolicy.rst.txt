@@ -1,0 +1,6 @@
+﻿cuda.core.system.typing.FanControlPolicy
+========================================
+
+.. currentmodule:: cuda.core.system.typing
+
+.. autoenum:: FanControlPolicy
