@@ -21,11 +21,13 @@ updates:
         patterns: ["*"]
         update-types: ["major", "minor", "patch"]
 
-  # Group quarterly hook revision updates, preserving SHA pins and frozen comments.
+    labels: [CI/CD, dependencies]
+
+  # Group monthly hook revision updates, preserving SHA pins and frozen comments.
   - package-ecosystem: pre-commit
     directory: /
     schedule:
-      interval: "quarterly"
+      interval: "monthly"
       time: "09:00"
       timezone: "America/Los_Angeles"
 
@@ -40,13 +42,11 @@ updates:
       - dependency-name: "https://github.com/lycheeverse/lychee"
 
     groups:
-      pre-commit-quarterly:
+      pre-commit-monthly:
         applies-to: version-updates
         patterns: ["*"]
 
-    assignees: [rwgk]
     labels: [CI/CD, dependencies]
-    milestone: 54
 
   # GitHub Actions updates targeting the 12.9.x branch
   - package-ecosystem: github-actions
@@ -65,3 +65,5 @@ updates:
         applies-to: version-updates
         patterns: ["*"]
         update-types: ["major", "minor", "patch"]
+
+    labels: [CI/CD, dependencies]
