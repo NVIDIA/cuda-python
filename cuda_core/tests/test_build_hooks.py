@@ -976,8 +976,8 @@ class TestResolveToolchain:
         assert os.environ["CXX"] == "g++"
         assert os.environ["LDCXXSHARED"] == "g++ -shared -Wl,-O1"
         assert "LDSHARED" not in os.environ
-        # gcc-only flags are present (this is the point of P2: explicit gnu must use gcc, not generic cc)
-        assert "-fpermissive" not in cargs  # cuda.core gnu flags don't include it; bindings do
+        # Neither cuda.core nor cuda.bindings sets these gcc-only flags.
+        assert "-fpermissive" not in cargs
         assert "-fno-var-tracking-assignments" not in cargs
 
     @pytest.mark.agent_authored(model="grok-4.6")
@@ -1017,6 +1017,30 @@ class TestResolveToolchain:
         os.environ.pop("LDCXXSHARED")
         build_hooks._resolve_toolchain()
         assert os.environ["LDCXXSHARED"] == "clang++ -shared"
+
+    @pytest.mark.agent_authored(model="claude-sonnet-4-6")
+    def test_linux_opt_flag_set(self, monkeypatch):
+        """Linux opt build: -std=c++17, -O2; no gnu-only flags."""
+        if sys.platform == "win32":
+            pytest.skip("Linux flags only")
+        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+        _name, _cc, _cxx, cargs, largs = build_hooks._resolve_toolchain(debug=False)
+        assert "-std=c++17" in cargs
+        assert "-g0" in cargs
+        assert "-O2" in cargs
+        assert "-fpermissive" not in cargs
+        assert "-fno-var-tracking-assignments" not in cargs
+        assert "-Wl,--strip-all" in largs
+
+    @pytest.mark.agent_authored(model="claude-sonnet-4-6")
+    def test_msvc_opt_flag_set(self, monkeypatch):
+        """MSVC opt build emits /std:c++17 and /O2."""
+        if sys.platform != "win32":
+            pytest.skip("MSVC flags only on Windows")
+        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+        _name, _cc, _cxx, cargs, _largs = build_hooks._resolve_toolchain(debug=False)
+        assert "/std:c++17" in cargs
+        assert "/O2" in cargs
 
 
 class TestWithSccache:
