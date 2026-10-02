@@ -75,15 +75,15 @@ def _cythonize_tests(pyx_files):
     # .cython-bindings symlinks are not replaced. Relative aliases resolve
     # next to build_hooks.py (package root).
     stdlib_target = Path(Cython.__file__).parent / "Includes"
-    with build_hooks._stable_cython_alias(stdlib_target, Path(".cython-stdlib-tests")) as rel_stdlib:
-        with build_hooks._stable_cython_alias(
-            _bindings_source_root(), Path(".cython-bindings-tests")
-        ) as rel_bindings:
-            return cythonize(
-                pyx_files,
-                include_path=[".", rel_bindings, rel_stdlib],
-                **cythonize_kwargs,
-            )
+    with (
+        build_hooks._stable_cython_alias(stdlib_target, Path(".cython-stdlib-tests")) as rel_stdlib,
+        build_hooks._stable_cython_alias(_bindings_source_root(), Path(".cython-bindings-tests")) as rel_bindings,
+    ):
+        return cythonize(
+            pyx_files,
+            include_path=[".", rel_bindings, rel_stdlib],
+            **cythonize_kwargs,
+        )
 
 
 def main() -> None:
