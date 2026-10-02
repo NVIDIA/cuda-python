@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=a009878f"></script>
+    <script src="../_static/documentation_options.js?v=0f4fc706"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev165';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev172';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -601,6 +601,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.WorkqueueResourceOptions.html">cuda.core.WorkqueueResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html">cuda.core.ManagedBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.VirtualMemoryBuffer.html">cuda.core.VirtualMemoryBuffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
@@ -840,6 +841,12 @@ sticky CUDA errors are handled.</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAError</span></code></a> and <a class="reference internal" href="../generated/cuda.core.NVRTCError.html#cuda.core.NVRTCError" title="cuda.core.NVRTCError"><code class="xref py py-class docutils literal notranslate"><span class="pre">NVRTCError</span></code></a> are now importable from the
 top-level <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> namespace, alongside <a class="reference internal" href="../generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a>. Previously
 they were only available from a private module.</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a>, the <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> subclass that
+<a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> returns. Closing it on a capturing stream
+other than a default stream raises, because virtual memory deallocation
+cannot be captured. A release ordered on a default stream that would
+disturb a capture in its context is reported as a <a class="reference internal" href="../generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a>
+and proceeds without the synchronization.</p></li>
 </ul>
 </section>
 <section id="fixes-and-enhancements">
@@ -961,6 +968,46 @@ the others.
 <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.succ" title="cuda.core.graph.GraphNode.succ"><code class="xref py py-attr docutils literal notranslate"><span class="pre">graph.GraphNode.succ</span></code></a> views with an object that is not a
 <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode" title="cuda.core.graph.GraphNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphNode</span></code></a> is now a no-op instead of raising <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>,
 consistent with <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableSet" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSet</span></code></a> semantics.</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> now holds each physical allocation, address
+reservation and mapping in a reference-counted handle, so everything a
+buffer maps is released when the last buffer that maps it closes. The
+physical memory was leaked on every <code class="docutils literal notranslate"><span class="pre">allocate()</span></code> and grow
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2344">#2344</a>), the address
+range added by an in-place grow could not be freed
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2887">#2887</a>), a second
+grow of a buffer failed
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2908">#2908</a>), an
+unaligned grow recorded a size the driver rejects at close
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2907">#2907</a>), and a
+buffer was unmapped without waiting for the work queued on its stream
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2886">#2886</a>). No
+reservation is freed by hand any more
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2345">#2345</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2388">#2388</a>). The
+behavior of the resource changes as follows.
+<a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.modify_allocation" title="cuda.core.VirtualMemoryResource.modify_allocation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">VirtualMemoryResource.modify_allocation()</span></code></a> returns a new
+<a class="reference internal" href="../generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a> and leaves the buffer passed in open; the two
+alias the same physical memory, which is freed when the last of them closes,
+and the pointer is preserved when the driver grants the adjacent address
+range. The result is always a new buffer, so closing it never closes the
+buffer passed in; a request the buffer already covers returns a full alias
+without a driver call, and
+<a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.size" title="cuda.core.Buffer.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.size</span></code></a> after a grow is the aligned total. The <code class="docutils literal notranslate"><span class="pre">config</span></code>
+argument applies to the chunk that call adds and is no longer stored on the
+resource (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2909">#2909</a>);
+it must keep the resource’s location and passes the constructor’s option
+checks. It never changes the access of memory that is already mapped, so a
+request the buffer already covers has no effect even with <code class="docutils literal notranslate"><span class="pre">config</span></code>.
+Buffers from <code class="docutils literal notranslate"><span class="pre">allocate()</span></code> free themselves when they close and no longer
+call <a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.deallocate" title="cuda.core.VirtualMemoryResource.deallocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">VirtualMemoryResource.deallocate()</span></code></a>, which now serves pointers
+wrapped with <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.from_handle" title="cuda.core.Buffer.from_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_handle()</span></code></a>. A buffer records the stream passed
+to <code class="docutils literal notranslate"><span class="pre">allocate()</span></code>, and closing it waits for the work queued on that stream
+before it unmaps, because <code class="docutils literal notranslate"><span class="pre">cuMemUnmap</span></code> is not stream-ordered; close the
+buffer explicitly, or record an idle deallocation stream, to control when
+that wait happens. <code class="docutils literal notranslate"><span class="pre">modify_allocation</span></code> accepts only buffers
+this resource returned. <code class="docutils literal notranslate"><span class="pre">location_type=&quot;host&quot;</span></code> requires
+<code class="docutils literal notranslate"><span class="pre">handle_type=None</span></code>, which the driver requires. <code class="docutils literal notranslate"><span class="pre">allocate(0)</span></code> returns an
+empty buffer without a driver call.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">StridedMemoryView</span></code> DLPack C exchange API now preserves the underlying
 Python exception when an export or import fails, as required by the DLPack
 contract, instead of returning <code class="docutils literal notranslate"><span class="pre">-1</span></code> with no exception set.</p></li>
