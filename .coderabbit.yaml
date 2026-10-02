@@ -67,17 +67,16 @@ reviews:
   path_instructions:
     - path: "cuda_bindings/**/*"
       instructions: |
-        Focus on Cython binding correctness, CUDA driver/runtime API and ABI stability, error-code propagation,
-        resource ownership and reference counting, GIL handling, cross-platform behavior, and NVRTC/nvJitLink
-        coverage. Flag direct edits to generated sources that should instead be made at their generation source.
+        Focus on Cython binding correctness, API and ABI stability, error-code propagation,
+        resource ownership and reference counting, GIL handling, cross-platform behavior. 
         Avoid style-only comments already covered by pre-commit.
 
     - path: "cuda_core/**/*"
       instructions: |
         Focus on Python API stability, stream ordering, CUDA resource lifetime and ownership, CUDA Array Interface
         compatibility, host/device memory semantics, error translation, and free-threading correctness. Check that
-        public behavior changes have corresponding tests and documentation. Avoid style-only comments already
-        covered by pre-commit.
+        public behavior changes have corresponding tests, documentation and release notes. Avoid style-only comments 
+        already covered by pre-commit.
 
     - path: "cuda_pathfinder/**/*"
       instructions: |
