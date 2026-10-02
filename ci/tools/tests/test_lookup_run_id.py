@@ -93,8 +93,23 @@ if args[:2] == ["run", "view"]:
 
 if args[:1] == ["api"]:
     endpoint = _endpoint()
+    if endpoint and endpoint.endswith("/actions/workflows?per_page=100"):
+        if "--paginate" not in args or "--jq" not in args:
+            print("workflow lookup must be paginated and filtered", file=sys.stderr)
+            raise SystemExit(2)
+        for workflow in json.loads(os.environ["FAKE_WORKFLOWS"]):
+            print(json.dumps({key: workflow[key] for key in ("id", "name", "path")}))
+        raise SystemExit(0)
+
     if endpoint and "/actions/workflows/" in endpoint and endpoint.endswith("/runs"):
-        if not endpoint.endswith("/actions/workflows/ci.yml/runs"):
+        workflow_match = re.search(r"/actions/workflows/([^/]+)/runs$", endpoint)
+        if workflow_match is None:
+            print(f"could not determine workflow ID: {endpoint}", file=sys.stderr)
+            raise SystemExit(2)
+        workflow_id = workflow_match.group(1)
+        workflows = json.loads(os.environ["FAKE_WORKFLOWS"])
+        workflow_ids = {str(workflow["id"]) for workflow in workflows}
+        if workflow_id not in workflow_ids:
             print(f"unexpected workflow run endpoint: {endpoint}", file=sys.stderr)
             raise SystemExit(2)
         if _option_value("--method") != "GET":
@@ -156,6 +171,16 @@ def _run(
     }
 
 
+DEFAULT_WORKFLOWS = [
+    {"id": 1001, "name": "CI", "path": ".github/workflows/ci.yml"},
+    {
+        "id": 1002,
+        "name": "CI: Coverage",
+        "path": ".github/workflows/coverage.yml",
+    },
+]
+
+
 @pytest.fixture
 def fake_gh(tmp_path):
     fake_bin = tmp_path / "bin"
@@ -166,13 +191,24 @@ def fake_gh(tmp_path):
     return fake_bin
 
 
-def _lookup(fake_gh, runs, artifacts, *args, workflow="CI", rest_runs=None):
+def _lookup(
+    fake_gh,
+    runs,
+    artifacts,
+    *args,
+    workflow="CI",
+    rest_runs=None,
+    workflows=None,
+):
     env = os.environ.copy()
     env.update(
         {
             "FAKE_ARTIFACTS": json.dumps(artifacts),
             "FAKE_REST_RUNS": json.dumps(runs if rest_runs is None else rest_runs),
             "FAKE_RUNS": json.dumps(runs),
+            "FAKE_WORKFLOWS": json.dumps(
+                DEFAULT_WORKFLOWS if workflows is None else workflows
+            ),
             "GH_TOKEN": "test-token",
             "PATH": f"{fake_gh}{os.pathsep}{env['PATH']}",
         }
@@ -234,6 +270,48 @@ class TestBranchLookup:
 
         assert result.returncode == 0, result.stderr
         assert result.stdout.strip() == "300"
+
+    def test_prefers_successful_rest_duplicate_over_stale_run_list_record(
+        self, fake_gh
+    ):
+        runs = [
+            _run(
+                300,
+                "2026-09-22T12:00:00Z",
+                conclusion="",
+                status="in_progress",
+            )
+        ]
+        rest_runs = [_run(300, "2026-09-22T12:00:00Z")]
+
+        result = _lookup(
+            fake_gh,
+            runs,
+            {},
+            "--branch",
+            "12.9.x",
+            rest_runs=rest_runs,
+        )
+
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == "300"
+
+    def test_resolves_non_ci_workflow_display_name_for_rest_cross_check(
+        self, fake_gh
+    ):
+        runs = [_run(200, "2026-08-11T12:00:00Z", workflow="CI: Coverage")]
+
+        result = _lookup(
+            fake_gh,
+            runs,
+            {},
+            "--branch",
+            "12.9.x",
+            workflow="CI: Coverage",
+        )
+
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == "200"
 
     def test_selects_newest_run_with_filename_workflow_selector(self, fake_gh):
         runs = [
