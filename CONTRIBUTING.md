@@ -219,14 +219,16 @@ and freshly rendered HTML, including link fragments. It runs on PR updates and
 from nightly CI; copied `pull-request/*` branches do not repeat these checks.
 
 Nightly link checks start with a fresh cache and publish successful checks for
-PRs to reuse for up to one day. Quarterly pre-commit hook updates arrive as
-draft PRs for review. Lychee version updates are maintained separately so its
-local hook and CI binary stay aligned. The local lychee hook keeps its current
-behavior until a stable release supports an explicit cache location.
+PRs to reuse for up to one day. Dependabot checks pre-commit hook revisions
+monthly and opens update PRs with the `CI/CD` and `dependencies` labels, without
+an automatic assignee or milestone. Lychee version updates are maintained
+separately so its local hook and CI binary stay aligned. The local lychee hook
+keeps its current behavior until a stable release supports an explicit cache
+location.
 
-See [the pre-commit migration procedure](ci/README-pre-commit-migration.md) for
-manual workflow testing and the required-check cutover. The existing
-pre-commit.ci service remains required until that cutover is complete.
+See [the pre-commit workflow guide](ci/README-pre-commit-migration.md) for manual
+workflow testing. The existing pre-commit.ci service remains required until the
+required-check cutover is complete.
 
 To set yourself up for running pre-commit checks locally and to catch issues before pushing your changes, follow these steps:
 
