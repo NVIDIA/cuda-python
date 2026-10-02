@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_gpu\_max\_pcie\_link\_generation
+================================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_gpu_max_pcie_link_generation

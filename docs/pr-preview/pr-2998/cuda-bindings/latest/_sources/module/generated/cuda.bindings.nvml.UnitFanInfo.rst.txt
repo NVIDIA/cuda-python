@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.UnitFanInfo
+==============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: UnitFanInfo
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UnitFanInfo.__init__
+      ~UnitFanInfo.from_buffer
+      ~UnitFanInfo.from_data
+      ~UnitFanInfo.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~UnitFanInfo.ptr
+      ~UnitFanInfo.speed
+      ~UnitFanInfo.state
+   
+   
