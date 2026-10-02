@@ -81,6 +81,11 @@ New features
 Fixes and enhancements
 ----------------------
 
+- :attr:`system.Device.uuid_without_prefix` preserves UUIDs that NVML already
+  reports without a prefix, such as on Orin. This also allows
+  :meth:`system.Device.to_cuda_device` to match those devices correctly.
+  (`#2947 <https://github.com/NVIDIA/cuda-python/pull/2947>`__)
+
 - A :class:`Program` that is collected as part of a reference cycle no longer
   raises ``AttributeError`` from its destructor, and the source file it wrote
   for a ``debug`` or ``lineinfo`` build is removed. The cyclic collector
