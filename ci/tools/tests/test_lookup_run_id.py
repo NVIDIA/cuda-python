@@ -271,9 +271,7 @@ class TestBranchLookup:
         assert result.returncode == 0, result.stderr
         assert result.stdout.strip() == "300"
 
-    def test_prefers_successful_rest_duplicate_over_stale_run_list_record(
-        self, fake_gh
-    ):
+    def test_prefers_successful_rest_duplicate_over_stale_run_list_record(self, fake_gh):
         runs = [
             _run(
                 300,
@@ -296,9 +294,7 @@ class TestBranchLookup:
         assert result.returncode == 0, result.stderr
         assert result.stdout.strip() == "300"
 
-    def test_resolves_non_ci_workflow_display_name_for_rest_cross_check(
-        self, fake_gh
-    ):
+    def test_resolves_non_ci_workflow_display_name_for_rest_cross_check(self, fake_gh):
         runs = [_run(200, "2026-08-11T12:00:00Z", workflow="CI: Coverage")]
 
         result = _lookup(
