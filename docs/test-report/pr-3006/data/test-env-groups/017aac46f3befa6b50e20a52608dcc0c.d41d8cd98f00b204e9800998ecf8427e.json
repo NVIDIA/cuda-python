@@ -1,0 +1,1 @@
+{"id":"017aac46f3befa6b50e20a52608dcc0c.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_cudart.test_getLocalRuntimeVersion","name":"test_getLocalRuntimeVersion","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"66fdb1572d4b83ae9fd09096406d88b6","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"0447f490aacd76246c8fded8eb1edb82"}}

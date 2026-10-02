@@ -1,0 +1,1 @@
+{"id":"8a949362340dd19adc2be30c08728fc3.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_envvar.test_envvar_bool_parsing[one]","name":"test_envvar_bool_parsing[one]","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"76186fb3c6cefd5820e9f9b45647d097","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"37daa2311d65eb3834d7f7ac9d79072a"}}

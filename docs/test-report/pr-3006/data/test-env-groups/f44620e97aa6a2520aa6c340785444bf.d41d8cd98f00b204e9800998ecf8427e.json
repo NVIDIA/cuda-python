@@ -1,0 +1,1 @@
+{"id":"f44620e97aa6a2520aa6c340785444bf.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_kernelParams.test_kernelParams[ctypes]","name":"test_kernelParams[ctypes]","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"709a060847d67c39b7e8a8d8ac7b2b21","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"5590ba953444cd50efe76f5644821104"}}

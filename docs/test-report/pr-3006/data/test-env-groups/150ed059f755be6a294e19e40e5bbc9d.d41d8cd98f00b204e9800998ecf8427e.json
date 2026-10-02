@@ -1,0 +1,1 @@
+{"id":"150ed059f755be6a294e19e40e5bbc9d.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_cuda.test_cuda_struct_list_of_enums","name":"test_cuda_struct_list_of_enums","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"0101b000e1c485c906a7de89ad83ad31","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"f8e8e8e51e02521195f8d6cd34cc4235"}}

@@ -1,0 +1,1 @@
+{"id":"1bc4dc69d5b7f04145538b05df842c23.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_cuda.test_cuda_array","name":"test_cuda_array","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"0e1cc9cb48fa3bb12c16935025f90917","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"14f8f1dee61e4509cb590ebee9ef63db"}}

@@ -1,0 +1,1 @@
+{"id":"8b18c80586c58e1c254fcce115fd8847.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_cuda.test_cuda_repr_pointer","name":"test_cuda_repr_pointer","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"c853ec8585ae0ac3899ae747843bdbaa","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"faf0fd2458cf2b8f9ea7a7b1c7a4a09a"}}

@@ -1,0 +1,1 @@
+{"id":"74dbb76c246803db48f492989cf97e7b.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_nvrtc.test_get_supported_archs","name":"test_get_supported_archs","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"ad169fa7496ecb5515f7c8622af78d79","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"b5b4535d3db3e92aa284678eb0321dd4"}}

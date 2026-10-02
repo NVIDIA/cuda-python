@@ -1,0 +1,1 @@
+{"id":"72d0d9a7029fda1ec8637a25f72cedd9.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_cudart.test_cudart_cudaMemset3D","name":"test_cudart_cudaMemset3D","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"c4282eb231ac7dd91b95301e5655d70b","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"768adeb0fefd9e2f399602c809eb365c"}}

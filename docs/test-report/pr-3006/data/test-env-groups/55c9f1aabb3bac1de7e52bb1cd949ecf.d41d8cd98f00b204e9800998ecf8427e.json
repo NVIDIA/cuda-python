@@ -1,0 +1,1 @@
+{"id":"55c9f1aabb3bac1de7e52bb1cd949ecf.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_cuda.test_graph_poly","name":"test_graph_poly","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"a03e80e508c84c2d81f9418bdbf022b5","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"8849797fd59e34ed327747071899a25c"}}

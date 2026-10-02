@@ -1,0 +1,1 @@
+{"id":"f7ba69c0155d6acfab3bf517bee72c21.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_basics.test_enum[MyFastEnum]","name":"test_enum[MyFastEnum]","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"539cd25e6e2a86f04906f06b8d9251ac","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"7a2f785b3002b3969e31b3cca2a33096"}}

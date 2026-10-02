@@ -1,0 +1,1 @@
+{"id":"228909ef7a5a6c9003a44599992407e6.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.cython.test_cython.test_ccudart_interoperable","name":"test_ccudart_interoperable","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"abe3d17d3a38a55d6e49b3d96346cf7e","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"0e1fe4a91de3b2b47f5d8f7ea5858f10"}}

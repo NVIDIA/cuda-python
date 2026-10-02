@@ -1,0 +1,1 @@
+{"id":"365af1f220839632130d55829217d7ee.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.nvml.test_device.test_read_prm_counters","name":"test_read_prm_counters","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"208de6d3538dd05858193c4bdf7f7999","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"3b927e398425c7594e12dddaf5461386"}}

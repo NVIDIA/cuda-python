@@ -1,0 +1,1 @@
+{"id":"ca17565a5a8c392f6a4986de5baa0167.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_cudart.test_cudaDevSmResourceSplit","name":"test_cudaDevSmResourceSplit","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"8b11b67c6d9b7a6dcf56656f19b2b592","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"181cbd5a9f73dd188354d830a4b02c5f"}}

@@ -1,0 +1,1 @@
+{"id":"f2fecd92981567df1d85da1c47da9e2d.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.nvml.test_pynvml.test_device_get_attributes","name":"test_device_get_attributes","status":"skipped","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"2c2eebca1601b105da5574413818cf36","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"50c80aaa77206bcc1832346d8f40672b"}}

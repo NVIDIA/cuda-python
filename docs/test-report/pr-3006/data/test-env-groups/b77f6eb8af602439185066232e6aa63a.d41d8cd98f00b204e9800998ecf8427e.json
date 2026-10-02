@@ -1,0 +1,1 @@
+{"id":"b77f6eb8af602439185066232e6aa63a.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_interoperability.test_interop_deviceptr","name":"test_interop_deviceptr","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"6c8f84fcbd5247c1eb6ce336eb221f1e","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"f52f95c86fd82469631be737746d3f95"}}

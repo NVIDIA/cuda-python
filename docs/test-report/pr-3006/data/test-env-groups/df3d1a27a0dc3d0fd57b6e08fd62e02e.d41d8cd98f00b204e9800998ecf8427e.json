@@ -1,0 +1,1 @@
+{"id":"df3d1a27a0dc3d0fd57b6e08fd62e02e.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.cython.test_cython.test_interop_event","name":"test_interop_event","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"3b42f9f09a7eeb3cc0b85d11147d9887","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"1ab11b025274061f62166ad6cdb486d3"}}
