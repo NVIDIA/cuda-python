@@ -1130,9 +1130,10 @@ class Device:
         device, as a 5 part hexadecimal string, that augments the immutable,
         board serial identifier.
 
-        In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
-        prefix.  If you need a `uuid` without that prefix (for example, to
-        interact with CUDA), use the `uuid_without_prefix` property.
+        Returns the UUID exactly as reported by NVML.  It usually includes a
+        ``GPU-``, ``MIG-``, or ``DLA-`` prefix, but some platforms report an
+        unprefixed UUID.  To interact with CUDA, use the `uuid_without_prefix`
+        property.
         """
     @property
     def uuid_without_prefix(self) -> str:
@@ -1141,9 +1142,10 @@ class Device:
         device, as a 5 part hexadecimal string, that augments the immutable,
         board serial identifier.
 
-        In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
-        prefix.  This property returns it without the prefix, to match the UUIDs
-        used in CUDA.  If you need the prefix, use the `uuid` property.
+        Removes a ``GPU-``, ``MIG-``, or ``DLA-`` prefix when present, to match
+        the UUIDs used in CUDA.  An already unprefixed UUID is returned
+        unchanged.  For the UUID exactly as reported by NVML, use the `uuid`
+        property.
         """
     @property
     def pci_bus_id(self) -> str:

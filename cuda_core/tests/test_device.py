@@ -26,14 +26,14 @@ def test_device_init_disabled():
         cuda.core._device.DeviceProperties()  # Ensure back door is locked.
 
 
-def test_to_system_device(deinit_cuda):
+@pytest.mark.agent_authored(model="gpt-6")
+def test_to_system_device(init_cuda):
+    device = init_cuda
 
-    device = Device()
+    from cuda_python_test_helpers.arch_check import hardware_supports_nvml_device_apis
 
-    from cuda_python_test_helpers.arch_check import hardware_supports_nvml
-
-    if not hardware_supports_nvml():
-        pytest.skip("NVML not supported on this platform")
+    if not hardware_supports_nvml_device_apis():
+        pytest.skip("NVML device APIs are incomplete or unavailable on this platform")
 
     from cuda.core.system import Device as SystemDevice
 
