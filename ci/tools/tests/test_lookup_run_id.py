@@ -206,9 +206,7 @@ def _lookup(
             "FAKE_ARTIFACTS": json.dumps(artifacts),
             "FAKE_REST_RUNS": json.dumps(runs if rest_runs is None else rest_runs),
             "FAKE_RUNS": json.dumps(runs),
-            "FAKE_WORKFLOWS": json.dumps(
-                DEFAULT_WORKFLOWS if workflows is None else workflows
-            ),
+            "FAKE_WORKFLOWS": json.dumps(DEFAULT_WORKFLOWS if workflows is None else workflows),
             "GH_TOKEN": "test-token",
             "PATH": f"{fake_gh}{os.pathsep}{env['PATH']}",
         }
