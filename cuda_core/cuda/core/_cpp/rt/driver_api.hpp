@@ -126,7 +126,19 @@ namespace cuda_core::rt {
     X(cuTexObjectCreate, 5000)                   \
     X(cuTexObjectDestroy, 5000)                  \
     X(cuSurfObjectCreate, 5000)                  \
-    X(cuSurfObjectDestroy, 5000)
+    X(cuSurfObjectDestroy, 5000)                 \
+    /* Virtual memory management (VMM_DESIGN.md) */ \
+    X(cuMemCreate, 10020)                        \
+    X(cuMemRelease, 10020)                       \
+    X(cuMemAddressReserve, 10020)                \
+    X(cuMemAddressFree, 10020)                   \
+    X(cuMemMap, 10020)                           \
+    X(cuMemUnmap, 10020)                         \
+    X(cuMemSetAccess, 10020)                     \
+    /* cuda-bindings requests 7000 (PTDS) or 2000 (legacy) */ \
+    X(cuStreamSynchronize, 7000)                 \
+    X(cuStreamIsCapturing, 10000)                \
+    X(cuThreadExchangeStreamCaptureMode, 10010)
 
 #define CUDA_CORE_DECLARE_DRIVER_FN(name, introduced) extern decltype(&name) p_##name;
 CUDA_CORE_DRIVER_FUNCTIONS(CUDA_CORE_DECLARE_DRIVER_FN)
