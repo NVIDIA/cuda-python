@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_grid\_licensable\_features\_v4
+==============================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_grid_licensable_features_v4
