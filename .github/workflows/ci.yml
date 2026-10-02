@@ -660,6 +660,10 @@ jobs:
     name: Check job status
     if: ${{ always() && github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
+    permissions:
+      actions: read  # download the test-results artifacts
+      contents: write  # publish the report to the gh-pages branch
+      pull-requests: write  # sticky comment with the report link
     needs:
       - ci-vars
       - should-skip
@@ -678,6 +682,102 @@ jobs:
       - doc
       - precommit-windows
     steps:
+      # DEMO: render every test job's JUnit XML as an Allure report and publish
+      # it to GitHub Pages next to the docs previews. Every step is
+      # informational: continue-on-error keeps it away from the gate below, and
+      # none of them fails on test failures.
+      - name: Checkout repository
+        if: ${{ needs.should-skip.outputs.skip != 'true' }}
+        continue-on-error: true
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 1
+
+      - name: Download test results
+        if: ${{ needs.should-skip.outputs.skip != 'true' }}
+        continue-on-error: true
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          pattern: test-results-*
+          path: test-results
+
+      - name: Prepare the Allure results
+        # One flat directory of JUnit files, each suite tagged with its CI
+        # configuration, plus an allurerc.mjs that maps the tags to Allure
+        # environments so the configurations stay apart in the report.
+        if: ${{ needs.should-skip.outputs.skip != 'true' }}
+        continue-on-error: true
+        run: |
+          python3 ci/tools/allure_prepare.py \
+            --results test-results \
+            --output allure-results \
+            --config allurerc.mjs \
+            --report-name "cuda-python CI test results (${{ github.sha }})"
+
+      - name: Generate the Allure report
+        # Allure Report 3 is a CLI from npm, run here as a plain command.
+        if: ${{ needs.should-skip.outputs.skip != 'true' }}
+        continue-on-error: true
+        run: |
+          npx --yes allure@3.20.0 generate allure-results -o allure-report
+          size=$(du -sh allure-report | cut -f1)
+          files=$(find allure-report -type f | wc -l)
+          compressed=$(tar czf - allure-report | wc -c | awk '{ printf "%.0f MB", $1 / 1048576 }')
+          echo "ALLURE_REPORT_SIZE=${size}" >> "$GITHUB_ENV"
+          echo "ALLURE_REPORT_FILES=${files}" >> "$GITHUB_ENV"
+          echo "ALLURE_REPORT_COMPRESSED=${compressed}" >> "$GITHUB_ENV"
+          {
+            echo "## Allure report"
+            echo
+            echo "Size on disk: ${size} in ${files} files (${compressed} compressed)."
+            echo
+            echo '```json'
+            cat allure-report/widgets/statistic.json
+            echo
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the Allure report
+        if: ${{ needs.should-skip.outputs.skip != 'true' }}
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: allure-report
+          path: allure-report/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      # Only mirror branches have a PR to publish for and to comment on.
+      - name: Get PR number
+        if: ${{ needs.should-skip.outputs.skip != 'true' && startsWith(github.ref_name, 'pull-request/') }}
+        continue-on-error: true
+        uses: ./.github/actions/get_pr_number
+
+      - name: Publish the Allure report to GitHub Pages
+        # Same mechanism as the docs preview: a folder in the gh-pages branch,
+        # served at https://nvidia.github.io/cuda-python/test-report/pr-N/.
+        if: ${{ needs.should-skip.outputs.skip != 'true' && startsWith(github.ref_name, 'pull-request/') && env.PR_NUMBER != '' }}
+        continue-on-error: true
+        uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445  # v4.9.0
+        with:
+          git-config-name: cuda-python-bot
+          git-config-email: cuda-python-bot@users.noreply.github.com
+          folder: allure-report
+          target-folder: docs/test-report/pr-${{ env.PR_NUMBER }}/
+          commit-message: "Deploy test report for PR ${{ env.PR_NUMBER }} (${{ github.sha }})"
+
+      - name: Post the test-report comment
+        if: ${{ needs.should-skip.outputs.skip != 'true' && startsWith(github.ref_name, 'pull-request/') && env.PR_NUMBER != '' }}
+        continue-on-error: true
+        uses: marocchino/sticky-pull-request-comment@d4d6b0936434b21bc8345ad45a440c5f7d2c40ff  # v3.0.3
+        with:
+          header: test-report
+          number: ${{ env.PR_NUMBER }}
+          message: |
+            Allure test report for ${{ github.sha }}: https://nvidia.github.io/cuda-python/test-report/pr-${{ env.PR_NUMBER }}/
+
+            The report is ${{ env.ALLURE_REPORT_SIZE }} on disk in ${{ env.ALLURE_REPORT_FILES }} files (${{ env.ALLURE_REPORT_COMPRESSED }} compressed), all committed to the gh-pages branch.
+
       - name: Exit
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
