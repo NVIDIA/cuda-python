@@ -8,18 +8,38 @@ Cython's filesystem .pxd resolver only walks real directories on sys.path,
 so `cimport cuda.bindings.*` fails to locate the .pxd files. We resolve
 the namespace package's source root from `cuda.bindings.__file__` and pass
 it via `include_path=` so cythonize finds the .pxd tree on every platform.
+
+When CUDA_PYTHON_CYTHON_CACHE_DIR is set, cythonize uses the same cache
+namespacing and include-path aliasing as cuda_bindings/build_hooks.py.
 """
 
 from __future__ import annotations
 
+import importlib.util
 import os
 import sys
 from pathlib import Path
 
+import Cython
 from Cython.Build import cythonize
 from setuptools import setup
 
 import cuda.bindings
+
+_COMPILER_DIRECTIVES = {"freethreading_compatible": True}
+
+
+def _load_build_hooks():
+    # PEP 517 backend, not an installed module. Load by path so we do not put
+    # cuda_bindings/ on sys.path (that would shadow the installed package).
+    build_hooks_path = Path(__file__).resolve().parents[2] / "build_hooks.py"
+    spec = importlib.util.spec_from_file_location("cuda_bindings_build_hooks", build_hooks_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+build_hooks = _load_build_hooks()
 
 
 def _bindings_source_root() -> Path:
@@ -32,6 +52,41 @@ def _bindings_source_root() -> Path:
     return root
 
 
+def _cythonize_tests(pyx_files):
+    cache_path = build_hooks._cython_cache_path(
+        "cuda-bindings-cython-tests",
+        compiler_directives=_COMPILER_DIRECTIVES,
+        language_level=3,
+        cplus=True,
+    )
+    cythonize_kwargs = {
+        "language_level": 3,
+        "nthreads": 1,
+        "compiler_directives": _COMPILER_DIRECTIVES,
+        "cache": cache_path,
+    }
+    if cache_path is None:
+        return cythonize(
+            pyx_files,
+            include_path=[str(_bindings_source_root())],
+            **cythonize_kwargs,
+        )
+
+    # Distinct alias names so a concurrent package build's .cython-stdlib /
+    # .cython-bindings symlinks are not replaced. Relative aliases resolve
+    # next to build_hooks.py (package root).
+    stdlib_target = Path(Cython.__file__).parent / "Includes"
+    with (
+        build_hooks._stable_cython_alias(stdlib_target, Path(".cython-stdlib-tests")) as rel_stdlib,
+        build_hooks._stable_cython_alias(_bindings_source_root(), Path(".cython-bindings-tests")) as rel_bindings,
+    ):
+        return cythonize(
+            pyx_files,
+            include_path=[".", rel_bindings, rel_stdlib],
+            **cythonize_kwargs,
+        )
+
+
 def main() -> None:
     script_dir = Path(__file__).resolve().parent
     # Avoid appending the absolute checkout path under build/temp: the
@@ -41,13 +96,7 @@ def main() -> None:
     if not pyx_files:
         raise SystemExit(f"no test_*.pyx files under {script_dir}")
 
-    ext_modules = cythonize(
-        pyx_files,
-        language_level=3,
-        nthreads=1,
-        include_path=[str(_bindings_source_root())],
-        compiler_directives={"freethreading_compatible": True},
-    )
+    ext_modules = _cythonize_tests(pyx_files)
 
     # pytest imports each extension by bare module name (see test_cython.py),
     # so build in-place next to its .pyx regardless of the invoking cwd.
