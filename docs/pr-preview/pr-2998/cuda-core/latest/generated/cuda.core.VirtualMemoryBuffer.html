@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.Buffer &#8212; cuda.core</title>
+    <title>cuda.core.VirtualMemoryBuffer &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.Buffer';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.VirtualMemoryBuffer';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -59,13 +59,13 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2998/cuda-core/latest/generated/cuda.core.Buffer.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2998/cuda-core/latest/generated/cuda.core.VirtualMemoryBuffer.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.ManagedBuffer" href="cuda.core.ManagedBuffer.html" />
-    <link rel="prev" title="cuda.core.WorkqueueResourceOptions" href="cuda.core.WorkqueueResourceOptions.html" />
+    <link rel="next" title="cuda.core.MemoryResource" href="cuda.core.MemoryResource.html" />
+    <link rel="prev" title="cuda.core.ManagedBuffer" href="cuda.core.ManagedBuffer.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -600,9 +600,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ContextOptions.html">cuda.core.ContextOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.SMResourceOptions.html">cuda.core.SMResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.WorkqueueResourceOptions.html">cuda.core.WorkqueueResourceOptions</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ManagedBuffer.html">cuda.core.ManagedBuffer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryBuffer.html">cuda.core.VirtualMemoryBuffer</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.VirtualMemoryBuffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
@@ -764,7 +764,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.Buffer</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.VirtualMemoryBuffer</span></li>
   </ul>
 </nav>
 </div>
@@ -781,31 +781,26 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-buffer">
-<h1>cuda.core.Buffer<a class="headerlink" href="#cuda-core-buffer" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-virtualmemorybuffer">
+<h1>cuda.core.VirtualMemoryBuffer<a class="headerlink" href="#cuda-core-virtualmemorybuffer" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.Buffer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">Buffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Buffer" title="Link to this definition">#</a></dt>
-<dd><p>Represent a handle to allocated memory.</p>
-<p>This generic object provides a unified representation for how
-different memory resources are to give access to their memory
-allocations.</p>
-<p>Support for data interchange mechanisms are provided by DLPack.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Pickling an IPC-enabled <a class="reference internal" href="#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> embeds an
-<code class="xref py py-class docutils literal notranslate"><span class="pre">IPCBufferDescriptor</span></code>. Unpickling reconstructs the buffer
-by calling <a class="reference internal" href="#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_ipc_descriptor()</span></code></a> and therefore performs an IPC
-import. Do not unpickle buffers from untrusted sources.</p>
-</div>
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">VirtualMemoryBuffer</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer" title="Link to this definition">#</a></dt>
+<dd><p>A <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> returned by <a class="reference internal" href="cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a>.</p>
+<p>The buffer owns its address reservations, physical allocations and
+mappings through its device pointer handle; closing it is the only way
+to release them. A buffer returned by
+<a class="reference internal" href="cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.modify_allocation" title="cuda.core.VirtualMemoryResource.modify_allocation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">VirtualMemoryResource.modify_allocation()</span></code></a> aliases the buffer it
+was grown from: the two share their physical memory, and that memory is
+freed when the last buffer that maps it closes.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Buffer.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Buffer.__init__" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Buffer.close">
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span>
 
 <dl>
@@ -813,27 +808,29 @@ import. Do not unpickle buffers from untrusted sources.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><span class="pre">GraphBuilder</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.Buffer.close" title="Link to this definition">#</a></dt>
-<dd><p>Deallocate this buffer asynchronously on the given stream.</p>
-<p>This buffer is released back to their memory resource
-asynchronously on the given stream.</p>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.close" title="Link to this definition">#</a></dt>
+<dd><p>Release this buffer’s share of its address range.</p>
+<p>Each mapping, reservation and physical allocation goes away when the
+last buffer that holds it closes. Virtual memory is unmapped
+synchronously, so this call waits for the work queued on the
+deallocation stream before it releases this buffer’s share; a buffer
+released by the garbage collector waits at that point instead. The
+unmap cannot be captured. When the stream this close uses, given or recorded, is not
+a default stream and is capturing, the call raises and leaves the
+buffer open. A default stream is checked when the range is released
+instead: if synchronizing it would disturb a capture in its context,
+the release reports a <a class="reference internal" href="cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a> and unmaps without
+synchronizing that stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, optional) – The stream object to use for asynchronous deallocation. If None,
-the deallocation stream stored in the handle is used.</p>
+<dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, optional) – If given, replaces the recorded deallocation stream, as for
+<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.close" title="cuda.core.Buffer.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.close()</span></code></a>.</p>
 </dd>
 </dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<dl class="simple">
-<dt><a class="reference internal" href="#cuda.core.Buffer.set_deallocation_stream" title="cuda.core.Buffer.set_deallocation_stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_deallocation_stream</span></code></a></dt><dd><p>Change the deallocation stream without closing the buffer.</p>
-</dd>
-</dl>
-</div>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Buffer.copy_from">
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.copy_from">
 <span class="sig-name descname"><span class="pre">copy_from</span></span><span class="sig-paren">(</span>
 
 <dl>
@@ -844,7 +841,7 @@ the deallocation stream stored in the handle is used.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">options:</span> <span class="pre">CopyOptions</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.Buffer.copy_from" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.copy_from" title="Link to this definition">#</a></dt>
 <dd><p>Copy from the src buffer to this buffer asynchronously on the given stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -878,7 +875,7 @@ instead of silently downgrading its guarantee.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Buffer.copy_to">
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.copy_to">
 <span class="sig-name descname"><span class="pre">copy_to</span></span><span class="sig-paren">(</span>
 
 <dl>
@@ -889,7 +886,7 @@ instead of silently downgrading its guarantee.</p></li>
 <dd><em class="sig-param"><span class="n"><span class="pre">options:</span> <span class="pre">CopyOptions</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.Buffer" title="cuda.core.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.Buffer.copy_to" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.copy_to" title="Link to this definition">#</a></dt>
 <dd><p>Copy from this buffer to the dst buffer asynchronously on the given stream.</p>
 <p>Copies the data from this buffer to the provided dst buffer.
 If the dst buffer is not provided, then a new buffer is first
@@ -927,7 +924,7 @@ instead of silently downgrading its guarantee.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Buffer.fill">
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.fill">
 <span class="sig-name descname"><span class="pre">fill</span></span><span class="sig-paren">(</span>
 
 <dl>
@@ -937,7 +934,7 @@ instead of silently downgrading its guarantee.</p></li>
 <dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.Buffer.fill" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.fill" title="Link to this definition">#</a></dt>
 <dd><p>Fill this buffer with a repeating byte pattern.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -962,7 +959,7 @@ instead of silently downgrading its guarantee.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Buffer.from_handle">
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.from_handle">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_handle</span></span><span class="sig-paren">(</span>
 
 <dl>
@@ -974,8 +971,8 @@ instead of silently downgrading its guarantee.</p></li>
 <dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">GraphBuilder</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.Buffer" title="cuda.core.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.Buffer.from_handle" title="Link to this definition">#</a></dt>
-<dd><p>Create a new <a class="reference internal" href="#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> object from a pointer.</p>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.from_handle" title="Link to this definition">#</a></dt>
+<dd><p>Create a new <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> object from a pointer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1002,12 +999,12 @@ refers to a different stream on each thread.</p></li>
 <p class="admonition-title">Note</p>
 <p>When neither <code class="docutils literal notranslate"><span class="pre">mr</span></code> nor <code class="docutils literal notranslate"><span class="pre">owner</span></code> is specified, this creates a
 non-owning reference.  The pointer will NOT be freed when the
-<a class="reference internal" href="#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> is closed or garbage collected.</p>
+<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> is closed or garbage collected.</p>
 </div>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Buffer.from_ipc_descriptor">
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.from_ipc_descriptor">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ipc_descriptor</span></span><span class="sig-paren">(</span>
 
 <dl>
@@ -1018,7 +1015,7 @@ non-owning reference.  The pointer will NOT be freed when the
 <dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.Buffer" title="cuda.core.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.Buffer.from_ipc_descriptor" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.from_ipc_descriptor" title="Link to this definition">#</a></dt>
 <dd><p>Import a buffer that was exported from another process.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1039,7 +1036,7 @@ cooperating.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Buffer.set_deallocation_stream">
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.set_deallocation_stream">
 <span class="sig-name descname"><span class="pre">set_deallocation_stream</span></span><span class="sig-paren">(</span>
 
 <dl>
@@ -1047,9 +1044,9 @@ cooperating.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.Buffer.set_deallocation_stream" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.set_deallocation_stream" title="Link to this definition">#</a></dt>
 <dd><p>Change the stream that orders this buffer’s eventual deallocation.</p>
-<p>The buffer remains open and usable. A later <a class="reference internal" href="#cuda.core.Buffer.close" title="cuda.core.Buffer.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a> without a
+<p>The buffer remains open and usable. A later <a class="reference internal" href="#cuda.core.VirtualMemoryBuffer.close" title="cuda.core.VirtualMemoryBuffer.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a> without a
 stream, garbage collection, or release of the final retained device
 pointer handle uses the replacement stream.</p>
 <p>This method does not synchronize streams or establish dependencies.
@@ -1074,74 +1071,140 @@ is the caller’s responsibility.</p>
 
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Buffer.device_id">
-<span class="sig-name descname"><span class="pre">device_id</span></span><a class="headerlink" href="#cuda.core.Buffer.device_id" title="Link to this definition">#</a></dt>
-<dd><p>Return the device ordinal of this buffer, or -1 for memory not bound to a device.</p>
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.device_id">
+<span class="sig-name descname"><span class="pre">device_id</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.device_id" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>Return the device ordinal of this buffer, or -1 for memory not bound to a device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Buffer.device_id</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Buffer.handle">
-<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.Buffer.handle" title="Link to this definition">#</a></dt>
-<dd><p>Return the buffer handle object.</p>
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.handle" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>Return the buffer handle object.</p>
 <div class="admonition caution">
 <p class="admonition-title">Caution</p>
 <p>This handle is a Python object. To get the memory address of the underlying C
 handle, call <code class="docutils literal notranslate"><span class="pre">int(Buffer.handle)</span></code>.</p>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Buffer.handle</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Buffer.ipc_descriptor">
-<span class="sig-name descname"><span class="pre">ipc_descriptor</span></span><a class="headerlink" href="#cuda.core.Buffer.ipc_descriptor" title="Link to this definition">#</a></dt>
-<dd><p>Descriptor for sharing this buffer with other processes.</p>
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.ipc_descriptor">
+<span class="sig-name descname"><span class="pre">ipc_descriptor</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.ipc_descriptor" title="Link to this definition">#</a></dt>
+<dd><p>IPCBufferDescriptor</p>
+<p>Descriptor for sharing this buffer with other processes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Buffer.ipc_descriptor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Buffer.is_closed">
-<span class="sig-name descname"><span class="pre">is_closed</span></span><a class="headerlink" href="#cuda.core.Buffer.is_closed" title="Link to this definition">#</a></dt>
-<dd><p>Whether this buffer has been closed.</p>
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.is_closed">
+<span class="sig-name descname"><span class="pre">is_closed</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.is_closed" title="Link to this definition">#</a></dt>
+<dd><p>bool</p>
+<p>Whether this buffer has been closed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Buffer.is_closed</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Buffer.is_device_accessible">
-<span class="sig-name descname"><span class="pre">is_device_accessible</span></span><a class="headerlink" href="#cuda.core.Buffer.is_device_accessible" title="Link to this definition">#</a></dt>
-<dd><p>Return True if this buffer can be accessed by the GPU, otherwise False.</p>
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.is_device_accessible">
+<span class="sig-name descname"><span class="pre">is_device_accessible</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.is_device_accessible" title="Link to this definition">#</a></dt>
+<dd><p>bool</p>
+<p>Return True if this buffer can be accessed by the GPU, otherwise False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Buffer.is_device_accessible</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Buffer.is_host_accessible">
-<span class="sig-name descname"><span class="pre">is_host_accessible</span></span><a class="headerlink" href="#cuda.core.Buffer.is_host_accessible" title="Link to this definition">#</a></dt>
-<dd><p>Return True if this buffer can be accessed by the CPU, otherwise False.</p>
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.is_host_accessible">
+<span class="sig-name descname"><span class="pre">is_host_accessible</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.is_host_accessible" title="Link to this definition">#</a></dt>
+<dd><p>bool</p>
+<p>Return True if this buffer can be accessed by the CPU, otherwise False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Buffer.is_host_accessible</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Buffer.is_managed">
-<span class="sig-name descname"><span class="pre">is_managed</span></span><a class="headerlink" href="#cuda.core.Buffer.is_managed" title="Link to this definition">#</a></dt>
-<dd><p>Return True if this buffer is CUDA managed (unified) memory, otherwise False.</p>
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.is_managed">
+<span class="sig-name descname"><span class="pre">is_managed</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.is_managed" title="Link to this definition">#</a></dt>
+<dd><p>bool</p>
+<p>Return True if this buffer is CUDA managed (unified) memory, otherwise False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Buffer.is_managed</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Buffer.is_mapped">
-<span class="sig-name descname"><span class="pre">is_mapped</span></span><a class="headerlink" href="#cuda.core.Buffer.is_mapped" title="Link to this definition">#</a></dt>
-<dd><p>Return True if this buffer is mapped into the process via IPC.</p>
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.is_mapped">
+<span class="sig-name descname"><span class="pre">is_mapped</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.is_mapped" title="Link to this definition">#</a></dt>
+<dd><p>bool</p>
+<p>Return True if this buffer is mapped into the process via IPC.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Buffer.is_mapped</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Buffer.memory_resource">
-<span class="sig-name descname"><span class="pre">memory_resource</span></span><a class="headerlink" href="#cuda.core.Buffer.memory_resource" title="Link to this definition">#</a></dt>
-<dd><p>Return the memory resource associated with this buffer.</p>
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.memory_resource">
+<span class="sig-name descname"><span class="pre">memory_resource</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.memory_resource" title="Link to this definition">#</a></dt>
+<dd><p>MemoryResource</p>
+<p>Return the memory resource associated with this buffer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Buffer.memory_resource</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Buffer.owner">
-<span class="sig-name descname"><span class="pre">owner</span></span><a class="headerlink" href="#cuda.core.Buffer.owner" title="Link to this definition">#</a></dt>
-<dd><p>Return the object holding external allocation.</p>
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.owner">
+<span class="sig-name descname"><span class="pre">owner</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.owner" title="Link to this definition">#</a></dt>
+<dd><p>object</p>
+<p>Return the object holding external allocation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Buffer.owner</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Buffer.size">
-<span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#cuda.core.Buffer.size" title="Link to this definition">#</a></dt>
-<dd><p>Return the memory size of this buffer.</p>
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.size">
+<span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.size" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>Return the memory size of this buffer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Buffer.size</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1159,20 +1222,20 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.WorkqueueResourceOptions.html"
+       href="cuda.core.ManagedBuffer.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.WorkqueueResourceOptions</p>
+        <p class="prev-next-title">cuda.core.ManagedBuffer</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.ManagedBuffer.html"
+       href="cuda.core.MemoryResource.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.ManagedBuffer</p>
+        <p class="prev-next-title">cuda.core.MemoryResource</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1197,26 +1260,26 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer"><code class="docutils literal notranslate"><span class="pre">Buffer</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.__init__"><code class="docutils literal notranslate"><span class="pre">Buffer.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.close"><code class="docutils literal notranslate"><span class="pre">Buffer.close()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.copy_from"><code class="docutils literal notranslate"><span class="pre">Buffer.copy_from()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.copy_to"><code class="docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.fill"><code class="docutils literal notranslate"><span class="pre">Buffer.fill()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.from_handle"><code class="docutils literal notranslate"><span class="pre">Buffer.from_handle()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.from_ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.set_deallocation_stream"><code class="docutils literal notranslate"><span class="pre">Buffer.set_deallocation_stream()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.device_id"><code class="docutils literal notranslate"><span class="pre">Buffer.device_id</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.handle"><code class="docutils literal notranslate"><span class="pre">Buffer.handle</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">Buffer.ipc_descriptor</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_closed"><code class="docutils literal notranslate"><span class="pre">Buffer.is_closed</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">Buffer.is_device_accessible</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">Buffer.is_host_accessible</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_managed"><code class="docutils literal notranslate"><span class="pre">Buffer.is_managed</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_mapped"><code class="docutils literal notranslate"><span class="pre">Buffer.is_mapped</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.memory_resource"><code class="docutils literal notranslate"><span class="pre">Buffer.memory_resource</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.owner"><code class="docutils literal notranslate"><span class="pre">Buffer.owner</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.size"><code class="docutils literal notranslate"><span class="pre">Buffer.size</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.__init__"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.close"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.close()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.copy_from"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.copy_from()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.copy_to"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.copy_to()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.fill"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.fill()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.from_handle"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.from_handle()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.from_ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.from_ipc_descriptor()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.set_deallocation_stream"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.set_deallocation_stream()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.device_id"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.device_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.handle"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.handle</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.ipc_descriptor</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.is_closed"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.is_closed</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.is_device_accessible</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.is_host_accessible</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.is_managed"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.is_managed</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.is_mapped"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.is_mapped</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.memory_resource"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.memory_resource</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.owner"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.owner</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryBuffer.size"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryBuffer.size</span></code></a></li>
 </ul>
 </li>
 </ul>
