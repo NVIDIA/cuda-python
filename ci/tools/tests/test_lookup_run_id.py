@@ -104,6 +104,21 @@ if args[:1] == ["api"]:
         print(json.dumps({"commit": {"sha": os.environ["FAKE_BRANCH_HEAD_SHA"]}}))
         raise SystemExit(0)
 
+    if endpoint and endpoint.endswith("/commits"):
+        if _option_value("--method") != "GET":
+            print("commit lookup must use GET", file=sys.stderr)
+            raise SystemExit(2)
+        fields = _field_values()
+        if "per_page=25" not in fields:
+            print(f"commit lookup must request per_page=25: {fields!r}", file=sys.stderr)
+            raise SystemExit(2)
+        if "--jq" not in args:
+            print("commit lookup must filter with --jq", file=sys.stderr)
+            raise SystemExit(2)
+        for commit_sha in json.loads(os.environ["FAKE_COMMIT_SHAS"]):
+            print(commit_sha)
+        raise SystemExit(0)
+
     if endpoint and endpoint.endswith("/actions/workflows?per_page=100"):
         if "--paginate" not in args or "--jq" not in args:
             print("workflow lookup must be paginated and filtered", file=sys.stderr)
@@ -142,10 +157,14 @@ if args[:1] == ["api"]:
             if field.startswith("head_sha=")
         ]
         if head_sha_fields:
-            if head_sha_fields != [os.environ["FAKE_BRANCH_HEAD_SHA"]]:
+            if len(head_sha_fields) != 1:
                 print(f"unexpected head_sha filter: {head_sha_fields!r}", file=sys.stderr)
                 raise SystemExit(2)
-            runs = json.loads(os.environ["FAKE_HEAD_RUNS"])
+            head_sha = head_sha_fields[0]
+            if head_sha == os.environ["FAKE_BRANCH_HEAD_SHA"]:
+                runs = json.loads(os.environ["FAKE_HEAD_RUNS"])
+            else:
+                runs = json.loads(os.environ["FAKE_SHA_RUNS"]).get(head_sha, [])
         else:
             runs = json.loads(os.environ["FAKE_REST_RUNS"])
         print(json.dumps(runs))
@@ -223,8 +242,10 @@ def _lookup(
     *args,
     workflow="CI",
     branch_head_sha="sha-branch-head",
+    commit_shas=None,
     head_runs=None,
     rest_runs=None,
+    sha_runs=None,
     stale_hours=100000,
     workflows=None,
 ):
@@ -233,11 +254,14 @@ def _lookup(
         {
             "FAKE_ARTIFACTS": json.dumps(artifacts),
             "FAKE_BRANCH_HEAD_SHA": branch_head_sha,
+            "FAKE_COMMIT_SHAS": json.dumps([] if commit_shas is None else commit_shas),
             "FAKE_HEAD_RUNS": json.dumps([] if head_runs is None else head_runs),
             "FAKE_REST_RUNS": json.dumps(runs if rest_runs is None else rest_runs),
             "FAKE_RUNS": json.dumps(runs),
+            "FAKE_SHA_RUNS": json.dumps({} if sha_runs is None else sha_runs),
             "FAKE_WORKFLOWS": json.dumps(DEFAULT_WORKFLOWS if workflows is None else workflows),
             "GH_TOKEN": "test-token",
+            "LOOKUP_RUN_ID_COMMIT_SCAN_LIMIT": "25",
             "LOOKUP_RUN_ID_RETRY_SECONDS": "0",
             "LOOKUP_RUN_ID_STALE_HOURS": str(stale_hours),
             "PATH": f"{fake_gh}{os.pathsep}{env['PATH']}",
@@ -296,6 +320,36 @@ class TestBranchLookup:
             "--artifact",
             "cuda-python-wheel",
             rest_runs=rest_runs,
+        )
+
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == "300"
+
+    def test_finds_low_volume_branch_run_by_recent_commit_sha(self, fake_gh):
+        runs = [_run(100, "2026-09-22T12:00:00Z", branch="main")]
+        sha_runs = {
+            "sha-300": [_run(300, "2026-09-22T12:00:00Z")],
+        }
+        artifacts = {
+            "300": [
+                {
+                    "name": "cuda-bindings-python310-cuda13.4.2-linux-64-abcd1234",
+                    "expired": False,
+                }
+            ],
+        }
+
+        result = _lookup(
+            fake_gh,
+            runs,
+            artifacts,
+            "--branch",
+            "12.9.x",
+            "--artifact",
+            "cuda-bindings-python310-cuda*-linux-64-*[0-9a-f]",
+            commit_shas=["sha-300", "sha-200"],
+            rest_runs=runs,
+            sha_runs=sha_runs,
         )
 
         assert result.returncode == 0, result.stderr

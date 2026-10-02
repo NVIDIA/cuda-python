@@ -128,6 +128,7 @@ if [[ "${MODE}" == "branch" ]]; then
     STALE_RUN_HOURS="${LOOKUP_RUN_ID_STALE_HOURS:-72}"
     STALE_RUN_SECONDS=$((STALE_RUN_HOURS * 3600))
     RETRY_SECONDS="${LOOKUP_RUN_ID_RETRY_SECONDS:-2}"
+    COMMIT_SCAN_LIMIT="${LOOKUP_RUN_ID_COMMIT_SCAN_LIMIT:-25}"
 
     normalize_runs_jq='[
         .workflow_runs[] | {
@@ -142,6 +143,12 @@ if [[ "${MODE}" == "branch" ]]; then
         }
     ]'
 
+    BRANCH_COMMIT_SHAS=$(gh api --method GET \
+        "repos/${REPOSITORY}/commits" \
+        -f "sha=${REF}" \
+        -F "per_page=${COMMIT_SCAN_LIMIT}" \
+        --jq '.[].sha')
+
     fetch_run_data() {
         RUN_LIST_DATA=$(gh run list \
             --repo "${REPOSITORY}" \
@@ -155,12 +162,24 @@ if [[ "${MODE}" == "branch" ]]; then
             -F "per_page=100" \
             --jq "${normalize_runs_jq}")
 
+        COMMIT_RUN_DATA="[]"
+        while IFS= read -r commit_sha; do
+            [[ -n "${commit_sha}" ]] || continue
+            [[ "${commit_sha}" != "${BRANCH_HEAD_SHA}" ]] || continue
+            SHA_RUN_DATA=$(gh api --method GET \
+                "repos/${REPOSITORY}/actions/workflows/${WORKFLOW_API_ID}/runs" \
+                -f "head_sha=${commit_sha}" \
+                -F "per_page=100" \
+                --jq "${normalize_runs_jq}")
+            COMMIT_RUN_DATA=$(printf '%s\n%s\n' "${COMMIT_RUN_DATA}" "${SHA_RUN_DATA}" | jq -s 'add')
+        done <<< "${BRANCH_COMMIT_SHAS}"
+
         REST_RUN_DATA=$(gh api --method GET \
             "repos/${REPOSITORY}/actions/workflows/${WORKFLOW_API_ID}/runs" \
             -F "per_page=100" \
             --jq "${normalize_runs_jq}")
 
-        RUN_DATA=$(printf '%s\n%s\n%s\n' "${HEAD_RUN_DATA}" "${RUN_LIST_DATA}" "${REST_RUN_DATA}" | jq -s '
+        RUN_DATA=$(printf '%s\n%s\n%s\n%s\n' "${HEAD_RUN_DATA}" "${COMMIT_RUN_DATA}" "${RUN_LIST_DATA}" "${REST_RUN_DATA}" | jq -s '
             add
             | group_by(.databaseId)
             | map(
