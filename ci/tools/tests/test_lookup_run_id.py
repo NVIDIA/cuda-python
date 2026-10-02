@@ -70,6 +70,9 @@ if args[:2] == ["run", "list"]:
     except (ValueError, IndexError):
         print("run list requires --limit", file=sys.stderr)
         raise SystemExit(2)
+    if "--branch" in args:
+        print("branch filters are intentionally unsupported", file=sys.stderr)
+        raise SystemExit(2)
     if "--status" in args:
         print("status filters are intentionally unsupported", file=sys.stderr)
         raise SystemExit(2)
@@ -93,6 +96,14 @@ if args[:2] == ["run", "view"]:
 
 if args[:1] == ["api"]:
     endpoint = _endpoint()
+    branch_match = re.search(r"/branches/([^/]+)$", endpoint or "")
+    if branch_match is not None:
+        if "--jq" in args:
+            print(os.environ["FAKE_BRANCH_HEAD_SHA"])
+            raise SystemExit(0)
+        print(json.dumps({"commit": {"sha": os.environ["FAKE_BRANCH_HEAD_SHA"]}}))
+        raise SystemExit(0)
+
     if endpoint and endpoint.endswith("/actions/workflows?per_page=100"):
         if "--paginate" not in args or "--jq" not in args:
             print("workflow lookup must be paginated and filtered", file=sys.stderr)
@@ -116,13 +127,27 @@ if args[:1] == ["api"]:
             print("workflow run lookup must use GET", file=sys.stderr)
             raise SystemExit(2)
         fields = _field_values()
-        if "branch=12.9.x" not in fields or "status=success" not in fields or "per_page=100" not in fields:
+        if any(field.startswith(("branch=", "status=")) for field in fields):
             print(f"unexpected workflow run fields: {fields!r}", file=sys.stderr)
+            raise SystemExit(2)
+        if "per_page=100" not in fields:
+            print(f"workflow run lookup must request per_page=100: {fields!r}", file=sys.stderr)
             raise SystemExit(2)
         if "--jq" not in args:
             print("workflow run lookup must normalize with --jq", file=sys.stderr)
             raise SystemExit(2)
-        runs = json.loads(os.environ["FAKE_REST_RUNS"])
+        head_sha_fields = [
+            field.removeprefix("head_sha=")
+            for field in fields
+            if field.startswith("head_sha=")
+        ]
+        if head_sha_fields:
+            if head_sha_fields != [os.environ["FAKE_BRANCH_HEAD_SHA"]]:
+                print(f"unexpected head_sha filter: {head_sha_fields!r}", file=sys.stderr)
+                raise SystemExit(2)
+            runs = json.loads(os.environ["FAKE_HEAD_RUNS"])
+        else:
+            runs = json.loads(os.environ["FAKE_REST_RUNS"])
         print(json.dumps(runs))
         raise SystemExit(0)
 
@@ -197,17 +222,24 @@ def _lookup(
     artifacts,
     *args,
     workflow="CI",
+    branch_head_sha="sha-branch-head",
+    head_runs=None,
     rest_runs=None,
+    stale_hours=100000,
     workflows=None,
 ):
     env = os.environ.copy()
     env.update(
         {
             "FAKE_ARTIFACTS": json.dumps(artifacts),
+            "FAKE_BRANCH_HEAD_SHA": branch_head_sha,
+            "FAKE_HEAD_RUNS": json.dumps([] if head_runs is None else head_runs),
             "FAKE_REST_RUNS": json.dumps(runs if rest_runs is None else rest_runs),
             "FAKE_RUNS": json.dumps(runs),
             "FAKE_WORKFLOWS": json.dumps(DEFAULT_WORKFLOWS if workflows is None else workflows),
             "GH_TOKEN": "test-token",
+            "LOOKUP_RUN_ID_RETRY_SECONDS": "0",
+            "LOOKUP_RUN_ID_STALE_HOURS": str(stale_hours),
             "PATH": f"{fake_gh}{os.pathsep}{env['PATH']}",
         }
     )
@@ -269,6 +301,25 @@ class TestBranchLookup:
         assert result.returncode == 0, result.stderr
         assert result.stdout.strip() == "300"
 
+    def test_prefers_branch_head_run_before_falling_back_to_list(self, fake_gh):
+        runs = [_run(100, "2026-09-22T12:00:00Z")]
+        head_runs = [_run(300, "2026-10-02T13:28:00Z")]
+
+        result = _lookup(
+            fake_gh,
+            runs,
+            {},
+            "--branch",
+            "12.9.x",
+            branch_head_sha="sha-300",
+            head_runs=head_runs,
+            rest_runs=runs,
+            stale_hours=1,
+        )
+
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == "300"
+
     def test_prefers_successful_rest_duplicate_over_stale_run_list_record(self, fake_gh):
         runs = [
             _run(
@@ -291,6 +342,24 @@ class TestBranchLookup:
 
         assert result.returncode == 0, result.stderr
         assert result.stdout.strip() == "300"
+
+    def test_rejects_stale_non_head_run_without_artifacts(self, fake_gh):
+        runs = [_run(100, "2026-09-22T12:00:00Z")]
+
+        result = _lookup(
+            fake_gh,
+            runs,
+            {},
+            "--branch",
+            "12.9.x",
+            branch_head_sha="sha-999",
+            rest_runs=runs,
+            stale_hours=1,
+        )
+
+        assert result.returncode == 1
+        assert "retrying run lookup once" in result.stderr
+        assert "No recent successful 'CI' run found on branch '12.9.x'" in result.stderr
 
     def test_resolves_non_ci_workflow_display_name_for_rest_cross_check(self, fake_gh):
         runs = [_run(200, "2026-08-11T12:00:00Z", workflow="CI: Coverage")]
