@@ -21,8 +21,7 @@ fold_pytest_log() {
 }
 
 # JUnit XML, one file per suite. The test workflows upload this directory as an
-# artifact, and the final "Check job status" job in ci.yml merges all of them
-# into the "Test Results" checks.
+# artifact: a machine-readable record of the run for follow-up tooling.
 TEST_RESULTS_DIR="$(pwd)/test-results"
 mkdir -p "${TEST_RESULTS_DIR}"
 
