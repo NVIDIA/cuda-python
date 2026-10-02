@@ -27,7 +27,6 @@
    .. autosummary::
    
       ~NvlinkFirmwareInfo.firmware_version
-      ~NvlinkFirmwareInfo.num_valid_entries
       ~NvlinkFirmwareInfo.ptr
    
    
