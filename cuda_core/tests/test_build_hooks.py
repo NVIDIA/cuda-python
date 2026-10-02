@@ -81,7 +81,7 @@ def _isolate_toolchain_env():
 
 def _fake_sysconfig(monkeypatch, **values):
     """Pin sysconfig.get_config_var so linker-command assertions are exact."""
-    monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda name: values.get(name))
+    monkeypatch.setattr(_build_shared.sysconfig, "get_config_var", lambda name: values.get(name))
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -211,7 +211,7 @@ def stamp(tmp_path, monkeypatch):
     """
     scratch = tmp_path / "build" / ".build-config"
     monkeypatch.setattr(build_hooks, "_BUILD_CONFIG_STAMP", scratch)
-    monkeypatch.setattr(build_hooks, "force_build_ext", False)
+    monkeypatch.setattr(_build_shared, "force_build_ext", False)
     build_hooks._get_cuda_path.cache_clear()
     build_hooks._determine_cuda_major_version.cache_clear()
     get_cuda_path_or_home.cache_clear()
@@ -231,9 +231,9 @@ class TestBuildConfigStamp:
 
     @pytest.mark.agent_authored(model="grok-4.6")
     def test_stamp_path_is_scoped_to_extension_abi(self, monkeypatch):
-        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-310-x86_64-linux-gnu.so")
+        monkeypatch.setattr(_build_shared.sysconfig, "get_config_var", lambda _name: ".cpython-310-x86_64-linux-gnu.so")
         python_310 = build_hooks._abi_stamp_path(".build-config")
-        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-311-x86_64-linux-gnu.so")
+        monkeypatch.setattr(_build_shared.sysconfig, "get_config_var", lambda _name: ".cpython-311-x86_64-linux-gnu.so")
         python_311 = build_hooks._abi_stamp_path(".build-config")
 
         assert python_310 != python_311
@@ -494,7 +494,7 @@ class TestForceReachesBuildExt:
 
         setup_py = _load_setup_py(monkeypatch)
         assert setup_py.build_hooks is build_hooks
-        monkeypatch.setattr(build_hooks, "force_build_ext", force_flag)
+        monkeypatch.setattr(_build_shared, "force_build_ext", force_flag)
 
         cmd = setup_py.build_ext(Distribution({"name": "cuda-core", "version": "0"}))
         cmd.finalize_options()

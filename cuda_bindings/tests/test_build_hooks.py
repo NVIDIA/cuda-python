@@ -71,7 +71,7 @@ def _isolate_toolchain_env():
 
 def _fake_sysconfig(monkeypatch, **values):
     """Pin sysconfig.get_config_var so linker-command assertions are exact."""
-    monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda name: values.get(name))
+    monkeypatch.setattr(_build_shared.sysconfig, "get_config_var", lambda name: values.get(name))
 
 
 class TestResolveToolchain:
@@ -392,7 +392,7 @@ def stamp(tmp_path, monkeypatch):
     """Redirect the toolchain stamp to a scratch path."""
     scratch = tmp_path / "build" / ".build-toolchain"
     monkeypatch.setattr(build_hooks, "_BUILD_TOOLCHAIN_STAMP", scratch)
-    monkeypatch.setattr(build_hooks, "force_build_ext", False)
+    monkeypatch.setattr(_build_shared, "force_build_ext", False)
     monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
     return scratch
 
@@ -407,9 +407,9 @@ class TestBuildToolchainStamp:
 
     @pytest.mark.agent_authored(model="grok-4.6")
     def test_stamp_path_is_scoped_to_extension_abi(self, monkeypatch):
-        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-310-x86_64-linux-gnu.so")
+        monkeypatch.setattr(_build_shared.sysconfig, "get_config_var", lambda _name: ".cpython-310-x86_64-linux-gnu.so")
         python_310 = build_hooks._abi_stamp_path(".build-toolchain")
-        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-311-x86_64-linux-gnu.so")
+        monkeypatch.setattr(_build_shared.sysconfig, "get_config_var", lambda _name: ".cpython-311-x86_64-linux-gnu.so")
         python_311 = build_hooks._abi_stamp_path(".build-toolchain")
 
         assert python_310 != python_311
