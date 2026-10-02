@@ -40,10 +40,9 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          # Full ancestry and tags for setuptools-scm, without unrelated
-          # branches or historical blobs. See ci/README.md for unlimited depth.
-          fetch-depth: 2147483647
-          fetch-tags: true
+          # Treeless clone: setuptools-scm (invoked via `python -m build`) needs
+          # the commit graph (`git describe`) but not historical blobs.
+          fetch-depth: 0
           filter: blob:none
 
       - name: Set up Python

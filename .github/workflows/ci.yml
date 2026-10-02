@@ -142,9 +142,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          # Only PR mirrors need ancestry to find a merge base. Git's unlimited
-          # depth fetches this ref alone; see ci/README.md.
-          fetch-depth: ${{ startsWith(github.ref_name, 'pull-request/') && 2147483647 || 1 }}
+          # Only PR mirrors need full ancestry to find their merge base.
+          fetch-depth: ${{ startsWith(github.ref_name, 'pull-request/') && '0' || '1' }}
           filter: blob:none
 
       - name: Resolve PR merge base
@@ -159,10 +158,6 @@ jobs:
             exit 1
           fi
 
-          # The checkout contains only the PR ref. Fetch its base explicitly
-          # with full ancestry, retaining the blob filter and excluding tags.
-          git fetch --no-tags --filter=blob:none origin \
-            "+refs/heads/${BASE_REF}:refs/remotes/origin/${BASE_REF}"
           base=$(git merge-base HEAD "origin/${BASE_REF}")
           echo "sha=${base}" >> "$GITHUB_OUTPUT"
 

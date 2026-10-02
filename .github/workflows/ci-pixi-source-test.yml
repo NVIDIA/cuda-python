@@ -80,12 +80,11 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # This ref's full history + tags so setuptools-scm derives the real (13.x)
+          # Full history + tags so setuptools-scm derives the real (13.x)
           # package version; a shallow checkout yields 0.1.dev1, which trips
           # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
-          # Git's unlimited depth avoids unrelated branches; see ci/README.md.
-          fetch-depth: 2147483647
-          fetch-tags: true
+          fetch-depth: 0
+          filter: blob:none
 
       - name: Setup pixi
         uses: ./.github/actions/setup-pixi
@@ -138,12 +137,11 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # This ref's full history + tags so setuptools-scm derives the real (13.x)
+          # Full history + tags so setuptools-scm derives the real (13.x)
           # package version; a shallow checkout yields 0.1.dev1, which trips
           # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
-          # Git's unlimited depth avoids unrelated branches; see ci/README.md.
-          fetch-depth: 2147483647
-          fetch-tags: true
+          fetch-depth: 0
+          filter: blob:none
 
       - name: Setup pixi
         uses: ./.github/actions/setup-pixi
@@ -205,12 +203,11 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # This ref's full history + tags so setuptools-scm derives the real (13.x)
+          # Full history + tags so setuptools-scm derives the real (13.x)
           # package version; a shallow checkout yields 0.1.dev1, which trips
           # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
-          # Git's unlimited depth avoids unrelated branches; see ci/README.md.
-          fetch-depth: 2147483647
-          fetch-tags: true
+          fetch-depth: 0
+          filter: blob:none
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main

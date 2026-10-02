@@ -63,10 +63,10 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # Git's unlimited depth keeps this ref's full history without
-          # fetching every branch (especially gh-pages). See ci/README.md.
-          fetch-depth: 2147483647
-          fetch-tags: true
+          # Keep full ancestry for the PR base worktree, without downloading
+          # historical file contents (especially gh-pages). See ci/README.md.
+          fetch-depth: 0
+          filter: blob:none
           persist-credentials: false
 
       - name: Setup pixi
