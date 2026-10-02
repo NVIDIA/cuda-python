@@ -16,7 +16,7 @@ from helpers.graph_kernels import compile_common_kernels
 from helpers.memory import xfail_on_graph_mempool_oom
 from helpers.misc import try_create_condition
 
-from cuda_python_test_helpers import under_compute_sanitizer
+from cuda_python_test_helpers import IS_WINDOWS, under_compute_sanitizer
 
 # Resource finalization triggered by graph destruction is not synchronous. A
 # CUDA user-object callback transfers each node attachment bundle to a
@@ -75,7 +75,16 @@ def _wait_until(predicate, timeout=None, interval=0.02):
     raise AssertionError(f"condition not satisfied within {timeout}s")
 
 
-from cuda.core import Device, DeviceMemoryResource, EventOptions, Kernel, LaunchConfig, LegacyPinnedMemoryResource
+from cuda.core import (
+    Device,
+    DeviceMemoryResource,
+    EventOptions,
+    Kernel,
+    LaunchConfig,
+    LegacyPinnedMemoryResource,
+    VirtualMemoryResource,
+    VirtualMemoryResourceOptions,
+)
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core._utils.version import driver_version
 from cuda.core.graph import (
@@ -94,6 +103,26 @@ from cuda.core.graph import (
 def _skip_if_no_mempool():
     if not Device(0).properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
+
+
+def _device_memory_resource(dev):
+    _skip_if_no_mempool()
+    return DeviceMemoryResource(dev)
+
+
+def _virtual_memory_resource(dev):
+    if not dev.properties.virtual_memory_management_supported:
+        pytest.skip("Device does not support virtual memory management")
+    handle_type = "win32_kmt" if IS_WINDOWS else "posix_fd"
+    return VirtualMemoryResource(dev, config=VirtualMemoryResourceOptions(handle_type=handle_type))
+
+
+# Memory resources whose buffers a graph node can retain through its
+# attachment. Each factory skips when the device lacks the feature.
+_MEMORY_RESOURCES = [
+    pytest.param(_device_memory_resource, id="device_mr"),
+    pytest.param(_virtual_memory_resource, id="vmm"),
+]
 
 
 # =============================================================================
@@ -865,13 +894,18 @@ def test_callback_survives_source_node_deletion(init_cuda):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_inflight_launch_retains_attachments_until_completion(init_cuda):
-    """An in-flight launch retains the final allocation reference."""
+@pytest.mark.parametrize("make_mr", _MEMORY_RESOURCES)
+def test_inflight_launch_retains_attachments_until_completion(init_cuda, make_mr):
+    """An in-flight launch retains the final allocation reference.
+
+    The memcpy node attaches the buffer's allocation handle, so the memory
+    outlives ``buf.close()`` until the launch completes and the graph is gone.
+    For a virtual memory buffer that release also unmaps the range.
+    """
     from cuda.core._utils._weak_handles import weak_handle
 
-    _skip_if_no_mempool()
     dev = Device()
-    mr = DeviceMemoryResource(dev)
+    mr = make_mr(dev)
     buf = mr.allocate(8, stream=dev.default_stream)
     dev.default_stream.sync()
     dptr = int(buf.handle)
@@ -922,6 +956,49 @@ def test_inflight_launch_retains_attachments_until_completion(init_cuda):
     assert close_errors == []
     del close_graph, close_thread, graph
     _wait_until(lambda: not allocation_weak)
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_memcpy_node_retains_vmm_range_across_grow(init_cuda):
+    """A memcpy node keeps a virtual memory range mapped across a grow and the close of every alias.
+
+    The node attaches the input buffer's device pointer handle. Growing the
+    buffer creates an alias; closing both buffers leaves the node as the last
+    owner, so the range stays mapped until the graph that retains it is gone.
+    """
+    from cuda.core._utils._weak_handles import weak_handle
+
+    dev = Device()
+    mr = _virtual_memory_resource(dev)
+    buf = mr.allocate(8, stream=dev.default_stream)
+    dev.default_stream.sync()
+    dptr = int(buf.handle)
+
+    graph_def = GraphDefinition()
+    copy_node = graph_def.memcpy(dptr, dptr + 4, 4, dst_owner=buf, src_owner=buf)
+    grown = mr.modify_allocation(buf, 2 * buf.size)
+    input_weak = weak_handle(buf)
+    grown_weak = weak_handle(grown)
+
+    buf.close()
+    grown.close()
+    gc.collect()
+    # The node still owns the input's handle; the alias released its own.
+    assert input_weak
+    assert not grown_weak
+
+    graph = graph_def.instantiate()
+    del copy_node, graph_def
+    gc.collect()
+    assert input_weak
+
+    # The copy runs against the range the node kept mapped.
+    stream = dev.create_stream()
+    graph.launch(stream)
+    stream.sync()
+    graph.close()
+    del graph
+    _wait_until(lambda: not input_weak)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")

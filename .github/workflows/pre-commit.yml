@@ -1,0 +1,71 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "CI: pre-commit"
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  push:
+    # PR events cover draft and fork PRs without also checking copy-pr-bot's
+    # pull-request/N mirrors. Only main needs a push check.
+    branches:
+      - "main"
+  workflow_dispatch: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+
+jobs:
+  pre-commit:
+    name: Pre-commit (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux
+            os: ubuntu-latest
+          - name: Windows
+            os: windows-latest
+    env:
+      # Link checks have their own Linux workflow. The installation reminder
+      # is for developer machines; CI does not install a Git commit hook.
+      SKIP: lychee,check-precommit-installed
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Python
+        id: python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: '3.14'
+
+      - name: Set pre-commit cache location
+        run: echo "PRE_COMMIT_HOME=${RUNNER_TEMP}/pre-commit" >> "${GITHUB_ENV}"
+
+      - name: Cache pre-commit environments
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ${{ env.PRE_COMMIT_HOME }}
+          key: pre-commit-${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Install pre-commit
+        run: python -m pip install --upgrade pip pre-commit
+
+      - name: Run pre-commit
+        run: pre-commit run --all-files --show-diff-on-failure
