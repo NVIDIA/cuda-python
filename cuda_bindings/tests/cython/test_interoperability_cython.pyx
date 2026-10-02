@@ -3,6 +3,7 @@
 
 # distutils: language=c++
 from libc.stdlib cimport calloc, free
+from libc.string cimport memset
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 import numpy as np
@@ -10,6 +11,13 @@ import pytest
 
 cimport cuda.bindings.cydriver as ccuda
 cimport cuda.bindings.cyruntime as ccudart
+
+# Cap for the memory pool created by test_interop_memPool. Touching the device's
+# default pool (e.g. via cuDeviceGetDefaultMemPool, cudaDeviceGetDefaultMemPool,
+# or cuDeviceGetMemPool / cudaDeviceGetMemPool before a pool has been set)
+# reserves virtual address space of about twice the device memory, which
+# cannot be satisfied in a 39-bit address space (e.g. riscv64 Sv39).
+POOL_SIZE = 2 * 1024 * 1024  # 2 MiB
 
 
 def supportsMemoryPool():
@@ -147,22 +155,34 @@ def test_interop_memPool():
     err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
     assert(err_dr == cuda.CUresult.CUDA_SUCCESS)
 
-    # DRV to RT
-    cdef ccuda.CUmemoryPool* mempool_dr = <ccuda.CUmemoryPool*>calloc(1, sizeof(ccuda.CUmemoryPool))
-    cerr_dr = ccuda.cuDeviceGetDefaultMemPool(mempool_dr, 0)
+    # Use a small, capped pool instead of the device's default pool. The
+    # pool must be set before it is queried below because the getters create
+    # (and reserve address space for) the default pool if none has been set.
+    cdef ccuda.CUmemPoolProps props
+    memset(&props, 0, sizeof(props))
+    props.allocType = ccuda.CU_MEM_ALLOCATION_TYPE_PINNED
+    props.handleTypes = ccuda.CU_MEM_HANDLE_TYPE_NONE
+    props.location.type = ccuda.CU_MEM_LOCATION_TYPE_DEVICE
+    props.location.id = 0
+    props.maxSize = POOL_SIZE
+    cdef ccuda.CUmemoryPool pool
+    cerr_dr = ccuda.cuMemPoolCreate(&pool, &props)
     assert(cerr_dr == ccuda.CUDA_SUCCESS)
-    cerr_rt = ccudart.cudaDeviceSetMemPool(0, mempool_dr[0])
+
+    # DRV to RT
+    cerr_rt = ccudart.cudaDeviceSetMemPool(0, pool)
     assert(cerr_rt == ccudart.cudaSuccess)
 
     # RT to DRV
-    cdef ccudart.cudaMemPool_t* mempool_rt = <ccudart.cudaMemPool_t*>calloc(1, sizeof(ccudart.cudaMemPool_t))
-    cerr_rt = ccudart.cudaDeviceGetDefaultMemPool(mempool_rt, 0)
+    cdef ccudart.cudaMemPool_t mempool_rt
+    cerr_rt = ccudart.cudaDeviceGetMemPool(&mempool_rt, 0)
     assert(cerr_rt == ccudart.cudaSuccess)
-    cerr_dr = ccuda.cuDeviceSetMemPool(cuda.CUdevice(0), mempool_rt[0])
+    assert(<void*>mempool_rt == <void*>pool)
+    cerr_dr = ccuda.cuDeviceSetMemPool(cuda.CUdevice(0), mempool_rt)
     assert(cerr_dr == ccuda.CUDA_SUCCESS)
 
-    free(mempool_dr)
-    free(mempool_rt)
+    cerr_dr = ccuda.cuMemPoolDestroy(pool)
+    assert(cerr_dr == ccuda.CUDA_SUCCESS)
 
     err_dr, = cuda.cuCtxDestroy(ctx)
     assert(err_dr == cuda.CUresult.CUDA_SUCCESS)
