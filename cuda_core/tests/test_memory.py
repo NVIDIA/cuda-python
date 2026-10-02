@@ -1765,6 +1765,7 @@ def test_vmm_host_modify_allocation_rejects_exportable_handle_type(init_cuda):
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
 def test_vmm_allocate_zero_size(init_cuda):
     """allocate(0) returns an empty buffer without a driver call; a grow of it inherits its stream."""
     device = _vmm_device_or_skip()
@@ -1780,10 +1781,12 @@ def test_vmm_allocate_zero_size(init_cuda):
         # The grown buffer's deallocation is ordered on the stream passed to
         # allocate(0): its close waits for the work queued there. The sleep
         # kernel does not touch the buffer, so a missing wait fails the event
-        # check instead of faulting.
+        # check instead of faulting. The close is wrapped so a skipped sync
+        # surfaces as a CUDAWarning instead of a bare event-check failure.
         NanosleepKernel(device, sleep_duration_ms=200).launch(s)
         done = s.record()
-        grown.close()
+        with assert_no_cuda_warning():
+            grown.close()
         assert done.is_done
         buf.close()
     finally:

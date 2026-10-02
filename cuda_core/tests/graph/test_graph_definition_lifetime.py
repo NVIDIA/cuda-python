@@ -13,7 +13,6 @@ import weakref
 import pytest
 from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 from helpers.graph_kernels import compile_common_kernels
-from helpers.memory import xfail_on_graph_mempool_oom
 from helpers.misc import try_create_condition
 
 from cuda_python_test_helpers import IS_WINDOWS, under_compute_sanitizer
@@ -588,8 +587,7 @@ def test_event_record_node_keeps_event_alive(init_cuda):
     _skip_if_no_mempool()
     dev = Device()
     g = GraphDefinition()
-    with xfail_on_graph_mempool_oom(dev):
-        alloc = g.allocate(1024)
+    alloc = g.allocate(1024)
 
     event = dev.create_event(EventOptions(timing_enabled=False))
     node = alloc.record(event)
@@ -606,8 +604,7 @@ def test_event_wait_node_keeps_event_alive(init_cuda):
     _skip_if_no_mempool()
     dev = Device()
     g = GraphDefinition()
-    with xfail_on_graph_mempool_oom(dev):
-        alloc = g.allocate(1024)
+    alloc = g.allocate(1024)
 
     event = dev.create_event(EventOptions(timing_enabled=False))
     node = alloc.wait(event)
@@ -1321,9 +1318,8 @@ def _pred_chain_event_wait(g, bufs):
 
 def _pred_chain_free(g, bufs):
     _skip_if_no_mempool()
-    with xfail_on_graph_mempool_oom():
-        alloc = g.allocate(64)
-        node = alloc.deallocate(alloc.dptr)
+    alloc = g.allocate(64)
+    node = alloc.deallocate(alloc.dptr)
     free_dptr = node.dptr
     succ = node.record(Device().create_event())
 
