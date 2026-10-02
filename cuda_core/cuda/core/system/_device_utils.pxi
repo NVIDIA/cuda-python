@@ -9,7 +9,9 @@ def _unpack_bitmask(arr: object) -> list[int]:
     """
     Unpack a list of integers containing bitmasks.
     """
-    cdef uint64_t i, j, idx
+    cdef Py_ssize_t i
+    cdef int j
+    cdef uint64_t idx
     cdef int mask_bits = 64
 
     res = []

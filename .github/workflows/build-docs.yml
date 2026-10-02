@@ -50,6 +50,10 @@ jobs:
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     runs-on: ubuntu-latest
+    outputs:
+      deployment-artifact-name: ${{ steps.deployment-metadata.outputs.deployment-artifact-name }}
+      docs-github-ref: ${{ steps.deployment-metadata.outputs.docs-github-ref }}
+      pr-number: ${{ steps.deployment-metadata.outputs.pr-number }}
     defaults:
       run:
         shell: bash -el {0}
@@ -79,7 +83,7 @@ jobs:
       # TODO: This workflow runs on GH-hosted runner and cannot use the proxy cache
 
       - name: Set up miniforge
-        uses: conda-incubator/setup-miniconda@8ee1f361103df19b6f8c8655fd3967a8ecb162d5  # v4.0.1
+        uses: conda-incubator/setup-miniconda@be893c923ea9cf1cf7cd510fbdde27c7e18cbdcb  # v4.1.0
         with:
           activate-environment: cuda-python-docs
           environment-file: ./cuda_python/docs/environment-docs.yml
@@ -216,16 +220,24 @@ jobs:
           # --no-deps avoids re-resolving cuda-core from PyPI during tag releases.
           pip install --no-deps cuda_python*.whl
 
-      # This step sets the PR_NUMBER/BUILD_LATEST/BUILD_PREVIEW env vars.
+      # PR CI uses pull-request/<number> refs regardless of the target branch.
       - name: Get PR number
-        if: ${{ !inputs.is-release }}
+        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         uses: ./.github/actions/get_pr_number
 
-      - name: Set up artifact directories
+      - name: Mark latest docs build
+        if: ${{ !inputs.is-release && !startsWith(github.ref_name, 'pull-request/') }}
+        run: echo "BUILD_LATEST=1" >> "$GITHUB_ENV"
+
+      - name: Record deployment metadata
+        id: deployment-metadata
         run: |
-          mkdir -p artifacts/docs
-          # create an empty folder for removal use
-          mkdir -p artifacts/empty_docs
+          echo "deployment-artifact-name=docs-deployment-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+          echo "docs-github-ref=${CUDA_PYTHON_DOCS_GITHUB_REF}" >> "$GITHUB_OUTPUT"
+          echo "pr-number=${PR_NUMBER:-}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up artifact directories
+        run: mkdir -p artifacts/docs
 
       - name: Build all docs
         if: ${{ inputs.component == 'all' }}
@@ -237,6 +249,10 @@ jobs:
             ./build_all_docs.sh
             # At release time, we don't want to update the latest docs
             rm -rf build/html/latest
+            # Nor the shared version-switcher file at the docs root: the theme
+            # fetches it from one URL for every version, and main deploys own it.
+            # A release built from a branch would overwrite it with a stale list.
+            rm -f build/html/nv-versions.json build/html/versions.json
           fi
           ls -l build
           popd
@@ -253,6 +269,10 @@ jobs:
             ./build_docs.sh
             # At release time, we don't want to update the latest docs
             rm -rf build/html/latest
+            # Nor the shared version-switcher file at the docs root: the theme
+            # fetches it from one URL for every version, and main deploys own it.
+            # A release built from a branch would overwrite it with a stale list.
+            rm -f build/html/nv-versions.json build/html/versions.json
           fi
           ls -l build
           popd
@@ -265,7 +285,7 @@ jobs:
           mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
 
       - name: Write rendered docs file list
-        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         run: |
           find "${GITHUB_WORKSPACE}/artifacts/docs" -type f -name '*.html' ! -path '*/_static/*' \
             | LC_ALL=C sort > lychee-rendered-html-files.txt
@@ -276,7 +296,7 @@ jobs:
           wc -l lychee-rendered-html-files.txt
 
       - name: Restore lychee cache
-        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         id: restore-lychee-cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
@@ -286,13 +306,9 @@ jobs:
             docs-rendered-lychee-${{ env.PR_NUMBER }}-
 
       - name: Check rendered docs links
-        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         uses: lycheeverse/lychee-action@6da1d14f3a43098a294b7696d93d938aa8d20fc0  # unreleased: supports v0.24.x archive layout
         with:
-          # PR-preview canonical URLs are checked by the preview deployment workflow.
-          # The cuda-bindings #id links are docutils "problematic" anchors from generated API docs.
-          # TODO: Remove this exclusion after cybind stops emitting those problematic anchors.
-          # Preferred Networks rejects hosted-runner GETs, but the URL is browser reachable.
           args: >-
             --files-from ${{ github.workspace }}/lychee-rendered-html-files.txt
             --include-fragments=full
@@ -305,9 +321,7 @@ jobs:
             --retry-wait-time 5
             --timeout 30
             --no-progress
-            --exclude '^https://nvidia\.github\.io/cuda-python/pr-preview/pr-[0-9]+/'
-            --exclude '^file://.*/cuda-bindings/latest/module/(driver|runtime)\.html#id[0-9]+$'
-            --exclude '^https://www\.preferred\.jp/en/?$'
+            --config ${{ github.workspace }}/lychee.toml
           fail: true
           failIfEmpty: true
           format: markdown
@@ -317,7 +331,7 @@ jobs:
           token: ${{ github.token }}
 
       - name: Save lychee cache
-        if: ${{ always() && !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') && steps.restore-lychee-cache.outputs.cache-hit != 'true' && steps.restore-lychee-cache.outputs.cache-primary-key != '' }}
+        if: ${{ always() && !inputs.is-release && startsWith(github.ref_name, 'pull-request/') && steps.restore-lychee-cache.outputs.cache-hit != 'true' && steps.restore-lychee-cache.outputs.cache-primary-key != '' }}
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: .lycheecache
@@ -330,6 +344,16 @@ jobs:
           path: artifacts/
           retention-days: 3
 
+      - name: Upload docs deployment payload
+        if: ${{ inputs.deploy-docs }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: ${{ steps.deployment-metadata.outputs.deployment-artifact-name }}
+          path: artifacts/docs/
+          retention-days: 3
+          include-hidden-files: true
+          if-no-files-found: error
+
       - name: Upload dry-run docs artifact
         if: ${{ !inputs.deploy-docs || (inputs.is-release && inputs.docs-branch != 'gh-pages') }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
@@ -338,13 +362,40 @@ jobs:
           path: artifacts/docs/
           retention-days: 3
 
-      - name: Deploy or clean up doc preview
-        if: ${{ inputs.deploy-docs && !inputs.is-release }}
+  deploy:
+    name: Deploy docs
+    # GitHub discards prerequisite artifacts on a new run attempt. If only this
+    # job fails, use "Re-run all jobs" so the build recreates its payload.
+    needs: build
+    if: ${{ inputs.deploy-docs && needs.build.result == 'success' }}
+    runs-on: ubuntu-latest
+    # Must match every job that writes to gh-pages.
+    concurrency:
+      group: cuda-python-gh-pages-publish
+      queue: max
+      cancel-in-progress: false
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{ inputs.git-tag }}
+
+      - name: Download docs deployment payload
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: ${{ needs.build.outputs.deployment-artifact-name }}
+          path: artifacts/docs/
+
+      - name: Deploy doc preview
+        if: ${{ inputs.deploy-docs && !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         uses: ./.github/actions/doc_preview
         with:
-          source-folder: ${{ (github.ref_name != 'main' && 'artifacts/docs') ||
-                              'artifacts/empty_docs' }}
-          pr-number: ${{ env.PR_NUMBER }}
+          source-folder: artifacts/docs
+          pr-number: ${{ needs.build.outputs.pr-number }}
 
       - name: Deploy doc update
         if: ${{ inputs.deploy-docs && (github.ref_name == 'main' || inputs.is-release) }}
@@ -355,5 +406,8 @@ jobs:
           branch: ${{ inputs.docs-branch }}
           folder: artifacts/docs/
           target-folder: docs/
-          commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ env.CUDA_PYTHON_DOCS_GITHUB_REF }}"
+          commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ needs.build.outputs.docs-github-ref }}"
           clean: false
+          # Rebase onto concurrent PR-preview or coverage deployments instead of
+          # force-pushing, which the gh-pages ruleset rejects.
+          force: false

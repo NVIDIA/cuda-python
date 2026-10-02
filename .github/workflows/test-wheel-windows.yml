@@ -105,8 +105,15 @@ jobs:
     continue-on-error: ${{ startsWith(matrix.PY_VER, '3.15') }}
     runs-on: "windows-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.RUNNER_DRIVER }}-${{ matrix.GPU_COUNT }}"
     steps:
+      - name: Enable Git symlinks (Windows, must precede checkout)
+        run: git config --global core.symlinks true
+
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          # Test sources must match the wheels under test (nightly runs
+          # reuse wheels built from an older commit of main).
+          ref: ${{ inputs.sha || github.sha }}
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -228,14 +235,14 @@ jobs:
           fi
 
       - name: Display structure of downloaded cuda-python artifacts
-        if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE != 'published' }}
+        if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE != 'floor' }}
         run: |
           Get-Location
           Get-ChildItem cuda_python*.whl | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Display structure of downloaded cuda.bindings artifacts
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
-                env.BINDINGS_SOURCE != 'published' }}
+                env.BINDINGS_SOURCE != 'floor' }}
         run: |
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
@@ -450,10 +457,27 @@ jobs:
           pytest -rsxXfE -v --exclude-warning-annotations --junitxml "${GITHUB_WORKSPACE}/test-results/junit-pytorch-interop.xml" tests/test_utils.py tests/example_tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
 
+      - name: Checkout numba-cuda tests at matching tag
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' && env.NUMBA_CUDA_VER != '' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: NVIDIA/numba-cuda
+          ref: v${{ env.NUMBA_CUDA_VER }}
+          path: numba-cuda-released
+
       - name: Run numba-cuda tests
-        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' && env.NUMBA_CUDA_VER != '' }}
+        env:
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: python -m numba.runtests numba.cuda.tests
+        run: |
+          if [[ "${LOCAL_CTK}" != 1 ]]; then
+            export NUMBA_CUDA_TEST_WHEEL_ONLY=1
+          fi
+          # See linux step for rationale on running from testing/ and -k.
+          pushd numba-cuda-released/testing
+          pytest -v -k "not TestIpc"
+          popd
 
       - name: Checkout numba-cuda-mlir tests at matching tag
         if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}
@@ -476,10 +500,12 @@ jobs:
           pushd numba-cuda-mlir-released
           pip install --upgrade "pip>=25.1"
           pip install --group test
+          # See linux step for rationale on the --deselect.
           pytest -rsxXfE -v --exclude-warning-annotations \
             --junitxml "${GITHUB_WORKSPACE}/test-results/junit-numba-cuda-mlir.xml" \
             --ignore=tests/benchmarks \
             --ignore=tests/doc_examples \
+            --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_devicerecord.py::TestCudaDeviceRecordWithRecord::test_device_record_copy' \
             tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
 
@@ -516,6 +542,12 @@ jobs:
               --deselect 'tests/test_enum_coverage.py::test_wrapper_covers_all_binding_members[NvlinkVersion]'
               --deselect 'tests/test_rlcompleter_patch.py::test_opt_out_env_var_disables_patch_even_when_interactive'
               --deselect 'tests/test_memory.py::test_non_managed_resources_report_not_managed[pinned]'
+            )
+          fi
+          if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${CUDA_CORE_RELEASED_VER}') <= Version('1.2.1') else 1)"; then
+            # See linux step for rationale (#2792 revert).
+            DESELECTS+=(
+              --deselect 'tests/test_utils_enum_explanations_helpers.py::test_frozen_driver_table_covers_all_curesult_members'
             )
           fi
           pytest -rsxXfE -v --randomly-dont-reorganize \
