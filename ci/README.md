@@ -22,8 +22,8 @@ preparation fetches its exact tag without requesting every other tag.
 Git documents blob filtering in its
 [clone reference](https://git-scm.com/docs/git-clone#Documentation/git-clone.txt---filterltfilter-specgt).
 The pinned checkout action's
-[`fetch implementation`](https://github.com/actions/checkout/blob/3d3c42e5aac5ba805825da76410c181273ba90b1/src/git-source-provider.ts#L161-L202)
-preserves full ancestry and tags at depth zero.
+[`README`](https://github.com/actions/checkout/blob/3d3c42e5aac5ba805825da76410c181273ba90b1/README.md#fetch-all-history-for-all-tags-and-branches)
+documents `fetch-depth: 0` for fetching all history, branches, and tags.
 
 ## Repository Customizations
 
