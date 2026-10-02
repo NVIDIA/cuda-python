@@ -148,9 +148,8 @@ class TestResolveToolchain:
         assert os.environ["CXX"] == "g++"
         assert os.environ["LDCXXSHARED"] == "g++ -shared -Wl,-O1"
         assert "LDSHARED" not in os.environ
-        # gcc-only flags are present (this is the point of P2: explicit gnu must use gcc, not generic cc)
-        assert "-fpermissive" in cargs
-        assert "-fno-var-tracking-assignments" in cargs
+        assert "-fpermissive" not in cargs
+        assert "-fno-var-tracking-assignments" not in cargs
 
     @pytest.mark.agent_authored(model="grok-4.6")
     def test_llvm_keeps_sccache_prefix(self, monkeypatch):
@@ -167,14 +166,31 @@ class TestResolveToolchain:
         # The launcher prefixes CC/CXX only; the shared linker command is the bare compiler.
         assert os.environ["LDCXXSHARED"] == "clang++ -shared -Wl,-O1"
 
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_gnu_keeps_gcc_only_flags(self, monkeypatch):
+    @pytest.mark.agent_authored(model="claude-sonnet-4-6")
+    def test_linux_opt_flag_set(self, monkeypatch):
+        """Linux opt build: -std=c++14, -O2, -Wno-deprecated-declarations; no -O3 or gnu-only flags."""
         if sys.platform == "win32":
-            pytest.skip("gnu only valid on Linux")
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "gnu")
-        _name, _cc, _cxx, cargs, _largs = build_hooks._resolve_toolchain()
-        assert "-fpermissive" in cargs
-        assert "-fno-var-tracking-assignments" in cargs
+            pytest.skip("Linux flags only")
+        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+        _name, _cc, _cxx, cargs, largs = build_hooks._resolve_toolchain(debug=False)
+        assert "-std=c++14" in cargs
+        assert "-Wno-deprecated-declarations" in cargs
+        assert "-g0" in cargs
+        assert "-O2" in cargs
+        assert "-O3" not in cargs
+        assert "-fpermissive" not in cargs
+        assert "-fno-var-tracking-assignments" not in cargs
+        assert "-Wl,--strip-all" in largs
+
+    @pytest.mark.agent_authored(model="claude-sonnet-4-6")
+    def test_msvc_opt_flag_set(self, monkeypatch):
+        """MSVC opt build emits /std:c++14 and /O2."""
+        if sys.platform != "win32":
+            pytest.skip("MSVC flags only on Windows")
+        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+        _name, _cc, _cxx, cargs, _largs = build_hooks._resolve_toolchain(debug=False)
+        assert "/std:c++14" in cargs
+        assert "/O2" in cargs
 
     @pytest.mark.agent_authored(model="claude-sonnet-5.5")
     def test_explicit_toolchain_prefers_env_ldcxxshared(self, monkeypatch):
