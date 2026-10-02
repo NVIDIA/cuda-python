@@ -68,7 +68,7 @@ reviews:
     - path: "cuda_bindings/**/*"
       instructions: |
         Focus on Cython binding correctness, API and ABI stability, error-code propagation,
-        resource ownership and reference counting, GIL handling, cross-platform behavior. 
+        resource ownership and reference counting, GIL handling, cross-platform behavior.
         Avoid style-only comments already covered by pre-commit.
 
     - path: "cuda_core/**/*"
