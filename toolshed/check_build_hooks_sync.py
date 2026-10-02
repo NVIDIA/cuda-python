@@ -5,10 +5,9 @@
 
 The block delimited by '# --- begin shared build helpers' and
 '# --- end shared build helpers ---' is duplicated verbatim between
-cuda_bindings/build_hooks.py and cuda_core/build_hooks.py (PEP 517 build
-isolation forbids a shared import). It contains the toolchain helpers and
-the Cython cache helpers. Run as a pre-commit hook so drift is caught at
-commit time.
+cuda_bindings/build_hooks.py and cuda_core/build_hooks.py. It contains the
+Cython cache helpers; the toolchain helpers already live in the shared
+_build_shared.py. Run as a pre-commit hook so drift is caught at commit time.
 """
 
 from __future__ import annotations

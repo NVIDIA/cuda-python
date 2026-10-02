@@ -41,23 +41,28 @@ from setuptools._distutils.sysconfig import customize_compiler
 from cuda.pathfinder import get_cuda_path_or_home
 
 
-def _load_build_hooks():
-    """Load build_hooks module from source without permanently modifying sys.path.
+def _load_module(name, path, *, register=False):
+    """Load a module from source without permanently modifying sys.path.
 
-    build_hooks.py is a PEP 517 build backend, not an installed module.
-    We use importlib to load it directly from source to avoid polluting
-    sys.path with the cuda_core/ directory (which contains cuda/core/ source
-    that could shadow the installed package).
+    build_hooks.py and _build_shared.py are PEP 517 backend files, not
+    installed modules. We use importlib to load them directly from source to
+    avoid polluting sys.path with the package directory (which contains
+    cuda/ source that could shadow the installed package). With ``register``
+    the module is also entered into sys.modules, which is how build_hooks.py's
+    ``from _build_shared import ...`` finds this copy.
     """
-    build_hooks_path = Path(__file__).parent.parent / "build_hooks.py"
-    spec = importlib.util.spec_from_file_location("build_hooks", build_hooks_path)
+    spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
+    if register:
+        sys.modules[name] = module
     spec.loader.exec_module(module)
     return module
 
 
-# Load the module once at import time
-build_hooks = _load_build_hooks()
+# Load the modules once at import time; _build_shared must come first.
+_PACKAGE_ROOT = Path(__file__).parent.parent
+_build_shared = _load_module("_build_shared", _PACKAGE_ROOT / "_build_shared.py", register=True)
+build_hooks = _load_module("build_hooks", _PACKAGE_ROOT / "build_hooks.py")
 
 
 @pytest.fixture(autouse=True)
@@ -1048,19 +1053,20 @@ class TestWithSccache:
 
     @pytest.mark.agent_authored(model="grok-4.6")
     def test_keeps_sccache_and_swaps_compiler(self):
-        assert build_hooks._with_sccache("sccache cc", "clang") == "sccache clang"
+        assert _build_shared._with_sccache("sccache cc", "clang") == "sccache clang"
 
     @pytest.mark.agent_authored(model="grok-4.6")
     def test_keeps_absolute_sccache_path(self):
         assert (
-            build_hooks._with_sccache("/host/usr/local/bin/sccache cc", "clang") == "/host/usr/local/bin/sccache clang"
+            _build_shared._with_sccache("/host/usr/local/bin/sccache cc", "clang")
+            == "/host/usr/local/bin/sccache clang"
         )
 
     @pytest.mark.agent_authored(model="grok-4.6")
     def test_bare_or_unrelated_cc_returns_compiler(self):
-        assert build_hooks._with_sccache("", "clang") == "clang"
-        assert build_hooks._with_sccache("gcc", "clang") == "clang"
-        assert build_hooks._with_sccache("ccache gcc", "clang") == "clang"
+        assert _build_shared._with_sccache("", "clang") == "clang"
+        assert _build_shared._with_sccache("gcc", "clang") == "clang"
+        assert _build_shared._with_sccache("ccache gcc", "clang") == "clang"
 
 
 class TestWithCompiler:
@@ -1069,36 +1075,36 @@ class TestWithCompiler:
     @pytest.mark.agent_authored(model="grok-4.6")
     def test_keeps_flags_that_were_part_of_sysconfig_cxx(self):
         assert (
-            build_hooks._with_compiler("g++ -pthread -B /compat -shared -Wl,-rpath,/lib", "clang++")
+            _build_shared._with_compiler("g++ -pthread -B /compat -shared -Wl,-rpath,/lib", "clang++")
             == "clang++ -pthread -B /compat -shared -Wl,-rpath,/lib"
         )
 
     @pytest.mark.agent_authored(model="grok-4.6")
     def test_compiler_only_command_returns_compiler(self):
-        assert build_hooks._with_compiler("g++", "clang++") == "clang++"
-        assert build_hooks._with_compiler("", "clang++") == "clang++"
-        assert build_hooks._with_compiler(None, "clang++") == "clang++"
+        assert _build_shared._with_compiler("g++", "clang++") == "clang++"
+        assert _build_shared._with_compiler("", "clang++") == "clang++"
+        assert _build_shared._with_compiler(None, "clang++") == "clang++"
 
     @pytest.mark.agent_authored(model="claude-sonnet-5.5")
     def test_keeps_quoted_arguments_intact(self):
-        result = build_hooks._with_compiler("g++ -Wl,-rpath='/a  b' -shared", "clang++")
+        result = _build_shared._with_compiler("g++ -Wl,-rpath='/a  b' -shared", "clang++")
         assert shlex.split(result) == ["clang++", "-Wl,-rpath=/a  b", "-shared"]
 
     @pytest.mark.agent_authored(model="claude-sonnet-5.5")
     def test_drops_launcher_before_compiler(self):
         # setuptools takes the launcher from CXX; keeping a second copy here would
         # leave a stray compiler argument on the link line.
-        assert build_hooks._with_compiler("ccache g++ -shared", "clang++") == "clang++ -shared"
+        assert _build_shared._with_compiler("ccache g++ -shared", "clang++") == "clang++ -shared"
 
     @pytest.mark.agent_authored(model="claude-sonnet-5.5")
     def test_keeps_env_prefix(self):
         assert (
-            build_hooks._with_compiler("env LIBRARY_PATH=/custom/lib g++ -shared", "clang++")
+            _build_shared._with_compiler("env LIBRARY_PATH=/custom/lib g++ -shared", "clang++")
             == "env LIBRARY_PATH=/custom/lib clang++ -shared"
         )
         # env long options (--unset=VAR) also treated as prefix, same as setuptools' _split_env
         assert (
-            build_hooks._with_compiler("env --unset=LD_LIBRARY_PATH g++ -shared", "clang++")
+            _build_shared._with_compiler("env --unset=LD_LIBRARY_PATH g++ -shared", "clang++")
             == "env --unset=LD_LIBRARY_PATH clang++ -shared"
         )
 
@@ -1184,22 +1190,22 @@ class TestCheckToolchainAvailable:
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_default_is_noop(self):
         # The platform default never preflights.
-        build_hooks._check_toolchain_available("gnu")
-        build_hooks._check_toolchain_available("msvc")
+        _build_shared._check_toolchain_available("gnu")
+        _build_shared._check_toolchain_available("msvc")
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_llvm_missing_tool_lists_install_hint(self, monkeypatch):
         def fake_which(name):
             return None if name in ("clang", "clang++", "ld.lld") else "/bin/" + name
 
-        monkeypatch.setattr(build_hooks.shutil, "which", fake_which)
+        monkeypatch.setattr(_build_shared.shutil, "which", fake_which)
         with pytest.raises(RuntimeError, match="clang and lld"):
-            build_hooks._check_toolchain_available("llvm")
+            _build_shared._check_toolchain_available("llvm")
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_llvm_present_passes(self, monkeypatch):
-        monkeypatch.setattr(build_hooks.shutil, "which", lambda name: "/bin/" + name)
-        build_hooks._check_toolchain_available("llvm")
+        monkeypatch.setattr(_build_shared.shutil, "which", lambda name: "/bin/" + name)
+        _build_shared._check_toolchain_available("llvm")
 
 
 # ---------------------------------------------------------------------------

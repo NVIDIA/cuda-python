@@ -29,17 +29,26 @@ import cuda.bindings
 _COMPILER_DIRECTIVES = {"freethreading_compatible": True}
 
 
-def _load_build_hooks():
-    # PEP 517 backend, not an installed module. Load by path so we do not put
-    # cuda_core/ on sys.path (that would shadow the installed package).
-    build_hooks_path = Path(__file__).resolve().parents[2] / "build_hooks.py"
-    spec = importlib.util.spec_from_file_location("cuda_core_build_hooks", build_hooks_path)
+def _load_module(name, path, *, register=False):
+    # PEP 517 backend files, not installed modules. Load by path so we do not
+    # put the package directory on sys.path (that would shadow the installed
+    # package). With ``register`` the module is also entered into sys.modules,
+    # which is how build_hooks.py's ``from _build_shared import ...`` finds it.
+    spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
+    if register:
+        sys.modules[name] = module
     spec.loader.exec_module(module)
     return module
 
 
-build_hooks = _load_build_hooks()
+def _load_build_hooks(modname):
+    package_root = Path(__file__).resolve().parents[2]
+    _load_module("_build_shared", package_root / "_build_shared.py", register=True)
+    return _load_module(modname, package_root / "build_hooks.py")
+
+
+build_hooks = _load_build_hooks("cuda_core_build_hooks")
 
 
 def _bindings_source_root() -> Path:

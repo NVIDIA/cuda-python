@@ -14,7 +14,6 @@ import glob
 import hashlib
 import os
 import re
-import shlex
 import shutil
 import sys
 import sysconfig
@@ -25,6 +24,8 @@ from warnings import warn
 
 from setuptools import build_meta as _build_meta
 from setuptools.extension import Extension
+
+from _build_shared import _check_toolchain_available, _resolve_toolchain_name, resolve_toolchain
 
 # Metadata hooks delegate directly to setuptools -- no CUDA needed.
 prepare_metadata_for_build_editable = _build_meta.prepare_metadata_for_build_editable
@@ -165,134 +166,16 @@ def _check_cuda_headers(cuda_path: str) -> None:
 
 
 # -----------------------------------------------------------------------
-# Toolchain selection
+# Cython cache helpers
 #
-# There is one shared helper block below, duplicated verbatim in
-# cuda_core/build_hooks.py (keep it in sync; enforced by
-# toolshed/check_build_hooks_sync.py). It contains the toolchain helpers and
-# the Cython cache helpers. Only the per-package _resolve_toolchain() flag
-# assembly that follows the shared block is package-specific (it differs
-# because the two packages use different C++ standards and opt levels).
+# The toolchain helpers and flag assembly live in _build_shared.py (the
+# single source of truth; cuda_core/_build_shared.py is a symlink to it).
+# The helper block below is still duplicated verbatim in
+# cuda_{bindings,core}/build_hooks.py (keep it in sync; enforced by
+# toolshed/check_build_hooks_sync.py).
+
 
 # --- begin shared build helpers (keep in sync) ---
-_TOOLCHAINS_LINUX = ("gnu", "llvm")
-_TOOLCHAINS_WINDOWS = ("msvc",)
-_TOOLCHAIN_COMPILERS = {
-    "gnu": ("gcc", "g++"),
-    "llvm": ("clang", "clang++"),
-    "msvc": (None, None),
-}
-
-
-def _resolve_toolchain_name():
-    """Read CUDA_PYTHON_TOOLCHAIN, validate it, return (name, allowed, cc, cxx).
-
-    The default toolchain (gnu on Linux, msvc on Windows) is the first entry
-    of the platform's allowed tuple. cc/cxx are the compiler binaries for the
-    toolchain (None for msvc, which distutils discovers via the MSVC env).
-    """
-    if sys.platform == "win32":
-        platform_key, allowed = "win32", _TOOLCHAINS_WINDOWS
-    else:
-        platform_key, allowed = "linux", _TOOLCHAINS_LINUX
-    name = os.environ.get("CUDA_PYTHON_TOOLCHAIN", allowed[0]).strip().lower()
-    if name not in allowed:
-        raise RuntimeError(
-            f"CUDA_PYTHON_TOOLCHAIN={name!r} is not supported on {platform_key}. Valid values: {', '.join(allowed)}."
-        )
-    cc, cxx = _TOOLCHAIN_COMPILERS[name]
-    explicit = bool(os.environ.get("CUDA_PYTHON_TOOLCHAIN", "").strip())
-    return name, allowed, cc, cxx, explicit
-
-
-def _with_compiler(command, compiler):
-    """Replace the leading compiler on a linker command; keep flags.
-
-    Conda ``LDCXXSHARED`` looks like ``g++ -pthread -B .../python_compiler_compat
-    -shared ...``. Only the executable changes so those flags stay on the
-    link line. The command is tokenized with shlex so quoted arguments
-    survive, and a leading ``env VAR=value`` prefix is preserved. CC/CXX are
-    not rewritten this way: they may already be a launcher plus compiler
-    (``sccache cc``).
-    """
-    if not command or not command.strip():
-        return compiler
-    parts = shlex.split(command)
-    # Keep an ``env VAR=value ...`` prefix: setuptools' C++ link step splits it
-    # off before it substitutes the compiler, so it still reaches the link line.
-    prefix_end = 0
-    if parts and os.path.basename(parts[0]) == "env":
-        prefix_end = 1
-        # Match setuptools' _split_env: any token with ``=`` is an env operand
-        # (covers both ``VAR=value`` and ``--unset=VAR`` long options).
-        while prefix_end < len(parts) and "=" in parts[prefix_end]:
-            prefix_end += 1
-    # Everything else before the first flag is the old compiler (or a launcher
-    # for it; setuptools takes the launcher from CXX instead).
-    i = prefix_end
-    while i < len(parts) and not parts[i].startswith("-"):
-        i += 1
-    return shlex.join([*parts[:prefix_end], compiler, *parts[i:]])
-
-
-def _with_sccache(current, compiler):
-    """Keep a leading sccache token when the toolchain picks a compiler.
-
-    CI sets ``CC="sccache cc"`` or ``CC="/host/.../sccache cc"``. An explicit
-    toolchain then becomes ``CC="sccache clang"`` rather than a bare compiler.
-    """
-    if current:
-        launcher = current.split()[0]
-        if os.path.basename(launcher) == "sccache":
-            return f"{launcher} {compiler}"
-    return compiler
-
-
-def _apply_toolchain_env(cc, cxx, explicit):
-    """Set CC/CXX/LDCXXSHARED for an explicitly-chosen toolchain.
-
-    The default path (CUDA_PYTHON_TOOLCHAIN unset) intentionally
-    does not touch the env, so an externally-set compiler (e.g.
-    CC="sccache cc" in CI) keeps working. An explicit CUDA_PYTHON_TOOLCHAIN
-    override (incl. =gnu) sets CC/CXX to the toolchain compiler; an existing
-    sccache prefix is kept (CC="sccache cc" + llvm -> CC="sccache clang").
-    Extras on LDCXXSHARED (rpath, -pthread, -B, ...) are kept, taken from the
-    environment if set there and from sysconfig otherwise; only the compiler
-    is swapped. LDSHARED is left unset so distutils rewrites it from CC.
-    """
-    if explicit and cc is not None:
-        os.environ["CC"] = _with_sccache(os.environ.get("CC", ""), cc)
-        os.environ["CXX"] = _with_sccache(os.environ.get("CXX", ""), cxx)
-        # An LDCXXSHARED the user already exported takes precedence over
-        # sysconfig's, as CC/CXX do; either way only the compiler is swapped.
-        ldcxxshared = (
-            os.environ.get("LDCXXSHARED")
-            or sysconfig.get_config_var("LDCXXSHARED")
-            or sysconfig.get_config_var("LDSHARED")
-        )
-        os.environ["LDCXXSHARED"] = _with_compiler(ldcxxshared, cxx) if ldcxxshared else f"{cxx} -shared"
-
-
-def _check_toolchain_available(name):
-    """Preflight: verify the selected toolchain's tools are on PATH.
-
-    No-op for the platform default (distutils discovers those). For llvm,
-    probes clang, clang++, and ld.lld so a missing toolchain fails fast with a
-    helpful message instead of a cryptic compile error.
-    """
-    if name != "llvm":
-        return
-    tools = ("clang", "clang++", "ld.lld")
-    missing = [t for t in tools if shutil.which(t) is None]
-    if missing:
-        raise RuntimeError(
-            f"CUDA_PYTHON_TOOLCHAIN=llvm but required tool(s) not found on PATH: "
-            f"{', '.join(missing)}. Install clang and lld "
-            f"(e.g. `apt install clang lld` or `dnf install clang lld`) "
-            f"or set CUDA_PYTHON_TOOLCHAIN=gnu."
-        )
-
-
 # === Cython generated-source cache (opt-in via CUDA_PYTHON_CYTHON_CACHE_DIR) ===
 # Workaround for Cython issue #7532: Cython's native cache fingerprint omits
 # `compiler_directives`, so builds with different directives (e.g. linetrace
@@ -421,54 +304,30 @@ def _stable_cython_alias(target: Path, alias: Path):
 # --- end shared build helpers ---
 
 
-def _resolve_toolchain(debug=False, compile_for_coverage=False):
-    """Resolve the C/C++ toolchain from CUDA_PYTHON_TOOLCHAIN.
-
-    Returns (name, cc, cxx, extra_compile_args, extra_link_args). The default
-    toolchain (gnu on Linux, msvc on Windows) reproduces the previous build
-    behavior and does not touch CC/CXX/LDCXXSHARED, so an externally-set compiler
-    (e.g. CC="sccache cc") keeps working. A non-default toolchain (llvm on
-    Linux) selects clang/clang++ and lld and sets CC/CXX/LDCXXSHARED so distutils'
-    customize_compiler picks them up.
-    """
-    name, _allowed, cc, cxx, explicit = _resolve_toolchain_name()
-
-    extra_compile_args = []
-    extra_link_args = []
-
-    if name == "msvc":
-        # c++14: raising to c++17 costs a measured ~15% on launch_{256,512}_args
-        # from gcc's c++17 variadic-template expansion.
-        extra_compile_args += ["/std:c++14", "/O2"]
-        if debug:
-            raise RuntimeError("Debuggable builds are not supported on Windows.")
-    else:
-        # Common Linux compile flags.
-        # c++14: raising to c++17 costs a measured ~15% on launch_{256,512}_args
-        # from gcc's c++17 variadic-template expansion.
-        extra_compile_args += ["-std=c++14"]
+def _tweak_flags(name, extra_compile_args, extra_link_args):
+    """cuda-bindings flags that do not belong in the shared set."""
+    if name != "msvc":
         # cudaMemcpy*Array* and cudaGetDriverEntryPoint are deprecated but still
         # supported; suppress the resulting warnings so a future -Werror build
         # is not broken by Cython-generated calls we cannot control.
-        extra_compile_args += ["-Wno-deprecated-declarations"]
-        # Compiler-specific flags.
-        if name == "llvm":
-            extra_link_args += ["-fuse-ld=lld"]
-        # Common Linux debug/opt flags.
-        if debug:
-            extra_compile_args += ["-g", "-O0", "-D _GLIBCXX_ASSERTIONS"]
-        else:
-            extra_compile_args += ["-g0", "-O2"]
-            extra_link_args += ["-Wl,--strip-all"]
+        extra_compile_args = [*extra_compile_args, "-Wno-deprecated-declarations"]
+    return extra_compile_args, extra_link_args
 
-    if compile_for_coverage:
-        # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
-        # related to free-threading builds.
-        extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
 
-    _apply_toolchain_env(cc, cxx, explicit)
+def _resolve_toolchain(debug=False, compile_for_coverage=False):
+    """Resolve the C/C++ toolchain from CUDA_PYTHON_TOOLCHAIN (cuda.bindings flags).
 
-    return name, cc, cxx, extra_compile_args, extra_link_args
+    See _build_shared.resolve_toolchain() for the return value and the
+    environment handling. What is specific to cuda.bindings is declared here.
+    """
+    return resolve_toolchain(
+        # c++14: raising to c++17 costs a measured ~15% on launch_{256,512}_args
+        # from gcc's c++17 variadic-template expansion.
+        cxx_std=14,
+        debug=debug,
+        compile_for_coverage=compile_for_coverage,
+        tweak=_tweak_flags,
+    )
 
 
 # -----------------------------------------------------------------------
