@@ -981,30 +981,7 @@ def test_cuCheckpointProcessGetState_failure():
     driver_version_less_than(12090),
     reason="cuLogs* functions were introduced in CUDA 12.9",
 )
-def test_culogs_functions_are_resolved():
-    """
-    Regression test for https://github.com/NVIDIA/cuda-python/issues/2979
-
-    cuLogsRegisterCallback, cuLogsUnregisterCallback, cuLogsCurrent,
-    cuLogsDumpToFile, and cuLogsDumpToMemory were introduced in CUDA 12.9,
-    but were incorrectly requested from cuGetProcAddress_v2 with version
-    12080 (CUDA 12.8). On a driver that enforces the requested symbol
-    version, that mismatch causes the internal function pointer to never
-    be resolved, so calling the function raises FunctionNotFoundError
-    instead of actually invoking the driver.
-
-    cuLogsRegisterCallback, cuLogsUnregisterCallback, cuLogsCurrent, and
-    cuLogsDumpToFile are called directly below since they can be exercised
-    safely without a real log message or a fixed-size memory buffer. We
-    deliberately avoid calling cuLogsDumpToMemory with a real buffer here:
-    it writes a driver-chosen amount of data into the caller-supplied
-    buffer, which makes it unsafe to invoke blindly in a regression test.
-    Instead, its resolution is verified the same way
-    test_private_function_pointer_inspector does: by inspecting the
-    internal function pointer directly.
-    """
-    from cuda.bindings._internal.driver import _inspect_function_pointer
-
+def test_culogs_functions():
     try:
         err, callback_handle = cuda.cuLogsRegisterCallback(0, None)
         assert err == cuda.CUresult.CUDA_SUCCESS
@@ -1020,14 +997,17 @@ def test_culogs_functions_are_resolved():
         finally:
             os.remove(log_path)
 
+        # cuLogsDumpToMemory's own docstring states the driver's internal log
+        # buffer is capped at 25600 bytes, so a buffer of that size is always
+        # large enough to hold the dump without risking a buffer overrun.
+        buf = bytearray(25600)
+        err, _, _ = cuda.cuLogsDumpToMemory(None, buf, len(buf), 0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
         (err,) = cuda.cuLogsUnregisterCallback(callback_handle)
         assert err == cuda.CUresult.CUDA_SUCCESS
     except FunctionNotFoundError as e:
         pytest.fail(f"cuLogs* function unexpectedly not found on the driver: {e}")
-
-    assert _inspect_function_pointer("__cuLogsDumpToMemory") != 0, (
-        "cuLogsDumpToMemory was not resolved by cuGetProcAddress_v2"
-    )
 
 
 def test_private_function_pointer_inspector():
