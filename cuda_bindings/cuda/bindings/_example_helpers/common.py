@@ -21,6 +21,19 @@ def requirement_not_met(message):
     return sys.exit(int(exitcode))
 
 
+#: NVRTC gained cubin output (nvrtcGetCUBIN) in CUDA 11.1.
+NVRTC_CUBIN_MIN_VERSION = (11, 1)
+
+
+def nvrtc_supports_cubin(nvrtc_version):
+    """Whether this NVRTC can emit cubin rather than only PTX.
+
+    Compares (major, minor) as a tuple: looking at the minor alone reports
+    "no cubin" for every x.0 release, e.g. NVRTC 12.0 and 13.0.
+    """
+    return tuple(nvrtc_version) >= NVRTC_CUBIN_MIN_VERSION
+
+
 def check_compute_capability_too_low(dev_id, required_cc_major_minor):
     cc_major = check_cuda_errors(
         cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, dev_id)
@@ -55,8 +68,7 @@ class KernelHelper:
         minor = check_cuda_errors(
             cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, dev_id)
         )
-        _, nvrtc_minor = nvrtc.version()
-        use_cubin = nvrtc_minor >= 1
+        use_cubin = nvrtc_supports_cubin(nvrtc.version())
         prefix = "sm" if use_cubin else "compute"
         arch_arg = bytes(f"--gpu-architecture={prefix}_{major}{minor}", "ascii")
 

@@ -68,8 +68,10 @@ def main():
         cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cu_device
     )
     assert_drv(err)
-    nvrtc_major, nvrtc_minor = nvrtc.version()
-    use_cubin = nvrtc_minor >= 1
+    # NVRTC gained cubin output in CUDA 11.1. Compare (major, minor) as a
+    # tuple: looking at the minor alone reports "no cubin" for every x.0
+    # release, e.g. NVRTC 12.0 and 13.0.
+    use_cubin = nvrtc.version() >= (11, 1)
     prefix = "sm" if use_cubin else "compute"
     arch_arg = bytes(f"--gpu-architecture={prefix}_{major}{minor}", "ascii")
 
