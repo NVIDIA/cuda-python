@@ -54,8 +54,14 @@ class InMemoryProgramCache(ProgramCacheResource):
         *,
         max_size_bytes: int | None = None,
     ) -> None:
-        if max_size_bytes is not None and max_size_bytes <= 0:
-            raise ValueError("max_size_bytes must be positive or None (0 would evict every write)")
+        if max_size_bytes is not None and (
+            # bool is an int subclass, so True would sail through as a 1-byte
+            # cap that discards every write while its twin False is rejected.
+            isinstance(max_size_bytes, bool) or not isinstance(max_size_bytes, int) or max_size_bytes <= 0
+        ):
+            raise ValueError(
+                f"max_size_bytes must be a positive int or None (0 would evict every write), got {max_size_bytes!r}"
+            )
         self._max_size_bytes = max_size_bytes
         # Key insertion order encodes LRU order: oldest first, newest last.
         # Each value is ``(payload_bytes, payload_size)``; caching the size
