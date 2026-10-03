@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.C2CPowerState
-================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: C2CPowerState

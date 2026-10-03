@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.system\_register\_events
-===========================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: system_register_events
