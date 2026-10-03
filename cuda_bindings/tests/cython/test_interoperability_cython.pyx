@@ -146,6 +146,7 @@ def test_interop_graphNode():
     assert(err_dr == cuda.CUresult.CUDA_SUCCESS)
 
 
+@pytest.mark.thread_unsafe(reason="changes the device's current memory pool")
 @pytest.mark.skipif(not supportsMemoryPool(), reason='Requires mempool operations')
 def test_interop_memPool():
     err_dr, = cuda.cuInit(0)

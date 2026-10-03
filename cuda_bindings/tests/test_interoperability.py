@@ -90,6 +90,7 @@ def test_interop_graphNode():
 # TODO
 
 
+@pytest.mark.thread_unsafe(reason="changes the device's current memory pool")
 @pytest.mark.agent_authored(model="claude-sonnet-5.5")
 @pytest.mark.skipif(not supportsMemoryPool(), reason="Requires mempool operations")
 def test_interop_memPool():
