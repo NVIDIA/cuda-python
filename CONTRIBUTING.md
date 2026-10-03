@@ -214,7 +214,23 @@ A few things to keep in mind:
   --config-file cuda_core/pyproject.toml
 
 ## Pre-commit
-This project uses [pre-commit.ci](https://pre-commit.ci/) with GitHub Actions. All pull requests are automatically checked for pre-commit compliance, and any pre-commit failures will block merging until resolved.
+GitHub Actions runs all pre-commit hooks on Linux and Windows for every pull
+request update, including draft PRs. These jobs skip lychee and the local hook
+installation reminder. A separate Linux workflow checks authored documentation
+and freshly rendered HTML, including link fragments. It runs on PR updates and
+from nightly CI; copied `pull-request/*` branches do not repeat these checks.
+
+Nightly link checks start with a fresh cache and publish successful checks for
+PRs to reuse for up to one day. Dependabot checks pre-commit hook revisions
+monthly and opens update PRs with the `CI/CD` and `dependencies` labels, without
+an automatic assignee or milestone. Lychee version updates are maintained
+separately so its local hook and CI binary stay aligned. The local lychee hook
+keeps its current behavior until a stable release supports an explicit cache
+location.
+
+See [the pre-commit workflow guide](ci/README-pre-commit-migration.md) for manual
+workflow testing. The existing pre-commit.ci service remains required until the
+required-check cutover is complete.
 
 To set yourself up for running pre-commit checks locally and to catch issues before pushing your changes, follow these steps:
 
@@ -229,7 +245,7 @@ Installing the hook is required, not optional. Some of the automated checks
 keep the tree consistent if they run on *every* commit. Relying on manual
 `pre-commit run --all-files` invocations means these checks can be skipped
 between commits, leaving stale headers or out-of-date stubs in the history.
-If the hook isn't installed, `pre-commit run` (and CI) will print a visible
+If the hook isn't installed, local `pre-commit run` will print a visible
 warning reminding you to run `pre-commit install`.
 
 Windows contributors: see [Pre-commit lychee workaround](#pre-commit-lychee-workaround) under Development on Windows.

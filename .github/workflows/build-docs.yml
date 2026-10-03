@@ -284,59 +284,6 @@ jobs:
           fi
           mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
 
-      - name: Write rendered docs file list
-        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
-        run: |
-          find "${GITHUB_WORKSPACE}/artifacts/docs" -type f -name '*.html' ! -path '*/_static/*' \
-            | LC_ALL=C sort > lychee-rendered-html-files.txt
-          if [[ ! -s lychee-rendered-html-files.txt ]]; then
-            echo "error: no rendered HTML pages found for lychee" >&2
-            exit 1
-          fi
-          wc -l lychee-rendered-html-files.txt
-
-      - name: Restore lychee cache
-        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
-        id: restore-lychee-cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        with:
-          path: .lycheecache
-          key: docs-rendered-lychee-${{ env.PR_NUMBER }}-${{ github.sha }}
-          restore-keys: |
-            docs-rendered-lychee-${{ env.PR_NUMBER }}-
-
-      - name: Check rendered docs links
-        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
-        uses: lycheeverse/lychee-action@6da1d14f3a43098a294b7696d93d938aa8d20fc0  # unreleased: supports v0.24.x archive layout
-        with:
-          args: >-
-            --files-from ${{ github.workspace }}/lychee-rendered-html-files.txt
-            --include-fragments=full
-            --cache
-            --max-cache-age 1d
-            --max-concurrency 16
-            --host-concurrency 2
-            --host-request-interval 250ms
-            --max-retries 3
-            --retry-wait-time 5
-            --timeout 30
-            --no-progress
-            --config ${{ github.workspace }}/lychee.toml
-          fail: true
-          failIfEmpty: true
-          format: markdown
-          jobSummary: false
-          lycheeVersion: v0.24.2
-          output: lychee-rendered-html.md
-          token: ${{ github.token }}
-
-      - name: Save lychee cache
-        if: ${{ always() && !inputs.is-release && startsWith(github.ref_name, 'pull-request/') && steps.restore-lychee-cache.outputs.cache-hit != 'true' && steps.restore-lychee-cache.outputs.cache-primary-key != '' }}
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        with:
-          path: .lycheecache
-          key: ${{ steps.restore-lychee-cache.outputs.cache-primary-key }}
-
       - name: Upload docs GitHub Pages artifact
         if: ${{ inputs.deploy-docs }}
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0

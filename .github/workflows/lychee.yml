@@ -1,0 +1,172 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Check checked-in documentation and rendered HTML on PR updates and nightly.
+# Build fresh HTML from sources to check Sphinx-generated links and anchors.
+# This runs independently of ci.yml → build-docs.yml, which builds and deploys
+# docs using CI-built wheels. Nightly caches successful link-check results for
+# reuse by PR runs of this workflow.
+
+name: "CI: Documentation links"
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  workflow_call:
+    inputs:
+      concurrency-suffix:
+        description: "Keep a caller's test mode separate from its full run"
+        type: string
+        default: full
+      refresh-cache:
+        description: "Check links afresh and publish a new cache baseline"
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      refresh-cache:
+        description: "Check links afresh and publish a new cache baseline"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ github.event_name }}-${{ inputs.refresh-cache || false }}-${{ inputs.concurrency-suffix || 'full' }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
+
+env:
+  PIXI_LOCKED: "true"
+  LYCHEE_VERSION: v0.24.2 # Must match the pinned rev in .pre-commit-config.yaml
+
+jobs:
+  links:
+    name: Lychee (${{ matrix.kind }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        kind: [authored, rendered]
+    steps:
+      - name: Checkout checked revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          # Keep SCM history/tags without downloading historical source blobs.
+          filter: blob:none
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+
+      - name: Setup pixi
+        if: ${{ matrix.kind == 'rendered' }}
+        uses: ./.github/actions/setup-pixi
+
+      - name: Build all documentation from sources
+        if: ${{ matrix.kind == 'rendered' }}
+        run: |
+          CUDA_PYTHON_DOCS_GITHUB_REF=$(git rev-parse HEAD)
+          export CUDA_PYTHON_DOCS_GITHUB_REF
+          pixi run --manifest-path cuda_core/pixi.toml -e docs docs-build-all-latest
+
+      - name: Prepare link-check inputs and cache policy
+        id: inputs
+        env:
+          KIND: ${{ matrix.kind }}
+          POLICY_HASH: ${{ hashFiles('lychee.toml', '.github/workflows/lychee.yml', 'ci/tools/prepare_lychee_inputs.py') }}
+        run: |
+          python ci/tools/prepare_lychee_inputs.py "${KIND}" \
+            --output "${GITHUB_WORKSPACE}/lychee-files.txt"
+          prefix="lychee-v1-${LYCHEE_VERSION}-${KIND}-${POLICY_HASH}-baseline-"
+          echo "prefix=${prefix}" >> "${GITHUB_OUTPUT}"
+          echo "key=${prefix}${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_OUTPUT}"
+          if [[ "${KIND}" == "rendered" ]]; then
+            echo "fragment-args=--include-fragments=full" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Restore successful checks from the nightly baseline
+        if: ${{ !inputs.refresh-cache }}
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .lycheecache
+          key: ${{ steps.inputs.outputs.key }}
+          restore-keys: ${{ steps.inputs.outputs.prefix }}
+
+      - name: Check documentation links
+        id: lychee
+        uses: lycheeverse/lychee-action@6da1d14f3a43098a294b7696d93d938aa8d20fc0 # supports v0.24.x archive layout
+        with:
+          args: >-
+            --files-from ${{ github.workspace }}/lychee-files.txt
+            ${{ steps.inputs.outputs.fragment-args }}
+            --cache
+            --max-cache-age 1d
+            --max-concurrency 16
+            --host-concurrency 2
+            --host-request-interval 250ms
+            --max-retries 3
+            --retry-wait-time 5
+            --timeout 30
+            --no-progress
+            --config ${{ github.workspace }}/lychee.toml
+          fail: true
+          failIfEmpty: true
+          format: markdown
+          jobSummary: true
+          lycheeVersion: ${{ env.LYCHEE_VERSION }}
+          output: lychee-${{ matrix.kind }}.md
+          token: ${{ github.token }}
+
+      - name: Require a successful checker result
+        if: ${{ steps.lychee.outcome == 'success' }}
+        env:
+          EXIT_CODE: ${{ steps.lychee.outputs.exit_code }}
+        run: |
+          if [[ "${EXIT_CODE}" != "0" ]]; then
+            echo "::error::Lychee did not report success (exit_code='${EXIT_CODE}')."
+            exit 1
+          fi
+
+      - name: Publish fresh successful checks
+        # Manual branch tests publish isolated branch caches. Nightly callers
+        # on the default branch publish the baseline that all PRs can restore.
+        if: ${{ always() && inputs.refresh-cache && steps.inputs.outputs.key != '' && hashFiles('.lycheecache') != '' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .lycheecache
+          key: ${{ steps.inputs.outputs.key }}
+
+      - name: Upload link-check report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: lychee-${{ matrix.kind }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: lychee-${{ matrix.kind }}.md
+          if-no-files-found: ignore
+          retention-days: 7
+
+  checks:
+    name: Documentation links
+    if: ${{ always() }}
+    needs: links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require both link checks to succeed
+        env:
+          RESULT: ${{ needs.links.result }}
+        run: |
+          if [[ "${RESULT}" != "success" ]]; then
+            echo "::error::Documentation link checks did not succeed (${RESULT})."
+            exit 1
+          fi
