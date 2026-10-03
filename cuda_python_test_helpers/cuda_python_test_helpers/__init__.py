@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import ctypes.util
 import os
 import platform
 import sys
@@ -29,10 +30,36 @@ IS_WSL: bool = _detect_wsl()
 IS_WINDOWS: bool = platform.system() == "Windows" or sys.platform.startswith("win")
 IS_LINUX: bool = not IS_WINDOWS and not IS_WSL and platform.system() == "Linux"
 
-if IS_WINDOWS:
-    libc = ctypes.CDLL("msvcrt.dll")
-else:
-    libc = ctypes.CDLL("libc.so.6")
+
+def _load_libc() -> ctypes.CDLL:
+    """Load the C runtime.
+
+    ``libc.so.6`` is the glibc soname specifically: it does not exist on musl
+    (Alpine) or on macOS. It is tried first so the library resolved on the
+    platforms CI runs on is bit-for-bit what it was before, with
+    ``ctypes.util.find_library`` only as a fallback.
+
+    Failing here is expensive out of proportion to the one function that needs
+    it: this module is pulled in by ``cuda_core/tests/conftest.py`` through
+    ``pytest_plugins``, so an unloadable libc stops the entire suite from being
+    *collected*, including every test that never touches ``libc``.
+    """
+    if IS_WINDOWS:
+        return ctypes.CDLL("msvcrt.dll")
+
+    tried = []
+    for candidate in ("libc.so.6", ctypes.util.find_library("c")):
+        if candidate is None:
+            continue
+        tried.append(candidate)
+        try:
+            return ctypes.CDLL(candidate)
+        except OSError:
+            continue
+    raise OSError(f"could not load the C runtime on {platform.system()}; tried {tried}")
+
+
+libc = _load_libc()
 
 
 def under_compute_sanitizer() -> bool:
