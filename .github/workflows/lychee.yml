@@ -2,6 +2,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# Check checked-in documentation and rendered HTML on PR updates and nightly.
+# Build fresh HTML from sources to check Sphinx-generated links and anchors.
+# This runs independently of ci.yml → build-docs.yml, which builds and deploys
+# docs using CI-built wheels. Nightly caches successful link-check results for
+# reuse by PR runs of this workflow.
+
 name: "CI: Documentation links"
 
 on:
