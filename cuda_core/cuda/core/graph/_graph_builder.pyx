@@ -623,7 +623,7 @@ cdef class GraphBuilder:
 
         event = self._stream.record()
         result = [self]
-        for i in range(count - 1):
+        for _ in range(count - 1):
             stream = self._stream.device.create_stream()
             stream.wait(event)
             result.append(GB_init_forked(stream, self._h_graph))
