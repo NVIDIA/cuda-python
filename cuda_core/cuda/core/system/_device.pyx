@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+cimport cython
+
 from libc.stdint cimport intptr_t, uint64_t
 from libc.math cimport ceil
 
