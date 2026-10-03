@@ -37,7 +37,7 @@ defaults:
 
 env:
   PIXI_LOCKED: "true"
-  LYCHEE_VERSION: v0.24.2
+  LYCHEE_VERSION: v0.24.2 # Must match the pinned rev in .pre-commit-config.yaml
 
 jobs:
   links:
@@ -61,7 +61,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Setup pixi
         if: ${{ matrix.kind == 'rendered' }}
