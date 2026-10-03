@@ -22,6 +22,7 @@ Important Note on Caching:
 import functools
 import os
 import warnings
+from pathlib import Path
 
 _CUDA_PATH_ENV_VARS_ORDERED = ("CUDA_PATH", "CUDA_HOME")
 
@@ -36,15 +37,19 @@ def _paths_differ(a: str, b: str) -> bool:
     2) If still different AND both exist, use os.path.samefile to resolve symlinks/junctions.
     3) Otherwise (nonexistent paths or samefile unavailable), treat as different.
     """
+    # normcase/normpath have no pathlib equivalent: PurePath does not collapse
+    # "..", Path.resolve() would also follow symlinks, and comparing PurePath
+    # objects would only case-fold on Windows.
     norm_a = os.path.normcase(os.path.normpath(a))
     norm_b = os.path.normcase(os.path.normpath(b))
     if norm_a == norm_b:
         return False
 
+    path_a, path_b = Path(a), Path(b)
     try:
-        if os.path.exists(a) and os.path.exists(b):
+        if path_a.exists() and path_b.exists():
             # samefile raises on non-existent paths; only call when both exist.
-            return not os.path.samefile(a, b)
+            return not path_a.samefile(path_b)
     except OSError:
         # Fall through to "different" if samefile isn't applicable/available.
         pass
