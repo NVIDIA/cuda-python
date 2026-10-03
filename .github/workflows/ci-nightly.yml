@@ -7,13 +7,33 @@
 # test suite on runners reserved for nightly-only use (e.g. arm64 l4×2), and
 # exercises release-time CI helper scripts so they do not silently rot between releases.
 #
-# This workflow does NOT build wheels — it downloads them from the latest
-# successful CI run on main and runs integration/standard tests.
+# This workflow does NOT build wheels — it downloads them from a successful
+# CI run and runs integration/standard tests. Normally that's the latest
+# successful run on main (schedule / plain workflow_dispatch), but applying
+# the "test-nightly" label to a PR also triggers this workflow, in which case
+# it downloads wheels from that PR's own CI run instead (see find-wheels).
+#
+# The standard PR CI (ci.yml, named "CI") must run first so its wheels exist.
+# Rather than failing when it hasn't finished yet, the gate job below defers:
+#   - Labeling a PR while its CI run is still in flight is a no-op here; once
+#     that CI run completes, its own workflow_run "completed" event re-enters
+#     this workflow, gate re-checks the label, and nightly starts then.
+#   - Labeling a PR whose CI run has already succeeded starts nightly right
+#     away via the pull_request_target path.
 
 name: "CI: Nightly optional-deps"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  # For pull_request_target/workflow_run, github.ref is always the base
+  # branch (e.g. refs/heads/main) regardless of which PR triggered the
+  # event, so scope the group by PR instead to avoid unrelated PRs
+  # cancelling each other.
+  group: >-
+    ${{ github.workflow }}-${{
+      (github.event_name == 'pull_request_target' && github.event.pull_request.number) ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch) ||
+      github.ref
+    }}-${{ github.event_name }}
   cancel-in-progress: true
 
 on:
@@ -30,11 +50,91 @@ on:
           Leave empty to auto-detect the latest successful main run.
         type: string
         default: ''
+  pull_request_target:
+    # Filtered down to the "test-nightly" label in the gate job below;
+    # pull_request_target itself has no way to filter by label name.
+    types: [labeled]
+  workflow_run:
+    # Lets nightly start as soon as ci.yml finishes for a PR that already
+    # carries the "test-nightly" label. See gate below.
+    workflows: ["CI"]
+    types: [completed]
 
 jobs:
+  gate:
+    name: Determine whether nightly should run
+    if: ${{ github.repository_owner == 'nvidia' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      should-run: ${{ steps.decide.outputs.should-run }}
+      run-id: ${{ steps.decide.outputs.run-id }}
+      head-sha: ${{ steps.decide.outputs.head-sha }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 1
+
+      - name: Decide
+        id: decide
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          should_run=false
+          run_id=""
+          head_sha=""
+
+          case "${{ github.event_name }}" in
+            schedule|workflow_dispatch)
+              should_run=true
+              ;;
+
+            pull_request_target)
+              # "test-nightly" label was just added. Start immediately only
+              # if ci.yml has already succeeded on the PR's mirror branch;
+              # otherwise leave it to the workflow_run trigger below once
+              # ci.yml finishes.
+              if [[ "${{ github.event.label.name }}" == "test-nightly" ]]; then
+                pr_branch="pull-request/${{ github.event.pull_request.number }}"
+                if output=$(./ci/tools/lookup-run-id --branch "$pr_branch" "${{ github.repository }}" "CI" 2>&1); then
+                  should_run=true
+                else
+                  echo "$output"
+                  echo "No successful CI run yet for $pr_branch; nightly will start automatically once ci.yml finishes, as long as the label is still applied then."
+                fi
+              fi
+              ;;
+
+            workflow_run)
+              # ci.yml just finished. Only proceed if it succeeded and the PR
+              # it ran for (identified via the pull-request/<N> mirror
+              # branch) currently carries the "test-nightly" label.
+              if [[ "${{ github.event.workflow_run.conclusion }}" == "success" ]]; then
+                head_branch="${{ github.event.workflow_run.head_branch }}"
+                if [[ "$head_branch" =~ ^pull-request/([0-9]+)$ ]]; then
+                  pr_number="${BASH_REMATCH[1]}"
+                  labels=$(gh pr view "$pr_number" -R "${{ github.repository }}" --json labels --jq '.labels[].name')
+                  if grep -qx "test-nightly" <<< "$labels"; then
+                    should_run=true
+                    run_id="${{ github.event.workflow_run.id }}"
+                    head_sha="${{ github.event.workflow_run.head_sha }}"
+                  fi
+                fi
+              fi
+              ;;
+          esac
+
+          echo "should-run=${should_run}" >> "$GITHUB_OUTPUT"
+          echo "run-id=${run_id}" >> "$GITHUB_OUTPUT"
+          echo "head-sha=${head_sha}" >> "$GITHUB_OUTPUT"
+
   test-ci-tools-for-release:
     name: "Nightly: CI tools for release"
-    if: ${{ github.repository_owner == 'nvidia' }}
+    needs: gate
+    if: ${{ needs.gate.outputs.should-run == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -49,7 +149,8 @@ jobs:
           python -m pytest -v --noconftest ci/tools/tests
 
   find-wheels:
-    if: ${{ github.repository_owner == 'nvidia' }}
+    needs: gate
+    if: ${{ needs.gate.outputs.should-run == 'true' }}
     runs-on: ubuntu-latest
     outputs:
       RUN_ID: ${{ steps.find.outputs.run_id }}
@@ -61,7 +162,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Find latest successful CI run on main
+      - name: Find CI run to source wheel artifacts from
         id: find
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -71,6 +172,20 @@ jobs:
             HEAD_SHA=$(gh run view "$RUN_ID" \
               -R "${{ github.repository }}" \
               --json headSha | jq -r '.headSha')
+          elif [[ -n "${{ needs.gate.outputs.run-id }}" ]]; then
+            # gate already resolved this directly from the completed CI
+            # workflow_run event; no need to look it up again.
+            RUN_ID="${{ needs.gate.outputs.run-id }}"
+            HEAD_SHA="${{ needs.gate.outputs.head-sha }}"
+          elif [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
+            # Triggered by the "test-nightly" label: copy-pr-bot mirrors the
+            # PR onto pull-request/<N>, and ci.yml runs there on every push.
+            # gate already confirmed a successful run exists before letting
+            # this job run, so this should succeed.
+            PR_BRANCH="pull-request/${{ github.event.pull_request.number }}"
+            OUTPUT=$(./ci/tools/lookup-run-id --branch "$PR_BRANCH" --head-sha "${{ github.repository }}" "CI")
+            RUN_ID=$(echo "$OUTPUT" | sed -n '1p')
+            HEAD_SHA=$(echo "$OUTPUT" | sed -n '2p')
           else
             # lookup-run-id --branch --head-sha prints two lines: run_id then head_sha
             OUTPUT=$(./ci/tools/lookup-run-id --branch main --head-sha "${{ github.repository }}" "CI")
@@ -313,6 +428,7 @@ jobs:
     if: ${{ always() && github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     needs:
+      - gate
       - test-ci-tools-for-release
       - find-wheels
       - test-pytorch-linux
@@ -329,6 +445,13 @@ jobs:
     steps:
       - name: Exit
         run: |
+          # A labeled event other than "test-nightly" makes gate skip every
+          # other job in this workflow; that's expected, not a failure.
+          if [[ "${{ needs.gate.outputs.should-run }}" != "true" ]]; then
+            echo "gate decided the nightly run should not proceed for this event; nothing to check."
+            exit 0
+          fi
+
           # If any dependency was cancelled or failed, that's a failure.
           #
           # See ci.yml for the full rationale on why we must use always()
