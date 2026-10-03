@@ -28,6 +28,18 @@ except ImportError as e:
 
 pytest_plugins = ["cuda_python_test_helpers._pytest_plugin"]
 
+
+def pytest_sessionstart(session):
+    if os.environ.get("CUDA_PYTHON_TEST_INSTALLED_WHEELS") == "1":
+        checkout = pathlib.Path(__file__).resolve().parents[2]
+        for name in ("cuda.pathfinder", "cuda.bindings", "cuda.core"):
+            module = importlib.import_module(name)
+            module_path = pathlib.Path(module.__file__).resolve()
+            print(f"{name}: {module_path}")
+            if module_path.is_relative_to(checkout):
+                raise pytest.UsageError(f"{name} imported from the checkout: {module_path}")
+
+
 from helpers.constants import POOL_SIZE
 from helpers.memory import skip_if_pinned_memory_unsupported
 
