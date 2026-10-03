@@ -122,18 +122,20 @@ jobs:
           args: ${{ env.LYCHEE_ARGS }}
           # The next step owns bounded retries and the final success gate.
           fail: false
-          failIfEmpty: true
-          format: markdown
+          # The action's empty-report guard only understands Markdown.
+          # Our helper validates the JSON report and rejects zero checked links.
+          failIfEmpty: false
+          format: json
           jobSummary: false
           lycheeVersion: ${{ env.LYCHEE_VERSION }}
-          output: lychee-${{ matrix.kind }}.md
+          output: lychee-${{ matrix.kind }}.json
           token: ${{ github.token }}
 
-      - name: Retry failed links using successful checks from each pass
+      - name: Retry transient link failures using cached successful checks
         if: ${{ steps.lychee.outcome == 'success' }}
         env:
           EXIT_CODE: ${{ steps.lychee.outputs.exit_code }}
-          REPORT: lychee-${{ matrix.kind }}.md
+          REPORT: lychee-${{ matrix.kind }}.json
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           python ci/tools/retry_lychee.py --initial-exit-code "${EXIT_CODE}" \
@@ -153,7 +155,9 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: lychee-${{ matrix.kind }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: lychee-${{ matrix.kind }}*.md
+          path: |
+            lychee-${{ matrix.kind }}*.json
+            lychee-${{ matrix.kind }}*.md
           if-no-files-found: ignore
           retention-days: 7
 
