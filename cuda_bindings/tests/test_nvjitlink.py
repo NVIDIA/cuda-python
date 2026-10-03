@@ -65,21 +65,55 @@ def arch_ptx_parametrized(func):
     return ARCH_PTX_PARAMETRIZED_CALLABLE(func)
 
 
-def check_nvjitlink_usable():
-    from cuda.bindings._internal import nvjitlink as inner_nvjitlink
+def _nvjitlink_exports(symbol_name):
+    """Whether the loaded nvJitLink exports *symbol_name*.
 
-    return inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion") != 0
+    A zero pointer means "loaded, but the symbol is absent". When nvJitLink is
+    not installed at all, _inspect_function_pointer() loads it lazily and
+    raises instead, which is equally "not usable".
+    """
+    from cuda.bindings._internal import nvjitlink as inner_nvjitlink
+    from cuda.pathfinder import DynamicLibNotFoundError
+
+    try:
+        return inner_nvjitlink._inspect_function_pointer(symbol_name) != 0
+    except DynamicLibNotFoundError:
+        return False
+
+
+def check_nvjitlink_usable():
+    return _nvjitlink_exports("__nvJitLinkVersion")
 
 
 def check_nvjitlink_get_linked_ltoir_usable():
-    from cuda.bindings._internal import nvjitlink as inner_nvjitlink
-
-    return inner_nvjitlink._inspect_function_pointer("__nvJitLinkGetLinkedLTOIR") != 0
+    return _nvjitlink_exports("__nvJitLinkGetLinkedLTOIR")
 
 
 pytestmark = pytest.mark.skipif(
     not check_nvjitlink_usable(), reason="nvJitLink not usable, maybe not installed or too old (<12.3)"
 )
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_check_nvjitlink_usable_without_the_library(monkeypatch):
+    """An absent nvJitLink must read as "not usable", not break collection."""
+    import sys
+    import types
+
+    import cuda.bindings._internal as internal_pkg
+    from cuda.pathfinder import DynamicLibNotFoundError
+
+    def raise_not_found(_symbol_name):
+        raise DynamicLibNotFoundError("libnvJitLink not found (simulated)")
+
+    fake = types.ModuleType("cuda.bindings._internal.nvjitlink")
+    fake._inspect_function_pointer = raise_not_found
+    # Cover both routes a `from ... import ...` can take to the submodule.
+    monkeypatch.setitem(sys.modules, "cuda.bindings._internal.nvjitlink", fake)
+    monkeypatch.setattr(internal_pkg, "nvjitlink", fake, raising=False)
+
+    assert check_nvjitlink_usable() is False
+    assert check_nvjitlink_get_linked_ltoir_usable() is False
 
 
 # create a valid LTOIR input for testing
