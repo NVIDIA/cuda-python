@@ -244,6 +244,13 @@ Fixes and enhancements
   refreshed for CUDA 13.3 and now recognizes
   ``CUDA_ERROR_GRAPH_RECAPTURE_FAILURE``.
   (`#2383 <https://github.com/NVIDIA/cuda-python/pull/2383>`__)
+- ``key in cache`` on a :class:`~cuda.core.utils.ProgramCacheResource` now
+  raises ``TypeError`` instead of walking the cache as a legacy sequence.
+  The class deliberately provides no ``__contains__``, but defining
+  ``__getitem__`` without ``__iter__`` made ``in`` fall back to
+  ``cache[0], cache[1], ...`` compared against the values. Use
+  :meth:`~cuda.core.utils.ProgramCacheResource.get`, which answers presence and
+  retrieval in one operation.
 
 Deprecation Notices
 -------------------
