@@ -70,14 +70,33 @@ def launch(
         HANDLE_RETURN(cydriver.cuLaunchKernelEx(&drv_cfg, func_handle, args_ptr, NULL))
 
 
+def _cooperative_block_count(config: LaunchConfig):
+    """Number of thread blocks a launch of ``config`` asks the driver for.
+
+    ``config.grid`` counts *clusters*, not blocks, whenever ``cluster`` is set
+    -- see :class:`LaunchConfig` and ``_to_native_launch_config``, which
+    multiplies the two together before filling in ``gridDim``. Residency limits
+    are expressed in blocks, so any comparison against one has to go through
+    here.
+    """
+    if config.cluster is None:
+        return prod(config.grid)
+    return prod(config.grid) * prod(config.cluster)
+
+
 cdef _check_cooperative_launch(kernel: Kernel, config: LaunchConfig, stream: Stream):
     dev = stream.device
     num_sm = dev.properties.multiprocessor_count
     max_grid_size = (
         kernel.occupancy.max_active_blocks_per_multiprocessor(prod(config.block), config.shmem_size) * num_sm
     )
-    if prod(config.grid) > max_grid_size:
+    num_blocks = _cooperative_block_count(config)
+    if num_blocks > max_grid_size:
         # For now let's try not to be smart and adjust the grid size behind users' back.
         # We explicitly ask users to adjust.
         x, y, z = config.grid
-        raise ValueError(f"The specified grid size ({x} * {y} * {z}) exceeds the limit ({max_grid_size})")
+        detail = f"{x} * {y} * {z}"
+        if config.cluster is not None:
+            cx, cy, cz = config.cluster
+            detail = f"{detail} clusters of {cx} * {cy} * {cz} blocks = {num_blocks} blocks"
+        raise ValueError(f"The specified grid size ({detail}) exceeds the limit ({max_grid_size} blocks)")
