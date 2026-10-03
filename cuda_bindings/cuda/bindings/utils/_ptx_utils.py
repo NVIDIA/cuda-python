@@ -77,9 +77,9 @@ def get_minimal_required_cuda_ver_from_ptx_ver(ptx_version: str) -> int:
 
     Examples
     --------
-    >>> get_minimal_required_driver_ver_from_ptx_ver("8.8")
+    >>> get_minimal_required_cuda_ver_from_ptx_ver("8.8")
     12090
-    >>> get_minimal_required_driver_ver_from_ptx_ver("7.0")
+    >>> get_minimal_required_cuda_ver_from_ptx_ver("7.0")
     11000
     """
     try:
