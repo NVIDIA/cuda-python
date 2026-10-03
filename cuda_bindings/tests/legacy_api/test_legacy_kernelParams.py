@@ -601,7 +601,7 @@ def test_kernelParams_struct_custom(device):
     ASSERT_DRV(err)
 
 
-@pytest.mark.parametrize("pass_by_address", [False, True], ids=["by-address", "not-by-address"])
+@pytest.mark.parametrize("pass_by_address", [False, True], ids=["not-by-address", "by-address"])
 def test_kernelParams_buffer_protocol(pass_by_address, device):
     err, uvaSupported = cuda.cuDeviceGetAttribute(
         cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, device
