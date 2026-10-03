@@ -54,6 +54,21 @@ jobs:
       fail-fast: false
       matrix:
         kind: [authored, rendered]
+    env:
+      # The first pass and all retries use the same inputs and cache policy.
+      LYCHEE_ARGS: >-
+        --files-from "${{ github.workspace }}/lychee-files.txt"
+        ${{ matrix.kind == 'rendered' && '--include-fragments=full' || '' }}
+        --cache
+        --max-cache-age 1d
+        --max-concurrency 16
+        --host-concurrency 2
+        --host-request-interval 250ms
+        --max-retries 3
+        --retry-wait-time 5
+        --timeout 30
+        --no-progress
+        --config "${{ github.workspace }}/lychee.toml"
     steps:
       - name: Checkout checked revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -84,16 +99,13 @@ jobs:
         id: inputs
         env:
           KIND: ${{ matrix.kind }}
-          POLICY_HASH: ${{ hashFiles('lychee.toml', '.github/workflows/lychee.yml', 'ci/tools/prepare_lychee_inputs.py') }}
+          POLICY_HASH: ${{ hashFiles('lychee.toml', '.github/workflows/lychee.yml', 'ci/tools/prepare_lychee_inputs.py', 'ci/tools/retry_lychee.py') }}
         run: |
           python ci/tools/prepare_lychee_inputs.py "${KIND}" \
             --output "${GITHUB_WORKSPACE}/lychee-files.txt"
           prefix="lychee-v1-${LYCHEE_VERSION}-${KIND}-${POLICY_HASH}-baseline-"
           echo "prefix=${prefix}" >> "${GITHUB_OUTPUT}"
           echo "key=${prefix}${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_OUTPUT}"
-          if [[ "${KIND}" == "rendered" ]]; then
-            echo "fragment-args=--include-fragments=full" >> "${GITHUB_OUTPUT}"
-          fi
 
       - name: Restore successful checks from the nightly baseline
         if: ${{ !inputs.refresh-cache }}
@@ -107,36 +119,25 @@ jobs:
         id: lychee
         uses: lycheeverse/lychee-action@6da1d14f3a43098a294b7696d93d938aa8d20fc0 # supports v0.24.x archive layout
         with:
-          args: >-
-            --files-from ${{ github.workspace }}/lychee-files.txt
-            ${{ steps.inputs.outputs.fragment-args }}
-            --cache
-            --max-cache-age 1d
-            --max-concurrency 16
-            --host-concurrency 2
-            --host-request-interval 250ms
-            --max-retries 3
-            --retry-wait-time 5
-            --timeout 30
-            --no-progress
-            --config ${{ github.workspace }}/lychee.toml
-          fail: true
+          args: ${{ env.LYCHEE_ARGS }}
+          # The next step owns bounded retries and the final success gate.
+          fail: false
           failIfEmpty: true
           format: markdown
-          jobSummary: true
+          jobSummary: false
           lycheeVersion: ${{ env.LYCHEE_VERSION }}
           output: lychee-${{ matrix.kind }}.md
           token: ${{ github.token }}
 
-      - name: Require a successful checker result
+      - name: Retry failed links using successful checks from each pass
         if: ${{ steps.lychee.outcome == 'success' }}
         env:
           EXIT_CODE: ${{ steps.lychee.outputs.exit_code }}
+          REPORT: lychee-${{ matrix.kind }}.md
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
-          if [[ "${EXIT_CODE}" != "0" ]]; then
-            echo "::error::Lychee did not report success (exit_code='${EXIT_CODE}')."
-            exit 1
-          fi
+          python ci/tools/retry_lychee.py --initial-exit-code "${EXIT_CODE}" \
+            --report "${REPORT}" --max-attempts 10
 
       - name: Publish fresh successful checks
         # Manual branch tests publish isolated branch caches. Nightly callers
@@ -152,7 +153,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: lychee-${{ matrix.kind }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: lychee-${{ matrix.kind }}.md
+          path: lychee-${{ matrix.kind }}*.md
           if-no-files-found: ignore
           retention-days: 7
 
