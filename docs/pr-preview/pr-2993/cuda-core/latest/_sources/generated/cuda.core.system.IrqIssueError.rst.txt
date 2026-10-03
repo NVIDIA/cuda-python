@@ -1,0 +1,6 @@
+﻿cuda.core.system.IrqIssueError
+==============================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: IrqIssueError
