@@ -5,6 +5,7 @@ import importlib
 import random
 import subprocess
 import sys
+import types
 from pathlib import Path
 
 import pytest
@@ -189,4 +190,76 @@ def test_check_nvvm_compiler_options_arch_detection():
 def test_check_nvvm_compiler_options_no_libnvvm():
     if _libnvvm_available:
         pytest.skip("libNVVM is available; this test targets the fallback path")
+    assert check_nvvm_compiler_options(["-arch=compute_90"]) is False
+
+
+class _RaiseOnImport:
+    """A sys.meta_path finder that makes one module fail to import."""
+
+    def __init__(self, fullname: str, exc: BaseException):
+        self._fullname = fullname
+        self._exc = exc
+
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname == self._fullname:
+            raise self._exc
+        return None
+
+
+def _simulate_import_failure(monkeypatch, exc: BaseException) -> None:
+    """Make ``cuda.bindings.nvvm`` unimportable for the duration of a test."""
+    import cuda.bindings
+
+    # Both the parent-package attribute and the sys.modules entry short-circuit
+    # the import system, so a previously imported nvvm has to be hidden too.
+    monkeypatch.delattr(cuda.bindings, "nvvm", raising=False)
+    monkeypatch.delitem(sys.modules, "cuda.bindings.nvvm", raising=False)
+    monkeypatch.setattr(sys, "meta_path", [_RaiseOnImport("cuda.bindings.nvvm", exc), *sys.meta_path])
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_check_nvvm_compiler_options_without_the_nvvm_binding(monkeypatch):
+    """An absent cuda.bindings.nvvm means "options unsupported", not a crash.
+
+    This is reachable from a source checkout in which the nvvm extension has
+    not been built yet.
+    """
+    _simulate_import_failure(
+        monkeypatch,
+        ModuleNotFoundError("No module named 'cuda.bindings.nvvm'", name="cuda.bindings.nvvm"),
+    )
+    assert check_nvvm_compiler_options(["-arch=compute_90"]) is False
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_check_nvvm_compiler_options_does_not_mask_a_missing_dependency(monkeypatch):
+    """Only the nvvm module itself is optional; a broken dependency must surface."""
+    _simulate_import_failure(
+        monkeypatch,
+        ModuleNotFoundError("No module named 'not_a_real_dependency'", name="not_a_real_dependency"),
+    )
+    with pytest.raises(ModuleNotFoundError, match="not_a_real_dependency"):
+        check_nvvm_compiler_options(["-arch=compute_90"])
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_check_nvvm_compiler_options_without_libnvvm(monkeypatch):
+    """This is what test_check_nvvm_compiler_options_no_libnvvm above hits for real.
+
+    That test only runs on a machine without libNVVM, so it never runs in CI
+    (see #2077). Simulate the same condition here: _inspect_function_pointer()
+    loads libNVVM lazily and raises DynamicLibNotFoundError when it is absent.
+    """
+    import cuda.bindings._internal as internal_pkg
+    from cuda.pathfinder import DynamicLibNotFoundError
+
+    def raise_not_found(_name):
+        raise DynamicLibNotFoundError("libnvvm not found (simulated)")
+
+    fake = types.ModuleType("cuda.bindings._internal.nvvm")
+    fake._inspect_function_pointer = raise_not_found
+    # Cover both routes a `from ... import ...` can take to the submodule.
+    monkeypatch.setitem(sys.modules, "cuda.bindings._internal.nvvm", fake)
+    monkeypatch.setattr(internal_pkg, "nvvm", fake, raising=False)
+
     assert check_nvvm_compiler_options(["-arch=compute_90"]) is False
