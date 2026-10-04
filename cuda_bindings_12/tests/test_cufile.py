@@ -120,8 +120,12 @@ def isSupportedFilesystem():
         return False
 
 
-# Global skip condition for all tests if cuFile library is not available
-pytestmark = pytest.mark.skipif(not cufileLibraryAvailable(), reason="cuFile library not available on this system")
+# These tests open/close the process-global driver inside their bodies, so
+# concurrent copies of a test can close the driver while another copy uses it.
+pytestmark = [
+    pytest.mark.skipif(not cufileLibraryAvailable(), reason="cuFile library not available on this system"),
+    pytest.mark.thread_unsafe(reason="cuFile tests manage process-global driver lifecycle and configuration"),
+]
 
 
 def test_cufile_success_defined():
@@ -1593,7 +1597,6 @@ def test_batch_io_large_operations():
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
 @pytest.mark.usefixtures("cufile_env_json")
-@pytest.mark.thread_unsafe(reason="cuFile driver lifecycle and configuration are process-global")
 @pytest.mark.agent_authored(model="gpt-6-astra")
 def test_set_get_parameter_size_t():
     """Round-trip parameters without changing later tests' cuFile configuration."""
@@ -1642,7 +1645,6 @@ def test_set_get_parameter_size_t():
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
 @pytest.mark.usefixtures("cufile_env_json")
-@pytest.mark.thread_unsafe(reason="cuFile driver lifecycle and configuration are process-global")
 @pytest.mark.agent_authored(model="gpt-6-astra")
 def test_set_get_parameter_bool():
     """Round-trip parameters without changing later tests' cuFile configuration."""
@@ -1692,7 +1694,6 @@ def test_set_get_parameter_bool():
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
 @pytest.mark.usefixtures("cufile_env_json")
-@pytest.mark.thread_unsafe(reason="cuFile driver lifecycle and configuration are process-global")
 @pytest.mark.agent_authored(model="gpt-6-astra")
 def test_set_get_parameter_string(tmp_path, monkeypatch):
     """Round-trip string parameters and restore usable logging configuration."""
