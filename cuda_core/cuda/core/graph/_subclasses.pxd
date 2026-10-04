@@ -162,6 +162,9 @@ cdef class ConditionalNode(GraphNode):
 
     @staticmethod
     cdef ConditionalNode _create_from_driver(GraphNodeHandle h_node)
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        @staticmethod
+        cdef ConditionalNode _create_from_driver_params(GraphNodeHandle h_node)
 
 
 cdef class IfNode(ConditionalNode):

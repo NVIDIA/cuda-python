@@ -57,6 +57,8 @@ install_requires = [f"cuda-bindings{matcher}{version}"]
 if build_major == "13":
     install_requires.extend(
         [
+            # Bump this with every cuda-core release and release the current-major
+            # cuda-python right after it; see .github/RELEASE-core.md.
             "cuda-core~=1.2.0",
             "cuda-pathfinder~=1.1",
         ]

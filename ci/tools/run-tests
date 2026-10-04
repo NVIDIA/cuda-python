@@ -107,10 +107,14 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
 
   # Resolve bindings based on BINDINGS_SOURCE (set by env-vars):
   #   local         → matching configured-package wheel from this run
-  #   published     → install from PyPI by version
+  #   floor         -> the oldest supported bindings, read from the Core wheel
+  #                    and installed from PyPI
   BINDINGS_ARGS=()
-  if [[ "${BINDINGS_SOURCE}" == "published" ]]; then
-    BINDINGS_ARGS+=("cuda-bindings==${TEST_CUDA_MAJOR}.${TEST_CUDA_MINOR}.*")
+  if [[ "${BINDINGS_SOURCE}" == "floor" ]]; then
+    CORE_WHL_FOR_FLOOR=("${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)
+    BINDINGS_FLOOR="$(python ci/tools/cuda_core_bindings_floor.py --wheel "${CORE_WHL_FOR_FLOOR[0]}" --major "${TEST_CUDA_MAJOR}")"
+    echo "cuda-bindings floor of ${CORE_WHL_FOR_FLOOR[0]##*/} for CUDA ${TEST_CUDA_MAJOR}: ${BINDINGS_FLOOR}"
+    BINDINGS_ARGS+=("cuda-bindings==${BINDINGS_FLOOR}")
   else
     BINDINGS_ARGS=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)
     if [[ "${LOCAL_CTK}" != 1 ]]; then
@@ -154,8 +158,8 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     pip list
     echo "Running core tests"
     ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/
-    # Currently our CI always installs the latest bindings (from either major version).
-    # This is not compatible with the test requirements.
+    # Compiled Cython tests require the bindings used to build them. Older
+    # toolkit rows intentionally exercise published floor bindings instead.
     if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
       ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/cython
     fi
@@ -204,10 +208,14 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     elif [[ "${test_module}" == "nightly-numba-cuda" ]]; then
       echo "Installing pathfinder + bindings + core + test deps + numba-cuda"
       # numba-cuda's test-cuXX group deps (can't use --group for a wheel install):
+      # numpy<2.5: numba-cuda 0.30.4 references np.row_stack, removed in numpy 2.5. See NVIDIA/numba-cuda#907.
+      # numba<0.67: numba-cuda 0.30.4 only supports Numba through 0.66. See NVIDIA/numba-cuda#940.
       PIP_ARGS+=(
         "cuda-toolkit[curand,cublas]==${TEST_CUDA_MAJOR_MINOR}.*"
         "numba-cuda[cu${TEST_CUDA_MAJOR}]"
         "cupy-cuda${TEST_CUDA_MAJOR}x"
+        "numba<0.67"
+        "numpy<2.5"
         psutil cffi pytest-xdist pytest-benchmark filecheck ml_dtypes statistics
       )
     elif [[ "${test_module}" == "nightly-numba-cuda-mlir" ]]; then
@@ -215,14 +223,24 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
       # curand/cublas + cupy: some numba-cuda-mlir tests (e.g.
       # test_fortran_contiguous) call cp.random, which dlopens libcurand at
       # runtime. Mirror the numba-cuda branch, which installs the same libs.
+      # cccl: NVRTC needs <nv/target> for cooperative_groups / curand_kernel.h.
       PIP_ARGS+=(
         "numba-cuda-mlir[cu${TEST_CUDA_MAJOR}]"
-        "cuda-toolkit[curand,cublas]==${TEST_CUDA_MAJOR_MINOR}.*"
+        "cuda-toolkit[curand,cublas,cccl]==${TEST_CUDA_MAJOR_MINOR}.*"
         "cupy-cuda${TEST_CUDA_MAJOR}x"
       )
     fi
 
     pip install "${PIP_ARGS[@]}"
+
+    if [[ "${test_module}" == "nightly-numba-cuda" ]]; then
+      # Downgrade pytest for numba-cuda: cuda_core's test-cuXX group hard-pins
+      # pytest==9.1.0, but numba-cuda's subTest usage breaks under pytest 9.
+      # Can't add pytest<9 to PIP_ARGS above because pip can't satisfy both
+      # ==9.1.0 and <9 in one solve. See NVIDIA/numba-cuda#637.
+      pip install "pytest<9"
+    fi
+
     echo "Nightly install complete — installed packages:"
     pip list
     popd
@@ -234,6 +252,15 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
       installed_ver=$(pip show numba-cuda-mlir | awk '/^Version:/{print $2}')
       if [[ -n "${GITHUB_ENV:-}" ]]; then
         echo "NUMBA_CUDA_MLIR_VER=${installed_ver}" >> "${GITHUB_ENV}"
+      fi
+    elif [[ "${test_module}" == "nightly-numba-cuda" ]]; then
+      # Expose the installed numba-cuda version so the workflow can
+      # actions/checkout the matching v<X.Y.Z> tag from NVIDIA/numba-cuda
+      # (the wheel does not ship test_*.py files at a pytest-discoverable
+      # top level; upstream's testing/pytest.ini is required to run them).
+      installed_ver=$(pip show numba-cuda | awk '/^Version:/{print $2}')
+      if [[ -n "${GITHUB_ENV:-}" ]]; then
+        echo "NUMBA_CUDA_VER=${installed_ver}" >> "${GITHUB_ENV}"
       fi
     fi
   fi

@@ -23,24 +23,28 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     - [Recommended clone](#recommended-clone)
     - [Fixing an existing clone](#fixing-an-existing-clone)
     - [Symptoms of a bad clone](#symptoms-of-a-bad-clone)
+  - [Development on Windows](#development-on-windows)
+    - [Enabling git symlinks](#enabling-git-symlinks)
+    - [Pre-commit lychee workaround](#pre-commit-lychee-workaround)
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
-    - [Pre-commit on Windows](#pre-commit-on-windows)
   - [Pixi lockfiles](#pixi-lockfiles)
   - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
   - [CI infrastructure overview](#ci-infrastructure-overview)
     - [CI Pipeline Flow](#ci-pipeline-flow)
-    - [Pipeline Execution Details](#pipeline-execution-details)
     - [CUDA-major Artifact Flow](#cuda-major-artifact-flow)
-      - [Main Branch](#main-branch)
-      - [Historical 12.9.x Branch](#historical-129x-branch)
-    - [Key Infrastructure Details](#key-infrastructure-details)
+    - [Release Branches](#release-branches)
   - [Code coverage](#code-coverage)
 
 
 ## Cloning the repository
+
+> **Windows contributors (not WSL):** configure Git for symlinks *before*
+> cloning, or the shared PEP 517 build-hook file lands as a text stub instead
+> of a working symlink. See [Enabling git symlinks](#enabling-git-symlinks)
+> under Development on Windows.
 
 Every package in this repository derives its version from git tags using
 [`setuptools-scm`](https://setuptools-scm.readthedocs.io/), so **how you clone
@@ -128,6 +132,63 @@ hyphens replaced by underscores: `..._FOR_CUDA_BINDINGS`, `..._FOR_CUDA_CORE`,
 genuinely cannot provide tags; it is not a substitute for a correct clone.
 
 
+## Development on Windows
+
+This section collects the Windows-specific setup a contributor needs when
+working outside of WSL. WSL contributors can follow the Linux flow in the rest
+of this document.
+
+### Enabling git symlinks
+
+The `cuda_core` PEP 517 backend shares source-of-truth helper files with
+`cuda_bindings` via symbolic links. Git materializes symlinks by default on
+Linux and macOS, but on Windows it needs to be configured before cloning,
+otherwise the "symlinks" land in your working tree as plain text files that
+contain the target path — enough to look right in `git status`, but not enough
+to actually build.
+
+1. **[Activate Developer Mode](https://learn.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development#activate-developer-mode)**
+   so Git can create symlinks without Administrator privileges.
+
+2. **Enable Git symlink support globally** so newly-cloned repositories inherit
+   the setting:
+
+   ```console
+   $ git config --global core.symlinks true
+   ```
+
+Then clone as usual (see [Cloning the repository](#cloning-the-repository)).
+
+If you already cloned without these settings, note that `git clone` probes
+symlink support at clone time and writes `core.symlinks=false` into the
+repo-local config when the probe fails. Repo-local config overrides
+`--global`, so you must clear it *inside the existing clone* — the global
+setting alone won't take effect:
+
+```console
+$ git config core.symlinks true          # no --global — clears the repo-local override
+$ git rm --cached cuda_core/_build_shared.py
+$ git checkout HEAD -- cuda_core/_build_shared.py
+```
+
+In practice, deleting the checkout and re-cloning after the two steps at
+the top of this section (Developer Mode + `git config --global core.symlinks
+true`) is usually simpler and less error-prone than repairing an existing
+clone in place.
+
+### Pre-commit lychee workaround
+
+For development on Windows (not WSL), the `lychee` pre-commit task will not
+work when running `pre-commit run --all-files`. This problem does not occur
+if you install the pre-commit hook and run it automatically as part of your
+`git commit` workflow. To resolve this, you can either:
+
+1. Run `pre-commit` in Git Bash, rather than directly in PowerShell or cmd
+
+2. Skip it by setting the environment variable `SKIP` to `lychee`. This would
+   be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
+
+
 ## Type stubs for cuda.core
 
 `cuda.core` is a PEP 561-compliant package: it ships a `py.typed` marker and
@@ -168,17 +229,7 @@ between commits, leaving stale headers or out-of-date stubs in the history.
 If the hook isn't installed, `pre-commit run` (and CI) will print a visible
 warning reminding you to run `pre-commit install`.
 
-### Pre-commit on Windows
-
-For development on Windows (not WSL), the `lychee` pre-commit task will not work
-when running `pre-commit run --all-files`.  This problem does not occur if you
-install the pre-commit hook and run it automatically as part of your `git
-commit` workflow.  To resolve this, you can either:
-
-1. Run `pre-commit` in Git Bash, rather than directly in PowerShell or cmd
-
-2. Skip it by setting the environment variable `SKIP` to `lychee`.  This would
-   be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
+Windows contributors: see [Pre-commit lychee workaround](#pre-commit-lychee-workaround) under Development on Windows.
 
 ## Pixi lockfiles
 
@@ -317,19 +368,7 @@ The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and
 
 ### CI Pipeline Flow
 
-```mermaid
-flowchart TD
-    PR[Main, approved PR, or manual dispatch] --> PLAN[Select affected packages and dependencies]
-    TAG[Immutable package release tag] --> SELECT[Select package from tagged source]
-    PLAN --> BUILD[Build wheels and source distributions]
-    SELECT --> BUILD
-    BUILD --> TEST[GPU tests and package validation]
-    BUILD --> DOCS[Documentation builds]
-    TEST --> ARTIFACTS[Artifacts identified by source SHA and build matrix]
-    DOCS --> ARTIFACTS
-    ARTIFACTS --> DRY[Manual release dry run for exact tag and CI run]
-    DRY --> PUBLISH[Explicit full release for selected component]
-```
+The CI pipeline diagram is maintained as Mermaid source in [`ci/ci-pipeline.mmd`](ci/ci-pipeline.mmd).
 
 The [CI workflow](.github/workflows/ci.yml) defines the supported platform,
 Python, and CUDA matrices. Build and test jobs run in parallel across their

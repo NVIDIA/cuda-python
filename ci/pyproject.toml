@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest==9.1.0", "setuptools-scm>=8,!=10.1"]
+test = ["pytest==9.1.0", "setuptools-scm>=8,!=10.1", "wheel"]
 
 [tool.setuptools]
 packages = ["ci", "ci.tools"]

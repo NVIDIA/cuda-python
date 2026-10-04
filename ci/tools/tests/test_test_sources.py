@@ -6,6 +6,8 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -34,6 +36,9 @@ def _run_tests_env(tmp_path: Path) -> tuple[dict[str, str], Path]:
 if [[ "${1:-}" == "-c" ]]; then
   exit 1
 fi
+if [[ "${1:-}" == "ci/tools/cuda_core_bindings_floor.py" ]]; then
+  exec "$REAL_PYTHON" "$@"
+fi
 printf 'python %s\\n' "$*" >> "$COMMAND_LOG"
 """.strip(),
     )
@@ -42,6 +47,7 @@ printf 'python %s\\n' "$*" >> "$COMMAND_LOG"
     env = {
         **os.environ,
         "COMMAND_LOG": str(command_log),
+        "REAL_PYTHON": sys.executable,
         "PATH": f"{fake_bin}{os.pathsep}{os.environ['PATH']}",
         "CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS": "see_what_works",
         "CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS": "see_what_works",
@@ -56,10 +62,12 @@ def _run_env_vars(
     *,
     bindings_source: str,
     pathfinder_source: str,
+    cuda_version: str = "13.3.0",
+    bindings_root: str = "cuda_bindings",
 ) -> subprocess.CompletedProcess[str]:
     for relative in (
-        "cuda_bindings/dist",
-        "cuda_bindings/tests/cython",
+        f"{bindings_root}/dist",
+        f"{bindings_root}/tests/cython",
         "cuda_core/dist",
         "cuda_core/tests/cython",
         "cuda_core/tests/test_binaries",
@@ -70,7 +78,7 @@ def _run_env_vars(
     env = {
         **os.environ,
         "BINDINGS_SOURCE": bindings_source,
-        "CUDA_VER": "13.3.0",
+        "CUDA_VER": cuda_version,
         "GITHUB_ENV": str(github_env),
         "GITHUB_PATH": str(github_path),
         "HOST_PLATFORM": "linux-64",
@@ -81,9 +89,9 @@ def _run_env_vars(
         "SKIP_BINDINGS_TEST_OVERRIDE": "0",
     }
     if bindings_source == "local":
-        env["BINDINGS_SOURCE_DIR"] = "cuda_bindings"
+        env["BINDINGS_SOURCE_DIR"] = bindings_root
     else:
-        env["DEFAULT_BINDINGS_SOURCE_DIR"] = "cuda_bindings"
+        env["DEFAULT_BINDINGS_SOURCE_DIR"] = bindings_root
     return subprocess.run(  # noqa: S603 - invokes the repository script under test
         [str(ENV_VARS), "test"],
         cwd=tmp_path,
@@ -244,19 +252,28 @@ def test_published_pathfinder_supports_bindings_release_tests(tmp_path: Path) ->
 
 
 @pytest.mark.parametrize(
-    ("bindings_source", "expected_artifact"),
-    [("local", "cuda-python-wheel-cuda13.3.0"), ("published", None)],
+    ("bindings_source", "cuda_version", "bindings_root", "expected_artifact"),
+    [
+        ("local", "13.4.2", "cuda_bindings", "cuda-python-wheel-cuda13.4.2"),
+        ("local", "12.9.1", "cuda_bindings_12", "cuda-python-wheel-cuda12.9.1"),
+        ("floor", "13.0.2", "cuda_bindings", None),
+        ("floor", "12.6.3", "cuda_bindings", None),
+    ],
 )
-@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.agent_authored(model="gpt-6-astra")
 def test_cuda_python_artifact_name_exists_only_for_local_bindings(
     tmp_path: Path,
     bindings_source: str,
+    cuda_version: str,
+    bindings_root: str,
     expected_artifact: str | None,
 ) -> None:
     result = _run_env_vars(
         tmp_path,
         bindings_source=bindings_source,
         pathfinder_source="artifact",
+        cuda_version=cuda_version,
+        bindings_root=bindings_root,
     )
 
     assert result.returncode == 0, result.stderr
@@ -268,7 +285,56 @@ def test_cuda_python_artifact_name_exists_only_for_local_bindings(
         "CUDA_BINDINGS_CYTHON_TESTS_DIR",
         "CUDA_CORE_CYTHON_TEST_ARTIFACT_NAME",
     } <= github_env.keys()
+    assert github_env["BINDINGS_SOURCE"] == bindings_source
+    assert github_env["CUDA_BINDINGS_ROOT"] == bindings_root
+    assert github_env["SKIP_CUDA_BINDINGS_TEST"] == ("1" if bindings_source == "floor" else "0")
+    assert github_env["SKIP_CYTHON_TEST"] == ("1" if bindings_source == "floor" else "0")
+    assert github_env["CUDA_CORE_CYTHON_TEST_ARTIFACT_NAME"].endswith(f"-cu{cuda_version.split('.')[0]}-tests")
     if expected_artifact is None:
         assert "CUDA_PYTHON_ARTIFACT_NAME" not in github_env
     else:
         assert github_env["CUDA_PYTHON_ARTIFACT_NAME"] == expected_artifact
+
+
+@pytest.mark.agent_authored(model="gpt-6-astra")
+@pytest.mark.parametrize(("cuda_version", "wheel_floor"), [("12.6.3", "12.9.9"), ("13.0.2", "13.4.2")])
+def test_core_install_uses_wheel_floor_with_older_toolkit(tmp_path: Path, cuda_version: str, wheel_floor: str) -> None:
+    env, command_log = _run_tests_env(tmp_path)
+    (tmp_path / "cuda_pathfinder" / "cuda_pathfinder-1.0-py3-none-any.whl").touch()
+    core_dist = tmp_path / "cuda_core" / "dist"
+    core_dist.mkdir(parents=True)
+    wheel = core_dist / "cuda_core-1.3.0-cp313-cp313-linux_x86_64.whl"
+    major = int(cuda_version.split(".")[0])
+    with zipfile.ZipFile(wheel, "w") as archive:
+        archive.writestr(
+            "cuda_core-1.3.0.dist-info/METADATA",
+            f'Requires-Dist: cuda-bindings[all]>={wheel_floor},<{major + 1}; extra == "cu{major}"\n',
+        )
+    tools = tmp_path / "ci" / "tools"
+    tools.mkdir(parents=True)
+    floor_script = REPO_ROOT / "ci" / "tools" / "cuda_core_bindings_floor.py"
+    (tools / floor_script.name).write_text(floor_script.read_text(encoding="utf-8"), encoding="utf-8")
+    env.update(
+        BINDINGS_SOURCE="floor",
+        CUDA_CORE_ARTIFACTS_DIR=str(core_dist),
+        CUDA_VER=cuda_version,
+        LOCAL_CTK="0",
+        PATHFINDER_SOURCE="artifact",
+        SANITIZER_CMD="",
+        SKIP_CYTHON_TEST="1",
+    )
+
+    result = subprocess.run(  # noqa: S603 - repository script with install/test commands replaced by recording stubs
+        [str(RUN_TESTS), "core"],
+        cwd=tmp_path,
+        env=env,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    calls = command_log.read_text(encoding="utf-8").splitlines()
+    assert f"pip install cuda-bindings=={wheel_floor}" in calls
+    toolkit_minor = ".".join(cuda_version.split(".")[:2])
+    assert any(f"cuda-toolkit=={toolkit_minor}.*" in call for call in calls)

@@ -256,6 +256,7 @@ jobs:
           # package version; a shallow checkout yields 0.1.dev1, which trips
           # cuda.core's supported cuda.bindings-version guard.
           fetch-depth: 0
+          filter: blob:none
 
       - name: Install CI tool dependencies
         run: python3 -m pip install -e ./ci
@@ -268,7 +269,6 @@ jobs:
           current_package=$(python3 -m ci.tools.bindings_config --release-status current)
           bindings_packages=$(python3 -m ci.tools.bindings_config --package-roots)
           current_env=$(jq -r '.cuda_variant' <<< "${current_package}")
-          current_major=$(jq -r '.cuda_major' <<< "${current_package}")
           other_env=$(jq -r --arg current_env "${current_env}" \
             '[.[] | select(.cuda_variant != $current_env) | .cuda_variant] | first // empty' \
             <<< "${bindings_packages}")
@@ -281,14 +281,23 @@ jobs:
           done
           # The last build was current, and each ABI must have kept its own
           # generated sources rather than overwriting the other's.
-          stamp=$(cat cuda_core/build/.build-cuda-major)
-          if [ "${stamp}" != "${current_major}" ]; then
-            echo "::error::build stamp is '${stamp}', expected ${current_major}"
+          # Stamp is ABI-scoped (.build-config.<EXT_SUFFIX>). Unset and gnu
+          # both record as "gnu"; llvm records as "llvm".
+          shopt -s nullglob
+          stamps=(cuda_core/build/.build-config.*)
+          if (( ${#stamps[@]} != 1 )); then
+            echo "::error::expected one ABI stamp, found: ${stamps[*]:-none}"
             exit 1
           fi
+          stamp=$(<"${stamps[0]}")
+          if [[ ! "${stamp}" =~ ^${current_env}-(gnu|llvm)-(debug|opt)(-cov)?$ ]]; then
+            echo "::error::build stamp is '${stamp}', expected ${current_env}-{gnu|llvm}-{debug|opt}"
+            exit 1
+          fi
+          suffix="${stamp#"${current_env}-"}"
           for cuda_env in "${other_env}" "${current_env}"; do
-            if [ ! -d "cuda_core/build/cython/${cuda_env}" ]; then
-              echo "::error::no ${cuda_env} generated-source directory"
+            if [ ! -d "cuda_core/build/cython/${cuda_env}-${suffix}" ]; then
+              echo "::error::no ${cuda_env}-${suffix} generated-source directory"
               exit 1
             fi
           done

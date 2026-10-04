@@ -514,7 +514,7 @@ cdef class _StridedLayout:
         """
         cdef _StridedLayout new_layout = _StridedLayout.__new__(_StridedLayout)
         cdef BaseLayout new_shape
-        init_base_layout(new_shape, len(shape))
+        init_base_layout(new_shape, <int>len(shape))
         for i in range(len(shape)):
             new_shape.shape[i] = shape[i]
         self.reshape_into(new_layout, new_shape)
@@ -626,7 +626,7 @@ cdef class _StridedLayout:
         """
         cdef _StridedLayout new_layout = _StridedLayout.__new__(_StridedLayout)
         cdef BaseLayout new_shape
-        cdef int new_ndim = len(shape)
+        cdef int new_ndim = <int>len(shape)
         init_base_layout(new_shape, new_ndim)
         for i in range(new_ndim):
             new_shape.shape[i] = shape[i]
@@ -1077,7 +1077,7 @@ cdef inline int permute_extents(BaseLayout& out_layout, BaseLayout& in_layout, a
 
 cdef inline stride_t slice_extents(BaseLayout& out_layout, BaseLayout& in_layout, tuple slices) except? -1:
     cdef int ndim = in_layout.ndim
-    cdef int num_slices = len(slices)
+    cdef int num_slices = <int>len(slices)
     if num_slices > ndim:
         raise ValueError(f"The number of slices ({num_slices}) is greater than the number of dimensions ({ndim}).")
     init_base_layout(out_layout, ndim)
@@ -1149,7 +1149,7 @@ cdef inline int squeeze_extents(BaseLayout& out_layout, BaseLayout& in_layout) e
 
 cdef inline int unsqueeze_extents(BaseLayout& out_layout, BaseLayout& in_layout, axis_vec_t& axis_vec) except -1 nogil:
     cdef int ndim = in_layout.ndim
-    cdef int num_new_axes = axis_vec.size()
+    cdef int num_new_axes = <int>axis_vec.size()
     cdef int out_ndim = ndim + num_new_axes
     # init_base_layout validates out_ndim
     init_base_layout(out_layout, out_ndim)
@@ -1315,15 +1315,15 @@ cdef inline int max_compatible_itemsize(BaseLayout& layout, stride_t slice_offse
         raise ValueError(f"Invalid axis: {axis} out of range for {ndim}D tensor")
     if max_itemsize < itemsize:
         raise ValueError(f"max_itemsize ({max_itemsize}) cannot be less than itemsize ({itemsize}).")
-    max_itemsize = gcd(max_itemsize, _c_abs(data_ptr))
+    max_itemsize = <int>gcd(max_itemsize, _c_abs(data_ptr))
     cdef extent_t* shape = layout.shape
     cdef stride_t* strides = get_strides_ptr(layout)
     if ndim < 1 or strides[axis] != 1 or shape[axis] == 0:
         return itemsize
-    max_itemsize = gcd(max_itemsize, _overflow_checked_mul(slice_offset, itemsize))
-    max_itemsize = gcd(max_itemsize, _overflow_checked_mul(shape[axis], itemsize))
+    max_itemsize = <int>gcd(max_itemsize, _overflow_checked_mul(slice_offset, itemsize))
+    max_itemsize = <int>gcd(max_itemsize, _overflow_checked_mul(shape[axis], itemsize))
     for i in range(ndim):
         if i == axis:
             continue
-        max_itemsize = gcd(max_itemsize, _overflow_checked_mul(_c_abs(strides[i]), itemsize))
+        max_itemsize = <int>gcd(max_itemsize, _overflow_checked_mul(_c_abs(strides[i]), itemsize))
     return max_itemsize

@@ -53,7 +53,8 @@ def _cudaGetErrorEnum(error):
     elif isinstance(error, nvrtc.nvrtcResult):
         return nvrtc.nvrtcGetErrorString(error)[1]
     else:
-        raise RuntimeError('Unknown error type: {}'.format(error))
+        raise RuntimeError("Unknown error type: {}".format(error))
+
 
 def checkCudaErrors(result):
     if result[0].value:
@@ -103,9 +104,13 @@ checkCudaErrors(driver.cuInit(0))
 cuDevice = checkCudaErrors(driver.cuDeviceGet(0))
 
 # Derive target architecture for device 0
-major = checkCudaErrors(driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice))
-minor = checkCudaErrors(driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice))
-arch_arg = bytes(f'--gpu-architecture=compute_{major}{minor}', 'ascii')
+major = checkCudaErrors(
+    driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice)
+)
+minor = checkCudaErrors(
+    driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice)
+)
+arch_arg = bytes(f"--gpu-architecture=compute_{major}{minor}", "ascii")
 
 # Create program
 prog = checkCudaErrors(nvrtc.nvrtcCreateProgram(str.encode(saxpy), b"saxpy.cu", 0, [], []))
@@ -178,12 +183,8 @@ dOutclass = checkCudaErrors(driver.cuMemAlloc(bufferSize))
 
 stream = checkCudaErrors(driver.cuStreamCreate(0))
 
-checkCudaErrors(driver.cuMemcpyHtoDAsync(
-   dXclass, hX.ctypes.data, bufferSize, stream
-))
-checkCudaErrors(driver.cuMemcpyHtoDAsync(
-   dYclass, hY.ctypes.data, bufferSize, stream
-))
+checkCudaErrors(driver.cuMemcpyHtoDAsync(dXclass, hX.ctypes.data, bufferSize, stream))
+checkCudaErrors(driver.cuMemcpyHtoDAsync(dYclass, hY.ctypes.data, bufferSize, stream))
 ```
 
 With data prep and resources allocation finished, the kernel is ready to be
@@ -213,23 +214,23 @@ args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 Now the kernel can be launched:
 
 ```python
-checkCudaErrors(driver.cuLaunchKernel(
-   kernel,
-   NUM_BLOCKS,  # grid x dim
-   1,  # grid y dim
-   1,  # grid z dim
-   NUM_THREADS,  # block x dim
-   1,  # block y dim
-   1,  # block z dim
-   0,  # dynamic shared memory
-   stream,  # stream
-   args.ctypes.data,  # kernel arguments
-   0,  # extra (ignore)
-))
+checkCudaErrors(
+    driver.cuLaunchKernel(
+        kernel,
+        NUM_BLOCKS,  # grid x dim
+        1,  # grid y dim
+        1,  # grid z dim
+        NUM_THREADS,  # block x dim
+        1,  # block y dim
+        1,  # block z dim
+        0,  # dynamic shared memory
+        stream,  # stream
+        args.ctypes.data,  # kernel arguments
+        0,  # extra (ignore)
+    )
+)
 
-checkCudaErrors(driver.cuMemcpyDtoHAsync(
-   hOut.ctypes.data, dOutclass, bufferSize, stream
-))
+checkCudaErrors(driver.cuMemcpyDtoHAsync(hOut.ctypes.data, dOutclass, bufferSize, stream))
 checkCudaErrors(driver.cuStreamSynchronize(stream))
 ```
 
@@ -245,7 +246,7 @@ in the designated stream are finished.
 # Assert values are same after running kernel
 hZ = a * hX + hY
 if not np.allclose(hOut, hZ):
-   raise ValueError("Error outside tolerance for host-device vectors")
+    raise ValueError("Error outside tolerance for host-device vectors")
 ```
 
 Perform verification of the data to ensure correctness and finish the code with
@@ -431,14 +432,21 @@ kernelParams = np.array([arg.ctypes.data for arg in kernelValues], dtype=np.intp
 The launch API supports [Buffer Protocol](https://docs.python.org/3/c-api/buffer.html) objects, therefore we can pass the array object directly.
 
 ```python
-checkCudaErrors(cuda.cuLaunchKernel(
-    kernel,
-    1, 1, 1,  # grid dim
-    1, 1, 1,  # block dim
-    0, stream,  # shared mem and stream
-    kernelParams=kernelParams,
-    extra=0,
-))
+checkCudaErrors(
+    cuda.cuLaunchKernel(
+        kernel,
+        1,
+        1,
+        1,  # grid dim
+        1,
+        1,
+        1,  # block dim
+        0,
+        stream,  # shared mem and stream
+        kernelParams=kernelParams,
+        extra=0,
+    )
+)
 ```
 
 ### Using ctypes
@@ -461,6 +469,7 @@ For this example the result becomes:
 # Define a custom type
 class testStruct(ctypes.Structure):
     _fields_ = [("value", ctypes.c_int)]
+
 
 # Allocate device memory
 pInt = checkCudaErrors(cudart.cudaMalloc(ctypes.sizeof(ctypes.c_int)))
@@ -497,14 +506,21 @@ In all three cases, the API call will fetch the underlying pointer value and con
 With the setup complete, the kernel can be launched:
 
 ```python
-checkCudaErrors(cuda.cuLaunchKernel(
-    kernel,
-    1, 1, 1,  # grid dim
-    1, 1, 1,  # block dim
-    0, stream,  # shared mem and stream
-    kernelParams=(kernelValues, kernelTypes),
-    extra=0,
-))
+checkCudaErrors(
+    cuda.cuLaunchKernel(
+        kernel,
+        1,
+        1,
+        1,  # grid dim
+        1,
+        1,
+        1,  # block dim
+        0,
+        stream,  # shared mem and stream
+        kernelParams=(kernelValues, kernelTypes),
+        extra=0,
+    )
+)
 ```
 
 ### CUDA objects
@@ -521,6 +537,7 @@ __global__ void transformKernel(float *g_odata, int width, cudaTextureObject_t t
     ...
 }
 """
+
 
 def main():
     ...

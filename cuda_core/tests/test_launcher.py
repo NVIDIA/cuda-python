@@ -1013,9 +1013,6 @@ def test_launch_graph_conditional_handle_as_kernel_arg(init_cuda, use_subclass):
     """CUgraphConditionalHandle is packed as its uint64 value (readback)."""
     from cuda.bindings import driver
 
-    if not hasattr(driver, "CUgraphConditionalHandle"):
-        pytest.skip("CUgraphConditionalHandle requires cuda-bindings 12.3+")
-
     class SubclassedHandle(driver.CUgraphConditionalHandle):
         pass
 

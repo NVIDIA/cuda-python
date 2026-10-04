@@ -116,7 +116,6 @@ if [[ "${MODE}" == "branch" ]]; then
         --repo "${REPOSITORY}" \
         --branch "${REF}" \
         --workflow "${WORKFLOW_NAME}" \
-        --status success \
         --json databaseId,workflowName,status,conclusion,headSha,headBranch,createdAt,url \
         --limit 100)
 
@@ -254,8 +253,8 @@ RUN_DATA=$(gh run list \
     --repo "${REPOSITORY}" \
     --commit "${COMMIT_SHA}" \
     --workflow "${WORKFLOW_NAME}" \
-    --status completed \
     --json databaseId,workflowName,status,conclusion,headSha,headBranch,event,createdAt,url \
+    --jq 'map(select(.status == "completed"))' \
     --limit 50)
 
 if [[ -z "${RUN_DATA}" || "${RUN_DATA}" == "[]" ]]; then

@@ -45,8 +45,6 @@ all = [
 test = [
     "cython>=3.2.5,<3.3",
     "setuptools>=80.0.0",
-    # TODO: remove the Python 3.15 guard once 3.15 is officially supported
-    "matplotlib>=3.5.0,<=3.10.9; python_version < '3.15'",
     # <=2.6.0.dev0 admits scientific-python nightlies (for Python 3.15)
     "numpy>=1.21.1,<=2.6.0.dev0",
     "pytest==9.1.0",
@@ -85,7 +83,6 @@ build-verbosity = 1
 archs = "native"
 
 [tool.cibuildwheel.windows]
-before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
 
 [tool.pytest.ini_options]

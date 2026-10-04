@@ -305,7 +305,6 @@ class ComputeWorkplanTest(unittest.TestCase):
             plan_for("new-area/config.toml"),
             plan_for(".github/workflows/new-main-ci-workflow.yml"),
             plan_for(".github/actions/doc_preview/action.yml"),
-            plan_for("ci/ci-pipeline.svg"),
             plan_for("cuda_core/docs/index.rst", baseline=False),
             compute_workplan(
                 bindings_config=DEFAULT_BINDINGS_CONFIG,

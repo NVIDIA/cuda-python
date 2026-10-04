@@ -189,9 +189,9 @@ to miss in large files and makes later per-test provenance changes ambiguous.
   ```python
   import pytest
 
+
   @pytest.mark.agent_authored(model="gpt-5.5")
-  def test_something():
-      ...
+  def test_something(): ...
   ```
 
 - `@pytest.mark.human_reviewed`: a human has materially reviewed or rewritten
