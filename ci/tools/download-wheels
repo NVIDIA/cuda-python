@@ -75,12 +75,6 @@ if [[ "$IS_BINDINGS_RELEASE" == true ]]; then
         echo "Error: invalid toolkit_version in resolved bindings-package JSON: $TOOLKIT_VERSION" >&2
         exit 1
     fi
-    if ! RELEASE_REGISTRY_ORIGIN="$(jq -er \
-        '.release_registry_origin | select(. == "tag" or . == "control")' \
-        <<< "$RESOLVED_BINDINGS_PACKAGE_JSON")"; then
-        echo "Error: resolved bindings-package JSON has invalid release_registry_origin" >&2
-        exit 1
-    fi
 fi
 
 if ! ARTIFACT_NAMES="$(gh api --paginate \
@@ -95,9 +89,6 @@ if [[ "$IS_BINDINGS_RELEASE" == true && "$COMPONENT" == "cuda-python" ]]; then
     ARTIFACT_NAME="cuda-python-wheel-cuda${TOOLKIT_VERSION}"
     if grep -Fxq "$ARTIFACT_NAME" <<< "$ARTIFACT_NAMES"; then
         MATCHING_ARTIFACTS+=("$ARTIFACT_NAME")
-    elif [[ "$RELEASE_REGISTRY_ORIGIN" == "control" ]] \
-            && grep -Fxq cuda-python-wheel <<< "$ARTIFACT_NAMES"; then
-        MATCHING_ARTIFACTS+=(cuda-python-wheel)
     fi
 else
     if [[ "$IS_BINDINGS_RELEASE" == true ]]; then
@@ -116,9 +107,6 @@ fi
 if [[ ${#MATCHING_ARTIFACTS[@]} == 0 ]]; then
     if [[ "$IS_BINDINGS_RELEASE" == true ]]; then
         echo "Error: run $RUN_ID has no unexpired release artifact for CUDA $TOOLKIT_VERSION" >&2
-        if [[ "$COMPONENT" == "cuda-python" && "$RELEASE_REGISTRY_ORIGIN" != "control" ]]; then
-            echo "Error: legacy cuda-python-wheel fallback is not allowed for a tag registry" >&2
-        fi
     else
         echo "Error: run $RUN_ID has no unexpired releasable artifact matching $ARTIFACT_PATTERN" >&2
     fi

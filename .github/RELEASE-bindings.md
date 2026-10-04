@@ -75,18 +75,18 @@ See the [shared maintenance policy](../ci/README.md#maintaining-both-bindings-ro
 
 The workflow revision used for a release is its **control revision**; the
 tagged commit is its **source revision**. Record both and the artifact CI run
-ID. Release routing uses the tagged registry when present. Older tags without
-that registry use the explicit compatibility resolver and the tagged package
-metadata; keep the matching control configuration available when rerunning
-such releases. This compatibility path does not turn the historical branch
-into an active development branch or guarantee that expired artifacts can be
-recovered. Use an appropriate retained control revision after retiring a line.
+ID. Release routing uses the package layout and toolkit settings in
+`ci/versions.yml` at the release tag. The current tooling requires a valid
+schema-2 registry in that source, for both dry runs and publication, including
+Core and Pathfinder releases. Tags from before this registry was introduced
+require compatible historical tooling; the current workflow configuration
+cannot supply missing tagged configuration. Published releases remain unchanged.
 
-New release tags require their versioned notes in the tagged source. For
-pre-registry tags only, missing notes may be recovered from the matching
-version in the control tree. Historical metapackage releases without their
-own notes may use the matching bindings notes, with a visible warning naming
-the source. Empty notes and releases with no exact matching notes still fail.
+In **CI: Release**, normal releases require each component's exact-version,
+nonempty release notes in the tagged source. The `cuda-python` metapackage requires its own notes.
+Notes from the workflow control revision or a different component cannot fill
+a gap. Preserve the existing exemption for `.postN` releases, which do not
+require new notes.
 
 Local synthetic tags used in publication-incapable rehearsals must remain local;
 they do not authorize publishing a package, creating a remote tag, or moving

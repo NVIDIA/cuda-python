@@ -84,8 +84,7 @@ jobs:
         run: |
           bindings_package=$(python -m ci.tools.bindings_config \
             --release-tag "$RELEASE_TAG" \
-            --release-source-root release-source \
-            --control-config ci/versions.yml)
+            --release-source-root release-source)
           echo "bindings-package=${bindings_package}" >> "$GITHUB_OUTPUT"
 
   determine-run-id:
@@ -123,6 +122,7 @@ jobs:
           echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
   check-tag:
+    needs: resolve-bindings-package
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     steps:
@@ -214,7 +214,6 @@ jobs:
             --git-tag "$RELEASE_TAG" \
             --component "$RELEASE_COMPONENT" \
             --repo-root release-source \
-            --legacy-notes-root . \
             --bindings-package "$BINDINGS_PACKAGE"
 
   doc:

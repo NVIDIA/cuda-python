@@ -20,7 +20,6 @@ def resolved_package() -> str:
             "package_root": "alternate_bindings_12_8",
             "toolkit_version": "12.8.0",
             "release_version": "12.8.0",
-            "release_registry_origin": "tag",
         },
         separators=(",", ":"),
     )

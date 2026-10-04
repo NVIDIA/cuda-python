@@ -59,8 +59,10 @@ def fake_gh(tmp_path):
     return fake_bin
 
 
-def resolved_package(*, toolkit_version="13.3.0", origin="tag"):
-    return json.dumps({"toolkit_version": toolkit_version, "release_registry_origin": origin})
+def resolved_package(*, package_root="cuda_bindings", toolkit_version="13.3.0", release_version="13.3.1"):
+    return json.dumps(
+        {"package_root": package_root, "toolkit_version": toolkit_version, "release_version": release_version}
+    )
 
 
 def run_download(tmp_path, fake_gh, artifacts, component, *, tag="", package=None):
@@ -91,41 +93,52 @@ def run_download(tmp_path, fake_gh, artifacts, component, *, tag="", package=Non
     return result, commands
 
 
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
 class TestDownloadWheels:
     @pytest.mark.parametrize(
-        ("origin", "artifacts", "expected"),
+        ("package_root", "toolkit_version", "release_version"),
         (
-            ("tag", ["cuda-python-wheel", "cuda-python-wheel-cuda13.3.0"], "cuda-python-wheel-cuda13.3.0"),
-            ("control", ["cuda-python-wheel"], "cuda-python-wheel"),
+            ("cuda_bindings", "13.3.0", "13.3.1"),
+            ("cuda_bindings_12", "12.9.1", "12.9.9"),
         ),
     )
-    def test_python_selects_exact_or_legacy_artifact(self, tmp_path, fake_gh, origin, artifacts, expected):
+    @pytest.mark.agent_authored(model="gpt-6")
+    def test_python_selects_exact_toolkit_artifact(
+        self, tmp_path, fake_gh, package_root, toolkit_version, release_version
+    ):
+        expected = f"cuda-python-wheel-cuda{toolkit_version}"
         result, commands = run_download(
             tmp_path,
             fake_gh,
-            artifacts,
+            ["cuda-python-wheel", "cuda-python-wheel-cuda13.2.0", expected],
             "cuda-python",
-            tag="v13.3.1",
-            package=resolved_package(origin=origin),
+            tag=f"v{release_version}",
+            package=resolved_package(
+                package_root=package_root, toolkit_version=toolkit_version, release_version=release_version
+            ),
         )
 
         assert result.returncode == 0, result.stderr
-        assert any("--name" in command and expected in command for command in commands)
+        downloads = [command[command.index("--name") + 1] for command in commands if "--name" in command]
+        assert downloads == [expected]
+        assert [path.name for path in (tmp_path / "dist").glob("*.whl")] == [f"{expected}.whl"]
 
-    def test_tag_registry_rejects_legacy_python_artifact(self, tmp_path, fake_gh):
-        result, _ = run_download(
+    @pytest.mark.parametrize("artifact", ("cuda-python-wheel", "cuda-python-wheel-cuda13.2.0"))
+    @pytest.mark.agent_authored(model="gpt-6")
+    def test_python_requires_exact_toolkit_artifact(self, tmp_path, fake_gh, artifact):
+        result, commands = run_download(
             tmp_path,
             fake_gh,
-            ["cuda-python-wheel"],
+            [artifact],
             "cuda-python",
             tag="v13.3.1",
             package=resolved_package(),
         )
 
         assert result.returncode == 1
-        assert "legacy cuda-python-wheel fallback is not allowed" in result.stderr
+        assert "no unexpired release artifact for CUDA 13.3.0" in result.stderr
+        assert not any(command[:2] == ["run", "download"] for command in commands)
 
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_bindings_pattern_contains_exact_toolkit_pin(self, tmp_path, fake_gh):
         exact = "cuda-bindings-python312-cuda13.3.0-linux-64-sha"
         result, commands = run_download(
@@ -142,6 +155,7 @@ class TestDownloadWheels:
         assert downloads == [exact]
         assert [path.name for path in (tmp_path / "dist").glob("*.whl")] == [f"{exact}.whl"]
 
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_release_routing_requires_resolved_package(self, tmp_path, fake_gh):
         result, commands = run_download(
             tmp_path,
@@ -154,6 +168,7 @@ class TestDownloadWheels:
         assert result.returncode == 1
         assert commands == []
 
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_bindings_test_artifact_is_not_releasable(self, tmp_path, fake_gh):
         artifact = "cuda-bindings-python312-cuda13.3.0-linux-64-sha-tests"
         result, _ = run_download(
@@ -174,12 +189,12 @@ class TestDownloadWheels:
     (
         (
             "all",
-            ["cuda-core-wheel", "cuda-core-wheel-tests", "cuda-python-wheel", "build-metadata"],
-            ["cuda-core-wheel", "cuda-python-wheel"],
+            ["cuda-core-wheel", "cuda-core-wheel-tests", "cuda-python-wheel-cuda13.3.0", "build-metadata"],
+            ["cuda-core-wheel", "cuda-python-wheel-cuda13.3.0"],
         ),
         (
             "cuda-core",
-            ["cuda-core-wheel", "cuda-core-wheel-tests", "cuda-python-wheel"],
+            ["cuda-core-wheel", "cuda-core-wheel-tests", "cuda-python-wheel-cuda13.3.0"],
             ["cuda-core-wheel"],
         ),
     ),

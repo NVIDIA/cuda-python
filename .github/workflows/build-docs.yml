@@ -90,8 +90,7 @@ jobs:
           elif [[ "${IS_RELEASE}" == "true" ]]; then
             resolved_bindings_package=$(cd .ci-control && python3 -m ci.tools.bindings_config \
               --release-tag "$RELEASE_TAG" \
-              --release-source-root .. \
-              --control-config ci/versions.yml)
+              --release-source-root ..)
           else
             resolved_bindings_package=$(cd .ci-control && python3 -m ci.tools.bindings_config \
               --release-status current)
@@ -153,11 +152,7 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/${BINDINGS_PACKAGE_ROOT}/dist")" >> $GITHUB_ENV
-          if [[ "$BINDINGS_REGISTRY_ORIGIN" == "control" ]]; then
-            CUDA_PYTHON_ARTIFACT_NAME="cuda-python-wheel"
-          else
-            CUDA_PYTHON_ARTIFACT_NAME="cuda-python-wheel-cuda${BUILD_CTK_VER}"
-          fi
+          CUDA_PYTHON_ARTIFACT_NAME="cuda-python-wheel-cuda${BUILD_CTK_VER}"
           echo "CUDA_PYTHON_ARTIFACT_NAME=${CUDA_PYTHON_ARTIFACT_NAME}" >> $GITHUB_ENV
 
       - name: Download cuda-python build artifacts
