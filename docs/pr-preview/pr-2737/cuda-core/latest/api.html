@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=b1b18ef8"></script>
+    <script src="_static/documentation_options.js?v=0ca627db"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev222';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev257';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -602,6 +602,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.WorkqueueResourceOptions.html">cuda.core.WorkqueueResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ManagedBuffer.html">cuda.core.ManagedBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.VirtualMemoryBuffer.html">cuda.core.VirtualMemoryBuffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
@@ -859,37 +860,40 @@ on other non-blocking streams.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer" title="cuda.core.ManagedBuffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedBuffer</span></code></a></p></td>
 <td><p>Managed (unified) memory buffer with a property-style advice API.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.MemoryResource.html#cuda.core.MemoryResource" title="cuda.core.MemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a></p></td>
+<td><p>A <a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> returned by <a class="reference internal" href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.MemoryResource.html#cuda.core.MemoryResource" title="cuda.core.MemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code></a></p></td>
 <td><p>Abstract base class for memory resources that manage allocation and deallocation of buffers.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a>(device_id[, options])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a>(device_id[, options])</p></td>
 <td><p>A device memory resource managing a stream-ordered memory pool.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.GraphMemoryResource.html#cuda.core.GraphMemoryResource" title="cuda.core.GraphMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphMemoryResource</span></code></a>(device_id)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.GraphMemoryResource.html#cuda.core.GraphMemoryResource" title="cuda.core.GraphMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphMemoryResource</span></code></a>(device_id)</p></td>
 <td><p>A memory resource for memory related to graphs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a>([options])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a>([options])</p></td>
 <td><p>A host-pinned memory resource managing a stream-ordered memory pool.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource" title="cuda.core.ManagedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a>([options])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource" title="cuda.core.ManagedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a>([options])</p></td>
 <td><p>A managed memory resource managing a stream-ordered memory pool.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.LegacyPinnedMemoryResource.html#cuda.core.LegacyPinnedMemoryResource" title="cuda.core.LegacyPinnedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.LegacyPinnedMemoryResource.html#cuda.core.LegacyPinnedMemoryResource" title="cuda.core.LegacyPinnedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource</span></code></a></p></td>
 <td><p>Create a pinned memory resource that uses legacy cuMemAllocHost/cudaMallocHost APIs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a>(device_id[, config])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a>(device_id[, config])</p></td>
 <td><p>Create a device memory resource that uses the CUDA VMM APIs to allocate memory.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.DeviceMemoryResourceOptions.html#cuda.core.DeviceMemoryResourceOptions" title="cuda.core.DeviceMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResourceOptions</span></code></a>([ipc_enabled, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.DeviceMemoryResourceOptions.html#cuda.core.DeviceMemoryResourceOptions" title="cuda.core.DeviceMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResourceOptions</span></code></a>([ipc_enabled, ...])</p></td>
 <td><p>Customizable <code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code> options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.PinnedMemoryResourceOptions.html#cuda.core.PinnedMemoryResourceOptions" title="cuda.core.PinnedMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResourceOptions</span></code></a>([ipc_enabled, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.PinnedMemoryResourceOptions.html#cuda.core.PinnedMemoryResourceOptions" title="cuda.core.PinnedMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResourceOptions</span></code></a>([ipc_enabled, ...])</p></td>
 <td><p>Customizable <code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code> options.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.ManagedMemoryResourceOptions.html#cuda.core.ManagedMemoryResourceOptions" title="cuda.core.ManagedMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions</span></code></a>([...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.ManagedMemoryResourceOptions.html#cuda.core.ManagedMemoryResourceOptions" title="cuda.core.ManagedMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions</span></code></a>([...])</p></td>
 <td><p>Customizable <code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code> options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryResourceOptions</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryResourceOptions</span></code></a>(...)</p></td>
 <td><p>A configuration object for the VirtualMemoryResource</p></td>
 </tr>
 </tbody>
@@ -900,7 +904,7 @@ Use <a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.cor
 closing the buffer. Changing the recorded stream does not synchronize streams;
 the caller must order allocation and every access before the deallocation,
 using events or other CUDA synchronization mechanisms as needed. See
-<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/17e19e25b6b20eee6a5c13c8b39befd1b2b11a38/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
+<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/07845c5e6e7a676b98078117f7f5292a94c49013/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
 for a complete example.</p>
 </section>
 <section id="cuda-compilation-toolchain">
@@ -997,14 +1001,15 @@ Each subclass exposes attributes unique to its operation type.</p>
 methods: <a class="reference internal" href="generated/cuda.core.graph.KernelNode.html#cuda.core.graph.KernelNode" title="cuda.core.graph.KernelNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelNode</span></code></a>, <a class="reference internal" href="generated/cuda.core.graph.MemcpyNode.html#cuda.core.graph.MemcpyNode" title="cuda.core.graph.MemcpyNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemcpyNode</span></code></a>,
 <a class="reference internal" href="generated/cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode" title="cuda.core.graph.MemsetNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemsetNode</span></code></a>, <a class="reference internal" href="generated/cuda.core.graph.ChildGraphNode.html#cuda.core.graph.ChildGraphNode" title="cuda.core.graph.ChildGraphNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChildGraphNode</span></code></a>,
 <a class="reference internal" href="generated/cuda.core.graph.EventRecordNode.html#cuda.core.graph.EventRecordNode" title="cuda.core.graph.EventRecordNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventRecordNode</span></code></a>, <a class="reference internal" href="generated/cuda.core.graph.EventWaitNode.html#cuda.core.graph.EventWaitNode" title="cuda.core.graph.EventWaitNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventWaitNode</span></code></a>, and
-<a class="reference internal" href="generated/cuda.core.graph.HostCallbackNode.html#cuda.core.graph.HostCallbackNode" title="cuda.core.graph.HostCallbackNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">HostCallbackNode</span></code></a>. These methods require CUDA driver and
-<code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> versions 12.2 or newer. Updates affect future graph
+<a class="reference internal" href="generated/cuda.core.graph.HostCallbackNode.html#cuda.core.graph.HostCallbackNode" title="cuda.core.graph.HostCallbackNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">HostCallbackNode</span></code></a>. These methods require CUDA driver 12.2 or
+newer. Updates affect future graph
 instantiations; executable graphs that were already instantiated continue
 using their previous parameters and retained resources. Omitted optional
 arguments preserve their current values where supported.
-On CUDA 12.2 through 13.1, the intended CUDA context must be current when
-updating memcpy or memset nodes. CUDA driver and <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> versions
-13.2 and newer preserve the recorded context automatically.
+With CUDA driver 12.2 through 13.1, an update of a memcpy or memset node
+requires the intended CUDA context to be current. With the CUDA 13 build of
+<code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> and CUDA driver 13.2 or newer, updates preserve the recorded
+context.
 Multidimensional or array-backed memcpy nodes and clustered or cooperative
 kernel nodes cannot currently be updated. Clustered and cooperative kernel
 nodes also cannot currently be constructed explicitly.</p>
@@ -1074,8 +1079,7 @@ update or executable destruction. Raw integer addresses remain caller-owned.
 Memcpy and memset updates use the current CUDA context, which must match the
 original node context.</p>
 <p>Kernel, memcpy, and memset views also provide <code class="docutils literal notranslate"><span class="pre">is_enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">enable()</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">disable()</span></code>. Executable-node updates require CUDA driver and
-<code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> versions 12.2 or newer.</p>
+<code class="docutils literal notranslate"><span class="pre">disable()</span></code>. Executable-node updates require CUDA driver 12.2 or newer.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableGraphNode.html#cuda.core.graph.ExecutableGraphNode" title="cuda.core.graph.ExecutableGraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableGraphNode</span></code></a>()</p></td>
@@ -1209,8 +1213,8 @@ reported as a warning instead.</p>
 <h2>CUDA process checkpointing<a class="headerlink" href="#cuda-process-checkpointing" title="Link to this heading">#</a></h2>
 <p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.checkpoint</span></code> module wraps the CUDA driver process
 checkpoint APIs. These APIs are intended for Linux process checkpoint and
-restore workflows, and require a CUDA driver with checkpoint API support and
-a <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version that exposes those driver entry points.</p>
+restore workflows. They require the CUDA 13 build of <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> and CUDA
+driver 12.8 or newer with checkpoint API support.</p>
 <p>Checkpointing is typically driven by a coordinator process acting on a target
 CUDA process, similar to attaching a debugger or sending a signal. The target
 process is identified by process ID. Linux and the CUDA driver enforce process
