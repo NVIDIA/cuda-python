@@ -1593,6 +1593,7 @@ def test_batch_io_large_operations():
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
 @pytest.mark.usefixtures("cufile_env_json")
+@pytest.mark.thread_unsafe(reason="cuFile driver lifecycle and configuration are process-global")
 @pytest.mark.agent_authored(model="gpt-6-astra")
 def test_set_get_parameter_size_t():
     """Round-trip parameters without changing later tests' cuFile configuration."""
@@ -1641,6 +1642,7 @@ def test_set_get_parameter_size_t():
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
 @pytest.mark.usefixtures("cufile_env_json")
+@pytest.mark.thread_unsafe(reason="cuFile driver lifecycle and configuration are process-global")
 @pytest.mark.agent_authored(model="gpt-6-astra")
 def test_set_get_parameter_bool():
     """Round-trip parameters without changing later tests' cuFile configuration."""
@@ -1690,6 +1692,7 @@ def test_set_get_parameter_bool():
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
 @pytest.mark.usefixtures("cufile_env_json")
+@pytest.mark.thread_unsafe(reason="cuFile driver lifecycle and configuration are process-global")
 @pytest.mark.agent_authored(model="gpt-6-astra")
 def test_set_get_parameter_string(tmp_path, monkeypatch):
     """Round-trip string parameters and restore usable logging configuration."""
