@@ -86,31 +86,18 @@ jobs:
         # the job level instead of linking into the diff.
         run: echo "::add-matcher::.github/matchers/compiler.json"
 
-      - name: Install mozilla/sccache
+      # Cython packages need sccache. Compiles run inside the cibuildwheel
+      # container, which does not inherit the runner's cache credentials; the
+      # env vars exported by this action (ACTIONS_CACHE_SERVICE_V2,
+      # ACTIONS_RESULTS_URL, ACTIONS_RUNTIME_TOKEN, SCCACHE_PATH) are forwarded
+      # explicitly via CIBW_ENVIRONMENT_LINUX below. Stats are reported from
+      # inside the container, so the action's own (host-side) reporting is off.
+      - name: Enable sccache
         if: ${{ startsWith(inputs.host-platform, 'linux') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}
-        env:
-          SCCACHE_VERSION: v0.18.0
-        run: |
-          asset="sccache-${SCCACHE_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz"
-          base_url="https://github.com/mozilla/sccache/releases/download/${SCCACHE_VERSION}"
-          curl -fsSLO "${base_url}/${asset}"
-          # The .sha256 file contains only the hex digest.
-          echo "$(curl -fsSL "${base_url}/${asset}.sha256")  ${asset}" | sha256sum --check -
-          sudo tar -C /usr/local/bin -xvzf "${asset}" --wildcards --strip-components=1 -x '*/sccache'
-          rm -f "${asset}"
-          echo "SCCACHE_PATH=/usr/local/bin/sccache" >> "$GITHUB_ENV"
-
-      # The runner only exposes these values to actions, not to `run:` steps or
-      # the cibuildwheel container, so re-export them for sccache's GHA backend.
-      # xref: https://github.com/orgs/community/discussions/42856#discussioncomment-7678867
-      - name: Adding addtional GHA cache-related env vars
-        if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
-        uses: actions/github-script@v9
+        uses: mozilla-actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba  # 0.0.11
         with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_SERVICE_V2', 'on');
-            core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL'] || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'] || '');
+          version: v0.18.0
+          disable_annotations: 'true'
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
