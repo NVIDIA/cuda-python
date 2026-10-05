@@ -22,19 +22,29 @@ args = sys.argv[1:]
 if args[:2] == ["run", "list"]:
     runs = json.loads(os.environ["FAKE_RUNS"])
     try:
-        status = args[args.index("--status") + 1]
         limit = int(args[args.index("--limit") + 1])
     except (ValueError, IndexError):
-        print("run list requires --status and --limit", file=sys.stderr)
+        print("run list requires --limit", file=sys.stderr)
         raise SystemExit(2)
-    if status == "success":
-        runs = [run for run in runs if run["conclusion"] == "success"]
-    elif status == "completed":
-        runs = [run for run in runs if run["status"] == "completed"]
-    else:
-        print(f"unsupported status filter: {status}", file=sys.stderr)
+    if "--status" in args:
+        print("status filters are intentionally unsupported", file=sys.stderr)
         raise SystemExit(2)
+    if "--jq" in args:
+        try:
+            jq_filter = args[args.index("--jq") + 1]
+        except IndexError:
+            print("run list --jq requires a value", file=sys.stderr)
+            raise SystemExit(2)
+        if jq_filter == 'map(select(.status == "completed"))':
+            runs = [run for run in runs if run["status"] == "completed"]
+        else:
+            print(f"unsupported jq filter: {jq_filter}", file=sys.stderr)
+            raise SystemExit(2)
     print(json.dumps(runs[:limit]))
+    raise SystemExit(0)
+
+if args[:2] == ["run", "view"]:
+    print(json.dumps({"url": "https://example.invalid/runs/view"}))
     raise SystemExit(0)
 
 if args[:1] == ["api"]:
@@ -60,14 +70,24 @@ raise SystemExit(2)
 """
 
 
-def _run(run_id, created_at, *, branch="12.9.x", workflow="CI", conclusion="success"):
+def _run(
+    run_id,
+    created_at,
+    *,
+    branch="12.9.x",
+    workflow="CI",
+    conclusion="success",
+    event="push",
+    status="completed",
+):
     return {
         "databaseId": run_id,
         "workflowName": workflow,
-        "status": "completed",
+        "status": status,
         "conclusion": conclusion,
         "headSha": f"sha-{run_id}",
         "headBranch": branch,
+        "event": event,
         "createdAt": created_at,
         "url": f"https://example.invalid/runs/{run_id}",
     }
@@ -104,14 +124,14 @@ def _lookup(fake_gh, runs, artifacts, *args, workflow="CI"):
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 class TestBranchLookup:
-    def test_filters_successful_runs_before_applying_limit(self, fake_gh):
+    def test_filters_successful_runs_without_status_filter(self, fake_gh):
         runs = [
             _run(
                 run_id,
                 "2026-08-13T12:00:00Z",
                 conclusion="failure",
             )
-            for run_id in range(200, 100, -1)
+            for run_id in range(200, 190, -1)
         ]
         runs.append(_run(50, "2026-08-12T12:00:00Z"))
 
@@ -237,3 +257,18 @@ class TestBranchLookup:
 
         assert result.returncode == 1
         assert "Failed to list artifacts for run 100" in result.stderr
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+class TestTagLookup:
+    def test_filters_completed_runs_without_status_filter(self, fake_gh):
+        runs = [
+            _run(300, "2026-08-13T12:00:00Z", branch="HEAD", status="in_progress"),
+            _run(200, "2026-08-12T12:00:00Z", branch="HEAD"),
+            _run(100, "2026-08-11T12:00:00Z", branch="HEAD"),
+        ]
+
+        result = _lookup(fake_gh, runs, {}, "HEAD")
+
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == "200"

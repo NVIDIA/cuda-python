@@ -52,38 +52,6 @@ class ComputeCapability(NamedTuple):
     major: int
     minor: int
 
-class Transaction:
-    """
-    A context manager for transactional operations with failure and exit callbacks.
-
-    Failure callbacks are executed in LIFO order if the transaction exits without being committed.
-    Exit callbacks always run: in LIFO order on rollback or FIFO order during commit.
-
-    Usage:
-        with Transaction() as txn:
-            txn.on_failure(some_cleanup_function, arg1, arg2)
-            txn.on_exit(some_finalize_function, arg1, arg2)
-            # ... perform operations ...
-            txn.commit()
-
-    Methods:
-        on_failure(fn, *args, **kwargs): Register a callback to be called on rollback.
-        on_exit(fn, *args, **kwargs): Register a callback to be called on rollback or commit.
-        commit(): Disarm failure callbacks and run exit callbacks.
-    """
-    def __init__(self) -> None: ...
-    def __enter__(self): ...
-    def __exit__(self, exc_type, exc, tb): ...
-    def _register(self, callback: Callable[[], Any], on_commit: bool) -> None: ...
-    def on_failure(self, fn: Callable[..., Any], /, *args: Any, **kwargs) -> None:
-        """Register a failure callback (runs if the with-block exits without commit())."""
-    def on_exit(self, fn: Callable[..., Any], /, *args: Any, **kwargs) -> None:
-        """Register an exit callback (runs exactly once, on rollback or during commit())."""
-    def commit(self) -> None:
-        """
-        Disarm all failure callbacks, then run exit callbacks in FIFO order.
-        """
-
 def cast_to_3_tuple(label: str, cfg: int | tuple[int, ...]) -> tuple[int, int, int]: ...
 def _check_driver_error(error: cydriver.CUresult) -> int: ...
 def _check_runtime_error(error) -> int: ...

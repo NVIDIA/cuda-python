@@ -30,6 +30,8 @@ setup(
     version=version,
     install_requires=[
         f"cuda-bindings{matcher}{version}",
+        # Bump this with every cuda-core release and release cuda-python right
+        # after it; see .github/RELEASE-core.md and cuda_python/AGENTS.md.
         "cuda-core~=1.2.0",
         "cuda-pathfinder~=1.1",
     ],

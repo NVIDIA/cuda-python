@@ -12,6 +12,12 @@ self-hosted-runner:
 # GitHub supports queued concurrency runs, but the latest actionlint release
 # does not yet recognize the concurrency.queue key.
 paths:
+  ".github/workflows/build-docs.yml":
+    ignore:
+      - 'unexpected key "queue" for "concurrency" section'
+  ".github/workflows/cleanup-pr-previews.yml":
+    ignore:
+      - 'unexpected key "queue" for "concurrency" section'
   ".github/workflows/ci-workflow-health.yml":
     ignore:
       - 'unexpected key "queue" for "concurrency" section'

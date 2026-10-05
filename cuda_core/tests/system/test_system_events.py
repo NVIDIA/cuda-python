@@ -3,20 +3,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from cuda_python_test_helpers.arch_check import skip_if_nvml_unsupported
+from cuda_python_test_helpers.arch_check import skip_if_nvml_device_apis_unsupported, skip_if_nvml_unsupported
 
+# Keep device-API gating on individual tests so the pure event conversion and
+# wrapping tests still run on platforms with partial device API support.
 pytestmark = skip_if_nvml_unsupported
 
 import helpers
 import pytest
 
+from cuda.bindings import nvml
 from cuda.core import Device as CudaDevice
 from cuda.core import system
 from cuda.core.system import typing
-
-if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-    from cuda.bindings import nvml
-    from cuda.core.system._system_events import SystemEvent, SystemEvents, _pci_bus_id_from_gpu_id
+from cuda.core.system._system_events import SystemEvent, SystemEvents, _pci_bus_id_from_gpu_id
 
 
 @pytest.mark.agent_authored(model="claude-opus-4.7")
@@ -51,6 +51,7 @@ def test_pci_bus_id_from_gpu_id(gpu_id, expected):
     assert _pci_bus_id_from_gpu_id(gpu_id) == expected
 
 
+@skip_if_nvml_device_apis_unsupported
 @pytest.mark.agent_authored(model="claude-opus-4.7")
 def test_system_event_device_resolves_pci_bus_id():
     # Round-trip: pack pci_info with the inverse of _pci_bus_id_from_gpu_id,
@@ -77,6 +78,7 @@ def test_system_event_device_resolves_pci_bus_id():
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="System events not supported on WSL or Windows")
+@skip_if_nvml_device_apis_unsupported
 def test_register_events():
     # This is not the world's greatest test.  All of the events are pretty
     # infrequent and hard to simulate.  So all we do here is register an event,

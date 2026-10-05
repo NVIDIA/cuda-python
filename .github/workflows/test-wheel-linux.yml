@@ -104,7 +104,7 @@ jobs:
       TEST_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_test }}
       TEST_PYTHON: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_test }}
     name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}${{ matrix.ENV.TORCH_VER && format(', {0}+{1}', matrix.ENV.TORCH_VER, matrix.ENV.TORCH_CUDA) || '' }}${{ matrix.ENV.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
-    timeout-minutes: 90
+    timeout-minutes: 60
     needs: compute-matrix
     strategy:
       fail-fast: false
@@ -128,6 +128,10 @@ jobs:
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          # Test sources must match the wheels under test (nightly runs
+          # reuse wheels built from an older commit of main).
+          ref: ${{ inputs.sha || github.sha }}
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -140,8 +144,9 @@ jobs:
           # for artifact fetching, graphics libs, g++ required for cffi in
           # example; util-linux for `nsenter` (custom-DRIVER rows re-exec
           # install_gpu_driver.sh onto the host through nsenter)
-          dependencies: "jq wget libgl1 libegl1 g++ util-linux"
-          dependent_exes: "jq wget"
+          # yq: ci/tools/env-vars reads ci/versions.yml with it
+          dependencies: "jq wget libgl1 libegl1 g++ util-linux yq"
+          dependent_exes: "jq wget yq"
 
       - name: Install GPU driver
         if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
@@ -248,14 +253,14 @@ jobs:
           fi
 
       - name: Display structure of downloaded cuda-python artifacts
-        if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE != 'published' }}
+        if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE != 'floor' }}
         run: |
           pwd
           ls -lah cuda_python*.whl cuda_pathfinder/
 
       - name: Display structure of downloaded cuda.bindings artifacts
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
-                env.BINDINGS_SOURCE != 'published' }}
+                env.BINDINGS_SOURCE != 'floor' }}
         run: |
           pwd
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
@@ -361,6 +366,11 @@ jobs:
       - name: Set up test repetition on nightly runs
         run: echo "PYTEST_ADDOPTS=\"--count=${{ inputs.nruns }}\"" >> "$GITHUB_ENV"
 
+      - name: Register problem matchers
+        # compute-sanitizer findings in the test output become annotations
+        # on the job page. Sanitizer runs are Linux-only.
+        run: echo "::add-matcher::.github/matchers/compute-sanitizer.json"
+
       # ── Standard test steps (skipped for nightly modes) ──
       - name: Run cuda.pathfinder tests with see_what_works
         if: ${{ inputs.test-mode == 'standard' && env.TEST_PATHFINDER == 'true' }}
@@ -464,12 +474,35 @@ jobs:
         if: ${{ inputs.test-mode == 'nightly-pytorch' }}
         run: |
           pushd cuda_core
-          pytest -rxXs -v tests/test_utils.py tests/example_tests/
+          pytest -rsxXfE -v --exclude-warning-annotations --junitxml "${GITHUB_WORKSPACE}/test-results/junit-pytorch-interop.xml" tests/test_utils.py tests/example_tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
 
+      - name: Checkout numba-cuda tests at matching tag
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' && env.NUMBA_CUDA_VER != '' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: NVIDIA/numba-cuda
+          ref: v${{ env.NUMBA_CUDA_VER }}
+          path: numba-cuda-released
+
       - name: Run numba-cuda tests
-        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
-        run: python -m numba.runtests numba.cuda.tests
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' && env.NUMBA_CUDA_VER != '' }}
+        env:
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: |
+          if [[ "${LOCAL_CTK}" != 1 ]]; then
+            # Let numba-cuda skip inputs that require toolkit executables.
+            export NUMBA_CUDA_TEST_WHEEL_ONLY=1
+          fi
+          # Run from numba-cuda's testing/ dir so its pytest.ini kicks in
+          # (consider_namespace_packages=true + --pyargs numba.cuda.tests).
+          # -k "not TestIpc": numba-cuda v0.30.4 accesses CUipcMemHandle.reserved,
+          # which cuda-bindings intentionally removed. numba-cuda is EOL upstream,
+          # so no fix is coming. See cuda-python#2748. The affected tests all
+          # live in the two TestIpcMemory/TestIpcStaged classes in test_ipc.py.
+          pushd numba-cuda-released/testing
+          pytest -v -k "not TestIpc"
+          popd
 
       - name: Checkout numba-cuda-mlir tests at matching tag
         if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}
@@ -495,10 +528,15 @@ jobs:
           # Skip tests/benchmarks/ and tests/doc_examples/ — they import the
           # numba package at collection time, which cuSIMT intentionally does
           # not depend on. See NVIDIA/numba-cuda-mlir#136.
-          pytest -rxXs -v \
+          # test_device_record_copy (WithRecord variant): flaky NaN vs NaN
+          # compare from uninitialized np.recarray memory. See
+          # NVIDIA/numba-cuda-mlir#341.
+          pytest -rsxXfE -v --exclude-warning-annotations \
+            --junitxml "${GITHUB_WORKSPACE}/test-results/junit-numba-cuda-mlir.xml" \
             --ignore=tests/benchmarks \
             --ignore=tests/doc_examples \
-            tests/
+            --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_devicerecord.py::TestCudaDeviceRecordWithRecord::test_device_record_copy' \
+            tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
 
       - name: Checkout released cuda-core tests at matching tag
@@ -520,8 +558,8 @@ jobs:
           # patterns that pytest 9.1 rejects; the main-side fix (#2212) has
           # not yet shipped in a cuda-core release.
           pip install "pytest<9.1"
-          # Version-gated deselect: drops automatically when a newer
-          # cuda-core release with the wrapper-mapping update ships.
+          # Version-gated deselects: drop automatically when a newer
+          # cuda-core release ships that removes each source.
           DESELECTS=()
           if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${CUDA_CORE_RELEASED_VER}') <= Version('1.0.1') else 1)"; then
             # NvlinkVersion: v1.0.1's wrapper mapping predates
@@ -531,7 +569,29 @@ jobs:
               --deselect 'tests/test_enum_coverage.py::test_wrapper_covers_all_binding_members[NvlinkVersion]'
             )
           fi
-          pytest -rxXs -v --randomly-dont-reorganize \
+          if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${CUDA_CORE_RELEASED_VER}') <= Version('1.2.1') else 1)"; then
+            # test_frozen_driver_table_covers_all_curesult_members: v1.2.1's
+            # frozen table (capped at CTK 13.1.1) predates 3 CUresult members
+            # added by main cuda-bindings 13.4.1. Reverted on main by #2792;
+            # drop this deselect once a cuda-core release with the revert ships.
+            DESELECTS+=(
+              --deselect 'tests/test_utils_enum_explanations_helpers.py::test_frozen_driver_table_covers_all_curesult_members'
+            )
+          fi
+          pytest -rsxXfE -v --randomly-dont-reorganize \
+            --junitxml "${GITHUB_WORKSPACE}/test-results/junit-cuda-core-released.xml" \
             "${DESELECTS[@]}" \
-            tests/
+            tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
+
+      - name: Upload test results
+        # JUnit XML written by run-tests, one file per suite: a machine-readable
+        # record of the run, kept for 14 days. The name must be unique per job
+        # in the run.
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: test-results-${{ inputs.test-mode }}-${{ inputs.host-platform }}-py${{ matrix.PY_VER }}-cu${{ matrix.CUDA_VER }}-${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}-${{ matrix.GPU }}-x${{ matrix.GPU_COUNT }}-${{ matrix.DRIVER }}${{ matrix.FLAVOR && format('-{0}', matrix.FLAVOR) || '' }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14

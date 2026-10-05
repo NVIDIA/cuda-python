@@ -84,6 +84,7 @@ jobs:
           # package version; a shallow checkout yields 0.1.dev1, which trips
           # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
           fetch-depth: 0
+          filter: blob:none
 
       - name: Setup pixi
         uses: ./.github/actions/setup-pixi
@@ -140,6 +141,7 @@ jobs:
           # package version; a shallow checkout yields 0.1.dev1, which trips
           # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
           fetch-depth: 0
+          filter: blob:none
 
       - name: Setup pixi
         uses: ./.github/actions/setup-pixi
@@ -154,14 +156,23 @@ jobs:
           done
           # The last build was cu13, and each major must have kept its own
           # generated sources rather than overwriting the other's.
-          stamp=$(cat cuda_core/build/.build-cuda-major)
-          if [ "${stamp}" != "13" ]; then
-            echo "::error::build stamp is '${stamp}', expected 13"
+          # Stamp is ABI-scoped (.build-config.<EXT_SUFFIX>). Unset and gnu
+          # both record as "gnu"; llvm records as "llvm".
+          shopt -s nullglob
+          stamps=(cuda_core/build/.build-config.*)
+          if (( ${#stamps[@]} != 1 )); then
+            echo "::error::expected one ABI stamp, found: ${stamps[*]:-none}"
             exit 1
           fi
+          stamp=$(<"${stamps[0]}")
+          if [[ ! "${stamp}" =~ ^cu13-(gnu|llvm)-(debug|opt)(-cov)?$ ]]; then
+            echo "::error::build stamp is '${stamp}', expected cu13-{gnu|llvm}-{debug|opt}"
+            exit 1
+          fi
+          suffix="${stamp#cu13-}"
           for major in cu12 cu13; do
-            if [ ! -d "cuda_core/build/cython/${major}" ]; then
-              echo "::error::no ${major} generated-source directory"
+            if [ ! -d "cuda_core/build/cython/${major}-${suffix}" ]; then
+              echo "::error::no ${major}-${suffix} generated-source directory"
               exit 1
             fi
           done
@@ -196,6 +207,7 @@ jobs:
           # package version; a shallow checkout yields 0.1.dev1, which trips
           # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
           fetch-depth: 0
+          filter: blob:none
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
