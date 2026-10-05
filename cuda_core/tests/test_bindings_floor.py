@@ -361,19 +361,53 @@ class TestConsistencyHook:
         assert hook.main(["--repo-root", str(tmp_path)]) == 1
         assert "pyproject.toml: the 'cu13' extra must pin cuda-bindings" in capsys.readouterr().err
 
-    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    @pytest.mark.agent_authored(model="gpt-6-astra")
     def test_ci_toolkit_pins_must_not_sit_below_the_floors_minor(self, hook):
         floors = {12: (12, 9, 8), 13: (13, 4, 1)}
-        good = 'cuda:\n  build:\n    version: "13.4.2"\n  prev_build:\n    version: "12.9.1"\n'
+        good = textwrap.dedent("""\
+            schema_version: 2
+            cuda:
+              bindings:
+                package_roots:
+                  cuda_bindings:
+                    toolkit_version: "13.4.2"
+                    release_status: current
+                  cuda_bindings_12:
+                    release_status: maintenance
+                    toolkit_version: 12.9.1
+        """)
         assert hook.ci_pin_problems(floors, good) == []
         assert hook.ci_pin_problems(floors, good.replace("13.4.2", "13.5.0")) == []  # the toolkit-bump window
         stale = good.replace("13.4.2", "13.3.0")
         (problem,) = hook.ci_pin_problems(floors, stale)
-        assert "cuda.build.version is 13.3 but the CUDA 13 floor is cuda-bindings 13.4.1" in problem
+        assert "cuda.bindings.package_roots.cuda_bindings.toolkit_version is 13.3" in problem
+        assert "CUDA 13 floor is cuda-bindings 13.4.1" in problem
         (problem,) = hook.ci_pin_problems({13: (13, 4, 1)}, good)
         assert "pins CUDA 12, which has no cu12 extra" in problem
-        (problem,) = hook.ci_pin_problems(floors, 'cuda:\n  build:\n    version: "13.4.2"\n')
-        assert "no build or prev_build toolkit pin for CUDA 12" in problem
+        (problem,) = hook.ci_pin_problems(floors, good[: good.index("      cuda_bindings_12:")])
+        assert "no registered toolkit pin for CUDA 12" in problem
+
+    @pytest.mark.agent_authored(model="gpt-6-astra")
+    @pytest.mark.parametrize(
+        ("registry", "expected"),
+        [
+            ("cuda: {build: {version: 13.4.2}}", "expected the schema_version: 2 bindings package registry"),
+            ("schema_version: 2", "package_roots must be a nonempty mapping"),
+            (
+                "schema_version: 2\ncuda: {bindings: {package_roots: {bindings: {toolkit_version: 13.4}}}}",
+                "toolkit_version must be a major.minor.patch version string",
+            ),
+            (
+                "schema_version: 2\ncuda: {bindings: {package_roots: "
+                "{first: {toolkit_version: 13.4.2}, second: {toolkit_version: 13.5.0}}}}",
+                "multiple bindings package roots pin CUDA 13",
+            ),
+            ("schema_version: [", "while parsing"),
+        ],
+    )
+    def test_invalid_registry_reports_a_problem(self, hook, registry, expected):
+        (problem,) = hook.ci_pin_problems({13: (13, 4, 1)}, registry)
+        assert expected in problem
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_docs_must_use_the_substitutions(self, hook, tmp_path):

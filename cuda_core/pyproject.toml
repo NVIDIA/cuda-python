@@ -77,6 +77,7 @@ test = [
     "cloudpickle==3.1.2",
     "psutil==7.2.2",
     "docutils==0.23",
+    "PyYAML==6.0.3",  # Registry validation in test_bindings_floor.py.
     # Required by tests/test_graphics.py; pinned to match cuda_bindings.
     "pyglet==2.1.14",
     # TODO: remove the Python 3.15 guard once 3.15 is officially supported

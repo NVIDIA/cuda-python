@@ -4,6 +4,7 @@
 
 recursive-include cuda/core *.pyx *.pxd *.pxi *.pyi
 recursive-include cuda/core/_cpp *.cpp *.h *.hpp
-recursive-include cuda/core/_include *.h *.hpp
+recursive-include cuda/core/_include *.h *.hpp *.def
+include build_hooks.py
 include cuda/core/py.typed
 include NOTICE

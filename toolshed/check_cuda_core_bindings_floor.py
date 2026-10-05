@@ -31,6 +31,8 @@ import re
 import sys
 from pathlib import Path
 
+import yaml
+
 try:
     import tomllib
 except ModuleNotFoundError:  # Python 3.10
@@ -42,7 +44,7 @@ PYPROJECT = Path("cuda_core", "pyproject.toml")
 CI_VERSIONS = Path("ci", "versions.yml")
 DOCS_SOURCE = Path("cuda_core", "docs", "source")
 
-_CI_PIN_RE = re.compile(r"^\s+(build|prev_build):\s*\n\s+version:\s*\"(\d+)\.(\d+)(?:\.\d+)?\"", re.M)
+_TOOLKIT_VERSION_RE = re.compile(r"([1-9]\d*)\.(\d+)\.(\d+)")
 # `cuda-bindings >= 13.4.1`, ``cuda-bindings`` 13.4.1 or later, ... (release notes are exempt).
 _HAND_WRITTEN_FLOOR_RE = re.compile(r"cuda-bindings[`'\" ]{0,4}(?:>=\s*)?\d+\.\d+\.\d+")
 
@@ -62,18 +64,46 @@ def read_floors(repo_root: Path) -> dict[int, tuple[int, int, int]]:
     return load_floor_module(repo_root).floors_from_extras(extras)
 
 
+def _ci_toolkit_pins(versions_yml: str) -> dict[int, tuple[int, int, str]]:
+    """Read toolkit pins without importing the Python 3.11-only CI package."""
+    config = yaml.safe_load(versions_yml)
+    if not isinstance(config, dict) or config.get("schema_version") != 2:
+        raise ValueError("expected the schema_version: 2 bindings package registry")
+    cuda = config.get("cuda")
+    bindings = cuda.get("bindings") if isinstance(cuda, dict) else None
+    roots = bindings.get("package_roots") if isinstance(bindings, dict) else None
+    if not isinstance(roots, dict) or not roots:
+        raise ValueError("cuda.bindings.package_roots must be a nonempty mapping")
+
+    pins = {}
+    for root, package in roots.items():
+        key = f"cuda.bindings.package_roots.{root}.toolkit_version"
+        version = package.get("toolkit_version") if isinstance(package, dict) else None
+        match = _TOOLKIT_VERSION_RE.fullmatch(version) if isinstance(version, str) else None
+        if match is None:
+            raise ValueError(f"{key} must be a major.minor.patch version string")
+        major, minor, _ = map(int, match.groups())
+        if major in pins:
+            raise ValueError(f"multiple bindings package roots pin CUDA {major}")
+        pins[major] = (major, minor, key)
+    return pins
+
+
 def ci_pin_problems(floors: dict[int, tuple[int, int, int]], versions_yml: str) -> list[str]:
-    """Toolkit pins in ci/versions.yml that sit below the floor's major.minor."""
-    pins = {int(major): (int(major), int(minor), key) for key, major, minor in _CI_PIN_RE.findall(versions_yml)}
+    """Registered toolkit pins that sit below the floor's major.minor."""
+    try:
+        pins = _ci_toolkit_pins(versions_yml)
+    except (ValueError, yaml.YAMLError) as exc:
+        return [f"{CI_VERSIONS}: {exc}"]
     problems = []
     for major, floor in floors.items():
         if major not in pins:
-            problems.append(f"{CI_VERSIONS}: no build or prev_build toolkit pin for CUDA {major} (floor {floor})")
+            problems.append(f"{CI_VERSIONS}: no registered toolkit pin for CUDA {major} (floor {floor})")
             continue
         pinned_major, pinned_minor, key = pins[major]
         if pinned_major != floor[0] or pinned_minor < floor[1]:
             problems.append(
-                f"{CI_VERSIONS}: cuda.{key}.version is {pinned_major}.{pinned_minor} but the CUDA {major} floor "
+                f"{CI_VERSIONS}: {key} is {pinned_major}.{pinned_minor} but the CUDA {major} floor "
                 f"is cuda-bindings {'.'.join(map(str, floor))}. The toolkit must not sit below the floor's "
                 "major.minor. A toolkit ahead of the floor is the toolkit-bump window. See cuda_core/AGENTS.md"
             )

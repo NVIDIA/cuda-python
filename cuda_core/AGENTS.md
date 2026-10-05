@@ -51,8 +51,9 @@ a bump. To bump:
 
 1. Edit the `cuda-bindings` pin in the `cu12` or `cu13` extra in
    `pyproject.toml`. That is the only version to type.
-2. Check `ci/versions.yml`. The `build` pin is the current major and the
-   `prev_build` pin is the prior major. Neither toolkit pin may sit below its
+2. Check `ci/versions.yml`. Each entry under `cuda.bindings.package_roots`
+   declares its `toolkit_version` and `current` or `maintenance` release role.
+   Neither toolkit pin may sit below its
    floor's major.minor, or CI builds a configuration that the build rejects. A
    toolkit ahead of the floor is the bump window described below. The
    pre-commit hook `check-cuda-core-bindings-floor`
