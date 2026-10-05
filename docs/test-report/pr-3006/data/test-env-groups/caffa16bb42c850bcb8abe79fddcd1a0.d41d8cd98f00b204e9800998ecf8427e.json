@@ -1,1 +1,0 @@
-{"id":"caffa16bb42c850bcb8abe79fddcd1a0.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.nvml.test_pci.test_bridge_chip_hierarchy_t","name":"test_bridge_chip_hierarchy_t","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"7354f2436ee4e93bc62a6d1863f3b13e","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"33c4f5ad8d3cbc4d7db4af5794cbbfd1"}}

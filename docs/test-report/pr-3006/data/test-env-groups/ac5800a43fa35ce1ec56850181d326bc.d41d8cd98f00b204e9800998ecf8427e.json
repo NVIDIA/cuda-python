@@ -1,1 +1,0 @@
-{"id":"ac5800a43fa35ce1ec56850181d326bc.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_cudart.test_cudaDeviceGetDevResource","name":"test_cudaDeviceGetDevResource","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"8a12709bbe54b75b52cbf70e072e23ca","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"11f2e772a45382c8ea02298fb5f36e40"}}

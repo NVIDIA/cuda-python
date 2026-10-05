@@ -1,1 +1,0 @@
-{"id":"aa58cc700d8ec63c2c16fadc75f6af53.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_utils.test_get_c_compiler","name":"test_get_c_compiler","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"c9bdf7eb4daed1bc37327cdeeb4755b2","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"5ffb1f8de5a790863795407ab374a7ee"}}

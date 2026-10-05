@@ -1,1 +1,0 @@
-{"id":"e3361554deb836c4e2fe98bee0b1a777.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_memory.test_vmm_allocator_grow_allocation[handle_type1]","name":"test_vmm_allocator_grow_allocation[handle_type1]","status":"skipped","testResultsByEnv":{"win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"cf9e22652de509c426840ab263f2f231"}}

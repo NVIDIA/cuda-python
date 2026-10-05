@@ -1,1 +1,0 @@
-{"id":"bbae0794ca26a43ff8ebd53b5120d174.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_launcher.test_launch_numpy_scalar_subclass_fallback[numpy_complex64]","name":"test_launch_numpy_scalar_subclass_fallback[numpy_complex64]","status":"passed","testResultsByEnv":{"win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"002c651e56f88af9d167d2340008e4a4"}}

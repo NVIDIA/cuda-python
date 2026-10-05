@@ -1,1 +1,0 @@
-{"id":"dd8b453483de0be3f9fbb9ba15643966.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.cython.test_cython.test_ccuda_memcpy","name":"test_ccuda_memcpy","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"2392ef1812e91ed646d26c2164609414","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"87f641f000e8ee4be0164a9e8bdf687f"}}

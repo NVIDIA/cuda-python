@@ -1,1 +1,0 @@
-{"id":"d4f2804bc3bf6efad16cfe6aa8f8e654.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_cudart.test_cudart_cudaArrayGetInfo","name":"test_cudart_cudaArrayGetInfo","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"655e98cbc3329890cf4c5e96606fdcfe","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"693f7f9fcb882d551d063dbf31071680"}}

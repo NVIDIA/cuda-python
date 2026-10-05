@@ -1,1 +1,0 @@
-{"id":"3ddb3ec598904d4a43118b3efcd713d5.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_launcher.test_launch_scalar_argument[c_longlong-signed long long--123456789]","name":"test_launch_scalar_argument[c_longlong-signed long long--123456789]","status":"passed","testResultsByEnv":{"win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"5548590426c558fbbc06640750d950d2"}}

@@ -1,1 +1,0 @@
-{"id":"85498af6d150eaf969d263a31ee0fd69.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_nvvm.test_nvvm_version","name":"test_nvvm_version","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"fe43de3d39ddf3f779be389a056b4cbd","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"c676eafc48016fa939be47926e33d5ef"}}

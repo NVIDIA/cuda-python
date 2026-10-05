@@ -1,1 +1,0 @@
-{"id":"3f94aa7e39d8a216200d75d04f211c82.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_cudart.test_cudaGraphNodeGetLocalId","name":"test_cudaGraphNodeGetLocalId","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"c60abebc4a5175f318adf4890ec753df","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"3fdcc397192758aefa551353a45a6d46"}}

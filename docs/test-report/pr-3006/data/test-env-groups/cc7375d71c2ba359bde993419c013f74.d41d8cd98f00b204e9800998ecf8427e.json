@@ -1,1 +1,0 @@
-{"id":"cc7375d71c2ba359bde993419c013f74.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_cudart.test_cudart_class_reference","name":"test_cudart_class_reference","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"320c50d0076bdf1001086eef611bc393","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"bc871b6ee01a33f66a6f4f7bab70c512"}}

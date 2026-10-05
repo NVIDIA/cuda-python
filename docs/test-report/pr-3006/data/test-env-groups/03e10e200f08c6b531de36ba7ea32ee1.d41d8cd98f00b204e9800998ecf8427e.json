@@ -1,1 +1,0 @@
-{"id":"03e10e200f08c6b531de36ba7ea32ee1.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_memory.test_vmm_allocator_basic_allocation[handle_type1-True]","name":"test_vmm_allocator_basic_allocation[handle_type1-True]","status":"skipped","testResultsByEnv":{"win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"065cca4c7fd86b6ff1679a83d1e2688f"}}

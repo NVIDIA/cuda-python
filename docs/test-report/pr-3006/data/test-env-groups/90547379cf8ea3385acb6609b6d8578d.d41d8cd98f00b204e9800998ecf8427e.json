@@ -1,1 +1,0 @@
-{"id":"90547379cf8ea3385acb6609b6d8578d.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_cudart.test_supportsCudaAPI","name":"test_supportsCudaAPI","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"edeaa26dec7133ce1853ae580649be25","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"cc85cf008fd7c481a13b68d090874d01"}}

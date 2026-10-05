@@ -1,1 +1,0 @@
-{"id":"923877382cf13e9466a61fe6b38ab1dd.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_cuda.test_union_assign","name":"test_union_assign","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"335f62dc35f6dcdf9d524054a33c5cd8","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"95930f909461007310cc88cea66081dd"}}

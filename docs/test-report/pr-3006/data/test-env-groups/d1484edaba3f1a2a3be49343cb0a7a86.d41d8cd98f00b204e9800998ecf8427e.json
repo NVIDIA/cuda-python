@@ -1,1 +1,0 @@
-{"id":"d1484edaba3f1a2a3be49343cb0a7a86.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.nvml.test_pynvml.test_device_get_power_usage","name":"test_device_get_power_usage","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"11ebe8e771a36b4e795246a3ab962de7","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"4739a2e7921538925576a78d9a98a78b"}}

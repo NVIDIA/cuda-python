@@ -1,1 +1,0 @@
-{"id":"c7aa3960bf1f4cd6d224ecf720a1dd4b.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_nvjitlink.test_invalid_arch_error","name":"test_invalid_arch_error","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"1af5b27bae6b3380aef8f27c9f8ce477","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"53e8d08199db23ed3341d455faadcb87"}}

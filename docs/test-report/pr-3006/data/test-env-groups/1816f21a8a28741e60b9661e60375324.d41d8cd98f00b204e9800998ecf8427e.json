@@ -1,1 +1,0 @@
-{"id":"1816f21a8a28741e60b9661e60375324.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_cuda.test_cuFuncGetName_failure","name":"test_cuFuncGetName_failure","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"e8c56293d44da099f9df35caacb7f06d","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"6c184fcd4f87ca34bc7aa9e67b622f7b"}}

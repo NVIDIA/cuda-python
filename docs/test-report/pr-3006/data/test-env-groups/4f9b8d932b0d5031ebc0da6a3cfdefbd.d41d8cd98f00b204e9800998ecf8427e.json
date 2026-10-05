@@ -1,1 +1,0 @@
-{"id":"4f9b8d932b0d5031ebc0da6a3cfdefbd.d41d8cd98f00b204e9800998ecf8427e","fullName":"tests.test_nvjitlink.test_get_info_log[sm_75_6.4]","name":"test_get_info_log[sm_75_6.4]","status":"passed","testResultsByEnv":{"linux-64-py3-12-cu13-4-2-wheels-l4-x1-latest":"1581bcae55dd42c565aeb49f17da6dc5","win-64-py3-12-cu13-4-2-local-a100-x1-latest-TCC":"e8a5a7dbbbd06df5ac9e667dcbf19e1f"}}
