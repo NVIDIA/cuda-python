@@ -108,9 +108,9 @@ obtain the most recent build, use the following commands:
 
 Replace ``python312`` with your Python version (e.g. ``python310``, ``python311``,
 ``python313``, ``python314``, ``python314t``). For aarch64, replace ``linux-64``
-with ``linux-aarch64``; for Windows, use ``win-64``. Only the current CUDA
-major version is built on ``main``; wheels for the prior CUDA major are
-published from the corresponding backport branch.
+with ``linux-aarch64``; for Windows, use ``win-64``. To use the CUDA 12 line,
+replace ``cuda13`` with ``cuda12`` in both commands. Both supported CUDA major
+lines are published by CI from ``main``.
 
 Installing from Source
 ~~~~~~~~~~~~~~~~~~~~~~

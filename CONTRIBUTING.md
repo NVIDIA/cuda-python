@@ -34,11 +34,8 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
   - [CI infrastructure overview](#ci-infrastructure-overview)
     - [CI Pipeline Flow](#ci-pipeline-flow)
-    - [Pipeline Execution Details](#pipeline-execution-details)
-    - [Branch-specific Artifact Flow](#branch-specific-artifact-flow)
-      - [Main Branch](#main-branch)
-      - [Backport Branches](#backport-branches)
-    - [Key Infrastructure Details](#key-infrastructure-details)
+    - [CUDA-major Artifact Flow](#cuda-major-artifact-flow)
+    - [Release Branches](#release-branches)
   - [Code coverage](#code-coverage)
 
 
@@ -373,36 +370,36 @@ The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and
 
 The CI pipeline diagram is maintained as Mermaid source in [`ci/ci-pipeline.mmd`](ci/ci-pipeline.mmd).
 
-### Pipeline Execution Details
+The [CI workflow](.github/workflows/ci.yml) defines the supported platform,
+Python, and CUDA matrices. Build and test jobs run in parallel across their
+configured runners. Package selection and artifact validation are shared
+through the [CI tools](ci/README.md).
 
-**Parallel Execution**: The CI pipeline leverages parallel execution to optimize build and test times:
-- **Build Stage**: Different architectures/operating systems (linux-64, linux-aarch64, win-64) are built in parallel across their respective runners
-- **Test Stage**: Different architectures/operating systems/CUDA versions are tested in parallel; documentation preview is also built in parallel with testing
+### CUDA-major Artifact Flow
 
-### Branch-specific Artifact Flow
+- CUDA 12.9 bindings live in `cuda_bindings_12/`; CUDA 13 bindings live in
+  `cuda_bindings/`. The registry assigns their maintenance and current roles.
+- Development CI builds changed roots and affected dependents, reusing a
+  validated baseline for unaffected roots. Shared changes and scheduled runs
+  cover both CUDA majors.
+- A bindings tag selects one line's bindings and metapackage. Its release
+  validation uses published Pathfinder and does not require a CUDA Core or
+  other-major release.
+- Artifacts identify their Python version, toolkit, platform, and source SHA
+  where applicable. Release workflows require the exact tag's successful CI.
 
-#### Main Branch
-- **Build** → **Test** → **Documentation** → **Potential Release**
-- Artifacts stored as `{component}-python{version}-{platform}-{sha}`
-- Full test coverage across all platforms and CUDA versions
-- **Artifact flow out**: `cuda-pathfinder` artifacts → backport branches
+### Release Branches
 
-#### Backport Branches
-- **Build** → **Test** → **Backport PR Creation**
-- Artifacts used for validation before creating backport pull requests
-- Maintains compatibility with older CUDA versions
-- **Artifact flow in**: `cuda-pathfinder` artifacts ← main branch
-- **Artifact flow out**: older `cuda-bindings` artifacts → main branch
+`main` integrates changes for both supported majors. Short release branches
+can stabilize a selected release or carry urgent fixes while development
+continues. Return applicable fixes to `main` and assess both source roots.
+The historical `12.9.x` branch is retained for diagnosis of old releases;
+new main CI and releases do not fetch package artifacts from that branch.
 
-### Key Infrastructure Details
-
-- **Self-hosted runners**: Used for Linux builds and GPU testing (more resources, faster builds)
-- **GitHub-hosted runners**: Used for Windows builds and general tasks
-- **Artifact retention**: 30 days for GitHub Artifacts (wheels, docs, tests)
-- **Cache retention**: GitHub Cache for build dependencies and environments
-- **Security**: All commits must be signed, untrusted code blocked
-- **Parallel execution**: Matrix builds across Python versions and platforms
-- **Component isolation**: Each component (core, bindings, pathfinder, python) can be built/released independently
+The [bindings release guide](.github/RELEASE-bindings.md) covers release scope,
+manual backport automation, source and control revisions, and validation.
+The [CUDA 12 maintenance guide](cuda_bindings_12/MAINTENANCE.md) links the
+shared regeneration and cross-root review policy.
 
 ## Code coverage
 
