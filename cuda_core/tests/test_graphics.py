@@ -7,7 +7,9 @@ import ctypes
 import ctypes.util
 import gc
 import os
+import subprocess
 import sys
+import textwrap
 
 import numpy as np
 import pyglet
@@ -69,6 +71,31 @@ def _configure_pyglet_headless():
         egl_device = select_headless_egl_device_for_cuda(Device().device_id)
         if egl_device is not None:
             pyglet.options["headless_device"] = egl_device
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_egl_device_probe_does_not_import_pyglet_gl():
+    """The probe runs before ``headless_device`` is set.
+
+    Importing ``pyglet.gl`` there creates pyglet's shadow window, which in
+    headless mode opens EGL device 0 and keeps it for the whole session: the
+    failure that #2865 fixed. A subprocess gives a clean ``sys.modules``.
+    """
+    if not sys.platform.startswith("linux") or ctypes.util.find_library("EGL") is None:
+        pytest.skip("needs a Linux EGL runtime")
+    code = textwrap.dedent(
+        """
+        import sys
+
+        import pyglet
+        from cuda_python_test_helpers.graphics import select_headless_egl_device_for_cuda
+
+        pyglet.options["headless"] = True
+        select_headless_egl_device_for_cuda(0)
+        assert "pyglet.gl" not in sys.modules, "the EGL device probe imported pyglet.gl"
+        """
+    )
+    subprocess.run([sys.executable, "-c", code], check=True)  # noqa: S603 - trusted argv: this interpreter
 
 
 def _allocate_gl_buffer(win, nbytes):
