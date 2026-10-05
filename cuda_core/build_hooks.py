@@ -484,11 +484,13 @@ def _resolve_toolchain(debug=False, compile_for_coverage=False):
     extra_link_args = []
 
     if name == "msvc":
-        extra_compile_args += ["/std:c++17"]
+        # c++17: required by structured bindings and if constexpr in cuda/core/_cpp/.
+        extra_compile_args += ["/std:c++17", "/O2"]
         if debug:
             raise RuntimeError("Debuggable builds are not supported on Windows.")
     else:
         # Common Linux compile flags.
+        # c++17: required by structured bindings and if constexpr in cuda/core/_cpp/.
         extra_compile_args += ["-std=c++17"]
         # Compiler-specific flags.
         if name == "llvm":
