@@ -4,10 +4,6 @@
 
 """Contract tests for bounded asyncio waiting on NVML event sets."""
 
-from cuda_python_test_helpers.arch_check import skip_if_nvml_unsupported
-
-pytestmark = skip_if_nvml_unsupported
-
 import asyncio
 import gc
 import subprocess
@@ -17,12 +13,19 @@ import time
 import weakref
 
 import pytest
+from cuda_python_test_helpers.arch_check import skip_if_nvml_unsupported
 
 from cuda.bindings import nvml
 from cuda.core import system
 from cuda.core.system import _async_events
 from cuda.core.system._async_events import _MAX_WORKERS, _SLICE_MS, EventSetWaiting, _Dispatcher
+from cuda.core.system._system_events import SystemEvents
 from cuda.core.system.typing import EventType, SystemEventType
+
+pytestmark = [
+    skip_if_nvml_unsupported,
+    pytest.mark.thread_unsafe(reason="patches the shared dispatcher and NVML entry points"),
+]
 
 TIMEOUT = nvml.TimeoutError(nvml.Return.ERROR_TIMEOUT)
 EVENT = object()
@@ -36,7 +39,7 @@ class FakeWait:
     fake does too unless it is told to deliver a result or to fail.
     """
 
-    def __init__(self, deliver_at=None, error=None, hold=False, latency=0.0):
+    def __init__(self, deliver_at=None, error=None, hold=False, latency=None):
         self.calls = []
         self.in_flight = 0
         self.peak_in_flight = 0
@@ -57,8 +60,10 @@ class FakeWait:
             if self.error is not None:
                 raise self.error
             if self.deliver_at is not None and call >= self.deliver_at:
+                if self.latency is not None:
+                    time.sleep(self.latency)
                 return EVENT
-            time.sleep(max(self.latency, timeout_ms / 1000))
+            time.sleep(timeout_ms / 1000 if self.latency is None else self.latency)
             raise TIMEOUT
         finally:
             self.in_flight -= 1
@@ -216,21 +221,28 @@ def test_event_consumed_by_a_cancelled_wait_is_handed_off():
     assert idle.calls == [], "the parked event was re-fetched from the driver"
 
 
-def test_second_waiter_is_rejected_and_never_reaches_the_driver():
+@pytest.mark.parametrize("second_async", [False, True])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_second_waiter_is_serialized_without_blocking_the_loop(second_async):
     state = EventSetWaiting()
-    fake = FakeWait(hold=True)
+    fake = FakeWait(hold=True, deliver_at=0)
 
     async def main():
         task = asyncio.create_task(state.wait_async(fake, 0))
         await spin_until(lambda: len(fake.calls) == 1)
-        with pytest.raises(RuntimeError, match="already in flight"):
-            await state.wait_async(fake, 0)
-        with pytest.raises(RuntimeError, match="already in flight"):
-            state.wait(fake, 0)
-        task.cancel()
-        fake.release.set()
-        with pytest.raises(asyncio.CancelledError):
-            await task
+        waiting = asyncio.create_task(
+            state.wait_async(fake, 0) if second_async else asyncio.to_thread(state.wait, fake, 0)
+        )
+        try:
+            await asyncio.sleep(0.02)
+            assert not waiting.done()
+            assert fake.peak_in_flight == 1
+            fake.release.set()
+            assert await task is EVENT
+            assert await waiting is EVENT
+        finally:
+            fake.release.set()
+            await asyncio.gather(task, waiting, return_exceptions=True)
 
     asyncio.run(main())
     assert fake.peak_in_flight == 1
@@ -287,7 +299,7 @@ def test_parked_batch_is_delivered_without_loss():
     assert state.wait(None, 0, lambda payload: convert(payload, 2)) == BATCH[:2]
     assert state.wait(None, 0, lambda payload: convert(payload, 1)) == BATCH[2:3]
     assert state.wait(None, 0, lambda payload: convert(payload, 5)) == BATCH[3:]
-    assert state.wait(native.append, 0, lambda payload: convert(payload, 5)) is None
+    assert state.wait(native.append, 0) is None
     assert native == [0], "the drained batch should leave nothing parked"
 
 
@@ -374,6 +386,8 @@ def test_native_wait_async_honors_the_timeout_budget():
     with pytest.raises(system.TimeoutError):
         asyncio.run(events.wait_async(timeout_ms=300))
     elapsed = time.monotonic() - started
+    # Timings may be potentially flaky on loaded runners.
+    # Remove if we see flaky tests in CI.
     assert 0.3 <= elapsed < 1.0, elapsed
     with pytest.raises(system.TimeoutError):
         events.wait(timeout_ms=10)  # the lease was released
@@ -395,6 +409,8 @@ def test_native_cancel_drains_a_real_wait():
         elapsed = time.monotonic() - started
 
     asyncio.run(main())
+    # Timings may be potentially flaky on loaded runners.
+    # Remove if we see flaky tests in CI.
     assert elapsed < 0.5, f"cancel returned only after {elapsed:.3f}s"
     with pytest.raises(system.TimeoutError):
         events.wait(timeout_ms=10)
@@ -425,17 +441,25 @@ def test_native_two_event_sets_are_independent():
 
 
 @pytest.mark.skipif(not system.CUDA_BINDINGS_NVML_IS_COMPATIBLE, reason="requires NVML-capable cuda-bindings")
-def test_native_sync_wait_cannot_borrow_an_async_lease():
+@pytest.mark.agent_authored(model="gpt-6")
+def test_native_sync_wait_is_serialized_with_an_async_wait():
     events = quiet_event_set()
 
     async def main():
         task = asyncio.create_task(events.wait_async())
         await asyncio.sleep(0.05)
-        with pytest.raises(RuntimeError, match="already in flight"):
-            events.wait(timeout_ms=10)
-        task.cancel()
-        with pytest.raises(asyncio.CancelledError):
-            await task
+        waiting = asyncio.create_task(asyncio.to_thread(events.wait, timeout_ms=10))
+        try:
+            await asyncio.sleep(0.02)
+            assert not waiting.done()
+            task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await task
+            with pytest.raises(system.TimeoutError):
+                await waiting
+        finally:
+            task.cancel()
+            await asyncio.gather(task, waiting, return_exceptions=True)
 
     asyncio.run(main())
 
@@ -446,7 +470,7 @@ def test_native_sync_wait_cannot_borrow_an_async_lease():
 
 
 def test_registration_failure_frees_the_event_set_once(monkeypatch):
-    """N16: a failure after the native set exists must not leak or double free."""
+    """a failure after the native set exists must not leak or double free."""
     gc.collect()  # drain sets owned by earlier tests before the fake allocator
     created, freed = [], []
 
@@ -469,7 +493,7 @@ def test_registration_failure_frees_the_event_set_once(monkeypatch):
 
 
 def test_saturated_dispatcher_serialises_slices(monkeypatch):
-    """N21: one worker serves one slice at a time, and queueing is inside the budget."""
+    """one worker serves one slice at a time, and queueing is inside the budget."""
     dispatcher = _Dispatcher(max_workers=1)
     monkeypatch.setattr(_async_events, "_dispatcher", dispatcher)
 
@@ -495,8 +519,9 @@ def test_saturated_dispatcher_serialises_slices(monkeypatch):
     assert elapsed_ms < 400 + 4 * _SLICE_MS, f"queueing must stay inside the budget ({elapsed_ms:.0f} ms)"
 
 
+@pytest.mark.agent_authored(model="gpt-6")
 def test_event_set_is_reusable_across_event_loops():
-    """N22: serial reuse across loops is fine; a concurrent loop is rejected."""
+    """serial reuse across loops is fine; concurrent loops are serialized."""
     state = EventSetWaiting()
     fake = FakeWait(deliver_at=0)
     assert asyncio.run(state.wait_async(fake, 100)) is EVENT
@@ -517,16 +542,17 @@ def test_event_set_is_reusable_across_event_loops():
     try:
         while not holding.calls:
             time.sleep(0.001)
-        with pytest.raises(RuntimeError, match="already in flight"):
+        with pytest.raises(system.TimeoutError):
             asyncio.run(state.wait_async(fake, 10))
     finally:
         holding.release.set()
         thread.join()
     assert outcome["result"] is EVENT
+    assert asyncio.run(state.wait_async(fake, 100)) is EVENT
 
 
 def test_parameter_bounds_match_the_signatures():
-    """N23: the type and range errors come from the annotated signatures."""
+    """the type and range errors come from the annotated signatures."""
     events = system.Device(index=0).register_events([EventType.CLOCK])
     with pytest.raises(TypeError):
         events.wait(timeout_ms="soon")
@@ -540,3 +566,236 @@ def test_parameter_bounds_match_the_signatures():
 
 def test_dispatcher_bound_is_finite():
     assert 0 < _MAX_WORKERS <= 64
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_sync_waits_are_serialized_across_threads():
+    from concurrent.futures import ThreadPoolExecutor
+
+    state = EventSetWaiting()
+    fake = FakeWait(hold=True, deliver_at=0)
+    started = threading.Barrier(3)
+
+    def wait():
+        started.wait(timeout=5)
+        return state.wait(fake, 0)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        first, second = pool.submit(wait), pool.submit(wait)
+        try:
+            started.wait(timeout=5)
+            asyncio.run(spin_until(lambda: bool(fake.calls)))
+            time.sleep(0.02)
+            assert not first.done() and not second.done()
+            assert fake.peak_in_flight == 1
+        finally:
+            fake.release.set()
+        assert first.result(timeout=5) is EVENT
+        assert second.result(timeout=5) is EVENT
+    assert fake.peak_in_flight == 1
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_cancelling_a_queued_wait_does_not_borrow_the_event_set():
+    state = EventSetWaiting()
+    holding = FakeWait(hold=True, deliver_at=0)
+    queued = FakeWait(deliver_at=0)
+
+    async def main():
+        first = asyncio.create_task(state.wait_async(holding, 0))
+        await spin_until(lambda: bool(holding.calls))
+        second = asyncio.create_task(state.wait_async(queued, 0))
+        try:
+            await asyncio.sleep(0.02)
+            second.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await second
+            assert queued.calls == []
+            assert state.is_waiting
+        finally:
+            holding.release.set()
+            await asyncio.gather(first, second, return_exceptions=True)
+
+    asyncio.run(main())
+    assert state.wait(queued, 0) is EVENT
+
+
+@pytest.mark.parametrize("cancellation", ["cancel", "timeout", "task_group"])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_cancelled_native_failure_is_preserved_for_the_next_wait(cancellation):
+    if cancellation != "cancel" and sys.version_info < (3, 11):
+        pytest.skip("asyncio.timeout and TaskGroup require Python 3.11")
+    state = EventSetWaiting()
+    lost = nvml.GpuIsLostError(nvml.Return.ERROR_GPU_IS_LOST)
+    fake = FakeWait(error=lost, hold=True)
+
+    async def main():
+        if cancellation == "timeout":
+            asyncio.get_running_loop().call_later(0.03, fake.release.set)
+            with pytest.raises(TimeoutError):
+                async with asyncio.timeout(0.01):
+                    await state.wait_async(fake, 0)
+        elif cancellation == "task_group":
+            async with asyncio.TaskGroup() as group:
+                task = group.create_task(state.wait_async(fake, 0))
+                await spin_until(lambda: bool(fake.calls))
+                task.cancel()
+                fake.release.set()
+            assert task.cancelled()
+        else:
+            task = asyncio.create_task(state.wait_async(fake, 0))
+            await spin_until(lambda: bool(fake.calls))
+            task.cancel()
+            await asyncio.sleep(0.01)
+            task.cancel()
+            fake.release.set()
+            with pytest.raises(asyncio.CancelledError):
+                await task
+
+    try:
+        asyncio.run(main())
+    finally:
+        fake.release.set()
+    assert fake.in_flight == 0 and not state.is_waiting
+    idle = FakeWait(deliver_at=0)
+    with pytest.raises(nvml.GpuIsLostError) as excinfo:
+        state.wait(idle, 0)
+    assert excinfo.value is lost
+    assert idle.calls == []
+    assert state.wait(idle, 0) is EVENT
+
+
+@pytest.mark.parametrize("parked", [False, True])
+@pytest.mark.parametrize("asynchronous", [False, True])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_conversion_failure_preserves_the_consumed_event(parked, asynchronous):
+    state = EventSetWaiting()
+    fake = FakeWait(deliver_at=0)
+    if parked:
+        state.park(EVENT)
+
+    def convert(payload):
+        raise ValueError("conversion failed")
+
+    with pytest.raises(ValueError, match="conversion failed"):
+        if asynchronous:
+            asyncio.run(state.wait_async(fake, 100, convert))
+        else:
+            state.wait(fake, 100, convert)
+    idle = FakeWait(deliver_at=0)
+    assert state.wait(idle, 0) is EVENT
+    assert idle.calls == []
+
+
+@pytest.fixture
+def fake_system_events(monkeypatch):
+    # Zero denotes no native allocation, so teardown never frees a fake handle.
+    monkeypatch.setattr(nvml, "system_event_set_create", lambda: 0)
+    monkeypatch.setattr(nvml, "system_register_events", lambda *_args: None)
+    return system.register_events([SystemEventType.UNBIND])
+
+
+@pytest.mark.parametrize("count", [1, 2, 3])
+@pytest.mark.parametrize("asynchronous", [False, True])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_cancelled_system_batch_is_delivered_in_buffer_sized_pieces(
+    fake_system_events, monkeypatch, count, asynchronous
+):
+    events = fake_system_events
+    batch = nvml.SystemEventData_v1(count)
+    batch.event_type = [nvml.SystemEventType.GPU_DRIVER_UNBIND] * count
+    batch.gpu_id = list(range(0x100, 0x100 + count))
+    started, release = threading.Event(), threading.Event()
+
+    def native_wait(*args):
+        started.set()
+        assert release.wait(5)
+        return batch
+
+    monkeypatch.setattr(nvml, "system_event_set_wait", native_wait)
+
+    async def cancel():
+        task = asyncio.create_task(events.wait_async(buffer_size=count))
+        try:
+            await spin_until(started.is_set)
+            task.cancel()
+            release.set()
+            with pytest.raises(asyncio.CancelledError):
+                await task
+        finally:
+            release.set()
+            await asyncio.gather(task, return_exceptions=True)
+
+    asyncio.run(cancel())
+
+    def no_native_wait(*args):
+        pytest.fail("a parked batch must not be fetched from NVML again")
+
+    monkeypatch.setattr(nvml, "system_event_set_wait", no_native_wait)
+    received = []
+    for _ in range(count):
+        result = asyncio.run(events.wait_async(buffer_size=1)) if asynchronous else events.wait(buffer_size=1)
+        assert isinstance(result, SystemEvents)
+        assert len(result) == 1
+        received.append(result[0].gpu_id)
+    assert received == list(range(0x100, 0x100 + count))
+    assert events._waiting.take_pending() is None
+
+
+@pytest.mark.parametrize("asynchronous", [False, True])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_invalid_buffer_size_does_not_consume_a_parked_system_batch(fake_system_events, asynchronous):
+    events = fake_system_events
+    batch = nvml.SystemEventData_v1(1)
+    batch.event_type = [nvml.SystemEventType.GPU_DRIVER_UNBIND]
+    batch.gpu_id = [0x100]
+    events._waiting.park(batch)
+    with pytest.raises(ValueError, match="buffer_size"):
+        if asynchronous:
+            asyncio.run(events.wait_async(buffer_size=0))
+        else:
+            events.wait(buffer_size=0)
+    result = events.wait(buffer_size=1)
+    assert isinstance(result, SystemEvents)
+    assert len(result) == 1 and result[0].gpu_id == 0x100
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_fresh_sync_system_batch_uses_the_public_result_type(fake_system_events, monkeypatch):
+    batch = nvml.SystemEventData_v1(1)
+    batch.event_type = [nvml.SystemEventType.GPU_DRIVER_UNBIND]
+    batch.gpu_id = [0x100]
+    monkeypatch.setattr(nvml, "system_event_set_wait", lambda *_args: batch)
+    result = fake_system_events.wait(timeout_ms=10)
+    assert isinstance(result, SystemEvents)
+    assert len(result) == 1 and result[0].gpu_id == 0x100
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_closed_loop_keeps_the_lease_until_the_native_slice_finishes(monkeypatch):
+    failures = []
+    monkeypatch.setattr(threading, "excepthook", failures.append)
+    state = EventSetWaiting()
+    fake = FakeWait(hold=True, deliver_at=0)
+    loop = asyncio.new_event_loop()
+    coroutine = state.wait_async(fake, 0)
+
+    async def start():
+        coroutine.send(None)
+        await spin_until(lambda: bool(fake.calls))
+
+    try:
+        loop.run_until_complete(start())
+        loop.close()
+        coroutine.close()
+        assert state.is_waiting
+    finally:
+        coroutine.close()
+        loop.close()
+        fake.release.set()
+        asyncio.run(spin_until(lambda: not state.is_waiting))
+    assert failures == []
+    idle = FakeWait(deliver_at=0)
+    assert state.wait(idle, 0) is EVENT
+    assert idle.calls == []
+    assert asyncio.run(state.wait_async(idle, 100)) is EVENT

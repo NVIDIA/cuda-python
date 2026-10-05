@@ -305,7 +305,7 @@ class DeviceEvents:
         Parameters
         ----------
         timeout_ms: int
-            The timeout in milliseconds. A value of 0 means to wait indefinitely.
+            The timeout in milliseconds. A default value of 0 means to skip waiting.
 
         Raises
         ------
@@ -316,14 +316,16 @@ class DeviceEvents:
 
         Notes
         -----
-        Only one wait may borrow this event set at a time; a second concurrent
-        wait (sync or async) raises :class:`RuntimeError`.
+        Waits on this event set are serialized by a lock. A synchronous wait
+        can block while another wait is running; use :meth:`wait_async` from
+        an event loop.
         """
     async def wait_async(self, timeout_ms: int=0) -> EventData:
         """
         Wait asynchronously for an event in the event set.
 
-        Behaves like :meth:`wait`, without blocking the event loop.  The native
+        Waits without blocking the event loop. Unlike :meth:`wait`, a timeout
+        of 0 waits indefinitely. The native
         wait is issued in bounded slices, so cancelling the awaiting task stops
         the wait within a slice instead of parking a thread for the remaining
         timeout.  An event that a cancelled slice already consumed is delivered
@@ -345,10 +347,16 @@ class DeviceEvents:
             If the timeout expires before an event is received.
         :class:`cuda.core.system.GpuIsLostError`
             If the GPU has fallen off the bus or is otherwise inaccessible.
-        :class:`RuntimeError`
-            If another wait already borrows this event set.
         :class:`ValueError`
             If ``timeout_ms`` is negative.
+
+        Notes
+        -----
+        Waits on this event set are serialized by a lock. Time spent waiting
+        for another consumer counts against the timeout budget. If a native
+        error occurs while a cancelled wait is draining, it is raised by the
+        next wait on this event set; the cancelled task still propagates
+        :class:`asyncio.CancelledError`.
         """
     def _wait_slice(self, timeout_ms: int):
         """One native wait of at most ``timeout_ms`` milliseconds."""

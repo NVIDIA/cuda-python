@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 """Cancellable asyncio waiting for NVML event sets.
@@ -60,6 +60,9 @@ _TIMED_OUT = object()
 # stop by themselves, so nothing has to wake them when the interpreter exits.
 _IDLE_POLL_S = 0.02
 
+# Contended async waits must yield while acquiring the event set's thread lock.
+_LEASE_POLL_S = 0.001
+
 
 def _settle(future, payload, error):
     """Hand a finished slice to the event loop; runs on the loop thread."""
@@ -69,6 +72,15 @@ def _settle(future, payload, error):
         future.set_result(payload)
     else:
         future.set_exception(error)
+
+
+def _notify(loop, future, payload, error):
+    """Notify a live loop; a closed loop leaves the result in the outcome."""
+    try:
+        loop.call_soon_threadsafe(_settle, future, payload, error)
+    except RuntimeError:
+        if not loop.is_closed():
+            raise
 
 
 def _timeout_exception():
@@ -85,16 +97,18 @@ class _Outcome:
     a single borrowed slice at a time.
     """
 
-    __slots__ = ("_lock", "drain_future", "error", "finished", "payload")
+    __slots__ = ("_abandoned", "_lock", "drain_future", "error", "finished", "payload")
 
     def __init__(self) -> None:
         self._lock = threading.Lock()
+        self._abandoned = None
         self.drain_future = None
         self.error = None
         self.payload = None
         self.finished = False
 
     def reset(self) -> None:
+        self._abandoned = None
         self.drain_future = None
         self.error = None
         self.payload = None
@@ -107,7 +121,19 @@ class _Outcome:
             self.error = error
             self.finished = True
             waiting, self.drain_future = self.drain_future, None
+            abandoned, self._abandoned = self._abandoned, None
+        if abandoned is not None:
+            abandoned(payload, error)
         return waiting
+
+    def abandon(self, release):
+        """Release a closed coroutine's lease only after its native wait ends."""
+        with self._lock:
+            if not self.finished:
+                self._abandoned = release
+                return
+            payload, error = self.payload, self.error
+        release(payload, error)
 
     def claim(self, loop):
         """Future that completes with this slice, or ``None`` if it already has."""
@@ -160,9 +186,11 @@ class _Dispatcher:
             waiting = outcome.finish(payload, error)
             with self._lock:
                 self._pending -= 1
-            loop.call_soon_threadsafe(_settle, future, payload, error)
+            _notify(loop, future, payload, error)
             if waiting is not None:
-                loop.call_soon_threadsafe(_settle, waiting, payload, error)
+                # Draining only needs a completion notification. The outcome
+                # retains errors so they cannot replace task cancellation.
+                _notify(loop, waiting, None, None)
 
     def submit(self, loop, outcome, native_wait, slice_ms):
         """Queue one slice and return the future it will be delivered through."""
@@ -181,18 +209,20 @@ class _Dispatcher:
 
 
 _dispatcher = None
+_dispatcher_lock = threading.Lock()
 
 
 def _workers() -> _Dispatcher:
     """The private dispatcher, created on first use."""
     global _dispatcher
-    if _dispatcher is None:
-        _dispatcher = _Dispatcher()
-    return _dispatcher
+    with _dispatcher_lock:
+        if _dispatcher is None:
+            _dispatcher = _Dispatcher()
+        return _dispatcher
 
 
 async def _drain(outcome, loop):
-    """Wait out the borrowed slice; return its event, or ``None`` if it timed out.
+    """Wait out the borrowed slice and return its payload and error.
 
     The future that carried the slice was cancelled together with the task, so
     this waits on the slice itself: the worker that owns it completes the
@@ -210,31 +240,30 @@ async def _drain(outcome, loop):
         except asyncio.CancelledError:
             continue
         break
-    if outcome.error is not None:
-        raise outcome.error
-    return None if outcome.payload is _TIMED_OUT else outcome.payload
+    return outcome.payload, outcome.error
 
 
 class EventSetWaiting:
-    """Single-consumer lease and pending-event hand-off for one event set.
+    """Serialized waits and pending-event hand-off for one event set.
 
     NVML hands an event to whichever thread waits on the event set, so only one
-    native wait may be in flight.  The lease enforces that, and the single
+    native wait may be in flight.  A thread lock enforces that, and the single
     pending slot keeps the event that was consumed by a waiter that went away
     (cancelled or past its deadline) for the next consumer.
     """
 
-    __slots__ = ("_busy", "_outcome", "_pending")
+    __slots__ = ("_lock", "_outcome", "_pending", "_pending_error")
 
     def __init__(self) -> None:
-        self._busy = False
+        self._lock = threading.Lock()
         self._outcome = _Outcome()
         self._pending = None
+        self._pending_error = None
 
     @property
     def is_waiting(self) -> bool:
         """Whether a wait currently borrows the event set."""
-        return self._busy
+        return self._lock.locked()
 
     def park(self, payload) -> None:
         """Keep an already-consumed event for the next consumer."""
@@ -246,21 +275,40 @@ class EventSetWaiting:
         return pending
 
     def _claim(self, convert):
+        error, self._pending_error = self._pending_error, None
+        if error is not None:
+            raise error
         pending = self.take_pending()
         if pending is None:
             return None, False
-        return (pending if convert is None else convert(pending)), True
+        return self._convert(pending, convert), True
+
+    def _convert(self, payload, convert):
+        if convert is None:
+            return payload
+        try:
+            return convert(payload)
+        except BaseException:
+            # Roll back consumption if conversion failed, even for a fresh
+            # native result. The next consumer can retry without losing it.
+            self.park(payload)
+            raise
+
+    def _handoff(self, payload, error):
+        if error is not None:
+            self._pending_error = error
+        elif payload is not _TIMED_OUT:
+            self.park(payload)
+
+    def _release_abandoned(self, payload, error):
+        self._handoff(payload, error)
+        self._lock.release()
 
     def wait(self, native_wait, timeout_ms: int, convert=None):
         """Blocking wait; the lease is held for the whole native call."""
-        if self._busy:
-            raise RuntimeError("an event wait is already in flight for this event set")
-        self._busy = True
-        try:
+        with self._lock:
             pending, claimed = self._claim(convert)
-            return pending if claimed else native_wait(timeout_ms)
-        finally:
-            self._busy = False
+            return pending if claimed else self._convert(native_wait(timeout_ms), convert)
 
     async def wait_async(self, native_wait, timeout_ms: int, convert=None):
         """Await one event, draining the native wait before cancellation returns.
@@ -273,36 +321,48 @@ class EventSetWaiting:
         """
         if timeout_ms < 0:
             raise ValueError(f"timeout_ms must be >= 0, got {timeout_ms}")
-        if self._busy:
-            raise RuntimeError("an event wait is already in flight for this event set")
-        self._busy = True
+        loop = asyncio.get_running_loop()
+        deadline = None if timeout_ms == 0 else time.monotonic() + timeout_ms / 1000
+        while not self._lock.acquire(blocking=False):
+            delay = _LEASE_POLL_S
+            if deadline is not None:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise _timeout_exception()
+                delay = min(delay, remaining)
+            await asyncio.sleep(delay)
+        in_flight = False
         try:
+            if deadline is not None and time.monotonic() >= deadline:
+                raise _timeout_exception()
             pending, claimed = self._claim(convert)
             if claimed:
                 return pending
-            loop = asyncio.get_running_loop()
             outcome = self._outcome
-            deadline = None if timeout_ms == 0 else time.monotonic() + timeout_ms / 1000
             while True:
                 if deadline is None:
                     slice_ms = _SLICE_MS
                 else:
                     remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        raise _timeout_exception()
                     slice_ms = _SLICE_MS if remaining >= _SLICE_S else math.ceil(remaining * 1000)
                     if slice_ms < 1:
                         slice_ms = 1
                 started = time.monotonic()
                 outcome.reset()
                 future = _workers().submit(loop, outcome, native_wait, slice_ms)
+                in_flight = True
                 try:
                     payload = await future
                     if payload is not _TIMED_OUT:
-                        return payload if convert is None else convert(payload)
+                        return self._convert(payload, convert)
                 except asyncio.CancelledError:
-                    result = await _drain(outcome, loop)
-                    if result is not None:
-                        self.park(result)
+                    payload, error = await _drain(outcome, loop)
+                    self._handoff(payload, error)
                     raise
+                finally:
+                    in_flight = not outcome.finished
                 if deadline is not None and time.monotonic() >= deadline:
                     raise _timeout_exception()
                 # A native wait that gives up well before its slice would
@@ -312,4 +372,10 @@ class EventSetWaiting:
                 if consumed * 2 < slice_ms / 1000:
                     await asyncio.sleep(slice_ms / 1000 - consumed)
         finally:
-            self._busy = False
+            if in_flight:
+                # Closing a coroutine cannot await the drain. Its worker keeps
+                # the lock until the native call has returned and parked its
+                # outcome, including when the owning event loop is closed.
+                outcome.abandon(self._release_abandoned)
+            else:
+                self._lock.release()
