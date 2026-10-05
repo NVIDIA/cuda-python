@@ -24,26 +24,17 @@ if [[ -z "${SPHINX_CUDA_BINDINGS_VER}" ]]; then
                                                  print(ver if '.dev' in ver else ver.split('.post', 1)[0])")
 fi
 
-if [[ "${LATEST_ONLY}" == "1" && -z "${BUILD_PREVIEW:-}" && -z "${BUILD_LATEST:-}" ]]; then
-    export BUILD_LATEST=1
-fi
-
 # build the docs (in parallel)
-if [[ -z "${SPHINXOPTS:-}" ]]; then
-    HTML_SPHINXOPTS="-j 4 -d build/.doctrees"
-else
-    HTML_SPHINXOPTS="${SPHINXOPTS}"
-fi
-SPHINXOPTS="${HTML_SPHINXOPTS}" make html
+SPHINXOPTS="-j 4 -d build/.doctrees" make html
 
 # for debugging/developing (conf.py), please comment out the above line and
 # use the line below instead, as we must build in serial to avoid getting
 # obsecure Sphinx errors
 #SPHINXOPTS="-v" make html
 
-# to support version dropdown menu
-cp ./versions.json build/html
-cp ./nv-versions.json build/html
+# Keep the CUDA 12.9 release pages on the monorepo's canonical bindings
+# selector so publishing this line cannot remove newer CUDA 13 entries.
+cp ../../cuda_bindings/docs/nv-versions.json build/html/nv-versions.json
 
 # to have a redirection page (to the latest docs)
 cp source/_templates/main.html build/html/index.html
