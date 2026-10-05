@@ -19,12 +19,12 @@ repos:
   # Self-installing: the hook downloads a pinned, checksum-verified trufflehog on
   # first use (no manual install). Skipped on pre-commit.ci; Pulse CI enforces server-side.
   - repo: https://github.com/NVIDIA/security-workflows
-    rev: c736f0454dc99764a66af6b906adfcdfbf621985  # frozen: v0.4.0
+    rev: 311c90787ec582866a00862682ae3a2710b3f44c  # frozen: v0.4.0
     hooks:
       - id: secret-scan-trufflehog
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: a56c0b927e6465d37cae3e97d35d4d18ab2b96cd  # frozen: v0.16.9
+    rev: f12be1ebaa5351c1fc76472de98db2c3446c8253  # frozen: v0.16.10
     hooks:
       - id: ruff-check
         args: [--fix, --show-fixes]
@@ -102,7 +102,7 @@ repos:
 
   # Link checking for authored documentation files
   - repo: https://github.com/lycheeverse/lychee
-    rev: 2bba271688c1abb1503097a064e6c3bc1d1b6a9b  # frozen: lychee-v0.24.2
+    rev: c11d7794e9be55fc57d5ffd35543bf6221799fb3  # frozen: nightly
     hooks:
       - id: lychee
         args:
@@ -148,7 +148,7 @@ repos:
     - id: rst-inline-touching-normal
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 7ff8d35ae36a7d2b968f2f90b4c723e292e594ee  # frozen: v2.3.1
+    rev: 2834ec6639549dd6796205c8f011dedcd587288b  # frozen: v2.4.0
     hooks:
       - id: mypy
         alias: mypy-pathfinder
@@ -173,7 +173,7 @@ repos:
         exclude: ^\.github/workflows/coverage.yml$
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: "eb2f695bb80387913b8cb1f91ba7ff6cb3026715"  # frozen: v0.21.1
+    rev: "ab2da6b679704305e444ed4ee55431505f29c185"  # frozen: v0.21.1
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]
