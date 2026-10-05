@@ -86,13 +86,22 @@ jobs:
         # the job level instead of linking into the diff.
         run: echo "::add-matcher::.github/matchers/compiler.json"
 
-      - name: Install latest rapidsai/sccache
+      - name: Install mozilla/sccache
         if: ${{ startsWith(inputs.host-platform, 'linux') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}
+        env:
+          SCCACHE_VERSION: v0.18.0
         run: |
-          curl -fsSL "https://github.com/rapidsai/sccache/releases/latest/download/sccache-$(uname -m)-unknown-linux-musl.tar.gz" \
-            | sudo tar -C /usr/local/bin -xvzf - --wildcards --strip-components=1 -x '*/sccache'
+          asset="sccache-${SCCACHE_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz"
+          base_url="https://github.com/mozilla/sccache/releases/download/${SCCACHE_VERSION}"
+          curl -fsSLO "${base_url}/${asset}"
+          # The .sha256 file contains only the hex digest.
+          echo "$(curl -fsSL "${base_url}/${asset}.sha256")  ${asset}" | sha256sum --check -
+          sudo tar -C /usr/local/bin -xvzf "${asset}" --wildcards --strip-components=1 -x '*/sccache'
+          rm -f "${asset}"
           echo "SCCACHE_PATH=/usr/local/bin/sccache" >> "$GITHUB_ENV"
 
+      # The runner only exposes these values to actions, not to `run:` steps or
+      # the cibuildwheel container, so re-export them for sccache's GHA backend.
       # xref: https://github.com/orgs/community/discussions/42856#discussioncomment-7678867
       - name: Adding addtional GHA cache-related env vars
         if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
@@ -100,9 +109,7 @@ jobs:
         with:
           script: |
             core.exportVariable('ACTIONS_CACHE_SERVICE_V2', 'on');
-            core.exportVariable('ACTIONS_CACHE_URL', process.env['ACTIONS_CACHE_URL'] || '');
             core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL'] || '');
-            core.exportVariable('ACTIONS_RUNTIME_URL', process.env['ACTIONS_RUNTIME_URL'] || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'] || '');
 
       - name: Setup proxy cache
@@ -254,9 +261,7 @@ jobs:
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
-            ACTIONS_RUNTIME_URL=${{ env.ACTIONS_RUNTIME_URL }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
-            ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
@@ -353,9 +358,7 @@ jobs:
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
-            ACTIONS_RUNTIME_URL=${{ env.ACTIONS_RUNTIME_URL }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
-            ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
@@ -639,9 +642,7 @@ jobs:
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
-            ACTIONS_RUNTIME_URL=${{ env.ACTIONS_RUNTIME_URL }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
-            ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
