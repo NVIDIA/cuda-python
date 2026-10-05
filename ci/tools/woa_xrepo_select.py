@@ -5,14 +5,12 @@
 
 import argparse
 import datetime
+import http.client
 import json
 import os
 import re
 import sys
-import urllib.error
 import urllib.parse
-import urllib.request
-
 
 PUBLIC_REPOSITORY = "NVIDIA/cuda-python"
 PUBLIC_REPOSITORY_ID = 381173759
@@ -28,23 +26,28 @@ class GitHubAPI:
         self._token = token
 
     def get(self, path, params=None):
-        url = f"https://api.github.com/{path.lstrip('/')}"
+        request_path = f"/{path.lstrip('/')}"
         if params:
-            url = f"{url}?{urllib.parse.urlencode(params)}"
-        request = urllib.request.Request(
-            url,
-            headers={
-                "Accept": "application/vnd.github+json",
-                "Authorization": f"Bearer {self._token}",
-                "X-GitHub-Api-Version": "2026-03-10",
-            },
-        )
+            request_path = f"{request_path}?{urllib.parse.urlencode(params)}"
+        connection = http.client.HTTPSConnection("api.github.com")
         try:
-            with urllib.request.urlopen(request) as response:
-                return json.load(response)
-        except urllib.error.HTTPError as error:
-            body = error.read().decode("utf-8", errors="replace")
-            raise RuntimeError(f"GitHub API GET {path} failed: {error.code}: {body}") from error
+            connection.request(
+                "GET",
+                request_path,
+                headers={
+                    "Accept": "application/vnd.github+json",
+                    "Authorization": f"Bearer {self._token}",
+                    "X-GitHub-Api-Version": "2026-03-10",
+                    "User-Agent": "cuda-python-woa-selector",
+                },
+            )
+            response = connection.getresponse()
+            body = response.read().decode("utf-8", errors="replace")
+            if response.status >= 400:
+                raise RuntimeError(f"GitHub API GET {path} failed: {response.status}: {body}")
+            return json.loads(body)
+        finally:
+            connection.close()
 
     def paginate(self, path, item_key, params=None, max_pages=10):
         items = []
@@ -73,7 +76,7 @@ def select_artifacts(artifacts, sha):
         if not artifact["expired"]
         and (
             artifact["name"] == "cuda-pathfinder-wheel"
-                  or artifact["name"] == binding_name
+            or artifact["name"] == binding_name
             or artifact["name"] == core_name
         )
     ]
@@ -87,9 +90,7 @@ def select_artifacts(artifacts, sha):
         digest = artifact.get("digest")
         if not isinstance(digest, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", digest):
             return None
-        result.append(
-            {"id": artifact["id"], "name": artifact["name"], "digest": digest}
-        )
+        result.append({"id": artifact["id"], "name": artifact["name"], "digest": digest})
     return result
 
 
@@ -113,21 +114,15 @@ def validate_run(api, run):
         "jobs",
     )
     woa_jobs = [job for job in jobs if job["name"].startswith("Build win-arm64, CUDA ")]
-    if not woa_jobs or any(
-        job["status"] != "completed" or job["conclusion"] != "success" for job in woa_jobs
-    ):
+    if not woa_jobs or any(job["status"] != "completed" or job["conclusion"] != "success" for job in woa_jobs):
         return None
 
-    artifacts = api.paginate(
-        f"repos/{PUBLIC_REPOSITORY}/actions/runs/{run_id}/artifacts", "artifacts"
-    )
+    artifacts = api.paginate(f"repos/{PUBLIC_REPOSITORY}/actions/runs/{run_id}/artifacts", "artifacts")
     selected_artifacts = select_artifacts(artifacts, run["head_sha"])
     if selected_artifacts is None:
         return None
 
-    comparison = api.get(
-        f"repos/{PUBLIC_REPOSITORY}/compare/{run['head_sha']}...main"
-    )
+    comparison = api.get(f"repos/{PUBLIC_REPOSITORY}/compare/{run['head_sha']}...main")
     if comparison["status"] not in {"ahead", "identical"}:
         return None
 
@@ -181,35 +176,21 @@ def list_commits(api):
 
 def select_batch(api, candidate, batch_size, max_wait_seconds, now):
     candidate_checks = app_checks(api, candidate["sha"])
-    external_id = (
-        f"woa:v1:{PUBLIC_REPOSITORY_ID}:{candidate['run_id']}:"
-        f"{candidate['run_attempt']}:{candidate['sha']}"
-    )
-    if any(
-        check.get("external_id") == external_id
-        for check in candidate_checks
-    ):
+    external_id = f"woa:v1:{PUBLIC_REPOSITORY_ID}:{candidate['run_id']}:{candidate['run_attempt']}:{candidate['sha']}"
+    if any(check.get("external_id") == external_id for check in candidate_checks):
         return {"dispatch": False, "reason": "candidate already has an App-owned attempt"}
 
     commits = list_commits(api)
     try:
-        candidate_index = next(
-            index for index, commit in enumerate(commits) if commit["sha"] == candidate["sha"]
-        )
+        candidate_index = next(index for index, commit in enumerate(commits) if commit["sha"] == candidate["sha"])
     except StopIteration as error:
-        raise RuntimeError(
-            f"candidate SHA was not found on the latest {MAX_LEDGER_COMMITS} main commits"
-        ) from error
+        raise RuntimeError(f"candidate SHA was not found on the latest {MAX_LEDGER_COMMITS} main commits") from error
 
     baseline_index = None
     baseline_sha = ""
     for index in range(candidate_index + 1, len(commits)):
         checks = app_checks(api, commits[index]["sha"])
-        successful = [
-            check
-            for check in checks
-            if check["status"] == "completed" and check["conclusion"] == "success"
-        ]
+        successful = [check for check in checks if check["status"] == "completed" and check["conclusion"] == "success"]
         if successful:
             baseline_index = index
             baseline_sha = commits[index]["sha"]
@@ -218,9 +199,7 @@ def select_batch(api, candidate, batch_size, max_wait_seconds, now):
     if baseline_index is None:
         return {
             "dispatch": True,
-            "reason": (
-                "bootstrap: no successful App-owned baseline exists in the bounded ledger"
-            ),
+            "reason": ("bootstrap: no successful App-owned baseline exists in the bounded ledger"),
             "baseline_sha": "",
             "commit_count": 1,
         }
@@ -278,8 +257,7 @@ def main():
     )
     selection.update(candidate)
     selection["correlation_id"] = (
-        f"v1:{PUBLIC_REPOSITORY_ID}:{candidate['run_id']}:"
-        f"{candidate['run_attempt']}:{candidate['sha']}"
+        f"v1:{PUBLIC_REPOSITORY_ID}:{candidate['run_id']}:{candidate['run_attempt']}:{candidate['sha']}"
     )
     print(json.dumps(selection, separators=(",", ":"), sort_keys=True))
 
