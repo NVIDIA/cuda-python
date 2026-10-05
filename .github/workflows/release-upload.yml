@@ -60,7 +60,7 @@ jobs:
       - name: Checkout release source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          ref: ${{ inputs.git-tag }}
+          ref: refs/tags/${{ inputs.git-tag }}
           path: release-source
 
       - name: Set up Python

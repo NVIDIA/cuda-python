@@ -192,7 +192,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
-          ref: ${{ needs.prepare.outputs.tag }}
+          ref: refs/tags/${{ needs.prepare.outputs.tag }}
 
       - name: Create source archive
         run: |
@@ -202,7 +202,7 @@ jobs:
             --format=tar.gz \
             --prefix="${archive}/" \
             --output="release/${archive}.tar.gz" \
-            "${TAG}"
+            "refs/tags/${TAG}"
           sha256sum "release/${archive}.tar.gz" \
             | awk '{print $1}' > "release/${archive}.tar.gz.sha256sum"
 
