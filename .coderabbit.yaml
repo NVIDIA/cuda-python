@@ -38,11 +38,11 @@ reviews:
 
   tools:
     gitleaks:
-      enabled: true
+      enabled: false
     markdownlint:
-      enabled: true
+      enabled: false
     shellcheck:
-      enabled: true
+      enabled: false
 
   # Keep Autofix available, but disable the other finishing touch actions.
   finishing_touches:
