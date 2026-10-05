@@ -1,0 +1,43 @@
+{
+  "problemMatcher": [
+    {
+      "owner": "gcc-error",
+      "severity": "error",
+      "pattern": [
+        {
+          "regexp": "^(.+?):(\\d+):(\\d+): (?:fatal )?error: (.+)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "message": 4
+        }
+      ]
+    },
+    {
+      "owner": "msvc-error",
+      "severity": "error",
+      "pattern": [
+        {
+          "regexp": "^(.+?)\\((\\d+)(?:,\\d+)?\\): error (C\\d+): (.+)$",
+          "file": 1,
+          "line": 2,
+          "code": 3,
+          "message": 4
+        }
+      ]
+    },
+    {
+      "owner": "cython-error",
+      "severity": "error",
+      "pattern": [
+        {
+          "regexp": "^(\\S+\\.(?:pyx|pxd|pxi)):(\\d+):(\\d+): (.+)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "message": 4
+        }
+      ]
+    }
+  ]
+}
