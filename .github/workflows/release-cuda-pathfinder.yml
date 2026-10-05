@@ -60,15 +60,41 @@ jobs:
             echo "version=${version}"
           } >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Checkout release control plane
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Checkout release source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           # The exact tag supplies the SHA for lookup-run-id; no other tags
           # or commit history are needed.
           fetch-depth: 1
           # Resolve only the exact tag ref; checkout fails if the tag does not exist.
           ref: refs/tags/${{ steps.vars.outputs.tag }}
+          path: release-source
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install CI tool dependencies
+        run: python -m pip install -e ./ci
+
+      - name: Validate tagged release registry
+        env:
+          RELEASE_TAG: ${{ steps.vars.outputs.tag }}
+        run: |
+          # Publication can proceed after a docs failure, so reject unsupported
+          # release sources here before creating a draft or publishing artifacts.
+          python -m ci.tools.bindings_config \
+            --release-tag "$RELEASE_TAG" \
+            --release-source-root release-source
 
       - name: Check release notes exist
+        working-directory: release-source
         env:
           VERSION: ${{ steps.vars.outputs.version }}
         run: |
@@ -81,11 +107,12 @@ jobs:
 
       - name: Detect CI run ID
         id: detect-run
+        working-directory: release-source
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.vars.outputs.tag }}
         run: |
-          run_id=$(./ci/tools/lookup-run-id "${TAG}" "${{ github.repository }}")
+          run_id=$(../ci/tools/lookup-run-id --tag "${TAG}" "${{ github.repository }}")
           echo "run-id=${run_id}" >> "$GITHUB_OUTPUT"
 
       - name: Create draft release
@@ -165,7 +192,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
-          ref: ${{ needs.prepare.outputs.tag }}
+          ref: refs/tags/${{ needs.prepare.outputs.tag }}
 
       - name: Create source archive
         run: |
@@ -175,7 +202,7 @@ jobs:
             --format=tar.gz \
             --prefix="${archive}/" \
             --output="release/${archive}.tar.gz" \
-            "${TAG}"
+            "refs/tags/${TAG}"
           sha256sum "release/${archive}.tar.gz" \
             | awk '{print $1}' > "release/${archive}.tar.gz.sha256sum"
 
