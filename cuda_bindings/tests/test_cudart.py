@@ -1985,3 +1985,65 @@ def test_cudaGraphConditionalHandleCreate_v2():
 
     (err,) = cudart.cudaGraphDestroy(graph)
     assertSuccess(err)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_phase2_normalized_channel_kinds_round_trip():
+    """Normalized 8/16-bit channel kinds passed validity but hit the else-branch
+    in the case_desc chain and returned cudaErrorInvalidChannelDescriptor.
+    Verify they no longer error at the binding layer (CUDA may still reject
+    the format on a given device, which is fine)."""
+    pairs = [
+        (8, 0, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X1),
+        (8, 8, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X2),
+        (8, 8, 8, 8, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X4),
+        (8, 0, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X1),
+        (8, 8, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X2),
+        (8, 8, 8, 8, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X4),
+        (16, 0, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X1),
+        (16, 16, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X2),
+        (16, 16, 16, 16, cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X4),
+        (16, 0, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X1),
+        (16, 16, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X2),
+        (16, 16, 16, 16, cudart.cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X4),
+    ]
+    for x, y, z, w, kind in pairs:
+        desc = cudart.cudaChannelFormatDesc()
+        desc.x, desc.y, desc.z, desc.w, desc.f = x, y, z, w, kind
+        assert desc.f == kind
+        assert desc.x == x
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_ffi_phase2_new_yuv_channel_kinds_descriptor_construction():
+    """CUDA 13.3/13.4 packed and multi-planar YUV kinds can be placed in a
+    cudaChannelFormatDesc without raising a Python exception.  Whether CUDA's
+    runtime accepts the descriptor for a given operation (e.g. cudaMallocArray)
+    is hardware-dependent and is not asserted here — getDescInfo is only called
+    from the EGL frame conversion path, not from cudaMallocArray."""
+    three_ch_8 = [
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar420,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar422,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8SemiPlanar444,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar420,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar422,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Planar444,
+    ]
+    three_ch_16 = [
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar420,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar422,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16SemiPlanar444,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar420,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar422,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned16Planar444,
+    ]
+    four_ch_8 = [
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed422,
+        cudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned8Packed444,
+    ]
+    for bits, w_bit, kinds in ((8, 0, three_ch_8), (16, 0, three_ch_16), (8, 8, four_ch_8)):
+        for kind in kinds:
+            desc = cudart.cudaChannelFormatDesc()
+            desc.x, desc.y, desc.z, desc.w, desc.f = bits, bits, bits, w_bit, kind
+            assert desc.f == kind
+            assert desc.x == bits
