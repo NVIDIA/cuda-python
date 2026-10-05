@@ -232,10 +232,14 @@ def check_package_metadata(config: BindingsConfig, repo_root: Path) -> None:
         ):
             raise BindingsConfigError(f"{path} must specify one git_describe_command --match selector")
         selector = command[command.index("--match") + 1]
-        # The second form excludes the pre-maintenance .0 tag on main.
-        if selector not in {f"v{package.ctk_target}.*", f"v{package.ctk_target}.[1-9]*"}:
+        # Maintenance excludes the old .0 baseline; agreement between copies alone
+        # must not allow that baseline to reenter standard SCM version selection.
+        patch_selector = "[1-9]*" if package.release_status == "maintenance" else "*"
+        expected_selector = f"v{package.ctk_target}.{patch_selector}"
+        if selector != expected_selector:
             raise BindingsConfigError(
-                f"{path} --match must select registered CUDA {package.ctk_target}, got {selector!r}"
+                f"{path} --match must select registered CUDA {package.ctk_target} "
+                f"using {expected_selector!r} for the {package.release_status} root, got {selector!r}"
             )
         selectors[package.cuda_major] = selector
         if package.release_status == "maintenance":
@@ -247,6 +251,8 @@ def check_package_metadata(config: BindingsConfig, repo_root: Path) -> None:
                 raise BindingsConfigError(
                     f"{path} fallback_version must be a CUDA {package.ctk_target} development version"
                 )
+        elif "fallback_version" in scm:
+            raise BindingsConfigError(f"{path} current bindings root must not declare fallback_version")
 
     setup_path = repo_root / "cuda_python" / "setup.py"
     names = {"SCM_DESCRIBE_MATCH_BY_MAJOR", "MAINTENANCE_FALLBACK_VERSION"}

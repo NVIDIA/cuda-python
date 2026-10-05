@@ -47,6 +47,20 @@ def _write_config(root: Path, data: object, filename: str = "versions.yml") -> N
         path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
 
 
+def _copy_package_metadata(root: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[3]
+    _write_config(root, _registry())
+    for relative in (
+        "cuda_bindings/pyproject.toml",
+        "cuda_bindings_12/pyproject.toml",
+        "cuda_bindings_12/pixi.toml",
+        "cuda_python/setup.py",
+    ):
+        destination = root / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(repo_root / relative, destination)
+
+
 @pytest.mark.parametrize(
     ("tag", "package_root", "version"),
     (
@@ -144,24 +158,20 @@ def test_config_loader_reports_invalid_yaml(tmp_path):
             '[tool.setuptools_scm]\ntag_regex = "custom"',
             "must use setuptools-scm's default tag parser",
         ),
+        (
+            "cuda_bindings/pyproject.toml",
+            "[tool.setuptools_scm]",
+            '[tool.setuptools_scm]\nfallback_version = "13.4.0.dev0"',
+            "current bindings root must not declare fallback_version",
+        ),
         ("cuda_python/setup.py", "v13.4.*", "v13.5.*", "SCM_DESCRIBE_MATCH_BY_MAJOR must match"),
         ("cuda_python/setup.py", "12.9.10.dev0", "12.9.9.dev0", "MAINTENANCE_FALLBACK_VERSION must match"),
         ("cuda_bindings_12/pixi.toml", "12.9.10.dev0", "12.9.9.dev0", "package.version must match"),
     ),
 )
-@pytest.mark.agent_authored(model="gpt-6-astra")
+@pytest.mark.agent_authored(model="gpt-6")
 def test_metadata_check_rejects_independent_package_drift(tmp_path, capsys, path, before, after, message):
-    repo_root = Path(__file__).resolve().parents[3]
-    _write_config(tmp_path, _registry())
-    for relative in (
-        "cuda_bindings/pyproject.toml",
-        "cuda_bindings_12/pyproject.toml",
-        "cuda_bindings_12/pixi.toml",
-        "cuda_python/setup.py",
-    ):
-        destination = tmp_path / relative
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(repo_root / relative, destination)
+    _copy_package_metadata(tmp_path)
     changed = tmp_path / path
     content = changed.read_text(encoding="utf-8")
     assert before in content
@@ -171,6 +181,31 @@ def test_metadata_check_rejects_independent_package_drift(tmp_path, capsys, path
         main(["--config", str(tmp_path / "ci" / "versions.yml"), "--check-package-metadata"])
 
     assert message in capsys.readouterr().err
+
+
+@pytest.mark.parametrize(
+    ("package_root", "role", "before", "after"),
+    (
+        ("cuda_bindings_12", "maintenance", "v12.9.[1-9]*", "v12.9.*"),
+        ("cuda_bindings", "current", "v13.4.*", "v13.4.[1-9]*"),
+    ),
+)
+@pytest.mark.agent_authored(model="gpt-6")
+def test_metadata_check_rejects_selectors_changed_together(tmp_path, capsys, package_root, role, before, after):
+    _copy_package_metadata(tmp_path)
+    args = ["--config", str(tmp_path / "ci" / "versions.yml"), "--check-package-metadata"]
+    assert main(args) == 0
+
+    for relative in (f"{package_root}/pyproject.toml", "cuda_python/setup.py"):
+        changed = tmp_path / relative
+        content = changed.read_text(encoding="utf-8")
+        assert before in content
+        changed.write_text(content.replace(before, after), encoding="utf-8")
+
+    with pytest.raises(SystemExit, match="2"):
+        main(args)
+
+    assert f"using {before!r} for the {role} root" in capsys.readouterr().err
 
 
 @pytest.mark.agent_authored(model="gpt-6-sol")
