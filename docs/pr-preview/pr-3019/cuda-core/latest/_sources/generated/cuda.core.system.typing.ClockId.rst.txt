@@ -1,0 +1,6 @@
+﻿cuda.core.system.typing.ClockId
+===============================
+
+.. currentmodule:: cuda.core.system.typing
+
+.. autoenum:: ClockId

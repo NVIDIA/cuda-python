@@ -1,0 +1,16 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 1.2.1 Release Notes
+=================================
+
+Fixes and enhancements
+----------------------
+
+- :meth:`Buffer.from_handle` no longer requires a current CUDA context when
+  the memory resource reports ``is_device_accessible`` as ``False``. Host-only
+  memory records no deallocation stream, so creating and closing such buffers
+  does not call the driver.
+  (`#2769 <https://github.com/NVIDIA/cuda-python/issues/2769>`__)
