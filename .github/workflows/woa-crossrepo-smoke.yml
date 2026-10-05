@@ -1,0 +1,106 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "WoA cross-repository transport smoke"
+run-name: "WoA transport smoke for PR #${{ inputs.pr_number }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Open same-repository PR to receive the smoke Check Run
+        required: true
+        type: number
+
+permissions: {}
+
+jobs:
+  resolve-public-pr:
+    if: ${{ github.repository == 'NVIDIA/cuda-python' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+    outputs:
+      correlation-id: ${{ steps.resolve.outputs.correlation_id }}
+      public-sha: ${{ steps.resolve.outputs.public_sha }}
+    steps:
+      - name: Resolve exact same-repository PR head
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          set -euo pipefail
+          [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]
+          pr=$(gh api \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/NVIDIA/cuda-python/pulls/$PR_NUMBER")
+          jq -e '
+            .state == "open" and
+            .base.ref == "main" and
+            .head.repo.full_name == "NVIDIA/cuda-python" and
+            (.head.sha | test("^[0-9a-f]{40}$"))
+          ' <<< "$pr" >/dev/null
+          public_sha=$(jq -r .head.sha <<< "$pr")
+          correlation_id="smoke:381173759:$PR_NUMBER:$public_sha:${GITHUB_RUN_ID}:${GITHUB_RUN_ATTEMPT}"
+          echo "public_sha=$public_sha" >> "$GITHUB_OUTPUT"
+          echo "correlation_id=$correlation_id" >> "$GITHUB_OUTPUT"
+
+  dispatch-private-smoke:
+    needs: resolve-public-pr
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: {}
+    steps:
+      - name: Create private dispatch token
+        id: private-app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3
+        with:
+          client-id: ${{ vars.CUDA_PYTHON_WOA_XREPO_CI_PRIVATE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.CUDA_PYTHON_WOA_XREPO_CI_PRIVATE_APP_PRIVATE_KEY }}
+          owner: NVIDIA-dev
+          repositories: cuda-python-private
+          permission-actions: write
+
+      - name: Dispatch and verify private smoke workflow
+        env:
+          CORRELATION_ID: ${{ needs.resolve-public-pr.outputs.correlation-id }}
+          GH_TOKEN: ${{ steps.private-app-token.outputs.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          PUBLIC_SHA: ${{ needs.resolve-public-pr.outputs.public-sha }}
+        run: |
+          set -euo pipefail
+          payload=$(jq -n \
+            --arg correlation_id "$CORRELATION_ID" \
+            --arg pr_number "$PR_NUMBER" \
+            --arg public_sha "$PUBLIC_SHA" \
+            '{
+              ref: "ctk-next",
+              return_run_details: true,
+              inputs: {
+                schema_version: "1",
+                public_repository: "NVIDIA/cuda-python",
+                public_repository_id: "381173759",
+                public_pr_number: $pr_number,
+                public_sha: $public_sha,
+                correlation_id: $correlation_id
+              }
+            }')
+          response=$(gh api \
+            --method POST \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            repos/NVIDIA-dev/cuda-python-private/actions/workflows/woa-crossrepo-smoke.yml/dispatches \
+            --input - <<< "$payload")
+          private_run_id=$(jq -er '.workflow_run_id | tostring' <<< "$response")
+          run=$(gh api \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/NVIDIA-dev/cuda-python-private/actions/runs/$private_run_id")
+          jq -e '
+            .repository.id == 809898190 and
+            .path == ".github/workflows/woa-crossrepo-smoke.yml" and
+            .event == "workflow_dispatch" and
+            .head_branch == "ctk-next"
+          ' <<< "$run" >/dev/null
+          echo "Private transport-smoke workflow accepted the exact dispatch." >> "$GITHUB_STEP_SUMMARY"
