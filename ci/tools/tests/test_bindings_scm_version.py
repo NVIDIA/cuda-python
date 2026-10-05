@@ -1,0 +1,126 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+from __future__ import annotations
+
+import subprocess
+from pathlib import Path
+
+import pytest
+
+from ci.tools import bindings_config
+from ci.tools.bindings_scm_version import main, pretend_version, read_version_config
+
+SHA = "abcdef0123456789"
+RELEASED_12 = bindings_config.BindingsPackage(
+    package_root="cuda_bindings_12",
+    toolkit_version="12.9.1",
+    release_status="maintenance",
+)
+ALTERNATE_13 = bindings_config.BindingsPackage(
+    package_root="alternate_bindings",
+    toolkit_version="13.2.0",
+    release_status="current",
+)
+
+
+def git(repo: Path, *args: str) -> None:
+    subprocess.run(["git", *args], cwd=repo, check=True, capture_output=True, text=True)  # noqa: S603, S607
+
+
+def make_repo(
+    tmp_path: Path,
+    package: bindings_config.BindingsPackage = RELEASED_12,
+    fallback_version: str = "12.9.8.dev0",
+) -> tuple[Path, Path]:
+    config = tmp_path / package.package_root / "pyproject.toml"
+    config.parent.mkdir(parents=True)
+    selector = (
+        f"v{package.ctk_target}.[1-9]*" if package.release_status == "maintenance" else f"v{package.ctk_target}.*"
+    )
+    config.write_text(
+        f'[tool.setuptools_scm]\nfallback_version = "{fallback_version}"\n'
+        f'git_describe_command = ["git", "describe", "--tags", "--long", "--match", "{selector}"]\n',
+        encoding="utf-8",
+    )
+    git(tmp_path, "init")
+    git(tmp_path, "config", "user.name", "CUDA Python CI")
+    git(tmp_path, "config", "user.email", "cuda-python@nvidia.com")
+    git(tmp_path, "config", "commit.gpgsign", "false")
+    git(tmp_path, "config", "tag.gpgSign", "false")
+    git(tmp_path, "add", config.relative_to(tmp_path).as_posix())
+    git(tmp_path, "commit", "-m", "initial")
+    return tmp_path, config
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_uses_configured_fallback_before_first_release_tag(tmp_path):
+    repo, config = make_repo(tmp_path)
+
+    assert config == repo / RELEASED_12.package_root / "pyproject.toml"
+    assert pretend_version(repo, SHA, RELEASED_12) == "12.9.8.dev0+gabcdef0"
+
+
+@pytest.mark.agent_authored(model="gpt-6-astra")
+def test_pre_maintenance_tag_is_excluded_by_source_build_selector(tmp_path):
+    repo, _ = make_repo(tmp_path)
+    git(repo, "tag", "v12.9.0")
+    assert pretend_version(repo, SHA, RELEASED_12) == "12.9.8.dev0+gabcdef0"
+    git(repo, "commit", "--allow-empty", "-m", "after 12.9.0")
+    assert pretend_version(repo, SHA, RELEASED_12) == "12.9.8.dev0+gabcdef0"
+
+
+@pytest.mark.parametrize("tag", ("v12.9.7", "v12.9.8a0.dev0", "v12.9.8a1", "v12.9.9.post1"))
+@pytest.mark.agent_authored(model="gpt-6-astra")
+def test_matching_tag_and_its_descendants_use_standard_scm_progression(tmp_path, tag):
+    repo, _ = make_repo(tmp_path, fallback_version="12.9.10.dev0")
+    git(repo, "tag", tag)
+
+    assert pretend_version(repo, SHA, RELEASED_12) is None
+
+    git(repo, "commit", "--allow-empty", "-m", "after matching tag")
+    assert pretend_version(repo, SHA, RELEASED_12) is None
+
+
+@pytest.mark.agent_authored(model="gpt-6-astra")
+def test_unreachable_matching_tag_does_not_disable_fallback(tmp_path):
+    repo, _ = make_repo(tmp_path)
+    git(repo, "commit", "--allow-empty", "-m", "future release")
+    git(repo, "tag", "v12.9.8")
+    git(repo, "checkout", "--detach", "HEAD^")
+
+    assert pretend_version(repo, SHA, RELEASED_12) == "12.9.8.dev0+gabcdef0"
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_rejects_development_fallback_for_another_ctk_target(tmp_path):
+    config = tmp_path / "pyproject.toml"
+    config.write_text('[tool.setuptools_scm]\nfallback_version = "13.0.0.dev0"\n', encoding="utf-8")
+
+    with pytest.raises(ValueError, match="CUDA 12.9 development fallback"):
+        read_version_config(config, RELEASED_12.ctk_target)
+
+
+@pytest.mark.agent_authored(model="gpt-6-astra")
+def test_configured_package_uses_its_root_and_release_family(tmp_path):
+    repo, config = make_repo(tmp_path, ALTERNATE_13, "13.2.2.dev0")
+    assert config == repo / "alternate_bindings" / "pyproject.toml"
+
+    git(repo, "tag", "v12.9.99")
+    git(repo, "tag", "v13.3.99")
+    assert pretend_version(repo, SHA, ALTERNATE_13) == "13.2.2.dev0+gabcdef0"
+
+    git(repo, "tag", "v13.2.1")
+    git(repo, "commit", "--allow-empty", "-m", "after 13.2.1")
+    assert pretend_version(repo, SHA, ALTERNATE_13) is None
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_cli_selects_released_12_from_requested_repo_root(tmp_path, capsys):
+    configured_package = bindings_config.load_config().get_package("cuda_bindings_12")
+    make_repo(tmp_path, configured_package)
+
+    result = main(["--repo-root", str(tmp_path), "--package-root", "cuda_bindings_12", "--sha", SHA])
+
+    assert result == 0
+    assert capsys.readouterr().out.strip() == "12.9.8.dev0+gabcdef0"

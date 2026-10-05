@@ -24,6 +24,7 @@ cloudpickle = "*"
 docutils = "*"
 psutil = "*"
 pyglet = "*"
+pyyaml = "6.0.3.*"
 
 [feature.test.pypi-dependencies]
 cuda-python-test-helpers = { path = "../cuda_python_test_helpers", editable = true }
