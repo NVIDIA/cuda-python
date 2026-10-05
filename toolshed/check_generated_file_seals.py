@@ -63,6 +63,7 @@ def load_previously_sealed_paths():
             "HEAD",
             "--",
             "cuda_bindings",
+            "cuda_bindings_12",
         ],
         capture_output=True,
         text=True,
