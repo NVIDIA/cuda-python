@@ -25,16 +25,18 @@ config:
 flowchart TB
     subgraph TRIGGER["TRIGGER EVENTS"]
         direction LR
-        T1["Push to main branch"] ~~~ T2["Pull request"] ~~~ T3["Manual workflow dispatch"]
+        T1["Main or approved pull request"] ~~~ T2["Immutable package tag"] ~~~ T3["Manual workflow dispatch"]
     end
+
+    PLAN["Select affected packages and dependencies<br/>A package tag selects its release line<br/>Registry: ci/versions.yml"]
 
     subgraph BUILD["BUILD STAGE"]
         direction TB
         subgraph BUILD_PLATFORMS["Parallel Platform Builds"]
             direction LR
-            B1["linux-64<br/>(Self-hosted)"] ~~~ B2["linux-aarch64<br/>(Self-hosted)"] ~~~ B3["win-64<br/>(GitHub-hosted)"]
+            B1["Linux x86_64<br/>(Self-hosted)"] ~~~ B2["Linux ARM64<br/>(Self-hosted)"] ~~~ B3["Windows x86_64 / ARM64<br/>(GitHub-hosted)"]
         end
-        BUILD_DETAILS["Python versions: 3.10, 3.11, 3.12, 3.13, 3.14<br/>CUDA version: 13.0.0 (build-time)<br/>Components: cuda-core, cuda-bindings,<br/>cuda-pathfinder, cuda-python"]
+        BUILD_DETAILS["Python and platform matrices: ci.yml<br/>Bindings toolkits and roots: registry<br/>Build selected bindings, Core,<br/>Pathfinder and metapackage artifacts"]
     end
 
     subgraph ARTIFACTS["ARTIFACT STORAGE"]
@@ -51,22 +53,22 @@ flowchart TB
         direction TB
         subgraph TEST_PLATFORMS["Parallel Platform Tests"]
             direction LR
-            TS1["linux-64<br/>(Self-hosted)"] ~~~ TS2["linux-aarch64<br/>(Self-hosted)"] ~~~ TS3["win-64<br/>(GitHub-hosted)"]
+            TS1["linux-64<br/>(Self-hosted)"] ~~~ TS2["linux-aarch64<br/>(Self-hosted)"] ~~~ TS3["win-64<br/>(Self-hosted GPU)"]
         end
-        TEST_DETAILS["Download wheels from artifacts<br/>Test against multiple CUDA runtime versions<br/>Run Python unit tests, Cython tests, and examples"]
-        ARTIFACT_FLOWS["Artifact Flows:<br/>cuda-pathfinder: main to backport<br/>cuda-bindings: backport to main"]
+        TEST_DETAILS["Test sources match wheel build revision<br/>Test against multiple CUDA runtime versions<br/>Run Python unit tests, Cython tests, and examples"]
+        ARTIFACT_FLOWS["Both bindings roots build from this source tree<br/>Reuse validated baseline for unaffected packages<br/>Bindings tag: selected line and published Pathfinder<br/>Core older-toolkit tests: published bindings floor"]
     end
 
     subgraph RELEASE["RELEASE PIPELINE"]
         direction TB
         subgraph RELEASE_STAGES["Sequential Release Steps"]
             direction LR
-            R1["Validation<br/>Artifact integrity<br/>Git tag verification"] --> R2["Publishing<br/>PyPI/TestPyPI<br/>Component or all releases"] --> R3["Documentation<br/>GitHub Pages<br/>Release notes"]
+            R1["Validation<br/>Artifact integrity<br/>Git tag verification"] --> R2["Publishing<br/>PyPI/TestPyPI<br/>Selected component"] --> R3["Documentation<br/>GitHub Pages<br/>Release notes"]
         end
-        RELEASE_DETAILS["Manual workflow dispatch with run ID<br/>Supports individual component or full releases"]
+        RELEASE_DETAILS["Manual dry run for exact tag and successful CI run<br/>Explicit publication for selected component<br/>Bindings release does not require a Core release"]
     end
 
-    TRIGGER --> BUILD
+    TRIGGER --> PLAN --> BUILD
     BUILD -. "wheel upload" .-> ARTIFACTS
     ARTIFACTS --> TEST
     TEST --> RELEASE
@@ -90,7 +92,7 @@ flowchart TB
     class TRIGGER triggerStyle
     class T1,T2,T3 triggerNodeStyle
     class BUILD,BUILD_PLATFORMS buildStyle
-    class B1,B2,B3,BUILD_DETAILS buildNodeStyle
+    class PLAN,B1,B2,B3,BUILD_DETAILS buildNodeStyle
     class ARTIFACTS,GITHUB_ARTIFACTS,GITHUB_CACHE artifactStyle
     class GA1,GC1 artifactNodeStyle
     class TEST,TEST_PLATFORMS testStyle
