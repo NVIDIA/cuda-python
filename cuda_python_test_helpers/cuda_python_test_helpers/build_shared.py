@@ -3,11 +3,11 @@
 
 """Shared tests for the helpers in ``_build_shared.py``.
 
-The helpers live in ``cuda_bindings/_build_shared.py``, and
-``cuda_core/_build_shared.py`` is a symlink to that file, so their behavior is
-identical whichever backend loads them. The mixins here hold the tests of that
-shared behavior. Each package's ``tests/test_build_hooks.py`` mixes them in
-against the ``_build_shared`` module it loaded, by setting the class attribute
+Both backends load the same ``_build_shared.py`` implementation through
+package-local paths, so their behavior is identical. The mixins here hold the
+tests of that shared behavior. Each package's ``tests/test_build_hooks.py``
+mixes them in against the ``_build_shared`` module it loaded, by setting the
+class attribute
 ``build_shared``.
 
 Kept out of the mixins on purpose:

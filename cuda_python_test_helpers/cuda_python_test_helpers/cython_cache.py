@@ -13,10 +13,9 @@ Provides:
 - ``WINDOWS_ONLY_CACHE``: shared skip marker for the complementary Windows
   disable-path tests (warn + return None when the cache dir is set).
 
-These are used by ``cuda_bindings/tests/test_build_hooks.py``
-and ``cuda_core/tests/test_build_hooks.py``. The helpers themselves live in
-``_build_shared.py``, which ``cuda_core`` shares with ``cuda_bindings`` through
-a symlink.
+These are used by ``cuda_bindings/tests/test_build_hooks.py`` and
+``cuda_core/tests/test_build_hooks.py``. The helpers themselves are loaded
+through matching package-local ``_build_shared.py`` paths.
 
 Cython is imported inside the functions that need it so this module does not
 force a Cython dependency on the ``cuda-python-test-helpers`` package.
