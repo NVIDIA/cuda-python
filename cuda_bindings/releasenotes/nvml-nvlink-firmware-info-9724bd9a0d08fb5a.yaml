@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+upgrade:
+  - |
+    ``nvml.NvlinkFirmwareInfo``: The ``firmware_version`` member now returns only
+    valid entries.  The ``num_valid_entries`` member is removed, as its design made
+    it possible to access invalid memory. (#2953)

@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+upgrade:
+  - |
+    ``cuda.core`` now requires a minimum ``cuda-bindings`` version per CUDA major, at build and run
+    time: 12.9.8 for CUDA 12 and 13.4.1 for CUDA 13. See the
+    :ref:`support policy <cuda-core-bindings-floor>`. ``import cuda.core`` with an older
+    ``cuda-bindings`` fails with a message that names the required version and how to install it.
+    ``pip install cuda-core[cu12]`` or ``pip install cuda-core[cu13]`` installs a compatible
+    version. Supported CUDA drivers and CUDA Toolkit libraries are unchanged. Previously
+    ``cuda.core`` accepted any ``cuda-bindings`` of the right major, and an older one produced
+    import errors for missing C functions, silently disabled features, or crashes.
+    (https://github.com/NVIDIA/cuda-python/issues/2783) (#2920)

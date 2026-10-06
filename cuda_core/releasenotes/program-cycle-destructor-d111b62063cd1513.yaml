@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+fixes:
+  - |
+    A :class:`Program` that is collected as part of a reference cycle no longer
+    raises ``AttributeError`` from its destructor, and the source file it wrote
+    for a ``debug`` or ``lineinfo`` build is removed. The cyclic collector
+    clears object attributes before the destructor runs, and the destructor
+    read the program options to locate that file.
+    (`#2876 <https://github.com/NVIDIA/cuda-python/issues/2876>`__) (#2879)

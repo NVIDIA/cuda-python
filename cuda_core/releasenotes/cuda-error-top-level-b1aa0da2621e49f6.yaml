@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+features:
+  - |
+    :class:`CUDAError` and :class:`NVRTCError` are now importable from the
+    top-level ``cuda.core`` namespace, alongside :class:`CUDAWarning`. Previously
+    they were only available from a private module. (#2759)

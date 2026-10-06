@@ -50,6 +50,21 @@ and `nvrtc`.  These test files should not be added to, only updated when
 necessary to fix test failures.  The canonical set of tests are those outside of
 the `legacy_tests` subdirectory.
 
+## Release notes
+
+- Notes for 13.5.0 and later are per-change files in `releasenotes/`; do not
+  add hand-written pages to `docs/source/release/` for new releases.
+- Changes to `cuda/`, `pyproject.toml`, `setup.py`, `build_hooks.py` or
+  `MANIFEST.in` need a note, unless the PR has the `skip-release-note` label.
+  Create one with
+  `python toolshed/add_note.py cuda-bindings <short-description>`.
+- Entries use `cuda.bindings` as the current module, so a Sphinx role can say
+  `:func:`nvml.device_get_samples``, without the `cuda.bindings.` prefix.
+- Do not add PR links to notes (they are added automatically) and do not
+  rename merged notes.
+- `issues` (known issues) entries are repeated on every later release until
+  deleted. See the "Release notes" section of the top-level `CONTRIBUTING.md`.
+
 ## Build and environment notes
 
 - `CUDA_HOME` or `CUDA_PATH` must point to a valid CUDA Toolkit for source

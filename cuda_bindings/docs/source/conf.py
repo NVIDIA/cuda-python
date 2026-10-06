@@ -15,6 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str((Path(__file__).parents[3] / "cuda_python" / "docs" / "exts").absolute()))
 
+from release_ranges import PACKAGES, format_version
 
 # -- Project information -----------------------------------------------------
 
@@ -61,8 +62,18 @@ extensions = [
     "sphinx_copybutton",
     "release_toc",
     "release_date",
+    "release_notes",
     "enum_documenter",
 ]
+
+# Release notes from 13.5.0 on are built from the notes in
+# cuda_bindings/releasenotes; earlier ones are hand-written pages in release/.
+release_notes_dir = PACKAGES["cuda-bindings"].notes_dir
+release_notes_tag_prefix = PACKAGES["cuda-bindings"].tag_prefix
+release_notes_first_version = format_version(PACKAGES["cuda-bindings"].first_version)
+release_notes_title = "``cuda-bindings`` {version} Release notes"
+release_notes_unreleased_title = "``cuda-bindings`` unreleased changes"
+release_notes_prolog = ".. currentmodule:: cuda.bindings"
 
 nb_execution_mode = "off"
 numfig = True

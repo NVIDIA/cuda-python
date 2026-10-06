@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+features:
+  - |
+    For all ``cuda-bindings`` APIs, functions that accept a struct wrapper will accept the struct
+    wrapper directly, rather than requiring getting the ``.ptr`` property. (#2819)

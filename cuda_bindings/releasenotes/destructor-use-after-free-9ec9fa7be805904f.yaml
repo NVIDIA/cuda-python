@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+fixes:
+  - |
+    Fix a potential use-after-free error in the destructors of classes in ``driver`` and
+    ``runtime``. (#2874)

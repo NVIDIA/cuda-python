@@ -61,8 +61,8 @@ a bump. To bump:
    pre-commit hook `check-cuda-core-bindings-floor`
    (`toolshed/check_cuda_core_bindings_floor.py`) checks the pins. It also
    checks that no documentation page spells a floor out by hand.
-3. Add to the release notes a "Breaking Changes" entry that names the new
-   floors. The support-policy table in `docs/source/support.rst` reads the
+3. Add a release note (an `upgrade` entry, see "Release notes" below) that
+   names the new floors. The support-policy table in `docs/source/support.rst` reads the
    floors and the release version at docs-build time. It needs no edit.
 4. If the pins moved past what the pixi lock files resolve, refresh the lock
    files.
@@ -335,3 +335,19 @@ so that they are documented but don't appear in the main index.
 ### API stability
 
 Reviews should point out where existing public APIs are broken.
+
+## Release notes
+
+- Notes for 1.3.0 and later are per-change files in `releasenotes/`; do not add
+  hand-written pages to `docs/source/release/` for new releases.
+- Changes to `cuda/`, `pyproject.toml`, `setup.py`, `build_hooks.py` or
+  `MANIFEST.in` need a note, unless the PR has the `skip-release-note` label.
+  Create one with
+  `python toolshed/add_note.py cuda-core <short-description>`. Breaking
+  changes go under `upgrade`.
+- Entries use `cuda.core` as the current module, so write `:class:`Device``, not
+  `:class:`cuda.core.Device``.
+- Do not add PR links to notes (they are added automatically) and do not
+  rename merged notes. `issues` (known issues) entries are repeated on every
+  later release until deleted. See the "Release notes" section of the top-level
+  `CONTRIBUTING.md`.

@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+fixes:
+  - |
+    The ``StridedMemoryView`` DLPack C exchange API now preserves the underlying
+    Python exception when an export or import fails, as required by the DLPack
+    contract, instead of returning ``-1`` with no exception set. (#2939)

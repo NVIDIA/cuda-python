@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+fixes:
+  - |
+    :class:`~_memory.DeviceMemoryResource` can now be constructed for a
+    device's default pool (without options), and :attr:`Device.memory_resource`
+    first accessed, while the calling thread is inside a ``global`` or
+    ``thread_local`` stream capture. The constructor applies its
+    release-threshold policy with pool attribute calls that the driver refuses
+    during such a capture; it now makes them in relaxed capture mode and
+    restores the thread's previous mode, so the capture stays valid. Creating a
+    new pool with options during such a capture is still refused by the driver.
+    (`#2834 <https://github.com/NVIDIA/cuda-python/issues/2834>`__) (#2838)

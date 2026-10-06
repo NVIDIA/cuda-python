@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+features:
+  - |
+    Added incremental linking to :class:`Linker` through
+    ``LinkerOptions(incremental=True)`` on nvJitLink 13.2 or newer. A partial
+    native result is returned as a CUBIN and can be passed directly to another
+    linker. :meth:`Linker.link` also accepts ``"ltoir"`` on nvJitLink 13.3 or
+    newer so incremental LTO chains can retain IR until their final link. Direct
+    PTX and CUBIN inputs are rejected for this target because they carry no LTOIR
+    and nvJitLink would otherwise silently omit them.
+    (`#2369 <https://github.com/NVIDIA/cuda-python/issues/2369>`__) (#2867)

@@ -64,6 +64,10 @@ jobs:
           fetch-depth: 1
           ref: ${{ inputs.git-tag }}
 
+      # The release notes are built from the git history between release tags.
+      - name: Fetch release history
+        uses: ./.github/actions/fetch-release-history
+
       - name: Read build CTK version
         run: |
           if [[ -f ci/versions.yml ]]; then

@@ -1,0 +1,28 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Fetch release history
+
+description: >-
+  Complete a shallow checkout with the git history needed to build release
+  notes (see cuda_python/docs/exts/release_notes.py): the history of the
+  checked-out commit and of every tag. No branches are fetched, which also
+  leaves out the large gh-pages branch that holds only built docs.
+
+runs:
+  using: composite
+  steps:
+    - name: Fetch the checked-out commit's history and all tags
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        # Run after actions/checkout with its default fetch-depth of 1.
+        # Release notes are read from the history reachable from release tags
+        # (patch tags may sit on maintenance branches) and from the commit being
+        # built, so no branch names are needed.
+        refspecs=("$(git rev-parse HEAD)" '+refs/tags/*:refs/tags/*')
+        if [[ "$(git rev-parse --is-shallow-repository)" == "true" ]]; then
+          git fetch --unshallow --no-tags origin "${refspecs[@]}"
+        else
+          git fetch --no-tags origin "${refspecs[@]}"
+        fi
