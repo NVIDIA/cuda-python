@@ -45,9 +45,9 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
 ## Cloning the repository
 
 > **Windows contributors (not WSL):** configure Git for symlinks *before*
-> cloning, or the shared PEP 517 build-hook file lands as a text stub instead
-> of a working symlink. See [Enabling git symlinks](#enabling-git-symlinks)
-> under Development on Windows.
+> cloning, or tracked symlinks (`CLAUDE.md`, `cuda_python/README.md`,
+> `.git_archival.txt`) land as text stubs. See
+> [Enabling git symlinks](#enabling-git-symlinks) under Development on Windows.
 
 Every package in this repository derives its version from git tags using
 [`setuptools-scm`](https://setuptools-scm.readthedocs.io/), so **how you clone
@@ -143,12 +143,11 @@ of this document.
 
 ### Enabling git symlinks
 
-The `cuda_core` PEP 517 backend shares source-of-truth helper files with
-`cuda_bindings` via symbolic links. Git materializes symlinks by default on
-Linux and macOS, but on Windows it needs to be configured before cloning,
-otherwise the "symlinks" land in your working tree as plain text files that
-contain the target path — enough to look right in `git status`, but not enough
-to actually build.
+Some files in this repository are Git symlinks, including `CLAUDE.md`,
+`cuda_python/README.md`, and the per-package `.git_archival.txt` files. Git
+materializes symlinks by default on Linux and macOS, but on Windows it needs
+to be configured before cloning, otherwise the "symlinks" land in your working
+tree as plain text files that contain the target path.
 
 1. **[Activate Developer Mode](https://learn.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development#activate-developer-mode)**
    so Git can create symlinks without Administrator privileges.
@@ -170,8 +169,8 @@ setting alone won't take effect:
 
 ```console
 $ git config core.symlinks true          # no --global — clears the repo-local override
-$ git rm --cached cuda_core/_build_shared.py
-$ git checkout HEAD -- cuda_core/_build_shared.py
+$ git rm --cached cuda_python/README.md
+$ git checkout HEAD -- cuda_python/README.md
 ```
 
 In practice, deleting the checkout and re-cloning after the two steps at
