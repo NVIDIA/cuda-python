@@ -21,7 +21,7 @@ __all__ = ["register_cuda_error_log", "unregister_cuda_error_log"]
 # C callback signature for cuLogsRegisterCallback:
 #     void callback(void *userData, CUlogLevel logLevel, char *message, size_t length)
 _CUlogsCallback_functype = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_size_t)
-PyLogCallback = Callable[[Optional[int], int, bytes], None]
+PyLogCallback = Callable[[int, bytes], None]
 
 # Keep a reference while registered, or GC'ing it leaves the driver with
 # a dangling function pointer which will crash on the next log message.
@@ -32,7 +32,7 @@ _callback_handle = None  # CUlogsCallbackHandle, needed to unregister
 def _make_c_callback(logger: logging.Logger, callback: Optional[PyLogCallback]) -> ctypes._FuncPointer:
     """Build the ctypes C callback passed to cuLogsRegisterCallback."""
 
-    def _default_callback(user_data: Optional[int], cu_log_level: int, message: bytes) -> None:
+    def _default_callback(cu_log_level: int, message: bytes) -> None:
         cuda_level_to_py_level = {
             int(_driver.CUlogLevel.CU_LOG_LEVEL_ERROR): logging.ERROR,
             int(_driver.CUlogLevel.CU_LOG_LEVEL_WARNING): logging.WARNING,
@@ -46,7 +46,7 @@ def _make_c_callback(logger: logging.Logger, callback: Optional[PyLogCallback]) 
     def _on_log(user_data, log_level, message_ptr, length):
         try:
             message = ctypes.string_at(message_ptr, length) if message_ptr else b""
-            emit(user_data, log_level, message)
+            emit(log_level, message)
         except Exception:
             logger.exception("cuda_error_log: error while forwarding driver log")
 
@@ -67,13 +67,13 @@ def register_cuda_error_log(
     ----------
     logger : logging.Logger, optional
         Target logger. Defaults to ``logging.getLogger("cuda.driver")``.
-    callback : Callable[[Optional[int], int, bytes], None], optional
+    callback : Callable[[int, bytes], None], optional
         Overrides the default forwarding. Called as
-        ``callback(user_data, log_level, message)`` with undecoded
-        ``message`` and unmapped ``log_level``; decoding/mapping is the
-        callback's job (``len(message)`` gives its size). Close over
-        ``logger`` if needed. Defaults to ``None`` (decode, map, and
-        forward via ``logger.log(level, "[CUDA Driver] %s", message)``).
+        ``callback(log_level, message)`` with undecoded ``message`` and
+        unmapped ``log_level``; decoding/mapping is the callback's job
+        (``len(message)`` gives its size). Close over ``logger`` if
+        needed. Defaults to ``None`` (decode, map, and forward via
+        ``logger.log(level, "[CUDA Driver] %s", message)``).
 
     Raises
     ------
