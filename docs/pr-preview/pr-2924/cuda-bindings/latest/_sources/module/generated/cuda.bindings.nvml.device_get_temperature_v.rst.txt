@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_temperature\_v
+==============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_temperature_v
