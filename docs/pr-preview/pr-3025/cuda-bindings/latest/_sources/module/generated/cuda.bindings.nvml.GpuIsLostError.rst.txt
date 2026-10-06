@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.GpuIsLostError
+=================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: GpuIsLostError
