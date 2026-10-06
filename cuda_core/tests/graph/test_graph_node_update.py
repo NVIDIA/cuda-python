@@ -887,10 +887,13 @@ def test_memcpy_update_captured_node_host_operand(init_cuda):
 
     The definition node accepts the host buffer and a fresh instantiation
     copies from it. Whether an executable update accepts the replacement
-    depends on the driver: Linux drivers reject it (a memcpy operand may not
-    move to another device or to the host), while Windows TCC drivers accept
-    it. The test allows either outcome and checks the copy when the update
-    is accepted. cuda.core enforces nothing here.
+    depends on how the operands were allocated: the driver compares the
+    memory class of pool-backed and virtual-memory operands and rejects the
+    change for them, while plain ``cuMemAlloc`` operands accept it. A device
+    without memory-pool support (Windows TCC in CI) gets a default memory
+    resource that is not pool-backed, so the same test is accepted there.
+    The test allows either outcome and checks the copy when the update is
+    accepted. cuda.core enforces nothing here.
     """
     if driver_version() < (12, 2, 0):
         pytest.skip("individual graph node updates require CUDA 12.2+")
