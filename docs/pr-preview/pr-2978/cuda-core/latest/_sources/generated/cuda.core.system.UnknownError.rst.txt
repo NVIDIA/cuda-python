@@ -1,6 +1,0 @@
-﻿cuda.core.system.UnknownError
-=============================
-
-.. currentmodule:: cuda.core.system
-
-.. autoexception:: UnknownError

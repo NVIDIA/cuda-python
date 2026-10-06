@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_compute\_instance\_id
-=====================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_compute_instance_id

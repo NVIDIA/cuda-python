@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_num\_fans
-=========================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_num_fans

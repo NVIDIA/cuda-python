@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_set\_clock\_offsets
-==============================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_set_clock_offsets
