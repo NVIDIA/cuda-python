@@ -25,7 +25,7 @@ from typing import Callable, Optional
 from cuda.bindings import driver as _driver
 from cuda.core._utils.cuda_utils import handle_return
 
-__all__ = ["register_cuda_log_bridge", "unregister_cuda_log_bridge"]
+__all__ = ["register_cuda_error_log", "unregister_cuda_error_log"]
 
 # C callback signature expected by cuLogsRegisterCallback:
 #     void callback(void *userData, CUlogLevel logLevel, char *message, size_t length)
@@ -45,12 +45,12 @@ _CUDA_LEVEL_TO_PY_LEVEL = {
 
 # User-supplied hook that customizes how each driver log message is
 # displayed/handled; see the ``callback`` parameter of
-# :func:`register_cuda_log_bridge`.
+# :func:`register_cuda_error_log`.
 #
 #     callback(logger, level, message) -> None
 #
 # ``logger`` is the same :class:`logging.Logger` passed to (or defaulted by)
-# :func:`register_cuda_log_bridge`, ``level`` is the already-mapped
+# :func:`register_cuda_error_log`, ``level`` is the already-mapped
 # ``logging.ERROR`` / ``logging.WARNING`` level, and ``message`` is the
 # decoded driver log text (without the ``[CUDA Driver]`` prefix added by the
 # default formatter).
@@ -86,12 +86,12 @@ def _make_c_callback(logger: logging.Logger, callback: Optional[LogCallback]) ->
             py_level = _CUDA_LEVEL_TO_PY_LEVEL.get(log_level, logging.ERROR)
             emit(logger, py_level, msg)
         except Exception:
-            logger.exception("cuda_log_bridge: error while forwarding driver log")
+            logger.exception("cuda_error_log: error while forwarding driver log")
 
     return _CUlogsCallback_functype(_on_log)
 
 
-def register_cuda_log_bridge(
+def register_cuda_error_log(
     logger: logging.Logger | None = None,
     callback: Optional[LogCallback] = None,
 ) -> None:
@@ -148,9 +148,9 @@ def register_cuda_log_bridge(
         _callback_handle = handle
 
 
-def unregister_cuda_log_bridge() -> None:
+def unregister_cuda_error_log() -> None:
     """Unregister the bridge previously installed by
-    :func:`register_cuda_log_bridge`.
+    :func:`register_cuda_error_log`.
 
     Idempotent: safe to call even if no bridge is currently registered.
 

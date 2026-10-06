@@ -11,7 +11,7 @@ import logging
 import pytest
 
 from cuda.bindings import driver
-from cuda.core.utils import register_cuda_log_bridge, unregister_cuda_log_bridge
+from cuda.core.utils import register_cuda_error_log, unregister_cuda_error_log
 
 
 @pytest.fixture(autouse=True)
@@ -19,7 +19,7 @@ def teardown_bridge():
     yield
     # Guarantee the callback is unregistered after every test, so a leaked
     # bridge/slot from one test can't affect later ones.
-    unregister_cuda_log_bridge()
+    unregister_cuda_error_log()
 
 
 # 使用方式1: 调用 register(logger), 通过 caplog 捕获 driver log
@@ -30,7 +30,7 @@ def test_cuda_driver_log_captured_via_caplog(caplog):
     # 2. 注册桥接，将驱动日志路由到用户提供的 logger
     logger_name = "cuda.driver.caplog_test"
     logger_obj = logging.getLogger(logger_name)
-    register_cuda_log_bridge(logger_obj)
+    register_cuda_error_log(logger_obj)
 
     # 3. 触发驱动错误：ordinal 9999 必然越界，驱动会写入两条 [E] 日志
     with caplog.at_level(logging.ERROR, logger=logger_name):
@@ -67,7 +67,7 @@ def test_cuda_driver_log_written_to_file(tmp_path):
 
     try:
         # 3. 注册桥接，将驱动日志路由到该 logger
-        register_cuda_log_bridge(logger_obj)
+        register_cuda_error_log(logger_obj)
 
         # 4. 触发驱动错误：ordinal 9999 必然越界，驱动会写入两条 [E] 日志
         driver.cuDeviceGet(9999)
@@ -97,15 +97,15 @@ def test_cuda_driver_log_rebind_logger(caplog):
     name_a, name_b = "cuda.driver.rebind_a", "cuda.driver.rebind_b"
 
     # 先绑定 logger_a，确认能收到日志
-    register_cuda_log_bridge(logging.getLogger(name_a))
+    register_cuda_error_log(logging.getLogger(name_a))
     with caplog.at_level(logging.ERROR, logger=name_a):
         driver.cuDeviceGet(9999)
     assert any(r.name == name_a for r in caplog.records)
 
     # 换绑到 logger_b：必须先 unregister 释放驱动侧 slot，再用新 logger register
-    unregister_cuda_log_bridge()
+    unregister_cuda_error_log()
     caplog.clear()
-    register_cuda_log_bridge(logging.getLogger(name_b))
+    register_cuda_error_log(logging.getLogger(name_b))
     with caplog.at_level(logging.ERROR, logger=name_b):
         driver.cuDeviceGet(9999)
 
@@ -119,7 +119,7 @@ def test_cuda_driver_log_level_filtering(caplog):
     driver.cuInit(0)
 
     logger_name = "cuda.driver.level_test"
-    register_cuda_log_bridge(logging.getLogger(logger_name))
+    register_cuda_error_log(logging.getLogger(logger_name))
 
     # 阈值设为 CRITICAL：ERROR 级别的驱动日志应被过滤，caplog 收不到任何记录
     with caplog.at_level(logging.CRITICAL, logger=logger_name):
@@ -150,7 +150,7 @@ def test_cuda_driver_log_alert_counter():
     logger_obj.addHandler(counter_handler)
 
     try:
-        register_cuda_log_bridge(logger_obj)
+        register_cuda_error_log(logger_obj)
         driver.cuDeviceGet(9999)
     finally:
         logger_obj.removeHandler(counter_handler)
@@ -173,7 +173,7 @@ def test_cuda_driver_log_custom_callback_overrides_default(caplog):
 
     # (c) register 时传入 callback，覆盖掉内部默认的
     #     logger.log(level, "[CUDA Driver] %s", message) 转发逻辑
-    register_cuda_log_bridge(logger_obj, callback=my_callback)
+    register_cuda_error_log(logger_obj, callback=my_callback)
 
     # 1. logging 默认的 WARNING 级别阈值下，DEBUG 级别的驱动日志会被过滤掉，
     #    caplog 收不到任何记录
@@ -197,7 +197,7 @@ def test_cuda_driver_log_custom_callback_overrides_default(caplog):
         f"Expected every record logged as DEBUG via my_callback, got levels: {[r.levelname for r in records]}"
     )
 
-    # 验证消息前缀是 logger name（而不是 register_cuda_log_bridge 默认的 "[CUDA Driver] " 前缀）
+    # 验证消息前缀是 logger name（而不是 register_cuda_error_log 默认的 "[CUDA Driver] " 前缀）
     messages = [r.message for r in records]
     assert any(m.startswith(f"{logger_name}: ") for m in messages), (
         f"Expected messages prefixed with '{logger_name}: ', got:\n{messages}"
@@ -210,4 +210,4 @@ def test_cuda_driver_log_custom_callback_overrides_default(caplog):
 # callback 必须是可调用对象或 None，否则应尽早报错
 def test_cuda_driver_log_callback_must_be_callable_or_none():
     with pytest.raises(TypeError):
-        register_cuda_log_bridge(logging.getLogger("cuda.driver.bad_callback_test"), callback="not-callable")
+        register_cuda_error_log(logging.getLogger("cuda.driver.bad_callback_test"), callback="not-callable")
