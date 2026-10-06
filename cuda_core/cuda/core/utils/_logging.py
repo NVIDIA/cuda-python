@@ -20,38 +20,25 @@ __all__ = ["register_cuda_error_log", "unregister_cuda_error_log"]
 
 # C callback signature for cuLogsRegisterCallback:
 #     void callback(void *userData, CUlogLevel logLevel, char *message, size_t length)
-# TODO: support a user-supplied userData.
 _CUlogsCallback_functype = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_size_t)
+PyLogCallback = Callable[[Optional[int], int, bytes, int], None]
 
-# CUlogLevel only defines two levels today (CUDA 12.9 cuLogs* API).
-_CUDA_LEVEL_TO_PY_LEVEL = {
-    int(_driver.CUlogLevel.CU_LOG_LEVEL_ERROR): logging.ERROR,
-    int(_driver.CUlogLevel.CU_LOG_LEVEL_WARNING): logging.WARNING,
-}
-
-# User callback for `register_cuda_error_log`; signature matches the C
-# callback 1:1: callback(user_data, log_level, message, length) -> None.
-# user_data is the raw void* (None/0 today); log_level is the raw,
-# unmapped CUlogLevel; message is raw undecoded bytes; length is its byte
-# count. Decoding/level-mapping is the callback's job (see
-# `_default_callback`). Needs `logger`? Close over it.
-LogCallback = Callable[[Optional[int], int, bytes, int], None]
-
-_lock = threading.Lock()
 # Keep a reference while registered, or GC'ing it leaves the driver with
 # a dangling function pointer -> crash on the next log message.
+_lock = threading.Lock()
 _c_callback: ctypes._FuncPointer | None = None
 _callback_handle = None  # CUlogsCallbackHandle, needed to unregister
 
-
-def _make_c_callback(logger: logging.Logger, callback: Optional[LogCallback]) -> ctypes._FuncPointer:
+def _make_c_callback(logger: logging.Logger, callback: Optional[PyLogCallback]) -> ctypes._FuncPointer:
     """Build the ctypes C callback passed to cuLogsRegisterCallback."""
 
-    def _default_callback(user_data: Optional[int], log_level: int, message: bytes, length: int) -> None:
-        """Decode, map the level, and forward into ``logger`` (closed over)."""
-        del user_data, length
+    def _default_callback(user_data: Optional[int], cu_log_level: int, message: bytes, length: int) -> None:
+        cuda_level_to_py_level = {
+            int(_driver.CUlogLevel.CU_LOG_LEVEL_ERROR): logging.ERROR,
+            int(_driver.CUlogLevel.CU_LOG_LEVEL_WARNING): logging.WARNING,
+        }
         msg = message.decode("utf-8", errors="replace").rstrip("\n")
-        py_level = _CUDA_LEVEL_TO_PY_LEVEL.get(log_level, logging.ERROR)
+        py_level = cuda_level_to_py_level.get(cu_log_level, logging.ERROR)
         logger.log(py_level, "[CUDA Driver] %s", msg)
 
     emit = callback if callback is not None else _default_callback
@@ -71,7 +58,7 @@ def _make_c_callback(logger: logging.Logger, callback: Optional[LogCallback]) ->
 
 def register_cuda_error_log(
     logger: logging.Logger | None = None,
-    callback: Optional[LogCallback] = None,
+    callback: Optional[PyLogCallback] = None,
 ) -> None:
     """Register a bridge that forwards CUDA driver ``cuLogs*`` messages to
     a Python :class:`logging.Logger`.
