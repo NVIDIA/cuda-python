@@ -270,8 +270,25 @@ exception surfaces from `pickle`/`multiprocessing` (a `Queue` feeder thread
 reports it through `Queue._on_queue_feeder_error` and drops the item; the queue
 stays usable). PyTorch applies the same contract to received CUDA tensors
 ("Attempted to send CUDA tensor received from another process"). There is no
-retention option. A `modify_allocation` config must keep the resource's
-`handle_type`: every chunk of a buffer must be exportable the same way.
+retention option.
+
+Forwarding an imported buffer would need the received file descriptors, because
+they are the only exportable form of imported memory. The design, not
+implemented because nothing needs it yet: a `VirtualMemoryResourceOptions`
+field that makes imports through that resource keep their received
+`IPCAllocationHandle`s with the imported buffer, and an export loop that uses
+the provenance mark to duplicate the kept handle for imported allocations while
+exporting created ones through the driver. The option belongs on the resource
+rather than on `from_ipc_descriptor`, because a pickled buffer imports through
+the resource it carries and the shared `Buffer.from_ipc_descriptor` signature
+stays unchanged; the consequence is that the sender's options decide whether a
+receiver can forward a pickled buffer. The cost is one open file descriptor per
+imported allocation for the imported buffer's lifetime, the same pressure on
+the process limit that the no-cache export rule avoids, which is why it would
+stay opt-in.
+
+A `modify_allocation` config must keep the resource's `handle_type`: every
+chunk of a buffer must be exportable the same way.
 
 ## Why `modify_allocation` returns a new buffer
 
