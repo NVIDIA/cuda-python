@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.system.get_kernel_mode_driver_version &#8212; cuda.core</title>
+    <title>cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.system.get_kernel_mode_driver_version';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -59,13 +59,11 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-3028/cuda-core/latest/generated/cuda.core.system.get_kernel_mode_driver_version.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-3028/cuda-core/latest/generated/cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.system.get_driver_branch" href="cuda.core.system.get_driver_branch.html" />
-    <link rel="prev" title="cuda.core.system.get_user_mode_driver_version" href="cuda.core.system.get_user_mode_driver_version.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -253,7 +251,7 @@
 </li>
 
 
-<li class=" current active">
+<li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../api_nvml.html">
     cuda.core.system API Reference
   </a>
@@ -491,7 +489,7 @@
 </li>
 
 
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../api_nvml.html">
     cuda.core.system API Reference
   </a>
@@ -577,7 +575,7 @@
      aria-label="Table of Contents">
   <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../10_minutes_to_cuda_core.html">10 minutes to <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code></a></li>
@@ -680,9 +678,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.MemcpyOverlapMode.html">cuda.core.utils.MemcpyOverlapMode</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api_nvml.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api_nvml.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_user_mode_driver_version.html">cuda.core.system.get_user_mode_driver_version</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.get_kernel_mode_driver_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_kernel_mode_driver_version.html">cuda.core.system.get_kernel_mode_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
@@ -761,10 +759,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    
-    <li class="breadcrumb-item"><a href="../api_nvml.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> API Reference</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.system.get_kernel_mode_driver_version</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor</span></li>
   </ul>
 </nav>
 </div>
@@ -781,24 +776,49 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-system-get-kernel-mode-driver-version">
-<h1>cuda.core.system.get_kernel_mode_driver_version<a class="headerlink" href="#cuda-core-system-get-kernel-mode-driver-version" title="Link to this heading">#</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="cuda.core.system.get_kernel_mode_driver_version">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">get_kernel_mode_driver_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.get_kernel_mode_driver_version" title="Link to this definition">#</a></dt>
-<dd><p>Get the kernel-mode (KMD / GPU) driver version, e.g. 580.65.06.</p>
+  <section id="cuda-core-memory-ipc-virtualmemoryipcbufferdescriptor">
+<h1>cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor<a class="headerlink" href="#cuda-core-memory-ipc-virtualmemoryipcbufferdescriptor" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core._memory._ipc.</span></span><span class="sig-name descname"><span class="pre">VirtualMemoryIPCBufferDescriptor</span></span><a class="headerlink" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor" title="Link to this definition">#</a></dt>
+<dd><p>Serializable object describing a <code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code> that can be shared between processes.</p>
+<p>The descriptor holds one exported handle per physical allocation that
+backs the buffer, in address order, with each allocation’s size. With
+POSIX file descriptors the handles are <a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">IPCAllocationHandle</span></code></a>
+objects: the descriptor owns them and closes them when it is released, and
+<code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> duplicates them into the receiving process. Plain
+<code class="docutils literal notranslate"><span class="pre">pickle</span></code> cannot carry file descriptors; send the descriptor, or the
+buffer, through <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> (a <code class="docutils literal notranslate"><span class="pre">Queue</span></code>, a <code class="docutils literal notranslate"><span class="pre">Pipe</span></code>, <code class="docutils literal notranslate"><span class="pre">Process</span></code>
+arguments, or a <code class="docutils literal notranslate"><span class="pre">Pool</span></code>).</p>
+<p>A live descriptor costs one file descriptor per allocation and keeps the
+physical memory allocated, in every process that holds a copy, until it is
+released. A descriptor placed on a <code class="docutils literal notranslate"><span class="pre">Queue</span></code> or sent to a <code class="docutils literal notranslate"><span class="pre">Pool</span></code> pins the
+memory in the sender until the receiver has unpickled it.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The sizes are controlled by the exporting peer. Receivers must treat them
+as untrusted and import only through <code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code>,
+which checks what it can and fails instead of mapping a size the driver
+rejects.</p>
+</div>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.size">
+<span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.size" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>version</strong> – Typically a 3-tuple <code class="docutils literal notranslate"><span class="pre">(MAJOR,</span> <span class="pre">MINOR,</span> <span class="pre">PATCH)</span></code>
-(2-tuple on WSL), e.g. <code class="docutils literal notranslate"><span class="pre">(580,</span> <span class="pre">65,</span> <span class="pre">6)</span></code>.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a>, …]</p>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If the NVML library is not available.</p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>IPCBufferDescriptor.size</p>
 </dd>
 </dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -813,24 +833,6 @@
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="cuda.core.system.get_user_mode_driver_version.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.system.get_user_mode_driver_version</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="cuda.core.system.get_driver_branch.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.system.get_driver_branch</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
@@ -852,7 +854,11 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.get_kernel_mode_driver_version"><code class="docutils literal notranslate"><span class="pre">get_kernel_mode_driver_version()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.__init__"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.size"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor.size</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

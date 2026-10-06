@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=574659b8"></script>
+    <script src="../_static/documentation_options.js?v=bf5cfa7a"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev177';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev178';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -807,6 +807,10 @@
 <p>This is a low-level API that is provided only for convenience. Make sure you fully understand
 how CUDA Virtual Memory Management works before using this. Other MemoryResource subclasses
 in cuda.core should already meet the common needs.</p>
+<p>A shared buffer’s descriptor comes from the exporting process and is not trusted:
+<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a> checks what it can, and the driver rejects a size that
+does not match the exported allocation. Unpickling a shared buffer performs a live import,
+so unpickle buffers only from a trusted principal.</p>
 </div>
 <p class="rubric">Notes</p>
 <p>Every buffer this resource returns is a <a class="reference internal" href="cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a> that
@@ -819,11 +823,15 @@ happens, close the buffer explicitly or record an idle stream with
 <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.set_deallocation_stream" title="cuda.core.Buffer.set_deallocation_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.set_deallocation_stream()</span></code></a>.</p>
 <p>Buffers can be shared with other processes when <code class="docutils literal notranslate"><span class="pre">config.handle_type</span></code>
 is <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> (Linux). <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.ipc_descriptor" title="cuda.core.Buffer.ipc_descriptor"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.ipc_descriptor</span></code></a> exports the
-physical allocations that back a buffer, <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a>
-imports them with a <code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code> of the receiving process,
-and a buffer sent through <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> does both. The importing
-resource maps the shared memory for its own device with its own access
-options; see <a class="reference internal" href="#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="cuda.core.VirtualMemoryResource.is_ipc_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">is_ipc_enabled</span></code></a>.</p>
+physical allocations that back a buffer, one file descriptor each;
+<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a> imports them with a
+<code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code> of the receiving process for the device that
+owns the memory; and a buffer sent through <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> does both.
+Plain <code class="docutils literal notranslate"><span class="pre">pickle</span></code> cannot carry the file descriptors. The importing resource
+maps the memory for its device and the devices in its <code class="docutils literal notranslate"><span class="pre">peers</span></code> option,
+with its own access options. A live descriptor keeps the memory allocated
+in every process that holds a copy. An imported buffer, and a buffer grown
+from one, cannot be exported again. See <a class="reference internal" href="#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="cuda.core.VirtualMemoryResource.is_ipc_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">is_ipc_enabled</span></code></a>.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResource.__init__">
@@ -923,7 +931,9 @@ returned buffer aliases it: both map the same physical memory, which is
 freed when the last of the two closes. When the driver can extend the
 address range in place, the returned buffer has the same pointer;
 otherwise it has a new one and the existing contents are reachable
-through both. Closing the returned buffer never closes <code class="docutils literal notranslate"><span class="pre">buf</span></code>.</p>
+through both. Closing the returned buffer never closes <code class="docutils literal notranslate"><span class="pre">buf</span></code>. A
+buffer grown from an imported buffer maps imported memory and cannot
+be exported again.</p>
 <p>Concurrent calls on buffers that alias one another are safe.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -933,7 +943,8 @@ through both. Closing the returned buffer never closes <code class="docutils lit
 <li><p><strong>config</strong> (<a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><em>VirtualMemoryResourceOptions</em></a><em>, </em><em>optional</em>) – Configuration for the new physical memory chunk only. Existing
 chunks keep the access they were created with, and the resource’s
 own configuration is unchanged. It must name the resource’s
-<code class="docutils literal notranslate"><span class="pre">location_type</span></code> and passes the same checks as the constructor.
+<code class="docutils literal notranslate"><span class="pre">location_type</span></code> and <code class="docutils literal notranslate"><span class="pre">handle_type</span></code> and passes the same checks
+as the constructor.
 When <code class="docutils literal notranslate"><span class="pre">buf</span></code> already covers <code class="docutils literal notranslate"><span class="pre">new_size</span></code> there is no new chunk, so
 <code class="docutils literal notranslate"><span class="pre">config</span></code> has no effect. This method never changes the access of
 memory that is already mapped.</p></li>
@@ -950,8 +961,8 @@ full alias of it and no driver call is made.</p>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">buf</span></code> did not come from this resource.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">config</span></code> names a different location than the resource, or
-    the constructor would reject it.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">config</span></code> names a different location or handle type than the
+    resource, or the constructor would reject it.</p></li>
 <li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">buf</span></code> is closed, or <code class="docutils literal notranslate"><span class="pre">config</span></code> requests GPUDirect RDMA on a
     device without support.</p></li>
 <li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#OverflowError" title="(in Python v3.14)"><strong>OverflowError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">new_size</span></code> rounded up to the granularity does not fit in

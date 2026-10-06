@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=574659b8"></script>
+    <script src="../_static/documentation_options.js?v=bf5cfa7a"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev177';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev178';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -851,11 +851,14 @@ and proceeds without the synchronization.</p></li>
 processes the way pool-backed buffers are. <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.ipc_descriptor" title="cuda.core.Buffer.ipc_descriptor"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.ipc_descriptor</span></code></a>
 exports every physical allocation that backs a <a class="reference internal" href="../generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a>
 as a POSIX file descriptor, <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a> imports the
-descriptor with a <code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code> of the receiving process, and a
-buffer or its descriptor can be sent through <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> directly.
-<a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="cuda.core.VirtualMemoryResource.is_ipc_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VirtualMemoryResource.is_ipc_enabled</span></code></a> is <code class="docutils literal notranslate"><span class="pre">True</span></code> when the resource’s
-<code class="docutils literal notranslate"><span class="pre">handle_type</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> on Linux. A grown buffer imports as one
-contiguous range. Fabric handles are not shared yet.
+descriptor with a <code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code> of the receiving process for the
+device that owns the memory, and a buffer or its descriptor can be sent
+through <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> directly (plain <code class="docutils literal notranslate"><span class="pre">pickle</span></code> cannot carry file
+descriptors). <a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="cuda.core.VirtualMemoryResource.is_ipc_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VirtualMemoryResource.is_ipc_enabled</span></code></a> is <code class="docutils literal notranslate"><span class="pre">True</span></code> when
+the resource’s <code class="docutils literal notranslate"><span class="pre">handle_type</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> on Linux. A grown buffer
+imports as one contiguous range. A live descriptor holds one file descriptor
+per physical allocation and keeps the memory allocated; an imported buffer
+cannot be exported again. Fabric handles are not shared yet.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2980">#2980</a>)</p></li>
 </ul>
 </section>
