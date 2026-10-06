@@ -94,7 +94,7 @@ jobs:
       TEST_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_test }}
       TEST_PYTHON: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_test }}
     name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }} (${{ matrix.DRIVER_MODE }})${{ matrix.ENV.TORCH_VER && format(', {0}+{1}', matrix.ENV.TORCH_VER, matrix.ENV.TORCH_CUDA) || '' }}${{ matrix.ENV.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
-    timeout-minutes: 90
+    timeout-minutes: 60
     # The build stage could fail but we want the CI to keep moving.
     needs: compute-matrix
     strategy:
@@ -105,6 +105,9 @@ jobs:
     continue-on-error: ${{ startsWith(matrix.PY_VER, '3.15') }}
     runs-on: "windows-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.RUNNER_DRIVER }}-${{ matrix.GPU_COUNT }}"
     steps:
+      - name: Enable Git symlinks (Windows, must precede checkout)
+        run: git config --global core.symlinks true
+
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -232,14 +235,14 @@ jobs:
           fi
 
       - name: Display structure of downloaded cuda-python artifacts
-        if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE != 'published' }}
+        if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE != 'floor' }}
         run: |
           Get-Location
           Get-ChildItem cuda_python*.whl | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Display structure of downloaded cuda.bindings artifacts
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
-                env.BINDINGS_SOURCE != 'published' }}
+                env.BINDINGS_SOURCE != 'floor' }}
         run: |
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
@@ -451,7 +454,7 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_core
-          pytest -rxXs -v tests/test_utils.py tests/example_tests/
+          pytest -rsxXfE -v --exclude-warning-annotations --junitxml "${GITHUB_WORKSPACE}/test-results/junit-pytorch-interop.xml" tests/test_utils.py tests/example_tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
 
       - name: Checkout numba-cuda tests at matching tag
@@ -498,11 +501,12 @@ jobs:
           pip install --upgrade "pip>=25.1"
           pip install --group test
           # See linux step for rationale on the --deselect.
-          pytest -rxXs -v \
+          pytest -rsxXfE -v --exclude-warning-annotations \
+            --junitxml "${GITHUB_WORKSPACE}/test-results/junit-numba-cuda-mlir.xml" \
             --ignore=tests/benchmarks \
             --ignore=tests/doc_examples \
             --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_devicerecord.py::TestCudaDeviceRecordWithRecord::test_device_record_copy' \
-            tests/
+            tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
 
       - name: Checkout released cuda-core tests at matching tag
@@ -546,7 +550,20 @@ jobs:
               --deselect 'tests/test_utils_enum_explanations_helpers.py::test_frozen_driver_table_covers_all_curesult_members'
             )
           fi
-          pytest -rxXs -v --randomly-dont-reorganize \
+          pytest -rsxXfE -v --randomly-dont-reorganize \
+            --junitxml "${GITHUB_WORKSPACE}/test-results/junit-cuda-core-released.xml" \
             "${DESELECTS[@]}" \
-            tests/
+            tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
+
+      - name: Upload test results
+        # JUnit XML written by run-tests, one file per suite: a machine-readable
+        # record of the run, kept for 14 days. The name must be unique per job
+        # in the run.
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: test-results-${{ inputs.test-mode }}-${{ inputs.host-platform }}-py${{ matrix.PY_VER }}-cu${{ matrix.CUDA_VER }}-${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}-${{ matrix.GPU }}-x${{ matrix.GPU_COUNT }}-${{ matrix.DRIVER }}-${{ matrix.DRIVER_MODE }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14

@@ -16,7 +16,7 @@ import cuda.core
 from cuda.core import Device, Kernel, Linker, LinkerOptions, ObjectCode, Program, ProgramOptions
 from cuda.core._program import _can_load_generated_ptx
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
-from cuda.core._utils.version import binding_version, driver_version
+from cuda.core._utils.version import driver_version
 
 try:
     import numba
@@ -65,7 +65,7 @@ nvfatbin_available = pytest.mark.skipif(not _is_nvfatbin_available(), reason="nv
 
 @pytest.fixture(scope="module")
 def cuda12_4_prerequisite_check():
-    return binding_version() >= (12, 0, 0) and driver_version() >= (12, 4, 0)
+    return driver_version() >= (12, 4, 0)
 
 
 @pytest.fixture(name="convert_path", params=[str, lambda p: p], ids=["str", "path"])

@@ -36,7 +36,7 @@ from cuda.core._rt import (
 )
 from cuda.core._stream import default_stream
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
-from cuda.core._utils.version import binding_version, driver_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 from cuda.core.graph import GraphDefinition
 
 INVALID_CONTEXT = int(driver.CUresult.CUDA_ERROR_INVALID_CONTEXT)
@@ -254,7 +254,7 @@ def test_set_current_with_context_works_without_a_current_context(init_cuda):
 def test_memset_update_keeps_new_owners_alive_when_context_cannot_be_restored(device_x2):
     """The node's new parameters stay valid: the attachment is published before the
     restoration failure is raised, so the updated graph instantiates and runs."""
-    if driver_version() < (13, 2, 0) or binding_version() < (13, 2, 0):
+    if BUILD_CUDA_MAJOR < 13 or driver_version() < (13, 2, 0):
         pytest.skip("node contexts are only recorded by cuGraphNodeGetParams on CUDA 13.2+")
     node_dev, other_dev = device_x2
     node_dev.set_current()

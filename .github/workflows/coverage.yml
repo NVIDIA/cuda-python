@@ -80,8 +80,8 @@ jobs:
         uses: ./.github/actions/install_unix_deps
         continue-on-error: false
         with:
-          dependencies: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1"
-          dependent_exes: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1"
+          dependencies: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1 yq"
+          dependent_exes: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1 yq"
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -232,6 +232,9 @@ jobs:
       CUDA_PYTHON_COVERAGE: "1"
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     steps:
+      - name: Enable Git symlinks (Windows, must precede checkout)
+        run: git config --global core.symlinks true
+
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -348,6 +351,9 @@ jobs:
       run:
         shell: bash --noprofile --norc -xeuo pipefail {0}
     steps:
+      - name: Enable Git symlinks (Windows, must precede checkout)
+        run: git config --global core.symlinks true
+
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:

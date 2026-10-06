@@ -19,12 +19,12 @@ repos:
   # Self-installing: the hook downloads a pinned, checksum-verified trufflehog on
   # first use (no manual install). Skipped on pre-commit.ci; Pulse CI enforces server-side.
   - repo: https://github.com/NVIDIA/security-workflows
-    rev: 711025b090f2aa728da576700750b195d1e816dc  # frozen: v0.3.0
+    rev: c736f0454dc99764a66af6b906adfcdfbf621985  # frozen: v0.4.0
     hooks:
       - id: secret-scan-trufflehog
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: c60c980e561ed3e73101667fe8365c609d19a438  # frozen: v0.15.9
+    rev: a56c0b927e6465d37cae3e97d35d4d18ab2b96cd  # frozen: v0.16.9
     hooks:
       - id: ruff-check
         args: [--fix, --show-fixes]
@@ -41,6 +41,15 @@ repos:
         always_run: true
         pass_filenames: false
         verbose: true
+
+      - id: check-cuda-core-bindings-floor
+        name: Check the cuda-bindings floor against ci/versions.yml and the docs
+        entry: python ./toolshed/check_cuda_core_bindings_floor.py
+        language: python
+        files: ^(cuda_core/pyproject\.toml|ci/versions\.yml|cuda_core/cuda/core/_bindings_floor\.py|cuda_core/docs/source/.*\.rst|toolshed/check_cuda_core_bindings_floor\.py)$
+        pass_filenames: false
+        additional_dependencies:
+          - "tomli>=1.1.0; python_version < '3.11'"
 
       - id: check-spdx
         name: Check SPDX Headers
@@ -71,13 +80,6 @@ repos:
         entry: python ./ci/tools/check_mempool_hygiene.py
         language: python
         files: '^cuda_core/tests/.*\.py$'
-
-      - id: check-build-hooks-sync
-        name: Check shared build_hooks.py blocks are in sync
-        entry: python ./toolshed/check_build_hooks_sync.py
-        language: python
-        files: '^(cuda_bindings|cuda_core)/build_hooks\.py$'
-        pass_filenames: false
 
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
@@ -146,7 +148,7 @@ repos:
     - id: rst-inline-touching-normal
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 8e5c80792e2ec0c87804d8ef915bf35e2caea6da  # frozen: v1.20.0
+    rev: 7ff8d35ae36a7d2b968f2f90b4c723e292e594ee  # frozen: v2.3.1
     hooks:
       - id: mypy
         alias: mypy-pathfinder
@@ -171,7 +173,7 @@ repos:
         exclude: ^\.github/workflows/coverage.yml$
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: "7c6152f6c8f9087684ff2e09a9227941e233bafb"  # frozen: v0.19.0
+    rev: "eb2f695bb80387913b8cb1f91ba7ff6cb3026715"  # frozen: v0.21.1
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]

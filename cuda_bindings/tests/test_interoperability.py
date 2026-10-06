@@ -3,10 +3,16 @@
 
 import numpy as np
 import pytest
-from cuda_python_test_helpers.mempool import xfail_if_mempool_oom
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
+
+# Cap for the memory pool created by test_interop_memPool. Touching the device's
+# default pool (e.g. via cuDeviceGetDefaultMemPool, cudaDeviceGetDefaultMemPool,
+# or cuDeviceGetMemPool / cudaDeviceGetMemPool before a pool has been set)
+# reserves virtual address space of about twice the device memory, which
+# cannot be satisfied in a 39-bit address space.
+POOL_SIZE = 2 * 1024 * 1024  # 2 MiB
 
 
 def supportsMemoryPool():
@@ -84,21 +90,36 @@ def test_interop_graphNode():
 # TODO
 
 
+@pytest.mark.thread_unsafe(reason="changes the device's current memory pool")
+@pytest.mark.agent_authored(model="claude-sonnet-5.5")
 @pytest.mark.skipif(not supportsMemoryPool(), reason="Requires mempool operations")
 def test_interop_memPool():
-    # DRV to RT
-    err_dr, pool = cuda.cuDeviceGetDefaultMemPool(0)
-    xfail_if_mempool_oom(err_dr, "cuDeviceGetDefaultMemPool", 0)
+    # Use a small, capped pool instead of the device's default pool. The pool
+    # must be set before it is queried below because the getters create (and
+    # reserve address space for) the default pool if none has been set.
+    props = cuda.CUmemPoolProps()
+    props.allocType = cuda.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+    props.handleTypes = cuda.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
+    props.location.type = cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    props.location.id = 0
+    props.maxSize = POOL_SIZE
+    err_dr, pool = cuda.cuMemPoolCreate(props)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    (err_rt,) = cudart.cudaDeviceSetMemPool(0, pool)
-    assert err_rt == cudart.cudaError_t.cudaSuccess
 
-    # RT to DRV
-    err_rt, pool = cudart.cudaDeviceGetDefaultMemPool(0)
-    xfail_if_mempool_oom(err_rt, "cudaDeviceGetDefaultMemPool", 0)
-    assert err_rt == cudart.cudaError_t.cudaSuccess
-    (err_dr,) = cuda.cuDeviceSetMemPool(0, pool)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    try:
+        # DRV to RT
+        (err_rt,) = cudart.cudaDeviceSetMemPool(0, pool)
+        assert err_rt == cudart.cudaError_t.cudaSuccess
+
+        # RT to DRV
+        err_rt, rt_pool = cudart.cudaDeviceGetMemPool(0)
+        assert err_rt == cudart.cudaError_t.cudaSuccess
+        assert int(rt_pool) == int(pool)
+        (err_dr,) = cuda.cuDeviceSetMemPool(0, rt_pool)
+        assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    finally:
+        (err_dr,) = cuda.cuMemPoolDestroy(pool)
+        assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
 
 def test_interop_graphExec():

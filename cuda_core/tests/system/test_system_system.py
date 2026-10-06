@@ -9,7 +9,6 @@ import pytest
 from cuda_python_test_helpers.arch_check import skip_if_nvml_unsupported
 
 from cuda.bindings import driver
-from cuda.core import Device as CudaDevice
 from cuda.core import system
 from cuda.core._utils.cuda_utils import handle_return
 
@@ -35,13 +34,6 @@ def test_kernel_mode_driver_version():
         assert 0 <= ver_patch[0] <= 99
 
 
-def test_kernel_mode_driver_version_requires_nvml():
-    if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-        pytest.skip("NVML is available, cannot test the error path")
-    with pytest.raises(RuntimeError, match="requires NVML support"):
-        system.get_kernel_mode_driver_version()
-
-
 @skip_if_nvml_unsupported
 def test_nvml_version():
     nvml_version = system.get_nvml_version()
@@ -57,16 +49,12 @@ def test_nvml_version():
 
 
 @skip_if_nvml_unsupported
-def test_get_process_name():
-    for cuda_device in CudaDevice.get_all_devices():
-        device = cuda_device.to_system_device()
-        _ = device.compute_running_processes
-
+@pytest.mark.agent_authored(model="gpt-6")
+def test_get_process_name(init_cuda):
     try:
         process_name = system.get_process_name(os.getpid())
     except system.NotFoundError:
         pytest.skip("Process not found")
-
     assert isinstance(process_name, str)
     assert "python" in process_name
 

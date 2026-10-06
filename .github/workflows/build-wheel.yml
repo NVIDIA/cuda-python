@@ -67,6 +67,10 @@ jobs:
                  (inputs.host-platform == 'win-64' && 'windows-2022') ||
                  (inputs.host-platform == 'win-arm64' && 'windows-11-arm') }}
     steps:
+      - name: Enable Git symlinks (Windows, must precede checkout)
+        if: ${{ startsWith(inputs.host-platform, 'win') }}
+        run: git config --global core.symlinks true
+
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -74,6 +78,13 @@ jobs:
           # but not historical blobs.
           fetch-depth: 0
           filter: blob:none
+
+      - name: Register problem matchers
+        # Compiler and Cython errors from the wheel builds become annotations
+        # on the job page. Linux builds run inside a container, so their
+        # paths do not map onto the checkout and those annotations stay at
+        # the job level instead of linking into the diff.
+        run: echo "::add-matcher::.github/matchers/compiler.json"
 
       - name: Install latest rapidsai/sccache
         if: ${{ startsWith(inputs.host-platform, 'linux') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}

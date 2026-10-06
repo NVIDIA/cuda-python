@@ -4,8 +4,7 @@
 
 """Tests for cuda_bindings/build_hooks.py build infrastructure.
 
-Mirrors the toolchain tests in cuda_core/tests/test_build_hooks.py. These
-tests do NOT require cuda.bindings to be built/installed since they test
+These tests do NOT require cuda.bindings to be built/installed since they test
 build-time infrastructure. Run with --noconftest to avoid loading conftest.py
 which imports cuda.bindings modules:
 
@@ -27,21 +26,33 @@ import pytest
 import setuptools  # noqa: F401
 
 
-def _load_build_hooks():
-    """Load build_hooks module from source without polluting sys.path."""
-    build_hooks_path = Path(__file__).parent.parent / "build_hooks.py"
-    spec = importlib.util.spec_from_file_location("build_hooks", build_hooks_path)
+def _load_module(name, path, *, register=False):
+    """Load a module from source without permanently modifying sys.path.
+
+    build_hooks.py and _build_shared.py are PEP 517 backend files, not
+    installed modules. We use importlib to load them directly from source to
+    avoid polluting sys.path with the package directory (which contains
+    cuda/ source that could shadow the installed package). With ``register``
+    the module is also entered into sys.modules, which is how build_hooks.py's
+    ``from _build_shared import ...`` finds this copy.
+    """
+    spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
+    if register:
+        sys.modules[name] = module
     spec.loader.exec_module(module)
     return module
 
 
-build_hooks = _load_build_hooks()
+# Load the modules once at import time; _build_shared must come first.
+_PACKAGE_ROOT = Path(__file__).parent.parent
+_build_shared = _load_module("_build_shared", _PACKAGE_ROOT / "_build_shared.py", register=True)
+build_hooks = _load_module("build_hooks", _PACKAGE_ROOT / "build_hooks.py")
 
 
 @pytest.fixture(autouse=True)
 def _isolate_toolchain_env():
-    names = ("CUDA_PYTHON_TOOLCHAIN", "CC", "CXX", "LDSHARED", "CUDA_PYTHON_CYTHON_CACHE_DIR")
+    names = ("CUDA_PYTHON_TOOLCHAIN", "CC", "CXX", "LDSHARED", "LDCXXSHARED", "CUDA_PYTHON_CYTHON_CACHE_DIR")
     original = {name: os.environ[name] for name in names if name in os.environ}
     for name in names:
         os.environ.pop(name, None)
@@ -53,139 +64,12 @@ def _isolate_toolchain_env():
         os.environ.update(original)
 
 
-class TestResolveToolchain:
-    """_resolve_toolchain: pick compiler/linker/flags from CUDA_PYTHON_TOOLCHAIN.
-
-    The default toolchain (gnu on Linux, msvc on Windows) must reproduce the
-    previous build behavior exactly and must not touch CC/CXX/LDSHARED, so an
-    externally-set compiler (e.g. the sccache wrapper in CI) survives.
-    """
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_default_does_not_touch_env(self, monkeypatch):
-        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
-        monkeypatch.delenv("CC", raising=False)
-        monkeypatch.delenv("CXX", raising=False)
-        monkeypatch.delenv("LDSHARED", raising=False)
-        name, cc, cxx, _cargs, _largs = build_hooks._resolve_toolchain()
-        if sys.platform == "win32":
-            assert name == "msvc"
-            assert cc is None and cxx is None
-        else:
-            assert name == "gnu"
-            assert (cc, cxx) == ("gcc", "g++")
-        assert "CC" not in os.environ and "CXX" not in os.environ
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_default_preserves_existing_cc(self, monkeypatch):
-        # An externally-set CC (e.g. sccache) must survive the default toolchain.
-        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
-        monkeypatch.setenv("CC", "sccache cc")
-        monkeypatch.setenv("CXX", "sccache c++")
-        _name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
-        assert os.environ["CC"] == "sccache cc"
-        assert os.environ["CXX"] == "sccache c++"
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_case_insensitive(self, monkeypatch):
-        if sys.platform == "win32":
-            pytest.skip("llvm only valid on Linux")
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "LLVM")
-        name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
-        assert name == "llvm"
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_invalid_value_raises(self, monkeypatch):
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "icc")
-        with pytest.raises(RuntimeError, match="not supported"):
-            build_hooks._resolve_toolchain()
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_llvm_sets_env_and_flags(self, monkeypatch):
-        if sys.platform == "win32":
-            pytest.skip("llvm only valid on Linux")
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
-        monkeypatch.delenv("CC", raising=False)
-        monkeypatch.delenv("CXX", raising=False)
-        monkeypatch.delenv("LDSHARED", raising=False)
-        name, cc, cxx, cargs, largs = build_hooks._resolve_toolchain()
-        assert name == "llvm"
-        assert (cc, cxx) == ("clang", "clang++")
-        assert os.environ["CC"] == "clang"
-        assert os.environ["CXX"] == "clang++"
-        assert "-fuse-ld=lld" in largs
-        # clang rejects the gcc-only flags that gnu uses; they must be absent.
-        assert "-fpermissive" not in cargs
-        assert "-fno-var-tracking-assignments" not in cargs
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_gnu_sets_env_and_flags(self, monkeypatch):
-        if sys.platform == "win32":
-            pytest.skip("gnu only valid on Linux")
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "gnu")
-        monkeypatch.delenv("CC", raising=False)
-        monkeypatch.delenv("CXX", raising=False)
-        monkeypatch.delenv("LDSHARED", raising=False)
-        name, cc, cxx, cargs, largs = build_hooks._resolve_toolchain()
-        assert name == "gnu"
-        assert (cc, cxx) == ("gcc", "g++")
-        assert os.environ["CC"] == "gcc"
-        assert os.environ["CXX"] == "g++"
-        # gcc-only flags are present (this is the point of P2: explicit gnu must use gcc, not generic cc)
-        assert "-fpermissive" in cargs
-        assert "-fno-var-tracking-assignments" in cargs
-
-    @pytest.mark.agent_authored(model="grok-4.6")
-    def test_llvm_keeps_sccache_prefix(self, monkeypatch):
-        if sys.platform == "win32":
-            pytest.skip("llvm only valid on Linux")
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "llvm")
-        monkeypatch.setenv("CC", "sccache cc")
-        monkeypatch.setenv("CXX", "sccache c++")
-        _name, _cc, _cxx, _cargs, _largs = build_hooks._resolve_toolchain()
-        assert os.environ["CC"] == "sccache clang"
-        assert os.environ["CXX"] == "sccache clang++"
-        assert os.environ["LDSHARED"] == "sccache clang++ -shared"
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_gnu_keeps_gcc_only_flags(self, monkeypatch):
-        if sys.platform == "win32":
-            pytest.skip("gnu only valid on Linux")
-        monkeypatch.setenv("CUDA_PYTHON_TOOLCHAIN", "gnu")
-        _name, _cc, _cxx, cargs, _largs = build_hooks._resolve_toolchain()
-        assert "-fpermissive" in cargs
-        assert "-fno-var-tracking-assignments" in cargs
-
-
-class TestCheckToolchainAvailable:
-    """_check_toolchain_available: fast, helpful failure when a tool is missing."""
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_default_is_noop(self):
-        build_hooks._check_toolchain_available("gnu")
-        build_hooks._check_toolchain_available("msvc")
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_llvm_missing_tool_lists_install_hint(self, monkeypatch):
-        def fake_which(name):
-            return None if name in ("clang", "clang++", "ld.lld") else "/bin/" + name
-
-        monkeypatch.setattr(build_hooks.shutil, "which", fake_which)
-        with pytest.raises(RuntimeError, match="clang and lld"):
-            build_hooks._check_toolchain_available("llvm")
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_llvm_present_passes(self, monkeypatch):
-        monkeypatch.setattr(build_hooks.shutil, "which", lambda name: "/bin/" + name)
-        build_hooks._check_toolchain_available("llvm")
-
-
 @pytest.fixture
 def stamp(tmp_path, monkeypatch):
-    """Redirect the toolchain stamp to a scratch path."""
+    """Redirect the toolchain stamp to a scratch path and reset the shared force flag."""
     scratch = tmp_path / "build" / ".build-toolchain"
     monkeypatch.setattr(build_hooks, "_BUILD_TOOLCHAIN_STAMP", scratch)
-    monkeypatch.setattr(build_hooks, "force_build_ext", False)
+    monkeypatch.setattr(_build_shared, "force_build_ext", False)
     monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
     return scratch
 
@@ -196,23 +80,10 @@ def _write_stamp(stamp, toolchain):
 
 
 class TestBuildToolchainStamp:
-    """Tests for _check_build_toolchain() and record_build_toolchain()."""
+    """cuda.bindings stamps the toolchain name, through _check_build_toolchain() and record_build_toolchain().
 
-    @pytest.mark.agent_authored(model="grok-4.6")
-    def test_stamp_path_is_scoped_to_extension_abi(self, monkeypatch):
-        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-310-x86_64-linux-gnu.so")
-        python_310 = build_hooks._abi_stamp_path(".build-toolchain")
-        monkeypatch.setattr(build_hooks.sysconfig, "get_config_var", lambda _name: ".cpython-311-x86_64-linux-gnu.so")
-        python_311 = build_hooks._abi_stamp_path(".build-toolchain")
-
-        assert python_310 != python_311
-        assert python_310.name == ".build-toolchain.cpython-310-x86_64-linux-gnu.so"
-        assert python_311.name == ".build-toolchain.cpython-311-x86_64-linux-gnu.so"
-
-    @pytest.mark.agent_authored(model="glm-5.2")
-    def test_missing_stamp_forces_rebuild(self, stamp):
-        build_hooks._check_build_toolchain("gnu")
-        assert build_hooks.force_build_ext is True
+    The stamp-and-force protocol itself is tested by TestBuildKeyStamp.
+    """
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_same_toolchain_does_not_force(self, stamp):
@@ -249,7 +120,74 @@ _test_helpers_root = Path(__file__).parents[2] / "cuda_python_test_helpers"
 if _test_helpers_root.is_dir() and str(_test_helpers_root) not in sys.path:
     sys.path.insert(0, str(_test_helpers_root))
 
+from cuda_python_test_helpers.build_shared import (
+    AbiStampPathMixin,
+    BuildKeyStampMixin,
+    CheckToolchainAvailableMixin,
+    DistutilsLinkerIntegrationMixin,
+    ForceBuildExtReexportMixin,
+    ResolveToolchainMixin,
+    WithCompilerMixin,
+    WithSccacheMixin,
+)
 from cuda_python_test_helpers.cython_cache import POSIX_ONLY_CACHE, CythonAliasMixin, CythonCachePathMixin
+
+
+class TestResolveToolchainShared(ResolveToolchainMixin):
+    build_shared = _build_shared
+
+
+class TestWithSccache(WithSccacheMixin):
+    build_shared = _build_shared
+
+
+class TestWithCompiler(WithCompilerMixin):
+    build_shared = _build_shared
+
+
+class TestDistutilsLinkerIntegration(DistutilsLinkerIntegrationMixin):
+    build_shared = _build_shared
+
+
+class TestCheckToolchainAvailable(CheckToolchainAvailableMixin):
+    build_shared = _build_shared
+
+
+class TestAbiStampPath(AbiStampPathMixin):
+    build_shared = _build_shared
+
+
+class TestBuildKeyStamp(BuildKeyStampMixin):
+    build_shared = _build_shared
+
+
+class TestForceBuildExtReexport(ForceBuildExtReexportMixin):
+    build_hooks = build_hooks
+    build_shared = _build_shared
+
+
+class TestResolveToolchain:
+    """What cuda.bindings chooses in its ``_resolve_toolchain`` wrapper."""
+
+    @pytest.mark.agent_authored(model="claude-sonnet-4-6")
+    def test_linux_flag_set(self, monkeypatch):
+        """c++14 (c++17 costs ~15% on launch benchmarks), plus -Wno-deprecated-declarations; no -Werror."""
+        if sys.platform == "win32":
+            pytest.skip("Linux flags only")
+        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+        _name, _cc, _cxx, cargs, _largs = build_hooks._resolve_toolchain(debug=False)
+        assert "-std=c++14" in cargs
+        assert "-Wno-deprecated-declarations" in cargs
+        assert "-Werror" not in cargs
+
+    @pytest.mark.agent_authored(model="claude-sonnet-4-6")
+    def test_msvc_flag_set(self, monkeypatch):
+        if sys.platform != "win32":
+            pytest.skip("MSVC flags only on Windows")
+        monkeypatch.delenv("CUDA_PYTHON_TOOLCHAIN", raising=False)
+        _name, _cc, _cxx, cargs, _largs = build_hooks._resolve_toolchain(debug=False)
+        assert "/std:c++14" in cargs
+        assert "/WX" not in cargs
 
 
 class TestCythonCachePath(CythonCachePathMixin):
@@ -307,3 +245,74 @@ class TestCythonAlias(CythonAliasMixin):
     """`_stable_cython_alias` tests for cuda.bindings."""
 
     build_hooks = build_hooks
+
+
+# ---------------------------------------------------------------------------
+# CUDA header check
+#
+# A cuda-bindings source tree is generated from one CUDA header set. It
+# compiles only against a toolkit of that major.minor. Against another minor,
+# the C++ compile fails with redefinition errors that do not name the cause.
+# _check_cuda_headers() reads both versions before cythonize and fails early
+# with a message that does. No GPU needed.
+
+
+def _write_cuda_h(tmp_path, cuda_version):
+    include = tmp_path / "include"
+    include.mkdir(exist_ok=True)
+    (include / "cuda.h").write_text(f"#define CUDA_VERSION {cuda_version}\n", encoding="utf-8")
+    return str(tmp_path)
+
+
+class TestCudaHeaderCheck:
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_generated_header_version_is_read_from_cydriver_pxd(self):
+        generated = build_hooks._generated_cuda_version()
+        assert generated // 1000 in (12, 13)
+        assert build_hooks._major_minor(13040) == "13.4"
+        assert build_hooks._major_minor(12090) == "12.9"
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_a_header_of_the_generated_major_minor_passes(self, tmp_path):
+        generated = build_hooks._generated_cuda_version()
+        build_hooks._check_cuda_headers(_write_cuda_h(tmp_path, generated))
+        # Only major.minor matters. The last digit, as in 13041, is a toolkit patch.
+        build_hooks._check_cuda_headers(_write_cuda_h(tmp_path, generated + 1))
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    @pytest.mark.parametrize("delta", [-10, 10, -1000, 1000])
+    def test_another_header_fails_and_names_both_versions(self, tmp_path, delta):
+        generated = build_hooks._generated_cuda_version()
+        cuda_path = _write_cuda_h(tmp_path, generated + delta)
+        with pytest.raises(RuntimeError) as excinfo:
+            build_hooks._check_cuda_headers(cuda_path)
+        message = str(excinfo.value)
+        needed, found = build_hooks._major_minor(generated), build_hooks._major_minor(generated + delta)
+        assert message.startswith(f"This cuda-bindings source tree needs CUDA {needed} headers, but ")
+        assert os.path.realpath(os.path.join(cuda_path, "include", "cuda.h")) in message  # the resolved path
+        assert f" is CUDA {found}. This is a build-time requirement only" in message
+        assert build_hooks._INSTALL_URL in message
+        assert message.endswith(
+            f"Point CUDA_PATH or CUDA_HOME at a CUDA {needed} toolkit, or build from cuda-bindings {found}.x sources."
+        )
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_an_unreadable_cuda_h_is_a_clear_error(self, tmp_path):
+        with pytest.raises(RuntimeError, match=r"Cannot read CUDA_VERSION from .*cuda\.h"):
+            build_hooks._check_cuda_headers(str(tmp_path))  # no include/cuda.h
+        (tmp_path / "include").mkdir()
+        (tmp_path / "include" / "cuda.h").write_text("/* no CUDA_VERSION macro */\n", encoding="utf-8")
+        with pytest.raises(RuntimeError, match=r"Cannot read CUDA_VERSION from .*cuda\.h"):
+            build_hooks._check_cuda_headers(str(tmp_path))
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_the_build_checks_the_header_before_it_touches_the_tree(self, tmp_path, monkeypatch):
+        cuda_path = _write_cuda_h(tmp_path, build_hooks._generated_cuda_version() + 10)
+        monkeypatch.setattr(build_hooks, "_get_cuda_path", lambda: cuda_path)
+
+        def not_reached():
+            raise AssertionError("the header check must run before the build modifies the source tree")
+
+        monkeypatch.setattr(build_hooks, "_rename_architecture_specific_files", not_reached)
+        with pytest.raises(RuntimeError, match="source tree needs CUDA .* headers"):
+            build_hooks._build_cuda_bindings()

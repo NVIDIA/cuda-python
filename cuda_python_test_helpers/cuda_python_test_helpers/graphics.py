@@ -39,16 +39,20 @@ def select_headless_egl_device_for_cuda(cuda_device_ordinal: int) -> int | None:
     """
     egl_cuda_device_nv = 0x323A
 
+    from pyglet.gl.lib import MissingFunctionException
+    from pyglet.libs.egl import egl, eglext
+    from pyglet.libs.egl.lib import link_EGL
+
+    egl_query_device_attrib_ext = link_EGL(
+        "eglQueryDeviceAttribEXT",
+        egl.EGLBoolean,
+        [eglext.EGLDeviceEXT, egl.EGLint, ctypes.POINTER(ctypes.c_ssize_t)],
+    )
+
+    # link_EGL returns a stub for an unresolvable entry point that raises
+    # MissingFunctionException when called, so that is the only "extension not
+    # available" signal. Anything else is a real bug and must propagate.
     try:
-        from pyglet.libs.egl import egl, eglext
-        from pyglet.libs.egl.lib import link_EGL
-
-        egl_query_device_attrib_ext = link_EGL(
-            "eglQueryDeviceAttribEXT",
-            egl.EGLBoolean,
-            [eglext.EGLDeviceEXT, egl.EGLint, ctypes.POINTER(ctypes.c_ssize_t)],
-        )
-
         num_devices = egl.EGLint()
         if not eglext.eglQueryDevicesEXT(0, None, ctypes.byref(num_devices)) or num_devices.value <= 0:
             return None
@@ -62,7 +66,7 @@ def select_headless_egl_device_for_cuda(cuda_device_ordinal: int) -> int | None:
             found = egl_query_device_attrib_ext(devices[index], egl_cuda_device_nv, ctypes.byref(queried_ordinal))
             if found and queried_ordinal.value == cuda_device_ordinal:
                 return index
-    except Exception:
+    except MissingFunctionException:
         return None
 
     return None

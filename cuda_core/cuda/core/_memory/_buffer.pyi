@@ -29,8 +29,6 @@ class Buffer:
     by calling :meth:`from_ipc_descriptor` and therefore performs an IPC
     import. Do not unpickle buffers from untrusted sources.
     """
-    _size: int
-
     def _clear(self) -> None: ...
     def __init__(self, *args, **kwargs) -> None: ...
     @classmethod
@@ -171,8 +169,8 @@ class Buffer:
             asynchronous copy
         options : :class:`~utils.CopyOptions`, optional
             Transfer hints (source access order, location hints, overlap mode).
-            Honored when cuda.bindings and the driver are both CUDA 13.2 or
-            newer. Not accepted with ``LEGACY_DEFAULT_STREAM``; use
+            Honored on the CUDA 13 build of ``cuda.core`` with a driver of CUDA
+            13.2 or newer. Not accepted with ``LEGACY_DEFAULT_STREAM``; use
             ``PER_THREAD_DEFAULT_STREAM`` instead. Not accepted with a
             capturing stream either, since a graph cannot represent these
             attributes; use :meth:`graph.GraphNode.memcpy` for a plain,
@@ -205,8 +203,8 @@ class Buffer:
             asynchronous copy
         options : :class:`~utils.CopyOptions`, optional
             Transfer hints (source access order, location hints, overlap mode).
-            Honored when cuda.bindings and the driver are both CUDA 13.2 or
-            newer. Not accepted with ``LEGACY_DEFAULT_STREAM``; use
+            Honored on the CUDA 13 build of ``cuda.core`` with a driver of CUDA
+            13.2 or newer. Not accepted with ``LEGACY_DEFAULT_STREAM``; use
             ``PER_THREAD_DEFAULT_STREAM`` instead. Not accepted with a
             capturing stream either, since a graph cannot represent these
             attributes; use :meth:`graph.GraphNode.memcpy` for a plain,
