@@ -257,3 +257,13 @@ Fixes and enhancements
 - The ``StridedMemoryView`` DLPack C exchange API now preserves the underlying
   Python exception when an export or import fails, as required by the DLPack
   contract, instead of returning ``-1`` with no exception set.
+
+- :meth:`~graph.MemcpyNode.update` and the executable view of a memcpy node
+  now accept nodes recorded by stream capture. The driver stores the operands
+  of a captured :meth:`Buffer.copy_from` or :meth:`Buffer.copy_to` as unified
+  addresses, and ``update`` rejected that descriptor with a message about
+  multidimensional copies. Such an operand stays unified when it is replaced,
+  because the driver does not accept a change of an operand's memory type in
+  an instantiated graph, so :meth:`~graph.Graph.update` applies the change as
+  well. The node's ``repr`` now shows ``U`` for unified operands.
+  (`#2649 <https://github.com/NVIDIA/cuda-python/issues/2649>`__)

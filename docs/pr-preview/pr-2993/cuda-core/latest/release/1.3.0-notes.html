@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=6ea6c75c"></script>
+    <script src="../_static/documentation_options.js?v=71f3baa9"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev189';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev194';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1011,6 +1011,15 @@ empty buffer without a driver call.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">StridedMemoryView</span></code> DLPack C exchange API now preserves the underlying
 Python exception when an export or import fails, as required by the DLPack
 contract, instead of returning <code class="docutils literal notranslate"><span class="pre">-1</span></code> with no exception set.</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.graph.MemcpyNode.html#cuda.core.graph.MemcpyNode.update" title="cuda.core.graph.MemcpyNode.update"><code class="xref py py-meth docutils literal notranslate"><span class="pre">update()</span></code></a> and the executable view of a memcpy node
+now accept nodes recorded by stream capture. The driver stores the operands
+of a captured <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_from" title="cuda.core.Buffer.copy_from"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_from()</span></code></a> or <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_to" title="cuda.core.Buffer.copy_to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code></a> as unified
+addresses, and <code class="docutils literal notranslate"><span class="pre">update</span></code> rejected that descriptor with a message about
+multidimensional copies. Such an operand stays unified when it is replaced,
+because the driver does not accept a change of an operand’s memory type in
+an instantiated graph, so <a class="reference internal" href="../generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph.update" title="cuda.core.graph.Graph.update"><code class="xref py py-meth docutils literal notranslate"><span class="pre">update()</span></code></a> applies the change as
+well. The node’s <code class="docutils literal notranslate"><span class="pre">repr</span></code> now shows <code class="docutils literal notranslate"><span class="pre">U</span></code> for unified operands.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2649">#2649</a>)</p></li>
 </ul>
 </section>
 </section>
