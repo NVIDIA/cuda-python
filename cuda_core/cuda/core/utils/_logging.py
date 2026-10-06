@@ -11,7 +11,7 @@ from __future__ import annotations
 import ctypes
 import logging
 import threading
-from typing import Callable, Optional
+from typing import Callable
 
 from cuda.bindings import driver as _driver
 from cuda.core._utils.cuda_utils import handle_return
@@ -29,7 +29,8 @@ _lock = threading.Lock()
 _c_callback: ctypes._FuncPointer | None = None
 _callback_handle = None  # CUlogsCallbackHandle, needed to unregister
 
-def _make_c_callback(logger: logging.Logger, callback: Optional[PyLogCallback]) -> ctypes._FuncPointer:
+
+def _make_c_callback(logger: logging.Logger, callback: PyLogCallback | None) -> ctypes._FuncPointer:
     """Build the ctypes C callback passed to cuLogsRegisterCallback."""
 
     def _default_callback(cu_log_level: int, message: bytes) -> None:
@@ -55,33 +56,28 @@ def _make_c_callback(logger: logging.Logger, callback: Optional[PyLogCallback]) 
 
 def register_cuda_error_log(
     logger: logging.Logger | None = None,
-    callback: Optional[PyLogCallback] = None,
-) -> None:
+    callback: PyLogCallback | None = None,
+) -> logging.Logger:
     """Register a bridge that forwards CUDA driver ``cuLogs*`` messages to
     a Python :class:`logging.Logger`.
-
-    Process-wide and idempotent: the driver only has one global log
-    stream, so calling this again while already registered is a no-op.
 
     Parameters
     ----------
     logger : logging.Logger, optional
-        Target logger. Defaults to ``logging.getLogger("cuda.driver")``.
+        Target logger. If not provided, a default is created via
+        ``logging.getLogger("cuda.driver")``.
     callback : Callable[[int, bytes], None], optional
         Overrides the default forwarding. Called as
-        ``callback(log_level, message)`` with undecoded ``message`` and
-        unmapped ``log_level``; decoding/mapping is the callback's job
-        (``len(message)`` gives its size). Close over ``logger`` if
-        needed. Defaults to ``None`` (decode, map, and forward via
-        ``logger.log(level, "[CUDA Driver] %s", message)``).
+        ``callback(cu_log_level, message)`` with undecoded ``message`` and
+        unmapped ``cu_log_level``; decoding/mapping is the callback's job.
 
-    Raises
-    ------
-    TypeError
-        If ``callback`` is not ``None`` and not callable.
-    cuda.core._utils.cuda_utils.CUDAError
-        If ``cuLogsRegisterCallback`` fails, e.g. the driver predates
-        CUDA 12.9.
+    Returns
+    -------
+    logging.Logger
+        The ``logger`` argument above (or the default logger it resolved
+        to). If a bridge was already registered, it is unregistered first,
+        so this logger/callback replaces it.
+
     """
     global _c_callback, _callback_handle
 
@@ -93,7 +89,11 @@ def register_cuda_error_log(
 
     with _lock:
         if _callback_handle is not None:
-            return  # already registered; idempotent
+            # Already registered: unregister the old callback/handle first,
+            # then fall through to register the new logger/callback below.
+            handle_return(_driver.cuLogsUnregisterCallback(_callback_handle))
+            _c_callback = None
+            _callback_handle = None
 
         c_callback = _make_c_callback(logger, callback)
         addr = ctypes.cast(c_callback, ctypes.c_void_p).value
@@ -104,22 +104,16 @@ def register_cuda_error_log(
         _c_callback = c_callback
         _callback_handle = handle
 
+    return logger
+
 
 def unregister_cuda_error_log() -> None:
-    """Unregister the bridge installed by :func:`register_cuda_error_log`.
-
-    Idempotent: safe to call even if nothing is registered.
-
-    Raises
-    ------
-    cuda.core._utils.cuda_utils.CUDAError
-        If ``cuLogsUnregisterCallback`` fails.
-    """
+    """Unregister the bridge installed by :func:`register_cuda_error_log`."""
     global _c_callback, _callback_handle
 
     with _lock:
         if _callback_handle is None:
-            return  # nothing registered; idempotent
+            return
 
         handle_return(_driver.cuLogsUnregisterCallback(_callback_handle))
 
