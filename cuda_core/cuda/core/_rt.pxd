@@ -299,6 +299,7 @@ cdef MemAllocationHandle create_mem_allocation_handle(
     size_t size, const cydriver.CUmemAllocationProp& prop,
     const cydriver.CUmemAccessDesc* descs, size_t count) except+ nogil
 cdef size_t mem_allocation_size(const MemAllocationHandle& h) noexcept nogil
+cdef bint mem_allocation_is_imported(const MemAllocationHandle& h) noexcept nogil
 cdef MemAllocationHandle import_mem_allocation_handle(
     void* os_handle, cydriver.CUmemAllocationHandleType handle_type, size_t size,
     const cydriver.CUmemAccessDesc* descs, size_t count) except+ nogil

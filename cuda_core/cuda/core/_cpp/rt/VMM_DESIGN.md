@@ -232,21 +232,46 @@ process yields an alias of the exporter's memory at a new address. A
 `VirtualMemoryResource` pickles as (device, options), which is what lets a
 `Buffer` pickle as (resource, descriptor).
 
-File descriptors and memory. The driver copies each shared allocation into a
-handle of its own during the import and keeps no reference to the file
-descriptor, so the imported buffer does not keep the descriptor; it records
-only that it was imported (`is_mapped`). The descriptor's file descriptors live
-as long as the descriptor object, on the exporter (where the buffer caches it)
-and in every process that unpickled a copy, and each open descriptor keeps the
-physical memory allocated. A descriptor on a `Queue` pins the memory in the
-sender until the receiver unpickles it.
+File descriptors and memory. A descriptor pins the physical memory while it
+exists, in every process that holds one, and nothing else does. The exporting
+buffer keeps no descriptor: `ipc_descriptor` exports again on every access and
+returns a new descriptor that owns one file descriptor per allocation, and
+`VirtualMemoryBuffer.__reduce__` builds a transient one while `multiprocessing`
+pickles the buffer, so a sender holds no file descriptors between sends. One
+transport needs more: a `Queue`, `Pipe`, or `Pool` duplicates the file
+descriptors while pickling (the resource sharer), but a spawned `Process`
+records their numbers during pickling and passes them to the child only when
+it is created (`spawnv_passfds`), so `__reduce__` keeps the transient
+descriptor on the spawning `Popen` object, which dies with the `Process`
+object. Without that, the numbers are reused by the spawn's own pipes
+("bad value(s) in fds_to_keep") or the child imports a stranger's fd. The
+driver copies
+each shared allocation into a handle of its own during the import and keeps no
+reference to the file descriptor, so the imported buffer does not keep the
+descriptor either; it records only that it was imported (`is_mapped`). A
+descriptor parked in a `Queue` or sent to a `Pool` pins the memory in the
+sender until the receiver unpickles it. Besides `multiprocessing`, a process
+with its own file descriptor passing sends the descriptor's `fds`, `sizes`,
+`handle_type`, and `size` and rebuilds it with
+`VirtualMemoryIPCBufferDescriptor.from_fds()`, which duplicates the integers
+it is given.
 
-Re-export. The driver exports only allocations created with the requested
-handle type, and an imported allocation carries none, so an imported buffer,
-and any buffer grown from one, cannot be exported again; `ipc_descriptor` says
-so instead of surfacing the driver's INVALID_VALUE. A `modify_allocation`
-config must keep the resource's `handle_type` for the same reason: every chunk
-of a buffer must be exportable the same way.
+Re-export. The driver exports only allocations this process created with the
+requested handle type; an imported allocation has none, and the driver reports
+INVALID_VALUE. cuda.core does not rely on that: `MemAllocationBox.imported`
+records provenance per allocation (`mem_allocation_is_imported`), and since
+`modify_allocation` reuses the allocation handles of the input, the mark
+travels into every alias, in-place grow, and move. `_export_ipc_descriptor`
+checks the allocations that cover the buffer before any driver call and raises
+a RuntimeError that says the buffer contains memory imported from another
+process, that such memory cannot be exported again, and that the caller should
+forward the descriptor it imported from or copy into a buffer it owns. The same
+exception surfaces from `pickle`/`multiprocessing` (a `Queue` feeder thread
+reports it through `Queue._on_queue_feeder_error` and drops the item; the queue
+stays usable). PyTorch applies the same contract to received CUDA tensors
+("Attempted to send CUDA tensor received from another process"). There is no
+retention option. A `modify_allocation` config must keep the resource's
+`handle_type`: every chunk of a buffer must be exportable the same way.
 
 ## Why `modify_allocation` returns a new buffer
 

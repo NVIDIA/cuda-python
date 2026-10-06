@@ -28,9 +28,10 @@ using namespace detail;
 namespace {
 
 struct MemAllocationBox {
-    MemAllocationValue resource;          // from cuMemCreate
+    MemAllocationValue resource;          // from cuMemCreate or cuMemImportFromShareableHandle
     size_t size;                          // the only size cuMemMap accepts for it
     std::vector<CUmemAccessDesc> access;  // applied to every mapping of this allocation
+    bool imported;                        // another process created it; it cannot be exported again
 };
 
 struct VaReservationBox {
@@ -56,9 +57,9 @@ const Box* box_of(const Handle& h) noexcept {
 // cuMemCreate or cuMemImportFromShareableHandle produced it. The last
 // reference releases it; the memory is freed once no mapping remains.
 MemAllocationHandle wrap_mem_allocation(CUmemGenericAllocationHandle handle, size_t size,
-                                        std::vector<CUmemAccessDesc>&& access) {
+                                        std::vector<CUmemAccessDesc>&& access, bool imported) {
     auto box = std::shared_ptr<const MemAllocationBox>(
-        new MemAllocationBox{{handle}, size, std::move(access)},
+        new MemAllocationBox{{handle}, size, std::move(access), imported},
         [](const MemAllocationBox* b) {
             GILReleaseGuard gil;
             pw_cuMemRelease(b->resource.raw);
@@ -84,7 +85,7 @@ MemAllocationHandle create_mem_allocation_handle(size_t size, const CUmemAllocat
     if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemCreate, &handle, size, &prop, 0))) {
         return {};
     }
-    return wrap_mem_allocation(handle, size, std::move(access));
+    return wrap_mem_allocation(handle, size, std::move(access), false);
 }
 
 MemAllocationHandle import_mem_allocation_handle(void* os_handle, CUmemAllocationHandleType handle_type,
@@ -97,11 +98,15 @@ MemAllocationHandle import_mem_allocation_handle(void* os_handle, CUmemAllocatio
     if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemImportFromShareableHandle, &handle, os_handle, handle_type))) {
         return {};
     }
-    return wrap_mem_allocation(handle, size, std::move(access));
+    return wrap_mem_allocation(handle, size, std::move(access), true);
 }
 
 size_t mem_allocation_size(const MemAllocationHandle& h) noexcept {
     return h ? box_of<MemAllocationBox>(h)->size : 0;
+}
+
+bool mem_allocation_is_imported(const MemAllocationHandle& h) noexcept {
+    return h ? box_of<MemAllocationBox>(h)->imported : false;
 }
 
 // ============================================================================

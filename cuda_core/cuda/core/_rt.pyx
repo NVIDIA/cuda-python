@@ -180,6 +180,8 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
         const cydriver.CUmemAccessDesc* descs, size_t count) except+ nogil
     size_t mem_allocation_size "cuda_core::rt::mem_allocation_size" (
         const MemAllocationHandle& h) noexcept nogil
+    bint mem_allocation_is_imported "cuda_core::rt::mem_allocation_is_imported" (
+        const MemAllocationHandle& h) noexcept nogil
     MemAllocationHandle import_mem_allocation_handle "cuda_core::rt::import_mem_allocation_handle" (
         void* os_handle, cydriver.CUmemAllocationHandleType handle_type, size_t size,
         const cydriver.CUmemAccessDesc* descs, size_t count) except+ nogil

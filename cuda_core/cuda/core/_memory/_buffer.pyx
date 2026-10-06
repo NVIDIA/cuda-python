@@ -421,7 +421,11 @@ cdef class Buffer:
     @property
     @cython.critical_section
     def ipc_descriptor(self) -> IPCBufferDescriptor:
-        """Descriptor for sharing this buffer with other processes."""
+        """Descriptor for sharing this buffer with other processes.
+
+        A pool-backed buffer caches its descriptor; a
+        :class:`VirtualMemoryBuffer` exports a new one on every access.
+        """
         Buffer_check_open(self)
         cdef object ipc_data
         if self._ipc_data is None:

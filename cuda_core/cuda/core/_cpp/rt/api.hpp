@@ -262,6 +262,13 @@ MemAllocationHandle create_mem_allocation_handle(size_t size, const CUmemAllocat
 // Size of the allocation; the only size cuMemMap accepts for it.
 size_t mem_allocation_size(const MemAllocationHandle& h) noexcept;
 
+// Whether cuMemImportFromShareableHandle produced the allocation. The driver
+// exports only allocations this process created with a handle type, so an
+// imported allocation cannot be exported again; callers check this before
+// cuMemExportToShareableHandle instead of relying on the driver's error. The
+// mark travels with the allocation into every range that maps it.
+bool mem_allocation_is_imported(const MemAllocationHandle& h) noexcept;
+
 // Import a physical allocation that another process exported with
 // cuMemExportToShareableHandle. `os_handle` is the shareable handle in the
 // form cuMemImportFromShareableHandle expects for `handle_type` (a POSIX file

@@ -109,7 +109,11 @@ class Buffer:
         """
     @property
     def ipc_descriptor(self) -> IPCBufferDescriptor:
-        """Descriptor for sharing this buffer with other processes."""
+        """Descriptor for sharing this buffer with other processes.
+
+        A pool-backed buffer caches its descriptor; a
+        :class:`VirtualMemoryBuffer` exports a new one on every access.
+        """
     def close(self, stream: Stream | GraphBuilder | None=None) -> None:
         """Deallocate this buffer asynchronously on the given stream.
 

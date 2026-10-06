@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-cimport cython
 from libc.stdint cimport uintptr_t
 from libc.string cimport memset
 from libcpp.vector cimport vector
@@ -18,7 +17,6 @@ from cuda.core._memory._buffer cimport (
 )
 from cuda.core._memory._ipc cimport (
     IPCAllocationHandle,
-    IPCBufferDescriptor,
     IPCDataForBuffer,
     VirtualMemoryIPCBufferDescriptor,
 )
@@ -41,6 +39,7 @@ from cuda.core._rt cimport (
     get_last_error,
     get_primary_context,
     import_mem_allocation_handle,
+    mem_allocation_is_imported,
     mem_allocation_size,
     set_deallocation_stream,
     va_mapping_allocation,
@@ -54,6 +53,7 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, check_or_create_options
 import os
 import platform
 from dataclasses import dataclass, field
+from multiprocessing import context as _mp_context
 from typing import TYPE_CHECKING, Iterable
 
 from cuda.core._device import Device
@@ -101,7 +101,9 @@ class VirtualMemoryResourceOptions:
     location_type: :obj:`~_memory.VirtualMemoryLocationType` | str
         Controls the location of the allocation.
     handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str
-        Export handle type for the physical allocation. Use ``"posix_fd"`` on
+        Export handle type for the physical allocation, and the switch for
+        sharing buffers with other processes (see
+        :attr:`VirtualMemoryResource.is_ipc_enabled`). Use ``"posix_fd"`` on
         Linux if you plan to import/export the allocation. Use `None` if you
         don't need an exportable handle. ``location_type="host"`` requires
         `None`.
@@ -288,32 +290,53 @@ cdef class VirtualMemoryBuffer(Buffer):
     """
 
     @property
-    @cython.critical_section
-    def ipc_descriptor(self) -> IPCBufferDescriptor:
-        """Descriptor for sharing this buffer with other processes.
+    def ipc_descriptor(self) -> VirtualMemoryIPCBufferDescriptor:
+        """A new descriptor for sharing this buffer with other processes.
 
-        The descriptor exports every physical allocation that backs the
-        buffer as a shareable handle and is cached on the buffer until the
-        buffer closes. Each exported allocation takes one file descriptor,
-        and a live descriptor keeps the physical memory allocated in every
-        process that holds a copy. It requires a resource whose
-        ``handle_type`` can be shared; see
-        :attr:`VirtualMemoryResource.is_ipc_enabled`. Import it with
+        Every access exports the physical allocations that back the buffer
+        again and returns a new descriptor that owns one file descriptor per
+        allocation; the file descriptors close when the descriptor is
+        released. A descriptor pins the physical memory while it exists, in
+        every process that holds one, and nothing else does: the buffer
+        itself keeps no descriptor, so it pins nothing beyond its own mapping.
+        Pickling the buffer through ``multiprocessing`` builds a transient
+        descriptor, so the sender holds no file descriptors between sends;
+        a buffer passed as a ``Process`` argument is the exception, because
+        the child receives the file descriptors when it is spawned, after
+        pickling, so that descriptor lives until the ``Process`` object is
+        released. Requires a resource whose ``handle_type`` can be shared; see
+        :attr:`VirtualMemoryResource.is_ipc_enabled`. Import with
         :meth:`Buffer.from_ipc_descriptor` and a
         :class:`VirtualMemoryResource` of the receiving process, or send the
-        buffer itself through ``multiprocessing``. A buffer imported from
-        another process cannot be exported again; share the descriptor it
-        was imported from.
+        buffer itself.
+
+        Raises
+        ------
+        RuntimeError
+            If the resource is not IPC-enabled, or the buffer contains memory
+            imported from another process (an import, or a buffer
+            :meth:`VirtualMemoryResource.modify_allocation` derived from
+            one): such memory cannot be exported again. Forward the descriptor
+            it was imported from, or copy the data into a buffer this process
+            allocated. The check happens before any driver call.
         """
         Buffer_check_open(self)
-        if self._ipc_data is None:
-            self._ipc_data = IPCDataForBuffer(_export_ipc_descriptor(self), False)
-        elif self._ipc_data.is_mapped:
-            raise RuntimeError(
-                "a VirtualMemoryBuffer imported from another process cannot be exported again: the CUDA driver "
-                "does not export imported allocations. Share the descriptor it was imported from."
-            )
-        return self._ipc_data.ipc_descriptor
+        return _export_ipc_descriptor(self)
+
+    def __reduce__(self) -> tuple[object, ...]:
+        # Unpickling performs a live import from the descriptor; only deserialize
+        # Buffers from a trusted principal. Must not serialize the parent's stream.
+        Buffer_check_open(self)
+        desc = _export_ipc_descriptor(self)
+        popen = _mp_context.get_spawning_popen()
+        if popen is not None:
+            # A Queue, Pipe, or Pool duplicates the file descriptors while this
+            # transient descriptor is alive. A spawned Process does not: it
+            # records their numbers now and hands them to the child when it is
+            # created, after pickling has finished. Keep the descriptor on the
+            # Popen until then; the Popen dies with the Process object.
+            vars(popen).setdefault("_cuda_core_descriptors_until_spawned", []).append(desc)
+        return Buffer._reduce_helper, (self.memory_resource, desc)
 
     def close(self, stream: Stream | GraphBuilder | None = None) -> None:
         """Release this buffer's share of its address range.
@@ -377,7 +400,8 @@ cdef class VirtualMemoryResource(MemoryResource):
         A shared buffer's descriptor comes from the exporting process and is not trusted:
         :meth:`Buffer.from_ipc_descriptor` checks what it can, and the driver rejects a size that
         does not match the exported allocation. Unpickling a shared buffer performs a live import,
-        so unpickle buffers only from a trusted principal.
+        so unpickle buffers only from a trusted principal. A descriptor pins the physical memory
+        while it exists; release it when the receiver has imported it.
 
     Notes
     -----
@@ -392,16 +416,23 @@ cdef class VirtualMemoryResource(MemoryResource):
     :meth:`Buffer.set_deallocation_stream`.
 
     Buffers can be shared with other processes when ``config.handle_type``
-    is ``"posix_fd"`` (Linux). :attr:`Buffer.ipc_descriptor` exports the
-    physical allocations that back a buffer, one file descriptor each;
-    :meth:`Buffer.from_ipc_descriptor` imports them with a
-    ``VirtualMemoryResource`` of the receiving process for the device that
-    owns the memory; and a buffer sent through ``multiprocessing`` does both.
-    Plain ``pickle`` cannot carry the file descriptors. The importing resource
-    maps the memory for its device and the devices in its ``peers`` option,
-    with its own access options. A live descriptor keeps the memory allocated
-    in every process that holds a copy. An imported buffer, and a buffer grown
-    from one, cannot be exported again. See :attr:`is_ipc_enabled`.
+    is ``"posix_fd"`` (Linux); ``handle_type`` is the switch and
+    :attr:`is_ipc_enabled` the query. :attr:`Buffer.ipc_descriptor` exports
+    the physical allocations that back a buffer, one file descriptor each,
+    into a new descriptor on every access; :meth:`Buffer.from_ipc_descriptor`
+    imports a descriptor with a ``VirtualMemoryResource`` of the receiving
+    process for the device that owns the memory; and a buffer sent through
+    ``multiprocessing`` does both. Plain ``pickle`` cannot carry the file
+    descriptors; a process with its own file descriptor passing sends the
+    descriptor's ``fds``, ``sizes``, ``handle_type``, and ``size`` and
+    rebuilds it with ``VirtualMemoryIPCBufferDescriptor.from_fds()``. The
+    importing resource maps the memory for its device and the devices in its
+    ``peers`` option, with its own access options. A descriptor pins the
+    physical memory while it exists, in every process that holds one, and
+    nothing else does. A buffer that contains imported memory (an import, or
+    anything :meth:`modify_allocation` derived from one) cannot be exported
+    again; forward the descriptor it came from, or copy into a buffer you
+    own.
     """
 
     cdef:
@@ -854,7 +885,8 @@ cdef class VirtualMemoryResource(MemoryResource):
     def is_ipc_enabled(self) -> bool:
         """Whether buffers of this resource can be shared with other processes.
 
-        True when ``config.handle_type`` is ``"posix_fd"`` on Linux. With
+        True when ``config.handle_type`` is ``"posix_fd"`` on Linux;
+        ``handle_type`` is the only switch, there is no separate option. With
         ``handle_type=None`` the allocations cannot be exported, Win32 KMT
         handles are not transported by cuda.core, and fabric handles are not
         supported yet.
@@ -1026,14 +1058,17 @@ cdef VirtualMemoryIPCBufferDescriptor _export_ipc_descriptor(Buffer buf):
 
     Only the allocations that cover ``buf.size`` are exported; a buffer's size
     is a prefix of its range. Each file descriptor is owned by an
-    :class:`IPCAllocationHandle` in the descriptor and closed with it. An
-    allocation this process imported cannot be exported: the driver exports
-    only allocations created with the requested handle type.
+    :class:`IPCAllocationHandle` in the new descriptor and closed with it;
+    nothing is cached on the buffer. A buffer that contains memory imported
+    from another process is refused before any driver call: the driver
+    exports only allocations this process created with the handle type, and
+    every allocation carries its provenance (``mem_allocation_is_imported``)
+    into every range that maps it.
     """
     cdef VirtualMemoryResource mr = <VirtualMemoryResource>buf._memory_resource
     cdef vector[VaMappingHandle] mappings
+    cdef vector[MemAllocationHandle] allocs
     cdef MemAllocationHandle h_alloc
-    cdef cydriver.CUmemAllocationProp chunk_prop
     cdef cydriver.CUresult status
     cdef size_t i, n, chunk, offset = 0
     cdef int handle_type
@@ -1045,30 +1080,30 @@ cdef VirtualMemoryIPCBufferDescriptor _export_ipc_descriptor(Buffer buf):
         raise RuntimeError("Memory resource is not IPC-enabled")
     handle_type = int(VirtualMemoryResourceOptions._handle_type_to_driver(mr.config.handle_type))
     mappings = vmm_range_mappings(vmm_range(buf._h_ptr))
-    n = mappings.size()
-    for i in range(n):
+    for i in range(mappings.size()):
         if offset >= buf._size:
             break
         h_alloc = va_mapping_allocation(mappings[i])
-        chunk = mem_allocation_size(h_alloc)
-        # The driver exports only allocations created with the requested
-        # handle type; an imported allocation carries none, so the export would
-        # fail with INVALID_VALUE. Say what the limitation is instead.
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemGetAllocationPropertiesFromHandle(&chunk_prop, as_cu(h_alloc)))
-        if (<int>chunk_prop.requestedHandleTypes & handle_type) == 0:
+        allocs.push_back(h_alloc)
+        offset += mem_allocation_size(h_alloc)
+    n = allocs.size()
+    for i in range(n):
+        if mem_allocation_is_imported(allocs[i]):
             raise RuntimeError(
-                f"chunk {i + 1} of this buffer cannot be exported: it was imported from another process, and "
-                "the CUDA driver does not export imported allocations. Share the descriptor the memory was "
-                "imported from instead."
+                f"this buffer contains memory imported from another process (allocation {i + 1} of {n}); imported "
+                "memory cannot be exported again. Forward the descriptor it was imported from, or copy the data "
+                "into a buffer this process allocated."
             )
+    for i in range(n):
+        h_alloc = allocs[i]
+        chunk = mem_allocation_size(h_alloc)
         with nogil:
             status = cydriver.cuMemExportToShareableHandle(
                 <void*>&fd, as_cu(h_alloc), <cydriver.CUmemAllocationHandleType>handle_type, 0)
         _check_noting(
             status,
-            f"while exporting chunk {i + 1} of {n} of a VirtualMemoryResource buffer; each exported chunk takes "
-            "one file descriptor, so a process near its file descriptor limit fails here",
+            f"while exporting allocation {i + 1} of {n} of a VirtualMemoryResource buffer; each exported "
+            "allocation takes one file descriptor, so a process near its file descriptor limit fails here",
         )
         try:
             handles.append(IPCAllocationHandle._init(fd, None))
@@ -1076,5 +1111,4 @@ cdef VirtualMemoryIPCBufferDescriptor _export_ipc_descriptor(Buffer buf):
             os.close(fd)
             raise
         sizes.append(chunk)
-        offset += chunk
     return VirtualMemoryIPCBufferDescriptor._from_exports(handle_type, tuple(sizes), tuple(handles), buf._size)

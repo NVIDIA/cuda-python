@@ -13,9 +13,14 @@ the limits of re-export.
 
 import ctypes
 import gc
+import json
 import multiprocessing as mp
+import multiprocessing.queues
 import os
 import pickle
+import resource
+import socket
+import threading
 
 import pytest
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
@@ -143,6 +148,31 @@ def _run_child(target, *args):
     assert process.exitcode == 0, f"child exited with {process.exitcode}"
 
 
+def _noop(*args):
+    pass
+
+
+def _close_argument(buffer):
+    buffer.close()
+
+
+_REEXPORT_MESSAGE = "imported from another process"
+_FEEDER_ERRORS: list = []
+_FEEDER_EVENT = threading.Event()
+
+
+class _ReportingQueue(multiprocessing.queues.Queue):
+    """A Queue whose feeder-thread errors are recorded, not only printed to stderr."""
+
+    def __init__(self):
+        super().__init__(ctx=mp.get_context())
+
+    @staticmethod
+    def _on_queue_feeder_error(e, _obj):
+        _FEEDER_ERRORS.append((type(e), str(e)))
+        _FEEDER_EVENT.set()
+
+
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.parametrize(
     ("options", "expected"),
@@ -222,7 +252,7 @@ class TestManyChunkBuffer:
         finally:
             for buffer in buffers:
                 buffer.close()
-        # Closing the buffer drops its cached descriptor; the last reference goes here.
+        # The descriptor is the only holder of the file descriptors; the buffer caches nothing.
         del desc
         gc.collect()
         for fd in fds:
@@ -402,9 +432,27 @@ class TestDescriptorValidation:
 
 
 class TestReexport:
+    """Memory imported from another process cannot be exported again; the error is clear and early."""
+
+    @staticmethod
+    def _derived(mr, imported, gran):
+        """Buffers modify_allocation derives from an import: an alias, a grow, and (if the driver allows) a move."""
+        derived = {
+            "alias": mr.modify_allocation(imported, imported.size),
+            "grow": mr.modify_allocation(imported, 2 * gran),
+        }
+        base = derived["grow"]
+        decoy = _reserve_at(int(base.handle) + base.size, gran)
+        if decoy is not None:
+            try:
+                derived["move"] = mr.modify_allocation(base, base.size + gran)
+            finally:
+                handle_return(driver.cuMemAddressFree(decoy, gran))
+            assert int(derived["move"].handle) != int(base.handle)
+        return derived
+
     @pytest.mark.agent_authored(model="claude-fable-5-1")
-    def test_imported_buffer_cannot_be_exported(self, vmm_ipc_device):
-        """The driver exports only allocations it created with the handle type; imports and grows from them fail."""
+    def test_export_and_pickling_raise_before_any_driver_call(self, vmm_ipc_device):
         device = vmm_ipc_device
         stream = device.default_stream
         mr = _resource(device)
@@ -413,34 +461,376 @@ class TestReexport:
         desc = buf.ipc_descriptor
         imported = Buffer.from_ipc_descriptor(mr, desc, stream=stream)
         assert imported.is_mapped
-        with pytest.raises(RuntimeError, match="cannot be exported again"):
-            _ = imported.ipc_descriptor
-        with pytest.raises(RuntimeError, match="cannot be exported again"):
-            mp.reduction.ForkingPickler.dumps(imported)  # a buffer pickles through its descriptor
+        buffers = {"import": imported, **self._derived(mr, imported, gran)}
+        try:
+            for name, buffer in buffers.items():
+                with pytest.raises(RuntimeError, match=_REEXPORT_MESSAGE) as info:
+                    _ = buffer.ipc_descriptor
+                message = str(info.value)
+                assert "cannot be exported again" in message, name
+                assert "Forward the descriptor" in message and "copy the data" in message, name
+                with pytest.raises(RuntimeError, match=_REEXPORT_MESSAGE):
+                    mp.reduction.ForkingPickler.dumps(buffer)
+            # The transports that pickle in the caller's thread raise to the caller.
+            parent_conn, child_conn = mp.Pipe()
+            with parent_conn, child_conn, pytest.raises(RuntimeError, match=_REEXPORT_MESSAGE):
+                parent_conn.send(imported)
+            with pytest.raises(RuntimeError, match=_REEXPORT_MESSAGE):
+                mp.Process(target=_noop, args=(imported,)).start()
+            # The original descriptor still serves new importers, and the data is intact.
+            _fill(buf, 0x3C)
+            alias = Buffer.from_ipc_descriptor(mr, desc, stream=stream)
+            assert _read(alias, 0, 16) == b"\x3c" * 16
+            alias.close()
+        finally:
+            for buffer in reversed(list(buffers.values())):
+                buffer.close()
+            buf.close()
 
-        # A buffer grown from an import maps the imported chunk, so it cannot be exported either.
-        grown = mr.modify_allocation(imported, 2 * gran)
-        assert not grown.is_mapped
-        with pytest.raises(RuntimeError, match="imported from another process"):
-            _ = grown.ipc_descriptor
-
-        # The original descriptor still serves new importers.
-        _fill(buf, 0x3C)
-        alias = Buffer.from_ipc_descriptor(mr, desc, stream=stream)
-        assert _read(alias, 0, 16) == b"\x3c" * 16
-        for buffer in (alias, grown, imported, buf):
-            buffer.close()
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    @pytest.mark.thread_unsafe(reason="records feeder-thread errors in module state")
+    def test_queue_feeder_reports_the_error_and_stays_usable(self, vmm_ipc_device):
+        """A Queue pickles in its feeder thread: the error is reported there, the item is dropped, and the queue works on."""
+        device = vmm_ipc_device
+        stream = device.default_stream
+        mr = _resource(device)
+        buf = mr.allocate(1)
+        imported = Buffer.from_ipc_descriptor(mr, buf.ipc_descriptor, stream=stream)
+        _FEEDER_ERRORS.clear()
+        _FEEDER_EVENT.clear()
+        queue = _ReportingQueue()
+        try:
+            queue.put(imported)
+            assert _FEEDER_EVENT.wait(timeout=CHILD_TIMEOUT_SEC), "the feeder thread did not report the error"
+            ((exc_type, message),) = _FEEDER_ERRORS
+            assert exc_type is RuntimeError
+            assert _REEXPORT_MESSAGE in message
+            assert "cannot be exported again" in message
+            # A consumer is not left waiting: the next item arrives.
+            queue.put("next item")
+            assert queue.get(timeout=CHILD_TIMEOUT_SEC) == "next item"
+        finally:
+            queue.close()
+            queue.join_thread()
+            imported.close()
+            buf.close()
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_grow_cannot_change_handle_type(self, vmm_ipc_device):
         """Every chunk of a buffer must be exportable the same way."""
         device = vmm_ipc_device
         mr = _resource(device)
-        with mr.allocate(1) as buf, pytest.raises(ValueError, match="handle_type"):
+        with (
+            mr.allocate(1) as buf,
+            pytest.raises(ValueError, match="handle_type"),
+        ):
             mr.modify_allocation(buf, 2 * buf.size, config=VirtualMemoryResourceOptions(handle_type=None))
         private = _resource(device, handle_type=None)
-        with private.allocate(1) as buf, pytest.raises(ValueError, match="handle_type"):
+        with (
+            private.allocate(1) as buf,
+            pytest.raises(ValueError, match="handle_type"),
+        ):
             private.modify_allocation(buf, 2 * buf.size, config=VirtualMemoryResourceOptions())
+
+
+class TestFileDescriptorLifetime:
+    """A descriptor is the only holder of file descriptors, on both sides."""
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    @pytest.mark.thread_unsafe(reason="counts process-global file descriptors")
+    def test_exporter_holds_none_without_a_descriptor(self, vmm_ipc_device):
+        """Each access exports anew; the file descriptors close with the descriptor, not with the buffer."""
+        device = vmm_ipc_device
+        mr = _resource(device)
+        first = mr.allocate(1)
+        gran = first.size
+        buf = mr.modify_allocation(first, 2 * gran)
+        fds0 = _open_fds()
+        desc = buf.ipc_descriptor
+        assert desc.sizes == (gran, gran)
+        assert _open_fds() == fds0 + 2
+        again = buf.ipc_descriptor
+        assert again is not desc
+        assert set(again.fds).isdisjoint(desc.fds)
+        assert _open_fds() == fds0 + 4
+        del again
+        gc.collect()
+        assert _open_fds() == fds0 + 2
+        numbers = desc.fds
+        del desc
+        gc.collect()
+        assert _open_fds() == fds0, "the buffer alone must hold no file descriptors"
+        for fd in numbers:
+            with pytest.raises(OSError):
+                os.fstat(fd)
+        buf.close()
+        first.close()
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    @pytest.mark.thread_unsafe(reason="counts process-global file descriptors")
+    def test_process_argument_releases_with_the_process_object(self, vmm_ipc_device):
+        """A buffer passed to a spawned Process imports there; its descriptor goes when the Process object does."""
+        device = vmm_ipc_device
+        mr = _resource(device)
+        buf = mr.allocate(1)
+        fds0 = _open_fds()
+        process = mp.Process(target=_close_argument, args=(buf,))
+        process.start()
+        process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
+        assert process.exitcode == 0, f"child exited with {process.exitcode}"
+        del process
+        gc.collect()
+        assert _open_fds() == fds0
+        buf.close()
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_importer_holds_none_after_the_import(self, vmm_ipc_device):
+        """The import adds no file descriptors, and releasing the received descriptor closes its own."""
+        device = vmm_ipc_device
+        mr = _resource(device)
+        first = mr.allocate(1)
+        gran = first.size
+        buf = mr.modify_allocation(first, 2 * gran)
+        _fill(buf, 0x5B)
+        to_child, from_child = mp.Queue(), mp.Queue()
+        process = mp.Process(target=self.child_main, args=(device.device_id, to_child, from_child))
+        process.start()
+        to_child.put(buf.ipc_descriptor)  # transient: nothing is kept on this side
+        counts = from_child.get(timeout=CHILD_TIMEOUT_SEC)
+        process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
+        assert process.exitcode == 0, f"child exited with {process.exitcode}"
+        assert counts["data"] == b"\x5b" * 16
+        assert counts["after_import"] == counts["with_descriptor"]
+        assert counts["after_release"] == counts["with_descriptor"] - 2
+        assert counts["after_close"] == counts["after_release"]
+        buf.close()
+        first.close()
+
+    @staticmethod
+    def child_main(device_id, to_child, from_child):
+        device = Device(device_id)
+        device.set_current()
+        mr = _resource(device)
+        desc = to_child.get(timeout=CHILD_TIMEOUT_SEC)
+        # A first import lets the driver finish any lazy initialization before counting.
+        Buffer.from_ipc_descriptor(mr, desc, stream=device.default_stream).close()
+        counts = {"with_descriptor": _open_fds()}
+        imported = Buffer.from_ipc_descriptor(mr, desc, stream=device.default_stream)
+        counts["after_import"] = _open_fds()
+        del desc
+        gc.collect()
+        counts["after_release"] = _open_fds()
+        counts["data"] = _read(imported, 0, 16)  # the import, not the descriptor, holds the memory now
+        imported.close()
+        counts["after_close"] = _open_fds()
+        from_child.put(counts)
+
+
+class TestFileDescriptorLimit:
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    @pytest.mark.thread_unsafe(reason="changes the process-wide file descriptor limit")
+    def test_export_near_the_limit(self, vmm_ipc_device):
+        """Under a lowered RLIMIT_NOFILE an export either succeeds or fails with a readable error and no leak."""
+        device = vmm_ipc_device
+        stream = device.default_stream
+        mr = _resource(device)
+        first = mr.allocate(1)
+        gran = first.size
+        second = mr.modify_allocation(first, 2 * gran)
+        buf = mr.modify_allocation(second, 3 * gran)
+        values = (0x61, 0x62, 0x63)
+        for i, value in enumerate(values):
+            _fill(buf, value, offset=i * gran, size=gran)
+        soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+        fillers = []
+        imported = desc = None
+        try:
+            # Fill the holes in the descriptor table so that the limit alone decides how many more fit.
+            highest = max(int(name) for name in os.listdir("/proc/self/fd"))
+            while True:
+                fd = os.open(os.devnull, os.O_RDONLY)
+                if fd > highest:
+                    os.close(fd)
+                    break
+                fillers.append(fd)
+            baseline = _open_fds()
+            # Room for two more descriptors: a three-allocation export cannot complete.
+            resource.setrlimit(resource.RLIMIT_NOFILE, (highest + 1 + 2, hard))
+            failure = None
+            try:
+                desc = buf.ipc_descriptor
+            except CUDAError as exc:
+                failure = exc
+            if failure is not None:
+                assert _has_note(failure, "file descriptor limit")
+                assert _open_fds() == baseline, "a failed export must close the descriptors it already took"
+            else:
+                # Acceptable only if the driver did not need one descriptor per allocation.
+                assert len(desc.fds) == 3
+                desc = None
+                gc.collect()
+            # Room for the three descriptors and the listing: export and import both succeed.
+            resource.setrlimit(resource.RLIMIT_NOFILE, (highest + 1 + 6, hard))
+            desc = buf.ipc_descriptor
+            assert len(desc.fds) == 3
+            imported = Buffer.from_ipc_descriptor(mr, desc, stream=stream)
+            assert _open_fds() == baseline + 3, "the import must not take file descriptors of its own"
+        finally:
+            resource.setrlimit(resource.RLIMIT_NOFILE, (soft, hard))
+            for fd in fillers:
+                os.close(fd)
+        assert [_read(imported, i * gran, 16) for i in range(3)] == [bytes([value]) * 16 for value in values]
+        del desc
+        gc.collect()
+        for buffer in (imported, buf, second, first):
+            buffer.close()
+
+
+class TestRawFileDescriptorTransport:
+    """The descriptor's fds, sizes, handle_type, and size travel over any file-descriptor-passing transport."""
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    @pytest.mark.thread_unsafe(reason="counts process-global file descriptors")
+    def test_round_trip_with_os_dup(self, vmm_ipc_device):
+        device = vmm_ipc_device
+        stream = device.default_stream
+        mr = _resource(device)
+        first = mr.allocate(1)
+        gran = first.size
+        buf = mr.modify_allocation(first, 2 * gran)
+        _fill(buf, 0x71, size=gran)
+        _fill(buf, 0x72, offset=gran, size=gran)
+        fds0 = _open_fds()
+        desc = buf.ipc_descriptor
+        assert desc.handle_type == "posix_fd"
+        assert desc.sizes == (gran, gran)
+        assert desc.size == 2 * gran
+        assert desc.fds == tuple(int(handle) for handle in desc.handles)
+        # A transport of our own: duplicate the integers, then let the descriptor go.
+        wire = {
+            "fds": [os.dup(fd) for fd in desc.fds],
+            "sizes": list(desc.sizes),
+            "handle_type": str(desc.handle_type),
+            "size": desc.size,
+        }
+        del desc
+        gc.collect()
+        assert _open_fds() == fds0 + 2
+        rebuilt = VirtualMemoryIPCBufferDescriptor.from_fds(
+            wire["fds"], wire["sizes"], handle_type=wire["handle_type"], size=wire["size"]
+        )
+        assert _open_fds() == fds0 + 4, "from_fds duplicates the integers it is given"
+        for fd in wire["fds"]:
+            os.close(fd)  # the caller keeps ownership of its own
+        assert _open_fds() == fds0 + 2
+        assert rebuilt.handle_type == "posix_fd"
+        assert rebuilt.sizes == (gran, gran)
+        assert rebuilt.size == 2 * gran
+        imported = Buffer.from_ipc_descriptor(mr, rebuilt, stream=stream)
+        assert _read(imported, 0, 16) == b"\x71" * 16
+        assert _read(imported, gran, 16) == b"\x72" * 16
+        del rebuilt
+        gc.collect()
+        assert _open_fds() == fds0
+        imported.close()
+        buf.close()
+        first.close()
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_from_fds_shares_handle_objects_and_rejects_bad_input(self, vmm_ipc_device):
+        device = vmm_ipc_device
+        stream = device.default_stream
+        mr = _resource(device)
+        buf = mr.allocate(1)
+        gran = buf.size
+        desc = buf.ipc_descriptor
+        from_fds = VirtualMemoryIPCBufferDescriptor.from_fds
+
+        shared = from_fds(desc.handles, desc.sizes)
+        assert shared.handles[0] is desc.handles[0]  # an IPCAllocationHandle is shared, not duplicated
+        assert shared.size == gran
+        Buffer.from_ipc_descriptor(mr, shared, stream=stream).close()
+
+        with pytest.raises(ValueError, match="one size per handle"):
+            from_fds(desc.fds, ())
+        with pytest.raises(ValueError, match="positive"):
+            from_fds(desc.fds, (0,))
+        with pytest.raises(ValueError, match="sum of the allocation sizes"):
+            from_fds(desc.fds, desc.sizes, size=gran + 1)
+        with pytest.raises(ValueError):
+            from_fds(desc.fds, desc.sizes, handle_type="win32")
+        with pytest.raises(ValueError, match="handle_type=None"):
+            from_fds(desc.fds, desc.sizes, handle_type=None)
+        with pytest.raises(OSError):
+            from_fds([1 << 20], desc.sizes)
+        closed = IPCAllocationHandle._init(os.dup(desc.fds[0]), None)
+        closed.close()
+        with pytest.raises(RuntimeError, match="closed"):
+            from_fds([closed], desc.sizes)
+        # A handle type other than the resource's is refused at import, before any driver call.
+        other = from_fds(desc.fds, desc.sizes, handle_type="fabric")
+        with pytest.raises(ValueError, match="handle type does not match"):
+            Buffer.from_ipc_descriptor(mr, other, stream=stream)
+        buf.close()
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_round_trip_through_a_unix_socket(self, vmm_ipc_device):
+        """A child receives the file descriptors with SCM_RIGHTS and rebuilds the descriptor itself."""
+        device = vmm_ipc_device
+        mr = _resource(device)
+        first = mr.allocate(1)
+        gran = first.size
+        buf = mr.modify_allocation(first, 2 * gran)
+        _fill(buf, 0x73, size=gran)
+        _fill(buf, 0x74, offset=gran, size=gran)
+        parent_sock, child_sock = socket.socketpair()
+        queue = mp.Queue()
+        process = mp.Process(target=self.child_main, args=(device.device_id, child_sock, queue))
+        process.start()
+        child_sock.close()
+        desc = buf.ipc_descriptor
+        header = json.dumps({"sizes": list(desc.sizes), "handle_type": str(desc.handle_type), "size": desc.size})
+        socket.send_fds(parent_sock, [header.encode()], list(desc.fds))
+        del desc  # the kernel duplicated the descriptors into the message
+        gc.collect()
+        result = queue.get(timeout=CHILD_TIMEOUT_SEC)
+        process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
+        assert process.exitcode == 0, f"child exited with {process.exitcode}"
+        parent_sock.close()
+        assert result == {"low": b"\x73" * 16, "high": b"\x74" * 16, "sizes": [gran, gran], "size": 2 * gran}
+        assert _read(buf, 0, 16) == b"\x75" * 16
+        buf.close()
+        first.close()
+
+    @staticmethod
+    def child_main(device_id, sock, queue):
+        device = Device(device_id)
+        device.set_current()
+        with sock:
+            msg, fds, _flags, _addr = socket.recv_fds(sock, 4096, 16)
+        header = json.loads(msg)
+        desc = VirtualMemoryIPCBufferDescriptor.from_fds(
+            fds, header["sizes"], handle_type=header["handle_type"], size=header["size"]
+        )
+        for fd in fds:
+            os.close(fd)  # from_fds duplicated them; the received ones are ours to close
+        imported = Buffer.from_ipc_descriptor(_resource(device), desc, stream=device.default_stream)
+        gran = header["sizes"][0]
+        result = {
+            "low": _read(imported, 0, 16),
+            "high": _read(imported, gran, 16),
+            "sizes": list(desc.sizes),
+            "size": desc.size,
+        }
+        _fill(imported, 0x75, size=gran)
+        imported.close()
+        queue.put(result)
 
 
 class TestEmptyBuffer:
@@ -452,8 +842,9 @@ class TestEmptyBuffer:
         empty = mr.allocate(0)
         desc = empty.ipc_descriptor
         assert desc.size == 0
-        assert desc._chunk_sizes == ()
-        assert desc._handles == ()
+        assert desc.sizes == ()
+        assert desc.handles == ()
+        assert desc.fds == ()
         alias = Buffer.from_ipc_descriptor(mr, desc, stream=device.default_stream)
         assert alias.size == 0
         assert alias.is_mapped
@@ -542,17 +933,17 @@ class TestSameProcess:
         mr = _resource(device)
         buf = mr.allocate(1)
         desc = buf.ipc_descriptor
-        fd = int(desc._handles[0])
+        fd = desc.fds[0]
         os.fstat(fd)  # open
         with pytest.raises(TypeError):
             pickle.dumps(desc)  # file descriptors need multiprocessing
         with pytest.raises(TypeError):
             pickle.dumps(buf)
-        buf.close()  # drops the cached descriptor
-        del desc
+        del desc  # the buffer keeps no descriptor, so this closes the file descriptor
         gc.collect()
         with pytest.raises(OSError):
             os.fstat(fd)
+        buf.close()
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_errors(self, vmm_ipc_device):
