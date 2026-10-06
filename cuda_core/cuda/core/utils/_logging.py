@@ -44,7 +44,7 @@ def _make_c_callback(logger: logging.Logger, callback: PyLogCallback | None) -> 
 
     emit = callback if callback is not None else _default_callback
 
-    def _on_log(user_data, log_level, message_ptr, length):
+    def _on_log(_user_data, log_level, message_ptr, length):
         try:
             message = ctypes.string_at(message_ptr, length) if message_ptr else b""
             emit(log_level, message)
