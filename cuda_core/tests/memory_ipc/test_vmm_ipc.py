@@ -18,7 +18,6 @@ import multiprocessing as mp
 import multiprocessing.queues
 import os
 import pickle
-import resource
 import socket
 import threading
 
@@ -635,6 +634,8 @@ class TestFileDescriptorLimit:
     @pytest.mark.thread_unsafe(reason="changes the process-wide file descriptor limit")
     def test_export_near_the_limit(self, vmm_ipc_device):
         """Under a lowered RLIMIT_NOFILE an export either succeeds or fails with a readable error and no leak."""
+        import resource  # POSIX-only; a module-level import breaks collection on Windows
+
         device = vmm_ipc_device
         stream = device.default_stream
         mr = _resource(device)
