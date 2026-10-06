@@ -787,6 +787,7 @@ def test_memcpy_update_captured_node_size(init_cuda):
         pytest.skip("individual graph node updates require CUDA 12.2+")
 
     stream = init_cuda.create_stream()
+    # The builder is unused; it keeps the captured graph alive.
     builder, graph_def, node, dst, src = _capture_device_memcpy(init_cuda, stream)
     recorded = handle_return(driver.cuGraphMemcpyNodeGetParams(node.handle))
     assert node.size == 64
@@ -818,6 +819,7 @@ def test_memcpy_update_captured_node_operand(init_cuda, operand):
         pytest.skip("individual graph node updates require CUDA 12.2+")
 
     stream = init_cuda.create_stream()
+    # The builder is unused; it keeps the captured graph alive.
     builder, graph_def, node, dst, src = _capture_device_memcpy(init_cuda, stream)
     recorded = handle_return(driver.cuGraphMemcpyNodeGetParams(node.handle))
     instantiated_before = graph_def.instantiate()
@@ -863,6 +865,7 @@ def test_executable_memcpy_update_on_captured_node(init_cuda):
         pytest.skip("individual graph node updates require CUDA 12.2+")
 
     stream = init_cuda.create_stream()
+    # The builder is unused; it keeps the captured graph alive.
     builder, graph_def, node, dst, src = _capture_device_memcpy(init_cuda, stream)
     new_src = init_cuda.memory_resource.allocate(64, stream=stream)
     new_dst = init_cuda.memory_resource.allocate(64, stream=stream)
@@ -876,6 +879,39 @@ def test_executable_memcpy_update_on_captured_node(init_cuda):
 
     assert _read_device_bytes(new_dst, stream) == [0xA5] * 32 + [0] * 32
     assert _read_device_bytes(dst, stream) == [0] * 64
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_memcpy_update_captured_node_host_operand(init_cuda):
+    """Replacing a captured node's device operand with host memory needs a new instantiation.
+
+    The definition node accepts the host buffer and a fresh instantiation
+    copies from it. An executable update does not: the driver does not let a
+    memcpy operand move to another device or to the host, so both
+    :meth:`Graph.update` and the executable view raise. This is a driver
+    restriction, not something cuda.core enforces.
+    """
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    stream = init_cuda.create_stream()
+    # The builder is unused; it keeps the captured graph alive.
+    builder, graph_def, node, dst, src = _capture_device_memcpy(init_cuda, stream)
+    instantiated_before = graph_def.instantiate()
+    host_src = LegacyPinnedMemoryResource().allocate(64)
+    ctypes.memset(int(host_src.handle), 0xA5, 64)
+
+    node.update(src=host_src)
+    assert node.src == int(host_src.handle)
+
+    fresh = graph_def.instantiate()
+    fresh.launch(stream)
+    assert _read_device_bytes(dst, stream) == [0xA5] * 64
+
+    with pytest.raises(CUDAError, match="PARAMETERS_CHANGED"):
+        instantiated_before.update(graph_def)
+    with pytest.raises(CUDAError):
+        instantiated_before[node].update(dst=dst, src=host_src, size=64)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
