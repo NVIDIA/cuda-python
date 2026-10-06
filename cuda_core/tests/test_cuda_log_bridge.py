@@ -151,7 +151,7 @@ def test_cuda_driver_log_custom_callback_overrides_default(caplog):
     logger_obj = logging.getLogger(logger_name)
 
     # 按 raw CUlogLevel 分发；ERROR 记成 DEBUG
-    def my_callback(user_data, cu_log_level, message, length):
+    def my_callback(user_data, cu_log_level, message):
         msg = message.decode("utf-8", errors="replace").rstrip("\n")
         if cu_log_level == driver.CUlogLevel.CU_LOG_LEVEL_WARNING:
             logger_obj.warning("%s: %s", logger_obj.name, msg)
