@@ -1390,7 +1390,8 @@ def test_vmm_allocator_basic_allocation(use_device_object, handle_type):
     assert buffer.size >= 4096  # May be aligned up
     assert buffer.device_id == device.device_id
     assert buffer.memory_resource == vmm_mr
-    assert vmm_mr.is_ipc_enabled is False
+    # POSIX file descriptors can be shared; Win32 KMT handles have no transport.
+    assert vmm_mr.is_ipc_enabled is (handle_type == "posix_fd")
 
     # Test deallocation
     buffer.close()

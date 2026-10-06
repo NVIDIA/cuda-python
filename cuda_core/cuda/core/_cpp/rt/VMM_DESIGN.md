@@ -199,6 +199,35 @@ what makes that safe: the allocation is released exactly once, when its last map
   its own `cuMemCreate` reference. It is not called for buffers from `allocate()`, whose ranges
   free themselves. A subclass override of `deallocate()` therefore does not run for them.
 
+## Sharing across processes
+
+A `VirtualMemoryBuffer` is shared the way pool-backed buffers are, through
+`Buffer.ipc_descriptor` and `Buffer.from_ipc_descriptor`, when the resource's
+`handle_type` can travel between processes (`posix_fd` on Linux;
+`is_ipc_enabled` reports it). The exporter calls `cuMemExportToShareableHandle`
+once per mapping that covers the buffer's size, in address order, and the
+descriptor carries the handles with each allocation's size. Each file
+descriptor is owned by an `IPCAllocationHandle` and closed when the descriptor
+goes; `multiprocessing` duplicates it into the receiving process. The sizes
+travel because the OS handle does not expose them to the importer; a wrong size
+fails the importer's `cuMemMap`.
+
+The importer is a `VirtualMemoryResource` of the receiving process with the
+same `handle_type`. `import_mem_allocation_handle` calls
+`cuMemImportFromShareableHandle` and wraps the result in the same box and
+deleter as `create_mem_allocation_handle`: the driver gives an imported handle
+one reference and frees the memory when all references are released and no
+mapping remains, so `cuMemRelease` is the right teardown for both. The access
+descriptors stored in the box are the importer's, built from its options for
+its device; the exporter's access does not travel. The import then reserves
+`sum(sizes)` with the importer's alignment, maps each allocation in order, and
+builds a range and a `VirtualMemoryBuffer` exactly as `allocate()` does, so a
+grown buffer imports as one contiguous range with the same byte layout, and the
+imported buffer frees itself through the same deleters. A descriptor imported
+in the exporting process yields an alias of the exporter's memory at a new
+address. A `VirtualMemoryResource` pickles as (device, options), which is what
+lets a `Buffer` pickle as (resource, descriptor).
+
 ## Why `modify_allocation` returns a new buffer
 
 The input buffer stays open and aliases the result. The chunks the input already mapped are

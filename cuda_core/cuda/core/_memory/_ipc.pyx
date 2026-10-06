@@ -116,7 +116,8 @@ cdef inline int IPCAllocationHandle_check_open(IPCAllocationHandle self) except 
 
 
 cdef class IPCAllocationHandle:
-    """Shareable handle to an IPC-enabled device memory pool."""
+    """Shareable OS handle to an IPC-enabled memory pool or to a physical allocation
+    of a :class:`VirtualMemoryResource` buffer."""
 
     def __init__(self, *arg, **kwargs) -> None:
         raise RuntimeError("IPCAllocationHandle objects cannot be instantiated directly. Please use MemoryResource APIs.")
@@ -169,12 +170,52 @@ def _reconstruct_allocation_handle(cls: type, df: object, uuid: uuid.UUID | None
 multiprocessing.reduction.register(IPCAllocationHandle, _reduce_allocation_handle)
 
 
+cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
+    """Serializable object describing a :class:`VirtualMemoryBuffer` that can be shared between processes.
+
+    The descriptor holds one exported handle per physical allocation that
+    backs the buffer, in address order, with each allocation's size. With
+    POSIX file descriptors the handles are :class:`IPCAllocationHandle`
+    objects: the descriptor owns them and closes them when it is released, and
+    ``multiprocessing`` duplicates them into the receiving process. Plain
+    ``pickle`` cannot carry file descriptors.
+
+    Note
+    ----
+    The sizes are controlled by the exporting peer. Receivers must treat them
+    as untrusted and import only through :meth:`Buffer.from_ipc_descriptor`,
+    which fails instead of mapping a size the driver rejects.
+    """
+
+    @staticmethod
+    def _from_exports(
+        handle_type: int, chunk_sizes: tuple[int, ...], handles: tuple, size: int
+    ) -> VirtualMemoryIPCBufferDescriptor:
+        cdef VirtualMemoryIPCBufferDescriptor self = VirtualMemoryIPCBufferDescriptor.__new__(
+            VirtualMemoryIPCBufferDescriptor)
+        self._payload = b""
+        self._size = size
+        self._handle_type = handle_type
+        self._chunk_sizes = tuple(chunk_sizes)
+        self._handles = tuple(handles)
+        return self
+
+    def __reduce__(self) -> tuple[object, ...]:
+        return VirtualMemoryIPCBufferDescriptor._from_exports, (
+            self._handle_type, self._chunk_sizes, self._handles, self._size)
+
+
 # Buffer IPC Implementation
 # -------------------------
 cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer self):
     Buffer_check_open(self)
     if not self.memory_resource.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
+    if not isinstance(self.memory_resource, _MemPool):
+        # VirtualMemoryBuffer overrides ipc_descriptor; a plain Buffer wrapped
+        # with Buffer.from_handle(mr=<VirtualMemoryResource>) lands here.
+        raise TypeError(
+            f"a Buffer that {type(self.memory_resource).__name__} did not allocate cannot be shared")
     cdef cydriver.CUmemPoolPtrExportData data
     with nogil:
         HANDLE_RETURN(
@@ -186,10 +227,24 @@ cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer self):
     return IPCBufferDescriptor._init(data_b, self.size)
 
 cdef Buffer Buffer_from_ipc_descriptor(
-    cls, _MemPool mr, IPCBufferDescriptor ipc_descriptor, stream
+    cls, object mr, IPCBufferDescriptor ipc_descriptor, stream
 ):
     """Import a buffer that was exported from another process."""
-    MP_check_open(mr)
+    if isinstance(ipc_descriptor, VirtualMemoryIPCBufferDescriptor):
+        # Imported here rather than cimported: _virtual_memory_resource
+        # cimports this module.
+        from cuda.core._memory._virtual_memory_resource import VirtualMemoryResource
+        if not isinstance(mr, VirtualMemoryResource):
+            raise TypeError(
+                "this descriptor was exported from a VirtualMemoryResource buffer and must be "
+                f"imported with a VirtualMemoryResource, not {type(mr).__name__}")
+        return mr._import_ipc_buffer(ipc_descriptor, stream)
+    if not isinstance(mr, _MemPool):
+        raise TypeError(
+            "this descriptor was exported from a memory pool buffer and must be imported with a "
+            f"DeviceMemoryResource or PinnedMemoryResource, not {type(mr).__name__}")
+    cdef _MemPool pool = <_MemPool>mr
+    MP_check_open(pool)
     if not mr.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
     cdef size_t payload_size = len(ipc_descriptor._payload)
@@ -201,7 +256,7 @@ cdef Buffer Buffer_from_ipc_descriptor(
         )
     cdef Stream s = Stream_accept(stream)
     cdef DevicePtrHandle h_ptr = deviceptr_import_ipc(
-        mr._h_pool,
+        pool._h_pool,
         ipc_descriptor.payload_ptr(),
         s._h_stream
     )
@@ -220,7 +275,7 @@ cdef Buffer Buffer_from_ipc_descriptor(
             f"IPC buffer descriptor size ({claimed_size}) exceeds "
             f"mapped allocation extent ({mapped_size} bytes)"
         )
-    return Buffer_from_deviceptr_handle(h_ptr, claimed_size, mr, ipc_descriptor)
+    return Buffer_from_deviceptr_handle(h_ptr, claimed_size, pool, ipc_descriptor)
 
 
 # _MemPool IPC Implementation

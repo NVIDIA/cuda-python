@@ -388,15 +388,21 @@ cdef class Buffer:
 
     @classmethod
     def from_ipc_descriptor(
-        cls, mr: DeviceMemoryResource | PinnedMemoryResource, ipc_descriptor: IPCBufferDescriptor,
+        cls, mr: DeviceMemoryResource | PinnedMemoryResource | VirtualMemoryResource,
+        ipc_descriptor: IPCBufferDescriptor,
         *, stream: Stream
     ) -> Buffer:
         """Import a buffer that was exported from another process.
 
         Parameters
         ----------
-        mr : :obj:`~_memory.DeviceMemoryResource` | :obj:`~_memory.PinnedMemoryResource`
-            The IPC-enabled memory resource matching the exporting process.
+        mr : :obj:`~_memory.DeviceMemoryResource` | :obj:`~_memory.PinnedMemoryResource` | :obj:`~_memory.VirtualMemoryResource`
+            The IPC-enabled memory resource matching the exporting process. A
+            descriptor exported from a :class:`VirtualMemoryBuffer` is imported
+            with a :class:`VirtualMemoryResource` of this process whose
+            ``handle_type`` matches the exporter's; the import maps the shared
+            physical memory for that resource's device with that resource's
+            access options.
         ipc_descriptor : :obj:`~_memory.IPCBufferDescriptor`
             The descriptor exported from another process.
         stream : :obj:`~_stream.Stream`

@@ -262,6 +262,18 @@ MemAllocationHandle create_mem_allocation_handle(size_t size, const CUmemAllocat
 // Size of the allocation; the only size cuMemMap accepts for it.
 size_t mem_allocation_size(const MemAllocationHandle& h) noexcept;
 
+// Import a physical allocation that another process exported with
+// cuMemExportToShareableHandle. `os_handle` is the shareable handle in the
+// form cuMemImportFromShareableHandle expects for `handle_type` (a POSIX file
+// descriptor is its value cast to void*). `size` is the allocation's size,
+// which the OS handle does not expose to the importer; the caller takes it
+// from the exporter, and a wrong size fails the later cuMemMap. The result is
+// a MemAllocationHandle like one from create_mem_allocation_handle: the
+// access descriptors are applied to every mapping, and the last reference
+// calls cuMemRelease. Returns empty handle on error (caller must check).
+MemAllocationHandle import_mem_allocation_handle(void* os_handle, CUmemAllocationHandleType handle_type,
+                                                 size_t size, const CUmemAccessDesc* descs, size_t count);
+
 // Reserve an address range via cuMemAddressReserve. Pass alignment 0 for the
 // driver default. When the last reference is released, cuMemAddressFree is
 // called with the exact reserved pair. Returns empty handle on error.

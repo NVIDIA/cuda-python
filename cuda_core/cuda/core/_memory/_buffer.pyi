@@ -2,10 +2,9 @@
 
 from typing import TypedDict
 
+from _typeshed import Incomplete
 from cuda.core._memory._copy_enums import CopyOptions
-from cuda.core._memory._device_memory_resource import DeviceMemoryResource
 from cuda.core._memory._ipc import IPCBufferDescriptor
-from cuda.core._memory._pinned_memory_resource import PinnedMemoryResource
 from cuda.core._stream import Stream
 from cuda.core._utils.pycompat import BufferProtocol
 from cuda.core.graph import GraphBuilder
@@ -82,13 +81,18 @@ class Buffer:
         :class:`Buffer` is closed or garbage collected.
         """
     @classmethod
-    def from_ipc_descriptor(cls, mr: DeviceMemoryResource | PinnedMemoryResource, ipc_descriptor: IPCBufferDescriptor, *, stream: Stream) -> Buffer:
+    def from_ipc_descriptor(cls, mr: Incomplete, ipc_descriptor: IPCBufferDescriptor, *, stream: Stream) -> Buffer:
         """Import a buffer that was exported from another process.
 
         Parameters
         ----------
-        mr : :obj:`~_memory.DeviceMemoryResource` | :obj:`~_memory.PinnedMemoryResource`
-            The IPC-enabled memory resource matching the exporting process.
+        mr : :obj:`~_memory.DeviceMemoryResource` | :obj:`~_memory.PinnedMemoryResource` | :obj:`~_memory.VirtualMemoryResource`
+            The IPC-enabled memory resource matching the exporting process. A
+            descriptor exported from a :class:`VirtualMemoryBuffer` is imported
+            with a :class:`VirtualMemoryResource` of this process whose
+            ``handle_type`` matches the exporter's; the import maps the shared
+            physical memory for that resource's device with that resource's
+            access options.
         ipc_descriptor : :obj:`~_memory.IPCBufferDescriptor`
             The descriptor exported from another process.
         stream : :obj:`~_stream.Stream`
