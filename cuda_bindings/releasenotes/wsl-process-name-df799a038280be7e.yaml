@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+issues:
+  - |
+    ``nvml.system_get_process_name`` on WSL can return incorrect values. To work around this, set
+    the locale to "C" before calling ``nvml.device_get_compute_running_processes_v3`` (which sets
+    the process names) and before calling ``nvml.system_get_process_name``. ``cuda_core`` does this
+    automatically, but users of the raw NVML API will need to do this manually. (#2118)

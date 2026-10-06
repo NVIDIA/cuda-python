@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+upgrade:
+  - |
+    With the ``cuda-bindings`` floor in place, whether a feature is available now depends only on
+    the CUDA driver and the ``cuda.core`` build's CUDA major. The checks that also inspected the
+    ``cuda-bindings`` version are gone, and so are their error messages. Error messages that name a
+    minimum now name a driver version. ``cuda.core.system`` always uses NVML through
+    ``cuda-bindings``, so ``cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE`` is always ``True``.
+    :mod:`cuda.core.checkpoint` requires the CUDA 13 build of ``cuda.core`` and now says so. That
+    requirement was already in effect, because the CUDA 12 ``cuda-bindings`` lack a type it uses.
+    (https://github.com/NVIDIA/cuda-python/issues/2783) (#2920)

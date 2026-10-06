@@ -28,7 +28,12 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     - [Pre-commit lychee workaround](#pre-commit-lychee-workaround)
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
+  - [Release notes](#release-notes)
+    - [Writing a release note](#writing-a-release-note)
+    - [Known issues](#known-issues)
+    - [How release notes are assembled](#how-release-notes-are-assembled)
   - [Pixi lockfiles](#pixi-lockfiles)
+  - [Secret Scanning](#secret-scanning)
   - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
@@ -233,6 +238,104 @@ If the hook isn't installed, `pre-commit run` (and CI) will print a visible
 warning reminding you to run `pre-commit install`.
 
 Windows contributors: see [Pre-commit lychee workaround](#pre-commit-lychee-workaround) under Development on Windows.
+
+## Release notes
+
+Release notes are one small YAML file per change, kept next to the code in the
+PR that makes the change. (The design is inspired by
+[reno](https://docs.openstack.org/reno/latest/), but behaves quite differently.)
+All four packages work this way: `cuda-bindings` and
+`cuda-python` (13.5.0 and later), `cuda-core` (1.3.0 and later) and
+`cuda-pathfinder` (1.9.0 and later), with notes in
+`<package>/releasenotes/`.  Earlier releases keep their hand-written pages
+under `<package>/docs/source/release/`.
+
+### Writing a release note
+
+Every pull request that changes the sources of one of these packages needs a
+release note for it, or an edit to an existing one (a PR touching multiple
+packages needs one for each).  Changes to docs, tests, examples, and CI do not
+need one. A CI check enforces this. If a PR touches the sources but truly needs
+no note, a maintainer can apply the `skip-release-note` label.
+
+Create a note with the `add_note.py` script. It can be run from any directory,
+and takes the package and a few words describing the change:
+
+```bash
+python toolshed/add_note.py cuda-core "Fix the thing" [--edit]
+```
+
+The package is one of `cuda-bindings`, `cuda-core`, `cuda-pathfinder` and
+`cuda-python` (the `cuda-` prefix is optional). The new file is created in
+`<package>/releasenotes/`. `--edit` opens it in `$VISUAL` or `$EDITOR`.
+
+Edit the new file: keep the sections that apply and delete the rest, and replace
+the `TODO` text. Each entry is reStructuredText, written for users of the
+package. A pre-commit hook checks the notes for obvious mistakes, such as a
+misspelled section or leftover `TODO` text.
+
+| Section | Use for |
+|---|---|
+| `features` | New functionality, including experimental APIs (say so in the text) |
+| `upgrade` | Changes users may need to act on, including behavior changes |
+| `deprecations` | Newly deprecated functionality |
+| `critical` | Critical issues users must know about |
+| `security` | Security issues |
+| `fixes` | Bug fixes |
+| `issues` | Known issues (see below) |
+| `other` | Anything else |
+| `prelude` | An introduction to a release's notes. Useful to highlight important themes in a release. |
+
+Some details:
+
+* You do not need to add a link to the pull request: one is added automatically,
+  taken from the `(#N)` in the squash-merge commit that introduced the note.
+* To name the pull request(s) yourself instead, write `(#1234)` or
+  `(#1234, #1235)` anywhere in an entry, usually at the end. Each marker is
+  replaced with links, and the automatic lookup is skipped for that entry. This
+  is rarely needed. It is for a note whose file is added by a different PR than
+  the one that made the change, for example a note written afterwards or notes
+  moved in from another place. The marker can go anywhere in ordinary text. A
+  `(#N)` inside backquoted text, such as an inline literal, is left alone, so
+  it can be used in an example. Do not put a marker inside a literal block, or
+  the rows of a table or other directive content, where the link text could
+  break the markup.
+* Do not rename or move a note after it is merged.
+* Which releases list a note is decided from git, so a note shows up in a local
+  docs build only once it is committed.
+* You can fix a note that is already part of a release (a typo, or a clearer
+  wording). The docs are published from `main`, and every page shows a note's
+  current text, so the fix appears on the pages of the releases that list it
+  the next time the docs are published. Editing a note never moves it to
+  another release.
+
+### Known issues
+
+Unlike the other sections, which appear only on the release that first contains
+them, known issues are listed on **every** release until they are resolved. To
+record one, add an `issues` entry to a note. To resolve it, delete the entry (or
+the whole note, if it has nothing else) in the PR that fixes the problem, and
+describe the fix in a new `fixes` entry. The pages of releases that were already
+tagged keep listing the issue, with the text it had when its note was deleted.
+
+### How release notes are assembled
+
+The docs build generates a page for every release from the notes in git,
+with a final "In development" page for notes that are not in any release yet.
+Only plain `vX.Y.Z` tags count as releases. Pre-release tags (`rc`, `a`, `b`)
+are ignored, and their notes roll into the final release.
+
+* A minor release (`X.Y.0`) lists the notes added since the previous minor
+  release.
+* A patch release lists the notes added since the previous release of the same
+  `X.Y` line.
+* A note that is backported appears on the patch release page and again on the
+  page of the next minor release that contains it. This is intentional.
+
+Building the docs needs the history of the checked-out commit and of every release
+tag (no branches), and the build fails on a shallow clone rather than produce incomplete
+pages. In CI, the `.github/actions/fetch-release-history` action does this. The
+rules are documented in `cuda_python/docs/exts/release_notes.py`.
 
 ## Pixi lockfiles
 

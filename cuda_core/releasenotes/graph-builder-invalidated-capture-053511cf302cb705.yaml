@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+fixes:
+  - |
+    Ending, closing, or collecting a top-level :class:`~graph.GraphBuilder`
+    whose capture was invalidated, or left unjoined by a
+    :meth:`~graph.GraphBuilder.join` that failed partway, no longer crashes.
+    :meth:`~graph.GraphBuilder.end_building` and
+    :meth:`~graph.GraphBuilder.close` end the capture and raise the driver
+    error, after which the builder holds no graph. A failed ``join`` also closes
+    the builders it did not join, even when closing one of them fails. This
+    does not extend to the body
+    builder of a conditional node: an invalidated body capture leaves the parent
+    graph invalid as well, and ending it may crash the process
+    (`#2918 <https://github.com/NVIDIA/cuda-python/issues/2918>`__). Calling
+    ``end_building`` on a forked builder is now rejected with ``RuntimeError``;
+    forked builders are ended by ``join``.
+    (`#2834 <https://github.com/NVIDIA/cuda-python/issues/2834>`__,
+    `#2776 <https://github.com/NVIDIA/cuda-python/issues/2776>`__) (#2838)

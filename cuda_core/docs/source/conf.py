@@ -16,6 +16,7 @@ from pathlib import Path
 
 sys.path.insert(0, str((Path(__file__).parents[3] / "cuda_python" / "docs" / "exts").absolute()))
 
+from release_ranges import PACKAGES, format_version
 
 # -- cuda-bindings floors ----------------------------------------------------
 
@@ -92,8 +93,18 @@ extensions = [
     "sphinx_toolbox.more_autodoc.autoprotocol",
     "release_toc",
     "release_date",
+    "release_notes",
     "enum_documenter",
 ]
+
+# Release notes from 1.3.0 on are built from the notes in
+# cuda_core/releasenotes; earlier ones are hand-written pages in release/.
+release_notes_dir = PACKAGES["cuda-core"].notes_dir
+release_notes_tag_prefix = PACKAGES["cuda-core"].tag_prefix
+release_notes_first_version = format_version(PACKAGES["cuda-core"].first_version)
+release_notes_title = "``cuda.core`` {version} Release Notes"
+release_notes_unreleased_title = "``cuda.core`` unreleased changes"
+release_notes_prolog = ".. currentmodule:: cuda.core"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

@@ -69,3 +69,16 @@ Windows.
 
 - Run package tests: `pytest tests/`
 - Build package docs: `cd docs && ./build_docs.sh`
+
+## Release notes
+
+- Notes for 1.9.0 and later are per-change files in `releasenotes/`; do not add
+  hand-written pages to `docs/source/release/` for new releases.
+- Changes to `cuda/` or `pyproject.toml` need a note, unless the PR has the
+  `skip-release-note` label. Create one with
+  `python toolshed/add_note.py cuda-pathfinder <short-description>`. The old "Highlights" section is `prelude`.
+- Entries use `cuda.pathfinder` as the current module for Sphinx roles.
+- Do not add PR links to notes (they are added automatically) and do not
+  rename merged notes. `issues` (known issues) entries are repeated on every
+  later release until deleted. See the "Release notes" section of the top-level
+  `CONTRIBUTING.md`.

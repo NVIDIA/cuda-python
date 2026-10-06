@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+upgrade:
+  - |
+    ``nvml.device_get_vgpu_utilization``: The old implementation would only fill
+    in the first element of the returned array; the rest was uninitialized
+    garbage. It is now correctly returned as a properly-sized array. In addition,
+    the first element of the returned tuple, ``sample_val_type``, is now a plain
+    ``int`` rather than a length-1 array, since it is a single output parameter,
+    not a per-sample value. (#2862)

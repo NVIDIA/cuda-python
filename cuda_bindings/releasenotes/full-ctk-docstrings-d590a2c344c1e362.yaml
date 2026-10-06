@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+features:
+  - |
+    ``cuda-bindings`` docstrings now include the full documentation from the upstream CTK, not just
+    the first paragraph. (#2816)

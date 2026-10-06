@@ -6,13 +6,25 @@ from pathlib import Path
 from packaging.version import InvalidVersion, Version
 from sphinx.directives.other import TocTree
 
+# Generated page for notes that are not yet part of any release (see release_notes).
+UNRELEASED = "unreleased"
+UNRELEASED_LABEL = "In development"
+
 
 def _version_sort_key(version_text):
+    if version_text == UNRELEASED:
+        return (2, version_text)
     normalized = version_text.replace(".x", ".999999")
     try:
         return (1, Version(normalized))
     except InvalidVersion:
         return (0, version_text)
+
+
+def _label(version_text):
+    if version_text == UNRELEASED:
+        return UNRELEASED_LABEL
+    return version_text
 
 
 def _is_prerelease(version_text):
@@ -40,6 +52,7 @@ class TocTreeSorted(TocTree):
         # Don't include any prereleases in the toctree
         entries = [entry for entry in entries if not _is_prerelease(entry[0])]
         entries.sort(key=lambda x: _version_sort_key(x[0]), reverse=True)
+        entries = [(_label(title), ref) for title, ref in entries]
         toctree["entries"] = entries
 
 

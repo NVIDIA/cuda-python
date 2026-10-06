@@ -75,6 +75,14 @@ repos:
         files: '^(ci/versions\.yml|cuda_bindings/pixi\.toml|cuda_core/pixi\.toml)$'
         pass_filenames: false
 
+      - id: release-notes-lint
+        name: Lint release notes
+        entry: python ./ci/tools/lint_release_notes.py
+        language: python
+        additional_dependencies: [pyyaml==6.0.3]
+        files: '^(cuda_bindings|cuda_core|cuda_pathfinder|cuda_python)/releasenotes/'
+        pass_filenames: false
+
       - id: check-mempool-hygiene
         name: Check tests do not create uncapped memory pools
         entry: python ./ci/tools/check_mempool_hygiene.py

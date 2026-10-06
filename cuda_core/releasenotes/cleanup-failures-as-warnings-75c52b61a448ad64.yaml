@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+upgrade:
+  - |
+    Cleanup failures are now reported as :class:`CUDAWarning` instead of being written to ``stderr``
+    with ``print`` or ``fprintf``, so they can be filtered, captured with
+    :func:`warnings.catch_warnings`, and escalated. Failures of ``cuStreamDestroy``,
+    ``cuEventDestroy``, ``cuMemFree``, ``cuMemFreeAsync``, ``cuMemFreeHost``, ``cuMemPoolDestroy``,
+    ``cuGreenCtxDestroy``, ``cuGraphDestroy``, ``cuGraphExecDestroy``,
+    ``cuGraphicsUnregisterResource``, ``cuLinkDestroy``, ``cuArrayDestroy``,
+    ``cuMipmappedArrayDestroy``, ``cuTexObjectDestroy``, ``cuSurfObjectDestroy``, user-object
+    releases and the NVRTC, NVVM and nvJitLink destroy calls made from destructors were previously
+    discarded; they are now reported, and each message names the failed call, the handle of the
+    affected resource and the CUDA error, so Python's once-per-call-site warning filter does not
+    collapse independent failures. ``CUDA_ERROR_DEINITIALIZED`` (the driver is shutting down) is not
+    reported. Test code that matched the old ``stderr`` text uses ``pytest.warns(CUDAWarning)``
+    instead. (#2759)

@@ -68,16 +68,21 @@ jobs:
           # Resolve only the exact tag ref; checkout fails if the tag does not exist.
           ref: refs/tags/${{ steps.vars.outputs.tag }}
 
+      # The release notes are found from the git history between release tags.
+      - name: Fetch release history
+        uses: ./.github/actions/fetch-release-history
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: "3.12"
+
+      # Hand-written notes (before 1.9.0) or note files added in the release's range.
       - name: Check release notes exist
         env:
-          VERSION: ${{ steps.vars.outputs.version }}
+          TAG: ${{ steps.vars.outputs.tag }}
         run: |
-          notes="cuda_pathfinder/docs/source/release/${VERSION}-notes.rst"
-          if [[ ! -f "${notes}" ]]; then
-            echo "::error::Release notes not found: ${notes}"
-            echo "Create the release notes file before running this workflow."
-            exit 1
-          fi
+          python ci/tools/check_release_notes.py --git-tag "${TAG}" --component cuda-pathfinder
 
       - name: Detect CI run ID
         id: detect-run

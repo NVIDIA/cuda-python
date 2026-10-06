@@ -101,11 +101,32 @@ functions, classes, or features were added and whether they have complete
 docstrings. Add or edit docstrings as needed — touching docstrings and
 type annotations in code is OK during code freeze.
 
-Write the release notes in `cuda_core/docs/source/release/`. Look at
-historical release notes for guidance on format and structure. Balance all
-entries for length, specificity, tone, and consistency. Highlight a few
-notable items in the highlights section, keeping their full entries in the
-appropriate sections below.
+Release notes are not written at release time. Since 1.3.0 they are
+per-change note files, added by each PR under `cuda_core/releasenotes/` (see "Release notes" in
+[CONTRIBUTING.md](../CONTRIBUTING.md#release-notes)). The docs build generates
+the page for each release from the notes in git: a minor release lists the
+notes added since the previous minor release, and a patch release lists those
+added since the previous release of the same `X.Y` line. Earlier releases keep
+their hand-written pages in `cuda_core/docs/source/release/`.
+
+So the work here is to review and polish the notes, and to do it *before* the
+tag is cut, because the page is built from the tagged commit:
+
+- Read the "In development" page of the latest docs, which shows the notes that
+  will go into the next release (or build the docs locally from a full clone).
+  Balance all entries for length, specificity, tone, and consistency, and edit
+  the note files in a PR. Edits to notes that already shipped in an earlier
+  release also change that release's page the next time the docs are published
+  from `main`, so older notes can be corrected too.
+- Highlight a few notable items by adding a note with a `prelude` section. All
+  preludes in the release are combined at the top of its page, so the full
+  entries stay in their own sections below.
+- Check the known issues (`issues` entries). They are listed on every release
+  until their entry is deleted, so delete the ones that this release resolves
+  and make sure the remaining ones are still true.
+- Make sure the notes make it to `main`. The release workflow fails if no note
+  was added in the release's range, but that does not mean every PR had one
+  (the PR check allows a `skip-release-note` label); skim the list of PRs.
 
 ---
 
@@ -126,6 +147,8 @@ certain the tag points to the correct commit before pushing.
 
 Tags should be GPG-signed. The tag name format is `cuda-core-v<VERSION>`
 (e.g. `cuda-core-v0.6.0`). The tag must point to a commit on `main`.
+All release notes and docstring edits must already be merged, because the
+release notes page is generated from the tagged commit.
 
 ```bash
 git checkout main

@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+features:
+  - |
+    Added :class:`CUDAWarning`, the warning category ``cuda.core`` uses for CUDA
+    errors that cannot be raised, such as a failed driver call while a resource
+    is released by the garbage collector. Filter on it with
+    ``warnings.filterwarnings("error", category=cuda.core.CUDAWarning)`` to make
+    such failures loud. The new :doc:`error handling <../error_handling>` page
+    documents what an exception from ``cuda.core`` guarantees, how failures that
+    cannot be raised are reported, and how context restoration failures and
+    sticky CUDA errors are handled. (#2759)

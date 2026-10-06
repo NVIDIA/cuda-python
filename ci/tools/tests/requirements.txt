@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# Dependencies for the tests in this directory:
+#
+#   python -m pip install -r ci/tools/tests/requirements.txt
+#   python -m pytest --noconftest ci/tools/tests
+#
+# (--noconftest skips the repo-root conftest.py, which imports cuda.pathfinder.)
+
+pytest
+
+# The release-notes tests run the docs extension in cuda_python/docs/exts.
+# Keep sphinx in sync with cuda_python/docs/environment-docs.yml.
+sphinx<8.2.0
+pyyaml

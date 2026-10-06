@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+fixes:
+  - |
+    ``nvml.device_get_samples``: On a zero-sample result, the old implementation
+    returned a bare ``Sample`` instance instead of the documented
+    ``(sample_val_type, samples)`` tuple. It now always returns the correct 2-tuple. (#2862)

@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+fixes:
+  - |
+    When a :class:`Device` method has to run in the device's context and the
+    caller's context cannot be restored afterwards, the created resource is
+    destroyed and the raised ``CUDAError`` now carries a note (Python 3.11+;
+    appended to the message on 3.10) stating that the caller's context could not
+    be restored and which context is current. Previously the error named only
+    the driver status of the failed ``cuCtxSetCurrent`` call. If the call itself
+    failed as well, its error is raised and the restoration failure is the note.
+    A restoration failure during resource cleanup is reported as
+    :class:`CUDAWarning`. (#2759)
