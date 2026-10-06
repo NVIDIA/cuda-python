@@ -178,8 +178,4 @@ A source build has two requirements. See :ref:`cuda-core-bindings-floor`.
    error but produces a bogus version such as ``0.1.dev1+g0d22cb444``. See
    `Cloning the repository
    <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md>`_
-   for details and recovery steps. Windows contributors building outside of
-   WSL should also see
-   `Development on Windows
-   <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#development-on-windows>`_
-   for the git-symlink configuration that must be set *before* cloning.
+   for details and recovery steps.
