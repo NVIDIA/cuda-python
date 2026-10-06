@@ -7,6 +7,7 @@ import ctypes
 import ctypes.util
 import gc
 import os
+import pathlib
 import subprocess
 import sys
 import textwrap
@@ -20,6 +21,7 @@ from cuda_python_test_helpers.graphics import (
     select_headless_egl_device_for_cuda,
 )
 
+import cuda_python_test_helpers
 from cuda.core import (
     Buffer,
     Device,
@@ -95,7 +97,15 @@ def test_egl_device_probe_does_not_import_pyglet_gl():
         assert "pyglet.gl" not in sys.modules, "the EGL device probe imported pyglet.gl"
         """
     )
-    subprocess.run([sys.executable, "-c", code], check=True)  # noqa: S603 - trusted argv: this interpreter
+    # The child inherits neither this process's sys.path nor conftest's
+    # source-checkout fallback, so point it at the package the parent imported.
+    helpers_root = pathlib.Path(cuda_python_test_helpers.__file__).parents[1]
+    env = dict(os.environ)
+    env["PYTHONPATH"] = os.pathsep.join(p for p in (str(helpers_root), env.get("PYTHONPATH")) if p)
+    proc = subprocess.run(  # noqa: S603 - trusted argv: this interpreter
+        [sys.executable, "-c", code], capture_output=True, text=True, env=env
+    )
+    assert proc.returncode == 0, proc.stderr
 
 
 def _allocate_gl_buffer(win, nbytes):
