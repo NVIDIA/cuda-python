@@ -156,3 +156,58 @@ def test_cuda_driver_log_alert_counter():
         logger_obj.removeHandler(counter_handler)
 
     assert counter_handler.count >= 1, "Expected at least one ERROR-level driver log to be counted"
+
+
+# 使用方式6: integrate driver logs into existing logger through callback
+def test_cuda_driver_log_custom_callback_overrides_default(caplog):
+    driver.cuInit(0)
+
+    # (a) 创建一个叫做 "my_library.cuda-driver" 的 logger
+    logger_name = "my_library.cuda-driver"
+    logger_obj = logging.getLogger(logger_name)
+
+    # (b) 自定义 my_callback：不管驱动原始级别是 ERROR 还是 WARNING，
+    #     统一记成 DEBUG；并在打印的消息前面加上 logger name 前缀
+    def my_callback(logger, level, message):
+        logger.debug("%s: %s", logger.name, message)
+
+    # (c) register 时传入 callback，覆盖掉内部默认的
+    #     logger.log(level, "[CUDA Driver] %s", message) 转发逻辑
+    register_cuda_log_bridge(logger_obj, callback=my_callback)
+
+    # 1. logging 默认的 WARNING 级别阈值下，DEBUG 级别的驱动日志会被过滤掉，
+    #    caplog 收不到任何记录
+    with caplog.at_level(logging.WARNING, logger=logger_name):
+        driver.cuDeviceGet(9999)
+    assert not any(r.name == logger_name for r in caplog.records), (
+        "DEBUG-level driver log should be filtered out at the default WARNING level"
+    )
+
+    caplog.clear()
+
+    # 2. 把 logger 的阈值调到 DEBUG，才能收到 my_callback 记录的驱动日志
+    with caplog.at_level(logging.DEBUG, logger=logger_name):
+        driver.cuDeviceGet(9999)
+
+    records = [r for r in caplog.records if r.name == logger_name]
+    assert records, "Expected driver log records forwarded via my_callback once the threshold is DEBUG"
+
+    # 验证 my_callback 生效：级别被统一改写成了 DEBUG（而不是默认的 ERROR/WARNING）
+    assert all(r.levelno == logging.DEBUG for r in records), (
+        f"Expected every record logged as DEBUG via my_callback, got levels: {[r.levelname for r in records]}"
+    )
+
+    # 验证消息前缀是 logger name（而不是 register_cuda_log_bridge 默认的 "[CUDA Driver] " 前缀）
+    messages = [r.message for r in records]
+    assert any(m.startswith(f"{logger_name}: ") for m in messages), (
+        f"Expected messages prefixed with '{logger_name}: ', got:\n{messages}"
+    )
+    assert not any(m.startswith("[CUDA Driver] ") for m in messages), (
+        f"Default '[CUDA Driver] ' forwarding should be overridden by my_callback, got:\n{messages}"
+    )
+
+
+# callback 必须是可调用对象或 None，否则应尽早报错
+def test_cuda_driver_log_callback_must_be_callable_or_none():
+    with pytest.raises(TypeError):
+        register_cuda_log_bridge(logging.getLogger("cuda.driver.bad_callback_test"), callback="not-callable")
