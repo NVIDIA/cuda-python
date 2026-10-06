@@ -2,17 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""Bridge the CUDA driver's ``cuLogs*`` error-log-management callback into
-the standard :mod:`logging` module.
-
-The CUDA driver (CUDA 12.9+) maintains an internal, human-readable error/
-warning log stream (see the *Error Log Management* section of the CUDA
-driver API docs) that is otherwise only observable via the ``CUDA_LOG_FILE``
-environment variable or stderr. This module lets a caller route that stream
-into any :class:`logging.Logger`, so it can be filtered, captured (e.g. via
-pytest's ``caplog``), and forwarded using ordinary Python logging tooling.
-
-xref: https://github.com/NVIDIA/cuda-python/issues/671
+"""Bridge CUDA driver error logs into Python's :mod:`logging` module via
+the ``cuLogs*`` API.
 """
 
 from __future__ import annotations
@@ -27,64 +18,51 @@ from cuda.core._utils.cuda_utils import handle_return
 
 __all__ = ["register_cuda_error_log", "unregister_cuda_error_log"]
 
-# C callback signature expected by cuLogsRegisterCallback:
+# C callback signature for cuLogsRegisterCallback:
 #     void callback(void *userData, CUlogLevel logLevel, char *message, size_t length)
-#
-# Note: cuLogsRegisterCallback requires an actual C function pointer. The
-# cuda.bindings wrapper does *not* accept a plain Python callable directly
-# (it only ever converts the `callbackFunc` argument to an integer address),
-# so we build a real function pointer via ctypes and pass its address.
+# TODO: support a user-supplied userData.
 _CUlogsCallback_functype = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_size_t)
 
-# CUlogLevel currently only defines two levels (CUDA 12.9 cuLogs* API).
-# Anything unrecognized is conservatively mapped to ERROR.
+# CUlogLevel only defines two levels today (CUDA 12.9 cuLogs* API).
 _CUDA_LEVEL_TO_PY_LEVEL = {
     int(_driver.CUlogLevel.CU_LOG_LEVEL_ERROR): logging.ERROR,
     int(_driver.CUlogLevel.CU_LOG_LEVEL_WARNING): logging.WARNING,
 }
 
-# User-supplied hook that customizes how each driver log message is
-# displayed/handled; see the ``callback`` parameter of
-# :func:`register_cuda_error_log`.
-#
-#     callback(logger, level, message) -> None
-#
-# ``logger`` is the same :class:`logging.Logger` passed to (or defaulted by)
-# :func:`register_cuda_error_log`, ``level`` is the already-mapped
-# ``logging.ERROR`` / ``logging.WARNING`` level, and ``message`` is the
-# decoded driver log text (without the ``[CUDA Driver]`` prefix added by the
-# default formatter).
-LogCallback = Callable[[logging.Logger, int, str], None]
+# User callback for `register_cuda_error_log`; signature matches the C
+# callback 1:1: callback(user_data, log_level, message, length) -> None.
+# user_data is the raw void* (None/0 today); log_level is the raw,
+# unmapped CUlogLevel; message is raw undecoded bytes; length is its byte
+# count. Decoding/level-mapping is the callback's job (see
+# `_default_callback`). Needs `logger`? Close over it.
+LogCallback = Callable[[Optional[int], int, bytes, int], None]
 
 _lock = threading.Lock()
-# Must hold a reference to the ctypes callback for as long as it is
-# registered: once it is garbage collected, the driver would be left
-# holding a dangling function pointer and crash the process on the next
-# log message.
+# Keep a reference while registered, or GC'ing it leaves the driver with
+# a dangling function pointer -> crash on the next log message.
 _c_callback: ctypes._FuncPointer | None = None
 _callback_handle = None  # CUlogsCallbackHandle, needed to unregister
 
 
-def _default_callback(logger: logging.Logger, level: int, message: str) -> None:
-    """Default display/forwarding behavior: plain forward into ``logger``."""
-    logger.log(level, "[CUDA Driver] %s", message)
-
-
 def _make_c_callback(logger: logging.Logger, callback: Optional[LogCallback]) -> ctypes._FuncPointer:
-    """Build a ctypes C function pointer that forwards each driver log
-    record to ``logger``, optionally via a user-supplied ``callback`` that
-    customizes how the message gets displayed.
-    """
+    """Build the ctypes C callback passed to cuLogsRegisterCallback."""
+
+    def _default_callback(user_data: Optional[int], log_level: int, message: bytes, length: int) -> None:
+        """Decode, map the level, and forward into ``logger`` (closed over)."""
+        del user_data, length
+        msg = message.decode("utf-8", errors="replace").rstrip("\n")
+        py_level = _CUDA_LEVEL_TO_PY_LEVEL.get(log_level, logging.ERROR)
+        logger.log(py_level, "[CUDA Driver] %s", msg)
+
     emit = callback if callback is not None else _default_callback
 
-    def _on_log(_user_data, log_level, message_ptr, length):
-        # This runs inside a ctypes callback trampoline, potentially from a
-        # CUDA-driver-internal thread. It must never raise or block.
+    def _on_log(user_data, log_level, message_ptr, length):
+        # Driver-internal thread; must never raise or block.
         try:
-            raw = ctypes.string_at(message_ptr, length) if message_ptr else b""
-            msg = raw.decode("utf-8", errors="replace").rstrip("\n")
-            py_level = _CUDA_LEVEL_TO_PY_LEVEL.get(log_level, logging.ERROR)
-            emit(logger, py_level, msg)
+            # message_ptr is only valid during this call, so copy it out
+            # now. Pass args through undecoded/unmapped -- that's `emit`'s job.
+            message = ctypes.string_at(message_ptr, length) if message_ptr else b""
+            emit(user_data, log_level, message, length)
         except Exception:
             logger.exception("cuda_error_log: error while forwarding driver log")
 
@@ -98,32 +76,28 @@ def register_cuda_error_log(
     """Register a bridge that forwards CUDA driver ``cuLogs*`` messages to
     a Python :class:`logging.Logger`.
 
-    This is a process-wide, idempotent operation: the driver only supports
-    a global log stream (not scoped to a context/stream/thread), so calling
-    this again while a bridge is already registered is a no-op -- the
-    logger (and callback) passed to the first call remain in effect.
+    Process-wide and idempotent: the driver only has one global log
+    stream, so calling this again while already registered is a no-op.
 
     Parameters
     ----------
     logger : logging.Logger, optional
-        The logger that driver messages should be forwarded to. Defaults
-        to ``logging.getLogger("cuda.driver")``.
-    callback : Callable[[logging.Logger, int, str], None], optional
-        Customizes how each driver log message is displayed, instead of
-        being limited to plain forwarding into ``logger``. Called as
-        ``callback(logger, level, message)`` for every driver log record,
-        where ``level`` is the mapped ``logging.ERROR``/``logging.WARNING``
-        level and ``message`` is the decoded driver log text. Defaults to
-        ``None``, which plainly forwards every message via
-        ``logger.log(level, "[CUDA Driver] %s", message)``.
+        Target logger. Defaults to ``logging.getLogger("cuda.driver")``.
+    callback : Callable[[Optional[int], int, bytes, int], None], optional
+        Overrides the default forwarding. Called as
+        ``callback(user_data, log_level, message, length)``, matching the
+        C callback 1:1 (undecoded ``message``, unmapped ``log_level``;
+        decoding/mapping is the callback's job). Close over ``logger`` if
+        needed. Defaults to ``None`` (decode, map, and forward via
+        ``logger.log(level, "[CUDA Driver] %s", message)``).
 
     Raises
     ------
     TypeError
         If ``callback`` is not ``None`` and not callable.
     cuda.core._utils.cuda_utils.CUDAError
-        If the underlying ``cuLogsRegisterCallback`` call fails, e.g.
-        because the loaded CUDA driver predates the 12.9 cuLogs* API.
+        If ``cuLogsRegisterCallback`` fails, e.g. the driver predates
+        CUDA 12.9.
     """
     global _c_callback, _callback_handle
 
@@ -142,22 +116,20 @@ def register_cuda_error_log(
 
         handle = handle_return(_driver.cuLogsRegisterCallback(addr, None))
 
-        # Keep the ctypes callback object alive for as long as it is
-        # registered (see the module-level comment on _c_callback above).
+        # Keep the ctypes callback alive (see _c_callback comment above).
         _c_callback = c_callback
         _callback_handle = handle
 
 
 def unregister_cuda_error_log() -> None:
-    """Unregister the bridge previously installed by
-    :func:`register_cuda_error_log`.
+    """Unregister the bridge installed by :func:`register_cuda_error_log`.
 
-    Idempotent: safe to call even if no bridge is currently registered.
+    Idempotent: safe to call even if nothing is registered.
 
     Raises
     ------
     cuda.core._utils.cuda_utils.CUDAError
-        If the underlying ``cuLogsUnregisterCallback`` call fails.
+        If ``cuLogsUnregisterCallback`` fails.
     """
     global _c_callback, _callback_handle
 
