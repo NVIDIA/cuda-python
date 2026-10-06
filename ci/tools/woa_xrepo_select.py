@@ -18,6 +18,7 @@ PUBLIC_WORKFLOW_ID = 155304118
 PUBLIC_WORKFLOW_PATH = ".github/workflows/ci.yml"
 REPORTING_APP_ID = 4954254
 CHECK_NAME = "cuda-python WoA integration"
+PRODUCER_JOB_NAME = "Build win-arm64, CUDA 13.4.2 / py3.13"
 MAX_LEDGER_COMMITS = 100
 
 
@@ -67,31 +68,34 @@ def parse_time(value):
     return datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
-def select_artifacts(artifacts, sha):
-    binding_name = f"cuda-bindings-python313-cuda13.4.2-win-arm64-{sha}"
-    core_name = f"cuda-core-python313-win-arm64-{sha}"
-    selected = [
-        artifact
-        for artifact in artifacts
-        if not artifact["expired"]
-        and (
-            artifact["name"] == "cuda-pathfinder-wheel"
-            or artifact["name"] == binding_name
-            or artifact["name"] == core_name
-        )
+def select_artifacts(api, run_id, sha):
+    names = [
+        "cuda-pathfinder-wheel",
+        f"cuda-bindings-python313-cuda13.4.2-win-arm64-{sha}",
+        f"cuda-core-python313-win-arm64-{sha}",
     ]
-    if len(selected) != 3:
-        return None
-    names = {artifact["name"] for artifact in selected}
-    if len(names) != 3:
-        return None
     result = []
-    for artifact in sorted(selected, key=lambda item: item["name"]):
+    for name in names:
+        response = api.get(
+            f"repos/{PUBLIC_REPOSITORY}/actions/runs/{run_id}/artifacts",
+            {"name": name, "per_page": 100},
+        )
+        artifacts = response["artifacts"]
+        if response["total_count"] != 1 or len(artifacts) != 1:
+            return None
+        artifact = artifacts[0]
         digest = artifact.get("digest")
-        if not isinstance(digest, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", digest):
+        if not (
+            artifact["name"] == name
+            and artifact["expired"] is False
+            and isinstance(artifact["id"], int)
+            and artifact["id"] > 0
+            and isinstance(digest, str)
+            and re.fullmatch(r"sha256:[0-9a-f]{64}", digest)
+        ):
             return None
         result.append({"id": artifact["id"], "name": artifact["name"], "digest": digest})
-    return result
+    return sorted(result, key=lambda item: item["name"])
 
 
 def validate_run(api, run):
@@ -113,12 +117,15 @@ def validate_run(api, run):
         f"repos/{PUBLIC_REPOSITORY}/actions/runs/{run_id}/attempts/{attempt}/jobs",
         "jobs",
     )
-    woa_jobs = [job for job in jobs if job["name"].startswith("Build win-arm64, CUDA ")]
-    if not woa_jobs or any(job["status"] != "completed" or job["conclusion"] != "success" for job in woa_jobs):
+    producer_jobs = [job for job in jobs if job["name"] == PRODUCER_JOB_NAME]
+    if not (
+        len(producer_jobs) == 1
+        and producer_jobs[0]["status"] == "completed"
+        and producer_jobs[0]["conclusion"] == "success"
+    ):
         return None
 
-    artifacts = api.paginate(f"repos/{PUBLIC_REPOSITORY}/actions/runs/{run_id}/artifacts", "artifacts")
-    selected_artifacts = select_artifacts(artifacts, run["head_sha"])
+    selected_artifacts = select_artifacts(api, run_id, run["head_sha"])
     if selected_artifacts is None:
         return None
 
@@ -129,6 +136,7 @@ def validate_run(api, run):
     return {
         "run_id": str(run_id),
         "run_attempt": str(attempt),
+        "producer_job_id": str(producer_jobs[0]["id"]),
         "sha": run["head_sha"],
         "artifacts": selected_artifacts,
     }

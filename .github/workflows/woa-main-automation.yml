@@ -39,6 +39,7 @@ jobs:
       commit-count: ${{ steps.select.outputs.commit_count }}
       correlation-id: ${{ steps.select.outputs.correlation_id }}
       dispatch: ${{ steps.select.outputs.dispatch }}
+      public-producer-job-id: ${{ steps.select.outputs.public_producer_job_id }}
       public-run-attempt: ${{ steps.select.outputs.public_run_attempt }}
       public-run-id: ${{ steps.select.outputs.public_run_id }}
       public-sha: ${{ steps.select.outputs.public_sha }}
@@ -69,6 +70,7 @@ jobs:
           echo "baseline_sha=$(jq -r '.baseline_sha // ""' <<< "$selection")" >> "$GITHUB_OUTPUT"
           echo "commit_count=$(jq -r '.commit_count // 0' <<< "$selection")" >> "$GITHUB_OUTPUT"
           echo "correlation_id=$(jq -r '.correlation_id // ""' <<< "$selection")" >> "$GITHUB_OUTPUT"
+          echo "public_producer_job_id=$(jq -r '.producer_job_id // ""' <<< "$selection")" >> "$GITHUB_OUTPUT"
           echo "public_run_attempt=$(jq -r '.run_attempt // ""' <<< "$selection")" >> "$GITHUB_OUTPUT"
           echo "public_run_id=$(jq -r '.run_id // ""' <<< "$selection")" >> "$GITHUB_OUTPUT"
           echo "public_sha=$(jq -r '.sha // ""' <<< "$selection")" >> "$GITHUB_OUTPUT"
@@ -98,6 +100,7 @@ jobs:
           COMMIT_COUNT: ${{ needs.select.outputs.commit-count }}
           CORRELATION_ID: ${{ needs.select.outputs.correlation-id }}
           GH_TOKEN: ${{ steps.private-app-token.outputs.token }}
+          PUBLIC_PRODUCER_JOB_ID: ${{ needs.select.outputs.public-producer-job-id }}
           PUBLIC_RUN_ATTEMPT: ${{ needs.select.outputs.public-run-attempt }}
           PUBLIC_RUN_ID: ${{ needs.select.outputs.public-run-id }}
           PUBLIC_SHA: ${{ needs.select.outputs.public-sha }}
@@ -108,6 +111,7 @@ jobs:
             --arg baseline_sha "$BASELINE_SHA" \
             --arg commit_count "$COMMIT_COUNT" \
             --arg correlation_id "$CORRELATION_ID" \
+            --arg producer_job_id "$PUBLIC_PRODUCER_JOB_ID" \
             --arg run_attempt "$PUBLIC_RUN_ATTEMPT" \
             --arg run_id "$PUBLIC_RUN_ID" \
             --arg sha "$PUBLIC_SHA" \
@@ -119,6 +123,7 @@ jobs:
                 public_repository: "NVIDIA/cuda-python",
                 public_repository_id: "381173759",
                 public_workflow_id: "155304118",
+                public_producer_job_id: $producer_job_id,
                 public_run_id: $run_id,
                 public_run_attempt: $run_attempt,
                 public_sha: $sha,
