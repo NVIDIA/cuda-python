@@ -19,6 +19,11 @@ export CUDA_PYTHON_DOCS_GITHUB_REF="${CUDA_PYTHON_DOCS_GITHUB_REF:-$(git rev-par
 export BUILD_LATEST=1
 export BUILD_PREVIEW=0
 
+# Check canonical URLs against the final local output, including pages that
+# have not been published yet. This override is only for the checking build.
+CUDA_PYTHON_DOCS_DOMAIN=$(python -c 'from pathlib import Path; print(Path("artifacts/docs").resolve().as_uri())')
+export CUDA_PYTHON_DOCS_DOMAIN
+
 # The metapackage pins released cuda-core versions. Its dependencies are already
 # installed from local Pixi source packages, so never resolve those pins on PyPI.
 python -m pip install --no-deps "${REPO_ROOT}/cuda_python"
