@@ -3,12 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
-from functools import partial
 import multiprocessing
 import platform
 import warnings
 from collections.abc import Sequence
-from contextlib import ExitStack
 from typing import Any, Callable, NamedTuple
 
 from cuda.bindings import driver as driver, nvrtc as nvrtc, runtime as runtime
@@ -327,71 +325,6 @@ def is_nested_sequence(obj: object) -> bool:
     Check if the given object is a nested sequence (list or tuple with atleast one list or tuple element).
     """
     return is_sequence(obj) and any(is_sequence(elem) for elem in obj)
-
-
-
-class Transaction:
-    """
-    A context manager for transactional operations with failure and exit callbacks.
-
-    Failure callbacks are executed in LIFO order if the transaction exits without being committed.
-    Exit callbacks always run: in LIFO order on rollback or FIFO order during commit.
-
-    Usage:
-        with Transaction() as txn:
-            txn.on_failure(some_cleanup_function, arg1, arg2)
-            txn.on_exit(some_finalize_function, arg1, arg2)
-            # ... perform operations ...
-            txn.commit()
-
-    Methods:
-        on_failure(fn, *args, **kwargs): Register a callback to be called on rollback.
-        on_exit(fn, *args, **kwargs): Register a callback to be called on rollback or commit.
-        commit(): Disarm failure callbacks and run exit callbacks.
-    """
-    def __init__(self) -> None:
-        self._stack = ExitStack()
-        self._on_exit: list[Callable[[], Any]] = []
-        self._entered = False
-
-    def __enter__(self):
-        self._stack.__enter__()
-        self._entered = True
-        return self
-
-    def __exit__(self, exc_type, exc, tb):
-        # If exit callbacks remain, they'll run in LIFO order.
-        self._entered = False
-        self._on_exit.clear()
-        return self._stack.__exit__(exc_type, exc, tb)
-
-    def _register(self, callback: Callable[[], Any], on_commit: bool) -> None:
-        if not self._entered:
-            raise RuntimeError("Transaction must be entered before registering callbacks")
-        # The ExitStack copy runs on rollback (LIFO, interleaved with the failure
-        # callbacks); the _on_exit copy runs at commit(). commit() disarms the stack
-        # before running _on_exit, so exactly one of the two ever fires.
-        self._stack.callback(callback)
-        if on_commit:
-            self._on_exit.append(callback)
-
-    def on_failure(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
-        """Register a failure callback (runs if the with-block exits without commit())."""
-        self._register(partial(fn, *args, **kwargs), on_commit=False)
-
-    def on_exit(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
-        """Register an exit callback (runs exactly once, on rollback or during commit())."""
-        self._register(partial(fn, *args, **kwargs), on_commit=True)
-
-    def commit(self) -> None:
-        """
-        Disarm all failure callbacks, then run exit callbacks in FIFO order.
-        """
-        # pop_all() empties this stack so no callbacks are triggered on exit.
-        self._stack.pop_all()
-        for fn in self._on_exit:
-            fn()
-        self._on_exit.clear()
 
 
 # Track whether we've already warned about fork method

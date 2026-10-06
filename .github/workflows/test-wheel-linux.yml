@@ -104,7 +104,7 @@ jobs:
       TEST_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_test }}
       TEST_PYTHON: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_test }}
     name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}${{ matrix.ENV.TORCH_VER && format(', {0}+{1}', matrix.ENV.TORCH_VER, matrix.ENV.TORCH_CUDA) || '' }}${{ matrix.ENV.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
-    timeout-minutes: 90
+    timeout-minutes: 60
     needs: compute-matrix
     strategy:
       fail-fast: false
@@ -366,6 +366,11 @@ jobs:
       - name: Set up test repetition on nightly runs
         run: echo "PYTEST_ADDOPTS=\"--count=${{ inputs.nruns }}\"" >> "$GITHUB_ENV"
 
+      - name: Register problem matchers
+        # compute-sanitizer findings in the test output become annotations
+        # on the job page. Sanitizer runs are Linux-only.
+        run: echo "::add-matcher::.github/matchers/compute-sanitizer.json"
+
       # ── Standard test steps (skipped for nightly modes) ──
       - name: Run cuda.pathfinder tests with see_what_works
         if: ${{ inputs.test-mode == 'standard' && env.TEST_PATHFINDER == 'true' }}
@@ -469,7 +474,7 @@ jobs:
         if: ${{ inputs.test-mode == 'nightly-pytorch' }}
         run: |
           pushd cuda_core
-          pytest -rxXs -v tests/test_utils.py tests/example_tests/
+          pytest -rsxXfE -v --exclude-warning-annotations --junitxml "${GITHUB_WORKSPACE}/test-results/junit-pytorch-interop.xml" tests/test_utils.py tests/example_tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
 
       - name: Checkout numba-cuda tests at matching tag
@@ -526,11 +531,12 @@ jobs:
           # test_device_record_copy (WithRecord variant): flaky NaN vs NaN
           # compare from uninitialized np.recarray memory. See
           # NVIDIA/numba-cuda-mlir#341.
-          pytest -rxXs -v \
+          pytest -rsxXfE -v --exclude-warning-annotations \
+            --junitxml "${GITHUB_WORKSPACE}/test-results/junit-numba-cuda-mlir.xml" \
             --ignore=tests/benchmarks \
             --ignore=tests/doc_examples \
             --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_devicerecord.py::TestCudaDeviceRecordWithRecord::test_device_record_copy' \
-            tests/
+            tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
 
       - name: Checkout released cuda-core tests at matching tag
@@ -572,7 +578,20 @@ jobs:
               --deselect 'tests/test_utils_enum_explanations_helpers.py::test_frozen_driver_table_covers_all_curesult_members'
             )
           fi
-          pytest -rxXs -v --randomly-dont-reorganize \
+          pytest -rsxXfE -v --randomly-dont-reorganize \
+            --junitxml "${GITHUB_WORKSPACE}/test-results/junit-cuda-core-released.xml" \
             "${DESELECTS[@]}" \
-            tests/
+            tests/ | python "${GITHUB_WORKSPACE}/ci/tools/fold_pytest_sections.py"
           popd
+
+      - name: Upload test results
+        # JUnit XML written by run-tests, one file per suite: a machine-readable
+        # record of the run, kept for 14 days. The name must be unique per job
+        # in the run.
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: test-results-${{ inputs.test-mode }}-${{ inputs.host-platform }}-py${{ matrix.PY_VER }}-cu${{ matrix.CUDA_VER }}-${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}-${{ matrix.GPU }}-x${{ matrix.GPU_COUNT }}-${{ matrix.DRIVER }}${{ matrix.FLAVOR && format('-{0}', matrix.FLAVOR) || '' }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14

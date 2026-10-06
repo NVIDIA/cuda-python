@@ -62,6 +62,7 @@ Memory management
 
    Buffer
    ManagedBuffer
+   VirtualMemoryBuffer
    MemoryResource
    DeviceMemoryResource
    GraphMemoryResource

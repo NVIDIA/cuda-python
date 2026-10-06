@@ -63,6 +63,11 @@ Internally, handles use **shared pointer aliasing**: the actual managed object i
 "box" containing the resource, its dependencies, and any state needed for destruction.
 The public handle points only to the raw resource field, keeping the API minimal.
 
+The virtual memory resource adds `MemAllocationHandle`, `VaReservationHandle` and
+`VaMappingHandle`. Their values are `TaggedHandle<T, N>` wrappers, because
+`CUmemGenericAllocationHandle` and `CUdeviceptr` are both `unsigned long long` and the
+accessor overloads must stay distinct. See [VMM_DESIGN.md](VMM_DESIGN.md).
+
 ### Why shared_ptr?
 
 - **Automatic reference counting**: Resources are released when the last reference

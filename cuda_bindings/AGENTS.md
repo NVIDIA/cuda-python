@@ -19,7 +19,10 @@ subpackage in the `cuda-python` monorepo.
 - **Platform internals**: `cuda/bindings/_internal/` contains
   platform-specific implementation files and support code.
 - **Build backend**: `build_hooks.py` drives extension configuration and
-  Cythonization.
+  Cythonization. Logic shared with `cuda_core` (toolchain selection, the
+  compiler flag set, the Cython cache helpers and the rebuild stamps) lives
+  in `_build_shared.py`; `cuda_core/_build_shared.py` is a symlink to this
+  file, so an edit here changes both packages.
 
 ## Generated-source workflow
 

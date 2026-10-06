@@ -16,12 +16,30 @@ def hardware_supports_nvml():
     Returns False on platforms where NVML is unsupported (e.g. Jetson Orin).
     """
     from cuda.bindings import nvml
-    from cuda.bindings._internal.utils import FunctionNotFoundError as NvmlSymbolNotFoundError  # noqa: F401
 
     nvml.init_v2()
     try:
         nvml.system_get_driver_branch()
     except (nvml.NotSupportedError, nvml.UnknownError):
+        return False
+    else:
+        return True
+    finally:
+        nvml.shutdown()
+
+
+@cache
+def hardware_supports_nvml_device_apis():
+    """Verify that NVML supports the device lookup required by cuda.core."""
+    from cuda.bindings import nvml
+
+    nvml.init_v2()
+    try:
+        if nvml.device_get_count_v2() == 0:
+            return False
+        device = nvml.device_get_handle_by_index_v2(0)
+        nvml.device_get_handle_by_uuid(nvml.device_get_uuid(device))
+    except (nvml.NotFoundError, nvml.NotSupportedError, nvml.UnknownError):
         return False
     else:
         return True
@@ -40,6 +58,11 @@ def _should_skip_nvml_tests() -> bool:
 skip_if_nvml_unsupported = pytest.mark.skipif(
     _should_skip_nvml_tests(),
     reason="this hardware does not support NVML",
+)
+
+skip_if_nvml_device_apis_unsupported = pytest.mark.skipif(
+    _should_skip_nvml_tests() or not hardware_supports_nvml_device_apis(),
+    reason="NVML device APIs are incomplete or unavailable on this platform",
 )
 
 
