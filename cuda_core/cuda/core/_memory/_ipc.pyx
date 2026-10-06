@@ -178,13 +178,21 @@ cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
     POSIX file descriptors the handles are :class:`IPCAllocationHandle`
     objects: the descriptor owns them and closes them when it is released, and
     ``multiprocessing`` duplicates them into the receiving process. Plain
-    ``pickle`` cannot carry file descriptors.
+    ``pickle`` cannot carry file descriptors; send the descriptor, or the
+    buffer, through ``multiprocessing`` (a ``Queue``, a ``Pipe``, ``Process``
+    arguments, or a ``Pool``).
+
+    A live descriptor costs one file descriptor per allocation and keeps the
+    physical memory allocated, in every process that holds a copy, until it is
+    released. A descriptor placed on a ``Queue`` or sent to a ``Pool`` pins the
+    memory in the sender until the receiver has unpickled it.
 
     Note
     ----
     The sizes are controlled by the exporting peer. Receivers must treat them
     as untrusted and import only through :meth:`Buffer.from_ipc_descriptor`,
-    which fails instead of mapping a size the driver rejects.
+    which checks what it can and fails instead of mapping a size the driver
+    rejects.
     """
 
     @staticmethod

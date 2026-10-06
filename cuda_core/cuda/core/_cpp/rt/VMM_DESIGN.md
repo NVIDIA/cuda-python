@@ -213,20 +213,40 @@ travel because the OS handle does not expose them to the importer; a wrong size
 fails the importer's `cuMemMap`.
 
 The importer is a `VirtualMemoryResource` of the receiving process with the
-same `handle_type`. `import_mem_allocation_handle` calls
-`cuMemImportFromShareableHandle` and wraps the result in the same box and
+same `handle_type`, for the device that owns the memory. `import_mem_allocation_handle`
+calls `cuMemImportFromShareableHandle` and wraps the result in the same box and
 deleter as `create_mem_allocation_handle`: the driver gives an imported handle
 one reference and frees the memory when all references are released and no
-mapping remains, so `cuMemRelease` is the right teardown for both. The access
-descriptors stored in the box are the importer's, built from its options for
-its device; the exporter's access does not travel. The import then reserves
-`sum(sizes)` with the importer's alignment, maps each allocation in order, and
-builds a range and a `VirtualMemoryBuffer` exactly as `allocate()` does, so a
-grown buffer imports as one contiguous range with the same byte layout, and the
-imported buffer frees itself through the same deleters. A descriptor imported
-in the exporting process yields an alias of the exporter's memory at a new
-address. A `VirtualMemoryResource` pickles as (device, options), which is what
-lets a `Buffer` pickle as (resource, descriptor).
+mapping remains, so `cuMemRelease` is the right teardown for both. After each
+import, `cuMemGetAllocationPropertiesFromHandle` must report the resource's
+location (the same device, or the same host location type); a mismatch is a
+`ValueError` before anything is mapped, because the access descriptors would
+describe the wrong location. The access descriptors stored in the box are the
+importer's, built from its options for its device and peers; the exporter's
+access does not travel. The import then reserves `sum(sizes)` with the
+importer's alignment, maps each allocation in order, and builds a range and a
+`VirtualMemoryBuffer` exactly as `allocate()` does, so a grown buffer imports
+as one contiguous range with the same byte layout, and the imported buffer
+frees itself through the same deleters. A descriptor imported in the exporting
+process yields an alias of the exporter's memory at a new address. A
+`VirtualMemoryResource` pickles as (device, options), which is what lets a
+`Buffer` pickle as (resource, descriptor).
+
+File descriptors and memory. The driver copies each shared allocation into a
+handle of its own during the import and keeps no reference to the file
+descriptor, so the imported buffer does not keep the descriptor; it records
+only that it was imported (`is_mapped`). The descriptor's file descriptors live
+as long as the descriptor object, on the exporter (where the buffer caches it)
+and in every process that unpickled a copy, and each open descriptor keeps the
+physical memory allocated. A descriptor on a `Queue` pins the memory in the
+sender until the receiver unpickles it.
+
+Re-export. The driver exports only allocations created with the requested
+handle type, and an imported allocation carries none, so an imported buffer,
+and any buffer grown from one, cannot be exported again; `ipc_descriptor` says
+so instead of surfacing the driver's INVALID_VALUE. A `modify_allocation`
+config must keep the resource's `handle_type` for the same reason: every chunk
+of a buffer must be exportable the same way.
 
 ## Why `modify_allocation` returns a new buffer
 

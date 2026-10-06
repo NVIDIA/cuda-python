@@ -4,7 +4,7 @@
 import multiprocessing as mp
 
 import pytest
-from helpers.buffers import compare_equal_buffers, make_scratch_buffer
+from helpers.buffers import compare_equal_buffers, make_scratch_buffer, prefix_view
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
@@ -56,7 +56,7 @@ class TestEventIpc:
         log("enqueuing latch kernel on stream1")
         latch.launch(stream1)
         log("enqueuing copy on stream1")
-        buffer.copy_from(ones, stream=stream1)
+        prefix_view(buffer, NBYTES).copy_from(ones, stream=stream1)
 
         ipc_event_options = EventOptions(ipc_enabled=True)
         e = stream1.record(options=ipc_event_options)
@@ -78,7 +78,7 @@ class TestEventIpc:
         log("done")
 
         # Finish up.
-        target.copy_from(buffer, stream=stream1)
+        target.copy_from(prefix_view(buffer, NBYTES), stream=stream1)
         stream1.sync()
         assert compare_equal_buffers(target, twos)
 
@@ -95,7 +95,7 @@ class TestEventIpc:
         log(f"got event ({hex(e.handle)})")
         stream2.wait(e)
         log("enqueuing copy on stream2")
-        buffer.copy_from(twos, stream=stream2)
+        prefix_view(buffer, NBYTES).copy_from(twos, stream=stream2)
         log("signaling parent")
         q_out.put(None)
         log("waiting")

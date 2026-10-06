@@ -99,12 +99,17 @@ class VirtualMemoryBuffer(Buffer):
         """Descriptor for sharing this buffer with other processes.
 
         The descriptor exports every physical allocation that backs the
-        buffer as a shareable handle and is cached on the buffer. It requires
-        a resource whose ``handle_type`` can be shared; see
+        buffer as a shareable handle and is cached on the buffer until the
+        buffer closes. Each exported allocation takes one file descriptor,
+        and a live descriptor keeps the physical memory allocated in every
+        process that holds a copy. It requires a resource whose
+        ``handle_type`` can be shared; see
         :attr:`VirtualMemoryResource.is_ipc_enabled`. Import it with
         :meth:`Buffer.from_ipc_descriptor` and a
         :class:`VirtualMemoryResource` of the receiving process, or send the
-        buffer itself through ``multiprocessing``.
+        buffer itself through ``multiprocessing``. A buffer imported from
+        another process cannot be exported again; share the descriptor it
+        was imported from.
         """
     def close(self, stream: Stream | GraphBuilder | None=None) -> None:
         """Release this buffer's share of its address range.
@@ -146,6 +151,11 @@ class VirtualMemoryResource(MemoryResource):
         how CUDA Virtual Memory Management works before using this. Other MemoryResource subclasses
         in cuda.core should already meet the common needs.
 
+        A shared buffer's descriptor comes from the exporting process and is not trusted:
+        :meth:`Buffer.from_ipc_descriptor` checks what it can, and the driver rejects a size that
+        does not match the exported allocation. Unpickling a shared buffer performs a live import,
+        so unpickle buffers only from a trusted principal.
+
     Notes
     -----
     Every buffer this resource returns is a :class:`VirtualMemoryBuffer` that
@@ -160,11 +170,15 @@ class VirtualMemoryResource(MemoryResource):
 
     Buffers can be shared with other processes when ``config.handle_type``
     is ``"posix_fd"`` (Linux). :attr:`Buffer.ipc_descriptor` exports the
-    physical allocations that back a buffer, :meth:`Buffer.from_ipc_descriptor`
-    imports them with a ``VirtualMemoryResource`` of the receiving process,
-    and a buffer sent through ``multiprocessing`` does both. The importing
-    resource maps the shared memory for its own device with its own access
-    options; see :attr:`is_ipc_enabled`.
+    physical allocations that back a buffer, one file descriptor each;
+    :meth:`Buffer.from_ipc_descriptor` imports them with a
+    ``VirtualMemoryResource`` of the receiving process for the device that
+    owns the memory; and a buffer sent through ``multiprocessing`` does both.
+    Plain ``pickle`` cannot carry the file descriptors. The importing resource
+    maps the memory for its device and the devices in its ``peers`` option,
+    with its own access options. A live descriptor keeps the memory allocated
+    in every process that holds a copy. An imported buffer, and a buffer grown
+    from one, cannot be exported again. See :attr:`is_ipc_enabled`.
     """
     device: object
     config: object
@@ -210,7 +224,9 @@ class VirtualMemoryResource(MemoryResource):
         freed when the last of the two closes. When the driver can extend the
         address range in place, the returned buffer has the same pointer;
         otherwise it has a new one and the existing contents are reachable
-        through both. Closing the returned buffer never closes ``buf``.
+        through both. Closing the returned buffer never closes ``buf``. A
+        buffer grown from an imported buffer maps imported memory and cannot
+        be exported again.
 
         Concurrent calls on buffers that alias one another are safe.
 
@@ -224,7 +240,8 @@ class VirtualMemoryResource(MemoryResource):
             Configuration for the new physical memory chunk only. Existing
             chunks keep the access they were created with, and the resource's
             own configuration is unchanged. It must name the resource's
-            ``location_type`` and passes the same checks as the constructor.
+            ``location_type`` and ``handle_type`` and passes the same checks
+            as the constructor.
             When ``buf`` already covers ``new_size`` there is no new chunk, so
             ``config`` has no effect. This method never changes the access of
             memory that is already mapped.
@@ -241,8 +258,8 @@ class VirtualMemoryResource(MemoryResource):
         TypeError
             If ``buf`` did not come from this resource.
         ValueError
-            If ``config`` names a different location than the resource, or
-            the constructor would reject it.
+            If ``config`` names a different location or handle type than the
+            resource, or the constructor would reject it.
         RuntimeError
             If ``buf`` is closed, or ``config`` requests GPUDirect RDMA on a
             device without support.
@@ -297,10 +314,14 @@ class VirtualMemoryResource(MemoryResource):
         """Import a buffer that another process exported; see :meth:`Buffer.from_ipc_descriptor`.
 
         Every exported allocation is imported with this resource's handle
-        type, then mapped in order into one new address reservation, with the
-        access descriptors this resource's options produce for its device.
-        The returned buffer owns the imported handles like a buffer from
-        :meth:`allocate` owns created ones, and reports ``is_mapped``.
+        type and checked to live where this resource allocates (its device,
+        or its host location). The allocations are then mapped in order into
+        one new address reservation with the access descriptors this
+        resource's options produce for its device and peers, and the
+        deallocation stream is recorded as :meth:`allocate` does. The
+        returned buffer owns the imported handles like a buffer from
+        :meth:`allocate` owns created ones, reports ``is_mapped``, and cannot
+        be exported again.
         """
     @property
     def device_id(self) -> int:

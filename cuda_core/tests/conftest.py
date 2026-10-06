@@ -41,6 +41,8 @@ from cuda.core import (
     ManagedMemoryResourceOptions,
     PinnedMemoryResource,
     PinnedMemoryResourceOptions,
+    VirtualMemoryResource,
+    VirtualMemoryResourceOptions,
     _device,
 )
 from cuda.core._utils.cuda_utils import handle_return
@@ -271,29 +273,105 @@ def ipc_device(init_cuda):
         yield device
 
 
+def _require_vmm_ipc_device(device):
+    """Return ``device`` if it can export VMM allocations as POSIX file descriptors, otherwise skip."""
+    from cuda_python_test_helpers import IS_WINDOWS, IS_WSL
+
+    props = device.properties
+    if not props.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+    if IS_WINDOWS or IS_WSL or not props.handle_type_posix_file_descriptor_supported:
+        pytest.skip("Sharing virtual memory needs POSIX file descriptor handles")
+    return device
+
+
+@pytest.fixture
+def vmm_ipc_device(init_cuda):
+    """A device whose VirtualMemoryResource buffers can be shared between processes, or skip.
+
+    Tracks spawned ``multiprocessing.Process`` children like :func:`ipc_device`.
+    """
+    from helpers.child_processes import track_child_processes
+
+    device = _require_vmm_ipc_device(init_cuda)
+    with track_child_processes():
+        yield device
+
+
+@pytest.fixture
+def vmm_ipc_device_x2(device_x2):
+    """Two devices whose VirtualMemoryResource buffers can be shared between processes, or skip."""
+    from helpers.child_processes import track_child_processes
+
+    devices = tuple(_require_vmm_ipc_device(device) for device in device_x2)
+    with track_child_processes():
+        yield devices
+
+
+def _make_ipc_memory_resource(kind, device):
+    """Create an IPC-enabled memory resource of the given kind, or skip when the device cannot."""
+    if kind == "device":
+        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+        return DeviceMemoryResource(device, options=options)
+    if kind == "pinned":
+        skip_if_pinned_memory_unsupported(device)
+        options = PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+        return PinnedMemoryResource(options=options)
+    assert kind == "vmm", kind
+    _require_vmm_ipc_device(device)
+    return VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(handle_type="posix_fd"))
+
+
+def _close_memory_resource(mr):
+    # A VirtualMemoryResource owns no pool and has no close(); its buffers free themselves.
+    close = getattr(mr, "close", None)
+    if close is not None:
+        close()
+
+
 @pytest.fixture(
     params=[
         pytest.param("device", id="DeviceMR"),
         pytest.param("pinned", id="PinnedMR"),
+        pytest.param("vmm", id="VirtualMR"),
     ]
 )
 def ipc_memory_resource(request, ipc_device):
-    """Provides IPC-enabled memory resource (either Device or Pinned)."""
-    mr_type = request.param
+    """Provides an IPC-enabled memory resource: a device pool, a pinned pool, or a VirtualMemoryResource.
 
-    if mr_type == "device":
-        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
-        mr = DeviceMemoryResource(ipc_device, options=options)
-    else:  # pinned
-        skip_if_pinned_memory_unsupported(ipc_device)
-        options = PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
-        mr = PinnedMemoryResource(options=options)
-
+    The VMM parameter needs VMM support and POSIX file descriptor handles on
+    top of what :func:`ipc_device` requires; it skips otherwise. Tests that
+    use the pool-only half of the IPC protocol (``allocation_handle``,
+    ``from_allocation_handle``, the registry, ``uuid``, ``is_mapped`` on the
+    resource) guard or skip for it.
+    """
+    mr = _make_ipc_memory_resource(request.param, ipc_device)
     assert mr.is_ipc_enabled
     yield mr
-    mr.close()
+    _close_memory_resource(mr)
     # TODO(seberg): Make sure the `mr` and it's buffers are fully torn down.
     # May be unnecessary as `mr.close()` is not parallel with other work.
+    ipc_device.sync()
+
+
+@pytest.fixture(
+    params=[
+        pytest.param("device", id="DeviceMR"),
+        pytest.param("vmm", id="VirtualMR"),
+    ]
+)
+def ipc_memory_resource_factory(request, ipc_device):
+    """Provides a callable that creates fresh IPC-enabled resources of one kind; all are closed at teardown."""
+    created = []
+
+    def make():
+        mr = _make_ipc_memory_resource(request.param, ipc_device)
+        created.append(mr)
+        return mr
+
+    yield make
+    for mr in created:
+        _close_memory_resource(mr)
     ipc_device.sync()
 
 

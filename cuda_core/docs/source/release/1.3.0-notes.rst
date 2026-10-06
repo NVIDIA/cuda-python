@@ -82,11 +82,14 @@ New features
   processes the way pool-backed buffers are. :attr:`Buffer.ipc_descriptor`
   exports every physical allocation that backs a :class:`VirtualMemoryBuffer`
   as a POSIX file descriptor, :meth:`Buffer.from_ipc_descriptor` imports the
-  descriptor with a ``VirtualMemoryResource`` of the receiving process, and a
-  buffer or its descriptor can be sent through ``multiprocessing`` directly.
-  :attr:`VirtualMemoryResource.is_ipc_enabled` is ``True`` when the resource's
-  ``handle_type`` is ``"posix_fd"`` on Linux. A grown buffer imports as one
-  contiguous range. Fabric handles are not shared yet.
+  descriptor with a ``VirtualMemoryResource`` of the receiving process for the
+  device that owns the memory, and a buffer or its descriptor can be sent
+  through ``multiprocessing`` directly (plain ``pickle`` cannot carry file
+  descriptors). :attr:`VirtualMemoryResource.is_ipc_enabled` is ``True`` when
+  the resource's ``handle_type`` is ``"posix_fd"`` on Linux. A grown buffer
+  imports as one contiguous range. A live descriptor holds one file descriptor
+  per physical allocation and keeps the memory allocated; an imported buffer
+  cannot be exported again. Fabric handles are not shared yet.
   (`#2980 <https://github.com/NVIDIA/cuda-python/issues/2980>`__)
 
 Fixes and enhancements

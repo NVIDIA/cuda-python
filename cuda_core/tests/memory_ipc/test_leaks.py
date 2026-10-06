@@ -31,6 +31,8 @@ pytestmark = pytest.mark.thread_unsafe(reason="Tests number of fds which is shar
 def test_alloc_handle(ipc_memory_resource):
     """Check for fd leaks in allocation_handle."""
     mr = ipc_memory_resource
+    if not hasattr(mr, "allocation_handle"):
+        pytest.skip("allocation handles are pool-only")
     with CheckFDLeaks():
         [mr.allocation_handle for _ in range(10)]
 
@@ -86,16 +88,29 @@ class Irreducible:
         raise RuntimeError("Irreducible")
 
 
+def _get_alloc_handle(mr, _stream):
+    if not hasattr(mr, "allocation_handle"):
+        pytest.skip("allocation handles are pool-only")
+    return mr.allocation_handle
+
+
+def _get_mr(mr, _stream):
+    return mr
+
+
+def _get_buffer(mr, stream):
+    return mr.allocate(NBYTES, stream=stream)
+
+
+def _get_buffer_desc(mr, stream):
+    return mr.allocate(NBYTES, stream=stream).ipc_descriptor
+
+
 @pytest.mark.flaky(reruns=2)
 @skip_if_unrunnable
 @pytest.mark.parametrize(
     "getobject",
-    [
-        lambda mr, _stream: mr.allocation_handle,
-        lambda mr, _stream: mr,
-        lambda mr, stream: mr.allocate(NBYTES, stream=stream),
-        lambda mr, stream: mr.allocate(NBYTES, stream=stream).ipc_descriptor,
-    ],
+    [_get_alloc_handle, _get_mr, _get_buffer, _get_buffer_desc],
     ids=["alloc_handle", "mr", "buffer", "buffer_desc"],
 )
 @pytest.mark.parametrize("launcher", [exec_success, exec_launch_failure, exec_reduce_failure])
@@ -128,10 +143,12 @@ class CheckFDLeaks:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is not None:
+        # Only the success path is checked: a failing block has already
+        # reported its own error, and its cleanup may legitimately be partial.
+        if exc_type is None:
             gc.collect()
             final_fds = self.process.num_fds()
-            assert final_fds == self.initial_fds
+            assert final_fds == self.initial_fds, f"file descriptors leaked: {self.initial_fds} -> {final_fds}"
         return False
 
 

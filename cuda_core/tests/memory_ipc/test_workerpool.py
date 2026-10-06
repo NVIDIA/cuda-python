@@ -7,9 +7,8 @@ from itertools import cycle
 
 import pytest
 from helpers.buffers import PatternGen
-from helpers.constants import POOL_SIZE
 
-from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
+from cuda.core import Buffer, Device, VirtualMemoryResource
 
 NBYTES = 64
 NWORKERS = 2
@@ -31,10 +30,9 @@ class TestIpcWorkerPool:
 
     @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("nmrs", (1, NMRS))
-    def test_main(self, ipc_device, nmrs):
+    def test_main(self, ipc_device, ipc_memory_resource_factory, nmrs):
         device = ipc_device
-        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
-        mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
+        mrs = [ipc_memory_resource_factory() for _ in range(nmrs)]
         buffers = []
         stream = device.default_stream
 
@@ -52,8 +50,6 @@ class TestIpcWorkerPool:
             for buffer in buffers:
                 buffer.close()
             stream.sync()
-            for mr in mrs:
-                mr.close()
 
     def process_buffer(self, buffer):
         device = Device(buffer.memory_resource.device_id)
@@ -80,10 +76,9 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
 
     @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("nmrs", (1, NMRS))
-    def test_main(self, ipc_device, nmrs):
+    def test_main(self, ipc_device, ipc_memory_resource_factory, nmrs):
         device = ipc_device
-        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
-        mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
+        mrs = [ipc_memory_resource_factory() for _ in range(nmrs)]
         buffers = []
         stream = device.default_stream
 
@@ -104,8 +99,6 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
             for buffer in buffers:
                 buffer.close()
             stream.sync()
-            for mr in mrs:
-                mr.close()
 
     def process_buffer(self, mr_idx, buffer_desc):
         mr = self.mrs[mr_idx]
@@ -137,10 +130,11 @@ class TestIpcWorkerPoolUsingRegistry:
 
     @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("nmrs", (1, NMRS))
-    def test_main(self, ipc_device, nmrs):
+    def test_main(self, ipc_device, ipc_memory_resource_factory, nmrs):
         device = ipc_device
-        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
-        mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
+        mrs = [ipc_memory_resource_factory() for _ in range(nmrs)]
+        if isinstance(mrs[0], VirtualMemoryResource):
+            pytest.skip("plain pickle cannot carry the file descriptors of a VirtualMemoryResource buffer")
         buffers = []
         stream = device.default_stream
 
@@ -158,8 +152,6 @@ class TestIpcWorkerPoolUsingRegistry:
             for buffer in buffers:
                 buffer.close()
             stream.sync()
-            for mr in mrs:
-                mr.close()
 
     def process_buffer(self, device, buffer_s):
         device.set_current()

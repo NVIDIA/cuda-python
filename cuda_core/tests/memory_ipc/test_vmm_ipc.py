@@ -1,7 +1,15 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Sharing VirtualMemoryResource buffers between processes (issue #2980)."""
+"""Sharing VirtualMemoryResource buffers between processes (issue #2980).
+
+The scenarios that pool-backed and VMM buffers have in common run in the rest
+of this directory through the ``VirtualMR`` parameter of the
+``ipc_memory_resource`` fixture. This module covers what is specific to
+virtual memory: ranges made of several physical allocations, which device the
+memory belongs to, the validation of a descriptor from an untrusted peer, and
+the limits of re-export.
+"""
 
 import ctypes
 import gc
@@ -10,32 +18,21 @@ import os
 import pickle
 
 import pytest
-from helpers import IS_WINDOWS, IS_WSL
-from helpers.child_processes import child_timeout_sec, kill_subprocesses, track_child_processes
+from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.contexts import assert_no_cuda_warning
 
 from cuda.bindings import driver
 from cuda.core import Buffer, Device, MemoryResource, VirtualMemoryResource, VirtualMemoryResourceOptions
-from cuda.core._memory._ipc import IPCBufferDescriptor
+from cuda.core._dlpack import DLDeviceType
+from cuda.core._memory._ipc import IPCAllocationHandle, IPCBufferDescriptor, VirtualMemoryIPCBufferDescriptor
 from cuda.core._memory._virtual_memory_resource import VirtualMemoryBuffer
-from cuda.core._utils.cuda_utils import handle_return
+from cuda.core._utils.cuda_utils import CUDAError, handle_return
+from cuda.core.utils import StridedMemoryView
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 
 # These tests spawn processes and pass file descriptors, which fails for very many threads.
 pytestmark = pytest.mark.parallel_threads_limit(4)
-
-
-@pytest.fixture
-def vmm_ipc_device(init_cuda):
-    """A device that can export VMM allocations as POSIX file descriptors, or skip."""
-    device = init_cuda
-    props = device.properties
-    if not props.virtual_memory_management_supported:
-        pytest.skip("Virtual memory management is not supported on this device")
-    if IS_WINDOWS or IS_WSL or not props.handle_type_posix_file_descriptor_supported:
-        pytest.skip("Sharing virtual memory needs POSIX file descriptor handles")
-    with track_child_processes():
-        yield device
 
 
 def _resource(device, **options):
@@ -64,6 +61,43 @@ def _is_mapped(ptr):
         handle_return(driver.cuMemRelease(handle))
         return True
     return False
+
+
+def _access_flags(buf, device_id):
+    """The access a device has to ``buf``: 0 for none, 3 for read-write."""
+    location = driver.CUmemLocation()
+    location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    location.id = device_id
+    return int(handle_return(driver.cuMemGetAccess(location, int(buf.handle))))
+
+
+def _reserve_at(addr, size):
+    """Reserve ``size`` bytes at ``addr``. Return the reservation, or None if the driver placed it elsewhere."""
+    ptr = handle_return(driver.cuMemAddressReserve(size, 0, addr, 0))
+    if int(ptr) != addr:
+        handle_return(driver.cuMemAddressFree(ptr, size))
+        return None
+    return ptr
+
+
+def _open_fds():
+    return len(os.listdir("/proc/self/fd"))
+
+
+def _has_note(exc, text):
+    """Whether ``text`` is in one of the exception's notes, or in its message on Python 3.10."""
+    return any(text in note for note in getattr(exc, "__notes__", ())) or text in str(exc)
+
+
+def _forge(desc, **fields):
+    """A copy of ``desc`` with some fields replaced, as a hostile or buggy peer could send."""
+    fields.setdefault("handle_type", desc._handle_type)
+    fields.setdefault("chunk_sizes", desc._chunk_sizes)
+    fields.setdefault("handles", desc._handles)
+    fields.setdefault("size", desc.size)
+    return VirtualMemoryIPCBufferDescriptor._from_exports(
+        fields["handle_type"], fields["chunk_sizes"], fields["handles"], fields["size"]
+    )
 
 
 class _SharedStub(MemoryResource):
@@ -95,6 +129,10 @@ class _SharedStub(MemoryResource):
         return True
 
 
+class _CustomResource(VirtualMemoryResource):
+    """A subclass, to check that pickling preserves the type."""
+
+
 def _run_child(target, *args):
     """Run ``target(*args)`` in a spawned child and fail if it does not exit cleanly."""
     process = mp.Process(target=target, args=args)
@@ -105,104 +143,374 @@ def _run_child(target, *args):
     assert process.exitcode == 0, f"child exited with {process.exitcode}"
 
 
-class TestVmmIpcDescriptor:
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.parametrize(
+    ("options", "expected"),
+    [
+        pytest.param({"handle_type": "posix_fd"}, True, id="posix_fd"),
+        pytest.param({"handle_type": None}, False, id="none"),
+        pytest.param({"handle_type": "fabric"}, False, id="fabric"),
+        pytest.param({"handle_type": "win32_kmt"}, False, id="win32_kmt"),
+        pytest.param({"location_type": "host", "handle_type": None}, False, id="host"),
+        pytest.param({"location_type": "host_numa", "handle_type": "posix_fd"}, True, id="host_numa-posix_fd"),
+    ],
+)
+def test_is_ipc_enabled(vmm_ipc_device, options, expected):
+    """Only POSIX file descriptors have a transport; the location does not matter."""
+    mr = VirtualMemoryResource(vmm_ipc_device, config=VirtualMemoryResourceOptions(**options))
+    assert mr.is_ipc_enabled is expected
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_resource_pickles_as_its_own_type(vmm_ipc_device):
+    """A VirtualMemoryResource pickles as (device, options) and a subclass comes back as the subclass."""
+    mr = _CustomResource(vmm_ipc_device, config=VirtualMemoryResourceOptions(handle_type="posix_fd", peers=()))
+    copy = pickle.loads(pickle.dumps(mr))  # noqa: S301  our own bytes; the resource carries no handle
+    assert type(copy) is _CustomResource
+    assert copy.device_id == mr.device_id
+    assert copy.config == mr.config
+
+
+class TestManyChunkBuffer:
     @pytest.mark.agent_authored(model="claude-fable-5-1")
-    def test_descriptor_round_trip(self, vmm_ipc_device):
-        """A child imports the descriptor, reads the parent's data, writes its own, and releases."""
+    @pytest.mark.thread_unsafe(reason="counts process-global file descriptors and records process-global warnings")
+    def test_main(self, vmm_ipc_device):
+        """A range of three physical allocations, the last placed by a relocating grow, exports and imports whole.
+
+        Each allocation costs one file descriptor while the descriptor lives;
+        the child reads every chunk, writes one back, and tears the import
+        down without a warning.
+        """
         device = vmm_ipc_device
         mr = _resource(device)
-        assert mr.is_ipc_enabled
-        buf = mr.allocate(1)
-        _fill(buf, 0xAB)
-        desc = buf.ipc_descriptor
-        assert isinstance(desc, IPCBufferDescriptor)
-        assert desc.size == buf.size
-        assert buf.ipc_descriptor is desc  # cached
-        assert not buf.is_mapped
+        queue = mp.Queue()  # before the descriptor count: the queue's pipe is not part of it
+        buffers = []
+        try:
+            buf = mr.allocate(1)
+            buffers.append(buf)
+            gran = buf.size
+            buf = mr.modify_allocation(buf, 2 * gran)  # extends in place or moves
+            buffers.append(buf)
+            # Take the range after the buffer so that this grow must remap the
+            # existing chunks at a new address.
+            decoy = _reserve_at(int(buf.handle) + buf.size, gran)
+            if decoy is None:
+                pytest.skip("the driver did not grant a reservation right after the buffer")
+            try:
+                moved = mr.modify_allocation(buf, 3 * gran)
+            finally:
+                handle_return(driver.cuMemAddressFree(decoy, gran))
+            buffers.append(moved)
+            assert int(moved.handle) != int(buf.handle)
+            assert moved.size == 3 * gran
+            values = (0x11, 0x22, 0x33)
+            for i, value in enumerate(values):
+                _fill(moved, value, offset=i * gran, size=gran)
 
+            fds_before = _open_fds()
+            desc = moved.ipc_descriptor
+            assert desc.size == 3 * gran
+            assert desc._chunk_sizes == (gran, gran, gran)
+            assert _open_fds() == fds_before + 3
+            fds = [int(handle) for handle in desc._handles]
+
+            _run_child(self.child_main, device.device_id, desc, gran, queue)
+            result = queue.get(timeout=CHILD_TIMEOUT_SEC)
+            assert result["chunks"] == [bytes([value]) * 16 for value in values]
+            assert result["released"] is True
+            assert _read(moved, 2 * gran, 16) == b"\x44" * 16
+        finally:
+            for buffer in buffers:
+                buffer.close()
+        # Closing the buffer drops its cached descriptor; the last reference goes here.
+        del desc
+        gc.collect()
+        for fd in fds:
+            with pytest.raises(OSError):
+                os.fstat(fd)
+
+    @staticmethod
+    def child_main(device_id, desc, gran, queue):
+        device = Device(device_id)
+        device.set_current()
+        mr = _resource(device)
+        with assert_no_cuda_warning():
+            imported = Buffer.from_ipc_descriptor(mr, desc, stream=device.default_stream)
+            assert isinstance(imported, VirtualMemoryBuffer)
+            assert imported.is_mapped
+            assert imported.size == 3 * gran
+            chunks = [_read(imported, i * gran, 16) for i in range(3)]
+            _fill(imported, 0x44, offset=2 * gran, size=gran)
+            ptr = int(imported.handle)
+            imported.close()
+            released = not _is_mapped(ptr)
+        queue.put({"chunks": chunks, "released": released})
+
+
+class TestImportOnSecondDevice:
+    """The memory belongs to the exporter's device; the importer maps it for that device and may add peers."""
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_main(self, vmm_ipc_device_x2):
+        dev0, dev1 = vmm_ipc_device_x2
+        dev1.set_current()
+        mr = _resource(dev1)
+        buf = mr.allocate(1)
+        _fill(buf, 0x5A)
+        desc = buf.ipc_descriptor
+
+        # In this process: a resource for the other device refuses the memory before mapping anything.
+        with pytest.raises(ValueError, match=f"memory on device {dev1.device_id}, but this resource maps memory on"):
+            Buffer.from_ipc_descriptor(_resource(dev0), desc, stream=dev0.default_stream)
+
+        peers_possible = dev1.can_access_peer(dev0)
+        queue = mp.Queue()
+        _run_child(self.child_main, dev0.device_id, dev1.device_id, desc, peers_possible, queue)
+        result = queue.get(timeout=CHILD_TIMEOUT_SEC)
+        assert f"device {dev0.device_id}" in result["wrong_device"]
+        assert result["device_id"] == dev1.device_id
+        assert result["access_without_peers"] == (3, 0)
+        assert result["data"] == b"\x5a" * 16
+        if peers_possible:
+            assert result["access_with_peers"] == (3, 3)
+            assert result["peer_read"] == b"\x5a" * 16
+        else:
+            assert "access_with_peers" not in result
+
+        buf.close()
+        dev1.sync()
+
+    @staticmethod
+    def child_main(id0, id1, desc, peers_possible, queue):
+        dev0, dev1 = Device(id0), Device(id1)
+        dev1.set_current()
+        result = {}
+
+        # A resource for the wrong device: refused with the device ids named.
+        with pytest.raises(ValueError) as info:
+            Buffer.from_ipc_descriptor(_resource(dev0), desc, stream=dev0.default_stream)
+        result["wrong_device"] = str(info.value)
+
+        # The owning device, without peers: only that device can reach the memory.
+        imported = Buffer.from_ipc_descriptor(_resource(dev1), desc, stream=dev1.default_stream)
+        result["device_id"] = imported.device_id
+        result["access_without_peers"] = (_access_flags(imported, id1), _access_flags(imported, id0))
+        result["data"] = _read(imported, 0, 16)
+        imported.close()
+
+        # With the other device as a peer, it can read the import directly.
+        if peers_possible:
+            imported = Buffer.from_ipc_descriptor(_resource(dev1, peers=[id0]), desc, stream=dev1.default_stream)
+            result["access_with_peers"] = (_access_flags(imported, id1), _access_flags(imported, id0))
+            dev0.set_current()
+            result["peer_read"] = _read(imported, 0, 16)
+            dev1.set_current()
+            imported.close()
+        queue.put(result)
+
+
+class TestDescriptorValidation:
+    """A descriptor is data from another process; each malformed field fails before memory is mapped."""
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_rejected_before_import(self, vmm_ipc_device):
+        device = vmm_ipc_device
+        stream = device.default_stream
+        mr = _resource(device)
+        with mr.allocate(1) as buf:
+            gran = buf.size
+            desc = buf.ipc_descriptor
+            fabric = int(driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_FABRIC)
+            cases = [
+                (_forge(desc, handle_type=fabric), ValueError, "handle type does not match"),
+                (_forge(desc, chunk_sizes=(gran, gran)), ValueError, "malformed"),
+                (_forge(desc, chunk_sizes=(0,), size=0), ValueError, "positive multiple"),
+                (_forge(desc, chunk_sizes=(gran + 1,)), ValueError, "positive multiple"),
+                (_forge(desc, size=2 * gran), ValueError, "exceeds the exported allocations"),
+                (_forge(desc, chunk_sizes=(), handles=(), size=gran), ValueError, "no exported allocations"),
+            ]
+            for forged, exc_type, text in cases:
+                with pytest.raises(exc_type, match=text):
+                    Buffer.from_ipc_descriptor(mr, forged, stream=stream)
+
+            # A handle that was closed on this side.
+            closed = IPCAllocationHandle._init(os.dup(int(desc._handles[0])), None)
+            closed.close()
+            with pytest.raises(ValueError, match="closed"):
+                Buffer.from_ipc_descriptor(mr, _forge(desc, handles=(closed,)), stream=stream)
+
+            # A file descriptor that is not a CUDA allocation: the driver refuses it, and the error says where.
+            read_end, write_end = os.pipe()
+            os.close(write_end)
+            not_cuda = IPCAllocationHandle._init(read_end, None)  # owns and closes read_end
+            with pytest.raises(CUDAError) as info:
+                Buffer.from_ipc_descriptor(mr, _forge(desc, handles=(not_cuda,)), stream=stream)
+            assert _has_note(info.value, "while importing chunk 1 of 1")
+            assert _has_note(info.value, "handle_type='posix_fd'")
+
+            # The buffer is untouched and the genuine descriptor still imports.
+            _fill(buf, 0x66)
+            alias = Buffer.from_ipc_descriptor(mr, desc, stream=stream)
+            assert _read(alias, 0, 16) == b"\x66" * 16
+            alias.close()
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    @pytest.mark.thread_unsafe(reason="checks mapping state by address; another thread can reuse a freed address")
+    def test_wrong_chunk_size_fails_at_map_and_rolls_back(self, vmm_ipc_device):
+        """A chunk size that does not match the allocation fails in the driver's map; earlier chunks are undone.
+
+        The importer is given an address hint so that the rollback is
+        observable: after the failure nothing is mapped at that address.
+        """
+        device = vmm_ipc_device
+        stream = device.default_stream
+        mr = _resource(device)
+        first = mr.allocate(1)
+        gran = first.size
+        buf = mr.modify_allocation(first, 2 * gran)
+        desc = buf.ipc_descriptor
+        assert desc._chunk_sizes == (gran, gran)
+
+        # An address the importer will use for a three-chunk range.
+        probe = int(handle_return(driver.cuMemAddressReserve(3 * gran, 0, 0, 0)))
+        handle_return(driver.cuMemAddressFree(probe, 3 * gran))
+        importer = _resource(device, addr_hint=probe)
+        alias = Buffer.from_ipc_descriptor(importer, desc, stream=stream)
+        honored = int(alias.handle) == probe
+        alias.close()
+        if not honored:
+            first.close()
+            buf.close()
+            pytest.skip("the driver did not honor the address hint")
+
+        forged = _forge(desc, chunk_sizes=(gran, 2 * gran), size=3 * gran)
+        with pytest.raises(CUDAError) as info:
+            Buffer.from_ipc_descriptor(importer, forged, stream=stream)
+        assert _has_note(info.value, f"while mapping chunk 2 of 2 ({2 * gran} bytes)")
+        assert not _is_mapped(probe)  # chunk 1 was mapped there and has been undone
+        reservation = _reserve_at(probe, 3 * gran)
+        assert reservation is not None, "the importer's address reservation was not released"
+        handle_return(driver.cuMemAddressFree(reservation, 3 * gran))
+
+        # The exporter's memory is intact and the genuine descriptor still imports.
+        _fill(buf, 0x77, offset=gran, size=gran)
+        alias = Buffer.from_ipc_descriptor(importer, desc, stream=stream)
+        assert _read(alias, gran, 16) == b"\x77" * 16
+        alias.close()
+        first.close()
+        buf.close()
+
+
+class TestReexport:
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_imported_buffer_cannot_be_exported(self, vmm_ipc_device):
+        """The driver exports only allocations it created with the handle type; imports and grows from them fail."""
+        device = vmm_ipc_device
+        stream = device.default_stream
+        mr = _resource(device)
+        buf = mr.allocate(1)
+        gran = buf.size
+        desc = buf.ipc_descriptor
+        imported = Buffer.from_ipc_descriptor(mr, desc, stream=stream)
+        assert imported.is_mapped
+        with pytest.raises(RuntimeError, match="cannot be exported again"):
+            _ = imported.ipc_descriptor
+        with pytest.raises(RuntimeError, match="cannot be exported again"):
+            mp.reduction.ForkingPickler.dumps(imported)  # a buffer pickles through its descriptor
+
+        # A buffer grown from an import maps the imported chunk, so it cannot be exported either.
+        grown = mr.modify_allocation(imported, 2 * gran)
+        assert not grown.is_mapped
+        with pytest.raises(RuntimeError, match="imported from another process"):
+            _ = grown.ipc_descriptor
+
+        # The original descriptor still serves new importers.
+        _fill(buf, 0x3C)
+        alias = Buffer.from_ipc_descriptor(mr, desc, stream=stream)
+        assert _read(alias, 0, 16) == b"\x3c" * 16
+        for buffer in (alias, grown, imported, buf):
+            buffer.close()
+
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_grow_cannot_change_handle_type(self, vmm_ipc_device):
+        """Every chunk of a buffer must be exportable the same way."""
+        device = vmm_ipc_device
+        mr = _resource(device)
+        with mr.allocate(1) as buf, pytest.raises(ValueError, match="handle_type"):
+            mr.modify_allocation(buf, 2 * buf.size, config=VirtualMemoryResourceOptions(handle_type=None))
+        private = _resource(device, handle_type=None)
+        with private.allocate(1) as buf, pytest.raises(ValueError, match="handle_type"):
+            private.modify_allocation(buf, 2 * buf.size, config=VirtualMemoryResourceOptions())
+
+
+class TestEmptyBuffer:
+    @pytest.mark.agent_authored(model="claude-fable-5-1")
+    def test_round_trip(self, vmm_ipc_device):
+        """An empty buffer exports no allocations and imports as an empty mapped buffer."""
+        device = vmm_ipc_device
+        mr = _resource(device)
+        empty = mr.allocate(0)
+        desc = empty.ipc_descriptor
+        assert desc.size == 0
+        assert desc._chunk_sizes == ()
+        assert desc._handles == ()
+        alias = Buffer.from_ipc_descriptor(mr, desc, stream=device.default_stream)
+        assert alias.size == 0
+        assert alias.is_mapped
+        alias.close()
         queue = mp.Queue()
         _run_child(self.child_main, device.device_id, desc, queue)
-        reads = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        assert reads["is_mapped"] is True
-        assert reads["size"] == buf.size
-        assert reads["first_bytes"] == b"\xab" * 16
-        assert reads["released"] is True
-        assert _read(buf, 0, 16) == b"\x5a" * 16
-        buf.close()
+        assert queue.get(timeout=CHILD_TIMEOUT_SEC) == {"size": 0, "is_mapped": True}
+        empty.close()
 
     @staticmethod
     def child_main(device_id, desc, queue):
         device = Device(device_id)
         device.set_current()
-        mr = _resource(device)
-        imported = Buffer.from_ipc_descriptor(mr, desc, stream=device.default_stream)
-        assert isinstance(imported, VirtualMemoryBuffer)
-        result = {
-            "is_mapped": imported.is_mapped,
-            "size": imported.size,
-            "first_bytes": _read(imported, 0, 16),
-        }
-        _fill(imported, 0x5A)
-        ptr = int(imported.handle)
+        imported = Buffer.from_ipc_descriptor(_resource(device), desc, stream=device.default_stream)
+        queue.put({"size": imported.size, "is_mapped": imported.is_mapped})
         imported.close()
-        result["released"] = not _is_mapped(ptr)
-        queue.put(result)
 
+
+class TestDLPackConsumer:
     @pytest.mark.agent_authored(model="claude-fable-5-1")
-    def test_buffer_pickles_through_queue(self, vmm_ipc_device):
-        """A buffer sent directly pickles as (resource, descriptor) and imports on arrival."""
+    def test_imported_buffer_feeds_a_consumer(self, vmm_ipc_device):
+        """An imported buffer, received as a Process argument, is a complete DLPack producer."""
         device = vmm_ipc_device
         mr = _resource(device)
         buf = mr.allocate(1)
-        _fill(buf, 0x11)
+        _fill(buf, 0x7E)
         queue = mp.Queue()
-        queue.put(buf)
-        _run_child(self.child_buffer, device.device_id, queue)
-        assert _read(buf, 0, 16) == b"\x22" * 16
+        _run_child(self.child_main, device.device_id, buf, queue)
+        result = queue.get(timeout=CHILD_TIMEOUT_SEC)
+        assert result["dl_device"] == (int(DLDeviceType.kDLCUDA), device.device_id)
+        assert result["shape"] == (buf.size,)
+        assert result["device_id"] == device.device_id
+        assert result["is_device_accessible"] is True
+        assert result["ptr_matches"] is True
+        assert result["first_bytes"] == b"\x7e" * 16
         buf.close()
 
     @staticmethod
-    def child_buffer(device_id, queue):
+    def child_main(device_id, imported, queue):
         Device(device_id).set_current()
-        imported = queue.get(timeout=CHILD_TIMEOUT_SEC)
         assert isinstance(imported, VirtualMemoryBuffer)
         assert imported.is_mapped
-        assert isinstance(imported.memory_resource, VirtualMemoryResource)
-        assert imported.memory_resource.device_id == device_id
-        assert _read(imported, 0, 16) == b"\x11" * 16
-        _fill(imported, 0x22)
+        view = StridedMemoryView.from_dlpack(imported, stream_ptr=-1)
+        result = {
+            "dl_device": tuple(imported.__dlpack_device__()),
+            "shape": tuple(view.shape),
+            "device_id": view.device_id,
+            "is_device_accessible": view.is_device_accessible,
+            "ptr_matches": view.ptr == int(imported.handle),
+            "first_bytes": _read(imported, 0, 16),
+        }
+        del view
         imported.close()
+        queue.put(result)
 
-    @pytest.mark.agent_authored(model="claude-fable-5-1")
-    def test_grown_buffer_imports_as_one_range(self, vmm_ipc_device):
-        """A buffer with two physical allocations exports both and imports contiguously."""
-        device = vmm_ipc_device
-        mr = _resource(device)
-        first = mr.allocate(1)
-        gran = first.size
-        grown = mr.modify_allocation(first, 2 * gran)
-        assert grown.size == 2 * gran
-        _fill(grown, 0x11, offset=0, size=gran)
-        _fill(grown, 0x22, offset=gran, size=gran)
-        desc = grown.ipc_descriptor
-        assert desc.size == 2 * gran
-        assert len(desc._chunk_sizes) == 2
 
-        queue = mp.Queue()
-        _run_child(self.child_grown, device.device_id, desc, gran, queue)
-        assert queue.get(timeout=CHILD_TIMEOUT_SEC) == {"low": b"\x11" * 16, "high": b"\x22" * 16}
-        first.close()
-        grown.close()
-
-    @staticmethod
-    def child_grown(device_id, desc, gran, queue):
-        device = Device(device_id)
-        device.set_current()
-        imported = Buffer.from_ipc_descriptor(_resource(device), desc, stream=device.default_stream)
-        assert imported.size == 2 * gran
-        queue.put({"low": _read(imported, 0, 16), "high": _read(imported, gran, 16)})
-        imported.close()
-
+class TestSameProcess:
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     @pytest.mark.thread_unsafe(reason="checks mapping state by address; another thread can reuse a freed address")
     def test_import_in_same_process_aliases_memory(self, vmm_ipc_device):
@@ -229,7 +537,7 @@ class TestVmmIpcDescriptor:
         reason="file descriptor numbers are process-global; another thread can reuse a closed one"
     )
     def test_descriptor_owns_its_file_descriptors(self, vmm_ipc_device):
-        """The exported file descriptors close when the descriptor is released."""
+        """The exported file descriptors close when the descriptor is released, and plain pickle refuses them."""
         device = vmm_ipc_device
         mr = _resource(device)
         buf = mr.allocate(1)
@@ -238,6 +546,8 @@ class TestVmmIpcDescriptor:
         os.fstat(fd)  # open
         with pytest.raises(TypeError):
             pickle.dumps(desc)  # file descriptors need multiprocessing
+        with pytest.raises(TypeError):
+            pickle.dumps(buf)
         buf.close()  # drops the cached descriptor
         del desc
         gc.collect()

@@ -7,9 +7,8 @@ from itertools import cycle
 import pytest
 from helpers.buffers import PatternGen
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
-from helpers.constants import POOL_SIZE
 
-from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
+from cuda.core import Device, VirtualMemoryResource
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
@@ -23,12 +22,11 @@ pytestmark = pytest.mark.parallel_threads_limit(4)
 class TestIpcSendBuffers:
     @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("nmrs", (1, NMRS))
-    def test_main(self, ipc_device, nmrs):
+    def test_main(self, ipc_device, ipc_memory_resource_factory, nmrs):
         """Test passing buffers sourced from multiple memory resources."""
-        # Set up several IPC-enabled memory pools.
+        # Set up several IPC-enabled memory resources.
         device = ipc_device
-        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
-        mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
+        mrs = [ipc_memory_resource_factory() for _ in range(nmrs)]
         buffers = []
         stream = device.default_stream
 
@@ -60,8 +58,6 @@ class TestIpcSendBuffers:
             for buffer in buffers:
                 buffer.close()
             stream.sync()
-            for mr in mrs:
-                mr.close()
 
     def child_main(self, device, buffers):
         device.set_current()
@@ -96,6 +92,11 @@ class TestIpcReexport:
 
         # Allocate, fill a buffer.
         mr = ipc_memory_resource
+        if isinstance(mr, VirtualMemoryResource):
+            pytest.skip(
+                "an imported VirtualMemoryBuffer cannot be exported again: the driver does not export "
+                "imported allocations, and cuda.core does not forward the original descriptor"
+            )
         stream = device.default_stream
         pgen = PatternGen(device, NBYTES, stream=stream)
         buffer = mr.allocate(NBYTES, stream=stream)

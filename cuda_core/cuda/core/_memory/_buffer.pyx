@@ -44,6 +44,7 @@ from cuda.core._dlpack import classify_dl_device, make_py_capsule
 from cuda.core._device import Device
 
 if TYPE_CHECKING:
+    from cuda.core._memory._virtual_memory_resource import VirtualMemoryResource
     from cuda.core.graph import GraphBuilder
 
 
