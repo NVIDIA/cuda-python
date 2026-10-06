@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=bf5cfa7a"></script>
+    <script src="../_static/documentation_options.js?v=1b247e63"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev178';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev179';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -830,7 +830,9 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResourceOptions.handle_type">
 <span class="sig-name descname"><span class="pre">handle_type</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryResourceOptions.handle_type" title="Link to this definition">#</a></dt>
-<dd><p>Export handle type for the physical allocation. Use <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> on
+<dd><p>Export handle type for the physical allocation, and the switch for
+sharing buffers with other processes (see
+<a class="reference internal" href="cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="cuda.core.VirtualMemoryResource.is_ipc_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VirtualMemoryResource.is_ipc_enabled</span></code></a>). Use <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> on
 Linux if you plan to import/export the allocation. Use <cite>None</cite> if you
 don’t need an exportable handle. <code class="docutils literal notranslate"><span class="pre">location_type=&quot;host&quot;</span></code> requires
 <cite>None</cite>.</p>

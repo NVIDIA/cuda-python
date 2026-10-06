@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=bf5cfa7a"></script>
+    <script src="../_static/documentation_options.js?v=1b247e63"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev178';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev179';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1107,19 +1107,33 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryBuffer.ipc_descriptor">
 <span class="sig-name descname"><span class="pre">ipc_descriptor</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryBuffer.ipc_descriptor" title="Link to this definition">#</a></dt>
-<dd><p>Descriptor for sharing this buffer with other processes.</p>
-<p>The descriptor exports every physical allocation that backs the
-buffer as a shareable handle and is cached on the buffer until the
-buffer closes. Each exported allocation takes one file descriptor,
-and a live descriptor keeps the physical memory allocated in every
-process that holds a copy. It requires a resource whose
-<code class="docutils literal notranslate"><span class="pre">handle_type</span></code> can be shared; see
-<a class="reference internal" href="cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="cuda.core.VirtualMemoryResource.is_ipc_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VirtualMemoryResource.is_ipc_enabled</span></code></a>. Import it with
+<dd><p>A new descriptor for sharing this buffer with other processes.</p>
+<p>Every access exports the physical allocations that back the buffer
+again and returns a new descriptor that owns one file descriptor per
+allocation; the file descriptors close when the descriptor is
+released. A descriptor pins the physical memory while it exists, in
+every process that holds one, and nothing else does: the buffer
+itself keeps no descriptor, so it pins nothing beyond its own mapping.
+Pickling the buffer through <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> builds a transient
+descriptor, so the sender holds no file descriptors between sends;
+a buffer passed as a <code class="docutils literal notranslate"><span class="pre">Process</span></code> argument is the exception, because
+the child receives the file descriptors when it is spawned, after
+pickling, so that descriptor lives until the <code class="docutils literal notranslate"><span class="pre">Process</span></code> object is
+released. Requires a resource whose <code class="docutils literal notranslate"><span class="pre">handle_type</span></code> can be shared; see
+<a class="reference internal" href="cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="cuda.core.VirtualMemoryResource.is_ipc_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VirtualMemoryResource.is_ipc_enabled</span></code></a>. Import with
 <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a> and a
 <a class="reference internal" href="cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> of the receiving process, or send the
-buffer itself through <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code>. A buffer imported from
-another process cannot be exported again; share the descriptor it
-was imported from.</p>
+buffer itself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If the resource is not IPC-enabled, or the buffer contains memory
+    imported from another process (an import, or a buffer
+    <a class="reference internal" href="cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.modify_allocation" title="cuda.core.VirtualMemoryResource.modify_allocation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">VirtualMemoryResource.modify_allocation()</span></code></a> derived from
+    one): such memory cannot be exported again. Forward the descriptor
+    it was imported from, or copy the data into a buffer this process
+    allocated. The check happens before any driver call.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">

@@ -14,6 +14,7 @@ cuda.core.\_memory.\_ipc.VirtualMemoryIPCBufferDescriptor
 
    
    .. automethod:: __init__
+   .. automethod:: from_fds
 
    
    
@@ -23,6 +24,10 @@ cuda.core.\_memory.\_ipc.VirtualMemoryIPCBufferDescriptor
    .. rubric:: Attributes
 
    
+   .. autoattribute:: fds
+   .. autoattribute:: handle_type
+   .. autoattribute:: handles
    .. autoattribute:: size
+   .. autoattribute:: sizes
    
    

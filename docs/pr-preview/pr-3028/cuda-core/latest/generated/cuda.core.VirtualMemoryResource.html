@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=bf5cfa7a"></script>
+    <script src="../_static/documentation_options.js?v=1b247e63"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev178';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev179';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -810,7 +810,8 @@ in cuda.core should already meet the common needs.</p>
 <p>A shared buffer’s descriptor comes from the exporting process and is not trusted:
 <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a> checks what it can, and the driver rejects a size that
 does not match the exported allocation. Unpickling a shared buffer performs a live import,
-so unpickle buffers only from a trusted principal.</p>
+so unpickle buffers only from a trusted principal. A descriptor pins the physical memory
+while it exists; release it when the receiver has imported it.</p>
 </div>
 <p class="rubric">Notes</p>
 <p>Every buffer this resource returns is a <a class="reference internal" href="cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a> that
@@ -822,16 +823,23 @@ garbage collector waits at that point instead. To control when the wait
 happens, close the buffer explicitly or record an idle stream with
 <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.set_deallocation_stream" title="cuda.core.Buffer.set_deallocation_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.set_deallocation_stream()</span></code></a>.</p>
 <p>Buffers can be shared with other processes when <code class="docutils literal notranslate"><span class="pre">config.handle_type</span></code>
-is <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> (Linux). <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.ipc_descriptor" title="cuda.core.Buffer.ipc_descriptor"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.ipc_descriptor</span></code></a> exports the
-physical allocations that back a buffer, one file descriptor each;
-<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a> imports them with a
-<code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code> of the receiving process for the device that
-owns the memory; and a buffer sent through <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> does both.
-Plain <code class="docutils literal notranslate"><span class="pre">pickle</span></code> cannot carry the file descriptors. The importing resource
-maps the memory for its device and the devices in its <code class="docutils literal notranslate"><span class="pre">peers</span></code> option,
-with its own access options. A live descriptor keeps the memory allocated
-in every process that holds a copy. An imported buffer, and a buffer grown
-from one, cannot be exported again. See <a class="reference internal" href="#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="cuda.core.VirtualMemoryResource.is_ipc_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">is_ipc_enabled</span></code></a>.</p>
+is <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> (Linux); <code class="docutils literal notranslate"><span class="pre">handle_type</span></code> is the switch and
+<a class="reference internal" href="#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="cuda.core.VirtualMemoryResource.is_ipc_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">is_ipc_enabled</span></code></a> the query. <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.ipc_descriptor" title="cuda.core.Buffer.ipc_descriptor"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.ipc_descriptor</span></code></a> exports
+the physical allocations that back a buffer, one file descriptor each,
+into a new descriptor on every access; <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a>
+imports a descriptor with a <code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code> of the receiving
+process for the device that owns the memory; and a buffer sent through
+<code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> does both. Plain <code class="docutils literal notranslate"><span class="pre">pickle</span></code> cannot carry the file
+descriptors; a process with its own file descriptor passing sends the
+descriptor’s <code class="docutils literal notranslate"><span class="pre">fds</span></code>, <code class="docutils literal notranslate"><span class="pre">sizes</span></code>, <code class="docutils literal notranslate"><span class="pre">handle_type</span></code>, and <code class="docutils literal notranslate"><span class="pre">size</span></code> and
+rebuilds it with <code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor.from_fds()</span></code>. The
+importing resource maps the memory for its device and the devices in its
+<code class="docutils literal notranslate"><span class="pre">peers</span></code> option, with its own access options. A descriptor pins the
+physical memory while it exists, in every process that holds one, and
+nothing else does. A buffer that contains imported memory (an import, or
+anything <a class="reference internal" href="#cuda.core.VirtualMemoryResource.modify_allocation" title="cuda.core.VirtualMemoryResource.modify_allocation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">modify_allocation()</span></code></a> derived from one) cannot be exported
+again; forward the descriptor it came from, or copy into a buffer you
+own.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResource.__init__">
@@ -1010,7 +1018,8 @@ full alias of it and no driver call is made.</p>
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResource.is_ipc_enabled">
 <span class="sig-name descname"><span class="pre">is_ipc_enabled</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="Link to this definition">#</a></dt>
 <dd><p>Whether buffers of this resource can be shared with other processes.</p>
-<p>True when <code class="docutils literal notranslate"><span class="pre">config.handle_type</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> on Linux. With
+<p>True when <code class="docutils literal notranslate"><span class="pre">config.handle_type</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> on Linux;
+<code class="docutils literal notranslate"><span class="pre">handle_type</span></code> is the only switch, there is no separate option. With
 <code class="docutils literal notranslate"><span class="pre">handle_type=None</span></code> the allocations cannot be exported, Win32 KMT
 handles are not transported by cuda.core, and fabric handles are not
 supported yet.</p>

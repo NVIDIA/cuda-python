@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=bf5cfa7a"></script>
+    <script src="../_static/documentation_options.js?v=1b247e63"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev178';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev179';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -783,17 +783,25 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core._memory._ipc.</span></span><span class="sig-name descname"><span class="pre">VirtualMemoryIPCBufferDescriptor</span></span><a class="headerlink" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor" title="Link to this definition">#</a></dt>
 <dd><p>Serializable object describing a <code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code> that can be shared between processes.</p>
 <p>The descriptor holds one exported handle per physical allocation that
-backs the buffer, in address order, with each allocation’s size. With
-POSIX file descriptors the handles are <a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">IPCAllocationHandle</span></code></a>
-objects: the descriptor owns them and closes them when it is released, and
-<code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> duplicates them into the receiving process. Plain
-<code class="docutils literal notranslate"><span class="pre">pickle</span></code> cannot carry file descriptors; send the descriptor, or the
-buffer, through <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> (a <code class="docutils literal notranslate"><span class="pre">Queue</span></code>, a <code class="docutils literal notranslate"><span class="pre">Pipe</span></code>, <code class="docutils literal notranslate"><span class="pre">Process</span></code>
-arguments, or a <code class="docutils literal notranslate"><span class="pre">Pool</span></code>).</p>
-<p>A live descriptor costs one file descriptor per allocation and keeps the
-physical memory allocated, in every process that holds a copy, until it is
-released. A descriptor placed on a <code class="docutils literal notranslate"><span class="pre">Queue</span></code> or sent to a <code class="docutils literal notranslate"><span class="pre">Pool</span></code> pins the
-memory in the sender until the receiver has unpickled it.</p>
+backs the buffer, in address order (<code class="docutils literal notranslate"><span class="pre">handles</span></code>), with each allocation’s
+size (<code class="docutils literal notranslate"><span class="pre">sizes</span></code>) and the buffer’s size (<code class="docutils literal notranslate"><span class="pre">size</span></code>, which may be smaller
+than their sum). With POSIX file descriptors the handles are
+<a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">IPCAllocationHandle</span></code></a> objects: the descriptor owns them and closes
+them when it is released.</p>
+<p>A descriptor pins the physical memory while it exists, in every process
+that holds one, and nothing else does: the exporting buffer keeps no
+descriptor, and an imported buffer does not keep the one it came from. A
+descriptor parked in a <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> <code class="docutils literal notranslate"><span class="pre">Queue</span></code> or sent to a <code class="docutils literal notranslate"><span class="pre">Pool</span></code>
+pins the memory in the sender until the receiver has unpickled it; a
+buffer passed as a <code class="docutils literal notranslate"><span class="pre">Process</span></code> argument pins it until the <code class="docutils literal notranslate"><span class="pre">Process</span></code>
+object is released, because the child receives the file descriptors when
+it is spawned.</p>
+<p>Two transports exist. <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> (a <code class="docutils literal notranslate"><span class="pre">Queue</span></code>, a <code class="docutils literal notranslate"><span class="pre">Pipe</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Process</span></code> arguments, or a <code class="docutils literal notranslate"><span class="pre">Pool</span></code>) pickles the descriptor, or a buffer,
+and duplicates the file descriptors into the receiving process; plain
+<code class="docutils literal notranslate"><span class="pre">pickle</span></code> cannot carry them and raises. A process with its own file
+descriptor passing sends <code class="docutils literal notranslate"><span class="pre">fds</span></code>, <code class="docutils literal notranslate"><span class="pre">sizes</span></code>, <code class="docutils literal notranslate"><span class="pre">handle_type</span></code>, and <code class="docutils literal notranslate"><span class="pre">size</span></code>
+itself, and the receiver rebuilds the descriptor with <a class="reference internal" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.from_fds" title="cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.from_fds"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_fds()</span></code></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The sizes are controlled by the exporting peer. Receivers must treat them
@@ -807,7 +815,62 @@ rejects.</p>
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.from_fds">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_fds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cls,</span> <span class="pre">fds:</span> <span class="pre">Iterable[int</span> <span class="pre">|</span> <span class="pre">IPCAllocationHandle],</span> <span class="pre">sizes:</span> <span class="pre">Iterable[int],</span> <span class="pre">*,</span> <span class="pre">handle_type:</span> <span class="pre">VirtualMemoryHandleType</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'posix_fd',</span> <span class="pre">int</span> <span class="pre">size:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor" title="cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor"><span class="pre">VirtualMemoryIPCBufferDescriptor</span></a></span></span><a class="headerlink" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.from_fds" title="Link to this definition">#</a></dt>
+<dd><p>Build a descriptor from file descriptors received outside <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code>.</p>
+<p>The exporter sends <code class="docutils literal notranslate"><span class="pre">fds</span></code>, <code class="docutils literal notranslate"><span class="pre">sizes</span></code>, <code class="docutils literal notranslate"><span class="pre">handle_type</span></code>, and <code class="docutils literal notranslate"><span class="pre">size</span></code>
+of its descriptor through a transport of its own (a Unix socket with
+<code class="docutils literal notranslate"><span class="pre">SCM_RIGHTS</span></code>, for example); the receiver rebuilds the descriptor
+here and imports it with <code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fds</strong> (<em>Iterable</em><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><em>IPCAllocationHandle</em></a><em>]</em>) – One handle per physical allocation, in address order, as the
+exporter’s <code class="docutils literal notranslate"><span class="pre">fds</span></code> listed them. An <code class="docutils literal notranslate"><span class="pre">int</span></code> is duplicated: the
+caller keeps ownership of the original and closes it. An
+<a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">IPCAllocationHandle</span></code></a> is shared and closes with its last
+holder.</p></li>
+<li><p><strong>sizes</strong> (<em>Iterable</em><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – The exporter’s <code class="docutils literal notranslate"><span class="pre">sizes</span></code>, one per handle.</p></li>
+<li><p><strong>handle_type</strong> (<a class="reference internal" href="cuda.core.typing.VirtualMemoryHandleType.html#cuda.core.typing.VirtualMemoryHandleType" title="cuda.core.typing.VirtualMemoryHandleType"><em>VirtualMemoryHandleType</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The exporter’s <code class="docutils literal notranslate"><span class="pre">handle_type</span></code>; <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> by default.</p></li>
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The exporter’s <code class="docutils literal notranslate"><span class="pre">size</span></code>, at most the sum of <code class="docutils literal notranslate"><span class="pre">sizes</span></code>; the sum by
+default.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the counts differ, a size is not positive, <code class="docutils literal notranslate"><span class="pre">size</span></code> exceeds the
+    sum of <code class="docutils literal notranslate"><span class="pre">sizes</span></code>, or <code class="docutils literal notranslate"><span class="pre">handle_type</span></code> cannot be shared.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If an <a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">IPCAllocationHandle</span></code></a> is closed.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#OSError" title="(in Python v3.14)"><strong>OSError</strong></a> – If an <code class="docutils literal notranslate"><span class="pre">int</span></code> is not an open file descriptor.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.fds">
+<span class="sig-name descname"><span class="pre">fds</span></span><a class="headerlink" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.fds" title="Link to this definition">#</a></dt>
+<dd><p>tuple[int, …]</p>
+<p>The exported file descriptors as integers, for a transport of your own.</p>
+<p>They belong to this descriptor: send or duplicate them while it is
+alive. Each one is released when the descriptor is.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.handle_type">
+<span class="sig-name descname"><span class="pre">handle_type</span></span><a class="headerlink" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.handle_type" title="Link to this definition">#</a></dt>
+<dd><p>The handle type the exporter used; the importing resource must be configured with the same.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.handles">
+<span class="sig-name descname"><span class="pre">handles</span></span><a class="headerlink" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.handles" title="Link to this definition">#</a></dt>
+<dd><p>tuple[IPCAllocationHandle, …]</p>
+<p>The exported handles, one per allocation, in address order; the descriptor owns them.</p>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.size">
 <span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.size" title="Link to this definition">#</a></dt>
@@ -817,6 +880,13 @@ rejects.</p>
 <dd class="field-odd"><p>IPCBufferDescriptor.size</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.sizes">
+<span class="sig-name descname"><span class="pre">sizes</span></span><a class="headerlink" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.sizes" title="Link to this definition">#</a></dt>
+<dd><p>tuple[int, …]</p>
+<p>Size of each physical allocation, in address order; the sum is at least <code class="docutils literal notranslate"><span class="pre">size</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -856,7 +926,12 @@ rejects.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.__init__"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.from_fds"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor.from_fds()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.fds"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor.fds</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.handle_type"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor.handle_type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.handles"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor.handles</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.size"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor.size</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.sizes"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor.sizes</span></code></a></li>
 </ul>
 </li>
 </ul>

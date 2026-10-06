@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=bf5cfa7a"></script>
+    <script src="_static/documentation_options.js?v=1b247e63"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev178';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev179';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1965,6 +1965,8 @@
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.fdevice_time_trace">fdevice_time_trace (cuda.core.ProgramOptions attribute)</a>
 </li>
+      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.fds">fds (cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor attribute)</a>
+</li>
       <li><a href="generated/cuda.core.system._device.FieldValue.html#cuda.core.system._device.FieldValue.field_id">field_id (cuda.core.system._device.FieldValue attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system.typing.FieldId.html#cuda.core.system.typing.FieldId">FieldId (class in cuda.core.system.typing)</a>
@@ -2040,6 +2042,8 @@
       <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.from_dlpack">from_dlpack() (cuda.core.utils.StridedMemoryView class method)</a>
 </li>
       <li><a href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode.from_fatbin">from_fatbin() (cuda.core.ObjectCode static method)</a>
+</li>
+      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.from_fds">from_fds() (cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor class method)</a>
 </li>
       <li><a href="generated/cuda.core.GraphicsResource.html#cuda.core.GraphicsResource.from_gl_buffer">from_gl_buffer() (cuda.core.GraphicsResource class method)</a>
 </li>
@@ -2393,8 +2397,12 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.handle_type">handle_type (cuda.core.VirtualMemoryResourceOptions attribute)</a>
+      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.handle_type">handle_type (cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor attribute)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.handle_type">(cuda.core.VirtualMemoryResourceOptions attribute)</a>
 </li>
+      </ul></li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.handle_type_fabric_supported">handle_type_fabric_supported (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.handle_type_posix_file_descriptor_supported">handle_type_posix_file_descriptor_supported (cuda.core._device.DeviceProperties attribute)</a>
@@ -2403,8 +2411,12 @@
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.handle_type_win32_kmt_handle_supported">handle_type_win32_kmt_handle_supported (cuda.core._device.DeviceProperties attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.graph.GraphDebugPrintOptions.html#cuda.core.graph.GraphDebugPrintOptions.handles">handles (cuda.core.graph.GraphDebugPrintOptions attribute)</a>
+      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.handles">handles (cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor attribute)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.graph.GraphDebugPrintOptions.html#cuda.core.graph.GraphDebugPrintOptions.handles">(cuda.core.graph.GraphDebugPrintOptions attribute)</a>
 </li>
+      </ul></li>
       <li><a href="generated/cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode.height">height (cuda.core.graph.MemsetNode attribute)</a>
 
       <ul>
@@ -3866,6 +3878,8 @@
         <li><a href="generated/cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor.size_bytes">(cuda.core.texture.ResourceDescriptor attribute)</a>
 </li>
       </ul></li>
+      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.sizes">sizes (cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor attribute)</a>
+</li>
       <li><a href="generated/cuda.core.DeviceResources.html#cuda.core.DeviceResources.sm">sm (cuda.core.DeviceResources attribute)</a>
 </li>
       <li><a href="generated/cuda.core.SMResource.html#cuda.core.SMResource.sm_count">sm_count (cuda.core.SMResource attribute)</a>
@@ -3906,10 +3920,10 @@
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.std">std (cuda.core.ProgramOptions attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.Stream.html#cuda.core.Stream">Stream (class in cuda.core)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.Stream.html#cuda.core.Stream">Stream (class in cuda.core)</a>
+</li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.stream_priorities_supported">stream_priorities_supported (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core.StreamOptions.html#cuda.core.StreamOptions">StreamOptions (class in cuda.core)</a>
