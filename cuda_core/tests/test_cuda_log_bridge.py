@@ -21,7 +21,7 @@ def teardown_bridge():
     unregister_cuda_error_log()
 
 
-# 使用方式1: register(logger) 后用 caplog 捕获 driver log
+# Usage 1: show driver error log interactively
 def test_cuda_driver_log_captured_via_caplog(caplog):
     driver.cuInit(0)
 
@@ -29,26 +29,29 @@ def test_cuda_driver_log_captured_via_caplog(caplog):
     logger_obj = logging.getLogger(logger_name)
     register_cuda_error_log(logger_obj)
 
-    # cuDeviceGet(9999) 越界，驱动写入两条 ERROR 日志
+    # cuDeviceGet(9999) is out of range; driver writes two ERROR logs
     with caplog.at_level(logging.ERROR, logger=logger_name):
         driver.cuDeviceGet(9999)
 
     messages = [r.message for r in caplog.records if r.name == logger_name]
 
-    assert any("Parameter ordinal must be between 0 and 1" in m for m in messages), (
-        f"Expected ordinal error in caplog, got:\n{messages}"
-    )
+    assert len(messages) == 2, f"Expected exactly 2 driver log messages, got:\n{messages}"
+    assert "Parameter ordinal must be between 0 and 1" in messages[0]
+    assert "CUDA_ERROR_INVALID_DEVICE" in messages[1] and "cuDeviceGet" in messages[1]
 
-    assert any("CUDA_ERROR_INVALID_DEVICE" in m and "cuDeviceGet" in m for m in messages), (
-        f"Expected cuDeviceGet return error in caplog, got:\n{messages}"
-    )
+    # After unregistering, driver logs are no longer forwarded
+    unregister_cuda_error_log()
+    caplog.clear()
+    with caplog.at_level(logging.ERROR, logger=logger_name):
+        driver.cuDeviceGet(9999)
+    assert not any(r.name == logger_name for r in caplog.records)
+    assert "Parameter ordinal must be between 0 and 1" not in caplog.text
 
 
-# 使用方式2: 通过 FileHandler 把 driver log 写到文件
+# Usage 2: redirect driver log to a file
 def test_cuda_driver_log_written_to_file(tmp_path):
     driver.cuInit(0)
 
-    # 独立 logger name，避免污染 root logger / 影响其他用例
     log_file = tmp_path / "cuda_driver.log"
     logger_name = "cuda.driver.file_test"
     logger_obj = logging.getLogger(logger_name)
@@ -63,22 +66,16 @@ def test_cuda_driver_log_written_to_file(tmp_path):
         register_cuda_error_log(logger_obj)
         driver.cuDeviceGet(9999)
     finally:
-        # close() flush 落盘；removeHandler 防止跨用例累加 handler
         logger_obj.removeHandler(file_handler)
         file_handler.close()
 
     content = log_file.read_text(encoding="utf-8")
 
-    assert "Parameter ordinal must be between 0 and 1" in content, (
-        f"Expected ordinal error in log file, got:\n{content}"
-    )
-
-    assert "CUDA_ERROR_INVALID_DEVICE" in content and "cuDeviceGet" in content, (
-        f"Expected cuDeviceGet return error in log file, got:\n{content}"
-    )
+    assert "Parameter ordinal must be between 0 and 1" in content
+    assert "CUDA_ERROR_INVALID_DEVICE" in content and "cuDeviceGet" in content
 
 
-# 使用方式3: register -> unregister -> 换绑另一个 logger
+# Usage 3: register -> unregister -> rebind to another logger
 def test_cuda_driver_log_rebind_logger(caplog):
     driver.cuInit(0)
 
@@ -89,7 +86,7 @@ def test_cuda_driver_log_rebind_logger(caplog):
         driver.cuDeviceGet(9999)
     assert any(r.name == name_a for r in caplog.records)
 
-    # 必须先 unregister 释放驱动侧 slot，再绑新 logger
+    # Must unregister first to free the driver-side slot, then bind the new logger
     unregister_cuda_error_log()
     caplog.clear()
     register_cuda_error_log(logging.getLogger(name_b))
@@ -100,25 +97,25 @@ def test_cuda_driver_log_rebind_logger(caplog):
     assert any(r.name == name_b for r in caplog.records)
 
 
-# 使用方式4: logger 的 level 阈值对驱动日志同样生效
+# Usage 4: the logger's level threshold applies to driver logs too
 def test_cuda_driver_log_level_filtering(caplog):
     driver.cuInit(0)
 
     logger_name = "cuda.driver.level_test"
     register_cuda_error_log(logging.getLogger(logger_name))
 
-    # CRITICAL 阈值过滤掉 ERROR 级别的驱动日志
+    # CRITICAL threshold filters out ERROR-level driver logs
     with caplog.at_level(logging.CRITICAL, logger=logger_name):
         driver.cuDeviceGet(9999)
     assert not any(r.name == logger_name for r in caplog.records)
 
-    # 降到 ERROR 阈值就能捕获到
+    # Lowering to ERROR threshold lets them through
     with caplog.at_level(logging.ERROR, logger=logger_name):
         driver.cuDeviceGet(9999)
     assert any(r.name == logger_name for r in caplog.records)
 
 
-# 使用方式5: 自定义 Handler 统计错误次数，接入监控/告警
+# Usage 5: custom Handler counts errors, for monitoring/alerting integration
 def test_cuda_driver_log_alert_counter():
     driver.cuInit(0)
 
@@ -140,58 +137,40 @@ def test_cuda_driver_log_alert_counter():
     finally:
         logger_obj.removeHandler(counter_handler)
 
-    assert counter_handler.count >= 1, "Expected at least one ERROR-level driver log to be counted"
+    assert counter_handler.count == 2, "Expected exactly 2 ERROR-level driver logs to be counted"
 
 
-# 使用方式6: 用 callback 把 driver log 接进已有的 logger
+# Usage 6: use a custom python callback function to change log level and log format
 def test_cuda_driver_log_custom_callback_overrides_default(caplog):
     driver.cuInit(0)
 
     logger_name = "my_library.cuda-driver"
     logger_obj = logging.getLogger(logger_name)
 
-    # 按 raw CUlogLevel 分发；ERROR 记成 DEBUG
+    # Log everything as DEBUG, prefixed with the logger name instead of "[CUDA Driver] "
     def my_callback(cu_log_level, message):
         msg = message.decode("utf-8", errors="replace").rstrip("\n")
-        if cu_log_level == driver.CUlogLevel.CU_LOG_LEVEL_WARNING:
-            logger_obj.warning("%s: %s", logger_obj.name, msg)
-        elif cu_log_level == driver.CUlogLevel.CU_LOG_LEVEL_ERROR:
-            logger_obj.debug("%s: %s", logger_obj.name, msg)
+        logger_obj.debug("%s: %s", logger_obj.name, msg)
 
     register_cuda_error_log(logger_obj, callback=my_callback)
 
-    # 默认 WARNING 阈值下，DEBUG 级别的驱动日志被过滤掉
+    # Default WARNING threshold filters out the DEBUG-level driver logs
     with caplog.at_level(logging.WARNING, logger=logger_name):
         driver.cuDeviceGet(9999)
-    assert not any(r.name == logger_name for r in caplog.records), (
-        "DEBUG-level driver log should be filtered out at the default WARNING level"
-    )
+    assert not caplog.records
 
     caplog.clear()
 
-    # 调到 DEBUG 阈值才能收到
+    # Lowering the threshold to DEBUG lets them through, with the custom level/format
     with caplog.at_level(logging.DEBUG, logger=logger_name):
         driver.cuDeviceGet(9999)
 
-    records = [r for r in caplog.records if r.name == logger_name]
-    assert records, "Expected driver log records forwarded via my_callback once the threshold is DEBUG"
-
-    # my_callback 生效：级别统一改成了 DEBUG
-    assert all(r.levelno == logging.DEBUG for r in records), (
-        f"Expected every record logged as DEBUG via my_callback, got levels: {[r.levelname for r in records]}"
-    )
-
-    # 消息前缀是 logger name，不是默认的 "[CUDA Driver] "
-    messages = [r.message for r in records]
-    assert any(m.startswith(f"{logger_name}: ") for m in messages), (
-        f"Expected messages prefixed with '{logger_name}: ', got:\n{messages}"
-    )
-    assert not any(m.startswith("[CUDA Driver] ") for m in messages), (
-        f"Default '[CUDA Driver] ' forwarding should be overridden by my_callback, got:\n{messages}"
-    )
+    assert len(caplog.records) == 2
+    assert all(r.levelno == logging.DEBUG for r in caplog.records)
+    assert all(r.message.startswith(f"{logger_name}: ") for r in caplog.records)
 
 
-# callback 必须可调用或 None，否则应尽早报错
+# callback must be callable or None, else fail fast
 def test_cuda_driver_log_callback_must_be_callable_or_none():
     with pytest.raises(TypeError):
         register_cuda_error_log(logging.getLogger("cuda.driver.bad_callback_test"), callback="not-callable")
