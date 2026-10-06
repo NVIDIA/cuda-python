@@ -204,6 +204,7 @@ class TestVmmIpcDescriptor:
         imported.close()
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
+    @pytest.mark.thread_unsafe(reason="checks mapping state by address; another thread can reuse a freed address")
     def test_import_in_same_process_aliases_memory(self, vmm_ipc_device):
         """Importing a descriptor where it was exported maps the same memory at a new address."""
         device = vmm_ipc_device
@@ -224,6 +225,9 @@ class TestVmmIpcDescriptor:
         assert not _is_mapped(ptr_buf)
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
+    @pytest.mark.thread_unsafe(
+        reason="file descriptor numbers are process-global; another thread can reuse a closed one"
+    )
     def test_descriptor_owns_its_file_descriptors(self, vmm_ipc_device):
         """The exported file descriptors close when the descriptor is released."""
         device = vmm_ipc_device
