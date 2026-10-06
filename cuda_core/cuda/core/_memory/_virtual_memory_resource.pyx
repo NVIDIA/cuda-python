@@ -806,7 +806,8 @@ cdef class VirtualMemoryResource(MemoryResource):
         cdef VaMappingHandle h_map
         cdef VmmRangeHandle rng
         cdef DevicePtrHandle h_ptr
-        cdef size_t gran, addr_align, chunk, i, n, total = 0, offset = 0
+        cdef size_t gran, addr_align, chunk, total = 0, offset = 0
+        cdef Py_ssize_t n, i
         cdef cydriver.CUdeviceptr hint
         cdef int handle_type, fd
         cdef void* os_handle
@@ -866,11 +867,11 @@ cdef class VirtualMemoryResource(MemoryResource):
             _raise_last_error()
         for i in range(n):
             with nogil:
-                h_map = create_va_mapping_handle(as_cu(h_res) + offset, allocs[i], h_res)
+                h_map = create_va_mapping_handle(as_cu(h_res) + offset, allocs[<size_t>i], h_res)
             if not h_map:
                 _raise_last_error()
             mappings.push_back(h_map)
-            offset += mem_allocation_size(allocs[i])
+            offset += mem_allocation_size(allocs[<size_t>i])
         rng = create_vmm_range(mappings)
         h_ptr = deviceptr_create_vmm(as_cu(h_res), rng)
         if not h_ptr:
