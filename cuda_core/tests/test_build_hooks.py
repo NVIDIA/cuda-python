@@ -879,6 +879,7 @@ class TestDefineMacros:
 
         monkeypatch.setattr(build_hooks, "_get_cuda_path", lambda: "/nonexistent-cuda")
         monkeypatch.setattr(build_hooks, "_check_build_configuration", lambda *_: None)
+        monkeypatch.setattr(build_hooks, "_get_cccl_include_dirs", lambda: ["/nonexistent-cccl"])
         monkeypatch.setattr(build_hooks, "cythonize", fake_cythonize)
         monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
         build_hooks._determine_cuda_major_version.cache_clear()
