@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4d35f453"></script>
+    <script src="../_static/documentation_options.js?v=7acd7e39"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev181';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev182';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1018,11 +1018,13 @@ full alias of it and no driver call is made.</p>
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResource.is_ipc_enabled">
 <span class="sig-name descname"><span class="pre">is_ipc_enabled</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="Link to this definition">#</a></dt>
 <dd><p>Whether buffers of this resource can be shared with other processes.</p>
-<p>True when <code class="docutils literal notranslate"><span class="pre">config.handle_type</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> on Linux;
-<code class="docutils literal notranslate"><span class="pre">handle_type</span></code> is the only switch, there is no separate option. With
-<code class="docutils literal notranslate"><span class="pre">handle_type=None</span></code> the allocations cannot be exported, Win32 KMT
-handles are not transported by cuda.core, and fabric handles are not
-supported yet.</p>
+<p>True when <code class="docutils literal notranslate"><span class="pre">config.handle_type</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> on Linux and the
+memory lives on a device; <code class="docutils literal notranslate"><span class="pre">handle_type</span></code> is the only switch, there is
+no separate option. With <code class="docutils literal notranslate"><span class="pre">handle_type=None</span></code> the allocations cannot
+be exported, Win32 KMT handles are not transported by cuda.core, and
+fabric handles are not supported yet. Host-located virtual memory
+(<code class="docutils literal notranslate"><span class="pre">location_type</span></code> <code class="docutils literal notranslate"><span class="pre">&quot;host&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;host_numa&quot;</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">&quot;host_numa_current&quot;</span></code>) is not shared yet.</p>
 </dd></dl>
 
 <dl class="py attribute">
