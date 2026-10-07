@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=ba8f4a68"></script>
+    <script src="_static/documentation_options.js?v=1ef7ce71"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev234';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev235';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -781,58 +781,58 @@
   <section id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h1>
 <p>The canonical, runnable examples for <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> live under
-<a class="extlink-samples reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/">samples/cuda_core/</a> in the cuda-python repository. Each sample is
+<a class="extlink-samples reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/">samples/cuda_core/</a> in the cuda-python repository. Each sample is
 a self-contained directory with its own <code class="docutils literal notranslate"><span class="pre">README.md</span></code>, <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code>,
 and PEP 723 dependency block, and every sample is exercised as part of the
 <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> test suite.</p>
 <section id="getting-started">
 <h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/vectorAdd/">vectorAdd</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/vectorAdd/">vectorAdd</a>
 compiles and launches a templated vector-add kernel and demonstrates
 <code class="docutils literal notranslate"><span class="pre">Device.allocate()</span></code> and <code class="docutils literal notranslate"><span class="pre">name_expressions</span></code>.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/deviceQuery/">deviceQuery</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/deviceQuery/">deviceQuery</a>
 enumerates every CUDA device with an <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span></code>-style summary and an
 optional <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> mode for the long-tail property list.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/systemInfo/">systemInfo</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/systemInfo/">systemInfo</a>
 reports system-wide CUDA information (driver / runtime / NVML).</p></li>
 </ul>
 </section>
 <section id="kernels-and-launch-configuration">
 <h2>Kernels and launch configuration<a class="headerlink" href="#kernels-and-launch-configuration" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/launchConfigTuning/">launchConfigTuning</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/launchConfigTuning/">launchConfigTuning</a>
 explores how launch-configuration choices affect kernel performance.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/threadBlockCluster/">threadBlockCluster</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/threadBlockCluster/">threadBlockCluster</a>
 demonstrates <code class="docutils literal notranslate"><span class="pre">LaunchConfig(cluster=...)</span></code> on Hopper-class GPUs.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/tmaTensorMap/">tmaTensorMap</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/tmaTensorMap/">tmaTensorMap</a>
 uses Tensor Memory Accelerator descriptors for bulk data movement.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/greenContext/">greenContext</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/greenContext/">greenContext</a>
 partitions SMs across kernels with green contexts.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/kernelNsysProfile/">kernelNsysProfile</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/kernelNsysProfile/">kernelNsysProfile</a>
 annotates kernel launches with NVTX markers for Nsight Systems.</p></li>
 </ul>
 </section>
 <section id="memory-management-and-interop">
 <h2>Memory management and interop<a class="headerlink" href="#memory-management-and-interop" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/memoryResources/">memoryResources</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/memoryResources/">memoryResources</a>
 covers <code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code>, <code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code>,
 <code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code>, and <code class="docutils literal notranslate"><span class="pre">GraphMemoryResource</span></code>, plus configurable
 resource options.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/copyImageArraytoGPU/">copyImageArraytoGPU</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/copyImageArraytoGPU/">copyImageArraytoGPU</a>
 stages host-to-device copies through <code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code>.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/blurImageUnifiedMemory/">blurImageUnifiedMemory</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/blurImageUnifiedMemory/">blurImageUnifiedMemory</a>
 applies a stencil kernel over unified memory.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/stridedMemoryViewConstructors/">stridedMemoryViewConstructors</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/stridedMemoryViewConstructors/">stridedMemoryViewConstructors</a>
 walks through the four <code class="docutils literal notranslate"><span class="pre">StridedMemoryView.from_*</span></code> constructors.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/stridedMemoryViewCpu/">stridedMemoryViewCpu</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/stridedMemoryViewCpu/">stridedMemoryViewCpu</a>
 dispatches to a JIT-compiled CPU function via <code class="docutils literal notranslate"><span class="pre">cffi</span></code>.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/stridedMemoryViewGpu/">stridedMemoryViewGpu</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/stridedMemoryViewGpu/">stridedMemoryViewGpu</a>
 dispatches to an NVRTC-compiled GPU kernel through the same decorator.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/ipcMemoryPool/">ipcMemoryPool</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/ipcMemoryPool/">ipcMemoryPool</a>
 shares an IPC-enabled <code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code> across processes.</p></li>
-<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
+<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
 transfers a buffer between streams and safely changes the stream that orders
 its deallocation.</p></li>
 </ul>
@@ -840,63 +840,63 @@ its deallocation.</p></li>
 <section id="cuda-graphs-and-linking">
 <h2>CUDA graphs and linking<a class="headerlink" href="#cuda-graphs-and-linking" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/cudaGraphs/">cudaGraphs</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/cudaGraphs/">cudaGraphs</a>
 captures and replays a multi-kernel graph, then reuses it via <code class="docutils literal notranslate"><span class="pre">Graph.update()</span></code>.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/jitLtoLinking/">jitLtoLinking</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/jitLtoLinking/">jitLtoLinking</a>
 links two device modules with PTX vs LTO and swaps in a runtime plug-in.</p></li>
 </ul>
 </section>
 <section id="framework-interop-and-compute-algorithms">
 <h2>Framework interop and compute algorithms<a class="headerlink" href="#framework-interop-and-compute-algorithms" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/customPyTorchKernel/">customPyTorchKernel</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/customPyTorchKernel/">customPyTorchKernel</a>
 launches a cuda.core kernel from a PyTorch autograd function.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/customTensorFlowKernel/">customTensorFlowKernel</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/customTensorFlowKernel/">customTensorFlowKernel</a>
 wires a cuda.core kernel into a TensorFlow custom op.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/numpyVsCupy/">numpyVsCupy</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/numpyVsCupy/">numpyVsCupy</a>
 compares NumPy and CuPy execution paths side-by-side.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/fftSignalAnalysis/">fftSignalAnalysis</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/fftSignalAnalysis/">fftSignalAnalysis</a>
 runs a CuPy FFT-based signal analysis pipeline.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/binarySearch/">binarySearch</a>,
-<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/prefixSum/">prefixSum</a>,
-<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/reduction/">reduction</a>,
-<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/parallelReduction/">parallelReduction</a>,
-<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/reductionMultiBlockCG/">reductionMultiBlockCG</a>,
-<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/parallelHistogram/">parallelHistogram</a>,
-<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/blockwiseSum/">blockwiseSum</a>,
-<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/matrixMulSharedMem/">matrixMulSharedMem</a>,
-<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/cudaComputeLambdas/">cudaComputeLambdas</a>,
-<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/pageRank/">pageRank</a> – classic parallel-algorithm building blocks.</p></li>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/binarySearch/">binarySearch</a>,
+<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/prefixSum/">prefixSum</a>,
+<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/reduction/">reduction</a>,
+<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/parallelReduction/">parallelReduction</a>,
+<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/reductionMultiBlockCG/">reductionMultiBlockCG</a>,
+<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/parallelHistogram/">parallelHistogram</a>,
+<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/blockwiseSum/">blockwiseSum</a>,
+<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/matrixMulSharedMem/">matrixMulSharedMem</a>,
+<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/cudaComputeLambdas/">cudaComputeLambdas</a>,
+<a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/pageRank/">pageRank</a> – classic parallel-algorithm building blocks.</p></li>
 </ul>
 </section>
 <section id="multi-gpu-and-streams">
 <h2>Multi-GPU and streams<a class="headerlink" href="#multi-gpu-and-streams" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/simpleMultiGpu/">simpleMultiGpu</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/simpleMultiGpu/">simpleMultiGpu</a>
 runs independent kernels on two GPUs in the same process.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/simpleP2P/">simpleP2P</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/simpleP2P/">simpleP2P</a>
 demonstrates peer-to-peer memory access between GPUs.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/multiGPUGradientAverage/">multiGPUGradientAverage</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/multiGPUGradientAverage/">multiGPUGradientAverage</a>
 averages gradients across GPUs with MPI.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/streamingCopyComputeOverlap/">streamingCopyComputeOverlap</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/streamingCopyComputeOverlap/">streamingCopyComputeOverlap</a>
 overlaps copies and compute across multiple streams.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/simpleZeroCopy/">simpleZeroCopy</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/simpleZeroCopy/">simpleZeroCopy</a>
 runs kernels against zero-copy mapped host memory.</p></li>
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/processCheckpoint/">processCheckpoint</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/processCheckpoint/">processCheckpoint</a>
 checkpoints and restores CUDA process state.</p></li>
 </ul>
 </section>
 <section id="graphics-interop">
 <h2>Graphics interop<a class="headerlink" href="#graphics-interop" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/glInteropPlasma/">glInteropPlasma</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/glInteropPlasma/">glInteropPlasma</a>
 writes CUDA-generated pixels into an OpenGL PBO with zero CPU round-trip.</p></li>
 </ul>
 </section>
 <section id="simple-utilities">
 <h2>Simple utilities<a class="headerlink" href="#simple-utilities" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/4cc7c081db4f2ab38f5e59da4d5b3d2ef20fac22/samples/cuda_core/simplePrint/">simplePrint</a>
+<li><p><a class="extlink-sample reference external" href="https://github.com/NVIDIA/cuda-python/tree/543b3d23ee69a97eb9e5383ade4e3e3ced72ffb0/samples/cuda_core/simplePrint/">simplePrint</a>
 minimal kernel that prints from the device.</p></li>
 </ul>
 </section>
