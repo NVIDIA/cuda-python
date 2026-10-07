@@ -559,11 +559,41 @@ if helpers.CCCL_INCLUDE_PATHS is not None:
         (complex, "cuda::std::complex<double>", 5 - 7j),
     )
 
+# Kernel source shared by test_launch_scalar_argument and
+# test_launch_numpy_scalar_subclass_fallback. The write_scalar_module fixture
+# below compiles it once per module.
+_WRITE_SCALAR_SRC = r"""
+template <typename T>
+__global__ void write_scalar(T* arr, T val) {
+    arr[0] = val;
+}
+"""
+_CCCL_HEADERS = r"""
+#include <cuda_fp16.h>
+#include <cuda/std/complex>
+"""
+
+
+@pytest.fixture(scope="module")
+def write_scalar_module():
+    # One compile for the header-bearing scalar items; each item still launches
+    # its own instantiation, so the per-type argument paths stay covered.
+    dev = Device(0)
+    arch = "".join(f"{i}" for i in dev.compute_capability)
+    code = _WRITE_SCALAR_SRC
+    if helpers.CCCL_INCLUDE_PATHS is not None:
+        code = _CCCL_HEADERS + code
+    names = {f"write_scalar<{cpp_type}>" for _, cpp_type, _ in PARAMS}
+    names |= {f"write_scalar<{cpp_type}>" for _, _, cpp_type, _ in _NUMPY_SUBCLASS_FALLBACK_PARAMS}
+    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=helpers.CCCL_INCLUDE_PATHS)
+    prog = Program(code, code_type="c++", options=pro_opts)
+    return prog.compile("cubin", name_expressions=tuple(sorted(names)))
+
 
 @pytest.mark.parametrize("python_type, cpp_type, init_value", PARAMS)
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_launch_scalar_argument(python_type, cpp_type, init_value):
-    dev = Device()
+def test_launch_scalar_argument(write_scalar_module, python_type, cpp_type, init_value):
+    dev = Device(0)
     dev.set_current()
 
     # Prepare pinned host array
@@ -575,29 +605,8 @@ def test_launch_scalar_argument(python_type, cpp_type, init_value):
     # Prepare scalar argument in Python
     scalar = python_type(init_value)
 
-    # CUDA kernel templated on type T
-    code = r"""
-    template <typename T>
-    __global__ void write_scalar(T* arr, T val) {
-        arr[0] = val;
-    }
-    """
-
-    # Compile and force instantiation for this type
-    arch = "".join(f"{i}" for i in dev.compute_capability)
-    if helpers.CCCL_INCLUDE_PATHS is not None:
-        code = (
-            r"""
-        #include <cuda_fp16.h>
-        #include <cuda/std/complex>
-        """
-            + code
-        )
-    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=helpers.CCCL_INCLUDE_PATHS)
-    prog = Program(code, code_type="c++", options=pro_opts)
-    ker_name = f"write_scalar<{cpp_type}>"
-    mod = prog.compile("cubin", name_expressions=(ker_name,))
-    ker = mod.get_kernel(ker_name)
+    # The kernel is compiled once per module; fetch this type's instantiation.
+    ker = write_scalar_module.get_kernel(f"write_scalar<{cpp_type}>")
 
     # Launch with 1 thread
     stream = dev.default_stream
@@ -930,7 +939,7 @@ if helpers.CCCL_INCLUDE_PATHS is not None:
     ids=_NUMPY_SUBCLASS_FALLBACK_IDS,
 )
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_launch_numpy_scalar_subclass_fallback(base_type, np_dtype, cpp_type, raw_value):
+def test_launch_numpy_scalar_subclass_fallback(write_scalar_module, base_type, np_dtype, cpp_type, raw_value):
     """Subclassed numpy scalars take prepare_numpy_arg's isinstance fallback and reach the kernel (readback)."""
 
     class Subclassed(base_type):
@@ -939,7 +948,7 @@ def test_launch_numpy_scalar_subclass_fallback(base_type, np_dtype, cpp_type, ra
     scalar = Subclassed(raw_value)
     expected = np_dtype(raw_value)
 
-    dev = Device()
+    dev = Device(0)
     dev.set_current()
 
     mr = LegacyPinnedMemoryResource()
@@ -947,27 +956,8 @@ def test_launch_numpy_scalar_subclass_fallback(base_type, np_dtype, cpp_type, ra
     arr = np.from_dlpack(b).view(np_dtype)
     arr[:] = 0
 
-    code = r"""
-    template <typename T>
-    __global__ void write_scalar(T* arr, T val) {
-        arr[0] = val;
-    }
-    """
-    if helpers.CCCL_INCLUDE_PATHS is not None:
-        code = (
-            r"""
-        #include <cuda_fp16.h>
-        #include <cuda/std/complex>
-        """
-            + code
-        )
-
-    arch = "".join(f"{i}" for i in dev.compute_capability)
-    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=helpers.CCCL_INCLUDE_PATHS)
-    prog = Program(code, code_type="c++", options=pro_opts)
-    ker_name = f"write_scalar<{cpp_type}>"
-    mod = prog.compile("cubin", name_expressions=(ker_name,))
-    ker = mod.get_kernel(ker_name)
+    # The kernel is compiled once per module; fetch this type's instantiation.
+    ker = write_scalar_module.get_kernel(f"write_scalar<{cpp_type}>")
 
     stream = dev.default_stream
     config = LaunchConfig(grid=1, block=1)
