@@ -14,7 +14,8 @@ from typing import Callable
 import pytest
 from helpers.graph_kernels import compile_common_kernels
 
-from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource
+from cuda.core import Device, DeviceMemoryResource, LaunchConfig, LegacyPinnedMemoryResource
+from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
 from cuda.core._utils._weak_handles import weak_handle
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core._utils.version import driver_version
@@ -745,15 +746,18 @@ def test_memcpy_update_between_host_and_device(init_cuda, device_operand):
     assert list(host_dst_bytes) == [0x5A] * 4
 
 
-def _capture_device_memcpy(device, stream, size=64):
+def _capture_device_memcpy(device, stream, size=64, mr=None):
     """Capture ``dst.copy_from(src)`` between two device buffers.
 
+    The buffers come from ``mr``, by default the device's memory resource.
     The driver records both operands of a captured ``cuMemcpyAsync`` as
     unified addresses rather than as device memory (#2649). The builder is
     returned so that the captured graph stays alive with the definition view.
     """
-    src = device.memory_resource.allocate(size, stream=stream)
-    dst = device.memory_resource.allocate(size, stream=stream)
+    if mr is None:
+        mr = device.memory_resource
+    src = mr.allocate(size, stream=stream)
+    dst = mr.allocate(size, stream=stream)
     src.fill(0x5A, stream=stream)
     dst.fill(0, stream=stream)
     stream.sync()
@@ -882,25 +886,33 @@ def test_executable_memcpy_update_on_captured_node(init_cuda):
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
-def test_memcpy_update_captured_node_host_operand(init_cuda):
+@pytest.mark.parametrize("kind", ["pool", "cumemalloc"])
+def test_memcpy_update_captured_node_host_operand(init_cuda, kind):
     """Replacing a captured node's device operand with host memory.
 
     The definition node accepts the host buffer and a fresh instantiation
     copies from it. Whether an executable update accepts the replacement
-    depends on how the operands were allocated: the driver compares the
+    depends on how the operands were allocated. The driver compares the
     memory class of pool-backed and virtual-memory operands and rejects the
-    change for them, while plain ``cuMemAlloc`` operands accept it. A device
-    without memory-pool support (Windows TCC in CI) gets a default memory
-    resource that is not pool-backed, so the same test is accepted there.
-    The test allows either outcome and checks the copy when the update is
-    accepted. cuda.core enforces nothing here.
+    change for them, so the pool-backed case expects the rejection. Plain
+    ``cuMemAlloc`` operands skip that comparison and the driver may accept
+    the change, so that case allows either outcome and checks the copy when
+    the update is accepted. A device without memory-pool support (Windows
+    TCC in CI) runs only the ``cuMemAlloc`` case. cuda.core enforces nothing
+    here.
     """
     if driver_version() < (12, 2, 0):
         pytest.skip("individual graph node updates require CUDA 12.2+")
+    if kind == "pool":
+        if not init_cuda.properties.memory_pools_supported:
+            pytest.skip("Device does not support mempool operations")
+        mr = DeviceMemoryResource(init_cuda)
+    else:
+        mr = _SynchronousMemoryResource(init_cuda.device_id)
 
     stream = init_cuda.create_stream()
     # The builder is unused; it keeps the captured graph alive.
-    builder, graph_def, node, dst, src = _capture_device_memcpy(init_cuda, stream)
+    builder, graph_def, node, dst, src = _capture_device_memcpy(init_cuda, stream, mr=mr)
     instantiated_before = graph_def.instantiate()
     host_src = LegacyPinnedMemoryResource().allocate(64)
     ctypes.memset(int(host_src.handle), 0xA5, 64)
@@ -925,12 +937,18 @@ def test_memcpy_update_captured_node_host_operand(init_cuda):
             return exc
         return None
 
-    rejected = _cuda_error_from(lambda: instantiated_before.update(graph_def))
-    if rejected is None:
-        _launch_copies_host_source(instantiated_before)
+    if kind == "pool":
+        with pytest.raises(CUDAError, match="PARAMETERS_CHANGED"):
+            instantiated_before.update(graph_def)
     else:
-        assert "PARAMETERS_CHANGED" in str(rejected)
+        rejected = _cuda_error_from(lambda: instantiated_before.update(graph_def))
+        if rejected is None:
+            _launch_copies_host_source(instantiated_before)
+        else:
+            assert "PARAMETERS_CHANGED" in str(rejected)
 
+    # The executable-view update varies by driver for both kinds: the CI
+    # drivers accept it, others reject it. Either outcome is allowed.
     other = graph_def.instantiate()
     rejected = _cuda_error_from(lambda: other[node].update(dst=dst, src=host_src, size=64))
     if rejected is None:
