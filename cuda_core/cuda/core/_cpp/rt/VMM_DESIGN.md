@@ -144,8 +144,8 @@ what makes that safe: the allocation is released exactly once, when its last map
   `location_type="host"` with a handle type other than `None`, which the driver rejects, and a
   request for GPUDirect RDMA on a device without support. `__init__` runs it after the VMM-support
   check; `modify_allocation` runs it on a per-call configuration, which must also name the
-  resource's location. The resource reports `is_ipc_enabled = False`, which
-  `Buffer.ipc_descriptor` reads.
+  resource's location. The resource reports `is_ipc_enabled` (True for `posix_fd` on Linux with
+  device-located memory), which `Buffer.ipc_descriptor` and `Buffer.from_ipc_descriptor` check.
 - `cdef class VirtualMemoryBuffer(Buffer)` carries no extra state. It is created with
   `Buffer_from_deviceptr_handle(h_ptr, size, self, cls=VirtualMemoryBuffer)` and documented in
   `api.rst` like `ManagedBuffer`. It overrides `close(stream=None)` to reject a capturing stream
@@ -198,6 +198,98 @@ what makes that safe: the allocation is released exactly once, when its last map
   `cuMemUnmap`, `cuMemAddressFree`. It handles one reservation, and the caller must have released
   its own `cuMemCreate` reference. It is not called for buffers from `allocate()`, whose ranges
   free themselves. A subclass override of `deallocate()` therefore does not run for them.
+
+## Sharing across processes
+
+A `VirtualMemoryBuffer` is shared the way pool-backed buffers are, through
+`Buffer.ipc_descriptor` and `Buffer.from_ipc_descriptor`, when the resource's
+`handle_type` can travel between processes (`posix_fd` on Linux) and the memory
+lives on a device (`is_ipc_enabled` reports both; host-located memory is not
+shared yet). The exporter calls `cuMemExportToShareableHandle`
+once per mapping that covers the buffer's size, in address order, and the
+descriptor carries the handles with each allocation's size. Each file
+descriptor is owned by an `IPCAllocationHandle` and closed when the descriptor
+goes; `multiprocessing` duplicates it into the receiving process. The sizes
+travel because the OS handle does not expose them to the importer; a wrong size
+fails the importer's `cuMemMap`.
+
+The importer is a `VirtualMemoryResource` of the receiving process with the
+same `handle_type`, for the device that owns the memory. `import_mem_allocation_handle`
+calls `cuMemImportFromShareableHandle` and wraps the result in the same box and
+deleter as `create_mem_allocation_handle`: the driver gives an imported handle
+one reference and frees the memory when all references are released and no
+mapping remains, so `cuMemRelease` is the right teardown for both. After each
+import, `cuMemGetAllocationPropertiesFromHandle` must report the resource's
+location (the same device, or the same host location type); a mismatch is a
+`ValueError` before anything is mapped, because the access descriptors would
+describe the wrong location. The access descriptors stored in the box are the
+importer's, built from its options for its device and peers; the exporter's
+access does not travel. The import then reserves `sum(sizes)` with the
+importer's alignment, maps each allocation in order, and builds a range and a
+`VirtualMemoryBuffer` exactly as `allocate()` does, so a grown buffer imports
+as one contiguous range with the same byte layout, and the imported buffer
+frees itself through the same deleters. A descriptor imported in the exporting
+process yields an alias of the exporter's memory at a new address. A
+`VirtualMemoryResource` pickles as (device, options), which is what lets a
+`Buffer` pickle as (resource, descriptor).
+
+File descriptors and memory. A descriptor pins the physical memory while it
+exists, in every process that holds one, and nothing else does. The exporting
+buffer keeps no descriptor: `ipc_descriptor` exports again on every access and
+returns a new descriptor that owns one file descriptor per allocation, and
+`VirtualMemoryBuffer.__reduce__` builds a transient one while `multiprocessing`
+pickles the buffer, so a sender holds no file descriptors between sends. One
+transport needs more: a `Queue`, `Pipe`, or `Pool` duplicates the file
+descriptors while pickling (the resource sharer), but a spawned `Process`
+records their numbers during pickling and passes them to the child only when
+it is created (`spawnv_passfds`), so `__reduce__` keeps the transient
+descriptor on the spawning `Popen` object, which dies with the `Process`
+object. Without that, the numbers are reused by the spawn's own pipes
+("bad value(s) in fds_to_keep") or the child imports a stranger's fd. The
+driver copies
+each shared allocation into a handle of its own during the import and keeps no
+reference to the file descriptor, so the imported buffer does not keep the
+descriptor either; it records only that it was imported (`is_mapped`). A
+descriptor parked in a `Queue` or sent to a `Pool` pins the memory in the
+sender until the receiver unpickles it. Besides `multiprocessing`, a process
+with its own file descriptor passing sends the descriptor's `fds`, `sizes`,
+`handle_type`, and `size` and rebuilds it with
+`VirtualMemoryIPCBufferDescriptor.from_fds()`, which duplicates the integers
+it is given.
+
+Re-export. The driver exports only allocations this process created with the
+requested handle type; an imported allocation has none, and the driver reports
+INVALID_VALUE. cuda.core does not rely on that: `MemAllocationBox.imported`
+records provenance per allocation (`mem_allocation_is_imported`), and since
+`modify_allocation` reuses the allocation handles of the input, the mark
+travels into every alias, in-place grow, and move. `_export_ipc_descriptor`
+checks the allocations that cover the buffer before any driver call and raises
+a RuntimeError that says the buffer contains memory imported from another
+process, that such memory cannot be exported again, and that the caller should
+forward the descriptor it imported from or copy into a buffer it owns. The same
+exception surfaces from `pickle`/`multiprocessing` (a `Queue` feeder thread
+reports it through `Queue._on_queue_feeder_error` and drops the item; the queue
+stays usable). PyTorch applies the same contract to received CUDA tensors
+("Attempted to send CUDA tensor received from another process"). There is no
+retention option.
+
+Forwarding an imported buffer would need the received file descriptors, because
+they are the only exportable form of imported memory. The design, not
+implemented because nothing needs it yet: a `VirtualMemoryResourceOptions`
+field that makes imports through that resource keep their received
+`IPCAllocationHandle`s with the imported buffer, and an export loop that uses
+the provenance mark to duplicate the kept handle for imported allocations while
+exporting created ones through the driver. The option belongs on the resource
+rather than on `from_ipc_descriptor`, because a pickled buffer imports through
+the resource it carries and the shared `Buffer.from_ipc_descriptor` signature
+stays unchanged; the consequence is that the sender's options decide whether a
+receiver can forward a pickled buffer. The cost is one open file descriptor per
+imported allocation for the imported buffer's lifetime, the same pressure on
+the process limit that the no-cache export rule avoids, which is why it would
+stay opt-in.
+
+A `modify_allocation` config must keep the resource's `handle_type`: every
+chunk of a buffer must be exportable the same way.
 
 ## Why `modify_allocation` returns a new buffer
 
