@@ -293,10 +293,12 @@ cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
                 continue
             dup = os.dup(operator.index(item))
             try:
-                handles.append(IPCAllocationHandle._init(dup, None))
+                handle = IPCAllocationHandle._init(dup, None)
             except:  # noqa: E722  rollback-then-raise: the duplicate is not owned yet
                 os.close(dup)
                 raise
+            # The handle owns the duplicate now; if append fails, the handle closes it once.
+            handles.append(handle)
         return VirtualMemoryIPCBufferDescriptor._from_exports(driver_type, sizes_t, tuple(handles), size)
 
     @property

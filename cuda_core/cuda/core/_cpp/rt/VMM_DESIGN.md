@@ -144,8 +144,8 @@ what makes that safe: the allocation is released exactly once, when its last map
   `location_type="host"` with a handle type other than `None`, which the driver rejects, and a
   request for GPUDirect RDMA on a device without support. `__init__` runs it after the VMM-support
   check; `modify_allocation` runs it on a per-call configuration, which must also name the
-  resource's location. The resource reports `is_ipc_enabled = False`, which
-  `Buffer.ipc_descriptor` reads.
+  resource's location. The resource reports `is_ipc_enabled` (True for `posix_fd` on Linux with
+  device-located memory), which `Buffer.ipc_descriptor` and `Buffer.from_ipc_descriptor` check.
 - `cdef class VirtualMemoryBuffer(Buffer)` carries no extra state. It is created with
   `Buffer_from_deviceptr_handle(h_ptr, size, self, cls=VirtualMemoryBuffer)` and documented in
   `api.rst` like `ManagedBuffer`. It overrides `close(stream=None)` to reject a capturing stream
@@ -203,8 +203,9 @@ what makes that safe: the allocation is released exactly once, when its last map
 
 A `VirtualMemoryBuffer` is shared the way pool-backed buffers are, through
 `Buffer.ipc_descriptor` and `Buffer.from_ipc_descriptor`, when the resource's
-`handle_type` can travel between processes (`posix_fd` on Linux;
-`is_ipc_enabled` reports it). The exporter calls `cuMemExportToShareableHandle`
+`handle_type` can travel between processes (`posix_fd` on Linux) and the memory
+lives on a device (`is_ipc_enabled` reports both; host-located memory is not
+shared yet). The exporter calls `cuMemExportToShareableHandle`
 once per mapping that covers the buffer's size, in address order, and the
 descriptor carries the handles with each allocation's size. Each file
 descriptor is owned by an `IPCAllocationHandle` and closed when the descriptor

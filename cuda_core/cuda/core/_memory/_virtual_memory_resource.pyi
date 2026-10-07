@@ -329,18 +329,20 @@ class VirtualMemoryResource(MemoryResource):
     def is_ipc_enabled(self) -> bool:
         """Whether buffers of this resource can be shared with other processes.
 
-        True when ``config.handle_type`` is ``"posix_fd"`` on Linux;
-        ``handle_type`` is the only switch, there is no separate option. With
-        ``handle_type=None`` the allocations cannot be exported, Win32 KMT
-        handles are not transported by cuda.core, and fabric handles are not
-        supported yet.
+        True when ``config.handle_type`` is ``"posix_fd"`` on Linux and the
+        memory lives on a device; ``handle_type`` is the only switch, there is
+        no separate option. With ``handle_type=None`` the allocations cannot
+        be exported, Win32 KMT handles are not transported by cuda.core, and
+        fabric handles are not supported yet. Host-located virtual memory
+        (``location_type`` ``"host"``, ``"host_numa"``, or
+        ``"host_numa_current"``) is not shared yet.
         """
     def _import_ipc_buffer(self, desc: VirtualMemoryIPCBufferDescriptor, stream) -> VirtualMemoryBuffer:
         """Import a buffer that another process exported; see :meth:`Buffer.from_ipc_descriptor`.
 
         Every exported allocation is imported with this resource's handle
-        type and checked to live where this resource allocates (its device,
-        or its host location). The allocations are then mapped in order into
+        type and checked to live on this resource's device. The allocations
+        are then mapped in order into
         one new address reservation with the access descriptors this
         resource's options produce for its device and peers, and the
         deallocation stream is recorded as :meth:`allocate` does. The

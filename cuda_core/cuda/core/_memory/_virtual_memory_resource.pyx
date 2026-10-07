@@ -885,20 +885,25 @@ cdef class VirtualMemoryResource(MemoryResource):
     def is_ipc_enabled(self) -> bool:
         """Whether buffers of this resource can be shared with other processes.
 
-        True when ``config.handle_type`` is ``"posix_fd"`` on Linux;
-        ``handle_type`` is the only switch, there is no separate option. With
-        ``handle_type=None`` the allocations cannot be exported, Win32 KMT
-        handles are not transported by cuda.core, and fabric handles are not
-        supported yet.
+        True when ``config.handle_type`` is ``"posix_fd"`` on Linux and the
+        memory lives on a device; ``handle_type`` is the only switch, there is
+        no separate option. With ``handle_type=None`` the allocations cannot
+        be exported, Win32 KMT handles are not transported by cuda.core, and
+        fabric handles are not supported yet. Host-located virtual memory
+        (``location_type`` ``"host"``, ``"host_numa"``, or
+        ``"host_numa_current"``) is not shared yet.
         """
-        return self.config.handle_type in _IPC_HANDLE_TYPES
+        return (
+            self.config.handle_type in _IPC_HANDLE_TYPES
+            and self.config.location_type not in _HOST_LOCATION_TYPES
+        )
 
     def _import_ipc_buffer(self, VirtualMemoryIPCBufferDescriptor desc not None, stream) -> VirtualMemoryBuffer:
         """Import a buffer that another process exported; see :meth:`Buffer.from_ipc_descriptor`.
 
         Every exported allocation is imported with this resource's handle
-        type and checked to live where this resource allocates (its device,
-        or its host location). The allocations are then mapped in order into
+        type and checked to live on this resource's device. The allocations
+        are then mapped in order into
         one new address reservation with the access descriptors this
         resource's options produce for its device and peers, and the
         deallocation stream is recorded as :meth:`allocate` does. The
@@ -919,7 +924,7 @@ cdef class VirtualMemoryResource(MemoryResource):
         cdef VmmRangeHandle rng
         cdef DevicePtrHandle h_ptr
         cdef Buffer buf
-        cdef size_t gran, addr_align, chunk, total = 0, offset = 0
+        cdef size_t gran, gran_min = 0, addr_align, chunk, total = 0, offset = 0
         cdef Py_ssize_t n, i
         cdef cydriver.CUdeviceptr hint
         cdef int handle_type, fd
@@ -955,11 +960,17 @@ cdef class VirtualMemoryResource(MemoryResource):
         self._fill_prop(cfg, &prop)
         self._fill_access(cfg, &prop, descs)
         gran = self._granularity(cfg, &prop)
+        # cuMemMap requires the minimum granularity, whatever this resource's
+        # granularity option says; the exporter may have used either.
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemGetAllocationGranularity(
+                &gran_min, &prop, cydriver.CU_MEM_ALLOC_GRANULARITY_MINIMUM))
         for chunk_obj in desc._chunk_sizes:
             chunk = chunk_obj
-            if chunk == 0 or chunk % gran != 0:
+            if chunk == 0 or chunk % gran_min != 0:
                 raise ValueError(
-                    f"descriptor chunk size {chunk} is not a positive multiple of the {gran}-byte granularity"
+                    f"descriptor chunk size {chunk} is not a positive multiple of the {gran_min}-byte minimum "
+                    "granularity"
                 )
             if chunk > <size_t>-1 - total:
                 raise OverflowError("the descriptor's chunk sizes do not fit in size_t")
@@ -988,9 +999,10 @@ cdef class VirtualMemoryResource(MemoryResource):
                     os_handle, <cydriver.CUmemAllocationHandleType>handle_type, chunk, descs.data(), descs.size())
             if not h_alloc:
                 _raise_last_error_noting(
-                    f"while importing chunk {i + 1} of {n} of a VirtualMemoryResource buffer descriptor; the "
-                    "shared handle may not refer to a CUDA allocation exported with "
-                    f"handle_type={str(cfg.handle_type)!r}"
+                    f"while importing chunk {i + 1} of {n} of a VirtualMemoryResource buffer descriptor; either "
+                    "the shared handle does not refer to a CUDA allocation exported with "
+                    f"handle_type={str(cfg.handle_type)!r}, or the device that owns the memory is not usable in "
+                    "this process (for example, CUDA_VISIBLE_DEVICES hides it)"
                 )
             # The exporter chose where the memory lives. This resource must map
             # memory of that kind on that device, or its access descriptors
@@ -1106,9 +1118,11 @@ cdef VirtualMemoryIPCBufferDescriptor _export_ipc_descriptor(Buffer buf):
             "allocation takes one file descriptor, so a process near its file descriptor limit fails here",
         )
         try:
-            handles.append(IPCAllocationHandle._init(fd, None))
+            handle = IPCAllocationHandle._init(fd, None)
         except:  # noqa: E722  rollback-then-raise: the fd is not owned yet
             os.close(fd)
             raise
+        # The handle owns the fd now; if append fails, the handle closes it once.
+        handles.append(handle)
         sizes.append(chunk)
     return VirtualMemoryIPCBufferDescriptor._from_exports(handle_type, tuple(sizes), tuple(handles), buf._size)

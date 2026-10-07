@@ -86,7 +86,8 @@ New features
   device that owns the memory, and a buffer or its descriptor can be sent
   through ``multiprocessing`` directly (plain ``pickle`` cannot carry file
   descriptors). :attr:`VirtualMemoryResource.is_ipc_enabled` is ``True`` when
-  the resource's ``handle_type`` is ``"posix_fd"`` on Linux. A grown buffer
+  the resource's ``handle_type`` is ``"posix_fd"`` on Linux and the memory
+  lives on a device; host-located virtual memory is not shared yet. A grown buffer
   imports as one contiguous range. A descriptor holds one file descriptor per
   physical allocation and pins the memory while it exists; nothing else does.
   A buffer that contains imported memory cannot be exported again. For a

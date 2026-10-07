@@ -181,11 +181,14 @@ class _ReportingQueue(multiprocessing.queues.Queue):
         pytest.param({"handle_type": "fabric"}, False, id="fabric"),
         pytest.param({"handle_type": "win32_kmt"}, False, id="win32_kmt"),
         pytest.param({"location_type": "host", "handle_type": None}, False, id="host"),
-        pytest.param({"location_type": "host_numa", "handle_type": "posix_fd"}, True, id="host_numa-posix_fd"),
+        pytest.param({"location_type": "host_numa", "handle_type": "posix_fd"}, False, id="host_numa-posix_fd"),
+        pytest.param(
+            {"location_type": "host_numa_current", "handle_type": "posix_fd"}, False, id="host_numa_current-posix_fd"
+        ),
     ],
 )
 def test_is_ipc_enabled(vmm_ipc_device, options, expected):
-    """Only POSIX file descriptors have a transport; the location does not matter."""
+    """Only POSIX file descriptors on device memory have a transport; host-located memory is not shared yet."""
     mr = VirtualMemoryResource(vmm_ipc_device, config=VirtualMemoryResourceOptions(**options))
     assert mr.is_ipc_enabled is expected
 
