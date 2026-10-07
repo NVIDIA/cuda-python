@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.DriverNotLoadedError
+=======================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: DriverNotLoadedError
