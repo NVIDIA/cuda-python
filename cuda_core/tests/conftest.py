@@ -46,6 +46,14 @@ from cuda.core import (
 from cuda.core._utils.cuda_utils import handle_return
 
 
+def pytest_collection_finish(session):
+    # The per-test gc.collect() in init_cuda (below) must not re-traverse the
+    # collected items and the imported modules on every teardown: freeze them
+    # once. Objects created after this point are collected as before (#2381).
+    gc.collect()
+    gc.freeze()
+
+
 def pytest_configure(config):
     # When using `parallel-threads` set up mini-plugin to ensure each thread has a CUDA context
     parallel_threads = getattr(config.option, "parallel_threads", 0)
