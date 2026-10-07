@@ -1375,10 +1375,13 @@ depends on the underlying driver and the Toolkit versions, as described in the c
 documentation.)</p></li>
 <li><p>The module supports all Python versions following the <a class="reference external" href="https://devguide.python.org/versions/">CPython EOL schedule</a>. As of writing
 Python 3.10 - 3.14 are supported.</p></li>
-<li><p>The module exposes a Cython layer from which types and functions could be <code class="docutils literal notranslate"><span class="pre">cimport</span></code>’d. While
-we strive to keep this layer stable, due to Cython limitations a new <em>minor</em> release of this
-module could require Cython layer users to rebuild their projects and update their pinning to
-this module.</p></li>
+<li><p>The module exposes a Cython layer (modules beginning with the <code class="docutils literal notranslate"><span class="pre">cy</span></code> prefix) from which types and
+functions can be <code class="docutils literal notranslate"><span class="pre">cimport</span></code>’d. While we strive to keep this layer stable, due to Cython limitations
+a new <em>minor</em> release of this module could require Cython layer users to rebuild their projects and
+update their pinning to this module.</p></li>
+<li><p>The higher-level modules in <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> (without the <code class="docutils literal notranslate"><span class="pre">cy</span></code> prefix) do not have any
+ABI stability guarantees, so while they can be <code class="docutils literal notranslate"><span class="pre">cimport</span></code>’d, they will require a rebuild for
+a specific version of <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>.  They do, however, have a stable API from a Python perspective.</p></li>
 </ol>
 <section id="free-threading-build-support">
 <h2>Free-threading Build Support<a class="headerlink" href="#free-threading-build-support" title="Link to this heading">#</a></h2>

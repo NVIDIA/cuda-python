@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=4d35f453"></script>
+    <script src="_static/documentation_options.js?v=ba8f4a68"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev181';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev234';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -595,6 +595,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.WorkqueueResourceOptions.html">cuda.core.WorkqueueResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ManagedBuffer.html">cuda.core.ManagedBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.VirtualMemoryBuffer.html">cuda.core.VirtualMemoryBuffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
@@ -971,6 +972,8 @@
 </li>
         <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.__init__">(cuda.core.utils.StridedMemoryView method)</a>
 </li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.__init__">(cuda.core.VirtualMemoryBuffer method)</a>
+</li>
         <li><a href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.__init__">(cuda.core.VirtualMemoryResource method)</a>
 </li>
         <li><a href="generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource.__init__">(cuda.core.WorkqueueResource method)</a>
@@ -1325,6 +1328,8 @@
 </li>
         <li><a href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource.close">(cuda.core.utils.ProgramCacheResource method)</a>
 </li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.close">(cuda.core.VirtualMemoryBuffer method)</a>
+</li>
       </ul></li>
       <li><a href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig.cluster">cluster (cuda.core.LaunchConfig attribute)</a>
 </li>
@@ -1403,7 +1408,11 @@
       <li><a href="generated/cuda.core.graph.ConditionalNode.html#cuda.core.graph.ConditionalNode">ConditionalNode (class in cuda.core.graph)</a>
 </li>
       <li><a href="generated/cuda.core.graph.KernelNode.html#cuda.core.graph.KernelNode.config">config (cuda.core.graph.KernelNode attribute)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.config">(cuda.core.VirtualMemoryResource attribute)</a>
 </li>
+      </ul></li>
       <li><a href="generated/cuda.core.system._device.InforomInfo.html#cuda.core.system._device.InforomInfo.configuration_checksum">configuration_checksum (cuda.core.system._device.InforomInfo attribute)</a>
 </li>
       <li><a href="generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource.configure">configure() (cuda.core.WorkqueueResource method)</a>
@@ -1445,6 +1454,8 @@
 </li>
         <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.copy_from">(cuda.core.utils.StridedMemoryView method)</a>
 </li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.copy_from">(cuda.core.VirtualMemoryBuffer method)</a>
+</li>
       </ul></li>
       <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_to">copy_to() (cuda.core.Buffer method)</a>
 
@@ -1454,6 +1465,8 @@
         <li><a href="generated/cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray.copy_to">(cuda.core.texture.OpaqueArray method)</a>
 </li>
         <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.copy_to">(cuda.core.utils.StridedMemoryView method)</a>
+</li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.copy_to">(cuda.core.VirtualMemoryBuffer method)</a>
 </li>
       </ul></li>
       <li><a href="generated/cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions">CopyOptions (class in cuda.core.utils)</a>
@@ -1681,6 +1694,8 @@
 </li>
         <li><a href="generated/cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject.device">(cuda.core.texture.TextureObject attribute)</a>
 </li>
+        <li><a href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.device">(cuda.core.VirtualMemoryResource attribute)</a>
+</li>
         <li><a href="generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource.device">(cuda.core.WorkqueueResource attribute)</a>
 </li>
       </ul></li>
@@ -1718,6 +1733,8 @@
         <li><a href="generated/cuda.core.system._device.PciInfo.html#cuda.core.system._device.PciInfo.device_id">(cuda.core.system._device.PciInfo attribute)</a>
 </li>
         <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.device_id">(cuda.core.utils.StridedMemoryView attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.device_id">(cuda.core.VirtualMemoryBuffer attribute)</a>
 </li>
         <li><a href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.device_id">(cuda.core.VirtualMemoryResource attribute)</a>
 </li>
@@ -1961,6 +1978,8 @@
       <ul>
         <li><a href="generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.fill">(cuda.core.ManagedBuffer method)</a>
 </li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.fill">(cuda.core.VirtualMemoryBuffer method)</a>
+</li>
       </ul></li>
       <li><a href="generated/cuda.core.texture.TextureObjectOptions.html#cuda.core.texture.TextureObjectOptions.filter_mode">filter_mode (cuda.core.texture.TextureObjectOptions attribute)</a>
 </li>
@@ -2004,10 +2023,10 @@
         <li><a href="generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.from_allocation_handle">(cuda.core.PinnedMemoryResource class method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.from_any_interface">from_any_interface() (cuda.core.utils.StridedMemoryView class method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.from_array_interface">from_array_interface() (cuda.core.utils.StridedMemoryView class method)</a>
 </li>
       <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.from_buffer">from_buffer() (cuda.core.utils.StridedMemoryView class method)</a>
@@ -2033,6 +2052,8 @@
 </li>
         <li><a href="generated/cuda.core.Stream.html#cuda.core.Stream.from_handle">(cuda.core.Stream static method)</a>
 </li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.from_handle">(cuda.core.VirtualMemoryBuffer static method)</a>
+</li>
       </ul></li>
       <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor">from_ipc_descriptor() (cuda.core.Buffer class method)</a>
 
@@ -2040,6 +2061,8 @@
         <li><a href="generated/cuda.core.Event.html#cuda.core.Event.from_ipc_descriptor">(cuda.core.Event class method)</a>
 </li>
         <li><a href="generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.from_ipc_descriptor">(cuda.core.ManagedBuffer class method)</a>
+</li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.from_ipc_descriptor">(cuda.core.VirtualMemoryBuffer class method)</a>
 </li>
       </ul></li>
       <li><a href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode.from_library">from_library() (cuda.core.ObjectCode static method)</a>
@@ -2361,6 +2384,8 @@
 </li>
         <li><a href="generated/cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject.handle">(cuda.core.texture.TextureObject attribute)</a>
 </li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.handle">(cuda.core.VirtualMemoryBuffer attribute)</a>
+</li>
         <li><a href="generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource.handle">(cuda.core.WorkqueueResource attribute)</a>
 </li>
       </ul></li>
@@ -2547,6 +2572,8 @@
 </li>
         <li><a href="generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.ipc_descriptor">(cuda.core.ManagedBuffer attribute)</a>
 </li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.ipc_descriptor">(cuda.core.VirtualMemoryBuffer attribute)</a>
+</li>
       </ul></li>
       <li><a href="generated/cuda.core.DeviceMemoryResourceOptions.html#cuda.core.DeviceMemoryResourceOptions.ipc_enabled">ipc_enabled (cuda.core.DeviceMemoryResourceOptions attribute)</a>
 
@@ -2603,6 +2630,8 @@
 </li>
         <li><a href="generated/cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject.is_closed">(cuda.core.texture.TextureObject attribute)</a>
 </li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.is_closed">(cuda.core.VirtualMemoryBuffer attribute)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -2626,6 +2655,8 @@
         <li><a href="generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.is_device_accessible">(cuda.core.PinnedMemoryResource attribute)</a>
 </li>
         <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.is_device_accessible">(cuda.core.utils.StridedMemoryView attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.is_device_accessible">(cuda.core.VirtualMemoryBuffer attribute)</a>
 </li>
         <li><a href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.is_device_accessible">(cuda.core.VirtualMemoryResource attribute)</a>
 </li>
@@ -2671,6 +2702,8 @@
 </li>
         <li><a href="generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.is_host_accessible">(cuda.core.PinnedMemoryResource attribute)</a>
 </li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.is_host_accessible">(cuda.core.VirtualMemoryBuffer attribute)</a>
+</li>
         <li><a href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.is_host_accessible">(cuda.core.VirtualMemoryResource attribute)</a>
 </li>
       </ul></li>
@@ -2682,6 +2715,8 @@
         <li><a href="generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource.is_ipc_enabled">(cuda.core.ManagedMemoryResource attribute)</a>
 </li>
         <li><a href="generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.is_ipc_enabled">(cuda.core.PinnedMemoryResource attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.is_ipc_enabled">(cuda.core.VirtualMemoryResource attribute)</a>
 </li>
       </ul></li>
       <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.is_managed">is_managed (cuda.core.Buffer attribute)</a>
@@ -2701,6 +2736,8 @@
 </li>
         <li><a href="generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.is_managed">(cuda.core.PinnedMemoryResource attribute)</a>
 </li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.is_managed">(cuda.core.VirtualMemoryBuffer attribute)</a>
+</li>
         <li><a href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.is_managed">(cuda.core.VirtualMemoryResource attribute)</a>
 </li>
       </ul></li>
@@ -2716,6 +2753,8 @@
         <li><a href="generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource.is_mapped">(cuda.core.ManagedMemoryResource attribute)</a>
 </li>
         <li><a href="generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.is_mapped">(cuda.core.PinnedMemoryResource attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.is_mapped">(cuda.core.VirtualMemoryBuffer attribute)</a>
 </li>
       </ul></li>
       <li><a href="generated/cuda.core.system._device.MigInfo.html#cuda.core.system._device.MigInfo.is_mig_device">is_mig_device (cuda.core.system._device.MigInfo attribute)</a>
@@ -3116,10 +3155,10 @@
 </li>
       <li><a href="generated/cuda.core.graph.GraphDebugPrintOptions.html#cuda.core.graph.GraphDebugPrintOptions.mem_alloc_node_params">mem_alloc_node_params (cuda.core.graph.GraphDebugPrintOptions attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.mem_decompress_algorithm_mask">mem_decompress_algorithm_mask (cuda.core._device.DeviceProperties attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.mem_decompress_maximum_length">mem_decompress_maximum_length (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core.graph.GraphDebugPrintOptions.html#cuda.core.graph.GraphDebugPrintOptions.mem_free_node_params">mem_free_node_params (cuda.core.graph.GraphDebugPrintOptions attribute)</a>
@@ -3184,6 +3223,8 @@
         <li><a href="generated/cuda.core.Device.html#cuda.core.Device.memory_resource">(cuda.core.Device property)</a>
 </li>
         <li><a href="generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.memory_resource">(cuda.core.ManagedBuffer attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.memory_resource">(cuda.core.VirtualMemoryBuffer attribute)</a>
 </li>
       </ul></li>
       <li><a href="generated/cuda.core.system._device.DeviceAttributes.html#cuda.core.system._device.DeviceAttributes.memory_size_mb">memory_size_mb (cuda.core.system._device.DeviceAttributes attribute)</a>
@@ -3407,10 +3448,10 @@
 </li>
       <li><a href="generated/cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray">OpaqueArray (class in cuda.core.texture)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.texture.OpaqueArrayOptions.html#cuda.core.texture.OpaqueArrayOptions">OpaqueArrayOptions (class in cuda.core.texture)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.system.OperatingSystemError.html#cuda.core.system.OperatingSystemError">OperatingSystemError</a>
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.optimization_info">optimization_info (cuda.core.ProgramOptions attribute)</a>
@@ -3425,6 +3466,8 @@
 
       <ul>
         <li><a href="generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.owner">(cuda.core.ManagedBuffer attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.owner">(cuda.core.VirtualMemoryBuffer attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -3756,6 +3799,8 @@
       <ul>
         <li><a href="generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.set_deallocation_stream">(cuda.core.ManagedBuffer method)</a>
 </li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.set_deallocation_stream">(cuda.core.VirtualMemoryBuffer method)</a>
+</li>
       </ul></li>
       <li><a href="generated/cuda.core.system._device.FanInfo.html#cuda.core.system._device.FanInfo.set_default_speed">set_default_speed() (cuda.core.system._device.FanInfo method)</a>
 </li>
@@ -3808,6 +3853,8 @@
 </li>
         <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.size">(cuda.core.utils.StridedMemoryView attribute)</a>
 </li>
+        <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer.size">(cuda.core.VirtualMemoryBuffer attribute)</a>
+</li>
       </ul></li>
       <li><a href="generated/cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray.size_bytes">size_bytes (cuda.core.texture.OpaqueArray attribute)</a>
 
@@ -3857,10 +3904,10 @@
 </li>
       <li><a href="generated/cuda.core.Stream.html#cuda.core.Stream">Stream (class in cuda.core)</a>
 </li>
-      <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.stream_priorities_supported">stream_priorities_supported (cuda.core._device.DeviceProperties attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.stream_priorities_supported">stream_priorities_supported (cuda.core._device.DeviceProperties attribute)</a>
+</li>
       <li><a href="generated/cuda.core.StreamOptions.html#cuda.core.StreamOptions">StreamOptions (class in cuda.core)</a>
 </li>
       <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView">StridedMemoryView (class in cuda.core.utils)</a>
@@ -4236,6 +4283,8 @@
       <li><a href="generated/cuda.core.typing.VirtualMemoryAccessType.html#cuda.core.typing.VirtualMemoryAccessType">VirtualMemoryAccessType (class in cuda.core.typing)</a>
 </li>
       <li><a href="generated/cuda.core.typing.VirtualMemoryAllocationType.html#cuda.core.typing.VirtualMemoryAllocationType">VirtualMemoryAllocationType (class in cuda.core.typing)</a>
+</li>
+      <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer">VirtualMemoryBuffer (class in cuda.core)</a>
 </li>
       <li><a href="generated/cuda.core.typing.VirtualMemoryGranularityType.html#cuda.core.typing.VirtualMemoryGranularityType">VirtualMemoryGranularityType (class in cuda.core.typing)</a>
 </li>
