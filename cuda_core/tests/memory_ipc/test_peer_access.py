@@ -14,8 +14,9 @@ from cuda.core._utils.cuda_utils import CUDAError
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 
-# these tests spawn new processes and files which fails for very many threads
-pytestmark = pytest.mark.parallel_threads_limit(4)
+# these tests spawn new processes and files which fails for very many threads;
+# child processes and IPC fixtures are shared across workers (#2784); run single-threaded
+pytestmark = pytest.mark.parallel_threads_limit(1)
 
 
 class TestPeerAccessNotPreservedOnImport:
