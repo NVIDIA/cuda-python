@@ -28,7 +28,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # /// script
-# dependencies = ["cuda-python>=13.4.0", "numpy>=1.24", "matplotlib"]
+# dependencies = ["cuda-python>=13.4.0", "numpy>=1.24"]
 # ///
 
 """
@@ -819,7 +819,7 @@ def main():
     for propag in propags:
         del propag
 
-    if display_graph:
+    if display_graph and plt is not None:
         nrows = nz
         ncols = pars.nx
         dbz = h_out
