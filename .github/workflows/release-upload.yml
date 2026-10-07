@@ -25,13 +25,10 @@ on:
         default: false
 
 concurrency:
-  # Concurrency group that uses the workflow name and PR number if available
-  # or commit SHA as a fallback. If a new build is triggered under that
-  # concurrency group while a previous build is running it will be canceled.
-  # Repeated pushes to a PR will cancel all previous builds, while multiple
-  # merges to main will not cancel.
-  group: ${{ github.workflow }}-${{ github.ref_name || github.sha }}
-  cancel-in-progress: true
+  # Pathfinder releases are serialized by the caller. Keep their uploads out
+  # of the other components' existing cancellation group.
+  group: ${{ inputs.component == 'cuda-pathfinder' && format('release-upload-cuda-pathfinder-{0}', github.run_id) || format('{0}-{1}', github.workflow, github.ref_name || github.sha) }}
+  cancel-in-progress: ${{ inputs.component != 'cuda-pathfinder' }}
 
 permissions:
   contents: write
@@ -51,6 +48,16 @@ jobs:
           fetch-depth: 1
           ref: ${{ inputs.git-tag }}
 
+      - name: Checkout Pathfinder Release Tools
+        if: ${{ inputs.component == 'cuda-pathfinder' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          # Older Pathfinder tags may predate release-wheel validation tooling.
+          ref: ${{ github.workflow_sha }}
+          path: .release-tools
+          sparse-checkout: ci/tools
+          persist-credentials: false
+
       - name: Create Release Directory
         run: mkdir -p release
 
@@ -69,7 +76,7 @@ jobs:
           > "release/${{ env.ARCHIVE_NAME }}.tar.gz.sha256sum"
 
       - name: Upload Archive
-        if: ${{ !inputs.dry-run }}
+        if: ${{ !inputs.dry-run && inputs.component != 'cuda-pathfinder' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: >
@@ -81,19 +88,24 @@ jobs:
       - name: Download and Validate Wheels
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TOOLS_DIR: ${{ inputs.component == 'cuda-pathfinder' && '.release-tools/ci/tools' || 'ci/tools' }}
         run: |
           # Use the shared script to download wheels
-          ./ci/tools/download-wheels "${{ inputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "release/wheels"
+          "${RELEASE_TOOLS_DIR}/download-wheels" "${{ inputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "release/wheels"
 
           # Validate that release wheels match the expected version from tag.
-          ./ci/tools/validate-release-wheels "${{ inputs.git-tag }}" "${{ inputs.component }}" "release/wheels"
+          "${RELEASE_TOOLS_DIR}/validate-release-wheels" "${{ inputs.git-tag }}" "${{ inputs.component }}" "release/wheels"
 
-      - name: Upload Wheels
+      - name: Upload Wheels and Pathfinder Archive
         if: ${{ !inputs.dry-run }}
         env:
           GH_TOKEN: ${{ github.token }}
+          COMPONENT: ${{ inputs.component }}
         run: |
-          if [[ -d "release/wheels" && $(ls -A release/wheels 2>/dev/null | wc -l) -gt 0 ]]; then
+          if [[ "${COMPONENT}" == "cuda-pathfinder" ]]; then
+            gh release upload --clobber "${{ inputs.git-tag }}" --repo "${{ github.repository }}" \
+              release/*.tar.gz release/*.sha256sum release/wheels/*.whl
+          elif [[ -d "release/wheels" && $(ls -A release/wheels 2>/dev/null | wc -l) -gt 0 ]]; then
             echo "Uploading wheels to release ${{ inputs.git-tag }}"
             gh release upload --clobber "${{ inputs.git-tag }}" --repo "${{ github.repository }}" release/wheels/*
           fi
