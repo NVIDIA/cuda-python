@@ -17,8 +17,8 @@ NBYTES = 64
 
 
 # these tests spawn new processes and files which fails for very many threads;
-# child processes and IPC fixtures are shared across workers (#2784); run single-threaded
-pytestmark = pytest.mark.parallel_threads_limit(1)
+# child processes and IPC fixtures are shared across workers (#2784); cap at two threads
+pytestmark = pytest.mark.parallel_threads_limit(2)
 
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
