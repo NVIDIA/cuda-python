@@ -12,11 +12,25 @@ shared predicate so the two test suites stay in sync.
 This module intentionally does **not** import ``pyglet`` at module load time:
 importing ``pyglet.gl`` / ``pyglet.window`` triggers pyglet's shadow-window
 creation, which fails on headless machines before the test has had a chance to
-set ``pyglet.options["headless"]``.
+set ``pyglet.options["headless"]``. For the same reason,
+``select_headless_egl_device_for_cuda`` must not import ``pyglet.gl``: that
+import creates the shadow window, and in headless mode the shadow window opens
+the EGL display on ``pyglet.options["headless_device"]`` before the caller has
+had a chance to set it.
 """
 
 import contextlib
 import ctypes
+
+
+def _is_pyglet_missing_function_exception(exc: BaseException) -> bool:
+    """True for ``pyglet.gl.lib.MissingFunctionException``.
+
+    Matched by name, like ``is_gl_context_unavailable``, so that the check does
+    not import ``pyglet.gl``.
+    """
+    exc_type = type(exc)
+    return exc_type.__module__.startswith("pyglet") and exc_type.__name__ == "MissingFunctionException"
 
 
 def select_headless_egl_device_for_cuda(cuda_device_ordinal: int) -> int | None:
@@ -39,16 +53,22 @@ def select_headless_egl_device_for_cuda(cuda_device_ordinal: int) -> int | None:
     """
     egl_cuda_device_nv = 0x323A
 
+    from pyglet.libs.egl import egl, eglext
+    from pyglet.libs.egl.lib import link_EGL
+
+    egl_query_device_attrib_ext = link_EGL(
+        "eglQueryDeviceAttribEXT",
+        egl.EGLBoolean,
+        [eglext.EGLDeviceEXT, egl.EGLint, ctypes.POINTER(ctypes.c_ssize_t)],
+    )
+
+    # link_EGL returns a stub for an unresolvable entry point that raises
+    # pyglet.gl.lib.MissingFunctionException when called, so that is the only
+    # "extension not available" signal. Anything else is a real bug and must
+    # propagate. The exception is matched by name: importing pyglet.gl here
+    # would create the shadow window on EGL device 0 before the caller has set
+    # pyglet.options["headless_device"] (see the module docstring).
     try:
-        from pyglet.libs.egl import egl, eglext
-        from pyglet.libs.egl.lib import link_EGL
-
-        egl_query_device_attrib_ext = link_EGL(
-            "eglQueryDeviceAttribEXT",
-            egl.EGLBoolean,
-            [eglext.EGLDeviceEXT, egl.EGLint, ctypes.POINTER(ctypes.c_ssize_t)],
-        )
-
         num_devices = egl.EGLint()
         if not eglext.eglQueryDevicesEXT(0, None, ctypes.byref(num_devices)) or num_devices.value <= 0:
             return None
@@ -62,8 +82,10 @@ def select_headless_egl_device_for_cuda(cuda_device_ordinal: int) -> int | None:
             found = egl_query_device_attrib_ext(devices[index], egl_cuda_device_nv, ctypes.byref(queried_ordinal))
             if found and queried_ordinal.value == cuda_device_ordinal:
                 return index
-    except Exception:
-        return None
+    except Exception as exc:
+        if _is_pyglet_missing_function_exception(exc):
+            return None
+        raise
 
     return None
 

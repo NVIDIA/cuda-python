@@ -745,6 +745,139 @@ def test_memcpy_update_between_host_and_device(init_cuda, device_operand):
     assert list(host_dst_bytes) == [0x5A] * 4
 
 
+def _capture_device_memcpy(device, stream, size=64):
+    """Capture ``dst.copy_from(src)`` between two device buffers.
+
+    The driver records both operands of a captured ``cuMemcpyAsync`` as
+    unified addresses rather than as device memory (#2649). The builder is
+    returned so that the captured graph stays alive with the definition view.
+    """
+    src = device.memory_resource.allocate(size, stream=stream)
+    dst = device.memory_resource.allocate(size, stream=stream)
+    src.fill(0x5A, stream=stream)
+    dst.fill(0, stream=stream)
+    stream.sync()
+
+    builder = device.create_graph_builder().begin_building()
+    dst.copy_from(src, stream=builder)
+    builder.end_building()
+    graph_def = builder.graph_definition
+    node = next(n for n in graph_def.nodes() if isinstance(n, MemcpyNode))
+    return builder, graph_def, node, dst, src
+
+
+def _read_device_bytes(buffer, stream):
+    host = LegacyPinnedMemoryResource().allocate(buffer.size)
+    buffer.copy_to(host, stream=stream)
+    stream.sync()
+    return list((ctypes.c_uint8 * buffer.size).from_address(int(host.handle)))
+
+
+_MEMORY_TYPE_TAGS = {
+    driver.CUmemorytype.CU_MEMORYTYPE_HOST: "H",
+    driver.CUmemorytype.CU_MEMORYTYPE_DEVICE: "D",
+    driver.CUmemorytype.CU_MEMORYTYPE_UNIFIED: "U",
+}
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_memcpy_update_captured_node_size(init_cuda):
+    """A memcpy node recorded by stream capture accepts a size update (#2649)."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    stream = init_cuda.create_stream()
+    builder, graph_def, node, dst, src = _capture_device_memcpy(init_cuda, stream)
+    recorded = handle_return(driver.cuGraphMemcpyNodeGetParams(node.handle))
+    assert node.size == 64
+    assert node.dst == int(dst.handle)
+    assert node.src == int(src.handle)
+    assert f"({_MEMORY_TYPE_TAGS[recorded.dstMemoryType]})" in repr(node)
+    assert f"({_MEMORY_TYPE_TAGS[recorded.srcMemoryType]})" in repr(node)
+
+    node.update(size=32)
+
+    assert node.size == 32
+    assert node.dst == int(dst.handle)
+    assert node.src == int(src.handle)
+    updated = handle_return(driver.cuGraphMemcpyNodeGetParams(node.handle))
+    assert updated.WidthInBytes == 32
+    assert updated.dstMemoryType == recorded.dstMemoryType
+    assert updated.srcMemoryType == recorded.srcMemoryType
+
+    graph = graph_def.instantiate()
+    graph.launch(stream)
+    assert _read_device_bytes(dst, stream) == [0x5A] * 32 + [0] * 32
+
+
+@pytest.mark.parametrize("operand", ["src", "dst"])
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_memcpy_update_captured_node_operand(init_cuda, operand):
+    """Replacing one operand of a captured memcpy node keeps the other as recorded (#2649)."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    stream = init_cuda.create_stream()
+    builder, graph_def, node, dst, src = _capture_device_memcpy(init_cuda, stream)
+    recorded = handle_return(driver.cuGraphMemcpyNodeGetParams(node.handle))
+    instantiated_before = graph_def.instantiate()
+    replacement = init_cuda.memory_resource.allocate(64, stream=stream)
+    replacement.fill(0xA5 if operand == "src" else 0, stream=stream)
+    stream.sync()
+
+    if operand == "src":
+        node.update(src=replacement)
+        assert node.src == int(replacement.handle)
+        assert node.dst == int(dst.handle)
+        copied_into, expected = dst, [0xA5] * 64
+    else:
+        node.update(dst=replacement)
+        assert node.dst == int(replacement.handle)
+        assert node.src == int(src.handle)
+        copied_into, expected = replacement, [0x5A] * 64
+    assert node.size == 64
+
+    # The driver rejects a change of memory type in an executable update, so
+    # the replaced operand keeps the recorded type.
+    updated = handle_return(driver.cuGraphMemcpyNodeGetParams(node.handle))
+    assert updated.dstMemoryType == recorded.dstMemoryType
+    assert updated.srcMemoryType == recorded.srcMemoryType
+
+    fresh = graph_def.instantiate()
+    fresh.launch(stream)
+    assert _read_device_bytes(copied_into, stream) == expected
+
+    copied_into.fill(0, stream=stream)
+    stream.sync()
+    instantiated_before.update(graph_def)
+    instantiated_before.launch(stream)
+    assert _read_device_bytes(copied_into, stream) == expected
+    if operand == "dst":
+        assert _read_device_bytes(dst, stream) == [0] * 64
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_executable_memcpy_update_on_captured_node(init_cuda):
+    """The executable view of a captured memcpy node accepts new operands (#2649)."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    stream = init_cuda.create_stream()
+    builder, graph_def, node, dst, src = _capture_device_memcpy(init_cuda, stream)
+    new_src = init_cuda.memory_resource.allocate(64, stream=stream)
+    new_dst = init_cuda.memory_resource.allocate(64, stream=stream)
+    new_src.fill(0xA5, stream=stream)
+    new_dst.fill(0, stream=stream)
+    stream.sync()
+
+    graph = graph_def.instantiate()
+    graph[node].update(dst=new_dst, src=new_src, size=32)
+    graph.launch(stream)
+
+    assert _read_device_bytes(new_dst, stream) == [0xA5] * 32 + [0] * 32
+    assert _read_device_bytes(dst, stream) == [0] * 64
+
+
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_definition_node_update_changes_future_instantiations(
     definition_update_case,

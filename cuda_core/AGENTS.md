@@ -23,7 +23,11 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   one `_cpp/<name>.cpp` or as a directory `_cpp/<name>/` whose sources all
   compile into the `_<name>` extension (`_cpp/rt/` for `_rt`).
 - **Build backend**: `build_hooks.py` handles Cython extension setup and build
-  dependency wiring.
+  dependency wiring. Logic shared with `cuda_bindings` (toolchain selection,
+  the compiler flag set, the Cython cache helpers and the rebuild stamps)
+  lives in `_build_shared.py`. `cuda_bindings/_build_shared.py` is canonical;
+  `cuda_core/_build_shared.py` must be either a symlink to it or a byte-for-byte
+  identical copy.
 
 ## Build and version coupling
 

@@ -112,11 +112,11 @@ and only around the setup call — never around `yield`:
 @contextlib.contextmanager
 def _gl_context():
     try:
-        win, tex_id = _setup_gl_texture()      # setup only
+        win, tex_id = _setup_gl_texture()  # setup only
     except (pyglet.NoSuchConfigException, GLContextError) as e:
         pytest.skip(f"GL unavailable: {e}")
     try:
-        yield tex_id                          # body exceptions propagate
+        yield tex_id  # body exceptions propagate
     finally:
         _cleanup(win, tex_id)
 ```
