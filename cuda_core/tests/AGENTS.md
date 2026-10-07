@@ -64,7 +64,9 @@ The `init_cuda` fixture in `conftest.py` runs `gc.collect()` followed
 by `cuCtxSynchronize()` before popping the context. Tests should not rely on
 that as a substitute for cleaning up explicitly: prefer context managers for
 resources whose lifetime fits a single scope, and keep pool lifetimes inside
-the test that creates them.
+the test that creates them. The collected items and imported modules are
+frozen after collection, so the per-test collect covers only objects created
+during the run.
 
 ## Shared test support
 
