@@ -19,7 +19,9 @@ stream-ordered frees of its allocations retire. Three rules keep that bounded:
    that creates it, by ``.close()`` on that name or by a ``for`` loop that
    closes every element of the list the name holds. Memory resources are not
    context managers. Opt out with ``# unclosed-pool-ok: <reason>`` when the
-   close happens elsewhere.
+   close happens elsewhere. A call marked ``uncapped-pool-ok`` is exempt only
+   inside a ``with pytest.raises(...)`` block, where it raises before any pool
+   exists; elsewhere that marker does not waive the close.
 3. owns_pool: a test that creates a pool of any kind, directly or through a
    function in the same module, carries ``@pytest.mark.owns_pool`` on the
    function, on its class, or in the module's ``pytestmark``; a fixture that
@@ -157,6 +159,25 @@ def _names_closed_in(node: ast.AST) -> set[str]:
     }
 
 
+def _assigned_name(node: ast.AST) -> str:
+    """The name a plain or annotated assignment binds: ``mr = ...`` or ``mr: T = ...`` -> ``mr``."""
+    if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+        return node.targets[0].id
+    if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name) and node.value is not None:
+        return node.target.id
+    return ""
+
+
+def _in_raises_block(call: ast.Call, func: ast.FunctionDef) -> bool:
+    """True if ``call`` sits inside a ``with pytest.raises(...)`` block of ``func``."""
+    for node in ast.walk(func):
+        if not (isinstance(node, ast.With) and node.lineno <= call.lineno <= node.end_lineno):
+            continue
+        if any(isinstance(i.context_expr, ast.Call) and _callee_name(i.context_expr) == "raises" for i in node.items):
+            return True
+    return False
+
+
 def _unclosed_pools(func: ast.FunctionDef, lines: list[str], path: Path) -> list[str]:
     closed_names = _names_closed_in(func)
     for node in ast.walk(func):
@@ -170,16 +191,20 @@ def _unclosed_pools(func: ast.FunctionDef, lines: list[str], path: Path) -> list
             closed_names.add(node.iter.id)
     bound_to = {}
     for node in ast.walk(func):
-        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+        name = _assigned_name(node)
+        if name:
             # Every call in the value, so a pool built inside a comprehension is bound to the list's name.
             for call in _calls(node.value):
-                bound_to[id(call)] = node.targets[0].id
+                bound_to[id(call)] = name
     found = []
     for call in _calls(func):
         if not _creates_cappable_pool(call) or bound_to.get(id(call)) in closed_names:
             continue
-        # A call marked uncapped-pool-ok raises before any pool exists, so there is nothing to close.
-        if _opted_out(lines, call, (UNCAPPED_MARKER, UNCLOSED_MARKER)):
+        # unclosed-pool-ok waives the close. uncapped-pool-ok waives it only inside pytest.raises, where
+        # the call raises before any pool exists; elsewhere the pool exists and the marker says nothing.
+        if _opted_out(lines, call, (UNCLOSED_MARKER,)) or (
+            _opted_out(lines, call, (UNCAPPED_MARKER,)) and _in_raises_block(call, func)
+        ):
             continue
         found.append(f"{path.as_posix()}:{call.lineno}: {_callee_name(call)} in {func.name} is not closed")
     return found

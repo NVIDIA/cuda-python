@@ -118,6 +118,7 @@ UNCLOSED = [
 
 CLOSED = [
     pytest.param(f"mr = {POOL}\ntry:\n    assert mr\nfinally:\n    mr.close()\n", id="close-in-finally"),
+    pytest.param(f"mr: DeviceMemoryResource = {POOL}\nmr.close()\n", id="annotated-assignment"),
     pytest.param(f"mrs = [{POOL} for _ in range(2)]\nfor mr in mrs:\n    mr.close()\n", id="list-closed-by-loop"),
     pytest.param(f"# unclosed-pool-ok: closed by the harness\nmr = {POOL}\n", id="opt-out"),
     pytest.param("mr = DeviceMemoryResource(dev)\n", id="default-pool-wrapper"),
@@ -140,15 +141,29 @@ def test_closed_pool_is_not_reported(tmp_path, body):
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
-def test_uncapped_opt_out_also_satisfies_the_close_rule(tmp_path):
+@pytest.mark.parametrize("raises", ["pytest.raises", "raises"], ids=["attribute", "bare-name"])
+def test_uncapped_opt_out_inside_pytest_raises_satisfies_the_close_rule(tmp_path, raises):
     # The annotation marks a call that raises before any pool exists, so there is nothing to close.
     body = (
-        "with pytest.raises(ValueError):\n"
+        f"with {raises}(ValueError):\n"
         "    # uncapped-pool-ok: numa_id is validated before the pool is created\n"
         "    PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=-1))\n"
     )
 
     assert violations_in(write(tmp_path, in_test(body))) == []
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_uncapped_opt_out_outside_pytest_raises_leaves_the_close_rule_in_force(tmp_path):
+    # Outside pytest.raises the pool exists, so only unclosed-pool-ok waives the close.
+    call = "mr = PinnedMemoryResource(PinnedMemoryResourceOptions())"
+    uncapped = "# uncapped-pool-ok: the default window is under test"
+    unclosed = "# unclosed-pool-ok: closed by the harness"
+
+    (violation,) = violations_in(write(tmp_path, in_test(f"{uncapped}\n{call}\n")))
+    assert violation.endswith("in test_sample is not closed")
+
+    assert violations_in(write(tmp_path, in_test(f"{uncapped}\n{call}  {unclosed}\n"))) == []
 
 
 CREATES_POOL = [

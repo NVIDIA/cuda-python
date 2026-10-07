@@ -58,8 +58,9 @@ with pytest.raises(RuntimeError, match="IPC is not available"):
     DeviceMemoryResource(mempool_device, DeviceMemoryResourceOptions(ipc_enabled=True))
 ```
 
-A call annotated this way also satisfies the close rule below: no pool exists
-to close.
+A call annotated this way also satisfies the close rule below, but only when
+it sits inside a `pytest.raises` block: there no pool exists to close. Outside
+`pytest.raises` the close rule applies.
 
 ## Release resources at test boundaries
 
