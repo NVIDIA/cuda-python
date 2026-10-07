@@ -384,13 +384,15 @@ jobs:
       ${{ !cancelled() && inputs.release-action == 'full-release' &&
           needs.doc.result == 'success' && needs.check-tag.result == 'success' &&
           needs.check-release-notes.result == 'success' &&
-          needs.determine-run-id.result == 'success' }}
+          needs.determine-run-id.result == 'success' &&
+          (inputs.component != 'cuda-pathfinder' || needs.upload-archive.result == 'success') }}
     runs-on: ubuntu-latest
     needs:
       - check-tag
       - check-release-notes
       - determine-run-id
       - doc
+      - upload-archive
     environment:
       name: testpypi
       url: https://test.pypi.org/p/${{ inputs.component }}/
