@@ -891,8 +891,10 @@ def test_memcpy_update_captured_node_host_operand(init_cuda, kind):
     """Replacing a captured node's device operand with host memory.
 
     The definition node accepts the host buffer and a fresh instantiation
-    copies from it. Whether an executable update accepts the replacement
-    depends on how the operands were allocated. The driver compares the
+    copies from it. Two instantiations made before the change take the
+    whole-graph update and the executable node update. Whether an
+    executable update accepts the replacement depends on how the operands
+    were allocated. The driver compares the
     memory class of pool-backed and virtual-memory operands and rejects the
     change for them, so the pool-backed case expects the rejection. Plain
     ``cuMemAlloc`` operands skip that comparison and the driver may accept
@@ -913,7 +915,10 @@ def test_memcpy_update_captured_node_host_operand(init_cuda, kind):
     stream = init_cuda.create_stream()
     # The builder is unused; it keeps the captured graph alive.
     builder, graph_def, node, dst, src = _capture_device_memcpy(init_cuda, stream, mr=mr)
+    # Both still copy from the device buffer; the node-level update below
+    # must change the operand, not restate it.
     instantiated_before = graph_def.instantiate()
+    other = graph_def.instantiate()
     host_src = LegacyPinnedMemoryResource().allocate(64)
     ctypes.memset(int(host_src.handle), 0xA5, 64)
 
@@ -937,22 +942,24 @@ def test_memcpy_update_captured_node_host_operand(init_cuda, kind):
             return exc
         return None
 
+    # cuGraphExecMemcpyNodeSetParams has no update-result output, so the
+    # driver reports the same rejection as CUDA_ERROR_INVALID_VALUE there.
     if kind == "pool":
         with pytest.raises(CUDAError, match="PARAMETERS_CHANGED"):
             instantiated_before.update(graph_def)
+        with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
+            other[node].update(dst=dst, src=host_src, size=64)
     else:
         rejected = _cuda_error_from(lambda: instantiated_before.update(graph_def))
         if rejected is None:
             _launch_copies_host_source(instantiated_before)
         else:
             assert "PARAMETERS_CHANGED" in str(rejected)
-
-    # The executable-view update varies by driver for both kinds: the CI
-    # drivers accept it, others reject it. Either outcome is allowed.
-    other = graph_def.instantiate()
-    rejected = _cuda_error_from(lambda: other[node].update(dst=dst, src=host_src, size=64))
-    if rejected is None:
-        _launch_copies_host_source(other)
+        rejected = _cuda_error_from(lambda: other[node].update(dst=dst, src=host_src, size=64))
+        if rejected is None:
+            _launch_copies_host_source(other)
+        else:
+            assert "CUDA_ERROR_INVALID_VALUE" in str(rejected)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
