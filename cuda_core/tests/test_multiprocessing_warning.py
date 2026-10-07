@@ -25,6 +25,7 @@ from cuda.core._utils.cuda_utils import check_multiprocessing_start_method, rese
 pytestmark = pytest.mark.thread_unsafe(reason="all tests use unittest.mock.patch")
 
 
+@pytest.mark.owns_pool
 def test_warn_on_fork_method_device_memory_resource(ipc_device):
     """Test that warning is emitted when DeviceMemoryResource is pickled with fork method."""
     device = ipc_device
@@ -52,6 +53,7 @@ def test_warn_on_fork_method_device_memory_resource(ipc_device):
     mr.close()
 
 
+@pytest.mark.owns_pool
 def test_warn_on_fork_method_allocation_handle(ipc_device):
     """Test that warning is emitted when IPCAllocationHandle is pickled with fork method."""
     device = ipc_device
@@ -104,6 +106,7 @@ def test_warn_on_fork_method_event(mempool_device):
     event.close()
 
 
+@pytest.mark.owns_pool
 def test_no_warning_with_spawn_method(ipc_device):
     """Test that no warning is emitted when start method is 'spawn'."""
     device = ipc_device
@@ -127,6 +130,7 @@ def test_no_warning_with_spawn_method(ipc_device):
     mr.close()
 
 
+@pytest.mark.owns_pool
 def test_warning_emitted_only_once(ipc_device):
     """Test that warning is only emitted once even when multiple objects are pickled."""
     device = ipc_device

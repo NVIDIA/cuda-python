@@ -970,6 +970,7 @@ def test_mr_deallocation_with_foreign_context(device_x2, replace_stream):
         alloc_dev.set_current()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-opus-5")
 def test_mr_deallocate_raises_on_driver_error(mempool_device):
     """An explicit mr.deallocate() call propagates driver errors to the caller.
@@ -983,8 +984,10 @@ def test_mr_deallocate_raises_on_driver_error(mempool_device):
 
     with pytest.raises(CUDAError):
         mr.deallocate(0xDEADBEEF, 256, stream=stream)
+    mr.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
 def test_pool_buffer_deallocates_without_current_context(mempool_device):
@@ -1006,8 +1009,10 @@ def test_pool_buffer_deallocates_without_current_context(mempool_device):
 
         assert mr.attributes.used_mem_current < used_after_alloc
         assert current_context_handle() == 0
+    mr.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
 def test_pool_buffer_deallocates_with_foreign_context(mempool_device_x2):
@@ -1039,6 +1044,7 @@ def test_pool_buffer_deallocates_with_foreign_context(mempool_device_x2):
         foreign_dev.set_current()
     finally:
         alloc_dev.set_current()
+    mr.close()
 
 
 def test_memory_resource_and_owner_disallowed():
@@ -1136,6 +1142,7 @@ def test_managed_buffer_dlpack_roundtrip_device_type():
     assert view.__dlpack_device__() == (int(DLDeviceType.kDLCUDAManaged), 0)
 
 
+@pytest.mark.owns_pool
 def test_managed_memory_resource_buffer_dlpack_device_type():
     """Verify that pool-allocated managed memory reports kDLCUDAManaged.
 
@@ -1233,6 +1240,7 @@ def test_pinned_memory_resource_initialization(init_cuda):
     buffer.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
 def test_pinned_memory_resource_rejects_unsupported_host_pool(init_cuda):
     """allocate() must fail on devices without host memory pool support (see #2486)."""
@@ -1364,6 +1372,7 @@ def _vmm_allocate_in_free_hole(device, size, extra):
     return mr, buf
 
 
+@pytest.mark.owns_pool
 @pytest.mark.parametrize("use_device_object", [True, False])
 @pytest.mark.parametrize("handle_type", get_handle_type())
 def test_vmm_allocator_basic_allocation(use_device_object, handle_type):
@@ -1408,6 +1417,7 @@ def test_vmm_allocator_basic_allocation(use_device_object, handle_type):
         buf.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_vmm_allocator_policy_configuration():
     """Test VMM allocator with different policy configurations.
@@ -1500,6 +1510,7 @@ def test_vmm_allocator_policy_configuration():
     grown.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.parametrize("handle_type", get_handle_type())
 def test_vmm_allocator_grow_allocation(handle_type):
@@ -1549,6 +1560,7 @@ def test_vmm_allocator_grow_allocation(handle_type):
     grown_buffer.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_vmm_grow_in_place_keeps_pointer(init_cuda):
     """With free address space after the buffer, a grow extends it in place and keeps the pointer."""
@@ -1567,6 +1579,7 @@ def test_vmm_grow_in_place_keeps_pointer(init_cuda):
     grown.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_vmm_grow_preserves_contents_and_aliases_input(init_cuda):
     """A grown buffer sees the input's contents, and a write through either buffer is visible through the other."""
@@ -1592,6 +1605,7 @@ def test_vmm_grow_preserves_contents_and_aliases_input(init_cuda):
     grown.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.thread_unsafe(reason="records process-global warnings")
 def test_vmm_grow_moves_when_adjacent_range_is_taken(init_cuda):
@@ -1627,6 +1641,7 @@ def test_vmm_grow_moves_when_adjacent_range_is_taken(init_cuda):
         buf.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.thread_unsafe(reason="records process-global warnings")
 def test_vmm_unaligned_and_repeated_grow_close_cleanly(init_cuda):
@@ -1660,6 +1675,7 @@ def test_vmm_unaligned_and_repeated_grow_close_cleanly(init_cuda):
         second.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.thread_unsafe(reason="spawns worker threads that grow shared buffers")
 def test_vmm_concurrent_grows_of_aliased_buffers_are_memory_safe(init_cuda):
@@ -1701,6 +1717,7 @@ def test_vmm_concurrent_grows_of_aliased_buffers_are_memory_safe(init_cuda):
     assert errors == []
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_vmm_modify_allocation_rejects_foreign_or_closed_buffers(init_cuda):
     """modify_allocation accepts only open buffers this resource returned."""
@@ -1723,6 +1740,7 @@ def test_vmm_modify_allocation_rejects_foreign_or_closed_buffers(init_cuda):
         sibling.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_vmm_modify_allocation_validates_per_call_config(init_cuda):
     """A per-call config passes the constructor's option checks and must keep the resource's location."""
@@ -1749,6 +1767,7 @@ def test_vmm_modify_allocation_validates_per_call_config(init_cuda):
         buf.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_vmm_host_modify_allocation_rejects_exportable_handle_type(init_cuda):
     """On a host-located resource, a per-call config with an exportable handle type is rejected before any driver call."""
@@ -1764,6 +1783,7 @@ def test_vmm_host_modify_allocation_rejects_exportable_handle_type(init_cuda):
         buf.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.thread_unsafe(reason="records process-global warnings")
 def test_vmm_allocate_zero_size(init_cuda):
@@ -1794,6 +1814,7 @@ def test_vmm_allocate_zero_size(init_cuda):
         s.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_vmm_allocate_without_access_descriptors(init_cuda):
     """self_access=None with no peers creates and maps memory; no access call is made."""
@@ -1806,6 +1827,7 @@ def test_vmm_allocate_without_access_descriptors(init_cuda):
     buf.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_vmm_close_on_capturing_stream_raises(init_cuda):
     """An explicit close on a capturing stream raises and leaves the buffer open."""
@@ -1823,6 +1845,7 @@ def test_vmm_close_on_capturing_stream_raises(init_cuda):
     buf.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.thread_unsafe(reason="records process-global warnings")
 @pytest.mark.parametrize("close_input_first", [True, False])
@@ -1861,6 +1884,7 @@ def test_vmm_close_synchronizes_recorded_streams(init_cuda, close_input_first):
         s2.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.thread_unsafe(reason="records process-global warnings")
 def test_vmm_deallocate_frees_wrapped_pointer(init_cuda):
@@ -1923,6 +1947,7 @@ def test_vmm_buffers_alive_at_shutdown_are_freed_quietly(init_cuda):
     assert result.stderr == ""
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.thread_unsafe(reason="records process-global warnings")
 def test_vmm_failed_grow_leaves_input_intact(init_cuda):
@@ -1944,6 +1969,7 @@ def test_vmm_failed_grow_leaves_input_intact(init_cuda):
     _vmm_assert_released([(ptr, size)])
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_vmm_size_rounding_overflow_raises(init_cuda):
     """A size whose rounding to the granularity does not fit in size_t raises instead of wrapping.
@@ -1966,6 +1992,7 @@ def test_vmm_size_rounding_overflow_raises(init_cuda):
         buf.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.thread_unsafe(reason="records process-global warnings")
 @pytest.mark.parametrize("mode", ["global", "thread_local"])
@@ -1992,6 +2019,7 @@ def test_vmm_close_during_unrelated_capture_keeps_capture_valid(init_cuda, mode)
         s.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.thread_unsafe(reason="records process-global warnings")
 def test_vmm_release_from_gc_on_capturing_stream_reports_and_unmaps(init_cuda):
@@ -2019,6 +2047,7 @@ def test_vmm_release_from_gc_on_capturing_stream_reports_and_unmaps(init_cuda):
     _vmm_assert_released([(ptr, size)])
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.thread_unsafe(reason="records process-global warnings")
 def test_vmm_release_on_default_stream_during_blocking_capture_reports_and_unmaps(init_cuda):
@@ -2052,6 +2081,7 @@ def test_vmm_release_on_default_stream_during_blocking_capture_reports_and_unmap
     _vmm_assert_released([(ptr, size)])
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_vmm_close_without_stream_argument_on_capturing_stream_raises(init_cuda):
     """close() with no argument checks the recorded deallocation stream and refuses to close during its capture."""
@@ -2070,6 +2100,7 @@ def test_vmm_close_without_stream_argument_on_capturing_stream_raises(init_cuda)
     buf.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.thread_unsafe(reason="records process-global warnings")
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.parametrize("mode", ["allocate", "grow", "grow_moved"])
@@ -2124,6 +2155,7 @@ def test_vmm_allocate_close_does_not_leak(init_cuda, mode):
     _vmm_assert_released(reservations)
 
 
+@pytest.mark.owns_pool
 def test_vmm_allocator_rdma_unsupported_exception():
     """Test that VirtualMemoryResource throws an exception when RDMA is requested but device doesn't support it.
 
@@ -2147,6 +2179,7 @@ def test_vmm_allocator_rdma_unsupported_exception():
         VirtualMemoryResource(device, config=options)
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 def test_vmm_host_location_allocate_without_current_context(init_cuda):
@@ -2162,6 +2195,7 @@ def test_vmm_host_location_allocate_without_current_context(init_cuda):
         buf.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.thread_unsafe(reason="records process-global warnings")
 def test_vmm_host_location_grow_and_close(init_cuda):
@@ -2206,6 +2240,7 @@ def test_vmm_host_location_grow_and_close(init_cuda):
         assert moved.size == 0
 
 
+@pytest.mark.owns_pool
 def test_device_memory_resource_with_options(init_cuda):
     device = Device()
     if not device.properties.memory_pools_supported:
@@ -2253,8 +2288,10 @@ def test_device_memory_resource_with_options(init_cuda):
     src_buffer.close()
     # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
     device.sync()
+    mr.close()
 
 
+@pytest.mark.owns_pool
 def test_pinned_memory_resource_with_options(init_cuda):
     device = Device()
     skip_if_pinned_memory_unsupported(device)
@@ -2301,8 +2338,10 @@ def test_pinned_memory_resource_with_options(init_cuda):
     src_buffer.close()
     # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
     device.sync()
+    mr.close()
 
 
+@pytest.mark.owns_pool
 def test_managed_memory_resource_with_options(init_cuda):
     device = Device()
     skip_if_managed_memory_unsupported(device)
@@ -2360,6 +2399,7 @@ def test_managed_memory_resource_preferred_location_default(init_cuda):
     assert mr.preferred_location is None
 
 
+@pytest.mark.owns_pool
 def test_managed_memory_resource_preferred_location_device(init_cuda):
     """preferred_location returns ("device", ordinal) for device preference."""
     device = Device()
@@ -2380,6 +2420,7 @@ def test_managed_memory_resource_preferred_location_device(init_cuda):
     assert mr.preferred_location == ("device", device.device_id)
 
 
+@pytest.mark.owns_pool
 def test_managed_memory_resource_preferred_location_host(init_cuda):
     """preferred_location returns ("host", None) for host preference."""
     device = Device()
@@ -2397,6 +2438,7 @@ def test_managed_memory_resource_preferred_location_host(init_cuda):
     assert mr.preferred_location == ("host", None)
 
 
+@pytest.mark.owns_pool
 def test_managed_memory_resource_preferred_location_host_numa(init_cuda):
     """preferred_location returns ("host_numa", id) for NUMA preference."""
     device = Device()
@@ -2421,6 +2463,7 @@ def test_managed_memory_resource_preferred_location_host_numa(init_cuda):
     assert mr.preferred_location == ("host_numa", numa_id)
 
 
+@pytest.mark.owns_pool
 def test_managed_memory_resource_preferred_location_validation(init_cuda):
     """Invalid preferred_location combinations raise errors."""
     device = Device()
@@ -2477,6 +2520,7 @@ def test_managed_memory_resource_preferred_location_validation(init_cuda):
         )
 
 
+@pytest.mark.owns_pool
 @pytest.mark.thread_unsafe(reason="Uses mock.")
 def test_managed_memory_resource_host_numa_auto_resolve_failure(init_cuda):
     """host_numa with None raises RuntimeError when NUMA ID cannot be determined."""
@@ -2500,6 +2544,7 @@ def test_managed_memory_resource_host_numa_auto_resolve_failure(init_cuda):
         )
 
 
+@pytest.mark.owns_pool
 def test_mempool_ipc_errors(mempool_device):
     """Test error cases when IPC operations are disabled."""
     device = mempool_device
@@ -2521,8 +2566,10 @@ def test_mempool_ipc_errors(mempool_device):
     buffer.close()
     # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
     device.sync()
+    mr.close()
 
 
+@pytest.mark.owns_pool
 def test_pinned_mempool_ipc_basic():
     """Test basic IPC functionality for PinnedMemoryResource."""
     device = Device()
@@ -2566,6 +2613,7 @@ def test_pinned_mempool_ipc_basic():
     mr.close()
 
 
+@pytest.mark.owns_pool
 def test_pinned_mempool_ipc_errors():
     """Test error cases when IPC operations are disabled for PinnedMemoryResource."""
     device = Device()
@@ -2599,6 +2647,7 @@ def test_pinned_mempool_ipc_errors():
     mr.close()
 
 
+@pytest.mark.owns_pool
 def test_pinned_mr_numa_id_default_no_ipc(init_cuda):
     """numa_id defaults to -1 (OS-managed) when IPC is disabled."""
     device = Device()
@@ -2615,6 +2664,7 @@ def test_pinned_mr_numa_id_default_no_ipc(init_cuda):
     mr.close()
 
 
+@pytest.mark.owns_pool
 def test_pinned_mr_numa_id_default_with_ipc(init_cuda):
     """numa_id is derived from the current device when IPC is enabled."""
     device = Device()
@@ -2636,6 +2686,7 @@ def test_pinned_mr_numa_id_default_with_ipc(init_cuda):
     mr.close()
 
 
+@pytest.mark.owns_pool
 def test_pinned_mr_numa_id_explicit(init_cuda):
     """Explicit numa_id is used regardless of ipc_enabled."""
     device = Device()
@@ -2664,6 +2715,7 @@ def test_pinned_mr_numa_id_explicit(init_cuda):
     mr.close()
 
 
+@pytest.mark.owns_pool
 def test_pinned_mr_numa_id_negative_error(init_cuda):
     """Negative numa_id raises ValueError."""
     device = Device()
@@ -2678,6 +2730,7 @@ def test_pinned_mr_numa_id_negative_error(init_cuda):
         PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=-42))
 
 
+@pytest.mark.owns_pool
 @pytest.mark.parametrize("ipc_enabled", [True, False])
 @pytest.mark.parametrize(
     "property_name,expected_type",
@@ -2760,6 +2813,7 @@ def test_mempool_attributes(ipc_enabled, memory_resource_factory, property_name,
         assert value >= current_value, f"{property_name} should be >= {current_prop}"
 
 
+@pytest.mark.owns_pool
 def test_mempool_attributes_repr(memory_resource_factory):
     """Test the repr of memory pool attributes for all memory resource types."""
     MR, MRops = memory_resource_factory
@@ -2793,6 +2847,7 @@ def test_mempool_attributes_repr(memory_resource_factory):
     buffer2.close()
 
 
+@pytest.mark.owns_pool
 def test_mempool_attributes_ownership(memory_resource_factory):
     """Ensure the attributes bundle keeps the pool alive via the handle."""
     MR, MRops = memory_resource_factory
@@ -2874,6 +2929,7 @@ def test_strided_memory_view_dlpack_errors():
         smv.__dlpack__(max_version=(9, 8, 7))
 
 
+@pytest.mark.owns_pool
 def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):
     MR, MROps = memory_resource_factory
 
@@ -3101,6 +3157,7 @@ def test_vmm_options_handle_type_win32_raises():
         VirtualMemoryResourceOptions._handle_type_to_driver("win32")
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.parametrize("location_type", ["host", "host_numa", "host_numa_current"])
 def test_vmm_host_location_types_report_host_accessible(location_type):
@@ -3150,6 +3207,7 @@ def test_dmr_mempool_get_access_self(mempool_device):
     assert DMR_mempool_get_access(mr, mempool_device.device_id) == "rw"
 
 
+@pytest.mark.owns_pool
 def test_dmr_mempool_get_access_peer(mempool_device_x2):
     """DMR_mempool_get_access reflects peer access state for a different device."""
     from cuda.core._memory._device_memory_resource import DMR_mempool_get_access
@@ -3167,8 +3225,10 @@ def test_dmr_mempool_get_access_peer(mempool_device_x2):
     # After revoking, peer is back to no access.
     mr.peer_accessible_by = []
     assert DMR_mempool_get_access(mr, peer.device_id) == ""
+    mr.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.thread_unsafe(reason="depends on the driver handing back the pool handle that was just destroyed")
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_closed_pool_peer_access_not_inherited_by_recycled_handle(mempool_device_x2):
@@ -3188,6 +3248,7 @@ def test_closed_pool_peer_access_not_inherited_by_recycled_handle(mempool_device
     pools = []
     try:
         for _ in range(8):
+            # unclosed-pool-ok: closed by the loop in finally
             recycled = DeviceMemoryResource(dev, options)
             pools.append(recycled)
             if int(recycled.handle) == old_handle:
@@ -3202,6 +3263,7 @@ def test_closed_pool_peer_access_not_inherited_by_recycled_handle(mempool_device
             pool.close()
 
 
+@pytest.mark.owns_pool
 def test_dmr_peer_accessible_by_setter_empty(mempool_device):
     """Assigning an empty peer-access set to a fresh owned pool is a no-op."""
     # max_size caps VA to dodge Windows MCDM OOM
@@ -3209,6 +3271,7 @@ def test_dmr_peer_accessible_by_setter_empty(mempool_device):
     assert set(mr.peer_accessible_by) == set()
     mr.peer_accessible_by = []
     assert set(mr.peer_accessible_by) == set()
+    mr.close()
 
 
 @pytest.mark.agent_authored(model="claude-opus-4.8")
@@ -3220,6 +3283,7 @@ def test_mempool_attributes_cannot_instantiate_directly():
         _MemPoolAttributes()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_dmr_handle_and_ownership(mempool_device):
     """An options-created pool is handle-owning with a live handle; wrapping the device's current pool is non-owning."""
@@ -3231,8 +3295,10 @@ def test_dmr_handle_and_ownership(mempool_device):
 
     non_owned = DeviceMemoryResource(mempool_device)
     assert non_owned.is_handle_owned is False
+    owned.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_dmr_deallocate_frees_pool_pointer(mempool_device):
     """Closing a Buffer.from_handle(..., mr=mr) view frees the pointer via the Python
@@ -3255,8 +3321,10 @@ def test_dmr_deallocate_frees_pool_pointer(mempool_device):
     # In-use bytes fell back, so the pointer was actually returned (buf.handle == 0
     # alone wouldn't prove it: the deleter callback swallows a failed free).
     assert mr.attributes.used_mem_current < used_after_alloc
+    mr.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_dmr_close_is_idempotent(mempool_device):
     """Closing an owned DeviceMemoryResource twice is safe (the second close is a no-op)."""
@@ -3272,6 +3340,7 @@ def test_dmr_close_is_idempotent(mempool_device):
     assert mr.is_handle_owned is False
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_dmr_ipc_enabled_unsupported_raises(mempool_device):
     """Requesting an IPC-enabled pool where memory IPC is unsupported raises RuntimeError."""

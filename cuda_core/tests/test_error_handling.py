@@ -155,6 +155,7 @@ def test_unused_restore_fault_does_not_fire_without_a_context_switch(init_cuda):
         _set_context_restore_fault_for_testing(0)
 
 
+@pytest.mark.owns_pool
 @thread_unsafe_context_fault
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_cleanup_reports_restore_failure_as_warning(mempool_device):
@@ -172,8 +173,10 @@ def test_cleanup_reports_restore_failure_as_warning(mempool_device):
         assert any("CUDA_ERROR_INVALID_CONTEXT" in message for message in messages)
         # The report names the resource so that independent failures stay distinct.
         assert any(f"{ptr:#x}" in message for message in messages), messages
+    mr.close()
 
 
+@pytest.mark.owns_pool
 @thread_unsafe_context_fault
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_independent_cleanup_failures_are_reported_separately(mempool_device):
@@ -201,8 +204,10 @@ def test_independent_cleanup_failures_are_reported_separately(mempool_device):
     messages = [str(record.message) for record in records if issubclass(record.category, CUDAWarning)]
     assert len(messages) == 2, messages
     assert all(f"{handle:#x}" in message for handle, message in zip(handles, messages)), messages
+    mr.close()
 
 
+@pytest.mark.owns_pool
 @thread_unsafe_context_fault
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_escalated_cudawarning_from_cleanup_is_not_a_crash(mempool_device):
@@ -230,6 +235,7 @@ def test_escalated_cudawarning_from_cleanup_is_not_a_crash(mempool_device):
     assert len(unraisable) == 1
     assert issubclass(unraisable[0].exc_type, CUDAWarning)
     assert "restoring the caller's context" in str(unraisable[0].exc_value)
+    mr.close()
 
 
 @thread_unsafe_context_fault

@@ -164,7 +164,7 @@ def session_setup():
 
 
 @pytest.fixture
-def init_cuda():
+def init_cuda(request):
     # TODO: rename this to e.g. init_context
     device = Device(0)
     device.set_current()
@@ -178,18 +178,24 @@ def init_cuda():
     try:
         yield device
     finally:
-        # Force any pool/allocation whose only remaining reference was a local
-        # in this test's frame to actually get destroyed now, then drain the
-        # context so the stream-ordered frees that destruction enqueues retire
-        # before the next test runs. Without this, a memory pool's VA
-        # reservation is not returned until both have happened, and per-test
-        # leftovers accumulate across the run -- which is how full-suite runs
-        # can exhaust address space and hit CUDA_ERROR_OUT_OF_MEMORY on a
-        # device with plenty of free physical memory (issue #2381). gc.collect()
-        # must run first: cuCtxSynchronize alone cannot drain frees that were
-        # never enqueued because their owning object had not been collected yet.
-        # With pytest-run-parallel this runs after worker join.
-        gc.collect()
+        # A pool whose last reference was a local in this test's frame dies by
+        # refcount at function return, and the synchronize below drains the
+        # stream-ordered frees that its destruction enqueued before the next
+        # test runs. A pool's VA reservation is not returned until both have
+        # happened, and leftovers accumulate across the run -- which is how
+        # full-suite runs can exhaust address space and hit
+        # CUDA_ERROR_OUT_OF_MEMORY on a device with plenty of free physical
+        # memory (issue #2381). Only a pool held in a reference cycle outlives
+        # the frame, so the collect that frees it runs only for tests that
+        # create a pool. Such a test declares it with the owns_pool marker (a
+        # fixture that creates a pool adds the marker itself), and
+        # ci/tools/check_mempool_hygiene.py enforces the rule. gc.collect()
+        # must run before the synchronize: cuCtxSynchronize alone cannot drain
+        # frees that were never enqueued because their owning object had not
+        # been collected yet. With pytest-run-parallel this runs after worker
+        # join.
+        if request.node.get_closest_marker("owns_pool") is not None:
+            gc.collect()
         driver.cuCtxSynchronize()
         _ = _device_unset_current()
 
@@ -279,6 +285,8 @@ def ipc_device(init_cuda):
 )
 def ipc_memory_resource(request, ipc_device):
     """Provides IPC-enabled memory resource (either Device or Pinned)."""
+    # The pool below is owned, so the init_cuda teardown must collect; see AGENTS.md.
+    request.node.add_marker("owns_pool")
     mr_type = request.param
 
     if mr_type == "device":

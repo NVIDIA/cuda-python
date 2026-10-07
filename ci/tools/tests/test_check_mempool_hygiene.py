@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import os
 import sys
+import textwrap
 
 import pytest
 
@@ -94,3 +95,156 @@ def test_the_live_test_suite_is_clean():
     # violation could ride in on a rename or a merge.
     assert DEFAULT_TREE.is_dir()
     assert main([]) == 0
+
+
+POOL = "DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))"
+
+
+def in_test(body, decorators="@pytest.mark.owns_pool\n"):
+    """A test function around ``body``, marked by default so that a case exercises one rule at a time."""
+    return f"{decorators}def test_sample(dev):\n" + textwrap.indent(body, "    ")
+
+
+UNCLOSED = [
+    pytest.param(f"mr = {POOL}\nassert mr\n", id="never-closed"),
+    pytest.param(
+        f"mr = {POOL}\npools.append(mr)\nfor pool in pools:\n    pool.close()\n", id="closed-under-another-name"
+    ),
+    pytest.param(
+        "mr = create_pinned_memory_resource_or_xfail(PinnedMemoryResourceOptions(max_size=POOL_SIZE))\n",
+        id="pinned-helper",
+    ),
+]
+
+CLOSED = [
+    pytest.param(f"mr = {POOL}\ntry:\n    assert mr\nfinally:\n    mr.close()\n", id="close-in-finally"),
+    pytest.param(f"mrs = [{POOL} for _ in range(2)]\nfor mr in mrs:\n    mr.close()\n", id="list-closed-by-loop"),
+    pytest.param(f"# unclosed-pool-ok: closed by the harness\nmr = {POOL}\n", id="opt-out"),
+    pytest.param("mr = DeviceMemoryResource(dev)\n", id="default-pool-wrapper"),
+    pytest.param("mr = ManagedMemoryResource(ManagedMemoryResourceOptions())\n", id="managed-outside-the-close-rule"),
+]
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.parametrize("body", UNCLOSED)
+def test_unclosed_pool_is_reported(tmp_path, body):
+    (violation,) = violations_in(write(tmp_path, in_test(body)))
+
+    assert violation.endswith("in test_sample is not closed")
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.parametrize("body", CLOSED)
+def test_closed_pool_is_not_reported(tmp_path, body):
+    assert violations_in(write(tmp_path, in_test(body))) == []
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_uncapped_opt_out_also_satisfies_the_close_rule(tmp_path):
+    # The annotation marks a call that raises before any pool exists, so there is nothing to close.
+    body = (
+        "with pytest.raises(ValueError):\n"
+        "    # uncapped-pool-ok: numa_id is validated before the pool is created\n"
+        "    PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=-1))\n"
+    )
+
+    assert violations_in(write(tmp_path, in_test(body))) == []
+
+
+CREATES_POOL = [
+    pytest.param(f"mr = {POOL}\nmr.close()\n", id="device-options"),
+    pytest.param('mr = DeviceMemoryResource(dev, {"max_size": POOL_SIZE})\nmr.close()\n', id="device-dict-options"),
+    pytest.param("mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions())\n", id="managed-helper"),
+    pytest.param(
+        'mr = create_pinned_memory_resource_or_xfail(options={"max_size": POOL_SIZE}, xfail_device=dev)\nmr.close()\n',
+        id="pinned-helper",
+    ),
+    pytest.param(
+        'mr = VirtualMemoryResource(dev, config=VirtualMemoryResourceOptions(handle_type="posix_fd"))\n',
+        id="virtual-config",
+    ),
+]
+
+NO_POOL = [
+    pytest.param("mr = DeviceMemoryResource(dev)\n", id="default-pool-wrapper"),
+    pytest.param("mr = PinnedMemoryResource()\n", id="pinned-current-pool"),
+    pytest.param("mr = create_managed_memory_resource_or_skip()\n", id="managed-current-pool"),
+    pytest.param("mr = create_pinned_memory_resource_or_xfail(xfail_device=dev)\n", id="pinned-helper-current-pool"),
+]
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.parametrize("body", CREATES_POOL)
+def test_test_that_creates_a_pool_needs_the_marker(tmp_path, body):
+    (violation,) = violations_in(write(tmp_path, in_test(body, decorators="")))
+
+    assert violation.endswith("test_sample creates a memory pool but is not marked owns_pool")
+    assert violations_in(write(tmp_path, in_test(body))) == []
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.parametrize("body", NO_POOL)
+def test_test_without_an_owned_pool_needs_no_marker(tmp_path, body):
+    assert violations_in(write(tmp_path, in_test(body, decorators=""))) == []
+
+
+MARK_PLACEMENTS = [
+    pytest.param(
+        "@pytest.mark.owns_pool\nclass TestSample:\n"
+        f"    def test_sample(self, dev):\n        mr = {POOL}\n        mr.close()\n",
+        id="class",
+    ),
+    pytest.param(
+        "pytestmark = [pytest.mark.thread_unsafe, pytest.mark.owns_pool]\n\n\n"
+        f"def test_sample(dev):\n    mr = {POOL}\n    mr.close()\n",
+        id="module",
+    ),
+]
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.parametrize("source", MARK_PLACEMENTS)
+def test_marker_on_the_class_or_module_counts(tmp_path, source):
+    assert violations_in(write(tmp_path, source)) == []
+
+
+HELPER = "create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions())"
+HELPER_CALLS = [
+    pytest.param(
+        f"def _pool(dev):\n    return {HELPER}\n\n\n{{mark}}def test_sample(dev):\n    mr = _pool(dev)\n",
+        "@pytest.mark.owns_pool\n",
+        id="module-function",
+    ),
+    pytest.param(
+        f"class TestSample:\n    def _pool(self, dev):\n        return {HELPER}\n\n"
+        "    {mark}def test_sample(self, dev):\n        mr = self._pool(dev)\n",
+        "@pytest.mark.owns_pool\n    ",
+        id="method-through-self",
+    ),
+]
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.parametrize(("source", "mark"), HELPER_CALLS)
+def test_pool_created_through_a_module_helper_needs_the_marker(tmp_path, source, mark):
+    (violation,) = violations_in(write(tmp_path, source.format(mark="")))
+
+    assert violation.endswith("test_sample creates a memory pool but is not marked owns_pool")
+    assert violations_in(write(tmp_path, source.format(mark=mark))) == []
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.parametrize("adds_marker", [False, True], ids=["without-add_marker", "with-add_marker"])
+def test_fixture_that_creates_a_pool_must_add_the_marker(tmp_path, adds_marker):
+    marker_line = '    request.node.add_marker("owns_pool")\n' if adds_marker else ""
+    source = f"@pytest.fixture\ndef pool(request, dev):\n{marker_line}    mr = {POOL}\n    yield mr\n    mr.close()\n"
+
+    violations = violations_in(write(tmp_path, source))
+
+    if adds_marker:
+        assert violations == []
+    else:
+        (violation,) = violations
+        assert violation.endswith(
+            'fixture pool creates a memory pool but does not call request.node.add_marker("owns_pool")'
+        )

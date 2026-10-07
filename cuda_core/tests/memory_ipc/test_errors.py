@@ -118,6 +118,7 @@ class ChildErrorHarness:
     """Test harness for checking errors in child processes. Subclasses override
     PARENT_ACTION, CHILD_ACTION, and ASSERT (see below for examples)."""
 
+    @pytest.mark.owns_pool  # PARENT_ACTION creates a pool in some subclasses
     @pytest.mark.thread_unsafe(
         reason=(
             "pytest-run-parallel shares the ipc fixtures across workers; "
@@ -213,6 +214,7 @@ class TestImportWrongMR(ChildErrorHarness):
 
     def PARENT_ACTION(self, queue):
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+        # unclosed-pool-ok: closed by ChildErrorHarness.test_main through _extra_mrs
         mr2 = DeviceMemoryResource(self.device, options=options)
         self._extra_mrs.append(mr2)
         stream = self.device.default_stream
@@ -257,6 +259,7 @@ class TestDanglingBuffer(ChildErrorHarness):
 
     def PARENT_ACTION(self, queue):
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+        # unclosed-pool-ok: closed by ChildErrorHarness.test_main through _extra_mrs
         mr2 = DeviceMemoryResource(self.device, options=options)
         self._extra_mrs.append(mr2)
         stream = self.device.default_stream
@@ -275,6 +278,7 @@ class TestDanglingBuffer(ChildErrorHarness):
         assert re.match(r"Memory resource [a-z0-9-]+ was not found", exc_msg)
 
 
+@pytest.mark.owns_pool
 @pytest.mark.skipif(platform.system() != "Linux", reason="CUDA mempool IPC is Linux-only")
 @pytest.mark.thread_unsafe(
     reason="serialize the affected IPC mempool import/destroy path under pytest-run-parallel (#2784)"
@@ -314,6 +318,7 @@ def test_from_allocation_handle_raw_fd_imports_mapped_pool(ipc_device):
         exporter.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.skipif(platform.system() != "Linux", reason="CUDA mempool IPC is Linux-only")
 @pytest.mark.thread_unsafe(
     reason="concurrent IPC mempool export/destroy SEGV in cuMemPoolDestroy under pytest-run-parallel (#2784)"
@@ -342,6 +347,7 @@ def test_allocation_handle_forking_pickler_roundtrip(ipc_device):
         mr.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.skipif(platform.system() != "Linux", reason="CUDA mempool IPC is Linux-only")
 @pytest.mark.thread_unsafe(
     reason="concurrent IPC mempool import/destroy SEGV in cuMemPoolDestroy under pytest-run-parallel (#2784)"

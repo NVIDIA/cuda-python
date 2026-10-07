@@ -18,6 +18,7 @@ NBYTES = 1024
 pytestmark = pytest.mark.thread_unsafe(reason="peer access tests mutate process-global CUDA memory-pool access state")
 
 
+@pytest.mark.owns_pool
 def test_peer_access_basic(mempool_device_x2):
     """Basic tests for dmr.peer_accessible_by."""
     dev0, dev1 = mempool_device_x2
@@ -56,7 +57,12 @@ def test_peer_access_basic(mempool_device_x2):
     with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
         zero_on_dev0.copy_from(buf_on_dev1, stream=stream_on_dev0)
 
+    buf_on_dev1.close(allocation_stream)
+    allocation_stream.sync()
+    dmr_on_dev1.close()
 
+
+@pytest.mark.owns_pool
 def test_peer_access_transitions(mempool_device_x3):
     """Advanced tests for dmr.peer_accessible_by."""
 
@@ -119,6 +125,13 @@ def test_peer_access_transitions(mempool_device_x3):
         verify_state(final_state, pattern_seed)
         pattern_seed += 1
 
+    for buf, stream in zip(bufs, streams):
+        buf.close(stream)
+    for stream in streams:
+        stream.sync()
+    for dmr in dmrs:
+        dmr.close()
+
 
 def test_peer_access_shared_pool_queries_driver(mempool_device_x2):
     """All pools always query the driver, so wrappers see consistent state."""
@@ -161,16 +174,18 @@ def test_peer_access_shared_pool_queries_driver(mempool_device_x2):
 
 
 @pytest.fixture
-def isolated_dmr_x2(mempool_device_x2):
+def isolated_dmr_x2(request, mempool_device_x2):
     """Owned-pool DMR on dev0 + the lone peer device (dev1).
 
     The owned pool guarantees a clean, empty initial peer-access state so the
     proxy tests are not polluted by other tests sharing a default pool.
     """
+    request.node.add_marker("owns_pool")
     dev0, dev1 = mempool_device_x2
     dmr = DeviceMemoryResource(dev0, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
     dmr.peer_accessible_by = []
-    return dmr, dev0, dev1
+    yield dmr, dev0, dev1
+    dmr.close()
 
 
 def test_peer_accessible_by_mutable_set_interface(isolated_dmr_x2):
@@ -275,12 +290,14 @@ def test_peer_accessible_by_no_cache_across_proxies(mempool_device_x2):
     assert proxy == set()
 
 
+@pytest.mark.owns_pool
 def test_peer_accessible_by_iteration_order_is_sorted(mempool_device_x2):
     """``__iter__`` yields peers in ascending device-ordinal order."""
     dev0, dev1 = mempool_device_x2
     dmr = DeviceMemoryResource(dev0, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
     dmr.peer_accessible_by = [dev1]
     devices = list(dmr.peer_accessible_by)
+    dmr.close()
     ids = [d.device_id for d in devices]
     assert ids == sorted(ids)
     assert all(isinstance(d, Device) for d in devices)

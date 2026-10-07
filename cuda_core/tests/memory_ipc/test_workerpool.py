@@ -20,6 +20,7 @@ NTASKS = 20
 pytestmark = pytest.mark.parallel_threads_limit(4)
 
 
+@pytest.mark.owns_pool
 class TestIpcWorkerPool:
     """
     Map a function over shared buffers using a worker pool to distribute work.
@@ -65,6 +66,7 @@ class TestIpcWorkerPool:
         stream.sync()
 
 
+@pytest.mark.owns_pool
 class TestIpcWorkerPoolUsingIPCDescriptors:
     """
     Test buffer sharing using IPC descriptors.
@@ -119,6 +121,7 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         stream.sync()
 
 
+@pytest.mark.owns_pool
 class TestIpcWorkerPoolUsingRegistry:
     """
     Test buffer sharing using the memory resource registry.

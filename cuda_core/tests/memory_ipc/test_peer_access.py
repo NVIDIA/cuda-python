@@ -18,6 +18,7 @@ NBYTES = 64
 pytestmark = pytest.mark.parallel_threads_limit(4)
 
 
+@pytest.mark.owns_pool
 class TestPeerAccessNotPreservedOnImport:
     """
     Verify that peer access settings are not preserved when a memory resource
@@ -59,6 +60,7 @@ class TestPeerAccessNotPreservedOnImport:
         mr.close()
 
 
+@pytest.mark.owns_pool
 class TestBufferPeerAccessAfterImport:
     """
     Verify that buffers imported via IPC can be accessed from peer devices after
