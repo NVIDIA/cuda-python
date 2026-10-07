@@ -893,6 +893,7 @@ def test_callback_survives_source_node_deletion(init_cuda):
     _wait_until(lambda: callback_weak() is None)
 
 
+@pytest.mark.owns_pool  # the vmm parameter creates a VirtualMemoryResource through make_mr
 @pytest.mark.agent_authored(model="gpt-5.6")
 @pytest.mark.parametrize("make_mr", _MEMORY_RESOURCES)
 def test_inflight_launch_retains_attachments_until_completion(init_cuda, make_mr):
@@ -958,6 +959,7 @@ def test_inflight_launch_retains_attachments_until_completion(init_cuda, make_mr
     _wait_until(lambda: not allocation_weak)
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_memcpy_node_retains_vmm_range_across_grow(init_cuda):
     """A memcpy node keeps a virtual memory range mapped across a grow and the close of every alias.

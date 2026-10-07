@@ -58,13 +58,30 @@ with pytest.raises(RuntimeError, match="IPC is not available"):
     DeviceMemoryResource(mempool_device, DeviceMemoryResourceOptions(ipc_enabled=True))
 ```
 
+A call annotated this way also satisfies the close rule below, but only when
+it sits inside a `pytest.raises` block: there no pool exists to close. Outside
+`pytest.raises` the close rule applies.
+
 ## Release resources at test boundaries
 
-The `init_cuda` fixture in `conftest.py` runs `gc.collect()` followed
-by `cuCtxSynchronize()` before popping the context. Tests should not rely on
-that as a substitute for cleaning up explicitly: prefer context managers for
-resources whose lifetime fits a single scope, and keep pool lifetimes inside
-the test that creates them.
+Close every owned pool in the function that creates it: call `.close()` on
+the name it is bound to after its buffers are closed and the stream is
+synchronized, or close a list of pools in a `for` loop. Memory resources are
+not context managers; a `Buffer` is, so prefer `with` for buffers whose
+lifetime fits one scope. `ci/tools/check_mempool_hygiene.py` enforces the
+close for Device and Pinned pools. When the close happens elsewhere, annotate
+the call with `# unclosed-pool-ok: <reason>`.
+
+A test that creates a pool of any kind, directly or through a helper in the
+same module, carries `@pytest.mark.owns_pool` (on the function, on its class,
+or in the module's `pytestmark`). A fixture that creates a pool calls
+`request.node.add_marker("owns_pool")` instead, so its users need no marker.
+The same lint checks both. The `init_cuda` fixture in `conftest.py` runs
+`gc.collect()` in its teardown only for a test with that marker, then runs
+`cuCtxSynchronize()` and pops the context for every test. A pool whose last
+reference is a local dies by refcount at function return, and the synchronize
+drains its frees; the collect exists for a pool held in a reference cycle.
+Do not rely on the teardown as a substitute for closing resources explicitly.
 
 ## Shared test support
 

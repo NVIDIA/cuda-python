@@ -405,6 +405,7 @@ class TestTensorMapReplaceAddress:
         with pytest.raises(ValueError, match=r"replace_address expects tensor on device 0, got 1"):
             desc.replace_address(buf1)
 
+    @pytest.mark.owns_pool
     def test_replace_address_accepts_managed_buffer_on_nonzero_device(self, init_cuda):
         if len(Device.get_all_devices()) < 2:
             pytest.skip("requires multi-GPU")
@@ -449,6 +450,7 @@ class TestTensorMapMultiDeviceValidation:
                 data_type=TensorMapDataType.FLOAT32,
             )
 
+    @pytest.mark.owns_pool
     def test_from_tiled_accepts_managed_buffer_on_nonzero_device(self, init_cuda):
         if len(Device.get_all_devices()) < 2:
             pytest.skip("requires multi-GPU")

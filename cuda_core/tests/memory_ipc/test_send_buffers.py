@@ -20,6 +20,7 @@ NTASKS = 7
 pytestmark = pytest.mark.parallel_threads_limit(4)
 
 
+@pytest.mark.owns_pool
 class TestIpcSendBuffers:
     @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("nmrs", (1, NMRS))

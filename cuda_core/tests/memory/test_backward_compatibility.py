@@ -15,6 +15,7 @@ from helpers.memory import (
 from cuda.core import Device, DeviceMemoryResource
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="gpt-5.3-codex")
 def test_device_mr_accepts_dict_keyword(init_cuda):
     device = Device()
@@ -27,6 +28,7 @@ def test_device_mr_accepts_dict_keyword(init_cuda):
     mr.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="gpt-5.3-codex")
 def test_pinned_mr_accepts_dict_keyword(init_cuda):
     device = Device()
@@ -38,6 +40,7 @@ def test_pinned_mr_accepts_dict_keyword(init_cuda):
     mr.close()
 
 
+@pytest.mark.owns_pool
 @pytest.mark.agent_authored(model="gpt-5.3-codex")
 def test_managed_mr_accepts_dict_keyword(init_cuda):
     device = Device()

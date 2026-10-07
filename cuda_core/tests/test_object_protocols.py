@@ -227,8 +227,9 @@ def sample_kernel_alt(sample_object_code_alt):
 
 
 @pytest.fixture
-def sample_ipc_buffer_descriptor(ipc_device):
+def sample_ipc_buffer_descriptor(request, ipc_device):
     """An IPCBufferDescriptor."""
+    request.node.add_marker("owns_pool")
     options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
     mr = DeviceMemoryResource(ipc_device, options=options)
     buf = mr.allocate(64, stream=ipc_device.default_stream)
@@ -236,6 +237,7 @@ def sample_ipc_buffer_descriptor(ipc_device):
     buf.close()
     # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
     ipc_device.sync()
+    mr.close()
     return descriptor
 
 
