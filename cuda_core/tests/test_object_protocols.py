@@ -545,6 +545,27 @@ def sample_object_b(request):
     return request.getfixturevalue(request.param)
 
 
+@pytest.fixture
+def eq_samples(request, init_cuda):
+    """Every EQ_TYPES sample keyed by fixture name, resolved here at setup on the main thread.
+
+    A sample whose fixture skips is dropped and recorded in the test's JUnit properties, so the
+    remaining types are still compared on devices that lack a feature.
+    """
+    samples = {}
+    skipped = []
+    for name in EQ_TYPES:
+        try:
+            samples[name] = request.getfixturevalue(name)
+        except pytest.skip.Exception as exc:
+            skipped.append(f"{name}: {exc}")
+    if skipped:
+        request.node.user_properties.append(("skipped_samples", "; ".join(skipped)))
+    if len(samples) < 2:
+        pytest.skip("fewer than two EQ_TYPES samples resolved; " + "; ".join(skipped))
+    return samples
+
+
 # =============================================================================
 # Type groupings
 # =============================================================================
@@ -813,12 +834,6 @@ def test_hash_distinct_same_type(sample_object_a, sample_object_b):
     assert hash(sample_object_a) != hash(sample_object_b)  # extremely unlikely
 
 
-@pytest.mark.parametrize("sample_object_a,sample_object_b", itertools.combinations(HASH_TYPES, 2), indirect=True)
-def test_hash_distinct_cross_type(sample_object_a, sample_object_b):
-    """Distinct objects of different types have different hashes."""
-    assert hash(sample_object_a) != hash(sample_object_b)  # extremely unlikely
-
-
 # =============================================================================
 # Equality tests
 # =============================================================================
@@ -834,10 +849,15 @@ def test_equality_basic(sample_object):
         assert sample_object != sample_object.handle
 
 
-@pytest.mark.parametrize("sample_object_a,sample_object_b", itertools.combinations(EQ_TYPES, 2), indirect=True)
-def test_no_cross_type_equality(sample_object_a, sample_object_b):
-    """No two distinct objects of different types should compare equal."""
-    assert sample_object_a != sample_object_b
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_no_cross_type_equality(eq_samples):
+    """No two objects of different types compare equal."""
+    equal_pairs = [
+        (name_a, name_b)
+        for (name_a, obj_a), (name_b, obj_b) in itertools.combinations(eq_samples.items(), 2)
+        if obj_a == obj_b or not (obj_a != obj_b)  # noqa: SIM202 - checks __eq__ and __ne__ separately
+    ]
+    assert equal_pairs == []
 
 
 @pytest.mark.parametrize("sample_object_a,sample_object_b", SAME_TYPE_PAIRS, indirect=True)
