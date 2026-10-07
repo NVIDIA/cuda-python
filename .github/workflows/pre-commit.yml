@@ -41,7 +41,7 @@ jobs:
           - name: Windows
             os: windows-latest
     env:
-      # Link checks have their own Linux workflow. The installation reminder
+      # Full-CI docs builds and nightly check links. The installation reminder
       # is for developer machines; CI does not install a Git commit hook.
       SKIP: lychee,check-precommit-installed
       # Minor version used by setup-python and as the cache restore-key prefix.
@@ -54,6 +54,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
           persist-credentials: false
 

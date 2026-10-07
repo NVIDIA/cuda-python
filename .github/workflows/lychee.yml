@@ -2,17 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Check checked-in documentation and rendered HTML on PR updates and nightly.
-# Build fresh HTML from sources to check Sphinx-generated links and anchors.
-# This runs independently of ci.yml → build-docs.yml, which builds and deploys
-# docs using CI-built wheels. Nightly caches successful link-check results for
-# reuse by PR runs of this workflow.
+# Build and check documentation nightly, publishing successful link checks for
+# reuse by build-docs.yml in full PR CI. Ordinary PR updates run pre-commit
+# without Lychee; they do not build documentation in this workflow.
 
 name: "CI: Documentation links"
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize]
   workflow_call:
     inputs:
       concurrency-suffix:
@@ -34,7 +30,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ github.event_name }}-${{ inputs.refresh-cache || false }}-${{ inputs.concurrency-suffix || 'full' }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}-${{ inputs.refresh-cache || false }}-${{ inputs.concurrency-suffix || 'full' }}
   cancel-in-progress: true
 
 defaults:
@@ -43,7 +39,6 @@ defaults:
 
 env:
   PIXI_LOCKED: "true"
-  LYCHEE_VERSION: v0.24.2 # Must match the pinned rev in .pre-commit-config.yaml
 
 jobs:
   links:
@@ -54,26 +49,10 @@ jobs:
       fail-fast: false
       matrix:
         kind: [authored, rendered]
-    env:
-      # The first pass and all retries use the same inputs and cache policy.
-      LYCHEE_ARGS: >-
-        --files-from "${{ github.workspace }}/lychee-files.txt"
-        ${{ matrix.kind == 'rendered' && '--include-fragments=full' || '' }}
-        --cache
-        --max-cache-age 1d
-        --max-concurrency 16
-        --host-concurrency 2
-        --host-request-interval 250ms
-        --max-retries 3
-        --retry-wait-time 5
-        --timeout 30
-        --no-progress
-        --config "${{ github.workspace }}/lychee.toml"
     steps:
       - name: Checkout checked revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # PR events check the merge revision so base-branch changes are included.
           fetch-depth: 0
           # Keep SCM history/tags without downloading historical source blobs.
           filter: blob:none
@@ -95,83 +74,8 @@ jobs:
           export CUDA_PYTHON_DOCS_GITHUB_REF
           pixi run --manifest-path cuda_core/pixi.toml -e docs docs-build-all-latest
 
-      - name: Prepare link-check inputs and cache policy
-        id: inputs
-        env:
-          KIND: ${{ matrix.kind }}
-          POLICY_HASH: ${{ hashFiles('lychee.toml', '.github/workflows/lychee.yml', 'ci/tools/prepare_lychee_inputs.py', 'ci/tools/retry_lychee.py') }}
-        run: |
-          python ci/tools/prepare_lychee_inputs.py "${KIND}" \
-            --output "${GITHUB_WORKSPACE}/lychee-files.txt"
-          prefix="lychee-v1-${LYCHEE_VERSION}-${KIND}-${POLICY_HASH}-baseline-"
-          echo "prefix=${prefix}" >> "${GITHUB_OUTPUT}"
-          echo "key=${prefix}${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_OUTPUT}"
-
-      - name: Restore successful checks from the nightly baseline
-        if: ${{ !inputs.refresh-cache }}
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: .lycheecache
-          key: ${{ steps.inputs.outputs.key }}
-          restore-keys: ${{ steps.inputs.outputs.prefix }}
-
       - name: Check documentation links
-        id: lychee
-        uses: lycheeverse/lychee-action@6da1d14f3a43098a294b7696d93d938aa8d20fc0 # supports v0.24.x archive layout
+        uses: ./.github/actions/check-doc-links
         with:
-          args: ${{ env.LYCHEE_ARGS }}
-          # The next step owns bounded retries and the final success gate.
-          fail: false
-          # The action's empty-report guard only understands Markdown.
-          # Our helper validates the JSON report and rejects zero checked links.
-          failIfEmpty: false
-          format: json
-          jobSummary: false
-          lycheeVersion: ${{ env.LYCHEE_VERSION }}
-          output: lychee-${{ matrix.kind }}.json
-          token: ${{ github.token }}
-
-      - name: Retry transient link failures using cached successful checks
-        if: ${{ steps.lychee.outcome == 'success' }}
-        env:
-          EXIT_CODE: ${{ steps.lychee.outputs.exit_code }}
-          REPORT: lychee-${{ matrix.kind }}.json
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          python ci/tools/retry_lychee.py --initial-exit-code "${EXIT_CODE}" \
-            --report "${REPORT}" --max-attempts 10
-
-      - name: Publish fresh successful checks
-        # Manual branch tests publish isolated branch caches. Nightly callers
-        # on the default branch publish the baseline that all PRs can restore.
-        if: ${{ always() && inputs.refresh-cache && steps.inputs.outputs.key != '' && hashFiles('.lycheecache') != '' }}
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: .lycheecache
-          key: ${{ steps.inputs.outputs.key }}
-
-      - name: Upload link-check report
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: lychee-${{ matrix.kind }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            lychee-${{ matrix.kind }}*.json
-            lychee-${{ matrix.kind }}*.md
-          if-no-files-found: ignore
-          retention-days: 7
-
-  checks:
-    name: Documentation links
-    if: ${{ always() }}
-    needs: links
-    runs-on: ubuntu-latest
-    steps:
-      - name: Require both link checks to succeed
-        env:
-          RESULT: ${{ needs.links.result }}
-        run: |
-          if [[ "${RESULT}" != "success" ]]; then
-            echo "::error::Documentation link checks did not succeed (${RESULT})."
-            exit 1
-          fi
+          kind: ${{ matrix.kind }}
+          refresh-cache: ${{ inputs.refresh-cache || false }}

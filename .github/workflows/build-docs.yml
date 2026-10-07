@@ -284,6 +284,22 @@ jobs:
           fi
           mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
 
+      # Keep link checks in the existing PR docs build, using the same revision
+      # as its wheels. Nightly supplies shared caches for both kinds of inputs.
+      - name: Check authored documentation links
+        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
+        timeout-minutes: 60
+        uses: ./.github/actions/check-doc-links
+        with:
+          kind: authored
+
+      - name: Check rendered documentation links
+        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
+        timeout-minutes: 60
+        uses: ./.github/actions/check-doc-links
+        with:
+          kind: rendered
+
       - name: Upload docs GitHub Pages artifact
         if: ${{ inputs.deploy-docs }}
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
