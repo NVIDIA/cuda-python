@@ -1,0 +1,6 @@
+﻿cuda.bindings.cufile.driver\_get\_properties
+============================================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autofunction:: driver_get_properties
