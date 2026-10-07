@@ -2,8 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import gc
 import multiprocessing as mp
 import sys
+import textwrap
+import threading
+import warnings
 
 from cuda.bindings import driver
 
@@ -15,6 +19,7 @@ import platform
 import re
 
 import pytest
+from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 from helpers import supports_ipc_mempool
 from helpers.buffers import (
     DummyDeviceMemoryResource,
@@ -34,6 +39,7 @@ from helpers.memory import (
     skip_if_managed_memory_unsupported,
     skip_if_pinned_memory_unsupported,
 )
+from helpers.nanosleep_kernel import NanosleepKernel
 
 from cuda.core import (
     Buffer,
@@ -49,6 +55,8 @@ from cuda.core import (
     MemoryResource,
     PinnedMemoryResource,
     PinnedMemoryResourceOptions,
+    StreamOptions,
+    VirtualMemoryBuffer,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
 )
@@ -129,6 +137,7 @@ def test_package_contents():
         "MemoryResource",
         "PinnedMemoryResource",
         "PinnedMemoryResourceOptions",
+        "VirtualMemoryBuffer",
         "VirtualMemoryResource",
         "VirtualMemoryResourceOptions",
     ]
@@ -888,6 +897,30 @@ def test_mr_deallocation_failure_warns():
 
 
 @pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_mr_deallocation_during_exception_keeps_the_exception():
+    """A Buffer released while an exception propagates leaves that exception in place.
+
+    The deleter calls ``mr.deallocate`` on the Python thread. It must start
+    with a clean error state and restore the pending exception afterwards.
+    Before the fix, reporting a failed ``deallocate`` cleared the pending
+    exception, and the caller returned an error with no exception set, which
+    Python reports as ``SystemError`` (found in review of #2917).
+    """
+    device = Device()
+    device.set_current()
+    FailingMR, _ = make_instrumented_memory_resource(deallocate_error=RuntimeError("expected deallocation failure"))
+    mr = FailingMR(device)
+
+    def reject(buf):
+        raise TypeError("rejected")
+
+    with pytest.warns(CUDAWarning, match="expected deallocation failure"), pytest.raises(TypeError, match="rejected"):
+        # The temporary Buffer is released while TypeError propagates.
+        reject(Buffer.from_handle(1, 1024, mr=mr))
+
+
+@pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
 @pytest.mark.parametrize("replace_stream", [False, True])
 def test_mr_deallocation_without_current_context(init_cuda, replace_stream):
@@ -1249,6 +1282,88 @@ def get_handle_type():
         return (("posix_fd", None),)
 
 
+VMM_HANDLE_TYPE = "win32_kmt" if IS_WINDOWS else "posix_fd"
+MIB = 1024 * 1024
+
+
+def _vmm_device_or_skip():
+    device = Device()
+    device.set_current()
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+    return device
+
+
+def _vmm_resource(device, **options):
+    options.setdefault("handle_type", VMM_HANDLE_TYPE)
+    return VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(**options))
+
+
+def _vmm_fill(buf, value, *, offset=0, size=None):
+    """Write ``value`` to ``size`` bytes of ``buf`` at ``offset`` and wait for the write."""
+    size = buf.size - offset if size is None else size
+    handle_return(driver.cuMemsetD8(int(buf.handle) + offset, value, size))
+    handle_return(driver.cuCtxSynchronize())
+
+
+def _vmm_read(buf, offset, size):
+    """Copy ``size`` bytes of ``buf`` at ``offset`` to the host."""
+    host = (ctypes.c_ubyte * size)()
+    handle_return(driver.cuMemcpyDtoH(ctypes.addressof(host), int(buf.handle) + offset, size))
+    return bytes(host)
+
+
+def _vmm_assert_released(reservations):
+    """Assert that no mapping and no reservation remain for each ``(ptr, size)`` reservation.
+
+    Both queries ask the driver about one address, so no other process can
+    disturb them, unlike a device-wide free-memory count. A mapping lookup
+    fails once the range is unmapped, and freeing an address range fails once
+    it is no longer reserved. With every mapping gone and every buffer's own
+    reference released, the driver frees the physical memory.
+    """
+    for ptr, size in reservations:
+        status, handle = driver.cuMemRetainAllocationHandle(ptr)
+        if status == driver.CUresult.CUDA_SUCCESS:
+            handle_return(driver.cuMemRelease(handle))
+            pytest.fail(f"address {ptr:#x} is still mapped")
+        (status,) = driver.cuMemAddressFree(ptr, size)
+        assert status != driver.CUresult.CUDA_SUCCESS, f"range {ptr:#x}+{size:#x} was still reserved"
+
+
+def _vmm_reserve_at(addr, size):
+    """Reserve ``size`` bytes at ``addr``. Return the reservation, or None if the driver placed it elsewhere."""
+    ptr = handle_return(driver.cuMemAddressReserve(size, 0, addr, 0))
+    if int(ptr) != addr:
+        handle_return(driver.cuMemAddressFree(ptr, size))
+        return None
+    return ptr
+
+
+def _vmm_allocate_in_free_hole(device, size, extra):
+    """Allocate ``size`` bytes at the start of a free address range ``extra`` bytes longer.
+
+    Reserving and freeing a range finds free address space; a resource with
+    that address as its hint then places the buffer there, so the range right
+    after the buffer is known to be free. Sizes round up to the granularity.
+    Skips when the driver places the buffer elsewhere. Returns the resource
+    and the buffer.
+    """
+    probe = _vmm_resource(device).allocate(1)
+    gran = probe.size
+    probe.close()
+    size = -(-size // gran) * gran
+    total = size + -(-extra // gran) * gran
+    hole = handle_return(driver.cuMemAddressReserve(total, 0, 0, 0))
+    handle_return(driver.cuMemAddressFree(hole, total))
+    mr = _vmm_resource(device, addr_hint=int(hole))
+    buf = mr.allocate(size)
+    if int(buf.handle) != int(hole):
+        buf.close()
+        pytest.skip("the driver did not place the allocation at the requested address")
+    return mr, buf
+
+
 @pytest.mark.parametrize("use_device_object", [True, False])
 @pytest.mark.parametrize("handle_type", get_handle_type())
 def test_vmm_allocator_basic_allocation(use_device_object, handle_type):
@@ -1257,12 +1372,7 @@ def test_vmm_allocator_basic_allocation(use_device_object, handle_type):
     This test verifies that VirtualMemoryResource can allocate memory
     using CUDA VMM APIs with default configuration.
     """
-    device = Device()
-    device.set_current()
-
-    # Skip if virtual memory management is not supported
-    if not device.properties.virtual_memory_management_supported:
-        pytest.skip("Virtual memory management is not supported on this device")
+    device = _vmm_device_or_skip()
 
     handle_type, security_attribute = handle_type  # unpack
     options = VirtualMemoryResourceOptions(handle_type=handle_type)
@@ -1276,12 +1386,15 @@ def test_vmm_allocator_basic_allocation(use_device_object, handle_type):
     except NotImplementedError:
         assert handle_type == "win32"
         return
+    assert isinstance(buffer, VirtualMemoryBuffer)
     assert buffer.size >= 4096  # May be aligned up
     assert buffer.device_id == device.device_id
     assert buffer.memory_resource == vmm_mr
+    assert vmm_mr.is_ipc_enabled is False
 
     # Test deallocation
     buffer.close()
+    assert buffer.size == 0
 
     # Test multiple allocations
     buffers = []
@@ -1295,19 +1408,15 @@ def test_vmm_allocator_basic_allocation(use_device_object, handle_type):
         buf.close()
 
 
+@pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_vmm_allocator_policy_configuration():
     """Test VMM allocator with different policy configurations.
 
-    This test verifies that VirtualMemoryResource can be configured
-    with different allocation policies and that the configuration affects
-    the allocation behavior.
+    The resource applies its configuration to every allocation. A
+    configuration passed to ``modify_allocation`` applies to the chunk that
+    call adds, and the resource keeps its own (#2909).
     """
-    device = Device()
-    device.set_current()
-
-    # Skip if virtual memory management is not supported
-    if not device.properties.virtual_memory_management_supported:
-        pytest.skip("Virtual memory management is not supported on this device")
+    device = _vmm_device_or_skip()
 
     # Skip if GPU Direct RDMA is not supported
     if not device.properties.gpu_direct_rdma_supported:
@@ -1343,7 +1452,7 @@ def test_vmm_allocator_policy_configuration():
     assert buffer.size >= 8192
     assert buffer.device_id == device.device_id
 
-    # Test policy modification
+    # A read-only configuration for the chunk the grow adds.
     new_config = VirtualMemoryResourceOptions(
         allocation_type="pinned",
         location_type="device",
@@ -1355,35 +1464,51 @@ def test_vmm_allocator_policy_configuration():
         peer_access="r",
     )
 
-    # Modify allocation policy
     try:
-        modified_buffer = vmm_mr.modify_allocation(buffer, 16384, config=new_config)
+        grown = vmm_mr.modify_allocation(buffer, buffer.size + 8192, config=new_config)
     except CUDAError as exc:
         msg = str(exc)
         if "CUDA_ERROR_UNKNOWN" in msg:
             pytest.xfail("TODO(#1300): Known to fail already with CTK 13.0 (Windows)")
         raise
-    assert modified_buffer.size >= 16384
-    assert vmm_mr.config == new_config
-    assert vmm_mr.config.self_access == "r"
+    assert grown.size >= buffer.size + 8192
+    # The resource keeps its own configuration.
+    assert vmm_mr.config == custom_config
+    # The chunk the input already mapped keeps read-write access; the chunk
+    # the grow added has the read-only access the per-call configuration asked for.
+    location = driver.CUmemLocation()
+    location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    location.id = device.device_id
+    access = driver.CUmemAccess_flags
+    assert (
+        handle_return(driver.cuMemGetAccess(location, int(grown.handle))) == access.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+    )
+    assert (
+        handle_return(driver.cuMemGetAccess(location, int(grown.handle) + buffer.size))
+        == access.CU_MEM_ACCESS_FLAGS_PROT_READ
+    )
+    _vmm_fill(grown, 0x42, size=buffer.size)
+    assert _vmm_read(grown, 0, 16) == bytes([0x42]) * 16
+    assert len(_vmm_read(grown, buffer.size, 16)) == 16
+    # A later allocation uses the resource's configuration, which is writable.
+    later = vmm_mr.allocate(4096)
+    _vmm_fill(later, 0x24)
 
     # Clean up
-    modified_buffer.close()
+    later.close()
+    buffer.close()
+    grown.close()
 
 
+@pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.parametrize("handle_type", get_handle_type())
 def test_vmm_allocator_grow_allocation(handle_type):
     """Test VMM allocator's ability to grow existing allocations.
 
-    This test verifies that VirtualMemoryResource can grow existing
-    allocations while preserving the base pointer when possible.
+    ``modify_allocation`` returns a new buffer that aliases the input, which
+    stays open. A request the buffer already covers returns the buffer itself.
     """
-    device = Device()
-    device.set_current()
-
-    # Skip if virtual memory management is not supported (we need it for VMM)
-    if not device.properties.virtual_memory_management_supported:
-        pytest.skip("Virtual memory management is not supported on this device")
+    device = _vmm_device_or_skip()
 
     handle_type, security_attribute = handle_type  # unpack
     options = VirtualMemoryResourceOptions(handle_type=handle_type)
@@ -1391,118 +1516,612 @@ def test_vmm_allocator_grow_allocation(handle_type):
 
     # Create initial allocation
     try:
-        buffer = vmm_mr.allocate(2 * 1024 * 1024)
+        buffer = vmm_mr.allocate(2 * MIB)
     except NotImplementedError:
         assert handle_type == "win32"
         return
     original_size = buffer.size
 
     # Grow the allocation
-    grown_buffer = vmm_mr.modify_allocation(buffer, 4 * 1024 * 1024)
+    grown_buffer = vmm_mr.modify_allocation(buffer, 4 * MIB)
 
     # Verify growth
-    assert grown_buffer.size >= 4 * 1024 * 1024
+    assert grown_buffer is not buffer
+    assert grown_buffer.size >= 4 * MIB
     assert grown_buffer.size > original_size
-    # Because of the slow path, the pointer may change
-    # We cannot assert that the new pointer is the same,
-    # but we can assert that a new pointer was assigned
-    assert grown_buffer.handle is not None
+    # The input stays open, at its old size and address.
+    assert buffer.size == original_size
+    assert int(buffer.handle) != 0
 
-    # Test growing to same size (should return original buffer)
-    same_buffer = vmm_mr.modify_allocation(grown_buffer, 4 * 1024 * 1024)
-    assert same_buffer.size == grown_buffer.size
-
-    # Test growing to smaller size (should return original buffer)
-    smaller_buffer = vmm_mr.modify_allocation(grown_buffer, 2 * 1024 * 1024)
-    assert smaller_buffer.size == grown_buffer.size
+    # Requests the buffer already covers return a full alias, never the buffer
+    # itself, so closing the result never closes the input.
+    same = vmm_mr.modify_allocation(grown_buffer, 4 * MIB)
+    smaller = vmm_mr.modify_allocation(grown_buffer, 2 * MIB)
+    assert same is not grown_buffer and smaller is not grown_buffer
+    assert same.size == smaller.size == grown_buffer.size
+    assert int(same.handle) == int(smaller.handle) == int(grown_buffer.handle)
+    same.close()
+    smaller.close()
+    _vmm_fill(grown_buffer, 0x11)  # the input is still mapped
 
     # Clean up
+    buffer.close()
     grown_buffer.close()
 
 
-def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
-    """Exercise the VMM grow fast path with mocked driver calls.
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_vmm_grow_in_place_keeps_pointer(init_cuda):
+    """With free address space after the buffer, a grow extends it in place and keeps the pointer."""
+    device = _vmm_device_or_skip()
+    mr, buf = _vmm_allocate_in_free_hole(device, 2 * MIB, 4 * MIB)
+    size = buf.size
+    grown = mr.modify_allocation(buf, 2 * size)
+    if int(grown.handle) != int(buf.handle):
+        grown.close()
+        buf.close()
+        pytest.skip("the driver did not grant the adjacent address range")
+    assert grown.size == 2 * size
+    _vmm_fill(grown, 0x10)
+    assert _vmm_read(buf, 0, size) == bytes([0x10]) * size
+    buf.close()
+    grown.close()
 
-    The real driver usually rejects the adjacent reservation that reaches this
-    path, so the test supplies that precondition by construction and verifies
-    the successful commit bookkeeping.
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_vmm_grow_preserves_contents_and_aliases_input(init_cuda):
+    """A grown buffer sees the input's contents, and a write through either buffer is visible through the other."""
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    buf = mr.allocate(2 * MIB)
+    size = buf.size
+    _vmm_fill(buf, 0xAB)
+
+    grown = mr.modify_allocation(buf, size + 2 * MIB)
+    assert isinstance(grown, VirtualMemoryBuffer)
+    assert grown.size == 2 * size
+    assert _vmm_read(grown, 0, size) == bytes([0xAB]) * size
+
+    _vmm_fill(grown, 0xCD, size=size)
+    assert _vmm_read(buf, 0, size) == bytes([0xCD]) * size
+    _vmm_fill(grown, 0xEF, offset=size)
+    assert _vmm_read(grown, size, size) == bytes([0xEF]) * size
+
+    # Closing the input first leaves the result usable.
+    buf.close()
+    assert _vmm_read(grown, 0, 16) == bytes([0xCD]) * 16
+    grown.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
+def test_vmm_grow_moves_when_adjacent_range_is_taken(init_cuda):
+    """When the address range after the buffer is taken, the grow maps the existing memory at a new address.
+
+    Neither the grow nor the closes emit a warning (#2877).
+    """
+    device = _vmm_device_or_skip()
+    mr, buf = _vmm_allocate_in_free_hole(device, 2 * MIB, 4 * MIB)
+    size = buf.size
+    _vmm_fill(buf, 0x5A)
+
+    decoy = _vmm_reserve_at(int(buf.handle) + size, size)
+    if decoy is None:
+        buf.close()
+        pytest.skip("the driver did not grant a reservation right after the buffer")
+    with assert_no_cuda_warning():
+        try:
+            grown = mr.modify_allocation(buf, 2 * size)
+        finally:
+            handle_return(driver.cuMemAddressFree(decoy, size))
+
+        # The range after the buffer was taken, so the grow had to move.
+        assert int(grown.handle) != int(buf.handle)
+        assert grown.size == 2 * size
+        assert _vmm_read(grown, 0, size) == bytes([0x5A]) * size
+        _vmm_fill(buf, 0x3C)
+        assert _vmm_read(grown, 0, size) == bytes([0x3C]) * size
+
+        # Closing the result first leaves the input usable.
+        grown.close()
+        assert _vmm_read(buf, 0, 16) == bytes([0x3C]) * 16
+        buf.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
+def test_vmm_unaligned_and_repeated_grow_close_cleanly(init_cuda):
+    """An unaligned request rounds up to the granularity (#2907), a grown buffer
+    grows again (#2908), and every alias closes without a warning."""
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    with assert_no_cuda_warning():
+        buf = mr.allocate(1)
+        gran = buf.size
+        assert gran >= 1
+
+        second = mr.modify_allocation(buf, gran + 1)
+        assert second.size == 2 * gran
+        third = mr.modify_allocation(second, 3 * gran)
+        assert third.size == 3 * gran
+
+        # A second grow of the input builds its own result. The input's range
+        # is immutable, so this grow cannot reuse the chunk ``second`` added.
+        alias = mr.modify_allocation(buf, 2 * gran)
+        assert alias is not buf
+        assert alias.size == 2 * gran
+
+        # Every buffer maps the first chunk.
+        _vmm_fill(third, 0x77)
+        assert _vmm_read(alias, 0, gran) == bytes([0x77]) * gran
+
+        third.close()
+        buf.close()
+        alias.close()
+        second.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="spawns worker threads that grow shared buffers")
+def test_vmm_concurrent_grows_of_aliased_buffers_are_memory_safe(init_cuda):
+    """Growing and closing aliases of one buffer from several threads never crashes.
+
+    Reduced from the reproduction on PR #2917. A range is immutable, so a grow
+    reads the input's range and builds a new one, and ``modify_allocation``
+    never returns its input, so closing a result never closes a buffer another
+    thread is using. Which grow extends in place and which one moves depends on
+    the address space the driver has free, as for one thread; the process must
+    survive and every buffer must close cleanly.
+    """
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    nthreads = 4
+    errors = []
+
+    def work(buf, i, gate):
+        try:
+            gate.wait()
+            for j in range(6):
+                mr.modify_allocation(buf, (i * 8 + j + 2) * 2 * MIB).close()
+        except BaseException as exc:  # pragma: no cover - surfaced below
+            errors.append(exc)
+
+    with assert_no_cuda_warning():
+        for _ in range(8):
+            root = mr.allocate(2 * MIB)
+            alias = mr.modify_allocation(root, 8 * MIB)
+            gate = threading.Barrier(nthreads)
+            threads = [threading.Thread(target=work, args=(root if i % 2 else alias, i, gate)) for i in range(nthreads)]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join(timeout=CHILD_TIMEOUT_SEC)
+            assert not any(t.is_alive() for t in threads), "a grow thread did not finish"
+            alias.close()
+            root.close()
+    assert errors == []
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_vmm_modify_allocation_rejects_foreign_or_closed_buffers(init_cuda):
+    """modify_allocation accepts only open buffers this resource returned."""
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    other_mr = _vmm_resource(device)
+    foreign = DummyDeviceMemoryResource(device).allocate(64)
+    sibling = other_mr.allocate(4096)
+    closed = mr.allocate(4096)
+    closed.close()
+    try:
+        with pytest.raises(TypeError):
+            mr.modify_allocation(foreign, 4096)
+        with pytest.raises(TypeError):
+            mr.modify_allocation(sibling, 8192)
+        with pytest.raises(RuntimeError, match="closed"):
+            mr.modify_allocation(closed, 8192)
+    finally:
+        foreign.close()
+        sibling.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_vmm_modify_allocation_validates_per_call_config(init_cuda):
+    """A per-call config passes the constructor's option checks and must keep the resource's location."""
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    buf = mr.allocate(4096)
+    ptr, size = int(buf.handle), buf.size
+    try:
+        with pytest.raises(ValueError, match="location_type"):
+            mr.modify_allocation(
+                buf, 2 * size, config=VirtualMemoryResourceOptions(location_type="host", handle_type=None)
+            )
+        if not device.properties.gpu_direct_rdma_supported:
+            with pytest.raises(RuntimeError, match="GPU Direct RDMA"):
+                mr.modify_allocation(
+                    buf,
+                    2 * size,
+                    config=VirtualMemoryResourceOptions(handle_type=VMM_HANDLE_TYPE, gpu_direct_rdma=True),
+                )
+        # The rejected requests leave the buffer untouched.
+        assert int(buf.handle) == ptr
+        assert buf.size == size
+    finally:
+        buf.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_vmm_host_modify_allocation_rejects_exportable_handle_type(init_cuda):
+    """On a host-located resource, a per-call config with an exportable handle type is rejected before any driver call."""
+    device = Device()
+    if not device.properties.host_virtual_memory_management_supported:
+        pytest.skip("Host virtual memory management is not supported on this device")
+    mr = VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type="host", handle_type=None))
+    buf = mr.allocate(4096)
+    try:
+        with pytest.raises(ValueError, match="handle_type=None"):
+            mr.modify_allocation(buf, 2 * buf.size, config=VirtualMemoryResourceOptions(location_type="host"))
+    finally:
+        buf.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
+def test_vmm_allocate_zero_size(init_cuda):
+    """allocate(0) returns an empty buffer without a driver call; a grow of it inherits its stream."""
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    s = device.create_stream()
+    try:
+        buf = mr.allocate(0, stream=s)
+        assert isinstance(buf, VirtualMemoryBuffer)
+        assert buf.size == 0
+        assert int(buf.handle) == 0
+        grown = mr.modify_allocation(buf, 4096)
+        assert grown.size >= 4096
+        # The grown buffer's deallocation is ordered on the stream passed to
+        # allocate(0): its close waits for the work queued there. The sleep
+        # kernel does not touch the buffer, so a missing wait fails the event
+        # check instead of faulting. The close is wrapped so a skipped sync
+        # surfaces as a CUDAWarning instead of a bare event-check failure.
+        NanosleepKernel(device, sleep_duration_ms=200).launch(s)
+        done = s.record()
+        with assert_no_cuda_warning():
+            grown.close()
+        assert done.is_done
+        buf.close()
+    finally:
+        s.sync()
+        s.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_vmm_allocate_without_access_descriptors(init_cuda):
+    """self_access=None with no peers creates and maps memory; no access call is made."""
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device, self_access=None)
+    buf = mr.allocate(4096)
+    assert buf.size >= 4096
+    grown = mr.modify_allocation(buf, 2 * buf.size)
+    grown.close()
+    buf.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_vmm_close_on_capturing_stream_raises(init_cuda):
+    """An explicit close on a capturing stream raises and leaves the buffer open."""
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    buf = mr.allocate(4096)
+    gb = device.create_graph_builder().begin_building()
+    try:
+        with pytest.raises(RuntimeError, match="capturing stream"):
+            buf.close(gb)
+    finally:
+        gb.end_building()
+        gb.close()
+    assert int(buf.handle) != 0
+    buf.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
+@pytest.mark.parametrize("close_input_first", [True, False])
+def test_vmm_close_synchronizes_recorded_streams(init_cuda, close_input_first):
+    """The closes that unmap wait for the work queued on every recorded stream (#2886).
+
+    A sleep kernel holds each stream. Whether the grow shared the range (one
+    close synchronizes both streams) or moved it (each close synchronizes its
+    own stream), both streams must be idle once both buffers are closed. The
+    kernels do not touch the buffers, so a missing wait fails the event checks
+    instead of faulting.
+    """
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    sleeper = NanosleepKernel(device, sleep_duration_ms=200)
+    s1 = device.create_stream()
+    s2 = device.create_stream()
+    try:
+        buf = mr.allocate(8 * MIB, stream=s1)
+        grown = mr.modify_allocation(buf, 2 * buf.size)
+        grown.set_deallocation_stream(s2)
+        first, second = (buf, grown) if close_input_first else (grown, buf)
+        with assert_no_cuda_warning():
+            sleeper.launch(s1)
+            done1 = s1.record()
+            sleeper.launch(s2)
+            done2 = s2.record()
+            first.close()
+            second.close()
+        assert done1.is_done
+        assert done2.is_done
+    finally:
+        s1.sync()
+        s2.sync()
+        s1.close()
+        s2.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
+def test_vmm_deallocate_frees_wrapped_pointer(init_cuda):
+    """deallocate() unmaps and frees one reservation wrapped with Buffer.from_handle."""
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    prop = driver.CUmemAllocationProp()
+    prop.type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+    prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    prop.location.id = device.device_id
+    # The helper returns a plain int; the CUDA 13.0 bindings' struct setter
+    # accepts only the enum.
+    prop.requestedHandleTypes = driver.CUmemAllocationHandleType(
+        VirtualMemoryResourceOptions._handle_type_to_driver(VMM_HANDLE_TYPE)
+    )
+    size = handle_return(
+        driver.cuMemGetAllocationGranularity(
+            prop, driver.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED
+        )
+    )
+    desc = driver.CUmemAccessDesc()
+    desc.location.type = prop.location.type
+    desc.location.id = prop.location.id
+    desc.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+
+    handle = handle_return(driver.cuMemCreate(size, prop, 0))
+    ptr = handle_return(driver.cuMemAddressReserve(size, 0, 0, 0))
+    handle_return(driver.cuMemMap(ptr, size, 0, handle, 0))
+    handle_return(driver.cuMemSetAccess(ptr, size, [desc], 1))
+    handle_return(driver.cuMemRelease(handle))  # the mapping keeps the memory alive
+
+    buf = Buffer.from_handle(ptr=int(ptr), size=size, mr=mr)
+    _vmm_fill(buf, 0x11)
+    with assert_no_cuda_warning():
+        buf.close()
+    _vmm_assert_released([(int(ptr), size)])
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_vmm_buffers_alive_at_shutdown_are_freed_quietly(init_cuda):
+    """Buffers still referenced at interpreter exit are freed without a warning or an error."""
+    device = _vmm_device_or_skip()
+    code = textwrap.dedent(
+        f"""
+        import warnings
+
+        from cuda.core import CUDAWarning, Device, VirtualMemoryResource, VirtualMemoryResourceOptions
+
+        warnings.simplefilter("error", CUDAWarning)
+        dev = Device({device.device_id})
+        dev.set_current()
+        mr = VirtualMemoryResource(dev, config=VirtualMemoryResourceOptions(handle_type={VMM_HANDLE_TYPE!r}))
+        keep = [mr.allocate(4096)]
+        keep.append(mr.modify_allocation(keep[0], 2 * keep[0].size))
+        """
+    )
+    # The runner starts the child in an empty directory, so the installed
+    # package is imported rather than the source tree the test runs from.
+    result = run_python_snippet(code, timeout=CHILD_TIMEOUT_SEC)
+    assert result.stderr == ""
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
+def test_vmm_failed_grow_leaves_input_intact(init_cuda):
+    """A grow the driver rejects raises, unwinds what it created, and leaves the input untouched (#2345)."""
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    buf = mr.allocate(4096)
+    _vmm_fill(buf, 0x5C)
+    ptr, size = int(buf.handle), buf.size
+    # No address space of this size exists: the adjacent probe fails, and so
+    # does the reservation for the move. Nothing may be freed by hand.
+    with assert_no_cuda_warning(), pytest.raises(CUDAError):
+        mr.modify_allocation(buf, 1 << 62)
+    assert int(buf.handle) == ptr
+    assert buf.size == size
+    assert _vmm_read(buf, 0, 16) == bytes([0x5C]) * 16
+    with assert_no_cuda_warning():
+        buf.close()
+    _vmm_assert_released([(ptr, size)])
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_vmm_size_rounding_overflow_raises(init_cuda):
+    """A size whose rounding to the granularity does not fit in size_t raises instead of wrapping.
+
+    Without the check the rounded size wraps to zero: ``allocate`` would ask the
+    driver for zero bytes, and ``modify_allocation`` would treat the request as
+    already covered and return the input buffer.
+    """
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    too_large = 2**64 - 1
+    with pytest.raises(OverflowError):
+        mr.allocate(too_large)
+    buf = mr.allocate(4096)
+    try:
+        with pytest.raises(OverflowError):
+            mr.modify_allocation(buf, too_large)
+        assert buf.size >= 4096
+    finally:
+        buf.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
+@pytest.mark.parametrize("mode", ["global", "thread_local"])
+def test_vmm_close_during_unrelated_capture_keeps_capture_valid(init_cuda, mode):
+    """Closing a buffer synchronizes its stream without invalidating a capture on another stream.
+
+    The driver treats cuStreamSynchronize as unsafe while a global-mode capture
+    is active anywhere, or a thread-local capture is active on this thread; the
+    range deleter runs the sync in relaxed mode so the unrelated capture
+    survives and end_building succeeds.
+    """
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    s = device.create_stream()
+    buf = mr.allocate(4096, stream=s)
+    gb = device.create_graph_builder().begin_building(mode=mode)
+    try:
+        with assert_no_cuda_warning():
+            buf.close()
+    finally:
+        # Raises if the close invalidated the capture.
+        gb.end_building()
+        gb.close()
+        s.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
+def test_vmm_release_from_gc_on_capturing_stream_reports_and_unmaps(init_cuda):
+    """A release from garbage collection while the recorded stream is capturing warns once and unmaps.
+
+    Only an explicit close can raise; garbage collection skips the sync,
+    reports it, unmaps the range, and leaves the capture intact.
+    """
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    buf = mr.allocate(4096)
+    ptr, size = int(buf.handle), buf.size
+    gb = device.create_graph_builder().begin_building()
+    try:
+        buf.set_deallocation_stream(gb)
+        with warnings.catch_warnings(record=True) as records:
+            warnings.simplefilter("always", CUDAWarning)
+            del buf
+            gc.collect()
+        reports = [str(r.message) for r in records if issubclass(r.category, CUDAWarning)]
+        assert len(reports) == 1 and "capturing" in reports[0], reports
+    finally:
+        gb.end_building()
+        gb.close()
+    _vmm_assert_released([(ptr, size)])
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
+def test_vmm_release_on_default_stream_during_blocking_capture_reports_and_unmaps(init_cuda):
+    """A release ordered on the default stream while a blocking stream in its context is capturing warns once and unmaps.
+
+    ``allocate()`` without a stream records the legacy default stream. While a
+    blocking stream in the same context is capturing, the driver reports any
+    legacy-stream operation as an implicit capture dependency, and a
+    synchronization would invalidate the capture. The release skips the
+    synchronization, reports it, unmaps the range, and leaves the capture
+    intact. Streams from ``Device.create_stream()`` are non-blocking by default
+    and never interact with the legacy stream, so this needs a blocking one.
+    """
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    buf = mr.allocate(4096)
+    ptr, size = int(buf.handle), buf.size
+    blocking = device.create_stream(options=StreamOptions(nonblocking=False))
+    gb = blocking.create_graph_builder().begin_building()
+    try:
+        with warnings.catch_warnings(record=True) as records:
+            warnings.simplefilter("always", CUDAWarning)
+            buf.close()
+        reports = [str(r.message) for r in records if issubclass(r.category, CUDAWarning)]
+        assert len(reports) == 1 and "legacy stream" in reports[0], reports
+    finally:
+        # Raises if the release invalidated the capture.
+        gb.end_building()
+        gb.close()
+        blocking.close()
+    _vmm_assert_released([(ptr, size)])
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_vmm_close_without_stream_argument_on_capturing_stream_raises(init_cuda):
+    """close() with no argument checks the recorded deallocation stream and refuses to close during its capture."""
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    buf = mr.allocate(4096)
+    gb = device.create_graph_builder().begin_building()
+    try:
+        buf.set_deallocation_stream(gb)
+        with pytest.raises(RuntimeError, match="capturing stream"):
+            buf.close()
+    finally:
+        gb.end_building()
+        gb.close()
+    assert int(buf.handle) != 0
+    buf.close()
+
+
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.parametrize("mode", ["allocate", "grow", "grow_moved"])
+def test_vmm_allocate_close_does_not_leak(init_cuda, mode):
+    """Closing every buffer of a range unmaps it and frees each reservation, with no teardown failure.
+
+    Each mode closes the buffers and then asks the driver about the exact
+    addresses the range used, instead of comparing a device-wide free-memory
+    count that other processes can move.
     """
     device = Device()
     if not device.properties.virtual_memory_management_supported:
         pytest.skip("Virtual memory management is not supported on this device")
 
-    vmm_mr = VirtualMemoryResource(
-        device,
-        config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
-    )
+    mr = _vmm_resource(device)
+    if mode == "grow_moved":
+        # Place a 2 MiB buffer at the start of a free hole and take the range
+        # right after it, so the grow has to move. The driver honors this
+        # placement for 2 MiB where it declined 8 MiB on Linux.
+        mr, buf = _vmm_allocate_in_free_hole(device, 2 * MIB, 4 * MIB)
+        decoy = _vmm_reserve_at(int(buf.handle) + buf.size, buf.size)
+        if decoy is None:
+            buf.close()
+            pytest.skip("the driver did not grant a reservation right after the buffer")
+        buffers = [buf]
+        try:
+            buffers.append(mr.modify_allocation(buf, 2 * buf.size))
+        finally:
+            handle_return(driver.cuMemAddressFree(decoy, buf.size))
+        assert int(buffers[1].handle) != int(buf.handle)
+    else:
+        buf = mr.allocate(8 * MIB)
+        buffers = [buf]
+        if mode == "grow":
+            buffers.append(mr.modify_allocation(buf, 2 * buf.size))
 
-    # Build the prop the same shape modify_allocation does, so the helper's
-    # cuMemCreate / _build_access_descriptors path sees production-like input.
-    prop = driver.CUmemAllocationProp()
-    prop.type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
-    prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-    prop.location.id = device.device_id
+    # The reservations the range holds: one per allocate, and one more per grow.
+    base, size = int(buf.handle), buf.size
+    reservations = [(base, size)]
+    if len(buffers) > 1:
+        grown = buffers[1]
+        if int(grown.handle) == base:
+            # Grew in place: a second reservation right after the first.
+            reservations.append((base + size, grown.size - size))
+        else:
+            reservations.append((int(grown.handle), grown.size))
 
-    SUCCESS = driver.CUresult.CUDA_SUCCESS
-    NEW_HANDLE = 0xBEEF
-    calls = []
-
-    def fake_create(size, p, flags):
-        calls.append(("create", size))
-        return (SUCCESS, NEW_HANDLE)
-
-    def fake_map(ptr, size, offset, handle, flags):
-        calls.append(("map", ptr, size, handle))
-        return (SUCCESS,)
-
-    def fake_set_access(ptr, size, descs, count):
-        calls.append(("set_access", ptr, size, count))
-        return (SUCCESS,)
-
-    # Rollback-only entry points: registered as undo actions but, on a
-    # successful commit, must never be invoked.
-    def fake_unmap(ptr, size):
-        calls.append(("unmap", ptr, size))
-        return (SUCCESS,)
-
-    def fake_release(handle):
-        calls.append(("release", handle))
-        return (SUCCESS,)
-
-    def fake_addr_free(ptr, size):
-        calls.append(("addr_free", ptr, size))
-        return (SUCCESS,)
-
-    monkeypatch.setattr(driver, "cuMemCreate", fake_create)
-    monkeypatch.setattr(driver, "cuMemMap", fake_map)
-    monkeypatch.setattr(driver, "cuMemSetAccess", fake_set_access)
-    monkeypatch.setattr(driver, "cuMemUnmap", fake_unmap)
-    monkeypatch.setattr(driver, "cuMemRelease", fake_release)
-    monkeypatch.setattr(driver, "cuMemAddressFree", fake_addr_free)
-
-    # A real Buffer carries C++-owned handle state we must not fabricate; the
-    # helper only reads and writes buf._size, so a light stand-in suffices.
-    class FakeBuffer:
-        def __init__(self, size):
-            self._size = size
-
-    original_size = 2 * 1024 * 1024
-    aligned_additional = 2 * 1024 * 1024
-    new_size = original_size + aligned_additional
-    new_ptr = 0x10_0000  # stand-in VA for the (mocked) contiguous extension
-
-    buf = FakeBuffer(original_size)
-    result = vmm_mr._grow_allocation_fast_path(buf, new_size, prop, aligned_additional, new_ptr)
-
-    # Fast-path contract: same buffer object, size updated in place.
-    assert result is buf
-    assert buf._size == new_size
-
-    # Successful commit: create, map, set access, and no rollback calls.
-    assert [c[0] for c in calls] == ["create", "map", "set_access"]
-    assert ("create", aligned_additional) in calls
-    assert ("map", new_ptr, aligned_additional, NEW_HANDLE) in calls
-    assert ("set_access", new_ptr, aligned_additional, 1) in calls
+    # Deleters report a failed unmap, address free or release as a CUDAWarning.
+    with assert_no_cuda_warning():
+        for b in buffers:
+            b.close()
+    _vmm_assert_released(reservations)
 
 
 def test_vmm_allocator_rdma_unsupported_exception():
@@ -1526,6 +2145,65 @@ def test_vmm_allocator_rdma_unsupported_exception():
     options = VirtualMemoryResourceOptions(gpu_direct_rdma=True)
     with pytest.raises(RuntimeError, match="GPU Direct RDMA is not supported on this device"):
         VirtualMemoryResource(device, config=options)
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
+def test_vmm_host_location_allocate_without_current_context(init_cuda):
+    """A host-located resource allocates and closes with no CUDA context current."""
+    device = Device()
+    if not device.properties.host_virtual_memory_management_supported:
+        pytest.skip("Host virtual memory management is not supported on this device")
+    mr = VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type="host", handle_type=None))
+    with no_current_context(), assert_no_cuda_warning():
+        buf = mr.allocate(4096)
+        assert buf.size >= 4096
+        assert mr.is_host_accessible
+        buf.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
+def test_vmm_host_location_grow_and_close(init_cuda):
+    """A host-located resource grows a buffer twice and every alias closes without a warning.
+
+    The first grow extends the range in place or moves it. The second grow is
+    forced to move when the driver grants a decoy reservation right after the
+    buffer, so the existing host allocations are remapped at a new address.
+    Host-located buffers record no default stream, so the closes unmap without
+    a synchronization.
+    """
+    device = Device()
+    if not device.properties.host_virtual_memory_management_supported:
+        pytest.skip("Host virtual memory management is not supported on this device")
+    mr = VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type="host", handle_type=None))
+    with assert_no_cuda_warning():
+        buf = mr.allocate(4096)
+        size = buf.size
+        grown = mr.modify_allocation(buf, 2 * size)
+        assert isinstance(grown, VirtualMemoryBuffer)
+        assert grown.size == 2 * size
+        assert grown.is_host_accessible and not grown.is_device_accessible
+        assert grown.device_id == -1
+        # The input stays open at its old size.
+        assert buf.size == size
+        assert int(buf.handle) != 0
+
+        decoy = _vmm_reserve_at(int(grown.handle) + grown.size, size)
+        try:
+            moved = mr.modify_allocation(grown, 3 * size)
+        finally:
+            if decoy is not None:
+                handle_return(driver.cuMemAddressFree(decoy, size))
+        assert moved.size == 3 * size
+        if decoy is not None:
+            # The range after the buffer was taken, so the grow had to move.
+            assert int(moved.handle) != int(grown.handle)
+
+        buf.close()
+        grown.close()
+        moved.close()
+        assert moved.size == 0
 
 
 def test_device_memory_resource_with_options(init_cuda):
@@ -2423,21 +3101,31 @@ def test_vmm_options_handle_type_win32_raises():
         VirtualMemoryResourceOptions._handle_type_to_driver("win32")
 
 
-@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.parametrize("location_type", ["host", "host_numa", "host_numa_current"])
 def test_vmm_host_location_types_report_host_accessible(location_type):
-    """Every host-backed location type reports is_host_accessible.
+    """Every host-backed location type reports is_host_accessible; only "host" needs handle_type=None.
 
     __init__ classifies "host", "host_numa" and "host_numa_current" alike when
     deciding the resource is not bound to a device, so is_host_accessible must
     agree; otherwise a NUMA-located resource claims to be neither host- nor
-    device-accessible.
+    device-accessible. The driver rejects an exportable handle type for HOST
+    memory only, so the default handle type is rejected at construction for
+    "host" and accepted for the NUMA location types.
     """
     device = Device()
     device.set_current()
-    mr = VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type))
+    if location_type == "host":
+        with pytest.raises(ValueError, match="handle_type=None"):
+            VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type))
+    else:
+        VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type))
+    mr = VirtualMemoryResource(
+        device, config=VirtualMemoryResourceOptions(location_type=location_type, handle_type=None)
+    )
     assert mr.device is None
     assert mr.is_host_accessible is True
+    assert mr.device_id == -1
 
 
 def test_device_memory_resource_peer_accessible_by_non_owned(mempool_device):
@@ -2479,6 +3167,39 @@ def test_dmr_mempool_get_access_peer(mempool_device_x2):
     # After revoking, peer is back to no access.
     mr.peer_accessible_by = []
     assert DMR_mempool_get_access(mr, peer.device_id) == ""
+
+
+@pytest.mark.thread_unsafe(reason="depends on the driver handing back the pool handle that was just destroyed")
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_closed_pool_peer_access_not_inherited_by_recycled_handle(mempool_device_x2):
+    """Peer access granted to a closed pool does not survive into a pool that reuses its handle."""
+    from cuda.core._memory._device_memory_resource import DMR_mempool_get_access
+
+    dev, peer = mempool_device_x2
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE)
+    mr = DeviceMemoryResource(dev, options)
+    mr.peer_accessible_by = [peer]
+    assert DMR_mempool_get_access(mr, peer.device_id) == "rw"
+    old_handle = int(mr.handle)
+    mr.close()
+
+    # The driver usually hands the freed handle straight back. Keep the misses
+    # alive so that a retry cannot land on the same address twice.
+    pools = []
+    try:
+        for _ in range(8):
+            recycled = DeviceMemoryResource(dev, options)
+            pools.append(recycled)
+            if int(recycled.handle) == old_handle:
+                break
+        else:
+            pytest.skip("the driver did not recycle the destroyed pool handle")
+        # Unless the peer access is revoked before the pool is destroyed, the
+        # recycled handle still reports it (nvbug 5698116).
+        assert DMR_mempool_get_access(recycled, peer.device_id) == ""
+    finally:
+        for pool in pools:
+            pool.close()
 
 
 def test_dmr_peer_accessible_by_setter_empty(mempool_device):

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 line-length = 120
@@ -73,7 +73,7 @@ ignore = [
 exclude = ["**/_version.py"]
 
 [lint.isort]
-known-first-party = ["cuda"]
+known-first-party = ["cuda", "_build_shared"]
 
 [lint.flake8-quotes]
 inline-quotes = "double"
@@ -143,5 +143,6 @@ inline-quotes = "double"
 "toolshed/**" = ["T201"]
 "ci/**" = ["T201"]
 "**/build_hooks.py" = ["T201"]
+"**/_build_shared.py" = ["T201"]
 "**/docs/**/conf.py" = ["T201", "ARG001"]
 "cuda_pathfinder/**/dynamic_lib_subprocess.py" = ["T201"]

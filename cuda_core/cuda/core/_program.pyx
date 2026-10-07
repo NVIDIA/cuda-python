@@ -46,7 +46,7 @@ from cuda.core._utils.cuda_utils import (
     is_nested_sequence,
     is_sequence,
 )
-from cuda.core._utils.version import binding_version, driver_version
+from cuda.core._utils.version import driver_version
 from cuda.core.utils._cache_dir import _default_cache_dir
 from cuda.core.typing import ObjectCodeFormatType, CompilerBackendType, PCHStatusType, SourceCodeType
 
@@ -104,12 +104,17 @@ cdef class Program:
         self._cleanup_debug_source()
 
     def _cleanup_debug_source(self):
-        # Only a temp file this Program wrote may be removed, and the name having
-        # moved off options.name is what says one was written. Without that test
-        # the caller's own file is deleted whenever options.name happens to match
-        # something on disk, since the unredirected name is just that path.
-        if self._nvrtc_name is not None and self._nvrtc_name != self._options._name:
-            self._unlink_debug_source(self._nvrtc_name.decode())
+        # Only a temp file this Program wrote may be removed, so its path is kept
+        # in a dedicated attribute rather than derived from _nvrtc_name and
+        # _options. When a Program dies inside a reference cycle, the cyclic
+        # collector clears the object attributes of everything in the cycle
+        # before __dealloc__ runs: _options may already be None, or the
+        # ProgramOptions may already have lost its fields (#2876). A bytes
+        # attribute is left alone by that clearing.
+        path = self._debug_source
+        if path is not None:
+            self._debug_source = None
+            self._unlink_debug_source(path.decode())
 
     def _unlink_debug_source(self, path: str) -> None:
         try:
@@ -753,13 +758,8 @@ def _get_nvvm_module() -> object:
         raise RuntimeError("NVVM module is not available (previous import attempt failed)")
 
     try:
-        version = binding_version()
-        if version < (12, 9, 0):
-            raise RuntimeError(
-                f"NVVM bindings require cuda-bindings >= 12.9.0, but found {'.'.join(map(str, version))}. "
-                "Please update cuda-bindings to use NVVM features."
-            )
-
+        # Every cuda-bindings that cuda.core accepts provides cuda.bindings.nvvm.
+        # The probe checks that libnvvm itself loads.
         nvvm = _optional_cuda_import(
             "cuda.bindings.nvvm",
             probe_function=lambda module: module.version(),  # probe triggers libnvvm load
@@ -883,7 +883,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         if (options.debug or options.lineinfo) and options.name == "default_program":
             debug_path = self._try_materialize_nvrtc_debug_source(code)
             if debug_path is not None:
-                self._nvrtc_name = debug_path.encode()
+                self._nvrtc_name = self._debug_source = debug_path.encode()
                 # NVRTC resolves #include "..." against the directory of the name it
                 # is given, so moving the name into the temp dir would otherwise stop
                 # every quoted include from resolving where it did before.
@@ -1041,15 +1041,6 @@ cdef object _nvrtc_compile_and_extract(
     return ObjectCode._init(bytes(data), target_type, symbol_mapping=symbol_mapping, name=name)
 
 
-cdef int _nvrtc_pch_apis_cached = -1  # -1 = unchecked
-
-cdef bint _has_nvrtc_pch_apis():
-    global _nvrtc_pch_apis_cached
-    if _nvrtc_pch_apis_cached < 0:
-        _nvrtc_pch_apis_cached = hasattr(nvrtc, "nvrtcGetPCHCreateStatus")
-    return _nvrtc_pch_apis_cached
-
-
 cdef object _read_pch_status(cynvrtc.nvrtcProgram prog):
     """Query nvrtcGetPCHCreateStatus and translate to a high-level string."""
     cdef cynvrtc.nvrtcResult err
@@ -1074,7 +1065,7 @@ cdef object Program_compile_nvrtc(Program self, str target_type, object name_exp
     )
 
     cdef bint pch_creation_possible = self._options.create_pch or self._options.pch
-    if not pch_creation_possible or not _has_nvrtc_pch_apis():
+    if not pch_creation_possible:
         self._pch_status = None
         return result
 

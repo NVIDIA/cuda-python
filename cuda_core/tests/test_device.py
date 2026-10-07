@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import contextlib
+import subprocess
+import sys
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
@@ -24,20 +26,14 @@ def test_device_init_disabled():
         cuda.core._device.DeviceProperties()  # Ensure back door is locked.
 
 
-def test_to_system_device(deinit_cuda):
-    from cuda.core.system import _system
+@pytest.mark.agent_authored(model="gpt-6")
+def test_to_system_device(init_cuda):
+    device = init_cuda
 
-    device = Device()
+    from cuda_python_test_helpers.arch_check import hardware_supports_nvml_device_apis
 
-    if not _system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-        with pytest.raises(RuntimeError):
-            device.to_system_device()
-        pytest.skip("NVML support requires cuda.bindings version 12.9.6+ for CUDA 12.x or 13.2.0+ for CUDA 13.x")
-
-    from cuda_python_test_helpers.arch_check import hardware_supports_nvml
-
-    if not hardware_supports_nvml():
-        pytest.skip("NVML not supported on this platform")
+    if not hardware_supports_nvml_device_apis():
+        pytest.skip("NVML device APIs are incomplete or unavailable on this platform")
 
     from cuda.core.system import Device as SystemDevice
 
@@ -59,6 +55,19 @@ def test_device_set_current(deinit_cuda):
     device = Device()
     device.set_current()
     assert handle_return(driver.cuCtxGetCurrent()) is not None
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_primary_context_cleanup_is_safe_during_python_shutdown(init_cuda, tmp_path):
+    result = subprocess.run(
+        [sys.executable, "-c", "from cuda.core import Device; Device().set_current()"],
+        capture_output=True,
+        text=True,
+        timeout=20,
+        # Avoid shadowing the installed package with cuda_core/cuda/core.
+        cwd=tmp_path,
+    )
+    assert result.returncode == 0, result.stderr
 
 
 def test_device_repr(deinit_cuda):

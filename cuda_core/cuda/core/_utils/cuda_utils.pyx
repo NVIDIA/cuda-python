@@ -3,12 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
-from functools import partial
 import multiprocessing
 import platform
 import warnings
 from collections.abc import Sequence
-from contextlib import ExitStack
 from typing import Any, Callable, NamedTuple
 
 from cuda.bindings import driver as driver, nvrtc as nvrtc, runtime as runtime
@@ -327,56 +325,6 @@ def is_nested_sequence(obj: object) -> bool:
     Check if the given object is a nested sequence (list or tuple with atleast one list or tuple element).
     """
     return is_sequence(obj) and any(is_sequence(elem) for elem in obj)
-
-
-
-class Transaction:
-    """
-    A context manager for transactional operations with undo capability.
-
-    The Transaction class allows you to register undo actions (callbacks) that will be executed
-    if the transaction is not committed before exiting the context. This is useful for managing
-    resources or operations that need to be rolled back in case of errors or early exits.
-
-    Usage:
-        with Transaction() as txn:
-            txn.append(some_cleanup_function, arg1, arg2)
-            # ... perform operations ...
-            txn.commit()  # Disarm undo actions; nothing will be rolled back on exit
-
-    Methods:
-        append(fn, *args, **kwargs): Register an undo action to be called on rollback.
-        commit(): Disarm all undo actions; nothing will be rolled back on exit.
-    """
-    def __init__(self) -> None:
-        self._stack = ExitStack()
-        self._entered = False
-
-    def __enter__(self):
-        self._stack.__enter__()
-        self._entered = True
-        return self
-
-    def __exit__(self, exc_type, exc, tb):
-        # If exit callbacks remain, they'll run in LIFO order.
-        self._entered = False
-        return self._stack.__exit__(exc_type, exc, tb)
-
-    def append(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
-        """
-        Register an undo action (runs if the with-block exits without commit()).
-        Values are bound now via partial so late mutations don't bite you.
-        """
-        if not self._entered:
-            raise RuntimeError("Transaction must be entered before append()")
-        self._stack.callback(partial(fn, *args, **kwargs))
-
-    def commit(self) -> None:
-        """
-        Disarm all undo actions. After this, exiting the with-block does nothing.
-        """
-        # pop_all() empties this stack so no callbacks are triggered on exit.
-        self._stack.pop_all()
 
 
 # Track whether we've already warned about fork method

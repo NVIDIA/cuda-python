@@ -11,8 +11,6 @@ from setuptools_scm import get_version
 version = get_version(
     root="..",
     relative_to=__file__,
-    # Preserve a/b pre-release suffixes, but intentionally strip rc suffixes.
-    tag_regex="^(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)",
     git_describe_command=["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"],
 )
 
@@ -32,6 +30,8 @@ setup(
     version=version,
     install_requires=[
         f"cuda-bindings{matcher}{version}",
+        # Bump this with every cuda-core release and release cuda-python right
+        # after it; see .github/RELEASE-core.md and cuda_python/AGENTS.md.
         "cuda-core~=1.2.0",
         "cuda-pathfinder~=1.1",
     ],

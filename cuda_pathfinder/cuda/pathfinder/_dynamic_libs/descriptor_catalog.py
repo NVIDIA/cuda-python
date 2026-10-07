@@ -362,6 +362,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         packaged_with="ctk",
         linux_sonames=("libcupti.so.13", "libcupti.so.12"),
         windows_dlls=(
+            "cupti64_2026.3.1.dll",
             "cupti64_2026.3.0.dll",
             "cupti64_2026.2.1.dll",
             "cupti64_2026.2.0.dll",
@@ -480,7 +481,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         name="cusparseLt",
         packaged_with="other",
         linux_sonames=("libcusparseLt.so.0",),
-        windows_dlls=("cusparseLt.dll",),
+        windows_dlls=("cusparseLt_13.dll", "cusparseLt.dll"),
         supported_windows_arch=("x64", "arm64"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cusparselt/lib"),
         site_packages_windows=WindowsSearchDirs(

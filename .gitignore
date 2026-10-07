@@ -8,12 +8,13 @@ __pycache__/
 
 # CUDA Python specific
 .cache/
+.cython-stdlib
+.cython-bindings
 .lycheecache
 .pytest_cache/
 .benchmarks/
 *.cpp
 !*_impl.cpp
-!cuda_bindings/cuda/bindings/_lib/param_packer.cpp
 !cuda_bindings/cuda/bindings/_bindings/loader.cpp
 !cuda_core/cuda/core/_cpp/**/*.cpp
 cache_driver

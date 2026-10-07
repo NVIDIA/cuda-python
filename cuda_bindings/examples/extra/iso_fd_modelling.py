@@ -9,12 +9,18 @@
 # ################################################################################
 
 # /// script
-# dependencies = ["cuda_bindings>13.2.1", "numpy", "matplotlib"]
+# dependencies = ["cuda_bindings>13.2.1", "numpy"]
 # ///
 
 import time
 
 import numpy as np
+
+try:
+    # Optional: only needed to plot the result
+    import matplotlib.pyplot as plt
+except ImportError:
+    plt = None
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
@@ -769,8 +775,6 @@ def main():
         ##
         ## those are to plot results
         ##
-        import matplotlib.pyplot as plt
-
         fig, ax = plt.subplots()
         title = "test fd kernels up to " + str(pars.tmax_propag) + " ms "
         plt.title(title, fontsize=20)
@@ -793,6 +797,6 @@ def main():
 
 
 if __name__ == "__main__":
-    display_graph = True
+    display_graph = plt is not None
     verbose_prints = True
     main()

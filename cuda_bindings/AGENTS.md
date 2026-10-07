@@ -19,7 +19,11 @@ subpackage in the `cuda-python` monorepo.
 - **Platform internals**: `cuda/bindings/_internal/` contains
   platform-specific implementation files and support code.
 - **Build backend**: `build_hooks.py` drives extension configuration and
-  Cythonization.
+  Cythonization. Logic shared with `cuda_core` (toolchain selection, the
+  compiler flag set, the Cython cache helpers and the rebuild stamps) lives
+  in `_build_shared.py`. `cuda_bindings/_build_shared.py` is canonical;
+  `cuda_core/_build_shared.py` must be either a symlink to it or a byte-for-byte
+  identical copy.
 
 ## Generated-source workflow
 
@@ -51,6 +55,10 @@ the `legacy_tests` subdirectory.
 
 - `CUDA_HOME` or `CUDA_PATH` must point to a valid CUDA Toolkit for source
   builds.
+- The toolkit's `cuda.h` must have the same major.minor as the generated
+  sources, `CUDA_VERSION` in `cuda/bindings/cydriver.pxd`. `build_hooks.py`
+  checks this before cythonize and fails with a message that names both
+  versions.
 - `CUDA_PYTHON_PARALLEL_LEVEL` controls build parallelism.
 - Runtime behavior is affected by
   `CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM` and

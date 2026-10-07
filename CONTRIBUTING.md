@@ -23,9 +23,11 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     - [Recommended clone](#recommended-clone)
     - [Fixing an existing clone](#fixing-an-existing-clone)
     - [Symptoms of a bad clone](#symptoms-of-a-bad-clone)
+  - [Development on Windows](#development-on-windows)
+    - [Enabling git symlinks](#enabling-git-symlinks)
+    - [Pre-commit lychee workaround](#pre-commit-lychee-workaround)
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
-    - [Pre-commit on Windows](#pre-commit-on-windows)
   - [Pixi lockfiles](#pixi-lockfiles)
   - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
@@ -42,6 +44,12 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
 
 ## Cloning the repository
 
+> **Windows contributors (not WSL):** source builds and tests work with
+> `core.symlinks=false`. Git symlink support is optional and only affects the
+> remaining documentation and metadata links (`CLAUDE.md`,
+> `cuda_python/README.md`, and `.git_archival.txt`). See
+> [Enabling git symlinks](#enabling-git-symlinks) if you want those links materialized.
+
 Every package in this repository derives its version from git tags using
 [`setuptools-scm`](https://setuptools-scm.readthedocs.io/), so **how you clone
 determines whether you can build at all, and whether the version you build is
@@ -49,7 +57,7 @@ correct.** Each package matches its own tag prefix:
 
 | Package | Tag pattern |
 | --- | --- |
-| `cuda-bindings`, `cuda-python` | `v*` (e.g. `v13.4.1`) |
+| `cuda-bindings`, `cuda-python` | `v*` (e.g. `v13.4.2`) |
 | `cuda-core` | `cuda-core-v*` (e.g. `cuda-core-v1.1.0`) |
 | `cuda-pathfinder` | `cuda-pathfinder-v*` (e.g. `cuda-pathfinder-v1.6.0`) |
 
@@ -110,8 +118,8 @@ version-check failure:
    `cuda-bindings` to that same bogus version.
 2. **Stale tags** (a fork that has not fetched upstream in a while): you get a
    plausible-looking but wrong version, e.g. `13.0.4.dev650+g0d22cb44` when the
-   real latest tag is `v13.4.1`. Nothing warns you. Note there is no leading
-   `v` — the tag prefix is stripped by `tag_regex`.
+   real latest tag is `v13.4.2`. Nothing warns you. Note there is no leading
+   `v` — `setuptools-scm` strips the tag prefix.
 3. **No git metadata** (source zip): the build fails with
    `LookupError: setuptools-scm was unable to detect version`.
 
@@ -126,6 +134,60 @@ The environment variable is suffixed with the distribution name, uppercased with
 hyphens replaced by underscores: `..._FOR_CUDA_BINDINGS`, `..._FOR_CUDA_CORE`,
 `..._FOR_CUDA_PATHFINDER`, `..._FOR_CUDA_PYTHON`. Use this only when you
 genuinely cannot provide tags; it is not a substitute for a correct clone.
+
+
+## Development on Windows
+
+This section collects Windows-specific guidance for contributors working
+outside of WSL. WSL contributors can follow the Linux flow in the rest of this
+document.
+
+### Enabling git symlinks
+
+The repository still contains documentation and metadata symlinks, including
+`CLAUDE.md`, `cuda_python/README.md`, and the per-package `.git_archival.txt`
+files. With `core.symlinks=false`, Git checks them out as plain text files
+containing the target path. This does not affect source builds or tests.
+
+If you want these links materialized as symlinks:
+
+1. **[Activate Developer Mode](https://learn.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development#activate-developer-mode)**
+   so Git can create symlinks without Administrator privileges.
+
+2. **Enable Git symlink support globally** so newly-cloned repositories inherit
+   the setting:
+
+   ```console
+   $ git config --global core.symlinks true
+   ```
+
+Then clone as usual (see [Cloning the repository](#cloning-the-repository)).
+
+If you already cloned with `core.symlinks=false`, the repository-local
+setting overrides the global setting. Enable it locally, then rematerialize
+all tracked symlinks. For example:
+
+```console
+$ git config core.symlinks true
+$ git rm --cached cuda_python/README.md
+$ git checkout HEAD -- cuda_python/README.md
+```
+
+Repeat the last two commands for every other tracked symlink. Re-cloning after
+enabling Developer Mode and setting the global option is simpler if you want
+all links restored.
+
+### Pre-commit lychee workaround
+
+For development on Windows (not WSL), the `lychee` pre-commit task will not
+work when running `pre-commit run --all-files`. This problem does not occur
+if you install the pre-commit hook and run it automatically as part of your
+`git commit` workflow. To resolve this, you can either:
+
+1. Run `pre-commit` in Git Bash, rather than directly in PowerShell or cmd
+
+2. Skip it by setting the environment variable `SKIP` to `lychee`. This would
+   be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
 
 
 ## Type stubs for cuda.core
@@ -168,17 +230,7 @@ between commits, leaving stale headers or out-of-date stubs in the history.
 If the hook isn't installed, `pre-commit run` (and CI) will print a visible
 warning reminding you to run `pre-commit install`.
 
-### Pre-commit on Windows
-
-For development on Windows (not WSL), the `lychee` pre-commit task will not work
-when running `pre-commit run --all-files`.  This problem does not occur if you
-install the pre-commit hook and run it automatically as part of your `git
-commit` workflow.  To resolve this, you can either:
-
-1. Run `pre-commit` in Git Bash, rather than directly in PowerShell or cmd
-
-2. Skip it by setting the environment variable `SKIP` to `lychee`.  This would
-   be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
+Windows contributors: see [Pre-commit lychee workaround](#pre-commit-lychee-workaround) under Development on Windows.
 
 ## Pixi lockfiles
 
@@ -317,88 +369,7 @@ The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and
 
 ### CI Pipeline Flow
 
-![CUDA Python CI Pipeline Flow](ci/ci-pipeline.svg)
-
-Alternative Mermaid diagram representation:
-
-```mermaid
-flowchart TD
-    %% Trigger Events
-    subgraph TRIGGER["🔄 TRIGGER EVENTS"]
-        T1["• Push to main branch"]
-        T2["• Pull request<br/>• Manual workflow dispatch"]
-        T1 --- T2
-    end
-
-    %% Build Stage
-    subgraph BUILD["🔨 BUILD STAGE"]
-        subgraph BUILD_PLATFORMS["Parallel Platform Builds"]
-            B1["linux-64<br/>(Self-hosted)"]
-            B2["linux-aarch64<br/>(Self-hosted)"]
-            B3["win-64<br/>(GitHub-hosted)"]
-        end
-        BUILD_DETAILS["• Python versions: 3.10, 3.11, 3.12, 3.13, 3.14<br/>• CUDA version: 13.0.0 (build-time)<br/>• Components: cuda-core, cuda-bindings,<br/>  cuda-pathfinder, cuda-python"]
-    end
-
-    %% Artifact Storage
-    subgraph ARTIFACTS["📦 ARTIFACT STORAGE"]
-        subgraph GITHUB_ARTIFACTS["GitHub Artifacts"]
-            GA1["• Wheel files (.whl)<br/>• Test artifacts<br/>• Documentation<br/>(30-day retention)"]
-        end
-        subgraph GITHUB_CACHE["GitHub Cache"]
-            GC1["• Mini CTK cache"]
-        end
-    end
-
-    %% Test Stage
-    subgraph TEST["🧪 TEST STAGE"]
-        subgraph TEST_PLATFORMS["Parallel Platform Tests"]
-            TS1["linux-64<br/>(Self-hosted)"]
-            TS2["linux-aarch64<br/>(Self-hosted)"]
-            TS3["win-64<br/>(GitHub-hosted)"]
-        end
-        TEST_DETAILS["• Download wheels from artifacts<br/>• Test against multiple CUDA runtime versions<br/>• Run Python unit tests, Cython tests, examples"]
-        ARTIFACT_FLOWS["Artifact Flows:<br/>• cuda-pathfinder: main → backport<br/>• cuda-bindings: backport → main"]
-    end
-
-    %% Release Pipeline
-    subgraph RELEASE["🚀 RELEASE PIPELINE"]
-        subgraph RELEASE_STAGES["Sequential Release Steps"]
-            R1["Validation<br/>• Artifact integrity<br/>• Git tag verification"]
-            R2["Publishing<br/>• PyPI/TestPyPI<br/>• Component or all releases"]
-            R3["Documentation<br/>• GitHub Pages<br/>• Release notes"]
-            R1 --> R2 --> R3
-        end
-        RELEASE_DETAILS["• Manual workflow dispatch with run ID<br/>• Supports individual component or full releases"]
-    end
-
-    %% Main Flow
-    TRIGGER --> BUILD
-    BUILD -.->|"wheel upload"| ARTIFACTS
-    ARTIFACTS -.-> TEST
-    TEST --> RELEASE
-
-    %% Artifact Flow Arrows (Cache Reuse)
-    GITHUB_CACHE -.->|"mini CTK reuse"| BUILD
-    GITHUB_CACHE -.->|"mini CTK reuse"| TEST
-
-    %% Artifact Flow Arrows (Wheel Fetch)
-    GITHUB_ARTIFACTS -.->|"wheel fetch"| TEST
-    GITHUB_ARTIFACTS -.->|"wheel fetch"| RELEASE
-
-    %% Styling
-    classDef triggerStyle fill:#e8f4fd,stroke:#2196F3,stroke-width:2px,color:#1976D2
-    classDef buildStyle fill:#f3e5f5,stroke:#9C27B0,stroke-width:2px,color:#7B1FA2
-    classDef artifactStyle fill:#fff3e0,stroke:#FF9800,stroke-width:2px,color:#F57C00
-    classDef testStyle fill:#e8f5e8,stroke:#4CAF50,stroke-width:2px,color:#388E3C
-    classDef releaseStyle fill:#ffebee,stroke:#f44336,stroke-width:2px,color:#D32F2F
-
-    class TRIGGER,T1,T2 triggerStyle
-    class BUILD,BUILD_PLATFORMS,B1,B2,B3,BUILD_DETAILS buildStyle
-    class ARTIFACTS,GITHUB_ARTIFACTS,GITHUB_CACHE,GA1,GC1 artifactStyle
-    class TEST,TEST_PLATFORMS,TS1,TS2,TS3,TEST_DETAILS,ARTIFACT_FLOWS testStyle
-    class RELEASE,RELEASE_STAGES,R1,R2,R3,RELEASE_DETAILS releaseStyle
-```
+The CI pipeline diagram is maintained as Mermaid source in [`ci/ci-pipeline.mmd`](ci/ci-pipeline.mmd).
 
 ### Pipeline Execution Details
 

@@ -18,6 +18,7 @@ cdef class Linker:
         vector[cydriver.CUjit_option] _drv_jit_keys
         vector[void*] _drv_jit_values
         bint _use_nvjitlink
+        bint _has_ptx_or_cubin_input
         object _drv_log_bufs  # formatted_options list (driver); None for nvjitlink
         str _info_log         # decoded log; None until link() or pre-link get_*_log()
         str _error_log        # decoded log; None until link() or pre-link get_*_log()
