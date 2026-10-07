@@ -7,6 +7,7 @@ from libc.stddef cimport size_t
 from libc.stdint cimport intptr_t
 
 from libcpp.memory cimport shared_ptr, unique_ptr
+from libcpp.vector cimport vector
 
 from cuda.bindings cimport cydriver
 from cuda.bindings cimport cynvrtc
@@ -58,6 +59,22 @@ cdef extern from "_cpp/rt/handles.hpp" namespace "cuda_core::rt":
     ctypedef shared_ptr[const TexObjectValue] TexObjectHandle
     ctypedef shared_ptr[const SurfObjectValue] SurfObjectHandle
 
+    # Virtual memory management (VMM_DESIGN.md): tagged values for the
+    # physical allocation, the address reservation and the mapping, plus the
+    # opaque range a buffer owns.
+    cppclass MemAllocationValue "cuda_core::rt::MemAllocationValue":
+        pass
+    cppclass VaReservationValue "cuda_core::rt::VaReservationValue":
+        pass
+    cppclass VaMappingValue "cuda_core::rt::VaMappingValue":
+        pass
+    cppclass VmmRange "cuda_core::rt::VmmRange":
+        pass
+    ctypedef shared_ptr[const MemAllocationValue] MemAllocationHandle
+    ctypedef shared_ptr[const VaReservationValue] VaReservationHandle
+    ctypedef shared_ptr[const VaMappingValue] VaMappingHandle
+    ctypedef shared_ptr[const VmmRange] VmmRangeHandle
+
     # Type-erased shared owner for resources attached to graph node slots.
     # Typed handles above assign directly to an OpaqueHandle (shared control
     # block); make_opaque_py / make_opaque_malloc cover the two cases needing a
@@ -108,6 +125,9 @@ cdef extern from "_cpp/rt/handles.hpp" namespace "cuda_core::rt":
     cydriver.CUmipmappedArray as_cu(MipmappedArrayHandle h) noexcept nogil
     cydriver.CUtexObject as_cu(TexObjectHandle h) noexcept nogil
     cydriver.CUsurfObject as_cu(SurfObjectHandle h) noexcept nogil
+    cydriver.CUmemGenericAllocationHandle as_cu(MemAllocationHandle h) noexcept nogil
+    cydriver.CUdeviceptr as_cu(VaReservationHandle h) noexcept nogil
+    cydriver.CUdeviceptr as_cu(VaMappingHandle h) noexcept nogil
 
     # as_intptr() - extract handle as intptr_t for Python interop (inline C++)
     intptr_t as_intptr(ContextHandle h) noexcept nogil
@@ -132,6 +152,9 @@ cdef extern from "_cpp/rt/handles.hpp" namespace "cuda_core::rt":
     intptr_t as_intptr(MipmappedArrayHandle h) noexcept nogil
     intptr_t as_intptr(TexObjectHandle h) noexcept nogil
     intptr_t as_intptr(SurfObjectHandle h) noexcept nogil
+    intptr_t as_intptr(MemAllocationHandle h) noexcept nogil
+    intptr_t as_intptr(VaReservationHandle h) noexcept nogil
+    intptr_t as_intptr(VaMappingHandle h) noexcept nogil
 
     # as_py() - convert handle to Python wrapper object (inline C++; requires GIL)
     object as_py(ContextHandle h)
@@ -156,6 +179,9 @@ cdef extern from "_cpp/rt/handles.hpp" namespace "cuda_core::rt":
     object as_py(MipmappedArrayHandle h)
     object as_py(TexObjectHandle h)
     object as_py(SurfObjectHandle h)
+    object as_py(MemAllocationHandle h)
+    object as_py(VaReservationHandle h)
+    object as_py(VaMappingHandle h)
 
 
 # =============================================================================
@@ -268,6 +294,26 @@ cdef DevicePtrHandle deviceptr_import_ipc(
 cdef StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept nogil
 cdef cydriver.CUresult set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
 
+# Virtual memory management (VMM_DESIGN.md)
+cdef MemAllocationHandle create_mem_allocation_handle(
+    size_t size, const cydriver.CUmemAllocationProp& prop,
+    const cydriver.CUmemAccessDesc* descs, size_t count) except+ nogil
+cdef size_t mem_allocation_size(const MemAllocationHandle& h) noexcept nogil
+cdef VaReservationHandle create_va_reservation_handle(
+    size_t size, size_t alignment, cydriver.CUdeviceptr hint) except+ nogil
+cdef size_t va_reservation_size(const VaReservationHandle& h) noexcept nogil
+cdef VaMappingHandle create_va_mapping_handle(
+    cydriver.CUdeviceptr ptr, const MemAllocationHandle& h_alloc,
+    const VaReservationHandle& h_res) except+ nogil
+cdef size_t va_mapping_size(const VaMappingHandle& h) noexcept nogil
+cdef MemAllocationHandle va_mapping_allocation(const VaMappingHandle& h) noexcept nogil
+cdef VmmRangeHandle create_vmm_range(const vector[VaMappingHandle]& mappings) except+ nogil
+cdef VmmRangeHandle vmm_range(const DevicePtrHandle& h) noexcept nogil
+cdef vector[VaMappingHandle] vmm_range_mappings(const VmmRangeHandle& range) except+ nogil
+cdef size_t vmm_range_total(const VmmRangeHandle& range) noexcept nogil
+cdef DevicePtrHandle deviceptr_create_vmm(
+    cydriver.CUdeviceptr base, const VmmRangeHandle& range) except+ nogil
+
 # Library handles
 cdef LibraryHandle create_library_handle_from_file(const char* path) except+ nogil
 cdef LibraryHandle create_library_handle_from_data(const void* data) except+ nogil
@@ -376,20 +422,3 @@ cdef TexObjectHandle create_tex_object_handle_linear(
 cdef SurfObjectHandle create_surf_object_handle(
     const ContextHandle& h_context, const cydriver.CUDA_RESOURCE_DESC& res,
     const OpaqueArrayHandle& h_backing) except+ nogil
-
-# SM resource split (13.1+ — calls through function pointer, safe on older bindings)
-# groupParams is void* here to avoid referencing CU_DEV_SM_RESOURCE_GROUP_PARAMS
-# (which doesn't exist in cuda-bindings 13.0 .pxd). The C++ side casts it.
-cdef cydriver.CUresult sm_resource_split(
-    cydriver.CUdevResource* result, unsigned int nbGroups,
-    const cydriver.CUdevResource* input, cydriver.CUdevResource* remainder,
-    unsigned int flags, void* groupParams) nogil
-cdef bint has_sm_resource_split() noexcept nogil
-
-# cuMemcpyWithAttributesAsync (13.2+ — calls through function pointer, safe on older bindings)
-# attr is void* here to avoid referencing CUmemcpyAttributes (absent from
-# cuda-bindings built against CUDA < 12.8). The C++ side casts it.
-cdef cydriver.CUresult memcpy_with_attributes_async(
-    cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src, size_t size,
-    void* attr, cydriver.CUstream hStream) nogil
-cdef bint has_memcpy_with_attributes_async() noexcept nogil

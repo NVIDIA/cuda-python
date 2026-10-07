@@ -6,3 +6,5 @@ recursive-include cuda/ *.pyx *.pxd *.pxi *.pyx.in *.pxd.in *.pxi.in *.h
 # to the payload, causing file copying to the build environment failed
 exclude cuda/bindings cuda?bindings
 exclude cuda/bindings/_bindings cuda?bindings?_bindings
+# package-local shared PEP 517 helper
+include _build_shared.py

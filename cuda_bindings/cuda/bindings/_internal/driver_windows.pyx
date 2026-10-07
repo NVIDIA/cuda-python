@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f49a90c93b3876714d90f8948fabc654d408ba6c8bc3a122503b1d1ef663f434
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a04dbfec5a461010c493b3aca0b092910ff3eb49d31942a68c957309892b2aa6
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -1899,19 +1899,19 @@ cdef int _init_driver() except -1 nogil:
         cuGetProcAddress_v2('cuGreenCtxStreamCreate', <void **>&__cuGreenCtxStreamCreate, 12050, ptds_mode, NULL)
 
         global __cuLogsRegisterCallback
-        cuGetProcAddress_v2('cuLogsRegisterCallback', <void **>&__cuLogsRegisterCallback, 12080, ptds_mode, NULL)
+        cuGetProcAddress_v2('cuLogsRegisterCallback', <void **>&__cuLogsRegisterCallback, 12090, ptds_mode, NULL)
 
         global __cuLogsUnregisterCallback
-        cuGetProcAddress_v2('cuLogsUnregisterCallback', <void **>&__cuLogsUnregisterCallback, 12080, ptds_mode, NULL)
+        cuGetProcAddress_v2('cuLogsUnregisterCallback', <void **>&__cuLogsUnregisterCallback, 12090, ptds_mode, NULL)
 
         global __cuLogsCurrent
-        cuGetProcAddress_v2('cuLogsCurrent', <void **>&__cuLogsCurrent, 12080, ptds_mode, NULL)
+        cuGetProcAddress_v2('cuLogsCurrent', <void **>&__cuLogsCurrent, 12090, ptds_mode, NULL)
 
         global __cuLogsDumpToFile
-        cuGetProcAddress_v2('cuLogsDumpToFile', <void **>&__cuLogsDumpToFile, 12080, ptds_mode, NULL)
+        cuGetProcAddress_v2('cuLogsDumpToFile', <void **>&__cuLogsDumpToFile, 12090, ptds_mode, NULL)
 
         global __cuLogsDumpToMemory
-        cuGetProcAddress_v2('cuLogsDumpToMemory', <void **>&__cuLogsDumpToMemory, 12080, ptds_mode, NULL)
+        cuGetProcAddress_v2('cuLogsDumpToMemory', <void **>&__cuLogsDumpToMemory, 12090, ptds_mode, NULL)
 
         global __cuCheckpointProcessGetRestoreThreadId
         cuGetProcAddress_v2('cuCheckpointProcessGetRestoreThreadId', <void **>&__cuCheckpointProcessGetRestoreThreadId, 12080, ptds_mode, NULL)

@@ -24,10 +24,7 @@ cdef class Buffer:
         _MemAttrs             _mem_attrs
         std_atomic[cpp_bool]  _mem_attrs_inited
         object                __weakref__
-    cdef public:
-        # Python code in _memory/_virtual_memory_resource.py needs to update
-        # this value, though it is technically private.
-        size_t          _size
+        size_t                _size
 
 
 cdef class MemoryResource:

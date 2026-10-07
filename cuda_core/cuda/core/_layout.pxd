@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -123,7 +123,7 @@ cdef class _StridedLayout:
         _swap_layout(self.base, base)
         return 0
 
-    cdef inline stride_t _init_dense(_StridedLayout self, BaseLayout& base, int itemsize, OrderFlag order_flag, axis_vec_t* stride_order=NULL) except -1 nogil:
+    cdef inline int _init_dense(_StridedLayout self, BaseLayout& base, int itemsize, OrderFlag order_flag, axis_vec_t* stride_order=NULL) except -1 nogil:
         if itemsize <= 0:
             raise ValueError("itemsize must be positive")
 
@@ -206,7 +206,7 @@ cdef class _StridedLayout:
             self._py_strides_in_bytes = None
         else:
             self.get_strides_in_bytes(strides)
-            self._py_strides_in_bytes = cuda_utils.carray_integer_t_to_tuple(strides.data(), strides.size())
+            self._py_strides_in_bytes = cuda_utils.carray_integer_t_to_tuple(strides.data(), <int>strides.size())
         _mark_property_valid(self, PROP_STRIDES_IN_BYTES)
         return self._py_strides_in_bytes
 
@@ -225,7 +225,7 @@ cdef class _StridedLayout:
             return self._py_stride_order
         cdef axis_vec_t stride_order
         self.get_stride_order(stride_order)
-        self._py_stride_order = cuda_utils.carray_integer_t_to_tuple(stride_order.data(), stride_order.size())
+        self._py_stride_order = cuda_utils.carray_integer_t_to_tuple(stride_order.data(), <int>stride_order.size())
         _mark_property_valid(self, PROP_STRIDE_ORDER)
         return self._py_stride_order
 
@@ -546,7 +546,7 @@ cdef inline int _validate_shape(BaseLayout& base) except -1 nogil:
 
 
 cdef inline int _init_base_layout_from_tuple(BaseLayout& base, tuple shape, tuple strides) except -1:
-    cdef int ndim = len(shape)
+    cdef int ndim = <int>len(shape)
     init_base_layout(base, ndim)
     for i in range(ndim):
         base.shape[i] = shape[i]
@@ -630,7 +630,7 @@ cdef inline OrderFlag _stride_order2vec(axis_vec_t& stride_order_vec, object str
 
 
 cdef inline int _tuple2axis_vec(axis_vec_t& vec, object t) except -1:
-    cdef int ndim = len(t)
+    cdef int ndim = <int>len(t)
     vec.resize(ndim)
     for i in range(ndim):
         vec[i] = t[i]

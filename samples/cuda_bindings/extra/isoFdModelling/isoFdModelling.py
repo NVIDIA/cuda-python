@@ -60,6 +60,12 @@ import time
 import numpy as np
 from cuda_bindings_utils import KernelHelper, check_cuda_errors, requirement_not_met
 
+try:
+    # Optional: only needed to plot the result
+    import matplotlib.pyplot as plt
+except ImportError:
+    plt = None
+
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
 
@@ -822,8 +828,6 @@ def main():
         ##
         ## those are to plot results
         ##
-        import matplotlib.pyplot as plt
-
         fig, ax = plt.subplots()
         title = "test fd kernels up to " + str(pars.tmax_propag) + " ms "
         plt.title(title, fontsize=20)

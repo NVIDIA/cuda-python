@@ -43,6 +43,9 @@ jobs:
     timeout-minutes: 60
     runs-on: windows-2022
     steps:
+      - name: Enable Git symlinks (Windows, must precede checkout)
+        run: git config --global core.symlinks true
+
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -78,7 +81,7 @@ jobs:
 
       - name: Download cuda.pathfinder wheel
         if: ${{ env.BUILD_PATHFINDER != 'true' && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: ./.github/actions/download-artifact-retry
         with:
           name: cuda-pathfinder-wheel
           path: cuda_pathfinder/dist
@@ -119,7 +122,7 @@ jobs:
 
       - name: Download cuda.bindings wheel
         if: ${{ env.BUILD_BINDINGS != 'true' && env.BUILD_CORE == 'true' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: ./.github/actions/download-artifact-retry
         with:
           name: cuda-bindings-python312-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}-${{ github.sha }}
           path: cuda_bindings/dist

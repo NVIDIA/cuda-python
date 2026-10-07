@@ -8,6 +8,23 @@
 
 set -euo pipefail
 
+# Test-report layout for CI logs (see ci/tools/fold_pytest_sections.py):
+#   -rsxXfE orders the short test summary as skips, xfails, xpasses, failures, errors,
+#   so the FAILED/ERROR one-liners end up right above the final count line.
+#   fold_pytest_log wraps the warnings, durations, pytest-run-parallel, and skip-list
+#   sections in collapsed GitHub log groups. Pipe pytest's stdout only: the ::error
+#   annotations from pytest-github-actions-annotate-failures go to stderr, and the
+#   runner honors a workflow command only at the start of a line of its own stream.
+CI_TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fold_pytest_log() {
+  python "${CI_TOOLS_DIR}/fold_pytest_sections.py"
+}
+
+# JUnit XML, one file per suite. The test workflows upload this directory as an
+# artifact: a machine-readable record of the run for follow-up tooling.
+TEST_RESULTS_DIR="$(pwd)/test-results"
+mkdir -p "${TEST_RESULTS_DIR}"
+
 # Check if the script was called with exactly 1 argument
 if [[ ${#} -ne 1 ]]; then
   echo "Error: This script requires exactly 1 argument. You provided ${#}"
@@ -43,7 +60,7 @@ if [[ "${test_module}" == "pathfinder" ]]; then
     "LD:${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS} " \
     "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS} " \
     "BC:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS}"
-  pytest -ra -s -v "${PYTEST_PARALLEL_ARGS[@]}" tests/ |& tee /tmp/pathfinder_test_log.txt
+  pytest -ra -s -v "${PYTEST_PARALLEL_ARGS[@]}" --junitxml "${TEST_RESULTS_DIR}/junit-pathfinder.xml" tests/ |& tee /tmp/pathfinder_test_log.txt
   # Report the number of "INFO test_" lines (including zero)
   # to support quick validations based on GHA log archives.
   line_count=$(awk '/^INFO test_/ {count++} END {print count+0}' /tmp/pathfinder_test_log.txt)
@@ -62,9 +79,9 @@ elif [[ "${test_module}" == "bindings" ]]; then
       "cuda-toolkit==${TEST_CUDA_MAJOR_MINOR}.*"
   fi
   echo "Running bindings tests"
-  ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/
+  ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize --exclude-warning-annotations "${PYTEST_PARALLEL_ARGS[@]}" --junitxml "${TEST_RESULTS_DIR}/junit-bindings.xml" tests/ | fold_pytest_log
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/cython
+    ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize --exclude-warning-annotations "${PYTEST_PARALLEL_ARGS[@]}" --junitxml "${TEST_RESULTS_DIR}/junit-bindings-cython.xml" tests/cython | fold_pytest_log
   fi
   popd
 elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
@@ -74,10 +91,14 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
 
   # Resolve bindings based on BINDINGS_SOURCE (set by env-vars):
   #   main/backport → local wheel from artifacts dir
-  #   published     → install from PyPI by version
+  #   floor         → the oldest cuda-bindings that the cuda-core wheel under test
+  #                   supports, read from that wheel and installed from PyPI
   BINDINGS_ARGS=()
-  if [[ "${BINDINGS_SOURCE}" == "published" ]]; then
-    BINDINGS_ARGS+=("cuda-bindings==${TEST_CUDA_MAJOR}.${TEST_CUDA_MINOR}.*")
+  if [[ "${BINDINGS_SOURCE}" == "floor" ]]; then
+    CORE_WHL_FOR_FLOOR=("${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)
+    BINDINGS_FLOOR="$(python ci/tools/cuda_core_bindings_floor.py --wheel "${CORE_WHL_FOR_FLOOR[0]}" --major "${TEST_CUDA_MAJOR}")"
+    echo "cuda-bindings floor of ${CORE_WHL_FOR_FLOOR[0]##*/} for CUDA ${TEST_CUDA_MAJOR}: ${BINDINGS_FLOOR}"
+    BINDINGS_ARGS+=("cuda-bindings==${BINDINGS_FLOOR}")
   else
     BINDINGS_ARGS=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)
     if [[ "${LOCAL_CTK}" != 1 ]]; then
@@ -121,11 +142,11 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     echo "Installed packages before core tests:"
     pip list
     echo "Running core tests"
-    ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/
+    ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize --exclude-warning-annotations "${PYTEST_PARALLEL_ARGS[@]}" --junitxml "${TEST_RESULTS_DIR}/junit-core.xml" tests/ | fold_pytest_log
     # Currently our CI always installs the latest bindings (from either major version).
     # This is not compatible with the test requirements.
     if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-      ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize "${PYTEST_PARALLEL_ARGS[@]}" tests/cython
+      ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize --exclude-warning-annotations "${PYTEST_PARALLEL_ARGS[@]}" --junitxml "${TEST_RESULTS_DIR}/junit-core-cython.xml" tests/cython | fold_pytest_log
     fi
     popd
   elif [[ "${test_module}" == "nightly-cuda-core" ]]; then
@@ -172,10 +193,14 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     elif [[ "${test_module}" == "nightly-numba-cuda" ]]; then
       echo "Installing pathfinder + bindings + core + test deps + numba-cuda"
       # numba-cuda's test-cuXX group deps (can't use --group for a wheel install):
+      # numpy<2.5: numba-cuda 0.30.4 references np.row_stack, removed in numpy 2.5. See NVIDIA/numba-cuda#907.
+      # numba<0.67: numba-cuda 0.30.4 only supports Numba through 0.66. See NVIDIA/numba-cuda#940.
       PIP_ARGS+=(
         "cuda-toolkit[curand,cublas]==${TEST_CUDA_MAJOR_MINOR}.*"
         "numba-cuda[cu${TEST_CUDA_MAJOR}]"
         "cupy-cuda${TEST_CUDA_MAJOR}x"
+        "numba<0.67"
+        "numpy<2.5"
         psutil cffi pytest-xdist pytest-benchmark filecheck ml_dtypes statistics
       )
     elif [[ "${test_module}" == "nightly-numba-cuda-mlir" ]]; then
@@ -183,14 +208,24 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
       # curand/cublas + cupy: some numba-cuda-mlir tests (e.g.
       # test_fortran_contiguous) call cp.random, which dlopens libcurand at
       # runtime. Mirror the numba-cuda branch, which installs the same libs.
+      # cccl: NVRTC needs <nv/target> for cooperative_groups / curand_kernel.h.
       PIP_ARGS+=(
         "numba-cuda-mlir[cu${TEST_CUDA_MAJOR}]"
-        "cuda-toolkit[curand,cublas]==${TEST_CUDA_MAJOR_MINOR}.*"
+        "cuda-toolkit[curand,cublas,cccl]==${TEST_CUDA_MAJOR_MINOR}.*"
         "cupy-cuda${TEST_CUDA_MAJOR}x"
       )
     fi
 
     pip install "${PIP_ARGS[@]}"
+
+    if [[ "${test_module}" == "nightly-numba-cuda" ]]; then
+      # Downgrade pytest for numba-cuda: cuda_core's test-cuXX group hard-pins
+      # pytest==9.1.0, but numba-cuda's subTest usage breaks under pytest 9.
+      # Can't add pytest<9 to PIP_ARGS above because pip can't satisfy both
+      # ==9.1.0 and <9 in one solve. See NVIDIA/numba-cuda#637.
+      pip install "pytest<9"
+    fi
+
     echo "Nightly install complete — installed packages:"
     pip list
     popd
@@ -202,6 +237,15 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
       installed_ver=$(pip show numba-cuda-mlir | awk '/^Version:/{print $2}')
       if [[ -n "${GITHUB_ENV:-}" ]]; then
         echo "NUMBA_CUDA_MLIR_VER=${installed_ver}" >> "${GITHUB_ENV}"
+      fi
+    elif [[ "${test_module}" == "nightly-numba-cuda" ]]; then
+      # Expose the installed numba-cuda version so the workflow can
+      # actions/checkout the matching v<X.Y.Z> tag from NVIDIA/numba-cuda
+      # (the wheel does not ship test_*.py files at a pytest-discoverable
+      # top level; upstream's testing/pytest.ini is required to run them).
+      installed_ver=$(pip show numba-cuda | awk '/^Version:/{print $2}')
+      if [[ -n "${GITHUB_ENV:-}" ]]; then
+        echo "NUMBA_CUDA_VER=${installed_ver}" >> "${GITHUB_ENV}"
       fi
     fi
   fi

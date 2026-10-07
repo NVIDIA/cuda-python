@@ -62,9 +62,9 @@ jobs:
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          # lookup-run-id resolves the git tag to a SHA; we need tags but not history.
+          # The exact tag supplies the SHA for lookup-run-id; no other tags
+          # or commit history are needed.
           fetch-depth: 1
-          fetch-tags: true
           # Resolve only the exact tag ref; checkout fails if the tag does not exist.
           ref: refs/tags/${{ steps.vars.outputs.tag }}
 

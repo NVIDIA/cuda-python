@@ -2,6 +2,7 @@
 
 import functools
 
+BUILD_CUDA_MAJOR: int = ...
 
 def _parse_version_triple(version_str: str) -> tuple[int, int, int]:
     """Parse a PEP 440 version string into a (major, minor, patch) triple.
