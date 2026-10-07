@@ -18,11 +18,7 @@ Benchmark different CUDA kernel launch configurations to find the optimal block-
 
 ```python
 # Configure kernel launch with specific thread block size
-config = LaunchConfig(
-    grid=(grid_size,),
-    block=(block_size,),
-    shmem_size=shared_memory_bytes
-)
+config = LaunchConfig(grid=(grid_size,), block=(block_size,), shmem_size=shared_memory_bytes)
 
 # Launch kernel
 launch(stream, config, kernel, *args)

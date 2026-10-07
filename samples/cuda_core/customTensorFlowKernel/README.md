@@ -51,11 +51,9 @@ x = tf.random.normal([100], dtype=tf.float32)
 y = custom_relu(x)
 
 # In a Keras model
-model = tf.keras.Sequential([
-    tf.keras.layers.Dense(128),
-    tf.keras.layers.Lambda(custom_relu),
-    tf.keras.layers.Dense(10)
-])
+model = tf.keras.Sequential(
+    [tf.keras.layers.Dense(128), tf.keras.layers.Lambda(custom_relu), tf.keras.layers.Dense(10)]
+)
 ```
 
 ## Key Concepts

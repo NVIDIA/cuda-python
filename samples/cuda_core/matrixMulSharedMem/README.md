@@ -138,8 +138,8 @@ B = cp.random.rand(k, n).astype(cp.float32)
 
 # Use stateful API for fine-grained control
 with nvmath_advanced.Matmul(A, B) as mm:
-    mm.plan()           # Find optimal algorithm
-    C = mm.execute()    # Execute computation
+    mm.plan()  # Find optimal algorithm
+    C = mm.execute()  # Execute computation
 ```
 
 ## Memory Access Optimization (Custom Kernel)

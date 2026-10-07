@@ -106,6 +106,7 @@ GPU timing is measured using cuda.core Event:
 
 ```python
 from cuda.core import EventOptions
+
 timing_options = EventOptions(timing_enabled=True)
 start_event = stream.record(options=timing_options)
 # ... GPU work ...
