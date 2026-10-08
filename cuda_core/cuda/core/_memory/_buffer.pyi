@@ -301,6 +301,8 @@ class MemoryResource:
     buffer properties are retrieved simply by looking up the underlying memory
     resource's respective property.)
     """
+    def __init__(self): ...
+    def __dealloc__(self): ...
     def allocate(self, size: int, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate a buffer of the requested size.
 
@@ -356,3 +358,5 @@ class _MemAttrs(TypedDict):
     is_device_accessible: bool
     is_host_accessible: bool
     is_managed: bool
+
+def _live_memory_resource_count() -> int: ...

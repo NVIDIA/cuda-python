@@ -6,7 +6,7 @@ from __future__ import annotations
 
 cimport cython
 from libc.stdint cimport uintptr_t
-from libcpp.atomic cimport memory_order_acquire, memory_order_release
+from libcpp.atomic cimport memory_order_acquire, memory_order_release, atomic as std_atomic
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._device_memory_resource import DeviceMemoryResource
@@ -32,6 +32,14 @@ from cuda.core._memory._copy_attributes cimport _to_cu_memcpy_attributes  # no-c
 
 from cuda.core._stream cimport Stream, Stream_accept, Stream_is_legacy_default_token, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
+
+
+# Live MemoryResource count, read by the test suite; atomic for free-threaded builds.
+cdef std_atomic[long long] _mr_live_count
+
+
+def _live_memory_resource_count() -> int:
+    return _mr_live_count.load()
 
 import warnings
 from collections.abc import Sequence
@@ -775,6 +783,12 @@ cdef class MemoryResource:
     buffer properties are retrieved simply by looking up the underlying memory
     resource's respective property.)
     """
+
+    def __cinit__(self):
+        _mr_live_count.fetch_add(1)
+
+    def __dealloc__(self):
+        _mr_live_count.fetch_sub(1)
 
     def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate a buffer of the requested size.

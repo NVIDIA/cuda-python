@@ -8,6 +8,7 @@ import multiprocessing
 import os
 import pathlib
 import sys
+import warnings
 
 import pytest
 
@@ -29,7 +30,11 @@ except ImportError as e:
 pytest_plugins = ["cuda_python_test_helpers._pytest_plugin"]
 
 from helpers.constants import POOL_SIZE
-from helpers.memory import skip_if_pinned_memory_unsupported
+from helpers.memory import (
+    BaselineMemoryResourceReleasedWarning,
+    UnreleasedMemoryResourceWarning,
+    skip_if_pinned_memory_unsupported,
+)
 
 import cuda.core
 from cuda.bindings import driver
@@ -43,6 +48,7 @@ from cuda.core import (
     PinnedMemoryResourceOptions,
     _device,
 )
+from cuda.core._memory._buffer import _live_memory_resource_count
 from cuda.core._utils.cuda_utils import handle_return
 
 
@@ -125,6 +131,55 @@ def _item_uses_init_cuda(item):
     return "init_cuda" in getattr(item, "fixturenames", ())
 
 
+# init_cuda collects at teardown only if the process-wide live MemoryResource
+# count differs from its value at setup. That is sound only if no older
+# resource is released during a test (it could cancel a new leak), so tests
+# that construct resources must use init_cuda, and the leftover check below
+# reports resources that outlive a test without it.
+
+# Live count after the last init_cuda test; None until one has run.
+_mr_expected_live = None
+# Live count at the start of the current item, before its fixtures set up.
+_mr_live_at_item_start = 0
+_mr_last_init_cuda_nodeid = None
+
+
+def _device_default_memory_resource_count():
+    """Number of main-thread Devices that currently cache a default MR."""
+    return sum(d._memory_resource is not None for d in getattr(_device._tls, "devices", ()))
+
+
+def _release_device_default_memory_resources():
+    """Drop each main-thread Device's lazily created default memory resource.
+
+    Otherwise they are still counted when init_cuda compares counts at
+    teardown and force a collect in every test that allocates through the
+    device default. The setter rejects None,
+    hence the private access.
+    """
+    for d in getattr(_device._tls, "devices", ()):
+        d._memory_resource = None
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_protocol(item, nextitem):
+    # Leftover check: compare with the count after the previous init_cuda test,
+    # not the session start, because the count legitimately rises over a run
+    # (interned GraphMemoryResource, pytest-retained class instances).
+    global _mr_expected_live, _mr_live_at_item_start, _mr_last_init_cuda_nodeid
+    _mr_live_at_item_start = _live_memory_resource_count()
+    try:
+        return (yield)
+    finally:
+        live = _live_memory_resource_count()
+        if _item_uses_init_cuda(item):
+            _mr_expected_live = live
+            _mr_last_init_cuda_nodeid = item.nodeid
+        elif _mr_expected_live is not None:
+            # Only lower it: a released resource must not hide a later leak.
+            _mr_expected_live = min(_mr_expected_live, live)
+
+
 class _CudaCoreParallelPlugin:
     """A mini pytest plugin used only for pytest-run-parallel testing.
     pytest-run-parallel spawns new threads for each test and we need to
@@ -172,7 +227,7 @@ def session_setup():
 
 
 @pytest.fixture
-def init_cuda():
+def init_cuda(request):
     # TODO: rename this to e.g. init_context
     device = Device(0)
     device.set_current()
@@ -183,23 +238,59 @@ def init_cuda():
             driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
         )
 
+    # Leftover check: growth since the previous init_cuda test means something
+    # in between left a resource alive. Collect first to sweep a cyclic
+    # leftover, and before the count at setup is recorded so it is reflected there.
+    if _mr_expected_live is not None and _mr_live_at_item_start > _mr_expected_live:
+        gc.collect()
+        held = _live_memory_resource_count() - _mr_expected_live
+        seed = getattr(request.config.option, "randomly_seed", None)
+        seed_msg = f" (pytest-randomly seed: {seed})" if seed is not None else ""
+        warnings.warn(
+            f"{_mr_live_at_item_start - _mr_expected_live} memory resource(s) were left alive by "
+            f"tests that ran since {_mr_last_init_cuda_nodeid} ({max(held, 0)} still alive after a "
+            f"collect). A test or fixture that constructs a memory resource must request "
+            f"init_cuda.{seed_msg}",
+            UnreleasedMemoryResourceWarning,
+            stacklevel=2,
+        )
+
+    # Live count at setup, excluding cached Device default resources (they are
+    # released at teardown before the count is compared).
+    live_at_setup = _live_memory_resource_count() - _device_default_memory_resource_count()
     try:
         yield device
     finally:
+        # pytest holds fixture values in item.funcargs until all teardown has
+        # run; drop them so already torn-down fixtures are not counted below.
+        request.node.funcargs.clear()
+        # Only a resource in a reference cycle outlives the test frame, so
+        # collect only if the count differs from its value at setup. A lower
+        # count means an older resource was released, which could mask a leak
+        # in this test: collect in that case too.
+        _release_device_default_memory_resources()
+        live_after_release = _live_memory_resource_count()
+        if live_after_release != live_at_setup:
+            gc.collect()
         # Force any pool/allocation whose only remaining reference was a local
         # in this test's frame to actually get destroyed now, then drain the
         # context so the stream-ordered frees that destruction enqueues retire
-        # before the next test runs. Without this, a memory pool's VA
-        # reservation is not returned until both have happened, and per-test
-        # leftovers accumulate across the run -- which is how full-suite runs
-        # can exhaust address space and hit CUDA_ERROR_OUT_OF_MEMORY on a
-        # device with plenty of free physical memory (issue #2381). gc.collect()
-        # must run first: cuCtxSynchronize alone cannot drain frees that were
-        # never enqueued because their owning object had not been collected yet.
+        # before the next test runs (issue #2381). gc.collect() above must run
+        # first: cuCtxSynchronize alone cannot drain frees that were never
+        # enqueued because their owning object had not been collected yet.
         # With pytest-run-parallel this runs after worker join.
-        gc.collect()
         driver.cuCtxSynchronize()
         _ = _device_unset_current()
+        # After the cleanup, so an escalated warning cannot skip it.
+        if live_after_release < live_at_setup:
+            warnings.warn(
+                f"{request.node.nodeid} released {live_at_setup - live_after_release} memory resource(s) "
+                f"that existed before it started (count {live_after_release}, snapshot {live_at_setup}). "
+                "A leak in this test could have been masked by that release. Find what held the "
+                "released resource.",
+                BaselineMemoryResourceReleasedWarning,
+                stacklevel=2,
+            )
 
 
 def _device_unset_current() -> bool:

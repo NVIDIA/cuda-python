@@ -9,6 +9,14 @@ from cuda.core import ManagedMemoryResource, PinnedMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
 
 
+class UnreleasedMemoryResourceWarning(Warning):
+    """A test or fixture left a ``MemoryResource`` alive without ``init_cuda``."""
+
+
+class BaselineMemoryResourceReleasedWarning(Warning):
+    """An ``init_cuda`` test released a resource that existed before it started."""
+
+
 def skip_if_pinned_memory_unsupported(device):
     try:
         if not device.properties.host_memory_pools_supported:
