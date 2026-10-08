@@ -183,6 +183,6 @@ specific kernel characteristics. Always benchmark to find the best!
 
 - [cuda.core Documentation](https://nvidia.github.io/cuda-python/cuda-core/latest/)
 - [cuda.core.LaunchConfig](https://nvidia.github.io/cuda-python/cuda-core/latest/generated/cuda.core.LaunchConfig.html)
-- [CUDA Occupancy Calculator](https://docs.nvidia.com/cuda/cuda-occupancy-calculator/)
+- [Nsight Compute Occupancy Calculator](https://docs.nvidia.com/nsight-compute/NsightCompute/index.html#occupancy-calculator)
 - [CUDA Best Practices Guide - Execution Configuration](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#execution-configuration-optimizations)
 - [Nsight Compute Profiler](https://developer.nvidia.com/nsight-compute)
