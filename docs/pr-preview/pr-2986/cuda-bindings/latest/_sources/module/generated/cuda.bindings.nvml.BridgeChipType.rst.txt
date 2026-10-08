@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.BridgeChipType
-=================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: BridgeChipType

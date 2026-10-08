@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.vgpu\_type\_get\_gsp\_heap\_size
-===================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: vgpu_type_get_gsp_heap_size

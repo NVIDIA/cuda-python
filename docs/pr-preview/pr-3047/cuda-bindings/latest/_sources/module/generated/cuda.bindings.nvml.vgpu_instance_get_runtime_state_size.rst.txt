@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.vgpu\_instance\_get\_runtime\_state\_size
-============================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: vgpu_instance_get_runtime_state_size

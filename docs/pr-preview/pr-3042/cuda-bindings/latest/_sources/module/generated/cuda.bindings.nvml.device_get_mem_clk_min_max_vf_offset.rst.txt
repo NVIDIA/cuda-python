@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_mem\_clk\_min\_max\_vf\_offset
-==============================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_mem_clk_min_max_vf_offset

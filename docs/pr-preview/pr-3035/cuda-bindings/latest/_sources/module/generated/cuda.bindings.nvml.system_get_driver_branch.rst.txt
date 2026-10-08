@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.system\_get\_driver\_branch
-==============================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: system_get_driver_branch
