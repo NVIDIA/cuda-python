@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=ebae2003"></script>
+    <script src="../_static/documentation_options.js?v=8f61f047"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev200';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev210';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1017,8 +1017,15 @@ of a captured <a class="reference internal" href="../generated/cuda.core.Buffer.
 addresses, and <code class="docutils literal notranslate"><span class="pre">update</span></code> rejected that descriptor with a message about
 multidimensional copies. Such an operand stays unified when it is replaced,
 because the driver does not accept a change of an operand’s memory type in
-an instantiated graph, so <a class="reference internal" href="../generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph.update" title="cuda.core.graph.Graph.update"><code class="xref py py-meth docutils literal notranslate"><span class="pre">update()</span></code></a> applies the change as
-well. The node’s <code class="docutils literal notranslate"><span class="pre">repr</span></code> now shows <code class="docutils literal notranslate"><span class="pre">U</span></code> for unified operands.
+an instantiated graph. Replacing a device operand with another device
+buffer of the same kind can therefore also be applied with
+<a class="reference internal" href="../generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph.update" title="cuda.core.graph.Graph.update"><code class="xref py py-meth docutils literal notranslate"><span class="pre">update()</span></code></a>. Replacing it with host memory, or with memory
+from a different allocator, always takes effect in a new instantiation;
+whether an executable update accepts it depends on how the operands were
+allocated and on the driver. The driver compares the memory class of
+pool-backed and virtual-memory operands and rejects the change for them,
+while operands from plain <code class="docutils literal notranslate"><span class="pre">cuMemAlloc</span></code> allocations accept it. The node’s
+<code class="docutils literal notranslate"><span class="pre">repr</span></code> now shows <code class="docutils literal notranslate"><span class="pre">U</span></code> for unified operands.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2649">#2649</a>)</p></li>
 </ul>
 </section>
