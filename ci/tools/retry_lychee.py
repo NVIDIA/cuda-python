@@ -19,6 +19,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 LINK_CHECK_FAILURE = 2
+MAX_RATE_LIMITED_URLS = 10
 
 
 @dataclass(frozen=True)
@@ -31,13 +32,20 @@ class Failure:
     timed_out: bool
 
     @property
-    def transient(self) -> bool:
+    def is_http(self) -> bool:
         try:
             parsed = urlsplit(self.url)
-            is_http = parsed.scheme in ("http", "https") and bool(parsed.hostname)
+            return parsed.scheme in ("http", "https") and bool(parsed.hostname)
         except ValueError:
             return False
-        return is_http and (
+
+    @property
+    def rate_limited(self) -> bool:
+        return self.is_http and not self.timed_out and self.code == 429
+
+    @property
+    def transient(self) -> bool:
+        return self.is_http and (
             self.timed_out or self.code in (408, 429) or (self.code is not None and 500 <= self.code <= 599)
         )
 
@@ -127,7 +135,7 @@ def attempt_report(report: Path, attempt: int) -> Path:
     return report.with_name(f"{report.stem}-attempt-{attempt}{report.suffix}")
 
 
-def finish(report: Path, data: Report | None, exit_codes: list[int], message: str) -> None:
+def finish(report: Path, data: Report | None, exit_codes: list[int], message: str, *, warning: bool = False) -> None:
     """Publish the final result without presenting recovered failures as current."""
     summary = f"## Documentation links\n\n{message}\n\n| Attempt | Exit code |\n| --- | --- |\n"
     summary += "".join(f"| {attempt} | {code} |\n" for attempt, code in enumerate(exit_codes, start=1))
@@ -138,18 +146,41 @@ def finish(report: Path, data: Report | None, exit_codes: list[int], message: st
             "\nThe final attempt did not produce a link-check report. Earlier reports are retained as artifacts.\n"
         )
     report.with_suffix(".md").write_text(summary, encoding="utf-8")
-    print(message, flush=True)
+    print(f"::warning::{message}" if warning else message, flush=True)
     if summary_path := os.environ.get("GITHUB_STEP_SUMMARY"):
         with Path(summary_path).open("a", encoding="utf-8") as stream:
             stream.write(summary)
 
 
-def retry_lychee(initial_exit_code: int, report: Path, max_attempts: int = 10) -> int:
+def finish_link_failures(report: Path, data: Report, exit_codes: list[int], message: str, policy: str) -> int:
+    """Apply the failure policy without changing lychee's reports or cache."""
+    distinct_urls = len({failure.url for failure in data.failures})
+    warning = False
+    if policy == "cache-warm":
+        message += (
+            f" Warning: {distinct_urls} distinct URLs remain unverified. Cache warming is advisory;"
+            " only successful checks are cached."
+        )
+        warning = True
+    elif all(failure.rate_limited for failure in data.failures):
+        message += f" {distinct_urls} distinct HTTP 429 URLs remain unverified"
+        if distinct_urls <= MAX_RATE_LIMITED_URLS:
+            message += f" (limit: {MAX_RATE_LIMITED_URLS}); accepting these rate limits with a warning."
+            warning = True
+        else:
+            message += f", exceeding the limit of {MAX_RATE_LIMITED_URLS}."
+    finish(report, data, exit_codes, message, warning=warning)
+    return 0 if warning else LINK_CHECK_FAILURE
+
+
+def retry_lychee(initial_exit_code: int, report: Path, max_attempts: int = 3, *, policy: str = "check") -> int:
     """Retry only if every remaining failure is a recognized transient HTTP error."""
     if initial_exit_code not in (0, 1, 2, 3):
         raise ValueError(f"Unexpected initial lychee exit code: {initial_exit_code}")
     if max_attempts < 1:
         raise ValueError("max_attempts must be positive")
+    if policy not in ("check", "cache-warm"):
+        raise ValueError(f"Unknown lychee failure policy: {policy}")
     exit_codes = [initial_exit_code]
     if initial_exit_code not in (0, LINK_CHECK_FAILURE):
         finish(report, None, exit_codes, f"Lychee stopped on attempt 1 with exit code {initial_exit_code}; no retry.")
@@ -164,16 +195,21 @@ def retry_lychee(initial_exit_code: int, report: Path, max_attempts: int = 10) -
             finish(report, data, exit_codes, f"Lychee passed on attempt {attempt}/{max_attempts}.")
             return 0
         if not data.transient:
-            finish(
+            return finish_link_failures(
                 report,
                 data,
                 exit_codes,
                 f"Lychee has permanent or unclassified link failures on attempt {attempt}; no retry.",
+                policy,
             )
-            return LINK_CHECK_FAILURE
         if attempt >= max_attempts:
-            finish(report, data, exit_codes, f"Lychee still has transient link failures after {max_attempts} attempts.")
-            return LINK_CHECK_FAILURE
+            return finish_link_failures(
+                report,
+                data,
+                exit_codes,
+                f"Lychee still has transient link failures after {max_attempts} attempts.",
+                policy,
+            )
         if lychee_args is None:
             raw_args = os.environ.get("LYCHEE_ARGS")
             if not raw_args or not (lychee_args := shlex.split(raw_args)):
@@ -207,10 +243,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--initial-exit-code", type=int, required=True)
     parser.add_argument("--report", type=Path, required=True)
-    parser.add_argument("--max-attempts", type=int, default=10)
+    parser.add_argument("--max-attempts", type=int, default=3)
+    parser.add_argument("--policy", choices=("check", "cache-warm"), default="check")
     args = parser.parse_args()
     try:
-        return retry_lychee(args.initial_exit_code, args.report, args.max_attempts)
+        return retry_lychee(args.initial_exit_code, args.report, args.max_attempts, policy=args.policy)
     except (OSError, ValueError) as error:
         print(f"::error::{error}", flush=True)
         return 1

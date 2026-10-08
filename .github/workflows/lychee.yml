@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Build and check documentation nightly, publishing successful link checks for
-# reuse by build-docs.yml in full PR CI. Ordinary PR updates run pre-commit
-# without Lychee; they do not build documentation in this workflow.
+# Build documentation nightly and warm the link cache, reporting unresolved links
+# as warnings. Full PR CI reuses successful checks in build-docs.yml.
+# Ordinary PR updates run pre-commit without Lychee and do not build docs here.
 
 name: "CI: Documentation links"
 
@@ -69,13 +69,11 @@ jobs:
 
       - name: Build all documentation from sources
         if: ${{ matrix.kind == 'rendered' }}
-        run: |
-          CUDA_PYTHON_DOCS_GITHUB_REF=$(git rev-parse HEAD)
-          export CUDA_PYTHON_DOCS_GITHUB_REF
-          pixi run --manifest-path cuda_core/pixi.toml -e docs docs-build-all-latest
+        run: pixi run --manifest-path cuda_core/pixi.toml -e docs docs-build-all-latest
 
       - name: Check documentation links
         uses: ./.github/actions/check-doc-links
         with:
           kind: ${{ matrix.kind }}
           refresh-cache: ${{ inputs.refresh-cache || false }}
+          failure-policy: ${{ inputs.refresh-cache && 'cache-warm' || 'check' }}
