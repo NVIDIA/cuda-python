@@ -6,6 +6,8 @@
 # against the latest cuda-python wheels built on main, runs the standard
 # test suite on runners reserved for nightly-only use (e.g. arm64 l4×2), and
 # exercises release-time CI helper scripts so they do not silently rot between releases.
+# It also builds documentation from source to warm the shared Lychee cache;
+# unresolved links are warnings, while build and checker errors remain failures.
 #
 # This workflow does NOT build wheels — it downloads them from the latest
 # successful CI run on main and runs integration/standard tests.
