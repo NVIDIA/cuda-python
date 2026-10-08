@@ -334,7 +334,14 @@ def fill_env(request, init_cuda):
         mr = DummyUnifiedMemoryResource(device)
     else:
         mr = DummyPinnedMemoryResource(device)
-    return device, mr
+    try:
+        yield device, mr
+    finally:
+        # mr-baseline-retention-fix (H4): drop the fixture's MR
+        # reference so the (closed-by-dealloc) object does not persist
+        # in the pytest fixture cache past this teardown; without this the
+        # baseline ratchets/oscillates with fragile release timing.
+        del mr
 
 
 _FILL_SIZE = 64  # Keep small; divisible by 1/2/4.
@@ -871,10 +878,9 @@ def test_from_handle_host_only_mr_without_cuda_init(mr_cls):
 
 @pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_mr_deallocation_failure_warns():
+def test_mr_deallocation_failure_warns(init_cuda):
     """Destructor-path MR failures are contained and reported as CUDAWarning."""
-    device = Device()
-    device.set_current()
+    device = init_cuda
     FailingMR, _ = make_instrumented_memory_resource(deallocate_error=RuntimeError("expected deallocation failure"))
     buf = Buffer.from_handle(1, 1024, mr=FailingMR(device))
 
@@ -887,7 +893,7 @@ def test_mr_deallocation_failure_warns():
 
 @pytest.mark.thread_unsafe(reason="records process-global warnings and mutates the context stack")
 @pytest.mark.agent_authored(model="claude-fable-5-1")
-def test_mr_deallocation_during_exception_keeps_the_exception():
+def test_mr_deallocation_during_exception_keeps_the_exception(init_cuda):
     """A Buffer released while an exception propagates leaves that exception in place.
 
     The deleter calls ``mr.deallocate`` on the Python thread. It must start
@@ -896,8 +902,7 @@ def test_mr_deallocation_during_exception_keeps_the_exception():
     exception, and the caller returned an error with no exception set, which
     Python reports as ``SystemError`` (found in review of #2917).
     """
-    device = Device()
-    device.set_current()
+    device = init_cuda
     FailingMR, _ = make_instrumented_memory_resource(deallocate_error=RuntimeError("expected deallocation failure"))
     mr = FailingMR(device)
 

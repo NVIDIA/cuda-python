@@ -230,6 +230,12 @@ def test_escalated_cudawarning_from_cleanup_is_not_a_crash(mempool_device):
     assert len(unraisable) == 1
     assert issubclass(unraisable[0].exc_type, CUDAWarning)
     assert "restoring the caller's context" in str(unraisable[0].exc_value)
+    # mr-baseline-retention-fix (H3): the unraisable hook args hold
+    # exc_traceback whose frame holds ``mr`` (never closed). Clear the
+    # list and drop the locals so gc can reclaim mr; close the pool too.
+    unraisable.clear()
+    mr.close()
+    del mr, buf
 
 
 @thread_unsafe_context_fault
