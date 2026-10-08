@@ -23,8 +23,9 @@ NBYTES = 64
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
 
-# these tests spawn new processes and files which fails for very many threads
-pytestmark = pytest.mark.parallel_threads_limit(4)
+# these tests spawn new processes and files which fails for very many threads;
+# child processes and IPC fixtures are shared across workers (#2784); cap at two threads
+pytestmark = pytest.mark.parallel_threads_limit(2)
 
 
 def child_main(log, queue):
