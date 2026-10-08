@@ -239,7 +239,9 @@ that calls a CUDA API without `init_cuda` (or an explicit
 to leave current on the thread — possibly none. With `pytest-randomly` that
 makes the pass/fail outcome depend on test order, so it moves seed to seed and
 looks like flakiness. Request `init_cuda` for any test that calls into the
-driver, or set up and tear down a context yourself.
+driver, or set up and tear down a context yourself. Allocating through
+`device.memory_resource` or `Device.allocate`, or constructing any memory
+resource, counts as touching CUDA and requires `init_cuda`.
 
 ## Assert on behavior, not implementation
 
