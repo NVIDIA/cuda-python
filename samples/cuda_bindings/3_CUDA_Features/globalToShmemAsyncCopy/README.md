@@ -113,5 +113,5 @@ Result = PASS
 - [CUDA Python Documentation](https://nvidia.github.io/cuda-python/)
 - [`samples/cuda_core/matrixMulSharedMem/`](../../../cuda_core/matrixMulSharedMem/) - basic tiled GEMM (no async copy)
 - [CUDA C++ Programming Guide — Asynchronous Data Copies](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#asynchronous-data-copies)
-- [`libcudacxx` `cuda::memcpy_async`](https://nvidia.github.io/libcudacxx/extended_api/asynchronous_operations/memcpy_async.html)
-- [`libcudacxx` `cuda::pipeline`](https://nvidia.github.io/libcudacxx/extended_api/synchronization_primitives/pipeline.html)
+- [`libcudacxx` `cuda::memcpy_async`](https://nvidia.github.io/cccl/unstable/libcudacxx/extended_api/asynchronous_operations/memcpy_async.html)
+- [`libcudacxx` `cuda::pipeline`](https://nvidia.github.io/cccl/unstable/libcudacxx/extended_api/synchronization_primitives/pipeline.html)
