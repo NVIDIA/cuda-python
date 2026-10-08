@@ -60,6 +60,12 @@ def _register_gl_image(tex_id, target):
         raise
 
 
+def _skip_if_tcc():
+    """Skip on TCC: compute-only driver model, no OpenGL, so CUDA-GL interop is unavailable."""
+    if Device().properties.tcc_driver:
+        pytest.skip("Device is in TCC mode; TCC does not support OpenGL, so CUDA-GL interop is unavailable.")
+
+
 def _configure_pyglet_headless():
     """On headless Linux: enable EGL mode, matched to the current CUDA device, or skip if EGL is absent."""
     if sys.platform.startswith("linux") and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
@@ -157,6 +163,7 @@ def _allocate_gl_texture(win, width, height):
 @contextlib.contextmanager
 def _gl_context_and_buffer(nbytes=1024):
     """Yield ``(gl_buffer_name, nbytes)`` with a current GL context, or skip if GL is unavailable."""
+    _skip_if_tcc()
     _configure_pyglet_headless()
 
     try:
@@ -187,6 +194,7 @@ def _gl_context_and_buffer(nbytes=1024):
 @contextlib.contextmanager
 def _gl_context_and_texture(width=16, height=16):
     """Yield ``(tex_id, tex_target)`` with a current GL context, or skip if GL is unavailable."""
+    _skip_if_tcc()
     _configure_pyglet_headless()
 
     try:
