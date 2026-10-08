@@ -30,7 +30,7 @@ The sample exercises three algorithm families:
 
 ## Key Libraries
 
-- [`cuda.compute`](https://nvidia.github.io/cccl/python.html) (from the `cuda-cccl` package) - device algorithms and JIT-compiled Python ops
+- [`cuda.compute`](https://nvidia.github.io/cccl/unstable/python/compute/index.html) (from the `cuda-cccl` package) - device algorithms and JIT-compiled Python ops
 - [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/) - device setup
 - `cupy` - device buffers
 - `numpy` - scalar init values and host-side verification
