@@ -12,7 +12,11 @@ inputs:
   refresh-cache:
     description: Check links afresh and publish a new cache baseline
     default: "false"
+  failure-policy:
+    description: "check allows up to 10 rate-limited URLs; cache-warm warns on all link failures"
+    default: check
 
+# Callers provide Python 3.10+ on PATH; the helpers use only its standard library.
 runs:
   using: composite
   steps:
@@ -82,10 +86,12 @@ runs:
         EXIT_CODE: ${{ steps.lychee.outputs.exit_code }}
         REPORT: ${{ github.workspace }}/lychee-${{ inputs.kind }}.json
         LYCHEE_ARGS: ${{ steps.inputs.outputs.args }}
+        FAILURE_POLICY: ${{ inputs.failure-policy }}
         GITHUB_TOKEN: ${{ github.token }}
       run: |
         python "${GITHUB_WORKSPACE}/ci/tools/retry_lychee.py" \
-          --initial-exit-code "${EXIT_CODE}" --report "${REPORT}" --max-attempts 10
+          --initial-exit-code "${EXIT_CODE}" --report "${REPORT}" \
+          --max-attempts 3 --policy "${FAILURE_POLICY}"
 
     - name: Publish fresh successful checks
       # Manual branch tests publish isolated branch caches. Nightly callers
