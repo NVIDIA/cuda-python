@@ -145,7 +145,11 @@ _mr_last_init_cuda_nodeid = None
 
 
 def _device_default_memory_resource_count():
-    """Number of main-thread Devices that currently cache a default MR."""
+    """Number of main-thread Devices that currently cache a default MR.
+
+    Reaches into Device thread-local state (``_device._tls``) on purpose; update
+    this and :func:`_release_device_default_memory_resources` if that moves.
+    """
     return sum(d._memory_resource is not None for d in getattr(_device._tls, "devices", ()))
 
 
@@ -261,8 +265,10 @@ def init_cuda(request):
     try:
         yield device
     finally:
-        # pytest holds fixture values in item.funcargs until all teardown has
-        # run; drop them so already torn-down fixtures are not counted below.
+        # pytest holds fixture values in item.funcargs (a pytest-internal dict)
+        # until all teardown has run; we deliberately drop them so already
+        # torn-down fixtures are not counted below. Revisit if pytest changes
+        # how it retains fixture values.
         request.node.funcargs.clear()
         # Only a resource in a reference cycle outlives the test frame, so
         # collect only if the count differs from its value at setup. A lower

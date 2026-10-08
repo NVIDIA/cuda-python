@@ -30,10 +30,10 @@ class _CountedMRWithArgs(MemoryResource):
         self.b = b
 
 
-_THREADSAFE_MARKER = pytest.mark.thread_unsafe(reason="asserts on the process-global resource count")
+_THREAD_UNSAFE_MARKER = pytest.mark.thread_unsafe(reason="asserts on the process-global resource count")
 
 
-@_THREADSAFE_MARKER
+@_THREAD_UNSAFE_MARKER
 @pytest.mark.agent_authored(model="glm-5.2")
 def test_new_resource_is_counted_until_freed(init_cuda):
     before = _live_memory_resource_count()
@@ -43,7 +43,7 @@ def test_new_resource_is_counted_until_freed(init_cuda):
     assert _live_memory_resource_count() == before
 
 
-@_THREADSAFE_MARKER
+@_THREAD_UNSAFE_MARKER
 @pytest.mark.agent_authored(model="glm-5.2")
 def test_resource_in_cycle_stays_counted_until_collect(init_cuda):
     before = _live_memory_resource_count()
@@ -64,7 +64,7 @@ def test_resource_in_cycle_stays_counted_until_collect(init_cuda):
             gc.enable()
 
 
-@_THREADSAFE_MARKER
+@_THREAD_UNSAFE_MARKER
 @pytest.mark.agent_authored(model="glm-5.2")
 def test_subclass_with_init_args_is_counted(init_cuda):
     # Guards the no-argument base __cinit__: a Python subclass whose __init__
@@ -77,7 +77,7 @@ def test_subclass_with_init_args_is_counted(init_cuda):
     assert _live_memory_resource_count() == before
 
 
-@_THREADSAFE_MARKER
+@_THREAD_UNSAFE_MARKER
 @pytest.mark.agent_authored(model="glm-5.2")
 def test_cython_subclass_wrapper_is_counted(init_cuda):
     # Covers a Cython subclass with its own __cinit__: a non-owning
@@ -90,7 +90,7 @@ def test_cython_subclass_wrapper_is_counted(init_cuda):
     assert _live_memory_resource_count() == before
 
 
-@_THREADSAFE_MARKER
+@_THREAD_UNSAFE_MARKER
 @pytest.mark.agent_authored(model="glm-5.2")
 def test_concurrent_construct_and_drop_returns_to_start(init_cuda):
     # On a free-threaded build this guards against a non-atomic counter; on a

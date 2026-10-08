@@ -337,10 +337,10 @@ def fill_env(request, init_cuda):
     try:
         yield device, mr
     finally:
-        # mr-baseline-retention-fix (H4): drop the fixture's MR
-        # reference so the (closed-by-dealloc) object does not persist
-        # in the pytest fixture cache past this teardown; without this the
-        # baseline ratchets/oscillates with fragile release timing.
+        # Defensive: drop the fixture-local MR reference promptly so the
+        # closed-by-dealloc object does not linger in this generator's frame.
+        # init_cuda's teardown also clears item.funcargs, so the test's own
+        # reference is released there regardless.
         del mr
 
 

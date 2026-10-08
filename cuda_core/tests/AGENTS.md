@@ -69,7 +69,8 @@ that creates them. The collected items and imported modules are frozen after
 collection, so the collect covers only objects created during the run.
 
 A resource that outlives a test without `init_cuda` makes the next `init_cuda`
-test emit `UnreleasedMemoryResourceWarning`. Release what you construct, and
+test fail with `UnreleasedMemoryResourceWarning` (escalated to an error in
+`pytest.ini`). Release what you construct, and
 request `init_cuda` in any test that constructs one (see "Tests that touch CUDA
 must establish their own context").
 
