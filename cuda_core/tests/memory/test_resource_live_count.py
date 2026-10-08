@@ -82,7 +82,11 @@ def test_subclass_with_init_args_is_counted(init_cuda):
 def test_cython_subclass_wrapper_is_counted(init_cuda):
     # Covers a Cython subclass with its own __cinit__: a non-owning
     # DeviceMemoryResource(device) wrapper (no options) wraps the default pool
-    # and is counted and uncounted like any resource.
+    # and is counted and uncounted like any resource. The no-options path
+    # needs the current device's memory pool, so skip where it is unsupported
+    # (e.g. Windows TCC); the counter behavior itself is platform-independent.
+    if not init_cuda.properties.memory_pools_supported:
+        pytest.skip("Device does not support memory pools")
     before = _live_memory_resource_count()
     mr = DeviceMemoryResource(init_cuda)
     assert _live_memory_resource_count() == before + 1
