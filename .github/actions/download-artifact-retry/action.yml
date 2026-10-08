@@ -52,9 +52,13 @@ runs:
     - name: Wait before retry
       if: ${{ steps.attempt1.outcome == 'failure' }}
       shell: bash --noprofile --norc -euo pipefail {0}
+      env:
+        # Pass through env instead of interpolating the input into the shell
+        # script, so a non-numeric value cannot inject commands.
+        RETRY_DELAY_SECONDS: ${{ inputs.retry-delay-seconds }}
       run: |
-        echo "::warning::Artifact download failed (attempt 1); retrying in ${{ inputs.retry-delay-seconds }}s"
-        sleep "${{ inputs.retry-delay-seconds }}"
+        echo "::warning::Artifact download failed (attempt 1); retrying in ${RETRY_DELAY_SECONDS}s"
+        sleep "$RETRY_DELAY_SECONDS"
 
     - name: Download artifact (attempt 2)
       if: ${{ steps.attempt1.outcome == 'failure' }}
