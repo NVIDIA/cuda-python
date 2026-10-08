@@ -264,6 +264,13 @@ Fixes and enhancements
   addresses, and ``update`` rejected that descriptor with a message about
   multidimensional copies. Such an operand stays unified when it is replaced,
   because the driver does not accept a change of an operand's memory type in
-  an instantiated graph, so :meth:`~graph.Graph.update` applies the change as
-  well. The node's ``repr`` now shows ``U`` for unified operands.
+  an instantiated graph. Replacing a device operand with another device
+  buffer of the same kind can therefore also be applied with
+  :meth:`~graph.Graph.update`. Replacing it with host memory, or with memory
+  from a different allocator, always takes effect in a new instantiation;
+  whether an executable update accepts it depends on how the operands were
+  allocated and on the driver. The driver compares the memory class of
+  pool-backed and virtual-memory operands and rejects the change for them,
+  while operands from plain ``cuMemAlloc`` allocations accept it. The node's
+  ``repr`` now shows ``U`` for unified operands.
   (`#2649 <https://github.com/NVIDIA/cuda-python/issues/2649>`__)
