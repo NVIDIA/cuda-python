@@ -85,8 +85,9 @@ from cuda.core import (
     VirtualMemoryResourceOptions,
 )
 from cuda.core._utils.cuda_utils import CUDAError
-from cuda.core._utils.version import driver_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 from cuda.core.graph import (
+    AllocNode,
     ChildGraphNode,
     ConditionalNode,
     EventRecordNode,
@@ -97,6 +98,7 @@ from cuda.core.graph import (
     KernelNode,
     MemcpyNode,
 )
+from cuda.core.typing import GraphMemoryType
 
 
 def _skip_if_no_mempool():
@@ -122,6 +124,12 @@ _MEMORY_RESOURCES = [
     pytest.param(_device_memory_resource, id="device_mr"),
     pytest.param(_virtual_memory_resource, id="vmm"),
 ]
+
+
+def _skip_if_no_managed_mempool():
+    _skip_if_no_mempool()
+    if not Device(0).properties.concurrent_managed_access:
+        pytest.skip("Device does not support managed memory pool operations")
 
 
 # =============================================================================
@@ -1274,12 +1282,8 @@ def test_kernel_node_reconstruction_preserves_validity(init_cuda):
     stream.sync()
 
 
-def _pred_chain_memcpy(g, bufs):
-    memory_resource = LegacyPinnedMemoryResource()
-    src = memory_resource.allocate(8)
-    dst = memory_resource.allocate(8)
-    bufs.extend((src, dst))
-    node = g.memcpy(dst, src, 8)
+def _make_pred_chain_memcpy(builder, src, dst):
+    node = builder.memcpy(dst, src, 8)
     src_ptr, dst_ptr, size = node.src, node.dst, node.size
     succ = node.record(Device().create_event())
 
@@ -1290,6 +1294,21 @@ def _pred_chain_memcpy(g, bufs):
         assert reconstructed.size == size
 
     return node, succ, check
+
+
+def _pred_chain_memcpy_host(g, bufs):
+    memory_resource = LegacyPinnedMemoryResource()
+    src = memory_resource.allocate(8)
+    dst = memory_resource.allocate(8)
+    bufs.extend((src, dst))
+    return _make_pred_chain_memcpy(g, src, dst)
+
+
+def _pred_chain_memcpy_device(g, bufs):
+    _skip_if_no_mempool()
+    src = g.allocate(8)
+    dst = g.allocate(8)
+    return _make_pred_chain_memcpy(g.join(src, dst), src.dptr, dst.dptr)
 
 
 def _pred_chain_event_record(g, bufs):
@@ -1316,6 +1335,35 @@ def _pred_chain_event_wait(g, bufs):
     return node, succ, check
 
 
+def _pred_chain_alloc_peer_access(g, bufs):
+    _skip_if_no_mempool()
+    device = Device()
+    node = g.allocate(64, device=device, peer_access=[device])
+    expected_peer_access = (device.device_id,)
+    succ = node.record(device.create_event())
+
+    def check(reconstructed):
+        assert isinstance(reconstructed, AllocNode)
+        assert reconstructed.peer_access == expected_peer_access
+
+    return node, succ, check
+
+
+def _pred_chain_alloc_managed(g, bufs):
+    _skip_if_no_managed_mempool()
+    node = g.allocate(64, memory_type=GraphMemoryType.MANAGED)
+    expected_dptr = node.dptr
+    succ = node.record(Device().create_event())
+
+    def check(reconstructed):
+        assert isinstance(reconstructed, AllocNode)
+        assert reconstructed.memory_type == "managed"
+        assert reconstructed.dptr == expected_dptr
+        assert reconstructed.dptr != 0
+
+    return node, succ, check
+
+
 def _pred_chain_free(g, bufs):
     _skip_if_no_mempool()
     alloc = g.allocate(64)
@@ -1333,12 +1381,21 @@ def _pred_chain_free(g, bufs):
 @pytest.mark.parametrize(
     "factory",
     [
-        _pred_chain_memcpy,
+        _pred_chain_memcpy_host,
+        _pred_chain_memcpy_device,
         _pred_chain_event_record,
         _pred_chain_event_wait,
+        _pred_chain_alloc_peer_access,
+        pytest.param(
+            _pred_chain_alloc_managed,
+            marks=pytest.mark.skipif(
+                BUILD_CUDA_MAJOR < 13,
+                reason="managed alloc requires a CUDA 13.0+ build",
+            ),
+        ),
         _pred_chain_free,
     ],
-    ids=["memcpy", "event_record", "event_wait", "free"],
+    ids=["memcpy_host", "memcpy_device", "event_record", "event_wait", "alloc_peer_access", "alloc_managed", "free"],
 )
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_graph_nodes_reconstructed_via_pred_chain(init_cuda, factory):

@@ -437,6 +437,47 @@ class TestSMResourceSplit:
 
         assert groups[0].sm_count % alignment == 0
 
+    @pytest.mark.agent_authored(model="gpt-6-sol")
+    def test_discovery_accepts_preferred_coscheduled_sm_count(self, init_cuda):
+        """Discovery with a preferred co-scheduling hint matches native-driver metadata."""
+        if BUILD_CUDA_MAJOR < 13 or driver_version() < (13, 1, 0):
+            pytest.skip("preferred co-scheduled SM split requires CUDA 13.1+")
+        if init_cuda.compute_capability < (10, 0):
+            pytest.skip("distinct preferred co-scheduling requires Blackwell+")
+
+        sm_resource = init_cuda.resources.sm
+        alignment = sm_resource.coscheduled_alignment
+        preferred = 2 * alignment
+        if preferred > min(32, sm_resource.sm_count):
+            pytest.skip("device cannot support a distinct preferred count")
+
+        # Probe the same request independently. Once the native API accepts it,
+        # any cuda.core failure must propagate instead of becoming a skip.
+        native_input = driver.CUdevResource(_ptr=sm_resource.handle)
+        params = driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS()
+        params.smCount = 0
+        params.coscheduledSmCount = alignment
+        params.preferredCoscheduledSmCount = preferred
+        status, expected_groups, expected_remaining = driver.cuDevSmResourceSplit(1, native_input, 0, [params])
+        if status == driver.CUresult.CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION:
+            pytest.skip("native driver cannot satisfy the preferred co-scheduling request")
+        handle_return((status,))
+
+        groups, remaining = sm_resource.split(
+            SMResourceOptions(
+                count=None,
+                coscheduled_sm_count=alignment,
+                preferred_coscheduled_sm_count=preferred,
+            )
+        )
+        assert len(groups) == len(expected_groups) == 1
+        assert groups[0].sm_count == expected_groups[0].sm.smCount
+        if expected_groups[0].sm.smCoscheduledAlignment:
+            assert groups[0].coscheduled_alignment == expected_groups[0].sm.smCoscheduledAlignment
+        assert groups[0].sm_count % groups[0].coscheduled_alignment == 0
+        if expected_remaining.type == driver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM:
+            assert remaining.sm_count == expected_remaining.sm.smCount
+
     def test_two_groups(self, sm_resource):
         """Two-group split succeeds for a supported explicit request."""
         split = _find_supported_split(sm_resource, n_groups=2)
@@ -629,6 +670,19 @@ class TestContextResources:
         try:
             stream_sm = stream.resources.sm
             assert stream_sm.sm_count == sm_resource.sm_count
+        finally:
+            stream.close()
+
+    @pytest.mark.agent_authored(model="gpt-6-sol")
+    def test_primary_context_stream_workqueue_resources(self, init_cuda, wq_resource):
+        """A primary-context stream reports the full device workqueue resources."""
+        stream = init_cuda.create_stream()
+        try:
+            stream_wq = stream.resources.workqueue
+            assert stream_wq.handle != 0
+            assert stream_wq.sharing_scope is wq_resource.sharing_scope
+            assert stream_wq.concurrency_limit == wq_resource.concurrency_limit
+            assert stream_wq.device.device_id == init_cuda.device_id
         finally:
             stream.close()
 

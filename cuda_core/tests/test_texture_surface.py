@@ -1207,3 +1207,40 @@ def test_surface_object_keeps_backing_array_alive(init_cuda):
     assert len(arr_refs) == 1, "SurfaceObject should still reference its backing OpaqueArray via the ResourceDescriptor"
     assert surf.handle != 0
     surf.close()
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_array_options_rejects_unknown_format_string():
+    """OpaqueArrayOptions rejects unknown format strings."""
+    with pytest.raises(ValueError, match="format must be an ArrayFormatType or one of"):
+        OpaqueArrayOptions(shape=(8,), format="not_a_format", num_channels=1)
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_array_repr_includes_shape_format_and_channels(init_cuda):
+    arr = Device().create_opaque_array(OpaqueArrayOptions(shape=(8, 4), format=ArrayFormatType.FLOAT32, num_channels=1))
+    try:
+        text = repr(arr)
+        assert "OpaqueArray(" in text
+        assert "shape=(8, 4)" in text
+        assert "FLOAT32" in text
+        assert "num_channels=1" in text
+    finally:
+        arr.close()
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_array_copy_rejects_non_buffer(init_cuda):
+    """copy_from/copy_to reject objects that do not provide the buffer protocol."""
+    arr = Device().create_opaque_array(OpaqueArrayOptions(shape=(8,), format=ArrayFormatType.UINT8, num_channels=1))
+    try:
+        stream = Device().create_stream()
+        try:
+            with pytest.raises(TypeError, match=r"buffer-protocol object|bytes-like object"):
+                arr.copy_from(object(), stream=stream)
+            with pytest.raises(TypeError, match=r"buffer-protocol object|bytes-like object"):
+                arr.copy_to(object(), stream=stream)
+        finally:
+            stream.close()
+    finally:
+        arr.close()

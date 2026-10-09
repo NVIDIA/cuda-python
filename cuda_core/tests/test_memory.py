@@ -1899,6 +1899,14 @@ def test_vmm_deallocate_frees_wrapped_pointer(init_cuda):
     _vmm_assert_released([(int(ptr), size)])
 
 
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_vmm_modify_allocation_rejects_non_buffer(init_cuda):
+    """``modify_allocation`` rejects inputs that are not Buffer objects."""
+    mr = _vmm_resource(_vmm_device_or_skip())
+    with pytest.raises(TypeError, match=r"Argument 'buf' has incorrect type .*Buffer, got object"):
+        mr.modify_allocation(object(), 4096)
+
+
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_vmm_buffers_alive_at_shutdown_are_freed_quietly(init_cuda):
     """Buffers still referenced at interpreter exit are freed without a warning or an error."""

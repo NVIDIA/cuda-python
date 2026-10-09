@@ -320,6 +320,7 @@ class TestTensorMapDescriptorValidation:
                 box_dim=(32, 32),
                 data_type=TensorMapDataType.FLOAT32,
                 element_strides=(1, 1),
+                interleave=TensorMapInterleave.NONE,
                 swizzle=TensorMapSwizzle.SWIZZLE_128B,
                 l2_promotion=TensorMapL2Promotion.L2_128B,
                 oob_fill=TensorMapOOBFill.NAN_REQUEST_ZERO_FMA,

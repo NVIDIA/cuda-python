@@ -556,6 +556,22 @@ def test_nvvm_program_creation_compilation(nvvm_ir):
 
 
 @nvvm_available
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_nvvm_compile_accepts_log_sink(nvvm_ir):
+    """NVVM compilation accepts a log sink and produces non-empty PTX."""
+    import io
+
+    program = Program(nvvm_ir, "nvvm")
+    try:
+        # Successful compilation may produce an empty log.
+        obj = program.compile("ptx", logs=io.StringIO())
+        assert isinstance(obj, ObjectCode)
+        assert obj.code
+    finally:
+        program.close()
+
+
+@nvvm_available
 def test_nvvm_compile_invalid_target(nvvm_ir):
     """Test that NVVM programs reject invalid compilation targets"""
     program = Program(nvvm_ir, "nvvm")
@@ -1434,3 +1450,30 @@ declare i32 @llvm.nvvm.read.ptx.sreg.ctaid.x()""",
         assert not any(b".extern" in line and b"__nv_sin" in line for line in obj.code.splitlines())
     finally:
         program.close()
+
+
+@pytest.mark.thread_unsafe(reason="monkeypatches the process-global nvrtcVersion binding")
+@pytest.mark.parametrize(
+    ("version", "supported"),
+    [
+        pytest.param((13, 2), False, id="below-minimum"),
+        pytest.param((13, 3), True, id="minimum"),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_use_bundled_headers_nvrtc_version_boundary(monkeypatch, version, supported):
+    """use_bundled_headers requires NVRTC 13.3 or newer."""
+    calls = []
+
+    def _nvrtc_version():
+        calls.append(True)
+        return (nvrtc.nvrtcResult.NVRTC_SUCCESS, *version)
+
+    monkeypatch.setattr(nvrtc, "nvrtcVersion", _nvrtc_version)
+    if supported:
+        options = ProgramOptions(arch="sm_80", use_bundled_headers=True)
+        assert options.use_bundled_headers is True
+    else:
+        with pytest.raises(RuntimeError, match=r"use_bundled_headers requires NVRTC >= 13\.3"):
+            ProgramOptions(arch="sm_80", use_bundled_headers=True)
+    assert calls == [True]

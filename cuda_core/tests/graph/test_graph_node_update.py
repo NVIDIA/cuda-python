@@ -1065,6 +1065,59 @@ def test_executable_node_enable_state(init_cuda, node_kind):
     assert view.is_enabled
 
 
+@pytest.mark.parametrize("operation", ["update", "is-enabled", "enable"])
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_executable_kernel_node_rejects_destroyed_source_node(init_cuda, operation):
+    """Executable-node operations reject a destroyed source node."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    kernel = compile_common_kernels().get_kernel("empty_kernel")
+    config = LaunchConfig(grid=1, block=1)
+    graph_def = GraphDefinition()
+    node = graph_def.launch(config, kernel)
+    graph = graph_def.instantiate()
+    view = graph[node]
+
+    node.destroy()
+
+    operations = {
+        "update": lambda: view.update(config=config, kernel=kernel, args=()),
+        "is-enabled": lambda: view.is_enabled,
+        "enable": view.enable,
+    }
+    with pytest.raises(RuntimeError, match="GraphNode has been destroyed"):
+        operations[operation]()
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_kernel_update_rejects_existing_cooperative_node(init_cuda):
+    """Definition updates reject a node already marked cooperative by the driver."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    kernel = compile_common_kernels().get_kernel("empty_kernel")
+    config = LaunchConfig(grid=1, block=1)
+    graph_def = GraphDefinition()
+    node = graph_def.launch(config, kernel)
+
+    attr = driver.CUkernelNodeAttrValue()
+    attr.cooperative = 1
+    handle_return(
+        driver.cuGraphKernelNodeSetAttribute(
+            node.handle,
+            driver.CUkernelNodeAttrID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE,
+            attr,
+        )
+    )
+
+    with pytest.raises(
+        NotImplementedError,
+        match="updating clustered or cooperative kernel nodes is not supported",
+    ):
+        node.update(config=config)
+
+
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_executable_node_view_rejects_unsupported_and_destroyed_nodes(
     init_cuda,

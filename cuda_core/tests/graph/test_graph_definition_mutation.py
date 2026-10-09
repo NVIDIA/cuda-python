@@ -401,6 +401,9 @@ def test_discard_wrong_type_is_noop(init_cuda):
     owner.succ.discard(42)
 
     assert owner.succ == {neighbor}
+    with pytest.raises(KeyError):
+        owner.succ.remove("not a node")
+    assert owner.succ == {neighbor}
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
