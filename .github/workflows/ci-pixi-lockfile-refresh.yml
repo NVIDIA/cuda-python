@@ -50,7 +50,9 @@ jobs:
 
       # Pixi 0.73.0's update and lock-read paths can serialize the same solve
       # differently (#2804). Canonicalize with the same operation used by the
-      # freshness workflow before opening the PR.
+      # freshness workflow before opening the PR. If cuda_core hits the exact
+      # samples-source pruning defect guarded there, retain its committed lock
+      # and continue refreshing the other workspaces.
       - name: Update and canonicalize all lockfiles
         id: update
         env:
@@ -90,14 +92,49 @@ jobs:
                 lockfile="$2"
                 pixi_version="$3"
 
+                committed_blob="$(git hash-object "${lockfile}")"
                 pixi update --no-install --manifest-path "${manifest}"
-                pixi lock --check --manifest-path "${manifest}"
+                # The detector reads this uncommitted post-update state through
+                # git cat-file, so explicitly persist the blob in the runner-local
+                # temporary object database.
+                updated_blob="$(git hash-object -w "${lockfile}")"
+
+                check_status=0
+                pixi lock --check --manifest-path "${manifest}" \
+                  || check_status=$?
+                if ((check_status != 0)); then
+                  defect_status=1
+                  if [[ "${manifest}" == "cuda_core" ]]; then
+                    defect_status=0
+                    python3 ci/tools/check_pixi_samples_source_pruning.py \
+                      --original-blob "${updated_blob}" \
+                      --lockfile "${lockfile}" \
+                      --manifest-path "${manifest}/pixi.toml" \
+                      --pixi-version "${pixi_version}" \
+                      --check-status "${check_status}" \
+                      || defect_status=$?
+                  fi
+
+                  if ((defect_status == 0)); then
+                    echo "::warning title=Known Pixi samples lockfile bug::Pixi ${pixi_version} removed only the nine samples local-source references after updating ${lockfile}. Keeping the committed cuda_core lockfile and continuing with the other workspaces; all other refresh failures remain strict."
+                    git cat-file blob "${committed_blob}" > "${lockfile}"
+                    echo "known-defect-skipped=true" >> "${GITHUB_OUTPUT}"
+                    exit 0
+                  elif [[ "${manifest}" == "cuda_core" ]] && ((defect_status != 1)); then
+                    echo "::error::Could not determine whether ${lockfile} matches the known Pixi samples-source pruning defect. Resolve the detector error above and rerun."
+                    exit "${defect_status}"
+                  fi
+
+                  exit "${check_status}"
+                fi
 
                 canonical_blob="$(git hash-object "${lockfile}")"
-                pixi lock --check --manifest-path "${manifest}"
+                verify_status=0
+                pixi lock --check --manifest-path "${manifest}" \
+                  || verify_status=$?
                 verified_blob="$(git hash-object "${lockfile}")"
-                if [ "${canonical_blob}" != "${verified_blob}" ]; then
-                  echo "::error::pixi ${pixi_version} rewrote ${lockfile} on a second consecutive pixi lock --check; refusing to open an unstable refresh PR."
+                if ((verify_status != 0)) || [[ "${canonical_blob}" != "${verified_blob}" ]]; then
+                  echo "::error::pixi ${pixi_version} did not reach a successful byte-stable check for ${lockfile} (verification exit ${verify_status}, canonical blob ${canonical_blob}, verified blob ${verified_blob}); refusing to open an unstable refresh PR."
                   exit 1
                 fi
               ' bash "${manifest}" "${lockfile}" "${PIXI_VERSION}" \
@@ -123,15 +160,24 @@ jobs:
       - name: Compose PR body
         id: pr-body
         env:
+          KNOWN_DEFECT_SKIPPED: ${{ steps.update.outputs.known-defect-skipped }}
           PIXI_VERSION: ${{ steps.setup-pixi.outputs.pixi-version }}
         run: |
           body_path="${RUNNER_TEMP}/pixi-lock-refresh-body.md"
           {
-            echo "Automated lockfile refresh for all workspaces using pixi" \
+            echo "Automated lockfile refresh using pixi" \
               "\`${PIXI_VERSION}\` (\`pixi update --no-install\`, followed by" \
-              "byte-stable \`pixi lock --check\` canonicalization)."
+              "byte-stable \`pixi lock --check\` canonicalization for each" \
+              "refreshed workspace)."
+            if [[ "${KNOWN_DEFECT_SKIPPED}" == "true" ]]; then
+              echo
+              echo "> [!NOTE]"
+              echo "> \`cuda_core/pixi.lock\` was left unchanged because Pixi" \
+                "\`${PIXI_VERSION}\` reproduced the exact known samples-source" \
+                "pruning defect. Other workspaces were refreshed normally."
+            fi
             echo
-            echo "Lockfiles included in the refresh:"
+            echo "Lockfiles covered by the refresh:"
             python3 ci/tools/list_pixi_workspaces.py \
               | jq -r '.[] | "- `\(.lockfile)`"'
             echo
@@ -183,5 +229,8 @@ jobs:
               echo "- PR: ${{ steps.cpr.outputs.pull-request-url }}"
             else
               echo "- No lockfile diff; PR not opened."
+            fi
+            if [[ "${{ steps.update.outputs.known-defect-skipped }}" == "true" ]]; then
+              echo "- \`cuda_core/pixi.lock\` retained its committed state because the exact known Pixi samples-source pruning defect was detected."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
