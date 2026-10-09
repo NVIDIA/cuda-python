@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_c2c\_mode\_info\_v
-==================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_c2c_mode_info_v
