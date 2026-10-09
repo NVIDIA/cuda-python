@@ -6,8 +6,30 @@
 This document covers the `cuda.core` release process. For other packages:
 `cuda-bindings` and `cuda-python` involve a private repository and are not
 documented here; `cuda-pathfinder` is largely automated by the
-[release-cuda-pathfinder.yml](workflows/release-cuda-pathfinder.yml)
+[CI: Release](workflows/release.yml)
 workflow.
+
+To release `cuda-pathfinder`, dispatch **CI: Release** from the default
+branch with `component` set to `cuda-pathfinder`, `release-action` set
+to `full-release`, and `git-tag` set to the existing
+`cuda-pathfinder-v<VERSION>` tag. The workflow finds the successful
+tag-triggered CI run, checks release notes, creates or reuses a draft,
+builds and deploys versioned docs, and uploads the source archive, checksum,
+and wheels. It publishes to TestPyPI and PyPI, verifies each installation,
+then publishes the GitHub Release without marking it as latest. A failed
+docs build prevents asset uploads, package publication, and finalization.
+
+The default `dry-run` action validates preparation, builds docs, and
+collects release artifacts without creating a GitHub Release or publishing
+packages. It can be dispatched from a development branch; use
+`dry-run-docs-branch` only when a preview deployment is needed.
+
+Before the first Pathfinder release through this workflow, its trusted
+publishers on **both PyPI and TestPyPI** must authorize `release.yml`.
+Until that migration is complete, `release-cuda-pathfinder.yml` remains
+available. Keep its existing publisher
+registrations during the transition; retire the old workflow and its
+registrations after the consolidated workflow is authorized on both indexes.
 
 Each section below provides detailed guidance for a step in the
 [Release Checklist](ISSUE_TEMPLATE/release_checklist.yml). To start a
