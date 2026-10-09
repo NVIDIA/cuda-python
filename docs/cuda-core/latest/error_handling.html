@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=71f3baa9"></script>
+    <script src="_static/documentation_options.js?v=d58b3eb0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev194';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev195';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -813,7 +813,7 @@ methods that add several driver edges).</p></li>
 while an exception is being raised, for example the caller’s context cannot be
 restored after a failed call, or the rollback of a partially built graph node
 fails, the second failure is attached to the exception as a note
-(<a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#BaseException.add_note" title="(in Python v3.14)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseException.add_note()</span></code></a>), which appears in the traceback and in
+(<a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#BaseException.add_note" title="(in Python v3.15)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseException.add_note()</span></code></a>), which appears in the traceback and in
 <code class="docutils literal notranslate"><span class="pre">__notes__</span></code>. Python 3.10 has no exception notes; there the information is
 appended to the message when <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> constructs the exception, and
 reported as described in the next section otherwise.</p>
@@ -834,7 +834,7 @@ default; because the handle differs per resource, independent failures are not
 collapsed into one report. The warning means the
 affected resource may have leaked; <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> never leaves a resource in use
 by CUDA with its memory released (it prefers a leak to a dangling pointer).</p>
-<p><a class="reference internal" href="generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a> derives from <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeWarning" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeWarning</span></code></a>, so it is shown by
+<p><a class="reference internal" href="generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a> derives from <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeWarning" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeWarning</span></code></a>, so it is shown by
 default and can be filtered like any other warning. To make these failures
 loud in a test suite:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
@@ -844,7 +844,7 @@ loud in a test suite:</p>
 </pre></div>
 </div>
 <p>Because the report comes from a destructor or callback, an escalated warning is
-delivered through <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.unraisablehook" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sys.unraisablehook()</span></code></a> rather than raised into user code.
+delivered through <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.unraisablehook" title="(in Python v3.15)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sys.unraisablehook()</span></code></a> rather than raised into user code.
 pytest reports it as <code class="docutils literal notranslate"><span class="pre">PytestUnraisableExceptionWarning</span></code>, which its
 <code class="docutils literal notranslate"><span class="pre">-W</span> <span class="pre">error</span></code> option turns into a test failure.</p>
 <p><code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_DEINITIALIZED</span></code> is not reported. It means the CUDA driver is
