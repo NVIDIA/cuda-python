@@ -8,20 +8,17 @@ on:
   workflow_call:
     inputs:
       public_run_id:
-        description: Exact in-progress public CI run with completed WoA producers
         required: true
         type: string
-  workflow_run:
-    workflows:
-      - CI
-    types:
-      - completed
+    secrets:
+      CUDA_PYTHON_WOA_XREPO_CI_PRIVATE_APP_PRIVATE_KEY:
+        required: true
   schedule:
     - cron: "17 * * * *"
   workflow_dispatch:
     inputs:
       public_run_id:
-        description: Optional exact public CI run; empty selects the newest eligible build
+        description: Optional exact public CI run; empty selects the newest successful build
         required: false
         type: string
 
@@ -29,9 +26,9 @@ permissions: {}
 
 jobs:
   select:
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.repository == 'NVIDIA/cuda-python' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     permissions:
       actions: read
       checks: read
@@ -45,32 +42,99 @@ jobs:
       dispatch: ${{ steps.select.outputs.dispatch }}
       public-run-id: ${{ steps.select.outputs.public_run_id }}
     steps:
-      - name: Checkout trusted selector
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-          ref: main
-
-      - name: Select exact public batch
+      - name: Select public batch
         id: select
         env:
-          EVENT_CANDIDATE_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || '' }}
-          GITHUB_TOKEN: ${{ github.token }}
-          INPUT_CANDIDATE_RUN_ID: ${{ inputs.public_run_id }}
+          GH_TOKEN: ${{ github.token }}
+          INPUT_RUN_ID: ${{ inputs.public_run_id }}
         run: |
           set -euo pipefail
-          candidate_run_id="$EVENT_CANDIDATE_RUN_ID"
-          if [[ -n "$INPUT_CANDIDATE_RUN_ID" ]]; then
-            candidate_run_id="$INPUT_CANDIDATE_RUN_ID"
+          if [[ -n "$INPUT_RUN_ID" ]]; then
+            run=$(gh api \
+              -H 'X-GitHub-Api-Version: 2026-03-10' \
+              "repos/NVIDIA/cuda-python/actions/runs/$INPUT_RUN_ID")
+          else
+            run=$(gh api --method GET \
+              -H 'X-GitHub-Api-Version: 2026-03-10' \
+              repos/NVIDIA/cuda-python/actions/workflows/ci.yml/runs \
+              -f branch=main -f event=push -f status=success -F per_page=1 \
+              --jq '.workflow_runs[0]')
           fi
-          selection=$(python ci/tools/woa_xrepo_select.py --run-id "$candidate_run_id")
-          jq . <<< "$selection"
-          echo "dispatch=$(jq -r .dispatch <<< "$selection")" >> "$GITHUB_OUTPUT"
-          echo "baseline_sha=$(jq -r '.baseline_sha // ""' <<< "$selection")" >> "$GITHUB_OUTPUT"
-          echo "commit_count=$(jq -r '.commit_count // 0' <<< "$selection")" >> "$GITHUB_OUTPUT"
-          echo "public_run_id=$(jq -r '.run_id // ""' <<< "$selection")" >> "$GITHUB_OUTPUT"
-          echo "$(jq -r .reason <<< "$selection")" >> "$GITHUB_STEP_SUMMARY"
+          jq -e '
+            .repository.id == 381173759 and
+            .workflow_id == 155304118 and
+            .path == ".github/workflows/ci.yml" and
+            .event == "push" and
+            .head_branch == "main" and
+            ((.status == "in_progress" and .conclusion == null) or
+             (.status == "completed" and .conclusion == "success"))
+          ' <<< "$run" >/dev/null
+          run_id=$(jq -r '.id | tostring' <<< "$run")
+          attempt=$(jq -r '.run_attempt | tostring' <<< "$run")
+          sha=$(jq -r .head_sha <<< "$run")
+          external_id="woa:v1:381173759:$run_id:$attempt:$sha"
+
+          checks=$(gh api \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/NVIDIA/cuda-python/commits/$sha/check-runs?check_name=cuda-python%20WoA%20integration&per_page=100")
+          if jq -e --arg id "$external_id" '
+            any(.check_runs[]; .app.id == 4954254 and .external_id == $id)
+          ' <<< "$checks" >/dev/null; then
+            echo "dispatch=false" >> "$GITHUB_OUTPUT"
+            echo "This exact public run already has an App-owned attempt." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          commits=$(gh api --method GET \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            repos/NVIDIA/cuda-python/commits -f sha=main -F per_page=100)
+          candidate_index=$(jq -er --arg sha "$sha" '
+            [to_entries[] | select(.value.sha == $sha) | .key][0]
+          ' <<< "$commits")
+          commit_total=$(jq length <<< "$commits")
+          baseline_index=""
+          baseline_sha=""
+          for ((index = candidate_index + 1; index < commit_total; index++)); do
+            older_sha=$(jq -r --argjson index "$index" '.[$index].sha' <<< "$commits")
+            older_checks=$(gh api \
+              -H 'X-GitHub-Api-Version: 2026-03-10' \
+              "repos/NVIDIA/cuda-python/commits/$older_sha/check-runs?check_name=cuda-python%20WoA%20integration&per_page=100")
+            if jq -e '
+              any(.check_runs[];
+                .app.id == 4954254 and
+                .status == "completed" and
+                .conclusion == "success")
+            ' <<< "$older_checks" >/dev/null; then
+              baseline_index=$index
+              baseline_sha=$older_sha
+              break
+            fi
+          done
+
+          dispatch=true
+          commit_count=1
+          reason="Bootstrap: no successful App-owned baseline exists in the latest 100 commits."
+          if [[ -n "$baseline_index" ]]; then
+            commit_count=$((baseline_index - candidate_index))
+            oldest_pending_index=$((baseline_index - 1))
+            oldest_pending_at=$(jq -r \
+              --argjson index "$oldest_pending_index" \
+              '.[$index].commit.committer.date' <<< "$commits")
+            age_seconds=$(($(date +%s) - $(date -d "$oldest_pending_at" +%s)))
+            if (( commit_count >= 3 )); then
+              reason="Batch threshold reached: $commit_count commits."
+            elif (( age_seconds >= 7200 )); then
+              reason="Two-hour fallback reached: oldest pending commit is $age_seconds seconds old."
+            else
+              dispatch=false
+              reason="Deferred: $commit_count/3 commits and oldest pending age $age_seconds/7200 seconds."
+            fi
+          fi
+          echo "baseline_sha=$baseline_sha" >> "$GITHUB_OUTPUT"
+          echo "commit_count=$commit_count" >> "$GITHUB_OUTPUT"
+          echo "dispatch=$dispatch" >> "$GITHUB_OUTPUT"
+          echo "public_run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "$reason" >> "$GITHUB_STEP_SUMMARY"
 
   dispatch:
     needs: select
@@ -78,125 +142,9 @@ jobs:
     permissions:
       actions: read
       contents: read
-    uses: ./.github/workflows/woa-private-dispatch-reusable.yml
+    uses: ./.github/workflows/woa-private-dispatch.yml
     with:
       public_run_id: ${{ needs.select.outputs.public-run-id }}
       baseline_sha: ${{ needs.select.outputs.baseline-sha }}
       commit_count: ${{ needs.select.outputs.commit-count }}
     secrets: inherit
-
-  validate-terminal-failure:
-    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'success' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      actions: read
-    outputs:
-      correlation-id: ${{ steps.validate.outputs.correlation_id }}
-      public-run-attempt: ${{ steps.validate.outputs.public_run_attempt }}
-      public-run-id: ${{ steps.validate.outputs.public_run_id }}
-      public-sha: ${{ steps.validate.outputs.public_sha }}
-    steps:
-      - name: Validate exact unsuccessful public run
-        id: validate
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PUBLIC_RUN_ID: ${{ github.event.workflow_run.id }}
-        run: |
-          set -euo pipefail
-          run=$(gh api \
-            -H 'X-GitHub-Api-Version: 2026-03-10' \
-            "repos/NVIDIA/cuda-python/actions/runs/$PUBLIC_RUN_ID")
-          jq -e '
-            .repository.id == 381173759 and
-            .workflow_id == 155304118 and
-            .path == ".github/workflows/ci.yml" and
-            .event == "push" and
-            .head_branch == "main" and
-            .status == "completed" and
-            (.conclusion | IN(
-              "action_required",
-              "cancelled",
-              "failure",
-              "stale",
-              "startup_failure",
-              "timed_out"
-            ))
-          ' <<< "$run" >/dev/null
-          public_sha=$(jq -r .head_sha <<< "$run")
-          public_run_attempt=$(jq -r '.run_attempt | tostring' <<< "$run")
-          correlation_id="v1:381173759:$PUBLIC_RUN_ID:$public_run_attempt:$public_sha"
-          echo "public_run_id=$PUBLIC_RUN_ID" >> "$GITHUB_OUTPUT"
-          echo "public_run_attempt=$public_run_attempt" >> "$GITHUB_OUTPUT"
-          echo "public_sha=$public_sha" >> "$GITHUB_OUTPUT"
-          echo "correlation_id=$correlation_id" >> "$GITHUB_OUTPUT"
-
-  dispatch-cancellation:
-    needs: validate-terminal-failure
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions: {}
-    steps:
-      - name: Create private dispatch token
-        id: private-app-token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3
-        with:
-          client-id: ${{ vars.CUDA_PYTHON_WOA_XREPO_CI_PRIVATE_APP_CLIENT_ID }}
-          private-key: ${{ secrets.CUDA_PYTHON_WOA_XREPO_CI_PRIVATE_APP_PRIVATE_KEY }}
-          owner: NVIDIA-dev
-          repositories: cuda-python-private
-          permission-actions: write
-
-      - name: Locate exact private validation and dispatch cancellation
-        env:
-          CORRELATION_ID: ${{ needs.validate-terminal-failure.outputs.correlation-id }}
-          GH_TOKEN: ${{ steps.private-app-token.outputs.token }}
-          PUBLIC_RUN_ATTEMPT: ${{ needs.validate-terminal-failure.outputs.public-run-attempt }}
-          PUBLIC_RUN_ID: ${{ needs.validate-terminal-failure.outputs.public-run-id }}
-          PUBLIC_SHA: ${{ needs.validate-terminal-failure.outputs.public-sha }}
-        run: |
-          set -euo pipefail
-          runs=$(gh api \
-            -H 'X-GitHub-Api-Version: 2026-03-10' \
-            'repos/NVIDIA-dev/cuda-python-private/actions/workflows/woa-main-validation.yml/runs?event=workflow_dispatch&per_page=100')
-          matches=$(jq -c \
-            --arg title "WoA validation $CORRELATION_ID" '
-              [.workflow_runs[] | select(.display_title == $title)]
-            ' <<< "$runs")
-          match_count=$(jq length <<< "$matches")
-          if (( match_count == 0 )); then
-            echo "No correlated private validation exists; terminal reconciliation is a no-op." >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          if (( match_count != 1 )); then
-            echo "Expected one correlated private validation, found $match_count." >&2
-            exit 1
-          fi
-          private_run_id=$(jq -r '.[0].id | tostring' <<< "$matches")
-
-          payload=$(jq -n \
-            --arg correlation_id "$CORRELATION_ID" \
-            --arg private_run_id "$private_run_id" \
-            --arg run_attempt "$PUBLIC_RUN_ATTEMPT" \
-            --arg run_id "$PUBLIC_RUN_ID" \
-            --arg sha "$PUBLIC_SHA" '
-              {
-                ref: "ctk-next",
-                return_run_details: true,
-                inputs: {
-                  schema_version: "1",
-                  public_repository_id: "381173759",
-                  public_run_id: $run_id,
-                  public_run_attempt: $run_attempt,
-                  public_sha: $sha,
-                  private_run_id: $private_run_id,
-                  correlation_id: $correlation_id
-                }
-              }')
-          response=$(gh api \
-            --method POST \
-            -H 'X-GitHub-Api-Version: 2026-03-10' \
-            repos/NVIDIA-dev/cuda-python-private/actions/workflows/woa-main-cancel.yml/dispatches \
-            --input - <<< "$payload")
-          jq -e '.workflow_run_id | type == "number"' <<< "$response" >/dev/null
-          echo "Private cancellation controller accepted the exact request." >> "$GITHUB_STEP_SUMMARY"
