@@ -39,6 +39,23 @@ def test_matching_stale_blobs_are_base_maintenance():
     assert classify(candidate, base) is Classification.BASE_MAINTENANCE
 
 
+@pytest.mark.parametrize("base_repaired", ["shared-new", "base-new"])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_changed_manifest_with_unchanged_stale_lockfile_is_pr_induced(base_repaired):
+    candidate = _check(stale=True, original="shared-old", repaired="shared-new")
+    base = _check(stale=True, original="shared-old", repaired=base_repaired)
+
+    assert classify(candidate, base, manifest_changed=True) is Classification.PR_INDUCED
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_changed_manifest_and_changed_stale_lockfile_remain_mixed():
+    candidate = _check(stale=True, original="candidate-old", repaired="shared-new")
+    base = _check(stale=True, original="base-old", repaired="shared-new")
+
+    assert classify(candidate, base, manifest_changed=True) is Classification.MIXED
+
+
 @pytest.mark.parametrize(
     ("base_original", "base_repaired"),
     [

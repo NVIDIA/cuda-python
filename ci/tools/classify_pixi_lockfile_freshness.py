@@ -34,11 +34,15 @@ class LockfileCheck:
             raise ValueError("a fresh lockfile cannot have different original and repaired blobs")
 
 
-def classify(candidate: LockfileCheck, base: LockfileCheck | None) -> Classification:
+def classify(candidate: LockfileCheck, base: LockfileCheck | None, *, manifest_changed: bool = False) -> Classification:
     """Attribute a stale candidate lockfile using its base check, if any."""
     if not candidate.stale:
         raise ValueError("candidate lockfile must be stale")
     if base is None or not base.stale:
+        return Classification.PR_INDUCED
+    # A PR that edits this workspace's manifest owns its missing lockfile
+    # update, even when the base happens to need the same repair.
+    if manifest_changed and base.original_blob == candidate.original_blob:
         return Classification.PR_INDUCED
     if base.original_blob == candidate.original_blob and base.repaired_blob == candidate.repaired_blob:
         return Classification.BASE_MAINTENANCE
@@ -52,6 +56,9 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--base-result", choices=("missing", "fresh", "stale"), required=True)
     parser.add_argument("--base-original")
     parser.add_argument("--base-repaired")
+    parser.add_argument(
+        "--manifest-changed", action="store_true", help="The workspace's pixi.toml differs from the PR base."
+    )
     return parser.parse_args()
 
 
@@ -77,7 +84,7 @@ def main() -> int:
             repaired_blob=args.base_repaired,
         )
 
-    print(classify(candidate, base).value)
+    print(classify(candidate, base, manifest_changed=args.manifest_changed).value)
     return 0
 
 

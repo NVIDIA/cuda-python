@@ -283,6 +283,12 @@ jobs:
                 --base-repaired "${base_repaired}"
               )
             fi
+            # Matching repaired blobs do not establish base maintenance when
+            # this PR edits the workspace's manifest but retains its stale lock.
+            manifest_changed="$(git diff --name-only "${BASE_SHA}" HEAD -- "${manifest}/pixi.toml")"
+            if [[ -n "${manifest_changed}" ]]; then
+              classifier_args+=(--manifest-changed)
+            fi
             classification="$(
               python3 ci/tools/classify_pixi_lockfile_freshness.py "${classifier_args[@]}"
             )"
@@ -302,8 +308,12 @@ jobs:
 
             case "${classification}" in
               pr-induced)
-                echo "::error title=PR-induced Pixi lockfile change::Lockfile '${lockfile}' became stale in this PR. Regenerate and commit it with pixi ${PIXI_VERSION}: pixi lock --manifest-path ${manifest}."
-                echo "| \`${manifest}\` | PR-induced: regenerate and commit the lockfile in this PR. |" >> "${GITHUB_STEP_SUMMARY}"
+                pr_reason="lockfile update required"
+                if [[ -n "${manifest_changed}" && "${candidate_original}" == "${base_original}" ]]; then
+                  pr_reason="manifest changed without a lockfile update"
+                fi
+                echo "::error title=PR-induced Pixi lockfile change::Lockfile '${lockfile}' is stale in this PR (${pr_reason}). Regenerate and commit it with pixi ${PIXI_VERSION}: pixi lock --manifest-path ${manifest}."
+                echo "| \`${manifest}\` | PR-induced: ${pr_reason}; regenerate and commit the lockfile in this PR. |" >> "${GITHUB_STEP_SUMMARY}"
                 ;;
               base-maintenance)
                 echo "::error title=Base-maintenance Pixi lockfile change::Lockfile '${lockfile}' was already stale on the PR base; its original and repaired blobs match the candidate. Do not add this refresh to the feature PR. ${maintenance_annotation}"

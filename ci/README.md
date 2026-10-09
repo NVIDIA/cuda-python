@@ -25,6 +25,15 @@ The pinned checkout action's
 [`README`](https://github.com/actions/checkout/blob/3d3c42e5aac5ba805825da76410c181273ba90b1/README.md#fetch-all-history-for-all-tags-and-branches)
 documents `fetch-depth: 0` for fetching all history, branches, and tags.
 
+## Pixi Lockfile Freshness
+
+The freshness check verifies every committed Pixi workspace against the pinned
+Pixi version. For PRs, a stale lockfile is attributed to the PR when its own
+`pixi.toml` changed but the lockfile was left unchanged, even if the base needs
+the same repair. The failure asks the author to regenerate and commit the
+lockfile in the PR. Changes to another workspace's manifest do not affect this
+attribution. A manifest edit that leaves its lockfile fresh still passes.
+
 ## Temporary Pixi Samples Lockfile Workaround
 
 Pixi 0.73.0 checks PyPI dependencies that the `samples` environment explicitly
