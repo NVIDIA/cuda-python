@@ -10,8 +10,7 @@ For those jobs, use `fetch-depth: 0` with `filter: blob:none`. The checkout
 action fetches complete ancestry for all branches and tags, while the blob
 filter skips historical file contents. This avoids downloading the large
 historical `gh-pages` contents discussed in issue #2197. Git retrieves file
-contents as needed when checking out the requested commit or creating the
-freshness check's base-commit worktree.
+contents as needed when checking out the requested commit.
 
 CI change detection uses this full-history checkout for PR mirrors, so the
 actual PR base branch is available when computing its merge base. Non-PR runs
@@ -25,35 +24,35 @@ The pinned checkout action's
 [`README`](https://github.com/actions/checkout/blob/3d3c42e5aac5ba805825da76410c181273ba90b1/README.md#fetch-all-history-for-all-tags-and-branches)
 documents `fetch-depth: 0` for fetching all history, branches, and tags.
 
-## Temporary Pixi Samples Lockfile Workaround
+## Temporary Pixi Lockfile Maintenance Pause
 
-Pixi 0.73.0 checks PyPI dependencies that the `samples` environment explicitly
-excludes, then drops its local Conda source references during a PyPI-only
-refresh. The next refresh restores them, so repeated lock commands do not
-converge. A general maintenance refresh cannot repair this defect.
+Pixi lockfile freshness enforcement and automated refreshes are temporarily
+suspended because of [Pixi #7215](https://github.com/prefix-dev/pixi/issues/7215)
+and [#7000](https://github.com/prefix-dev/pixi/issues/7000). Repeated lockfile
+operations can change the committed solution without converging, so a general
+refresh is not a reliable repair.
 
-Source-build CI temporarily uses `PIXI_FROZEN=true`: it builds the checkout's
-source packages using the committed dependency solution without triggering
-Pixi's workspace-wide freshness check.
+The `CI: pixi lockfile freshness check` workflow still runs on every PR with its
+existing `pixi lock --check (all workspaces)` check name. It succeeds with a
+warning annotation and job summary explicitly reporting the suspension;
+success does not mean freshness passed. The refresh workflow has no schedule.
+Manual dispatch emits the same notice without solving dependencies, rewriting
+lockfiles, pushing a branch, or creating a PR.
 
-The separate freshness workflow remains strict except for one exact pattern:
-Pixi 0.73.0 exits 1 and removes precisely the nine `samples` source references,
-with every other lockfile byte unchanged. The detector also verifies the
-expected manifest overrides, local paths, platforms, and source-record
-definitions. It rejects the reverse cycle, which would add missing references.
-For PRs, the base must produce identical original and repaired blobs, and no
-`pixi.toml`, `pyproject.toml`, or Pixi-version input may differ from the base.
-Recognized cases emit a warning and restore the committed references.
+Manifest/lock consistency is not automatically enforced during this pause.
+Necessary dependency changes require manual review and validation of the
+affected manifests and lockfiles. Real source builds and tests continue using
+`PIXI_FROZEN=true`, including nested `pixi run` calls, to build the checkout's
+source packages against the committed dependency solution. The pinned Pixi
+version and committed lockfiles are unchanged.
 
-The refresh workflow uses the same exact detector after updating `cuda_core`.
-On a match, it restores the pre-update committed lockfile and continues
-refreshing the other workspaces. This postpones `cuda_core` dependency updates
-without allowing an unstable lockfile into the generated refresh PR; every
-unrecognized refresh failure remains fatal.
-
-Remove the detector and exception, and restore `PIXI_LOCKED=true`, once a
-released Pixi passes repeated lock and check commands without changing either
-the reduced upstream reproducer or our full workspaces.
+Re-enable maintenance only after a released Pixi passes both upstream issue
+reproducers and repeated byte-stable update/lock/check cycles across all six
+workspaces: the repository root, `cuda_pathfinder`, `cuda_bindings`, `cuda_core`,
+`benchmarks/cuda_bindings`, and `benchmarks/cuda_core`. Verify both `pixi update
+--no-install` and `pixi lock`, followed by repeated `pixi lock --check` commands,
+converge to unchanged lockfile bytes. Then restore strict freshness checks,
+scheduled refreshes, and `PIXI_LOCKED=true` in source-build CI.
 
 ## Repository Customizations
 
