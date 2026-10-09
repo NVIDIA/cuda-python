@@ -356,3 +356,6 @@ class _MemAttrs(TypedDict):
     is_device_accessible: bool
     is_host_accessible: bool
     is_managed: bool
+
+def _live_owned_mempool_count() -> int: ...
+def _live_va_reservation_count() -> int: ...

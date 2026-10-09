@@ -60,13 +60,20 @@ with pytest.raises(RuntimeError, match="IPC is not available"):
 
 ## Release resources at test boundaries
 
-The `init_cuda` fixture in `conftest.py` runs `gc.collect()` followed
-by `cuCtxSynchronize()` before popping the context. Tests should not rely on
-that as a substitute for cleaning up explicitly: prefer context managers for
-resources whose lifetime fits a single scope, and keep pool lifetimes inside
-the test that creates them. The collected items and imported modules are
-frozen after collection, so the per-test collect covers only objects created
-during the run.
+The `init_cuda` fixture in `conftest.py` runs `gc.collect()` and
+`cuCtxSynchronize()` before popping the context. The collect runs only when the
+count of live owned driver resources (owned memory pools or VA reservations,
+tracked in the C++ layer) has changed since setup, so do not rely on it as a
+substitute for cleaning up explicitly: prefer context managers for resources
+whose lifetime fits a single scope, and keep pool lifetimes inside the test
+that creates them. The collected items and imported modules are frozen after
+collection, so the collect covers only objects created during the run.
+
+A resource that outlives a test without `init_cuda` makes the next `init_cuda`
+test fail with `UnreleasedMemoryResourceWarning` (escalated to an error in
+`pytest.ini`). Release what you construct, and
+request `init_cuda` in any test that constructs one (see "Tests that touch CUDA
+must establish their own context").
 
 ## Shared test support
 
@@ -239,7 +246,9 @@ that calls a CUDA API without `init_cuda` (or an explicit
 to leave current on the thread — possibly none. With `pytest-randomly` that
 makes the pass/fail outcome depend on test order, so it moves seed to seed and
 looks like flakiness. Request `init_cuda` for any test that calls into the
-driver, or set up and tear down a context yourself.
+driver, or set up and tear down a context yourself. Allocating through
+`device.memory_resource` or `Device.allocate`, or constructing any memory
+resource, counts as touching CUDA and requires `init_cuda`.
 
 ## Assert on behavior, not implementation
 

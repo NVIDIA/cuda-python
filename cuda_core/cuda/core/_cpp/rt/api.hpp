@@ -270,6 +270,15 @@ VaReservationHandle create_va_reservation_handle(size_t size, size_t alignment, 
 // Size of the reservation.
 size_t va_reservation_size(const VaReservationHandle& h) noexcept;
 
+// Test-suite instrumentation: process-wide counts of live *owned* driver
+// resources. Owned memory pools (cuMemPoolCreate or imported) and VA
+// reservations (cuMemAddressReserve) are each counted at their RAII create
+// site and uncounted in their deleter. Borrowed pool references and
+// MemoryResource subclasses that hold no pool or reservation are not counted.
+// conftest.py reads these to gate the per-test gc.collect().
+long long live_owned_mempool_count() noexcept;
+long long live_va_reservation_count() noexcept;
+
 // Map the whole allocation at ptr inside the reservation via cuMemMap and
 // apply the allocation's access descriptors. The mapping structurally depends
 // on both handles. When the last reference is released, cuMemUnmap is called

@@ -162,6 +162,14 @@ class ChildErrorHarness:
         finally:
             for mr in self._extra_mrs:
                 mr.close()
+            # Drop the fixture MR and buffer references stored on this class
+            # instance: pytest retains ``item._instance`` for the session, so the
+            # closed (but not destroyed) MR objects would otherwise ratchet the
+            # live-MemoryResource baseline the init_cuda teardown compares against.
+            self.__dict__.pop("buffer", None)
+            self.__dict__.pop("mr", None)
+            self.__dict__.pop("device", None)
+            self._extra_mrs.clear()
 
     def child_main(self, pipe, device, mr):
         """Child process that pushes IPC errors to a shared pipe for testing."""
