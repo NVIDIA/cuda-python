@@ -212,7 +212,9 @@ A few things to keep in mind:
   --config-file cuda_core/pyproject.toml
 
 ## Pre-commit
-This project uses [pre-commit.ci](https://pre-commit.ci/) with GitHub Actions. All pull requests are automatically checked for pre-commit compliance, and any pre-commit failures will block merging until resolved.
+GitHub Actions runs pre-commit checks on Linux and Windows and checks
+documentation links for pull requests. Check failures must be resolved
+before merging.
 
 To set yourself up for running pre-commit checks locally and to catch issues before pushing your changes, follow these steps:
 
@@ -227,8 +229,8 @@ Installing the hook is required, not optional. Some of the automated checks
 keep the tree consistent if they run on *every* commit. Relying on manual
 `pre-commit run --all-files` invocations means these checks can be skipped
 between commits, leaving stale headers or out-of-date stubs in the history.
-If the hook isn't installed, `pre-commit run` (and CI) will print a visible
-warning reminding you to run `pre-commit install`.
+If the hook isn't installed, `pre-commit run` will print a visible warning
+reminding you to run `pre-commit install`.
 
 Windows contributors: see [Pre-commit lychee workaround](#pre-commit-lychee-workaround) under Development on Windows.
 

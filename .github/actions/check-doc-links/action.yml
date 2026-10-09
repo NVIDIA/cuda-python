@@ -1,0 +1,114 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Check documentation links
+description: Check authored or rendered documentation with shared nightly caches and bounded retries
+
+inputs:
+  kind:
+    description: "Input kind: authored or rendered"
+    required: true
+  refresh-cache:
+    description: Check links afresh and publish a new cache baseline
+    default: "false"
+  failure-policy:
+    description: "check allows up to 10 rate-limited URLs; cache-warm warns on all link failures"
+    default: check
+
+# Callers provide Python 3.10+ on PATH; the helpers use only its standard library.
+runs:
+  using: composite
+  steps:
+    - name: Prepare link-check inputs and cache policy
+      id: inputs
+      shell: bash --noprofile --norc -euo pipefail {0}
+      env:
+        KIND: ${{ inputs.kind }}
+        LYCHEE_VERSION: v0.24.2 # Must match the pinned rev in .pre-commit-config.yaml
+        POLICY_HASH: ${{ hashFiles('lychee.toml', '.github/actions/check-doc-links/action.yml', 'ci/tools/prepare_lychee_inputs.py', 'ci/tools/retry_lychee.py') }}
+        # The first pass and all retries use the same inputs and cache policy.
+        LYCHEE_ARGS: >-
+          --files-from "${{ github.workspace }}/lychee-${{ inputs.kind }}-files.txt"
+          ${{ inputs.kind == 'rendered' && '--include-fragments=full' || '' }}
+          --cache
+          --max-cache-age 1d
+          --max-concurrency 16
+          --host-concurrency 2
+          --host-request-interval 250ms
+          --max-retries 3
+          --retry-wait-time 5
+          --timeout 30
+          --no-progress
+          --config "${{ github.workspace }}/lychee.toml"
+      run: |
+        python "${GITHUB_WORKSPACE}/ci/tools/prepare_lychee_inputs.py" "${KIND}" \
+          --output "${GITHUB_WORKSPACE}/lychee-${KIND}-files.txt"
+        # Keep authored checks separate from rendered checks, which also
+        # validate fragments. Both callers must use the same cache paths.
+        mkdir -p "${RUNNER_TEMP}/lychee-${KIND}"
+        prefix="lychee-v1-${LYCHEE_VERSION}-${KIND}-${POLICY_HASH}-baseline-"
+        echo "prefix=${prefix}" >> "${GITHUB_OUTPUT}"
+        echo "key=${prefix}${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_OUTPUT}"
+        echo "version=${LYCHEE_VERSION}" >> "${GITHUB_OUTPUT}"
+        echo "args=${LYCHEE_ARGS}" >> "${GITHUB_OUTPUT}"
+
+    - name: Restore successful checks from the nightly baseline
+      if: ${{ inputs.refresh-cache != 'true' }}
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ runner.temp }}/lychee-${{ inputs.kind }}/.lycheecache
+        key: ${{ steps.inputs.outputs.key }}
+        restore-keys: ${{ steps.inputs.outputs.prefix }}
+
+    - name: Check documentation links
+      id: lychee
+      uses: lycheeverse/lychee-action@6da1d14f3a43098a294b7696d93d938aa8d20fc0 # supports v0.24.x archive layout
+      with:
+        args: ${{ steps.inputs.outputs.args }}
+        # The next step owns bounded retries and the final success gate.
+        fail: false
+        # The action's empty-report guard only understands Markdown.
+        # Our helper validates the JSON report and rejects zero checked links.
+        failIfEmpty: false
+        format: json
+        jobSummary: false
+        lycheeVersion: ${{ steps.inputs.outputs.version }}
+        workingDirectory: ${{ runner.temp }}/lychee-${{ inputs.kind }}
+        output: ${{ github.workspace }}/lychee-${{ inputs.kind }}.json
+        token: ${{ github.token }}
+
+    - name: Retry transient link failures using cached successful checks
+      if: ${{ steps.lychee.outcome == 'success' }}
+      shell: bash --noprofile --norc -euo pipefail {0}
+      working-directory: ${{ runner.temp }}/lychee-${{ inputs.kind }}
+      env:
+        EXIT_CODE: ${{ steps.lychee.outputs.exit_code }}
+        REPORT: ${{ github.workspace }}/lychee-${{ inputs.kind }}.json
+        LYCHEE_ARGS: ${{ steps.inputs.outputs.args }}
+        FAILURE_POLICY: ${{ inputs.failure-policy }}
+        GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        python "${GITHUB_WORKSPACE}/ci/tools/retry_lychee.py" \
+          --initial-exit-code "${EXIT_CODE}" --report "${REPORT}" \
+          --max-attempts 3 --policy "${FAILURE_POLICY}"
+
+    - name: Publish fresh successful checks
+      # Manual branch tests publish isolated branch caches. Nightly callers
+      # on the default branch publish the baseline that all PRs can restore.
+      if: ${{ always() && inputs.refresh-cache == 'true' && steps.inputs.outputs.key != '' }}
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ runner.temp }}/lychee-${{ inputs.kind }}/.lycheecache
+        key: ${{ steps.inputs.outputs.key }}
+
+    - name: Upload link-check report
+      if: ${{ always() }}
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: lychee-${{ inputs.kind }}-${{ github.run_id }}-${{ github.run_attempt }}
+        path: |
+          ${{ github.workspace }}/lychee-${{ inputs.kind }}*.json
+          ${{ github.workspace }}/lychee-${{ inputs.kind }}*.md
+        if-no-files-found: ignore
+        retention-days: 7

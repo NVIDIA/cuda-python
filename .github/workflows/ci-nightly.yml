@@ -6,6 +6,8 @@
 # against the latest cuda-python wheels built on main, runs the standard
 # test suite on runners reserved for nightly-only use (e.g. arm64 l4×2), and
 # exercises release-time CI helper scripts so they do not silently rot between releases.
+# It also builds documentation from source to warm the shared Lychee cache;
+# unresolved links are warnings, while build and checker errors remain failures.
 #
 # This workflow does NOT build wheels — it downloads them from the latest
 # successful CI run on main and runs integration/standard tests.
@@ -13,7 +15,7 @@
 name: "CI: Nightly optional-deps"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}-${{ inputs.documentation-links-only || false }}
   cancel-in-progress: true
 
 on:
@@ -24,6 +26,10 @@ on:
     - cron: "17 2 * * *"
   workflow_dispatch:
     inputs:
+      documentation-links-only:
+        description: "Test the nightly link checker without wheel or GPU jobs"
+        type: boolean
+        default: false
       run-id:
         description: >
           Override the CI run ID to download artifacts from.
@@ -32,6 +38,16 @@ on:
         default: ''
 
 jobs:
+  documentation-links:
+    name: "Nightly: Documentation links"
+    if: ${{ github.repository_owner == 'nvidia' }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/lychee.yml
+    with:
+      concurrency-suffix: ${{ inputs.documentation-links-only && 'links-only' || 'full' }}
+      refresh-cache: true
+
   test-ci-tools-for-release:
     name: "Nightly: CI tools for release"
     if: ${{ github.repository_owner == 'nvidia' }}
@@ -49,7 +65,7 @@ jobs:
           python -m pytest -v --noconftest ci/tools/tests
 
   find-wheels:
-    if: ${{ github.repository_owner == 'nvidia' }}
+    if: ${{ github.repository_owner == 'nvidia' && !inputs.documentation-links-only }}
     runs-on: ubuntu-latest
     outputs:
       RUN_ID: ${{ steps.find.outputs.run_id }}
@@ -313,6 +329,7 @@ jobs:
     if: ${{ always() && github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     needs:
+      - documentation-links
       - test-ci-tools-for-release
       - find-wheels
       - test-pytorch-linux
@@ -328,13 +345,27 @@ jobs:
       - test-standard-linux-aarch64
     steps:
       - name: Exit
+        env:
+          LINKS_ONLY: ${{ inputs.documentation-links-only || false }}
+          NEEDS_JSON: ${{ toJSON(needs) }}
         run: |
+          if [[ "${LINKS_ONLY}" == "true" ]]; then
+            # GPU jobs depend on find-wheels and must stay skipped in this mode.
+            jq -e 'all(to_entries[];
+              if .key == "documentation-links" or .key == "test-ci-tools-for-release"
+              then .value.result == "success"
+              else .value.result == "skipped"
+              end)' <<< "${NEEDS_JSON}"
+            exit 0
+          fi
+
           # If any dependency was cancelled or failed, that's a failure.
           #
           # See ci.yml for the full rationale on why we must use always()
           # and explicitly check each result rather than relying on the
           # default behaviour.
-          if ${{ needs.test-ci-tools-for-release.result == 'cancelled' ||
+          if ${{ needs.documentation-links.result != 'success' ||
+                 needs.test-ci-tools-for-release.result == 'cancelled' ||
                  needs.test-ci-tools-for-release.result == 'failure' ||
                  needs.find-wheels.result != 'success' }}; then
             exit 1

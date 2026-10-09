@@ -181,4 +181,4 @@ RAPIDS cuGraph provides production-grade, GPU-accelerated graph analytics:
 
 - [RAPIDS cuGraph Documentation](https://docs.rapids.ai/api/cugraph/stable/)
 - [cuGraph GitHub Repository](https://github.com/rapidsai/cugraph)
-- [RAPIDS Installation Guide](https://rapids.ai/start.html)
+- [RAPIDS Installation Guide](https://docs.nvidia.com/datascience/install/)
