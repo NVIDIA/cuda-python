@@ -1,0 +1,6 @@
+﻿cuda.bindings.cufile.writev
+===========================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autofunction:: writev
