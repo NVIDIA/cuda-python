@@ -48,7 +48,7 @@ from cuda.core import (
     PinnedMemoryResourceOptions,
     _device,
 )
-from cuda.core._memory._buffer import _live_memory_resource_count
+from cuda.core._memory._buffer import _live_owned_mempool_count, _live_va_reservation_count
 from cuda.core._utils.cuda_utils import handle_return
 
 
@@ -131,38 +131,30 @@ def _item_uses_init_cuda(item):
     return "init_cuda" in getattr(item, "fixturenames", ())
 
 
-# init_cuda collects at teardown only if the process-wide live MemoryResource
-# count differs from its value at setup. That is sound only if no older
-# resource is released during a test (it could cancel a new leak), so tests
-# that construct resources must use init_cuda, and the leftover check below
-# reports resources that outlive a test without it.
+# init_cuda collects at teardown only if the process-wide count of live *owned*
+# driver resources (owned memory pools and VA reservations) differs from its
+# value at setup. The counts come from the C++ RAII layer, so a borrowed pool
+# reference (the device default pool) and MemoryResource subclasses that hold no
+# pool or reservation do not move them. That makes the gate sound only if no
+# older owned resource is released during a test (it could cancel a new leak),
+# so tests that construct owned resources must use init_cuda, and the leftover
+# check below reports owned resources that outlive a test without it.
 
-# Live count after the last init_cuda test; None until one has run.
+
+def _live_resource_counts():
+    """(owned memory pools, VA reservations) live process-wide, as a tuple.
+
+    Only *owned* driver resources are counted (see the C++ accessors), so this
+    excludes borrowed pool references and non-owning MemoryResource subclasses.
+    """
+    return (_live_owned_mempool_count(), _live_va_reservation_count())
+
+
+# Counts after the last init_cuda test; None until one has run.
 _mr_expected_live = None
-# Live count at the start of the current item, before its fixtures set up.
-_mr_live_at_item_start = 0
+# Counts at the start of the current item, before its fixtures set up.
+_mr_live_at_item_start = (0, 0)
 _mr_last_init_cuda_nodeid = None
-
-
-def _device_default_memory_resource_count():
-    """Number of main-thread Devices that currently cache a default MR.
-
-    Reaches into Device thread-local state (``_device._tls``) on purpose; update
-    this and :func:`_release_device_default_memory_resources` if that moves.
-    """
-    return sum(d._memory_resource is not None for d in getattr(_device._tls, "devices", ()))
-
-
-def _release_device_default_memory_resources():
-    """Drop each main-thread Device's lazily created default memory resource.
-
-    Otherwise they are still counted when init_cuda compares counts at
-    teardown and force a collect in every test that allocates through the
-    device default. The setter rejects None,
-    hence the private access.
-    """
-    for d in getattr(_device._tls, "devices", ()):
-        d._memory_resource = None
 
 
 @pytest.hookimpl(wrapper=True)
@@ -171,17 +163,17 @@ def pytest_runtest_protocol(item, nextitem):
     # not the session start, because the count legitimately rises over a run
     # (interned GraphMemoryResource, pytest-retained class instances).
     global _mr_expected_live, _mr_live_at_item_start, _mr_last_init_cuda_nodeid
-    _mr_live_at_item_start = _live_memory_resource_count()
+    _mr_live_at_item_start = _live_resource_counts()
     try:
         return (yield)
     finally:
-        live = _live_memory_resource_count()
+        live = _live_resource_counts()
         if _item_uses_init_cuda(item):
             _mr_expected_live = live
             _mr_last_init_cuda_nodeid = item.nodeid
         elif _mr_expected_live is not None:
-            # Only lower it: a released resource must not hide a later leak.
-            _mr_expected_live = min(_mr_expected_live, live)
+            # Only lower each component: a released resource must not hide a later leak.
+            _mr_expected_live = tuple(min(a, b) for a, b in zip(_mr_expected_live, live))
 
 
 class _CudaCoreParallelPlugin:
@@ -243,25 +235,27 @@ def init_cuda(request):
         )
 
     # Leftover check: growth since the previous init_cuda test means something
-    # in between left a resource alive. Collect first to sweep a cyclic
-    # leftover, and before the count at setup is recorded so it is reflected there.
-    if _mr_expected_live is not None and _mr_live_at_item_start > _mr_expected_live:
+    # in between left an owned resource alive. Collect first to sweep a cyclic
+    # leftover, and before the counts at setup are recorded so they are reflected there.
+    if _mr_expected_live is not None and any(now > exp for now, exp in zip(_mr_live_at_item_start, _mr_expected_live)):
         gc.collect()
-        held = _live_memory_resource_count() - _mr_expected_live
+        now_counts = _live_resource_counts()
+        held = tuple(max(n - e, 0) for n, e in zip(now_counts, _mr_expected_live))
+        excess = tuple(s - e for s, e in zip(_mr_live_at_item_start, _mr_expected_live))
         seed = getattr(request.config.option, "randomly_seed", None)
         seed_msg = f" (pytest-randomly seed: {seed})" if seed is not None else ""
         warnings.warn(
-            f"{_mr_live_at_item_start - _mr_expected_live} memory resource(s) were left alive by "
-            f"tests that ran since {_mr_last_init_cuda_nodeid} ({max(held, 0)} still alive after a "
+            f"{excess} (owned_pools, va_reservations) memory resource(s) were left alive by "
+            f"tests that ran since {_mr_last_init_cuda_nodeid} ({held} still alive after a "
             f"collect). A test or fixture that constructs a memory resource must request "
             f"init_cuda.{seed_msg}",
             UnreleasedMemoryResourceWarning,
             stacklevel=2,
         )
 
-    # Live count at setup, excluding cached Device default resources (they are
-    # released at teardown before the count is compared).
-    live_at_setup = _live_memory_resource_count() - _device_default_memory_resource_count()
+    # Counts at setup. The device default pool is a borrowed reference and is
+    # not counted, so no cached-default bookkeeping is needed.
+    live_at_setup = _live_resource_counts()
     try:
         yield device
     finally:
@@ -270,13 +264,12 @@ def init_cuda(request):
         # torn-down fixtures are not counted below. Revisit if pytest changes
         # how it retains fixture values.
         request.node.funcargs.clear()
-        # Only a resource in a reference cycle outlives the test frame, so
-        # collect only if the count differs from its value at setup. A lower
+        # Only an owned resource in a reference cycle outlives the test frame, so
+        # collect only if the counts differ from their values at setup. A lower
         # count means an older resource was released, which could mask a leak
         # in this test: collect in that case too.
-        _release_device_default_memory_resources()
-        live_after_release = _live_memory_resource_count()
-        if live_after_release != live_at_setup:
+        live_after = _live_resource_counts()
+        if live_after != live_at_setup:
             gc.collect()
         # Force any pool/allocation whose only remaining reference was a local
         # in this test's frame to actually get destroyed now, then drain the
@@ -288,12 +281,13 @@ def init_cuda(request):
         driver.cuCtxSynchronize()
         _ = _device_unset_current()
         # After the cleanup, so an escalated warning cannot skip it.
-        if live_after_release < live_at_setup:
+        if any(now < snap for now, snap in zip(live_after, live_at_setup)):
+            released = tuple(s - n for s, n in zip(live_at_setup, live_after))
             warnings.warn(
-                f"{request.node.nodeid} released {live_at_setup - live_after_release} memory resource(s) "
-                f"that existed before it started (count {live_after_release}, snapshot {live_at_setup}). "
-                "A leak in this test could have been masked by that release. Find what held the "
-                "released resource.",
+                f"{request.node.nodeid} released {released} (owned_pools, va_reservations) memory "
+                f"resource(s) that existed before it started (counts {live_after}, snapshot "
+                f"{live_at_setup}). A leak in this test could have been masked by that release. "
+                "Find what held the released resource.",
                 BaselineMemoryResourceReleasedWarning,
                 stacklevel=2,
             )

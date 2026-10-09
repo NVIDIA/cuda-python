@@ -62,7 +62,8 @@ with pytest.raises(RuntimeError, match="IPC is not available"):
 
 The `init_cuda` fixture in `conftest.py` runs `gc.collect()` and
 `cuCtxSynchronize()` before popping the context. The collect runs only when the
-live `MemoryResource` count has changed since setup, so do not rely on it as a
+count of live owned driver resources (owned memory pools or VA reservations,
+tracked in the C++ layer) has changed since setup, so do not rely on it as a
 substitute for cleaning up explicitly: prefer context managers for resources
 whose lifetime fits a single scope, and keep pool lifetimes inside the test
 that creates them. The collected items and imported modules are frozen after

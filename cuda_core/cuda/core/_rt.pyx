@@ -184,6 +184,8 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
         size_t size, size_t alignment, cydriver.CUdeviceptr hint) except+ nogil
     size_t va_reservation_size "cuda_core::rt::va_reservation_size" (
         const VaReservationHandle& h) noexcept nogil
+    long long live_owned_mempool_count "cuda_core::rt::live_owned_mempool_count" () noexcept nogil
+    long long live_va_reservation_count "cuda_core::rt::live_va_reservation_count" () noexcept nogil
     VaMappingHandle create_va_mapping_handle "cuda_core::rt::create_va_mapping_handle" (
         cydriver.CUdeviceptr ptr, const MemAllocationHandle& h_alloc,
         const VaReservationHandle& h_res) except+ nogil

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 cimport cython
 from libc.stdint cimport uintptr_t
-from libcpp.atomic cimport memory_order_acquire, memory_order_release, atomic as std_atomic
+from libcpp.atomic cimport memory_order_acquire, memory_order_release
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._device_memory_resource import DeviceMemoryResource
@@ -20,6 +20,8 @@ from cuda.core._rt cimport (
     deviceptr_create_with_owner,
     deviceptr_create_with_mr,
     register_mr_dealloc_callback,
+    live_owned_mempool_count,
+    live_va_reservation_count,
     as_intptr,
     as_cu,
     get_current_context,
@@ -34,12 +36,16 @@ from cuda.core._stream cimport Stream, Stream_accept, Stream_is_legacy_default_t
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 
-# Live MemoryResource count, read by the test suite; atomic for free-threaded builds.
-cdef std_atomic[long long] _mr_live_count
+# Process-wide counts of live *owned* driver resources, read by the test suite.
+# Counting lives in the C++ RAII layer (owned CUmemoryPool and VA reservations),
+# so borrowed pool references and MemoryResource subclasses that hold no pool or
+# reservation are excluded. conftest.py reads these to gate the per-test collect.
+def _live_owned_mempool_count() -> int:
+    return live_owned_mempool_count()
 
 
-def _live_memory_resource_count() -> int:
-    return _mr_live_count.load()
+def _live_va_reservation_count() -> int:
+    return live_va_reservation_count()
 
 import warnings
 from collections.abc import Sequence
@@ -783,12 +789,6 @@ cdef class MemoryResource:
     buffer properties are retrieved simply by looking up the underlying memory
     resource's respective property.)
     """
-
-    def __cinit__(self):
-        _mr_live_count.fetch_add(1)
-
-    def __dealloc__(self):
-        _mr_live_count.fetch_sub(1)
 
     def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate a buffer of the requested size.
