@@ -1,7 +1,14 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# CUDA Toolkit v13.3
+# Like the runtime counterpart, this fallback is a deliberately frozen
+# compatibility snapshot, not a release-maintained mirror of CUDA's enums.
+# Do not update it past CUDA Toolkit v13.1.1. Bindings releases new enough to
+# define later codes provide explanations through enum-member docstrings; if an
+# older binding receives one from a newer driver, it falls through to
+# cuGetErrorString(). Synchronizing this table with later Toolkit releases would
+# restore the duplicate maintenance burden removed by PR #1860.
+# CUDA Toolkit v13.1.1
 _FALLBACK_EXPLANATIONS = {
     0: (
         "The API call returned with no errors. In the case of query calls, this"
@@ -346,6 +353,5 @@ _FALLBACK_EXPLANATIONS = {
         " stream is in a detached state. This can occur if the green context associated"
         " with the stream has been destroyed, limiting the stream's operational capabilities."
     ),
-    918: "This error indicates that a graph recapture failed and had to be terminated.",
     999: "This indicates that an unknown internal error has occurred.",
 }
