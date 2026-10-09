@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.PowerSmoothingProfileParam
+=============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: PowerSmoothingProfileParam

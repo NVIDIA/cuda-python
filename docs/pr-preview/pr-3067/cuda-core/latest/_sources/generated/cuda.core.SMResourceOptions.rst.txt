@@ -1,0 +1,6 @@
+﻿cuda.core.SMResourceOptions
+===========================
+
+.. currentmodule:: cuda.core
+
+.. autoclass:: SMResourceOptions
