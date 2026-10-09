@@ -466,6 +466,25 @@ jobs:
       workplan: ${{ needs.detect-changes.outputs.workplan }}
       single-cuda-major: ${{ needs.ci-vars.outputs.WINDOWS_ARM64_SINGLE_CUDA_MAJOR == 'true' }}
 
+  woa-main-dispatch:
+    name: Dispatch WoA integration
+    needs:
+      - build-linux-64
+      - build-windows-arm64
+    if: ${{ github.repository_owner == 'nvidia' &&
+            github.event_name == 'push' &&
+            github.ref == 'refs/heads/main' &&
+            needs.build-linux-64.result == 'success' &&
+            needs.build-windows-arm64.result == 'success' }}
+    permissions:
+      actions: read
+      checks: read
+      contents: read
+    uses: ./.github/workflows/woa-main-automation.yml
+    with:
+      public_run_id: ${{ github.run_id }}
+    secrets: inherit
+
   # NOTE: test-sdist jobs are split by platform (mirroring build-* and test-wheel-*)
   # so platform-specific sources (e.g. cuda_bindings/*_windows.pyx selected by
   # build_hooks.py) are exercised on their target OS. Keep these job definitions

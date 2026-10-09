@@ -6,10 +6,26 @@ name: "WoA exact public-main dispatch"
 run-name: "WoA exact dispatch for public run ${{ inputs.public_run_id }}"
 
 on:
+  workflow_call:
+    inputs:
+      public_run_id:
+        required: true
+        type: string
+      baseline_sha:
+        required: false
+        default: ""
+        type: string
+      commit_count:
+        required: false
+        default: "1"
+        type: string
+    secrets:
+      CUDA_PYTHON_WOA_XREPO_CI_PRIVATE_APP_PRIVATE_KEY:
+        required: true
   workflow_dispatch:
     inputs:
       public_run_id:
-        description: Successful public main CI run containing the exact WoA artifacts
+        description: Eligible public main CI run containing the exact WoA artifacts
         required: true
         type: string
 
@@ -23,7 +39,6 @@ jobs:
     permissions:
       actions: read
       contents: read
-      checks: read
     outputs:
       artifacts-json: ${{ steps.resolve.outputs.artifacts_json }}
       correlation-id: ${{ steps.resolve.outputs.correlation_id }}
@@ -31,7 +46,7 @@ jobs:
       public-run-attempt: ${{ steps.resolve.outputs.public_run_attempt }}
       public-sha: ${{ steps.resolve.outputs.public_sha }}
     steps:
-      - name: Resolve exact successful public build
+      - name: Resolve exact public build
         id: resolve
         env:
           GH_TOKEN: ${{ github.token }}
@@ -48,8 +63,8 @@ jobs:
             .path == ".github/workflows/ci.yml" and
             .event == "push" and
             .head_branch == "main" and
-            .status == "completed" and
-            .conclusion == "success" and
+            ((.status == "in_progress" and .conclusion == null) or
+             (.status == "completed" and .conclusion == "success")) and
             (.head_sha | test("^[0-9a-f]{40}$"))
           ' <<< "$run" >/dev/null
           public_sha=$(jq -r .head_sha <<< "$run")
@@ -75,12 +90,13 @@ jobs:
           ' <<< "$producer_jobs" >/dev/null
           public_producer_job_id=$(jq -r '.[0].id | tostring' <<< "$producer_jobs")
 
-          expected_names=$(jq -n \
-            --arg sha "$public_sha" '[
-              "cuda-pathfinder-wheel",
-              ("cuda-bindings-python313-cuda13.4.2-win-arm64-" + $sha),
-              ("cuda-core-python313-win-arm64-" + $sha)
-            ]')
+          expected_names=$(jq -nc --arg sha "$public_sha" '
+            (["cuda-pathfinder-wheel"] + (["311", "312", "313", "314", "314t", "315", "315t"] |
+              map(
+                ("cuda-bindings-python" + . + "-cuda13.4.2-win-arm64-" + $sha),
+                ("cuda-core-python" + . + "-win-arm64-" + $sha)
+              )))
+          ')
           artifacts_json='[]'
           while IFS= read -r artifact_name; do
             response=$(gh api --method GET \
@@ -103,7 +119,7 @@ jobs:
               '. + [$artifact] | sort_by(.name)' <<< "$artifacts_json")
           done < <(jq -r '.[]' <<< "$expected_names")
           jq -e '
-            length == 3 and
+            length == 15 and
             all(.[ ];
               (.id | type == "number") and
               (.digest | test("^sha256:[0-9a-f]{64}$")))
@@ -141,6 +157,8 @@ jobs:
       - name: Dispatch and verify exact private validation
         env:
           ARTIFACTS_JSON: ${{ needs.resolve-public-build.outputs.artifacts-json }}
+          BASELINE_SHA: ${{ inputs.baseline_sha || '' }}
+          COMMIT_COUNT: ${{ inputs.commit_count || '1' }}
           CORRELATION_ID: ${{ needs.resolve-public-build.outputs.correlation-id }}
           GH_TOKEN: ${{ steps.private-app-token.outputs.token }}
           PUBLIC_RUN_ATTEMPT: ${{ needs.resolve-public-build.outputs.public-run-attempt }}
@@ -151,6 +169,8 @@ jobs:
           set -euo pipefail
           payload=$(jq -n \
             --arg artifacts_json "$ARTIFACTS_JSON" \
+            --arg baseline_sha "$BASELINE_SHA" \
+            --arg commit_count "$COMMIT_COUNT" \
             --arg correlation_id "$CORRELATION_ID" \
             --arg producer_job_id "$PUBLIC_PRODUCER_JOB_ID" \
             --arg run_attempt "$PUBLIC_RUN_ATTEMPT" \
@@ -169,8 +189,8 @@ jobs:
                 public_run_attempt: $run_attempt,
                 public_sha: $sha,
                 artifacts_json: $artifacts_json,
-                baseline_sha: "",
-                commit_count: "1",
+                baseline_sha: $baseline_sha,
+                commit_count: $commit_count,
                 correlation_id: $correlation_id
               }
             }')
@@ -183,10 +203,12 @@ jobs:
           run=$(gh api \
             -H 'X-GitHub-Api-Version: 2026-03-10' \
             "repos/NVIDIA-dev/cuda-python-private/actions/runs/$private_run_id")
-          jq -e '
-            .repository.id == 809898190 and
-            .path == ".github/workflows/woa-main-validation.yml" and
-            .event == "workflow_dispatch" and
-            .head_branch == "ctk-next"
-          ' <<< "$run" >/dev/null
+          jq -e \
+            --arg title "WoA validation $CORRELATION_ID" '
+              .repository.id == 809898190 and
+              .path == ".github/workflows/woa-main-validation.yml" and
+              .event == "workflow_dispatch" and
+              .head_branch == "ctk-next" and
+              .display_title == $title
+            ' <<< "$run" >/dev/null
           echo "Private validation workflow accepted the exact dispatch." >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,150 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "WoA public-main automation"
+
+on:
+  workflow_call:
+    inputs:
+      public_run_id:
+        required: true
+        type: string
+    secrets:
+      CUDA_PYTHON_WOA_XREPO_CI_PRIVATE_APP_PRIVATE_KEY:
+        required: true
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+    inputs:
+      public_run_id:
+        description: Optional exact public CI run; empty selects the newest successful build
+        required: false
+        type: string
+
+permissions: {}
+
+jobs:
+  select:
+    if: ${{ github.repository == 'NVIDIA/cuda-python' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      checks: read
+      contents: read
+    concurrency:
+      group: cuda-python-woa-public-selector
+      cancel-in-progress: false
+    outputs:
+      baseline-sha: ${{ steps.select.outputs.baseline_sha }}
+      commit-count: ${{ steps.select.outputs.commit_count }}
+      dispatch: ${{ steps.select.outputs.dispatch }}
+      public-run-id: ${{ steps.select.outputs.public_run_id }}
+    steps:
+      - name: Select public batch
+        id: select
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_RUN_ID: ${{ inputs.public_run_id }}
+        run: |
+          set -euo pipefail
+          if [[ -n "$INPUT_RUN_ID" ]]; then
+            run=$(gh api \
+              -H 'X-GitHub-Api-Version: 2026-03-10' \
+              "repos/NVIDIA/cuda-python/actions/runs/$INPUT_RUN_ID")
+          else
+            run=$(gh api --method GET \
+              -H 'X-GitHub-Api-Version: 2026-03-10' \
+              repos/NVIDIA/cuda-python/actions/workflows/ci.yml/runs \
+              -f branch=main -f event=push -f status=success -F per_page=1 \
+              --jq '.workflow_runs[0]')
+          fi
+          jq -e '
+            .repository.id == 381173759 and
+            .workflow_id == 155304118 and
+            .path == ".github/workflows/ci.yml" and
+            .event == "push" and
+            .head_branch == "main" and
+            ((.status == "in_progress" and .conclusion == null) or
+             (.status == "completed" and .conclusion == "success"))
+          ' <<< "$run" >/dev/null
+          run_id=$(jq -r '.id | tostring' <<< "$run")
+          attempt=$(jq -r '.run_attempt | tostring' <<< "$run")
+          sha=$(jq -r .head_sha <<< "$run")
+          external_id="woa:v1:381173759:$run_id:$attempt:$sha"
+
+          checks=$(gh api \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/NVIDIA/cuda-python/commits/$sha/check-runs?check_name=cuda-python%20WoA%20integration&per_page=100")
+          if jq -e --arg id "$external_id" '
+            any(.check_runs[]; .app.id == 4954254 and .external_id == $id)
+          ' <<< "$checks" >/dev/null; then
+            echo "dispatch=false" >> "$GITHUB_OUTPUT"
+            echo "This exact public run already has an App-owned attempt." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          commits=$(gh api --method GET \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            repos/NVIDIA/cuda-python/commits -f sha=main -F per_page=100)
+          candidate_index=$(jq -er --arg sha "$sha" '
+            [to_entries[] | select(.value.sha == $sha) | .key][0]
+          ' <<< "$commits")
+          commit_total=$(jq length <<< "$commits")
+          baseline_index=""
+          baseline_sha=""
+          for ((index = candidate_index + 1; index < commit_total; index++)); do
+            older_sha=$(jq -r --argjson index "$index" '.[$index].sha' <<< "$commits")
+            older_checks=$(gh api \
+              -H 'X-GitHub-Api-Version: 2026-03-10' \
+              "repos/NVIDIA/cuda-python/commits/$older_sha/check-runs?check_name=cuda-python%20WoA%20integration&per_page=100")
+            if jq -e '
+              any(.check_runs[];
+                .app.id == 4954254 and
+                .status == "completed" and
+                .conclusion == "success")
+            ' <<< "$older_checks" >/dev/null; then
+              baseline_index=$index
+              baseline_sha=$older_sha
+              break
+            fi
+          done
+
+          dispatch=true
+          commit_count=1
+          reason="Bootstrap: no successful App-owned baseline exists in the latest 100 commits."
+          if [[ -n "$baseline_index" ]]; then
+            commit_count=$((baseline_index - candidate_index))
+            oldest_pending_index=$((baseline_index - 1))
+            oldest_pending_at=$(jq -r \
+              --argjson index "$oldest_pending_index" \
+              '.[$index].commit.committer.date' <<< "$commits")
+            age_seconds=$(($(date +%s) - $(date -d "$oldest_pending_at" +%s)))
+            if (( commit_count >= 3 )); then
+              reason="Batch threshold reached: $commit_count commits."
+            elif (( age_seconds >= 7200 )); then
+              reason="Two-hour fallback reached: oldest pending commit is $age_seconds seconds old."
+            else
+              dispatch=false
+              reason="Deferred: $commit_count/3 commits and oldest pending age $age_seconds/7200 seconds."
+            fi
+          fi
+          echo "baseline_sha=$baseline_sha" >> "$GITHUB_OUTPUT"
+          echo "commit_count=$commit_count" >> "$GITHUB_OUTPUT"
+          echo "dispatch=$dispatch" >> "$GITHUB_OUTPUT"
+          echo "public_run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "$reason" >> "$GITHUB_STEP_SUMMARY"
+
+  dispatch:
+    needs: select
+    if: ${{ needs.select.outputs.dispatch == 'true' }}
+    permissions:
+      actions: read
+      contents: read
+    uses: ./.github/workflows/woa-private-dispatch.yml
+    with:
+      public_run_id: ${{ needs.select.outputs.public-run-id }}
+      baseline_sha: ${{ needs.select.outputs.baseline-sha }}
+      commit_count: ${{ needs.select.outputs.commit-count }}
+    secrets: inherit
