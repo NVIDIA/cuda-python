@@ -1025,7 +1025,7 @@ cdef class ChildGraphNode(GraphNode):
         return (f"<ChildGraphNode handle=0x{as_intptr(self._h_node):x}"
                 f" child=0x{as_intptr(self._h_child_graph):x}>")
 
-    def update(self, child: GraphDefinition) -> None:
+    def update(self, GraphDefinition child: GraphDefinition) -> None:
         """Replace the embedded graph with a clone of ``child``.
 
         ``child`` must belong to an independent graph hierarchy.
@@ -1096,7 +1096,7 @@ cdef class EventRecordNode(GraphNode):
         return (f"<EventRecordNode handle=0x{as_intptr(self._h_node):x}"
                 f" event=0x{as_intptr(self._h_event):x}>")
 
-    def update(self, event: Event) -> None:
+    def update(self, Event event: Event) -> None:
         """Replace the event recorded by this node."""
         GN_check_valid(self)
         Event_check_open(event)
@@ -1149,7 +1149,7 @@ cdef class EventWaitNode(GraphNode):
         return (f"<EventWaitNode handle=0x{as_intptr(self._h_node):x}"
                 f" event=0x{as_intptr(self._h_event):x}>")
 
-    def update(self, event: Event) -> None:
+    def update(self, Event event: Event) -> None:
         """Replace the event waited on by this node."""
         GN_check_valid(self)
         Event_check_open(event)
@@ -1639,7 +1639,7 @@ cdef class ExecutableMemcpyNode(ExecutableGraphNode):
 cdef class ExecutableChildGraphNode(ExecutableGraphNode):
     """An executable child-graph-node view."""
 
-    def update(self, child: GraphDefinition) -> None:
+    def update(self, GraphDefinition child: GraphDefinition) -> None:
         """Replace the embedded graph parameters for future launches."""
         GD_check_valid(child)
         cdef cydriver.CUgraphNodeParams params
@@ -1653,7 +1653,7 @@ cdef class ExecutableChildGraphNode(ExecutableGraphNode):
 cdef class ExecutableEventRecordNode(ExecutableGraphNode):
     """An executable event-record-node view."""
 
-    def update(self, event: Event) -> None:
+    def update(self, Event event: Event) -> None:
         """Replace the event recorded by future launches."""
         Event_check_open(event)
         cdef OpaqueHandle event_owner = event._h_event
@@ -1668,7 +1668,7 @@ cdef class ExecutableEventRecordNode(ExecutableGraphNode):
 cdef class ExecutableEventWaitNode(ExecutableGraphNode):
     """An executable event-wait-node view."""
 
-    def update(self, event: Event) -> None:
+    def update(self, Event event: Event) -> None:
         """Replace the event waited on by future launches."""
         Event_check_open(event)
         cdef OpaqueHandle event_owner = event._h_event

@@ -83,10 +83,9 @@ def _resolve_peer_device_id(value: Device | int | None) -> int:
 
 # ---- driver-touching helpers (cdef inline, called from .pyx code) -----------
 
-cdef inline DeviceMemoryResource _check_peer_access_open(object mr):
-    cdef DeviceMemoryResource mr_typed = <DeviceMemoryResource>mr
-    MP_check_open(mr_typed)
-    return mr_typed
+cdef inline DeviceMemoryResource _check_peer_access_open(DeviceMemoryResource mr):
+    MP_check_open(mr)
+    return mr
 
 
 cdef inline tuple _query_peer_access_ids(DeviceMemoryResource mr):
@@ -132,7 +131,7 @@ cdef inline bint _peer_access_includes(DeviceMemoryResource mr, int dev_id):
     return flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
 
 
-def _set_pool_access(mr: object, to_add: tuple[int, ...], to_remove: tuple[int, ...]) -> None:
+def _set_pool_access(DeviceMemoryResource mr, to_add: tuple[int, ...], to_remove: tuple[int, ...]) -> None:
     """Issue one ``cuMemPoolSetAccess`` for the given add/remove deltas.
 
     The thin Python-callable layer that wraps the actual driver call: building
@@ -143,8 +142,7 @@ def _set_pool_access(mr: object, to_add: tuple[int, ...], to_remove: tuple[int, 
     Preconditions: ``len(to_add) + len(to_remove) > 0`` (the caller is
     responsible for skipping empty diffs).
     """
-    cdef DeviceMemoryResource mr_typed = <DeviceMemoryResource>mr
-    MP_check_open(mr_typed)
+    MP_check_open(mr)
     cdef size_t count = len(to_add) + len(to_remove)
     cdef cydriver.CUmemAccessDesc* access_desc = NULL
     cdef size_t i = 0
@@ -166,7 +164,7 @@ def _set_pool_access(mr: object, to_add: tuple[int, ...], to_remove: tuple[int, 
             i += 1
 
         with nogil:
-            HANDLE_RETURN(cydriver.cuMemPoolSetAccess(as_cu(mr_typed._h_pool), access_desc, count))
+            HANDLE_RETURN(cydriver.cuMemPoolSetAccess(as_cu(mr._h_pool), access_desc, count))
     finally:
         if access_desc != NULL:
             PyMem_Free(access_desc)
@@ -233,7 +231,7 @@ class PeerAccessibleBySetProxy(MutableSet["Device"]):
 
     __slots__ = ("_mr",)
 
-    def __init__(self, mr: DeviceMemoryResource) -> None:
+    def __init__(self, DeviceMemoryResource mr: DeviceMemoryResource) -> None:
         self._mr = mr
 
     @classmethod

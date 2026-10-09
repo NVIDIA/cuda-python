@@ -96,7 +96,7 @@ cdef class _StridedLayout:
     @classmethod
     def dense_like(
         cls,
-        other : _StridedLayout,
+        _StridedLayout other : _StridedLayout,
         stride_order : str | tuple[int] = "K"
     ) -> _StridedLayout:
         """

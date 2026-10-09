@@ -215,7 +215,7 @@ cdef class GraphNode:
         s.clear()
         s.update(value)
 
-    def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
+    def launch(self, config: LaunchConfig, Kernel kernel: Kernel, *args) -> KernelNode:
         """Add a kernel launch node depending on this node.
 
         Clustered and cooperative launch configurations are not currently
@@ -243,7 +243,7 @@ cdef class GraphNode:
             A new KernelNode representing the kernel launch.
         """
         GN_check_valid(self)
-        return GN_launch(self, config, <Kernel>kernel, ParamHolder(args))
+        return GN_launch(self, config, kernel, ParamHolder(args))
 
     def join(self, *nodes: GraphNode) -> EmptyNode:
         """Create an empty node that depends on this node and all given nodes.
@@ -446,7 +446,7 @@ cdef class GraphNode:
             self, c_dst, dst_attachment_owner,
             c_src, src_attachment_owner, size)
 
-    def embed(self, child: GraphDefinition) -> ChildGraphNode:
+    def embed(self, GraphDefinition child: GraphDefinition) -> ChildGraphNode:
         """Add a child graph node depending on this node.
 
         Embeds a clone of the given graph definition as a sub-graph node.
@@ -463,9 +463,9 @@ cdef class GraphNode:
         ChildGraphNode
             A new ChildGraphNode representing the embedded sub-graph.
         """
-        return GN_embed(self, <GraphDefinition>child)
+        return GN_embed(self, child)
 
-    def record(self, event: Event) -> EventRecordNode:
+    def record(self, Event event: Event) -> EventRecordNode:
         """Add an event record node depending on this node.
 
         Parameters
@@ -478,9 +478,9 @@ cdef class GraphNode:
         EventRecordNode
             A new EventRecordNode representing the event record operation.
         """
-        return GN_record_event(self, <Event>event)
+        return GN_record_event(self, event)
 
-    def wait(self, event: Event) -> EventWaitNode:
+    def wait(self, Event event: Event) -> EventWaitNode:
         """Add an event wait node depending on this node.
 
         Parameters
@@ -493,7 +493,7 @@ cdef class GraphNode:
         EventWaitNode
             A new EventWaitNode representing the event wait operation.
         """
-        return GN_wait_event(self, <Event>event)
+        return GN_wait_event(self, event)
 
     def callback(self, fn, *, user_data=None) -> object:
         """Add a host callback node depending on this node.
