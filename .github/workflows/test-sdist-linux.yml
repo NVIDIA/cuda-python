@@ -90,16 +90,8 @@ jobs:
         if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
         uses: mozilla-actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba  # 0.0.11
         with:
+          version: v0.18.0
           disable_annotations: 'true'
-
-      # xref: https://github.com/orgs/community/discussions/42856#discussioncomment-7678867
-      - name: Adding additional GHA cache-related env vars
-        if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
-        uses: actions/github-script@v9
-        with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env['ACTIONS_CACHE_URL'])
-            core.exportVariable('ACTIONS_RUNTIME_URL', process.env['ACTIONS_RUNTIME_URL'])
 
       - name: Setup proxy cache
         if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}

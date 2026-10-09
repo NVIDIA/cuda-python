@@ -93,6 +93,8 @@ jobs:
             | sudo tar -C /usr/local/bin -xvzf - --wildcards --strip-components=1 -x '*/sccache'
           echo "SCCACHE_PATH=/usr/local/bin/sccache" >> "$GITHUB_ENV"
 
+      # The runner only exposes these values to actions, not to `run:` steps or
+      # the cibuildwheel container, so re-export them for sccache's GHA backend.
       # xref: https://github.com/orgs/community/discussions/42856#discussioncomment-7678867
       - name: Adding addtional GHA cache-related env vars
         if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
@@ -100,9 +102,7 @@ jobs:
         with:
           script: |
             core.exportVariable('ACTIONS_CACHE_SERVICE_V2', 'on');
-            core.exportVariable('ACTIONS_CACHE_URL', process.env['ACTIONS_CACHE_URL'] || '');
             core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL'] || '');
-            core.exportVariable('ACTIONS_RUNTIME_URL', process.env['ACTIONS_RUNTIME_URL'] || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'] || '');
 
       - name: Setup proxy cache
@@ -254,9 +254,7 @@ jobs:
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
-            ACTIONS_RUNTIME_URL=${{ env.ACTIONS_RUNTIME_URL }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
-            ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
@@ -353,9 +351,7 @@ jobs:
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
-            ACTIONS_RUNTIME_URL=${{ env.ACTIONS_RUNTIME_URL }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
-            ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
@@ -639,9 +635,7 @@ jobs:
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
-            ACTIONS_RUNTIME_URL=${{ env.ACTIONS_RUNTIME_URL }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
-            ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
