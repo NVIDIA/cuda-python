@@ -45,10 +45,15 @@ For PRs, the base must produce identical original and repaired blobs, and no
 `pixi.toml`, `pyproject.toml`, or Pixi-version input may differ from the base.
 Recognized cases emit a warning and restore the committed references.
 
+The refresh workflow uses the same exact detector after updating `cuda_core`.
+On a match, it restores the pre-update committed lockfile and continues
+refreshing the other workspaces. This postpones `cuda_core` dependency updates
+without allowing an unstable lockfile into the generated refresh PR; every
+unrecognized refresh failure remains fatal.
+
 Remove the detector and exception, and restore `PIXI_LOCKED=true`, once a
 released Pixi passes repeated lock and check commands without changing either
-the reduced upstream reproducer or our full workspaces. The refresh workflow
-still refuses to open an unstable lockfile-refresh PR.
+the reduced upstream reproducer or our full workspaces.
 
 ## Repository Customizations
 
