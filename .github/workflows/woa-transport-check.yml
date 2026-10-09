@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-name: "WoA cross-repository transport smoke"
+name: "WoA transport check"
 run-name: "WoA transport smoke for PR #${{ inputs.pr_number }}"
 
 on:
@@ -91,7 +91,7 @@ jobs:
           response=$(gh api \
             --method POST \
             -H 'X-GitHub-Api-Version: 2026-03-10' \
-            repos/NVIDIA-dev/cuda-python-private/actions/workflows/woa-crossrepo-smoke.yml/dispatches \
+            repos/NVIDIA-dev/cuda-python-private/actions/workflows/ctk-next-woa-transport-check.yml/dispatches \
             --input - <<< "$payload")
           private_run_id=$(jq -er '.workflow_run_id | tostring' <<< "$response")
           run=$(gh api \
@@ -99,7 +99,7 @@ jobs:
             "repos/NVIDIA-dev/cuda-python-private/actions/runs/$private_run_id")
           jq -e '
             .repository.id == 809898190 and
-            .path == ".github/workflows/woa-crossrepo-smoke.yml" and
+            .path == ".github/workflows/ctk-next-woa-transport-check.yml" and
             .event == "workflow_dispatch" and
             .head_branch == "ctk-next"
           ' <<< "$run" >/dev/null
