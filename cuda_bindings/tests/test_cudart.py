@@ -1454,6 +1454,45 @@ def test_cudart_func_callback():
     cudart_func_stream_callback(use_host_api=True)
 
 
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_cudart_host_func_graph_replay():
+    # A host function captured into a graph runs once per graph launch. The
+    # bindings must hand the function pointer and the user data to CUDA
+    # unchanged so that every launch reaches the same function (issue #790).
+    counter = ctypes.c_int(0)
+
+    @ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+    def host_fn(userData):
+        ctypes.c_int.from_address(userData).value += 1
+
+    callback = cudart.cudaHostFn_t(_ptr=ctypes.addressof(host_fn))
+    err, stream = cudart.cudaStreamCreate()
+    assertSuccess(err)
+    (err,) = cudart.cudaStreamBeginCapture(stream, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeGlobal)
+    assertSuccess(err)
+    (err,) = cudart.cudaLaunchHostFunc(stream, callback, ctypes.addressof(counter))
+    assertSuccess(err)
+    err, graph = cudart.cudaStreamEndCapture(stream)
+    assertSuccess(err)
+    err, graphExec = cudart.cudaGraphInstantiate(graph, 0)
+    assertSuccess(err)
+
+    launches = 5
+    for _ in range(launches):
+        (err,) = cudart.cudaGraphLaunch(graphExec, stream)
+        assertSuccess(err)
+        (err,) = cudart.cudaStreamSynchronize(stream)
+        assertSuccess(err)
+    assert counter.value == launches
+
+    (err,) = cudart.cudaGraphExecDestroy(graphExec)
+    assertSuccess(err)
+    (err,) = cudart.cudaGraphDestroy(graph)
+    assertSuccess(err)
+    (err,) = cudart.cudaStreamDestroy(stream)
+    assertSuccess(err)
+
+
 @pytest.mark.skipif(
     driver_version_less_than(12030) or not supportsCudaAPI("cudaGraphConditionalHandleCreate"),
     reason="Conditional graph APIs required",

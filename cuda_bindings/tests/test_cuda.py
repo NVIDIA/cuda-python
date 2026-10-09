@@ -694,6 +694,45 @@ def test_stream_capture():
     pass
 
 
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_cuda_launch_host_func_graph_replay():
+    # A host function captured into a graph runs once per graph launch. The
+    # bindings must hand the function pointer and the user data to CUDA
+    # unchanged so that every launch reaches the same function (issue #790).
+    counter = ctypes.c_int(0)
+
+    @ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+    def host_fn(userData):
+        ctypes.c_int.from_address(userData).value += 1
+
+    callback = cuda.CUhostFn(_ptr=ctypes.addressof(host_fn))
+    err, stream = cuda.cuStreamCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuStreamBeginCapture(stream, cuda.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_GLOBAL)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuLaunchHostFunc(stream, callback, ctypes.addressof(counter))
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, graph = cuda.cuStreamEndCapture(stream)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, graphExec = cuda.cuGraphInstantiate(graph, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    launches = 5
+    for _ in range(launches):
+        (err,) = cuda.cuGraphLaunch(graphExec, stream)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        (err,) = cuda.cuStreamSynchronize(stream)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+    assert counter.value == launches
+
+    (err,) = cuda.cuGraphExecDestroy(graphExec)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuGraphDestroy(graph)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuStreamDestroy(stream)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+
 def test_profiler():
     (err,) = cuda.cuProfilerStart()
     assert err == cuda.CUresult.CUDA_SUCCESS
