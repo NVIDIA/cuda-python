@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=60bed3d2"></script>
+    <script src="../_static/documentation_options.js?v=c4c657cb"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev174';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev175';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -967,7 +967,7 @@ the others.
 <li><p>Calling <code class="docutils literal notranslate"><span class="pre">discard()</span></code> on the set-like <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.pred" title="cuda.core.graph.GraphNode.pred"><code class="xref py py-attr docutils literal notranslate"><span class="pre">graph.GraphNode.pred</span></code></a> and
 <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.succ" title="cuda.core.graph.GraphNode.succ"><code class="xref py py-attr docutils literal notranslate"><span class="pre">graph.GraphNode.succ</span></code></a> views with an object that is not a
 <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode" title="cuda.core.graph.GraphNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphNode</span></code></a> is now a no-op instead of raising <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>,
-consistent with <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableSet" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSet</span></code></a> semantics.</p></li>
+consistent with <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableSet" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSet</span></code></a> semantics.</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> now holds each physical allocation, address
 reservation and mapping in a reference-counted handle, so everything a
 buffer maps is released when the last buffer that maps it closes. The
