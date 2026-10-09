@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Shared tests for the Cython cache helpers in build_hooks.py.
+"""Shared tests for the Cython cache helpers in _build_shared.py.
 
 Provides:
 
@@ -13,10 +13,9 @@ Provides:
 - ``WINDOWS_ONLY_CACHE``: shared skip marker for the complementary Windows
   disable-path tests (warn + return None when the cache dir is set).
 
-These are used by ``cuda_bindings/tests/test_build_hooks.py``
-and ``cuda_core/tests/test_build_hooks.py``. Drift between the two vendored
-helper copies is enforced by ``toolshed/check_build_hooks_sync.py``, not by a
-runtime test.
+These are used by ``cuda_bindings/tests/test_build_hooks.py`` and
+``cuda_core/tests/test_build_hooks.py``. The helpers themselves are loaded
+through matching package-local ``_build_shared.py`` paths.
 
 Cython is imported inside the functions that need it so this module does not
 force a Cython dependency on the ``cuda-python-test-helpers`` package.

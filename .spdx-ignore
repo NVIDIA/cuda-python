@@ -6,7 +6,10 @@ LICENSE*
 .gitattributes
 .gitignore
 requirements*.txt
-cuda_bindings/examples/*
+
+# Samples are synced to NVIDIA/cuda-samples on release and carry either the
+# upstream verbose BSD-style copyright header or an SPDX identifier.
+samples/**/*.py
 
 # Vendored
 cuda_core/cuda/core/_include/dlpack.h

@@ -41,6 +41,10 @@ def pytest_collection_modifyitems(config, items):  # noqa: ARG001
         if nodeid.startswith("tests/integration/") or "/tests/integration/" in nodeid:
             item.add_marker(pytest.mark.smoke)
 
+        # Each package owns the sample wrapper under its example_tests subtree.
+        if "example_tests/test_samples.py" in nodeid:
+            item.add_marker(pytest.mark.samples)
+
         # Cython tests (any tests/cython subtree)
         if (
             "/tests/cython/" in nodeid

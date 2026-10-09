@@ -44,10 +44,11 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
 
 ## Cloning the repository
 
-> **Windows contributors (not WSL):** configure Git for symlinks *before*
-> cloning, or the shared PEP 517 build-hook file lands as a text stub instead
-> of a working symlink. See [Enabling git symlinks](#enabling-git-symlinks)
-> under Development on Windows.
+> **Windows contributors (not WSL):** source builds and tests work with
+> `core.symlinks=false`. Git symlink support is optional and only affects the
+> remaining documentation and metadata links (`CLAUDE.md`,
+> `cuda_python/README.md`, and `.git_archival.txt`). See
+> [Enabling git symlinks](#enabling-git-symlinks) if you want those links materialized.
 
 Every package in this repository derives its version from git tags using
 [`setuptools-scm`](https://setuptools-scm.readthedocs.io/), so **how you clone
@@ -137,18 +138,18 @@ genuinely cannot provide tags; it is not a substitute for a correct clone.
 
 ## Development on Windows
 
-This section collects the Windows-specific setup a contributor needs when
-working outside of WSL. WSL contributors can follow the Linux flow in the rest
-of this document.
+This section collects Windows-specific guidance for contributors working
+outside of WSL. WSL contributors can follow the Linux flow in the rest of this
+document.
 
 ### Enabling git symlinks
 
-The `cuda_core` PEP 517 backend shares source-of-truth helper files with
-`cuda_bindings` via symbolic links. Git materializes symlinks by default on
-Linux and macOS, but on Windows it needs to be configured before cloning,
-otherwise the "symlinks" land in your working tree as plain text files that
-contain the target path — enough to look right in `git status`, but not enough
-to actually build.
+The repository still contains documentation and metadata symlinks, including
+`CLAUDE.md`, `cuda_python/README.md`, and the per-package `.git_archival.txt`
+files. With `core.symlinks=false`, Git checks them out as plain text files
+containing the target path. This does not affect source builds or tests.
+
+If you want these links materialized as symlinks:
 
 1. **[Activate Developer Mode](https://learn.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development#activate-developer-mode)**
    so Git can create symlinks without Administrator privileges.
@@ -162,22 +163,19 @@ to actually build.
 
 Then clone as usual (see [Cloning the repository](#cloning-the-repository)).
 
-If you already cloned without these settings, note that `git clone` probes
-symlink support at clone time and writes `core.symlinks=false` into the
-repo-local config when the probe fails. Repo-local config overrides
-`--global`, so you must clear it *inside the existing clone* — the global
-setting alone won't take effect:
+If you already cloned with `core.symlinks=false`, the repository-local
+setting overrides the global setting. Enable it locally, then rematerialize
+all tracked symlinks. For example:
 
 ```console
-$ git config core.symlinks true          # no --global — clears the repo-local override
-$ git rm --cached cuda_core/_build_shared.py
-$ git checkout HEAD -- cuda_core/_build_shared.py
+$ git config core.symlinks true
+$ git rm --cached cuda_python/README.md
+$ git checkout HEAD -- cuda_python/README.md
 ```
 
-In practice, deleting the checkout and re-cloning after the two steps at
-the top of this section (Developer Mode + `git config --global core.symlinks
-true`) is usually simpler and less error-prone than repairing an existing
-clone in place.
+Repeat the last two commands for every other tracked symlink. Re-cloning after
+enabling Developer Mode and setting the global option is simpler if you want
+all links restored.
 
 ### Pre-commit lychee workaround
 

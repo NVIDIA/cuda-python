@@ -1,0 +1,70 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Download artifact (with retry)
+
+description: >-
+  Wrapper around actions/download-artifact that retries once after a short
+  delay when the first attempt fails.  Designed to absorb transient
+  infrastructure flakes such as "other side closed" without failing the job.
+
+inputs:
+  name:
+    description: "Name of the artifact to download"
+    required: true
+  path:
+    description: "Destination path for the downloaded artifact"
+    required: true
+  run-id:
+    description: >-
+      The run ID of the workflow run that uploaded the artifact.  Only used
+      together with github-token; leave empty to download from the current run.
+    required: false
+    default: ""
+  github-token:
+    description: >-
+      Token used to download from another run or repository.  Leave empty (the
+      default) to download from the current run, which uses
+      actions/download-artifact's internal download path.  That path is not the
+      same as the one used when a token is given, so do not default this to
+      github.token.
+    required: false
+    default: ""
+  retry-delay-seconds:
+    description: "Seconds to wait between the first failure and the retry"
+    required: false
+    default: "15"
+
+runs:
+  using: composite
+  steps:
+    - name: Download artifact (attempt 1)
+      id: attempt1
+      continue-on-error: true
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+      with:
+        name: ${{ inputs.name }}
+        path: ${{ inputs.path }}
+        run-id: ${{ inputs.run-id }}
+        github-token: ${{ inputs.github-token }}
+
+    - name: Wait before retry
+      if: ${{ steps.attempt1.outcome == 'failure' }}
+      shell: bash --noprofile --norc -euo pipefail {0}
+      env:
+        # Pass through env instead of interpolating the input into the shell
+        # script, so a non-numeric value cannot inject commands.
+        RETRY_DELAY_SECONDS: ${{ inputs.retry-delay-seconds }}
+      run: |
+        echo "::warning::Artifact download failed (attempt 1); retrying in ${RETRY_DELAY_SECONDS}s"
+        sleep "$RETRY_DELAY_SECONDS"
+
+    - name: Download artifact (attempt 2)
+      if: ${{ steps.attempt1.outcome == 'failure' }}
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+      with:
+        name: ${{ inputs.name }}
+        path: ${{ inputs.path }}
+        run-id: ${{ inputs.run-id }}
+        github-token: ${{ inputs.github-token }}

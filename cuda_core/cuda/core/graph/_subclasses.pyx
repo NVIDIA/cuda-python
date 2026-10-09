@@ -243,13 +243,33 @@ cdef void _reject_unsupported_kernel_node(
             "updating clustered or cooperative kernel nodes is not supported")
 
 
+cdef inline bint _is_linear_memcpy_memory_type(
+        cydriver.CUmemorytype memory_type) noexcept nogil:
+    # HOST and DEVICE name the location of a linear operand. UNIFIED is what
+    # the driver records for a copy captured from cuMemcpyAsync: a generic
+    # address that it resolves itself, stored in the device-pointer field.
+    return (memory_type == cydriver.CU_MEMORYTYPE_HOST
+            or memory_type == cydriver.CU_MEMORYTYPE_DEVICE
+            or memory_type == cydriver.CU_MEMORYTYPE_UNIFIED)
+
+
+cdef str _memcpy_memory_type_tag(cydriver.CUmemorytype memory_type):
+    if memory_type == cydriver.CU_MEMORYTYPE_HOST:
+        return "H"
+    if memory_type == cydriver.CU_MEMORYTYPE_DEVICE:
+        return "D"
+    if memory_type == cydriver.CU_MEMORYTYPE_UNIFIED:
+        return "U"
+    if memory_type == cydriver.CU_MEMORYTYPE_ARRAY:
+        return "A"
+    return str(int(memory_type))
+
+
 cdef bint _is_supported_memcpy_descriptor(
         cydriver.CUDA_MEMCPY3D* params) noexcept nogil:
     return (
-        (params.srcMemoryType == cydriver.CU_MEMORYTYPE_HOST or
-         params.srcMemoryType == cydriver.CU_MEMORYTYPE_DEVICE)
-        and (params.dstMemoryType == cydriver.CU_MEMORYTYPE_HOST or
-             params.dstMemoryType == cydriver.CU_MEMORYTYPE_DEVICE)
+        _is_linear_memcpy_memory_type(params.srcMemoryType)
+        and _is_linear_memcpy_memory_type(params.dstMemoryType)
         and params.srcXInBytes == 0
         and params.srcY == 0
         and params.srcZ == 0
@@ -819,8 +839,8 @@ cdef class MemcpyNode(GraphNode):
             params.dstMemoryType, params.srcMemoryType)
 
     def __repr__(self) -> str:
-        cdef str dt = "H" if self._dst_type == cydriver.CU_MEMORYTYPE_HOST else "D"
-        cdef str st = "H" if self._src_type == cydriver.CU_MEMORYTYPE_HOST else "D"
+        cdef str dt = _memcpy_memory_type_tag(self._dst_type)
+        cdef str st = _memcpy_memory_type_tag(self._src_type)
         return (f"<MemcpyNode handle=0x{as_intptr(self._h_node):x}"
                 f" dst=0x{self._dst:x}({dt}) src=0x{self._src:x}({st}) size={self._size}>")
 
@@ -838,7 +858,7 @@ cdef class MemcpyNode(GraphNode):
         Omitted parameters preserve their current values. ``dst_owner`` and
         ``src_owner`` may only accompany their corresponding raw addresses.
         Multidimensional, pitched, offset, and array-backed memcpy nodes are
-        not supported.
+        not supported. Nodes recorded by stream capture are supported.
 
         With drivers from CUDA 12.2 through 13.1, the node's intended CUDA
         context must be current when this method runs. With the CUDA 13 build
@@ -894,32 +914,31 @@ cdef class MemcpyNode(GraphNode):
                 "updating multidimensional, pitched, offset, or array-backed "
                 "memcpy nodes is not supported")
 
+        # The descriptor check above admits HOST, DEVICE, and UNIFIED operands;
+        # the last two keep their address in the device-pointer field.
         c_dst_type = params.memcpy.copyParams.dstMemoryType
         c_src_type = params.memcpy.copyParams.srcMemoryType
         if c_dst_type == cydriver.CU_MEMORYTYPE_HOST:
             c_dst = <cydriver.CUdeviceptr><uintptr_t>(
                 params.memcpy.copyParams.dstHost)
-        elif c_dst_type == cydriver.CU_MEMORYTYPE_DEVICE:
-            c_dst = params.memcpy.copyParams.dstDevice
         else:
-            raise NotImplementedError(
-                f"unsupported destination memory type: {int(c_dst_type)}")
+            c_dst = params.memcpy.copyParams.dstDevice
         if c_src_type == cydriver.CU_MEMORYTYPE_HOST:
             c_src = <cydriver.CUdeviceptr><uintptr_t>(
                 params.memcpy.copyParams.srcHost)
-        elif c_src_type == cydriver.CU_MEMORYTYPE_DEVICE:
-            c_src = params.memcpy.copyParams.srcDevice
         else:
-            raise NotImplementedError(
-                f"unsupported source memory type: {int(c_src_type)}")
+            c_src = params.memcpy.copyParams.srcDevice
 
         HANDLE_RETURN(graph_get_attachment(
             h_graph, node,
             &dst_attachment_owner, &src_attachment_owner))
+        # A unified operand stays unified: any address is valid for that type,
+        # and an executable update rejects a change of memory type.
         if dst is not None:
             dst_attachment_owner = _resolve_memcpy_operand(
                 dst, dst_owner, "dst", &c_dst)
-            c_dst_type = _get_memcpy_memory_type(c_dst)
+            if c_dst_type != cydriver.CU_MEMORYTYPE_UNIFIED:
+                c_dst_type = _get_memcpy_memory_type(c_dst)
             params.memcpy.copyParams.dstMemoryType = c_dst_type
             params.memcpy.copyParams.dstHost = NULL
             params.memcpy.copyParams.dstDevice = 0
@@ -932,7 +951,8 @@ cdef class MemcpyNode(GraphNode):
         if src is not None:
             src_attachment_owner = _resolve_memcpy_operand(
                 src, src_owner, "src", &c_src)
-            c_src_type = _get_memcpy_memory_type(c_src)
+            if c_src_type != cydriver.CU_MEMORYTYPE_UNIFIED:
+                c_src_type = _get_memcpy_memory_type(c_src)
             params.memcpy.copyParams.srcMemoryType = c_src_type
             params.memcpy.copyParams.srcHost = NULL
             params.memcpy.copyParams.srcDevice = 0
@@ -1551,7 +1571,10 @@ cdef class ExecutableMemcpyNode(ExecutableGraphNode):
         src: Buffer | int,
         size_t size,
     ) -> None:
-        """Replace all one-dimensional memcpy parameters for future launches."""
+        """Replace all one-dimensional memcpy parameters for future launches.
+
+        Nodes recorded by stream capture are supported.
+        """
         cdef cydriver.CUdeviceptr c_dst
         cdef cydriver.CUdeviceptr c_src
         cdef OpaqueHandle dst_owner = _resolve_memcpy_operand(
@@ -1562,12 +1585,33 @@ cdef class ExecutableMemcpyNode(ExecutableGraphNode):
         cdef cydriver.CUmemorytype src_type
         cdef cydriver.CUcontext ctx = NULL
         cdef cydriver.CUgraphNodeParams params
+        cdef cydriver.CUDA_MEMCPY3D recorded
+        cdef cydriver.CUgraphNode node = as_cu(self._h_node)
 
         c_memset(&params, 0, sizeof(params))
         params.type = cydriver.CU_GRAPH_NODE_TYPE_MEMCPY
         _init_memcpy_params(
             c_dst, c_src, size, &params.memcpy.copyParams,
             &dst_type, &src_type)
+        # A destroyed node is reported by _set_executable_node_params below.
+        # The memory types are read from the definition node, not from the
+        # instantiated graph. That is correct only while MemcpyNode.update()
+        # keeps a unified operand unified, which it does; an executable update
+        # rejects a change of memory type.
+        if node != NULL:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphMemcpyNodeGetParams(
+                    node, &recorded))
+            if recorded.dstMemoryType == cydriver.CU_MEMORYTYPE_UNIFIED:
+                params.memcpy.copyParams.dstMemoryType = (
+                    cydriver.CU_MEMORYTYPE_UNIFIED)
+                params.memcpy.copyParams.dstHost = NULL
+                params.memcpy.copyParams.dstDevice = c_dst
+            if recorded.srcMemoryType == cydriver.CU_MEMORYTYPE_UNIFIED:
+                params.memcpy.copyParams.srcMemoryType = (
+                    cydriver.CU_MEMORYTYPE_UNIFIED)
+                params.memcpy.copyParams.srcHost = NULL
+                params.memcpy.copyParams.srcDevice = c_src
         with nogil:
             HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
         params.memcpy.copyCtx = ctx

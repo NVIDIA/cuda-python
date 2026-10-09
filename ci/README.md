@@ -25,6 +25,31 @@ The pinned checkout action's
 [`README`](https://github.com/actions/checkout/blob/3d3c42e5aac5ba805825da76410c181273ba90b1/README.md#fetch-all-history-for-all-tags-and-branches)
 documents `fetch-depth: 0` for fetching all history, branches, and tags.
 
+## Temporary Pixi Samples Lockfile Workaround
+
+Pixi 0.73.0 checks PyPI dependencies that the `samples` environment explicitly
+excludes, then drops its local Conda source references during a PyPI-only
+refresh. The next refresh restores them, so repeated lock commands do not
+converge. A general maintenance refresh cannot repair this defect.
+
+Source-build CI temporarily uses `PIXI_FROZEN=true`: it builds the checkout's
+source packages using the committed dependency solution without triggering
+Pixi's workspace-wide freshness check.
+
+The separate freshness workflow remains strict except for one exact pattern:
+Pixi 0.73.0 exits 1 and removes precisely the nine `samples` source references,
+with every other lockfile byte unchanged. The detector also verifies the
+expected manifest overrides, local paths, platforms, and source-record
+definitions. It rejects the reverse cycle, which would add missing references.
+For PRs, the base must produce identical original and repaired blobs, and no
+`pixi.toml`, `pyproject.toml`, or Pixi-version input may differ from the base.
+Recognized cases emit a warning and restore the committed references.
+
+Remove the detector and exception, and restore `PIXI_LOCKED=true`, once a
+released Pixi passes repeated lock and check commands without changing either
+the reduced upstream reproducer or our full workspaces. The refresh workflow
+still refuses to open an unstable lockfile-refresh PR.
+
 ## Repository Customizations
 
 The workflows in this repository use the `CI_CUSTOMIZATIONS_*` namespace for

@@ -24,6 +24,8 @@ from helpers.layout import (
 
 from cuda.core._layout import _StridedLayout
 
+pytestmark = pytest.mark.parallel_threads_limit(1)  # pure layout arithmetic; no shared state
+
 _ITEMSIZES = [1, 2, 4, 8, 16]
 _S = np.s_
 
