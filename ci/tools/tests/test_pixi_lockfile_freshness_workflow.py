@@ -1,12 +1,11 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Run the freshness workflow against local Git history and a mock Pixi."""
+"""Validate the temporary lockfile maintenance pause and its check contexts."""
 
 from __future__ import annotations
 
-import os
-import shutil
+import shlex
 import subprocess
 from pathlib import Path
 
@@ -14,114 +13,108 @@ import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[3]
-WORKFLOW = ROOT / ".github/workflows/ci-pixi-lockfile-freshness-check.yml"
+WORKFLOWS = ROOT / ".github/workflows"
+PAUSED_WORKFLOWS = (
+    ("ci-pixi-lockfile-freshness-check.yml", "CI: pixi lockfile freshness check", "pixi lock --check (all workspaces)"),
+    ("ci-pixi-lockfile-refresh.yml", "CI: pixi lockfile refresh", "pixi update (all workspaces)"),
+)
 
 
-def _git(repo, *args):
-    return subprocess.run(  # noqa: S603 - arguments are passed without a shell.
-        ["git", "-C", str(repo), *args],  # noqa: S607
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.strip()
+def _workflow(filename):
+    workflow = yaml.safe_load((WORKFLOWS / filename).read_text(encoding="utf-8"))
+    # PyYAML interprets Actions' unquoted `on` key as a YAML 1.1 boolean.
+    if True in workflow:
+        workflow["on"] = workflow.pop(True)
+    return workflow
 
 
-def _commit(repo):
-    _git(repo, "add", ".")
-    _git(repo, "-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "-qm", "test")
-    return _git(repo, "rev-parse", "HEAD")
+@pytest.mark.agent_authored(model="gpt-6")
+def test_freshness_notice_runs_on_every_pr_without_path_filters():
+    workflow = _workflow("ci-pixi-lockfile-freshness-check.yml")
+
+    assert workflow["on"]["pull_request"] == {}
+    assert "pull_request_target" not in workflow["on"]
+    assert workflow["on"]["workflow_dispatch"] == {}
 
 
-def _run_check(tmp_path, manifest, changed_manifest, *, stale=True, known_defect=False):
-    repo = tmp_path / "repo"
-    repo.mkdir()
-    _git(repo, "init", "-q")
-    _git(repo, "config", "commit.gpgsign", "false")
-    tools = repo / "ci/tools"
-    tools.mkdir(parents=True)
-    for name in ("list_pixi_workspaces.py", "classify_pixi_lockfile_freshness.py"):
-        shutil.copyfile(ROOT / "ci/tools" / name, tools / name)
-    # The exact defect detector is covered separately; exercise its workflow gate.
-    (tools / "check_pixi_samples_source_pruning.py").write_text(
-        f"raise SystemExit({0 if known_defect else 1})\n", encoding="utf-8"
-    )
-    for workspace in {".", manifest, changed_manifest}:
-        directory = repo / workspace
-        directory.mkdir(parents=True, exist_ok=True)
-        (directory / "pixi.toml").write_text('[workspace]\nchannels = ["conda-forge"]\n', encoding="utf-8")
-        content = "stale\n" if stale and workspace == manifest else "fresh\n"
-        (directory / "pixi.lock").write_text(content, encoding="utf-8")
-    base_sha = _commit(repo)
-    with (repo / changed_manifest / "pixi.toml").open("a", encoding="utf-8") as stream:
-        stream.write('\n[tasks]\nexample = "echo example"\n')
-    _commit(repo)
+@pytest.mark.agent_authored(model="gpt-6")
+def test_refresh_is_manual_only_during_pause():
+    workflow = _workflow("ci-pixi-lockfile-refresh.yml")
 
-    bin_dir = tmp_path / "bin"
-    bin_dir.mkdir()
-    pixi = bin_dir / "pixi"
-    pixi.write_text(
-        "#!/usr/bin/env python3\n"
-        "import sys\n"
-        "from pathlib import Path\n"
-        "lockfile = Path(sys.argv[-1]) / 'pixi.lock'\n"
-        "if lockfile.read_text() == 'stale\\n':\n"
-        "    lockfile.write_text('repaired\\n')\n"
-        "    sys.exit(1)\n",
-        encoding="utf-8",
-    )
-    pixi.chmod(0o755)
+    assert workflow["on"] == {"workflow_dispatch": {}}
+
+
+@pytest.mark.parametrize(("filename", "workflow_name", "job_name"), PAUSED_WORKFLOWS)
+@pytest.mark.agent_authored(model="gpt-6")
+def test_paused_workflows_preserve_names_and_run_only_the_notice(filename, workflow_name, job_name):
+    workflow = _workflow(filename)
+
+    assert workflow["name"] == workflow_name
+    assert workflow["permissions"] == {}
+    assert len(workflow["jobs"]) == 1
+    job = next(iter(workflow["jobs"].values()))
+    assert job["name"] == job_name
+    assert not {"if", "needs", "uses", "strategy", "continue-on-error", "permissions"}.intersection(job)
+    assert len(job["steps"]) == 1
+    assert set(job["steps"][0]) == {"name", "run"}
+
+
+@pytest.mark.parametrize(("filename", "workflow_name", "job_name"), PAUSED_WORKFLOWS)
+@pytest.mark.agent_authored(model="gpt-6")
+def test_suspension_notice_succeeds_without_external_tools_or_repository_writes(
+    tmp_path, filename, workflow_name, job_name
+):
+    workflow = _workflow(filename)
+    job = next(iter(workflow["jobs"].values()))
     summary = tmp_path / "summary.md"
-    output = tmp_path / "output.txt"
-    workflow = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
-    step = next(step for step in workflow["jobs"]["lockfile-fresh"]["steps"] if step.get("id") == "check")
-    result = subprocess.run(  # noqa: S603 - run trusted workflow code with local fixtures and no network.
-        ["bash", "--noprofile", "--norc", "-euo", "pipefail", "-c", step["run"]],  # noqa: S607
-        cwd=repo,
-        env={
-            **os.environ,
-            "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}",
-            "BASE_SHA": base_sha,
-            "EVENT_NAME": "pull_request",
-            "MAINTENANCE_KIND": "workflow",
-            "MAINTENANCE_URL": "https://example.com/refresh",
-            "PIXI_VERSION": "v0.73.0",
-            "WORKSPACE_TIMEOUT": "10s",
-            "RUNNER_TEMP": str(tmp_path),
-            "GITHUB_STEP_SUMMARY": str(summary),
-            "GITHUB_OUTPUT": str(output),
-        },
+    result = subprocess.run(  # noqa: S603 - execute the trusted notice with no external tools in PATH.
+        ["/bin/bash", "--noprofile", "--norc", "-euo", "pipefail", "-c", job["steps"][0]["run"]],
+        cwd=tmp_path,
+        env={"PATH": str(tmp_path / "no-tools"), "GITHUB_STEP_SUMMARY": str(summary)},
         capture_output=True,
         text=True,
-        timeout=30,
+        timeout=10,
     )
-    return result, summary.read_text(encoding="utf-8")
-
-
-@pytest.mark.parametrize("manifest", [".", "nested/workspace", "cuda_core"])
-@pytest.mark.agent_authored(model="gpt-6")
-def test_manifest_edit_without_lock_update_reports_pr_remediation(tmp_path, manifest):
-    result, summary = _run_check(tmp_path, manifest, manifest, known_defect=manifest == "cuda_core")
-
-    assert result.returncode == 1, result.stdout + result.stderr
-    assert "manifest changed without a lockfile update" in summary
-    assert "regenerate and commit the lockfile in this PR" in summary
-    assert "Base maintenance:" not in summary
-    assert "Do not add this refresh" not in result.stdout
-    assert "Known inherited Pixi samples lockfile bug" not in result.stdout
-
-
-@pytest.mark.agent_authored(model="gpt-6")
-def test_other_workspace_manifest_edit_keeps_base_maintenance_attribution(tmp_path):
-    result, summary = _run_check(tmp_path, "nested/workspace", ".")
-
-    assert result.returncode == 1, result.stdout + result.stderr
-    assert "Base maintenance:" in summary
-    assert "PR-induced:" not in summary
-
-
-@pytest.mark.agent_authored(model="gpt-6")
-def test_fresh_lockfile_allows_task_only_manifest_edit(tmp_path):
-    result, summary = _run_check(tmp_path, "nested/workspace", "nested/workspace", stale=False)
 
     assert result.returncode == 0, result.stdout + result.stderr
-    assert "| `nested/workspace` | Fresh |" in summary
+    assert "::warning title=Pixi lockfile maintenance suspended::" in result.stdout
+    assert "temporarily suspended" in result.stdout
+    assert "Freshness was not checked." in result.stdout
+    text = summary.read_text(encoding="utf-8")
+    assert "Freshness enforcement and automated refreshes are temporarily suspended." in text
+    assert "does not verify manifest/lock consistency" in text
+    assert "manual review and validation" in text
+    assert "PIXI_FROZEN=true" in text
+    assert set(tmp_path.iterdir()) == {summary}
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_both_workflows_emit_the_same_suspension_notice():
+    notices = [
+        next(iter(_workflow(filename)["jobs"].values()))["steps"][0]["run"] for filename, _, _ in PAUSED_WORKFLOWS
+    ]
+
+    assert notices[0] == notices[1]
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_source_builds_and_tests_still_use_frozen_pixi():
+    workflow = _workflow("ci-pixi-source-test.yml")
+
+    assert workflow["env"]["PIXI_FROZEN"] == "true"
+    assert "PIXI_LOCKED" not in workflow["env"]
+    assert set(workflow["jobs"]) == {"build-smoke", "build-identity-roundtrip", "full-test"}
+    assert {"pull_request", "schedule", "workflow_dispatch"} <= set(workflow["on"])
+    for job in workflow["jobs"].values():
+        assert any(step.get("uses") == "./.github/actions/setup-pixi" for step in job["steps"])
+        assert any("pixi run" in step.get("run", "") for step in job["steps"])
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_nightly_ci_declares_workflow_test_dependencies():
+    workflow = _workflow("ci-nightly.yml")
+    step = next(step for step in workflow["jobs"]["test-ci-tools-for-release"]["steps"] if "run" in step)
+    install = next(line for line in step["run"].splitlines() if "pip install" in line)
+    dependencies = {argument.lower().split("==")[0] for argument in shlex.split(install)}
+
+    assert {"pytest", "pyyaml"} <= dependencies
