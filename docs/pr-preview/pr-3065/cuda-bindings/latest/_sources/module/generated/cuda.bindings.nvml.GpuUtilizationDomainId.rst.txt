@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.GpuUtilizationDomainId
-=========================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: GpuUtilizationDomainId

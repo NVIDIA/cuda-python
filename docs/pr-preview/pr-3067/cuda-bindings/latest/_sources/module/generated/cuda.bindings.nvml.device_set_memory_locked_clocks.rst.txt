@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_set\_memory\_locked\_clocks
-======================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_set_memory_locked_clocks
