@@ -4,6 +4,8 @@
 line-length = 120
 respect-gitignore = true
 target-version = "py310"
+# Submodules carry their own linting configuration; never lint them from here.
+extend-exclude = ["third_party"]
 
 [format]
 indent-style = "space"

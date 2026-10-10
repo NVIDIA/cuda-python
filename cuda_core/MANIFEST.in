@@ -9,3 +9,8 @@ include cuda/core/py.typed
 include NOTICE
 # package-local shared PEP 517 helper
 include _build_shared.py
+# setuptools-scm only records the submodule gitlink, so the checkout must be
+# grafted or wheel-from-sdist has no CCCL headers. Exclude .git so the sdist
+# does not ship a pointer into this repository.
+graft third_party/cccl
+exclude third_party/cccl/.git
