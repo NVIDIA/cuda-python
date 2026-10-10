@@ -10,8 +10,7 @@ For those jobs, use `fetch-depth: 0` with `filter: blob:none`. The checkout
 action fetches complete ancestry for all branches and tags, while the blob
 filter skips historical file contents. This avoids downloading the large
 historical `gh-pages` contents discussed in issue #2197. Git retrieves file
-contents as needed when checking out the requested commit or creating the
-freshness check's base-commit worktree.
+contents as needed when checking out the requested commit.
 
 CI change detection uses this full-history checkout for PR mirrors, so the
 actual PR base branch is available when computing its merge base. Non-PR runs
@@ -24,6 +23,36 @@ Git documents blob filtering in its
 The pinned checkout action's
 [`README`](https://github.com/actions/checkout/blob/3d3c42e5aac5ba805825da76410c181273ba90b1/README.md#fetch-all-history-for-all-tags-and-branches)
 documents `fetch-depth: 0` for fetching all history, branches, and tags.
+
+## Temporary Pixi Lockfile Maintenance Pause
+
+Pixi lockfile freshness enforcement and automated refreshes are temporarily
+suspended because of [Pixi #7215](https://github.com/prefix-dev/pixi/issues/7215)
+and [#7000](https://github.com/prefix-dev/pixi/issues/7000). Repeated lockfile
+operations can change the committed solution without converging, so a general
+refresh is not a reliable repair.
+
+The `CI: pixi lockfile freshness check` workflow still runs on every PR with its
+existing `pixi lock --check (all workspaces)` check name. It succeeds with a
+warning annotation and job summary explicitly reporting the suspension;
+success does not mean freshness passed. The refresh workflow has no schedule.
+Manual dispatch emits the same notice without solving dependencies, rewriting
+lockfiles, pushing a branch, or creating a PR.
+
+Manifest/lock consistency is not automatically enforced during this pause.
+Necessary dependency changes require manual review and validation of the
+affected manifests and lockfiles. Real source builds and tests continue using
+`PIXI_FROZEN=true`, including nested `pixi run` calls, to build the checkout's
+source packages against the committed dependency solution. The pinned Pixi
+version and committed lockfiles are unchanged.
+
+Re-enable maintenance only after a released Pixi passes both upstream issue
+reproducers and repeated byte-stable update/lock/check cycles across all six
+workspaces: the repository root, `cuda_pathfinder`, `cuda_bindings`, `cuda_core`,
+`benchmarks/cuda_bindings`, and `benchmarks/cuda_core`. Verify both `pixi update
+--no-install` and `pixi lock`, followed by repeated `pixi lock --check` commands,
+converge to unchanged lockfile bytes. Then restore strict freshness checks,
+scheduled refreshes, and `PIXI_LOCKED=true` in source-build CI.
 
 ## Repository Customizations
 
