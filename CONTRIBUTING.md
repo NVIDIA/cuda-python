@@ -1,24 +1,19 @@
 # Contributing to CUDA Python
 
-Thank you for your interest in contributing to CUDA Python! Based on the type of contribution, it will fall into two categories:
-
-1. You want to report a bug, feature request, or documentation issue:
-    - File an [issue](https://github.com/NVIDIA/cuda-python/issues/new/choose)
-    describing what you encountered or what you want to see changed.
-    - The NVIDIA team will evaluate the issues and triage them, scheduling
-    them for a release. If you believe the issue needs priority attention
-    comment on the issue to notify the team.
-2. You want to implement a feature, improvement, or bug fix:
-   - Before starting work on an existing issue, please comment on the issue to express your interest and wait to be assigned by a maintainer. This helps avoid redundant effort in case the issue is already being worked on by another contributor or an NVIDIA team member.
-   - Please refer to each component's guideline:
-       - [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/contribute.html)
-       - [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)<sup>[1](#footnote1)</sup>
-       - [`cuda.pathfinder`](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/contribute.html)
+Thank you for your interest in contributing to CUDA Python! We welcome bug
+reports, reproducible examples, documentation improvements, and code changes
+that address demonstrated needs. Review capacity is limited, so agreeing on
+the work before implementing it helps us use both contributors' and
+maintainers' time well.
 
 ## Table of Contents
 
 - [Contributing to CUDA Python](#contributing-to-cuda-python)
   - [Table of Contents](#table-of-contents)
+  - [Report a problem or suggest a change](#report-a-problem-or-suggest-a-change)
+  - [Coordinate before implementing](#coordinate-before-implementing)
+    - [Maintainer investigations and infrastructure](#maintainer-investigations-and-infrastructure)
+  - [Using coding agents](#using-coding-agents)
   - [Cloning the repository](#cloning-the-repository)
     - [Recommended clone](#recommended-clone)
     - [Fixing an existing clone](#fixing-an-existing-clone)
@@ -41,6 +36,99 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     - [Key Infrastructure Details](#key-infrastructure-details)
   - [Code coverage](#code-coverage)
 
+
+## Report a problem or suggest a change
+
+If a CUDA Python bug blocks your work, please [file an
+issue](https://github.com/NVIDIA/cuda-python/issues/new/choose). Include a minimal
+reproducer, relevant package and CUDA versions, your platform, the expected and
+observed behavior, and how the problem affects your use of CUDA Python. Reports
+of regressions and incorrect results are especially useful for setting
+priorities.
+
+Feature requests, documentation corrections, measurements, and suggested
+regression tests are also welcome. You do not need an assignment to report a
+problem or contribute evidence. The NVIDIA team triages issues according to
+user impact, release plans, and available review and maintenance capacity.
+
+## Coordinate before implementing
+
+An open issue may record an idea, an investigation, or a proposed approach
+that has not been agreed upon. Its existence, even with a detailed suggested
+implementation, does not mean the work is ready for a PR.
+
+Before starting implementation on an existing issue, comment to express your
+interest and wait to be assigned by a maintainer. For a new feature or changes
+involving design decisions or shared infrastructure, open an issue to discuss
+the problem and approach first. Confirm the scope and validation plan with the
+maintainer; an explicit request from a maintainer to implement the change
+satisfies this coordination step. This helps avoid duplicate work and proposals
+that are no longer being pursued.
+
+Small, self-contained bug fixes and documentation corrections without an
+existing issue can be proposed directly in a PR. Explain the problem being
+solved and how you validated the correction.
+
+Review includes understanding the problem, checking behavior and tests, and
+considering ongoing maintenance. A submitted PR does not change the project's
+priorities or guarantee immediate review. Focus on demonstrated user problems
+and improvements that maintainers have agreed to accept. Issues marked
+`help wanted` or `good first issue` are useful starting points; the assignment
+and coordination requirements still apply.
+
+Keep each PR focused and independently reviewable. Discuss work requiring
+multiple dependent PRs or access to shared CI resources with a maintainer
+before starting; ordinary contributions can be developed in a fork. If some
+validation requires NVIDIA infrastructure, agree on which checks you can run
+and which need maintainer help, and describe those limits in the PR.
+
+Please also read the relevant component's guidelines:
+
+- [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/contribute.html)
+- [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)<sup>[1](#footnote1)</sup>
+- [`cuda.pathfinder`](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/contribute.html)
+
+### Maintainer investigations and infrastructure
+
+Changes to workflows, shared caches, runners, and release infrastructure often
+require operational context and validation that are not available in the issue
+alone. Please agree on the approach with the responsible maintainer before
+implementing such changes.
+
+For investigations and proposals that are not ready for implementation,
+maintainers should state that at the top of the issue. For example, an ongoing
+CI investigation can use:
+
+> **Maintainer investigation; not currently open for implementation PRs.** This
+> affects shared CI infrastructure. Please wait for maintainer agreement on the
+> approach before starting implementation; observations and suggestions are
+> welcome.
+
+For an unapproved proposal, use "Proposal awaiting maintainer agreement"
+instead of "Maintainer investigation" and explain what remains to be decided.
+The notice describes the issue's current readiness. Maintainers should update
+it when an implementation plan is agreed upon. Reproducers, measurements, and
+discussion remain welcome while a plan is being developed.
+
+## Using coding agents
+
+Agent-assisted contributions follow the same coordination and quality
+requirements as other contributions. Generating a patch quickly does not
+reduce the review and maintenance work needed to accept it.
+
+Before submitting an agent-assisted PR:
+
+- Give the agent the relevant repository and component instructions, issue
+  discussion, implementation context, and tests. A suggested fix is a proposal
+  to evaluate, rather than evidence that the design has been accepted.
+- Read and understand the complete diff. Be able to explain the problem, the
+  approach, and the resulting behavior, and take responsibility for responding
+  to review feedback and correcting the change.
+- Validate the change against the reported problem and run the relevant
+  checks. Report what actually ran and any remaining validation gaps. Follow
+  the repository's test authorship markers in [AGENTS.md](AGENTS.md#test-authorship-markers).
+- Keep the change within the agreed scope. Avoid sending batches of speculative
+  PRs picked from the backlog; coordinate additional work with maintainers.
 
 ## Cloning the repository
 
