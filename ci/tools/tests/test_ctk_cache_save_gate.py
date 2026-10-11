@@ -5,7 +5,7 @@ import re
 import unittest
 
 
-ACTION = Path(__file__).parents[1] / ".github/actions/fetch_ctk/action.yml"
+ACTION = Path(__file__).parents[3] / ".github/actions/fetch_ctk/action.yml"
 
 
 def should_save(ref: str, default_branch: str, cancelled: bool, cache_hit: str) -> bool:
@@ -32,6 +32,14 @@ class TestCtkCacheSaveGate(unittest.TestCase):
             expression,
         )
         self.assertIn("steps.ctk-get-cache.outputs.cache-hit != 'true'", expression)
+        self.assertIn(
+            "- name: Get CUDA components\n      if: ${{ steps.ctk-get-cache.outputs.cache-hit != 'true' }}",
+            action,
+        )
+        self.assertIn(
+            "- name: Restore CTK cache\n      if: ${{ steps.ctk-get-cache.outputs.cache-hit == 'true' }}",
+            action,
+        )
 
     def test_cache_save_ref_and_status_matrix(self):
         cases = (
