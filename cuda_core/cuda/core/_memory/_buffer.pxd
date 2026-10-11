@@ -5,7 +5,7 @@
 from libcpp cimport bool as cpp_bool
 from libcpp.atomic cimport atomic as std_atomic
 
-from cuda.core._resource_handles cimport DevicePtrHandle
+from cuda.core._rt cimport DevicePtrHandle
 
 
 cdef struct _MemAttrs:
@@ -24,10 +24,7 @@ cdef class Buffer:
         _MemAttrs             _mem_attrs
         std_atomic[cpp_bool]  _mem_attrs_inited
         object                __weakref__
-    cdef public:
-        # Python code in _memory/_virtual_memory_resource.py needs to update
-        # this value, though it is technically private.
-        size_t          _size
+        size_t                _size
 
 
 cdef class MemoryResource:
@@ -44,3 +41,15 @@ cdef Buffer Buffer_from_deviceptr_handle(
     object ipc_descriptor = *,
     type cls = *,
 )
+
+
+# Shared argument coercion for the batched free functions (copy_batch,
+# prefetch_batch, discard_batch, discard_prefetch_batch). `single_hint`
+# names the per-buffer API to use instead when a bare Buffer is passed.
+cdef tuple Buffer_coerce_batch(object buffers, str what, str single_hint)
+
+
+cdef inline int Buffer_check_open(Buffer self) except -1:
+    if not self._h_ptr:
+        raise RuntimeError("Buffer has been closed")
+    return 0

@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
-from cuda.core._utils.version import binding_version, driver_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 
 if TYPE_CHECKING:
     from cuda.core._device import Device
@@ -39,13 +39,14 @@ def _reject_numa_host_on_cuda12(spec: _LocSpec) -> None:
     ``TypeError`` at the call boundary with actionable wording.
     """
     # The host-NUMA kinds map to CU_MEM_LOCATION_TYPE_HOST_NUMA{,_CURRENT},
-    # both added in CUDA 13. Require both bindings and the runtime driver to
-    # be 13.0+; bindings-only is insufficient (PR #2054 / #2064 precedent).
-    if binding_version() >= (13, 0, 0) and driver_version() >= (13, 0, 0):
+    # both added in CUDA 13. The CUDA 13 build passes them to the v2 driver
+    # entry points, which need a 13.0+ runtime driver as well. A build check
+    # alone is insufficient. See PR #2054 / #2064 for the precedent.
+    if BUILD_CUDA_MAJOR >= 13 and driver_version() >= (13, 0, 0):
         return
     if spec.kind in ("host_numa", "host_numa_current"):
         raise TypeError(
-            "Host(numa_id=...) / Host.numa_current() require both cuda-bindings 13.0+ "
+            "Host(numa_id=...) / Host.numa_current() require the CUDA 13 build of cuda.core "
             "and a CUDA 13+ runtime driver; use Host() instead"
         )
 

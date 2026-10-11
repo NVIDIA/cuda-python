@@ -8,7 +8,7 @@ from libc.stdint cimport intptr_t
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     DevicePtrHandle,
     deviceptr_alloc_async,
     get_last_error,
@@ -225,7 +225,7 @@ cdef inline Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream 
     return Buffer_from_deviceptr_handle(h_ptr, size, self, None)
 
 
-cdef inline void GMR_deallocate(intptr_t ptr, size_t size, Stream stream) noexcept:
+cdef inline void GMR_deallocate(intptr_t ptr, size_t size, Stream stream) except *:
     cdef cydriver.CUstream s = as_cu(stream._h_stream)
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     with nogil:

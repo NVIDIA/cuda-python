@@ -5,7 +5,8 @@ from contextlib import contextmanager
 
 import pytest
 
-from cuda.bindings import nvjitlink, nvrtc
+from cuda.bindings import nvjitlink
+from cuda.bindings._v2 import nvrtc
 
 
 @contextmanager
@@ -84,23 +85,10 @@ pytestmark = pytest.mark.skipif(
 # create a valid LTOIR input for testing
 @pytest.fixture
 def get_dummy_ltoir():
-    def CHECK_NVRTC(err):
-        if err != nvrtc.nvrtcResult.NVRTC_SUCCESS:
-            raise RuntimeError(repr(err))
-
     empty_cplusplus_kernel = "__global__ void A() {}"
-    err, program_handle = nvrtc.nvrtcCreateProgram(empty_cplusplus_kernel.encode(), b"", 0, [], [])
-    CHECK_NVRTC(err)
-    err = nvrtc.nvrtcCompileProgram(program_handle, 1, [b"-dlto"])[0]
-    CHECK_NVRTC(err)
-    err, size = nvrtc.nvrtcGetLTOIRSize(program_handle)
-    CHECK_NVRTC(err)
-    empty_kernel_ltoir = b" " * size
-    (err,) = nvrtc.nvrtcGetLTOIR(program_handle, empty_kernel_ltoir)
-    CHECK_NVRTC(err)
-    (err,) = nvrtc.nvrtcDestroyProgram(program_handle)
-    CHECK_NVRTC(err)
-    return empty_kernel_ltoir
+    program_handle = nvrtc.create_program(empty_cplusplus_kernel.encode(), b"")
+    nvrtc.compile_program(program_handle, [b"-dlto"])
+    return nvrtc.get_ltoir(program_handle)
 
 
 def test_unrecognized_option_error():

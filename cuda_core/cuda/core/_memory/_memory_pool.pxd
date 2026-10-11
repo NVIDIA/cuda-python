@@ -5,7 +5,7 @@
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, MemoryResource
 from cuda.core._memory._ipc cimport IPCDataForMR
-from cuda.core._resource_handles cimport MemoryPoolHandle
+from cuda.core._rt cimport MemoryPoolHandle
 from cuda.core._stream cimport Stream
 
 
@@ -35,6 +35,12 @@ cdef int MP_init_current_pool(
 ) except? -1
 
 cdef int MP_raise_release_threshold(_MemPool self) except? -1
+
+
+cdef inline int MP_check_open(_MemPool self) except -1:
+    if not self._h_pool:
+        raise RuntimeError(f"{self.__class__.__name__} has been closed")
+    return 0
 
 
 # Allocate from this pool, returning an instance of `cls` (defaulting to

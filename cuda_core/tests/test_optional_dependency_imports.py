@@ -5,6 +5,11 @@
 import pytest
 
 from cuda.core import _linker, _program
+from cuda.pathfinder import DynamicLibNotFoundError
+
+# The autouse fixture below resets module-level import state for every test in this
+# file, so the whole module is thread-unsafe -- not just the tests that monkeypatch.
+pytestmark = pytest.mark.thread_unsafe(reason="resets cuda.core._program / _linker optional-import globals")
 
 
 @pytest.fixture(autouse=True)
@@ -13,12 +18,14 @@ def restore_optional_import_state():
     saved_nvvm_attempted = _program._nvvm_import_attempted
     saved_driver = _linker._driver
     saved_inited = _linker._inited
+    saved_nvjitlink_version = _linker._nvjitlink_version
     saved_use_nvjitlink = _linker._use_nvjitlink_backend
 
     _program._nvvm_module = None
     _program._nvvm_import_attempted = False
     _linker._driver = None
     _linker._inited = False
+    _linker._nvjitlink_version = None
     _linker._use_nvjitlink_backend = None
 
     yield
@@ -27,12 +34,11 @@ def restore_optional_import_state():
     _program._nvvm_import_attempted = saved_nvvm_attempted
     _linker._driver = saved_driver
     _linker._inited = saved_inited
+    _linker._nvjitlink_version = saved_nvjitlink_version
     _linker._use_nvjitlink_backend = saved_use_nvjitlink
 
 
 def test_get_nvvm_module_reraises_nested_module_not_found(monkeypatch):
-    monkeypatch.setattr(_program, "binding_version", lambda: (12, 9, 0))
-
     def fake__optional_cuda_import(modname, probe_function=None):
         assert modname == "cuda.bindings.nvvm"
         assert probe_function is not None
@@ -48,8 +54,6 @@ def test_get_nvvm_module_reraises_nested_module_not_found(monkeypatch):
 
 
 def test_get_nvvm_module_reports_missing_nvvm_module(monkeypatch):
-    monkeypatch.setattr(_program, "binding_version", lambda: (12, 9, 0))
-
     def fake__optional_cuda_import(modname, probe_function=None):
         assert modname == "cuda.bindings.nvvm"
         assert probe_function is not None
@@ -62,8 +66,6 @@ def test_get_nvvm_module_reports_missing_nvvm_module(monkeypatch):
 
 
 def test_get_nvvm_module_handles_missing_libnvvm(monkeypatch):
-    monkeypatch.setattr(_program, "binding_version", lambda: (12, 9, 0))
-
     def fake__optional_cuda_import(modname, probe_function=None):
         assert modname == "cuda.bindings.nvvm"
         assert probe_function is not None
@@ -75,31 +77,74 @@ def test_get_nvvm_module_handles_missing_libnvvm(monkeypatch):
         _program._get_nvvm_module()
 
 
-def test_decide_nvjitlink_or_driver_reraises_nested_module_not_found(monkeypatch):
-    def fake__optional_cuda_import(modname, probe_function=None):
-        assert modname == "cuda.bindings.nvjitlink"
-        assert probe_function is not None
-        err = ModuleNotFoundError("No module named 'not_a_real_dependency'")
-        err.name = "not_a_real_dependency"
-        raise err
+@pytest.mark.agent_authored(model="grok-4.5")
+def test_decide_nvjitlink_or_driver_falls_back_when_dylib_missing(monkeypatch):
+    """Missing nvJitLink dylib must fall back via DynamicLibNotFoundError."""
 
-    monkeypatch.setattr(_linker, "_optional_cuda_import", fake__optional_cuda_import)
+    def raise_missing(_nvjitlink):
+        raise DynamicLibNotFoundError("libnvJitLink missing")
 
-    with pytest.raises(ModuleNotFoundError, match="not_a_real_dependency") as excinfo:
-        _linker._decide_nvjitlink_or_driver()
-    assert excinfo.value.name == "not_a_real_dependency"
-
-
-def test_decide_nvjitlink_or_driver_falls_back_when_module_missing(monkeypatch):
-    def fake__optional_cuda_import(modname, probe_function=None):
-        assert modname == "cuda.bindings.nvjitlink"
-        assert probe_function is not None
-        return None
-
-    monkeypatch.setattr(_linker, "_optional_cuda_import", fake__optional_cuda_import)
+    monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", raise_missing)
 
     with pytest.warns(RuntimeWarning, match="cuda.bindings.nvjitlink is not available"):
         use_driver_backend = _linker._decide_nvjitlink_or_driver()
 
     assert use_driver_backend is True
     assert _linker._use_nvjitlink_backend is False
+
+
+@pytest.mark.agent_authored(model="grok-4.5")
+def test_decide_nvjitlink_or_driver_falls_back_when_nvjitlink_too_old(monkeypatch):
+    monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", lambda _nvjitlink: False)
+
+    with pytest.warns(RuntimeWarning, match="too old \\(<12.3\\)"):
+        use_driver_backend = _linker._decide_nvjitlink_or_driver()
+
+    assert use_driver_backend is True
+    assert _linker._use_nvjitlink_backend is False
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_decide_nvjitlink_or_driver_selects_nvjitlink_when_version_symbol_present(monkeypatch):
+    version_calls = 0
+
+    class FakeModule:
+        def version(self):
+            nonlocal version_calls
+            version_calls += 1
+            return (13, 4)
+
+    nvjitlink_module = FakeModule()
+    monkeypatch.setattr(_linker, "_nvjitlink_bindings", nvjitlink_module)
+    monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", lambda _nvjitlink: True)
+
+    use_driver_backend = _linker._decide_nvjitlink_or_driver()
+
+    assert use_driver_backend is False
+    assert _linker._use_nvjitlink_backend is True
+    assert _linker._nvjitlink_version == (13, 4)
+    assert version_calls == 1
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_decide_nvjitlink_or_driver_does_not_call_version_when_symbol_missing(monkeypatch):
+    """Regression guard for #2408: old nvJitLink must not call module.version()."""
+    called = {"version": False, "inspect": False}
+
+    class FakeModule:
+        def version(self):
+            called["version"] = True
+            raise AssertionError("module.version() must not be called when its symbol is missing")
+
+    def fake_has_version(_nvjitlink):
+        called["inspect"] = True
+        return False
+
+    monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", fake_has_version)
+    monkeypatch.setattr(_linker, "_nvjitlink_bindings", FakeModule())
+
+    with pytest.warns(RuntimeWarning, match="too old \\(<12.3\\)"):
+        assert _linker._decide_nvjitlink_or_driver() is True
+    assert called["inspect"] is True
+    assert called["version"] is False
+    assert _linker._nvjitlink_version is None

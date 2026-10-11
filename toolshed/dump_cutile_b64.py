@@ -9,9 +9,9 @@ loads the resulting .cutile file, and prints its base64-encoded content.
 """
 
 import base64
-import glob
 import os
 import sys
+from pathlib import Path
 
 import cupy
 
@@ -54,13 +54,13 @@ def main():
         raise
 
     # Find the .cutile file in current directory
-    cutile_files = glob.glob("./*.cutile")
+    cutile_files = list(Path().glob("*.cutile"))
     if not cutile_files:
         print("No .cutile file found in current directory", file=sys.stderr)
         sys.exit(1)
 
     # Use the most recently modified one if multiple exist
-    cutile_path = max(cutile_files, key=os.path.getmtime)
+    cutile_path = max(cutile_files, key=lambda path: path.stat().st_mtime)
 
     # Read the binary content
     with open(cutile_path, "rb") as f:

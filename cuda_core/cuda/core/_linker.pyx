@@ -16,7 +16,7 @@ from libcpp.vector cimport vector
 from cuda.bindings cimport cydriver
 from cuda.bindings cimport cynvjitlink
 
-from ._resource_handles cimport (
+from ._rt cimport (
     as_cu,
     as_py,
     create_culink_handle,
@@ -29,7 +29,8 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Union
 from warnings import warn
 
-from cuda.pathfinder._optional_cuda_import import _optional_cuda_import
+from cuda.pathfinder import DynamicLibNotFoundError
+from cuda.bindings import nvjitlink as _nvjitlink_bindings
 from cuda.core._device import Device
 from cuda.core._module import ObjectCode
 from cuda.core._utils.clear_error_support import assert_type
@@ -62,6 +63,13 @@ LinkerHandleT = Union["cuda.bindings.nvjitlink.nvJitLinkHandle", "cuda.bindings.
 # Principal class
 # =============================================================================
 
+
+cdef inline int Linker_check_open(Linker self) except -1:
+    if self.is_closed:
+        raise RuntimeError("Linker has been closed")
+    return 0
+
+
 cdef class Linker:
     """Represent a linking machinery to link one or more object codes into
     :class:`~cuda.core.ObjectCode`.
@@ -80,13 +88,22 @@ cdef class Linker:
     def __init__(self, *object_codes: ObjectCode, options: LinkerOptions | None = None):
         Linker_init(self, object_codes, options)
 
+    @property
+    def is_closed(self) -> bool:
+        """Whether this linker has been closed."""
+        if self._use_nvjitlink:
+            return self._nvjitlink_handle.get() == NULL
+        return self._culink_handle.get() == NULL
+
     def link(self, target_type: ObjectCodeFormatType | str) -> ObjectCode:
         """Link the provided object codes into a single output of the specified target type.
 
         Parameters
         ----------
         target_type : ObjectCodeFormatType | str
-            The type of the target output. Must be either "cubin" or "ptx".
+            The type of the target output. Must be "cubin", "ptx", or
+            "ltoir". Linked LTOIR output requires
+            ``link_time_optimization=True`` and nvJitLink 13.3 or newer.
 
         Returns
         -------
@@ -97,7 +114,18 @@ cdef class Linker:
 
             Ensure that input object codes were compiled with appropriate
             flags for linking (e.g., relocatable device code enabled).
+
+            A CUBIN produced with ``incremental=True`` can be passed directly
+            to another :class:`Linker`, but it can still contain unresolved
+            device references and should be finalized before execution.
+
+            ``"ltoir"`` output contains only the LTOIR carried by the inputs.
+            Direct PTX and CUBIN inputs are rejected because they carry no
+            LTOIR. FATBIN, host object, and library inputs are accepted but
+            may carry no LTOIR, in which case they contribute nothing to the
+            output.
         """
+        Linker_check_open(self)
         return Linker_link(self, str(target_type))
 
     def get_error_log(self) -> str:
@@ -111,6 +139,7 @@ cdef class Linker:
         # After link(), the decoded log is cached here.
         if self._error_log is not None:
             return self._error_log
+        Linker_check_open(self)
         cdef cynvjitlink.nvJitLinkHandle c_h
         cdef size_t c_log_size = 0
         cdef char* c_log_ptr
@@ -137,6 +166,7 @@ cdef class Linker:
         # After link(), the decoded log is cached here.
         if self._info_log is not None:
             return self._info_log
+        Linker_check_open(self)
         cdef cynvjitlink.nvJitLinkHandle c_h
         cdef size_t c_log_size = 0
         cdef char* c_log_ptr
@@ -238,6 +268,11 @@ class LinkerOptions:
     link_time_optimization : bool, optional
         Perform link time optimization.
         Default: False.
+    incremental : bool, optional
+        Perform an incremental link. The result can be passed
+        directly to a later :class:`Linker`. Requires nvJitLink 13.2 or newer
+        and is not supported by the driver linker backend.
+        Default: False.
     ptx : bool, optional
         Emit PTX after linking instead of CUBIN; only supported with ``link_time_optimization=True``.
         Default: False.
@@ -282,6 +317,18 @@ class LinkerOptions:
     no_cache : bool, optional
         Do not cache the intermediate steps of nvJitLink.
         Default: False.
+    numba_debug : bool, optional
+        Non-functional. ``numba_debug`` is an NVVM/NVRTC *compiler* option;
+        neither nvJitLink nor the driver's cuLink API recognizes it, so no
+        linking backend can honor it and the value is ignored.
+        Default: None.
+
+        .. deprecated:: 1.2.0
+            Setting this option emits a :class:`DeprecationWarning`. It has never
+            had an effect on any linking backend and will be removed in
+            ``cuda.core`` 2.0.0. Use
+            :attr:`ProgramOptions.numba_debug` on an NVVM or NVRTC compilation
+            path instead.
     """
 
     name: str | None = "<default linker>"
@@ -306,10 +353,26 @@ class LinkerOptions:
     split_compile_extended: int | None = None
     no_cache: bool | None = None
     numba_debug: bool | None = None
+    incremental: bool | None = None
 
     def __post_init__(self) -> None:
         _lazy_init()
         self._name = self.name.encode()
+        # No linking backend reads ``numba_debug``, so warn where the value is
+        # supplied rather than in the option builders -- the user learns once,
+        # at the call site that set it, instead of once per link. The gate is
+        # ``is not None`` (unlike the ignore-warning on the PTX compile path):
+        # it is the *field* that is going away, so any explicit value earns the
+        # notice, including ``False``.
+        if self.numba_debug is not None:
+            warn(
+                "numba_debug is not supported by any linking backend and is ignored. "
+                "LinkerOptions.numba_debug is deprecated and will be removed in "
+                "cuda.core 2.0.0; use ProgramOptions.numba_debug on an NVVM or NVRTC "
+                "compilation path instead.",
+                DeprecationWarning,
+                stacklevel=3,
+            )
 
     def _prepare_nvjitlink_options(self, as_bytes: bool = False) -> list[bytes] | list[str]:
         options = []
@@ -326,6 +389,8 @@ class LinkerOptions:
             options.append("-verbose")
         if self.link_time_optimization:
             options.append("-lto")
+        if self.incremental:
+            options.append("-r")
         if self.ptx:
             options.append("-ptx")
         if self.optimization_level is not None:
@@ -405,6 +470,8 @@ class LinkerOptions:
         if self.link_time_optimization:
             formatted_options.append(1)
             option_keys.append(_driver.CUjit_option.CU_JIT_LTO)
+        if self.incremental:
+            raise ValueError("incremental option is not supported by the driver API")
         if self.ptx:
             raise ValueError("ptx option is not supported by the driver API")
         if self.optimization_level is not None:
@@ -487,8 +554,13 @@ cdef inline int Linker_init(Linker self, tuple object_codes, object options) exc
     cdef void** c_drv_jit_values_ptr
 
     self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
+    self._has_ptx_or_cubin_input = False
+    if options.incremental and options.ptx:
+        raise ValueError("incremental and ptx output options cannot be used together")
 
     if _use_nvjitlink_backend:
+        if options.incremental:
+            _require_nvjitlink_version((13, 2), "incremental linking")
         self._use_nvjitlink = True
         options_bytes = options._prepare_nvjitlink_options(as_bytes=True)
         c_num_opts = len(options_bytes)
@@ -544,11 +616,10 @@ cdef inline void Linker_add_code_object(Linker self, object object_code) except 
     cdef cydriver.CUjitInputType c_drv_input_type
     cdef const char* c_data_ptr
     cdef size_t c_data_size
-    cdef const char* c_name_ptr
     cdef const char* c_file_ptr
 
     name_bytes = f"{object_code.name}".encode()
-    c_name_ptr = <const char*>name_bytes
+    cdef const char* c_name_ptr = <const char*>name_bytes
 
     input_types = _nvjitlink_input_types if self._use_nvjitlink else _driver_input_types
     py_input_type = input_types.get(object_code.code_type)
@@ -595,11 +666,27 @@ cdef inline void Linker_add_code_object(Linker self, object object_code) except 
             Linker_annotate_error_log(self, e)
             raise
 
+    if object_code.code_type in ("ptx", "cubin"):
+        self._has_ptx_or_cubin_input = True
+
 
 cdef inline object Linker_link(Linker self, str target_type):
     """Complete linking and return the result as ObjectCode."""
-    if target_type not in ("cubin", "ptx"):
+    if target_type not in ("cubin", "ptx", "ltoir"):
         raise ValueError(f"Unsupported target type: {target_type}")
+    if self._options.incremental and target_type == "ptx":
+        raise ValueError("PTX output is not supported for incremental linking")
+    if target_type == "ltoir":
+        if not self._use_nvjitlink:
+            raise ValueError("LTOIR output is not supported by the driver API")
+        if not self._options.link_time_optimization:
+            raise ValueError("LTOIR output requires link_time_optimization=True")
+        if self._has_ptx_or_cubin_input:
+            raise ValueError(
+                'LTOIR output is not supported with "ptx" or "cubin" inputs; '
+                "they carry no LTOIR and would be omitted from the output"
+            )
+        _require_nvjitlink_version((13, 3), "LTOIR output")
 
     cdef cynvjitlink.nvJitLinkHandle c_nvjitlink_h
     cdef cydriver.CUlinkState c_culink_state
@@ -619,7 +706,7 @@ cdef inline object Linker_link(Linker self, str target_type):
             with nogil:
                 HANDLE_RETURN_NVJITLINK(c_nvjitlink_h,
                     cynvjitlink.nvJitLinkGetLinkedCubin(c_nvjitlink_h, c_code_ptr))
-        else:
+        elif target_type == "ptx":
             HANDLE_RETURN_NVJITLINK(c_nvjitlink_h,
                 cynvjitlink.nvJitLinkGetLinkedPtxSize(c_nvjitlink_h, &c_output_size))
             code = bytearray(c_output_size)
@@ -627,6 +714,14 @@ cdef inline object Linker_link(Linker self, str target_type):
             with nogil:
                 HANDLE_RETURN_NVJITLINK(c_nvjitlink_h,
                     cynvjitlink.nvJitLinkGetLinkedPtx(c_nvjitlink_h, c_code_ptr))
+        else:
+            HANDLE_RETURN_NVJITLINK(c_nvjitlink_h,
+                cynvjitlink.nvJitLinkGetLinkedLTOIRSize(c_nvjitlink_h, &c_output_size))
+            code = bytearray(c_output_size)
+            c_code_ptr = <char*>(<bytearray>code)
+            with nogil:
+                HANDLE_RETURN_NVJITLINK(c_nvjitlink_h,
+                    cynvjitlink.nvJitLinkGetLinkedLTOIR(c_nvjitlink_h, c_code_ptr))
     else:
         c_culink_state = as_cu(self._culink_handle)
         try:
@@ -658,12 +753,21 @@ cdef inline void Linker_annotate_error_log(Linker self, object e):
 
 # TODO: revisit this treatment for py313t builds
 _driver = None  # populated if nvJitLink cannot be used
+_nvjitlink_version = None
 _inited = False
 _use_nvjitlink_backend = None  # set by _decide_nvjitlink_or_driver()
 
 # Input type mappings populated by _lazy_init() with C-level enum ints.
 _nvjitlink_input_types = None
 _driver_input_types = None
+
+
+def _require_nvjitlink_version(minimum_version: tuple[int, int], feature: str) -> None:
+    """Check that the cached nvJitLink runtime meets a feature's requirement."""
+    if _nvjitlink_version < minimum_version:
+        required = ".".join(str(component) for component in minimum_version)
+        detected = ".".join(str(component) for component in _nvjitlink_version)
+        raise RuntimeError(f"{feature} requires nvJitLink {required} or newer; found {detected}")
 
 
 def _nvjitlink_has_version_symbol(nvjitlink) -> bool:
@@ -674,9 +778,11 @@ def _nvjitlink_has_version_symbol(nvjitlink) -> bool:
 # Note: this function is reused in the tests
 def _decide_nvjitlink_or_driver() -> bool:
     """Return True if falling back to the cuLink* driver APIs."""
-    global _driver, _use_nvjitlink_backend
+    global _driver, _nvjitlink_version, _use_nvjitlink_backend
     if _use_nvjitlink_backend is not None:
         return not _use_nvjitlink_backend
+
+    _nvjitlink_version = None
 
     warn_txt_common = (
         "the driver APIs will be used instead, which do not support"
@@ -684,16 +790,19 @@ def _decide_nvjitlink_or_driver() -> bool:
         " For best results, consider upgrading to a recent version of"
     )
 
-    nvjitlink_module = _optional_cuda_import(
-        "cuda.bindings.nvjitlink",
-        probe_function=lambda module: module.version(),  # probe triggers nvJitLink runtime load
-    )
-    if nvjitlink_module is None:
-        warn_txt = f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
-    else:
-        from cuda.bindings._internal import nvjitlink
+    # Every cuda-bindings that cuda.core accepts provides cuda.bindings.nvjitlink.
+    # Only the nvJitLink library itself can be missing or too old.
+    from cuda.bindings._internal import nvjitlink
 
-        if _nvjitlink_has_version_symbol(nvjitlink):
+    try:
+        has_version_symbol = _nvjitlink_has_version_symbol(nvjitlink)
+    except DynamicLibNotFoundError:
+        warn_txt = (
+            f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
+        )
+    else:
+        if has_version_symbol:
+            _nvjitlink_version = _nvjitlink_bindings.version()
             _use_nvjitlink_backend = True
             return False  # Use nvjitlink
         warn_txt = (
@@ -702,8 +811,8 @@ def _decide_nvjitlink_or_driver() -> bool:
         )
 
     warn(warn_txt, stacklevel=2, category=RuntimeWarning)
-    _use_nvjitlink_backend = False
     _driver = driver
+    _use_nvjitlink_backend = False
     return True
 
 

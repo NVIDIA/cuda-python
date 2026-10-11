@@ -3,8 +3,7 @@
 
 
 import pytest
-
-from cuda.bindings._test_helpers.arch_check import hardware_supports_nvml
+from cuda_python_test_helpers.arch_check import hardware_supports_nvml
 
 if not hardware_supports_nvml():
     pytest.skip("NVML not supported on this platform", allow_module_level=True)

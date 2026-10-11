@@ -232,11 +232,18 @@ def parse_args(argv: list[str], default_output: Path = DEFAULT_OUTPUT) -> tuple[
 
 def main(
     *,
-    bench_dir: Path = BENCH_DIR,
-    default_output: Path = DEFAULT_OUTPUT,
+    bench_dir: Path | None = None,
+    default_output: Path | None = None,
     module_name_prefix: str = DEFAULT_MODULE_NAME_PREFIX,
     bench_filter_env_var: str = DEFAULT_BENCH_FILTER_ENV_VAR,
 ) -> None:
+    # Resolve the defaults inside the call, for the same reason
+    # discover_benchmarks() does: a literal default would be bound at def-time
+    # and would ignore a later monkeypatch of the module-level constant.
+    if bench_dir is None:
+        bench_dir = BENCH_DIR
+    if default_output is None:
+        default_output = DEFAULT_OUTPUT
     parsed, remaining_argv = parse_args(sys.argv[1:], default_output=default_output)
 
     registry = discover_benchmarks(bench_dir=bench_dir, module_name_prefix=module_name_prefix)

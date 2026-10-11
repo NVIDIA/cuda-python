@@ -10,7 +10,8 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _load_lib_no_cache,
     _resolve_system_loaded_abs_path_in_subprocess,
 )
-from cuda.pathfinder._dynamic_libs.search_steps import EARLY_FIND_STEPS
+from cuda.pathfinder._dynamic_libs.search_platform import WindowsSearchPlatform
+from cuda.pathfinder._dynamic_libs.search_steps import EARLY_FIND_STEPS, SearchContext
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
@@ -43,6 +44,45 @@ def _create_cupti_in_ctk(ctk_root):
         cupti_symlink.symlink_to("libcupti.so.13")
     cupti_lib.write_bytes(b"fake")
     return cupti_lib
+
+
+# ---------------------------------------------------------------------------
+# cuDNN Windows ARM64 archive
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_cudnn_arm64_archive_layout_reaches_loader(tmp_path, mocker, monkeypatch):
+    bin_dir = tmp_path / "bin" / "arm64"
+    bin_dir.mkdir(parents=True)
+    dll = bin_dir / "cudnn64_9.dll"
+    dll.touch()
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    monkeypatch.setenv("CUDNN_PATH", str(tmp_path))
+
+    desc = load_mod.LIB_DESCRIPTORS["cudnn"]
+    ctx = SearchContext(desc, platform=WindowsSearchPlatform(target_arch="arm64"))
+    mocker.patch(f"{_MODULE}.SearchContext", return_value=ctx)
+    mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
+
+    def _load_dependency(name):
+        if name == "nvrtc":
+            raise DynamicLibNotFoundError(name)
+        return _make_loaded_dl(name, "dependency")
+
+    load_dependency = mocker.patch(f"{_MODULE}.load_nvidia_dynamic_lib", side_effect=_load_dependency)
+    mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
+    load_with_abs_path = mocker.patch.object(
+        load_mod.LOADER,
+        "load_with_abs_path",
+        side_effect=lambda _desc, path, via: _make_loaded_dl(path, via),
+    )
+
+    result = _load_lib_no_cache("cudnn")
+
+    assert result == _make_loaded_dl(str(dll), "CUDNN_PATH")
+    assert [call.args for call in load_dependency.call_args_list] == [("cublasLt",), ("nvrtc",)]
+    load_with_abs_path.assert_called_once_with(desc, str(dll), "CUDNN_PATH")
 
 
 # ---------------------------------------------------------------------------

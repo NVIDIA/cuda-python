@@ -4,13 +4,6 @@
 from __future__ import annotations
 
 from cuda.bindings import runtime
-from cuda.core._utils.enum_explanations_helpers import get_best_available_explanations
+from cuda.core._utils.enum_explanations_helpers import DocstringBackedExplanations
 
-
-def _load_fallback_explanations() -> dict[int, str | tuple[str, ...]]:
-    from cuda.core._utils.runtime_cuda_error_explanations_frozen import _FALLBACK_EXPLANATIONS
-
-    return _FALLBACK_EXPLANATIONS  # type: ignore[return-value]
-
-
-RUNTIME_CUDA_ERROR_EXPLANATIONS = get_best_available_explanations(runtime.cudaError_t, _load_fallback_explanations)
+RUNTIME_CUDA_ERROR_EXPLANATIONS = DocstringBackedExplanations(runtime.cudaError_t)

@@ -16,8 +16,9 @@ CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 
 
-# these tetss spawn new processes and files which fails for very many threads
-pytestmark = pytest.mark.parallel_threads_limit(4)
+# these tests spawn new processes and files which fails for very many threads;
+# child processes and IPC fixtures are shared across workers (#2784); cap at two threads
+pytestmark = pytest.mark.parallel_threads_limit(2)
 
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
@@ -108,10 +109,10 @@ def test_event_is_monadic(ipc_device):
     """Check that IPC-enabled events are always bound and cannot be reset."""
     device = ipc_device
     with pytest.raises(TypeError, match=r"^IPC-enabled events must be bound; use Stream.record for creation\.$"):
-        device.create_event({"ipc_enabled": True})
+        device.create_event(EventOptions(ipc_enabled=True))
 
     stream = device.create_stream()
-    e = stream.record(options={"ipc_enabled": True})
+    e = stream.record(options=EventOptions(ipc_enabled=True))
     with pytest.raises(
         TypeError,
         match=r"^IPC-enabled events should not be re-recorded, instead create a new event by supplying options\.$",

@@ -17,6 +17,34 @@ from pathlib import Path
 sys.path.insert(0, str((Path(__file__).parents[3] / "cuda_python" / "docs" / "exts").absolute()))
 
 
+# -- cuda-bindings floors ----------------------------------------------------
+
+
+def _bindings_floor_substitutions() -> str:
+    """Return the rst_prolog that defines |cuda-bindings-floor-cu12| and |cuda-bindings-floor-cu13|.
+
+    The cu12 and cu13 extras of pyproject.toml are the single place that declares the floors.
+    See cuda/core/_bindings_floor.py. support.rst uses the substitutions.
+    """
+    import importlib.util
+
+    import tomllib
+
+    cuda_core = Path(__file__).parents[2]
+    spec = importlib.util.spec_from_file_location("_bindings_floor", cuda_core / "cuda" / "core" / "_bindings_floor.py")
+    floor = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(floor)
+    with open(cuda_core / "pyproject.toml", "rb") as f:
+        extras = tomllib.load(f)["project"]["optional-dependencies"]
+    return "".join(
+        f".. |cuda-bindings-floor-cu{major}| replace:: {floor.format_version(triple)}\n"
+        for major, triple in floor.floors_from_extras(extras).items()
+    )
+
+
+rst_prolog = _bindings_floor_substitutions()
+
+
 # -- Project information -----------------------------------------------------
 
 project = "cuda.core"
@@ -121,12 +149,25 @@ html_static_path = []  # ["_static"] does not exist in our environment
 copybutton_exclude = ".linenos, .gp"
 
 extlinks = {
+    # Historical release notes use this role to link into pre-migration tags.
     "cuda-core-example": (
         f"https://github.com/NVIDIA/cuda-python/blob/{GITHUB_EXAMPLES_REF}/cuda_core/examples/%s",
         "%s",
     ),
     "cuda-core-examples": (
-        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/cuda_core/examples%s",
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/samples/cuda_core%s",
+        "%s",
+    ),
+    "sample": (
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/samples/cuda_core/%s",
+        "%s",
+    ),
+    "sample-file": (
+        f"https://github.com/NVIDIA/cuda-python/blob/{GITHUB_EXAMPLES_REF}/samples/cuda_core/%s",
+        "%s",
+    ),
+    "samples": (
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/samples/cuda_core%s",
         "%s",
     ),
 }

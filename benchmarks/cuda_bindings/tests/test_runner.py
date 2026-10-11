@@ -164,3 +164,24 @@ def test_bench_launch_initializes_on_first_use(monkeypatch):
 
     assert len(compile_calls) == 1
     assert len(launch_calls) == 2
+
+
+def test_main_honors_a_monkeypatched_bench_dir(monkeypatch, tmp_path, capsys):
+    """main() must resolve BENCH_DIR at call time, like discover_benchmarks() does.
+
+    A literal default would be bound at def-time and would silently ignore a
+    later patch of the module-level constant.
+    """
+    runner_main = load_runner_main(monkeypatch)
+
+    (tmp_path / "bench_patched.py").write_text(
+        "def bench_only_here(loops: int) -> float:\n    return loops + 0.5\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(runner_main, "BENCH_DIR", tmp_path)
+    runner_main._MODULE_CACHE.clear()
+    monkeypatch.setattr(sys, "argv", ["run_pyperf.py", "--list"])
+
+    runner_main.main()
+
+    assert capsys.readouterr().out.split() == ["patched.only_here"]

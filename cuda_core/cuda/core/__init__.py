@@ -6,13 +6,79 @@ from cuda.core._version import __version__
 
 
 def _import_versioned_module() -> None:
+    """Check that the installed cuda-bindings is supported, then select the build for it.
+
+    The published wheel carries one build per CUDA major series, as the
+    subpackages ``cuda.core.cu12`` and ``cuda.core.cu13``. A conda or local
+    build carries one build at the top level. Each build records the CUDA
+    header that it compiled against and its cuda-bindings floor in the
+    ``_build_info`` extension module. The installed cuda-bindings
+    must be of the build's major, at least as new as the floor, and generated
+    from a ``cuda.h`` at least as new as the build's. See
+    ``_bindings_floor.check_installed_bindings``. If it is not, import fails
+    here with an actionable message instead of later with a missing C function
+    or a silently disabled feature.
+    """
     import importlib
+    import os
 
-    from cuda import bindings
+    from cuda.core import _bindings_floor
 
-    cuda_major = bindings.__version__.split(".")[0]
-    if cuda_major not in ("12", "13"):
-        raise ImportError("cuda.bindings 12.x or 13.x must be installed")
+    try:
+        from cuda import bindings
+    except ModuleNotFoundError as exc:
+        if exc.name in ("cuda", "cuda.bindings"):
+            raise ImportError("cuda.core requires cuda-bindings. Install cuda-core[cu12] or cuda-core[cu13]") from None
+        raise
+
+    def load_build_info(cuda_major: int):
+        # Prefer this major's build in the merged wheel, then fall back to a plain build.
+        try:
+            return importlib.import_module(f".cu{cuda_major}._build_info", __package__)
+        except ModuleNotFoundError as exc:
+            if exc.name != f"{__package__}.cu{cuda_major}":
+                raise
+        return importlib.import_module("._build_info", __package__)
+
+    def missing_build_message(cuda_major: int) -> str:
+        here = os.path.dirname(__file__)
+        builds = sorted(
+            int(name[2:])
+            for name in os.listdir(here)
+            if name.startswith("cu") and name[2:].isdigit() and os.path.isdir(os.path.join(here, name))
+        )
+        if builds:
+            return (
+                f"This cuda.core installation has builds for CUDA {' and '.join(map(str, builds))}, not for "
+                f"CUDA {cuda_major}. The installed cuda-bindings is {version_str}."
+            )
+        return (
+            "This cuda.core has not been built: cuda/core/_build_info is missing. "
+            "Build it with pip install, or reinstall the package."
+        )
+
+    version_str = bindings.__version__
+    # The major decides which build to consult. _bindings_floor validates everything else.
+    try:
+        cuda_major = int(version_str.split(".")[0])
+    except ValueError:
+        raise ImportError(
+            f"cuda.core requires a cuda-bindings release, but the installed cuda-bindings version is {version_str!r}"
+        ) from None
+    try:
+        info = load_build_info(cuda_major)
+    except ModuleNotFoundError as exc:
+        raise ImportError(missing_build_message(cuda_major)) from exc
+    # By module object: the `cuda` namespace package need not carry a `bindings` attribute.
+    bindings_driver = importlib.import_module("cuda.bindings.driver")
+    _bindings_floor.check_installed_bindings(
+        version_str,
+        int(bindings_driver.CUDA_VERSION),
+        info.CUDA_MAJOR,
+        info.CUDA_VERSION,
+        info.CUDA_BINDINGS_FLOOR,
+        __version__,
+    )
 
     subdir = f"cu{cuda_major}"
     try:
@@ -36,12 +102,17 @@ def _patch_rlcompleter_for_cython_properties() -> None:
     # which rlcompleter's narrow isinstance(..., property) check misses; the
     # fallback getattr() then invokes the descriptor and any non-AttributeError
     # it raises kills tab completion. Extend that isinstance check to also
-    # match getset_descriptor / member_descriptor. Only installed in
-    # interactive mode so library users running scripts see no global
-    # rlcompleter side effect.
+    # match getset_descriptor / member_descriptor. Installed unconditionally
+    # (the patch is scoped to the rlcompleter module, so non-interactive users
+    # only pay for the import).
     import os
 
-    if int(os.environ.get("CUDA_CORE_DONT_FIX_TAB_COMPLETION", "0")):
+    raw_opt_out = os.environ.get("CUDA_CORE_DONT_FIX_TAB_COMPLETION", "").strip()
+    try:
+        opt_out = int(raw_opt_out) != 0
+    except ValueError:
+        opt_out = raw_opt_out != ""
+    if opt_out:
         # Explicit opt-out for users who don't want the global rlcompleter
         # side effect, even in an interactive session.
         return
@@ -69,45 +140,55 @@ del _patch_rlcompleter_for_cython_properties
 
 
 from cuda.core import checkpoint, system, utils
-from cuda.core._context import Context, ContextOptions
-from cuda.core._device import Device
-from cuda.core._device_resources import (
-    DeviceResources,
-    SMResource,
-    SMResourceOptions,
-    WorkqueueResource,
-    WorkqueueResourceOptions,
-)
-from cuda.core._event import Event, EventOptions
-from cuda.core._graphics import GraphicsResource
-from cuda.core._host import Host
-from cuda.core._launch_config import LaunchConfig
-from cuda.core._launcher import launch
-from cuda.core._linker import Linker, LinkerOptions
-from cuda.core._memory import (
-    Buffer,
-    DeviceMemoryResource,
-    DeviceMemoryResourceOptions,
-    GraphMemoryResource,
-    LegacyPinnedMemoryResource,
-    ManagedBuffer,
-    ManagedMemoryResource,
-    ManagedMemoryResourceOptions,
-    MemoryResource,
-    PinnedMemoryResource,
-    PinnedMemoryResourceOptions,
-    VirtualMemoryResource,
-    VirtualMemoryResourceOptions,
-)
-from cuda.core._module import Kernel, ObjectCode
-from cuda.core._program import Program, ProgramOptions
-from cuda.core._stream import (
-    LEGACY_DEFAULT_STREAM,
-    PER_THREAD_DEFAULT_STREAM,
-    Stream,
-    StreamOptions,
-)
-from cuda.core._tensor_map import TensorMapDescriptor, TensorMapDescriptorOptions
+from cuda.core._context import *
+from cuda.core._context import __all__ as _context_all
+from cuda.core._device import *
+from cuda.core._device import __all__ as _device_all
+from cuda.core._device_resources import *
+from cuda.core._device_resources import __all__ as _device_resources_all
+from cuda.core._event import *
+from cuda.core._event import __all__ as _event_all
+from cuda.core._graphics import *
+from cuda.core._graphics import __all__ as _graphics_all
+from cuda.core._host import *
+from cuda.core._host import __all__ as _host_all
+from cuda.core._launch_config import *
+from cuda.core._launch_config import __all__ as _launch_config_all
+from cuda.core._launcher import *
+from cuda.core._launcher import __all__ as _launcher_all
+from cuda.core._linker import *
+from cuda.core._linker import __all__ as _linker_all
+from cuda.core._memory import *
+from cuda.core._memory import __all__ as _memory_all
+from cuda.core._module import *
+from cuda.core._module import __all__ as _module_all
+from cuda.core._program import *
+from cuda.core._program import __all__ as _program_all
+from cuda.core._stream import *
+from cuda.core._stream import __all__ as _stream_all
+from cuda.core._tensor_map import *
+from cuda.core._tensor_map import __all__ as _tensor_map_all
+from cuda.core._utils.cuda_utils import CUDAError, CUDAWarning, NVRTCError
+
+__all__ = [
+    "CUDAError",
+    "CUDAWarning",
+    "NVRTCError",
+    *_context_all,
+    *_device_all,
+    *_device_resources_all,
+    *_event_all,
+    *_graphics_all,
+    *_host_all,
+    *_launch_config_all,
+    *_launcher_all,
+    *_linker_all,
+    *_memory_all,
+    *_module_all,
+    *_program_all,
+    *_stream_all,
+    *_tensor_map_all,
+]
 
 # isort: split
 # Texture/surface types live under the cuda.core.texture namespace (not the

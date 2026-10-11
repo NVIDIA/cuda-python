@@ -1,0 +1,24 @@
+{
+  "problemMatcher": [
+    {
+      "owner": "compute-sanitizer",
+      "severity": "error",
+      "pattern": [
+        {
+          "regexp": "^========= ((?:Invalid |Malloc/Free error|Host API memory access error|Fatal:).*)$",
+          "message": 1
+        }
+      ]
+    },
+    {
+      "owner": "compute-sanitizer-summary",
+      "severity": "error",
+      "pattern": [
+        {
+          "regexp": "^========= (ERROR SUMMARY: [1-9]\\d* errors?)",
+          "message": 1
+        }
+      ]
+    }
+  ]
+}

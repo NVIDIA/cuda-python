@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated with version 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0f2431380680008795336b7acb5ccd83dba7a6e05d0c81c2b5f825bc95576ccd
+# This code was automatically generated with version 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9aed2c4f6e06c8af7d8e05b8da369992de701809a2165dc6bd0cc05e135934f5
 cimport cuda.bindings.cyruntime as cyruntime
 
 include "_lib/utils.pxd"
@@ -320,6 +320,7 @@ cdef class dim3:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.dim3 _pvt_val
     cdef cyruntime.dim3* _pvt_ptr
 
@@ -355,6 +356,7 @@ cdef class cudaChannelFormatDesc:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaChannelFormatDesc _pvt_val
     cdef cyruntime.cudaChannelFormatDesc* _pvt_ptr
 
@@ -380,6 +382,7 @@ cdef class anon_struct0:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaArraySparseProperties* _pvt_ptr
 
 cdef class cudaArraySparseProperties:
@@ -405,15 +408,12 @@ cdef class cudaArraySparseProperties:
         Flags will either be zero or cudaArraySparsePropertiesSingleMipTail
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaArraySparseProperties _pvt_val
     cdef cyruntime.cudaArraySparseProperties* _pvt_ptr
 
@@ -435,15 +435,12 @@ cdef class cudaArrayMemoryRequirements:
         Alignment necessary for mapping the array.
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaArrayMemoryRequirements _pvt_val
     cdef cyruntime.cudaArrayMemoryRequirements* _pvt_ptr
 
@@ -475,6 +472,7 @@ cdef class cudaPitchedPtr:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaPitchedPtr _pvt_val
     cdef cyruntime.cudaPitchedPtr* _pvt_ptr
 
@@ -506,6 +504,7 @@ cdef class cudaExtent:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExtent _pvt_val
     cdef cyruntime.cudaExtent* _pvt_ptr
 
@@ -533,6 +532,7 @@ cdef class cudaPos:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaPos _pvt_val
     cdef cyruntime.cudaPos* _pvt_ptr
 
@@ -580,6 +580,7 @@ cdef class cudaMemcpy3DParms:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemcpy3DParms _pvt_val
     cdef cyruntime.cudaMemcpy3DParms* _pvt_ptr
 
@@ -615,10 +616,6 @@ cdef class cudaMemcpyNodeParams:
         Must be zero
 
 
-    reserved : int
-        Must be zero
-
-
     ctx : cudaExecutionContext_t
         Context in which to run the memcpy. If NULL will try to use the
         current context.
@@ -633,6 +630,7 @@ cdef class cudaMemcpyNodeParams:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemcpyNodeParams _pvt_val
     cdef cyruntime.cudaMemcpyNodeParams* _pvt_ptr
 
@@ -690,6 +688,7 @@ cdef class cudaMemcpy3DPeerParms:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemcpy3DPeerParms _pvt_val
     cdef cyruntime.cudaMemcpy3DPeerParms* _pvt_ptr
 
@@ -750,6 +749,7 @@ cdef class cudaMemsetParams:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemsetParams _pvt_val
     cdef cyruntime.cudaMemsetParams* _pvt_ptr
 
@@ -797,6 +797,7 @@ cdef class cudaMemsetParamsV2:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemsetParamsV2 _pvt_val
     cdef cyruntime.cudaMemsetParamsV2* _pvt_ptr
 
@@ -849,6 +850,7 @@ cdef class cudaAccessPolicyWindow:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaAccessPolicyWindow _pvt_val
     cdef cyruntime.cudaAccessPolicyWindow* _pvt_ptr
 
@@ -875,6 +877,7 @@ cdef class cudaHostNodeParams:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaHostNodeParams _pvt_val
     cdef cyruntime.cudaHostNodeParams* _pvt_ptr
 
@@ -903,11 +906,16 @@ cdef class cudaHostNodeParamsV2:
         The synchronization mode to use for the host task
 
 
+    ctx : cudaExecutionContext_t
+        CUDA Execution Context
+
+
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaHostNodeParamsV2 _pvt_val
     cdef cyruntime.cudaHostNodeParamsV2* _pvt_ptr
 
@@ -915,6 +923,9 @@ cdef class cudaHostNodeParamsV2:
 
 
     cdef _HelperInputVoidPtr _cyuserData
+
+
+    cdef cudaExecutionContext_t _ctx
 
 
 cdef class anon_struct1:
@@ -931,6 +942,7 @@ cdef class anon_struct1:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaResourceDesc* _pvt_ptr
 
     cdef cudaArray_t _array
@@ -950,6 +962,7 @@ cdef class anon_struct2:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaResourceDesc* _pvt_ptr
 
     cdef cudaMipmappedArray_t _mipmap
@@ -977,6 +990,7 @@ cdef class anon_struct3:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaResourceDesc* _pvt_ptr
 
     cdef _HelperInputVoidPtr _cydevPtr
@@ -1015,6 +1029,7 @@ cdef class anon_struct4:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaResourceDesc* _pvt_ptr
 
     cdef _HelperInputVoidPtr _cydevPtr
@@ -1025,18 +1040,12 @@ cdef class anon_struct4:
 
 cdef class anon_struct5:
     """
-    Attributes
-    ----------
-
-    reserved : list[int]
-
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaResourceDesc* _pvt_ptr
 
 cdef class anon_union0:
@@ -1060,15 +1069,12 @@ cdef class anon_union0:
 
 
 
-    reserved : anon_struct5
-
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaResourceDesc* _pvt_ptr
 
     cdef anon_struct1 _array
@@ -1081,9 +1087,6 @@ cdef class anon_union0:
 
 
     cdef anon_struct4 _pitch2D
-
-
-    cdef anon_struct5 _reserved
 
 
 cdef class cudaResourceDesc:
@@ -1110,6 +1113,7 @@ cdef class cudaResourceDesc:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaResourceDesc* _val_ptr
     cdef cyruntime.cudaResourceDesc* _pvt_ptr
 
@@ -1155,15 +1159,12 @@ cdef class cudaResourceViewDesc:
         Last layer index
 
 
-    reserved : list[unsigned int]
-        Must be zero
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaResourceViewDesc _pvt_val
     cdef cyruntime.cudaResourceViewDesc* _pvt_ptr
 
@@ -1201,8 +1202,8 @@ cdef class cudaPointerAttributes:
         pointer if an invalid pointer has been passed to CUDA.
 
 
-    reserved : list[long]
-        Must be zero
+    localityDomainOrdinal : int
+
 
 
     Methods
@@ -1210,7 +1211,8 @@ cdef class cudaPointerAttributes:
     getPtr()
         Get memory address of class instance
     """
-    cdef cyruntime.cudaPointerAttributes _pvt_val
+    cdef object _owner
+    cdef cyruntime.cudaPointerAttributes* _val_ptr
     cdef cyruntime.cudaPointerAttributes* _pvt_ptr
 
     cdef _HelperInputVoidPtr _cydevicePointer
@@ -1273,7 +1275,11 @@ cdef class cudaFuncAttributes:
     maxDynamicSharedSizeBytes : int
         The maximum size in bytes of dynamic shared memory per block for
         this function. Any launch must have a dynamic shared memory size
-        smaller than this value.
+        smaller than this value.  This attribute is ignored if the
+        sharedMemoryMode function or launch attribute is set.  This
+        attribute cannot be used to access oversized shared memory.
+        Oversized shared memory can only be accessed by setting the shared
+        memory mode.  See cudaFuncSetAttribute
 
 
     preferredShmemCarveout : int
@@ -1282,7 +1288,7 @@ cdef class cudaFuncAttributes:
         preference, in percent of the maximum shared memory. Refer to
         cudaDevAttrMaxSharedMemoryPerMultiprocessor. This is only a hint,
         and the driver can choose a different ratio if required to execute
-        the function. See cudaFuncSetAttribute
+        the function.  See cudaFuncSetAttribute
 
 
     clusterDimMustBeSet : int
@@ -1295,7 +1301,7 @@ cdef class cudaFuncAttributes:
         either all be 0 or all be positive. The validity of the cluster
         dimensions is otherwise checked at launch time.  If the value is
         set during compile time, it cannot be set at runtime. Setting it at
-        runtime should return cudaErrorNotPermitted. See
+        runtime should return cudaErrorNotPermitted.  See
         cudaFuncSetAttribute
 
 
@@ -1308,7 +1314,8 @@ cdef class cudaFuncAttributes:
 
 
     clusterSchedulingPolicyPreference : int
-        The block scheduling policy of a function. See cudaFuncSetAttribute
+        The block scheduling policy of a function.  See
+        cudaFuncSetAttribute
 
 
     nonPortableClusterSizeAllowed : int
@@ -1323,7 +1330,7 @@ cdef class cudaFuncAttributes:
         than the target compute capability. The portable cluster size for
         sm_90 is 8 blocks per cluster. This value may increase for future
         compute capabilities.  The specific hardware unit may support
-        higher cluster sizes that’s not guaranteed to be portable. See
+        higher cluster sizes that’s not guaranteed to be portable.  See
         cudaFuncSetAttribute
 
 
@@ -1333,12 +1340,9 @@ cdef class cudaFuncAttributes:
         the value.
 
 
-    reserved1 : int
-
-
-
-    reserved : list[int]
-        Reserved for future use.
+    sharedMemoryMode : cudaSharedMemoryMode
+        This controls a kernel's use of non-portable or oversized shared
+        memory configurations.  See cudaFuncSetAttribute
 
 
     Methods
@@ -1346,8 +1350,30 @@ cdef class cudaFuncAttributes:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaFuncAttributes _pvt_val
     cdef cyruntime.cudaFuncAttributes* _pvt_ptr
+
+cdef class anon_struct6:
+    """
+    Attributes
+    ----------
+
+    deviceId : bytes
+
+
+
+    localityDomainId : bytes
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef object _owner
+    cdef cyruntime.cudaMemLocation* _pvt_ptr
 
 cdef class cudaMemLocation:
     """
@@ -1369,13 +1395,22 @@ cdef class cudaMemLocation:
         cudaMemLocationType::cudaMemLocationTypeHostNuma.
 
 
+    localized : anon_struct6
+        Identifier for
+        cudaMemLocationType::cudaMemLocationTypeDeviceLocalityDomain.
+
+
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemLocation* _val_ptr
     cdef cyruntime.cudaMemLocation* _pvt_ptr
+
+    cdef anon_struct6 _localized
+
 
 cdef class cudaMemAccessDesc:
     """
@@ -1397,6 +1432,7 @@ cdef class cudaMemAccessDesc:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemAccessDesc _pvt_val
     cdef cyruntime.cudaMemAccessDesc* _pvt_ptr
 
@@ -1440,15 +1476,12 @@ cdef class cudaMemPoolProps:
         Bitmask indicating intended usage for the pool.
 
 
-    reserved : bytes
-        reserved for future use, must be 0
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemPoolProps _pvt_val
     cdef cyruntime.cudaMemPoolProps* _pvt_ptr
 
@@ -1462,18 +1495,12 @@ cdef class cudaMemPoolPtrExportData:
     """
     Opaque data for exporting a pool allocation
 
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemPoolPtrExportData _pvt_val
     cdef cyruntime.cudaMemPoolPtrExportData* _pvt_ptr
 
@@ -1513,6 +1540,7 @@ cdef class cudaMemAllocNodeParams:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemAllocNodeParams _pvt_val
     cdef cyruntime.cudaMemAllocNodeParams* _pvt_ptr
 
@@ -1562,6 +1590,7 @@ cdef class cudaMemAllocNodeParamsV2:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemAllocNodeParamsV2 _pvt_val
     cdef cyruntime.cudaMemAllocNodeParamsV2* _pvt_ptr
 
@@ -1591,6 +1620,7 @@ cdef class cudaMemFreeNodeParams:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemFreeNodeParams _pvt_val
     cdef cyruntime.cudaMemFreeNodeParams* _pvt_ptr
 
@@ -1630,6 +1660,7 @@ cdef class cudaMemcpyAttributes:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemcpyAttributes _pvt_val
     cdef cyruntime.cudaMemcpyAttributes* _pvt_ptr
 
@@ -1663,10 +1694,11 @@ cdef class cudaOffset3D:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaOffset3D _pvt_val
     cdef cyruntime.cudaOffset3D* _pvt_ptr
 
-cdef class anon_struct6:
+cdef class anon_struct7:
     """
     Attributes
     ----------
@@ -1692,6 +1724,7 @@ cdef class anon_struct6:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemcpy3DOperand* _pvt_ptr
 
     cdef _HelperInputVoidPtr _cyptr
@@ -1700,7 +1733,7 @@ cdef class anon_struct6:
     cdef cudaMemLocation _locHint
 
 
-cdef class anon_struct7:
+cdef class anon_struct8:
     """
     Attributes
     ----------
@@ -1718,6 +1751,7 @@ cdef class anon_struct7:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemcpy3DOperand* _pvt_ptr
 
     cdef cudaArray_t _array
@@ -1726,16 +1760,16 @@ cdef class anon_struct7:
     cdef cudaOffset3D _offset
 
 
-cdef class anon_union2:
+cdef class anon_union3:
     """
     Attributes
     ----------
 
-    ptr : anon_struct6
+    ptr : anon_struct7
 
 
 
-    array : anon_struct7
+    array : anon_struct8
 
 
 
@@ -1744,12 +1778,13 @@ cdef class anon_union2:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemcpy3DOperand* _pvt_ptr
 
-    cdef anon_struct6 _ptr
+    cdef anon_struct7 _ptr
 
 
-    cdef anon_struct7 _array
+    cdef anon_struct8 _array
 
 
 cdef class cudaMemcpy3DOperand:
@@ -1763,7 +1798,7 @@ cdef class cudaMemcpy3DOperand:
 
 
 
-    op : anon_union2
+    op : anon_union3
 
 
 
@@ -1772,10 +1807,11 @@ cdef class cudaMemcpy3DOperand:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemcpy3DOperand* _val_ptr
     cdef cyruntime.cudaMemcpy3DOperand* _pvt_ptr
 
-    cdef anon_union2 _op
+    cdef anon_union3 _op
 
 
 cdef class cudaMemcpy3DBatchOp:
@@ -1809,6 +1845,7 @@ cdef class cudaMemcpy3DBatchOp:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemcpy3DBatchOp _pvt_val
     cdef cyruntime.cudaMemcpy3DBatchOp* _pvt_ptr
 
@@ -1835,6 +1872,7 @@ cdef class CUuuid_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.CUuuid_st _pvt_val
     cdef cyruntime.CUuuid_st* _pvt_ptr
 
@@ -2236,15 +2274,12 @@ cdef class cudaDeviceProp:
         multi-node system.
 
 
-    reserved : list[int]
-        Reserved for future use
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaDeviceProp _pvt_val
     cdef cyruntime.cudaDeviceProp* _pvt_ptr
 
@@ -2255,18 +2290,12 @@ cdef class cudaIpcEventHandle_st:
     """
     CUDA IPC event handle
 
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaIpcEventHandle_st _pvt_val
     cdef cyruntime.cudaIpcEventHandle_st* _pvt_ptr
 
@@ -2274,39 +2303,27 @@ cdef class cudaIpcMemHandle_st:
     """
     CUDA IPC memory handle
 
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaIpcMemHandle_st _pvt_val
     cdef cyruntime.cudaIpcMemHandle_st* _pvt_ptr
 
 cdef class cudaMemFabricHandle_st:
     """
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaMemFabricHandle_st _pvt_val
     cdef cyruntime.cudaMemFabricHandle_st* _pvt_ptr
 
-cdef class anon_struct8:
+cdef class anon_struct9:
     """
     Attributes
     ----------
@@ -2324,6 +2341,7 @@ cdef class anon_struct8:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalMemoryHandleDesc* _pvt_ptr
 
     cdef _HelperInputVoidPtr _cyhandle
@@ -2332,7 +2350,7 @@ cdef class anon_struct8:
     cdef _HelperInputVoidPtr _cyname
 
 
-cdef class anon_union3:
+cdef class anon_union4:
     """
     Attributes
     ----------
@@ -2341,7 +2359,7 @@ cdef class anon_union3:
 
 
 
-    win32 : anon_struct8
+    win32 : anon_struct9
 
 
 
@@ -2354,9 +2372,10 @@ cdef class anon_union3:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalMemoryHandleDesc* _pvt_ptr
 
-    cdef anon_struct8 _win32
+    cdef anon_struct9 _win32
 
 
     cdef _HelperInputVoidPtr _cynvSciBufObject
@@ -2373,7 +2392,7 @@ cdef class cudaExternalMemoryHandleDesc:
         Type of the handle
 
 
-    handle : anon_union3
+    handle : anon_union4
 
 
 
@@ -2385,19 +2404,16 @@ cdef class cudaExternalMemoryHandleDesc:
         Flags must either be zero or cudaExternalMemoryDedicated
 
 
-    reserved : list[unsigned int]
-        Must be zero
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalMemoryHandleDesc* _val_ptr
     cdef cyruntime.cudaExternalMemoryHandleDesc* _pvt_ptr
 
-    cdef anon_union3 _handle
+    cdef anon_union4 _handle
 
 
 cdef class cudaExternalMemoryBufferDesc:
@@ -2419,15 +2435,12 @@ cdef class cudaExternalMemoryBufferDesc:
         Flags reserved for future use. Must be zero.
 
 
-    reserved : list[unsigned int]
-        Must be zero
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalMemoryBufferDesc _pvt_val
     cdef cyruntime.cudaExternalMemoryBufferDesc* _pvt_ptr
 
@@ -2460,15 +2473,12 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
         Total number of levels in the mipmap chain
 
 
-    reserved : list[unsigned int]
-        Must be zero
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalMemoryMipmappedArrayDesc _pvt_val
     cdef cyruntime.cudaExternalMemoryMipmappedArrayDesc* _pvt_ptr
 
@@ -2478,7 +2488,7 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
     cdef cudaExtent _extent
 
 
-cdef class anon_struct9:
+cdef class anon_struct10:
     """
     Attributes
     ----------
@@ -2496,6 +2506,7 @@ cdef class anon_struct9:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreHandleDesc* _pvt_ptr
 
     cdef _HelperInputVoidPtr _cyhandle
@@ -2504,7 +2515,7 @@ cdef class anon_struct9:
     cdef _HelperInputVoidPtr _cyname
 
 
-cdef class anon_union4:
+cdef class anon_union5:
     """
     Attributes
     ----------
@@ -2513,7 +2524,7 @@ cdef class anon_union4:
 
 
 
-    win32 : anon_struct9
+    win32 : anon_struct10
 
 
 
@@ -2526,9 +2537,10 @@ cdef class anon_union4:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreHandleDesc* _pvt_ptr
 
-    cdef anon_struct9 _win32
+    cdef anon_struct10 _win32
 
 
     cdef _HelperInputVoidPtr _cynvSciSyncObj
@@ -2545,7 +2557,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
         Type of the handle
 
 
-    handle : anon_union4
+    handle : anon_union5
 
 
 
@@ -2553,22 +2565,19 @@ cdef class cudaExternalSemaphoreHandleDesc:
         Flags reserved for the future. Must be zero.
 
 
-    reserved : list[unsigned int]
-        Must be zero
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreHandleDesc* _val_ptr
     cdef cyruntime.cudaExternalSemaphoreHandleDesc* _pvt_ptr
 
-    cdef anon_union4 _handle
+    cdef anon_union5 _handle
 
 
-cdef class anon_struct10:
+cdef class anon_struct11:
     """
     Attributes
     ----------
@@ -2582,9 +2591,10 @@ cdef class anon_struct10:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreSignalParams* _pvt_ptr
 
-cdef class anon_union5:
+cdef class anon_union6:
     """
     Attributes
     ----------
@@ -2593,21 +2603,18 @@ cdef class anon_union5:
 
 
 
-    reserved : unsigned long long
-
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreSignalParams* _pvt_ptr
 
     cdef _HelperInputVoidPtr _cyfence
 
 
-cdef class anon_struct11:
+cdef class anon_struct12:
     """
     Attributes
     ----------
@@ -2621,26 +2628,23 @@ cdef class anon_struct11:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreSignalParams* _pvt_ptr
 
-cdef class anon_struct12:
+cdef class anon_struct13:
     """
     Attributes
     ----------
 
-    fence : anon_struct10
+    fence : anon_struct11
 
 
 
-    nvSciSync : anon_union5
+    nvSciSync : anon_union6
 
 
 
-    keyedMutex : anon_struct11
-
-
-
-    reserved : list[unsigned int]
+    keyedMutex : anon_struct12
 
 
 
@@ -2649,15 +2653,16 @@ cdef class anon_struct12:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreSignalParams* _pvt_ptr
 
-    cdef anon_struct10 _fence
+    cdef anon_struct11 _fence
 
 
-    cdef anon_union5 _nvSciSync
+    cdef anon_union6 _nvSciSync
 
 
-    cdef anon_struct11 _keyedMutex
+    cdef anon_struct12 _keyedMutex
 
 
 cdef class cudaExternalSemaphoreSignalParams:
@@ -2667,7 +2672,7 @@ cdef class cudaExternalSemaphoreSignalParams:
     Attributes
     ----------
 
-    params : anon_struct12
+    params : anon_struct13
 
 
 
@@ -2682,22 +2687,19 @@ cdef class cudaExternalSemaphoreSignalParams:
         all other types of cudaExternalSemaphore_t, flags must be zero.
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreSignalParams _pvt_val
     cdef cyruntime.cudaExternalSemaphoreSignalParams* _pvt_ptr
 
-    cdef anon_struct12 _params
+    cdef anon_struct13 _params
 
 
-cdef class anon_struct13:
+cdef class anon_struct14:
     """
     Attributes
     ----------
@@ -2711,9 +2713,10 @@ cdef class anon_struct13:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreWaitParams* _pvt_ptr
 
-cdef class anon_union6:
+cdef class anon_union7:
     """
     Attributes
     ----------
@@ -2722,21 +2725,18 @@ cdef class anon_union6:
 
 
 
-    reserved : unsigned long long
-
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreWaitParams* _pvt_ptr
 
     cdef _HelperInputVoidPtr _cyfence
 
 
-cdef class anon_struct14:
+cdef class anon_struct15:
     """
     Attributes
     ----------
@@ -2754,26 +2754,23 @@ cdef class anon_struct14:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreWaitParams* _pvt_ptr
 
-cdef class anon_struct15:
+cdef class anon_struct16:
     """
     Attributes
     ----------
 
-    fence : anon_struct13
+    fence : anon_struct14
 
 
 
-    nvSciSync : anon_union6
+    nvSciSync : anon_union7
 
 
 
-    keyedMutex : anon_struct14
-
-
-
-    reserved : list[unsigned int]
+    keyedMutex : anon_struct15
 
 
 
@@ -2782,15 +2779,16 @@ cdef class anon_struct15:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreWaitParams* _pvt_ptr
 
-    cdef anon_struct13 _fence
+    cdef anon_struct14 _fence
 
 
-    cdef anon_union6 _nvSciSync
+    cdef anon_union7 _nvSciSync
 
 
-    cdef anon_struct14 _keyedMutex
+    cdef anon_struct15 _keyedMutex
 
 
 cdef class cudaExternalSemaphoreWaitParams:
@@ -2800,7 +2798,7 @@ cdef class cudaExternalSemaphoreWaitParams:
     Attributes
     ----------
 
-    params : anon_struct15
+    params : anon_struct16
 
 
 
@@ -2815,19 +2813,16 @@ cdef class cudaExternalSemaphoreWaitParams:
         all other types of cudaExternalSemaphore_t, flags must be zero.
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreWaitParams _pvt_val
     cdef cyruntime.cudaExternalSemaphoreWaitParams* _pvt_ptr
 
-    cdef anon_struct15 _params
+    cdef anon_struct16 _params
 
 
 cdef class cudaDevSmResource:
@@ -2859,11 +2854,17 @@ cdef class cudaDevSmResource:
         cudaDevSmResourceGroup_flags.
 
 
+    localityDomainId : unsigned int
+        Locality domain that the SM must be located on. Only valid if
+        cudaDevSmResourceConstraintTypeLocalityDomainId is set in flags
+
+
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaDevSmResource _pvt_val
     cdef cyruntime.cudaDevSmResource* _pvt_ptr
 
@@ -2891,6 +2892,7 @@ cdef class cudaDevWorkqueueConfigResource:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaDevWorkqueueConfigResource _pvt_val
     cdef cyruntime.cudaDevWorkqueueConfigResource* _pvt_ptr
 
@@ -2898,18 +2900,12 @@ cdef class cudaDevWorkqueueResource:
     """
     Handle to a pre-existing workqueue related resource
 
-    Attributes
-    ----------
-
-    reserved : bytes
-        Reserved for future use
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaDevWorkqueueResource _pvt_val
     cdef cyruntime.cudaDevWorkqueueResource* _pvt_ptr
 
@@ -2939,8 +2935,9 @@ cdef class cudaDevSmResourceGroupParams_st:
         this this group is created.
 
 
-    reserved : list[unsigned int]
-        Reserved for future use - ensure this is zero initialized.
+    localityDomainId : unsigned int
+        Locality domain that the SM must be located on. Only valid if
+        cudaDevSmResourceGroupLocalityDomainId is set in flags
 
 
     Methods
@@ -2948,6 +2945,7 @@ cdef class cudaDevSmResourceGroupParams_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaDevSmResourceGroupParams_st _pvt_val
     cdef cyruntime.cudaDevSmResourceGroupParams_st* _pvt_ptr
 
@@ -3006,6 +3004,7 @@ cdef class cudaDevResource_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaDevResource_st* _val_ptr
     cdef cyruntime.cudaDevResource_st* _pvt_ptr
 
@@ -3048,6 +3047,7 @@ cdef class cudalibraryHostUniversalFunctionAndDataTable:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudalibraryHostUniversalFunctionAndDataTable _pvt_val
     cdef cyruntime.cudalibraryHostUniversalFunctionAndDataTable* _pvt_ptr
 
@@ -3093,6 +3093,7 @@ cdef class cudaKernelNodeParams:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaKernelNodeParams _pvt_val
     cdef cyruntime.cudaKernelNodeParams* _pvt_ptr
 
@@ -3161,6 +3162,7 @@ cdef class cudaKernelNodeParamsV2:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaKernelNodeParamsV2* _val_ptr
     cdef cyruntime.cudaKernelNodeParamsV2* _pvt_ptr
 
@@ -3210,6 +3212,7 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreSignalNodeParams _pvt_val
     cdef cyruntime.cudaExternalSemaphoreSignalNodeParams* _pvt_ptr
 
@@ -3241,11 +3244,16 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
         paramsArray.
 
 
+    ctx : cudaExecutionContext_t
+        CUDA Execution Context
+
+
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreSignalNodeParamsV2 _pvt_val
     cdef cyruntime.cudaExternalSemaphoreSignalNodeParamsV2* _pvt_ptr
 
@@ -3255,6 +3263,9 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
 
     cdef size_t _paramsArray_length
     cdef cyruntime.cudaExternalSemaphoreSignalParams* _paramsArray
+
+
+    cdef cudaExecutionContext_t _ctx
 
 
 cdef class cudaExternalSemaphoreWaitNodeParams:
@@ -3282,6 +3293,7 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreWaitNodeParams _pvt_val
     cdef cyruntime.cudaExternalSemaphoreWaitNodeParams* _pvt_ptr
 
@@ -3313,11 +3325,16 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
         paramsArray.
 
 
+    ctx : cudaExecutionContext_t
+        CUDA Execution Context
+
+
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaExternalSemaphoreWaitNodeParamsV2 _pvt_val
     cdef cyruntime.cudaExternalSemaphoreWaitNodeParamsV2* _pvt_ptr
 
@@ -3327,6 +3344,9 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
 
     cdef size_t _paramsArray_length
     cdef cyruntime.cudaExternalSemaphoreWaitParams* _paramsArray
+
+
+    cdef cudaExecutionContext_t _ctx
 
 
 cdef class cudaConditionalNodeParams:
@@ -3359,7 +3379,7 @@ cdef class cudaConditionalNodeParams:
         empty nodes, child graphs, memsets, memcopies, and conditionals.
         This applies recursively to child graphs and conditional bodies.
         - All kernels, including kernels in nested conditionals or child
-        graphs at any level, must belong to the same CUDA context.
+        graphs at any level, must belong to the same device context.
         These graphs may be populated using graph node creation APIs or
         cudaStreamBeginCaptureToGraph. cudaGraphCondTypeIf: phGraph_out[0]
         is executed when the condition is non-zero. If `size` == 2,
@@ -3379,6 +3399,7 @@ cdef class cudaConditionalNodeParams:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaConditionalNodeParams _pvt_val
     cdef cyruntime.cudaConditionalNodeParams* _pvt_ptr
 
@@ -3416,6 +3437,7 @@ cdef class cudaChildGraphNodeParams:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaChildGraphNodeParams _pvt_val
     cdef cyruntime.cudaChildGraphNodeParams* _pvt_ptr
 
@@ -3433,15 +3455,23 @@ cdef class cudaEventRecordNodeParams:
         The event to record when the node executes
 
 
+    ctx : cudaExecutionContext_t
+        CUDA Execution Context
+
+
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaEventRecordNodeParams _pvt_val
     cdef cyruntime.cudaEventRecordNodeParams* _pvt_ptr
 
     cdef cudaEvent_t _event
+
+
+    cdef cudaExecutionContext_t _ctx
 
 
 cdef class cudaEventWaitNodeParams:
@@ -3460,6 +3490,7 @@ cdef class cudaEventWaitNodeParams:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaEventWaitNodeParams _pvt_val
     cdef cyruntime.cudaEventWaitNodeParams* _pvt_ptr
 
@@ -3475,14 +3506,6 @@ cdef class cudaGraphNodeParams:
 
     type : cudaGraphNodeType
         Type of the node
-
-
-    reserved0 : list[int]
-        Reserved. Must be zero.
-
-
-    reserved1 : list[long long]
-        Padding. Unused bytes must be zero.
 
 
     kernel : cudaKernelNodeParamsV2
@@ -3533,15 +3556,12 @@ cdef class cudaGraphNodeParams:
         Conditional node parameters.
 
 
-    reserved2 : long long
-        Reserved bytes. Must be zero.
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaGraphNodeParams* _val_ptr
     cdef cyruntime.cudaGraphNodeParams* _pvt_ptr
 
@@ -3618,16 +3638,12 @@ cdef class cudaGraphEdgeData_st:
         See cudaGraphDependencyType.
 
 
-    reserved : bytes
-        These bytes are unused and must be zeroed. This ensures
-        compatibility if additional fields are added in the future.
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaGraphEdgeData_st _pvt_val
     cdef cyruntime.cudaGraphEdgeData_st* _pvt_ptr
 
@@ -3659,6 +3675,7 @@ cdef class cudaGraphInstantiateParams_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaGraphInstantiateParams_st _pvt_val
     cdef cyruntime.cudaGraphInstantiateParams_st* _pvt_ptr
 
@@ -3695,6 +3712,7 @@ cdef class cudaGraphExecUpdateResultInfo_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaGraphExecUpdateResultInfo_st _pvt_val
     cdef cyruntime.cudaGraphExecUpdateResultInfo_st* _pvt_ptr
 
@@ -3704,7 +3722,7 @@ cdef class cudaGraphExecUpdateResultInfo_st:
     cdef cudaGraphNode_t _errorFromNode
 
 
-cdef class anon_struct16:
+cdef class anon_struct17:
     """
     Attributes
     ----------
@@ -3726,12 +3744,13 @@ cdef class anon_struct16:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaGraphKernelNodeUpdate* _pvt_ptr
 
     cdef _HelperInputVoidPtr _cypValue
 
 
-cdef class anon_union10:
+cdef class anon_union11:
     """
     Attributes
     ----------
@@ -3740,7 +3759,7 @@ cdef class anon_union10:
 
 
 
-    param : anon_struct16
+    param : anon_struct17
 
 
 
@@ -3753,12 +3772,13 @@ cdef class anon_union10:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaGraphKernelNodeUpdate* _pvt_ptr
 
     cdef dim3 _gridDim
 
 
-    cdef anon_struct16 _param
+    cdef anon_struct17 _param
 
 
 cdef class cudaGraphKernelNodeUpdate:
@@ -3778,7 +3798,7 @@ cdef class cudaGraphKernelNodeUpdate:
         interpreted
 
 
-    updateData : anon_union10
+    updateData : anon_union11
         Update data to apply. Which field is used depends on field's value
 
 
@@ -3787,13 +3807,14 @@ cdef class cudaGraphKernelNodeUpdate:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaGraphKernelNodeUpdate* _val_ptr
     cdef cyruntime.cudaGraphKernelNodeUpdate* _pvt_ptr
 
     cdef cudaGraphDeviceNode_t _node
 
 
-    cdef anon_union10 _updateData
+    cdef anon_union11 _updateData
 
 
 cdef class cudaLaunchMemSyncDomainMap_st:
@@ -3822,10 +3843,11 @@ cdef class cudaLaunchMemSyncDomainMap_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaLaunchMemSyncDomainMap_st _pvt_val
     cdef cyruntime.cudaLaunchMemSyncDomainMap_st* _pvt_ptr
 
-cdef class anon_struct17:
+cdef class anon_struct18:
     """
     Attributes
     ----------
@@ -3847,9 +3869,10 @@ cdef class anon_struct17:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaLaunchAttributeValue* _pvt_ptr
 
-cdef class anon_struct18:
+cdef class anon_struct19:
     """
     Attributes
     ----------
@@ -3871,12 +3894,13 @@ cdef class anon_struct18:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaLaunchAttributeValue* _pvt_ptr
 
     cdef cudaEvent_t _event
 
 
-cdef class anon_struct19:
+cdef class anon_struct20:
     """
     Attributes
     ----------
@@ -3898,9 +3922,10 @@ cdef class anon_struct19:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaLaunchAttributeValue* _pvt_ptr
 
-cdef class anon_struct20:
+cdef class anon_struct21:
     """
     Attributes
     ----------
@@ -3918,12 +3943,13 @@ cdef class anon_struct20:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaLaunchAttributeValue* _pvt_ptr
 
     cdef cudaEvent_t _event
 
 
-cdef class anon_struct21:
+cdef class anon_struct22:
     """
     Attributes
     ----------
@@ -3941,6 +3967,7 @@ cdef class anon_struct21:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaLaunchAttributeValue* _pvt_ptr
 
     cdef cudaGraphDeviceNode_t _devNode
@@ -3971,7 +3998,7 @@ cdef class cudaLaunchAttributeValue:
         cudaSynchronizationPolicy for work queued up in this stream.
 
 
-    clusterDim : anon_struct17
+    clusterDim : anon_struct18
         Value of launch attribute cudaLaunchAttributeClusterDimension that
         represents the desired cluster dimensions for the kernel. Opaque
         type with the following fields: - `x` - The X dimension of the
@@ -3992,7 +4019,7 @@ cdef class cudaLaunchAttributeValue:
         cudaLaunchAttributeProgrammaticStreamSerialization.
 
 
-    programmaticEvent : anon_struct18
+    programmaticEvent : anon_struct19
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
         the following fields: - `cudaEvent_t` event - Event to fire when
         all blocks trigger it.    - `int` flags; - Event record flags, see
@@ -4016,22 +4043,22 @@ cdef class cudaLaunchAttributeValue:
         cudaLaunchMemSyncDomain.
 
 
-    preferredClusterDim : anon_struct19
+    preferredClusterDim : anon_struct20
         Value of launch attribute
         cudaLaunchAttributePreferredClusterDimension that represents the
         desired preferred cluster dimensions for the kernel. Opaque type
         with the following fields: - `x` - The X dimension of the preferred
         cluster, in blocks. Must be a divisor of the grid X dimension, and
         must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
-        of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        the preferred cluster, in blocks. Must be a divisor of the grid Y
+        dimension, and must be a multiple of the `y` field of
+        cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the `z` field of
+        cudaLaunchAttributeValue::clusterDim.
 
 
-    launchCompletionEvent : anon_struct20
+    launchCompletionEvent : anon_struct21
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
         with the following fields: - `cudaEvent_t` event - Event to fire
         when the last block launches.    - `int` flags - Event record
@@ -4039,7 +4066,7 @@ cdef class cudaLaunchAttributeValue:
         cudaEventRecordExternal.
 
 
-    deviceUpdatableKernelNode : anon_struct21
+    deviceUpdatableKernelNode : anon_struct22
         Value of launch attribute
         cudaLaunchAttributeDeviceUpdatableKernelNode with the following
         fields: - `int` deviceUpdatable - Whether or not the resulting
@@ -4073,28 +4100,29 @@ cdef class cudaLaunchAttributeValue:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaLaunchAttributeValue _pvt_val
     cdef cyruntime.cudaLaunchAttributeValue* _pvt_ptr
 
     cdef cudaAccessPolicyWindow _accessPolicyWindow
 
 
-    cdef anon_struct17 _clusterDim
+    cdef anon_struct18 _clusterDim
 
 
-    cdef anon_struct18 _programmaticEvent
+    cdef anon_struct19 _programmaticEvent
 
 
     cdef cudaLaunchMemSyncDomainMap _memSyncDomainMap
 
 
-    cdef anon_struct19 _preferredClusterDim
+    cdef anon_struct20 _preferredClusterDim
 
 
-    cdef anon_struct20 _launchCompletionEvent
+    cdef anon_struct21 _launchCompletionEvent
 
 
-    cdef anon_struct21 _deviceUpdatableKernelNode
+    cdef anon_struct22 _deviceUpdatableKernelNode
 
 
 cdef class cudaLaunchAttribute_st:
@@ -4117,13 +4145,14 @@ cdef class cudaLaunchAttribute_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaLaunchAttribute_st _pvt_val
     cdef cyruntime.cudaLaunchAttribute_st* _pvt_ptr
 
     cdef cudaLaunchAttributeValue _val
 
 
-cdef class anon_struct22:
+cdef class anon_struct23:
     """
     Attributes
     ----------
@@ -4137,14 +4166,15 @@ cdef class anon_struct22:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaAsyncNotificationInfo* _pvt_ptr
 
-cdef class anon_union11:
+cdef class anon_union12:
     """
     Attributes
     ----------
 
-    overBudget : anon_struct22
+    overBudget : anon_struct23
 
 
 
@@ -4153,9 +4183,10 @@ cdef class anon_union11:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaAsyncNotificationInfo* _pvt_ptr
 
-    cdef anon_struct22 _overBudget
+    cdef anon_struct23 _overBudget
 
 
 cdef class cudaAsyncNotificationInfo:
@@ -4169,7 +4200,7 @@ cdef class cudaAsyncNotificationInfo:
         The type of notification being sent
 
 
-    info : anon_union11
+    info : anon_union12
         Information about the notification. `typename` must be checked in
         order to interpret this field.
 
@@ -4179,10 +4210,11 @@ cdef class cudaAsyncNotificationInfo:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaAsyncNotificationInfo* _val_ptr
     cdef cyruntime.cudaAsyncNotificationInfo* _pvt_ptr
 
-    cdef anon_union11 _info
+    cdef anon_union12 _info
 
 
 cdef class cudaTextureDesc:
@@ -4249,6 +4281,7 @@ cdef class cudaTextureDesc:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaTextureDesc _pvt_val
     cdef cyruntime.cudaTextureDesc* _pvt_ptr
 
@@ -4273,6 +4306,7 @@ cdef class cudaGraphRecaptureCallbackData:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaGraphRecaptureCallbackData _pvt_val
     cdef cyruntime.cudaGraphRecaptureCallbackData* _pvt_ptr
 
@@ -4314,22 +4348,19 @@ cdef class cudaEglPlaneDesc_st:
         Channel Format Descriptor
 
 
-    reserved : list[unsigned int]
-        Reserved for future use
-
-
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaEglPlaneDesc_st _pvt_val
     cdef cyruntime.cudaEglPlaneDesc_st* _pvt_ptr
 
     cdef cudaChannelFormatDesc _channelDesc
 
 
-cdef class anon_union12:
+cdef class anon_union13:
     """
     Attributes
     ----------
@@ -4347,6 +4378,7 @@ cdef class anon_union12:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaEglFrame_st* _pvt_ptr
 
 cdef class cudaEglFrame_st:
@@ -4363,7 +4395,7 @@ cdef class cudaEglFrame_st:
     Attributes
     ----------
 
-    frame : anon_union12
+    frame : anon_union13
 
 
 
@@ -4388,10 +4420,11 @@ cdef class cudaEglFrame_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cyruntime.cudaEglFrame_st* _val_ptr
     cdef cyruntime.cudaEglFrame_st* _pvt_ptr
 
-    cdef anon_union12 _frame
+    cdef anon_union13 _frame
 
 
 cdef class CUuuid(CUuuid_st):
@@ -4430,13 +4463,6 @@ cdef class cudaIpcEventHandle_t(cudaIpcEventHandle_st):
     """
     CUDA IPC event handle
 
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
@@ -4448,13 +4474,6 @@ cdef class cudaIpcMemHandle_t(cudaIpcMemHandle_st):
     """
     CUDA IPC memory handle
 
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
@@ -4464,13 +4483,6 @@ cdef class cudaIpcMemHandle_t(cudaIpcMemHandle_st):
 
 cdef class cudaMemFabricHandle_t(cudaMemFabricHandle_st):
     """
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
@@ -4504,8 +4516,9 @@ cdef class cudaDevSmResourceGroupParams(cudaDevSmResourceGroupParams_st):
         this this group is created.
 
 
-    reserved : list[unsigned int]
-        Reserved for future use - ensure this is zero initialized.
+    localityDomainId : unsigned int
+        Locality domain that the SM must be located on. Only valid if
+        cudaDevSmResourceGroupLocalityDomainId is set in flags
 
 
     Methods
@@ -4607,11 +4620,6 @@ cdef class cudaGraphEdgeData(cudaGraphEdgeData_st):
         This should be populated with a value from cudaGraphDependencyType.
         (It is typed as char due to compiler-specific layout of bitfields.)
         See cudaGraphDependencyType.
-
-
-    reserved : bytes
-        These bytes are unused and must be zeroed. This ensures
-        compatibility if additional fields are added in the future.
 
 
     Methods
@@ -4741,7 +4749,7 @@ cdef class cudaAsyncNotificationInfo_t(cudaAsyncNotificationInfo):
         The type of notification being sent
 
 
-    info : anon_union11
+    info : anon_union12
         Information about the notification. `typename` must be checked in
         order to interpret this field.
 
@@ -4778,7 +4786,7 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         cudaSynchronizationPolicy for work queued up in this stream.
 
 
-    clusterDim : anon_struct17
+    clusterDim : anon_struct18
         Value of launch attribute cudaLaunchAttributeClusterDimension that
         represents the desired cluster dimensions for the kernel. Opaque
         type with the following fields: - `x` - The X dimension of the
@@ -4799,7 +4807,7 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         cudaLaunchAttributeProgrammaticStreamSerialization.
 
 
-    programmaticEvent : anon_struct18
+    programmaticEvent : anon_struct19
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
         the following fields: - `cudaEvent_t` event - Event to fire when
         all blocks trigger it.    - `int` flags; - Event record flags, see
@@ -4823,22 +4831,22 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         cudaLaunchMemSyncDomain.
 
 
-    preferredClusterDim : anon_struct19
+    preferredClusterDim : anon_struct20
         Value of launch attribute
         cudaLaunchAttributePreferredClusterDimension that represents the
         desired preferred cluster dimensions for the kernel. Opaque type
         with the following fields: - `x` - The X dimension of the preferred
         cluster, in blocks. Must be a divisor of the grid X dimension, and
         must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
-        of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        the preferred cluster, in blocks. Must be a divisor of the grid Y
+        dimension, and must be a multiple of the `y` field of
+        cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the `z` field of
+        cudaLaunchAttributeValue::clusterDim.
 
 
-    launchCompletionEvent : anon_struct20
+    launchCompletionEvent : anon_struct21
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
         with the following fields: - `cudaEvent_t` event - Event to fire
         when the last block launches.    - `int` flags - Event record
@@ -4846,7 +4854,7 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         cudaEventRecordExternal.
 
 
-    deviceUpdatableKernelNode : anon_struct21
+    deviceUpdatableKernelNode : anon_struct22
         Value of launch attribute
         cudaLaunchAttributeDeviceUpdatableKernelNode with the following
         fields: - `int` deviceUpdatable - Whether or not the resulting
@@ -4907,7 +4915,7 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         cudaSynchronizationPolicy for work queued up in this stream.
 
 
-    clusterDim : anon_struct17
+    clusterDim : anon_struct18
         Value of launch attribute cudaLaunchAttributeClusterDimension that
         represents the desired cluster dimensions for the kernel. Opaque
         type with the following fields: - `x` - The X dimension of the
@@ -4928,7 +4936,7 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         cudaLaunchAttributeProgrammaticStreamSerialization.
 
 
-    programmaticEvent : anon_struct18
+    programmaticEvent : anon_struct19
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
         the following fields: - `cudaEvent_t` event - Event to fire when
         all blocks trigger it.    - `int` flags; - Event record flags, see
@@ -4952,22 +4960,22 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         cudaLaunchMemSyncDomain.
 
 
-    preferredClusterDim : anon_struct19
+    preferredClusterDim : anon_struct20
         Value of launch attribute
         cudaLaunchAttributePreferredClusterDimension that represents the
         desired preferred cluster dimensions for the kernel. Opaque type
         with the following fields: - `x` - The X dimension of the preferred
         cluster, in blocks. Must be a divisor of the grid X dimension, and
         must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
-        of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        the preferred cluster, in blocks. Must be a divisor of the grid Y
+        dimension, and must be a multiple of the `y` field of
+        cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the `z` field of
+        cudaLaunchAttributeValue::clusterDim.
 
 
-    launchCompletionEvent : anon_struct20
+    launchCompletionEvent : anon_struct21
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
         with the following fields: - `cudaEvent_t` event - Event to fire
         when the last block launches.    - `int` flags - Event record
@@ -4975,7 +4983,7 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         cudaEventRecordExternal.
 
 
-    deviceUpdatableKernelNode : anon_struct21
+    deviceUpdatableKernelNode : anon_struct22
         Value of launch attribute
         cudaLaunchAttributeDeviceUpdatableKernelNode with the following
         fields: - `int` deviceUpdatable - Whether or not the resulting
@@ -5043,10 +5051,6 @@ cdef class cudaEglPlaneDesc(cudaEglPlaneDesc_st):
         Channel Format Descriptor
 
 
-    reserved : list[unsigned int]
-        Reserved for future use
-
-
     Methods
     -------
     getPtr()
@@ -5068,7 +5072,7 @@ cdef class cudaEglFrame(cudaEglFrame_st):
     Attributes
     ----------
 
-    frame : anon_union12
+    frame : anon_union13
 
 
 

@@ -15,15 +15,18 @@ from cuda.core._memory._managed_memory_ops import (
     _do_single_discard_prefetch_py,
     _do_single_discard_py,
     _do_single_prefetch_py,
+    _read_last_prefetch_location_v2,
     _read_preferred_location_v2,
 )
 from cuda.core._utils.cuda_utils import driver, handle_return
-from cuda.core._utils.version import binding_version, driver_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 
 if TYPE_CHECKING:
     from cuda.core._memory._buffer import MemoryResource
     from cuda.core._stream import Stream
     from cuda.core.graph import GraphBuilder
+
+__all__ = ["ManagedBuffer"]
 
 
 _INT_SIZE = 4
@@ -41,9 +44,16 @@ _RANGE = driver.CUmem_range_attribute
 _ATTR_READ_MOSTLY = _RANGE.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY
 _ATTR_PREFERRED = _RANGE.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION
 _ATTR_ACCESSED_BY = _RANGE.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY
+_ATTR_LAST_PREFETCH = _RANGE.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION
+
+
+def _check_open(buf: Buffer) -> None:
+    if buf.is_closed:
+        raise RuntimeError("Buffer has been closed")
 
 
 def _get_int_attr(buf: Buffer, attribute: Any) -> int:
+    _check_open(buf)
     return int(handle_return(driver.cuMemRangeGetAttribute(_INT_SIZE, attribute, buf.handle, buf.size)))
 
 
@@ -53,6 +63,7 @@ def _query_accessed_by(buf: Buffer) -> list[Device | Host]:
     Driver fills an int32 array: device id, ``-1`` = host, ``-2`` = empty.
     Sized to ``cuDeviceGetCount() + 1`` (every visible device plus host).
     """
+    _check_open(buf)
     num_devices = handle_return(driver.cuDeviceGetCount())
     n = num_devices + 1
     raw = handle_return(driver.cuMemRangeGetAttribute(n * _INT_SIZE, _ATTR_ACCESSED_BY, buf.handle, buf.size))
@@ -138,11 +149,12 @@ class ManagedBuffer(Buffer):
 
     Note
     ----
-    On CUDA 13 builds, ``preferred_location`` round-trips full NUMA
-    information. On CUDA 12 builds, ``Host(numa_id=...)`` and
-    ``Host.numa_current()`` are rejected with ``TypeError`` at the call
-    boundary — only ``Device(...)`` and the generic ``Host()`` are
-    accepted. Use ``Host()`` to target the host on CUDA 12.
+    On CUDA 13 builds, ``preferred_location`` and
+    ``last_prefetch_location`` round-trip full NUMA information. On CUDA 12
+    builds, ``Host(numa_id=...)`` and ``Host.numa_current()`` are rejected
+    with ``TypeError`` at the call boundary — only ``Device(...)`` and the
+    generic ``Host()`` are accepted. Use ``Host()`` to target the host on
+    CUDA 12.
     """
 
     @classmethod
@@ -152,12 +164,15 @@ class ManagedBuffer(Buffer):
         size: int,
         mr: MemoryResource | None = None,
         owner: object | None = None,
+        *,
+        stream: Stream | GraphBuilder | None = None,
     ) -> Buffer:
         """Wrap an existing managed-memory pointer in a :class:`ManagedBuffer`.
 
         Use this when you have an externally-allocated managed pointer
         and want the property-style advice API (:attr:`read_mostly`,
-        :attr:`preferred_location`, :attr:`accessed_by`).
+        :attr:`preferred_location`, :attr:`last_prefetch_location`,
+        :attr:`accessed_by`).
 
         Parameters
         ----------
@@ -171,8 +186,15 @@ class ManagedBuffer(Buffer):
         owner : object, optional
             An object that keeps the underlying allocation alive.
             ``owner`` and ``mr`` cannot both be specified.
+        stream : Stream | GraphBuilder, optional
+            Keyword-only. The stream used to order the buffer's deallocation
+            when ``mr`` owns the pointer. Defaults to ``default_stream()``.
+            Recording a default-stream token requires a CUDA context to be
+            current. If the buffer may be freed from a different host thread,
+            pass a stream other than the per-thread default stream, which
+            refers to a different stream on each thread.
         """
-        return cls._init(ptr, size, mr=mr, owner=owner)
+        return cls._init(ptr, size, mr=mr, owner=owner, stream=stream)
 
     @property
     def read_mostly(self) -> bool:
@@ -193,13 +215,13 @@ class ManagedBuffer(Buffer):
         as ``Host()``.
         """
         # The v2 path uses CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_{TYPE,ID},
-        # both added in CUDA 13. Require both bindings and the runtime driver
-        # to be 13.0+; otherwise fall back to the legacy device-ordinal path.
-        # See PR #2054 / #2064 for prior bindings-only-check regressions.
-        if binding_version() >= (13, 0, 0) and driver_version() >= (13, 0, 0):
+        # both added in CUDA 13. The path exists in the CUDA 13 build only, and
+        # the runtime driver must be 13.0+. Otherwise fall back to the legacy
+        # device-ordinal path. See PR #2054 / #2064 for prior regressions.
+        if BUILD_CUDA_MAJOR >= 13 and driver_version() >= (13, 0, 0):
             return _read_preferred_location_v2(self)
-        # CUDA 12 legacy path (no NUMA info available; also taken when
-        # bindings are 13.x but the runtime driver is still 12.x).
+        # CUDA 12 legacy path. No NUMA info is available. A CUDA 13 build also
+        # takes this path when the runtime driver is still 12.x.
         loc_id = _get_int_attr(self, _ATTR_PREFERRED)
         if loc_id == -2:
             return None
@@ -215,12 +237,36 @@ class ManagedBuffer(Buffer):
             _advise_one(self, _SET_PREFERRED, value)
 
     @property
+    def last_prefetch_location(self) -> Device | Host | None:
+        """Location targeted by the most recent explicit prefetch.
+
+        Returns ``None`` if any page in the range has never been prefetched,
+        or if the pages do not share one last-prefetch location. This reports
+        the application's requested destination, not current residency or
+        completion of the asynchronous prefetch operation.
+
+        On CUDA 13 builds, fully round-trips ``Host(numa_id=N)``. On CUDA 12,
+        the legacy attribute carries only a device ordinal (or ``-1`` for
+        host), so host NUMA details are unavailable.
+        """
+        if BUILD_CUDA_MAJOR >= 13 and driver_version() >= (13, 0, 0):
+            return _read_last_prefetch_location_v2(self)
+        loc_id = _get_int_attr(self, _ATTR_LAST_PREFETCH)
+        if loc_id == -2:
+            return None
+        if loc_id == -1:
+            return Host()
+        return Device(loc_id)
+
+    @property
     def accessed_by(self) -> AccessedBySetProxy:
         """Live set-like view of ``set_accessed_by`` locations."""
+        _check_open(self)
         return AccessedBySetProxy(self)
 
     @accessed_by.setter
     def accessed_by(self, locations: Iterable[Device | Host]) -> None:
+        _check_open(self)
         # Validate every target before issuing any cuMemAdvise so an invalid
         # element can't leave accessed_by partially mutated.
         target: set[Device | Host] = set()

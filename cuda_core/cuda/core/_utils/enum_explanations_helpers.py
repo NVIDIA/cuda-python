@@ -3,53 +3,24 @@
 
 """Internal support for error-enum explanations.
 
-``cuda_core`` keeps frozen 13.1.1 fallback tables for older ``cuda-bindings``
-releases. Driver/runtime error enums carry usable ``__doc__`` text starting in
-the 12.x backport line at ``cuda-bindings`` 12.9.6, and in the mainline 13.x
-series at ``cuda-bindings`` 13.2.0. This module decides which source to use
-and normalizes generated docstrings so user-facing ``CUDAError`` messages stay
-presentable.
+Driver and runtime error enums in ``cuda-bindings`` carry per-member
+``__doc__`` text. ``cuda-bindings`` added the text in 12.9.6 on the 12.x line
+and in 13.2.0 on the 13.x line. Every ``cuda-bindings`` that ``cuda.core``
+accepts has it. This module normalizes those generated docstrings so that
+user-facing ``CUDAError`` messages stay presentable.
 
 The cleanup rules here were derived while validating generated enum docstrings
-in PR #1805. Keep them narrow and remove them when codegen quirks or fallback
-support are no longer needed.
+in PR #1805. Keep them narrow. When the codegen quirks are gone, remove them.
 """
 
 from __future__ import annotations
 
-import importlib.metadata
 import re
-from collections.abc import Callable
 from typing import Any
 
-_MIN_12X_BINDING_VERSION_FOR_ENUM_DOCSTRINGS = (12, 9, 6)
-_MIN_13X_BINDING_VERSION_FOR_ENUM_DOCSTRINGS = (13, 2, 0)
 _RST_INLINE_ROLE_RE = re.compile(r":(?:[a-z]+:)?[a-z]+:`([^`]+)`")
 _WORDWRAP_HYPHEN_AFTER_RE = re.compile(r"(?<=[0-9A-Za-z_])- (?=[0-9A-Za-z_])")
 _WORDWRAP_HYPHEN_BEFORE_RE = re.compile(r"(?<=[0-9A-Za-z_]) -(?=[0-9A-Za-z_])")
-_ExplanationTable = dict[int, str | tuple[str, ...]]
-_ExplanationTableLoader = Callable[[], _ExplanationTable]
-
-
-# ``version.pyx`` cannot be reused here (circular import via ``cuda_utils``).
-def _binding_version() -> tuple[int, int, int]:
-    """Return the installed ``cuda-bindings`` version, or a conservative old value."""
-    try:
-        version = importlib.metadata.version("cuda-bindings")
-    except importlib.metadata.PackageNotFoundError:
-        return (0, 0, 0)  # For very old versions of cuda-python
-
-    parts = version.partition("+")[0].split(".")[:3]
-    parts_int = ([int(v) for v in parts] + [0, 0, 0])[:3]
-    return (parts_int[0], parts_int[1], parts_int[2])
-
-
-def _binding_version_has_usable_enum_docstrings(version: tuple[int, int, int]) -> bool:
-    """Whether released bindings are known to carry usable error-enum ``__doc__`` text."""
-    return (
-        _MIN_12X_BINDING_VERSION_FOR_ENUM_DOCSTRINGS <= version < (13, 0, 0)
-        or version >= _MIN_13X_BINDING_VERSION_FOR_ENUM_DOCSTRINGS
-    )
 
 
 def _fix_hyphenation_wordwrap_spacing(s: str) -> str:
@@ -93,9 +64,9 @@ def clean_enum_member_docstring(doc: str | None) -> str | None:
 
 
 class DocstringBackedExplanations:
-    """Compatibility shim exposing enum-member ``__doc__`` text via ``dict.get``.
+    """Expose enum-member ``__doc__`` text via ``dict.get``.
 
-    Keeps the existing ``.get(int(error))`` lookup shape used by ``cuda_utils.pyx``.
+    Keeps the ``.get(int(error))`` lookup shape used by ``cuda_utils.pyx``.
     """
 
     __slots__ = ("_enum_type",)
@@ -114,20 +85,3 @@ class DocstringBackedExplanations:
             return default
 
         return clean_enum_member_docstring(raw_doc)
-
-
-def get_best_available_explanations(
-    enum_type: Any,
-    fallback: _ExplanationTable | _ExplanationTableLoader,
-) -> DocstringBackedExplanations | _ExplanationTable:
-    """Pick one explanation source per bindings version.
-
-    Use enum-member ``__doc__`` only for bindings versions known to expose
-    usable per-member text (12.9.6+ in the 12.x backport line, 13.2.0+ in the
-    13.x mainline). Otherwise keep using the frozen 13.1.1 fallback tables.
-    """
-    if not _binding_version_has_usable_enum_docstrings(_binding_version()):
-        if callable(fallback):
-            return fallback()
-        return fallback
-    return DocstringBackedExplanations(enum_type)

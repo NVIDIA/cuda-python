@@ -9,30 +9,35 @@ from libc.stdlib cimport strtol, getenv
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._event cimport Event as cyEvent
+from cuda.core._event cimport Event as cyEvent, Event_accept
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
 )
+from cuda.core._utils.version cimport cy_driver_version
 
 import cython
 import warnings
 from dataclasses import dataclass
 from typing import Protocol, TYPE_CHECKING
 
-from cuda.core._context cimport Context
+from cuda.core._context cimport (
+    Context,
+    Context_check_open,
+)
 from cuda.core._device_resources cimport DeviceResources
 from cuda.core._event import Event, EventOptions
 
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport context_get_device
+from cuda.core._rt cimport (
     ContextHandle,
     EventHandle,
     StreamHandle,
     create_context_handle_ref,
-    create_event_handle_noctx,
+    create_event_handle_for_stream,
     create_stream_handle,
     create_stream_handle_with_owner,
-    get_current_context,
+    context_get_stream_priority_range,
     get_last_error,
     get_legacy_stream,
     get_per_thread_stream,
@@ -46,6 +51,9 @@ if TYPE_CHECKING:
     import cuda.bindings.driver  # no-cython-lint
     from cuda.core._device import Device
     from cuda.core.graph import GraphBuilder
+
+__all__ = ['LEGACY_DEFAULT_STREAM', 'PER_THREAD_DEFAULT_STREAM', 'Stream', 'StreamOptions']
+
 
 @dataclass
 cdef class StreamOptions:
@@ -120,16 +128,13 @@ cdef class Stream:
         return Stream._from_handle(cls, get_per_thread_stream())
 
     @classmethod
-    def _init(cls, obj: IsStreamType | None = None, options: object = None,
+    @cython.annotation_typing(False)
+    def _init(cls, obj: IsStreamType | None = None, options: StreamOptions | None = None,
               device_id: int | None = None, ctx: Context | None = None) -> Stream:
         cdef StreamHandle h_stream
         cdef cydriver.CUstream borrowed
         cdef ContextHandle h_context
-        cdef Stream self
-
-        # Extract context handle if provided
-        if ctx is not None:
-            h_context = (<Context>ctx)._h_context
+        cdef Context context
 
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
@@ -141,6 +146,12 @@ cdef class Stream:
             h_stream = create_stream_handle_with_owner(borrowed, obj)
             return Stream._from_handle(cls, h_stream)
 
+        if ctx is None:
+            raise RuntimeError("A CUDA context is required to create a stream")
+        context = <Context>ctx
+        Context_check_open(context)
+        h_context = context._h_context
+
         cdef StreamOptions opts = check_or_create_options(StreamOptions, options, "Stream options")
         nonblocking = opts.nonblocking
         priority = opts.priority
@@ -150,14 +161,8 @@ cdef class Stream:
         # TODO: we might want to consider memoizing high/low per CUDA context and avoid this call
         cdef int high, low
         cdef cydriver.CUresult res_code
-        with nogil:
-            res_code = cydriver.cuCtxGetStreamPriorityRange(&high, &low)
-        if res_code != cydriver.CUresult.CUDA_SUCCESS:
-            if res_code == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
-                raise RuntimeError(
-                    "No current CUDA context. Call dev.set_current() before creating streams."
-                )
-            HANDLE_RETURN(res_code)
+        res_code = context_get_stream_priority_range(context._h_context, &high, &low)
+        HANDLE_RETURN(res_code)
         cdef int prio
         if priority is not None:
             prio = priority
@@ -167,7 +172,14 @@ cdef class Stream:
             prio = high
 
         # C++ creates the stream and returns owning handle with context dependency.
-        # For green contexts, the C++ layer auto-dispatches to cuGreenCtxStreamCreate.
+        # For green contexts, the C++ layer auto-dispatches to cuGreenCtxStreamCreate,
+        # a 12.5 driver API. cuGreenCtxCreate itself is 12.4. The driver alone
+        # decides availability. The gate lives here, not in C++.
+        if context.is_green and cy_driver_version() < (12, 5, 0):
+            raise RuntimeError(
+                "Green context stream creation requires CUDA driver 12.5 or newer "
+                f"(current driver: {'.'.join(map(str, cy_driver_version()))})"
+            )
         h_stream = create_stream_handle(h_context, flags, prio)
         if not h_stream:
             res_code = get_last_error()
@@ -178,14 +190,9 @@ cdef class Stream:
                     "Green context streams must be non-blocking. "
                     "Use StreamOptions(nonblocking=True) or omit the option (True is the default)."
                 )
-            elif res_code == cydriver.CUresult.CUDA_ERROR_NOT_SUPPORTED:
-                raise RuntimeError(
-                    "cuGreenCtxStreamCreate is not available. "
-                    "Green context stream creation requires CUDA 12.5 or newer."
-                )
             else:
                 HANDLE_RETURN(res_code)
-        self = Stream._from_handle(cls, h_stream)
+        cdef Stream self = Stream._from_handle(cls, h_stream)
         self._nonblocking = int(nonblocking)
         self._priority = prio
         if device_id is not None:
@@ -198,11 +205,22 @@ cdef class Stream:
         Releases the stream handle. For owned streams, this destroys the
         underlying CUDA stream. For borrowed streams, this releases the
         reference and allows the Python owner to be GC'd.
+
+        .. warning::
+            Do not close :obj:`LEGACY_DEFAULT_STREAM` or
+            :obj:`PER_THREAD_DEFAULT_STREAM`. They are shared module-level
+            objects, so closing one invalidates it for the rest of the process.
         """
         self._h_stream.reset()
 
+    @property
+    def is_closed(self) -> bool:
+        """Whether this stream has been closed."""
+        return self._h_stream.get() == NULL
+
     def __cuda_stream__(self) -> tuple[int, int]:
         """Return an instance of a __cuda_stream__ protocol."""
+        Stream_check_open(self)
         return (0, as_intptr(self._h_stream))
 
     def __hash__(self) -> int:
@@ -214,8 +232,11 @@ cdef class Stream:
         return as_intptr(self._h_stream) == as_intptr((<Stream>other)._h_stream)
 
     def __repr__(self) -> str:
-        Stream_ensure_ctx(self)
-        return f"<Stream handle={as_intptr(self._h_stream):#x} context={as_intptr(self._h_context):#x}>"
+        cdef ContextHandle h_context
+        if not self._h_stream:
+            return "<Stream handle=0x0 context=0x0>"
+        Stream_get_ctx(self, &h_context)
+        return f"<Stream handle={as_intptr(self._h_stream):#x} context={as_intptr(h_context):#x}>"
 
     @property
     def handle(self) -> cuda.bindings.driver.CUstream:
@@ -231,6 +252,7 @@ cdef class Stream:
     @property
     def is_nonblocking(self) -> bool:
         """Return True if this is a nonblocking stream, otherwise False."""
+        Stream_check_open(self)
         cdef unsigned int flags
         if self._nonblocking == -1:
             with nogil:
@@ -241,6 +263,7 @@ cdef class Stream:
     @property
     def priority(self) -> int:
         """Return the stream priority."""
+        Stream_check_open(self)
         cdef int prio
         if self._priority == INT32_MIN:
             with nogil:
@@ -250,6 +273,7 @@ cdef class Stream:
 
     def sync(self) -> None:
         """Synchronize the stream."""
+        Stream_check_open(self)
         with nogil:
             HANDLE_RETURN(cydriver.cuStreamSynchronize(as_cu(self._h_stream)))
 
@@ -271,23 +295,36 @@ cdef class Stream:
         :obj:`~_event.Event`
             Newly created event object.
 
+        Note
+        ----
+        A default stream (:obj:`LEGACY_DEFAULT_STREAM` or
+        :obj:`PER_THREAD_DEFAULT_STREAM`) carries no context of its own; it
+        refers to whichever context is current, so a newly created event is
+        associated with the current context at call time.
+
         """
         # Create an Event object (or reusing the given one) by recording
         # on the stream. Event flags such as disabling timing, nonblocking,
         # and CU_EVENT_RECORD_EXTERNAL, can be set in EventOptions.
+        Stream_check_open(self)
+        cdef ContextHandle h_context
+        cdef int device_id
+        cdef cyEvent event_obj
         if event is None:
-            Stream_ensure_ctx_device(self)
-            event = cyEvent._init(cyEvent, self._device_id, self._h_context, options, False)
-        elif event.is_ipc_enabled:
+            Stream_get_ctx_device(self, &h_context, &device_id)
+            event_obj = cyEvent._init(cyEvent, device_id, h_context, options, False)
+        else:
+            event_obj = Event_accept(event)
+        if event is not None and event_obj.is_ipc_enabled:
             raise TypeError(
                 "IPC-enabled events should not be re-recorded, instead create a "
                 "new event by supplying options."
             )
 
-        cdef cydriver.CUevent e = as_cu((<cyEvent?>(event))._h_event)
+        cdef cydriver.CUevent e = as_cu(event_obj._h_event)
         with nogil:
             HANDLE_RETURN(cydriver.cuEventRecord(e, as_cu(self._h_stream)))
-        return event
+        return event_obj
 
     def wait(self, event_or_stream: Event | Stream) -> None:
         """Wait for a CUDA event or a CUDA stream.
@@ -306,20 +343,24 @@ cdef class Stream:
             streams.
 
         """
+        Stream_check_open(self)
         cdef Stream stream
+        cdef cyEvent event
         cdef EventHandle h_event
 
         # Handle Event directly
         if isinstance(event_or_stream, Event):
+            event = Event_accept(event_or_stream)
             with nogil:
                 # TODO: support flags other than 0?
                 HANDLE_RETURN(cydriver.cuStreamWaitEvent(
-                    as_cu(self._h_stream), as_cu((<cyEvent>event_or_stream)._h_event), 0))
+                    as_cu(self._h_stream), as_cu(event._h_event), 0))
             return
 
         # Convert to Stream if needed
         if isinstance(event_or_stream, Stream):
             stream = <Stream>event_or_stream
+            Stream_check_open(stream)
         else:
             try:
                 stream = Stream._init(obj=event_or_stream)
@@ -329,9 +370,14 @@ cdef class Stream:
                     f" got {type(event_or_stream)}"
                 ) from e
 
-        # Wait on stream via temporary event
+        # Wait on stream via a temporary event created in that stream's own
+        # context; an event from the current context would be rejected by
+        # cuEventRecord when the streams live on different devices.
         with nogil:
-            h_event = create_event_handle_noctx(cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+            h_event = create_event_handle_for_stream(
+                as_cu(stream._h_stream), cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+            if not h_event:
+                HANDLE_RETURN(get_last_error())
             HANDLE_RETURN(cydriver.cuEventRecord(as_cu(h_event), as_cu(stream._h_stream)))
             # TODO: support flags other than 0?
             HANDLE_RETURN(cydriver.cuStreamWaitEvent(as_cu(self._h_stream), as_cu(h_event), 0))
@@ -342,21 +388,40 @@ cdef class Stream:
 
         Note
         ----
-        The current context on the device may differ from this
-        stream's context. This case occurs when a different CUDA
-        context is set current after a stream is created.
+        A default stream (:obj:`LEGACY_DEFAULT_STREAM` or
+        :obj:`PER_THREAD_DEFAULT_STREAM`) carries no context of its own; it
+        refers to whichever context is current, so this returns the device for
+        the current context at call time.
+
+        For a created stream, the current context on the device may differ from
+        this stream's context. That case occurs when a different CUDA context is
+        set current after the stream is created.
 
         """
+        Stream_check_open(self)
         from cuda.core._device import Device  # avoid circular import
-        Stream_ensure_ctx_device(self)
-        return Device(self._device_id)
+        cdef ContextHandle h_context
+        cdef int device_id
+        Stream_get_ctx_device(self, &h_context, &device_id)
+        return Device(device_id)
 
     @property
     def context(self) -> Context:
-        """Return the :obj:`~_context.Context` associated with this stream."""
-        Stream_ensure_ctx(self)
-        Stream_ensure_ctx_device(self)
-        return Context._from_handle(Context, self._h_context, self._device_id)
+        """Return the :obj:`~_context.Context` associated with this stream.
+
+        Note
+        ----
+        A default stream (:obj:`LEGACY_DEFAULT_STREAM` or
+        :obj:`PER_THREAD_DEFAULT_STREAM`) carries no context of its own; it
+        refers to whichever context is current, so this returns the current
+        context at call time.
+
+        """
+        Stream_check_open(self)
+        cdef ContextHandle h_context
+        cdef int device_id
+        Stream_get_ctx_device(self, &h_context, &device_id)
+        return Context._from_handle(Context, h_context, device_id)
 
     @property
     def resources(self) -> DeviceResources:
@@ -365,10 +430,20 @@ cdef class Stream:
         For streams created from a green context, returns the resources
         that context was provisioned with. For streams on the primary
         context, returns the full device resources.
+
+        Note
+        ----
+        A default stream (:obj:`LEGACY_DEFAULT_STREAM` or
+        :obj:`PER_THREAD_DEFAULT_STREAM`) carries no context of its own; it
+        refers to whichever context is current, so this queries the current
+        context at call time.
+
         """
-        Stream_ensure_ctx(self)
-        Stream_ensure_ctx_device(self)
-        return DeviceResources._init_from_ctx(self._h_context, self._device_id)
+        Stream_check_open(self)
+        cdef ContextHandle h_context
+        cdef int device_id
+        Stream_get_ctx_device(self, &h_context, &device_id)
+        return DeviceResources._init_from_ctx(h_context, device_id)
 
     @staticmethod
     def from_handle(handle) -> Stream:
@@ -412,6 +487,7 @@ cdef class Stream:
             Newly created graph builder object.
 
         """
+        Stream_check_open(self)
         from cuda.core.graph._graph_builder import GraphBuilder
 
         return GraphBuilder._init(self)
@@ -436,7 +512,7 @@ cpdef Stream default_stream():
 
     cdef int use_ptds = 0
     if use_ptds_raw != NULL:
-        use_ptds = strtol(use_ptds_raw, NULL, 10)
+        use_ptds = <int>strtol(use_ptds_raw, NULL, 10)
 
     # value is non-zero, including for weird stuff like 123foo
     if use_ptds:
@@ -444,46 +520,79 @@ cpdef Stream default_stream():
     else:
         return LEGACY_DEFAULT_STREAM
 
+cdef inline bint Stream_handle_is_default_token(cydriver.CUstream s) noexcept nogil:
+    """Return True for the raw CU_STREAM_LEGACY and CU_STREAM_PER_THREAD tokens.
 
-cdef inline int Stream_ensure_ctx(Stream self) except?-1 nogil:
-    """Ensure the stream's context handle is populated."""
+    These tokens carry no context of their own; they refer to whatever context
+    is current, so nothing resolved from one may be cached on the object.
+    """
+    cdef uintptr_t h = <uintptr_t>s
+    return h == <uintptr_t>cydriver.CU_STREAM_LEGACY or h == <uintptr_t>cydriver.CU_STREAM_PER_THREAD
+
+
+cdef inline bint Stream_is_default_token(Stream self) noexcept nogil:
+    """Return True when this stream is CU_STREAM_LEGACY or CU_STREAM_PER_THREAD."""
+    return Stream_handle_is_default_token(as_cu(self._h_stream))
+
+
+cdef inline bint Stream_is_legacy_default_token(Stream self) noexcept nogil:
+    """Return True only for CU_STREAM_LEGACY.
+
+    Unlike CU_STREAM_PER_THREAD, the legacy default stream token is rejected
+    outright (CUDA_ERROR_INVALID_VALUE) by cuMemcpyWithAttributesAsync and
+    cuMemcpyBatchAsync; CU_STREAM_PER_THREAD is a real stream to those entry
+    points and is accepted normally. Use this narrower check, not
+    Stream_is_default_token, wherever that distinction matters.
+    """
+    return <uintptr_t>as_cu(self._h_stream) == <uintptr_t>cydriver.CU_STREAM_LEGACY
+
+
+cdef inline int Stream_get_ctx(Stream self, ContextHandle* h_context) except?-1 nogil:
+    """Resolve the stream's context handle into ``h_context``."""
     cdef cydriver.CUcontext ctx
-    if not self._h_context:
-        self._h_context = get_stream_context(self._h_stream)
-    if self._h_context:
+    cdef bint is_default = Stream_is_default_token(self)
+
+    # Default-stream tokens must never reuse a sticky object field, even if
+    # something else populated ``_h_context`` (defense in depth for #2485).
+    if self._h_context and not is_default:
+        h_context[0] = self._h_context
         return 0
-    HANDLE_RETURN(cydriver.cuStreamGetCtx(as_cu(self._h_stream), &ctx))
-    if ctx != NULL:
-        with gil:
-            self._h_context = create_context_handle_ref(ctx)
+
+    h_context[0] = get_stream_context(self._h_stream)
+    if not h_context[0]:
+        HANDLE_RETURN(cydriver.cuStreamGetCtx(as_cu(self._h_stream), &ctx))
+        if ctx != NULL:
+            with gil:
+                h_context[0] = create_context_handle_ref(ctx)
+
+    if h_context[0] and not is_default:
+        self._h_context = h_context[0]
     return 0
 
 
-cdef inline int Stream_ensure_ctx_device(Stream self) except?-1:
-    """Ensure the stream's context and device_id are populated."""
-    cdef cydriver.CUcontext ctx
+cdef inline int Stream_get_ctx_device(Stream self, ContextHandle* h_context, int* device_id) except?-1:
+    """Resolve the stream's context handle and device ID."""
     cdef cydriver.CUdevice target_dev
-    cdef ContextHandle current_context
-    cdef bint switch_context
+    cdef bint is_default = Stream_is_default_token(self)
 
-    if self._device_id < 0:
-        with nogil:
-            # Get device ID from context, switching context temporarily if needed
-            Stream_ensure_ctx(self)
-            current_context = get_current_context()
-            switch_context = (as_cu(current_context) != as_cu(self._h_context))
-            if switch_context:
-                HANDLE_RETURN(cydriver.cuCtxPushCurrent(as_cu(self._h_context)))
-            HANDLE_RETURN(cydriver.cuCtxGetDevice(&target_dev))
-            if switch_context:
-                HANDLE_RETURN(cydriver.cuCtxPopCurrent(&ctx))
-        self._device_id = <int>target_dev
+    with nogil:
+        Stream_get_ctx(self, h_context)
+        if self._device_id >= 0 and not is_default:
+            device_id[0] = self._device_id
+        else:
+            # Query the device with the stream's context current. The handle
+            # layer restores the caller's context, including on failure.
+            HANDLE_RETURN(context_get_device(h_context[0], &target_dev))
+            device_id[0] = <int>target_dev
+            if not is_default:
+                self._device_id = device_id[0]
     return 0
 
 
 cdef cydriver.CUstream _handle_from_stream_protocol(obj) except*:
     if isinstance(obj, Stream):
-        return <cydriver.CUstream><uintptr_t>(obj.handle)
+        Stream_check_open(<Stream>obj)
+        return as_cu((<Stream>obj)._h_stream)
 
     try:
         cuda_stream_attr = obj.__cuda_stream__
@@ -494,7 +603,6 @@ cdef cydriver.CUstream _handle_from_stream_protocol(obj) except*:
         info = cuda_stream_attr()
     else:
         info = cuda_stream_attr
-        warnings.simplefilter("once", DeprecationWarning)
         warnings.warn(
             "Implementing __cuda_stream__ as an attribute is deprecated; it must be implemented as a method",
             stacklevel=3,
@@ -520,15 +628,20 @@ cdef cydriver.CUstream _handle_from_stream_protocol(obj) except*:
 cpdef Stream Stream_accept(arg, bint allow_stream_protocol=False):
     from cuda.core.graph._graph_builder import GraphBuilder
 
+    cdef Stream stream
     if arg is None:
         raise TypeError(
             "stream is required and must not be None; "
             "pass device.default_stream explicitly to use the default stream."
         )
     if isinstance(arg, Stream):
-        return <Stream>(arg)
+        stream = <Stream>arg
+        Stream_check_open(stream)
+        return stream
     elif isinstance(arg, GraphBuilder):
-        return <Stream>(arg.stream)
+        stream = <Stream>arg.stream
+        Stream_check_open(stream)
+        return stream
     elif allow_stream_protocol and hasattr(arg, "__cuda_stream__"):
         stream = Stream._init(arg)
         warnings.warn(
@@ -538,5 +651,5 @@ cpdef Stream Stream_accept(arg, bint allow_stream_protocol=False):
             stacklevel=2,
             category=DeprecationWarning,
         )
-        return <Stream>(stream)
+        return stream
     raise TypeError(f"Stream or GraphBuilder expected, got {type(arg).__name__}")

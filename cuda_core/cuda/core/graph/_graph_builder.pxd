@@ -4,7 +4,7 @@
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._resource_handles cimport GraphExecHandle, GraphHandle, StreamHandle
+from cuda.core._rt cimport GraphExecHandle, GraphHandle, StreamHandle
 from cuda.core._stream cimport Stream
 
 
@@ -24,4 +24,4 @@ cdef class Graph:
         object __weakref__
 
     @staticmethod
-    cdef Graph _init(cydriver.CUgraphExec graph_exec)
+    cdef Graph _init(GraphExecHandle h_graph_exec)

@@ -7,7 +7,7 @@ channels:
 dependencies:
   # ATTENTION: This dependency list is duplicated in
   #            toolshed/setup-docs-env.sh. Please KEEP THEM IN SYNC!
-  - cython
+  - cython >=3.2.5,<3.3
   - myst-parser
   - numpy
   - numpydoc

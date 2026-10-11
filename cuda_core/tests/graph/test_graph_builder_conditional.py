@@ -7,8 +7,8 @@ import ctypes
 
 import numpy as np
 import pytest
+from cuda_python_test_helpers.marks import requires_module
 from helpers.graph_kernels import compile_conditional_kernels
-from helpers.marks import requires_module
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
 from cuda.core.graph import GraphBuilder
@@ -316,7 +316,7 @@ def test_graph_conditional_on_forked_builder(init_cuda):
     except RuntimeError as e:
         with pytest.raises(RuntimeError, match="^(Driver|Binding) version"):
             raise e
-        right.end_building()
+        # join() ends the forked builder; end_building() on a fork is rejected.
         GraphBuilder.join(left, right).end_building()
         b.close()
         pytest.skip("Driver does not support conditional handle")

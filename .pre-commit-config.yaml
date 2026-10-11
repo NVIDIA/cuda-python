@@ -9,14 +9,22 @@ ci:
     autoupdate_branch: ''
     autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
     autoupdate_schedule: quarterly
-    skip: [lychee, check-precommit-installed]
+    skip: [lychee, check-precommit-installed, secret-scan-trufflehog]
     submodules: false
 
 # Please update the rev: SHAs below with this command:
 # pre-commit autoupdate --freeze
 repos:
+  # Runs first so a leaked credential blocks the commit before any formatter runs.
+  # Self-installing: the hook downloads a pinned, checksum-verified trufflehog on
+  # first use (no manual install). Skipped on pre-commit.ci; Pulse CI enforces server-side.
+  - repo: https://github.com/NVIDIA/security-workflows
+    rev: c736f0454dc99764a66af6b906adfcdfbf621985  # frozen: v0.4.0
+    hooks:
+      - id: secret-scan-trufflehog
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: c60c980e561ed3e73101667fe8365c609d19a438  # frozen: v0.15.9
+    rev: a56c0b927e6465d37cae3e97d35d4d18ab2b96cd  # frozen: v0.16.9
     hooks:
       - id: ruff-check
         args: [--fix, --show-fixes]
@@ -34,6 +42,15 @@ repos:
         pass_filenames: false
         verbose: true
 
+      - id: check-cuda-core-bindings-floor
+        name: Check the cuda-bindings floor against ci/versions.yml and the docs
+        entry: python ./toolshed/check_cuda_core_bindings_floor.py
+        language: python
+        files: ^(cuda_core/pyproject\.toml|ci/versions\.yml|cuda_core/cuda/core/_bindings_floor\.py|cuda_core/docs/source/.*\.rst|toolshed/check_cuda_core_bindings_floor\.py)$
+        pass_filenames: false
+        additional_dependencies:
+          - "tomli>=1.1.0; python_version < '3.11'"
+
       - id: check-spdx
         name: Check SPDX Headers
         entry: python ./toolshed/check_spdx.py
@@ -50,6 +67,30 @@ repos:
         files: ^cuda_bindings/
         types: [text]
 
+      - id: check-pixi-cuda-version
+        name: Check pixi cuda-version pins track ci/versions.yml
+        entry: python ./ci/tools/check_pixi_cuda_version.py
+        language: python
+        additional_dependencies: [pyyaml==6.0.3]
+        files: '^(ci/versions\.yml|cuda_bindings/pixi\.toml|cuda_core/pixi\.toml)$'
+        pass_filenames: false
+
+      - id: check-mempool-hygiene
+        name: Check tests do not create uncapped memory pools
+        entry: python ./ci/tools/check_mempool_hygiene.py
+        language: python
+        files: '^cuda_core/tests/.*\.py$'
+
+      - id: check-build-shared-sync
+        name: Check _build_shared.py copies are identical
+        language: system
+        pass_filenames: false
+        files: '^(cuda_bindings|cuda_core)/_build_shared\.py$'
+        entry: bash -c
+        args:
+          - 'git diff --no-index --exit-code -- cuda_bindings/_build_shared.py cuda_core/_build_shared.py || { echo "ERROR: cuda_bindings/_build_shared.py and cuda_core/_build_shared.py must be byte-identical. Copy one onto the other and commit both." >&2; exit 1; }'
+          - "_" # fake script name, because bash considers $0 (the first argument) to be the script name
+
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
         entry: bash -c
@@ -61,13 +102,13 @@ repos:
 
       - id: stubgen-pyx-cuda-core
         name: Generate .pyi stubs for cuda_core
-        entry: stubgen-pyx cuda_core/cuda --continue-on-error --include-private
+        entry: python -X utf8 -m stubgen_pyx cuda_core/cuda --continue-on-error --include-private
         language: python
         files: ^cuda_core/cuda/.*\.(pyx|pxd)$
         pass_filenames: false
         additional_dependencies:
-          - stubgen-pyx==0.2.6
-          - Cython==3.2.4
+          - stubgen-pyx==0.2.22
+          - Cython==3.2.9
 
   # Link checking for authored documentation files
   - repo: https://github.com/lycheeverse/lychee
@@ -75,11 +116,13 @@ repos:
     hooks:
       - id: lychee
         args:
+          - LYCHEE_VERSION=0.24.2  # Must match the pinned rev above
           - --cache
           - --max-concurrency=4
           - --max-retries=3
           - --no-progress
         files: '\.(md|rst)$'
+        exclude: ^qa/
 
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -95,7 +138,7 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
-      exclude: &gen_exclude '^(?:cuda_python/README\.md|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?|.*\.pyi)$'
+      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?|.*\.pyi)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
       exclude: |
@@ -115,7 +158,7 @@ repos:
     - id: rst-inline-touching-normal
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 8e5c80792e2ec0c87804d8ef915bf35e2caea6da  # frozen: v1.20.0
+    rev: 7ff8d35ae36a7d2b968f2f90b4c723e292e594ee  # frozen: v2.3.1
     hooks:
       - id: mypy
         alias: mypy-pathfinder
@@ -140,11 +183,13 @@ repos:
         exclude: ^\.github/workflows/coverage.yml$
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: "7c6152f6c8f9087684ff2e09a9227941e233bafb"  # frozen: v0.19.0
+    rev: "eb2f695bb80387913b8cb1f91ba7ff6cb3026715"  # frozen: v0.21.1
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]
         exclude: ^cuda_bindings/
+        additional_dependencies:
+          - Cython==3.2.9
 
 
 default_language_version:

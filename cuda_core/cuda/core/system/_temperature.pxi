@@ -173,7 +173,9 @@ cdef class Temperature:
             nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_MEM_MAX,
             nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_GPU_MAX
         ):
-            device_arch = nvml.DeviceArch(nvml.device_get_architecture(self._handle))
+            # Compare the raw value so newer NVML architecture constants remain
+            # forward-compatible.
+            device_arch = nvml.device_get_architecture(self._handle)
             if device_arch >= nvml.DeviceArch.ADA:
                 warnings.warn(
                     f"{threshold_type} is no longer recommended for Ada and later architectures. "

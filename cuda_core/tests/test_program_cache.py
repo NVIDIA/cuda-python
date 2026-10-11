@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import abc
+import os
 import time
 
 import pytest
@@ -316,6 +317,20 @@ def test_make_program_cache_key_rejects_extra_sources_outside_nvvm(code_type, co
             target_type=target_type,
             options=_opts(extra_sources=[("foo.cu", "int x = 0;")]),
         )
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("value", [True, False])
+def test_make_program_cache_key_ignores_numba_debug_for_ptx(value):
+    """``numba_debug`` cannot change PTX-path output -- no linker backend reads
+    it -- so it must not perturb the cache key (#2640).
+
+    If it did, two compiles producing byte-identical cubins would miss each
+    other in the cache.
+    """
+    baseline = _make_key(code=".version 7.0", code_type="ptx", target_type="cubin", options=_opts())
+    with_flag = _make_key(code=".version 7.0", code_type="ptx", target_type="cubin", options=_opts(numba_debug=value))
+    assert with_flag == baseline
 
 
 @pytest.mark.parametrize(
@@ -1511,41 +1526,18 @@ def test_filestream_cache_rejects_non_positive_size_cap(tmp_path, bad):
         FileStreamProgramCache(tmp_path / "fc", max_size_bytes=bad)
 
 
-def test_default_cache_dir_lives_under_user_cache_root(monkeypatch, tmp_path):
-    """The cache root is platform-specific:
-
-    * Linux: ``$XDG_CACHE_HOME`` or ``~/.cache``.
-    * Windows: ``%LOCALAPPDATA%`` or ``~/AppData/Local``.
-
-    Both branches must end in ``cuda-python/program-cache``; that suffix
-    is what guarantees a stable on-disk layout across releases.
-    """
-    from pathlib import Path
-
+@pytest.mark.agent_authored(model="claude-sonnet-5")
+def test_file_stream_default_cache_dir_appends_program_cache_leaf(monkeypatch, tmp_path):
+    """The file-stream cache's default dir is the shared user-cache root plus a
+    ``program-cache`` leaf, so it can live alongside sibling caches (e.g. NVRTC's
+    bundled-headers cache) under the same ``cuda-python`` vendor directory."""
     from cuda.core.utils import _program_cache
+
+    monkeypatch.setattr(_program_cache._file_stream, "_user_cache_dir", lambda: tmp_path / "root")
+
     from cuda.core.utils._program_cache._file_stream import _default_cache_dir
 
-    # Path must end with cuda-python/program-cache regardless of platform.
-    assert _default_cache_dir().parts[-2:] == ("cuda-python", "program-cache")
-
-    # Linux branch: XDG_CACHE_HOME wins when set.
-    monkeypatch.setattr(_program_cache._file_stream, "_IS_WINDOWS", False)
-    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path / "xdg"))
-    assert _default_cache_dir() == tmp_path / "xdg" / "cuda-python" / "program-cache"
-
-    # Linux branch: falls back to ``~/.cache`` when XDG_CACHE_HOME is unset.
-    monkeypatch.delenv("XDG_CACHE_HOME", raising=False)
-    monkeypatch.setattr(Path, "home", classmethod(lambda _cls: tmp_path / "home"))
-    assert _default_cache_dir() == tmp_path / "home" / ".cache" / "cuda-python" / "program-cache"
-
-    # Windows branch: LOCALAPPDATA wins when set.
-    monkeypatch.setattr(_program_cache._file_stream, "_IS_WINDOWS", True)
-    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "appdata"))
-    assert _default_cache_dir() == tmp_path / "appdata" / "cuda-python" / "program-cache"
-
-    # Windows branch: falls back to ``~/AppData/Local`` when LOCALAPPDATA is unset.
-    monkeypatch.delenv("LOCALAPPDATA", raising=False)
-    assert _default_cache_dir() == tmp_path / "home" / "AppData" / "Local" / "cuda-python" / "program-cache"
+    assert _default_cache_dir() == tmp_path / "root" / "program-cache"
 
 
 def test_filestream_cache_uses_default_dir_when_path_omitted(tmp_path, monkeypatch):
@@ -2535,3 +2527,40 @@ def test_inmemory_cache_concurrent_threads_stay_consistent():
     # Internal accounting must agree with the cap and with __len__.
     assert cache._total_bytes <= 4096
     assert len(cache) == len(cache._entries)  # no orphan entries
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits only")
+def test_program_cache_tmp_dir_created_owner_only(tmp_path):
+    """``tmp`` stages in-flight compiled device code before the atomic rename into
+    ``entries``, so it must be created owner-only (0o700) regardless of the inherited
+    umask. ``root``/``entries`` intentionally inherit the umask to keep deliberately
+    shared caches working (PR #2399 review), so only ``tmp`` is asserted."""
+    import stat
+
+    from cuda.core.utils._program_cache._file_stream import FileStreamProgramCache
+
+    root = tmp_path / "pc"
+    FileStreamProgramCache(path=root)
+
+    mode = stat.S_IMODE(os.stat(root / "tmp").st_mode)
+    assert mode == 0o700, f"tmp has mode {oct(mode)}"
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits only")
+def test_program_cache_preexisting_shared_root_used_as_is(tmp_path):
+    """PR #2399 review: a deliberately shared cache root (e.g. group-writable on a
+    compute cluster) must be used as-is, not re-tightened. Only ``tmp`` is forced
+    owner-only; ``root`` keeps whatever permissions it was created with."""
+    import stat
+
+    from cuda.core.utils._program_cache._file_stream import FileStreamProgramCache
+
+    root = tmp_path / "pc"
+    root.mkdir()
+    # Simulate an intentionally shared cache directory.
+    os.chmod(root, 0o777)  # noqa: S103
+
+    FileStreamProgramCache(path=root)
+
+    assert stat.S_IMODE(os.stat(root).st_mode) == 0o777
+    assert stat.S_IMODE(os.stat(root / "tmp").st_mode) == 0o700

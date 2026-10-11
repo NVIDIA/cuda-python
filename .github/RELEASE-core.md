@@ -62,7 +62,35 @@ platforms as appropriate for each release.
 ## Check (or update if needed) the dependency requirements
 
 Review `cuda_core/pyproject.toml` and verify that all dependency
-requirements are current.
+requirements are current. The `cu12`/`cu13` extras declare the
+`cuda-bindings` floors; see "Bumping the cuda-bindings floor" in
+`cuda_core/AGENTS.md`.
+
+Update the `cuda-core` pin in `cuda_python/setup.py` to the new minor
+series (`cuda-core~=X.Y.0`), and plan a `cuda-python` release right after
+this one. Until that release, `pip install cuda-python` resolves to the
+previous `cuda-core`.
+
+---
+
+## Sweep deprecations whose removal version has arrived
+
+Deprecated APIs are marked in the source with a Sphinx `deprecated`
+directive naming the version that introduced the deprecation, and their
+docstrings state the version in which they will be removed. Find them all
+with:
+
+```console
+$ grep -rn 'deprecated::' cuda_core/cuda
+```
+
+For each hit, check the stated removal version against the version being
+released. If the release has reached or passed it, remove the API, its
+runtime `DeprecationWarning`, and any tests asserting that warning.
+
+This must happen *before* the release tag is cut. Removals are breaking
+changes, so they are only permitted at a major-version boundary per the
+[support policy](https://nvidia.github.io/cuda-python/cuda-core/latest/support.html).
 
 ---
 

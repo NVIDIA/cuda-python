@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any, Callable, Iterable
 
 from cuda.core._module import ObjectCode
+from cuda.core.utils._cache_dir import _default_cache_dir as _user_cache_dir
 
 from ._abc import ProgramCacheResource, _as_key_bytes, _extract_bytes
 
@@ -57,28 +58,10 @@ def _stat_key(st: os.stat_result) -> tuple[int, int, int]:
 
 
 def _default_cache_dir() -> Path:
-    """OS-conventional default location for the file-stream cache.
-
-    Resolves to the user-cache root for the calling user, with a
-    ``program-cache`` leaf so future tooling can place sibling caches
-    under the same ``cuda-python`` vendor directory:
-
-    * Linux: ``$XDG_CACHE_HOME/cuda-python/program-cache``
-      (default ``~/.cache/cuda-python/program-cache`` per the XDG Base
-      Directory spec).
-    * Windows: ``%LOCALAPPDATA%\\cuda-python\\program-cache``
-      (Windows uses local AppData -- caches don't roam; falls back to
-      ``~/AppData/Local`` if the env var is unset).
-
-    CUDA does not support macOS, so no macOS branch is provided.
+    """Default location for the file-stream cache: the ``program-cache`` leaf under the shared
+    ``cuda-python`` user-cache root (see :func:`cuda.core.utils._cache_dir._default_cache_dir`).
     """
-    if _IS_WINDOWS:
-        local_app_data = os.environ.get("LOCALAPPDATA")
-        root = Path(local_app_data) if local_app_data else Path.home() / "AppData" / "Local"
-    else:
-        xdg = os.environ.get("XDG_CACHE_HOME")
-        root = Path(xdg) if xdg else Path.home() / ".cache"
-    return root / "cuda-python" / "program-cache"
+    return _user_cache_dir() / "program-cache"
 
 
 def _with_sharing_retry(
@@ -397,9 +380,19 @@ class FileStreamProgramCache(ProgramCacheResource):
         self._entries = self._root / _ENTRIES_SUBDIR
         self._tmp = self._root / _TMP_SUBDIR
         self._max_size_bytes = max_size_bytes
+        # Permissions (see PR #2399):
+        # root/ and entries/ use default permissions so a shared cache (e.g. one
+        # a group shares on a cluster) keeps working. The cached files themselves
+        # are still private: each is written to tmp/ as owner-only and moved into
+        # entries/, which keeps its permissions. tmp/ is made owner-only so no one
+        # can read or swap a file while it's being written. We don't chmod, so an
+        # existing directory is left as-is.
+        # Trade-off: if a group deliberately shares a writable entries/, a member
+        # could replace a cached file. Blocking that needs a check at load time,
+        # not just permissions, and is out of scope here.
         self._root.mkdir(parents=True, exist_ok=True)
         self._entries.mkdir(exist_ok=True)
-        self._tmp.mkdir(exist_ok=True)
+        self._tmp.mkdir(exist_ok=True, mode=0o700)
         # Opportunistic startup sweep of orphaned temp files left by any
         # crashed writers. Age-based so concurrent in-flight writes from
         # other processes are preserved.

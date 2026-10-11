@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated with version 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4a70be46627269cff03a2b89504463158d6e50d738cfde91e8c3ed1bf88fd9e0
+# This code was automatically generated with version 13.4.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=175f5b5d51fbe64e7d8f5eca92e8b557cab5dea406091f66e10a4d19400dcefa
 from typing import Any, Optional
 import cython
 import ctypes
@@ -211,6 +211,20 @@ CU_MEM_CREATE_USAGE_TILE_POOL = cydriver.CU_MEM_CREATE_USAGE_TILE_POOL
 #: This flag, if set, indicates that the memory will be used as a buffer
 #: for hardware accelerated decompression.
 CU_MEM_CREATE_USAGE_HW_DECOMPRESS = cydriver.CU_MEM_CREATE_USAGE_HW_DECOMPRESS
+
+#: Setting this flag forces GPUDirect RDMA on a locality-domain-localized
+#: allocation to use the PCIe (BAR1) path, allowing the allocation to
+#: remain locality-domain localized on platforms where the platform-
+#: coherent RDMA path does not support localized allocations. Because on
+#: some platforms the PCIe bandwidth is limited, using this flag may result
+#: in lower RDMA bandwidth than the default RDMA mapping link. Note that
+#: this flag does not itself force PCIe to be used, and that this must be
+#: done when creating the RDMA export.
+#: :py:obj:`~.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WITH_LOCALIZED_MEMORY_SUPPORTED`
+#: indicates whether this flag is needed to create GPUDirect RDMA capable
+#: localized memory allocations. This flag is only valid if
+#: gpuDirectRDMACapable is set.
+CU_MEM_CREATE_USAGE_GPU_DIRECT_RDMA_OVER_PCIE = cydriver.CU_MEM_CREATE_USAGE_GPU_DIRECT_RDMA_OVER_PCIE
 
 #: This flag, if set, indicates that the memory will be used as a buffer
 #: for hardware accelerated decompression.
@@ -2330,6 +2344,18 @@ class CUdevice_attribute(_FastEnum):
     )
 
 
+    CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_COUNT = (
+        cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_COUNT,
+        'Number of locality domains\n'
+    )
+
+
+    CU_DEVICE_ATTRIBUTE_MAX_OVERSIZED_SHARED_MEMORY_PER_BLOCK = (
+        cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_MAX_OVERSIZED_SHARED_MEMORY_PER_BLOCK,
+        'Maximum oversized shared memory per block\n'
+    )
+
+
     CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED = (
         cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED,
         'Device supports CIG streams with D3D12\n'
@@ -2364,6 +2390,25 @@ class CUdevice_attribute(_FastEnum):
     CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_ACCESS_ON_OWNER_DEVICE_SUPPORTED = (
         cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_ACCESS_ON_OWNER_DEVICE_SUPPORTED,
         'Device supports unicast logical endpoint access on the owner device\n'
+    )
+
+
+    CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_MULTIPROCESSOR_COUNT = (
+        cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_MULTIPROCESSOR_COUNT,
+        'Number of multiprocessors on each locality domain\n'
+    )
+
+
+    CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_SUPPORTED_HANDLE_TYPES = (
+        cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_SUPPORTED_HANDLE_TYPES,
+        'Handle types supported with logical endpoint IPC\n'
+    )
+
+
+    CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WITH_LOCALIZED_MEMORY_SUPPORTED = (
+        cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WITH_LOCALIZED_MEMORY_SUPPORTED,
+        'Device supports GPUDirect RDMA with localized memory using the default RDMA\n'
+        'mapping link\n'
     )
 
     CU_DEVICE_ATTRIBUTE_MAX = cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_MAX
@@ -2507,6 +2552,14 @@ class CUpointer_attribute(_FastEnum):
         'memory that is capable to be used for hardware accelerated decompression.\n'
     )
 
+
+    CU_POINTER_ATTRIBUTE_LOCALITY_DOMAIN_ORDINAL = (
+        cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_LOCALITY_DOMAIN_ORDINAL,
+        'Returns in `*data` an integer representing the locality domain ordinal of\n'
+        'the memory allocation, or -1 if the allocation is not localized to a\n'
+        'locality domain.\n'
+    )
+
 class CUfunction_attribute(_FastEnum):
     """
     Function properties
@@ -2578,15 +2631,23 @@ class CUfunction_attribute(_FastEnum):
         cydriver.CUfunction_attribute_enum.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES,
         'The maximum size in bytes of dynamically-allocated shared memory that can\n'
         'be used by this function. If the user-specified dynamic shared memory size\n'
-        'is larger than this value, the launch will fail. The default value of this\n'
-        'attribute is :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK` -\n'
+        'is larger than this value, the launch will fail.\n'
+        'The default value of this attribute is\n'
+        ':py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK` -\n'
         ':py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES`, except when\n'
         ':py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES` is greater than\n'
         ':py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK`, then the\n'
         'default value of this attribute is 0. The value can be increased to\n'
         ':py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN` -\n'
-        ':py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES`. See\n'
-        ':py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`\n'
+        ':py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES`.\n'
+        'This attribute is ignored if\n'
+        ':py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_MEMORY_MODE` or\n'
+        ':py:obj:`~.CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE` is set.\n'
+        'This attribute cannot be used to access oversized shared memory. Oversized\n'
+        'shared memory can only be accessed by setting\n'
+        ':py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_MEMORY_MODE` or\n'
+        ':py:obj:`~.CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE`.\n'
+        'See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`\n'
     )
 
 
@@ -2597,16 +2658,16 @@ class CUfunction_attribute(_FastEnum):
         'the total shared memory. Refer to\n'
         ':py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_MULTIPROCESSOR`. This\n'
         'is only a hint, and the driver can choose a different ratio if required to\n'
-        'execute the function. See :py:obj:`~.cuFuncSetAttribute`,\n'
-        ':py:obj:`~.cuKernelSetAttribute`\n'
+        'execute the function.\n'
+        'See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`\n'
     )
 
 
     CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET = (
         cydriver.CUfunction_attribute_enum.CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET,
         'If this attribute is set, the kernel must launch with a valid cluster size\n'
-        'specified. See :py:obj:`~.cuFuncSetAttribute`,\n'
-        ':py:obj:`~.cuKernelSetAttribute`\n'
+        'specified.\n'
+        'See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`\n'
     )
 
 
@@ -2616,8 +2677,8 @@ class CUfunction_attribute(_FastEnum):
         'all be positive. The validity of the cluster dimensions is otherwise\n'
         'checked at launch time.\n'
         'If the value is set during compile time, it cannot be set at runtime.\n'
-        'Setting it at runtime will return CUDA_ERROR_NOT_PERMITTED. See\n'
-        ':py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`\n'
+        'Setting it at runtime will return CUDA_ERROR_NOT_PERMITTED.\n'
+        'See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`\n'
     )
 
 
@@ -2627,8 +2688,8 @@ class CUfunction_attribute(_FastEnum):
         'all be positive. The validity of the cluster dimensions is otherwise\n'
         'checked at launch time.\n'
         'If the value is set during compile time, it cannot be set at runtime.\n'
-        'Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See\n'
-        ':py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`\n'
+        'Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED.\n'
+        'See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`\n'
     )
 
 
@@ -2638,8 +2699,8 @@ class CUfunction_attribute(_FastEnum):
         'all be positive. The validity of the cluster dimensions is otherwise\n'
         'checked at launch time.\n'
         'If the value is set during compile time, it cannot be set at runtime.\n'
-        'Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See\n'
-        ':py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`\n'
+        'Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED.\n'
+        'See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`\n'
     )
 
 
@@ -2657,23 +2718,32 @@ class CUfunction_attribute(_FastEnum):
         'cluster size for sm_90 is 8 blocks per cluster. This value may increase for\n'
         'future compute capabilities.\n'
         'The specific hardware unit may support higher cluster sizes that’s not\n'
-        'guaranteed to be portable. See :py:obj:`~.cuFuncSetAttribute`,\n'
-        ':py:obj:`~.cuKernelSetAttribute`\n'
+        'guaranteed to be portable.\n'
+        'See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`\n'
     )
 
 
     CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE = (
         cydriver.CUfunction_attribute_enum.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE,
         'The block scheduling policy of a function. The value type is\n'
-        ':py:obj:`~.CUclusterSchedulingPolicy` / cudaClusterSchedulingPolicy. See\n'
-        ':py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`\n'
+        ':py:obj:`~.CUclusterSchedulingPolicy` / cudaClusterSchedulingPolicy.\n'
+        'See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`\n'
     )
 
 
     CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED = (
         cydriver.CUfunction_attribute_enum.CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED,
         'Whether the function can be updated on device. 1 means device node update\n'
-        'is supported, 0 is unsupported. See :py:obj:`~.cuFuncGetAttribute`.\n'
+        'is supported, 0 is unsupported.\n'
+        'See :py:obj:`~.cuFuncGetAttribute`.\n'
+    )
+
+
+    CU_FUNC_ATTRIBUTE_SHARED_MEMORY_MODE = (
+        cydriver.CUfunction_attribute_enum.CU_FUNC_ATTRIBUTE_SHARED_MEMORY_MODE,
+        'The shared memory mode of a function. The value type is\n'
+        ':py:obj:`~.CUsharedMemoryMode` / cudaSharedMemoryMode.\n'
+        'See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`\n'
     )
 
     CU_FUNC_ATTRIBUTE_MAX = cydriver.CUfunction_attribute_enum.CU_FUNC_ATTRIBUTE_MAX
@@ -3368,6 +3438,12 @@ class CUjit_target(_FastEnum):
     )
 
 
+    CU_TARGET_COMPUTE_107 = (
+        cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_107,
+        'Compute device class 10.7.\n'
+    )
+
+
     CU_TARGET_COMPUTE_110 = (
         cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_110,
         'Compute device class 11.0.\n'
@@ -3398,9 +3474,11 @@ class CUjit_target(_FastEnum):
         'Compute device class 11.0 with accelerated features.\n'
     )
 
+    CU_TARGET_COMPUTE_103A = cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_103A
 
-    CU_TARGET_COMPUTE_103A = (
-        cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_103A,
+
+    CU_TARGET_COMPUTE_107A = (
+        cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_107A,
         'Compute device class 12.0. with accelerated features.\n'
     )
 
@@ -3428,9 +3506,11 @@ class CUjit_target(_FastEnum):
         'Compute device class 11.0 with family features.\n'
     )
 
+    CU_TARGET_COMPUTE_103F = cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_103F
 
-    CU_TARGET_COMPUTE_103F = (
-        cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_103F,
+
+    CU_TARGET_COMPUTE_107F = (
+        cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_107F,
         'Compute device class 12.0. with family features.\n'
     )
 
@@ -3677,6 +3757,12 @@ class CUlimit(_FastEnum):
         'than available\n'
     )
 
+
+    CU_LIMIT_PER_BLOCK_MEMORY_SIZE = (
+        cydriver.CUlimit_enum.CU_LIMIT_PER_BLOCK_MEMORY_SIZE,
+        'Per-block memory size\n'
+    )
+
     CU_LIMIT_MAX = cydriver.CUlimit_enum.CU_LIMIT_MAX
 
 class CUresourcetype(_FastEnum):
@@ -3893,8 +3979,8 @@ class CUgraphDependencyType(_FastEnum):
     CU_GRAPH_DEPENDENCY_TYPE_PROGRAMMATIC = (
         cydriver.CUgraphDependencyType_enum.CU_GRAPH_DEPENDENCY_TYPE_PROGRAMMATIC,
         'This dependency type allows the downstream node to use\n'
-        '`cudaGridDependencySynchronize()`. It may only be used between kernel\n'
-        'nodes, and must be used with either the\n'
+        'cudaGridDependencySynchronize(). It may only be used between kernel nodes,\n'
+        'and must be used with either the\n'
         ':py:obj:`~.CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC` or\n'
         ':py:obj:`~.CU_GRAPH_KERNEL_NODE_PORT_LAUNCH_ORDER` outgoing port.\n'
     )
@@ -3979,6 +4065,8 @@ class CUclusterSchedulingPolicy(_FastEnum):
         cydriver.CUclusterSchedulingPolicy_enum.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING,
         'allow the hardware to load-balance the blocks in a cluster to the SMs\n'
     )
+
+    CU_CLUSTER_SCHEDULING_POLICY_RUBIN_DSMEM_LOCALITY = cydriver.CUclusterSchedulingPolicy_enum.CU_CLUSTER_SCHEDULING_POLICY_RUBIN_DSMEM_LOCALITY
 
 class CUlaunchMemSyncDomain(_FastEnum):
     """
@@ -4067,6 +4155,21 @@ class CUsharedMemoryMode(_FastEnum):
         'Specifies that the dynamic shared size bytes requested may be a non-\n'
         'portable size but still within the bounds of\n'
         ':py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN`\n'
+    )
+
+
+    CU_SHARED_MEMORY_MODE_ALLOW_OVERSIZED_SHARED_MEMORY = (
+        cydriver.CUsharedMemoryMode_enum.CU_SHARED_MEMORY_MODE_ALLOW_OVERSIZED_SHARED_MEMORY,
+        'Specifies that oversized shared memory configurations may be used (with the\n'
+        'limitation of only 8kB L1 cache)\n'
+    )
+
+
+    CU_SHARED_MEMORY_MODE_PREFER_OVERSIZED_SHARED_MEMORY = (
+        cydriver.CUsharedMemoryMode_enum.CU_SHARED_MEMORY_MODE_PREFER_OVERSIZED_SHARED_MEMORY,
+        'Specifies that oversized shared memory configurations may be used (with the\n'
+        'limitation of only 8kB L1 cache), and prefer an oversized shared memory\n'
+        'configuration\n'
     )
 
 class CUlaunchAttributeID(_FastEnum):
@@ -4310,8 +4413,8 @@ class CUlaunchAttributeID(_FastEnum):
 
     CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE = (
         cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE,
-        'Valid for graph nodes, launches. This indicates if the kernel is allowed to\n'
-        'use a non-portable dynamic shared memory mode.\n'
+        "Valid for graph nodes, launches. This controls a kernel's use of non-\n"
+        'portable or oversized shared memory configurations.\n'
     )
 
 class CUstreamCaptureStatus(_FastEnum):
@@ -4557,6 +4660,13 @@ class CUresult(_FastEnum):
     )
 
 
+    CUDA_ERROR_MULTICAST_RESOURCE_FULL = (
+        cydriver.cudaError_enum.CUDA_ERROR_MULTICAST_RESOURCE_FULL,
+        'The API call failed because of a hardware resource required to bind memory\n'
+        'to a multicast object is unavailable.\n'
+    )
+
+
     CUDA_ERROR_NO_DEVICE = (
         cydriver.cudaError_enum.CUDA_ERROR_NO_DEVICE,
         'This indicates that no CUDA-capable devices were detected by the installed\n'
@@ -4754,6 +4864,12 @@ class CUresult(_FastEnum):
         'classes of hardware errors This leaves the process in an inconsistent state\n'
         'and any further CUDA work will return the same error. To continue using\n'
         'CUDA, the process must be terminated and relaunched.\n'
+    )
+
+
+    CUDA_ERROR_INSUFFICIENT_LOADER_VERSION = (
+        cydriver.cudaError_enum.CUDA_ERROR_INSUFFICIENT_LOADER_VERSION,
+        'This indicates that the Loader version is insufficient for fatbin\n'
     )
 
 
@@ -5256,6 +5372,16 @@ class CUresult(_FastEnum):
         cydriver.cudaError_enum.CUDA_ERROR_GRAPH_RECAPTURE_FAILURE,
         'This error indicates that a graph recapture failed and had to be\n'
         'terminated.\n'
+    )
+
+
+    CUDA_ERROR_FABRIC_NOT_READY = (
+        cydriver.cudaError_enum.CUDA_ERROR_FABRIC_NOT_READY,
+        'The GPU fabric is not ready within the bounded wait while the fabric\n'
+        'manager probe is still in progress (or not converging in time).\n'
+        'Applications may retry after a delay; for the initialization wait budget,\n'
+        'see environment variables such as CUDA_FABRIC_INIT_TIMEOUT_MS. The CUDA\n'
+        'Runtime uses the same value as :py:obj:`~.cudaErrorFabricNotReady`.\n'
     )
 
 
@@ -5877,6 +6003,13 @@ class CUmemLocationType(_FastEnum):
         'CU_DEVICE_INVALID\n'
     )
 
+
+    CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN = (
+        cydriver.CUmemLocationType_enum.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN,
+        'Location is a portion of device memory, specified by the locality domain\n'
+        'ID.\n'
+    )
+
     CU_MEM_LOCATION_TYPE_MAX = cydriver.CUmemLocationType_enum.CU_MEM_LOCATION_TYPE_MAX
 
 class CUmemAllocationType(_FastEnum):
@@ -6179,6 +6312,19 @@ class CUmemPool_attribute(_FastEnum):
         cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_HW_DECOMPRESS_ENABLED,
         '(value type = int) Indicates whether the pool has hardware compresssion\n'
         'enabled\n'
+    )
+
+
+    CU_MEMPOOL_ATTR_LOCALITY_DOMAIN_ID = (
+        cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_LOCALITY_DOMAIN_ID,
+        '(value type = int) The locality domain ID for the mempool, if the mempool\n'
+        'is localized to a locality domain. A value of -1 indicates that the mempool\n'
+        'is not localized.\n'
+        'Note: On devices with a single locality domain, mempools created with\n'
+        ':py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN` and\n'
+        'localityDomainId 0 are equivalent to full-device mempools created with\n'
+        ':py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`. The value of this attribute will\n'
+        'be -1 for such mempools.\n'
     )
 
 class CUmemcpyFlags(_FastEnum):
@@ -6609,6 +6755,18 @@ class CUprocessState(_FastEnum):
         'process\n'
     )
 
+
+    CU_PROCESS_STATE_CHECKPOINTING = (
+        cydriver.CUprocessState_enum.CU_PROCESS_STATE_CHECKPOINTING,
+        'Application memory contents are being checkpointed\n'
+    )
+
+
+    CU_PROCESS_STATE_RESTORING = (
+        cydriver.CUprocessState_enum.CU_PROCESS_STATE_RESTORING,
+        'Application memory contents are being restored\n'
+    )
+
 class CUmoduleLoadingMode(_FastEnum):
     """
     CUDA Lazy Loading status
@@ -6653,6 +6811,35 @@ class CUmemDecompressAlgorithm(_FastEnum):
     CU_MEM_DECOMPRESS_ALGORITHM_LZ4 = (
         cydriver.CUmemDecompressAlgorithm_enum.CU_MEM_DECOMPRESS_ALGORITHM_LZ4,
         'LZ4 is supported.\n'
+    )
+
+class CUcliqueType(_FastEnum):
+    """
+    Fabric clique types
+    """
+
+
+    CU_CLIQUE_TYPE_UNICAST_POINTER = (
+        cydriver.CUcliqueType_enum.CU_CLIQUE_TYPE_UNICAST_POINTER,
+        'Unicast pointer clique\n'
+    )
+
+
+    CU_CLIQUE_TYPE_MULTICAST_POINTER = (
+        cydriver.CUcliqueType_enum.CU_CLIQUE_TYPE_MULTICAST_POINTER,
+        'Multicast pointer clique\n'
+    )
+
+
+    CU_CLIQUE_TYPE_UNICAST_LOGICAL_ENDPOINT = (
+        cydriver.CUcliqueType_enum.CU_CLIQUE_TYPE_UNICAST_LOGICAL_ENDPOINT,
+        'Unicast logical endpoint clique\n'
+    )
+
+
+    CU_CLIQUE_TYPE_MULTICAST_LOGICAL_ENDPOINT = (
+        cydriver.CUcliqueType_enum.CU_CLIQUE_TYPE_MULTICAST_LOGICAL_ENDPOINT,
+        'Multicast logical endpoint clique\n'
     )
 
 class CUlogicalEndpointIpcHandleType(_FastEnum):
@@ -6800,6 +6987,13 @@ class CUdevSmResourceGroup_flags(_FastEnum):
     CU_DEV_SM_RESOURCE_GROUP_DEFAULT = cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_DEFAULT
 
     CU_DEV_SM_RESOURCE_GROUP_BACKFILL = cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_BACKFILL
+
+
+    CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID = (
+        cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID,
+        'The SMs must be located on a specific locality domain, specified by\n'
+        'localityDomainId\n'
+    )
 
 class CUdevSmResourceSplitByCount_flags(_FastEnum):
     """
@@ -8130,8 +8324,8 @@ class CUkernelNodeAttrID(_FastEnum):
 
     CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE = (
         cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE,
-        'Valid for graph nodes, launches. This indicates if the kernel is allowed to\n'
-        'use a non-portable dynamic shared memory mode.\n'
+        "Valid for graph nodes, launches. This controls a kernel's use of non-\n"
+        'portable or oversized shared memory configurations.\n'
     )
 
 class CUstreamAttrID(_FastEnum):
@@ -8375,8 +8569,8 @@ class CUstreamAttrID(_FastEnum):
 
     CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE = (
         cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE,
-        'Valid for graph nodes, launches. This indicates if the kernel is allowed to\n'
-        'use a non-portable dynamic shared memory mode.\n'
+        "Valid for graph nodes, launches. This controls a kernel's use of non-\n"
+        'portable or oversized shared memory configurations.\n'
     )
 
 cdef class CUmemGenericAllocationHandle:
@@ -9211,6 +9405,40 @@ cdef class CUlinkState:
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
 
+cdef class CUcheckpointOperationHandle:
+    """
+
+    Handle for a CUDA custom storage checkpoint or restore operation awaiting completion
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+            self._pvt_ptr[0] = <cydriver.CUcheckpointOperationHandle>init_value
+        else:
+            self._pvt_ptr = <cydriver.CUcheckpointOperationHandle *>_ptr
+    def __init__(self, *args, **kwargs):
+        pass
+    def __repr__(self):
+        return '<CUcheckpointOperationHandle ' + str(hex(self.__int__())) + '>'
+    def __index__(self):
+        return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUcheckpointOperationHandle):
+            return False
+        return self._pvt_ptr[0] == (<CUcheckpointOperationHandle>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
+    def __int__(self):
+        return <void_ptr>self._pvt_ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+
 cdef class CUcoredumpCallbackHandle:
     """ Opaque handle representing a registered coredump status callback.
 
@@ -9724,13 +9952,6 @@ cdef class CUipcEventHandle_st:
     """
     CUDA IPC event handle
 
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
@@ -9751,44 +9972,13 @@ cdef class CUipcEventHandle_st:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
 
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(self._pvt_ptr[0].reserved, 64)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 64:
-            raise ValueError("reserved length must be 64, is " + str(len(reserved)))
-        if CHAR_MIN == 0:
-            for i, b in enumerate(reserved):
-                if b < 0 and b > -129:
-                    b = b + 256
-                self._pvt_ptr[0].reserved[i] = b
-        else:
-            for i, b in enumerate(reserved):
-                if b > 127 and b < 256:
-                    b = b - 256
-                self._pvt_ptr[0].reserved[i] = b
-
-
 cdef class CUipcMemHandle_st:
     """
     CUDA IPC mem handle
-
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
 
     Methods
     -------
@@ -9810,33 +10000,9 @@ cdef class CUipcMemHandle_st:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
-
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(self._pvt_ptr[0].reserved, 64)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 64:
-            raise ValueError("reserved length must be 64, is " + str(len(reserved)))
-        if CHAR_MIN == 0:
-            for i, b in enumerate(reserved):
-                if b < 0 and b > -129:
-                    b = b + 256
-                self._pvt_ptr[0].reserved[i] = b
-        else:
-            for i, b in enumerate(reserved):
-                if b > 127 and b < 256:
-                    b = b - 256
-                self._pvt_ptr[0].reserved[i] = b
-
 
 cdef class CUstreamMemOpWaitValueParams_st:
     """
@@ -9876,19 +10042,10 @@ cdef class CUstreamMemOpWaitValueParams_st:
         self._pvt_ptr = <cydriver.CUstreamBatchMemOpParams_union *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._address = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].waitValue.address)
-
-
         self._value = cuuint32_t(_ptr=<void_ptr>&self._pvt_ptr[0].waitValue.value)
-
-
         self._value64 = cuuint64_t(_ptr=<void_ptr>&self._pvt_ptr[0].waitValue.value64)
-
-
         self._alias = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].waitValue.alias)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -10062,19 +10219,10 @@ cdef class CUstreamMemOpWriteValueParams_st:
         self._pvt_ptr = <cydriver.CUstreamBatchMemOpParams_union *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._address = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].writeValue.address)
-
-
         self._value = cuuint32_t(_ptr=<void_ptr>&self._pvt_ptr[0].writeValue.value)
-
-
         self._value64 = cuuint64_t(_ptr=<void_ptr>&self._pvt_ptr[0].writeValue.value64)
-
-
         self._alias = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].writeValue.alias)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -10376,16 +10524,9 @@ cdef class CUstreamMemOpAtomicReductionParams_st:
         self._pvt_ptr = <cydriver.CUstreamBatchMemOpParams_union *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._address = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].atomicReduction.address)
-
-
         self._value = cuuint64_t(_ptr=<void_ptr>&self._pvt_ptr[0].atomicReduction.value)
-
-
         self._alias = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].atomicReduction.alias)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -10574,24 +10715,22 @@ cdef class CUstreamBatchMemOpParams_union:
         else:
             self._pvt_ptr = <cydriver.CUstreamBatchMemOpParams_union *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._waitValue = CUstreamMemOpWaitValueParams_st(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._waitValue._owner = self
         self._writeValue = CUstreamMemOpWriteValueParams_st(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._writeValue._owner = self
         self._flushRemoteWrites = CUstreamMemOpFlushRemoteWritesParams_st(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._flushRemoteWrites._owner = self
         self._memoryBarrier = CUstreamMemOpMemoryBarrierParams_st(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._memoryBarrier._owner = self
         self._atomicReduction = CUstreamMemOpAtomicReductionParams_st(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._atomicReduction._owner = self
     def __dealloc__(self):
-        pass
+        self._waitValue = None
+        self._writeValue = None
+        self._flushRemoteWrites = None
+        self._memoryBarrier = None
+        self._atomicReduction = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -10735,17 +10874,11 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._ctx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-
     def __dealloc__(self):
-        pass
-
         if self._paramArray is not NULL:
             free(self._paramArray)
             self._pvt_ptr[0].paramArray = NULL
-
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -10806,10 +10939,15 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
 
     @property
     def paramArray(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].paramArray + x*sizeof(cydriver.CUstreamBatchMemOpParams) for x in range(self._paramArray_length)]
-        return [CUstreamBatchMemOpParams(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].paramArray == NULL:
+            return []
+        out_paramArray = [CUstreamBatchMemOpParams() for _idx in range(self._paramArray_length)]
+        for _idx in range(len(out_paramArray)):
+            string.memcpy(<cydriver.CUstreamBatchMemOpParams*><void_ptr>out_paramArray[_idx].getPtr(), &self._pvt_ptr[0].paramArray[_idx], sizeof(cydriver.CUstreamBatchMemOpParams))
+        return out_paramArray
     @paramArray.setter
     def paramArray(self, val):
+        cdef cydriver.CUstreamBatchMemOpParams* _paramArray_new
         if len(val) == 0:
             free(self._paramArray)
             self._paramArray = NULL
@@ -10817,15 +10955,18 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
             self._pvt_ptr[0].paramArray = NULL
         else:
             if self._paramArray_length != <size_t>len(val):
-                free(self._paramArray)
-                self._paramArray = <cydriver.CUstreamBatchMemOpParams*> calloc(len(val), sizeof(cydriver.CUstreamBatchMemOpParams))
-                if self._paramArray is NULL:
+                _paramArray_new = <cydriver.CUstreamBatchMemOpParams*> calloc(len(val), sizeof(cydriver.CUstreamBatchMemOpParams))
+                if _paramArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUstreamBatchMemOpParams)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramArray_new[idx], (<CUstreamBatchMemOpParams>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamBatchMemOpParams))
+                free(self._paramArray)
+                self._paramArray = _paramArray_new
                 self._paramArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramArray = self._paramArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramArray[idx], (<CUstreamBatchMemOpParams>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamBatchMemOpParams))
-
+                self._pvt_ptr[0].paramArray = _paramArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramArray[idx], (<CUstreamBatchMemOpParams>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamBatchMemOpParams))
 
 
     @property
@@ -10870,17 +11011,11 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._ctx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-
     def __dealloc__(self):
-        pass
-
         if self._paramArray is not NULL:
             free(self._paramArray)
             self._pvt_ptr[0].paramArray = NULL
-
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -10941,10 +11076,15 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st:
 
     @property
     def paramArray(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].paramArray + x*sizeof(cydriver.CUstreamBatchMemOpParams) for x in range(self._paramArray_length)]
-        return [CUstreamBatchMemOpParams(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].paramArray == NULL:
+            return []
+        out_paramArray = [CUstreamBatchMemOpParams() for _idx in range(self._paramArray_length)]
+        for _idx in range(len(out_paramArray)):
+            string.memcpy(<cydriver.CUstreamBatchMemOpParams*><void_ptr>out_paramArray[_idx].getPtr(), &self._pvt_ptr[0].paramArray[_idx], sizeof(cydriver.CUstreamBatchMemOpParams))
+        return out_paramArray
     @paramArray.setter
     def paramArray(self, val):
+        cdef cydriver.CUstreamBatchMemOpParams* _paramArray_new
         if len(val) == 0:
             free(self._paramArray)
             self._paramArray = NULL
@@ -10952,15 +11092,18 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st:
             self._pvt_ptr[0].paramArray = NULL
         else:
             if self._paramArray_length != <size_t>len(val):
-                free(self._paramArray)
-                self._paramArray = <cydriver.CUstreamBatchMemOpParams*> calloc(len(val), sizeof(cydriver.CUstreamBatchMemOpParams))
-                if self._paramArray is NULL:
+                _paramArray_new = <cydriver.CUstreamBatchMemOpParams*> calloc(len(val), sizeof(cydriver.CUstreamBatchMemOpParams))
+                if _paramArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUstreamBatchMemOpParams)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramArray_new[idx], (<CUstreamBatchMemOpParams>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamBatchMemOpParams))
+                free(self._paramArray)
+                self._paramArray = _paramArray_new
                 self._paramArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramArray = self._paramArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramArray[idx], (<CUstreamBatchMemOpParams>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamBatchMemOpParams))
-
+                self._pvt_ptr[0].paramArray = _paramArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramArray[idx], (<CUstreamBatchMemOpParams>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamBatchMemOpParams))
 
 
     @property
@@ -11033,12 +11176,10 @@ cdef class anon_union2:
         self._pvt_ptr = <cydriver.CUasyncNotificationInfo_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._overBudget = anon_struct0(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._overBudget._owner = self
     def __dealloc__(self):
-        pass
+        self._overBudget = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].info
     def __repr__(self):
@@ -11090,11 +11231,10 @@ cdef class CUasyncNotificationInfo_st:
         else:
             self._pvt_ptr = <cydriver.CUasyncNotificationInfo_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._info = anon_union2(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._info._owner = self
     def __dealloc__(self):
+        self._info = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -11535,10 +11675,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_KERNEL_NODE_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._func = CUfunction(_ptr=<void_ptr>&self._pvt_ptr[0].func)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -11689,7 +11826,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_st:
     @kernelParams.setter
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
-        self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
+        self._pvt_ptr[0].kernelParams = self._cykernelParams.ckernelParams
 
 
     @property
@@ -11768,16 +11905,9 @@ cdef class CUDA_KERNEL_NODE_PARAMS_v2_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_KERNEL_NODE_PARAMS_v2_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._func = CUfunction(_ptr=<void_ptr>&self._pvt_ptr[0].func)
-
-
         self._kern = CUkernel(_ptr=<void_ptr>&self._pvt_ptr[0].kern)
-
-
         self._ctx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -11940,7 +12070,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_v2_st:
     @kernelParams.setter
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
-        self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
+        self._pvt_ptr[0].kernelParams = self._cykernelParams.ckernelParams
 
 
     @property
@@ -12053,16 +12183,9 @@ cdef class CUDA_KERNEL_NODE_PARAMS_v3_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_KERNEL_NODE_PARAMS_v3_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._func = CUfunction(_ptr=<void_ptr>&self._pvt_ptr[0].func)
-
-
         self._kern = CUkernel(_ptr=<void_ptr>&self._pvt_ptr[0].kern)
-
-
         self._ctx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -12225,7 +12348,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_v3_st:
     @kernelParams.setter
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
-        self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
+        self._pvt_ptr[0].kernelParams = self._cykernelParams.ckernelParams
 
 
     @property
@@ -12312,10 +12435,7 @@ cdef class CUDA_MEMSET_NODE_PARAMS_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_MEMSET_NODE_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._dst = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].dst)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -12467,13 +12587,8 @@ cdef class CUDA_MEMSET_NODE_PARAMS_v2_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_MEMSET_NODE_PARAMS_v2_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._dst = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].dst)
-
-
         self._ctx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -12628,10 +12743,7 @@ cdef class CUDA_HOST_NODE_PARAMS_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_HOST_NODE_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._fn = CUhostFn(_ptr=<void_ptr>&self._pvt_ptr[0].fn)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -12700,6 +12812,14 @@ cdef class CUDA_HOST_NODE_PARAMS_v2_st:
         The sync mode to use for the host task
 
 
+    ctx : CUcontext
+
+
+
+    gCtx : CUgreenCtx
+
+
+
     Methods
     -------
     getPtr()
@@ -12707,16 +12827,17 @@ cdef class CUDA_HOST_NODE_PARAMS_v2_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._pvt_ptr = &self._pvt_val
+            self._val_ptr = <cydriver.CUDA_HOST_NODE_PARAMS_v2_st *>calloc(1, sizeof(cydriver.CUDA_HOST_NODE_PARAMS_v2_st))
+            self._pvt_ptr = self._val_ptr
         else:
             self._pvt_ptr = <cydriver.CUDA_HOST_NODE_PARAMS_v2_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._fn = CUhostFn(_ptr=<void_ptr>&self._pvt_ptr[0].fn)
-
+        self._ctx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
+        self._gCtx = CUgreenCtx(_ptr=<void_ptr>&self._pvt_ptr[0].gCtx)
     def __dealloc__(self):
-        pass
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -12739,6 +12860,18 @@ cdef class CUDA_HOST_NODE_PARAMS_v2_st:
                 str_list += ['syncMode : ' + str(self.syncMode)]
             except ValueError:
                 str_list += ['syncMode : <ValueError>']
+
+
+            try:
+                str_list += ['ctx : ' + str(self.ctx)]
+            except ValueError:
+                str_list += ['ctx : <ValueError>']
+
+
+            try:
+                str_list += ['gCtx : ' + str(self.gCtx)]
+            except ValueError:
+                str_list += ['gCtx : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -12778,6 +12911,40 @@ cdef class CUDA_HOST_NODE_PARAMS_v2_st:
         self._pvt_ptr[0].syncMode = syncMode
 
 
+    @property
+    def ctx(self):
+        return self._ctx
+    @ctx.setter
+    def ctx(self, ctx):
+        cdef cydriver.CUcontext cyctx
+        if ctx is None:
+            cyctx = <cydriver.CUcontext><void_ptr>0
+        elif isinstance(ctx, (CUcontext,)):
+            pctx = int(ctx)
+            cyctx = <cydriver.CUcontext><void_ptr>pctx
+        else:
+            pctx = int(CUcontext(ctx))
+            cyctx = <cydriver.CUcontext><void_ptr>pctx
+        self._ctx._pvt_ptr[0] = cyctx
+
+
+    @property
+    def gCtx(self):
+        return self._gCtx
+    @gCtx.setter
+    def gCtx(self, gCtx):
+        cdef cydriver.CUgreenCtx cygCtx
+        if gCtx is None:
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>0
+        elif isinstance(gCtx, (CUgreenCtx,)):
+            pgCtx = int(gCtx)
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>pgCtx
+        else:
+            pgCtx = int(CUgreenCtx(gCtx))
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>pgCtx
+        self._gCtx._pvt_ptr[0] = cygCtx
+
+
 cdef class CUDA_CONDITIONAL_NODE_PARAMS:
     """
     Conditional node parameters
@@ -12808,7 +12975,7 @@ cdef class CUDA_CONDITIONAL_NODE_PARAMS:
         empty nodes, child graphs, memsets, memcopies, and conditionals.
         This applies recursively to child graphs and conditional bodies.
         - All kernels, including kernels in nested conditionals or child
-        graphs at any level, must belong to the same CUDA context.
+        graphs at any level, must belong to the same device context.
         These graphs may be populated using graph node creation APIs or
         cuStreamBeginCaptureToGraph.  CU_GRAPH_COND_TYPE_IF: phGraph_out[0]
         is executed when the condition is non-zero. If `size` == 2,
@@ -12835,13 +13002,8 @@ cdef class CUDA_CONDITIONAL_NODE_PARAMS:
         else:
             self._pvt_ptr = <cydriver.CUDA_CONDITIONAL_NODE_PARAMS *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._handle = CUgraphConditionalHandle(_ptr=<void_ptr>&self._pvt_ptr[0].handle)
-
-
         self._ctx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -12977,11 +13139,6 @@ cdef class CUgraphEdgeData_st:
         See CUgraphDependencyType.
 
 
-    reserved : bytes
-        These bytes are unused and must be zeroed. This ensures
-        compatibility if additional fields are added in the future.
-
-
     Methods
     -------
     getPtr()
@@ -13019,12 +13176,6 @@ cdef class CUgraphEdgeData_st:
             except ValueError:
                 str_list += ['type : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -13051,17 +13202,6 @@ cdef class CUgraphEdgeData_st:
     @type.setter
     def type(self, unsigned char type):
         self._pvt_ptr[0].type = type
-
-
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 5)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 5:
-            raise ValueError("reserved length must be 5, is " + str(len(reserved)))
-        for i, b in enumerate(reserved):
-            self._pvt_ptr[0].reserved[i] = b
 
 
 cdef class CUDA_GRAPH_INSTANTIATE_PARAMS_st:
@@ -13098,16 +13238,9 @@ cdef class CUDA_GRAPH_INSTANTIATE_PARAMS_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._flags = cuuint64_t(_ptr=<void_ptr>&self._pvt_ptr[0].flags)
-
-
         self._hUploadStream = CUstream(_ptr=<void_ptr>&self._pvt_ptr[0].hUploadStream)
-
-
         self._hErrNode_out = CUgraphNode(_ptr=<void_ptr>&self._pvt_ptr[0].hErrNode_out)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -13381,10 +13514,7 @@ cdef class anon_struct2:
         self._pvt_ptr = <cydriver.CUlaunchAttributeValue_union *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._event = CUevent(_ptr=<void_ptr>&self._pvt_ptr[0].programmaticEvent.event)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -13469,10 +13599,7 @@ cdef class anon_struct3:
         self._pvt_ptr = <cydriver.CUlaunchAttributeValue_union *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._event = CUevent(_ptr=<void_ptr>&self._pvt_ptr[0].launchCompletionEvent.event)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -13623,10 +13750,7 @@ cdef class anon_struct5:
         self._pvt_ptr = <cydriver.CUlaunchAttributeValue_union *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._devNode = CUgraphDeviceNode(_ptr=<void_ptr>&self._pvt_ptr[0].deviceUpdatableKernelNode.devNode)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -13808,30 +13932,28 @@ cdef class CUlaunchAttributeValue_union:
         else:
             self._pvt_ptr = <cydriver.CUlaunchAttributeValue_union *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._accessPolicyWindow = CUaccessPolicyWindow(_ptr=<void_ptr>&self._pvt_ptr[0].accessPolicyWindow)
-
-
+        self._accessPolicyWindow._owner = self
         self._clusterDim = anon_struct1(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._clusterDim._owner = self
         self._programmaticEvent = anon_struct2(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._programmaticEvent._owner = self
         self._launchCompletionEvent = anon_struct3(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._launchCompletionEvent._owner = self
         self._memSyncDomainMap = CUlaunchMemSyncDomainMap(_ptr=<void_ptr>&self._pvt_ptr[0].memSyncDomainMap)
-
-
+        self._memSyncDomainMap._owner = self
         self._preferredClusterDim = anon_struct4(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._preferredClusterDim._owner = self
         self._deviceUpdatableKernelNode = anon_struct5(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._deviceUpdatableKernelNode._owner = self
     def __dealloc__(self):
-        pass
+        self._accessPolicyWindow = None
+        self._clusterDim = None
+        self._programmaticEvent = None
+        self._launchCompletionEvent = None
+        self._memSyncDomainMap = None
+        self._preferredClusterDim = None
+        self._deviceUpdatableKernelNode = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -14130,12 +14252,10 @@ cdef class CUlaunchAttribute_st:
         else:
             self._pvt_ptr = <cydriver.CUlaunchAttribute_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._value = CUlaunchAttributeValue(_ptr=<void_ptr>&self._pvt_ptr[0].value)
-
+        self._value._owner = self
     def __dealloc__(self):
-        pass
+        self._value = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -14231,17 +14351,11 @@ cdef class CUlaunchConfig_st:
         else:
             self._pvt_ptr = <cydriver.CUlaunchConfig_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._hStream = CUstream(_ptr=<void_ptr>&self._pvt_ptr[0].hStream)
-
     def __dealloc__(self):
-        pass
-
         if self._attrs is not NULL:
             free(self._attrs)
             self._pvt_ptr[0].attrs = NULL
-
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -14386,10 +14500,15 @@ cdef class CUlaunchConfig_st:
 
     @property
     def attrs(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].attrs + x*sizeof(cydriver.CUlaunchAttribute) for x in range(self._attrs_length)]
-        return [CUlaunchAttribute(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].attrs == NULL:
+            return []
+        out_attrs = [CUlaunchAttribute() for _idx in range(self._attrs_length)]
+        for _idx in range(len(out_attrs)):
+            string.memcpy(<cydriver.CUlaunchAttribute*><void_ptr>out_attrs[_idx].getPtr(), &self._pvt_ptr[0].attrs[_idx], sizeof(cydriver.CUlaunchAttribute))
+        return out_attrs
     @attrs.setter
     def attrs(self, val):
+        cdef cydriver.CUlaunchAttribute* _attrs_new
         if len(val) == 0:
             free(self._attrs)
             self._attrs = NULL
@@ -14397,15 +14516,18 @@ cdef class CUlaunchConfig_st:
             self._pvt_ptr[0].attrs = NULL
         else:
             if self._attrs_length != <size_t>len(val):
-                free(self._attrs)
-                self._attrs = <cydriver.CUlaunchAttribute*> calloc(len(val), sizeof(cydriver.CUlaunchAttribute))
-                if self._attrs is NULL:
+                _attrs_new = <cydriver.CUlaunchAttribute*> calloc(len(val), sizeof(cydriver.CUlaunchAttribute))
+                if _attrs_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUlaunchAttribute)))
+                for idx in range(len(val)):
+                    string.memcpy(&_attrs_new[idx], (<CUlaunchAttribute>val[idx])._pvt_ptr, sizeof(cydriver.CUlaunchAttribute))
+                free(self._attrs)
+                self._attrs = _attrs_new
                 self._attrs_length = <size_t>len(val)
-                self._pvt_ptr[0].attrs = self._attrs
-            for idx in range(len(val)):
-                string.memcpy(&self._attrs[idx], (<CUlaunchAttribute>val[idx])._pvt_ptr, sizeof(cydriver.CUlaunchAttribute))
-
+                self._pvt_ptr[0].attrs = _attrs_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._attrs[idx], (<CUlaunchAttribute>val[idx])._pvt_ptr, sizeof(cydriver.CUlaunchAttribute))
 
 
     @property
@@ -14464,7 +14586,7 @@ cdef class CUexecAffinitySmCount_st:
         self._pvt_ptr[0].val = val
 
 
-cdef class anon_union3:
+cdef class anon_union4:
     """
     Attributes
     ----------
@@ -14482,12 +14604,10 @@ cdef class anon_union3:
         self._pvt_ptr = <cydriver.CUexecAffinityParam_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._smCount = CUexecAffinitySmCount(_ptr=<void_ptr>&self._pvt_ptr[0].param.smCount)
-
+        self._smCount._owner = self
     def __dealloc__(self):
-        pass
+        self._smCount = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].param
     def __repr__(self):
@@ -14522,7 +14642,7 @@ cdef class CUexecAffinityParam_st:
         Type of execution affinity.
 
 
-    param : anon_union3
+    param : anon_union4
 
 
 
@@ -14538,11 +14658,10 @@ cdef class CUexecAffinityParam_st:
         else:
             self._pvt_ptr = <cydriver.CUexecAffinityParam_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
-        self._param = anon_union3(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._param = anon_union4(_ptr=<void_ptr>self._pvt_ptr)
+        self._param._owner = self
     def __dealloc__(self):
+        self._param = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -14578,7 +14697,7 @@ cdef class CUexecAffinityParam_st:
     def param(self):
         return self._param
     @param.setter
-    def param(self, param not None : anon_union3):
+    def param(self, param not None : anon_union4):
         string.memcpy(&self._pvt_ptr[0].param, <void*><void_ptr>param.getPtr(), sizeof(self._pvt_ptr[0].param))
 
 
@@ -14689,17 +14808,12 @@ cdef class CUctxCreateParams_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
-
         if self._execAffinityParams is not NULL:
             free(self._execAffinityParams)
             self._pvt_ptr[0].execAffinityParams = NULL
-
-
         if self._cigParams is not NULL:
             free(self._cigParams)
             self._pvt_ptr[0].cigParams = NULL
-
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -14729,10 +14843,15 @@ cdef class CUctxCreateParams_st:
 
     @property
     def execAffinityParams(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].execAffinityParams + x*sizeof(cydriver.CUexecAffinityParam) for x in range(self._execAffinityParams_length)]
-        return [CUexecAffinityParam(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].execAffinityParams == NULL:
+            return []
+        out_execAffinityParams = [CUexecAffinityParam() for _idx in range(self._execAffinityParams_length)]
+        for _idx in range(len(out_execAffinityParams)):
+            string.memcpy(<cydriver.CUexecAffinityParam*><void_ptr>out_execAffinityParams[_idx].getPtr(), &self._pvt_ptr[0].execAffinityParams[_idx], sizeof(cydriver.CUexecAffinityParam))
+        return out_execAffinityParams
     @execAffinityParams.setter
     def execAffinityParams(self, val):
+        cdef cydriver.CUexecAffinityParam* _execAffinityParams_new
         if len(val) == 0:
             free(self._execAffinityParams)
             self._execAffinityParams = NULL
@@ -14740,15 +14859,18 @@ cdef class CUctxCreateParams_st:
             self._pvt_ptr[0].execAffinityParams = NULL
         else:
             if self._execAffinityParams_length != <size_t>len(val):
-                free(self._execAffinityParams)
-                self._execAffinityParams = <cydriver.CUexecAffinityParam*> calloc(len(val), sizeof(cydriver.CUexecAffinityParam))
-                if self._execAffinityParams is NULL:
+                _execAffinityParams_new = <cydriver.CUexecAffinityParam*> calloc(len(val), sizeof(cydriver.CUexecAffinityParam))
+                if _execAffinityParams_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUexecAffinityParam)))
+                for idx in range(len(val)):
+                    string.memcpy(&_execAffinityParams_new[idx], (<CUexecAffinityParam>val[idx])._pvt_ptr, sizeof(cydriver.CUexecAffinityParam))
+                free(self._execAffinityParams)
+                self._execAffinityParams = _execAffinityParams_new
                 self._execAffinityParams_length = <size_t>len(val)
-                self._pvt_ptr[0].execAffinityParams = self._execAffinityParams
-            for idx in range(len(val)):
-                string.memcpy(&self._execAffinityParams[idx], (<CUexecAffinityParam>val[idx])._pvt_ptr, sizeof(cydriver.CUexecAffinityParam))
-
+                self._pvt_ptr[0].execAffinityParams = _execAffinityParams_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._execAffinityParams[idx], (<CUexecAffinityParam>val[idx])._pvt_ptr, sizeof(cydriver.CUexecAffinityParam))
 
 
     @property
@@ -14761,10 +14883,15 @@ cdef class CUctxCreateParams_st:
 
     @property
     def cigParams(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].cigParams + x*sizeof(cydriver.CUctxCigParam) for x in range(self._cigParams_length)]
-        return [CUctxCigParam(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].cigParams == NULL:
+            return []
+        out_cigParams = [CUctxCigParam() for _idx in range(self._cigParams_length)]
+        for _idx in range(len(out_cigParams)):
+            string.memcpy(<cydriver.CUctxCigParam*><void_ptr>out_cigParams[_idx].getPtr(), &self._pvt_ptr[0].cigParams[_idx], sizeof(cydriver.CUctxCigParam))
+        return out_cigParams
     @cigParams.setter
     def cigParams(self, val):
+        cdef cydriver.CUctxCigParam* _cigParams_new
         if len(val) == 0:
             free(self._cigParams)
             self._cigParams = NULL
@@ -14772,15 +14899,18 @@ cdef class CUctxCreateParams_st:
             self._pvt_ptr[0].cigParams = NULL
         else:
             if self._cigParams_length != <size_t>len(val):
-                free(self._cigParams)
-                self._cigParams = <cydriver.CUctxCigParam*> calloc(len(val), sizeof(cydriver.CUctxCigParam))
-                if self._cigParams is NULL:
+                _cigParams_new = <cydriver.CUctxCigParam*> calloc(len(val), sizeof(cydriver.CUctxCigParam))
+                if _cigParams_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUctxCigParam)))
+                for idx in range(len(val)):
+                    string.memcpy(&_cigParams_new[idx], (<CUctxCigParam>val[idx])._pvt_ptr, sizeof(cydriver.CUctxCigParam))
+                free(self._cigParams)
+                self._cigParams = _cigParams_new
                 self._cigParams_length = <size_t>len(val)
-                self._pvt_ptr[0].cigParams = self._cigParams
-            for idx in range(len(val)):
-                string.memcpy(&self._cigParams[idx], (<CUctxCigParam>val[idx])._pvt_ptr, sizeof(cydriver.CUctxCigParam))
-
+                self._pvt_ptr[0].cigParams = _cigParams_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._cigParams[idx], (<CUctxCigParam>val[idx])._pvt_ptr, sizeof(cydriver.CUctxCigParam))
 
 
 cdef class CUstreamCigParam_st:
@@ -14877,12 +15007,9 @@ cdef class CUstreamCigCaptureParams_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
-
         if self._streamCigParams is not NULL:
             free(self._streamCigParams)
             self._pvt_ptr[0].streamCigParams = NULL
-
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -14900,10 +15027,15 @@ cdef class CUstreamCigCaptureParams_st:
 
     @property
     def streamCigParams(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].streamCigParams + x*sizeof(cydriver.CUstreamCigParam) for x in range(self._streamCigParams_length)]
-        return [CUstreamCigParam(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].streamCigParams == NULL:
+            return []
+        out_streamCigParams = [CUstreamCigParam() for _idx in range(self._streamCigParams_length)]
+        for _idx in range(len(out_streamCigParams)):
+            string.memcpy(<cydriver.CUstreamCigParam*><void_ptr>out_streamCigParams[_idx].getPtr(), &self._pvt_ptr[0].streamCigParams[_idx], sizeof(cydriver.CUstreamCigParam))
+        return out_streamCigParams
     @streamCigParams.setter
     def streamCigParams(self, val):
+        cdef cydriver.CUstreamCigParam* _streamCigParams_new
         if len(val) == 0:
             free(self._streamCigParams)
             self._streamCigParams = NULL
@@ -14911,15 +15043,18 @@ cdef class CUstreamCigCaptureParams_st:
             self._pvt_ptr[0].streamCigParams = NULL
         else:
             if self._streamCigParams_length != <size_t>len(val):
-                free(self._streamCigParams)
-                self._streamCigParams = <cydriver.CUstreamCigParam*> calloc(len(val), sizeof(cydriver.CUstreamCigParam))
-                if self._streamCigParams is NULL:
+                _streamCigParams_new = <cydriver.CUstreamCigParam*> calloc(len(val), sizeof(cydriver.CUstreamCigParam))
+                if _streamCigParams_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUstreamCigParam)))
+                for idx in range(len(val)):
+                    string.memcpy(&_streamCigParams_new[idx], (<CUstreamCigParam>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamCigParam))
+                free(self._streamCigParams)
+                self._streamCigParams = _streamCigParams_new
                 self._streamCigParams_length = <size_t>len(val)
-                self._pvt_ptr[0].streamCigParams = self._streamCigParams
-            for idx in range(len(val)):
-                string.memcpy(&self._streamCigParams[idx], (<CUstreamCigParam>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamCigParam))
-
+                self._pvt_ptr[0].streamCigParams = _streamCigParams_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._streamCigParams[idx], (<CUstreamCigParam>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamCigParam))
 
 
 cdef class CUlibraryHostUniversalFunctionAndDataTable_st:
@@ -15106,19 +15241,10 @@ cdef class CUDA_MEMCPY2D_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_MEMCPY2D_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._srcDevice = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].srcDevice)
-
-
         self._srcArray = CUarray(_ptr=<void_ptr>&self._pvt_ptr[0].srcArray)
-
-
         self._dstDevice = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].dstDevice)
-
-
         self._dstArray = CUarray(_ptr=<void_ptr>&self._pvt_ptr[0].dstArray)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -15433,10 +15559,6 @@ cdef class CUDA_MEMCPY3D_st:
         Source array reference
 
 
-    reserved0 : Any
-        Must be NULL
-
-
     srcPitch : size_t
         Source pitch (ignored when src is array)
 
@@ -15477,10 +15599,6 @@ cdef class CUDA_MEMCPY3D_st:
         Destination array reference
 
 
-    reserved1 : Any
-        Must be NULL
-
-
     dstPitch : size_t
         Destination pitch (ignored when dst is array)
 
@@ -15513,19 +15631,10 @@ cdef class CUDA_MEMCPY3D_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_MEMCPY3D_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._srcDevice = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].srcDevice)
-
-
         self._srcArray = CUarray(_ptr=<void_ptr>&self._pvt_ptr[0].srcArray)
-
-
         self._dstDevice = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].dstDevice)
-
-
         self._dstArray = CUarray(_ptr=<void_ptr>&self._pvt_ptr[0].dstArray)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -15580,12 +15689,6 @@ cdef class CUDA_MEMCPY3D_st:
                 str_list += ['srcArray : ' + str(self.srcArray)]
             except ValueError:
                 str_list += ['srcArray : <ValueError>']
-
-
-            try:
-                str_list += ['reserved0 : ' + hex(self.reserved0)]
-            except ValueError:
-                str_list += ['reserved0 : <ValueError>']
 
 
             try:
@@ -15646,12 +15749,6 @@ cdef class CUDA_MEMCPY3D_st:
                 str_list += ['dstArray : ' + str(self.dstArray)]
             except ValueError:
                 str_list += ['dstArray : <ValueError>']
-
-
-            try:
-                str_list += ['reserved1 : ' + hex(self.reserved1)]
-            except ValueError:
-                str_list += ['reserved1 : <ValueError>']
 
 
             try:
@@ -15772,15 +15869,6 @@ cdef class CUDA_MEMCPY3D_st:
 
 
     @property
-    def reserved0(self):
-        return <void_ptr>self._pvt_ptr[0].reserved0
-    @reserved0.setter
-    def reserved0(self, reserved0):
-        self._cyreserved0 = _HelperInputVoidPtr(reserved0)
-        self._pvt_ptr[0].reserved0 = <void*><void_ptr>self._cyreserved0.cptr
-
-
-    @property
     def srcPitch(self):
         return self._pvt_ptr[0].srcPitch
     @srcPitch.setter
@@ -15878,15 +15966,6 @@ cdef class CUDA_MEMCPY3D_st:
             pdstArray = int(CUarray(dstArray))
             cydstArray = <cydriver.CUarray><void_ptr>pdstArray
         self._dstArray._pvt_ptr[0] = cydstArray
-
-
-    @property
-    def reserved1(self):
-        return <void_ptr>self._pvt_ptr[0].reserved1
-    @reserved1.setter
-    def reserved1(self, reserved1):
-        self._cyreserved1 = _HelperInputVoidPtr(reserved1)
-        self._pvt_ptr[0].reserved1 = <void*><void_ptr>self._cyreserved1.cptr
 
 
     @property
@@ -16049,25 +16128,12 @@ cdef class CUDA_MEMCPY3D_PEER_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_MEMCPY3D_PEER_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._srcDevice = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].srcDevice)
-
-
         self._srcArray = CUarray(_ptr=<void_ptr>&self._pvt_ptr[0].srcArray)
-
-
         self._srcContext = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].srcContext)
-
-
         self._dstDevice = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].dstDevice)
-
-
         self._dstArray = CUarray(_ptr=<void_ptr>&self._pvt_ptr[0].dstArray)
-
-
         self._dstContext = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].dstContext)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -16498,10 +16564,6 @@ cdef class CUDA_MEMCPY_NODE_PARAMS_st:
         Must be zero
 
 
-    reserved : int
-        Must be zero
-
-
     copyCtx : CUcontext
         Context on which to run the node
 
@@ -16521,15 +16583,11 @@ cdef class CUDA_MEMCPY_NODE_PARAMS_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_MEMCPY_NODE_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._copyCtx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].copyCtx)
-
-
         self._copyParams = CUDA_MEMCPY3D(_ptr=<void_ptr>&self._pvt_ptr[0].copyParams)
-
+        self._copyParams._owner = self
     def __dealloc__(self):
-        pass
+        self._copyParams = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -16540,12 +16598,6 @@ cdef class CUDA_MEMCPY_NODE_PARAMS_st:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
 
 
             try:
@@ -16569,14 +16621,6 @@ cdef class CUDA_MEMCPY_NODE_PARAMS_st:
     @flags.setter
     def flags(self, int flags):
         self._pvt_ptr[0].flags = flags
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, int reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
     @property
@@ -16948,10 +16992,6 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
         CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -16963,12 +17003,10 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_ARRAY_SPARSE_PROPERTIES_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._tileExtent = anon_struct6(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._tileExtent._owner = self
     def __dealloc__(self):
-        pass
+        self._tileExtent = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -16997,12 +17035,6 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -17040,14 +17072,6 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
         self._pvt_ptr[0].flags = flags
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
-
 cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS_st:
     """
     CUDA array memory requirements
@@ -17061,10 +17085,6 @@ cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS_st:
 
     alignment : size_t
         alignment requirement
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -17098,12 +17118,6 @@ cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS_st:
             except ValueError:
                 str_list += ['alignment : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -17124,14 +17138,6 @@ cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS_st:
         self._pvt_ptr[0].alignment = alignment
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
-
 cdef class anon_struct7:
     """
     Attributes
@@ -17150,10 +17156,7 @@ cdef class anon_struct7:
         self._pvt_ptr = <cydriver.CUDA_RESOURCE_DESC_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._hArray = CUarray(_ptr=<void_ptr>&self._pvt_ptr[0].res.array.hArray)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -17206,10 +17209,7 @@ cdef class anon_struct8:
         self._pvt_ptr = <cydriver.CUDA_RESOURCE_DESC_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._hMipmappedArray = CUmipmappedArray(_ptr=<void_ptr>&self._pvt_ptr[0].res.mipmap.hMipmappedArray)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -17274,10 +17274,7 @@ cdef class anon_struct9:
         self._pvt_ptr = <cydriver.CUDA_RESOURCE_DESC_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._devPtr = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].res.linear.devPtr)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -17393,10 +17390,7 @@ cdef class anon_struct10:
         self._pvt_ptr = <cydriver.CUDA_RESOURCE_DESC_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._devPtr = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].res.pitch2D.devPtr)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -17504,13 +17498,6 @@ cdef class anon_struct10:
 
 cdef class anon_struct11:
     """
-    Attributes
-    ----------
-
-    reserved : list[int]
-
-
-
     Methods
     -------
     getPtr()
@@ -17529,24 +17516,11 @@ cdef class anon_struct11:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].res.reserved.reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].res.reserved.reserved = reserved
-
-
-cdef class anon_union4:
+cdef class anon_union5:
     """
     Attributes
     ----------
@@ -17567,10 +17541,6 @@ cdef class anon_union4:
 
 
 
-    reserved : anon_struct11
-
-
-
     Methods
     -------
     getPtr()
@@ -17580,24 +17550,19 @@ cdef class anon_union4:
         self._pvt_ptr = <cydriver.CUDA_RESOURCE_DESC_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._array = anon_struct7(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._array._owner = self
         self._mipmap = anon_struct8(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._mipmap._owner = self
         self._linear = anon_struct9(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._linear._owner = self
         self._pitch2D = anon_struct10(_ptr=<void_ptr>self._pvt_ptr)
-
-
-        self._reserved = anon_struct11(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._pitch2D._owner = self
     def __dealloc__(self):
-        pass
+        self._array = None
+        self._mipmap = None
+        self._linear = None
+        self._pitch2D = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].res
     def __repr__(self):
@@ -17626,12 +17591,6 @@ cdef class anon_union4:
                 str_list += ['pitch2D :\n' + '\n'.join(['    ' + line for line in str(self.pitch2D).splitlines()])]
             except ValueError:
                 str_list += ['pitch2D : <ValueError>']
-
-
-            try:
-                str_list += ['reserved :\n' + '\n'.join(['    ' + line for line in str(self.reserved).splitlines()])]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -17669,14 +17628,6 @@ cdef class anon_union4:
         string.memcpy(&self._pvt_ptr[0].res.pitch2D, <void*><void_ptr>pitch2D.getPtr(), sizeof(self._pvt_ptr[0].res.pitch2D))
 
 
-    @property
-    def reserved(self):
-        return self._reserved
-    @reserved.setter
-    def reserved(self, reserved not None : anon_struct11):
-        string.memcpy(&self._pvt_ptr[0].res.reserved, <void*><void_ptr>reserved.getPtr(), sizeof(self._pvt_ptr[0].res.reserved))
-
-
 cdef class CUDA_RESOURCE_DESC_st:
     """
     CUDA Resource descriptor
@@ -17688,7 +17639,7 @@ cdef class CUDA_RESOURCE_DESC_st:
         Resource type
 
 
-    res : anon_union4
+    res : anon_union5
 
 
 
@@ -17708,11 +17659,10 @@ cdef class CUDA_RESOURCE_DESC_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_RESOURCE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
-        self._res = anon_union4(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._res = anon_union5(_ptr=<void_ptr>self._pvt_ptr)
+        self._res._owner = self
     def __dealloc__(self):
+        self._res = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -17754,7 +17704,7 @@ cdef class CUDA_RESOURCE_DESC_st:
     def res(self):
         return self._res
     @res.setter
-    def res(self, res not None : anon_union4):
+    def res(self, res not None : anon_union5):
         string.memcpy(&self._pvt_ptr[0].res, <void*><void_ptr>res.getPtr(), sizeof(self._pvt_ptr[0].res))
 
 
@@ -17807,10 +17757,6 @@ cdef class CUDA_TEXTURE_DESC_st:
 
     borderColor : list[float]
         Border Color
-
-
-    reserved : list[int]
-
 
 
     Methods
@@ -17885,12 +17831,6 @@ cdef class CUDA_TEXTURE_DESC_st:
                 str_list += ['borderColor : ' + str(self.borderColor)]
             except ValueError:
                 str_list += ['borderColor : <ValueError>']
-
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -17968,14 +17908,6 @@ cdef class CUDA_TEXTURE_DESC_st:
         self._pvt_ptr[0].borderColor = borderColor
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
-
 cdef class CUDA_RESOURCE_VIEW_DESC_st:
     """
     Resource view descriptor
@@ -18013,10 +17945,6 @@ cdef class CUDA_RESOURCE_VIEW_DESC_st:
 
     lastLayer : unsigned int
         Last layer index
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -18086,12 +18014,6 @@ cdef class CUDA_RESOURCE_VIEW_DESC_st:
             except ValueError:
                 str_list += ['lastLayer : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -18158,14 +18080,6 @@ cdef class CUDA_RESOURCE_VIEW_DESC_st:
     @lastLayer.setter
     def lastLayer(self, unsigned int lastLayer):
         self._pvt_ptr[0].lastLayer = lastLayer
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class CUtensorMap_st:
@@ -18342,13 +18256,8 @@ cdef class CUDA_LAUNCH_PARAMS_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_LAUNCH_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._function = CUfunction(_ptr=<void_ptr>&self._pvt_ptr[0].function)
-
-
         self._hStream = CUstream(_ptr=<void_ptr>&self._pvt_ptr[0].hStream)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -18516,7 +18425,7 @@ cdef class CUDA_LAUNCH_PARAMS_st:
     @kernelParams.setter
     def kernelParams(self, kernelParams):
         self._cykernelParams = _HelperKernelParams(kernelParams)
-        self._pvt_ptr[0].kernelParams = <void**><void_ptr>self._cykernelParams.ckernelParams
+        self._pvt_ptr[0].kernelParams = self._cykernelParams.ckernelParams
 
 
 cdef class anon_struct12:
@@ -18583,7 +18492,7 @@ cdef class anon_struct12:
         self._pvt_ptr[0].handle.win32.name = <void*><void_ptr>self._cyname.cptr
 
 
-cdef class anon_union5:
+cdef class anon_union6:
     """
     Attributes
     ----------
@@ -18609,12 +18518,10 @@ cdef class anon_union5:
         self._pvt_ptr = <cydriver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._win32 = anon_struct12(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._win32._owner = self
     def __dealloc__(self):
-        pass
+        self._win32 = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].handle
     def __repr__(self):
@@ -18678,7 +18585,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
         Type of the handle
 
 
-    handle : anon_union5
+    handle : anon_union6
 
 
 
@@ -18688,10 +18595,6 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
 
     flags : unsigned int
         Flags must either be zero or CUDA_EXTERNAL_MEMORY_DEDICATED
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -18706,11 +18609,10 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
-        self._handle = anon_union5(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._handle = anon_union6(_ptr=<void_ptr>self._pvt_ptr)
+        self._handle._owner = self
     def __dealloc__(self):
+        self._handle = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -18742,12 +18644,6 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -18764,7 +18660,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
     def handle(self):
         return self._handle
     @handle.setter
-    def handle(self, handle not None : anon_union5):
+    def handle(self, handle not None : anon_union6):
         string.memcpy(&self._pvt_ptr[0].handle, <void*><void_ptr>handle.getPtr(), sizeof(self._pvt_ptr[0].handle))
 
 
@@ -18784,14 +18680,6 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
         self._pvt_ptr[0].flags = flags
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
-
 cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st:
     """
     External memory buffer descriptor
@@ -18809,10 +18697,6 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st:
 
     flags : unsigned int
         Flags reserved for future use. Must be zero.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -18852,12 +18736,6 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -18886,14 +18764,6 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st:
         self._pvt_ptr[0].flags = flags
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
-
 cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
     """
     External memory mipmap descriptor
@@ -18914,10 +18784,6 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
         Total number of levels in the mipmap chain
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -18929,12 +18795,10 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._arrayDesc = CUDA_ARRAY3D_DESCRIPTOR(_ptr=<void_ptr>&self._pvt_ptr[0].arrayDesc)
-
+        self._arrayDesc._owner = self
     def __dealloc__(self):
-        pass
+        self._arrayDesc = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -18957,12 +18821,6 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
                 str_list += ['numLevels : ' + str(self.numLevels)]
             except ValueError:
                 str_list += ['numLevels : <ValueError>']
-
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -18990,14 +18848,6 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
     @numLevels.setter
     def numLevels(self, unsigned int numLevels):
         self._pvt_ptr[0].numLevels = numLevels
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class anon_struct13:
@@ -19064,7 +18914,7 @@ cdef class anon_struct13:
         self._pvt_ptr[0].handle.win32.name = <void*><void_ptr>self._cyname.cptr
 
 
-cdef class anon_union6:
+cdef class anon_union7:
     """
     Attributes
     ----------
@@ -19090,12 +18940,10 @@ cdef class anon_union6:
         self._pvt_ptr = <cydriver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._win32 = anon_struct13(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._win32._owner = self
     def __dealloc__(self):
-        pass
+        self._win32 = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].handle
     def __repr__(self):
@@ -19159,16 +19007,12 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
         Type of the handle
 
 
-    handle : anon_union6
+    handle : anon_union7
 
 
 
     flags : unsigned int
         Flags reserved for the future. Must be zero.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -19183,11 +19027,10 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
-        self._handle = anon_union6(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._handle = anon_union7(_ptr=<void_ptr>self._pvt_ptr)
+        self._handle._owner = self
     def __dealloc__(self):
+        self._handle = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -19213,12 +19056,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -19235,7 +19072,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
     def handle(self):
         return self._handle
     @handle.setter
-    def handle(self, handle not None : anon_union6):
+    def handle(self, handle not None : anon_union7):
         string.memcpy(&self._pvt_ptr[0].handle, <void*><void_ptr>handle.getPtr(), sizeof(self._pvt_ptr[0].handle))
 
 
@@ -19245,14 +19082,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class anon_struct14:
@@ -19299,16 +19128,12 @@ cdef class anon_struct14:
         self._pvt_ptr[0].params.fence.value = value
 
 
-cdef class anon_union7:
+cdef class anon_union8:
     """
     Attributes
     ----------
 
     fence : Any
-
-
-
-    reserved : unsigned long long
 
 
 
@@ -19335,12 +19160,6 @@ cdef class anon_union7:
             except ValueError:
                 str_list += ['fence : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -19352,14 +19171,6 @@ cdef class anon_union7:
     def fence(self, fence):
         self._cyfence = _HelperInputVoidPtr(fence)
         self._pvt_ptr[0].params.nvSciSync.fence = <void*><void_ptr>self._cyfence.cptr
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].params.nvSciSync.reserved
-    @reserved.setter
-    def reserved(self, unsigned long long reserved):
-        self._pvt_ptr[0].params.nvSciSync.reserved = reserved
 
 
 cdef class anon_struct15:
@@ -19415,15 +19226,11 @@ cdef class anon_struct16:
 
 
 
-    nvSciSync : anon_union7
+    nvSciSync : anon_union8
 
 
 
     keyedMutex : anon_struct15
-
-
-
-    reserved : list[unsigned int]
 
 
 
@@ -19436,18 +19243,16 @@ cdef class anon_struct16:
         self._pvt_ptr = <cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._fence = anon_struct14(_ptr=<void_ptr>self._pvt_ptr)
-
-
-        self._nvSciSync = anon_union7(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._fence._owner = self
+        self._nvSciSync = anon_union8(_ptr=<void_ptr>self._pvt_ptr)
+        self._nvSciSync._owner = self
         self._keyedMutex = anon_struct15(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._keyedMutex._owner = self
     def __dealloc__(self):
-        pass
+        self._fence = None
+        self._nvSciSync = None
+        self._keyedMutex = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].params
     def __repr__(self):
@@ -19471,12 +19276,6 @@ cdef class anon_struct16:
             except ValueError:
                 str_list += ['keyedMutex : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -19493,7 +19292,7 @@ cdef class anon_struct16:
     def nvSciSync(self):
         return self._nvSciSync
     @nvSciSync.setter
-    def nvSciSync(self, nvSciSync not None : anon_union7):
+    def nvSciSync(self, nvSciSync not None : anon_union8):
         string.memcpy(&self._pvt_ptr[0].params.nvSciSync, <void*><void_ptr>nvSciSync.getPtr(), sizeof(self._pvt_ptr[0].params.nvSciSync))
 
 
@@ -19503,14 +19302,6 @@ cdef class anon_struct16:
     @keyedMutex.setter
     def keyedMutex(self, keyedMutex not None : anon_struct15):
         string.memcpy(&self._pvt_ptr[0].params.keyedMutex, <void*><void_ptr>keyedMutex.getPtr(), sizeof(self._pvt_ptr[0].params.keyedMutex))
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].params.reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].params.reserved = reserved
 
 
 cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
@@ -19535,10 +19326,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
         For all other types of CUexternalSemaphore, flags must be zero.
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -19550,12 +19337,10 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._params = anon_struct16(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._params._owner = self
     def __dealloc__(self):
-        pass
+        self._params = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -19572,12 +19357,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -19597,14 +19376,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class anon_struct17:
@@ -19651,16 +19422,12 @@ cdef class anon_struct17:
         self._pvt_ptr[0].params.fence.value = value
 
 
-cdef class anon_union8:
+cdef class anon_union9:
     """
     Attributes
     ----------
 
     fence : Any
-
-
-
-    reserved : unsigned long long
 
 
 
@@ -19687,12 +19454,6 @@ cdef class anon_union8:
             except ValueError:
                 str_list += ['fence : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -19704,14 +19465,6 @@ cdef class anon_union8:
     def fence(self, fence):
         self._cyfence = _HelperInputVoidPtr(fence)
         self._pvt_ptr[0].params.nvSciSync.fence = <void*><void_ptr>self._cyfence.cptr
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].params.nvSciSync.reserved
-    @reserved.setter
-    def reserved(self, unsigned long long reserved):
-        self._pvt_ptr[0].params.nvSciSync.reserved = reserved
 
 
 cdef class anon_struct18:
@@ -19785,15 +19538,11 @@ cdef class anon_struct19:
 
 
 
-    nvSciSync : anon_union8
+    nvSciSync : anon_union9
 
 
 
     keyedMutex : anon_struct18
-
-
-
-    reserved : list[unsigned int]
 
 
 
@@ -19806,18 +19555,16 @@ cdef class anon_struct19:
         self._pvt_ptr = <cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._fence = anon_struct17(_ptr=<void_ptr>self._pvt_ptr)
-
-
-        self._nvSciSync = anon_union8(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._fence._owner = self
+        self._nvSciSync = anon_union9(_ptr=<void_ptr>self._pvt_ptr)
+        self._nvSciSync._owner = self
         self._keyedMutex = anon_struct18(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._keyedMutex._owner = self
     def __dealloc__(self):
-        pass
+        self._fence = None
+        self._nvSciSync = None
+        self._keyedMutex = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].params
     def __repr__(self):
@@ -19841,12 +19588,6 @@ cdef class anon_struct19:
             except ValueError:
                 str_list += ['keyedMutex : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -19863,7 +19604,7 @@ cdef class anon_struct19:
     def nvSciSync(self):
         return self._nvSciSync
     @nvSciSync.setter
-    def nvSciSync(self, nvSciSync not None : anon_union8):
+    def nvSciSync(self, nvSciSync not None : anon_union9):
         string.memcpy(&self._pvt_ptr[0].params.nvSciSync, <void*><void_ptr>nvSciSync.getPtr(), sizeof(self._pvt_ptr[0].params.nvSciSync))
 
 
@@ -19873,14 +19614,6 @@ cdef class anon_struct19:
     @keyedMutex.setter
     def keyedMutex(self, keyedMutex not None : anon_struct18):
         string.memcpy(&self._pvt_ptr[0].params.keyedMutex, <void*><void_ptr>keyedMutex.getPtr(), sizeof(self._pvt_ptr[0].params.keyedMutex))
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].params.reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].params.reserved = reserved
 
 
 cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
@@ -19905,10 +19638,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
         For all other types of CUexternalSemaphore, flags must be zero.
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -19920,12 +19649,10 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._params = anon_struct19(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._params._owner = self
     def __dealloc__(self):
-        pass
+        self._params = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -19942,12 +19669,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
                 str_list += ['flags : ' + str(self.flags)]
             except ValueError:
                 str_list += ['flags : <ValueError>']
-
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -19967,14 +19688,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
@@ -20010,17 +19723,12 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
-
         if self._extSemArray is not NULL:
             free(self._extSemArray)
             self._pvt_ptr[0].extSemArray = NULL
-
-
         if self._paramsArray is not NULL:
             free(self._paramsArray)
             self._pvt_ptr[0].paramsArray = NULL
-
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -20074,10 +19782,15 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
 
     @property
     def paramsArray(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].paramsArray + x*sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS) for x in range(self._paramsArray_length)]
-        return [CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].paramsArray == NULL:
+            return []
+        out_paramsArray = [CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS() for _idx in range(self._paramsArray_length)]
+        for _idx in range(len(out_paramsArray)):
+            string.memcpy(<cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS*><void_ptr>out_paramsArray[_idx].getPtr(), &self._pvt_ptr[0].paramsArray[_idx], sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
+        return out_paramsArray
     @paramsArray.setter
     def paramsArray(self, val):
+        cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* _paramsArray_new
         if len(val) == 0:
             free(self._paramsArray)
             self._paramsArray = NULL
@@ -20085,15 +19798,18 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                free(self._paramsArray)
-                self._paramsArray = <cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS*> calloc(len(val), sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
-                if self._paramsArray is NULL:
+                _paramsArray_new = <cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS*> calloc(len(val), sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
+                if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramsArray_new[idx], (<CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
+                free(self._paramsArray)
+                self._paramsArray = _paramsArray_new
                 self._paramsArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramsArray = self._paramsArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramsArray[idx], (<CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
-
+                self._pvt_ptr[0].paramsArray = _paramsArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramsArray[idx], (<CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
 
 
     @property
@@ -20124,6 +19840,14 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
         paramsArray.
 
 
+    ctx : CUcontext
+
+
+
+    gCtx : CUgreenCtx
+
+
+
     Methods
     -------
     getPtr()
@@ -20131,23 +19855,22 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._pvt_ptr = &self._pvt_val
+            self._val_ptr = <cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st *>calloc(1, sizeof(cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st))
+            self._pvt_ptr = self._val_ptr
         else:
             self._pvt_ptr = <cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
+        self._ctx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
+        self._gCtx = CUgreenCtx(_ptr=<void_ptr>&self._pvt_ptr[0].gCtx)
     def __dealloc__(self):
-        pass
-
         if self._extSemArray is not NULL:
             free(self._extSemArray)
             self._pvt_ptr[0].extSemArray = NULL
-
-
         if self._paramsArray is not NULL:
             free(self._paramsArray)
             self._pvt_ptr[0].paramsArray = NULL
-
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -20170,6 +19893,18 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
                 str_list += ['numExtSems : ' + str(self.numExtSems)]
             except ValueError:
                 str_list += ['numExtSems : <ValueError>']
+
+
+            try:
+                str_list += ['ctx : ' + str(self.ctx)]
+            except ValueError:
+                str_list += ['ctx : <ValueError>']
+
+
+            try:
+                str_list += ['gCtx : ' + str(self.gCtx)]
+            except ValueError:
+                str_list += ['gCtx : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -20201,10 +19936,15 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
 
     @property
     def paramsArray(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].paramsArray + x*sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS) for x in range(self._paramsArray_length)]
-        return [CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].paramsArray == NULL:
+            return []
+        out_paramsArray = [CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS() for _idx in range(self._paramsArray_length)]
+        for _idx in range(len(out_paramsArray)):
+            string.memcpy(<cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS*><void_ptr>out_paramsArray[_idx].getPtr(), &self._pvt_ptr[0].paramsArray[_idx], sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
+        return out_paramsArray
     @paramsArray.setter
     def paramsArray(self, val):
+        cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* _paramsArray_new
         if len(val) == 0:
             free(self._paramsArray)
             self._paramsArray = NULL
@@ -20212,15 +19952,18 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                free(self._paramsArray)
-                self._paramsArray = <cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS*> calloc(len(val), sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
-                if self._paramsArray is NULL:
+                _paramsArray_new = <cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS*> calloc(len(val), sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
+                if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramsArray_new[idx], (<CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
+                free(self._paramsArray)
+                self._paramsArray = _paramsArray_new
                 self._paramsArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramsArray = self._paramsArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramsArray[idx], (<CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
-
+                self._pvt_ptr[0].paramsArray = _paramsArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramsArray[idx], (<CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
 
 
     @property
@@ -20229,6 +19972,40 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
     @numExtSems.setter
     def numExtSems(self, unsigned int numExtSems):
         self._pvt_ptr[0].numExtSems = numExtSems
+
+
+    @property
+    def ctx(self):
+        return self._ctx
+    @ctx.setter
+    def ctx(self, ctx):
+        cdef cydriver.CUcontext cyctx
+        if ctx is None:
+            cyctx = <cydriver.CUcontext><void_ptr>0
+        elif isinstance(ctx, (CUcontext,)):
+            pctx = int(ctx)
+            cyctx = <cydriver.CUcontext><void_ptr>pctx
+        else:
+            pctx = int(CUcontext(ctx))
+            cyctx = <cydriver.CUcontext><void_ptr>pctx
+        self._ctx._pvt_ptr[0] = cyctx
+
+
+    @property
+    def gCtx(self):
+        return self._gCtx
+    @gCtx.setter
+    def gCtx(self, gCtx):
+        cdef cydriver.CUgreenCtx cygCtx
+        if gCtx is None:
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>0
+        elif isinstance(gCtx, (CUgreenCtx,)):
+            pgCtx = int(gCtx)
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>pgCtx
+        else:
+            pgCtx = int(CUgreenCtx(gCtx))
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>pgCtx
+        self._gCtx._pvt_ptr[0] = cygCtx
 
 
 cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
@@ -20264,17 +20041,12 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
-
         if self._extSemArray is not NULL:
             free(self._extSemArray)
             self._pvt_ptr[0].extSemArray = NULL
-
-
         if self._paramsArray is not NULL:
             free(self._paramsArray)
             self._pvt_ptr[0].paramsArray = NULL
-
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -20328,10 +20100,15 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
 
     @property
     def paramsArray(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].paramsArray + x*sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS) for x in range(self._paramsArray_length)]
-        return [CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].paramsArray == NULL:
+            return []
+        out_paramsArray = [CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS() for _idx in range(self._paramsArray_length)]
+        for _idx in range(len(out_paramsArray)):
+            string.memcpy(<cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS*><void_ptr>out_paramsArray[_idx].getPtr(), &self._pvt_ptr[0].paramsArray[_idx], sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
+        return out_paramsArray
     @paramsArray.setter
     def paramsArray(self, val):
+        cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* _paramsArray_new
         if len(val) == 0:
             free(self._paramsArray)
             self._paramsArray = NULL
@@ -20339,15 +20116,18 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                free(self._paramsArray)
-                self._paramsArray = <cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS*> calloc(len(val), sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
-                if self._paramsArray is NULL:
+                _paramsArray_new = <cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS*> calloc(len(val), sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
+                if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramsArray_new[idx], (<CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
+                free(self._paramsArray)
+                self._paramsArray = _paramsArray_new
                 self._paramsArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramsArray = self._paramsArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramsArray[idx], (<CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
-
+                self._pvt_ptr[0].paramsArray = _paramsArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramsArray[idx], (<CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
 
 
     @property
@@ -20378,6 +20158,14 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
         paramsArray.
 
 
+    ctx : CUcontext
+
+
+
+    gCtx : CUgreenCtx
+
+
+
     Methods
     -------
     getPtr()
@@ -20385,23 +20173,22 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._pvt_ptr = &self._pvt_val
+            self._val_ptr = <cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st *>calloc(1, sizeof(cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st))
+            self._pvt_ptr = self._val_ptr
         else:
             self._pvt_ptr = <cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
+        self._ctx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
+        self._gCtx = CUgreenCtx(_ptr=<void_ptr>&self._pvt_ptr[0].gCtx)
     def __dealloc__(self):
-        pass
-
         if self._extSemArray is not NULL:
             free(self._extSemArray)
             self._pvt_ptr[0].extSemArray = NULL
-
-
         if self._paramsArray is not NULL:
             free(self._paramsArray)
             self._pvt_ptr[0].paramsArray = NULL
-
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -20424,6 +20211,18 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
                 str_list += ['numExtSems : ' + str(self.numExtSems)]
             except ValueError:
                 str_list += ['numExtSems : <ValueError>']
+
+
+            try:
+                str_list += ['ctx : ' + str(self.ctx)]
+            except ValueError:
+                str_list += ['ctx : <ValueError>']
+
+
+            try:
+                str_list += ['gCtx : ' + str(self.gCtx)]
+            except ValueError:
+                str_list += ['gCtx : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -20455,10 +20254,15 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
 
     @property
     def paramsArray(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].paramsArray + x*sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS) for x in range(self._paramsArray_length)]
-        return [CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].paramsArray == NULL:
+            return []
+        out_paramsArray = [CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS() for _idx in range(self._paramsArray_length)]
+        for _idx in range(len(out_paramsArray)):
+            string.memcpy(<cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS*><void_ptr>out_paramsArray[_idx].getPtr(), &self._pvt_ptr[0].paramsArray[_idx], sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
+        return out_paramsArray
     @paramsArray.setter
     def paramsArray(self, val):
+        cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* _paramsArray_new
         if len(val) == 0:
             free(self._paramsArray)
             self._paramsArray = NULL
@@ -20466,15 +20270,18 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                free(self._paramsArray)
-                self._paramsArray = <cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS*> calloc(len(val), sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
-                if self._paramsArray is NULL:
+                _paramsArray_new = <cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS*> calloc(len(val), sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
+                if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramsArray_new[idx], (<CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
+                free(self._paramsArray)
+                self._paramsArray = _paramsArray_new
                 self._paramsArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramsArray = self._paramsArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramsArray[idx], (<CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
-
+                self._pvt_ptr[0].paramsArray = _paramsArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramsArray[idx], (<CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
 
 
     @property
@@ -20485,7 +20292,41 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
         self._pvt_ptr[0].numExtSems = numExtSems
 
 
-cdef class anon_union9:
+    @property
+    def ctx(self):
+        return self._ctx
+    @ctx.setter
+    def ctx(self, ctx):
+        cdef cydriver.CUcontext cyctx
+        if ctx is None:
+            cyctx = <cydriver.CUcontext><void_ptr>0
+        elif isinstance(ctx, (CUcontext,)):
+            pctx = int(ctx)
+            cyctx = <cydriver.CUcontext><void_ptr>pctx
+        else:
+            pctx = int(CUcontext(ctx))
+            cyctx = <cydriver.CUcontext><void_ptr>pctx
+        self._ctx._pvt_ptr[0] = cyctx
+
+
+    @property
+    def gCtx(self):
+        return self._gCtx
+    @gCtx.setter
+    def gCtx(self, gCtx):
+        cdef cydriver.CUgreenCtx cygCtx
+        if gCtx is None:
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>0
+        elif isinstance(gCtx, (CUgreenCtx,)):
+            pgCtx = int(gCtx)
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>pgCtx
+        else:
+            pgCtx = int(CUgreenCtx(gCtx))
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>pgCtx
+        self._gCtx._pvt_ptr[0] = cygCtx
+
+
+cdef class anon_union12:
     """
     Attributes
     ----------
@@ -20507,13 +20348,8 @@ cdef class anon_union9:
         self._pvt_ptr = <cydriver.CUarrayMapInfo_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._mipmap = CUmipmappedArray(_ptr=<void_ptr>&self._pvt_ptr[0].resource.mipmap)
-
-
         self._array = CUarray(_ptr=<void_ptr>&self._pvt_ptr[0].resource.array)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -20821,7 +20657,7 @@ cdef class anon_struct21:
         self._pvt_ptr[0].subresource.miptail.size = size
 
 
-cdef class anon_union10:
+cdef class anon_union13:
     """
     Attributes
     ----------
@@ -20843,15 +20679,13 @@ cdef class anon_union10:
         self._pvt_ptr = <cydriver.CUarrayMapInfo_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._sparseLevel = anon_struct20(_ptr=<void_ptr>self._pvt_ptr)
-
-
+        self._sparseLevel._owner = self
         self._miptail = anon_struct21(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._miptail._owner = self
     def __dealloc__(self):
-        pass
+        self._sparseLevel = None
+        self._miptail = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].subresource
     def __repr__(self):
@@ -20889,7 +20723,7 @@ cdef class anon_union10:
         string.memcpy(&self._pvt_ptr[0].subresource.miptail, <void*><void_ptr>miptail.getPtr(), sizeof(self._pvt_ptr[0].subresource.miptail))
 
 
-cdef class anon_union11:
+cdef class anon_union14:
     """
     Attributes
     ----------
@@ -20907,10 +20741,7 @@ cdef class anon_union11:
         self._pvt_ptr = <cydriver.CUarrayMapInfo_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._memHandle = CUmemGenericAllocationHandle(_ptr=<void_ptr>&self._pvt_ptr[0].memHandle.memHandle)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -20958,7 +20789,7 @@ cdef class CUarrayMapInfo_st:
         Resource type
 
 
-    resource : anon_union9
+    resource : anon_union12
 
 
 
@@ -20966,7 +20797,7 @@ cdef class CUarrayMapInfo_st:
         Sparse subresource type
 
 
-    subresource : anon_union10
+    subresource : anon_union13
 
 
 
@@ -20978,7 +20809,7 @@ cdef class CUarrayMapInfo_st:
         Memory handle type
 
 
-    memHandle : anon_union11
+    memHandle : anon_union14
 
 
 
@@ -20994,10 +20825,6 @@ cdef class CUarrayMapInfo_st:
         flags for future use, must be zero now.
 
 
-    reserved : list[unsigned int]
-        Reserved for future use, must be zero now.
-
-
     Methods
     -------
     getPtr()
@@ -21010,17 +20837,16 @@ cdef class CUarrayMapInfo_st:
         else:
             self._pvt_ptr = <cydriver.CUarrayMapInfo_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
-        self._resource = anon_union9(_ptr=<void_ptr>self._pvt_ptr)
-
-
-        self._subresource = anon_union10(_ptr=<void_ptr>self._pvt_ptr)
-
-
-        self._memHandle = anon_union11(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._resource = anon_union12(_ptr=<void_ptr>self._pvt_ptr)
+        self._resource._owner = self
+        self._subresource = anon_union13(_ptr=<void_ptr>self._pvt_ptr)
+        self._subresource._owner = self
+        self._memHandle = anon_union14(_ptr=<void_ptr>self._pvt_ptr)
+        self._memHandle._owner = self
     def __dealloc__(self):
+        self._resource = None
+        self._subresource = None
+        self._memHandle = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -21088,12 +20914,6 @@ cdef class CUarrayMapInfo_st:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -21110,7 +20930,7 @@ cdef class CUarrayMapInfo_st:
     def resource(self):
         return self._resource
     @resource.setter
-    def resource(self, resource not None : anon_union9):
+    def resource(self, resource not None : anon_union12):
         string.memcpy(&self._pvt_ptr[0].resource, <void*><void_ptr>resource.getPtr(), sizeof(self._pvt_ptr[0].resource))
 
 
@@ -21126,7 +20946,7 @@ cdef class CUarrayMapInfo_st:
     def subresource(self):
         return self._subresource
     @subresource.setter
-    def subresource(self, subresource not None : anon_union10):
+    def subresource(self, subresource not None : anon_union13):
         string.memcpy(&self._pvt_ptr[0].subresource, <void*><void_ptr>subresource.getPtr(), sizeof(self._pvt_ptr[0].subresource))
 
 
@@ -21150,7 +20970,7 @@ cdef class CUarrayMapInfo_st:
     def memHandle(self):
         return self._memHandle
     @memHandle.setter
-    def memHandle(self, memHandle not None : anon_union11):
+    def memHandle(self, memHandle not None : anon_union14):
         string.memcpy(&self._pvt_ptr[0].memHandle, <void*><void_ptr>memHandle.getPtr(), sizeof(self._pvt_ptr[0].memHandle))
 
 
@@ -21178,12 +20998,66 @@ cdef class CUarrayMapInfo_st:
         self._pvt_ptr[0].flags = flags
 
 
+cdef class anon_struct22:
+    """
+    Attributes
+    ----------
+
+    deviceId : bytes
+
+
+
+    localityDomainId : bytes
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr):
+        self._pvt_ptr = <cydriver.CUmemLocation_st *>_ptr
+
+    def __init__(self, void_ptr _ptr):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>&self._pvt_ptr[0].localized
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['deviceId : ' + str(self.deviceId)]
+            except ValueError:
+                str_list += ['deviceId : <ValueError>']
+
+
+            try:
+                str_list += ['localityDomainId : ' + str(self.localityDomainId)]
+            except ValueError:
+                str_list += ['localityDomainId : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
     @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
+    def deviceId(self):
+        return self._pvt_ptr[0].localized.deviceId
+    @deviceId.setter
+    def deviceId(self, unsigned char deviceId):
+        self._pvt_ptr[0].localized.deviceId = deviceId
+
+
+    @property
+    def localityDomainId(self):
+        return self._pvt_ptr[0].localized.localityDomainId
+    @localityDomainId.setter
+    def localityDomainId(self, unsigned char localityDomainId):
+        self._pvt_ptr[0].localized.localityDomainId = localityDomainId
 
 
 cdef class CUmemLocation_st:
@@ -21203,6 +21077,11 @@ cdef class CUmemLocation_st:
         CUmemLocationType::CU_MEM_LOCATION_TYPE_HOST_NUMA.
 
 
+    localized : anon_struct22
+        Identifier for
+        CUmemLocationType::CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN.
+
+
     Methods
     -------
     getPtr()
@@ -21215,8 +21094,10 @@ cdef class CUmemLocation_st:
         else:
             self._pvt_ptr = <cydriver.CUmemLocation_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
+        self._localized = anon_struct22(_ptr=<void_ptr>self._pvt_ptr)
+        self._localized._owner = self
     def __dealloc__(self):
+        self._localized = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -21235,6 +21116,12 @@ cdef class CUmemLocation_st:
                 str_list += ['id : ' + str(self.id)]
             except ValueError:
                 str_list += ['id : <ValueError>']
+
+
+            try:
+                str_list += ['localized :\n' + '\n'.join(['    ' + line for line in str(self.localized).splitlines()])]
+            except ValueError:
+                str_list += ['localized : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -21256,7 +21143,15 @@ cdef class CUmemLocation_st:
         self._pvt_ptr[0].id = id
 
 
-cdef class anon_struct22:
+    @property
+    def localized(self):
+        return self._localized
+    @localized.setter
+    def localized(self, localized not None : anon_struct22):
+        string.memcpy(&self._pvt_ptr[0].localized, <void*><void_ptr>localized.getPtr(), sizeof(self._pvt_ptr[0].localized))
+
+
+cdef class anon_struct23:
     """
     Attributes
     ----------
@@ -21270,10 +21165,6 @@ cdef class anon_struct22:
 
 
     usage : unsigned short
-
-
-
-    reserved : bytes
 
 
 
@@ -21312,12 +21203,6 @@ cdef class anon_struct22:
             except ValueError:
                 str_list += ['usage : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -21344,17 +21229,6 @@ cdef class anon_struct22:
     @usage.setter
     def usage(self, unsigned short usage):
         self._pvt_ptr[0].allocFlags.usage = usage
-
-
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].allocFlags.reserved, 4)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 4:
-            raise ValueError("reserved length must be 4, is " + str(len(reserved)))
-        for i, b in enumerate(reserved):
-            self._pvt_ptr[0].allocFlags.reserved[i] = b
 
 
 cdef class CUmemAllocationProp_st:
@@ -21384,7 +21258,7 @@ cdef class CUmemAllocationProp_st:
         In all other cases, this field is required to be zero.
 
 
-    allocFlags : anon_struct22
+    allocFlags : anon_struct23
 
 
 
@@ -21399,15 +21273,13 @@ cdef class CUmemAllocationProp_st:
         else:
             self._pvt_ptr = <cydriver.CUmemAllocationProp_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._location = CUmemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].location)
-
-
-        self._allocFlags = anon_struct22(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._location._owner = self
+        self._allocFlags = anon_struct23(_ptr=<void_ptr>self._pvt_ptr)
+        self._allocFlags._owner = self
     def __dealloc__(self):
-        pass
+        self._location = None
+        self._allocFlags = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -21484,7 +21356,7 @@ cdef class CUmemAllocationProp_st:
     def allocFlags(self):
         return self._allocFlags
     @allocFlags.setter
-    def allocFlags(self, allocFlags not None : anon_struct22):
+    def allocFlags(self, allocFlags not None : anon_struct23):
         string.memcpy(&self._pvt_ptr[0].allocFlags, <void*><void_ptr>allocFlags.getPtr(), sizeof(self._pvt_ptr[0].allocFlags))
 
 
@@ -21619,12 +21491,10 @@ cdef class CUmemAccessDesc_st:
         else:
             self._pvt_ptr = <cydriver.CUmemAccessDesc_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._location = CUmemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].location)
-
+        self._location._owner = self
     def __dealloc__(self):
-        pass
+        self._location = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -21695,13 +21565,8 @@ cdef class CUgraphExecUpdateResultInfo_st:
         else:
             self._pvt_ptr = <cydriver.CUgraphExecUpdateResultInfo_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._errorNode = CUgraphNode(_ptr=<void_ptr>&self._pvt_ptr[0].errorNode)
-
-
         self._errorFromNode = CUgraphNode(_ptr=<void_ptr>&self._pvt_ptr[0].errorFromNode)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -21810,8 +21675,22 @@ cdef class CUmemPoolProps_st:
         Bitmask indicating intended usage for the pool.
 
 
-    reserved : bytes
-        reserved for future use, must be 0
+    gpuDirectRDMACapable : bytes
+        Allocation hint for requesting GPUDirect RDMA capable memory. On
+        devices that support GPUDirect RDMA, this flag indicates that the
+        memory will be used for GPUDirect RDMA. On platforms where the
+        default RDMA path does not support localized allocations, this flag
+        has the following effects: - For MPS clients using MLOPart/locality
+        domains, this flag has the effect of disabling localization for the
+        pool. This allows the pool to be used for GPUDirect RDMA with the
+        default RDMA path.    - For pools that are localized using CUDA
+        locality domain APIs, using this flag will have no effect, but
+        attempting to export the localized memory without forcing PCIe will
+        return an error. To use GPUDirect RDMA with localized pools on
+        platforms where the default RDMA path does not support localized
+        allocations, handles must be acquired with the flag
+        CU_MEM_RANGE_FLAG_DMA_BUF_MAPPING_TYPE_PCIE. Note that CUDA memory
+        pools are only compatible with dma_buf mappings.
 
 
     Methods
@@ -21825,12 +21704,10 @@ cdef class CUmemPoolProps_st:
         else:
             self._pvt_ptr = <cydriver.CUmemPoolProps_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._location = CUmemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].location)
-
+        self._location._owner = self
     def __dealloc__(self):
-        pass
+        self._location = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -21874,9 +21751,9 @@ cdef class CUmemPoolProps_st:
 
 
             try:
-                str_list += ['reserved : ' + str(self.reserved)]
+                str_list += ['gpuDirectRDMACapable : ' + str(self.gpuDirectRDMACapable)]
             except ValueError:
-                str_list += ['reserved : <ValueError>']
+                str_list += ['gpuDirectRDMACapable : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -21932,26 +21809,16 @@ cdef class CUmemPoolProps_st:
 
 
     @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 54)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 54:
-            raise ValueError("reserved length must be 54, is " + str(len(reserved)))
-        for i, b in enumerate(reserved):
-            self._pvt_ptr[0].reserved[i] = b
+    def gpuDirectRDMACapable(self):
+        return self._pvt_ptr[0].gpuDirectRDMACapable
+    @gpuDirectRDMACapable.setter
+    def gpuDirectRDMACapable(self, unsigned char gpuDirectRDMACapable):
+        self._pvt_ptr[0].gpuDirectRDMACapable = gpuDirectRDMACapable
 
 
 cdef class CUmemPoolPtrExportData_st:
     """
     Opaque data for exporting a pool allocation
-
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
 
     Methods
     -------
@@ -21973,25 +21840,9 @@ cdef class CUmemPoolPtrExportData_st:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
-
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 64)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 64:
-            raise ValueError("reserved length must be 64, is " + str(len(reserved)))
-        for i, b in enumerate(reserved):
-            self._pvt_ptr[0].reserved[i] = b
-
 
 cdef class CUmemcpyAttributes_st:
     """
@@ -22031,15 +21882,13 @@ cdef class CUmemcpyAttributes_st:
         else:
             self._pvt_ptr = <cydriver.CUmemcpyAttributes_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._srcLocHint = CUmemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].srcLocHint)
-
-
+        self._srcLocHint._owner = self
         self._dstLocHint = CUmemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].dstLocHint)
-
+        self._dstLocHint._owner = self
     def __dealloc__(self):
-        pass
+        self._srcLocHint = None
+        self._dstLocHint = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -22273,7 +22122,7 @@ cdef class CUextent3D_st:
         self._pvt_ptr[0].depth = depth
 
 
-cdef class anon_struct23:
+cdef class anon_struct24:
     """
     Attributes
     ----------
@@ -22303,15 +22152,11 @@ cdef class anon_struct23:
         self._pvt_ptr = <cydriver.CUmemcpy3DOperand_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._ptr = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].op.ptr.ptr)
-
-
         self._locHint = CUmemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].op.ptr.locHint)
-
+        self._locHint._owner = self
     def __dealloc__(self):
-        pass
+        self._locHint = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].op.ptr
     def __repr__(self):
@@ -22387,7 +22232,7 @@ cdef class anon_struct23:
         string.memcpy(&self._pvt_ptr[0].op.ptr.locHint, <void*><void_ptr>locHint.getPtr(), sizeof(self._pvt_ptr[0].op.ptr.locHint))
 
 
-cdef class anon_struct24:
+cdef class anon_struct25:
     """
     Attributes
     ----------
@@ -22409,15 +22254,11 @@ cdef class anon_struct24:
         self._pvt_ptr = <cydriver.CUmemcpy3DOperand_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._array = CUarray(_ptr=<void_ptr>&self._pvt_ptr[0].op.array.array)
-
-
         self._offset = CUoffset3D(_ptr=<void_ptr>&self._pvt_ptr[0].op.array.offset)
-
+        self._offset._owner = self
     def __dealloc__(self):
-        pass
+        self._offset = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].op.array
     def __repr__(self):
@@ -22464,16 +22305,16 @@ cdef class anon_struct24:
         string.memcpy(&self._pvt_ptr[0].op.array.offset, <void*><void_ptr>offset.getPtr(), sizeof(self._pvt_ptr[0].op.array.offset))
 
 
-cdef class anon_union13:
+cdef class anon_union16:
     """
     Attributes
     ----------
 
-    ptr : anon_struct23
+    ptr : anon_struct24
 
 
 
-    array : anon_struct24
+    array : anon_struct25
 
 
 
@@ -22486,15 +22327,13 @@ cdef class anon_union13:
         self._pvt_ptr = <cydriver.CUmemcpy3DOperand_st *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
-        self._ptr = anon_struct23(_ptr=<void_ptr>self._pvt_ptr)
-
-
-        self._array = anon_struct24(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._ptr = anon_struct24(_ptr=<void_ptr>self._pvt_ptr)
+        self._ptr._owner = self
+        self._array = anon_struct25(_ptr=<void_ptr>self._pvt_ptr)
+        self._array._owner = self
     def __dealloc__(self):
-        pass
+        self._ptr = None
+        self._array = None
     def getPtr(self):
         return <void_ptr>&self._pvt_ptr[0].op
     def __repr__(self):
@@ -22520,7 +22359,7 @@ cdef class anon_union13:
     def ptr(self):
         return self._ptr
     @ptr.setter
-    def ptr(self, ptr not None : anon_struct23):
+    def ptr(self, ptr not None : anon_struct24):
         string.memcpy(&self._pvt_ptr[0].op.ptr, <void*><void_ptr>ptr.getPtr(), sizeof(self._pvt_ptr[0].op.ptr))
 
 
@@ -22528,7 +22367,7 @@ cdef class anon_union13:
     def array(self):
         return self._array
     @array.setter
-    def array(self, array not None : anon_struct24):
+    def array(self, array not None : anon_struct25):
         string.memcpy(&self._pvt_ptr[0].op.array, <void*><void_ptr>array.getPtr(), sizeof(self._pvt_ptr[0].op.array))
 
 
@@ -22543,7 +22382,7 @@ cdef class CUmemcpy3DOperand_st:
 
 
 
-    op : anon_union13
+    op : anon_union16
 
 
 
@@ -22559,11 +22398,10 @@ cdef class CUmemcpy3DOperand_st:
         else:
             self._pvt_ptr = <cydriver.CUmemcpy3DOperand_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
-        self._op = anon_union13(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._op = anon_union16(_ptr=<void_ptr>self._pvt_ptr)
+        self._op._owner = self
     def __dealloc__(self):
+        self._op = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -22599,7 +22437,7 @@ cdef class CUmemcpy3DOperand_st:
     def op(self):
         return self._op
     @op.setter
-    def op(self, op not None : anon_union13):
+    def op(self, op not None : anon_union16):
         string.memcpy(&self._pvt_ptr[0].op, <void*><void_ptr>op.getPtr(), sizeof(self._pvt_ptr[0].op))
 
 
@@ -22640,18 +22478,16 @@ cdef class CUDA_MEMCPY3D_BATCH_OP_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_MEMCPY3D_BATCH_OP_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._src = CUmemcpy3DOperand(_ptr=<void_ptr>&self._pvt_ptr[0].src)
-
-
+        self._src._owner = self
         self._dst = CUmemcpy3DOperand(_ptr=<void_ptr>&self._pvt_ptr[0].dst)
-
-
+        self._dst._owner = self
         self._extent = CUextent3D(_ptr=<void_ptr>&self._pvt_ptr[0].extent)
-
+        self._extent._owner = self
     def __dealloc__(self):
-        pass
+        self._src = None
+        self._dst = None
+        self._extent = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -22773,20 +22609,14 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_MEM_ALLOC_NODE_PARAMS_v1_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._poolProps = CUmemPoolProps(_ptr=<void_ptr>&self._pvt_ptr[0].poolProps)
-
-
+        self._poolProps._owner = self
         self._dptr = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].dptr)
-
     def __dealloc__(self):
-        pass
-
+        self._poolProps = None
         if self._accessDescs is not NULL:
             free(self._accessDescs)
             self._pvt_ptr[0].accessDescs = NULL
-
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -22836,10 +22666,15 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
 
     @property
     def accessDescs(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].accessDescs + x*sizeof(cydriver.CUmemAccessDesc) for x in range(self._accessDescs_length)]
-        return [CUmemAccessDesc(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].accessDescs == NULL:
+            return []
+        out_accessDescs = [CUmemAccessDesc() for _idx in range(self._accessDescs_length)]
+        for _idx in range(len(out_accessDescs)):
+            string.memcpy(<cydriver.CUmemAccessDesc*><void_ptr>out_accessDescs[_idx].getPtr(), &self._pvt_ptr[0].accessDescs[_idx], sizeof(cydriver.CUmemAccessDesc))
+        return out_accessDescs
     @accessDescs.setter
     def accessDescs(self, val):
+        cdef cydriver.CUmemAccessDesc* _accessDescs_new
         if len(val) == 0:
             free(self._accessDescs)
             self._accessDescs = NULL
@@ -22847,15 +22682,18 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
             self._pvt_ptr[0].accessDescs = NULL
         else:
             if self._accessDescs_length != <size_t>len(val):
-                free(self._accessDescs)
-                self._accessDescs = <cydriver.CUmemAccessDesc*> calloc(len(val), sizeof(cydriver.CUmemAccessDesc))
-                if self._accessDescs is NULL:
+                _accessDescs_new = <cydriver.CUmemAccessDesc*> calloc(len(val), sizeof(cydriver.CUmemAccessDesc))
+                if _accessDescs_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUmemAccessDesc)))
+                for idx in range(len(val)):
+                    string.memcpy(&_accessDescs_new[idx], (<CUmemAccessDesc>val[idx])._pvt_ptr, sizeof(cydriver.CUmemAccessDesc))
+                free(self._accessDescs)
+                self._accessDescs = _accessDescs_new
                 self._accessDescs_length = <size_t>len(val)
-                self._pvt_ptr[0].accessDescs = self._accessDescs
-            for idx in range(len(val)):
-                string.memcpy(&self._accessDescs[idx], (<CUmemAccessDesc>val[idx])._pvt_ptr, sizeof(cydriver.CUmemAccessDesc))
-
+                self._pvt_ptr[0].accessDescs = _accessDescs_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._accessDescs[idx], (<CUmemAccessDesc>val[idx])._pvt_ptr, sizeof(cydriver.CUmemAccessDesc))
 
 
     @property
@@ -22934,20 +22772,14 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v2_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_MEM_ALLOC_NODE_PARAMS_v2_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._poolProps = CUmemPoolProps(_ptr=<void_ptr>&self._pvt_ptr[0].poolProps)
-
-
+        self._poolProps._owner = self
         self._dptr = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].dptr)
-
     def __dealloc__(self):
-        pass
-
+        self._poolProps = None
         if self._accessDescs is not NULL:
             free(self._accessDescs)
             self._pvt_ptr[0].accessDescs = NULL
-
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -22997,10 +22829,15 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v2_st:
 
     @property
     def accessDescs(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].accessDescs + x*sizeof(cydriver.CUmemAccessDesc) for x in range(self._accessDescs_length)]
-        return [CUmemAccessDesc(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].accessDescs == NULL:
+            return []
+        out_accessDescs = [CUmemAccessDesc() for _idx in range(self._accessDescs_length)]
+        for _idx in range(len(out_accessDescs)):
+            string.memcpy(<cydriver.CUmemAccessDesc*><void_ptr>out_accessDescs[_idx].getPtr(), &self._pvt_ptr[0].accessDescs[_idx], sizeof(cydriver.CUmemAccessDesc))
+        return out_accessDescs
     @accessDescs.setter
     def accessDescs(self, val):
+        cdef cydriver.CUmemAccessDesc* _accessDescs_new
         if len(val) == 0:
             free(self._accessDescs)
             self._accessDescs = NULL
@@ -23008,15 +22845,18 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v2_st:
             self._pvt_ptr[0].accessDescs = NULL
         else:
             if self._accessDescs_length != <size_t>len(val):
-                free(self._accessDescs)
-                self._accessDescs = <cydriver.CUmemAccessDesc*> calloc(len(val), sizeof(cydriver.CUmemAccessDesc))
-                if self._accessDescs is NULL:
+                _accessDescs_new = <cydriver.CUmemAccessDesc*> calloc(len(val), sizeof(cydriver.CUmemAccessDesc))
+                if _accessDescs_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUmemAccessDesc)))
+                for idx in range(len(val)):
+                    string.memcpy(&_accessDescs_new[idx], (<CUmemAccessDesc>val[idx])._pvt_ptr, sizeof(cydriver.CUmemAccessDesc))
+                free(self._accessDescs)
+                self._accessDescs = _accessDescs_new
                 self._accessDescs_length = <size_t>len(val)
-                self._pvt_ptr[0].accessDescs = self._accessDescs
-            for idx in range(len(val)):
-                string.memcpy(&self._accessDescs[idx], (<CUmemAccessDesc>val[idx])._pvt_ptr, sizeof(cydriver.CUmemAccessDesc))
-
+                self._pvt_ptr[0].accessDescs = _accessDescs_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._accessDescs[idx], (<CUmemAccessDesc>val[idx])._pvt_ptr, sizeof(cydriver.CUmemAccessDesc))
 
 
     @property
@@ -23075,10 +22915,7 @@ cdef class CUDA_MEM_FREE_NODE_PARAMS_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_MEM_FREE_NODE_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._dptr = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].dptr)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -23144,10 +22981,7 @@ cdef class CUDA_CHILD_GRAPH_NODE_PARAMS_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_CHILD_GRAPH_NODE_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._graph = CUgraph(_ptr=<void_ptr>&self._pvt_ptr[0].graph)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -23207,6 +23041,14 @@ cdef class CUDA_EVENT_RECORD_NODE_PARAMS_st:
         The event to record when the node executes
 
 
+    ctx : CUcontext
+
+
+
+    gCtx : CUgreenCtx
+
+
+
     Methods
     -------
     getPtr()
@@ -23214,16 +23056,17 @@ cdef class CUDA_EVENT_RECORD_NODE_PARAMS_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._pvt_ptr = &self._pvt_val
+            self._val_ptr = <cydriver.CUDA_EVENT_RECORD_NODE_PARAMS_st *>calloc(1, sizeof(cydriver.CUDA_EVENT_RECORD_NODE_PARAMS_st))
+            self._pvt_ptr = self._val_ptr
         else:
             self._pvt_ptr = <cydriver.CUDA_EVENT_RECORD_NODE_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._event = CUevent(_ptr=<void_ptr>&self._pvt_ptr[0].event)
-
+        self._ctx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
+        self._gCtx = CUgreenCtx(_ptr=<void_ptr>&self._pvt_ptr[0].gCtx)
     def __dealloc__(self):
-        pass
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -23234,6 +23077,18 @@ cdef class CUDA_EVENT_RECORD_NODE_PARAMS_st:
                 str_list += ['event : ' + str(self.event)]
             except ValueError:
                 str_list += ['event : <ValueError>']
+
+
+            try:
+                str_list += ['ctx : ' + str(self.ctx)]
+            except ValueError:
+                str_list += ['ctx : <ValueError>']
+
+
+            try:
+                str_list += ['gCtx : ' + str(self.gCtx)]
+            except ValueError:
+                str_list += ['gCtx : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -23254,6 +23109,40 @@ cdef class CUDA_EVENT_RECORD_NODE_PARAMS_st:
             pevent = int(CUevent(event))
             cyevent = <cydriver.CUevent><void_ptr>pevent
         self._event._pvt_ptr[0] = cyevent
+
+
+    @property
+    def ctx(self):
+        return self._ctx
+    @ctx.setter
+    def ctx(self, ctx):
+        cdef cydriver.CUcontext cyctx
+        if ctx is None:
+            cyctx = <cydriver.CUcontext><void_ptr>0
+        elif isinstance(ctx, (CUcontext,)):
+            pctx = int(ctx)
+            cyctx = <cydriver.CUcontext><void_ptr>pctx
+        else:
+            pctx = int(CUcontext(ctx))
+            cyctx = <cydriver.CUcontext><void_ptr>pctx
+        self._ctx._pvt_ptr[0] = cyctx
+
+
+    @property
+    def gCtx(self):
+        return self._gCtx
+    @gCtx.setter
+    def gCtx(self, gCtx):
+        cdef cydriver.CUgreenCtx cygCtx
+        if gCtx is None:
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>0
+        elif isinstance(gCtx, (CUgreenCtx,)):
+            pgCtx = int(gCtx)
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>pgCtx
+        else:
+            pgCtx = int(CUgreenCtx(gCtx))
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>pgCtx
+        self._gCtx._pvt_ptr[0] = cygCtx
 
 
 cdef class CUDA_EVENT_WAIT_NODE_PARAMS_st:
@@ -23278,10 +23167,7 @@ cdef class CUDA_EVENT_WAIT_NODE_PARAMS_st:
         else:
             self._pvt_ptr = <cydriver.CUDA_EVENT_WAIT_NODE_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._event = CUevent(_ptr=<void_ptr>&self._pvt_ptr[0].event)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -23325,14 +23211,6 @@ cdef class CUgraphNodeParams_st:
 
     type : CUgraphNodeType
         Type of the node
-
-
-    reserved0 : list[int]
-        Reserved. Must be zero.
-
-
-    reserved1 : list[long long]
-        Padding. Unused bytes must be zero.
 
 
     kernel : CUDA_KERNEL_NODE_PARAMS_v3
@@ -23391,10 +23269,6 @@ cdef class CUgraphNodeParams_st:
         Padding as bytes
 
 
-    reserved2 : long long
-        Reserved bytes. Must be zero.
-
-
     Methods
     -------
     getPtr()
@@ -23407,47 +23281,46 @@ cdef class CUgraphNodeParams_st:
         else:
             self._pvt_ptr = <cydriver.CUgraphNodeParams_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._kernel = CUDA_KERNEL_NODE_PARAMS_v3(_ptr=<void_ptr>&self._pvt_ptr[0].kernel)
-
-
+        self._kernel._owner = self
         self._memcpy = CUDA_MEMCPY_NODE_PARAMS(_ptr=<void_ptr>&self._pvt_ptr[0].memcpy)
-
-
+        self._memcpy._owner = self
         self._memset = CUDA_MEMSET_NODE_PARAMS_v2(_ptr=<void_ptr>&self._pvt_ptr[0].memset)
-
-
+        self._memset._owner = self
         self._host = CUDA_HOST_NODE_PARAMS_v2(_ptr=<void_ptr>&self._pvt_ptr[0].host)
-
-
+        self._host._owner = self
         self._graph = CUDA_CHILD_GRAPH_NODE_PARAMS(_ptr=<void_ptr>&self._pvt_ptr[0].graph)
-
-
+        self._graph._owner = self
         self._eventWait = CUDA_EVENT_WAIT_NODE_PARAMS(_ptr=<void_ptr>&self._pvt_ptr[0].eventWait)
-
-
+        self._eventWait._owner = self
         self._eventRecord = CUDA_EVENT_RECORD_NODE_PARAMS(_ptr=<void_ptr>&self._pvt_ptr[0].eventRecord)
-
-
+        self._eventRecord._owner = self
         self._extSemSignal = CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2(_ptr=<void_ptr>&self._pvt_ptr[0].extSemSignal)
-
-
+        self._extSemSignal._owner = self
         self._extSemWait = CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2(_ptr=<void_ptr>&self._pvt_ptr[0].extSemWait)
-
-
+        self._extSemWait._owner = self
         self._alloc = CUDA_MEM_ALLOC_NODE_PARAMS_v2(_ptr=<void_ptr>&self._pvt_ptr[0].alloc)
-
-
+        self._alloc._owner = self
         self._free = CUDA_MEM_FREE_NODE_PARAMS(_ptr=<void_ptr>&self._pvt_ptr[0].free)
-
-
+        self._free._owner = self
         self._memOp = CUDA_BATCH_MEM_OP_NODE_PARAMS_v2(_ptr=<void_ptr>&self._pvt_ptr[0].memOp)
-
-
+        self._memOp._owner = self
         self._conditional = CUDA_CONDITIONAL_NODE_PARAMS(_ptr=<void_ptr>&self._pvt_ptr[0].conditional)
-
+        self._conditional._owner = self
     def __dealloc__(self):
+        self._kernel = None
+        self._memcpy = None
+        self._memset = None
+        self._host = None
+        self._graph = None
+        self._eventWait = None
+        self._eventRecord = None
+        self._extSemSignal = None
+        self._extSemWait = None
+        self._alloc = None
+        self._free = None
+        self._memOp = None
+        self._conditional = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -23460,18 +23333,6 @@ cdef class CUgraphNodeParams_st:
                 str_list += ['type : ' + str(self.type)]
             except ValueError:
                 str_list += ['type : <ValueError>']
-
-
-            try:
-                str_list += ['reserved0 : ' + str(self.reserved0)]
-            except ValueError:
-                str_list += ['reserved0 : <ValueError>']
-
-
-            try:
-                str_list += ['reserved1 : ' + str(self.reserved1)]
-            except ValueError:
-                str_list += ['reserved1 : <ValueError>']
 
 
             try:
@@ -23557,12 +23418,6 @@ cdef class CUgraphNodeParams_st:
             except ValueError:
                 str_list += ['asBytes : <ValueError>']
 
-
-            try:
-                str_list += ['reserved2 : ' + str(self.reserved2)]
-            except ValueError:
-                str_list += ['reserved2 : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -23573,22 +23428,6 @@ cdef class CUgraphNodeParams_st:
     @type.setter
     def type(self, type not None : CUgraphNodeType):
         self._pvt_ptr[0].type = int(type)
-
-
-    @property
-    def reserved0(self):
-        return self._pvt_ptr[0].reserved0
-    @reserved0.setter
-    def reserved0(self, reserved0):
-        self._pvt_ptr[0].reserved0 = reserved0
-
-
-    @property
-    def reserved1(self):
-        return self._pvt_ptr[0].reserved1
-    @reserved1.setter
-    def reserved1(self, reserved1):
-        self._pvt_ptr[0].reserved1 = reserved1
 
 
     @property
@@ -23714,12 +23553,231 @@ cdef class CUgraphNodeParams_st:
                 self._pvt_ptr[0].asBytes[i] = b
 
 
+cdef class CUcheckpointCustomStoragePerDeviceData_st:
+    """
+    Per-GPU data for zero-copy mapped device memory used with CUDA
+    checkpoint/restore on custom storage
+
+    Attributes
+    ----------
+
+    devPtr : CUdeviceptr
+        Zero-copy mapped device memory pointer for the user to copy to/from
+
+
+    size : size_t
+        Size of mapped memory
+
+
+    stream : CUstream
+        Stream the user may use for the copy; the CUDA driver synchronizes
+        on this stream before completing checkpoint or restore
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+        else:
+            self._pvt_ptr = <cydriver.CUcheckpointCustomStoragePerDeviceData_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._devPtr = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].devPtr)
+        self._stream = CUstream(_ptr=<void_ptr>&self._pvt_ptr[0].stream)
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['devPtr : ' + str(self.devPtr)]
+            except ValueError:
+                str_list += ['devPtr : <ValueError>']
+
+
+            try:
+                str_list += ['size : ' + str(self.size)]
+            except ValueError:
+                str_list += ['size : <ValueError>']
+
+
+            try:
+                str_list += ['stream : ' + str(self.stream)]
+            except ValueError:
+                str_list += ['stream : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
     @property
-    def reserved2(self):
-        return self._pvt_ptr[0].reserved2
-    @reserved2.setter
-    def reserved2(self, long long reserved2):
-        self._pvt_ptr[0].reserved2 = reserved2
+    def devPtr(self):
+        return self._devPtr
+    @devPtr.setter
+    def devPtr(self, devPtr):
+        cdef cydriver.CUdeviceptr cydevPtr
+        if devPtr is None:
+            cydevPtr = <cydriver.CUdeviceptr><void_ptr>0
+        elif isinstance(devPtr, (CUdeviceptr)):
+            pdevPtr = int(devPtr)
+            cydevPtr = <cydriver.CUdeviceptr><void_ptr>pdevPtr
+        else:
+            pdevPtr = int(CUdeviceptr(devPtr))
+            cydevPtr = <cydriver.CUdeviceptr><void_ptr>pdevPtr
+        self._devPtr._pvt_ptr[0] = cydevPtr
+
+
+
+    @property
+    def size(self):
+        return self._pvt_ptr[0].size
+    @size.setter
+    def size(self, size_t size):
+        self._pvt_ptr[0].size = size
+
+
+    @property
+    def stream(self):
+        return self._stream
+    @stream.setter
+    def stream(self, stream):
+        cdef cydriver.CUstream cystream
+        if stream is None:
+            cystream = <cydriver.CUstream><void_ptr>0
+        elif isinstance(stream, (CUstream,)):
+            pstream = int(stream)
+            cystream = <cydriver.CUstream><void_ptr>pstream
+        else:
+            pstream = int(CUstream(stream))
+            cystream = <cydriver.CUstream><void_ptr>pstream
+        self._stream._pvt_ptr[0] = cystream
+
+
+cdef class CUcheckpointCustomStorageInfo_st:
+    """
+    Output from CUDA custom storage checkpoint/restore: per-GPU device
+    pointers and a handle to complete the operation
+
+    Attributes
+    ----------
+
+    handle : CUcheckpointOperationHandle
+        Handle returned that is needed to complete checkpoint or restore
+
+
+    perDeviceData : CUcheckpointCustomStoragePerDeviceData
+        Returned pointer to array of per-device data, one per device. User
+        should set to NULL
+
+
+    deviceCount : unsigned int
+        Number of devices (and elements in `perDeviceData` array)
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+        else:
+            self._pvt_ptr = <cydriver.CUcheckpointCustomStorageInfo_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._handle = CUcheckpointOperationHandle(_ptr=<void_ptr>&self._pvt_ptr[0].handle)
+    def __dealloc__(self):
+        if self._perDeviceData is not NULL:
+            free(self._perDeviceData)
+            self._pvt_ptr[0].perDeviceData = NULL
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['handle : ' + str(self.handle)]
+            except ValueError:
+                str_list += ['handle : <ValueError>']
+
+
+            try:
+                str_list += ['perDeviceData : ' + str(self.perDeviceData)]
+            except ValueError:
+                str_list += ['perDeviceData : <ValueError>']
+
+
+            try:
+                str_list += ['deviceCount : ' + str(self.deviceCount)]
+            except ValueError:
+                str_list += ['deviceCount : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def handle(self):
+        return self._handle
+    @handle.setter
+    def handle(self, handle):
+        cdef cydriver.CUcheckpointOperationHandle cyhandle
+        if handle is None:
+            cyhandle = <cydriver.CUcheckpointOperationHandle><void_ptr>0
+        elif isinstance(handle, (CUcheckpointOperationHandle,)):
+            phandle = int(handle)
+            cyhandle = <cydriver.CUcheckpointOperationHandle><void_ptr>phandle
+        else:
+            phandle = int(CUcheckpointOperationHandle(handle))
+            cyhandle = <cydriver.CUcheckpointOperationHandle><void_ptr>phandle
+        self._handle._pvt_ptr[0] = cyhandle
+
+
+    @property
+    def perDeviceData(self):
+        if self._pvt_ptr[0].perDeviceData == NULL:
+            return []
+        out_perDeviceData = [CUcheckpointCustomStoragePerDeviceData() for _idx in range(self._perDeviceData_length)]
+        for _idx in range(len(out_perDeviceData)):
+            string.memcpy(<cydriver.CUcheckpointCustomStoragePerDeviceData*><void_ptr>out_perDeviceData[_idx].getPtr(), &self._pvt_ptr[0].perDeviceData[_idx], sizeof(cydriver.CUcheckpointCustomStoragePerDeviceData))
+        return out_perDeviceData
+    @perDeviceData.setter
+    def perDeviceData(self, val):
+        cdef cydriver.CUcheckpointCustomStoragePerDeviceData* _perDeviceData_new
+        if len(val) == 0:
+            free(self._perDeviceData)
+            self._perDeviceData = NULL
+            self._perDeviceData_length = 0
+            self._pvt_ptr[0].perDeviceData = NULL
+        else:
+            if self._perDeviceData_length != <size_t>len(val):
+                _perDeviceData_new = <cydriver.CUcheckpointCustomStoragePerDeviceData*> calloc(len(val), sizeof(cydriver.CUcheckpointCustomStoragePerDeviceData))
+                if _perDeviceData_new is NULL:
+                    raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUcheckpointCustomStoragePerDeviceData)))
+                for idx in range(len(val)):
+                    string.memcpy(&_perDeviceData_new[idx], (<CUcheckpointCustomStoragePerDeviceData>val[idx])._pvt_ptr, sizeof(cydriver.CUcheckpointCustomStoragePerDeviceData))
+                free(self._perDeviceData)
+                self._perDeviceData = _perDeviceData_new
+                self._perDeviceData_length = <size_t>len(val)
+                self._pvt_ptr[0].perDeviceData = _perDeviceData_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._perDeviceData[idx], (<CUcheckpointCustomStoragePerDeviceData>val[idx])._pvt_ptr, sizeof(cydriver.CUcheckpointCustomStoragePerDeviceData))
+
+
+    @property
+    def deviceCount(self):
+        return self._pvt_ptr[0].deviceCount
+    @deviceCount.setter
+    def deviceCount(self, unsigned int deviceCount):
+        self._pvt_ptr[0].deviceCount = deviceCount
 
 
 cdef class CUcheckpointLockArgs_st:
@@ -23732,14 +23790,6 @@ cdef class CUcheckpointLockArgs_st:
     timeoutMs : unsigned int
         Timeout in milliseconds to attempt to lock the process, 0 indicates
         no timeout
-
-
-    reserved0 : unsigned int
-        Reserved for future use, must be zero
-
-
-    reserved1 : list[cuuint64_t]
-        Reserved for future use, must be zeroed
 
 
     Methods
@@ -23767,18 +23817,6 @@ cdef class CUcheckpointLockArgs_st:
             except ValueError:
                 str_list += ['timeoutMs : <ValueError>']
 
-
-            try:
-                str_list += ['reserved0 : ' + str(self.reserved0)]
-            except ValueError:
-                str_list += ['reserved0 : <ValueError>']
-
-
-            try:
-                str_list += ['reserved1 : ' + str(self.reserved1)]
-            except ValueError:
-                str_list += ['reserved1 : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -23791,23 +23829,6 @@ cdef class CUcheckpointLockArgs_st:
         self._pvt_ptr[0].timeoutMs = timeoutMs
 
 
-    @property
-    def reserved0(self):
-        return self._pvt_ptr[0].reserved0
-    @reserved0.setter
-    def reserved0(self, unsigned int reserved0):
-        self._pvt_ptr[0].reserved0 = reserved0
-
-
-    @property
-    def reserved1(self):
-        return [cuuint64_t(init_value=_reserved1) for _reserved1 in self._pvt_ptr[0].reserved1]
-    @reserved1.setter
-    def reserved1(self, reserved1):
-        self._pvt_ptr[0].reserved1 = reserved1
-
-
-
 cdef class CUcheckpointCheckpointArgs_st:
     """
     CUDA checkpoint optional checkpoint arguments
@@ -23815,8 +23836,9 @@ cdef class CUcheckpointCheckpointArgs_st:
     Attributes
     ----------
 
-    reserved : list[cuuint64_t]
-        Reserved for future use, must be zeroed
+    customStorageInfo_out : CUcheckpointCustomStorageInfo
+        Optional custom storage; if NULL, GPU memory is checkpointed to
+        host
 
 
     Methods
@@ -23840,21 +23862,20 @@ cdef class CUcheckpointCheckpointArgs_st:
             str_list = []
 
             try:
-                str_list += ['reserved : ' + str(self.reserved)]
+                str_list += ['customStorageInfo_out : ' + str(self.customStorageInfo_out)]
             except ValueError:
-                str_list += ['reserved : <ValueError>']
+                str_list += ['customStorageInfo_out : <ValueError>']
 
             return '\n'.join(str_list)
         else:
             return ''
 
     @property
-    def reserved(self):
-        return [cuuint64_t(init_value=_reserved) for _reserved in self._pvt_ptr[0].reserved]
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
+    def customStorageInfo_out(self):
+        return <void_ptr>self._pvt_ptr[0].customStorageInfo_out
+    @customStorageInfo_out.setter
+    def customStorageInfo_out(self, void_ptr customStorageInfo_out):
+        self._pvt_ptr[0].customStorageInfo_out = <cydriver.CUcheckpointCustomStorageInfo**>customStorageInfo_out
 
 
 cdef class CUcheckpointGpuPair_st:
@@ -23883,15 +23904,13 @@ cdef class CUcheckpointGpuPair_st:
         else:
             self._pvt_ptr = <cydriver.CUcheckpointGpuPair_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._oldUuid = CUuuid(_ptr=<void_ptr>&self._pvt_ptr[0].oldUuid)
-
-
+        self._oldUuid._owner = self
         self._newUuid = CUuuid(_ptr=<void_ptr>&self._pvt_ptr[0].newUuid)
-
+        self._newUuid._owner = self
     def __dealloc__(self):
-        pass
+        self._oldUuid = None
+        self._newUuid = None
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -23945,12 +23964,8 @@ cdef class CUcheckpointRestoreArgs_st:
         Number of gpu pairs to remap
 
 
-    reserved : bytes
-        Reserved for future use, must be zeroed
-
-
-    reserved : list[cuuint64_t]
-        Reserved for future use, must be zeroed
+    customStorageInfo_out : CUcheckpointCustomStorageInfo
+        Optional custom storage; if NULL, GPU memory is restored from host
 
 
     Methods
@@ -23966,12 +23981,9 @@ cdef class CUcheckpointRestoreArgs_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
-
         if self._gpuPairs is not NULL:
             free(self._gpuPairs)
             self._pvt_ptr[0].gpuPairs = NULL
-
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -23991,9 +24003,9 @@ cdef class CUcheckpointRestoreArgs_st:
 
 
             try:
-                str_list += ['reserved : ' + str(self.reserved)]
+                str_list += ['customStorageInfo_out : ' + str(self.customStorageInfo_out)]
             except ValueError:
-                str_list += ['reserved : <ValueError>']
+                str_list += ['customStorageInfo_out : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -24001,10 +24013,15 @@ cdef class CUcheckpointRestoreArgs_st:
 
     @property
     def gpuPairs(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].gpuPairs + x*sizeof(cydriver.CUcheckpointGpuPair) for x in range(self._gpuPairs_length)]
-        return [CUcheckpointGpuPair(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].gpuPairs == NULL:
+            return []
+        out_gpuPairs = [CUcheckpointGpuPair() for _idx in range(self._gpuPairs_length)]
+        for _idx in range(len(out_gpuPairs)):
+            string.memcpy(<cydriver.CUcheckpointGpuPair*><void_ptr>out_gpuPairs[_idx].getPtr(), &self._pvt_ptr[0].gpuPairs[_idx], sizeof(cydriver.CUcheckpointGpuPair))
+        return out_gpuPairs
     @gpuPairs.setter
     def gpuPairs(self, val):
+        cdef cydriver.CUcheckpointGpuPair* _gpuPairs_new
         if len(val) == 0:
             free(self._gpuPairs)
             self._gpuPairs = NULL
@@ -24012,15 +24029,18 @@ cdef class CUcheckpointRestoreArgs_st:
             self._pvt_ptr[0].gpuPairs = NULL
         else:
             if self._gpuPairs_length != <size_t>len(val):
-                free(self._gpuPairs)
-                self._gpuPairs = <cydriver.CUcheckpointGpuPair*> calloc(len(val), sizeof(cydriver.CUcheckpointGpuPair))
-                if self._gpuPairs is NULL:
+                _gpuPairs_new = <cydriver.CUcheckpointGpuPair*> calloc(len(val), sizeof(cydriver.CUcheckpointGpuPair))
+                if _gpuPairs_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUcheckpointGpuPair)))
+                for idx in range(len(val)):
+                    string.memcpy(&_gpuPairs_new[idx], (<CUcheckpointGpuPair>val[idx])._pvt_ptr, sizeof(cydriver.CUcheckpointGpuPair))
+                free(self._gpuPairs)
+                self._gpuPairs = _gpuPairs_new
                 self._gpuPairs_length = <size_t>len(val)
-                self._pvt_ptr[0].gpuPairs = self._gpuPairs
-            for idx in range(len(val)):
-                string.memcpy(&self._gpuPairs[idx], (<CUcheckpointGpuPair>val[idx])._pvt_ptr, sizeof(cydriver.CUcheckpointGpuPair))
-
+                self._pvt_ptr[0].gpuPairs = _gpuPairs_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._gpuPairs[idx], (<CUcheckpointGpuPair>val[idx])._pvt_ptr, sizeof(cydriver.CUcheckpointGpuPair))
 
 
     @property
@@ -24032,43 +24052,16 @@ cdef class CUcheckpointRestoreArgs_st:
 
 
     @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(self._pvt_ptr[0].reserved, {{struct_field_array_lengths['CUcheckpointRestoreArgs_st.reserved']}})
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != {{struct_field_array_lengths['CUcheckpointRestoreArgs_st.reserved']}}:
-            raise ValueError("reserved length must be {{struct_field_array_lengths['CUcheckpointRestoreArgs_st.reserved']}}, is " + str(len(reserved)))
-        if CHAR_MIN == 0:
-            for i, b in enumerate(reserved):
-                if b < 0 and b > -129:
-                    b = b + 256
-                self._pvt_ptr[0].reserved[i] = b
-        else:
-            for i, b in enumerate(reserved):
-                if b > 127 and b < 256:
-                    b = b - 256
-                self._pvt_ptr[0].reserved[i] = b
-
-
-    @property
-    def reserved(self):
-        return [cuuint64_t(init_value=_reserved) for _reserved in self._pvt_ptr[0].reserved]
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
+    def customStorageInfo_out(self):
+        return <void_ptr>self._pvt_ptr[0].customStorageInfo_out
+    @customStorageInfo_out.setter
+    def customStorageInfo_out(self, void_ptr customStorageInfo_out):
+        self._pvt_ptr[0].customStorageInfo_out = <cydriver.CUcheckpointCustomStorageInfo**>customStorageInfo_out
 
 
 cdef class CUcheckpointUnlockArgs_st:
     """
     CUDA checkpoint optional unlock arguments
-
-    Attributes
-    ----------
-
-    reserved : list[cuuint64_t]
-        Reserved for future use, must be zeroed
-
 
     Methods
     -------
@@ -24090,23 +24083,9 @@ cdef class CUcheckpointUnlockArgs_st:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
-
-    @property
-    def reserved(self):
-        return [cuuint64_t(init_value=_reserved) for _reserved in self._pvt_ptr[0].reserved]
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
-
 
 cdef class CUmemDecompressParams_st:
     """
@@ -24147,10 +24126,6 @@ cdef class CUmemDecompressParams_st:
 
     algo : CUmemDecompressAlgorithm
         The decompression algorithm to use.
-
-
-    padding : bytes
-
 
 
     Methods
@@ -24208,12 +24183,6 @@ cdef class CUmemDecompressParams_st:
             except ValueError:
                 str_list += ['algo : <ValueError>']
 
-
-            try:
-                str_list += ['padding : ' + str(self.padding)]
-            except ValueError:
-                str_list += ['padding : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -24265,15 +24234,70 @@ cdef class CUmemDecompressParams_st:
         self._pvt_ptr[0].algo = int(algo)
 
 
+cdef class CUcliqueInfo_st:
+    """
+    Fabric clique information
+
+    Attributes
+    ----------
+
+    type : CUcliqueType
+        Type of the fabric clique
+
+
+    id : unsigned int
+        ID of the fabric clique
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+        else:
+            self._pvt_ptr = <cydriver.CUcliqueInfo_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['type : ' + str(self.type)]
+            except ValueError:
+                str_list += ['type : <ValueError>']
+
+
+            try:
+                str_list += ['id : ' + str(self.id)]
+            except ValueError:
+                str_list += ['id : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
     @property
-    def padding(self):
-        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].padding, 20)
-    @padding.setter
-    def padding(self, padding):
-        if len(padding) != 20:
-            raise ValueError("padding length must be 20, is " + str(len(padding)))
-        for i, b in enumerate(padding):
-            self._pvt_ptr[0].padding[i] = b
+    def type(self):
+        return CUcliqueType(self._pvt_ptr[0].type)
+    @type.setter
+    def type(self, type not None : CUcliqueType):
+        self._pvt_ptr[0].type = int(type)
+
+
+    @property
+    def id(self):
+        return self._pvt_ptr[0].id
+    @id.setter
+    def id(self, unsigned int id):
+        self._pvt_ptr[0].id = id
 
 
 cdef class CUlogicalEndpointFabricHandle_st:
@@ -24327,7 +24351,7 @@ cdef class CUlogicalEndpointFabricHandle_st:
             self._pvt_ptr[0].data[i] = b
 
 
-cdef class anon_struct25:
+cdef class anon_struct26:
     """
     Attributes
     ----------
@@ -24345,10 +24369,7 @@ cdef class anon_struct25:
         self._pvt_ptr = <cydriver.CUlogicalEndpointProp_struct *>_ptr
 
     def __init__(self, void_ptr _ptr):
-        pass
-
         self._device = CUdevice(_ptr=<void_ptr>&self._pvt_ptr[0].unicast.device)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -24384,7 +24405,7 @@ cdef class anon_struct25:
 
 
 
-cdef class anon_struct26:
+cdef class anon_struct27:
     """
     Attributes
     ----------
@@ -24439,11 +24460,11 @@ cdef class CUlogicalEndpointProp_struct:
         Type of the logical endpoint defined in CUlogicalEndpointType
 
 
-    unicast : anon_struct25
+    unicast : anon_struct26
 
 
 
-    multicast : anon_struct26
+    multicast : anon_struct27
 
 
 
@@ -24472,14 +24493,13 @@ cdef class CUlogicalEndpointProp_struct:
         else:
             self._pvt_ptr = <cydriver.CUlogicalEndpointProp_struct *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
-        self._unicast = anon_struct25(_ptr=<void_ptr>self._pvt_ptr)
-
-
-        self._multicast = anon_struct26(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._unicast = anon_struct26(_ptr=<void_ptr>self._pvt_ptr)
+        self._unicast._owner = self
+        self._multicast = anon_struct27(_ptr=<void_ptr>self._pvt_ptr)
+        self._multicast._owner = self
     def __dealloc__(self):
+        self._unicast = None
+        self._multicast = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -24539,7 +24559,7 @@ cdef class CUlogicalEndpointProp_struct:
     def unicast(self):
         return self._unicast
     @unicast.setter
-    def unicast(self, unicast not None : anon_struct25):
+    def unicast(self, unicast not None : anon_struct26):
         string.memcpy(&self._pvt_ptr[0].unicast, <void*><void_ptr>unicast.getPtr(), sizeof(self._pvt_ptr[0].unicast))
 
 
@@ -24547,7 +24567,7 @@ cdef class CUlogicalEndpointProp_struct:
     def multicast(self):
         return self._multicast
     @multicast.setter
-    def multicast(self, multicast not None : anon_struct26):
+    def multicast(self, multicast not None : anon_struct27):
         string.memcpy(&self._pvt_ptr[0].multicast, <void*><void_ptr>multicast.getPtr(), sizeof(self._pvt_ptr[0].multicast))
 
 
@@ -24601,6 +24621,13 @@ cdef class CUdevSmResource_st:
         CUdevSmResourceGroup_flags.
 
 
+    localityDomainId : unsigned int
+        Locality domain that the SM must be located on. Only valid if
+        CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID is set in flags. If the
+        backfill flag is set, SMs may be assigned from other locality
+        domains.
+
+
     Methods
     -------
     getPtr()
@@ -24644,6 +24671,12 @@ cdef class CUdevSmResource_st:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
+
+            try:
+                str_list += ['localityDomainId : ' + str(self.localityDomainId)]
+            except ValueError:
+                str_list += ['localityDomainId : <ValueError>']
+
             return '\n'.join(str_list)
         else:
             return ''
@@ -24680,6 +24713,14 @@ cdef class CUdevSmResource_st:
         self._pvt_ptr[0].flags = flags
 
 
+    @property
+    def localityDomainId(self):
+        return self._pvt_ptr[0].localityDomainId
+    @localityDomainId.setter
+    def localityDomainId(self, unsigned int localityDomainId):
+        self._pvt_ptr[0].localityDomainId = localityDomainId
+
+
 cdef class CUdevWorkqueueConfigResource_st:
     """
     Attributes
@@ -24708,10 +24749,7 @@ cdef class CUdevWorkqueueConfigResource_st:
         else:
             self._pvt_ptr = <cydriver.CUdevWorkqueueConfigResource_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._device = CUdevice(_ptr=<void_ptr>&self._pvt_ptr[0].device)
-
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -24777,13 +24815,6 @@ cdef class CUdevWorkqueueConfigResource_st:
 
 cdef class CUdevWorkqueueResource_st:
     """
-    Attributes
-    ----------
-
-    reserved : bytes
-        Reserved for future use
-
-
     Methods
     -------
     getPtr()
@@ -24804,25 +24835,9 @@ cdef class CUdevWorkqueueResource_st:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
-
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 40)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 40:
-            raise ValueError("reserved length must be 40, is " + str(len(reserved)))
-        for i, b in enumerate(reserved):
-            self._pvt_ptr[0].reserved[i] = b
-
 
 cdef class CU_DEV_SM_RESOURCE_GROUP_PARAMS_st:
     """
@@ -24848,8 +24863,9 @@ cdef class CU_DEV_SM_RESOURCE_GROUP_PARAMS_st:
         CUdevSmResourceGroup_flags.
 
 
-    reserved : list[unsigned int]
-
+    localityDomainId : unsigned int
+        Locality domain that the SM must be located on. Only valid if
+        CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID is set in flags
 
 
     Methods
@@ -24897,9 +24913,9 @@ cdef class CU_DEV_SM_RESOURCE_GROUP_PARAMS_st:
 
 
             try:
-                str_list += ['reserved : ' + str(self.reserved)]
+                str_list += ['localityDomainId : ' + str(self.localityDomainId)]
             except ValueError:
-                str_list += ['reserved : <ValueError>']
+                str_list += ['localityDomainId : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -24938,11 +24954,11 @@ cdef class CU_DEV_SM_RESOURCE_GROUP_PARAMS_st:
 
 
     @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
+    def localityDomainId(self):
+        return self._pvt_ptr[0].localityDomainId
+    @localityDomainId.setter
+    def localityDomainId(self, unsigned int localityDomainId):
+        self._pvt_ptr[0].localityDomainId = localityDomainId
 
 
 cdef class CUdevResource_st:
@@ -24992,24 +25008,21 @@ cdef class CUdevResource_st:
         else:
             self._pvt_ptr = <cydriver.CUdevResource_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
         self._sm = CUdevSmResource(_ptr=<void_ptr>&self._pvt_ptr[0].sm)
-
-
+        self._sm._owner = self
         self._wqConfig = CUdevWorkqueueConfigResource(_ptr=<void_ptr>&self._pvt_ptr[0].wqConfig)
-
-
+        self._wqConfig._owner = self
         self._wq = CUdevWorkqueueResource(_ptr=<void_ptr>&self._pvt_ptr[0].wq)
-
+        self._wq._owner = self
     def __dealloc__(self):
-        if self._val_ptr is not NULL:
-            free(self._val_ptr)
-
+        self._sm = None
+        self._wqConfig = None
+        self._wq = None
         if self._nextResource is not NULL:
             free(self._nextResource)
             self._pvt_ptr[0].nextResource = NULL
-
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -25117,10 +25130,15 @@ cdef class CUdevResource_st:
 
     @property
     def nextResource(self):
-        arrs = [<void_ptr>self._pvt_ptr[0].nextResource + x*sizeof(cydriver.CUdevResource_st) for x in range(self._nextResource_length)]
-        return [CUdevResource_st(_ptr=arr) for arr in arrs]
+        if self._pvt_ptr[0].nextResource == NULL:
+            return []
+        out_nextResource = [CUdevResource_st() for _idx in range(self._nextResource_length)]
+        for _idx in range(len(out_nextResource)):
+            string.memcpy(<cydriver.CUdevResource_st*><void_ptr>out_nextResource[_idx].getPtr(), &self._pvt_ptr[0].nextResource[_idx], sizeof(cydriver.CUdevResource_st))
+        return out_nextResource
     @nextResource.setter
     def nextResource(self, val):
+        cdef cydriver.CUdevResource_st* _nextResource_new
         if len(val) == 0:
             free(self._nextResource)
             self._nextResource = NULL
@@ -25128,18 +25146,21 @@ cdef class CUdevResource_st:
             self._pvt_ptr[0].nextResource = NULL
         else:
             if self._nextResource_length != <size_t>len(val):
-                free(self._nextResource)
-                self._nextResource = <cydriver.CUdevResource_st*> calloc(len(val), sizeof(cydriver.CUdevResource_st))
-                if self._nextResource is NULL:
+                _nextResource_new = <cydriver.CUdevResource_st*> calloc(len(val), sizeof(cydriver.CUdevResource_st))
+                if _nextResource_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUdevResource_st)))
+                for idx in range(len(val)):
+                    string.memcpy(&_nextResource_new[idx], (<CUdevResource_st>val[idx])._pvt_ptr, sizeof(cydriver.CUdevResource_st))
+                free(self._nextResource)
+                self._nextResource = _nextResource_new
                 self._nextResource_length = <size_t>len(val)
-                self._pvt_ptr[0].nextResource = self._nextResource
-            for idx in range(len(val)):
-                string.memcpy(&self._nextResource[idx], (<CUdevResource_st>val[idx])._pvt_ptr, sizeof(cydriver.CUdevResource_st))
+                self._pvt_ptr[0].nextResource = _nextResource_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._nextResource[idx], (<CUdevResource_st>val[idx])._pvt_ptr, sizeof(cydriver.CUdevResource_st))
 
 
-
-cdef class anon_union17:
+cdef class anon_union21:
     """
     Attributes
     ----------
@@ -25219,7 +25240,7 @@ cdef class CUeglFrame_st:
     Attributes
     ----------
 
-    frame : anon_union17
+    frame : anon_union21
 
 
 
@@ -25271,11 +25292,10 @@ cdef class CUeglFrame_st:
         else:
             self._pvt_ptr = <cydriver.CUeglFrame_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        pass
-
-        self._frame = anon_union17(_ptr=<void_ptr>self._pvt_ptr)
-
+        self._frame = anon_union21(_ptr=<void_ptr>self._pvt_ptr)
+        self._frame._owner = self
     def __dealloc__(self):
+        self._frame = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -25351,7 +25371,7 @@ cdef class CUeglFrame_st:
     def frame(self):
         return self._frame
     @frame.setter
-    def frame(self, frame not None : anon_union17):
+    def frame(self, frame not None : anon_union21):
         string.memcpy(&self._pvt_ptr[0].frame, <void*><void_ptr>frame.getPtr(), sizeof(self._pvt_ptr[0].frame))
 
 
@@ -27715,6 +27735,9 @@ def cuCtxSetLimit(limit not None : CUlimit, size_t value):
       available for persisting L2 cache. This is purely a performance hint
       and it can be ignored or clamped depending on the platform.
 
+    - :py:obj:`~.CU_LIMIT_PER_BLOCK_MEMORY_SIZE` constrols size in bytes of
+      per-block memory.
+
     Parameters
     ----------
     limit : :py:obj:`~.CUlimit`
@@ -27768,17 +27791,24 @@ def cuCtxGetLimit(limit not None : CUlimit):
     - :py:obj:`~.CU_LIMIT_PERSISTING_L2_CACHE_SIZE`: Persisting L2 cache
       size in bytes
 
+    - :py:obj:`~.CU_LIMIT_PER_BLOCK_MEMORY_SIZE`: Per-block memory in
+      bytes.
+
     Parameters
     ----------
     limit : :py:obj:`~.CUlimit`
-        None
+        Limit to query
 
     Returns
     -------
     CUresult
-
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_UNSUPPORTED_LIMIT`
     pvalue : int
-        None
+        Returned size of limit
+
+    See Also
+    --------
+    :py:obj:`~.cuCtxCreate`, :py:obj:`~.cuCtxDestroy`, :py:obj:`~.cuCtxGetApiVersion`, :py:obj:`~.cuCtxGetCacheConfig`, :py:obj:`~.cuCtxGetDevice`, :py:obj:`~.cuCtxGetFlags`, :py:obj:`~.cuCtxPopCurrent`, :py:obj:`~.cuCtxPushCurrent`, :py:obj:`~.cuCtxSetCacheConfig`, :py:obj:`~.cuCtxSetLimit`, :py:obj:`~.cuCtxSynchronize`, :py:obj:`~.cudaDeviceGetLimit`
     """
     cdef size_t pvalue = 0
     cdef cydriver.CUlimit cylimit = int(limit)
@@ -29771,6 +29801,10 @@ def cuKernelGetAttribute(attrib not None : CUfunction_attribute, kernel, dev):
       The block scheduling policy of a function. The value type is
       :py:obj:`~.CUclusterSchedulingPolicy`.
 
+    - :py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_MEMORY_MODE`: The shared memory
+      mode of a function. The value type is :py:obj:`~.CUsharedMemoryMode`
+      / cudaSharedMemoryMode.
+
     Parameters
     ----------
     attrib : :py:obj:`~.CUfunction_attribute`
@@ -29885,6 +29919,10 @@ def cuKernelSetAttribute(attrib not None : CUfunction_attribute, int val, kernel
     - :py:obj:`~.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE`:
       The block scheduling policy of a function. The value type is
       :py:obj:`~.CUclusterSchedulingPolicy`.
+
+    - :py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_MEMORY_MODE`: The shared memory
+      mode of a function. The value type is :py:obj:`~.CUsharedMemoryMode`
+      / cudaSharedMemoryMode.
 
     Parameters
     ----------
@@ -35029,7 +35067,17 @@ def cuMemCreate(size_t size, prop : Optional[CUmemAllocationProp], unsigned long
     :py:obj:`~.CUmemAllocationProp.CUmemLocation.id` must be set to 0.
     Specifying :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT` as the
     :py:obj:`~.CUmemLocation.type` will result in
-    :py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
+    :py:obj:`~.CUDA_ERROR_INVALID_VALUE`. Specifying
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN` as the
+    :py:obj:`~.CUmemLocation.type` will localize the allocation to the
+    specified locality domain.
+    :py:obj:`~.CUmemAllocationProp.CUmemLocation.localized`.deviceId must
+    specify the device ID.
+    :py:obj:`~.CUmemAllocationProp.CUmemLocation.localized`.localityDomainId
+    must specify the locality domain ID. The locality domain ID must be a
+    valid locality domain ID for the specified device. See also
+    :py:obj:`~.cuDeviceGetAttribute` with the attribute
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_COUNT`.
 
     Applications that intend to use :py:obj:`~.CU_MEM_HANDLE_TYPE_FABRIC`
     based memory sharing must ensure: (1) `nvidia-caps-imex-channels`
@@ -35077,6 +35125,10 @@ def cuMemCreate(size_t size, prop : Optional[CUmemAllocationProp], unsigned long
     See Also
     --------
     :py:obj:`~.cuMemRelease`, :py:obj:`~.cuMemExportToShareableHandle`, :py:obj:`~.cuMemImportFromShareableHandle`
+
+    Notes
+    -----
+    On devices with a single locality domain, :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN` and localityDomainId 0 is equivalent to a full-device allocation created with :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`. The resulting allocation will be of type :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`.
     """
     cdef CUmemGenericAllocationHandle handle = CUmemGenericAllocationHandle()
     cdef cydriver.CUmemAllocationProp* cyprop_ptr = <cydriver.CUmemAllocationProp*>prop._pvt_ptr if prop is not None else NULL
@@ -35146,6 +35198,10 @@ def cuMemMap(ptr, size_t size, size_t offset, handle, unsigned long long flags):
     be aligned to the value returned by
     :py:obj:`~.cuMulticastGetGranularity` with the flag
     :py:obj:`~.CU_MULTICAST_RECOMMENDED_GRANULARITY`.
+
+    When `handle` represents a multicast object, this call may fail if the
+    devices added via :py:obj:`~.cuMulticastAddDevice` do not belong to the
+    same clique.
 
     When `handle` represents a multicast object, this call may return
     CUDA_ERROR_ILLEGAL_STATE if the system configuration is in an illegal
@@ -35463,7 +35519,7 @@ def cuMemSetAccess(ptr, size_t size, desc : Optional[tuple[CUmemAccessDesc] | li
 
     See Also
     --------
-    :py:obj:`~.cuMemSetAccess`, :py:obj:`~.cuMemCreate`, :py:obj:`~.py`:obj:`~.cuMemMap`
+    :py:obj:`~.cuMemSetAccess`, :py:obj:`~.cuMemCreate`, :py:obj:`~.cuMemMap`
     """
     desc = [] if desc is None else desc
     if not all(isinstance(_x, (CUmemAccessDesc,)) for _x in desc):
@@ -36028,6 +36084,11 @@ def cuMemPoolGetAttribute(pool, attr not None : CUmemPool_attribute):
       importing process or pools imported via fabric handles across nodes
       this will be CU_MEM_LOCATION_TYPE_INVISIBLE.
 
+    - :py:obj:`~.CU_MEMPOOL_ATTR_LOCALITY_DOMAIN_ID`: (value type = int)
+      The locality domain id for the mempool, if the mempool is localized
+      to a locality domain. A value of -1 indicates that the mempool is not
+      localized to a locality domain.
+
     - :py:obj:`~.CU_MEMPOOL_ATTR_MAX_POOL_SIZE`: (value type =
       :py:obj:`~.cuuint64_t`) Maximum size of the pool in bytes, this value
       may be higher than what was initially passed to cuMemPoolCreate due
@@ -36041,16 +36102,24 @@ def cuMemPoolGetAttribute(pool, attr not None : CUmemPool_attribute):
     Parameters
     ----------
     pool : :py:obj:`~.CUmemoryPool` or :py:obj:`~.cudaMemPool_t`
-        None
+        The memory pool to get attributes of
     attr : :py:obj:`~.CUmemPool_attribute`
-        None
+        The attribute to get
 
     Returns
     -------
     CUresult
-
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
     value : Any
-        None
+        Retrieved value
+
+    See Also
+    --------
+    :py:obj:`~.cuMemAllocAsync`, :py:obj:`~.cuMemFreeAsync`, :py:obj:`~.cuDeviceGetDefaultMemPool`, :py:obj:`~.cuDeviceGetMemPool`, :py:obj:`~.cuMemPoolCreate`
+
+    Notes
+    -----
+    On devices with a single locality domain, mempools created with :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN` and localityDomainId 0 are equivalent to full-device mempools created with :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`. The value of this attribute will be -1 for such mempools.
     """
     cdef cydriver.CUmemoryPool cypool
     if pool is None:
@@ -36086,7 +36155,7 @@ def cuMemPoolSetAccess(pool, map : Optional[tuple[CUmemAccessDesc] | list[CUmemA
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
 
     See Also
     --------
@@ -36183,7 +36252,17 @@ def cuMemPoolCreate(poolProps : Optional[CUmemPoolProps]):
     the host memory node. Specifying
     :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT` as the
     :py:obj:`~.CUmemPoolProps.CUmemLocation.type` will result in
-    :py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
+    :py:obj:`~.CUDA_ERROR_INVALID_VALUE`. To create a memory pool targeting
+    a specific device locality domain, applications must set
+    :py:obj:`~.CUmemPoolProps.CUmemLocation.type` to
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN`,
+    :py:obj:`~.CUmemPoolProps.CUmemLocation.localized`.deviceId must
+    specify the device ID, and
+    :py:obj:`~.CUmemPoolProps.CUmemLocation.localized`.localityDomainId
+    must specify the locality domain ID. The locality domain ID must be a
+    valid locality domain ID for the specified device. See also
+    :py:obj:`~.cuDeviceGetAttribute` with the attribute
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_COUNT`.
 
     By default, the pool's memory will be accessible from the device it is
     allocated on. In the case of pools created with
@@ -36247,6 +36326,8 @@ def cuMemPoolCreate(poolProps : Optional[CUmemPoolProps]):
 
     Notes
     -----
+    On devices with a single locality domain, a memory pool created with :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN` and localityDomainId 0 is equivalent to a full-device memory pool created with :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`. The pool will report :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE` for :py:obj:`~.CU_MEMPOOL_ATTR_LOCATION_TYPE` and -1 for :py:obj:`~.CU_MEMPOOL_ATTR_LOCALITY_DOMAIN_ID`.
+
     Specifying CU_MEM_HANDLE_TYPE_NONE creates a memory pool that will not support IPC.
     """
     cdef CUmemoryPool pool = CUmemoryPool()
@@ -36306,13 +36387,16 @@ def cuMemGetDefaultMemPool(location : Optional[CUmemLocation], typename not None
 
     The memory location can be of one of
     :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`,
-    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST`, or
-    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`. The allocation type can be
-    one of :py:obj:`~.CU_MEM_ALLOCATION_TYPE_PINNED` or
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST`,
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`, or
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN`. The allocation
+    type can be one of :py:obj:`~.CU_MEM_ALLOCATION_TYPE_PINNED` or
     :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED`. When the allocation type is
     :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED`, the location type can also
     be :py:obj:`~.CU_MEM_LOCATION_TYPE_NONE` to indicate no preferred
     location for the managed memory pool.
+    :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED` can not be used with
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN`.
 
     Parameters
     ----------
@@ -36348,14 +36432,17 @@ def cuMemGetMemPool(location : Optional[CUmemLocation], typename not None : CUme
     The memory location can be of one of
     :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`,
     :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST` or
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`,
     :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`, or
-    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`. The allocation type can be
-    one of :py:obj:`~.CU_MEM_ALLOCATION_TYPE_PINNED` or
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN`. The allocation
+    type can be one of :py:obj:`~.CU_MEM_ALLOCATION_TYPE_PINNED` or
     :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED`. When the allocation type is
     :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED`, the location type can also
     be :py:obj:`~.CU_MEM_LOCATION_TYPE_NONE` to indicate no preferred
-    location for the managed memory pool. In all other cases, the call
-    returns :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+    location for the managed memory pool.
+    :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED` can not be used with
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN`. In all other
+    cases, the call returns :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
 
     Returns the last pool provided to :py:obj:`~.cuMemSetMemPool` or
     :py:obj:`~.cuDeviceSetMemPool` for this location and allocation type or
@@ -36375,7 +36462,7 @@ def cuMemGetMemPool(location : Optional[CUmemLocation], typename not None : CUme
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
     pool : :py:obj:`~.CUmemoryPool`
         None
 
@@ -36398,16 +36485,15 @@ def cuMemSetMemPool(location : Optional[CUmemLocation], typename not None : CUme
 
     The memory location can be of one of
     :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`,
-    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST` or or
-    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`. The allocation type can be
-    one of :py:obj:`~.CU_MEM_ALLOCATION_TYPE_PINNED` or
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST` or
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`,
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN`. The allocation
+    type can be one of :py:obj:`~.CU_MEM_ALLOCATION_TYPE_PINNED` or
     :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED`. When the allocation type is
     :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED`, the location type can also
     be :py:obj:`~.CU_MEM_LOCATION_TYPE_NONE` to indicate no preferred
-    location for the managed memory pool.
-    :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED` can not be used with
-    :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_MEMORY_NODE`. In all other
-    cases, the call returns :py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
+    location for the managed memory pool. In all other cases, the call
+    returns :py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
 
     When a memory pool is set as the current memory pool, the location
     parameter should be the same as the location of the pool. The location
@@ -36433,7 +36519,7 @@ def cuMemSetMemPool(location : Optional[CUmemLocation], typename not None : CUme
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
 
     See Also
     --------
@@ -36488,6 +36574,10 @@ def cuMemAllocFromPoolAsync(size_t bytesize, pool, hStream):
 
     Notes
     -----
+    The specified memory pool may be from a device different than that of the specified `hStream`.
+
+    Basic stream ordering allows future work submitted into the same stream to use the allocation. Stream query, stream synchronize, and CUDA events can be used to guarantee that the allocation operation completes before work submitted in a separate stream runs.
+
     During stream capture, this function results in the creation of an allocation node. In this case, the allocation is owned by the graph instead of the memory pool. The memory pool's properties are used to set the node's creation parameters.
     """
     cdef cydriver.CUstream cyhStream
@@ -36718,11 +36808,11 @@ def cuMulticastCreate(prop : Optional[CUmulticastObjectProp]):
     :py:obj:`~.cuMulticastBindAddr`, or :py:obj:`~.cuMulticastBindAddr_v2`.
     and can be unbound via :py:obj:`~.cuMulticastUnbind`. The total amount
     of memory that can be bound per device is specified by
-    :py:obj:`~.py`:obj:`~.CUmulticastObjectProp.size`. This size must be a
-    multiple of the value returned by :py:obj:`~.cuMulticastGetGranularity`
-    with the flag :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM`. For best
-    performance however, the size should be aligned to the value returned
-    by :py:obj:`~.cuMulticastGetGranularity` with the flag
+    :py:obj:`~.CUmulticastObjectProp.size`. This size must be a multiple of
+    the value returned by :py:obj:`~.cuMulticastGetGranularity` with the
+    flag :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM`. For best performance
+    however, the size should be aligned to the value returned by
+    :py:obj:`~.cuMulticastGetGranularity` with the flag
     :py:obj:`~.CU_MULTICAST_GRANULARITY_RECOMMENDED`.
 
     After all participating devices have been added, multicast objects can
@@ -36782,6 +36872,10 @@ def cuMulticastAddDevice(mcHandle, dev):
     be mapped to the multicast object. A call to :py:obj:`~.cuMemMap` will
     block until all devices have been added.
 
+    This call may fail with :py:obj:`~.CUDA_ERROR_INVALID_DEVICE` if the
+    device specified by `dev` does not belong to the same clique as the
+    other devices previously added to this multicast object.
+
     Parameters
     ----------
     mcHandle : :py:obj:`~.CUmemGenericAllocationHandle`
@@ -36839,6 +36933,27 @@ def cuMulticastBindMem(mcHandle, size_t mcOffset, memHandle, size_t memOffset, s
     allocated memory. Similarly the `size` + `mcOffset` cannot be larger
     than the size of the multicast object.
 
+    On systems with Rubin+ (SM_107+) GPUs, `memOffset` may be aligned to
+    256 instead of the value returned by
+    :py:obj:`~.cuMulticastGetGranularity` with the flag
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM` or
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_RECOMMENDED`. In such a case the
+    `size` + `memOffset` cannot be larger than the size of the allocated
+    memory. Similarly the `size` + `mcOffset` + the value returned by
+    :py:obj:`~.cuMulticastGetGranularity` with the flag
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM` cannot be larger than the
+    size of the than the size of the multicast object. The next available
+    mcOffset for the next bind will be mcOffset + size + the value returned
+    by :py:obj:`~.cuMulticastGetGranularity` with the flag
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM`.
+
+    Also note that the ability to accept a `memOffset` that is not aligned
+    to the value returned by :py:obj:`~.cuMulticastGetGranularity` with the
+    flag :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM` or
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_RECOMMENDED` is limited by HW
+    resources and may result in error
+    :py:obj:`~.CUDA_ERROR_MULTICAST_RESOURCE_FULL`
+
     The memory allocation must have beeen created on one of the devices
     that was added to the multicast team via
     :py:obj:`~.cuMulticastAddDevice`. Externally shareable as well as
@@ -36847,6 +36962,9 @@ def cuMulticastBindMem(mcHandle, size_t mcOffset, memHandle, size_t memOffset, s
     there are insufficient resources required to perform the bind. This
     call may also return CUDA_ERROR_SYSTEM_NOT_READY if the necessary
     system software is not initialized or running.
+
+    This call may fail if the devices added via
+    :py:obj:`~.cuMulticastAddDevice` do not belong to the same clique.
 
     This call may return CUDA_ERROR_ILLEGAL_STATE if the system
     configuration is in an illegal state. In such cases, to continue using
@@ -36871,7 +36989,7 @@ def cuMulticastBindMem(mcHandle, size_t mcOffset, memHandle, size_t memOffset, s
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`,
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`, :py:obj:`~.CUDA_ERROR_MULTICAST_RESOURCE_FULL`
 
     See Also
     --------
@@ -36921,6 +37039,27 @@ def cuMulticastBindMem_v2(mcHandle, dev, size_t mcOffset, memHandle, size_t memO
     allocated memory. Similarly the `size` + `mcOffset` cannot be larger
     than the size of the multicast object.
 
+    On systems with Rubin+ (SM_107+) GPUs, `memOffset` may be aligned to
+    256 instead of the value returned by
+    :py:obj:`~.cuMulticastGetGranularity` with the flag
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM` or
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_RECOMMENDED`. In such a case the
+    `size` + `memOffset` cannot be larger than the size of the allocated
+    memory. Similarly the `size` + `mcOffset` + the value returned by
+    :py:obj:`~.cuMulticastGetGranularity` with the flag
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM` cannot be larger than the
+    size of the than the size of the multicast object. The next available
+    mcOffset for the next bind will be mcOffset + size + the value returned
+    by :py:obj:`~.cuMulticastGetGranularity` with the flag
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM`.
+
+    Also note that the ability to accept a `memOffset` that is not aligned
+    to the value returned by :py:obj:`~.cuMulticastGetGranularity` with the
+    flag :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM` or
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_RECOMMENDED` is limited by HW
+    resources and may result in error
+    :py:obj:`~.CUDA_ERROR_MULTICAST_RESOURCE_FULL`
+
     The memory allocation must have beeen created on one of the devices
     that was added to the multicast team via
     :py:obj:`~.cuMulticastAddDevice`. For device memory, i.e., type
@@ -36938,6 +37077,9 @@ def cuMulticastBindMem_v2(mcHandle, dev, size_t mcOffset, memHandle, size_t memO
     there are insufficient resources required to perform the bind. This
     call may also return CUDA_ERROR_SYSTEM_NOT_READY if the necessary
     system software is not initialized or running.
+
+    This call may fail if the devices added via
+    :py:obj:`~.cuMulticastAddDevice` do not belong to the same clique.
 
     This call may return CUDA_ERROR_ILLEGAL_STATE if the system
     configuration is in an illegal state. In such cases, to continue using
@@ -36965,7 +37107,7 @@ def cuMulticastBindMem_v2(mcHandle, dev, size_t mcOffset, memHandle, size_t memO
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`,
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`, :py:obj:`~.CUDA_ERROR_MULTICAST_RESOURCE_FULL`
 
     See Also
     --------
@@ -37018,6 +37160,26 @@ def cuMulticastBindAddr(mcHandle, size_t mcOffset, memptr, size_t size, unsigned
     Similarly the `size` + `mcOffset` cannot be larger than the total size
     of the multicast object.
 
+    On systems with Rubin+ (SM_107+) GPUs, `memptr` may be aligned to 256
+    instead of the value returned by :py:obj:`~.cuMulticastGetGranularity`
+    with the flag :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM` or
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_RECOMMENDED`. In such a case the
+    `size` + `memptr` cannot be larger than the size of the allocated
+    memory. Similarly the `size` + `mcOffset` + the value returned by
+    :py:obj:`~.cuMulticastGetGranularity` with the flag
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM` cannot be larger than the
+    size of the than the size of the multicast object. The next available
+    mcOffset for the next bind will be mcOffset + size + the value returned
+    by :py:obj:`~.cuMulticastGetGranularity` with the flag
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM`
+
+    Also note that the ability to accept a `memptr` that is not aligned to
+    the value returned by :py:obj:`~.cuMulticastGetGranularity` with the
+    flag :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM` or
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_RECOMMENDED` is limited by HW
+    resources and may result in error
+    :py:obj:`~.CUDA_ERROR_MULTICAST_RESOURCE_FULL`
+
     The memory allocation must have beeen created on one of the devices
     that was added to the multicast team via
     :py:obj:`~.cuMulticastAddDevice`. Externally shareable as well as
@@ -37026,6 +37188,9 @@ def cuMulticastBindAddr(mcHandle, size_t mcOffset, memptr, size_t size, unsigned
     there are insufficient resources required to perform the bind. This
     call may also return CUDA_ERROR_SYSTEM_NOT_READY if the necessary
     system software is not initialized or running.
+
+    This call may fail if the devices added via
+    :py:obj:`~.cuMulticastAddDevice` do not belong to the same clique.
 
     This call may return CUDA_ERROR_ILLEGAL_STATE if the system
     configuration is in an illegal state. In such cases, to continue using
@@ -37048,7 +37213,7 @@ def cuMulticastBindAddr(mcHandle, size_t mcOffset, memptr, size_t size, unsigned
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`,
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`, :py:obj:`~.CUDA_ERROR_MULTICAST_RESOURCE_FULL`
 
     See Also
     --------
@@ -37096,6 +37261,26 @@ def cuMulticastBindAddr_v2(mcHandle, dev, size_t mcOffset, memptr, size_t size, 
     Similarly the `size` + `mcOffset` cannot be larger than the total size
     of the multicast object.
 
+    On systems with Rubin+ (SM_107+) GPUs, `memptr` may be aligned to 256
+    instead of the value returned by :py:obj:`~.cuMulticastGetGranularity`
+    with the flag :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM` or
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_RECOMMENDED`. In such a case the
+    `size` + `memptr` cannot be larger than the size of the allocated
+    memory. Similarly the `size` + `mcOffset` + the value returned by
+    :py:obj:`~.cuMulticastGetGranularity` with the flag
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM` cannot be larger than the
+    size of the than the size of the multicast object. The next available
+    mcOffset for the next bind will be mcOffset + size + the value returned
+    by :py:obj:`~.cuMulticastGetGranularity` with the flag
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM`
+
+    Also note that the ability to accept a `memptr` that is not aligned to
+    the value returned by :py:obj:`~.cuMulticastGetGranularity` with the
+    flag :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM` or
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_RECOMMENDED` is limited by HW
+    resources and may result in error
+    :py:obj:`~.CUDA_ERROR_MULTICAST_RESOURCE_FULL`
+
     For device memory, i.e., type :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`,
     the memory allocation must have been created on the device specified by
     `dev`. For host NUMA memory, i.e., type
@@ -37111,6 +37296,9 @@ def cuMulticastBindAddr_v2(mcHandle, dev, size_t mcOffset, memptr, size_t size, 
     there are insufficient resources required to perform the bind. This
     call may also return CUDA_ERROR_SYSTEM_NOT_READY if the necessary
     system software is not initialized or running.
+
+    This call may fail if the devices added via
+    :py:obj:`~.cuMulticastAddDevice` do not belong to the same clique.
 
     This call may return CUDA_ERROR_ILLEGAL_STATE if the system
     configuration is in an illegal state. In such cases, to continue using
@@ -37136,7 +37324,7 @@ def cuMulticastBindAddr_v2(mcHandle, dev, size_t mcOffset, memptr, size_t size, 
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`,
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`, :py:obj:`~.CUDA_ERROR_MULTICAST_RESOURCE_FULL`
 
     See Also
     --------
@@ -37265,6 +37453,126 @@ def cuMulticastGetGranularity(prop : Optional[CUmulticastObjectProp], option not
     if err != cydriver.CUDA_SUCCESS:
         return (_CUresult(err), None)
     return (_CUresult_SUCCESS, granularity)
+
+@cython.embedsignature(True)
+def cuDeviceGetFabricClusterUuid(dev):
+    """ Retrieves the fabric cluster UUID.
+
+    Retrieves the fabric cluster UUID for the given device.
+
+    Parameters
+    ----------
+    dev : :py:obj:`~.CUdevice`
+        Device for which the fabric cluster UUID is requested.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
+    uuid : :py:obj:`~.CUuuid`
+        Fabric cluster UUID.
+    """
+    cdef cydriver.CUdevice cydev
+    if dev is None:
+        pdev = 0
+    elif isinstance(dev, (CUdevice,)):
+        pdev = int(dev)
+    else:
+        pdev = int(CUdevice(dev))
+    cydev = <cydriver.CUdevice>pdev
+    cdef CUuuid uuid = CUuuid()
+    with nogil:
+        err = cydriver.cuDeviceGetFabricClusterUuid(<cydriver.CUuuid*>uuid._pvt_ptr, cydev)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None)
+    return (_CUresult_SUCCESS, uuid)
+
+@cython.embedsignature(True)
+def cuDeviceGetCliqueCount(dev):
+    """ Retrieves the number of fabric cliques.
+
+    Retrieves the number of fabric cliques that the device is part of.
+
+    Parameters
+    ----------
+    dev : :py:obj:`~.CUdevice`
+        Device for which the number of fabric cliques is requested.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
+    count : int
+        Number of fabric cliques that the device is part of.
+    """
+    cdef cydriver.CUdevice cydev
+    if dev is None:
+        pdev = 0
+    elif isinstance(dev, (CUdevice,)):
+        pdev = int(dev)
+    else:
+        pdev = int(CUdevice(dev))
+    cydev = <cydriver.CUdevice>pdev
+    cdef size_t count = 0
+    with nogil:
+        err = cydriver.cuDeviceGetCliqueCount(&count, cydev)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None)
+    return (_CUresult_SUCCESS, count)
+
+@cython.embedsignature(True)
+def cuDeviceGetCliqueInfo(size_t count, dev):
+    """ Retrieves fabric clique information.
+
+    Returns the fabric clique information for the cliques that the device
+    is a part of. User must specify the size of the `cliqueInfo` array in
+    `count`. The same parameter `count` will return the actual number of
+    entries updated in the `cliqueInfo` array.
+
+    Parameters
+    ----------
+    count : int
+        Input: Size of the `cliqueInfo` array. Output: Number of entries
+        updated in the `cliqueInfo` array.
+    dev : :py:obj:`~.CUdevice`
+        Device for which the clique information is requested.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
+    cliqueInfo : list[:py:obj:`~.CUcliqueInfo`]
+        Array to store the fabric clique information.
+    count : int
+        Input: Size of the `cliqueInfo` array. Output: Number of entries
+        updated in the `cliqueInfo` array.
+    """
+    cdef cydriver.CUdevice cydev
+    if dev is None:
+        pdev = 0
+    elif isinstance(dev, (CUdevice,)):
+        pdev = int(dev)
+    else:
+        pdev = int(CUdevice(dev))
+    cydev = <cydriver.CUdevice>pdev
+    cdef size_t _clique_count = count
+    cdef cydriver.CUcliqueInfo* cycliqueInfo = NULL
+    pycliqueInfo = []
+    if _clique_count != 0:
+        cycliqueInfo = <cydriver.CUcliqueInfo*>calloc(_clique_count, sizeof(cydriver.CUcliqueInfo))
+        if cycliqueInfo is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(_clique_count) + 'x' + str(sizeof(cydriver.CUcliqueInfo)))
+    with nogil:
+        err = cydriver.cuDeviceGetCliqueInfo(cycliqueInfo, &count, cydev)
+    if CUresult(err) == CUresult(0):
+        pycliqueInfo = [CUcliqueInfo() for _ in range(count)]
+        for idx in range(count):
+            string.memcpy((<CUcliqueInfo>pycliqueInfo[idx])._pvt_ptr, &cycliqueInfo[idx], sizeof(cydriver.CUcliqueInfo))
+    if cycliqueInfo is not NULL:
+        free(cycliqueInfo)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None, None)
+    return (_CUresult_SUCCESS, pycliqueInfo, count)
 
 @cython.embedsignature(True)
 def cuLogicalEndpointIdReserve(count):
@@ -37435,6 +37743,10 @@ def cuLogicalEndpointAddDevice(leId, dev):
     team. A multicast logical endpoint will not be ready for use until all
     devices have been added. User can query whether the logical endpoint is
     ready for use via :py:obj:`~.cuLogicalEndpointQuery`.
+
+    This call may fail with :py:obj:`~.CUDA_ERROR_INVALID_DEVICE` if the
+    device specified by `dev` does not belong to the same clique as the
+    other devices previously added to this multicast logical endpoint.
 
     Parameters
     ----------
@@ -37966,6 +38278,13 @@ def cuLogicalEndpointQuery(leId, count):
     of 0 if any logical endpoint ID in the given range is not fully
     constructed, and a non-zero value otherwise.
 
+    Construction of a multicast logical endpoint may fail here if the
+    devices added via :py:obj:`~.cuLogicalEndpointAddDevice` do not belong
+    to the same clique.
+
+    This API may return :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE` if no devices
+    are found on which this logical endpoint can be accessed.
+
     Parameters
     ----------
     leId : :py:obj:`~.CUlogicalEndpointId`
@@ -38081,13 +38400,12 @@ def cuPointerGetAttribute(attribute not None : CUpointer_attribute, ptr):
       :py:obj:`~.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS`.
 
     - `ptr` must be a pointer to memory obtained from
-      :py:obj:`~.py`:obj:`~.cuMemAlloc()`. Note that p2pToken and
-      vaSpaceToken are only valid for the lifetime of the source
-      allocation. A subsequent allocation at the same address may return
-      completely different tokens. Querying this attribute has a side
-      effect of setting the attribute
-      :py:obj:`~.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS` for the region of memory
-      that `ptr` points to.
+      :py:obj:`~.cuMemAlloc()`. Note that p2pToken and vaSpaceToken are
+      only valid for the lifetime of the source allocation. A subsequent
+      allocation at the same address may return completely different
+      tokens. Querying this attribute has a side effect of setting the
+      attribute :py:obj:`~.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS` for the region
+      of memory that `ptr` points to.
 
     - :py:obj:`~.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS`:
 
@@ -38151,6 +38469,11 @@ def cuPointerGetAttribute(attribute not None : CUpointer_attribute, ptr):
     - Returns a bitmask of the allowed handle types for an allocation that
       may be passed to :py:obj:`~.cuMemExportToShareableHandle`.
 
+    - :py:obj:`~.CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE`:
+
+    - Returns in `*data` a boolean that indicates if the memory this
+      pointer is referencing can be used with the GPUDirect RDMA API.
+
     - :py:obj:`~.CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE`:
 
     - Returns in `*data` the handle to the mempool that the allocation was
@@ -38161,6 +38484,12 @@ def cuPointerGetAttribute(attribute not None : CUpointer_attribute, ptr):
     - Returns in `*data` a boolean that indicates whether the pointer
       points to memory that is capable to be used for hardware accelerated
       decompression.
+
+    - :py:obj:`~.CU_POINTER_ATTRIBUTE_LOCALITY_DOMAIN_ORDINAL`:
+
+    - Returns in `*data` an integer representing the locality domain
+      ordinal of the allocation, or -1 if the allocation is not localized
+      to a locality domain.
 
     Note that for most allocations in the unified virtual address space the
     host and device pointer for accessing the allocation will be the same.
@@ -38251,7 +38580,9 @@ def cuMemPrefetchAsync(devPtr, size_t count, location not None : CUmemLocation, 
     :py:obj:`~.CUmemLocation.type` is etiher
     :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST` OR
     :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT`,
-    :py:obj:`~.CUmemLocation.id` will be ignored.
+    :py:obj:`~.CUmemLocation.id` will be ignored. Prefetching to
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN` locations is
+    not supported.
 
     The start address and end address of the memory range will be rounded
     down and rounded up respectively to be aligned to CPU page size before
@@ -38313,7 +38644,7 @@ def cuMemPrefetchAsync(devPtr, size_t count, location not None : CUmemLocation, 
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`,
 
     See Also
     --------
@@ -38415,23 +38746,25 @@ def cuMemAdvise(devPtr, size_t count, advice not None : CUmem_advise, location n
       :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`, then
       :py:obj:`~.CUmemLocation.id` must be a valid device ordinal and the
       device must have a non-zero value for the device attribute
-      :py:obj:`~.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS`. Setting
-      the preferred location does not cause data to migrate to that
-      location immediately. Instead, it guides the migration policy when a
-      fault occurs on that memory region. If the data is already in its
-      preferred location and the faulting processor can establish a mapping
-      without requiring the data to be migrated, then data migration will
-      be avoided. On the other hand, if the data is not in its preferred
-      location or if a direct mapping cannot be established, then it will
-      be migrated to the processor accessing it. It is important to note
-      that setting the preferred location does not prevent data prefetching
-      done using :py:obj:`~.cuMemPrefetchAsync`. Having a preferred
-      location can override the page thrash detection and resolution logic
-      in the Unified Memory driver. Normally, if a page is detected to be
-      constantly thrashing between for example host and device memory, the
-      page may eventually be pinned to host memory by the Unified Memory
-      driver. But if the preferred location is set as device memory, then
-      the page will continue to thrash indefinitely. If
+      :py:obj:`~.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS`. A
+      :py:obj:`~.CUmemLocation.type` of
+      :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN` is
+      unsupported. Setting the preferred location does not cause data to
+      migrate to that location immediately. Instead, it guides the
+      migration policy when a fault occurs on that memory region. If the
+      data is already in its preferred location and the faulting processor
+      can establish a mapping without requiring the data to be migrated,
+      then data migration will be avoided. On the other hand, if the data
+      is not in its preferred location or if a direct mapping cannot be
+      established, then it will be migrated to the processor accessing it.
+      It is important to note that setting the preferred location does not
+      prevent data prefetching done using :py:obj:`~.cuMemPrefetchAsync`.
+      Having a preferred location can override the page thrash detection
+      and resolution logic in the Unified Memory driver. Normally, if a
+      page is detected to be constantly thrashing between for example host
+      and device memory, the page may eventually be pinned to host memory
+      by the Unified Memory driver. But if the preferred location is set as
+      device memory, then the page will continue to thrash indefinitely. If
       :py:obj:`~.CU_MEM_ADVISE_SET_READ_MOSTLY` is also set on this memory
       region or any subset of it, then the policies associated with that
       advice will override the policies of this advice, unless read
@@ -38522,7 +38855,7 @@ def cuMemAdvise(devPtr, size_t count, advice not None : CUmem_advise, location n
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
 
     See Also
     --------
@@ -38866,6 +39199,88 @@ def cuMemDiscardAndPrefetchBatchAsync(dptrs : Optional[tuple[CUdeviceptr] | list
     return (_CUresult(err),)
 
 @cython.embedsignature(True)
+def cuMemGetLocationInfo(ptr, size_t size, size_t summaryGranularity, size_t samplingGranularity, location_out : Optional[CUmemLocation]):
+    """ Gets residency information for a memory address range.
+
+    Retrieves memory location information for the specified address range
+    starting at `ptr` with size `size`. The API summarizes the location
+    information with a granularity specified by `summaryGranularity`. For
+    each summary region, the API determines the most common location by
+    sampling memory at intervals defined by `samplingGranularity` within
+    that region.
+
+    The location information is returned in the `location_out` array, with
+    one entry per summary region. The total number of locations returned
+    will be ceil(size/summaryGranularity). The user is expected to allocate
+    the `location_out` array with sufficient memory.
+
+    For example, with an address range of 1GB, a `summaryGranularity` of
+    128MB, and a `samplingGranularity` of 2MB, the function will:
+
+    - Divide the 1GB range into 8 summary regions of 128MB each
+
+    - Within each 128MB region, sample every 2MB to determine the most
+      common location. If there is a tie a random winner is chosen.
+
+    - Populate the `location_out` array with 8 entries, one for each 128MB
+      region `summaryGranularity` should be less than or equal to `size`
+      and greater than 0. `samplingGranularity` should be less than or
+      equal to `summaryGranularity`. If the `samplingGranularity` is set to
+      0, a system dependent value is used as the granularity. In all other
+      cases, the call returns :py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
+
+    When the memory is not resident on any processor, the call returns
+    :py:obj:`~.CUDA_SUCCESS` and the returned location type for that
+    interval is :py:obj:`~.CU_MEM_LOCATION_TYPE_NONE`.
+
+    The memory range must refer to one of the following:
+
+    - Managed memory allocated via :py:obj:`~.cuMemAllocManaged`, via
+      :py:obj:`~.cuMemAllocFromPool` from a managed memory pool or declared
+      via managed variables.
+
+    - System-allocated pageable memory that is not registered via
+      :py:obj:`~.cuMemHostRegister`. If the memory range does not refer to
+      one of the above, the call returns
+      :py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
+
+    All devices on the system must have non-zero value of device attribute
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS`. If not, this
+    call returns :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`.
+
+    Parameters
+    ----------
+    ptr : :py:obj:`~.CUdeviceptr`
+        Starting address of the memory range to query
+    size : size_t
+        Size in bytes of the memory range to query
+    summaryGranularity : size_t
+        Granularity in bytes at which to summarize location information
+    samplingGranularity : size_t
+        Granularity in bytes at which to sample memory within each summary
+        region
+    location_out : :py:obj:`~.CUmemLocation`
+        Array to store location information, one entry per summary region
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
+    """
+    cdef cydriver.CUdeviceptr cyptr
+    if ptr is None:
+        pptr = 0
+    elif isinstance(ptr, (CUdeviceptr,)):
+        pptr = int(ptr)
+    else:
+        pptr = int(CUdeviceptr(ptr))
+    cyptr = <cydriver.CUdeviceptr><void_ptr>pptr
+    cdef cydriver.CUmemLocation* cylocation_out_ptr = <cydriver.CUmemLocation*>location_out._pvt_ptr if location_out is not None else NULL
+    with nogil:
+        err = cydriver.cuMemGetLocationInfo(cyptr, size, summaryGranularity, samplingGranularity, cylocation_out_ptr)
+    return (_CUresult(err),)
+
+@cython.embedsignature(True)
 def cuMemRangeGetAttribute(size_t dataSize, attribute not None : CUmem_range_attribute, devPtr, size_t count):
     """ Query an attribute of a given memory range.
 
@@ -39190,6 +39605,8 @@ def cuPointerGetAttributes(unsigned int numAttributes, attributes : Optional[tup
     - :py:obj:`~.CU_POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLE`
 
     - :py:obj:`~.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES`
+
+    - :py:obj:`~.CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE`
 
     - :py:obj:`~.CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE`
 
@@ -41378,10 +41795,10 @@ def cuImportExternalMemory(memHandleDesc : Optional[CUDA_EXTERNAL_MEMORY_HANDLE_
     :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.fd` must be a valid
     file descriptor referencing a dma_buf object and
     :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.flags` must be zero.
-    Importing a dma_buf object is supported only on Tegra Jetson platform
-    starting with Thor series. Mapping an imported dma_buf object as CUDA
-    mipmapped array using
-    :py:obj:`~.cuExternalMemoryGetMappedMipmappedArray` is not supported.
+    Importing a dma_buf object is supported only on Tegra platform starting
+    with Thor series. Mapping an imported dma_buf object as CUDA mipmapped
+    array using :py:obj:`~.cuExternalMemoryGetMappedMipmappedArray` is not
+    supported.
 
     The size of the memory object must be specified in
     :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.size`.
@@ -42468,6 +42885,10 @@ def cuFuncGetAttribute(attrib not None : CUfunction_attribute, hfunc):
       The block scheduling policy of a function. The value type is
       :py:obj:`~.CUclusterSchedulingPolicy`.
 
+    - :py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_MEMORY_MODE`: The shared memory
+      mode of a function. The value type is :py:obj:`~.CUsharedMemoryMode`
+      / cudaSharedMemoryMode.
+
     With a few execeptions, function attributes may also be queried on
     unloaded function handles returned from
     :py:obj:`~.cuModuleEnumerateFunctions`.
@@ -42577,6 +42998,10 @@ def cuFuncSetAttribute(hfunc, attrib not None : CUfunction_attribute, int value)
     - :py:obj:`~.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE`:
       The block scheduling policy of a function. The value type is
       :py:obj:`~.CUclusterSchedulingPolicy`.
+
+    - :py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_MEMORY_MODE`: The shared memory
+      mode of a function. The value type is :py:obj:`~.CUsharedMemoryMode`
+      / cudaSharedMemoryMode.
 
     Parameters
     ----------
@@ -43036,8 +43461,8 @@ def cuLaunchKernel(f, unsigned int gridDimX, unsigned int gridDimY, unsigned int
     else:
         pf = int(CUfunction(f))
     cyf = <cydriver.CUfunction><void_ptr>pf
-    cykernelParams = _HelperKernelParams(kernelParams)
-    cdef void** cykernelParams_ptr = <void**><void_ptr>cykernelParams.ckernelParams
+    cdef _HelperKernelParams cykernelParams = _HelperKernelParams(kernelParams)
+    cdef void** cykernelParams_ptr = cykernelParams.ckernelParams
     with nogil:
         err = cydriver.cuLaunchKernel(cyf, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, cyhStream, cykernelParams_ptr, <void**>extra)
     return (_CUresult(err),)
@@ -43274,8 +43699,8 @@ def cuLaunchKernelEx(config : Optional[CUlaunchConfig], f, kernelParams, void_pt
         pf = int(CUfunction(f))
     cyf = <cydriver.CUfunction><void_ptr>pf
     cdef cydriver.CUlaunchConfig* cyconfig_ptr = <cydriver.CUlaunchConfig*>config._pvt_ptr if config is not None else NULL
-    cykernelParams = _HelperKernelParams(kernelParams)
-    cdef void** cykernelParams_ptr = <void**><void_ptr>cykernelParams.ckernelParams
+    cdef _HelperKernelParams cykernelParams = _HelperKernelParams(kernelParams)
+    cdef void** cykernelParams_ptr = cykernelParams.ckernelParams
     with nogil:
         err = cydriver.cuLaunchKernelEx(cyconfig_ptr, cyf, cykernelParams_ptr, <void**>extra)
     return (_CUresult(err),)
@@ -43384,8 +43809,8 @@ def cuLaunchCooperativeKernel(f, unsigned int gridDimX, unsigned int gridDimY, u
     else:
         pf = int(CUfunction(f))
     cyf = <cydriver.CUfunction><void_ptr>pf
-    cykernelParams = _HelperKernelParams(kernelParams)
-    cdef void** cykernelParams_ptr = <void**><void_ptr>cykernelParams.ckernelParams
+    cdef _HelperKernelParams cykernelParams = _HelperKernelParams(kernelParams)
+    cdef void** cykernelParams_ptr = cykernelParams.ckernelParams
     with nogil:
         err = cydriver.cuLaunchCooperativeKernel(cyf, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, cyhStream, cykernelParams_ptr)
     return (_CUresult(err),)
@@ -45281,6 +45706,10 @@ def cuGraphEventRecordNodeSetEvent(hNode, event):
     See Also
     --------
     :py:obj:`~.cuGraphNodeSetParams`, :py:obj:`~.cuGraphAddEventRecordNode`, :py:obj:`~.cuGraphEventRecordNodeGetEvent`, :py:obj:`~.cuGraphEventWaitNodeSetEvent`, :py:obj:`~.cuEventRecordWithFlags`, :py:obj:`~.cuStreamWaitEvent`
+
+    Notes
+    -----
+    This function will reset the node's context to the event's device context.
     """
     cdef cydriver.CUevent cyevent
     if event is None:
@@ -46544,7 +46973,7 @@ def cuGraphNodeGetContainingGraph(hNode):
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
-    *phGraph : :py:obj:`~.CUgraph`
+    phGraph : :py:obj:`~.CUgraph`
         Pointer to return the containing graph
 
     See Also
@@ -46618,7 +47047,7 @@ def cuGraphNodeGetToolsId(hNode):
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
-    *toolsNodeId : unsigned long long
+    toolsNodeId : unsigned long long
         Pointer to return the id used by tools
 
     See Also
@@ -46656,7 +47085,7 @@ def cuGraphGetId(hGraph):
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
-    *graphId : unsigned int
+    graphId : unsigned int
         Pointer to return the graphId
 
     See Also
@@ -46694,7 +47123,7 @@ def cuGraphExecGetId(hGraphExec):
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
-    *graphId : unsigned int
+    graphId : unsigned int
         Pointer to return the graphId
 
     See Also
@@ -49126,6 +49555,104 @@ def cuGraphAddNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | list[CUg
     return (_CUresult_SUCCESS, phGraphNode)
 
 @cython.embedsignature(True)
+def cuGraphAddNode_v3(hGraph, dependencies : Optional[tuple[CUgraphNode] | list[CUgraphNode]], dependencyData : Optional[tuple[CUgraphEdgeData] | list[CUgraphEdgeData]], size_t numDependencies, nodeParams : Optional[CUgraphNodeParams]):
+    """ Adds a node of arbitrary type to a graph.
+
+    Creates a new node in `hGraph` described by `nodeParams` with
+    `numDependencies` dependencies specified via `dependencies`.
+    `numDependencies` may be 0. `dependencies` may be null if
+    `numDependencies` is 0. `dependencies` may not have any duplicate
+    entries.
+
+    `nodeParams` is a tagged union. The node type should be specified in
+    the `typename` field, and type-specific parameters in the corresponding
+    union member. All unused bytes - that is, `reserved0` and all bytes
+    past the utilized union member - must be set to zero. It is recommended
+    to use brace initialization or memset to ensure all bytes are
+    initialized.
+
+    Note that for some node types, `nodeParams` may contain "out
+    parameters" which are modified during the call, such as
+    `nodeParams->alloc.dptr`.
+
+    For kernel nodes, if both the kernel node's :py:obj:`~.CUfunction` and
+    ctx are non-NULL, the underlying device context of ctx must match the
+    device context that the :py:obj:`~.CUfunction` was loaded into;
+    otherwise the call returns :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`.
+
+    A handle to the new node will be returned in `phGraphNode`.
+
+    Parameters
+    ----------
+    hGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to which to add the node
+    dependencies : list[:py:obj:`~.CUgraphNode`]
+        Dependencies of the node
+    dependencyData : list[:py:obj:`~.CUgraphEdgeData`]
+        Optional edge data for the dependencies. If NULL, the data is
+        assumed to be default (zeroed) for all dependencies.
+    numDependencies : size_t
+        Number of dependencies
+    nodeParams : :py:obj:`~.CUgraphNodeParams`
+        Specification of the node
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
+    phGraphNode : :py:obj:`~.CUgraphNode`
+        Returns newly created node
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphCreate`, :py:obj:`~.cuGraphNodeSetParams_v2`, :py:obj:`~.cuGraphExecNodeSetParams`
+    """
+    dependencyData = [] if dependencyData is None else dependencyData
+    if not all(isinstance(_x, (CUgraphEdgeData,)) for _x in dependencyData):
+        raise TypeError("Argument 'dependencyData' is not instance of type (expected tuple[cydriver.CUgraphEdgeData,] or list[cydriver.CUgraphEdgeData,]")
+    dependencies = [] if dependencies is None else dependencies
+    if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
+        raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
+    cdef cydriver.CUgraph cyhGraph
+    if hGraph is None:
+        phGraph = 0
+    elif isinstance(hGraph, (CUgraph,)):
+        phGraph = int(hGraph)
+    else:
+        phGraph = int(CUgraph(hGraph))
+    cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
+    cdef CUgraphNode phGraphNode = CUgraphNode()
+    cdef cydriver.CUgraphNode* cydependencies = NULL
+    if len(dependencies) > 1:
+        cydependencies = <cydriver.CUgraphNode*> calloc(len(dependencies), sizeof(cydriver.CUgraphNode))
+        if cydependencies is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(dependencies)) + 'x' + str(sizeof(cydriver.CUgraphNode)))
+        else:
+            for idx in range(len(dependencies)):
+                cydependencies[idx] = <cydriver.CUgraphNode>(<CUgraphNode>dependencies[idx])._pvt_ptr[0]
+    elif len(dependencies) == 1:
+        cydependencies = <cydriver.CUgraphNode*>(<CUgraphNode>dependencies[0])._pvt_ptr
+    cdef cydriver.CUgraphEdgeData* cydependencyData = NULL
+    if len(dependencyData) > 1:
+        cydependencyData = <cydriver.CUgraphEdgeData*> calloc(len(dependencyData), sizeof(cydriver.CUgraphEdgeData))
+        if cydependencyData is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(dependencyData)) + 'x' + str(sizeof(cydriver.CUgraphEdgeData)))
+        for idx in range(len(dependencyData)):
+            string.memcpy(&cydependencyData[idx], (<CUgraphEdgeData>dependencyData[idx])._pvt_ptr, sizeof(cydriver.CUgraphEdgeData))
+    elif len(dependencyData) == 1:
+        cydependencyData = (<CUgraphEdgeData>dependencyData[0])._pvt_ptr
+    cdef cydriver.CUgraphNodeParams* cynodeParams_ptr = <cydriver.CUgraphNodeParams*>nodeParams._pvt_ptr if nodeParams is not None else NULL
+    with nogil:
+        err = cydriver.cuGraphAddNode_v3(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, cydependencyData, numDependencies, cynodeParams_ptr)
+    if len(dependencies) > 1 and cydependencies is not NULL:
+        free(cydependencies)
+    if len(dependencyData) > 1 and cydependencyData is not NULL:
+        free(cydependencyData)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None)
+    return (_CUresult_SUCCESS, phGraphNode)
+
+@cython.embedsignature(True)
 def cuGraphNodeSetParams(hNode, nodeParams : Optional[CUgraphNodeParams]):
     """ Update a graph node's parameters.
 
@@ -49164,6 +49691,52 @@ def cuGraphNodeSetParams(hNode, nodeParams : Optional[CUgraphNodeParams]):
     cdef cydriver.CUgraphNodeParams* cynodeParams_ptr = <cydriver.CUgraphNodeParams*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphNodeSetParams(cyhNode, cynodeParams_ptr)
+    return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuGraphNodeSetParams_v2(hNode, nodeParams : Optional[CUgraphNodeParams]):
+    """ Update a graph node's parameters.
+
+    Sets the parameters of graph node `hNode` to `nodeParams`. The node
+    type specified by `nodeParams->type` must match the type of `hNode`.
+    `nodeParams` must be fully initialized and all unused bytes (reserved,
+    padding) zeroed.
+
+    Modifying parameters is not supported for node types
+    CU_GRAPH_NODE_TYPE_MEM_ALLOC and CU_GRAPH_NODE_TYPE_MEM_FREE.
+
+    For kernel nodes, if both the kernel node's :py:obj:`~.CUfunction` and
+    ctx are non-NULL, the underlying device context of ctx must match the
+    device context that the :py:obj:`~.CUfunction` was loaded into;
+    otherwise the call returns :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to set the parameters for
+    nodeParams : :py:obj:`~.CUgraphNodeParams`
+        Parameters to copy
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphAddNode_v3`, :py:obj:`~.cuGraphNodeGetParams`, :py:obj:`~.cuGraphExecNodeSetParams`
+    """
+    cdef cydriver.CUgraphNode cyhNode
+    if hNode is None:
+        phNode = 0
+    elif isinstance(hNode, (CUgraphNode,)):
+        phNode = int(hNode)
+    else:
+        phNode = int(CUgraphNode(hNode))
+    cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
+    cdef cydriver.CUgraphNodeParams* cynodeParams_ptr = <cydriver.CUgraphNodeParams*>nodeParams._pvt_ptr if nodeParams is not None else NULL
+    with nogil:
+        err = cydriver.cuGraphNodeSetParams_v2(cyhNode, cynodeParams_ptr)
     return (_CUresult(err),)
 
 @cython.embedsignature(True)
@@ -53042,7 +53615,7 @@ def cuGraphicsResourceGetMappedPointer(resource):
     Returns in `*pDevPtr` a pointer through which the mapped graphics
     resource `resource` may be accessed. Returns in `pSize` the size of the
     memory in bytes which may be accessed from that pointer. The value set
-    in `pPointer` may change every time that `resource` is mapped.
+    in `pDevPtr` may change every time that `resource` is mapped.
 
     If `resource` is not a buffer then it cannot be accessed via a pointer
     and :py:obj:`~.CUDA_ERROR_NOT_MAPPED_AS_POINTER` is returned. If
@@ -53052,16 +53625,20 @@ def cuGraphicsResourceGetMappedPointer(resource):
     Parameters
     ----------
     resource : :py:obj:`~.CUgraphicsResource`
-        None
+        Mapped resource to access
 
     Returns
     -------
     CUresult
-
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_NOT_MAPPED`, :py:obj:`~.CUDA_ERROR_NOT_MAPPED_AS_POINTER`
     pDevPtr : :py:obj:`~.CUdeviceptr`
-        None
+        Returned pointer through which `resource` may be accessed
     pSize : int
-        None
+        Returned size of the buffer accessible starting at `*pDevPtr`
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphicsMapResources`, :py:obj:`~.cuGraphicsSubResourceGetMappedArray`, :py:obj:`~.cudaGraphicsResourceGetMappedPointer`
     """
     cdef cydriver.CUgraphicsResource cyresource
     if resource is None:
@@ -54611,18 +55188,20 @@ def cuDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[CUdevResource]
       - `smCount:` must be either 0 or in the range of [2,inputSmCount]
         where inputSmCount is the amount of SMs the `input` resource has.
         `smCount` must be a multiple of 2, as well as a multiple of
-        `coscheduledSmCount`. When assigning SMs to a group (and if results
-        are expected by having the `result` parameter set), `smCount`
-        cannot end up with 0 or a value less than `coscheduledSmCount`
-        otherwise CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION will be
-        returned.
+        `coscheduledSmCount` if it is nonzero. When assigning SMs to a
+        group (and if results are expected by having the `result` parameter
+        set), `smCount` cannot end up with 0 or a value less than
+        `coscheduledSmCount` otherwise
+        CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION will be returned.
 
       - `coscheduledSmCount:` allows grouping SMs together in order to be
         able to launch clusters on Compute Architecture 9.0+. The default
         value may be queried from the device’s
         :py:obj:`~.CU_DEV_RESOURCE_TYPE_SM` resource (8 on Compute
         Architecture 9.0+ and 2 otherwise). The maximum is 32 on Compute
-        Architecture 9.0+ and 2 otherwise.
+        Architecture 9.0+ and 2 otherwise. A `coscheduledSmCount` of 0 uses
+        the default value internally while preserving 0 in `groupParams`.
+        Cluster occupancy will be derived from the resulting SM topology.
 
       - `preferredCoscheduledSmCount:` Attempts to merge
         `coscheduledSmCount` groups into larger groups, in order to make
@@ -54631,10 +55210,24 @@ def cuDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[CUdevResource]
 
       - `flags:`
 
-    - `CU_DEV_SM_RESOURCE_GROUP_BACKFILL:` lets `smCount` be a non-multiple
-    of `coscheduledSmCount`, filling the difference between SM count and
-    already assigned co-scheduled groupings with other SMs. This lets any
-    resulting group behave similar to the `remainder` group for example.
+    - `CU_DEV_SM_RESOURCE_GROUP_BACKFILL:` Treats constraints as a hint,
+    ignoring them if necessary to reach the requested `smCount`. Lets
+    `smCount` be a non-multiple of `coscheduledSmCount`, filling the
+    difference between SM count and already assigned co-scheduled groupings
+    with other SMs. This lets any resulting group behave similar to the
+    `remainder` group for example. When used with
+    `CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID`, backfill fills up to the
+    requested `smCount` using the target locality domain first, then SMs
+    not attributed to any locality domain, then SMs from other locality
+    domains. If no SMs can be found in the requested locality domain,
+    CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION is returned.
+
+    - `CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID:` Specifies that the SM
+    partition should be localized to the specified `localityDomainId`.
+
+      - `localityDomainId:` Specifies the locality domain that the
+        partitioned SMs must be located on. Only valid when
+        CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID is set in flags.
 
     Example params and their effect:
 
@@ -54747,8 +55340,11 @@ def cuDevResourceGenerateDesc(resources : Optional[tuple[CUdevResource] | list[C
       resources are provided in `resources` and they are of type
       :py:obj:`~.CU_DEV_RESOURCE_TYPE_SM`, they must be outputs (whether
       `result` or `remaining`) from the same split API instance and have
-      the same smCoscheduledAlignment values, otherwise
-      CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION is returned.
+      the same smCoscheduledAlignment and localityDomainId values,
+      otherwise CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION is returned.
+
+    The output descriptor `phDesc` will remain valid for the lifetime of
+    the process.
 
     Note: The API is not supported on 32-bit platforms.
 
@@ -55406,12 +56002,61 @@ def cuCheckpointProcessLock(int pid, args : Optional[CUcheckpointLockArgs]):
 def cuCheckpointProcessCheckpoint(int pid, args : Optional[CUcheckpointCheckpointArgs]):
     """ Checkpoint a CUDA process's GPU memory contents.
 
-    Checkpoints a CUDA process specified by `pid` that is in the LOCKED
-    state. The GPU memory contents will be brought into host memory and all
-    underlying references will be released. Process must be in the LOCKED
-    state to checkpoint.
+    Checkpoints a CUDA process specified by `pid`. The GPU memory contents
+    will be brought into host memory or mapped onto the calling process's
+    GPUs for user-defined behavior. Underlying GPU references are released
+    when checkpointing completes. The process must be in the
+    :py:obj:`~.CU_PROCESS_STATE_LOCKED` state to checkpoint.
 
-    Upon successful return the process will be in the CHECKPOINTED state.
+    When :py:obj:`~.CUcheckpointCheckpointArgs.customStorageInfo_out` is
+    not NULL, all the GPU memory allocated by the process with `pid` will
+    be mapped onto the calling process's GPUs so the application can copy
+    the memory to custom storage. Upon return of this call, the pointer
+    referenced by
+    :py:obj:`~.CUcheckpointCheckpointArgs.customStorageInfo_out` will point
+    to a :py:obj:`~.CUcheckpointCustomStorageInfo` struct allocated and
+    populated by the driver. For each GPU which contains data from the
+    checkpointed process, there is a corresponding entry in the
+    :py:obj:`~.CUcheckpointCustomStoragePerDeviceData` array.
+
+    - The device pointers and sizes for the contiguously mapped memory on a
+      particular GPU are set in the
+      :py:obj:`~.CUcheckpointCustomStoragePerDeviceData.devPtr` and
+      :py:obj:`~.CUcheckpointCustomStoragePerDeviceData.size` fields
+      respectively.
+
+    - A stream belonging to the primary context of a particular GPU is set
+      in :py:obj:`~.CUcheckpointCustomStoragePerDeviceData.stream`. The
+      application can use the stream to find out which GPU the memory is
+      mapped on and to enqueue the copies to custom storage.
+
+    The application is responsible for copying the mapped data from the GPU
+    at the specified device address to custom storage. When checkpointing
+    to custom storage, the application is expected to call
+    :py:obj:`~.cuCheckpointOperationComplete`. The
+    :py:obj:`~.CUcheckpointCustomStorageInfo.handle` set by this call
+    should be passed to :py:obj:`~.cuCheckpointOperationComplete` in
+    `handle`. The driver synchronizes all the streams in
+    :py:obj:`~.cuCheckpointOperationComplete`, at which point the copy to
+    custom storage is considered complete.
+
+    When checkpointing to custom storage, the application is expected to
+    retain primary contexts of all the devices used by the process to be
+    checkpointed. Otherwise :py:obj:`~.cuCheckpointProcessCheckpoint` will
+    return :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`. Unlike other checkpoint
+    operations, checkpointing to custom storage requires :py:obj:`~.cuInit`
+    to have been called before execution. Checkpointing the calling
+    process's GPU memory to custom storage is not supported. Upon
+    successful return, the target process will be in the
+    :py:obj:`~.CU_PROCESS_STATE_CHECKPOINTING` state.
+
+    When :py:obj:`~.CUcheckpointCheckpointArgs.customStorageInfo_out` is
+    NULL, the GPU memory contents will be brought into host memory by
+    :py:obj:`~.cuCheckpointProcessCheckpoint`. The application is not
+    expected to copy the GPU memory contents. The application is also not
+    expected to call :py:obj:`~.cuCheckpointOperationComplete`. Upon
+    successful return, the target process will be in the
+    :py:obj:`~.CU_PROCESS_STATE_CHECKPOINTED` state.
 
     Parameters
     ----------
@@ -55423,7 +56068,7 @@ def cuCheckpointProcessCheckpoint(int pid, args : Optional[CUcheckpointCheckpoin
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE` :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED` :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE` :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
+        :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE` :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED` :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE` :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED` :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`
     """
     cdef cydriver.CUcheckpointCheckpointArgs* cyargs_ptr = <cydriver.CUcheckpointCheckpointArgs*>args._pvt_ptr if args is not None else NULL
     with nogil:
@@ -55435,17 +56080,66 @@ def cuCheckpointProcessRestore(int pid, args : Optional[CUcheckpointRestoreArgs]
     """ Restore a CUDA process's GPU memory contents from its last checkpoint.
 
     Restores a CUDA process specified by `pid` from its last checkpoint.
-    Process must be in the CHECKPOINTED state to restore.
+    Process must be in the :py:obj:`~.CU_PROCESS_STATE_CHECKPOINTED` state
+    to restore.
 
     GPU UUID pairs can be specified in `args` to remap the process old GPUs
     onto new GPUs. The GPU to restore onto needs to have enough memory and
     be of the same chip type as the old GPU. If an array of GPU UUID pairs
     is specified, it must contain every checkpointed GPU.
 
-    Upon successful return the process will be in the LOCKED state.
-
     CUDA process restore requires persistence mode to be enabled or
     :py:obj:`~.cuInit` to have been called before execution.
+
+    When :py:obj:`~.CUcheckpointRestoreArgs.customStorageInfo_out` is not
+    NULL, all the GPU memory to be restored for the process with `pid` will
+    be mapped onto the calling process's GPUs so the application can copy
+    the memory back to the GPU.
+
+    Upon return of this call, the pointer referenced by
+    :py:obj:`~.CUcheckpointRestoreArgs.customStorageInfo_out` will point to
+    a :py:obj:`~.CUcheckpointCustomStorageInfo` struct allocated and
+    populated by the driver. For each GPU which contains data from the
+    restored process, there is a corresponding entry in the
+    :py:obj:`~.CUcheckpointCustomStoragePerDeviceData` array.
+
+    - The device pointers and sizes for the contiguously mapped memory on a
+      particular GPU are set in the
+      :py:obj:`~.CUcheckpointCustomStoragePerDeviceData.devPtr` and
+      :py:obj:`~.CUcheckpointCustomStoragePerDeviceData.size` fields
+      respectively.
+
+    - A stream belonging to the primary context of the GPU is set in
+      :py:obj:`~.CUcheckpointCustomStoragePerDeviceData.stream`. The
+      application can use the stream to find out which GPU the memory is
+      mapped on and to enqueue the copies from custom storage back to the
+      GPU.
+
+    The application is responsible for copying the data from custom storage
+    to the GPU at the specified device address. When restoring from custom
+    storage, the application is expected to call
+    :py:obj:`~.cuCheckpointOperationComplete`. The
+    :py:obj:`~.CUcheckpointCustomStorageInfo.handle` set by this call
+    should be passed to :py:obj:`~.cuCheckpointOperationComplete` in
+    `handle`. The driver synchronizes all the streams in
+    :py:obj:`~.cuCheckpointOperationComplete`, at which point the copy from
+    custom storage is considered complete.
+
+    When restoring from custom storage, the application is expected to
+    retain primary contexts of all the devices used by the process to be
+    restored. Otherwise :py:obj:`~.cuCheckpointProcessRestore` will return
+    :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`. Restoring the calling process's
+    GPU memory from custom storage is not supported. Upon successful
+    return, the target process will be in the
+    :py:obj:`~.CU_PROCESS_STATE_RESTORING` state.
+
+    When :py:obj:`~.CUcheckpointRestoreArgs.customStorageInfo_out` is NULL,
+    the GPU memory contents will be restored from host memory by
+    :py:obj:`~.cuCheckpointProcessRestore`. The application is not expected
+    to copy back the GPU memory contents. The application is also not
+    expected to call :py:obj:`~.cuCheckpointOperationComplete`. Upon
+    successful return, the target process will be in the
+    :py:obj:`~.CU_PROCESS_STATE_LOCKED` state.
 
     Parameters
     ----------
@@ -55457,7 +56151,7 @@ def cuCheckpointProcessRestore(int pid, args : Optional[CUcheckpointRestoreArgs]
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE` :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED` :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE` :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
+        :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE` :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED` :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE` :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED` :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`
 
     See Also
     --------
@@ -55466,6 +56160,64 @@ def cuCheckpointProcessRestore(int pid, args : Optional[CUcheckpointRestoreArgs]
     cdef cydriver.CUcheckpointRestoreArgs* cyargs_ptr = <cydriver.CUcheckpointRestoreArgs*>args._pvt_ptr if args is not None else NULL
     with nogil:
         err = cydriver.cuCheckpointProcessRestore(pid, cyargs_ptr)
+    return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuCheckpointOperationComplete(handle):
+    """ Complete a custom-storage checkpoint or restore operation.
+
+    After :py:obj:`~.cuCheckpointProcessCheckpoint` or
+    :py:obj:`~.cuCheckpointProcessRestore` with custom storage,
+    :py:obj:`~.cuCheckpointOperationComplete` should be called when the
+    application has finished or enqueued (on a stream) the required copies
+    (for checkpoint, GPU mappings to custom storage and for restore, custom
+    storage into GPU mappings) so the driver can finish the operation.
+
+    :py:obj:`~.cuCheckpointOperationComplete` will first synchronize on the
+    streams returned by :py:obj:`~.cuCheckpointProcessCheckpoint` or
+    :py:obj:`~.cuCheckpointProcessRestore`. The driver assumes that the
+    application has completed copying the memory to or from custom storage
+    once synchronization is done. None of the streams returned by
+    :py:obj:`~.cuCheckpointProcessCheckpoint` or
+    :py:obj:`~.cuCheckpointProcessRestore` should be in stream capture
+    mode; any attempt to do so would result in
+    :py:obj:`~.CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED`. Once the
+    synchronization is done, :py:obj:`~.cuCheckpointOperationComplete` will
+    unmap the GPU memory that was mapped on each GPU in a particular
+    :py:obj:`~.cuCheckpointProcessCheckpoint` or
+    :py:obj:`~.cuCheckpointProcessRestore` operation.
+    :py:obj:`~.cuCheckpointOperationComplete` identifies the operation to
+    be completed using `handle`. This handle is set by
+    :py:obj:`~.cuCheckpointProcessCheckpoint` or
+    :py:obj:`~.cuCheckpointProcessRestore`.
+
+    When the call returns successfully, the target process will be in the
+    :py:obj:`~.CU_PROCESS_STATE_CHECKPOINTED` state when completing a
+    checkpoint operation or the :py:obj:`~.CU_PROCESS_STATE_LOCKED` state
+    when completing a restore operation.
+
+    Parameters
+    ----------
+    handle : :py:obj:`~.CUcheckpointOperationHandle`
+        :py:obj:`~.CUcheckpointCustomStorageInfo.handle` set by a prior
+        :py:obj:`~.cuCheckpointProcessCheckpoint` or
+        :py:obj:`~.cuCheckpointProcessRestore` call
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE` :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED` :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE` :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
+    """
+    cdef cydriver.CUcheckpointOperationHandle cyhandle
+    if handle is None:
+        phandle = 0
+    elif isinstance(handle, (CUcheckpointOperationHandle,)):
+        phandle = int(handle)
+    else:
+        phandle = int(CUcheckpointOperationHandle(handle))
+    cyhandle = <cydriver.CUcheckpointOperationHandle><void_ptr>phandle
+    with nogil:
+        err = cydriver.cuCheckpointOperationComplete(cyhandle)
     return (_CUresult(err),)
 
 @cython.embedsignature(True)
@@ -56099,18 +56851,22 @@ def cuGraphicsResourceGetMappedEglFrame(resource, unsigned int index, unsigned i
     Parameters
     ----------
     resource : :py:obj:`~.CUgraphicsResource`
-        None
+        Registered resource to access.
     index : unsigned int
-        None
+        Index for cubemap surfaces.
     mipLevel : unsigned int
-        None
+        Mipmap level for the subresource to access.
 
     Returns
     -------
     CUresult
-
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_NOT_MAPPED`
     eglFrame : :py:obj:`~.CUeglFrame`
-        None
+        Returned eglFrame.
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphicsMapResources`, :py:obj:`~.cuGraphicsSubResourceGetMappedArray`, :py:obj:`~.cuGraphicsResourceGetMappedPointer`, :py:obj:`~.cudaGraphicsResourceGetMappedEglFrame`
     """
     cdef cydriver.CUgraphicsResource cyresource
     if resource is None:
@@ -57379,6 +58135,21 @@ def sizeof(objType):
     if objType == CUgraphNodeParams:
         return sizeof(cydriver.CUgraphNodeParams)
 
+    if objType == CUcheckpointCustomStoragePerDeviceData_st:
+        return sizeof(cydriver.CUcheckpointCustomStoragePerDeviceData_st)
+
+    if objType == CUcheckpointCustomStoragePerDeviceData:
+        return sizeof(cydriver.CUcheckpointCustomStoragePerDeviceData)
+
+    if objType == CUcheckpointOperationHandle:
+        return sizeof(cydriver.CUcheckpointOperationHandle)
+
+    if objType == CUcheckpointCustomStorageInfo_st:
+        return sizeof(cydriver.CUcheckpointCustomStorageInfo_st)
+
+    if objType == CUcheckpointCustomStorageInfo:
+        return sizeof(cydriver.CUcheckpointCustomStorageInfo)
+
     if objType == CUcheckpointLockArgs_st:
         return sizeof(cydriver.CUcheckpointLockArgs_st)
 
@@ -57414,6 +58185,12 @@ def sizeof(objType):
 
     if objType == CUmemDecompressParams:
         return sizeof(cydriver.CUmemDecompressParams)
+
+    if objType == CUcliqueInfo_st:
+        return sizeof(cydriver.CUcliqueInfo_st)
+
+    if objType == CUcliqueInfo:
+        return sizeof(cydriver.CUcliqueInfo)
 
     if objType == CUlogicalEndpointId:
         return sizeof(cydriver.CUlogicalEndpointId)
@@ -57620,6 +58397,10 @@ cdef int _add_native_handle_getters() except?-1:
 
     def CUlinkState_getter(CUlinkState x): return <uintptr_t><void*><cydriver.CUlinkState>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(CUlinkState, CUlinkState_getter)
+
+
+    def CUcheckpointOperationHandle_getter(CUcheckpointOperationHandle x): return <uintptr_t><void*><cydriver.CUcheckpointOperationHandle>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUcheckpointOperationHandle, CUcheckpointOperationHandle_getter)
 
 
     def CUcoredumpCallbackHandle_getter(CUcoredumpCallbackHandle x): return <uintptr_t><void*><cydriver.CUcoredumpCallbackHandle>(x._pvt_ptr[0])
