@@ -135,6 +135,7 @@ def _bindings_floors() -> dict:
     cuda/core/_bindings_floor.py. A malformed extra fails the build here.
     """
     import tomllib
+
     with open(_PYPROJECT_PATH, "rb") as f:
         extras = tomllib.load(f)["project"]["optional-dependencies"]
     try:

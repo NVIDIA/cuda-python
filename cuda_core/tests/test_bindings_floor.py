@@ -44,6 +44,7 @@ HOOK = REPO / "toolshed" / "check_cuda_core_bindings_floor.py"
 
 def _pyproject_extras():
     import tomllib
+
     with open(CUDA_CORE / "pyproject.toml", "rb") as f:
         return tomllib.load(f)["project"]["optional-dependencies"]
 
