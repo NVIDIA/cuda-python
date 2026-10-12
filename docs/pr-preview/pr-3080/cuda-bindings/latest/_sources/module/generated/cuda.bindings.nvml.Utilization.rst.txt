@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.Utilization
+==============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: Utilization
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Utilization.__init__
+      ~Utilization.from_buffer
+      ~Utilization.from_data
+      ~Utilization.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Utilization.gpu
+      ~Utilization.memory
+      ~Utilization.ptr
+   
+   
