@@ -31,10 +31,7 @@ import re
 import sys
 from pathlib import Path
 
-try:
-    import tomllib
-except ModuleNotFoundError:  # Python 3.10
-    import tomli as tomllib  # type: ignore[no-redef]
+import tomllib
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 FLOOR_MODULE = Path("cuda_core", "cuda", "core", "_bindings_floor.py")

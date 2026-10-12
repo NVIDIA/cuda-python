@@ -134,10 +134,7 @@ def _bindings_floors() -> dict:
     import-time check, the docs and CI all derive from them. See
     cuda/core/_bindings_floor.py. A malformed extra fails the build here.
     """
-    try:
-        import tomllib
-    except ModuleNotFoundError:  # Python 3.10: tomli is in build-system.requires
-        import tomli as tomllib
+    import tomllib
     with open(_PYPROJECT_PATH, "rb") as f:
         extras = tomllib.load(f)["project"]["optional-dependencies"]
     try:
