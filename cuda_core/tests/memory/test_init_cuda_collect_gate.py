@@ -24,12 +24,16 @@ conftest module globals).
 
 import gc
 import inspect
+import warnings
 
 import pytest
+from helpers.contexts import current_context_handle
 from helpers.memory import (
     BaselineMemoryResourceReleasedWarning,
     UnreleasedMemoryResourceWarning,
 )
+
+from cuda.core._utils.cuda_utils import driver, handle_return
 
 
 class _ScriptedCounts:
@@ -182,6 +186,52 @@ def test_setup_warns_when_resources_left_alive_since_last_init_cuda(request, mon
     with pytest.warns(UnreleasedMemoryResourceWarning):
         next(gen)  # setup emits the leftover warning
     _finish_teardown(gen)  # live_after == live_at_setup -> no baseline warning
+
+
+def _pop_context_stack():
+    """Pop every current context. Returns the handles, top last, for restoration."""
+    saved = []
+    while current_context_handle() != 0:
+        saved.append(handle_return(driver.cuCtxPopCurrent()))
+    return saved
+
+
+def _push_context_stack(saved):
+    for ctx in reversed(saved):
+        handle_return(driver.cuCtxPushCurrent(ctx))
+
+
+@_THREAD_UNSAFE_MARKER
+@pytest.mark.agent_authored(model="grok-4.7")
+def test_escalated_setup_warning_still_pops_the_context(request, monkeypatch):
+    """An error-filtered leftover warning still runs teardown and clears the context.
+
+    pytest.ini escalates ``UnreleasedMemoryResourceWarning`` to an error. The
+    warning is raised after ``set_current()``, so the fixture finally has to pop
+    that context before the error propagates. ``pytest.warns`` hides this: it
+    forces the warning filter to ``always`` and the generator yields. The test
+    sets the error filter itself so it does not depend on ``pytest.ini`` or
+    ``-W`` / ``-p no:warnings`` on the command line.
+    """
+    func = _init_cuda_func(request)
+    _patch_conftest_global(monkeypatch, func, "_mr_expected_live", (0, 0))
+    _patch_conftest_global(monkeypatch, func, "_mr_live_at_item_start", (1, 0))
+    _patch_conftest_global(monkeypatch, func, "_mr_last_init_cuda_nodeid", "tests/prev::test_prev")
+    _patch_conftest_global(monkeypatch, func, "_live_resource_counts", _ScriptedCounts((1, 0)))
+
+    # set_current replaces the top of a non-empty stack, so start from empty.
+    # Otherwise a successful pop does not restore the handle this test observed.
+    saved = _pop_context_stack()
+    gen = func(_FakeRequest())
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", UnreleasedMemoryResourceWarning)
+            with pytest.raises(UnreleasedMemoryResourceWarning):
+                next(gen)
+        assert current_context_handle() == 0
+    finally:
+        gen.close()
+        _push_context_stack(saved)
 
 
 @_THREAD_UNSAFE_MARKER
