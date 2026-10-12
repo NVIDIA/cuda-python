@@ -1,0 +1,6 @@
+﻿cuda.bindings.cufile.write\_async
+=================================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autofunction:: write_async
