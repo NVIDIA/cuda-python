@@ -106,8 +106,8 @@ obtain the most recent build, use the following commands:
    $ # Install the downloaded wheel:
    $ pip install cuda-bindings-python312-cuda13*-linux-64-*/cuda_bindings*.whl[all]
 
-Replace ``python312`` with your Python version (e.g. ``python310``, ``python311``,
-``python313``, ``python314``, ``python314t``). For aarch64, replace ``linux-64``
+Replace ``python312`` with your Python version (e.g. ``python311``,
+``python313``, ``python314``, ``python314t``, ``python315``, ``python315t``). For aarch64, replace ``linux-64``
 with ``linux-aarch64``; for Windows, use ``win-64``. Only the current CUDA
 major version is built on ``main``; wheels for the prior CUDA major are
 published from the corresponding backport branch.
