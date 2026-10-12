@@ -126,6 +126,21 @@ avoid recompiling identical source + options + target without writing the
    make_program_cache_key
 
 
+Driver logging
+``````````````
+
+:func:`~cuda.core.utils.register_cuda_error_log` bridges CUDA driver
+``cuLogs*`` messages into Python's standard :mod:`logging` module.
+
+.. currentmodule:: cuda.core.utils
+
+.. autosummary::
+   :toctree: generated/
+
+   register_cuda_error_log
+   unregister_cuda_error_log
+
+
 CUDA graphs
 -----------
 
