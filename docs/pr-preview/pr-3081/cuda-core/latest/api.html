@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=1ce1fe34"></script>
+    <script src="_static/documentation_options.js?v=b8997a2d"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev212';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev213';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -624,6 +624,8 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.register_cuda_error_log.html">cuda.core.utils.register_cuda_error_log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.unregister_cuda_error_log.html">cuda.core.utils.unregister_cuda_error_log</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
@@ -904,7 +906,7 @@ Use <a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.cor
 closing the buffer. Changing the recorded stream does not synchronize streams;
 the caller must order allocation and every access before the deallocation,
 using events or other CUDA synchronization mechanisms as needed. See
-<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/4e823c9fa263b0c817941be0e94887b71137abaf/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
+<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/1f7e59a732899853cbc796c3c3caa6d5b20211a6/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
 for a complete example.</p>
 </section>
 <section id="cuda-compilation-toolchain">
@@ -951,6 +953,22 @@ avoid recompiling identical source + options + target without writing the
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_program_cache_key</span></code></a>(*, code, code_type, ...)</p></td>
 <td><p>Build a stable cache key from compile inputs.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="driver-logging">
+<h3>Driver logging<a class="headerlink" href="#driver-logging" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="generated/cuda.core.utils.register_cuda_error_log.html#cuda.core.utils.register_cuda_error_log" title="cuda.core.utils.register_cuda_error_log"><code class="xref py py-func docutils literal notranslate"><span class="pre">register_cuda_error_log()</span></code></a> bridges CUDA driver
+<code class="docutils literal notranslate"><span class="pre">cuLogs*</span></code> messages into Python’s standard <a class="reference external" href="https://docs.python.org/3/library/logging.html#module-logging" title="(in Python v3.15)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">logging</span></code></a> module.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.register_cuda_error_log.html#cuda.core.utils.register_cuda_error_log" title="cuda.core.utils.register_cuda_error_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">register_cuda_error_log</span></code></a>([logger, callback])</p></td>
+<td><p>Register a bridge that forwards CUDA driver <code class="docutils literal notranslate"><span class="pre">cuLogs*</span></code> messages to a Python <a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">logging.Logger</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.unregister_cuda_error_log.html#cuda.core.utils.unregister_cuda_error_log" title="cuda.core.utils.unregister_cuda_error_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unregister_cuda_error_log</span></code></a>()</p></td>
+<td><p>Unregister the bridge installed by <a class="reference internal" href="generated/cuda.core.utils.register_cuda_error_log.html#cuda.core.utils.register_cuda_error_log" title="cuda.core.utils.register_cuda_error_log"><code class="xref py py-func docutils literal notranslate"><span class="pre">register_cuda_error_log()</span></code></a>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1367,6 +1385,7 @@ execution.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-management">Memory management</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-compilation-toolchain">CUDA compilation toolchain</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#program-caches">Program caches</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#driver-logging">Driver logging</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-graphs">CUDA graphs</a><ul class="pst-show_toc_level nav section-nav flex-column">

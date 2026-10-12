@@ -1,0 +1,6 @@
+﻿cuda.core.utils.unregister\_cuda\_error\_log
+============================================
+
+.. currentmodule:: cuda.core.utils
+
+.. autofunction:: unregister_cuda_error_log
