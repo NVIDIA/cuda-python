@@ -1,0 +1,6 @@
+﻿cuda.core.system.typing.AddressingMode
+======================================
+
+.. currentmodule:: cuda.core.system.typing
+
+.. autoenum:: AddressingMode
