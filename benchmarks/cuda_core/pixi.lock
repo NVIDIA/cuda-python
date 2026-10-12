@@ -6,7 +6,7 @@ platforms:
   - __linux=4.18
   - __glibc=2.28
   - __archspec=0=x86_64
-- name: p1
+- name: linux-64-cuda-13
   subdir: linux-64
   virtual-packages:
   - __cuda=13
@@ -27,7 +27,7 @@ environments:
     options:
       channel-priority: disabled
     packages:
-      p1:
+      linux-64-cuda-13:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/bzip2-1.0.8-hda65f42_10.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cffi-2.1.1-py314h8d76f0c_3.conda
@@ -92,14 +92,14 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/setuptools-84.0.0-pyh332efcf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/virtualenv-21.14.6-pyh5ded981_0.conda
-      - conda_source: cuda-core[8d79a3ec] @ ../../cuda_core
+      - conda_source: cuda-core[c26755d8] @ ../../cuda_core
   wheel:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
     options:
       channel-priority: disabled
     packages:
-      p1:
+      linux-64-cuda-13:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/bzip2-1.0.8-hda65f42_10.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cffi-2.1.1-py314h8d76f0c_3.conda
@@ -1425,14 +1425,14 @@ packages:
   run_exports: {}
   size: 3994924
   timestamp: 1791486987517
-- conda_source: cuda-core[8d79a3ec] @ ../../cuda_core
+- conda_source: cuda-core[c26755d8] @ ../../cuda_core
   variants:
     c_stdlib: sysroot
     c_stdlib_version: '2.28'
     target_platform: linux-64
   depends:
   - python
-  - python >=3.10
+  - python >=3.11
   - cuda-version
   - numpy
   - cuda-bindings
