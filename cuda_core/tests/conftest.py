@@ -150,6 +150,11 @@ def _live_resource_counts():
     return (_live_owned_mempool_count(), _live_va_reservation_count())
 
 
+def _format_counts(counts):
+    owned_pools, va_reservations = counts
+    return f"owned_pools={owned_pools}, va_reservations={va_reservations}"
+
+
 # Counts after the last init_cuda test; None until one has run.
 _mr_expected_live = None
 # Counts at the start of the current item, before its fixtures set up.
@@ -159,9 +164,9 @@ _mr_last_init_cuda_nodeid = None
 
 @pytest.hookimpl(wrapper=True)
 def pytest_runtest_protocol(item, nextitem):
-    # Leftover check: compare with the count after the previous init_cuda test,
-    # not the session start, because the count legitimately rises over a run
-    # (interned GraphMemoryResource, pytest-retained class instances).
+    # Leftover check: compare with the counts after the previous init_cuda test,
+    # not the session start, because they legitimately rise over a run (pools
+    # owned by module- or class-scoped fixtures).
     global _mr_expected_live, _mr_live_at_item_start, _mr_last_init_cuda_nodeid
     _mr_live_at_item_start = _live_resource_counts()
     try:
@@ -245,10 +250,9 @@ def init_cuda(request):
         seed = getattr(request.config.option, "randomly_seed", None)
         seed_msg = f" (pytest-randomly seed: {seed})" if seed is not None else ""
         warnings.warn(
-            f"{excess} (owned_pools, va_reservations) memory resource(s) were left alive by "
-            f"tests that ran since {_mr_last_init_cuda_nodeid} ({held} still alive after a "
-            f"collect). A test or fixture that constructs a memory resource must request "
-            f"init_cuda.{seed_msg}",
+            f"Owned resources were left alive by tests that ran since {_mr_last_init_cuda_nodeid} "
+            f"({_format_counts(excess)}; still alive after a collect: {_format_counts(held)}). "
+            f"A test or fixture that constructs a memory resource must request init_cuda.{seed_msg}",
             UnreleasedMemoryResourceWarning,
             stacklevel=2,
         )
@@ -284,10 +288,10 @@ def init_cuda(request):
         if any(now < snap for now, snap in zip(live_after, live_at_setup)):
             released = tuple(s - n for s, n in zip(live_at_setup, live_after))
             warnings.warn(
-                f"{request.node.nodeid} released {released} (owned_pools, va_reservations) memory "
-                f"resource(s) that existed before it started (counts {live_after}, snapshot "
-                f"{live_at_setup}). A leak in this test could have been masked by that release. "
-                "Find what held the released resource.",
+                f"{request.node.nodeid} released owned resources that existed before it started "
+                f"({_format_counts(released)}; counts {_format_counts(live_after)}, snapshot "
+                f"{_format_counts(live_at_setup)}). A leak in this test could have been masked by "
+                "that release. Find what held the released resource.",
                 BaselineMemoryResourceReleasedWarning,
                 stacklevel=2,
             )

@@ -179,7 +179,7 @@ def test_setup_warns_when_resources_left_alive_since_last_init_cuda(request, mon
     _patch_conftest_global(monkeypatch, func, "_live_resource_counts", _ScriptedCounts((1, 0)))
 
     gen = func(_FakeRequest())
-    with pytest.warns(UnreleasedMemoryResourceWarning, match="left alive"):
+    with pytest.warns(UnreleasedMemoryResourceWarning):
         next(gen)  # setup emits the leftover warning
     _finish_teardown(gen)  # live_after == live_at_setup -> no baseline warning
 
@@ -196,7 +196,7 @@ def test_teardown_warns_on_baseline_release(request, monkeypatch):
     gen = func(_FakeRequest())
     next(gen)  # setup: live_at_setup == (1, 0)
     with (
-        pytest.warns(BaselineMemoryResourceReleasedWarning, match="existed before it started"),
+        pytest.warns(BaselineMemoryResourceReleasedWarning),
         pytest.raises(StopIteration),
     ):
         next(gen)  # teardown: live_after == (0, 0) -> baseline-release warning

@@ -104,9 +104,9 @@ def test_va_reservation_is_counted_until_freed(init_cuda):
         buf = vmm.allocate(4096)
     except NotImplementedError:
         pytest.skip("VMM handle type not implemented on this platform")
-    # An allocation reserves at least one address range.
-    assert _live_va_reservation_count() >= before + 1
-    buf.close()
+    with buf:
+        # An allocation reserves at least one address range.
+        assert _live_va_reservation_count() >= before + 1
     assert _live_va_reservation_count() == before
 
 
