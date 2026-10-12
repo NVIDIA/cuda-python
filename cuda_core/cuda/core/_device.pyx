@@ -28,6 +28,7 @@ from cuda.core._rt cimport (
     get_last_error,
     as_cu,
 )
+from cuda.core._utils.version cimport cy_driver_version
 
 from cuda.core._stream import IsStreamType, Stream, StreamOptions
 from cuda.core._utils.clear_error_support import assert_type
@@ -910,10 +911,19 @@ cdef class DeviceProperties:
 
     @property
     def host_numa_memory_pools_supported(self) -> bool:
-        """bool: Device supports HOST_NUMA location with the cuMemAllocAsync and cuMemPool family of APIs."""
-        return bool(
-            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_MEMORY_POOLS_SUPPORTED)
-        )
+        """bool: Device supports HOST_NUMA location with the cuMemAllocAsync and cuMemPool family of APIs.
+
+        The value is inferred for drivers before CUDA 12.9.
+        """
+        cdef tuple drv_ver = cy_driver_version()
+        if drv_ver >= (12, 9, 0):
+            return bool(
+                self._get_cached_attribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_MEMORY_POOLS_SUPPORTED
+                )
+            )
+        # The attribute arrived in CUDA 12.9, HOST_NUMA pools in CUDA 12.6 (#2795).
+        return drv_ver >= (12, 6, 0) and self.memory_pools_supported and not self.integrated
 
     # Start of CUDA 13 device attributes
 
