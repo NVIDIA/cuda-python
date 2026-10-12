@@ -7,6 +7,18 @@ import pytest
 
 from cuda.core import Device, ManagedMemoryResource, PinnedMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
+from cuda_python_test_helpers import IS_WINDOWS
+
+# Shareable handle type for VirtualMemoryResource allocations on this platform.
+VMM_HANDLE_TYPE = "win32_kmt" if IS_WINDOWS else "posix_fd"
+
+
+class UnreleasedMemoryResourceWarning(Warning):
+    """A test or fixture left an owned memory pool or VA reservation alive without ``init_cuda``."""
+
+
+class BaselineMemoryResourceReleasedWarning(Warning):
+    """An ``init_cuda`` test released an owned memory pool or VA reservation that existed before it started."""
 
 
 def skip_if_pinned_memory_unsupported(device):

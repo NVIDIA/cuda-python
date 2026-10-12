@@ -8,6 +8,7 @@
 #include "driver_api.hpp"
 #include "error.hpp"
 #include "internal.hpp"
+#include <atomic>
 #include <cstddef>
 #include <cstring>
 #include <memory>
@@ -30,6 +31,13 @@ namespace {
 struct MemoryPoolBox {
     CUmemoryPool resource;
 };
+
+// Process-wide count of live *owned* memory pools -- those this layer created
+// with cuMemPoolCreate or imported (and will cuMemPoolDestroy). Borrowed pool
+// references (create_mempool_handle_ref, get_device_mempool) are not counted.
+// Read by the test suite to gate the per-test gc.collect(); atomic for
+// free-threaded builds.
+std::atomic<long long> g_live_owned_mempools{0};
 }  // namespace
 
 // Helper to clear peer access before destroying a memory pool.
@@ -65,16 +73,26 @@ static void clear_mempool_peer_access(CUmemoryPool pool, int owner_device) noexc
 // owner_device is the ordinal of a device-located pool, or -1 when there is no
 // device to skip (host pools) or the location is unknown (imported pools).
 static MemoryPoolHandle wrap_mempool_owned(CUmemoryPool pool, int owner_device) {
+    auto* raw = new MemoryPoolBox{pool};
+    // Count before constructing the shared_ptr: if its control-block allocation
+    // throws, it runs the deleter on raw, whose decrement then balances this.
+    g_live_owned_mempools.fetch_add(1, std::memory_order_relaxed);
     auto box = std::shared_ptr<const MemoryPoolBox>(
-        new MemoryPoolBox{pool},
+        raw,
         [owner_device](const MemoryPoolBox* b) {
             GILReleaseGuard gil;
             clear_mempool_peer_access(b->resource, owner_device);
             pw_cuMemPoolDestroy(b->resource);
+            g_live_owned_mempools.fetch_sub(1, std::memory_order_relaxed);
             delete b;
         }
     );
     return MemoryPoolHandle(box, &box->resource);
+}
+
+// Test-suite instrumentation; see g_live_owned_mempools.
+long long live_owned_mempool_count() noexcept {
+    return g_live_owned_mempools.load(std::memory_order_relaxed);
 }
 
 MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) {
