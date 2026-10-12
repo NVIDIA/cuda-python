@@ -76,19 +76,19 @@ def test_borrowed_default_pool_is_not_counted(init_cuda):
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_owned_pool_in_cycle_stays_counted_until_collect(init_cuda):
     _skip_without_mempools(init_cuda)
-    before = _live_owned_mempool_count()
-    mr = _owned_pool(init_cuda)
-    # A dict cycle holds the only reference to mr (the Cython resource cannot
-    # hold a self-attribute), so refcounting alone will not free it.
-    holder = {"mr": mr}
-    holder["self"] = holder
-    del mr, holder
-    assert _live_owned_mempool_count() == before + 1
     # Disable automatic collection so a background gc cannot free the cycle
-    # before the assertion is checked.
+    # before the still-counted assertion is checked.
     enabled = gc.isenabled()
     gc.disable()
     try:
+        before = _live_owned_mempool_count()
+        mr = _owned_pool(init_cuda)
+        # A dict cycle holds the only reference to mr (the Cython resource cannot
+        # hold a self-attribute), so refcounting alone will not free it.
+        holder = {"mr": mr}
+        holder["self"] = holder
+        del mr, holder
+        assert _live_owned_mempool_count() == before + 1
         gc.collect()
         assert _live_owned_mempool_count() == before
     finally:
@@ -123,18 +123,25 @@ def test_concurrent_owned_pool_construct_and_drop_returns_to_start(init_cuda):
     before = _live_owned_mempool_count()
     n_threads = 4
     n_per_thread = 10
+    # An exception in a worker only kills that thread, which would leave the
+    # count balanced and the test passing; collect them and fail explicitly.
+    errors = []
 
     def worker():
-        init_cuda.set_current()
-        for _ in range(n_per_thread):
-            mr = _owned_pool(init_cuda)
-            del mr
+        try:
+            init_cuda.set_current()
+            for _ in range(n_per_thread):
+                mr = _owned_pool(init_cuda)
+                del mr
+        except Exception as e:
+            errors.append(e)
 
     threads = [threading.Thread(target=worker) for _ in range(n_threads)]
     for t in threads:
         t.start()
     for t in threads:
         t.join()
+    assert not errors, f"worker thread(s) raised: {errors!r}"
     # Let any deferred deallocation settle.
     gc.collect()
     assert _live_owned_mempool_count() == before
