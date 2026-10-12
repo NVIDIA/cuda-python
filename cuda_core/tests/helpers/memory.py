@@ -7,6 +7,10 @@ import pytest
 
 from cuda.core import ManagedMemoryResource, PinnedMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
+from cuda_python_test_helpers import IS_WINDOWS
+
+# Shareable handle type for VirtualMemoryResource allocations on this platform.
+VMM_HANDLE_TYPE = "win32_kmt" if IS_WINDOWS else "posix_fd"
 
 
 class UnreleasedMemoryResourceWarning(Warning):

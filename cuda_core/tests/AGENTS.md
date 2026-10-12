@@ -69,11 +69,15 @@ whose lifetime fits a single scope, and keep pool lifetimes inside the test
 that creates them. The collected items and imported modules are frozen after
 collection, so the collect covers only objects created during the run.
 
-A resource that outlives a test without `init_cuda` makes the next `init_cuda`
-test fail with `UnreleasedMemoryResourceWarning` (escalated to an error in
-`pytest.ini`). Release what you construct, and
-request `init_cuda` in any test that constructs one (see "Tests that touch CUDA
-must establish their own context").
+An owned memory pool or VA reservation that outlives a test without `init_cuda`
+makes the next `init_cuda` test fail with `UnreleasedMemoryResourceWarning`, and
+an `init_cuda` test that releases one created before it started fails with
+`BaselineMemoryResourceReleasedWarning` (both escalated to errors in
+`pytest.ini`). Other resources -- wrappers of the device default pool,
+`MemoryResource` subclasses that hold no pool, and their buffers -- are not
+counted, so leaking one goes undetected. Release what you construct regardless,
+and request `init_cuda` in any test that constructs a memory resource (see
+"Tests that touch CUDA must establish their own context").
 
 ## Shared test support
 

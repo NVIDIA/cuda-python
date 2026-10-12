@@ -93,6 +93,17 @@ def _init_cuda_func(request):
     return func
 
 
+def _patch_conftest_global(monkeypatch, func, name, value):
+    """Monkeypatch a conftest module global that ``func`` reads.
+
+    ``monkeypatch.setitem`` silently adds a missing key, so after a rename in
+    conftest the patch would no longer reach the gate; fail loudly instead.
+    """
+    g = func.__globals__
+    assert name in g, f"conftest no longer defines {name!r}"
+    monkeypatch.setitem(g, name, value)
+
+
 def _spy_on_gc_collect(monkeypatch):
     """Patch ``gc.collect`` to record each explicit call; returns the call list.
 
@@ -122,11 +133,10 @@ def _finish_teardown(gen):
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_teardown_skips_collect_when_counts_unchanged(request, monkeypatch):
     func = _init_cuda_func(request)
-    g = func.__globals__
     # Disable the leftover check so only the teardown gate can call gc.collect,
     # and script equal setup/teardown counts.
-    monkeypatch.setitem(g, "_mr_expected_live", None)
-    monkeypatch.setitem(g, "_live_resource_counts", _ScriptedCounts((2, 1)))
+    _patch_conftest_global(monkeypatch, func, "_mr_expected_live", None)
+    _patch_conftest_global(monkeypatch, func, "_live_resource_counts", _ScriptedCounts((2, 1)))
     collects = _spy_on_gc_collect(monkeypatch)
 
     gen = func(_FakeRequest())
@@ -141,10 +151,9 @@ def test_teardown_skips_collect_when_counts_unchanged(request, monkeypatch):
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_teardown_collects_when_a_count_grows(request, monkeypatch):
     func = _init_cuda_func(request)
-    g = func.__globals__
-    monkeypatch.setitem(g, "_mr_expected_live", None)
+    _patch_conftest_global(monkeypatch, func, "_mr_expected_live", None)
     # Owned-pool count grows from 2 to 3 across the test.
-    monkeypatch.setitem(g, "_live_resource_counts", _ScriptedCounts((2, 1), (3, 1)))
+    _patch_conftest_global(monkeypatch, func, "_live_resource_counts", _ScriptedCounts((2, 1), (3, 1)))
     collects = _spy_on_gc_collect(monkeypatch)
 
     gen = func(_FakeRequest())
@@ -162,13 +171,12 @@ def test_teardown_collects_when_a_count_grows(request, monkeypatch):
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_setup_warns_when_resources_left_alive_since_last_init_cuda(request, monkeypatch):
     func = _init_cuda_func(request)
-    g = func.__globals__
     # Force the leftover-check precondition: the item started with one more owned
     # pool than the baseline recorded after the previous init_cuda test.
-    monkeypatch.setitem(g, "_mr_expected_live", (0, 0))
-    monkeypatch.setitem(g, "_mr_live_at_item_start", (1, 0))
-    monkeypatch.setitem(g, "_mr_last_init_cuda_nodeid", "tests/prev::test_prev")
-    monkeypatch.setitem(g, "_live_resource_counts", _ScriptedCounts((1, 0)))
+    _patch_conftest_global(monkeypatch, func, "_mr_expected_live", (0, 0))
+    _patch_conftest_global(monkeypatch, func, "_mr_live_at_item_start", (1, 0))
+    _patch_conftest_global(monkeypatch, func, "_mr_last_init_cuda_nodeid", "tests/prev::test_prev")
+    _patch_conftest_global(monkeypatch, func, "_live_resource_counts", _ScriptedCounts((1, 0)))
 
     gen = func(_FakeRequest())
     with pytest.warns(UnreleasedMemoryResourceWarning, match="left alive"):
@@ -180,11 +188,10 @@ def test_setup_warns_when_resources_left_alive_since_last_init_cuda(request, mon
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_teardown_warns_on_baseline_release(request, monkeypatch):
     func = _init_cuda_func(request)
-    g = func.__globals__
-    monkeypatch.setitem(g, "_mr_expected_live", None)  # disable the leftover check
+    _patch_conftest_global(monkeypatch, func, "_mr_expected_live", None)  # disable the leftover check
     # Script a snapshot of (1, 0) at setup and (0, 0) at teardown: an owned pool
     # that existed at setup was released during the test.
-    monkeypatch.setitem(g, "_live_resource_counts", _ScriptedCounts((1, 0), (0, 0)))
+    _patch_conftest_global(monkeypatch, func, "_live_resource_counts", _ScriptedCounts((1, 0), (0, 0)))
 
     gen = func(_FakeRequest())
     next(gen)  # setup: live_at_setup == (1, 0)

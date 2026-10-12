@@ -17,11 +17,11 @@ it constructs. They are ``thread_unsafe`` because the counters are process-globa
 """
 
 import gc
-import platform
 import threading
 
 import pytest
 from helpers.constants import POOL_SIZE
+from helpers.memory import VMM_HANDLE_TYPE
 
 from cuda.core import (
     DeviceMemoryResource,
@@ -30,9 +30,6 @@ from cuda.core import (
     VirtualMemoryResourceOptions,
 )
 from cuda.core._memory._buffer import _live_owned_mempool_count, _live_va_reservation_count
-
-# Matches the VMM handle type helper in test_memory.py.
-VMM_HANDLE_TYPE = "win32_kmt" if platform.system() == "Windows" else "posix_fd"
 
 _THREAD_UNSAFE_MARKER = pytest.mark.thread_unsafe(reason="asserts on the process-global owned-resource counts")
 

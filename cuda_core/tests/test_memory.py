@@ -34,6 +34,7 @@ from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.constants import POOL_SIZE
 from helpers.contexts import assert_no_cuda_warning, current_context_handle, no_current_context
 from helpers.memory import (
+    VMM_HANDLE_TYPE,
     create_managed_memory_resource_or_skip,
     create_pinned_memory_resource_or_xfail,
     skip_if_managed_memory_unsupported,
@@ -1270,7 +1271,6 @@ def get_handle_type():
         return (("posix_fd", None),)
 
 
-VMM_HANDLE_TYPE = "win32_kmt" if IS_WINDOWS else "posix_fd"
 MIB = 1024 * 1024
 
 
@@ -1446,7 +1446,7 @@ def test_vmm_allocator_policy_configuration(init_cuda):
         location_type="device",
         granularity="recommended",
         gpu_direct_rdma=False,
-        handle_type="posix_fd" if not IS_WINDOWS else "win32_kmt",
+        handle_type=VMM_HANDLE_TYPE,
         peers=(),
         self_access="r",  # Read-only access
         peer_access="r",

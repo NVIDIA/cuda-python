@@ -13,9 +13,10 @@ import weakref
 import pytest
 from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 from helpers.graph_kernels import compile_common_kernels
+from helpers.memory import VMM_HANDLE_TYPE
 from helpers.misc import try_create_condition
 
-from cuda_python_test_helpers import IS_WINDOWS, under_compute_sanitizer
+from cuda_python_test_helpers import under_compute_sanitizer
 
 # Resource finalization triggered by graph destruction is not synchronous. A
 # CUDA user-object callback transfers each node attachment bundle to a
@@ -112,8 +113,7 @@ def _device_memory_resource(dev):
 def _virtual_memory_resource(dev):
     if not dev.properties.virtual_memory_management_supported:
         pytest.skip("Device does not support virtual memory management")
-    handle_type = "win32_kmt" if IS_WINDOWS else "posix_fd"
-    return VirtualMemoryResource(dev, config=VirtualMemoryResourceOptions(handle_type=handle_type))
+    return VirtualMemoryResource(dev, config=VirtualMemoryResourceOptions(handle_type=VMM_HANDLE_TYPE))
 
 
 # Memory resources whose buffers a graph node can retain through its
