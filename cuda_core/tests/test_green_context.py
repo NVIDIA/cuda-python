@@ -180,6 +180,9 @@ def test_memory_node_updates_preserve_green_context(
     memcpy_node.destroy()
     src.close()
     dst.close()
+    # Drop the pinned MR so it frees by refcount now rather than lingering
+    # for gc (see "Release resources at test boundaries" in tests/AGENTS.md).
+    del memory_resource
 
 
 # ---------------------------------------------------------------------------
@@ -641,19 +644,28 @@ class TestContextResources:
 def _launch_fill_and_verify(dev, stream, kernel, n, value):
     """Launch the fill kernel and verify results on host."""
     dev_buf = dev.allocate(n * np.dtype(np.int32).itemsize, stream=stream)
-
-    config = LaunchConfig(grid=(n + 31) // 32, block=32)
-    launch(stream, config, kernel, dev_buf, np.int32(value), np.int32(n))
-
     host_mr = LegacyPinnedMemoryResource()
     host_buf = host_mr.allocate(n * np.dtype(np.int32).itemsize)
-    host_arr = np.from_dlpack(host_buf).view(np.int32)
-    host_arr[:] = 0
+    host_arr = None
+    try:
+        config = LaunchConfig(grid=(n + 31) // 32, block=32)
+        launch(stream, config, kernel, dev_buf, np.int32(value), np.int32(n))
 
-    dev_buf.copy_to(host_buf, stream=stream)
-    stream.sync()
+        host_arr = np.from_dlpack(host_buf).view(np.int32)
+        host_arr[:] = 0
 
-    np.testing.assert_array_equal(host_arr, np.full(n, value, dtype=np.int32))
+        dev_buf.copy_to(host_buf, stream=stream)
+        stream.sync()
+
+        np.testing.assert_array_equal(host_arr, np.full(n, value, dtype=np.int32))
+    finally:
+        # Release the DLPack view and close both buffers so the pinned MR
+        # frees by refcount at return instead of lingering in a cycle for gc
+        # (see "Release resources at test boundaries" in tests/AGENTS.md).
+        del host_arr
+        host_buf.close(stream)
+        dev_buf.close(stream)
+        del host_mr
 
 
 class TestGreenContextKernelLaunch:

@@ -388,9 +388,8 @@ def _dense_strides(shape, stride_order):
 @pytest.mark.parametrize("dtype", [np.dtype(np.int8), np.dtype(np.uint32)], ids=str)
 @pytest.mark.parametrize("stride_order", ["C", "F"])
 @pytest.mark.parametrize("readonly", [True, False])
-def test_from_buffer(shape, dtype, stride_order, readonly):
-    dev = Device()
-    dev.set_current()
+def test_from_buffer(init_cuda, shape, dtype, stride_order, readonly):
+    dev = init_cuda
     layout = _StridedLayout.dense(shape=shape, itemsize=dtype.itemsize, stride_order=stride_order)
     required_size = layout.required_size_in_bytes()
     assert required_size == math.prod(shape) * dtype.itemsize
@@ -414,20 +413,18 @@ def test_from_buffer(shape, dtype, stride_order, readonly):
         (None, None, "itemsize or dtype must be specified"),
     ],
 )
-def test_from_buffer_incompatible_dtype_and_itemsize(dtype, itemsize, msg):
+def test_from_buffer_incompatible_dtype_and_itemsize(init_cuda, dtype, itemsize, msg):
     layout = _StridedLayout.dense((5,), 2)
-    device = Device()
-    device.set_current()
+    device = init_cuda
     buffer = device.memory_resource.allocate(layout.required_size_in_bytes(), stream=device.default_stream)
     with pytest.raises(ValueError, match=msg):
         StridedMemoryView.from_buffer(buffer, (5,), dtype=dtype, itemsize=itemsize)
 
 
 @pytest.mark.parametrize("stride_order", ["C", "F"])
-def test_from_buffer_sliced(stride_order):
+def test_from_buffer_sliced(init_cuda, stride_order):
     layout = _StridedLayout.dense((5, 7), 2, stride_order=stride_order)
-    device = Device()
-    device.set_current()
+    device = init_cuda
     buffer = device.memory_resource.allocate(layout.required_size_in_bytes(), stream=device.default_stream)
     view = StridedMemoryView.from_buffer(buffer, (5, 7), dtype=np.dtype(np.int16))
     assert view.shape == (5, 7)
@@ -442,10 +439,9 @@ def test_from_buffer_sliced(stride_order):
     assert int(buffer.handle) + expected_offset * 2 == sliced_view.ptr
 
 
-def test_from_buffer_too_small():
+def test_from_buffer_too_small(init_cuda):
     layout = _StridedLayout.dense((5, 4), 2)
-    d = Device()
-    d.set_current()
+    d = init_cuda
     buffer = d.memory_resource.allocate(20, stream=d.default_stream)
     with pytest.raises(ValueError, match="Expected at least 40 bytes, got 20 bytes."):
         StridedMemoryView.from_buffer(
@@ -456,10 +452,9 @@ def test_from_buffer_too_small():
         )
 
 
-def test_from_buffer_disallowed_negative_offset():
+def test_from_buffer_disallowed_negative_offset(init_cuda):
     layout = _StridedLayout((5, 4), (-4, 1), 1)
-    d = Device()
-    d.set_current()
+    d = init_cuda
     buffer = d.memory_resource.allocate(20, stream=d.default_stream)
     with pytest.raises(ValueError):
         StridedMemoryView.from_buffer(
@@ -584,9 +579,8 @@ def test_view_zero_size_array(init_cuda, api, shape, dtype):
     assert smv.dtype == np.dtype(dtype)
 
 
-def test_from_buffer_with_non_power_of_two_itemsize():
-    dev = Device()
-    dev.set_current()
+def test_from_buffer_with_non_power_of_two_itemsize(init_cuda):
+    dev = init_cuda
     dtype = np.dtype([("a", "int32"), ("b", "int8")])
     shape = (1,)
     layout = _StridedLayout(shape=shape, strides=None, itemsize=dtype.itemsize)
