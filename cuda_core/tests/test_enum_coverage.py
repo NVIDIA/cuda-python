@@ -9,6 +9,7 @@
 
 import inspect
 import sys
+from enum import StrEnum
 from typing import Any
 
 import pytest
@@ -17,11 +18,6 @@ import cuda.core
 import cuda.core.typing
 from cuda.bindings import driver
 from cuda.core import system
-
-if sys.version_info >= (3, 11):
-    from enum import StrEnum
-else:
-    from backports.strenum import StrEnum
 
 _MODULES = [cuda.core.typing]
 

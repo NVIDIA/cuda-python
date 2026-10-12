@@ -66,7 +66,7 @@ Python Version Support
 ----------------------
 
 ``cuda.core`` supports all Python versions following the `CPython EOL schedule
-<https://devguide.python.org/versions/>`_. As of writing, Python 3.10 – 3.14 are supported.
+<https://devguide.python.org/versions/>`_. As of writing, Python 3.11 – 3.15 are supported.
 
 When a new Python feature version is released and the oldest supported version reaches EOL,
 ``cuda.core`` will bump its minor version accordingly.

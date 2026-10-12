@@ -71,7 +71,7 @@ setuptools = ">=80"
 setuptools-scm = ">=8"
 
 [package.run-dependencies]
-python = ">=3.10"
+python = ">=3.11"
 
 [target.linux.tasks.test]
 cmd = ["pytest", "$PIXI_PROJECT_ROOT"]

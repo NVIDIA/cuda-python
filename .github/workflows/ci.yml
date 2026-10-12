@@ -35,6 +35,7 @@ jobs:
       CUDA_PREV_BUILD_VER: ${{ steps.get-vars.outputs.cuda_prev_build_ver }}
       WINDOWS_ARM64_SUPPORTED: ${{ steps.get-vars.outputs.windows_arm64_supported }}
       WINDOWS_ARM64_SINGLE_CUDA_MAJOR: ${{ steps.get-vars.outputs.windows_arm64_single_cuda_major }}
+      PYTHON_SUPPORTED: ${{ steps.get-vars.outputs.python_supported }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -48,6 +49,11 @@ jobs:
 
           cuda_prev_build_ver=$(yq '.cuda.prev_build.version' ci/versions.yml)
           echo "cuda_prev_build_ver=$cuda_prev_build_ver" >> $GITHUB_OUTPUT
+
+          # Flattened one-line JSON for pass-through to build-wheel.yml via
+          # fromJSON on the receiving side.
+          python_supported=$(yq -o json -I 0 '.python.supported' ci/versions.yml)
+          echo "python_supported=$python_supported" >> $GITHUB_OUTPUT
 
           # Windows ARM64 is available starting with CUDA 13.4.
           if [[ "$cuda_build_ver" =~ ^([0-9]+)\.([0-9]+)(\.|$) ]]; then
@@ -224,7 +230,7 @@ jobs:
           done
 
           cuda_version=$(yq '.cuda.build.version' ci/versions.yml)
-          if ! python_versions=$(yq -r '.jobs.build.strategy.matrix."python-version"[]' .github/workflows/build-wheel.yml); then
+          if ! python_versions=$(yq -r '.python.supported[]' ci/versions.yml); then
             unavailable
           fi
           if ! platforms=$(yq -r '.platforms[]' ci/test-matrix.yml); then
@@ -388,6 +394,7 @@ jobs:
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
+      python-versions: ${{ needs.ci-vars.outputs.PYTHON_SUPPORTED }}
 
   # See build-linux-64 for why build jobs are split by platform.
   build-linux-aarch64:
@@ -415,6 +422,7 @@ jobs:
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
+      python-versions: ${{ needs.ci-vars.outputs.PYTHON_SUPPORTED }}
 
   # See build-linux-64 for why build jobs are split by platform.
   build-windows:
@@ -442,6 +450,7 @@ jobs:
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
+      python-versions: ${{ needs.ci-vars.outputs.PYTHON_SUPPORTED }}
 
   # Windows ARM64 is available starting with CUDA 13.4. Build only the current
   # CUDA major because no prior-major toolkit or wheel artifacts exist.
@@ -467,6 +476,7 @@ jobs:
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
       single-cuda-major: ${{ needs.ci-vars.outputs.WINDOWS_ARM64_SINGLE_CUDA_MAJOR == 'true' }}
+      python-versions: ${{ needs.ci-vars.outputs.PYTHON_SUPPORTED }}
 
   # NOTE: test-sdist jobs are split by platform (mirroring build-* and test-wheel-*)
   # so platform-specific sources (e.g. cuda_bindings/*_windows.pyx selected by

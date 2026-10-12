@@ -24,6 +24,10 @@ on:
         required: false
         type: boolean
         default: false
+      python-versions:
+        description: "JSON-encoded array of Python versions to build (e.g. '[\"3.11\",\"3.12\"]'). ci.yml sources this from ci/versions.yml."
+        required: true
+        type: string
 
 defaults:
   run:
@@ -47,20 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version:
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
-          - "3.14t"
-          - "3.15"
-          - "3.15t"
-        exclude:
-          # CPython 3.10 has no official Windows ARM64 build (neither
-          # nuget-cpython nor actions/setup-python's manifest carries one),
-          # so it cannot be built or tested on win-arm64.
-          - python-version: ${{ (inputs.host-platform == 'win-arm64' && '3.10') || '' }}
+        python-version: ${{ fromJSON(inputs.python-versions) }}
     name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
