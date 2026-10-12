@@ -488,6 +488,13 @@ def test_host_numa_memory_pools_supported_on_pre_12_9_driver(driver_version):
             print("No CUDA device is available")
             raise SystemExit(77)
         assert int(status) == int(driver.CUresult.CUDA_SUCCESS), status
+        status, device_count = driver.cuDeviceGetCount()
+        if int(status) == int(driver.CUresult.CUDA_ERROR_NO_DEVICE) or (
+            int(status) == int(driver.CUresult.CUDA_SUCCESS) and device_count == 0
+        ):
+            print("No CUDA device is available")
+            raise SystemExit(77)
+        assert int(status) == int(driver.CUresult.CUDA_SUCCESS), status
         status, device = driver.cuDeviceGet(0)
         assert int(status) == int(driver.CUresult.CUDA_SUCCESS), status
 
