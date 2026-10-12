@@ -142,7 +142,19 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     echo "Installed packages before core tests:"
     pip list
     echo "Running core tests"
-    ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize --exclude-warning-annotations "${PYTEST_PARALLEL_ARGS[@]}" --junitxml "${TEST_RESULTS_DIR}/junit-core.xml" tests/ | fold_pytest_log
+    # cuda.core's suite is large enough, and (under PYTEST_ADDOPTS="--count=N"
+    # nightly repeats) multiplied enough, that a single pytest session's
+    # per-test gc.collect() teardown gets superlinearly slower as executed
+    # items and (with --junitxml) JUnit XML nodes accumulate over the run.
+    # pytest_batched.py collects the full, already-count-expanded item list
+    # once, then runs it across bounded-size batches, each in its own
+    # process, merging their JUnit XML back into one file. It is a drop-in
+    # replacement for the plain pytest invocation below: same CLI, same
+    # final junit-core.xml, same aggregate exit code.
+    python "${CI_TOOLS_DIR}/pytest_batched.py" \
+      ${SANITIZER_CMD:+--runner-prefix "${SANITIZER_CMD}"} \
+      -rsxXfE -v --randomly-dont-reorganize --exclude-warning-annotations "${PYTEST_PARALLEL_ARGS[@]}" \
+      --junitxml "${TEST_RESULTS_DIR}/junit-core.xml" tests/ | fold_pytest_log
     # Currently our CI always installs the latest bindings (from either major version).
     # This is not compatible with the test requirements.
     if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
