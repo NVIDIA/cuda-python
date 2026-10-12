@@ -12,6 +12,7 @@ import pytest
 from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer, thread_unsafe_on_windows
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
+from helpers.memory import create_managed_memory_resource_or_skip
 from helpers.oom_diagnostics import (
     DEFAULT_FILENAME,
     OOM_MARKER,
@@ -467,3 +468,40 @@ def test_gl_context_not_on_nvidia_gpu_reason_rejects_other_vendors(monkeypatch, 
     reason = gl_context_not_on_nvidia_gpu_reason()
     assert reason is not None
     assert "not on an NVIDIA GPU" in reason
+
+
+def _patch_managed_mr_factory(monkeypatch, concurrent_managed_access):
+    # Stand in for the helper's Device and ManagedMemoryResource so the skip
+    # decision does not depend on the local device.
+    device = types.SimpleNamespace(
+        properties=types.SimpleNamespace(concurrent_managed_access=concurrent_managed_access)
+    )
+    monkeypatch.setattr("helpers.memory.Device", lambda: device)
+    factory = Mock(name="ManagedMemoryResource")
+    monkeypatch.setattr("helpers.memory.ManagedMemoryResource", factory)
+    return factory
+
+
+@pytest.mark.thread_unsafe(reason="patches module globals of helpers.memory")
+@pytest.mark.agent_authored(model="claude-opus-5.5")
+def test_managed_mr_helper_skips_default_pool_without_concurrent_access(monkeypatch):
+    factory = _patch_managed_mr_factory(monkeypatch, concurrent_managed_access=False)
+    with pytest.raises(pytest.skip.Exception, match="concurrent managed memory access"):
+        create_managed_memory_resource_or_skip()
+    factory.assert_not_called()
+
+
+@pytest.mark.thread_unsafe(reason="patches module globals of helpers.memory")
+@pytest.mark.parametrize(
+    ("concurrent_managed_access", "args", "kwargs"),
+    [
+        pytest.param(False, ("options",), {}, id="positional-options"),
+        pytest.param(False, (), {"options": "options"}, id="keyword-options"),
+        pytest.param(True, (), {}, id="default-pool-with-concurrent-access"),
+    ],
+)
+@pytest.mark.agent_authored(model="claude-opus-5.5")
+def test_managed_mr_helper_constructs_when_pool_is_usable(monkeypatch, concurrent_managed_access, args, kwargs):
+    factory = _patch_managed_mr_factory(monkeypatch, concurrent_managed_access)
+    assert create_managed_memory_resource_or_skip(*args, **kwargs) is factory.return_value
+    factory.assert_called_once_with(*args, **kwargs)

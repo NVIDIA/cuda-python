@@ -5,7 +5,7 @@
 
 import pytest
 
-from cuda.core import ManagedMemoryResource, PinnedMemoryResource
+from cuda.core import Device, ManagedMemoryResource, PinnedMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
 
 
@@ -33,6 +33,13 @@ def skip_if_managed_memory_unsupported(device):
 
 def create_managed_memory_resource_or_skip(*args, xfail_device=None, **kwargs):
     # Keep the established "skip" helper name for call-site readability.
+    if not args and kwargs.get("options") is None and not Device().properties.concurrent_managed_access:
+        # Without options this looks up the device's default managed pool, which
+        # supports managed allocations only with concurrent managed access. Check
+        # the property instead of the lookup's error: the driver returns
+        # CUDA_ERROR_NOT_SUPPORTED on some machines and CUDA_ERROR_OUT_OF_MEMORY
+        # on others. Dedicated pools (options given) work without it.
+        pytest.skip("Device does not support concurrent managed memory access")
     try:
         return ManagedMemoryResource(*args, **kwargs)
     except CUDAError as e:
