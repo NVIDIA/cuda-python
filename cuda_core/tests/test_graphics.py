@@ -20,6 +20,7 @@ from cuda_python_test_helpers.graphics import (
     is_gl_context_unavailable,
     open_gl_window,
     select_headless_egl_device_for_cuda,
+    tcc_skip_reason,
 )
 
 import cuda_python_test_helpers
@@ -62,8 +63,8 @@ def _register_gl_image(tex_id, target):
 
 def _skip_if_tcc():
     """Skip on TCC: compute-only driver model, no OpenGL, so CUDA-GL interop is unavailable."""
-    if Device().properties.tcc_driver:
-        pytest.skip("Device is in TCC mode; TCC does not support OpenGL, so CUDA-GL interop is unavailable.")
+    if reason := tcc_skip_reason():
+        pytest.skip(reason)
 
 
 def _configure_pyglet_headless():
