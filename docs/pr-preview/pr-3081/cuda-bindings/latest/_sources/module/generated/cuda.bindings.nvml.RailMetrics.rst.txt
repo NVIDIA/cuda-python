@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.RailMetrics
+==============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: RailMetrics
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RailMetrics.__init__
+      ~RailMetrics.from_buffer
+      ~RailMetrics.from_data
+      ~RailMetrics.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RailMetrics.freqk_hz
+      ~RailMetrics.ptr
+      ~RailMetrics.util_pct
+   
+   
