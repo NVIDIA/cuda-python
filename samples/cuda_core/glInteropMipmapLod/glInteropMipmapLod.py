@@ -463,7 +463,11 @@ def main(argv=None):
     )
 
     # --- Step 4: Open a window and set up the GL/CUDA bridge ---
-    window, gl, pyglet = create_window()
+    try:
+        window, gl, pyglet = create_window()
+    except Exception as exc:
+        print(f"Could not open a pyglet window ({exc}); waiving glInteropMipmapLod.", file=sys.stderr)
+        sys.exit(EXIT_WAIVED)
     shader_prog, quad_vao, tex_id = create_display_resources(gl, WIDTH, HEIGHT)
     pbo_id, _ = create_pixel_buffer(gl, WIDTH, HEIGHT)
     resource = GraphicsResource.from_gl_buffer(pbo_id, flags="write_discard")
