@@ -19,6 +19,16 @@ and wheels. It publishes to TestPyPI followed by PyPI, then publishes the
 GitHub Release without marking it as latest. A failed
 docs build prevents asset uploads, package publication, and finalization.
 
+The release-note checker runs from `git-tag`, not the workflow revision.
+For a Pathfinder `full-release`, that tag must contain a version
+of `ci/tools/check_release_notes.py` that writes `version=<VERSION>` to
+`GITHUB_OUTPUT`. Metadata preparation and finalization reject an empty
+version. Do not dispatch `full-release` for older tags without that support:
+the GitHub Release cannot be finalized, although shared documentation,
+asset upload, and package publication jobs can still run. Use the retained
+legacy Pathfinder workflow for those tags during the transition; do not
+move existing tags to add the updated checker.
+
 The default `dry-run` action validates preparation, builds docs, and
 collects release artifacts without creating a GitHub Release or publishing
 packages. It can be dispatched from a development branch; use
