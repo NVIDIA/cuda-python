@@ -20,14 +20,14 @@ GitHub Release without marking it as latest. A failed
 docs build prevents asset uploads, package publication, and finalization.
 
 The release-note checker runs from `git-tag`, not the workflow revision.
-For a Pathfinder `full-release`, that tag must contain a version
+For Pathfinder, that tag must contain a version
 of `ci/tools/check_release_notes.py` that writes `version=<VERSION>` to
-`GITHUB_OUTPUT`. Metadata preparation and finalization reject an empty
-version. Do not dispatch `full-release` for older tags without that support:
-the GitHub Release cannot be finalized, although shared documentation,
-asset upload, and package publication jobs can still run. Use the retained
-legacy Pathfinder workflow for those tags during the transition; do not
-move existing tags to add the updated checker.
+`GITHUB_OUTPUT`. The release-notes job rejects an empty version before
+documentation, asset uploads, or package publication can start. Pathfinder
+package publication also requires successful draft metadata preparation.
+Use the retained legacy Pathfinder workflow for older tags without version
+output support during the transition; do not move existing tags to add the
+updated checker.
 
 The default `dry-run` action validates preparation, builds docs, and
 collects release artifacts without creating a GitHub Release or publishing

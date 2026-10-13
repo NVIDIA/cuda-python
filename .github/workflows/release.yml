@@ -197,6 +197,16 @@ jobs:
             --component "$RELEASE_COMPONENT" \
             --backport-git-tag "$BACKPORT_GIT_TAG"
 
+      - name: Require Pathfinder version output
+        if: ${{ inputs.component == 'cuda-pathfinder' }}
+        env:
+          VERSION: ${{ steps.release-notes.outputs.version }}
+        run: |
+          [[ -n "$VERSION" ]] || {
+            echo "::error::The tagged Pathfinder release-note checker must emit a non-empty version output"
+            exit 1
+          }
+
   ensure-pathfinder-draft:
     name: Prepare Pathfinder release draft
     if: ${{ github.repository_owner == 'nvidia' && inputs.component == 'cuda-pathfinder' && inputs.release-action == 'full-release' }}
@@ -286,13 +296,20 @@ jobs:
 
   publish-testpypi:
     name: Publish wheels to TestPyPI
-    if: ${{ inputs.release-action == 'full-release' }}
+    if: >-
+      ${{ !cancelled() && inputs.release-action == 'full-release' &&
+          needs.check-tag.result == 'success' &&
+          needs.check-release-notes.result == 'success' &&
+          needs.determine-run-id.result == 'success' &&
+          needs.doc.result == 'success' &&
+          (inputs.component != 'cuda-pathfinder' || needs.ensure-pathfinder-draft.result == 'success') }}
     runs-on: ubuntu-latest
     needs:
       - check-tag
       - check-release-notes
       - determine-run-id
       - doc
+      - ensure-pathfinder-draft
     environment:
       name: testpypi
       url: https://test.pypi.org/p/${{ inputs.component }}/
@@ -319,7 +336,9 @@ jobs:
 
   publish-pypi:
     name: Publish wheels to PyPI
-    if: ${{ inputs.release-action == 'full-release' }}
+    if: >-
+      ${{ !cancelled() && inputs.release-action == 'full-release' &&
+          needs.determine-run-id.result == 'success' && needs.publish-testpypi.result == 'success' }}
     runs-on: ubuntu-latest
     needs:
       - determine-run-id
