@@ -6,7 +6,7 @@ platforms:
   - __linux=4.18
   - __glibc=2.28
   - __archspec=0=x86_64
-- name: p1
+- name: linux-64-cuda-13
   subdir: linux-64
   virtual-packages:
   - __cuda=13
@@ -27,7 +27,7 @@ environments:
     options:
       channel-priority: disabled
     packages:
-      p1:
+      linux-64-cuda-13:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/binutils_impl_linux-64-2.46.1-default_hfdba357_102.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/bzip2-1.0.8-hda65f42_10.conda
@@ -136,15 +136,15 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/virtualenv-21.14.6-pyh5ded981_0.conda
-      - conda_source: cuda-bindings[6e7d5839] @ ../../cuda_bindings
-      - conda_source: cuda-pathfinder[c6772a38] @ ../../cuda_pathfinder
+      - conda_source: cuda-bindings[d44e1d66] @ ../../cuda_bindings
+      - conda_source: cuda-pathfinder[6b7636a9] @ ../../cuda_pathfinder
   wheel:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
     options:
       channel-priority: disabled
     packages:
-      p1:
+      linux-64-cuda-13:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/binutils_impl_linux-64-2.46.1-default_hfdba357_102.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/bzip2-1.0.8-hda65f42_10.conda
@@ -2065,14 +2065,14 @@ packages:
   run_exports: {}
   size: 3994924
   timestamp: 1791486987517
-- conda_source: cuda-bindings[6e7d5839] @ ../../cuda_bindings
+- conda_source: cuda-bindings[d44e1d66] @ ../../cuda_bindings
   variants:
     c_stdlib: sysroot
     c_stdlib_version: '2.28'
     target_platform: linux-64
   depends:
   - python
-  - python >=3.10
+  - python >=3.11
   - cuda-version
   - cuda-pathfinder
   - libnvjitlink
@@ -2166,12 +2166,12 @@ packages:
   - conda: https://conda.anaconda.org/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
   - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
   - conda: https://conda.anaconda.org/conda-forge/noarch/vcs_versioning-2.6.0-pyh5ded981_0.conda
-  - conda_source: cuda-pathfinder[c6772a38] @ ../../cuda_pathfinder
-- conda_source: cuda-pathfinder[c6772a38] @ ../../cuda_pathfinder
+  - conda_source: cuda-pathfinder[6b7636a9] @ ../../cuda_pathfinder
+- conda_source: cuda-pathfinder[6b7636a9] @ ../../cuda_pathfinder
   variants:
     target_platform: noarch
   depends:
-  - python >=3.10
+  - python >=3.11
   - python *
   license: Apache-2.0
   host_packages:
