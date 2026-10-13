@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.buf\_deregister
-====================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: buf_deregister
