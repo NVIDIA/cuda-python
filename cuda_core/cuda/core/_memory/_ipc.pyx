@@ -180,12 +180,13 @@ multiprocessing.reduction.register(IPCAllocationHandle, _reduce_allocation_handl
 cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
     """Serializable object describing a :class:`VirtualMemoryBuffer` that can be shared between processes.
 
-    The descriptor holds one exported handle per physical allocation that
-    backs the buffer, in address order (``handles``), with each allocation's
-    size (``sizes``) and the buffer's size (``size``, which may be smaller
-    than their sum). With POSIX file descriptors the handles are
-    :class:`IPCAllocationHandle` objects: the descriptor owns them and closes
-    them when it is released.
+    The descriptor holds one exported POSIX file descriptor per physical
+    allocation that backs the buffer, in address order (``handles``, each an
+    :class:`IPCAllocationHandle` that the descriptor owns and closes when it
+    is released), with each allocation's size (``sizes``) and the buffer's
+    size (``size``, which may be smaller than their sum). ``handle_type`` is
+    ``"posix_fd"``, the only handle type cuda.core shares today; the rules
+    below describe file descriptors.
 
     A descriptor pins the physical memory while it exists, in every process
     that holds one, and nothing else does: the exporting buffer keeps no
@@ -200,8 +201,8 @@ cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
     ``Process`` arguments, or a ``Pool``) pickles the descriptor, or a buffer,
     and duplicates the file descriptors into the receiving process; plain
     ``pickle`` cannot carry them and raises. A process with its own file
-    descriptor passing sends ``fds``, ``sizes``, ``handle_type``, and ``size``
-    itself, and the receiver rebuilds the descriptor with :meth:`from_fds`.
+    descriptor passing sends ``fds``, ``sizes``, and ``size`` itself, and the
+    receiver rebuilds the descriptor with :meth:`from_fds`.
 
     Note
     ----
@@ -230,15 +231,15 @@ cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
         fds: Iterable[int | IPCAllocationHandle],
         sizes: Iterable[int],
         *,
-        handle_type: VirtualMemoryHandleType | str = "posix_fd",
         size: int | None = None,
     ) -> VirtualMemoryIPCBufferDescriptor:
-        """Build a descriptor from file descriptors received outside ``multiprocessing``.
+        """Build a descriptor from POSIX file descriptors received outside ``multiprocessing``.
 
-        The exporter sends ``fds``, ``sizes``, ``handle_type``, and ``size``
-        of its descriptor through a transport of its own (a Unix socket with
-        ``SCM_RIGHTS``, for example); the receiver rebuilds the descriptor
-        here and imports it with :meth:`Buffer.from_ipc_descriptor`.
+        The exporter sends ``fds``, ``sizes``, and ``size`` of its descriptor
+        through a transport of its own (a Unix socket with ``SCM_RIGHTS``, for
+        example); the receiver rebuilds the descriptor here and imports it
+        with :meth:`Buffer.from_ipc_descriptor`. The result's ``handle_type``
+        is ``"posix_fd"``, the only handle type a file descriptor can carry.
 
         Parameters
         ----------
@@ -250,8 +251,6 @@ cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
             holder.
         sizes : Iterable[int]
             The exporter's ``sizes``, one per handle.
-        handle_type : VirtualMemoryHandleType | str, optional
-            The exporter's ``handle_type``; ``"posix_fd"`` by default.
         size : int, optional
             The exporter's ``size``, at most the sum of ``sizes``; the sum by
             default.
@@ -259,20 +258,14 @@ cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
         Raises
         ------
         ValueError
-            If the counts differ, a size is not positive, ``size`` exceeds the
-            sum of ``sizes``, or ``handle_type`` cannot be shared.
+            If the counts differ, a size is not positive, or ``size`` exceeds
+            the sum of ``sizes``.
         RuntimeError
             If an :class:`IPCAllocationHandle` is closed.
         OSError
             If an ``int`` is not an open file descriptor.
         """
-        # Lazy import: this module is loaded while _virtual_memory_resource imports it.
-        from cuda.core._memory._virtual_memory_resource import VirtualMemoryResourceOptions
-        from cuda.core.typing import VirtualMemoryHandleType
-
-        if handle_type is None:
-            raise ValueError("handle_type=None cannot be shared; the exporter's handle_type is required")
-        driver_type = int(VirtualMemoryResourceOptions._handle_type_to_driver(VirtualMemoryHandleType(handle_type)))
+        cdef int driver_type = <int>cydriver.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
         cdef tuple sizes_t = tuple(operator.index(n) for n in sizes)
         cdef list given = list(fds)
         if len(given) != len(sizes_t):
@@ -318,7 +311,10 @@ cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
 
     @property
     def handles(self) -> tuple[IPCAllocationHandle, ...]:
-        """The exported handles, one per allocation, in address order; the descriptor owns them."""
+        """The exported handles, one :class:`IPCAllocationHandle` per allocation, in address order.
+
+        The descriptor owns them and closes them when it is released.
+        """
         return self._handles
 
     @property
@@ -326,7 +322,9 @@ cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
         """The exported file descriptors as integers, for a transport of your own.
 
         They belong to this descriptor: send or duplicate them while it is
-        alive. Each one is released when the descriptor is.
+        alive, because each one is closed when the descriptor is released.
+        Keep the descriptor in a variable while you use them; the numbers
+        from ``buf.ipc_descriptor.fds`` alone may already be closed.
         """
         return tuple(int(handle) for handle in self._handles)
 

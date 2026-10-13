@@ -102,9 +102,12 @@ class VirtualMemoryBuffer(Buffer):
         Every access exports the physical allocations that back the buffer
         again and returns a new descriptor that owns one file descriptor per
         allocation; the file descriptors close when the descriptor is
-        released. A descriptor pins the physical memory while it exists, in
-        every process that holds one, and nothing else does: the buffer
-        itself keeps no descriptor, so it pins nothing beyond its own mapping.
+        released. Keep the descriptor in a variable while you use its
+        ``fds``: the numbers from ``buf.ipc_descriptor.fds`` alone may
+        already be closed. A descriptor pins the physical memory while it
+        exists, in every process that holds one, and nothing else does: the
+        buffer itself keeps no descriptor, so it pins nothing beyond its own
+        mapping.
         Pickling the buffer through ``multiprocessing`` builds a transient
         descriptor, so the sender holds no file descriptors between sends;
         a buffer passed as a ``Process`` argument is the exception, because
@@ -186,23 +189,24 @@ class VirtualMemoryResource(MemoryResource):
     :meth:`Buffer.set_deallocation_stream`.
 
     Buffers can be shared with other processes when ``config.handle_type``
-    is ``"posix_fd"`` (Linux); ``handle_type`` is the switch and
-    :attr:`is_ipc_enabled` the query. :attr:`Buffer.ipc_descriptor` exports
-    the physical allocations that back a buffer, one file descriptor each,
-    into a new descriptor on every access; :meth:`Buffer.from_ipc_descriptor`
-    imports a descriptor with a ``VirtualMemoryResource`` of the receiving
-    process for the device that owns the memory; and a buffer sent through
-    ``multiprocessing`` does both. Plain ``pickle`` cannot carry the file
-    descriptors; a process with its own file descriptor passing sends the
-    descriptor's ``fds``, ``sizes``, ``handle_type``, and ``size`` and
-    rebuilds it with ``VirtualMemoryIPCBufferDescriptor.from_fds()``. The
-    importing resource maps the memory for its device and the devices in its
-    ``peers`` option, with its own access options. A descriptor pins the
-    physical memory while it exists, in every process that holds one, and
-    nothing else does. A buffer that contains imported memory (an import, or
-    anything :meth:`modify_allocation` derived from one) cannot be exported
-    again; forward the descriptor it came from, or copy into a buffer you
-    own.
+    is ``"posix_fd"`` (Linux), the only handle type cuda.core shares today;
+    ``handle_type`` is the switch and :attr:`is_ipc_enabled` the query. The
+    rules that follow describe POSIX file descriptors.
+    :attr:`Buffer.ipc_descriptor` exports the physical allocations that back
+    a buffer, one file descriptor each, into a new descriptor on every
+    access; :meth:`Buffer.from_ipc_descriptor` imports a descriptor with a
+    ``VirtualMemoryResource`` of the receiving process for the device that
+    owns the memory; and a buffer sent through ``multiprocessing`` does both.
+    Plain ``pickle`` cannot carry the file descriptors; a process with its
+    own file descriptor passing sends the descriptor's ``fds``, ``sizes``,
+    and ``size`` and rebuilds it with
+    ``VirtualMemoryIPCBufferDescriptor.from_fds()``. The importing resource
+    maps the memory for its device and the devices in its ``peers`` option,
+    with its own access options. A descriptor pins the physical memory while
+    it exists, in every process that holds one, and nothing else does. A
+    buffer that contains imported memory (an import, or anything
+    :meth:`modify_allocation` derived from one) cannot be exported again;
+    forward the descriptor it came from, or copy into a buffer you own.
     """
     device: object
     config: object

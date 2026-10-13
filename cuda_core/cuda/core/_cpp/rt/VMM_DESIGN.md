@@ -144,8 +144,9 @@ what makes that safe: the allocation is released exactly once, when its last map
   `location_type="host"` with a handle type other than `None`, which the driver rejects, and a
   request for GPUDirect RDMA on a device without support. `__init__` runs it after the VMM-support
   check; `modify_allocation` runs it on a per-call configuration, which must also name the
-  resource's location. The resource reports `is_ipc_enabled` (True for `posix_fd` on Linux with
-  device-located memory), which `Buffer.ipc_descriptor` and `Buffer.from_ipc_descriptor` check.
+  resource's location and `handle_type`. The resource reports `is_ipc_enabled` (True for
+  `posix_fd` on Linux with device-located memory), which `Buffer.ipc_descriptor` and
+  `Buffer.from_ipc_descriptor` check.
 - `cdef class VirtualMemoryBuffer(Buffer)` carries no extra state. It is created with
   `Buffer_from_deviceptr_handle(h_ptr, size, self, cls=VirtualMemoryBuffer)` and documented in
   `api.rst` like `ManagedBuffer`. It overrides `close(stream=None)` to reject a capturing stream
@@ -253,9 +254,9 @@ descriptor either; it records only that it was imported (`is_mapped`). A
 descriptor parked in a `Queue` or sent to a `Pool` pins the memory in the
 sender until the receiver unpickles it. Besides `multiprocessing`, a process
 with its own file descriptor passing sends the descriptor's `fds`, `sizes`,
-`handle_type`, and `size` and rebuilds it with
-`VirtualMemoryIPCBufferDescriptor.from_fds()`, which duplicates the integers
-it is given.
+and `size` and rebuilds it with `VirtualMemoryIPCBufferDescriptor.from_fds()`,
+which duplicates the integers it is given and always builds a `posix_fd`
+descriptor.
 
 Re-export. The driver exports only allocations this process created with the
 requested handle type; an imported allocation has none, and the driver reports
@@ -290,6 +291,18 @@ stay opt-in.
 
 A `modify_allocation` config must keep the resource's `handle_type`: every
 chunk of a buffer must be exportable the same way.
+
+Fabric handles. `CU_MEM_HANDLE_TYPE_FABRIC` exports a `CUmemFabricHandle`, 64
+bytes of plain data that travel through `pickle`, MPI, or a socket, need no
+close, and cannot hold a reference to the allocation while in flight. The
+importer needs access to the exporter's IMEX channel rather than a matching
+device index, and the memory may live on another node. The file-descriptor
+rules above (ownership, pinning, `pickle` raising, the same-device check) do
+not hold for it, so fabric sharing gets a descriptor class of its own instead
+of a widened `VirtualMemoryIPCBufferDescriptor`, whose `handles` stay
+`IPCAllocationHandle`s. `from_fds()` is POSIX-only by construction for the
+same reason and takes no handle type; a fabric descriptor is plain data and
+needs no out-of-band constructor. Tracked on the VMM epic (#2980).
 
 ## Why `modify_allocation` returns a new buffer
 

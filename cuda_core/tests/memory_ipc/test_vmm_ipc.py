@@ -223,15 +223,17 @@ class TestManyChunkBuffer:
             gran = buf.size
             buf = mr.modify_allocation(buf, 2 * gran)  # extends in place or moves
             buffers.append(buf)
-            # Take the range after the buffer so that this grow must remap the
-            # existing chunks at a new address.
+            # Take the range right after the buffer so that this grow must
+            # remap the existing chunks at a new address. The grow probes that
+            # range with the same driver call; when the driver places the decoy
+            # elsewhere, it places the grow's probe elsewhere too, and the grow
+            # moves without the decoy.
             decoy = _reserve_at(int(buf.handle) + buf.size, gran)
-            if decoy is None:
-                pytest.skip("the driver did not grant a reservation right after the buffer")
             try:
                 moved = mr.modify_allocation(buf, 3 * gran)
             finally:
-                handle_return(driver.cuMemAddressFree(decoy, gran))
+                if decoy is not None:
+                    handle_return(driver.cuMemAddressFree(decoy, gran))
             buffers.append(moved)
             assert int(moved.handle) != int(buf.handle)
             assert moved.size == 3 * gran
@@ -438,19 +440,21 @@ class TestReexport:
 
     @staticmethod
     def _derived(mr, imported, gran):
-        """Buffers modify_allocation derives from an import: an alias, a grow, and (if the driver allows) a move."""
+        """Buffers modify_allocation derives from an import: an alias, a grow, and a move."""
         derived = {
             "alias": mr.modify_allocation(imported, imported.size),
             "grow": mr.modify_allocation(imported, 2 * gran),
         }
         base = derived["grow"]
+        # The decoy takes the range the grow would extend into; when the driver
+        # refuses the decoy's hint, it refuses the grow's too, and the grow moves.
         decoy = _reserve_at(int(base.handle) + base.size, gran)
-        if decoy is not None:
-            try:
-                derived["move"] = mr.modify_allocation(base, base.size + gran)
-            finally:
+        try:
+            derived["move"] = mr.modify_allocation(base, base.size + gran)
+        finally:
+            if decoy is not None:
                 handle_return(driver.cuMemAddressFree(decoy, gran))
-            assert int(derived["move"].handle) != int(base.handle)
+        assert int(derived["move"].handle) != int(base.handle)
         return derived
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
@@ -695,7 +699,7 @@ class TestFileDescriptorLimit:
 
 
 class TestRawFileDescriptorTransport:
-    """The descriptor's fds, sizes, handle_type, and size travel over any file-descriptor-passing transport."""
+    """The descriptor's fds, sizes, and size travel over any file-descriptor-passing transport."""
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     @pytest.mark.thread_unsafe(reason="counts process-global file descriptors")
@@ -718,15 +722,12 @@ class TestRawFileDescriptorTransport:
         wire = {
             "fds": [os.dup(fd) for fd in desc.fds],
             "sizes": list(desc.sizes),
-            "handle_type": str(desc.handle_type),
             "size": desc.size,
         }
         del desc
         gc.collect()
         assert _open_fds() == fds0 + 2
-        rebuilt = VirtualMemoryIPCBufferDescriptor.from_fds(
-            wire["fds"], wire["sizes"], handle_type=wire["handle_type"], size=wire["size"]
-        )
+        rebuilt = VirtualMemoryIPCBufferDescriptor.from_fds(wire["fds"], wire["sizes"], size=wire["size"])
         assert _open_fds() == fds0 + 4, "from_fds duplicates the integers it is given"
         for fd in wire["fds"]:
             os.close(fd)  # the caller keeps ownership of its own
@@ -757,6 +758,7 @@ class TestRawFileDescriptorTransport:
         shared = from_fds(desc.handles, desc.sizes)
         assert shared.handles[0] is desc.handles[0]  # an IPCAllocationHandle is shared, not duplicated
         assert shared.size == gran
+        assert shared.handle_type == "posix_fd"
         Buffer.from_ipc_descriptor(mr, shared, stream=stream).close()
 
         with pytest.raises(ValueError, match="one size per handle"):
@@ -765,20 +767,12 @@ class TestRawFileDescriptorTransport:
             from_fds(desc.fds, (0,))
         with pytest.raises(ValueError, match="sum of the allocation sizes"):
             from_fds(desc.fds, desc.sizes, size=gran + 1)
-        with pytest.raises(ValueError):
-            from_fds(desc.fds, desc.sizes, handle_type="win32")
-        with pytest.raises(ValueError, match="handle_type=None"):
-            from_fds(desc.fds, desc.sizes, handle_type=None)
         with pytest.raises(OSError):
             from_fds([1 << 20], desc.sizes)
         closed = IPCAllocationHandle._init(os.dup(desc.fds[0]), None)
         closed.close()
         with pytest.raises(RuntimeError, match="closed"):
             from_fds([closed], desc.sizes)
-        # A handle type other than the resource's is refused at import, before any driver call.
-        other = from_fds(desc.fds, desc.sizes, handle_type="fabric")
-        with pytest.raises(ValueError, match="handle type does not match"):
-            Buffer.from_ipc_descriptor(mr, other, stream=stream)
         buf.close()
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
@@ -797,7 +791,7 @@ class TestRawFileDescriptorTransport:
         process.start()
         child_sock.close()
         desc = buf.ipc_descriptor
-        header = json.dumps({"sizes": list(desc.sizes), "handle_type": str(desc.handle_type), "size": desc.size})
+        header = json.dumps({"sizes": list(desc.sizes), "size": desc.size})
         socket.send_fds(parent_sock, [header.encode()], list(desc.fds))
         del desc  # the kernel duplicated the descriptors into the message
         gc.collect()
@@ -819,9 +813,7 @@ class TestRawFileDescriptorTransport:
         with sock:
             msg, fds, _flags, _addr = socket.recv_fds(sock, 4096, 16)
         header = json.loads(msg)
-        desc = VirtualMemoryIPCBufferDescriptor.from_fds(
-            fds, header["sizes"], handle_type=header["handle_type"], size=header["size"]
-        )
+        desc = VirtualMemoryIPCBufferDescriptor.from_fds(fds, header["sizes"], size=header["size"])
         for fd in fds:
             os.close(fd)  # from_fds duplicated them; the received ones are ours to close
         imported = Buffer.from_ipc_descriptor(_resource(device), desc, stream=device.default_stream)
