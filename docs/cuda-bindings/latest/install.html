@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=0fedfaed"></script>
+    <script src="_static/documentation_options.js?v=c4646a20"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,19 +53,19 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.3';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/13.4.3/install.html" />
     <link rel="icon" href="_static/favicon.png"/>
 
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Overview" href="overview.html" />
-    <link rel="prev" title="cuda-bindings 13.5.0 Release notes" href="release/13.5.0-notes.html" />
+    <link rel="prev" title="cuda-bindings 13.4.3 Release notes" href="release/13.4.3-notes.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -119,9 +119,6 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-<aside class="bd-header-announcement" aria-label="Announcement">
-  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
-</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -537,7 +534,6 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/13.5.0-notes.html">13.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.4.3-notes.html">13.4.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.4.2-notes.html">13.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.4.1-notes.html">13.4.1</a></li>
@@ -552,7 +548,6 @@
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html">13.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.9-notes.html">12.9.9</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.5-notes.html">12.9.5</a></li>
@@ -1366,7 +1361,7 @@
 <p><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> supports the same platforms as CUDA. Runtime dependencies are:</p>
 <ul class="simple">
 <li><p>Linux (x86-64, arm64) and Windows (x86-64)</p></li>
-<li><p>Python 3.11 - 3.15</p></li>
+<li><p>Python 3.10 - 3.14</p></li>
 <li><p>Driver: Linux (580.65.06 or later) Windows (580.88 or later)</p></li>
 <li><p>Optionally, NVRTC, nvJitLink, nvFatBin, NVVM, cuFile, and cuDLA from CUDA Toolkit 13.x</p></li>
 </ul>
@@ -1444,8 +1439,8 @@ obtain the most recent build, use the following commands:</p>
 <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>cuda-bindings-python312-cuda13*-linux-64-*/cuda_bindings*.whl<span class="o">[</span>all<span class="o">]</span>
 </pre></div>
 </div>
-<p>Replace <code class="docutils literal notranslate"><span class="pre">python312</span></code> with your Python version (e.g. <code class="docutils literal notranslate"><span class="pre">python311</span></code>,
-<code class="docutils literal notranslate"><span class="pre">python313</span></code>, <code class="docutils literal notranslate"><span class="pre">python314</span></code>, <code class="docutils literal notranslate"><span class="pre">python314t</span></code>, <code class="docutils literal notranslate"><span class="pre">python315</span></code>, <code class="docutils literal notranslate"><span class="pre">python315t</span></code>). For aarch64, replace <code class="docutils literal notranslate"><span class="pre">linux-64</span></code>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">python312</span></code> with your Python version (e.g. <code class="docutils literal notranslate"><span class="pre">python310</span></code>, <code class="docutils literal notranslate"><span class="pre">python311</span></code>,
+<code class="docutils literal notranslate"><span class="pre">python313</span></code>, <code class="docutils literal notranslate"><span class="pre">python314</span></code>, <code class="docutils literal notranslate"><span class="pre">python314t</span></code>). For aarch64, replace <code class="docutils literal notranslate"><span class="pre">linux-64</span></code>
 with <code class="docutils literal notranslate"><span class="pre">linux-aarch64</span></code>; for Windows, use <code class="docutils literal notranslate"><span class="pre">win-64</span></code>. Only the current CUDA
 major version is built on <code class="docutils literal notranslate"><span class="pre">main</span></code>; wheels for the prior CUDA major are
 published from the corresponding backport branch.</p>
@@ -1462,7 +1457,7 @@ published from the corresponding backport branch.</p>
 <p>[^1]: User projects that <code class="docutils literal notranslate"><span class="pre">cimport</span></code> CUDA symbols in Cython must also use CUDA Toolkit (CTK) types as provided by the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> major.minor version. This results in CTK headers becoming a transitive dependency of downstream projects through CUDA Python.</p>
 <p>[^2]: The CUDA Runtime static library (<code class="docutils literal notranslate"><span class="pre">libcudart_static.a</span></code> on Linux, <code class="docutils literal notranslate"><span class="pre">cudart_static.lib</span></code> on Windows) is part of the CUDA Toolkit. If using conda packages, it is contained in the <code class="docutils literal notranslate"><span class="pre">cuda-cudart-static</span></code> package.</p>
 <p>[^3]: The version is derived from git tags via <code class="docutils literal notranslate"><span class="pre">setuptools-scm</span></code>, so the clone must include tags reaching back to at least the latest <code class="docutils literal notranslate"><span class="pre">v*</span></code> tag. Clone with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/NVIDIA/cuda-python.git</span></code>; do not use <code class="docutils literal notranslate"><span class="pre">--depth</span></code> or <code class="docutils literal notranslate"><span class="pre">--no-tags</span></code>, since a shallow clone builds without error but produces a bogus version such as <code class="docutils literal notranslate"><span class="pre">0.1.dev1+g0d22cb444</span></code>. See <a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md">Cloning the repository</a> for details and recovery steps.</p>
-<p>Source builds require that the provided CUDA headers are of the same major.minor version as the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> you’re trying to build. Despite this requirement, note that the minor version compatibility is still maintained. The build checks the header before it compiles anything. A mismatch stops the build with a message that names the <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> it found and the version this source tree needs. Use the <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> (or <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>) environment variable to specify the location of your headers. If both are set, <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> takes precedence. For example, if your headers are located in <code class="docutils literal notranslate"><span class="pre">/usr/local/cuda/include</span></code>, then you should set <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> with:</p>
+<p>Source builds require that the provided CUDA headers are of the same major.minor version as the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> you’re trying to build. Despite this requirement, note that the minor version compatibility is still maintained. Use the <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> (or <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>) environment variable to specify the location of your headers. If both are set, <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> takes precedence. For example, if your headers are located in <code class="docutils literal notranslate"><span class="pre">/usr/local/cuda/include</span></code>, then you should set <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> with:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">CUDA_PATH</span><span class="o">=</span>/usr/local/cuda
 </pre></div>
 </div>
@@ -1495,12 +1490,12 @@ published from the corresponding backport branch.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="release/13.5.0-notes.html"
+       href="release/13.4.3-notes.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.5.0 Release notes</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.4.3 Release notes</p>
       </div>
     </a>
     <a class="right-next"
