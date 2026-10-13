@@ -288,19 +288,16 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - &publisher-checkout
-        name: Checkout Source
+      - name: Checkout Source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
-      - &download-component-wheels
-        name: Download component wheels
+      - name: Download component wheels
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./ci/tools/download-wheels "${{ needs.determine-run-id.outputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "dist"
 
-      - &validate-component-wheels
-        name: Validate wheel versions for release tag
+      - name: Validate wheel versions for release tag
         run: |
           ./ci/tools/validate-release-wheels "${{ inputs.git-tag }}" "${{ inputs.component }}" "dist"
 
@@ -322,9 +319,18 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - *publisher-checkout
-      - *download-component-wheels
-      - *validate-component-wheels
+      - name: Checkout Source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Download component wheels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./ci/tools/download-wheels "${{ needs.determine-run-id.outputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "dist"
+
+      - name: Validate wheel versions for release tag
+        run: |
+          ./ci/tools/validate-release-wheels "${{ inputs.git-tag }}" "${{ inputs.component }}" "dist"
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # v1.14.2
