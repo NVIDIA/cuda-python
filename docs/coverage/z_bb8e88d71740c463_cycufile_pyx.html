@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/cycufile.pyx: 91.95%</title>
+    <title>Coverage for cuda/bindings/cycufile.pyx: 90.11%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
@@ -85,14 +85,14 @@
   ":": "tests/test_cufile.py::test_get_bar_size_in_kb|run"
 }
     </script>
-    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
+    <script src="coverage_html_cb_15cffcd0.js" defer></script>
 </head>
 <body class="pyfile">
 <header>
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>bindings<span class="sep">/</span>cycufile.pyx</b>:
-            <span class="pc_cov">91.95%</span>
+            <span class="pc_cov">90.11%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -134,9 +134,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">87 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">80<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">7<span class="text"> missing</span></button>
+            <span class="text">91 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">82<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">9<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -144,8 +144,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cydriver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
-            created at 2026-09-10 02:27 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
+            created at 2026-10-13 01:21 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -164,8 +164,8 @@
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt"># This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt"># CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=21f23d353f9a8d02c92a5c5740cfa8bed67c952fbf262b8181fdfb6f65e52a73</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt"># This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt"># CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=331732354093d8b2560607ca720e2d2a8a4531704b11582ac7c5811f14261273</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt"># &lt;&lt;&lt;&lt; PREAMBLE CONTENT &gt;&gt;&gt;&gt;</span>&nbsp;</span><span class="r"></span></p>
@@ -356,6 +356,14 @@
     <p class="pln"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetParameterPosixPoolSlabArray(size_t* size_values, size_t* count_values, int len) except?&lt;CUfileError_t&gt;CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs195" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetParameterPosixPoolSlabArray(size_values, count_values, len)</span>&nbsp;</span><input type="checkbox" id="ctxs196"><span class="r"><label for="ctxs196" class="ctx">1 ctx</label></span><span class="ctxs">1q</span></p>
+    <p class="pln"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">cdef ssize_t cuFileReadv(CUfileHandle_t fh, const CUfileIOVec_t* iov, size_t iovcnt, off_t file_offset, unsigned flags) except* nogil:</span>&nbsp;</span><span class="r"><label for="ctxs199" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">    return _cufile._cuFileReadv(fh, iov, iovcnt, file_offset, flags)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t"><span class="txt">cdef ssize_t cuFileWritev(CUfileHandle_t fh, const CUfileIOVec_t* iov, size_t iovcnt, off_t file_offset, unsigned flags) except* nogil:</span>&nbsp;</span><span class="r"><label for="ctxs203" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">    return _cufile._cuFileWritev(fh, iov, iovcnt, file_offset, flags)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -364,8 +372,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_bb8e88d71740c463_cydriver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.16.0">coverage.py v7.16.0</a>,
-            created at 2026-09-10 02:27 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
+            created at 2026-10-13 01:21 +0000
         </p>
     </div>
 </footer>
