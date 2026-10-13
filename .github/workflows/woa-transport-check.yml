@@ -49,7 +49,7 @@ jobs:
              (.status == "ahead" or .status == "identical")' \
             <<< "$comparison" >/dev/null
 
-          correlation_id="smoke:381173759:main:$public_sha:${GITHUB_RUN_ID}:${GITHUB_RUN_ATTEMPT}"
+          correlation_id="smoke:NVIDIA/cuda-python:main:$public_sha:${GITHUB_RUN_ID}:${GITHUB_RUN_ATTEMPT}"
           echo "public_sha=$public_sha" >> "$GITHUB_OUTPUT"
           echo "correlation_id=$correlation_id" >> "$GITHUB_OUTPUT"
           echo "Transport smoke will report on public main commit \`$public_sha\`." >> "$GITHUB_STEP_SUMMARY"
@@ -86,7 +86,6 @@ jobs:
               inputs: {
                 schema_version: "2",
                 public_repository: "NVIDIA/cuda-python",
-                public_repository_id: "381173759",
                 public_sha: $public_sha,
                 correlation_id: $correlation_id
               }
@@ -101,7 +100,7 @@ jobs:
             -H 'X-GitHub-Api-Version: 2026-03-10' \
             "repos/NVIDIA-dev/cuda-python-private/actions/runs/$private_run_id")
           jq -e '
-            .repository.id == 809898190 and
+            .repository.full_name == "NVIDIA-dev/cuda-python-private" and
             .path == ".github/workflows/ctk-next-woa-transport-check.yml" and
             .event == "workflow_dispatch" and
             .head_branch == "ctk-next"

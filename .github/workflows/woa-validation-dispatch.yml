@@ -43,7 +43,7 @@ jobs:
             -H 'X-GitHub-Api-Version: 2026-03-10' \
             "repos/NVIDIA/cuda-python/actions/runs/$PUBLIC_RUN_ID")
           jq -e '
-            .repository.id == 381173759 and
+            .repository.full_name == "NVIDIA/cuda-python" and
             .workflow_id == 155304118 and
             .path == ".github/workflows/ci.yml" and
             .event == "push" and
@@ -109,7 +109,7 @@ jobs:
               (.digest | test("^sha256:[0-9a-f]{64}$")))
           ' <<< "$artifacts_json" >/dev/null
 
-          correlation_id="v1:381173759:$PUBLIC_RUN_ID:$public_run_attempt:$public_sha"
+          correlation_id="v1:NVIDIA/cuda-python:$PUBLIC_RUN_ID:$public_run_attempt:$public_sha"
           echo "artifacts_json=$artifacts_json" >> "$GITHUB_OUTPUT"
           echo "correlation_id=$correlation_id" >> "$GITHUB_OUTPUT"
           echo "public_producer_job_id=$public_producer_job_id" >> "$GITHUB_OUTPUT"
@@ -162,7 +162,6 @@ jobs:
               inputs: {
                 schema_version: "1",
                 public_repository: "NVIDIA/cuda-python",
-                public_repository_id: "381173759",
                 public_workflow_id: "155304118",
                 public_producer_job_id: $producer_job_id,
                 public_run_id: $run_id,
@@ -184,7 +183,7 @@ jobs:
             -H 'X-GitHub-Api-Version: 2026-03-10' \
             "repos/NVIDIA-dev/cuda-python-private/actions/runs/$private_run_id")
           jq -e '
-            .repository.id == 809898190 and
+            .repository.full_name == "NVIDIA-dev/cuda-python-private" and
             .path == ".github/workflows/ctk-next-woa-validation.yml" and
             .event == "workflow_dispatch" and
             .head_branch == "ctk-next"
