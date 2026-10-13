@@ -101,8 +101,6 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.compute-matrix.outputs.MATRIX) }}
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
-    # TODO: remove continue-on-error once 3.15 is officially supported
-    continue-on-error: ${{ startsWith(matrix.PY_VER, '3.15') }}
     runs-on: "windows-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.RUNNER_DRIVER }}-${{ matrix.GPU_COUNT }}"
     steps:
       - name: Checkout ${{ github.event.repository.name }}
@@ -304,8 +302,6 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: ${{ matrix.PY_VER }}
-          # TODO: remove allow-prereleases once 3.15 is officially supported
-          allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.15') }}
 
       - name: Enable Scientific Python Nightly Wheels for Python 3.15
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&

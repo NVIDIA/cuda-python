@@ -324,8 +324,6 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: ${{ matrix.PY_VER }}
-          # TODO: remove allow-prereleases once 3.15 is officially supported
-          allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.15') }}
         env:
           # we use self-hosted runners on which setup-python behaves weirdly (Python include can't be found)...
           AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"

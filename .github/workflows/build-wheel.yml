@@ -231,11 +231,6 @@ jobs:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_BEFORE_BUILD_LINUX: 'python -m pip install --upgrade "pip>=25.3"'
           CIBW_BEFORE_BUILD_WINDOWS: 'python -m pip install --upgrade "pip>=25.3" delvewheel'
-          # TODO: remove cpython-prerelease once 3.15 is officially supported
-          # Allow CPython pre-release builds (currently 3.15 / 3.15t). This is a
-          # no-op for stable Python versions because CIBW_BUILD still filters
-          # the target version.
-          CIBW_ENABLE: cpython-prerelease
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
@@ -338,11 +333,6 @@ jobs:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_BEFORE_BUILD_LINUX: 'python -m pip install --upgrade "pip>=25.3"'
           CIBW_BEFORE_BUILD_WINDOWS: 'python -m pip install --upgrade "pip>=25.3" delvewheel'
-          # TODO: remove cpython-prerelease once 3.15 is officially supported
-          # Allow CPython pre-release builds (currently 3.15 / 3.15t). This is a
-          # no-op for stable Python versions because CIBW_BUILD still filters
-          # the target version.
-          CIBW_ENABLE: cpython-prerelease
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
@@ -459,8 +449,6 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
-          # TODO: remove allow-prereleases once 3.15 is officially supported
-          allow-prereleases: ${{ startsWith(matrix.python-version, '3.15') }}
 
       - name: Enable Scientific Python Nightly Wheels for Python 3.15
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true') && startsWith(matrix.python-version, '3.15') }}
@@ -632,11 +620,6 @@ jobs:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_BEFORE_BUILD_LINUX: 'python -m pip install --upgrade "pip>=25.3"'
           CIBW_BEFORE_BUILD_WINDOWS: 'python -m pip install --upgrade "pip>=25.3" delvewheel'
-          # TODO: remove cpython-prerelease once 3.15 is officially supported
-          # Allow CPython pre-release builds (currently 3.15 / 3.15t). This is a
-          # no-op for stable Python versions because CIBW_BUILD still filters
-          # the target version.
-          CIBW_ENABLE: cpython-prerelease
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
