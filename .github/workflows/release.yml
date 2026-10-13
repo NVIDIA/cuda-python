@@ -173,6 +173,12 @@ jobs:
         with:
           fetch-depth: 1
           ref: ${{ inputs.git-tag }}
+          persist-credentials: false
+
+      - name: Fetch release tag
+        env: 
+          TAG: ${{ inputs.git-tag }}
+        run: git fetch --depth=1 origin "refs/tags/${TAG}:refs/tags/${TAG}"
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
@@ -201,6 +207,7 @@ jobs:
     steps:
       - name: Set metadata for a Pathfinder draft
         run: |
+          [[ -n "$VERSION" ]] || { echo "::error::Empty version output"; exit 1; }
           # Recognize the shared placeholder across retries without overwriting curated drafts.
           is_placeholder=$(gh release view "$TAG" --repo "${{ github.repository }}" --json isDraft,name,body \
             | jq -r --arg placeholder "Release ${TAG}" '
@@ -348,6 +355,7 @@ jobs:
     steps:
       - name: Verify docs URL
         run: |
+          [[ -n "$VERSION" ]] || { echo "::error::Empty version output"; exit 1; }
           url="https://nvidia.github.io/cuda-python/cuda-pathfinder/${VERSION}/"
           status=$(curl -sL -o /dev/null -w '%{http_code}' "$url")
           if [[ "$status" != "200" ]]; then
