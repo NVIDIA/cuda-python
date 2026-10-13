@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=8f61f047"></script>
+    <script src="../_static/documentation_options.js?v=4dc0945f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev210';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev226';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -782,6 +782,12 @@
                   
   <section id="cuda-core-1-3-0-release-notes">
 <h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 1.3.0 Release Notes<a class="headerlink" href="#cuda-core-1-3-0-release-notes" title="Link to this heading">#</a></h1>
+<section id="highlights">
+<h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Support for Python 3.10 is dropped (end of life).</p></li>
+</ul>
+</section>
 <section id="breaking-changes">
 <h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -967,7 +973,7 @@ the others.
 <li><p>Calling <code class="docutils literal notranslate"><span class="pre">discard()</span></code> on the set-like <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.pred" title="cuda.core.graph.GraphNode.pred"><code class="xref py py-attr docutils literal notranslate"><span class="pre">graph.GraphNode.pred</span></code></a> and
 <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.succ" title="cuda.core.graph.GraphNode.succ"><code class="xref py py-attr docutils literal notranslate"><span class="pre">graph.GraphNode.succ</span></code></a> views with an object that is not a
 <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode" title="cuda.core.graph.GraphNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphNode</span></code></a> is now a no-op instead of raising <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>,
-consistent with <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableSet" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSet</span></code></a> semantics.</p></li>
+consistent with <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableSet" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSet</span></code></a> semantics.</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> now holds each physical allocation, address
 reservation and mapping in a reference-counted handle, so everything a
 buffer maps is released when the last buffer that maps it closes. The
@@ -1071,6 +1077,7 @@ while operands from plain <code class="docutils literal notranslate"><span class
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#highlights">Highlights</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-changes">Breaking Changes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixes-and-enhancements">Fixes and enhancements</a></li>
