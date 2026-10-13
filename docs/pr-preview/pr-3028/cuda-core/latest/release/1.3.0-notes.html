@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=7acd7e39"></script>
+    <script src="../_static/documentation_options.js?v=86490492"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev182';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev221';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -782,6 +782,12 @@
                   
   <section id="cuda-core-1-3-0-release-notes">
 <h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 1.3.0 Release Notes<a class="headerlink" href="#cuda-core-1-3-0-release-notes" title="Link to this heading">#</a></h1>
+<section id="highlights">
+<h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Support for Python 3.10 is dropped (end of life).</p></li>
+</ul>
+</section>
 <section id="breaking-changes">
 <h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -860,10 +866,9 @@ lives on a device; host-located virtual memory is not shared yet. A grown buffer
 imports as one contiguous range. A descriptor holds one file descriptor per
 physical allocation and pins the memory while it exists; nothing else does.
 A buffer that contains imported memory cannot be exported again. For a
-transport of your own, the descriptor exposes <code class="docutils literal notranslate"><span class="pre">fds</span></code>, <code class="docutils literal notranslate"><span class="pre">sizes</span></code>,
-<code class="docutils literal notranslate"><span class="pre">handle_type</span></code>, and <code class="docutils literal notranslate"><span class="pre">size</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor.from_fds()</span></code> rebuilds it in the receiver.
-Fabric handles are not shared yet.
+transport of your own, the descriptor exposes <code class="docutils literal notranslate"><span class="pre">fds</span></code>, <code class="docutils literal notranslate"><span class="pre">sizes</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">size</span></code>, and <code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor.from_fds()</span></code> rebuilds it
+in the receiver. Fabric handles are not shared yet.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2980">#2980</a>)</p></li>
 </ul>
 </section>
@@ -985,7 +990,7 @@ the others.
 <li><p>Calling <code class="docutils literal notranslate"><span class="pre">discard()</span></code> on the set-like <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.pred" title="cuda.core.graph.GraphNode.pred"><code class="xref py py-attr docutils literal notranslate"><span class="pre">graph.GraphNode.pred</span></code></a> and
 <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.succ" title="cuda.core.graph.GraphNode.succ"><code class="xref py py-attr docutils literal notranslate"><span class="pre">graph.GraphNode.succ</span></code></a> views with an object that is not a
 <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode" title="cuda.core.graph.GraphNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphNode</span></code></a> is now a no-op instead of raising <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>,
-consistent with <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableSet" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSet</span></code></a> semantics.</p></li>
+consistent with <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableSet" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSet</span></code></a> semantics.</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> now holds each physical allocation, address
 reservation and mapping in a reference-counted handle, so everything a
 buffer maps is released when the last buffer that maps it closes. The
@@ -1013,8 +1018,11 @@ without a driver call, and
 <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.size" title="cuda.core.Buffer.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.size</span></code></a> after a grow is the aligned total. The <code class="docutils literal notranslate"><span class="pre">config</span></code>
 argument applies to the chunk that call adds and is no longer stored on the
 resource (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2909">#2909</a>);
-it must keep the resource’s location and passes the constructor’s option
-checks. It never changes the access of memory that is already mapped, so a
+it must keep the resource’s location and <code class="docutils literal notranslate"><span class="pre">handle_type</span></code> and passes the
+constructor’s option checks. Every chunk of a buffer must be exportable
+the same way, so a resource created with <code class="docutils literal notranslate"><span class="pre">handle_type=None</span></code> needs
+<code class="docutils literal notranslate"><span class="pre">handle_type=None</span></code> in a per-call <code class="docutils literal notranslate"><span class="pre">config</span></code> as well. It never changes
+the access of memory that is already mapped, so a
 request the buffer already covers has no effect even with <code class="docutils literal notranslate"><span class="pre">config</span></code>.
 Buffers from <code class="docutils literal notranslate"><span class="pre">allocate()</span></code> free themselves when they close and no longer
 call <a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.deallocate" title="cuda.core.VirtualMemoryResource.deallocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">VirtualMemoryResource.deallocate()</span></code></a>, which now serves pointers
@@ -1029,6 +1037,22 @@ empty buffer without a driver call.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">StridedMemoryView</span></code> DLPack C exchange API now preserves the underlying
 Python exception when an export or import fails, as required by the DLPack
 contract, instead of returning <code class="docutils literal notranslate"><span class="pre">-1</span></code> with no exception set.</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.graph.MemcpyNode.html#cuda.core.graph.MemcpyNode.update" title="cuda.core.graph.MemcpyNode.update"><code class="xref py py-meth docutils literal notranslate"><span class="pre">update()</span></code></a> and the executable view of a memcpy node
+now accept nodes recorded by stream capture. The driver stores the operands
+of a captured <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_from" title="cuda.core.Buffer.copy_from"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_from()</span></code></a> or <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_to" title="cuda.core.Buffer.copy_to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code></a> as unified
+addresses, and <code class="docutils literal notranslate"><span class="pre">update</span></code> rejected that descriptor with a message about
+multidimensional copies. Such an operand stays unified when it is replaced,
+because the driver does not accept a change of an operand’s memory type in
+an instantiated graph. Replacing a device operand with another device
+buffer of the same kind can therefore also be applied with
+<a class="reference internal" href="../generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph.update" title="cuda.core.graph.Graph.update"><code class="xref py py-meth docutils literal notranslate"><span class="pre">update()</span></code></a>. Replacing it with host memory, or with memory
+from a different allocator, always takes effect in a new instantiation;
+whether an executable update accepts it depends on how the operands were
+allocated and on the driver. The driver compares the memory class of
+pool-backed and virtual-memory operands and rejects the change for them,
+while operands from plain <code class="docutils literal notranslate"><span class="pre">cuMemAlloc</span></code> allocations accept it. The node’s
+<code class="docutils literal notranslate"><span class="pre">repr</span></code> now shows <code class="docutils literal notranslate"><span class="pre">U</span></code> for unified operands.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2649">#2649</a>)</p></li>
 </ul>
 </section>
 </section>
@@ -1073,6 +1097,7 @@ contract, instead of returning <code class="docutils literal notranslate"><span 
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#highlights">Highlights</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-changes">Breaking Changes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixes-and-enhancements">Fixes and enhancements</a></li>
