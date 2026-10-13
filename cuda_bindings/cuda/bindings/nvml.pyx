@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=149bd04cef4a762c554f5f82eaf15ab823a608acea1fca906b5981dfa96baa8a
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=475626c3bcb69e8e6c831c4d204de2fac2c4f31f282ef903901ae0ce444da212
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -17,11 +17,6 @@ from cpython.buffer cimport (
     Py_buffer as _cyb_Py_buffer,
 )
 cimport cpython.memoryview as _cyb_cpython_memoryview
-from cpython.object cimport PyObject as _cyb_PyObject
-from cpython.ref cimport (
-    Py_CLEAR as _cyb_Py_CLEAR,
-    Py_XINCREF as _cyb_Py_XINCREF,
-)
 from cython cimport view as _cyb_view
 from libc.stdint cimport intptr_t
 from libc.stdlib cimport (
@@ -2965,7 +2960,7 @@ class InsufficientPowerError(NvmlError):
     pass
 class DriverNotLoadedError(NvmlError):
     pass
-class TimeoutError(NvmlError):
+class NvmlTimeoutError(NvmlError):
     pass
 class IrqIssueError(NvmlError):
     pass
@@ -2985,7 +2980,7 @@ class LibRmVersionMismatchError(NvmlError):
     pass
 class InUseError(NvmlError):
     pass
-class MemoryError(NvmlError):
+class NvmlMemoryError(NvmlError):
     pass
 class NoDataError(NvmlError):
     pass
@@ -3030,7 +3025,7 @@ cdef object _nvml_error_factory(int status):
     elif status == 9:
         return DriverNotLoadedError(pystatus)
     elif status == 10:
-        return TimeoutError(pystatus)
+        return NvmlTimeoutError(pystatus)
     elif status == 11:
         return IrqIssueError(pystatus)
     elif status == 12:
@@ -3050,7 +3045,7 @@ cdef object _nvml_error_factory(int status):
     elif status == 19:
         return InUseError(pystatus)
     elif status == 20:
-        return MemoryError(pystatus)
+        return NvmlMemoryError(pystatus)
     elif status == 21:
         return NoDataError(pystatus)
     elif status == 22:
@@ -3348,24 +3343,24 @@ cdef class PciInfo:
     """
     cdef:
         nvmlPciInfo_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlPciInfo_t *>_cyb_calloc(1, sizeof(nvmlPciInfo_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating PciInfo")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlPciInfo_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.PciInfo object at {hex(id(self))}>"
@@ -3528,11 +3523,12 @@ cdef class PciInfo:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating PciInfo")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPciInfo_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlPciInfo_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -4176,7 +4172,7 @@ cdef class ProcessInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=process_info_dtype)
+        arr = _numpy.zeros(size, dtype=process_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlProcessInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlProcessInfo_t) }"
@@ -4359,7 +4355,7 @@ cdef class ProcessDetail_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=process_detail_v1_dtype)
+        arr = _numpy.zeros(size, dtype=process_detail_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlProcessDetail_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlProcessDetail_v1_t) }"
@@ -5069,7 +5065,7 @@ cdef class BridgeChipInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=bridge_chip_info_dtype)
+        arr = _numpy.zeros(size, dtype=bridge_chip_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlBridgeChipInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlBridgeChipInfo_t) }"
@@ -5225,24 +5221,24 @@ cdef class Value:
     """
     cdef:
         nvmlValue_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlValue_t *>_cyb_calloc(1, sizeof(nvmlValue_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating Value")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlValue_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.Value object at {hex(id(self))}>"
@@ -5397,11 +5393,12 @@ cdef class Value:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating Value")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlValue_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlValue_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -5438,7 +5435,7 @@ cdef class _py_anon_pod0:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=_py_anon_pod0_dtype)
+        arr = _numpy.zeros(size, dtype=_py_anon_pod0_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(cuda_bindings_nvml__anon_pod0), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(cuda_bindings_nvml__anon_pod0) }"
@@ -5790,7 +5787,7 @@ cdef class ClkMonFaultInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=clk_mon_fault_info_dtype)
+        arr = _numpy.zeros(size, dtype=clk_mon_fault_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlClkMonFaultInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlClkMonFaultInfo_t) }"
@@ -6137,7 +6134,7 @@ cdef class ProcessUtilizationSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=process_utilization_sample_dtype)
+        arr = _numpy.zeros(size, dtype=process_utilization_sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlProcessUtilizationSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlProcessUtilizationSample_t) }"
@@ -6345,7 +6342,7 @@ cdef class ProcessUtilizationInfo_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=process_utilization_info_v1_dtype)
+        arr = _numpy.zeros(size, dtype=process_utilization_info_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlProcessUtilizationInfo_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlProcessUtilizationInfo_v1_t) }"
@@ -7282,7 +7279,7 @@ cdef class _py_anon_pod1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=_py_anon_pod1_dtype)
+        arr = _numpy.zeros(size, dtype=_py_anon_pod1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(cuda_bindings_nvml__anon_pod1), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(cuda_bindings_nvml__anon_pod1) }"
@@ -7778,7 +7775,7 @@ cdef class VgpuProcessUtilizationSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_process_utilization_sample_dtype)
+        arr = _numpy.zeros(size, dtype=vgpu_process_utilization_sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuProcessUtilizationSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuProcessUtilizationSample_t) }"
@@ -8008,7 +8005,7 @@ cdef class VgpuProcessUtilizationInfo_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_process_utilization_info_v1_dtype)
+        arr = _numpy.zeros(size, dtype=vgpu_process_utilization_info_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuProcessUtilizationInfo_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuProcessUtilizationInfo_v1_t) }"
@@ -8245,24 +8242,24 @@ cdef class _py_anon_pod2:
     """
     cdef:
         cuda_bindings_nvml__anon_pod2 *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_nvml__anon_pod2 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod2))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod2")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod2 *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod2 object at {hex(id(self))}>"
@@ -8362,11 +8359,12 @@ cdef class _py_anon_pod2:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod2))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod2 *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -8392,24 +8390,24 @@ cdef class _py_anon_pod3:
     """
     cdef:
         cuda_bindings_nvml__anon_pod3 *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_nvml__anon_pod3 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod3))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod3")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod3 *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod3 object at {hex(id(self))}>"
@@ -8498,11 +8496,12 @@ cdef class _py_anon_pod3:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod3))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod3 *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -8540,7 +8539,7 @@ cdef class VgpuSchedulerLogEntry:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_scheduler_log_entry_dtype)
+        arr = _numpy.zeros(size, dtype=vgpu_scheduler_log_entry_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuSchedulerLogEntry_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuSchedulerLogEntry_t) }"
@@ -8735,24 +8734,24 @@ cdef class _py_anon_pod4:
     """
     cdef:
         cuda_bindings_nvml__anon_pod4 *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_nvml__anon_pod4 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod4))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod4")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod4 *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod4 object at {hex(id(self))}>"
@@ -8852,11 +8851,12 @@ cdef class _py_anon_pod4:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod4")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod4))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod4 *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -8882,24 +8882,24 @@ cdef class _py_anon_pod5:
     """
     cdef:
         cuda_bindings_nvml__anon_pod5 *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_nvml__anon_pod5 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod5))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod5")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod5 *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod5 object at {hex(id(self))}>"
@@ -8988,11 +8988,12 @@ cdef class _py_anon_pod5:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod5")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod5))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod5 *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -9239,24 +9240,24 @@ cdef class VgpuLicenseExpiry:
     """
     cdef:
         nvmlVgpuLicenseExpiry_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlVgpuLicenseExpiry_t *>_cyb_calloc(1, sizeof(nvmlVgpuLicenseExpiry_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuLicenseExpiry")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlVgpuLicenseExpiry_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.VgpuLicenseExpiry object at {hex(id(self))}>"
@@ -9411,11 +9412,12 @@ cdef class VgpuLicenseExpiry:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuLicenseExpiry")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuLicenseExpiry_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlVgpuLicenseExpiry_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -9447,24 +9449,24 @@ cdef class GridLicenseExpiry:
     """
     cdef:
         nvmlGridLicenseExpiry_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlGridLicenseExpiry_t *>_cyb_calloc(1, sizeof(nvmlGridLicenseExpiry_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating GridLicenseExpiry")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlGridLicenseExpiry_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.GridLicenseExpiry object at {hex(id(self))}>"
@@ -9619,11 +9621,12 @@ cdef class GridLicenseExpiry:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating GridLicenseExpiry")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGridLicenseExpiry_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlGridLicenseExpiry_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -10128,7 +10131,7 @@ cdef class HwbcEntry:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=hwbc_entry_dtype)
+        arr = _numpy.zeros(size, dtype=hwbc_entry_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlHwbcEntry_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlHwbcEntry_t) }"
@@ -10767,7 +10770,7 @@ cdef class UnitFanInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=unit_fan_info_dtype)
+        arr = _numpy.zeros(size, dtype=unit_fan_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlUnitFanInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlUnitFanInfo_t) }"
@@ -11098,7 +11101,7 @@ cdef class SystemEventData_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=system_event_data_v1_dtype)
+        arr = _numpy.zeros(size, dtype=system_event_data_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlSystemEventData_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlSystemEventData_v1_t) }"
@@ -11448,7 +11451,7 @@ cdef class EncoderSessionInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=encoder_session_info_dtype)
+        arr = _numpy.zeros(size, dtype=encoder_session_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlEncoderSessionInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlEncoderSessionInfo_t) }"
@@ -11831,7 +11834,7 @@ cdef class FBCSessionInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=fbc_session_info_dtype)
+        arr = _numpy.zeros(size, dtype=fbc_session_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlFBCSessionInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlFBCSessionInfo_t) }"
@@ -13678,24 +13681,24 @@ cdef class VgpuVersion:
     """
     cdef:
         nvmlVgpuVersion_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlVgpuVersion_t *>_cyb_calloc(1, sizeof(nvmlVgpuVersion_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuVersion")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlVgpuVersion_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.VgpuVersion object at {hex(id(self))}>"
@@ -13795,11 +13798,12 @@ cdef class VgpuVersion:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuVersion")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuVersion_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlVgpuVersion_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -14204,7 +14208,7 @@ cdef class GpuInstancePlacement:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=gpu_instance_placement_dtype)
+        arr = _numpy.zeros(size, dtype=gpu_instance_placement_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlGpuInstancePlacement_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlGpuInstancePlacement_t) }"
@@ -14635,7 +14639,7 @@ cdef class ComputeInstancePlacement:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=compute_instance_placement_dtype)
+        arr = _numpy.zeros(size, dtype=compute_instance_placement_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlComputeInstancePlacement_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlComputeInstancePlacement_t) }"
@@ -15743,7 +15747,7 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype)
+        arr = _numpy.zeros(size, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t) }"
@@ -16298,7 +16302,7 @@ cdef class NvlinkFirmwareVersion:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=nvlink_firmware_version_dtype)
+        arr = _numpy.zeros(size, dtype=nvlink_firmware_version_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlNvlinkFirmwareVersion_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlNvlinkFirmwareVersion_t) }"
@@ -16470,24 +16474,24 @@ cdef class PRMCounterInput_v1:
     """
     cdef:
         nvmlPRMCounterInput_v1_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlPRMCounterInput_v1_t *>_cyb_calloc(1, sizeof(nvmlPRMCounterInput_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating PRMCounterInput_v1")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlPRMCounterInput_v1_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.PRMCounterInput_v1 object at {hex(id(self))}>"
@@ -16576,11 +16580,12 @@ cdef class PRMCounterInput_v1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating PRMCounterInput_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPRMCounterInput_v1_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlPRMCounterInput_v1_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -16780,7 +16785,7 @@ cdef class VgpuSchedulerLogEntry_v2:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_scheduler_log_entry_v2_dtype)
+        arr = _numpy.zeros(size, dtype=vgpu_scheduler_log_entry_v2_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuSchedulerLogEntry_v2_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuSchedulerLogEntry_v2_t) }"
@@ -17691,24 +17696,24 @@ cdef class CPERCursor_v1:
     """
     cdef:
         nvmlCPERCursor_v1_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlCPERCursor_v1_t *>_cyb_calloc(1, sizeof(nvmlCPERCursor_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating CPERCursor_v1")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlCPERCursor_v1_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.CPERCursor_v1 object at {hex(id(self))}>"
@@ -17823,11 +17828,12 @@ cdef class CPERCursor_v1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating CPERCursor_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlCPERCursor_v1_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlCPERCursor_v1_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -18188,7 +18194,7 @@ cdef class PmgrPwrTuple:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pmgr_pwr_tuple_dtype)
+        arr = _numpy.zeros(size, dtype=pmgr_pwr_tuple_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPmgrPwrTuple_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPmgrPwrTuple_t) }"
@@ -18335,7 +18341,7 @@ cdef class RailMetrics:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=rail_metrics_dtype)
+        arr = _numpy.zeros(size, dtype=rail_metrics_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlRailMetrics_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlRailMetrics_t) }"
@@ -18492,7 +18498,7 @@ cdef class PwrModelMetricsDlppm1xPerf:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_metrics_dlppm1x_perf_dtype)
+        arr = _numpy.zeros(size, dtype=pwr_model_metrics_dlppm1x_perf_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPwrModelMetricsDlppm1xPerf_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsDlppm1xPerf_t) }"
@@ -18639,7 +18645,7 @@ cdef class PwrModelMetricsSamplePfpp1x:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_metrics_sample_pfpp1x_dtype)
+        arr = _numpy.zeros(size, dtype=pwr_model_metrics_sample_pfpp1x_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPwrModelMetricsSamplePfpp1x_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsSamplePfpp1x_t) }"
@@ -18795,7 +18801,7 @@ cdef class PwrModelOperatingPointPfpp1x:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_operating_point_pfpp1x_dtype)
+        arr = _numpy.zeros(size, dtype=pwr_model_operating_point_pfpp1x_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPwrModelOperatingPointPfpp1x_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelOperatingPointPfpp1x_t) }"
@@ -19554,24 +19560,24 @@ cdef class GpuFabricClique_v1:
     """
     cdef:
         nvmlGpuFabricClique_v1_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlGpuFabricClique_v1_t *>_cyb_calloc(1, sizeof(nvmlGpuFabricClique_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating GpuFabricClique_v1")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlGpuFabricClique_v1_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.GpuFabricClique_v1 object at {hex(id(self))}>"
@@ -19671,11 +19677,12 @@ cdef class GpuFabricClique_v1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating GpuFabricClique_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuFabricClique_v1_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlGpuFabricClique_v1_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -20435,7 +20442,7 @@ cdef class NvlinkTelemetrySample_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=nvlink_telemetry_sample_v1_dtype)
+        arr = _numpy.zeros(size, dtype=nvlink_telemetry_sample_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlNvlinkTelemetrySample_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlNvlinkTelemetrySample_v1_t) }"
@@ -20619,24 +20626,24 @@ cdef class EccBankRemapperHistogram_v1:
     """
     cdef:
         nvmlEccBankRemapperHistogram_v1_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlEccBankRemapperHistogram_v1_t *>_cyb_calloc(1, sizeof(nvmlEccBankRemapperHistogram_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating EccBankRemapperHistogram_v1")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlEccBankRemapperHistogram_v1_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.EccBankRemapperHistogram_v1 object at {hex(id(self))}>"
@@ -20736,11 +20743,12 @@ cdef class EccBankRemapperHistogram_v1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating EccBankRemapperHistogram_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEccBankRemapperHistogram_v1_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlEccBankRemapperHistogram_v1_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -21220,7 +21228,7 @@ cdef class Sample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=sample_dtype)
+        arr = _numpy.zeros(size, dtype=sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlSample_t) }"
@@ -21380,7 +21388,7 @@ cdef class VgpuInstanceUtilizationSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_instance_utilization_sample_dtype)
+        arr = _numpy.zeros(size, dtype=vgpu_instance_utilization_sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuInstanceUtilizationSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuInstanceUtilizationSample_t) }"
@@ -21580,7 +21588,7 @@ cdef class VgpuInstanceUtilizationInfo_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_instance_utilization_info_v1_dtype)
+        arr = _numpy.zeros(size, dtype=vgpu_instance_utilization_info_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuInstanceUtilizationInfo_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuInstanceUtilizationInfo_v1_t) }"
@@ -21797,7 +21805,7 @@ cdef class FieldValue:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=field_value_dtype)
+        arr = _numpy.zeros(size, dtype=field_value_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlFieldValue_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlFieldValue_t) }"
@@ -22002,24 +22010,24 @@ cdef class PRMCounterValue_v1:
     """
     cdef:
         nvmlPRMCounterValue_v1_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlPRMCounterValue_v1_t *>_cyb_calloc(1, sizeof(nvmlPRMCounterValue_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating PRMCounterValue_v1")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlPRMCounterValue_v1_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.PRMCounterValue_v1 object at {hex(id(self))}>"
@@ -22135,11 +22143,12 @@ cdef class PRMCounterValue_v1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating PRMCounterValue_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPRMCounterValue_v1_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlPRMCounterValue_v1_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -22931,24 +22940,24 @@ cdef class VgpuSchedulerParams:
     """
     cdef:
         nvmlVgpuSchedulerParams_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlVgpuSchedulerParams_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerParams_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerParams")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlVgpuSchedulerParams_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerParams object at {hex(id(self))}>"
@@ -23058,11 +23067,12 @@ cdef class VgpuSchedulerParams:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerParams")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerParams_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlVgpuSchedulerParams_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -23089,24 +23099,24 @@ cdef class VgpuSchedulerSetParams:
     """
     cdef:
         nvmlVgpuSchedulerSetParams_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlVgpuSchedulerSetParams_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerSetParams_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerSetParams")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlVgpuSchedulerSetParams_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerSetParams object at {hex(id(self))}>"
@@ -23216,11 +23226,12 @@ cdef class VgpuSchedulerSetParams:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerSetParams")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerSetParams_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlVgpuSchedulerSetParams_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -23412,7 +23423,7 @@ cdef class GridLicensableFeature:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=grid_licensable_feature_dtype)
+        arr = _numpy.zeros(size, dtype=grid_licensable_feature_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlGridLicensableFeature_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlGridLicensableFeature_t) }"
@@ -24454,24 +24465,24 @@ cdef class NvlinkFirmwareInfo:
     """
     cdef:
         nvmlNvlinkFirmwareInfo_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlNvlinkFirmwareInfo_t *>_cyb_calloc(1, sizeof(nvmlNvlinkFirmwareInfo_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating NvlinkFirmwareInfo")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlNvlinkFirmwareInfo_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.NvlinkFirmwareInfo object at {hex(id(self))}>"
@@ -24571,11 +24582,12 @@ cdef class NvlinkFirmwareInfo:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating NvlinkFirmwareInfo")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkFirmwareInfo_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlNvlinkFirmwareInfo_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -24955,7 +24967,7 @@ cdef class CoreRailMetrics:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=core_rail_metrics_dtype)
+        arr = _numpy.zeros(size, dtype=core_rail_metrics_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlCoreRailMetrics_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlCoreRailMetrics_t) }"
@@ -25105,10 +25117,18 @@ cdef class PwrModelMetricsPfpp1x:
         readonly tuple _estimated_metrics
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_metrics_pfpp1x_dtype)
+        arr = _numpy.zeros(size, dtype=pwr_model_metrics_pfpp1x_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPwrModelMetricsPfpp1x_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsPfpp1x_t) }"
+        obj = self
+        estimated_metrics_list = list()
+        for i in range(obj._data.size):
+            addr = obj._data.estimated_metrics[i].__array_interface__['data'][0]
+            n = int(obj._data.num_vf_points[i])
+            estimated_metrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=False)
+            estimated_metrics_list.append(estimated_metrics_obj)
+        obj._estimated_metrics = tuple(estimated_metrics_list)
 
     def __repr__(self):
         if self._data.size > 1:
@@ -25233,13 +25253,13 @@ cdef class PwrModelMetricsPfpp1x:
             raise ValueError("data array must be of dtype pwr_model_metrics_pfpp1x_dtype")
         obj._data = data.view(_numpy.recarray)
 
-        estimatedMetrics_list = list()
+        estimated_metrics_list = list()
         for i in range(obj._data.size):
-            addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
+            addr = obj._data.estimated_metrics[i].__array_interface__['data'][0]
             n = int(obj._data.num_vf_points[i])
-            estimatedMetrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=False)
-            estimatedMetrics_list.append(estimatedMetrics_obj)
-        obj._estimatedMetrics = tuple(estimatedMetrics_list)
+            estimated_metrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=False)
+            estimated_metrics_list.append(estimated_metrics_obj)
+        obj._estimated_metrics = tuple(estimated_metrics_list)
         return obj
 
     @staticmethod
@@ -25263,13 +25283,13 @@ cdef class PwrModelMetricsPfpp1x:
         obj._data = data.view(_numpy.recarray)
         obj._owner = owner
 
-        estimatedMetrics_list = list()
+        estimated_metrics_list = list()
         for i in range(obj._data.size):
-            addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
+            addr = obj._data.estimated_metrics[i].__array_interface__['data'][0]
             n = int(obj._data.num_vf_points[i])
-            estimatedMetrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=readonly)
-            estimatedMetrics_list.append(estimatedMetrics_obj)
-        obj._estimatedMetrics = tuple(estimatedMetrics_list)
+            estimated_metrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=readonly)
+            estimated_metrics_list.append(estimated_metrics_obj)
+        obj._estimated_metrics = tuple(estimated_metrics_list)
         return obj
 
 
@@ -25993,7 +26013,7 @@ cdef class PRMCounter_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=prm_counter_v1_dtype)
+        arr = _numpy.zeros(size, dtype=prm_counter_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPRMCounter_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPRMCounter_v1_t) }"
@@ -27382,7 +27402,7 @@ cdef class PwrModelMetricsDlppm1x:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_metrics_dlppm1x_dtype)
+        arr = _numpy.zeros(size, dtype=pwr_model_metrics_dlppm1x_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPwrModelMetricsDlppm1x_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsDlppm1x_t) }"
@@ -27564,7 +27584,7 @@ cdef class PerfMetricsPfpp1xSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=perf_metrics_pfpp1x_sample_dtype)
+        arr = _numpy.zeros(size, dtype=perf_metrics_pfpp1x_sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPerfMetricsPfpp1xSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPerfMetricsPfpp1xSample_t) }"
@@ -27710,10 +27730,18 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
         readonly tuple _estimated_metrics
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_metrics_dlppm1x_dramclk_estimates_dtype)
+        arr = _numpy.zeros(size, dtype=pwr_model_metrics_dlppm1x_dramclk_estimates_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPwrModelMetricsDlppm1xDramclkEstimates_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsDlppm1xDramclkEstimates_t) }"
+        obj = self
+        estimated_metrics_list = list()
+        for i in range(obj._data.size):
+            addr = obj._data.estimated_metrics[i].__array_interface__['data'][0]
+            n = int(obj._data.num_estimated_metrics[i])
+            estimated_metrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=False)
+            estimated_metrics_list.append(estimated_metrics_obj)
+        obj._estimated_metrics = tuple(estimated_metrics_list)
 
     def __repr__(self):
         if self._data.size > 1:
@@ -27798,13 +27826,13 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
             raise ValueError("data array must be of dtype pwr_model_metrics_dlppm1x_dramclk_estimates_dtype")
         obj._data = data.view(_numpy.recarray)
 
-        estimatedMetrics_list = list()
+        estimated_metrics_list = list()
         for i in range(obj._data.size):
-            addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
+            addr = obj._data.estimated_metrics[i].__array_interface__['data'][0]
             n = int(obj._data.num_estimated_metrics[i])
-            estimatedMetrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=False)
-            estimatedMetrics_list.append(estimatedMetrics_obj)
-        obj._estimatedMetrics = tuple(estimatedMetrics_list)
+            estimated_metrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=False)
+            estimated_metrics_list.append(estimated_metrics_obj)
+        obj._estimated_metrics = tuple(estimated_metrics_list)
         return obj
 
     @staticmethod
@@ -27828,13 +27856,13 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
         obj._data = data.view(_numpy.recarray)
         obj._owner = owner
 
-        estimatedMetrics_list = list()
+        estimated_metrics_list = list()
         for i in range(obj._data.size):
-            addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
+            addr = obj._data.estimated_metrics[i].__array_interface__['data'][0]
             n = int(obj._data.num_estimated_metrics[i])
-            estimatedMetrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=readonly)
-            estimatedMetrics_list.append(estimatedMetrics_obj)
-        obj._estimatedMetrics = tuple(estimatedMetrics_list)
+            estimated_metrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=readonly)
+            estimated_metrics_list.append(estimated_metrics_obj)
+        obj._estimated_metrics = tuple(estimated_metrics_list)
         return obj
 
 
@@ -27871,7 +27899,7 @@ cdef class ObservedMetrics:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=observed_metrics_dtype)
+        arr = _numpy.zeros(size, dtype=observed_metrics_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlObservedMetrics_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlObservedMetrics_t) }"
@@ -28062,7 +28090,7 @@ cdef class PerfMetricsDlppc2xSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=perf_metrics_dlppc2x_sample_dtype)
+        arr = _numpy.zeros(size, dtype=perf_metrics_dlppc2x_sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPerfMetricsDlppc2xSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPerfMetricsDlppc2xSample_t) }"
@@ -28200,24 +28228,24 @@ cdef class _py_anon_pod8:
     """
     cdef:
         cuda_bindings_nvml__anon_pod8 *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_nvml__anon_pod8 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod8))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod8")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod8 *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod8 object at {hex(id(self))}>"
@@ -28329,11 +28357,12 @@ cdef class _py_anon_pod8:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod8")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod8))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod8 *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -28367,7 +28396,7 @@ cdef class PerfMetricControllerSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=perf_metric_controller_sample_dtype)
+        arr = _numpy.zeros(size, dtype=perf_metric_controller_sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPerfMetricControllerSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPerfMetricControllerSample_t) }"
@@ -28524,10 +28553,18 @@ cdef class PerfMetricsSample:
         readonly tuple _controller_data
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=perf_metrics_sample_dtype)
+        arr = _numpy.zeros(size, dtype=perf_metrics_sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPerfMetricsSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPerfMetricsSample_t) }"
+        obj = self
+        controller_data_list = list()
+        for i in range(obj._data.size):
+            addr = obj._data.controller_data[i].__array_interface__['data'][0]
+            n = int(obj._data.num_controller_data[i])
+            controller_data_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=obj, readonly=False)
+            controller_data_list.append(controller_data_obj)
+        obj._controller_data = tuple(controller_data_list)
 
     def __repr__(self):
         if self._data.size > 1:
@@ -28612,13 +28649,13 @@ cdef class PerfMetricsSample:
             raise ValueError("data array must be of dtype perf_metrics_sample_dtype")
         obj._data = data.view(_numpy.recarray)
 
-        controllerData_list = list()
+        controller_data_list = list()
         for i in range(obj._data.size):
-            addr = obj._data.controllerData[i].__array_interface__['data'][0]
+            addr = obj._data.controller_data[i].__array_interface__['data'][0]
             n = int(obj._data.num_controller_data[i])
-            controllerData_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=obj, readonly=False)
-            controllerData_list.append(controllerData_obj)
-        obj._controllerData = tuple(controllerData_list)
+            controller_data_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=obj, readonly=False)
+            controller_data_list.append(controller_data_obj)
+        obj._controller_data = tuple(controller_data_list)
         return obj
 
     @staticmethod
@@ -28642,13 +28679,13 @@ cdef class PerfMetricsSample:
         obj._data = data.view(_numpy.recarray)
         obj._owner = owner
 
-        controllerData_list = list()
+        controller_data_list = list()
         for i in range(obj._data.size):
-            addr = obj._data.controllerData[i].__array_interface__['data'][0]
+            addr = obj._data.controller_data[i].__array_interface__['data'][0]
             n = int(obj._data.num_controller_data[i])
-            controllerData_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=obj, readonly=readonly)
-            controllerData_list.append(controllerData_obj)
-        obj._controllerData = tuple(controllerData_list)
+            controller_data_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=obj, readonly=readonly)
+            controller_data_list.append(controller_data_obj)
+        obj._controller_data = tuple(controller_data_list)
         return obj
 
 
@@ -28885,7 +28922,7 @@ cpdef str system_get_driver_version():
     nvmlConstants::NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE.
 
     Returns:
-        char: Reference in which to return the version identifier.
+        str: Reference in which to return the version identifier.
 
     .. seealso:: `nvmlSystemGetDriverVersion`
     """
@@ -28906,7 +28943,7 @@ cpdef str system_get_nvml_version():
     nvmlConstants::NVML_SYSTEM_NVML_VERSION_BUFFER_SIZE.
 
     Returns:
-        char: Reference in which to return the version identifier.
+        str: Reference in which to return the version identifier.
 
     .. seealso:: `nvmlSystemGetNVMLVersion`
     """
@@ -28967,7 +29004,7 @@ cpdef str system_get_process_name(unsigned int pid):
         pid (unsigned int): The identifier of the process.
 
     Returns:
-        char: Reference in which to return the process name.
+        str: Reference in which to return the process name.
 
     .. seealso:: `nvmlSystemGetProcessName`
     """
@@ -29418,7 +29455,7 @@ cpdef str device_get_name(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Reference in which to return the product name.
+        str: Reference in which to return the product name.
 
     .. seealso:: `nvmlDeviceGetName`
     """
@@ -29497,7 +29534,7 @@ cpdef str device_get_serial(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Reference in which to return the board/module serial number.
+        str: Reference in which to return the board/module serial number.
 
     .. seealso:: `nvmlDeviceGetSerial`
     """
@@ -29775,7 +29812,7 @@ cpdef str device_get_uuid(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Reference in which to return the GPU UUID.
+        str: Reference in which to return the GPU UUID.
 
     .. seealso:: `nvmlDeviceGetUUID`
     """
@@ -29817,7 +29854,7 @@ cpdef str device_get_board_part_number(intptr_t device):
         device (intptr_t): Identifier of the target device.
 
     Returns:
-        char: Reference to the buffer to return.
+        str: Reference to the buffer to return.
 
     .. seealso:: `nvmlDeviceGetBoardPartNumber`
     """
@@ -29845,7 +29882,7 @@ cpdef str device_get_inforom_version(intptr_t device, int object):
         object (InforomObject): The target infoROM object.
 
     Returns:
-        char: Reference in which to return the infoROM version.
+        str: Reference in which to return the infoROM version.
 
     .. seealso:: `nvmlDeviceGetInforomVersion`
     """
@@ -29871,7 +29908,7 @@ cpdef str device_get_inforom_image_version(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Reference in which to return the infoROM image version.
+        str: Reference in which to return the infoROM image version.
 
     .. seealso:: `nvmlDeviceGetInforomImageVersion`
     """
@@ -30845,7 +30882,7 @@ cpdef device_set_clock_offsets(intptr_t device, info):
 
     .. seealso:: `nvmlDeviceSetClockOffsets`
     """
-    cdef intptr_t _info_ptr_ = int(info)
+    cdef intptr_t _info_ptr_ = 0 if info is None else int(info)
     with nogil:
         __status__ = nvmlDeviceSetClockOffsets(<Device>device, <nvmlClockOffset_t*>_info_ptr_)
     check_status(__status__)
@@ -31611,7 +31648,7 @@ cpdef str device_get_vbios_version(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Reference to which to return the VBIOS version.
+        str: Reference to which to return the VBIOS version.
 
     .. seealso:: `nvmlDeviceGetVbiosVersion`
     """
@@ -33394,7 +33431,7 @@ cpdef device_set_nvlink_bw_mode(intptr_t device, set_bw_mode):
 
     .. seealso:: `nvmlDeviceSetNvlinkBwMode`
     """
-    cdef intptr_t _set_bw_mode_ptr_ = int(set_bw_mode)
+    cdef intptr_t _set_bw_mode_ptr_ = 0 if set_bw_mode is None else int(set_bw_mode)
     set_bw_mode.version = NVML_VERSION_STRUCT(sizeof(nvmlNvlinkSetBwMode_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceSetNvlinkBwMode(<Device>device, <nvmlNvlinkSetBwMode_t*>_set_bw_mode_ptr_)
@@ -33537,7 +33574,7 @@ cpdef device_modify_drain_state(pci_info, int new_state):
 
     .. seealso:: `nvmlDeviceModifyDrainState`
     """
-    cdef intptr_t _pci_info_ptr_ = int(pci_info)
+    cdef intptr_t _pci_info_ptr_ = 0 if pci_info is None else int(pci_info)
     with nogil:
         __status__ = nvmlDeviceModifyDrainState(<nvmlPciInfo_t*>_pci_info_ptr_, <_EnableState>new_state)
     check_status(__status__)
@@ -33558,7 +33595,7 @@ cpdef int device_query_drain_state(pci_info) except? -1:
 
     .. seealso:: `nvmlDeviceQueryDrainState`
     """
-    cdef intptr_t _pci_info_ptr_ = int(pci_info)
+    cdef intptr_t _pci_info_ptr_ = 0 if pci_info is None else int(pci_info)
     cdef _EnableState current_state
     with nogil:
         __status__ = nvmlDeviceQueryDrainState(<nvmlPciInfo_t*>_pci_info_ptr_, &current_state)
@@ -33585,7 +33622,7 @@ cpdef device_remove_gpu_v2(pci_info, int gpu_state, int link_state):
 
     .. seealso:: `nvmlDeviceRemoveGpu_v2`
     """
-    cdef intptr_t _pci_info_ptr_ = int(pci_info)
+    cdef intptr_t _pci_info_ptr_ = 0 if pci_info is None else int(pci_info)
     with nogil:
         __status__ = nvmlDeviceRemoveGpu_v2(<nvmlPciInfo_t*>_pci_info_ptr_, <_DetachGpuState>gpu_state, <_PcieLinkState>link_state)
     check_status(__status__)
@@ -33606,7 +33643,7 @@ cpdef device_discover_gpus(pci_info):
 
     .. seealso:: `nvmlDeviceDiscoverGpus`
     """
-    cdef intptr_t _pci_info_ptr_ = int(pci_info)
+    cdef intptr_t _pci_info_ptr_ = 0 if pci_info is None else int(pci_info)
     with nogil:
         __status__ = nvmlDeviceDiscoverGpus(<nvmlPciInfo_t*>_pci_info_ptr_)
     check_status(__status__)
@@ -33896,7 +33933,7 @@ cpdef str vgpu_type_get_class(unsigned int vgpu_type_id):
         vgpu_type_id (unsigned int): Handle to vGPU type.
 
     Returns:
-        char: Pointer to string array to return class in.
+        str: Pointer to string array to return class in.
 
     .. seealso:: `nvmlVgpuTypeGetClass`
     """
@@ -34039,7 +34076,7 @@ cpdef str vgpu_type_get_license(unsigned int vgpu_type_id):
         vgpu_type_id (unsigned int): Handle to vGPU type.
 
     Returns:
-        char: Pointer to buffer to return license info.
+        str: Pointer to buffer to return license info.
 
     .. seealso:: `nvmlVgpuTypeGetLicense`
     """
@@ -34191,7 +34228,7 @@ cpdef tuple vgpu_instance_get_vm_id(unsigned int vgpu_instance):
 
     Returns:
         A 2-tuple containing:
-        - char: Pointer to caller-supplied buffer to hold VM ID.
+        - str: Pointer to caller-supplied buffer to hold VM ID.
         - int: Pointer to hold VM ID type.
 
     .. seealso:: `nvmlVgpuInstanceGetVmID`
@@ -34219,7 +34256,7 @@ cpdef str vgpu_instance_get_uuid(unsigned int vgpu_instance):
             instance.
 
     Returns:
-        char: Pointer to caller-supplied buffer to hold vGPU UUID.
+        str: Pointer to caller-supplied buffer to hold vGPU UUID.
 
     .. seealso:: `nvmlVgpuInstanceGetUUID`
     """
@@ -34249,7 +34286,7 @@ cpdef str vgpu_instance_get_vm_driver_version(unsigned int vgpu_instance):
             instance.
 
     Returns:
-        char: Caller-supplied buffer to return driver version string.
+        str: Caller-supplied buffer to return driver version string.
 
     .. seealso:: `nvmlVgpuInstanceGetVmDriverVersion`
     """
@@ -34576,7 +34613,7 @@ cpdef str vgpu_instance_get_gpu_pci_id(unsigned int vgpu_instance):
             instance.
 
     Returns:
-        char: Caller-supplied buffer to return vGPU PCI Id string.
+        str: Caller-supplied buffer to return vGPU PCI Id string.
 
     .. seealso:: `nvmlVgpuInstanceGetGpuPciId`
     """
@@ -34630,7 +34667,7 @@ cpdef str vgpu_instance_get_mdev_uuid(unsigned int vgpu_instance):
             instance.
 
     Returns:
-        char: Pointer to caller-supplied buffer to hold MDEV UUID.
+        str: Pointer to caller-supplied buffer to hold MDEV UUID.
 
     .. seealso:: `nvmlVgpuInstanceGetMdevUUID`
     """
@@ -34660,7 +34697,7 @@ cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, p_scheduler):
 
     .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState`
     """
-    cdef intptr_t _p_scheduler_ptr_ = int(p_scheduler)
+    cdef intptr_t _p_scheduler_ptr_ = 0 if p_scheduler is None else int(p_scheduler)
     (<nvmlVgpuSchedulerState_t*>_p_scheduler_ptr_).version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuSchedulerState_v1_t), 1)
     with nogil:
         __status__ = nvmlGpuInstanceSetVgpuSchedulerState(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_t*>_p_scheduler_ptr_)
@@ -34726,7 +34763,7 @@ cpdef str device_get_pgpu_metadata_string(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Pointer to caller-supplied buffer into which
+        str: Pointer to caller-supplied buffer into which
             ``pgpu_metadata`` is written.
 
     .. seealso:: `nvmlDeviceGetPgpuMetadataString`
@@ -34886,7 +34923,7 @@ cpdef set_vgpu_version(vgpu_version):
         the NVIDIA vGPU Manager supports. Otherwise, an error is returned.
     .. seealso:: `nvmlSetVgpuVersion`
     """
-    cdef intptr_t _vgpu_version_ptr_ = int(vgpu_version)
+    cdef intptr_t _vgpu_version_ptr_ = 0 if vgpu_version is None else int(vgpu_version)
     with nogil:
         __status__ = nvmlSetVgpuVersion(<nvmlVgpuVersion_t*>_vgpu_version_ptr_)
     check_status(__status__)
@@ -35369,7 +35406,7 @@ cpdef intptr_t device_create_gpu_instance_with_placement(intptr_t device, unsign
 
     .. seealso:: `nvmlDeviceCreateGpuInstanceWithPlacement`
     """
-    cdef intptr_t _placement_ptr_ = int(placement)
+    cdef intptr_t _placement_ptr_ = 0 if placement is None else int(placement)
     cdef GpuInstance gpu_instance
     with nogil:
         __status__ = nvmlDeviceCreateGpuInstanceWithPlacement(<Device>device, profile_id, <const nvmlGpuInstancePlacement_t*>_placement_ptr_, &gpu_instance)
@@ -35577,7 +35614,7 @@ cpdef intptr_t gpu_instance_create_compute_instance_with_placement(intptr_t gpu_
 
     .. seealso:: `nvmlGpuInstanceCreateComputeInstanceWithPlacement`
     """
-    cdef intptr_t _placement_ptr_ = int(placement)
+    cdef intptr_t _placement_ptr_ = 0 if placement is None else int(placement)
     cdef ComputeInstance compute_instance
     with nogil:
         __status__ = nvmlGpuInstanceCreateComputeInstanceWithPlacement(<GpuInstance>gpu_instance, profile_id, <const nvmlComputeInstancePlacement_t*>_placement_ptr_, &compute_instance)
@@ -35918,7 +35955,7 @@ cpdef device_set_power_mizer_mode_v1(intptr_t device, power_mizer_mode):
 
     .. seealso:: `nvmlDeviceSetPowerMizerMode_v1`
     """
-    cdef intptr_t _power_mizer_mode_ptr_ = int(power_mizer_mode)
+    cdef intptr_t _power_mizer_mode_ptr_ = 0 if power_mizer_mode is None else int(power_mizer_mode)
     with nogil:
         __status__ = nvmlDeviceSetPowerMizerMode_v1(<Device>device, <nvmlDevicePowerMizerModes_v1_t*>_power_mizer_mode_ptr_)
     check_status(__status__)
@@ -36051,7 +36088,7 @@ cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, p_scheduler_state):
 
     .. seealso:: `nvmlDeviceSetVgpuSchedulerState_v2`
     """
-    cdef intptr_t _p_scheduler_state_ptr_ = int(p_scheduler_state)
+    cdef intptr_t _p_scheduler_state_ptr_ = 0 if p_scheduler_state is None else int(p_scheduler_state)
     with nogil:
         __status__ = nvmlDeviceSetVgpuSchedulerState_v2(<Device>device, <nvmlVgpuSchedulerState_v2_t*>_p_scheduler_state_ptr_)
     check_status(__status__)
@@ -36073,7 +36110,7 @@ cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, p_schedule
 
     .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState_v2`
     """
-    cdef intptr_t _p_scheduler_state_ptr_ = int(p_scheduler_state)
+    cdef intptr_t _p_scheduler_state_ptr_ = 0 if p_scheduler_state is None else int(p_scheduler_state)
     with nogil:
         __status__ = nvmlGpuInstanceSetVgpuSchedulerState_v2(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_v2_t*>_p_scheduler_state_ptr_)
     check_status(__status__)
@@ -36266,7 +36303,7 @@ cpdef device_set_memory_limits_v1(intptr_t device, limits):
         MIG handles are not supported.
     .. seealso:: `nvmlDeviceSetMemoryLimits_v1`
     """
-    cdef intptr_t _limits_ptr_ = int(limits)
+    cdef intptr_t _limits_ptr_ = 0 if limits is None else int(limits)
     with nogil:
         __status__ = nvmlDeviceSetMemoryLimits_v1(<Device>device, <nvmlSetMemoryLimits_v1_t*>_limits_ptr_)
     check_status(__status__)
@@ -36427,7 +36464,7 @@ cpdef event_set_register_gpu_operational_events_v1(intptr_t event_set, config):
 
     .. seealso:: `nvmlEventSetRegisterGpuOperationalEvents_v1`
     """
-    cdef intptr_t _config_ptr_ = int(config)
+    cdef intptr_t _config_ptr_ = 0 if config is None else int(config)
     with nogil:
         __status__ = nvmlEventSetRegisterGpuOperationalEvents_v1(<EventSet>event_set, <const nvmlGpuOperationalEventConfig_v1_t*>_config_ptr_)
     check_status(__status__)
@@ -38009,4 +38046,8 @@ cpdef bytes event_set_get_context_data_v1(intptr_t set, unsigned int index):
         __status__ = nvmlEventSetGetContextData_v1(<EventSet>set, &params)
     check_status(__status__)
     return data
+
+
+TimeoutError = NvmlTimeoutError
+MemoryError = NvmlMemoryError
 del _cyb_FastEnum

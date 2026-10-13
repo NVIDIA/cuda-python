@@ -312,6 +312,19 @@ Behavior changes
 
 - Passing a ``None`` to ``nvvm.add_module_to_program`` or ``nvvm.lazy_add_module_to_program`` will now raise a ``nvvm.nvvmError`` (``INVALID_INPUT``) rather than a ``ValueError``.
 
+Deprecations
+------------
+
+- Two ``cuda.bindings.nvml`` exception classes were renamed so that they no longer have the same name as a Python builtin
+  exception. Code that did ``from cuda.bindings.nvml import *`` (or ``from cuda.bindings.nvml import TimeoutError``)
+  replaced the builtin ``TimeoutError`` and ``MemoryError`` in its namespace. Update code that refers to the old names:
+
+  - ``nvml.TimeoutError`` is now ``nvml.NvmlTimeoutError``.
+  - ``nvml.MemoryError`` is now ``nvml.NvmlMemoryError``.
+
+  They are still subclasses of ``nvml.NvmlError``, and the error codes they represent
+  (``ERROR_TIMEOUT`` and ``ERROR_MEMORY``) are unchanged, so ``except nvml.NvmlError`` is not affected.
+
 Bugfixes
 --------
 

@@ -10,7 +10,7 @@ from contextlib import contextmanager
 
 import pytest
 
-import cuda.bindings.driver as cuda
+from cuda.bindings._v2 import driver
 
 # Keep in sync with cuda_core/tests/conftest.py.
 try:
@@ -41,15 +41,12 @@ def pytest_configure(config):
 def _thread_context():
     # Context setting up `device` and `ctx` for individual threads on
     # pytest-run-parallel
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    device = driver.device_get(0)
+    ctx = driver.ctx_create_v4(None, 0, device)
     try:
         yield device, ctx
     finally:
-        (err,) = cuda.cuCtxDestroy(ctx)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        driver.ctx_destroy_v2(ctx)
 
 
 def _wrap_worker_cuda_test(func):
@@ -106,22 +103,17 @@ class _CudaBindingsParallelPlugin:
 
 @pytest.fixture(scope="module")
 def cuda_driver():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.init(0)
 
 
 @pytest.fixture(scope="module")
 def device(cuda_driver):
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    return device
+    return driver.device_get(0)
 
 
 @pytest.fixture(scope="module", autouse=True)
 def ctx(device):
     # Construct context
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    ctx = driver.ctx_create_v4(None, 0, device)
     yield ctx
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.ctx_destroy_v2(ctx)

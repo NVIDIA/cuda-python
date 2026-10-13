@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=343843af0d4fa5698e46b9e9dd9ba41a1abe2f056ba3fe97ad98351bf2261c1b
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e5df50b2fa1f113b297f627ba899f33c946541f048d781d6f3f0939e5a993791
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -451,7 +451,11 @@ cpdef intptr_t create_program(bytes src, name, headers=None, include_names=None)
     cdef int num_headers = len(headers)
     cdef Program prog
     cdef const char* c_src = src
-    cdef bytes _name = b"" if name is None else name
+    cdef bytes _name
+    if name is None:
+        _name = b""
+    else:
+        _name = name
     cdef const char* c_name = _name
     cdef vector[const char*] cy_headers = headers
     cdef vector[const char*] cy_include_names = include_names
@@ -514,107 +518,6 @@ cpdef set_flow_callback(intptr_t prog, intptr_t callback, intptr_t payload):
     check_status(__status__)
 
 
-cpdef bytes get_lowered_name(intptr_t prog, bytes name_expression):
-    """nvrtcGetLoweredName extracts the lowered (mangled) name for a ``__global__`` function or ``__device__``/``__constant__`` variable.
-
-    The memory containing the name is released when the program is destroyed by
-    :func:`destroy_program`. The identical *name_expression* must have been previously
-    provided to :func:`add_name_expression`.
-
-    Args:
-        prog (intptr_t): CUDA Runtime Compilation program.
-        name_expression (bytes): Constant expression denoting the address of a
-            ``__global__`` function or ``__device__``/``__constant__`` variable.
-
-    Returns:
-        bytes: C string containing the lowered (mangled) name, or ``None``.
-
-    .. seealso:: `nvrtcGetLoweredName`
-    """
-    cdef const char* c_name_expression = name_expression
-    cdef const char* lowered_name = NULL
-    with nogil:
-        __status__ = nvrtcGetLoweredName(<Program>prog, c_name_expression, &lowered_name)
-    check_status(__status__)
-    return <bytes>lowered_name if lowered_name != NULL else None
-
-
-cpdef install_bundled_headers(bytes install_path, unsigned int flags):
-    """nvrtcInstallBundledHeaders extracts CUDA headers bundled with NVRTC to a specified directory.
-
-    NVRTC bundles a set of CUDA Toolkit headers and CCCL within libnvrtc-builtins.
-    After extraction, compile kernels by passing ``-I<installPath>`` and
-    ``-I<installPath>/cccl`` to :func:`compile_program`. A version marker file
-    (``.nvrtc_headers_version``) is created to track the installed version.
-    The function is thread-safe and process-safe; concurrent calls are serialized
-    using file locking.
-
-    Args:
-        install_path (bytes): Path where headers should be extracted (UTF-8 encoded).
-            The directory is created if it does not exist.
-        flags (unsigned int): Bitwise OR of :class:`InstallHeadersFlag` values (or 0
-            for the default ``SKIP_IF_EXISTS`` behaviour).
-
-    Returns:
-        bytes | None: Detailed error message on failure, or ``None`` on success.
-
-    .. seealso:: `nvrtcInstallBundledHeaders`
-    """
-    cdef const char* c_install_path = install_path
-    cdef const char* error_log = NULL
-    with nogil:
-        __status__ = nvrtcInstallBundledHeaders(c_install_path, flags, &error_log)
-    check_status(__status__)
-    return <bytes>error_log if error_log != NULL else None
-
-
-cpdef tuple get_bundled_headers_info():
-    """nvrtcGetBundledHeadersInfo queries information about the bundled headers without extracting them.
-
-    Allows users to determine if bundled headers are available and get size estimates
-    before calling :func:`install_bundled_headers`.
-
-    Returns:
-        tuple[BundledHeadersInfo, bytes | None]: Header information struct and an optional
-        detailed error message (``None`` on success).
-
-    .. seealso:: `nvrtcGetBundledHeadersInfo`
-    """
-    cdef BundledHeadersInfo info = BundledHeadersInfo()
-    cdef nvrtcBundledHeadersInfo* c_info = <nvrtcBundledHeadersInfo*><intptr_t>(info._get_ptr())
-    cdef const char* error_log = NULL
-    with nogil:
-        __status__ = nvrtcGetBundledHeadersInfo(c_info, &error_log)
-    check_status(__status__)
-    return info, (<bytes>error_log if error_log != NULL else None)
-
-
-cpdef remove_bundled_headers(bytes install_path):
-    """nvrtcRemoveBundledHeaders removes previously installed bundled headers.
-
-    Recursively removes all files and subdirectories within the installation
-    directory to help manage disk space.
-
-    .. note:: This removes ALL contents of the specified directory, not just files
-       installed by NVRTC. Use with caution.
-
-    Args:
-        install_path (bytes): Path where headers were previously installed; must be
-            the same path used with :func:`install_bundled_headers`.
-
-    Returns:
-        bytes | None: Detailed error message on failure, or ``None`` on success.
-
-    .. seealso:: `nvrtcRemoveBundledHeaders`
-    """
-    cdef const char* c_install_path = install_path
-    cdef const char* error_log = NULL
-    with nogil:
-        __status__ = nvrtcRemoveBundledHeaders(c_install_path, &error_log)
-    check_status(__status__)
-    return <bytes>error_log if error_log != NULL else None
-
-
 cpdef str get_error_string(int result):
     """nvrtcGetErrorString is a helper function that returns a string describing the given ``nvrtcResult`` code, e.g., NVRTC_SUCCESS to ``"NVRTC_SUCCESS"``. For unrecognized enumeration values, it returns ``"NVRTC_ERROR unknown"``.
 
@@ -627,7 +530,7 @@ cpdef str get_error_string(int result):
     cdef const char *_output_cstr_
     cdef bytes _output_
     with nogil:
-        _output_cstr_ = nvrtcGetErrorString(<_Result>result)
+        _output_cstr_ = nvrtcGetErrorString(<nvrtcResult>result)
     _output_ = _output_cstr_
     return _output_.decode()
 
@@ -701,7 +604,7 @@ cpdef destroy_program(intptr_t prog):
 
     .. seealso:: `nvrtcDestroyProgram`
     """
-    cdef Program _prog_ = <Program>prog
+    cdef nvrtcProgram _prog_ = <nvrtcProgram>prog
     with nogil:
         __status__ = nvrtcDestroyProgram(&_prog_)
     check_status(__status__)
@@ -722,7 +625,7 @@ cpdef size_t get_ptx_size(intptr_t prog) except? 0:
     """
     cdef size_t ptx_size_ret
     with nogil:
-        __status__ = nvrtcGetPTXSize(<Program>prog, &ptx_size_ret)
+        __status__ = nvrtcGetPTXSize(<nvrtcProgram>prog, &ptx_size_ret)
     check_status(__status__)
     return ptx_size_ret
 
@@ -735,19 +638,19 @@ cpdef bytes get_ptx(intptr_t prog):
         prog (intptr_t): CUDA Runtime Compilation program.
 
     Returns:
-        char: Compiled result.
+        bytes: Compiled result.
 
     .. seealso:: `nvrtcGetPTX`
     """
     cdef size_t ptxSizeRet
     with nogil:
-        __status__ = nvrtcGetPTXSize(<Program>prog, &ptxSizeRet)
+        __status__ = nvrtcGetPTXSize(<nvrtcProgram>prog, &ptxSizeRet)
     check_status(__status__)
     cdef bytes _ptx_ = bytes(ptxSizeRet)
     cdef char* ptx = _ptx_
     if ptxSizeRet != 0:
         with nogil:
-            __status__ = nvrtcGetPTX(<Program>prog, ptx)
+            __status__ = nvrtcGetPTX(<nvrtcProgram>prog, ptx)
         check_status(__status__)
     return _ptx_
 
@@ -766,7 +669,7 @@ cpdef size_t get_cubin_size(intptr_t prog) except? 0:
     """
     cdef size_t cubin_size_ret
     with nogil:
-        __status__ = nvrtcGetCUBINSize(<Program>prog, &cubin_size_ret)
+        __status__ = nvrtcGetCUBINSize(<nvrtcProgram>prog, &cubin_size_ret)
     check_status(__status__)
     return cubin_size_ret
 
@@ -779,19 +682,19 @@ cpdef bytes get_cubin(intptr_t prog):
         prog (intptr_t): CUDA Runtime Compilation program.
 
     Returns:
-        char: Compiled and assembled result.
+        bytes: Compiled and assembled result.
 
     .. seealso:: `nvrtcGetCUBIN`
     """
     cdef size_t cubinSizeRet
     with nogil:
-        __status__ = nvrtcGetCUBINSize(<Program>prog, &cubinSizeRet)
+        __status__ = nvrtcGetCUBINSize(<nvrtcProgram>prog, &cubinSizeRet)
     check_status(__status__)
     cdef bytes _cubin_ = bytes(cubinSizeRet)
     cdef char* cubin = _cubin_
     if cubinSizeRet != 0:
         with nogil:
-            __status__ = nvrtcGetCUBIN(<Program>prog, cubin)
+            __status__ = nvrtcGetCUBIN(<nvrtcProgram>prog, cubin)
         check_status(__status__)
     return _cubin_
 
@@ -810,7 +713,7 @@ cpdef size_t get_ltoir_size(intptr_t prog) except? 0:
     """
     cdef size_t ltoir_size_ret
     with nogil:
-        __status__ = nvrtcGetLTOIRSize(<Program>prog, &ltoir_size_ret)
+        __status__ = nvrtcGetLTOIRSize(<nvrtcProgram>prog, &ltoir_size_ret)
     check_status(__status__)
     return ltoir_size_ret
 
@@ -823,19 +726,19 @@ cpdef bytes get_ltoir(intptr_t prog):
         prog (intptr_t): CUDA Runtime Compilation program.
 
     Returns:
-        char: Compiled result.
+        bytes: Compiled result.
 
     .. seealso:: `nvrtcGetLTOIR`
     """
     cdef size_t LTOIRSizeRet
     with nogil:
-        __status__ = nvrtcGetLTOIRSize(<Program>prog, &LTOIRSizeRet)
+        __status__ = nvrtcGetLTOIRSize(<nvrtcProgram>prog, &LTOIRSizeRet)
     check_status(__status__)
     cdef bytes _ltoir_ = bytes(LTOIRSizeRet)
     cdef char* ltoir = _ltoir_
     if LTOIRSizeRet != 0:
         with nogil:
-            __status__ = nvrtcGetLTOIR(<Program>prog, ltoir)
+            __status__ = nvrtcGetLTOIR(<nvrtcProgram>prog, ltoir)
         check_status(__status__)
     return _ltoir_
 
@@ -854,7 +757,7 @@ cpdef size_t get_optix_ir_size(intptr_t prog) except? 0:
     """
     cdef size_t optixir_size_ret
     with nogil:
-        __status__ = nvrtcGetOptiXIRSize(<Program>prog, &optixir_size_ret)
+        __status__ = nvrtcGetOptiXIRSize(<nvrtcProgram>prog, &optixir_size_ret)
     check_status(__status__)
     return optixir_size_ret
 
@@ -867,19 +770,19 @@ cpdef bytes get_optix_ir(intptr_t prog):
         prog (intptr_t): CUDA Runtime Compilation program.
 
     Returns:
-        char: Optix IR Compiled result.
+        bytes: Optix IR Compiled result.
 
     .. seealso:: `nvrtcGetOptiXIR`
     """
     cdef size_t optixirSizeRet
     with nogil:
-        __status__ = nvrtcGetOptiXIRSize(<Program>prog, &optixirSizeRet)
+        __status__ = nvrtcGetOptiXIRSize(<nvrtcProgram>prog, &optixirSizeRet)
     check_status(__status__)
     cdef bytes _optixir_ = bytes(optixirSizeRet)
     cdef char* optixir = _optixir_
     if optixirSizeRet != 0:
         with nogil:
-            __status__ = nvrtcGetOptiXIR(<Program>prog, optixir)
+            __status__ = nvrtcGetOptiXIR(<nvrtcProgram>prog, optixir)
         check_status(__status__)
     return _optixir_
 
@@ -901,7 +804,7 @@ cpdef size_t get_program_log_size(intptr_t prog) except? 0:
     """
     cdef size_t log_size_ret
     with nogil:
-        __status__ = nvrtcGetProgramLogSize(<Program>prog, &log_size_ret)
+        __status__ = nvrtcGetProgramLogSize(<nvrtcProgram>prog, &log_size_ret)
     check_status(__status__)
     return log_size_ret
 
@@ -914,19 +817,19 @@ cpdef bytes get_program_log(intptr_t prog):
         prog (intptr_t): CUDA Runtime Compilation program.
 
     Returns:
-        char: Compilation log.
+        bytes: Compilation log.
 
     .. seealso:: `nvrtcGetProgramLog`
     """
     cdef size_t logSizeRet
     with nogil:
-        __status__ = nvrtcGetProgramLogSize(<Program>prog, &logSizeRet)
+        __status__ = nvrtcGetProgramLogSize(<nvrtcProgram>prog, &logSizeRet)
     check_status(__status__)
     cdef bytes _log_ = bytes(logSizeRet)
     cdef char* log = _log_
     if logSizeRet != 0:
         with nogil:
-            __status__ = nvrtcGetProgramLog(<Program>prog, log)
+            __status__ = nvrtcGetProgramLog(<nvrtcProgram>prog, log)
         check_status(__status__)
     return _log_
 
@@ -949,8 +852,35 @@ cpdef add_name_expression(intptr_t prog, name_expression):
     cdef bytes _temp_name_expression_ = (<str>name_expression).encode()
     cdef char* _name_expression_ = _temp_name_expression_
     with nogil:
-        __status__ = nvrtcAddNameExpression(<Program>prog, <const char* const>_name_expression_)
+        __status__ = nvrtcAddNameExpression(<nvrtcProgram>prog, <const char*>_name_expression_)
     check_status(__status__)
+
+
+cpdef bytes get_lowered_name(intptr_t prog, name_expression):
+    """nvrtcGetLoweredName extracts the lowered (mangled) name for a global function or device/__constant__ variable, and updates \*lowered_name to point to it. The memory containing the name is released when the NVRTC program is destroyed by nvrtcDestroyProgram. The identical name expression must have been previously provided to nvrtcAddNameExpression.
+
+
+    Args:
+        prog (intptr_t): CUDA Runtime Compilation program.
+        name_expression (str): constant expression denoting the address of
+            a global function or device/__constant__ variable.
+
+    Returns:
+        bytes: initialized by the function to point to a C string
+            containing the lowered (mangled) name corresponding to the
+            provided name expression.
+
+    .. seealso:: `nvrtcGetLoweredName`
+    """
+    if not isinstance(name_expression, str):
+        raise TypeError("name_expression must be a Python str")
+    cdef bytes _temp_name_expression_ = (<str>name_expression).encode()
+    cdef char* _name_expression_ = _temp_name_expression_
+    cdef const char* lowered_name = NULL
+    with nogil:
+        __status__ = nvrtcGetLoweredName(<nvrtcProgram>prog, <const char*>_name_expression_, &lowered_name)
+    check_status(__status__)
+    return (<bytes>lowered_name) if lowered_name != NULL else b""
 
 
 cpdef size_t get_pch_heap_size() except? 0:
@@ -1011,7 +941,7 @@ cpdef int get_pch_create_status(intptr_t prog) except? -1:
     """
     cdef int ret
     with nogil:
-        ret = <int>nvrtcGetPCHCreateStatus(<Program>prog)
+        ret = <int>nvrtcGetPCHCreateStatus(<nvrtcProgram>prog)
     return ret
 
 
@@ -1030,7 +960,7 @@ cpdef size_t get_pch_heap_size_required(intptr_t prog) except? 0:
     """
     cdef size_t size
     with nogil:
-        __status__ = nvrtcGetPCHHeapSizeRequired(<Program>prog, &size)
+        __status__ = nvrtcGetPCHHeapSizeRequired(<nvrtcProgram>prog, &size)
     check_status(__status__)
     return size
 
@@ -1049,7 +979,7 @@ cpdef size_t get_tile_ir_size(intptr_t prog) except? 0:
     """
     cdef size_t tile_ir_size_ret
     with nogil:
-        __status__ = nvrtcGetTileIRSize(<Program>prog, &tile_ir_size_ret)
+        __status__ = nvrtcGetTileIRSize(<nvrtcProgram>prog, &tile_ir_size_ret)
     check_status(__status__)
     return tile_ir_size_ret
 
@@ -1062,21 +992,127 @@ cpdef bytes get_tile_ir(intptr_t prog):
         prog (intptr_t): CUDA Runtime Compilation program.
 
     Returns:
-        char: Generated cuda_tile IR.
+        bytes: Generated cuda_tile IR.
 
     .. seealso:: `nvrtcGetTileIR`
     """
     cdef size_t TileIRSizeRet
     with nogil:
-        __status__ = nvrtcGetTileIRSize(<Program>prog, &TileIRSizeRet)
+        __status__ = nvrtcGetTileIRSize(<nvrtcProgram>prog, &TileIRSizeRet)
     check_status(__status__)
     cdef bytes _tile_ir_ = bytes(TileIRSizeRet)
     cdef char* tile_ir = _tile_ir_
     if TileIRSizeRet != 0:
         with nogil:
-            __status__ = nvrtcGetTileIR(<Program>prog, tile_ir)
+            __status__ = nvrtcGetTileIR(<nvrtcProgram>prog, tile_ir)
         check_status(__status__)
     return _tile_ir_
 
 
+cpdef bytes install_bundled_headers(install_path, unsigned int flags):
+    """nvrtcInstallBundledHeaders extracts CUDA headers bundled with NVRTC to a specified directory for use during compilation.
+
+    NVRTC bundles a set of CUDA Toolkit headers and CUDA C++ Core Libraries (CCCL)
+    within libnvrtc-builtins. This function extracts these headers to the specified
+    directory, allowing NVRTC programs to compile without requiring a separate CUDA
+    Toolkit installation. The bundled headers match those available in the CUDA
+    Toolkit plus CCCL libraries.
+    After extraction, users can compile kernels by passing appropriate include
+    paths (such as "-I<install_path>" and "-I<install_path>/cccl") to
+    nvrtcCompileProgram.
+    A version marker file (.nvrtc_headers_version) is created in the installation
+    directory to track the installed version.
+    This function is thread-safe and process-safe. Concurrent calls from multiple
+    threads or processes will be serialized using file locking. By default, the
+    function waits for the lock; use NVRTC_INSTALL_HEADERS_NO_WAIT to return
+    immediately with NVRTC_ERROR_BUSY if another process holds the lock.
+
+    Args:
+        install_path (str): Path where headers should be extracted (UTF-8
+            encoded). The directory will be created if it doesn't exist.
+        flags (unsigned int): NVRTC_INSTALL_HEADERS_* flags:.
+
+    Returns:
+        bytes: Optional pointer to receive detailed error message on
+            failure. If non-NULL, ``*error_log`` will be set to point to a
+            string describing the error cause. Note: subsequent API calls
+            from the same thread may overwrite this message. May be NULL
+            if error details are not needed.
+
+    .. note::
+        Use NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS to avoid reinstalling if headers
+        already exist. Use NVRTC_INSTALL_HEADERS_FORCE_OVERWRITE to guarantee
+        consistency by clearing the directory first.
+    .. seealso:: `nvrtcInstallBundledHeaders`
+    """
+    if not isinstance(install_path, str):
+        raise TypeError("install_path must be a Python str")
+    cdef bytes _temp_install_path_ = (<str>install_path).encode()
+    cdef char* _install_path_ = _temp_install_path_
+    cdef const char* error_log = NULL
+    with nogil:
+        __status__ = nvrtcInstallBundledHeaders(<const char*>_install_path_, flags, &error_log)
+    check_status(__status__)
+    return (<bytes>error_log) if error_log != NULL else b""
+
+
+cpdef tuple get_bundled_headers_info():
+    """nvrtcGetBundledHeadersInfo queries information about the bundled headers without extracting them.
+
+    This function allows users to determine if bundled headers are available and
+    get size estimates before calling nvrtcInstallBundledHeaders.
+
+    Returns:
+        A 2-tuple containing:
+        - nvrtcBundledHeadersInfo: Pointer to structure to receive header
+                information.
+        - bytes: Optional pointer to receive detailed error message on
+                failure. If non-NULL, ``*error_log`` will be set to point to a
+                string describing the error cause. Note: subsequent API calls
+                from the same thread may overwrite this message. May be NULL
+                if error details are not needed.
+
+    .. seealso:: `nvrtcGetBundledHeadersInfo`
+    """
+    cdef BundledHeadersInfo info_py = BundledHeadersInfo()
+    cdef nvrtcBundledHeadersInfo *info = <nvrtcBundledHeadersInfo *><intptr_t>(info_py._get_ptr())
+    cdef const char* error_log = NULL
+    with nogil:
+        __status__ = nvrtcGetBundledHeadersInfo(info, &error_log)
+    check_status(__status__)
+    return (info_py, (<bytes>error_log) if error_log != NULL else b"")
+
+
+cpdef bytes remove_bundled_headers(install_path):
+    """nvrtcRemoveBundledHeaders removes previously installed bundled headers.
+
+    This function removes the headers installed by nvrtcInstallBundledHeaders,
+    helping users manage disk space. It recursively removes all files and
+    subdirectories within the installation directory.
+
+    Args:
+        install_path (str): Path where headers were previously installed.
+            Must be the same path used with nvrtcInstallBundledHeaders.
+
+    Returns:
+        bytes: Optional pointer to receive detailed error message on
+            failure. If non-NULL, ``*error_log`` will be set to point to a
+            string describing the error cause. Note: subsequent API calls
+            from the same thread may overwrite this message. May be NULL
+            if error details are not needed.
+
+    .. note::
+        This function will remove ALL contents of the specified directory, not just
+        files installed by NVRTC. Use with caution.
+    .. seealso:: `nvrtcRemoveBundledHeaders`
+    """
+    if not isinstance(install_path, str):
+        raise TypeError("install_path must be a Python str")
+    cdef bytes _temp_install_path_ = (<str>install_path).encode()
+    cdef char* _install_path_ = _temp_install_path_
+    cdef const char* error_log = NULL
+    with nogil:
+        __status__ = nvrtcRemoveBundledHeaders(<const char*>_install_path_, &error_log)
+    check_status(__status__)
+    return (<bytes>error_log) if error_log != NULL else b""
 del _cyb_FastEnum
