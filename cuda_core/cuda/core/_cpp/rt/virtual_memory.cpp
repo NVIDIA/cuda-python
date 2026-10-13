@@ -39,9 +39,12 @@ struct VaReservationBox {
     size_t size;                          // exact reserved size; cuMemAddressFree needs both
 };
 
-// Process-wide count of live VA reservations (cuMemAddressReserve), the leak
-// quantity issue #2381 is about; read by the test suite to gate the per-test
-// gc.collect(). Atomic for free-threaded builds.
+// Process-wide count of live VA reservations created here with
+// cuMemAddressReserve. Memory-pool VA windows (issue #2381) are not included:
+// owned pools are tracked by the owned-pool count, and the device default pool
+// (cuDeviceGetMemPool) is a borrowed reference that neither count tracks.
+// Read by the test suite to gate the per-test gc.collect(). Atomic for
+// free-threaded builds.
 std::atomic<long long> g_live_va_reservations{0};
 
 struct VaMappingBox {

@@ -231,36 +231,42 @@ def session_setup():
 def init_cuda(request):
     # TODO: rename this to e.g. init_context
     device = Device(0)
+    # Everything that can raise after set_current() runs inside the try, so the
+    # finally pops this context; the leftover warning below is escalated to an
+    # error. A failed set_current() leaves nothing for the finally to undo.
+    # live_at_setup stays None until the setup snapshot is recorded.
     device.set_current()
-
-    # Set option to avoid spin-waiting on synchronization.
-    if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
-        handle_return(
-            driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
-        )
-
-    # Leftover check: growth since the previous init_cuda test means something
-    # in between left an owned resource alive. Collect first to sweep a cyclic
-    # leftover, and before the counts at setup are recorded so they are reflected there.
-    if _mr_expected_live is not None and any(now > exp for now, exp in zip(_mr_live_at_item_start, _mr_expected_live)):
-        gc.collect()
-        now_counts = _live_resource_counts()
-        held = tuple(max(n - e, 0) for n, e in zip(now_counts, _mr_expected_live))
-        excess = tuple(s - e for s, e in zip(_mr_live_at_item_start, _mr_expected_live))
-        seed = getattr(request.config.option, "randomly_seed", None)
-        seed_msg = f" (pytest-randomly seed: {seed})" if seed is not None else ""
-        warnings.warn(
-            f"Owned resources were left alive by tests that ran since {_mr_last_init_cuda_nodeid} "
-            f"({_format_counts(excess)}; still alive after a collect: {_format_counts(held)}). "
-            f"A test or fixture that constructs a memory resource must request init_cuda.{seed_msg}",
-            UnreleasedMemoryResourceWarning,
-            stacklevel=2,
-        )
-
-    # Counts at setup. The device default pool is a borrowed reference and is
-    # not counted, so no cached-default bookkeeping is needed.
-    live_at_setup = _live_resource_counts()
+    live_at_setup = None
     try:
+        # Set option to avoid spin-waiting on synchronization.
+        if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
+            handle_return(
+                driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
+            )
+
+        # Leftover check: growth since the previous init_cuda test means something
+        # in between left an owned resource alive. Collect first to sweep a cyclic
+        # leftover, and before the counts at setup are recorded so they are reflected there.
+        if _mr_expected_live is not None and any(
+            now > exp for now, exp in zip(_mr_live_at_item_start, _mr_expected_live)
+        ):
+            gc.collect()
+            now_counts = _live_resource_counts()
+            held = tuple(max(n - e, 0) for n, e in zip(now_counts, _mr_expected_live))
+            excess = tuple(s - e for s, e in zip(_mr_live_at_item_start, _mr_expected_live))
+            seed = getattr(request.config.option, "randomly_seed", None)
+            seed_msg = f" (pytest-randomly seed: {seed})" if seed is not None else ""
+            warnings.warn(
+                f"Owned resources were left alive by tests that ran since {_mr_last_init_cuda_nodeid} "
+                f"({_format_counts(excess)}; still alive after a collect: {_format_counts(held)}). "
+                f"A test or fixture that constructs a memory resource must request init_cuda.{seed_msg}",
+                UnreleasedMemoryResourceWarning,
+                stacklevel=2,
+            )
+
+        # Counts at setup. The device default pool is a borrowed reference and is
+        # not counted, so no cached-default bookkeeping is needed.
+        live_at_setup = _live_resource_counts()
         yield device
     finally:
         # pytest holds fixture values in item.funcargs (a pytest-internal dict)
@@ -271,9 +277,10 @@ def init_cuda(request):
         # Only an owned resource in a reference cycle outlives the test frame, so
         # collect only if the counts differ from their values at setup. A lower
         # count means an older resource was released, which could mask a leak
-        # in this test: collect in that case too.
-        live_after = _live_resource_counts()
-        if live_after != live_at_setup:
+        # in this test: collect in that case too. Skip the comparison when setup
+        # aborted before the snapshot (the leftover warning raises).
+        live_after = _live_resource_counts() if live_at_setup is not None else None
+        if live_after is not None and live_after != live_at_setup:
             gc.collect()
         # Force any pool/allocation whose only remaining reference was a local
         # in this test's frame to actually get destroyed now, then drain the
@@ -281,11 +288,13 @@ def init_cuda(request):
         # before the next test runs (issue #2381). gc.collect() above must run
         # first: cuCtxSynchronize alone cannot drain frees that were never
         # enqueued because their owning object had not been collected yet.
-        # With pytest-run-parallel this runs after worker join.
+        # With pytest-run-parallel this runs after worker join. This also runs
+        # when setup raises, so an escalated leftover warning cannot leave the
+        # context current.
         driver.cuCtxSynchronize()
         _ = _device_unset_current()
         # After the cleanup, so an escalated warning cannot skip it.
-        if any(now < snap for now, snap in zip(live_after, live_at_setup)):
+        if live_after is not None and any(now < snap for now, snap in zip(live_after, live_at_setup)):
             released = tuple(s - n for s, n in zip(live_at_setup, live_after))
             warnings.warn(
                 f"{request.node.nodeid} released owned resources that existed before it started "
