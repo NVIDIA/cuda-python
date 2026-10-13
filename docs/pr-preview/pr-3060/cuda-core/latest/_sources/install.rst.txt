@@ -26,7 +26,7 @@ dependencies are as follows:
 .. [#f1] Including ``cuda-python``.
 
 
-``cuda.core`` supports Python 3.10 - 3.14, on Linux (x86-64, arm64) and Windows (x86-64). **Experimental** free-threaded builds for Python 3.14 are also provided.
+``cuda.core`` supports Python 3.11 - 3.15, on Linux (x86-64, arm64) and Windows (x86-64). **Experimental** free-threaded builds for Python 3.14 and 3.15 are also provided.
 
 
 Free-threading Build Support

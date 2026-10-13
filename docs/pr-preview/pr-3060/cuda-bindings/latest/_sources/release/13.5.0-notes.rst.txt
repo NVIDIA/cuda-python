@@ -6,6 +6,11 @@
 ``cuda-bindings`` 13.5.0 Release notes
 ======================================
 
+Highlights
+----------
+
+- Python 3.10 support was dropped (end of life).
+
 Changes
 -------
 
