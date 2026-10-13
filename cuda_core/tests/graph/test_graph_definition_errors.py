@@ -7,7 +7,6 @@ import ctypes
 
 import pytest
 from helpers.graph_kernels import compile_common_kernels
-from helpers.memory import xfail_on_graph_mempool_oom
 from helpers.misc import try_create_condition
 
 from cuda.core import Device, LaunchConfig
@@ -70,8 +69,7 @@ def test_memset_invalid_value_size(init_cuda):
     """memset with 3-byte value (not 1, 2, or 4) raises ValueError."""
     _skip_if_no_mempool()
     g = GraphDefinition()
-    with xfail_on_graph_mempool_oom():
-        alloc = g.allocate(1024)
+    alloc = g.allocate(1024)
     with pytest.raises(ValueError):
         alloc.memset(alloc.dptr, b"\x01\x02\x03", 100)
 
@@ -115,9 +113,8 @@ def test_join_single_predecessor(init_cuda):
     """node.join() with no extra args creates a single-dep empty node."""
     _skip_if_no_mempool()
     g = GraphDefinition()
-    with xfail_on_graph_mempool_oom():
-        a = g.allocate(1024)
-        joined = a.join()
+    a = g.allocate(1024)
+    joined = a.join()
     assert isinstance(joined, EmptyNode)
     assert set(joined.pred) == {a}
 
@@ -139,8 +136,7 @@ def test_unmatched_alloc_succeeds(init_cuda):
     """Alloc without corresponding free is valid (graph-scoped lifetime)."""
     _skip_if_no_mempool()
     g = GraphDefinition()
-    with xfail_on_graph_mempool_oom():
-        g.allocate(1024)
+    g.allocate(1024)
     graph = g.instantiate()
     stream = Device().create_stream()
     graph.launch(stream)
@@ -178,11 +174,10 @@ def test_while_loop_zero_iterations(init_cuda):
 
     g = GraphDefinition()
     condition = g.create_condition(default_value=0)
-    with xfail_on_graph_mempool_oom():
-        alloc = g.allocate(SIZEOF_INT)
-        ms = alloc.memset(alloc.dptr, 0, SIZEOF_INT)
-        loop = ms.while_loop(condition)
-        loop.body.launch(cfg, add_one, alloc.dptr)
+    alloc = g.allocate(SIZEOF_INT)
+    ms = alloc.memset(alloc.dptr, 0, SIZEOF_INT)
+    loop = ms.while_loop(condition)
+    loop.body.launch(cfg, add_one, alloc.dptr)
 
     graph = g.instantiate()
     stream = Device().create_stream()
@@ -207,11 +202,10 @@ def test_if_then_false_skips_body(init_cuda):
 
     g = GraphDefinition()
     condition = g.create_condition(default_value=0)
-    with xfail_on_graph_mempool_oom():
-        alloc = g.allocate(SIZEOF_INT)
-        ms = alloc.memset(alloc.dptr, 0, SIZEOF_INT)
-        if_node = ms.if_then(condition)
-        if_node.then.launch(cfg, add_one, alloc.dptr)
+    alloc = g.allocate(SIZEOF_INT)
+    ms = alloc.memset(alloc.dptr, 0, SIZEOF_INT)
+    if_node = ms.if_then(condition)
+    if_node.then.launch(cfg, add_one, alloc.dptr)
 
     graph = g.instantiate()
     stream = Device().create_stream()
@@ -236,12 +230,11 @@ def test_switch_oob_skips_all_branches(init_cuda):
 
     g = GraphDefinition()
     condition = g.create_condition(default_value=99)
-    with xfail_on_graph_mempool_oom():
-        alloc = g.allocate(SIZEOF_INT)
-        ms = alloc.memset(alloc.dptr, 0, SIZEOF_INT)
-        sw = ms.switch(condition, 3)
-        for branch in sw.branches:
-            branch.launch(cfg, add_one, alloc.dptr)
+    alloc = g.allocate(SIZEOF_INT)
+    ms = alloc.memset(alloc.dptr, 0, SIZEOF_INT)
+    sw = ms.switch(condition, 3)
+    for branch in sw.branches:
+        branch.launch(cfg, add_one, alloc.dptr)
 
     graph = g.instantiate()
     stream = Device().create_stream()

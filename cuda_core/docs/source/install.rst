@@ -26,7 +26,7 @@ dependencies are as follows:
 .. [#f1] Including ``cuda-python``.
 
 
-``cuda.core`` supports Python 3.10 - 3.14, on Linux (x86-64, arm64) and Windows (x86-64). **Experimental** free-threaded builds for Python 3.14 are also provided.
+``cuda.core`` supports Python 3.11 - 3.15, on Linux (x86-64, arm64) and Windows (x86-64). **Experimental** free-threaded builds for Python 3.14 and 3.15 are also provided.
 
 
 Free-threading Build Support
@@ -114,7 +114,7 @@ Development with uv
 
 .. code-block:: console
 
-   $ git clone https://github.com/NVIDIA/cuda-python.git
+   $ git clone --recurse-submodules https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_core
    $ uv venv
    $ source .venv/bin/activate   # On Windows: .venv\Scripts\activate
@@ -136,7 +136,7 @@ From the repository root:
 
 .. code-block:: console
 
-   $ git clone https://github.com/NVIDIA/cuda-python.git
+   $ git clone --recurse-submodules https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python
    $ pixi run -e cu13 test-core
 
@@ -155,7 +155,7 @@ Installing from Source
 
 .. code-block:: console
 
-   $ git clone https://github.com/NVIDIA/cuda-python.git
+   $ git clone --recurse-submodules https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_core
    $ pip install .
 
@@ -172,14 +172,17 @@ A source build has two requirements. See :ref:`cuda-core-bindings-floor`.
 
 .. note::
 
+   ``--recurse-submodules`` is required: the build compiles against the CCCL
+   headers pinned in the ``cuda_core/third_party/cccl`` submodule, and fails
+   without them. For a clone that already exists, run
+   ``git submodule update --init cuda_core/third_party/cccl``.
+
+.. note::
+
    The version is derived from git tags via ``setuptools-scm``, so the clone
    must include tags reaching back to at least the latest ``cuda-core-v*`` tag.
    Do not use ``--depth`` or ``--no-tags``: a shallow clone builds without
    error but produces a bogus version such as ``0.1.dev1+g0d22cb444``. See
    `Cloning the repository
    <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md>`_
-   for details and recovery steps. Windows contributors building outside of
-   WSL should also see
-   `Development on Windows
-   <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#development-on-windows>`_
-   for the git-symlink configuration that must be set *before* cloning.
+   for details and recovery steps.

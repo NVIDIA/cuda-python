@@ -9,7 +9,12 @@ import sys
 
 import pyglet
 import pytest
-from cuda_python_test_helpers.graphics import is_gl_context_unavailable, open_gl_window
+from cuda_python_test_helpers.graphics import (
+    gl_context_not_on_nvidia_gpu_reason,
+    is_gl_context_unavailable,
+    open_gl_window,
+    tcc_skip_reason,
+)
 
 from cuda.bindings import runtime as cudart
 
@@ -52,6 +57,8 @@ def _allocate_gl_texture(win):
 @contextlib.contextmanager
 def _gl_context():
     """Yield ``(tex_id, tex_target)`` with a current GL context, or skip if GL is unavailable."""
+    if reason := tcc_skip_reason():
+        pytest.skip(reason)
     _configure_pyglet_headless()
 
     try:
@@ -63,6 +70,8 @@ def _gl_context():
 
     tex_id = None
     try:
+        if reason := gl_context_not_on_nvidia_gpu_reason():
+            pytest.skip(reason)
         tex_id, target = _allocate_gl_texture(win)
         yield int(tex_id.value), int(target)
     finally:

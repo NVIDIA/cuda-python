@@ -8,10 +8,10 @@ platform without concurrent managed memory access.
 These tests only run on affected platforms (concurrent_managed_access is False).
 """
 
+import sys
 import warnings
 
 import pytest
-from cuda_python_test_helpers.mempool import xfail_if_mempool_oom
 from helpers.memory import create_managed_memory_resource_or_skip
 
 import cuda.bindings
@@ -56,8 +56,12 @@ def test_default_pool_error_without_concurrent_access(device_without_concurrent_
     try:
         with pytest.raises(RuntimeError, match="does not support managed allocations"):
             ManagedMemoryResource()
-    except CUDAError as exc:
-        xfail_if_mempool_oom(exc, device_without_concurrent_managed_access)
+    except CUDAError as e:
+        # nvbugs5815123: on some Windows machines the driver fails to reserve VA
+        # for the default managed pool lookup and returns CUDA_ERROR_OUT_OF_MEMORY
+        # instead of CUDA_ERROR_NOT_SUPPORTED, so the RuntimeError is never raised.
+        if sys.platform == "win32" and "CUDA_ERROR_OUT_OF_MEMORY" in str(e):
+            pytest.xfail("default managed pool lookup ran out of VA on Windows (nvbugs5815123)")
         raise
 
 

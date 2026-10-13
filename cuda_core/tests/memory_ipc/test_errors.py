@@ -27,8 +27,9 @@ CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 
 
-# these tests spawn new processes and files which fails for very many threads
-pytestmark = pytest.mark.parallel_threads_limit(4)
+# these tests spawn new processes and files which fails for very many threads;
+# child processes and IPC fixtures are shared across workers (#2784); cap at two threads
+pytestmark = pytest.mark.parallel_threads_limit(2)
 
 
 def _is_pool(mr):
@@ -150,6 +151,10 @@ class ChildErrorHarness:
         self._extra_mrs = []
         if self.POOL_ONLY and not _is_pool(self.mr):
             pytest.skip("this scenario needs the pool half of the IPC protocol")
+        # Clear stale 'buffer' left by a previous flaky-rerun attempt.
+        # Its backing DeviceMemoryResource may already be closed, which causes
+        # process.start() to fail when pickling self for spawn-mode IPC.
+        self.__dict__.pop("buffer", None)
 
         try:
             # Start a child process to generate error info. Target a fresh
@@ -175,6 +180,14 @@ class ChildErrorHarness:
         finally:
             for mr in self._extra_mrs:
                 mr.close()
+            # Drop the fixture MR and buffer references stored on this class
+            # instance: pytest retains ``item._instance`` for the session, so the
+            # closed (but not destroyed) MR objects would otherwise ratchet the
+            # live-MemoryResource baseline the init_cuda teardown compares against.
+            self.__dict__.pop("buffer", None)
+            self.__dict__.pop("mr", None)
+            self.__dict__.pop("device", None)
+            self._extra_mrs.clear()
 
     def child_main(self, pipe, device, mr):
         """Child process that pushes IPC errors to a shared pipe for testing."""

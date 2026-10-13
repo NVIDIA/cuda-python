@@ -12,6 +12,7 @@
 #include "driver_api.hpp"
 #include "error.hpp"
 #include "internal.hpp"
+#include <atomic>
 #include <cstddef>
 #include <memory>
 #include <utility>
@@ -38,6 +39,14 @@ struct VaReservationBox {
     VaReservationValue resource;          // base address from cuMemAddressReserve
     size_t size;                          // exact reserved size; cuMemAddressFree needs both
 };
+
+// Process-wide count of live VA reservations created here with
+// cuMemAddressReserve. Memory-pool VA windows (issue #2381) are not included:
+// owned pools are tracked by the owned-pool count, and the device default pool
+// (cuDeviceGetMemPool) is a borrowed reference that neither count tracks.
+// Read by the test suite to gate the per-test gc.collect(). Atomic for
+// free-threaded builds.
+std::atomic<long long> g_live_va_reservations{0};
 
 struct VaMappingBox {
     VaMappingValue resource;              // mapped address
@@ -119,15 +128,25 @@ VaReservationHandle create_va_reservation_handle(size_t size, size_t alignment, 
     if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemAddressReserve, &ptr, size, alignment, hint, 0))) {
         return {};
     }
+    auto* raw = new VaReservationBox{{ptr}, size};
+    // Count before constructing the shared_ptr: if its control-block allocation
+    // throws, it runs the deleter on raw, whose decrement then balances this.
+    g_live_va_reservations.fetch_add(1, std::memory_order_relaxed);
     auto box = std::shared_ptr<const VaReservationBox>(
-        new VaReservationBox{{ptr}, size},
+        raw,
         [](const VaReservationBox* b) {
             GILReleaseGuard gil;
             pw_cuMemAddressFree(b->resource.raw, b->size);
+            g_live_va_reservations.fetch_sub(1, std::memory_order_relaxed);
             delete b;
         }
     );
     return VaReservationHandle(box, &box->resource);
+}
+
+// Test-suite instrumentation; see g_live_va_reservations.
+long long live_va_reservation_count() noexcept {
+    return g_live_va_reservations.load(std::memory_order_relaxed);
 }
 
 size_t va_reservation_size(const VaReservationHandle& h) noexcept {
