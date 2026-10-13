@@ -16,7 +16,6 @@ except ImportError:
     ml_dtypes = None
 import numpy as np
 import pytest
-from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 
 from cuda.core._dlpack import DLDeviceType
 from cuda.core.utils import StridedMemoryView
@@ -408,7 +407,8 @@ def _assert_bfloat16_without_ml_dtypes():
 @pytest.mark.agent_authored(model="gpt-6-sol")
 def test_from_dlpack_bfloat16_requires_ml_dtypes():
     """kDLBfloat without ml_dtypes raises on ``.dtype`` access."""
-    # Only the parent needs this helper; the child loads this file from an empty directory.
+    # Import parent-only helpers here; the child loads this file from an empty directory.
+    from cuda_python_test_helpers.subprocess_runner import run_python_snippet
     from helpers.child_processes import child_timeout_sec
 
     check = f"""
