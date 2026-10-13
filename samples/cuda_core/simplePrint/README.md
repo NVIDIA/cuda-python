@@ -260,4 +260,4 @@ Try modifying:
 
 ### CUDA References:
 - [CUDA C Programming Guide - Printf](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#formatted-output)
-- [C++ simplePrintf Sample](https://github.com/NVIDIA/cuda-samples/tree/master/Samples/0_Introduction/simplePrintf)
+- [C++ simplePrintf Sample](https://github.com/NVIDIA/cuda-samples/tree/master/cpp/0_Introduction/simplePrintf)
