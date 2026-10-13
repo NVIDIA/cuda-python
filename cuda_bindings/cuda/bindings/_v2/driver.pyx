@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=14d8dbca1fde6f885c03945536b02a7694719276db192688e747765ca150a107
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e213a599c26e97707d809da370dd1d9166e1ce88d002a18df1aa8f5c5ee919f7
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -2281,11 +2281,12 @@ globals()['MAX_PLANES'] = cydriver.MAX_PLANES
 class DriverError(Exception):
     def __init__(self, status):
         self.status = status
+        cdef str err
         try:
             s = Result(status)
-            cdef str err = f"{s.name} ({s.value})"
+            err = f"{s.name} ({s.value})"
         except ValueError:
-            cdef str err = f"Unknown error ({status})"
+            err = f"Unknown error ({status})"
         super(DriverError, self).__init__(err)
 
     def __reduce__(self):
