@@ -176,7 +176,7 @@ jobs:
           persist-credentials: false
 
       - name: Fetch release tag
-        env: 
+        env:
           TAG: ${{ inputs.git-tag }}
         run: git fetch --depth=1 origin "refs/tags/${TAG}:refs/tags/${TAG}"
 
