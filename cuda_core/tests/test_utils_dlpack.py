@@ -8,8 +8,6 @@ deleter paths, ``from_dlpack`` error handling, and the
 """
 
 import ctypes
-import subprocess
-import sys
 from pathlib import Path
 
 try:
@@ -18,6 +16,7 @@ except ImportError:
     ml_dtypes = None
 import numpy as np
 import pytest
+from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 
 from cuda.core._dlpack import DLDeviceType
 from cuda.core.utils import StridedMemoryView
@@ -409,7 +408,10 @@ def _assert_bfloat16_without_ml_dtypes():
 @pytest.mark.agent_authored(model="gpt-6-sol")
 def test_from_dlpack_bfloat16_requires_ml_dtypes():
     """kDLBfloat without ml_dtypes raises on ``.dtype`` access."""
-    check = """
+    # Only the parent needs this helper; the child loads this file from an empty directory.
+    from helpers.child_processes import child_timeout_sec
+
+    check = f"""
 import numpy
 import runpy
 import sys
@@ -423,12 +425,9 @@ class _BlockMlDtypes:
             raise ModuleNotFoundError("No module named 'ml_dtypes'")
 
 sys.meta_path.insert(0, _BlockMlDtypes())
-runpy.run_path(sys.argv[1])["_assert_bfloat16_without_ml_dtypes"]()
+runpy.run_path({str(Path(__file__).resolve())!r})["_assert_bfloat16_without_ml_dtypes"]()
 """
-    subprocess.run(  # noqa: S603 - trusted interpreter and in-tree test file
-        (sys.executable, "-I", "-c", check, str(Path(__file__).resolve())),
-        check=True,
-    )
+    run_python_snippet(check, timeout=child_timeout_sec())
 
 
 @pytest.mark.parametrize(
