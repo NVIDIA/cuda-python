@@ -88,6 +88,18 @@ def _open_fds():
     return len(os.listdir("/proc/self/fd"))
 
 
+def _settled_open_fds():
+    """The open file descriptor count after a garbage collection.
+
+    Objects left by earlier tests may still hold file descriptors (child
+    pipes, queues, descriptors), and ``init_cuda`` no longer collects at
+    every teardown. Collecting here keeps a baseline stable against a
+    collection that the test itself triggers later.
+    """
+    gc.collect()
+    return _open_fds()
+
+
 def _has_note(exc, text):
     """Whether ``text`` is in one of the exception's notes, or in its message on Python 3.10."""
     return any(text in note for note in getattr(exc, "__notes__", ())) or text in str(exc)
@@ -241,7 +253,7 @@ class TestManyChunkBuffer:
             for i, value in enumerate(values):
                 _fill(moved, value, offset=i * gran, size=gran)
 
-            fds_before = _open_fds()
+            fds_before = _settled_open_fds()
             desc = moved.ipc_descriptor
             assert desc.size == 3 * gran
             assert desc._chunk_sizes == (gran, gran, gran)
@@ -551,7 +563,7 @@ class TestFileDescriptorLifetime:
         first = mr.allocate(1)
         gran = first.size
         buf = mr.modify_allocation(first, 2 * gran)
-        fds0 = _open_fds()
+        fds0 = _settled_open_fds()
         desc = buf.ipc_descriptor
         assert desc.sizes == (gran, gran)
         assert _open_fds() == fds0 + 2
@@ -579,7 +591,7 @@ class TestFileDescriptorLifetime:
         device = vmm_ipc_device
         mr = _resource(device)
         buf = mr.allocate(1)
-        fds0 = _open_fds()
+        fds0 = _settled_open_fds()
         process = mp.Process(target=_close_argument, args=(buf,))
         process.start()
         process.join(timeout=CHILD_TIMEOUT_SEC)
@@ -624,7 +636,7 @@ class TestFileDescriptorLifetime:
         desc = to_child.get(timeout=CHILD_TIMEOUT_SEC)
         # A first import lets the driver finish any lazy initialization before counting.
         Buffer.from_ipc_descriptor(mr, desc, stream=device.default_stream).close()
-        counts = {"with_descriptor": _open_fds()}
+        counts = {"with_descriptor": _settled_open_fds()}
         imported = Buffer.from_ipc_descriptor(mr, desc, stream=device.default_stream)
         counts["after_import"] = _open_fds()
         del desc
@@ -665,7 +677,7 @@ class TestFileDescriptorLimit:
                     os.close(fd)
                     break
                 fillers.append(fd)
-            baseline = _open_fds()
+            baseline = _settled_open_fds()
             # Room for two more descriptors: a three-allocation export cannot complete.
             resource.setrlimit(resource.RLIMIT_NOFILE, (highest + 1 + 2, hard))
             failure = None
@@ -712,7 +724,7 @@ class TestRawFileDescriptorTransport:
         buf = mr.modify_allocation(first, 2 * gran)
         _fill(buf, 0x71, size=gran)
         _fill(buf, 0x72, offset=gran, size=gran)
-        fds0 = _open_fds()
+        fds0 = _settled_open_fds()
         desc = buf.ipc_descriptor
         assert desc.handle_type == "posix_fd"
         assert desc.sizes == (gran, gran)
