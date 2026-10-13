@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../_static/documentation_options.js?v=c4646a20"></script>
+    <script src="../../_static/documentation_options.js?v=0fedfaed"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,13 +53,13 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.4';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/13.4.3/module/generated/cuda.bindings.nvml.TemperatureThresholds.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/generated/cuda.bindings.nvml.TemperatureThresholds.html" />
     <link rel="icon" href="../../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -119,6 +119,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -534,6 +537,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.5.0-notes.html">13.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.3-notes.html">13.4.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.2-notes.html">13.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.4.1-notes.html">13.4.1</a></li>
@@ -548,6 +552,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.9-notes.html">12.9.9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
@@ -1368,23 +1373,40 @@
 <dd><p>Temperature thresholds.</p>
 <p>See <cite>nvmlTemperatureThresholds_t</cite>.</p>
 <dl class="simple">
+<dt><strong>SHUTDOWN</strong>: 0</dt><dd><p>Temperature at which the GPU will shut down for HW protection</p>
+</dd>
 <dt><strong>TEMPERATURE_THRESHOLD_SHUTDOWN</strong>: 0</dt><dd><p>Temperature at which the GPU will shut down for HW protection</p>
+</dd>
+<dt><strong>SLOWDOWN</strong>: 1</dt><dd><p>Temperature at which the GPU will begin HW slowdown</p>
 </dd>
 <dt><strong>TEMPERATURE_THRESHOLD_SLOWDOWN</strong>: 1</dt><dd><p>Temperature at which the GPU will begin HW slowdown</p>
 </dd>
+<dt><strong>MEM_MAX</strong>: 2</dt><dd><p>Memory Temperature at which the GPU will begin SW slowdown</p>
+</dd>
 <dt><strong>TEMPERATURE_THRESHOLD_MEM_MAX</strong>: 2</dt><dd><p>Memory Temperature at which the GPU will begin SW slowdown</p>
+</dd>
+<dt><strong>GPU_MAX</strong>: 3</dt><dd><p>GPU Temperature at which the GPU can be throttled below base clock</p>
 </dd>
 <dt><strong>TEMPERATURE_THRESHOLD_GPU_MAX</strong>: 3</dt><dd><p>GPU Temperature at which the GPU can be throttled below base clock</p>
 </dd>
+<dt><strong>ACOUSTIC_MIN</strong>: 4</dt><dd><p>Minimum GPU Temperature that can be set as acoustic threshold</p>
+</dd>
 <dt><strong>TEMPERATURE_THRESHOLD_ACOUSTIC_MIN</strong>: 4</dt><dd><p>Minimum GPU Temperature that can be set as acoustic threshold</p>
+</dd>
+<dt><strong>ACOUSTIC_CURR</strong>: 5</dt><dd><p>Current temperature that is set as acoustic threshold.</p>
 </dd>
 <dt><strong>TEMPERATURE_THRESHOLD_ACOUSTIC_CURR</strong>: 5</dt><dd><p>Current temperature that is set as acoustic threshold.</p>
 </dd>
+<dt><strong>ACOUSTIC_MAX</strong>: 6</dt><dd><p>Maximum GPU temperature that can be set as acoustic threshold.</p>
+</dd>
 <dt><strong>TEMPERATURE_THRESHOLD_ACOUSTIC_MAX</strong>: 6</dt><dd><p>Maximum GPU temperature that can be set as acoustic threshold.</p>
+</dd>
+<dt><strong>GPS_CURR</strong>: 7</dt><dd><p>Current temperature that is set as gps threshold.</p>
 </dd>
 <dt><strong>TEMPERATURE_THRESHOLD_GPS_CURR</strong>: 7</dt><dd><p>Current temperature that is set as gps threshold.</p>
 </dd>
 </dl>
+<p><strong>COUNT</strong>: 8</p>
 <p><strong>TEMPERATURE_THRESHOLD_COUNT</strong>: 8</p>
 </dd></dl>
 
