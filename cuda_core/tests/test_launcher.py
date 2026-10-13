@@ -244,7 +244,7 @@ def test_to_native_launch_config_priority(init_cuda, priority, expected_num_attr
 
 
 @skipif_need_cuda_headers
-def test_pdl_primary_secondary_overlap_same_stream():
+def test_pdl_primary_secondary_overlap_same_stream(init_cuda):
     """Primary + secondary PDL launch on one stream can overlap on Hopper+.
 
     Secondary is launched with ``programmatic_stream_serialization=True``. After
@@ -255,10 +255,9 @@ def test_pdl_primary_secondary_overlap_same_stream():
     Note concurrency is opportunistic, so a missing overlap execution is reported as
     an expected failure.
     """
-    dev = Device()
+    dev = init_cuda
     if dev.compute_capability < (9, 0):
         pytest.skip("Programmatic Dependent Launch requires compute capability >= 9.0")
-    dev.set_current()
     stream = dev.create_stream(options=StreamOptions(nonblocking=True))
 
     # clock64 budgets are in GPU cycles; keep the post-trigger window long enough
@@ -592,9 +591,8 @@ def write_scalar_module():
 
 @pytest.mark.parametrize("python_type, cpp_type, init_value", PARAMS)
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_launch_scalar_argument(write_scalar_module, python_type, cpp_type, init_value):
-    dev = Device(0)
-    dev.set_current()
+def test_launch_scalar_argument(init_cuda, write_scalar_module, python_type, cpp_type, init_value):
+    dev = init_cuda
 
     # Prepare pinned host array
     mr = LegacyPinnedMemoryResource()
@@ -825,7 +823,7 @@ def test_kernel_arg_ctypes_subclass_isinstance_fallback():
         "numpy_float32",
     ],
 )
-def test_launch_scalar_argument_subclass_fallback(base_type, np_dtype, cpp_type, raw_value):
+def test_launch_scalar_argument_subclass_fallback(init_cuda, base_type, np_dtype, cpp_type, raw_value):
     """Subclassed scalar arguments survive fallback handling and reach the kernel
     with the correct width/sign. The readback value (not just ptr != 0) guards each
     fallback branch against marshalling the wrong C type, e.g. uint64 -> uint32_t."""
@@ -836,8 +834,7 @@ def test_launch_scalar_argument_subclass_fallback(base_type, np_dtype, cpp_type,
     scalar = Subclassed(raw_value)
     expected = np_dtype(raw_value)
 
-    dev = Device()
-    dev.set_current()
+    dev = init_cuda
 
     mr = LegacyPinnedMemoryResource()
     b = mr.allocate(np.dtype(np_dtype).itemsize)
@@ -939,7 +936,9 @@ if helpers.CCCL_INCLUDE_PATHS is not None:
     ids=_NUMPY_SUBCLASS_FALLBACK_IDS,
 )
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_launch_numpy_scalar_subclass_fallback(write_scalar_module, base_type, np_dtype, cpp_type, raw_value):
+def test_launch_numpy_scalar_subclass_fallback(
+    init_cuda, write_scalar_module, base_type, np_dtype, cpp_type, raw_value
+):
     """Subclassed numpy scalars take prepare_numpy_arg's isinstance fallback and reach the kernel (readback)."""
 
     class Subclassed(base_type):
@@ -948,8 +947,7 @@ def test_launch_numpy_scalar_subclass_fallback(write_scalar_module, base_type, n
     scalar = Subclassed(raw_value)
     expected = np_dtype(raw_value)
 
-    dev = Device(0)
-    dev.set_current()
+    dev = init_cuda
 
     mr = LegacyPinnedMemoryResource()
     b = mr.allocate(np.dtype(np_dtype).itemsize)

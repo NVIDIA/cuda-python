@@ -302,6 +302,11 @@ cdef size_t mem_allocation_size(const MemAllocationHandle& h) noexcept nogil
 cdef VaReservationHandle create_va_reservation_handle(
     size_t size, size_t alignment, cydriver.CUdeviceptr hint) except+ nogil
 cdef size_t va_reservation_size(const VaReservationHandle& h) noexcept nogil
+
+# Test-suite instrumentation: process-wide counts of live owned pools and VA
+# reservations (see api.hpp). Read by conftest.py to gate the per-test collect.
+cdef long long live_owned_mempool_count() noexcept nogil
+cdef long long live_va_reservation_count() noexcept nogil
 cdef VaMappingHandle create_va_mapping_handle(
     cydriver.CUdeviceptr ptr, const MemAllocationHandle& h_alloc,
     const VaReservationHandle& h_res) except+ nogil

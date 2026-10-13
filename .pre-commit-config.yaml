@@ -48,8 +48,6 @@ repos:
         language: python
         files: ^(cuda_core/pyproject\.toml|ci/versions\.yml|cuda_core/cuda/core/_bindings_floor\.py|cuda_core/docs/source/.*\.rst|toolshed/check_cuda_core_bindings_floor\.py)$
         pass_filenames: false
-        additional_dependencies:
-          - "tomli>=1.1.0; python_version < '3.11'"
 
       - id: check-spdx
         name: Check SPDX Headers

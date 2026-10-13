@@ -128,6 +128,35 @@ def open_gl_window():
     return None
 
 
+def tcc_skip_reason() -> str | None:
+    """Return a skip reason if the current CUDA device uses the TCC driver model, else None.
+
+    TCC (Tesla Compute Cluster) is a Windows compute-only driver model with no
+    OpenGL support, so CUDA-GL interop is unavailable on a TCC device. The
+    check queries the currently-selected device via the CUDA runtime API
+    (``cuda.bindings``) rather than ``cuda.core``, so both the ``cuda_core``
+    and ``cuda_bindings`` graphics tests can share it without the latter
+    taking a ``cuda.core`` dependency.
+
+    Runtime query failures (e.g. no CUDA device) propagate rather than being
+    masked as a skip, so a real environment problem surfaces instead of being
+    hidden behind a skipped test.
+    """
+    from cuda.bindings import runtime as cudart
+
+    err, device = cudart.cudaGetDevice()
+    if err != cudart.cudaError_t.cudaSuccess:
+        raise RuntimeError(f"cudaGetDevice failed: {cudart.cudaGetErrorString(err)[1].decode()!r}")
+    err, is_tcc = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrTccDriver, device)
+    if err != cudart.cudaError_t.cudaSuccess:
+        raise RuntimeError(
+            f"cudaDeviceGetAttribute(cudaDevAttrTccDriver) failed: {cudart.cudaGetErrorString(err)[1].decode()!r}"
+        )
+    if is_tcc:
+        return "Device is in TCC mode; TCC does not support OpenGL, so CUDA-GL interop is unavailable."
+    return None
+
+
 def gl_context_not_on_nvidia_gpu_reason() -> str | None:
     """Return a skip reason if the current GL context is not on an NVIDIA GPU, else None.
 
