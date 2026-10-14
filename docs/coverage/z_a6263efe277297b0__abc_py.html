@@ -18,83 +18,92 @@
   "i": "tests/test_program_cache.py::test_filestream_cache_permission_error_windows_is_narrowed[sharing_violation_swallowed]|run",
   "j": "tests/test_program_cache.py::test_filestream_cache_size_cap_counts_tmp_files|run",
   "k": "tests/test_program_cache.py::test_filestream_cache_unlink_retries_on_sharing_violation|run",
-  "l": "tests/test_program_compile_cache.py::test_cache_kwarg_roundtrip_across_reopen|run",
-  "m": "tests/test_program_compile_cache.py::test_filestream_hit_returns_byte_equal_object_code|run",
-  "n": "tests/test_program_cache.py::test_filestream_cache_roundtrip|run",
-  "o": "tests/test_program_cache.py::test_filestream_cache_accepts_path_backed_object_code|run",
-  "p": "tests/test_program_cache.py::test_filestream_cache_atime_lru_promotes_recently_read|run",
-  "q": "tests/test_program_cache.py::test_filestream_cache_path_backed_object_code_missing_file_message|run",
-  "r": "tests/test_program_cache.py::test_filestream_cache_size_cap_evicts_oldest|run",
-  "s": "tests/test_program_cache.py::test_inmemory_cache_clear|run",
-  "t": "tests/test_program_cache.py::test_inmemory_cache_delete|run",
-  "u": "tests/test_program_cache.py::test_program_cache_resource_update_accepts_mapping_and_pairs|run",
-  "v": "tests/test_program_cache.py::test_filestream_cache_clear_does_not_break_concurrent_writer|run",
-  "w": "tests/test_program_cache.py::test_filestream_cache_clear_does_not_unlink_replaced_file|run",
-  "x": "tests/test_program_cache.py::test_filestream_cache_clear_preserves_young_tmp_files|run",
-  "y": "tests/test_program_cache.py::test_filestream_cache_clear|run",
-  "z": "tests/test_program_cache.py::test_filestream_cache_len_counts_all|run",
-  "A": "tests/test_program_cache.py::test_filestream_cache_permission_error_propagates_on_posix|run",
-  "B": "tests/test_program_cache.py::test_filestream_cache_permission_error_windows_is_narrowed[no_winerror_propagates]|run",
-  "C": "tests/test_program_cache.py::test_filestream_cache_permission_error_windows_is_narrowed[other_winerror_propagates]|run",
-  "D": "tests/test_program_cache.py::test_filestream_cache_persists_across_reopen|run",
-  "E": "tests/test_program_cache.py::test_filestream_cache_prune_only_if_stat_unchanged|run",
-  "F": "tests/test_program_cache.py::test_filestream_cache_replace_retries_on_sharing_violation|run",
-  "G": "tests/test_program_cache.py::test_filestream_cache_size_cap_does_not_unlink_replaced_file|run",
-  "H": "tests/test_program_cache.py::test_filestream_cache_unbounded_by_default|run",
-  "I": "tests/test_program_cache.py::test_filestream_cache_unlink_propagates_non_windows_permission_error|run",
-  "J": "tests/test_program_cache.py::test_filestream_cache_write_phase_permission_error_propagates_on_windows|run",
-  "K": "tests/test_program_cache.py::test_inmemory_cache_roundtrip_object_code|run",
-  "L": "tests/test_program_cache.py::test_filestream_cache_empty_on_create|run",
-  "M": "tests/test_program_cache.py::test_inmemory_cache_accepts_path_backed_object_code|run",
-  "N": "tests/test_program_cache.py::test_inmemory_cache_concurrent_threads_stay_consistent|run",
-  "O": "tests/test_program_cache.py::test_inmemory_cache_oversized_write_evicts_itself|run",
-  "P": "tests/test_program_cache.py::test_inmemory_cache_read_promotes_lru|run",
-  "Q": "tests/test_program_cache.py::test_inmemory_cache_rejects_non_str_non_bytes_key|run",
-  "R": "tests/test_program_cache.py::test_inmemory_cache_size_cap_evicts_oldest|run",
-  "S": "tests/test_program_cache.py::test_inmemory_cache_str_and_bytes_keys_alias|run",
-  "T": "tests/test_program_cache.py::test_inmemory_cache_update_accepts_mapping_and_pairs|run",
-  "U": "tests/test_program_cache.py::test_filestream_cache_accepts_bytearray_and_memoryview|run",
-  "V": "tests/test_program_cache.py::test_filestream_cache_accepts_bytes_directly|run",
-  "W": "tests/test_program_cache.py::test_filestream_cache_eviction_propagates_non_sharing_permission_error|run",
-  "X": "tests/test_program_cache.py::test_filestream_cache_eviction_propagates_windows_non_sharing_eacces|run",
-  "Y": "tests/test_program_cache.py::test_filestream_cache_overwrite_replaces_value|run",
-  "Z": "tests/test_program_cache.py::test_filestream_cache_recreates_tmp_dir_if_missing|run",
-  "0": "tests/test_program_cache.py::test_filestream_cache_returns_bytes_verbatim|run",
-  "1": "tests/test_program_cache.py::test_filestream_cache_touch_atime_only_if_stat_unchanged|run",
-  "2": "tests/test_program_cache.py::test_filestream_cache_tracker_reconciles_after_external_drift|run",
-  "3": "tests/test_program_cache.py::test_filestream_cache_unlink_skips_locked_entries_in_eviction|run",
-  "4": "tests/test_program_cache.py::test_filestream_cache_uses_default_dir_when_path_omitted|run",
-  "5": "tests/test_program_cache.py::test_filestream_cache_writes_skip_scan_when_under_cap|run",
-  "6": "tests/test_program_cache.py::test_filestream_cache_writes_trigger_scan_when_over_cap|run",
-  "7": "tests/test_program_cache.py::test_filestream_clear_with_cap_resets_tracker|run",
-  "8": "tests/test_program_cache.py::test_filestream_enforce_size_cap_noop_without_cap|run",
-  "9": "tests/test_program_cache.py::test_filestream_iter_entry_paths_returns_when_entries_dir_missing|run",
-  "!": "tests/test_program_cache.py::test_filestream_iter_entry_paths_skips_stray_top_level_file|run",
-  "#": "tests/test_program_cache.py::test_filestream_touch_atime_path_fallback_swallows_stat_failure|run",
-  "$": "tests/test_program_cache.py::test_filestream_touch_atime_swallows_fstat_failure|run",
-  "%": "tests/test_program_cache.py::test_filestream_touch_atime_swallows_open_failure|run",
-  "'": "tests/test_program_cache.py::test_inmemory_cache_len_counts_all|run",
-  "(": "tests/test_program_cache_multiprocess.py::test_concurrent_reader_never_sees_torn_file|run",
-  ")": "tests/test_program_cache_multiprocess.py::test_concurrent_eviction_does_not_delete_replaced_file|run",
-  "*": "tests/test_program_cache_multiprocess.py::test_concurrent_writers_distinct_keys_all_survive|run",
-  "+": "tests/test_program_cache_multiprocess.py::test_concurrent_writers_same_key_no_corruption|run",
-  ",": "tests/test_program_cache.py::test_filestream_cache_rejects_non_bytes_non_object_code|run",
-  "-": "tests/test_program_cache.py::test_inmemory_cache_get_returns_value_on_hit|run",
-  ".": "tests/test_program_cache.py::test_inmemory_cache_empty_on_create|run",
-  "/": "tests/test_program_cache.py::test_inmemory_cache_get_returns_default_on_miss|run",
-  ":": "tests/test_program_cache.py::test_filestream_delitem_missing_key_with_cap_raises_keyerror|run",
-  ";": "tests/test_program_cache.py::test_filestream_cache_tracker_clamps_at_zero_under_delete_race|run",
-  "=": "tests/test_program_cache.py::test_inmemory_cache_accepts_bytearray_and_memoryview|run",
-  "?": "tests/test_program_cache.py::test_inmemory_cache_accepts_bytes_directly|run",
-  "@": "tests/test_program_cache.py::test_inmemory_cache_overwrite_replaces_value_and_updates_size|run",
-  "[": "tests/test_program_cache.py::test_inmemory_cache_unbounded_when_max_size_none|run",
-  "]": "tests/test_program_cache.py::test_program_cache_resource_default_get_returns_default_on_miss|run",
-  "^": "tests/test_program_cache.py::test_program_cache_resource_default_get_returns_none_without_default|run",
-  "_": "tests/test_program_cache.py::test_inmemory_cache_rejects_non_bytes_non_object_code_value|run",
-  "`": "tests/test_program_cache.py::test_filestream_cache_sweeps_stale_tmp_files_on_open|run",
-  "{": "tests/test_program_cache.py::test_filestream_sum_tmp_sizes_returns_zero_when_tmp_dir_missing|run",
-  "|": "tests/test_program_cache.py::test_program_cache_resource_context_manager_closes|run",
-  "}": "tests/test_program_cache.py::test_program_cache_resource_close_is_noop_by_default|run"
+  "l": "tests/test_program_cache.py::test_filestream_clear_skips_entry_that_vanishes_during_snapshot|run",
+  "m": "tests/test_program_cache.py::test_filestream_read_exhausted_sharing_retry_is_cache_miss|run",
+  "n": "tests/test_program_compile_cache.py::test_cache_kwarg_roundtrip_across_reopen|run",
+  "o": "tests/test_program_compile_cache.py::test_filestream_hit_returns_byte_equal_object_code|run",
+  "p": "tests/test_program_cache.py::test_filestream_cache_roundtrip|run",
+  "q": "tests/test_program_cache.py::test_filestream_cache_accepts_path_backed_object_code|run",
+  "r": "tests/test_program_cache.py::test_filestream_cache_atime_lru_promotes_recently_read|run",
+  "s": "tests/test_program_cache.py::test_filestream_cache_path_backed_object_code_missing_file_message|run",
+  "t": "tests/test_program_cache.py::test_filestream_cache_size_cap_evicts_oldest|run",
+  "u": "tests/test_program_cache.py::test_inmemory_cache_clear|run",
+  "v": "tests/test_program_cache.py::test_inmemory_cache_delete|run",
+  "w": "tests/test_program_cache.py::test_program_cache_resource_update_accepts_mapping_and_pairs|run",
+  "x": "tests/test_program_cache.py::test_filestream_cache_clear_does_not_break_concurrent_writer|run",
+  "y": "tests/test_program_cache.py::test_filestream_cache_clear_does_not_unlink_replaced_file|run",
+  "z": "tests/test_program_cache.py::test_filestream_cache_clear_preserves_young_tmp_files|run",
+  "A": "tests/test_program_cache.py::test_filestream_cache_clear|run",
+  "B": "tests/test_program_cache.py::test_filestream_cache_len_counts_all|run",
+  "C": "tests/test_program_cache.py::test_filestream_cache_permission_error_propagates_on_posix|run",
+  "D": "tests/test_program_cache.py::test_filestream_cache_permission_error_windows_is_narrowed[no_winerror_propagates]|run",
+  "E": "tests/test_program_cache.py::test_filestream_cache_permission_error_windows_is_narrowed[other_winerror_propagates]|run",
+  "F": "tests/test_program_cache.py::test_filestream_cache_persists_across_reopen|run",
+  "G": "tests/test_program_cache.py::test_filestream_cache_prune_only_if_stat_unchanged|run",
+  "H": "tests/test_program_cache.py::test_filestream_cache_replace_retries_on_sharing_violation|run",
+  "I": "tests/test_program_cache.py::test_filestream_cache_size_cap_does_not_unlink_replaced_file|run",
+  "J": "tests/test_program_cache.py::test_filestream_cache_unbounded_by_default|run",
+  "K": "tests/test_program_cache.py::test_filestream_cache_unlink_propagates_non_windows_permission_error|run",
+  "L": "tests/test_program_cache.py::test_filestream_cache_write_phase_permission_error_propagates_on_windows|run",
+  "M": "tests/test_program_cache.py::test_filestream_clear_reraises_non_sharing_permission_error|run",
+  "N": "tests/test_program_cache.py::test_filestream_clear_tolerates_entry_vanishing_before_prune|run",
+  "O": "tests/test_program_cache.py::test_filestream_clear_tolerates_unlink_already_gone|run",
+  "P": "tests/test_program_cache.py::test_filestream_iter_skips_shard_dir_that_vanishes|run",
+  "Q": "tests/test_program_cache.py::test_filestream_write_over_cap_skips_vanished_files|run",
+  "R": "tests/test_program_cache.py::test_inmemory_cache_roundtrip_object_code|run",
+  "S": "tests/test_program_cache.py::test_filestream_cache_empty_on_create|run",
+  "T": "tests/test_program_cache.py::test_inmemory_cache_accepts_path_backed_object_code|run",
+  "U": "tests/test_program_cache.py::test_inmemory_cache_concurrent_threads_stay_consistent|run",
+  "V": "tests/test_program_cache.py::test_inmemory_cache_oversized_write_evicts_itself|run",
+  "W": "tests/test_program_cache.py::test_inmemory_cache_read_promotes_lru|run",
+  "X": "tests/test_program_cache.py::test_inmemory_cache_rejects_non_str_non_bytes_key|run",
+  "Y": "tests/test_program_cache.py::test_inmemory_cache_size_cap_evicts_oldest|run",
+  "Z": "tests/test_program_cache.py::test_inmemory_cache_str_and_bytes_keys_alias|run",
+  "0": "tests/test_program_cache.py::test_inmemory_cache_update_accepts_mapping_and_pairs|run",
+  "1": "tests/test_program_cache.py::test_filestream_cache_accepts_bytearray_and_memoryview|run",
+  "2": "tests/test_program_cache.py::test_filestream_cache_accepts_bytes_directly|run",
+  "3": "tests/test_program_cache.py::test_filestream_cache_eviction_propagates_non_sharing_permission_error|run",
+  "4": "tests/test_program_cache.py::test_filestream_cache_eviction_propagates_windows_non_sharing_eacces|run",
+  "5": "tests/test_program_cache.py::test_filestream_cache_overwrite_replaces_value|run",
+  "6": "tests/test_program_cache.py::test_filestream_cache_recreates_tmp_dir_if_missing|run",
+  "7": "tests/test_program_cache.py::test_filestream_cache_returns_bytes_verbatim|run",
+  "8": "tests/test_program_cache.py::test_filestream_cache_touch_atime_only_if_stat_unchanged|run",
+  "9": "tests/test_program_cache.py::test_filestream_cache_tracker_reconciles_after_external_drift|run",
+  "!": "tests/test_program_cache.py::test_filestream_cache_unlink_skips_locked_entries_in_eviction|run",
+  "#": "tests/test_program_cache.py::test_filestream_cache_uses_default_dir_when_path_omitted|run",
+  "$": "tests/test_program_cache.py::test_filestream_cache_writes_skip_scan_when_under_cap|run",
+  "%": "tests/test_program_cache.py::test_filestream_cache_writes_trigger_scan_when_over_cap|run",
+  "'": "tests/test_program_cache.py::test_filestream_clear_with_cap_resets_tracker|run",
+  "(": "tests/test_program_cache.py::test_filestream_enforce_size_cap_noop_without_cap|run",
+  ")": "tests/test_program_cache.py::test_filestream_iter_entry_paths_returns_when_entries_dir_missing|run",
+  "*": "tests/test_program_cache.py::test_filestream_iter_entry_paths_skips_stray_top_level_file|run",
+  "+": "tests/test_program_cache.py::test_filestream_open_with_size_cap_skips_vanished_entries|run",
+  ",": "tests/test_program_cache.py::test_filestream_touch_atime_path_fallback_swallows_stat_failure|run",
+  "-": "tests/test_program_cache.py::test_filestream_touch_atime_swallows_fstat_failure|run",
+  ".": "tests/test_program_cache.py::test_filestream_touch_atime_swallows_open_failure|run",
+  "/": "tests/test_program_cache.py::test_inmemory_cache_len_counts_all|run",
+  ":": "tests/test_program_cache_multiprocess.py::test_concurrent_reader_never_sees_torn_file|run",
+  ";": "tests/test_program_cache_multiprocess.py::test_concurrent_eviction_does_not_delete_replaced_file|run",
+  "=": "tests/test_program_cache_multiprocess.py::test_concurrent_writers_distinct_keys_all_survive|run",
+  "?": "tests/test_program_cache_multiprocess.py::test_concurrent_writers_same_key_no_corruption|run",
+  "@": "tests/test_program_cache.py::test_filestream_cache_rejects_non_bytes_non_object_code|run",
+  "[": "tests/test_program_cache.py::test_inmemory_cache_get_returns_value_on_hit|run",
+  "]": "tests/test_program_cache.py::test_inmemory_cache_empty_on_create|run",
+  "^": "tests/test_program_cache.py::test_inmemory_cache_get_returns_default_on_miss|run",
+  "_": "tests/test_program_cache.py::test_filestream_delitem_missing_key_with_cap_raises_keyerror|run",
+  "`": "tests/test_program_cache.py::test_filestream_cache_tracker_clamps_at_zero_under_delete_race|run",
+  "{": "tests/test_program_cache.py::test_inmemory_cache_accepts_bytearray_and_memoryview|run",
+  "|": "tests/test_program_cache.py::test_inmemory_cache_accepts_bytes_directly|run",
+  "}": "tests/test_program_cache.py::test_inmemory_cache_overwrite_replaces_value_and_updates_size|run",
+  "~": "tests/test_program_cache.py::test_inmemory_cache_unbounded_when_max_size_none|run",
+  "ab": "tests/test_program_cache.py::test_program_cache_resource_default_get_returns_default_on_miss|run",
+  "bb": "tests/test_program_cache.py::test_program_cache_resource_default_get_returns_none_without_default|run",
+  "cb": "tests/test_program_cache.py::test_inmemory_cache_rejects_non_bytes_non_object_code_value|run",
+  "db": "tests/test_program_cache.py::test_filestream_cache_sweeps_stale_tmp_files_on_open|run",
+  "eb": "tests/test_program_cache.py::test_filestream_sum_tmp_sizes_returns_zero_when_tmp_dir_missing|run",
+  "fb": "tests/test_program_cache.py::test_filestream_sweep_skips_permission_error_on_stale_tmp|run",
+  "gb": "tests/test_program_cache.py::test_program_cache_resource_context_manager_closes|run",
+  "hb": "tests/test_program_cache.py::test_program_cache_resource_close_is_noop_by_default|run"
 }
     </script>
     <script src="coverage_html_cb_15cffcd0.js" defer></script>
@@ -157,7 +166,7 @@
             <a id="nextFileLink" class="nav" href="z_a6263efe277297b0__file_stream_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
-            created at 2026-10-13 01:21 +0000
+            created at 2026-10-14 01:43 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -196,30 +205,30 @@
     <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="str">    at write time so the cached entry is the binary content itself, not</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="str">    a path that could later be moved or modified.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="str">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">    <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">value</span><span class="op">,</span> <span class="op">(</span><span class="nam">bytes</span><span class="op">,</span> <span class="nam">bytearray</span><span class="op">,</span> <span class="nam">memoryview</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs25"><span class="r"><label for="ctxs25" class="ctx">75 ctx</label></span><span class="ctxs">1bUVocpdvwxyeWXfazYqAghBCiDEZ,F0njGr1;2HIk34J56789!#$%=?MsNt-'O@P_QKRS[Tu(lm</span></p>
-    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">        <span class="key">return</span> <span class="nam">bytes</span><span class="op">(</span><span class="nam">value</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs26"><span class="r"><label for="ctxs26" class="ctx">38 ctx</label></span><span class="ctxs">1UVpWXaYZ0r1;23456789!#$%=?N-O@PQRS[Tu(</span></p>
-    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">value</span><span class="op">,</span> <span class="nam">ObjectCode</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs27"><span class="r"><label for="ctxs27" class="ctx">38 ctx</label></span><span class="ctxs">1bocdvwxyefazqAghBCiDE,FnjGHIkJMst'_Klm</span></p>
-    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">        <span class="nam">code</span> <span class="op">=</span> <span class="nam">value</span><span class="op">.</span><span class="nam">code</span>&nbsp;</span><input type="checkbox" id="ctxs28"><span class="r"><label for="ctxs28" class="ctx">36 ctx</label></span><span class="ctxs">1bocdvwxyefazqAghBCiDEFnjGHIkJMst'Klm</span></p>
-    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">        <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">code</span><span class="op">,</span> <span class="nam">str</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs29"><span class="r"><label for="ctxs29" class="ctx">36 ctx</label></span><span class="ctxs">1bocdvwxyefazqAghBCiDEFnjGHIkJMst'Klm</span></p>
-    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">            <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs30"><span class="r"><label for="ctxs30" class="ctx">4 ctx</label></span><span class="ctxs">1oaqM</span></p>
-    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">                <span class="key">return</span> <span class="nam">Path</span><span class="op">(</span><span class="nam">code</span><span class="op">)</span><span class="op">.</span><span class="nam">read_bytes</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs31"><span class="r"><label for="ctxs31" class="ctx">4 ctx</label></span><span class="ctxs">1oaqM</span></p>
-    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">            <span class="key">except</span> <span class="nam">FileNotFoundError</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">1 ctx</label></span><span class="ctxs">1q</span></p>
+    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">    <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">value</span><span class="op">,</span> <span class="op">(</span><span class="nam">bytes</span><span class="op">,</span> <span class="nam">bytearray</span><span class="op">,</span> <span class="nam">memoryview</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs25"><span class="r"><label for="ctxs25" class="ctx">83 ctx</label></span><span class="ctxs">2b 1 2 q c r d x y z A e 3 4 f a B 5 s C g h D E i F G 6 @ H 7 p j I t 8 ` 9 J K k ! # L $ % M l N O ' ( ) * P + m , - . Q { | T u U v [ / V } W cbX R Y Z ~ 0 w : n o </span></p>
+    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">        <span class="key">return</span> <span class="nam">bytes</span><span class="op">(</span><span class="nam">value</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs26"><span class="r"><label for="ctxs26" class="ctx">40 ctx</label></span><span class="ctxs">112r34a567t8`9!#$%'()*+,-.Q{|U[V}WXYZ~0w:</span></p>
+    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">value</span><span class="op">,</span> <span class="nam">ObjectCode</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs27"><span class="r"><label for="ctxs27" class="ctx">44 ctx</label></span><span class="ctxs">2b q c d x y z A e f a B s C g h D E i F G @ H p j I J K k L M l N O P m T u v / cbR n o </span></p>
+    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">        <span class="nam">code</span> <span class="op">=</span> <span class="nam">value</span><span class="op">.</span><span class="nam">code</span>&nbsp;</span><input type="checkbox" id="ctxs28"><span class="r"><label for="ctxs28" class="ctx">42 ctx</label></span><span class="ctxs">1bqcdxyzAefaBsCghDEiFGHpjIJKkLMlNOPmTuv/Rno</span></p>
+    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">        <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">code</span><span class="op">,</span> <span class="nam">str</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs29"><span class="r"><label for="ctxs29" class="ctx">42 ctx</label></span><span class="ctxs">1bqcdxyzAefaBsCghDEiFGHpjIJKkLMlNOPmTuv/Rno</span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">            <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs30"><span class="r"><label for="ctxs30" class="ctx">4 ctx</label></span><span class="ctxs">1qasT</span></p>
+    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">                <span class="key">return</span> <span class="nam">Path</span><span class="op">(</span><span class="nam">code</span><span class="op">)</span><span class="op">.</span><span class="nam">read_bytes</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs31"><span class="r"><label for="ctxs31" class="ctx">4 ctx</label></span><span class="ctxs">1qasT</span></p>
+    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">            <span class="key">except</span> <span class="nam">FileNotFoundError</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">1 ctx</label></span><span class="ctxs">1s</span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">                <span class="com"># Avoid ``{code!r}``: on Windows it doubles every backslash in</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">                <span class="com"># the path, which breaks naive ``str(path) in str(exc)`` checks</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">                <span class="com"># callers (and tests) write against the raw filesystem string.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">                <span class="key">raise</span> <span class="nam">FileNotFoundError</span><span class="op">(</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">1 ctx</label></span><span class="ctxs">1q</span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">                <span class="key">raise</span> <span class="nam">FileNotFoundError</span><span class="op">(</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">1 ctx</label></span><span class="ctxs">1s</span></p>
     <p class="run run2"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">                    <span class="fst">f&quot;</span><span class="fst">cannot store path-backed ObjectCode in cache: </span><span class="op">{</span><span class="nam">code</span><span class="op">}</span><span class="fst"> no longer exists</span><span class="fst">&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">                <span class="op">)</span> <span class="key">from</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">        <span class="key">return</span> <span class="nam">bytes</span><span class="op">(</span><span class="nam">code</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">33 ctx</label></span><span class="ctxs">1bcdvwxyefazAghBCiDEFnjGHIkJst'Klm</span></p>
-    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">    <span class="key">raise</span> <span class="nam">TypeError</span><span class="op">(</span><span class="fst">f&quot;</span><span class="fst">cache values must be bytes-like or ObjectCode, got </span><span class="op">{</span><span class="nam">type</span><span class="op">(</span><span class="nam">value</span><span class="op">)</span><span class="op">.</span><span class="nam">__name__</span><span class="op">}</span><span class="fst">&quot;</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs40"><span class="r"><label for="ctxs40" class="ctx">2 ctx</label></span><span class="ctxs">1,_</span></p>
+    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">        <span class="key">return</span> <span class="nam">bytes</span><span class="op">(</span><span class="nam">code</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">39 ctx</label></span><span class="ctxs">1bcdxyzAefaBCghDEiFGHpjIJKkLMlNOPmuv/Rno</span></p>
+    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">    <span class="key">raise</span> <span class="nam">TypeError</span><span class="op">(</span><span class="fst">f&quot;</span><span class="fst">cache values must be bytes-like or ObjectCode, got </span><span class="op">{</span><span class="nam">type</span><span class="op">(</span><span class="nam">value</span><span class="op">)</span><span class="op">.</span><span class="nam">__name__</span><span class="op">}</span><span class="fst">&quot;</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs40"><span class="r"><label for="ctxs40" class="ctx">2 ctx</label></span><span class="ctxs">2@ cb</span></p>
     <p class="pln"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="key">def</span> <span class="nam">_as_key_bytes</span><span class="op">(</span><span class="nam">key</span><span class="op">:</span> <span class="nam">object</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">bytes</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t">    <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">key</span><span class="op">,</span> <span class="op">(</span><span class="nam">bytes</span><span class="op">,</span> <span class="nam">bytearray</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs44"><span class="r"><label for="ctxs44" class="ctx">79 ctx</label></span><span class="ctxs">1bUVocpdvwxyeLWXfazYAghBCiDEZF0njGr1;2HIk34J567:89!#$%=?MsNt./-'O@PQKRS[Tu)(*+lm</span></p>
-    <p class="run"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">        <span class="key">return</span> <span class="nam">bytes</span><span class="op">(</span><span class="nam">key</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs45"><span class="r"><label for="ctxs45" class="ctx">78 ctx</label></span><span class="ctxs">1bUVocpdvwxyeLWXfazYAghBCiDEZF0njGr1;2HIk34J567:89!#$%=?MsNt./-'O@PKRS[Tu)(*+lm</span></p>
-    <p class="run"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">    <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">key</span><span class="op">,</span> <span class="nam">str</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs46"><span class="r"><label for="ctxs46" class="ctx">4 ctx</label></span><span class="ctxs">1cfQS</span></p>
-    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t">        <span class="key">return</span> <span class="nam">key</span><span class="op">.</span><span class="nam">encode</span><span class="op">(</span><span class="str">&quot;utf-8&quot;</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs47"><span class="r"><label for="ctxs47" class="ctx">3 ctx</label></span><span class="ctxs">1cfS</span></p>
-    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">    <span class="key">raise</span> <span class="nam">TypeError</span><span class="op">(</span><span class="fst">f&quot;</span><span class="fst">cache keys must be bytes or str, got </span><span class="op">{</span><span class="nam">type</span><span class="op">(</span><span class="nam">key</span><span class="op">)</span><span class="op">.</span><span class="nam">__name__</span><span class="op">}</span><span class="fst">&quot;</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs48"><span class="r"><label for="ctxs48" class="ctx">1 ctx</label></span><span class="ctxs">1Q</span></p>
+    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t">    <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">key</span><span class="op">,</span> <span class="op">(</span><span class="nam">bytes</span><span class="op">,</span> <span class="nam">bytearray</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs44"><span class="r"><label for="ctxs44" class="ctx">87 ctx</label></span><span class="ctxs">1b12qcrdxyzAeS34faB5CghDEiFG6H7pjIt8`9JKk!#L$%MlNO'_()*P+m,-.Q{|TuUv]^[/V}WXRYZ~0w;:=?no</span></p>
+    <p class="run"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">        <span class="key">return</span> <span class="nam">bytes</span><span class="op">(</span><span class="nam">key</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs45"><span class="r"><label for="ctxs45" class="ctx">86 ctx</label></span><span class="ctxs">1b12qcrdxyzAeS34faB5CghDEiFG6H7pjIt8`9JKk!#L$%MlNO'_()*P+m,-.Q{|TuUv]^[/V}WRYZ~0w;:=?no</span></p>
+    <p class="run"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">    <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">key</span><span class="op">,</span> <span class="nam">str</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs46"><span class="r"><label for="ctxs46" class="ctx">4 ctx</label></span><span class="ctxs">1cfXZ</span></p>
+    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t">        <span class="key">return</span> <span class="nam">key</span><span class="op">.</span><span class="nam">encode</span><span class="op">(</span><span class="str">&quot;utf-8&quot;</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs47"><span class="r"><label for="ctxs47" class="ctx">3 ctx</label></span><span class="ctxs">1cfZ</span></p>
+    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">    <span class="key">raise</span> <span class="nam">TypeError</span><span class="op">(</span><span class="fst">f&quot;</span><span class="fst">cache keys must be bytes or str, got </span><span class="op">{</span><span class="nam">type</span><span class="op">(</span><span class="nam">key</span><span class="op">)</span><span class="op">.</span><span class="nam">__name__</span><span class="op">}</span><span class="fst">&quot;</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs48"><span class="r"><label for="ctxs48" class="ctx">1 ctx</label></span><span class="ctxs">1X</span></p>
     <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="key">class</span> <span class="nam">ProgramCacheResource</span><span class="op">(</span><span class="nam">abc</span><span class="op">.</span><span class="nam">ABC</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -333,10 +342,10 @@
     <p class="pln"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t">    <span class="key">def</span> <span class="nam">get</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">key</span><span class="op">:</span> <span class="nam">bytes</span> <span class="op">|</span> <span class="nam">str</span><span class="op">,</span> <span class="nam">default</span><span class="op">:</span> <span class="nam">bytes</span> <span class="op">|</span> <span class="key">None</span> <span class="op">=</span> <span class="key">None</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">bytes</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t">        <span class="str">&quot;&quot;&quot;Return ``self[key]`` or ``default`` if absent.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t">        <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs162"><span class="r"><label for="ctxs162" class="ctx">33 ctx</label></span><span class="ctxs">1bcpdeLfghinjrksNt./-OPQKRS]^)*+lm</span></p>
-    <p class="run"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t">            <span class="key">return</span> <span class="nam">self</span><span class="op">[</span><span class="nam">key</span><span class="op">]</span>&nbsp;</span><input type="checkbox" id="ctxs163"><span class="r"><label for="ctxs163" class="ctx">33 ctx</label></span><span class="ctxs">1bcpdeLfghinjrksNt./-OPQKRS]^)*+lm</span></p>
-    <p class="run"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t">        <span class="key">except</span> <span class="nam">KeyError</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs164"><span class="r"><label for="ctxs164" class="ctx">24 ctx</label></span><span class="ctxs">1bpdeLghijrksNt./OPQR]^lm</span></p>
-    <p class="run"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t">            <span class="key">return</span> <span class="nam">default</span>&nbsp;</span><input type="checkbox" id="ctxs165"><span class="r"><label for="ctxs165" class="ctx">23 ctx</label></span><span class="ctxs">1bpdeLghijrksNt./OPR]^lm</span></p>
+    <p class="run"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t">        <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs162"><span class="r"><label for="ctxs162" class="ctx">36 ctx</label></span><span class="ctxs">2b c r d e S f g h i p j t k l m Q u U v ] ^ [ V W X R Y Z abbb; = ? n o </span></p>
+    <p class="run"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t">            <span class="key">return</span> <span class="nam">self</span><span class="op">[</span><span class="nam">key</span><span class="op">]</span>&nbsp;</span><input type="checkbox" id="ctxs163"><span class="r"><label for="ctxs163" class="ctx">36 ctx</label></span><span class="ctxs">2b c r d e S f g h i p j t k l m Q u U v ] ^ [ V W X R Y Z abbb; = ? n o </span></p>
+    <p class="run"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t">        <span class="key">except</span> <span class="nam">KeyError</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs164"><span class="r"><label for="ctxs164" class="ctx">26 ctx</label></span><span class="ctxs">2b r d e S g h i j t k l m u U v ] ^ V W X Y abbbn o </span></p>
+    <p class="run"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t">            <span class="key">return</span> <span class="nam">default</span>&nbsp;</span><input type="checkbox" id="ctxs165"><span class="r"><label for="ctxs165" class="ctx">25 ctx</label></span><span class="ctxs">2b r d e S g h i j t k l m u U v ] ^ V W Y abbbn o </span></p>
     <p class="pln"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t">    <span class="key">def</span> <span class="nam">update</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t">        <span class="nam">self</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -354,12 +363,12 @@
     <p class="pln"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="str">        and size-cap enforcement run on every entry. Not transactional --</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="str">        a failure mid-iteration leaves earlier writes committed.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="str">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t">        <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">items</span><span class="op">,</span> <span class="nam">collections</span><span class="op">.</span><span class="nam">abc</span><span class="op">.</span><span class="nam">Mapping</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs183"><span class="r"><label for="ctxs183" class="ctx">3 ctx</label></span><span class="ctxs">1aTu</span></p>
-    <p class="run"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t">            <span class="nam">items</span> <span class="op">=</span> <span class="nam">items</span><span class="op">.</span><span class="nam">items</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs184"><span class="r"><label for="ctxs184" class="ctx">3 ctx</label></span><span class="ctxs">1aTu</span></p>
-    <p class="run"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t">        <span class="key">for</span> <span class="nam">key</span><span class="op">,</span> <span class="nam">value</span> <span class="key">in</span> <span class="nam">items</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs185"><span class="r"><label for="ctxs185" class="ctx">3 ctx</label></span><span class="ctxs">1aTu</span></p>
-    <p class="run"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t">            <span class="nam">self</span><span class="op">[</span><span class="nam">key</span><span class="op">]</span> <span class="op">=</span> <span class="nam">value</span>&nbsp;</span><input type="checkbox" id="ctxs186"><span class="r"><label for="ctxs186" class="ctx">3 ctx</label></span><span class="ctxs">1aTu</span></p>
+    <p class="run"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t">        <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">items</span><span class="op">,</span> <span class="nam">collections</span><span class="op">.</span><span class="nam">abc</span><span class="op">.</span><span class="nam">Mapping</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs183"><span class="r"><label for="ctxs183" class="ctx">3 ctx</label></span><span class="ctxs">1a0w</span></p>
+    <p class="run"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t">            <span class="nam">items</span> <span class="op">=</span> <span class="nam">items</span><span class="op">.</span><span class="nam">items</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs184"><span class="r"><label for="ctxs184" class="ctx">3 ctx</label></span><span class="ctxs">1a0w</span></p>
+    <p class="run"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t">        <span class="key">for</span> <span class="nam">key</span><span class="op">,</span> <span class="nam">value</span> <span class="key">in</span> <span class="nam">items</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs185"><span class="r"><label for="ctxs185" class="ctx">3 ctx</label></span><span class="ctxs">1a0w</span></p>
+    <p class="run"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t">            <span class="nam">self</span><span class="op">[</span><span class="nam">key</span><span class="op">]</span> <span class="op">=</span> <span class="nam">value</span>&nbsp;</span><input type="checkbox" id="ctxs186"><span class="r"><label for="ctxs186" class="ctx">3 ctx</label></span><span class="ctxs">1a0w</span></p>
     <p class="pln"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t">    <span class="key">def</span> <span class="nam">close</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="key">None</span><span class="op">:</span>  <span class="com"># noqa: B027</span>&nbsp;</span><input type="checkbox" id="ctxs188"><span class="r"><label for="ctxs188" class="ctx">64 ctx</label></span><span class="ctxs">1bUVocpdvwxyeLWXfazYqAghBCiDEZ,F0njGr`12HIk34J567:89!{#$%}u)(*+lm</span></p>
+    <p class="run"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t">    <span class="key">def</span> <span class="nam">close</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="key">None</span><span class="op">:</span>  <span class="com"># noqa: B027</span>&nbsp;</span><input type="checkbox" id="ctxs188"><span class="r"><label for="ctxs188" class="ctx">73 ctx</label></span><span class="ctxs">2b 1 2 q c r d x y z A e S 3 4 f a B 5 s C g h D E i F G 6 @ H 7 p j I t db8 9 J K k ! # L $ % M l N O ' _ ( ) * P + m ebfb, - . Q hbw ; : = ? n o </span></p>
     <p class="pln"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t">        <span class="str">&quot;&quot;&quot;Release backend resources.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="str">        The default implementation does nothing. Subclasses that hold</span>&nbsp;</span><span class="r"></span></p>
@@ -372,10 +381,10 @@
     <p class="pln"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="str">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t">    <span class="key">def</span> <span class="nam">__enter__</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">ProgramCacheResource</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t">        <span class="key">return</span> <span class="nam">self</span>&nbsp;</span><input type="checkbox" id="ctxs201"><span class="r"><label for="ctxs201" class="ctx">64 ctx</label></span><span class="ctxs">1bUVocpdvwxyeLWXfazYqAghBCiDEZ,F0njGr`12HIk34J567:89!{#$%|u)(*+lm</span></p>
+    <p class="run"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t">        <span class="key">return</span> <span class="nam">self</span>&nbsp;</span><input type="checkbox" id="ctxs201"><span class="r"><label for="ctxs201" class="ctx">73 ctx</label></span><span class="ctxs">2b 1 2 q c r d x y z A e S 3 4 f a B 5 s C g h D E i F G 6 @ H 7 p j I t db8 9 J K k ! # L $ % M l N O ' _ ( ) * P + m ebfb, - . Q gbw ; : = ? n o </span></p>
     <p class="pln"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t">    <span class="key">def</span> <span class="nam">__exit__</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">exc_type</span><span class="op">,</span> <span class="nam">exc_value</span><span class="op">,</span> <span class="nam">traceback</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">close</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs204"><span class="r"><label for="ctxs204" class="ctx">64 ctx</label></span><span class="ctxs">1bUVocpdvwxyeLWXfazYqAghBCiDEZ,F0njGr`12HIk34J567:89!{#$%|u)(*+lm</span></p>
+    <p class="run"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">close</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs204"><span class="r"><label for="ctxs204" class="ctx">73 ctx</label></span><span class="ctxs">2b 1 2 q c r d x y z A e S 3 4 f a B 5 s C g h D E i F G 6 @ H 7 p j I t db8 9 J K k ! # L $ % M l N O ' _ ( ) * P + m ebfb, - . Q gbw ; : = ? n o </span></p>
 </main>
 <footer>
     <div class="content">
@@ -385,7 +394,7 @@
             <a class="nav" href="z_a6263efe277297b0__file_stream_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
-            created at 2026-10-13 01:21 +0000
+            created at 2026-10-14 01:43 +0000
         </p>
     </div>
 </footer>

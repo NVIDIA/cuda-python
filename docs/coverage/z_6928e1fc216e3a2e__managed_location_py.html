@@ -64,12 +64,13 @@
   "2": "tests/memory/test_managed_ops.py::TestLocationCoerce::test_device_passthrough|run",
   "3": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_accessed_by_add_discard|run",
   "4": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_accessed_by_mutable_set_interface|run",
-  "5": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_accessed_by_set_assignment|run",
-  "6": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_discard[external]|run",
-  "7": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_discard[pool]|run",
-  "8": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_prefetch[external]|run",
-  "9": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_prefetch[pool]|run",
-  "!": "tests/memory/test_managed_ops.py::TestPrefetchBatch::test_same_location|run"
+  "5": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_accessed_by_rejects_non_location_types|run",
+  "6": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_accessed_by_set_assignment|run",
+  "7": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_discard[external]|run",
+  "8": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_discard[pool]|run",
+  "9": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_prefetch[external]|run",
+  "!": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_prefetch[pool]|run",
+  "#": "tests/memory/test_managed_ops.py::TestPrefetchBatch::test_same_location|run"
 }
     </script>
     <script src="coverage_html_cb_15cffcd0.js" defer></script>
@@ -132,7 +133,7 @@
             <a id="nextFileLink" class="nav" href="z_b1c5cc5642be1834___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
-            created at 2026-10-13 01:21 +0000
+            created at 2026-10-14 01:43 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -209,14 +210,14 @@
     <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="str">    because the legacy ABI cannot represent them.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="str">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t">    <span class="com"># Local imports to avoid import cycles (Device pulls in CUDA init).</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t">    <span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_device</span> <span class="key">import</span> <span class="nam">Device</span>&nbsp;</span><input type="checkbox" id="ctxs63"><span class="r"><label for="ctxs63" class="ctx">63 ctx</label></span><span class="ctxs">1tuvwxyzABCDEfboFGHIJKLMgcpNOPQRSTU1qZ2niV0WX34h5a67r89jkdelmYs!</span></p>
-    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t">    <span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_host</span> <span class="key">import</span> <span class="nam">Host</span>&nbsp;</span><input type="checkbox" id="ctxs64"><span class="r"><label for="ctxs64" class="ctx">63 ctx</label></span><span class="ctxs">1tuvwxyzABCDEfboFGHIJKLMgcpNOPQRSTU1qZ2niV0WX34h5a67r89jkdelmYs!</span></p>
+    <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t">    <span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_device</span> <span class="key">import</span> <span class="nam">Device</span>&nbsp;</span><input type="checkbox" id="ctxs63"><span class="r"><label for="ctxs63" class="ctx">64 ctx</label></span><span class="ctxs">1tuvwxyzABCDEfboFGHIJKLMgcpNOPQRSTU1qZ2niV0WX345h6a78r9!jkdelmYs#</span></p>
+    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t">    <span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_host</span> <span class="key">import</span> <span class="nam">Host</span>&nbsp;</span><input type="checkbox" id="ctxs64"><span class="r"><label for="ctxs64" class="ctx">64 ctx</label></span><span class="ctxs">1tuvwxyzABCDEfboFGHIJKLMgcpNOPQRSTU1qZ2niV0WX345h6a78r9!jkdelmYs#</span></p>
     <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t">    <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">value</span><span class="op">,</span> <span class="nam">_LocSpec</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs66"><span class="r"><label for="ctxs66" class="ctx">63 ctx</label></span><span class="ctxs">1tuvwxyzABCDEfboFGHIJKLMgcpNOPQRSTU1qZ2niV0WX34h5a67r89jkdelmYs!</span></p>
+    <p class="run"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t">    <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">value</span><span class="op">,</span> <span class="nam">_LocSpec</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs66"><span class="r"><label for="ctxs66" class="ctx">64 ctx</label></span><span class="ctxs">1tuvwxyzABCDEfboFGHIJKLMgcpNOPQRSTU1qZ2niV0WX345h6a78r9!jkdelmYs#</span></p>
     <p class="mis show_mis"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t">        <span class="nam">_reject_numa_host_on_cuda12</span><span class="op">(</span><span class="nam">value</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t">        <span class="key">return</span> <span class="nam">value</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t">    <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">value</span><span class="op">,</span> <span class="nam">Device</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs69"><span class="r"><label for="ctxs69" class="ctx">63 ctx</label></span><span class="ctxs">1tuvwxyzABCDEfboFGHIJKLMgcpNOPQRSTU1qZ2niV0WX34h5a67r89jkdelmYs!</span></p>
-    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t">        <span class="key">return</span> <span class="nam">_LocSpec</span><span class="op">(</span><span class="nam">kind</span><span class="op">=</span><span class="str">&quot;device&quot;</span><span class="op">,</span> <span class="nam">id</span><span class="op">=</span><span class="nam">value</span><span class="op">.</span><span class="nam">device_id</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs70"><span class="r"><label for="ctxs70" class="ctx">18 ctx</label></span><span class="ctxs">1op1q234h5a67r89ms!</span></p>
+    <p class="run"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t">    <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">value</span><span class="op">,</span> <span class="nam">Device</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs69"><span class="r"><label for="ctxs69" class="ctx">64 ctx</label></span><span class="ctxs">1tuvwxyzABCDEfboFGHIJKLMgcpNOPQRSTU1qZ2niV0WX345h6a78r9!jkdelmYs#</span></p>
+    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t">        <span class="key">return</span> <span class="nam">_LocSpec</span><span class="op">(</span><span class="nam">kind</span><span class="op">=</span><span class="str">&quot;device&quot;</span><span class="op">,</span> <span class="nam">id</span><span class="op">=</span><span class="nam">value</span><span class="op">.</span><span class="nam">device_id</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs70"><span class="r"><label for="ctxs70" class="ctx">19 ctx</label></span><span class="ctxs">1op1q2345h6a78r9!ms#</span></p>
     <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t">    <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">value</span><span class="op">,</span> <span class="nam">Host</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs71"><span class="r"><label for="ctxs71" class="ctx">53 ctx</label></span><span class="ctxs">1tuvwxyzABCDEfboFGHIJKLMgcpNOPQRSTUqZniV0WXharjkdelmYs</span></p>
     <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t">        <span class="key">if</span> <span class="nam">value</span><span class="op">.</span><span class="nam">is_numa_current</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs72"><span class="r"><label for="ctxs72" class="ctx">20 ctx</label></span><span class="ctxs">1fbogcpqniVharjkdelms</span></p>
     <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t">            <span class="nam">spec</span> <span class="op">=</span> <span class="nam">_LocSpec</span><span class="op">(</span><span class="nam">kind</span><span class="op">=</span><span class="str">&quot;host_numa_current&quot;</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">4 ctx</label></span><span class="ctxs">1fgna</span></p>
@@ -241,7 +242,7 @@
             <a class="nav" href="z_b1c5cc5642be1834___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
-            created at 2026-10-13 01:21 +0000
+            created at 2026-10-14 01:43 +0000
         </p>
     </div>
 </footer>

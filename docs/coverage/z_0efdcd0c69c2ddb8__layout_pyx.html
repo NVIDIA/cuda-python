@@ -744,8 +744,11 @@
   "wi": "tests/test_utils.py::test_from_buffer_with_non_power_of_two_itemsize|run",
   "xi": "tests/test_graphics.py::test_from_gl_buffer_with_stream_context_manager|run",
   "yi": "tests/test_graphics.py::test_strided_memory_view_from_mapped_buffer|run",
-  "zi": "tests/test_utils.py::test_strided_memory_view_dlpack_export_requires_dtype|run",
-  "Ai": "tests/test_utils.py::test_strided_memory_view_repr_with_none_dtype|run"
+  "zi": "tests/test_tensor_map.py::TestTensorMapDescriptorValidation::test_cannot_infer_data_type|run",
+  "Ai": "tests/test_utils.py::test_strided_memory_view_dlpack_export_requires_dtype|run",
+  "Bi": "tests/test_utils.py::test_strided_memory_view_repr_with_none_dtype|run",
+  "Ci": "tests/test_utils_dlpack.py::test_dlpack_c_exchange_api_export_failure_sets_exception[dltensor_from_py_object_no_sync]|run",
+  "Di": "tests/test_utils_dlpack.py::test_dlpack_c_exchange_api_export_failure_sets_exception[managed_tensor_from_py_object_no_sync]|run"
 }
     </script>
     <script src="coverage_html_cb_15cffcd0.js" defer></script>
@@ -808,7 +811,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__linker_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
-            created at 2026-10-13 01:21 +0000
+            created at 2026-10-14 01:43 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -878,7 +881,7 @@
     <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">        itemsize : int,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">        divide_strides : bool = False</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">    ) -&gt; None:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">        self.init_from_tuple(shape, strides, itemsize, divide_strides)</span>&nbsp;</span><input type="checkbox" id="ctxs56"><span class="r"><label for="ctxs56" class="ctx">712 ctx</label></span><span class="ctxs">2xiyicgogdgegfgpgqggghg@f[f]f^f_f`f{f|f}f~fagbgTcUcVc4cWc5cXcHc6cIc7c8cYc9cZcJc0c1cKcLcMcThUhVhWhXhYhZh0h1h2h+c[cU V C D c W d X y z rcNcpcscG H I J M E F K L N qctcxe?eyc%czcucAcrgsgtg; = ? !c#c$ca b 6 7 8 9 ! # igjgkg`e{e|e}e~eafbfcfdfefffgfhfifjfkflfmfnfofpfqfrfsftfufvfwfxfyfzfAfBfCfDfEfFfGfHfIfJfKfLfMfNfOfPfQfRfSfTfUfVfWfXfYfZf0f1f2f3f4f5fiiji3h4h5h2cDc'cEcFc3c(cGc.f!g+f@e2gUg3g_eOcPcSbTb)cnc*cBcocCcu v fcgcw VghcicjckcWglcmcx XgYgm n kblbmbnbobpbY s Z t @ qb[ ] ^ rb_ ` sbtbubvb{ wb| } ~ abbbcbdbebxbfbo p yb* , 0 4 zbO Ab( BbCb+ ) - 5 DbP 1 A B ,f/f:f-fZg4gSgFggbGg#g$g5g%g6g0g'g(g1g)g6hhbHg7hibjb*gTgIg+ge g h i j 2 Q f k 3 R l q S r T EbFb;f=f?fQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%eygzgfeAgcegedeEhFheeGhheie[e]eJgPg^e'eQgKgjekeLgMgle(eRgNgmeOgne)e*e+e+d,e,d-d-e.e/elgmgng(f)f*f$ % . ' / : Qc6f7f8fRcScvcwcxc9f!f#f$f%f'f|g}g~gah,g-gbhchsh.gthuhdh/g:gehvhwhfhgh;ghhxhihqdrd=gjhsdkhtdOdyhPdudlhvdwdmhxdydQdzd?gnhohAdRdzhSdTdBdCdDdEdFdGd@gAhHd[g]g7g]cphUd^g_g.d^c_cVd`cqhWdXd,c-cYdhd{cZd|c8g0d}c.c/c/d1did~cad:d`g{g9gBh;djdbd=dCh2d?d3dDh@d4dkd[dcd:c5d]ddd;crh^d6dld_d7d8d9ded`d!dfd#d=c?cmdgd@cyezeAeBeCeoeDepeEeFe:eGe;eHeIe=eJeKeqeLeMeNereOePesete{d|dHh}d~daeIhbeJhKhnd$d%dIdJd'dKd(dLdodMdLh)dpd*dNdMh0bGb1bUbue2b3b4b5b6b7b8b9b!bHbIb#b$bJb%b'b(b)b*b+bKbVbve,b-bLb.bMb/bWb:b;bNb=b?b@bOb[b]b^b_bPbQb`bXbwe{b|b}b~bacYbRbbcccdcZbec8h9h!h#h$h%h'h(h)h*h+h,h-h.h/h:h;h=h?h@h[h]h^h_h`h{h|h}h~haibiciviwgxgkiwiziAi</span></p>
+    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">        self.init_from_tuple(shape, strides, itemsize, divide_strides)</span>&nbsp;</span><input type="checkbox" id="ctxs56"><span class="r"><label for="ctxs56" class="ctx">715 ctx</label></span><span class="ctxs">2xiyicgogdgegfgpgqggghg@f[f]f^f_f`f{f|f}f~fagbgTcUcVc4cWc5cXcHc6cIc7c8cYc9cZcJc0c1cKcLcMcThUhVhWhXhYhZh0h1h2h+c[cU V C D c W d X y z rcNcpcscG H I J M E F K L N qctcxe?eyc%czcucAcrgsgtg; = ? !c#c$ca b 6 7 8 9 ! # igjgkg`e{e|e}e~eafbfcfdfefffgfhfifjfkflfmfnfofpfqfrfsftfufvfwfxfyfzfAfBfCfDfEfFfGfHfIfJfKfLfMfNfOfPfQfRfSfTfUfVfWfXfYfZf0f1f2f3f4f5fiiji3h4h5h2cDc'cEcFc3c(cGc.f!g+f@e2gUg3g_eOcPcSbTb)cnc*cBcocCcu v fcgcw VghcicjckcWglcmcx XgYgm n kblbmbnbobpbY s Z t @ qb[ ] ^ rb_ ` sbtbubvb{ wb| } ~ abbbcbdbebxbfbo p yb* , 0 4 zbO Ab( BbCb+ ) - 5 DbP 1 A B ,f/f:f-fZg4gSgFggbGg#g$g5g%g6g0g'g(g1g)g6hhbHg7hibjb*gTgIg+ge g h i j 2 Q f k 3 R l q S r T EbFb;f=f?fQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%eygzgfeAgcegedeEhFheeGhheie[e]eJgPg^e'eQgKgjekeLgMgle(eRgNgmeOgne)e*e+e+d,e,d-d-e.e/elgmgng(f)f*f$ % . ' / : Qc6f7f8fRcScvcwcxc9f!f#f$f%f'f|g}g~gah,g-gbhchsh.gthuhdh/g:gehvhwhfhgh;ghhxhihqdrd=gjhsdkhtdOdyhPdudlhvdwdmhxdydQdzd?gnhohAdRdzhSdTdBdCdDdEdFdGd@gAhHd[g]g7g]cphUd^g_g.d^c_cVd`cqhWdXd,c-cYdhd{cZd|c8g0d}c.c/c/d1did~cad:d`g{g9gBh;djdbd=dCh2d?d3dDh@d4dkd[dcd:c5d]ddd;crh^d6dld_d7d8d9ded`d!dfd#d=c?cmdgd@cyezeAeBeCeoeDepeEeFe:eGe;eHeIe=eJeKeqeLeMeNereOePesete{d|dHh}d~daeIhbeJhKhnd$d%dIdJd'dKd(dLdodMdLh)dpd*dNdMh0bGb1bUbue2b3b4b5b6b7b8b9b!bHbIb#b$bJb%b'b(b)b*b+bKbVbve,b-bLb.bMb/bWb:b;bNb=b?b@bOb[b]b^b_bPbQb`bXbwe{b|b}b~bacYbRbbcccdcZbeczi8h9h!h#h$h%h'h(h)h*h+h,h-h.h/h:h;h=h?h@h[h]h^h_h`h{h|h}h~haibiciviwgxgkiwiAiBiCiDi</span></p>
     <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">    @classmethod</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">    def dense(</span>&nbsp;</span><span class="r"></span></p>
@@ -2161,7 +2164,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__linker_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
-            created at 2026-10-13 01:21 +0000
+            created at 2026-10-14 01:43 +0000
         </p>
     </div>
 </footer>
