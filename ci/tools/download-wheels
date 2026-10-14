@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -53,12 +53,6 @@ do
     # exclude cython test artifacts
     if [[ "${p}" == *-tests ]]; then
         echo "Skipping test artifact: $p"
-        continue
-    fi
-
-    # exclude pre-release Python (3.15) wheels from releasing
-    if [[ "${p}" == *python315* ]]; then
-        echo "Skipping pre-release Python artifact: $p"
         continue
     fi
 
