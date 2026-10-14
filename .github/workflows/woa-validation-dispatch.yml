@@ -25,10 +25,7 @@ jobs:
       contents: read
       checks: read
     outputs:
-      artifacts-json: ${{ steps.resolve.outputs.artifacts_json }}
       correlation-id: ${{ steps.resolve.outputs.correlation_id }}
-      public-producer-job-id: ${{ steps.resolve.outputs.public_producer_job_id }}
-      public-run-attempt: ${{ steps.resolve.outputs.public_run_attempt }}
       public-run-id: ${{ steps.resolve.outputs.public_run_id }}
       public-sha: ${{ steps.resolve.outputs.public_sha }}
     steps:
@@ -75,74 +72,18 @@ jobs:
           if [[ -z "$public_sha" ]]; then
             public_sha=$(jq -r .head_sha <<< "$run")
           fi
-          public_run_attempt=$(jq -r '.run_attempt | tostring' <<< "$run")
 
           comparison=$(gh api \
             -H 'X-GitHub-Api-Version: 2026-03-10' \
             "repos/NVIDIA/cuda-python/compare/$public_sha...main")
           jq -e '.status == "ahead" or .status == "identical"' <<< "$comparison" >/dev/null
 
-          jobs=$(gh api --paginate \
-            -H 'X-GitHub-Api-Version: 2026-03-10' \
-            "repos/NVIDIA/cuda-python/actions/runs/$PUBLIC_RUN_ID/attempts/$public_run_attempt/jobs?per_page=100" \
-            --jq '.jobs')
-          producer_jobs=$(jq -s -c '
-            add
-            | map(select(.name == "Build win-arm64, CUDA 13.4.2 / py3.13"))
-          ' <<< "$jobs")
-          jq -e '
-            length == 1 and
-            .[0].status == "completed" and
-            .[0].conclusion == "success"
-          ' <<< "$producer_jobs" >/dev/null
-          public_producer_job_id=$(jq -r '.[0].id | tostring' <<< "$producer_jobs")
-
-          expected_names=$(jq -n \
-            --arg sha "$public_sha" '[
-              "cuda-pathfinder-wheel",
-              ("cuda-bindings-python313-cuda13.4.2-win-arm64-" + $sha),
-              ("cuda-core-python313-win-arm64-" + $sha)
-            ]')
-          artifacts_json='[]'
-          while IFS= read -r artifact_name; do
-            response=$(gh api --method GET \
-              -H 'X-GitHub-Api-Version: 2026-03-10' \
-              "repos/NVIDIA/cuda-python/actions/runs/$PUBLIC_RUN_ID/artifacts" \
-              -f name="$artifact_name" \
-              -F per_page=100)
-            artifact=$(jq -c -e \
-              --arg name "$artifact_name" '
-                if .total_count == 1 and
-                   (.artifacts | length) == 1 and
-                   .artifacts[0].name == $name and
-                   .artifacts[0].expired == false
-                then .artifacts[0] | {id, name, digest}
-                else error("expected exactly one unexpired artifact named " + $name)
-                end
-              ' <<< "$response")
-            artifacts_json=$(jq -c \
-              --argjson artifact "$artifact" \
-              '. + [$artifact] | sort_by(.name)' <<< "$artifacts_json")
-          done < <(jq -r '.[]' <<< "$expected_names")
-          jq -e '
-            length == 3 and
-            all(.[ ];
-              (.id | type == "number") and
-              (.digest | test("^sha256:[0-9a-f]{64}$")))
-          ' <<< "$artifacts_json" >/dev/null
-
-          correlation_id="v1:NVIDIA/cuda-python:$PUBLIC_RUN_ID:$public_run_attempt:$public_sha"
-          echo "artifacts_json=$artifacts_json" >> "$GITHUB_OUTPUT"
+          correlation_id="v1:NVIDIA/cuda-python:$PUBLIC_RUN_ID:$public_sha"
           echo "correlation_id=$correlation_id" >> "$GITHUB_OUTPUT"
-          echo "public_producer_job_id=$public_producer_job_id" >> "$GITHUB_OUTPUT"
-          echo "public_run_attempt=$public_run_attempt" >> "$GITHUB_OUTPUT"
           echo "public_run_id=$PUBLIC_RUN_ID" >> "$GITHUB_OUTPUT"
           echo "public_sha=$public_sha" >> "$GITHUB_OUTPUT"
           {
-            echo "Resolved public run \`$PUBLIC_RUN_ID\` attempt \`$public_run_attempt\` and producer job \`$public_producer_job_id\`."
-            echo ""
-            echo "Exact Windows Arm64 artifacts:"
-            jq -r '.[] | "- `\(.name)` (`\(.digest)`)"' <<< "$artifacts_json"
+            echo "Resolved successful public run \`$PUBLIC_RUN_ID\` at commit \`$public_sha\`."
           } >> "$GITHUB_STEP_SUMMARY"
 
   dispatch-private-validation:
@@ -163,20 +104,14 @@ jobs:
 
       - name: Dispatch and verify exact private validation
         env:
-          ARTIFACTS_JSON: ${{ needs.resolve-public-build.outputs.artifacts-json }}
           CORRELATION_ID: ${{ needs.resolve-public-build.outputs.correlation-id }}
           GH_TOKEN: ${{ steps.private-app-token.outputs.token }}
-          PUBLIC_RUN_ATTEMPT: ${{ needs.resolve-public-build.outputs.public-run-attempt }}
           PUBLIC_RUN_ID: ${{ needs.resolve-public-build.outputs.public-run-id }}
-          PUBLIC_PRODUCER_JOB_ID: ${{ needs.resolve-public-build.outputs.public-producer-job-id }}
           PUBLIC_SHA: ${{ needs.resolve-public-build.outputs.public-sha }}
         run: |
           set -euo pipefail
           payload=$(jq -n \
-            --arg artifacts_json "$ARTIFACTS_JSON" \
             --arg correlation_id "$CORRELATION_ID" \
-            --arg producer_job_id "$PUBLIC_PRODUCER_JOB_ID" \
-            --arg run_attempt "$PUBLIC_RUN_ATTEMPT" \
             --arg run_id "$PUBLIC_RUN_ID" \
             --arg sha "$PUBLIC_SHA" \
             '{
@@ -186,11 +121,8 @@ jobs:
                 schema_version: "1",
                 public_repository: "NVIDIA/cuda-python",
                 public_workflow_id: "155304118",
-                public_producer_job_id: $producer_job_id,
                 public_run_id: $run_id,
-                public_run_attempt: $run_attempt,
                 public_sha: $sha,
-                artifacts_json: $artifacts_json,
                 baseline_sha: "",
                 commit_count: "1",
                 correlation_id: $correlation_id
