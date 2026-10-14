@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d6df3522c27bd5c4ff1ecf1bf0167f902aab2b381d9db0c473658a2922f5b6cd
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e8e09d2b9dc5c50f5e7a6d85f94bd57c0c0776668393328be79deebdefce1c11
 from typing import Any, Optional
 import cython
 import ctypes
@@ -24776,19 +24776,6 @@ def cudaFuncSetAttribute(func, attr not None : cudaFuncAttribute, int value):
 
 {{if 'cudaLaunchHostFunc' in found_functions}}
 
-ctypedef struct cudaStreamHostCallbackData_st:
-    cyruntime.cudaHostFn_t callback
-    void *userData
-
-ctypedef cudaStreamHostCallbackData_st cudaStreamHostCallbackData
-
-@cython.show_performance_hints(False)
-cdef void cudaStreamRtHostCallbackWrapper(void *data) nogil:
-    cdef cudaStreamHostCallbackData *cbData = <cudaStreamHostCallbackData *>data
-    with gil:
-        cbData.callback(cbData.userData)
-    free(cbData)
-
 @cython.embedsignature(True)
 def cudaLaunchHostFunc(stream, fn, userData):
     """ Enqueues a host function call in a stream.
@@ -24869,20 +24856,9 @@ def cudaLaunchHostFunc(stream, fn, userData):
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef _HelperInputVoidPtrStruct cyuserDataHelper
     cdef void* cyuserData = _helper_input_void_ptr(userData, &cyuserDataHelper)
-
-    cdef cudaStreamHostCallbackData *cbData = NULL
-    cbData = <cudaStreamHostCallbackData *>malloc(sizeof(cbData[0]))
-    if cbData == NULL:
-        return (cudaError_t.cudaErrorMemoryAllocation,)
-    cbData.callback = cyfn
-    cbData.userData = cyuserData
-
     with nogil:
-        err = cyruntime.cudaLaunchHostFunc(cystream, <cyruntime.cudaHostFn_t>cudaStreamRtHostCallbackWrapper, <void *>cbData)
-    if err != cyruntime.cudaSuccess:
-        free(cbData)
+        err = cyruntime.cudaLaunchHostFunc(cystream, cyfn, cyuserData)
     _helper_input_void_ptr_free(&cyuserDataHelper)
-
     return (_cudaError_t(err),)
 {{endif}}
 
