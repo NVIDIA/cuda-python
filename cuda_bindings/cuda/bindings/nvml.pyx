@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=149bd04cef4a762c554f5f82eaf15ab823a608acea1fca906b5981dfa96baa8a
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=341606be9fe4e6d759ff42b1ac1e10ac2e68e9412f550de5781e57183e218297
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -17,11 +17,6 @@ from cpython.buffer cimport (
     Py_buffer as _cyb_Py_buffer,
 )
 cimport cpython.memoryview as _cyb_cpython_memoryview
-from cpython.object cimport PyObject as _cyb_PyObject
-from cpython.ref cimport (
-    Py_CLEAR as _cyb_Py_CLEAR,
-    Py_XINCREF as _cyb_Py_XINCREF,
-)
 from cython cimport view as _cyb_view
 from libc.stdint cimport intptr_t
 from libc.stdlib cimport (
@@ -3348,24 +3343,24 @@ cdef class PciInfo:
     """
     cdef:
         nvmlPciInfo_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlPciInfo_t *>_cyb_calloc(1, sizeof(nvmlPciInfo_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating PciInfo")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlPciInfo_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.PciInfo object at {hex(id(self))}>"
@@ -3528,11 +3523,12 @@ cdef class PciInfo:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating PciInfo")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPciInfo_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlPciInfo_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -5225,24 +5221,24 @@ cdef class Value:
     """
     cdef:
         nvmlValue_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlValue_t *>_cyb_calloc(1, sizeof(nvmlValue_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating Value")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlValue_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.Value object at {hex(id(self))}>"
@@ -5397,11 +5393,12 @@ cdef class Value:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating Value")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlValue_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlValue_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -8245,24 +8242,24 @@ cdef class _py_anon_pod2:
     """
     cdef:
         cuda_bindings_nvml__anon_pod2 *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_nvml__anon_pod2 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod2))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod2")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod2 *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod2 object at {hex(id(self))}>"
@@ -8362,11 +8359,12 @@ cdef class _py_anon_pod2:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod2))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod2 *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -8392,24 +8390,24 @@ cdef class _py_anon_pod3:
     """
     cdef:
         cuda_bindings_nvml__anon_pod3 *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_nvml__anon_pod3 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod3))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod3")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod3 *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod3 object at {hex(id(self))}>"
@@ -8498,11 +8496,12 @@ cdef class _py_anon_pod3:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod3))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod3 *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -8735,24 +8734,24 @@ cdef class _py_anon_pod4:
     """
     cdef:
         cuda_bindings_nvml__anon_pod4 *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_nvml__anon_pod4 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod4))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod4")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod4 *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod4 object at {hex(id(self))}>"
@@ -8852,11 +8851,12 @@ cdef class _py_anon_pod4:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod4")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod4))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod4 *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -8882,24 +8882,24 @@ cdef class _py_anon_pod5:
     """
     cdef:
         cuda_bindings_nvml__anon_pod5 *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_nvml__anon_pod5 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod5))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod5")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod5 *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod5 object at {hex(id(self))}>"
@@ -8988,11 +8988,12 @@ cdef class _py_anon_pod5:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod5")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod5))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod5 *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -9239,24 +9240,24 @@ cdef class VgpuLicenseExpiry:
     """
     cdef:
         nvmlVgpuLicenseExpiry_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlVgpuLicenseExpiry_t *>_cyb_calloc(1, sizeof(nvmlVgpuLicenseExpiry_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuLicenseExpiry")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlVgpuLicenseExpiry_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.VgpuLicenseExpiry object at {hex(id(self))}>"
@@ -9411,11 +9412,12 @@ cdef class VgpuLicenseExpiry:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuLicenseExpiry")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuLicenseExpiry_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlVgpuLicenseExpiry_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -9447,24 +9449,24 @@ cdef class GridLicenseExpiry:
     """
     cdef:
         nvmlGridLicenseExpiry_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlGridLicenseExpiry_t *>_cyb_calloc(1, sizeof(nvmlGridLicenseExpiry_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating GridLicenseExpiry")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlGridLicenseExpiry_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.GridLicenseExpiry object at {hex(id(self))}>"
@@ -9619,11 +9621,12 @@ cdef class GridLicenseExpiry:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating GridLicenseExpiry")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGridLicenseExpiry_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlGridLicenseExpiry_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -13678,24 +13681,24 @@ cdef class VgpuVersion:
     """
     cdef:
         nvmlVgpuVersion_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlVgpuVersion_t *>_cyb_calloc(1, sizeof(nvmlVgpuVersion_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuVersion")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlVgpuVersion_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.VgpuVersion object at {hex(id(self))}>"
@@ -13795,11 +13798,12 @@ cdef class VgpuVersion:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuVersion")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuVersion_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlVgpuVersion_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -16470,24 +16474,24 @@ cdef class PRMCounterInput_v1:
     """
     cdef:
         nvmlPRMCounterInput_v1_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlPRMCounterInput_v1_t *>_cyb_calloc(1, sizeof(nvmlPRMCounterInput_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating PRMCounterInput_v1")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlPRMCounterInput_v1_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.PRMCounterInput_v1 object at {hex(id(self))}>"
@@ -16576,11 +16580,12 @@ cdef class PRMCounterInput_v1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating PRMCounterInput_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPRMCounterInput_v1_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlPRMCounterInput_v1_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -17691,24 +17696,24 @@ cdef class CPERCursor_v1:
     """
     cdef:
         nvmlCPERCursor_v1_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlCPERCursor_v1_t *>_cyb_calloc(1, sizeof(nvmlCPERCursor_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating CPERCursor_v1")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlCPERCursor_v1_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.CPERCursor_v1 object at {hex(id(self))}>"
@@ -17823,11 +17828,12 @@ cdef class CPERCursor_v1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating CPERCursor_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlCPERCursor_v1_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlCPERCursor_v1_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -19554,24 +19560,24 @@ cdef class GpuFabricClique_v1:
     """
     cdef:
         nvmlGpuFabricClique_v1_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlGpuFabricClique_v1_t *>_cyb_calloc(1, sizeof(nvmlGpuFabricClique_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating GpuFabricClique_v1")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlGpuFabricClique_v1_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.GpuFabricClique_v1 object at {hex(id(self))}>"
@@ -19671,11 +19677,12 @@ cdef class GpuFabricClique_v1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating GpuFabricClique_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuFabricClique_v1_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlGpuFabricClique_v1_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -20619,24 +20626,24 @@ cdef class EccBankRemapperHistogram_v1:
     """
     cdef:
         nvmlEccBankRemapperHistogram_v1_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlEccBankRemapperHistogram_v1_t *>_cyb_calloc(1, sizeof(nvmlEccBankRemapperHistogram_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating EccBankRemapperHistogram_v1")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlEccBankRemapperHistogram_v1_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.EccBankRemapperHistogram_v1 object at {hex(id(self))}>"
@@ -20736,11 +20743,12 @@ cdef class EccBankRemapperHistogram_v1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating EccBankRemapperHistogram_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEccBankRemapperHistogram_v1_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlEccBankRemapperHistogram_v1_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -22002,24 +22010,24 @@ cdef class PRMCounterValue_v1:
     """
     cdef:
         nvmlPRMCounterValue_v1_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlPRMCounterValue_v1_t *>_cyb_calloc(1, sizeof(nvmlPRMCounterValue_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating PRMCounterValue_v1")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlPRMCounterValue_v1_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.PRMCounterValue_v1 object at {hex(id(self))}>"
@@ -22135,11 +22143,12 @@ cdef class PRMCounterValue_v1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating PRMCounterValue_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPRMCounterValue_v1_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlPRMCounterValue_v1_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -22931,24 +22940,24 @@ cdef class VgpuSchedulerParams:
     """
     cdef:
         nvmlVgpuSchedulerParams_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlVgpuSchedulerParams_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerParams_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerParams")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlVgpuSchedulerParams_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerParams object at {hex(id(self))}>"
@@ -23058,11 +23067,12 @@ cdef class VgpuSchedulerParams:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerParams")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerParams_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlVgpuSchedulerParams_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -23089,24 +23099,24 @@ cdef class VgpuSchedulerSetParams:
     """
     cdef:
         nvmlVgpuSchedulerSetParams_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlVgpuSchedulerSetParams_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerSetParams_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerSetParams")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlVgpuSchedulerSetParams_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerSetParams object at {hex(id(self))}>"
@@ -23216,11 +23226,12 @@ cdef class VgpuSchedulerSetParams:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerSetParams")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerSetParams_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlVgpuSchedulerSetParams_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -24454,24 +24465,24 @@ cdef class NvlinkFirmwareInfo:
     """
     cdef:
         nvmlNvlinkFirmwareInfo_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlNvlinkFirmwareInfo_t *>_cyb_calloc(1, sizeof(nvmlNvlinkFirmwareInfo_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating NvlinkFirmwareInfo")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlNvlinkFirmwareInfo_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.NvlinkFirmwareInfo object at {hex(id(self))}>"
@@ -24571,11 +24582,12 @@ cdef class NvlinkFirmwareInfo:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating NvlinkFirmwareInfo")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkFirmwareInfo_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlNvlinkFirmwareInfo_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -25233,13 +25245,13 @@ cdef class PwrModelMetricsPfpp1x:
             raise ValueError("data array must be of dtype pwr_model_metrics_pfpp1x_dtype")
         obj._data = data.view(_numpy.recarray)
 
-        estimatedMetrics_list = list()
+        estimated_metrics_list = list()
         for i in range(obj._data.size):
-            addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
+            addr = obj._data.estimated_metrics[i].__array_interface__['data'][0]
             n = int(obj._data.num_vf_points[i])
-            estimatedMetrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=False)
-            estimatedMetrics_list.append(estimatedMetrics_obj)
-        obj._estimatedMetrics = tuple(estimatedMetrics_list)
+            estimated_metrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=False)
+            estimated_metrics_list.append(estimated_metrics_obj)
+        obj._estimated_metrics = tuple(estimated_metrics_list)
         return obj
 
     @staticmethod
@@ -25263,13 +25275,13 @@ cdef class PwrModelMetricsPfpp1x:
         obj._data = data.view(_numpy.recarray)
         obj._owner = owner
 
-        estimatedMetrics_list = list()
+        estimated_metrics_list = list()
         for i in range(obj._data.size):
-            addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
+            addr = obj._data.estimated_metrics[i].__array_interface__['data'][0]
             n = int(obj._data.num_vf_points[i])
-            estimatedMetrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=readonly)
-            estimatedMetrics_list.append(estimatedMetrics_obj)
-        obj._estimatedMetrics = tuple(estimatedMetrics_list)
+            estimated_metrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=readonly)
+            estimated_metrics_list.append(estimated_metrics_obj)
+        obj._estimated_metrics = tuple(estimated_metrics_list)
         return obj
 
 
@@ -27798,13 +27810,13 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
             raise ValueError("data array must be of dtype pwr_model_metrics_dlppm1x_dramclk_estimates_dtype")
         obj._data = data.view(_numpy.recarray)
 
-        estimatedMetrics_list = list()
+        estimated_metrics_list = list()
         for i in range(obj._data.size):
-            addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
+            addr = obj._data.estimated_metrics[i].__array_interface__['data'][0]
             n = int(obj._data.num_estimated_metrics[i])
-            estimatedMetrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=False)
-            estimatedMetrics_list.append(estimatedMetrics_obj)
-        obj._estimatedMetrics = tuple(estimatedMetrics_list)
+            estimated_metrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=False)
+            estimated_metrics_list.append(estimated_metrics_obj)
+        obj._estimated_metrics = tuple(estimated_metrics_list)
         return obj
 
     @staticmethod
@@ -27828,13 +27840,13 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
         obj._data = data.view(_numpy.recarray)
         obj._owner = owner
 
-        estimatedMetrics_list = list()
+        estimated_metrics_list = list()
         for i in range(obj._data.size):
-            addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
+            addr = obj._data.estimated_metrics[i].__array_interface__['data'][0]
             n = int(obj._data.num_estimated_metrics[i])
-            estimatedMetrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=readonly)
-            estimatedMetrics_list.append(estimatedMetrics_obj)
-        obj._estimatedMetrics = tuple(estimatedMetrics_list)
+            estimated_metrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=readonly)
+            estimated_metrics_list.append(estimated_metrics_obj)
+        obj._estimated_metrics = tuple(estimated_metrics_list)
         return obj
 
 
@@ -28200,24 +28212,24 @@ cdef class _py_anon_pod8:
     """
     cdef:
         cuda_bindings_nvml__anon_pod8 *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_nvml__anon_pod8 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod8))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod8")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod8 *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod8 object at {hex(id(self))}>"
@@ -28329,11 +28341,12 @@ cdef class _py_anon_pod8:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod8")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod8))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod8 *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -28612,13 +28625,13 @@ cdef class PerfMetricsSample:
             raise ValueError("data array must be of dtype perf_metrics_sample_dtype")
         obj._data = data.view(_numpy.recarray)
 
-        controllerData_list = list()
+        controller_data_list = list()
         for i in range(obj._data.size):
-            addr = obj._data.controllerData[i].__array_interface__['data'][0]
+            addr = obj._data.controller_data[i].__array_interface__['data'][0]
             n = int(obj._data.num_controller_data[i])
-            controllerData_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=obj, readonly=False)
-            controllerData_list.append(controllerData_obj)
-        obj._controllerData = tuple(controllerData_list)
+            controller_data_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=obj, readonly=False)
+            controller_data_list.append(controller_data_obj)
+        obj._controller_data = tuple(controller_data_list)
         return obj
 
     @staticmethod
@@ -28642,13 +28655,13 @@ cdef class PerfMetricsSample:
         obj._data = data.view(_numpy.recarray)
         obj._owner = owner
 
-        controllerData_list = list()
+        controller_data_list = list()
         for i in range(obj._data.size):
-            addr = obj._data.controllerData[i].__array_interface__['data'][0]
+            addr = obj._data.controller_data[i].__array_interface__['data'][0]
             n = int(obj._data.num_controller_data[i])
-            controllerData_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=obj, readonly=readonly)
-            controllerData_list.append(controllerData_obj)
-        obj._controllerData = tuple(controllerData_list)
+            controller_data_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=obj, readonly=readonly)
+            controller_data_list.append(controller_data_obj)
+        obj._controller_data = tuple(controller_data_list)
         return obj
 
 

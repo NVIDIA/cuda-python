@@ -27,7 +27,6 @@ def _bindings_floor_substitutions() -> str:
     See cuda/core/_bindings_floor.py. support.rst uses the substitutions.
     """
     import importlib.util
-
     import tomllib
 
     cuda_core = Path(__file__).parents[2]
