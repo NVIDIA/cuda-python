@@ -39,8 +39,6 @@ jobs:
       contents: read
       checks: read
     outputs:
-      baseline-sha: ${{ steps.select.outputs.baseline_sha }}
-      commit-count: ${{ steps.select.outputs.commit_count }}
       dispatch: ${{ steps.select.outputs.dispatch }}
       correlation-id: ${{ steps.resolve.outputs.correlation_id }}
       public-run-id: ${{ steps.resolve.outputs.public_run_id }}
@@ -131,8 +129,6 @@ jobs:
 
       - name: Dispatch and verify exact private validation
         env:
-          BASELINE_SHA: ${{ needs.resolve-public-build.outputs.baseline-sha }}
-          COMMIT_COUNT: ${{ needs.resolve-public-build.outputs.commit-count }}
           CORRELATION_ID: ${{ needs.resolve-public-build.outputs.correlation-id }}
           GH_TOKEN: ${{ steps.private-app-token.outputs.token }}
           PUBLIC_RUN_ID: ${{ needs.resolve-public-build.outputs.public-run-id }}
@@ -140,8 +136,6 @@ jobs:
         run: |
           set -euo pipefail
           payload=$(jq -n \
-            --arg baseline_sha "$BASELINE_SHA" \
-            --arg commit_count "$COMMIT_COUNT" \
             --arg correlation_id "$CORRELATION_ID" \
             --arg run_id "$PUBLIC_RUN_ID" \
             --arg sha "$PUBLIC_SHA" \
@@ -154,8 +148,6 @@ jobs:
                 public_workflow_id: "155304118",
                 public_run_id: $run_id,
                 public_sha: $sha,
-                baseline_sha: $baseline_sha,
-                commit_count: $commit_count,
                 correlation_id: $correlation_id
               }
             }')

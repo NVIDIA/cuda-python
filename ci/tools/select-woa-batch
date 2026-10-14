@@ -49,9 +49,7 @@ for ((index = candidate_index + 1; index < commit_total; index++)); do
 done
 
 # Without a baseline in the scan window, validate immediately to bootstrap.
-# The initial count of one is a reporting default, not a measured history count.
 dispatch=true
-commit_count=1
 reason="Bootstrap: no successful App-owned baseline exists in the latest 100 commits."
 if [[ -n "$baseline_index" ]]; then
   # Count commits after the baseline through the candidate; test only the candidate.
@@ -73,7 +71,8 @@ if [[ -n "$baseline_index" ]]; then
   fi
 fi
 # Only dispatch=true enables the separate credential-bearing dispatch job.
-echo "baseline_sha=$baseline_sha" >> "$GITHUB_OUTPUT"
-echo "commit_count=$commit_count" >> "$GITHUB_OUTPUT"
 echo "dispatch=$dispatch" >> "$GITHUB_OUTPUT"
+if [[ -n "$baseline_sha" ]]; then
+  echo "Baseline: $baseline_sha; pending commits through $sha: $commit_count." >> "$GITHUB_STEP_SUMMARY"
+fi
 echo "$reason" >> "$GITHUB_STEP_SUMMARY"
