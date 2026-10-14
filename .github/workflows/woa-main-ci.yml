@@ -25,6 +25,10 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: cuda-python-woa-public-selector
+  cancel-in-progress: false
+
 jobs:
   resolve-public-build:
     if: ${{ github.repository == 'NVIDIA/cuda-python' }}
@@ -34,9 +38,6 @@ jobs:
       actions: read
       contents: read
       checks: read
-    concurrency:
-      group: cuda-python-woa-public-selector
-      cancel-in-progress: false
     outputs:
       baseline-sha: ${{ steps.select.outputs.baseline_sha }}
       commit-count: ${{ steps.select.outputs.commit_count }}
