@@ -48,8 +48,6 @@ repos:
         language: python
         files: ^(cuda_core/pyproject\.toml|ci/versions\.yml|cuda_core/cuda/core/_bindings_floor\.py|cuda_core/docs/source/.*\.rst|toolshed/check_cuda_core_bindings_floor\.py)$
         pass_filenames: false
-        additional_dependencies:
-          - "tomli>=1.1.0; python_version < '3.11'"
 
       - id: check-spdx
         name: Check SPDX Headers
@@ -57,7 +55,7 @@ repos:
         language: python
         additional_dependencies:
           - https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl
-        exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)|(^cuda_core/cuda/core/_vendored/)'
+        exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)|(^cuda_core/cuda/core/_vendored/)|(^cuda_core/third_party/)'
         args: ["--fix"]
 
       - id: check-generated-file-seals
@@ -81,12 +79,15 @@ repos:
         language: python
         files: '^cuda_core/tests/.*\.py$'
 
-      - id: check-build-hooks-sync
-        name: Check shared build_hooks.py blocks are in sync
-        entry: python ./toolshed/check_build_hooks_sync.py
-        language: python
-        files: '^(cuda_bindings|cuda_core)/build_hooks\.py$'
+      - id: check-build-shared-sync
+        name: Check _build_shared.py copies are identical
+        language: system
         pass_filenames: false
+        files: '^(cuda_bindings|cuda_core)/_build_shared\.py$'
+        entry: bash -c
+        args:
+          - 'git diff --no-index --exit-code -- cuda_bindings/_build_shared.py cuda_core/_build_shared.py || { echo "ERROR: cuda_bindings/_build_shared.py and cuda_core/_build_shared.py must be byte-identical. Copy one onto the other and commit both." >&2; exit 1; }'
+          - "_" # fake script name, because bash considers $0 (the first argument) to be the script name
 
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories

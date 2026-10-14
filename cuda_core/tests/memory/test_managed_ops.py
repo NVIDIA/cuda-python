@@ -61,12 +61,12 @@ def _skip_if_managed_discard_prefetch_unsupported(device):
 
 # Fixture set:
 #   * location_ops_device / location_ops_mr — concurrent_managed_access tier;
-#     covers advise/prefetch (every test in this file needs it).
+#     gates advise/prefetch tests that request these fixtures.
 #   * discard_prefetch_device — adds cuMemDiscardAndPrefetchBatchAsync +
 #     multi-GPU concurrent-managed-access check.
 #   * managed_buffer — parametrized over pool-allocated (ManagedMemoryResource)
-#     vs external (DummyUnifiedMemoryResource + from_handle); used by
-#     TestManagedBuffer so each method runs against both buffer sources.
+#     vs external (DummyUnifiedMemoryResource + from_handle); tests requesting
+#     this fixture run against both buffer sources.
 
 
 @pytest.fixture
@@ -471,6 +471,50 @@ class TestManagedBuffer:
 
         assert device in buf.accessed_by
         assert Host() in buf.accessed_by
+
+    @pytest.mark.thread_unsafe(reason="external_managed_buffer is shared between threads")
+    @pytest.mark.agent_authored(model="gpt-6-sol")
+    def test_accessed_by_rejects_non_location_types(self, location_ops_device, external_managed_buffer):
+        """``accessed_by`` handles invalid location types without mutating valid entries."""
+        device = location_ops_device
+        buf = external_managed_buffer
+        accessed_by = buf.accessed_by
+        invalid = "not-a-location"
+
+        buf.accessed_by = {device}
+        assert set(accessed_by) == {device}
+
+        assert invalid not in accessed_by
+        with pytest.raises(TypeError, match="expected Device or Host"):
+            accessed_by.add(invalid)
+        assert set(accessed_by) == {device}
+
+        accessed_by.discard(invalid)
+        assert set(accessed_by) == {device}
+
+        with pytest.raises(TypeError, match="accessed_by entries must be Device or Host"):
+            # A new valid entry precedes the invalid one, exposing partial mutation.
+            buf.accessed_by = [Host(), invalid]
+        assert set(accessed_by) == {device}
+
+    @pytest.mark.agent_authored(model="gpt-6-sol")
+    def test_managed_attribute_queries_reject_closed_buffer(self, init_cuda):
+        """Managed attribute queries reject closed buffers, including cached views."""
+        # A non-owning handle exercises closed guards without a managed allocation.
+        with ManagedBuffer.from_handle(0, 0) as buf:
+            assert not buf.is_closed
+            accessed_by = buf.accessed_by
+        assert buf.is_closed
+
+        for operation in (
+            lambda: buf.read_mostly,
+            lambda: buf.preferred_location,
+            lambda: buf.last_prefetch_location,
+            lambda: buf.accessed_by,
+            lambda: len(accessed_by),
+        ):
+            with pytest.raises(RuntimeError, match="Buffer has been closed"):
+                operation()
 
     def test_instance_prefetch(self, location_ops_device, managed_buffer):
         device = location_ops_device

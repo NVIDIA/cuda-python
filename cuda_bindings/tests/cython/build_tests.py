@@ -10,7 +10,7 @@ the namespace package's source root from `cuda.bindings.__file__` and pass
 it via `include_path=` so cythonize finds the .pxd tree on every platform.
 
 When CUDA_PYTHON_CYTHON_CACHE_DIR is set, cythonize uses the same cache
-namespacing and include-path aliasing as cuda_bindings/build_hooks.py.
+namespacing and include-path aliasing as the package build (``_build_shared.py``).
 """
 
 from __future__ import annotations
@@ -29,17 +29,18 @@ import cuda.bindings
 _COMPILER_DIRECTIVES = {"freethreading_compatible": True}
 
 
-def _load_build_hooks():
-    # PEP 517 backend, not an installed module. Load by path so we do not put
-    # cuda_bindings/ on sys.path (that would shadow the installed package).
-    build_hooks_path = Path(__file__).resolve().parents[2] / "build_hooks.py"
-    spec = importlib.util.spec_from_file_location("cuda_bindings_build_hooks", build_hooks_path)
+def _load_build_shared():
+    # A PEP 517 backend file, not an installed module. Load it by path so we do
+    # not put the package directory on sys.path (that would shadow the
+    # installed package). It needs only the standard library.
+    path = Path(__file__).resolve().parents[2] / "_build_shared.py"
+    spec = importlib.util.spec_from_file_location("cuda_bindings_build_shared", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
 
 
-build_hooks = _load_build_hooks()
+build_shared = _load_build_shared()
 
 
 def _bindings_source_root() -> Path:
@@ -53,7 +54,7 @@ def _bindings_source_root() -> Path:
 
 
 def _cythonize_tests(pyx_files):
-    cache_path = build_hooks._cython_cache_path(
+    cache_path = build_shared._cython_cache_path(
         "cuda-bindings-cython-tests",
         compiler_directives=_COMPILER_DIRECTIVES,
         language_level=3,
@@ -74,11 +75,11 @@ def _cythonize_tests(pyx_files):
 
     # Distinct alias names so a concurrent package build's .cython-stdlib /
     # .cython-bindings symlinks are not replaced. Relative aliases resolve
-    # next to build_hooks.py (package root).
+    # next to _build_shared.py (package root).
     stdlib_target = Path(Cython.__file__).parent / "Includes"
     with (
-        build_hooks._stable_cython_alias(stdlib_target, Path(".cython-stdlib-tests")) as rel_stdlib,
-        build_hooks._stable_cython_alias(_bindings_source_root(), Path(".cython-bindings-tests")) as rel_bindings,
+        build_shared._stable_cython_alias(stdlib_target, Path(".cython-stdlib-tests")) as rel_stdlib,
+        build_shared._stable_cython_alias(_bindings_source_root(), Path(".cython-bindings-tests")) as rel_bindings,
     ):
         return cythonize(
             pyx_files,

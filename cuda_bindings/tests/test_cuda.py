@@ -9,7 +9,6 @@ import textwrap
 
 import numpy as np
 import pytest
-from cuda_python_test_helpers.mempool import xfail_if_mempool_oom
 from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 
 import cuda.bindings.driver as cuda
@@ -269,7 +268,6 @@ def test_cuda_memPool_attr():
 
     attr_list = [None] * 8
     err, pool = cuda.cuMemPoolCreate(poolProps)
-    xfail_if_mempool_oom(err, "cuMemPoolCreate", poolProps.location.id)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     for idx, attr in enumerate(
@@ -487,7 +485,6 @@ def test_cuda_graphMem_attr(device):
         assert destroy_err == cuda.CUresult.CUDA_SUCCESS
         (destroy_err,) = cuda.cuStreamDestroy(stream)
         assert destroy_err == cuda.CUresult.CUDA_SUCCESS
-        xfail_if_mempool_oom(err, "cuGraphAddMemAllocNode", device)
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, freeNode = cuda.cuGraphAddMemFreeNode(graph, [allocNode], 1, params.dptr)
     assert err == cuda.CUresult.CUDA_SUCCESS

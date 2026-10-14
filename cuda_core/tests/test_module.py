@@ -902,3 +902,17 @@ def test_kernel_keeps_library_alive(init_cuda):
     stream.sync()
 
     assert result[0] == 42, f"Expected 42, got {result[0]}"
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_kernel_equality_hash_and_repr(get_saxpy_kernel_cubin):
+    """Kernel identity follows the underlying CUkernel handle."""
+    kernel, objcode = get_saxpy_kernel_cubin
+    same = Kernel.from_handle(int(kernel.handle), objcode)
+    other = objcode.get_kernel("saxpy<double>")
+
+    assert kernel == same
+    assert hash(kernel) == hash(same)
+    assert kernel != other
+    assert kernel != object()
+    assert repr(kernel).startswith("<Kernel handle=")

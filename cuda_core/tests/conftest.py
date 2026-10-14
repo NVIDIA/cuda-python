@@ -8,6 +8,7 @@ import multiprocessing
 import os
 import pathlib
 import sys
+import warnings
 
 import pytest
 
@@ -29,7 +30,11 @@ except ImportError as e:
 pytest_plugins = ["cuda_python_test_helpers._pytest_plugin"]
 
 from helpers.constants import POOL_SIZE
-from helpers.memory import skip_if_pinned_memory_unsupported
+from helpers.memory import (
+    BaselineMemoryResourceReleasedWarning,
+    UnreleasedMemoryResourceWarning,
+    skip_if_pinned_memory_unsupported,
+)
 
 import cuda.core
 from cuda.bindings import driver
@@ -43,7 +48,16 @@ from cuda.core import (
     PinnedMemoryResourceOptions,
     _device,
 )
+from cuda.core._memory._buffer import _live_owned_mempool_count, _live_va_reservation_count
 from cuda.core._utils.cuda_utils import handle_return
+
+
+def pytest_collection_finish(session):
+    # The per-test gc.collect() in init_cuda (below) must not re-traverse the
+    # collected items and the imported modules on every teardown: freeze them
+    # once. Objects created after this point are collected as before (#2381).
+    gc.collect()
+    gc.freeze()
 
 
 def pytest_configure(config):
@@ -117,6 +131,56 @@ def _item_uses_init_cuda(item):
     return "init_cuda" in getattr(item, "fixturenames", ())
 
 
+# init_cuda collects at teardown only if the process-wide count of live *owned*
+# driver resources (owned memory pools and VA reservations) differs from its
+# value at setup. The counts come from the C++ RAII layer, so a borrowed pool
+# reference (the device default pool) and MemoryResource subclasses that hold no
+# pool or reservation do not move them. That makes the gate sound only if no
+# older owned resource is released during a test (it could cancel a new leak),
+# so tests that construct owned resources must use init_cuda, and the leftover
+# check below reports owned resources that outlive a test without it.
+
+
+def _live_resource_counts():
+    """(owned memory pools, VA reservations) live process-wide, as a tuple.
+
+    Only *owned* driver resources are counted (see the C++ accessors), so this
+    excludes borrowed pool references and non-owning MemoryResource subclasses.
+    """
+    return (_live_owned_mempool_count(), _live_va_reservation_count())
+
+
+def _format_counts(counts):
+    owned_pools, va_reservations = counts
+    return f"owned_pools={owned_pools}, va_reservations={va_reservations}"
+
+
+# Counts after the last init_cuda test; None until one has run.
+_mr_expected_live = None
+# Counts at the start of the current item, before its fixtures set up.
+_mr_live_at_item_start = (0, 0)
+_mr_last_init_cuda_nodeid = None
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_protocol(item, nextitem):
+    # Leftover check: compare with the counts after the previous init_cuda test,
+    # not the session start, because they legitimately rise over a run (pools
+    # owned by module- or class-scoped fixtures).
+    global _mr_expected_live, _mr_live_at_item_start, _mr_last_init_cuda_nodeid
+    _mr_live_at_item_start = _live_resource_counts()
+    try:
+        return (yield)
+    finally:
+        live = _live_resource_counts()
+        if _item_uses_init_cuda(item):
+            _mr_expected_live = live
+            _mr_last_init_cuda_nodeid = item.nodeid
+        elif _mr_expected_live is not None:
+            # Only lower each component: a released resource must not hide a later leak.
+            _mr_expected_live = tuple(min(a, b) for a, b in zip(_mr_expected_live, live))
+
+
 class _CudaCoreParallelPlugin:
     """A mini pytest plugin used only for pytest-run-parallel testing.
     pytest-run-parallel spawns new threads for each test and we need to
@@ -164,34 +228,82 @@ def session_setup():
 
 
 @pytest.fixture
-def init_cuda():
+def init_cuda(request):
     # TODO: rename this to e.g. init_context
     device = Device(0)
+    # Everything that can raise after set_current() runs inside the try, so the
+    # finally pops this context; the leftover warning below is escalated to an
+    # error. A failed set_current() leaves nothing for the finally to undo.
+    # live_at_setup stays None until the setup snapshot is recorded.
     device.set_current()
-
-    # Set option to avoid spin-waiting on synchronization.
-    if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
-        handle_return(
-            driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
-        )
-
+    live_at_setup = None
     try:
+        # Set option to avoid spin-waiting on synchronization.
+        if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
+            handle_return(
+                driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
+            )
+
+        # Leftover check: growth since the previous init_cuda test means something
+        # in between left an owned resource alive. Collect first to sweep a cyclic
+        # leftover, and before the counts at setup are recorded so they are reflected there.
+        if _mr_expected_live is not None and any(
+            now > exp for now, exp in zip(_mr_live_at_item_start, _mr_expected_live)
+        ):
+            gc.collect()
+            now_counts = _live_resource_counts()
+            held = tuple(max(n - e, 0) for n, e in zip(now_counts, _mr_expected_live))
+            excess = tuple(s - e for s, e in zip(_mr_live_at_item_start, _mr_expected_live))
+            seed = getattr(request.config.option, "randomly_seed", None)
+            seed_msg = f" (pytest-randomly seed: {seed})" if seed is not None else ""
+            warnings.warn(
+                f"Owned resources were left alive by tests that ran since {_mr_last_init_cuda_nodeid} "
+                f"({_format_counts(excess)}; still alive after a collect: {_format_counts(held)}). "
+                f"A test or fixture that constructs a memory resource must request init_cuda.{seed_msg}",
+                UnreleasedMemoryResourceWarning,
+                stacklevel=2,
+            )
+
+        # Counts at setup. The device default pool is a borrowed reference and is
+        # not counted, so no cached-default bookkeeping is needed.
+        live_at_setup = _live_resource_counts()
         yield device
     finally:
+        # pytest holds fixture values in item.funcargs (a pytest-internal dict)
+        # until all teardown has run; we deliberately drop them so already
+        # torn-down fixtures are not counted below. Revisit if pytest changes
+        # how it retains fixture values.
+        request.node.funcargs.clear()
+        # Only an owned resource in a reference cycle outlives the test frame, so
+        # collect only if the counts differ from their values at setup. A lower
+        # count means an older resource was released, which could mask a leak
+        # in this test: collect in that case too. Skip the comparison when setup
+        # aborted before the snapshot (the leftover warning raises).
+        live_after = _live_resource_counts() if live_at_setup is not None else None
+        if live_after is not None and live_after != live_at_setup:
+            gc.collect()
         # Force any pool/allocation whose only remaining reference was a local
         # in this test's frame to actually get destroyed now, then drain the
         # context so the stream-ordered frees that destruction enqueues retire
-        # before the next test runs. Without this, a memory pool's VA
-        # reservation is not returned until both have happened, and per-test
-        # leftovers accumulate across the run -- which is how full-suite runs
-        # can exhaust address space and hit CUDA_ERROR_OUT_OF_MEMORY on a
-        # device with plenty of free physical memory (issue #2381). gc.collect()
-        # must run first: cuCtxSynchronize alone cannot drain frees that were
-        # never enqueued because their owning object had not been collected yet.
-        # With pytest-run-parallel this runs after worker join.
-        gc.collect()
+        # before the next test runs (issue #2381). gc.collect() above must run
+        # first: cuCtxSynchronize alone cannot drain frees that were never
+        # enqueued because their owning object had not been collected yet.
+        # With pytest-run-parallel this runs after worker join. This also runs
+        # when setup raises, so an escalated leftover warning cannot leave the
+        # context current.
         driver.cuCtxSynchronize()
         _ = _device_unset_current()
+        # After the cleanup, so an escalated warning cannot skip it.
+        if live_after is not None and any(now < snap for now, snap in zip(live_after, live_at_setup)):
+            released = tuple(s - n for s, n in zip(live_at_setup, live_after))
+            warnings.warn(
+                f"{request.node.nodeid} released owned resources that existed before it started "
+                f"({_format_counts(released)}; counts {_format_counts(live_after)}, snapshot "
+                f"{_format_counts(live_at_setup)}). A leak in this test could have been masked by "
+                "that release. Find what held the released resource.",
+                BaselineMemoryResourceReleasedWarning,
+                stacklevel=2,
+            )
 
 
 def _device_unset_current() -> bool:
