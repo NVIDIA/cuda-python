@@ -81,7 +81,7 @@ working build therefore needs all of the following:
 
 ### Recommended clone
 
-The default `git clone` plus the submodules gives you everything you need:
+Clone the repository with its submodules:
 
 ```console
 $ git clone --recurse-submodules https://github.com/NVIDIA/cuda-python.git
@@ -92,6 +92,13 @@ To keep initialized submodules in sync on `git pull`, `git checkout`, and
 
 ```console
 $ git config --local submodule.recurse true
+```
+
+This setting can also make `git push` recurse into submodules. To keep
+`git push` limited to this repository, also set this once per clone:
+
+```console
+$ git config --local push.recurseSubmodules no
 ```
 
 ### Fixing an existing clone
@@ -122,11 +129,15 @@ drift.
 
 ### Updating your clone
 
-If you did not set `git config --local submodule.recurse true`, use
-`git pull --recurse-submodules` to update initialized submodules to the commits
-recorded by the repository.
-Newly added submodules still need initialization; see
-[Fixing an existing clone](#fixing-an-existing-clone).
+To update your clone and initialize any newly added submodules, run:
+
+```console
+$ git pull --recurse-submodules && git submodule update --init
+```
+
+You can omit `--recurse-submodules` if you have already run
+`git config --local submodule.recurse true`. The second command is usually a
+no-op, but ensures that newly added submodules are initialized.
 
 ### Symptoms of a bad clone
 
