@@ -43,9 +43,7 @@ while an exception is being raised, for example the caller's context cannot be
 restored after a failed call, or the rollback of a partially built graph node
 fails, the second failure is attached to the exception as a note
 (:meth:`BaseException.add_note`), which appears in the traceback and in
-``__notes__``. Python 3.10 has no exception notes; there the information is
-appended to the message when ``cuda.core`` constructs the exception, and
-reported as described in the next section otherwise.
+``__notes__``.
 
 Failures that cannot be raised
 ------------------------------

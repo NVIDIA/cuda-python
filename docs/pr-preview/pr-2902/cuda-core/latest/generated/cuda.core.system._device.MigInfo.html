@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=79d1fee8"></script>
+    <script src="../_static/documentation_options.js?v=b1b18ef8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev100';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev222';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -600,6 +600,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.WorkqueueResourceOptions.html">cuda.core.WorkqueueResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ManagedBuffer.html">cuda.core.ManagedBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryBuffer.html">cuda.core.VirtualMemoryBuffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
@@ -801,14 +802,14 @@ the process.</p>
 <dd class="field-odd"><p>A list of all MIG devices corresponding to this GPU.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="cuda.core.system.Device.html#cuda.core.system.Device" title="cuda.core.system._device.Device">Device</a>]</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)">list</a>[<a class="reference internal" href="cuda.core.system.Device.html#cuda.core.system.Device" title="cuda.core.system._device.Device">Device</a>]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system._device.MigInfo.get_device_by_index">
-<span class="sig-name descname"><span class="pre">get_device_by_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.system.Device.html#cuda.core.system.Device" title="cuda.core.system._device.Device"><span class="pre">Device</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.MigInfo.get_device_by_index" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_device_by_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.system.Device.html#cuda.core.system.Device" title="cuda.core.system._device.Device"><span class="pre">Device</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.MigInfo.get_device_by_index" title="Link to this definition">#</a></dt>
 <dd><p>Get MIG device for the given index under its parent device.</p>
 <p>If the compute instance is destroyed either explicitly or by destroying,
 resetting or unbinding the parent GPU instance or the GPU device itself
@@ -818,7 +819,7 @@ the process.</p>
 <p>For Ampere™ or newer fully supported devices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>index</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The index of the MIG device (compute instance) to retrieve.  Must be
+<dd class="field-odd"><p><strong>index</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The index of the MIG device (compute instance) to retrieve.  Must be
 between 0 and the value returned by <cite>device_count - 1</cite>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -842,7 +843,7 @@ between 0 and the value returned by <cite>device_count - 1</cite>.</p>
 <dd class="field-odd"><p>The number of MIG devices (compute instances) on this GPU.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -870,7 +871,7 @@ mode refers to the target mode following the next activation trigger.</p>
 <dd class="field-odd"><p><cite>True</cite> if current MIG mode is enabled.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -903,7 +904,7 @@ mode refers to the target mode following the next activation trigger.</p>
 <dd class="field-odd"><p><cite>True</cite> if pending MIG mode is enabled.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
