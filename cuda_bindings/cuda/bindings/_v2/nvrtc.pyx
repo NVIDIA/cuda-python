@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e5df50b2fa1f113b297f627ba899f33c946541f048d781d6f3f0939e5a993791
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=19c58d80d518d7503530eddd3838b601f741b4e53ee1d46aa8ab4f8d62731795
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -162,7 +162,7 @@ class NoLoweredNamesBeforeCompilationError(NvrtcError):
     pass
 class NameExpressionNotValidError(NvrtcError):
     pass
-class InternalErrorError(NvrtcError):
+class InternalError(NvrtcError):
     pass
 class TimeFileWriteFailedError(NvrtcError):
     pass
@@ -201,7 +201,7 @@ cdef object _nvrtc_error_factory(int status):
     elif status == 10:
         return NameExpressionNotValidError(pystatus)
     elif status == 11:
-        return InternalErrorError(pystatus)
+        return InternalError(pystatus)
     elif status == 12:
         return TimeFileWriteFailedError(pystatus)
     elif status == 13:
@@ -217,8 +217,6 @@ cdef object _nvrtc_error_factory(int status):
     elif status == 18:
         return BusyError(pystatus)
     return NvrtcError(status)
-
-InternalError = InternalErrorError
 
 
 @cython.profile(False)

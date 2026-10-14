@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e213a599c26e97707d809da370dd1d9166e1ce88d002a18df1aa8f5c5ee919f7
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=669fccd9c90beac89a312832e43ef932007842229300c7a881d8bb6c960f9b6a
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -2418,7 +2418,7 @@ class HostMemoryAlreadyRegisteredError(DriverError):
     pass
 class HostMemoryNotRegisteredError(DriverError):
     pass
-class HardwareStackErrorError(DriverError):
+class HardwareStackError(DriverError):
     pass
 class IllegalInstructionError(DriverError):
     pass
@@ -2631,7 +2631,7 @@ cdef object _driver_error_factory(int status):
     elif status == 713:
         return HostMemoryNotRegisteredError(pystatus)
     elif status == 714:
-        return HardwareStackErrorError(pystatus)
+        return HardwareStackError(pystatus)
     elif status == 715:
         return IllegalInstructionError(pystatus)
     elif status == 716:
