@@ -849,15 +849,18 @@ def test_all_CUresult_codes():
         except ValueError:
             pass  # enum does not exist for this code
         else:
-            name = driver.get_error_name(error)
-            if name:
+            try:
+                name = driver.get_error_name(error)
+            except driver.InvalidValueError:
+                # enum exists but is not known to an older driver
+                # (example: cuda-bindings built with CTK 12.8, driver from CTK 12.0)
+                with pytest.raises(driver.InvalidValueError):
+                    driver.get_error_string(error)
+            else:
+                assert name
                 desc = driver.get_error_string(error)
                 assert desc
                 num_good += 1
-            else:
-                # enum exists but is not known to an older driver
-                # (example: cuda-bindings built with CTK 12.8, driver from CTK 12.0)
-                assert driver.get_error_string(error) == ""
     # Smoke test: Do we have at least some "good" codes?
     # The number will increase over time as new enums are added and support for
     # old CTKs is dropped, but it is not critical that this number is updated.
