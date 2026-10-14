@@ -10,6 +10,7 @@ from contextlib import contextmanager
 
 import pytest
 
+import cuda.bindings.driver as legacy_driver
 from cuda.bindings._v2 import driver
 
 # Keep in sync with cuda_core/tests/conftest.py.
@@ -49,7 +50,22 @@ def _thread_context():
         driver.ctx_destroy_v2(ctx)
 
 
-def _wrap_worker_cuda_test(func):
+@contextmanager
+def _legacy_thread_context():
+    # Same as _thread_context, but using the legacy API so that the objects
+    # passed to tests/legacy_api have the types those tests expect.
+    err, device = legacy_driver.cuDeviceGet(0)
+    assert err == legacy_driver.CUresult.CUDA_SUCCESS
+    err, ctx = legacy_driver.cuCtxCreate(None, 0, device)
+    assert err == legacy_driver.CUresult.CUDA_SUCCESS
+    try:
+        yield device, ctx
+    finally:
+        (err,) = legacy_driver.cuCtxDestroy(ctx)
+        assert err == legacy_driver.CUresult.CUDA_SUCCESS
+
+
+def _wrap_worker_cuda_test(func, thread_context):
     if getattr(func, "_cuda_bindings_worker_cuda_wrapped", False):
         return func
 
@@ -60,7 +76,7 @@ def _wrap_worker_cuda_test(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         kwargs = dict(kwargs)  # copy before mutating
-        with _thread_context() as (device, ctx):
+        with thread_context() as (device, ctx):
             # device is None when reusing an existing context (defensive path);
             # keep whatever the fixture provided in kwargs as-is.
             if wants_device and device is not None:
@@ -98,7 +114,11 @@ class _CudaBindingsParallelPlugin:
     def pytest_collection_modifyitems(self, config, items):
         for item in items:
             if _item_needs_thread_ctx(item):
-                item.obj = _wrap_worker_cuda_test(item.obj)
+                if "legacy_api" in item.path.parts:
+                    thread_context = _legacy_thread_context
+                else:
+                    thread_context = _thread_context
+                item.obj = _wrap_worker_cuda_test(item.obj, thread_context)
 
 
 @pytest.fixture(scope="module")
