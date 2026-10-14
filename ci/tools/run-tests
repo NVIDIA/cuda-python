@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -20,14 +20,20 @@ fi
 
 test_module=${1}
 
-# Unconditionally install pathfinder wheel
-# (it is a direct dependency of bindings, and a transitive dependency of core)
-pushd ./cuda_pathfinder
-echo "Installing pathfinder wheel"
-pwd
-ls
-pip install $(ls *.whl)[test]
-popd
+# Install the pathfinder wheel if one was downloaded
+# (it is a direct dependency of bindings, and a transitive dependency of core).
+# It is not downloaded for Python versions that main's pathfinder no longer
+# supports; pip then resolves a compatible release as a bindings dependency.
+if compgen -G "./cuda_pathfinder/*.whl" > /dev/null; then
+  pushd ./cuda_pathfinder
+  echo "Installing pathfinder wheel"
+  pwd
+  ls
+  pip install $(ls *.whl)[test]
+  popd
+else
+  echo "No pathfinder wheel found; relying on the PyPI release resolved as a dependency"
+fi
 
 if [[ "${test_module}" == "pathfinder" ]]; then
   pushd ./cuda_pathfinder
