@@ -1,0 +1,15 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 1.2.2 Release Notes
+=================================
+
+New features
+------------
+
+- Added wheels for Python 3.15, including the experimental free-threaded
+  build. On Python 3.15, ``cuda.core`` requires ``cuda.bindings`` 13.4.4 or
+  newer, the first release with Python 3.15 wheels, so Python 3.15 is
+  supported with CUDA 13 only. Python 3.10 remains supported.
