@@ -54,7 +54,6 @@ test = [
     "pytest-github-actions-annotate-failures==0.4.2",
     "pyglet==2.1.14",
     "packaging>=24",
-    "tomli>=2; python_version < '3.11'",
 ]
 test-ft = [
     "pytest-run-parallel==0.10.0",

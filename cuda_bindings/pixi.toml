@@ -21,7 +21,6 @@ pytest-repeat = "*"
 pyglet = ">=2.1.9"
 numpy = "*"
 packaging = "*"
-tomli = "*"
 matplotlib = "*"
 
 [feature.test.pypi-dependencies]

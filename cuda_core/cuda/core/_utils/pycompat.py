@@ -7,9 +7,8 @@ Compatibility shims for differences between supported Python versions.
 """
 
 import sys
-from enum import StrEnum
 
-__all__ = ["BufferProtocol", "StrEnum"]
+__all__ = ["BufferProtocol"]
 
 
 if sys.version_info >= (3, 12):
