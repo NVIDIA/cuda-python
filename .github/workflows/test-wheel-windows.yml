@@ -118,6 +118,9 @@ jobs:
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
       - name: Download cuda-pathfinder build artifacts from main branch
+        # main's cuda-pathfinder requires Python >=3.11; on 3.10 pip resolves a
+        # compatible release from PyPI as a dependency of cuda-bindings instead.
+        if: ${{ matrix.PY_VER != '3.10' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
