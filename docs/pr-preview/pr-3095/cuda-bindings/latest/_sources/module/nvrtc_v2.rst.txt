@@ -26,7 +26,6 @@ NVRTC defines the following enumeration type and function for API call error han
    CancelledError
    CompilationError
    InternalError
-   InternalErrorError
    InvalidInputError
    InvalidOptionError
    InvalidProgramError

@@ -268,7 +268,7 @@ This section describes the error handling functions of the low-level CUDA driver
    FunctionNotLoadedError
    GraphExecUpdateFailureError
    GraphRecaptureFailureError
-   HardwareStackErrorError
+   HardwareStackError
    HostMemoryAlreadyRegisteredError
    HostMemoryNotRegisteredError
    IllegalAddressError
