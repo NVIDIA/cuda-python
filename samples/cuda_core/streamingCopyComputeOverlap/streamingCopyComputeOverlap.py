@@ -103,7 +103,11 @@ def main():
     device.set_current()
 
     if not device.properties.memory_pools_supported:
-        print("PinnedMemoryResource requires CUDA memory pools, which are not supported on this device. Waiving.")
+        print("DeviceMemoryResource requires CUDA memory pools, which are not supported on this device. Waiving.")
+        sys.exit(EXIT_WAIVED)
+
+    if not device.properties.host_memory_pools_supported:
+        print("PinnedMemoryResource requires host memory pools, which are not supported on this device. Waiving.")
         sys.exit(EXIT_WAIVED)
 
     print()

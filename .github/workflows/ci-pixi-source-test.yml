@@ -65,9 +65,9 @@ env:
   # Temporarily bypass Pixi's workspace-wide freshness check: the unrelated
   # samples environment oscillates because excluded PyPI dependencies are
   # still checked. Frozen mode keeps the committed solution and source builds,
-  # including nested `pixi run` calls. The separate freshness workflow rejects
-  # every change except the exact known samples-source pruning defect.
-  # Restore PIXI_LOCKED after the upstream fix is released and verified.
+  # including nested `pixi run` calls. Freshness enforcement and automated
+  # refreshes are temporarily suspended; dependency changes need manual review.
+  # Restore PIXI_LOCKED after the released-fix validation in ci/README.md.
   PIXI_FROZEN: "true"
 
 jobs:
@@ -88,6 +88,8 @@ jobs:
           # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
           fetch-depth: 0
           filter: blob:none
+          # third_party/cccl provides the CCCL headers cuda.core compiles against.
+          submodules: true
 
       - name: Setup pixi
         uses: ./.github/actions/setup-pixi
@@ -145,6 +147,8 @@ jobs:
           # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
           fetch-depth: 0
           filter: blob:none
+          # third_party/cccl provides the CCCL headers cuda.core compiles against.
+          submodules: true
 
       - name: Setup pixi
         uses: ./.github/actions/setup-pixi
@@ -211,6 +215,8 @@ jobs:
           # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
           fetch-depth: 0
           filter: blob:none
+          # third_party/cccl provides the CCCL headers cuda.core compiles against.
+          submodules: true
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main

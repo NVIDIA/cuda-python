@@ -6,6 +6,11 @@
 ``cuda.core`` 1.3.0 Release Notes
 ==================================
 
+Highlights
+----------
+
+- Support for Python 3.10 is dropped (end of life).
+
 Breaking Changes
 ----------------
 
