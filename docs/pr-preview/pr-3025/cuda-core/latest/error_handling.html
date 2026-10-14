@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=f33edda1"></script>
+    <script src="_static/documentation_options.js?v=86490492"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev176';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev221';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -814,9 +814,7 @@ while an exception is being raised, for example the caller’s context cannot be
 restored after a failed call, or the rollback of a partially built graph node
 fails, the second failure is attached to the exception as a note
 (<a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#BaseException.add_note" title="(in Python v3.15)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseException.add_note()</span></code></a>), which appears in the traceback and in
-<code class="docutils literal notranslate"><span class="pre">__notes__</span></code>. Python 3.10 has no exception notes; there the information is
-appended to the message when <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> constructs the exception, and
-reported as described in the next section otherwise.</p>
+<code class="docutils literal notranslate"><span class="pre">__notes__</span></code>.</p>
 </section>
 <section id="failures-that-cannot-be-raised">
 <h2>Failures that cannot be raised<a class="headerlink" href="#failures-that-cannot-be-raised" title="Link to this heading">#</a></h2>
