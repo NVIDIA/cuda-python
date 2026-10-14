@@ -172,7 +172,7 @@ cdef class Stream:
         # For green contexts, the C++ layer auto-dispatches to cuGreenCtxStreamCreate,
         # a 12.5 driver API. cuGreenCtxCreate itself is 12.4. The driver alone
         # decides availability. The gate lives here, not in C++.
-        if context.is_green and cy_driver_version() < (12, 5, 0):
+        if ctx.is_green and cy_driver_version() < (12, 5, 0):
             raise RuntimeError(
                 "Green context stream creation requires CUDA driver 12.5 or newer "
                 f"(current driver: {'.'.join(map(str, cy_driver_version()))})"
