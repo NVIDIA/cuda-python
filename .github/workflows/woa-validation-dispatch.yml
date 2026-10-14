@@ -3,14 +3,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: "WoA validation dispatch"
-run-name: "WoA exact dispatch for public run ${{ inputs.public_run_id }}"
+run-name: "WoA exact dispatch for ${{ inputs.public_run_id || 'latest successful public main CI run' }}"
 
 on:
   workflow_dispatch:
     inputs:
       public_run_id:
-        description: Successful public main CI run containing the exact WoA artifacts
-        required: true
+        description: Successful public main CI run; leave empty to find the latest successful main CI run
+        required: false
         type: string
 
 permissions: {}
@@ -29,8 +29,18 @@ jobs:
       correlation-id: ${{ steps.resolve.outputs.correlation_id }}
       public-producer-job-id: ${{ steps.resolve.outputs.public_producer_job_id }}
       public-run-attempt: ${{ steps.resolve.outputs.public_run_attempt }}
+      public-run-id: ${{ steps.resolve.outputs.public_run_id }}
       public-sha: ${{ steps.resolve.outputs.public_sha }}
     steps:
+      - name: Checkout main run lookup helper
+        if: ${{ inputs.public_run_id == '' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+          sparse-checkout: ci/tools/lookup-run-id
+          sparse-checkout-cone-mode: false
+
       - name: Resolve exact successful public build
         id: resolve
         env:
@@ -38,11 +48,20 @@ jobs:
           PUBLIC_RUN_ID: ${{ inputs.public_run_id }}
         run: |
           set -euo pipefail
+          public_sha=''
+          if [[ -z "$PUBLIC_RUN_ID" ]]; then
+            lookup_output=$(./ci/tools/lookup-run-id --branch main --head-sha NVIDIA/cuda-python CI)
+            mapfile -t lookup_result <<< "$lookup_output"
+            [[ ${#lookup_result[@]} == 2 ]]
+            PUBLIC_RUN_ID=${lookup_result[0]}
+            public_sha=${lookup_result[1]}
+            [[ "$public_sha" =~ ^[0-9a-f]{40}$ ]]
+          fi
           [[ "$PUBLIC_RUN_ID" =~ ^[1-9][0-9]*$ ]]
           run=$(gh api \
             -H 'X-GitHub-Api-Version: 2026-03-10' \
             "repos/NVIDIA/cuda-python/actions/runs/$PUBLIC_RUN_ID")
-          jq -e '
+          jq -e --arg sha "$public_sha" '
             .repository.full_name == "NVIDIA/cuda-python" and
             .workflow_id == 155304118 and
             .path == ".github/workflows/ci.yml" and
@@ -50,9 +69,12 @@ jobs:
             .head_branch == "main" and
             .status == "completed" and
             .conclusion == "success" and
+            ($sha == "" or .head_sha == $sha) and
             (.head_sha | test("^[0-9a-f]{40}$"))
           ' <<< "$run" >/dev/null
-          public_sha=$(jq -r .head_sha <<< "$run")
+          if [[ -z "$public_sha" ]]; then
+            public_sha=$(jq -r .head_sha <<< "$run")
+          fi
           public_run_attempt=$(jq -r '.run_attempt | tostring' <<< "$run")
 
           comparison=$(gh api \
@@ -114,6 +136,7 @@ jobs:
           echo "correlation_id=$correlation_id" >> "$GITHUB_OUTPUT"
           echo "public_producer_job_id=$public_producer_job_id" >> "$GITHUB_OUTPUT"
           echo "public_run_attempt=$public_run_attempt" >> "$GITHUB_OUTPUT"
+          echo "public_run_id=$PUBLIC_RUN_ID" >> "$GITHUB_OUTPUT"
           echo "public_sha=$public_sha" >> "$GITHUB_OUTPUT"
           {
             echo "Resolved public run \`$PUBLIC_RUN_ID\` attempt \`$public_run_attempt\` and producer job \`$public_producer_job_id\`."
@@ -144,7 +167,7 @@ jobs:
           CORRELATION_ID: ${{ needs.resolve-public-build.outputs.correlation-id }}
           GH_TOKEN: ${{ steps.private-app-token.outputs.token }}
           PUBLIC_RUN_ATTEMPT: ${{ needs.resolve-public-build.outputs.public-run-attempt }}
-          PUBLIC_RUN_ID: ${{ inputs.public_run_id }}
+          PUBLIC_RUN_ID: ${{ needs.resolve-public-build.outputs.public-run-id }}
           PUBLIC_PRODUCER_JOB_ID: ${{ needs.resolve-public-build.outputs.public-producer-job-id }}
           PUBLIC_SHA: ${{ needs.resolve-public-build.outputs.public-sha }}
         run: |
