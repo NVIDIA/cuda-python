@@ -61,7 +61,7 @@ jobs:
               --jq '.workflow_runs[0]')
           fi
           jq -e '
-            .repository.id == 381173759 and
+            .repository.full_name == "NVIDIA/cuda-python" and
             .workflow_id == 155304118 and
             .path == ".github/workflows/ci.yml" and
             .event == "push" and
@@ -70,9 +70,8 @@ jobs:
              (.status == "completed" and .conclusion == "success"))
           ' <<< "$run" >/dev/null
           run_id=$(jq -r '.id | tostring' <<< "$run")
-          attempt=$(jq -r '.run_attempt | tostring' <<< "$run")
           sha=$(jq -r .head_sha <<< "$run")
-          external_id="woa:v1:381173759:$run_id:$attempt:$sha"
+          external_id="woa:v1:NVIDIA/cuda-python:$run_id:$sha"
 
           checks=$(gh api \
             -H 'X-GitHub-Api-Version: 2026-03-10' \
@@ -142,7 +141,7 @@ jobs:
     permissions:
       actions: read
       contents: read
-    uses: ./.github/workflows/woa-private-dispatch.yml
+    uses: ./.github/workflows/woa-validation-dispatch.yml
     with:
       public_run_id: ${{ needs.select.outputs.public-run-id }}
       baseline_sha: ${{ needs.select.outputs.baseline-sha }}

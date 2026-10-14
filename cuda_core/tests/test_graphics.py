@@ -7,17 +7,23 @@ import ctypes
 import ctypes.util
 import gc
 import os
+import pathlib
+import subprocess
 import sys
+import textwrap
 
 import numpy as np
 import pyglet
 import pytest
 from cuda_python_test_helpers.graphics import (
+    gl_context_not_on_nvidia_gpu_reason,
     is_gl_context_unavailable,
     open_gl_window,
     select_headless_egl_device_for_cuda,
+    tcc_skip_reason,
 )
 
+import cuda_python_test_helpers
 from cuda.core import (
     Buffer,
     Device,
@@ -55,6 +61,12 @@ def _register_gl_image(tex_id, target):
         raise
 
 
+def _skip_if_tcc():
+    """Skip on TCC: compute-only driver model, no OpenGL, so CUDA-GL interop is unavailable."""
+    if reason := tcc_skip_reason():
+        pytest.skip(reason)
+
+
 def _configure_pyglet_headless():
     """On headless Linux: enable EGL mode, matched to the current CUDA device, or skip if EGL is absent."""
     if sys.platform.startswith("linux") and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
@@ -69,6 +81,39 @@ def _configure_pyglet_headless():
         egl_device = select_headless_egl_device_for_cuda(Device().device_id)
         if egl_device is not None:
             pyglet.options["headless_device"] = egl_device
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_egl_device_probe_does_not_import_pyglet_gl():
+    """The probe runs before ``headless_device`` is set.
+
+    Importing ``pyglet.gl`` there creates pyglet's shadow window, which in
+    headless mode opens EGL device 0 and keeps it for the whole session: the
+    failure that #2865 fixed. A subprocess gives a clean ``sys.modules``.
+    """
+    if not sys.platform.startswith("linux") or ctypes.util.find_library("EGL") is None:
+        pytest.skip("needs a Linux EGL runtime")
+    code = textwrap.dedent(
+        """
+        import sys
+
+        import pyglet
+        from cuda_python_test_helpers.graphics import select_headless_egl_device_for_cuda
+
+        pyglet.options["headless"] = True
+        select_headless_egl_device_for_cuda(0)
+        assert "pyglet.gl" not in sys.modules, "the EGL device probe imported pyglet.gl"
+        """
+    )
+    # The child inherits neither this process's sys.path nor conftest's
+    # source-checkout fallback, so point it at the package the parent imported.
+    helpers_root = pathlib.Path(cuda_python_test_helpers.__file__).parents[1]
+    env = dict(os.environ)
+    env["PYTHONPATH"] = os.pathsep.join(p for p in (str(helpers_root), env.get("PYTHONPATH")) if p)
+    proc = subprocess.run(  # noqa: S603 - trusted argv: this interpreter
+        [sys.executable, "-c", code], capture_output=True, text=True, env=env
+    )
+    assert proc.returncode == 0, proc.stderr
 
 
 def _allocate_gl_buffer(win, nbytes):
@@ -119,6 +164,7 @@ def _allocate_gl_texture(win, width, height):
 @contextlib.contextmanager
 def _gl_context_and_buffer(nbytes=1024):
     """Yield ``(gl_buffer_name, nbytes)`` with a current GL context, or skip if GL is unavailable."""
+    _skip_if_tcc()
     _configure_pyglet_headless()
 
     try:
@@ -130,6 +176,8 @@ def _gl_context_and_buffer(nbytes=1024):
 
     buf_id = None
     try:
+        if reason := gl_context_not_on_nvidia_gpu_reason():
+            pytest.skip(reason)
         buf_id = _allocate_gl_buffer(win, nbytes)
         yield int(buf_id.value), nbytes
     finally:
@@ -147,6 +195,7 @@ def _gl_context_and_buffer(nbytes=1024):
 @contextlib.contextmanager
 def _gl_context_and_texture(width=16, height=16):
     """Yield ``(tex_id, tex_target)`` with a current GL context, or skip if GL is unavailable."""
+    _skip_if_tcc()
     _configure_pyglet_headless()
 
     try:
@@ -158,6 +207,8 @@ def _gl_context_and_texture(width=16, height=16):
 
     tex_id = None
     try:
+        if reason := gl_context_not_on_nvidia_gpu_reason():
+            pytest.skip(reason)
         tex_id, target = _allocate_gl_texture(win, width, height)
         yield int(tex_id.value), int(target)
     finally:

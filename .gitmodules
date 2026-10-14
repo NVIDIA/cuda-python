@@ -1,0 +1,4 @@
+[submodule "cuda_core/third_party/cccl"]
+	path = cuda_core/third_party/cccl
+	url = https://github.com/NVIDIA/cccl.git
+	branch = main
