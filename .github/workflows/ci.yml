@@ -490,7 +490,7 @@ jobs:
       actions: read
       checks: read
       contents: read
-    uses: ./.github/workflows/woa-main-automation.yml
+    uses: ./.github/workflows/woa-main-ci.yml
     with:
       public_run_id: ${{ github.run_id }}
     secrets: inherit

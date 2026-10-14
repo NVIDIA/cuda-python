@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-name: "WoA public-main automation"
+name: "WoA main CI"
+run-name: "WoA main CI for ${{ inputs.public_run_id || 'latest successful public main CI run' }}"
 
 on:
   workflow_call:
@@ -18,7 +19,7 @@ on:
   workflow_dispatch:
     inputs:
       public_run_id:
-        description: Optional exact public CI run; empty selects the newest successful build
+        description: Eligible public main CI run; leave empty to find the latest successful main CI run
         required: false
         type: string
 
@@ -135,15 +136,116 @@ jobs:
           echo "public_run_id=$run_id" >> "$GITHUB_OUTPUT"
           echo "$reason" >> "$GITHUB_STEP_SUMMARY"
 
-  dispatch:
+  resolve-public-build:
     needs: select
-    if: ${{ needs.select.outputs.dispatch == 'true' }}
+    if: ${{ github.repository == 'NVIDIA/cuda-python' && needs.select.outputs.dispatch == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       actions: read
       contents: read
-    uses: ./.github/workflows/woa-validation-dispatch.yml
-    with:
-      public_run_id: ${{ needs.select.outputs.public-run-id }}
-      baseline_sha: ${{ needs.select.outputs.baseline-sha }}
-      commit_count: ${{ needs.select.outputs.commit-count }}
-    secrets: inherit
+    outputs:
+      correlation-id: ${{ steps.resolve.outputs.correlation_id }}
+      public-run-id: ${{ steps.resolve.outputs.public_run_id }}
+      public-sha: ${{ steps.resolve.outputs.public_sha }}
+    steps:
+      - name: Resolve exact public build
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PUBLIC_RUN_ID: ${{ needs.select.outputs.public-run-id }}
+        run: |
+          set -euo pipefail
+          [[ "$PUBLIC_RUN_ID" =~ ^[1-9][0-9]*$ ]]
+          run=$(gh api \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/NVIDIA/cuda-python/actions/runs/$PUBLIC_RUN_ID")
+          jq -e '
+            .repository.full_name == "NVIDIA/cuda-python" and
+            .workflow_id == 155304118 and
+            .path == ".github/workflows/ci.yml" and
+            .event == "push" and
+            .head_branch == "main" and
+            ((.status == "in_progress" and .conclusion == null) or
+             (.status == "completed" and .conclusion == "success")) and
+            (.head_sha | test("^[0-9a-f]{40}$"))
+          ' <<< "$run" >/dev/null
+          public_sha=$(jq -r .head_sha <<< "$run")
+
+          comparison=$(gh api \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/NVIDIA/cuda-python/compare/$public_sha...main")
+          jq -e '.status == "ahead" or .status == "identical"' <<< "$comparison" >/dev/null
+
+          correlation_id="v1:NVIDIA/cuda-python:$PUBLIC_RUN_ID:$public_sha"
+          echo "correlation_id=$correlation_id" >> "$GITHUB_OUTPUT"
+          echo "public_run_id=$PUBLIC_RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "public_sha=$public_sha" >> "$GITHUB_OUTPUT"
+          {
+            echo "Resolved public run \`$PUBLIC_RUN_ID\` at commit \`$public_sha\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  dispatch-private-validation:
+    needs:
+      - select
+      - resolve-public-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: {}
+    steps:
+      - name: Create private dispatch token
+        id: private-app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3
+        with:
+          client-id: ${{ vars.CUDA_PYTHON_WOA_XREPO_CI_PRIVATE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.CUDA_PYTHON_WOA_XREPO_CI_PRIVATE_APP_PRIVATE_KEY }}
+          owner: NVIDIA-dev
+          repositories: cuda-python-private
+          permission-actions: write
+
+      - name: Dispatch and verify exact private validation
+        env:
+          BASELINE_SHA: ${{ needs.select.outputs.baseline-sha }}
+          COMMIT_COUNT: ${{ needs.select.outputs.commit-count }}
+          CORRELATION_ID: ${{ needs.resolve-public-build.outputs.correlation-id }}
+          GH_TOKEN: ${{ steps.private-app-token.outputs.token }}
+          PUBLIC_RUN_ID: ${{ needs.resolve-public-build.outputs.public-run-id }}
+          PUBLIC_SHA: ${{ needs.resolve-public-build.outputs.public-sha }}
+        run: |
+          set -euo pipefail
+          payload=$(jq -n \
+            --arg baseline_sha "$BASELINE_SHA" \
+            --arg commit_count "$COMMIT_COUNT" \
+            --arg correlation_id "$CORRELATION_ID" \
+            --arg run_id "$PUBLIC_RUN_ID" \
+            --arg sha "$PUBLIC_SHA" \
+            '{
+              ref: "ctk-next",
+              return_run_details: true,
+              inputs: {
+                schema_version: "1",
+                public_repository: "NVIDIA/cuda-python",
+                public_workflow_id: "155304118",
+                public_run_id: $run_id,
+                public_sha: $sha,
+                baseline_sha: $baseline_sha,
+                commit_count: $commit_count,
+                correlation_id: $correlation_id
+              }
+            }')
+          response=$(gh api \
+            --method POST \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            repos/NVIDIA-dev/cuda-python-private/actions/workflows/ctk-next-woa-validation.yml/dispatches \
+            --input - <<< "$payload")
+          private_run_id=$(jq -er '.workflow_run_id | tostring' <<< "$response")
+          run=$(gh api \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/NVIDIA-dev/cuda-python-private/actions/runs/$private_run_id")
+          jq -e '
+            .repository.full_name == "NVIDIA-dev/cuda-python-private" and
+            .path == ".github/workflows/ctk-next-woa-validation.yml" and
+            .event == "workflow_dispatch" and
+            .head_branch == "ctk-next"
+          ' <<< "$run" >/dev/null
+          echo "Private validation workflow accepted the exact dispatch." >> "$GITHUB_STEP_SUMMARY"
