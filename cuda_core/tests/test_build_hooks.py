@@ -63,7 +63,17 @@ build_hooks = _load_module("build_hooks", _PACKAGE_ROOT / "build_hooks.py")
 
 @pytest.fixture(autouse=True)
 def _isolate_toolchain_env():
-    names = ("CUDA_PYTHON_TOOLCHAIN", "CC", "CXX", "LDSHARED", "LDCXXSHARED", "CUDA_PYTHON_CYTHON_CACHE_DIR")
+    names = (
+        "CUDA_PYTHON_TOOLCHAIN",
+        "CC",
+        "CXX",
+        "CFLAGS",
+        "CXXFLAGS",
+        "CPPFLAGS",
+        "LDSHARED",
+        "LDCXXSHARED",
+        "CUDA_PYTHON_CYTHON_CACHE_DIR",
+    )
     original = {name: os.environ[name] for name in names if name in os.environ}
     for name in names:
         os.environ.pop(name, None)
@@ -236,38 +246,38 @@ class TestBuildConfigStamp:
         # No stamp means the last build's config is unknown, so rebuild.
         cuda_major, key = build_hooks._check_build_config("gnu", False, False)
         assert cuda_major == "13"
-        assert key == "cu13-gnu-opt"
+        assert key == "cu13-gnu-opt-cccl-first"
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_same_config_does_not_force(self, stamp):
-        _write_stamp(stamp, "cu13-gnu-opt")
+        _write_stamp(stamp, "cu13-gnu-opt-cccl-first")
         cuda_major, key = build_hooks._check_build_config("gnu", False, False)
         assert cuda_major == "13"
         assert build_hooks.force_build_ext is False
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_changed_cuda_major_forces_rebuild(self, stamp):
-        _write_stamp(stamp, "cu12-gnu-opt")
+        _write_stamp(stamp, "cu12-gnu-opt-cccl-first")
         cuda_major, _ = build_hooks._check_build_config("gnu", False, False)
         assert cuda_major == "13"
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_changed_toolchain_forces_rebuild(self, stamp):
-        _write_stamp(stamp, "cu13-gnu-opt")
+        _write_stamp(stamp, "cu13-gnu-opt-cccl-first")
         build_hooks._check_build_config("llvm", False, False)
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_changed_debug_forces_rebuild(self, stamp):
-        _write_stamp(stamp, "cu13-gnu-opt")
+        _write_stamp(stamp, "cu13-gnu-opt-cccl-first")
         build_hooks._check_build_config("gnu", True, False)
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_changed_coverage_forces_rebuild(self, stamp):
-        _write_stamp(stamp, "cu13-gnu-opt")
+        _write_stamp(stamp, "cu13-gnu-opt-cccl-first")
         build_hooks._check_build_config("gnu", False, True)
         assert build_hooks.force_build_ext is True
 
@@ -428,8 +438,8 @@ class TestGeneratedSourceDirIsKeyed:
 
         assert dir_12 != dir_13
         toolchain = "msvc" if sys.platform == "win32" else "gnu"
-        assert dir_12.name == f"cu12-{toolchain}-opt"
-        assert dir_13.name == f"cu13-{toolchain}-opt"
+        assert dir_12.name == f"cu12-{toolchain}-opt-cccl-first"
+        assert dir_13.name == f"cu13-{toolchain}-opt-cccl-first"
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_dir_is_anchored_not_relative_to_cwd(self, monkeypatch):

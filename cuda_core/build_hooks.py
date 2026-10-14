@@ -12,9 +12,11 @@ import glob
 import importlib.util
 import os
 import re
+import shlex
 import sys
 import tempfile
 import zipfile
+from distutils import sysconfig
 from pathlib import Path
 
 import Cython as _Cython
@@ -340,7 +342,8 @@ _BUILD_CONFIG_STAMP = _abi_stamp_path(".build-config")
 
 def _build_config_key(cuda_major, toolchain, debug, coverage):
     """Return a stable string key for the build configuration."""
-    return f"cu{cuda_major}-{toolchain}-{'debug' if debug else 'opt'}{'-cov' if coverage else ''}"
+    # Rebuild artifacts made before the pinned CCCL took precedence over environment flags.
+    return f"cu{cuda_major}-{toolchain}-{'debug' if debug else 'opt'}{'-cov' if coverage else ''}-cccl-first"
 
 
 def _check_build_config(toolchain, debug, coverage):
@@ -445,6 +448,20 @@ def _get_cccl_include_dirs() -> list[str]:
     return [str(libcudacxx_include)]
 
 
+def _configure_cccl_include_flags(include_dirs):
+    if sys.platform == "win32":
+        return
+
+    # setuptools puts environment flags before Extension.include_dirs;
+    # conda's cuda-nvcc activation adds a competing CCCL -I there.
+    cccl_flags = shlex.join([f"-I{path}" for path in include_dirs])
+    default_flags = sysconfig.get_config_var("CFLAGS") or ""
+    for name in ("CFLAGS", "CXXFLAGS", "CPPFLAGS"):
+        flags = os.environ.get(name, "" if name == "CPPFLAGS" else default_flags)
+        if flags != cccl_flags and not flags.startswith(cccl_flags + " "):
+            os.environ[name] = f"{cccl_flags} {flags}"
+
+
 def _build_cuda_core(debug=False):
     # Customizing the build hooks is needed because we must defer cythonization until cuda-bindings,
     # now a required build-time dependency that's dynamically installed via the other hook below,
@@ -491,7 +508,9 @@ def _build_cuda_core(debug=False):
             yield mod
 
     # The pinned CCCL must precede the toolkit's bundled headers.
-    all_include_dirs = [*_get_cccl_include_dirs(), os.path.join(cuda_path, "include")]
+    cccl_include_dirs = _get_cccl_include_dirs()
+    all_include_dirs = [*cccl_include_dirs, os.path.join(cuda_path, "include")]
+    _configure_cccl_include_flags(cccl_include_dirs)
 
     # Resolve the C/C++ toolchain (CUDA_PYTHON_TOOLCHAIN). The default (gnu on
     # Linux, msvc on Windows) reproduces the previous build behavior and does
