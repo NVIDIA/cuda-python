@@ -108,11 +108,18 @@ cdef extern from "_include/aoti_shim.h":
     # it lives in torch_cuda.dll (not torch_cpu.dll).  It is resolved lazily
     # at runtime via dlsym / GetProcAddress — see _resolve_cuda_stream_fn().
 
-# Runtime resolution for aoti_torch_get_current_cuda_stream.
-# This symbol lives in torch_cuda.dll (Windows) / libtorch_cuda.so (Linux),
-# NOT in torch_cpu.  We resolve it lazily on first use so that the module
-# can be imported even with CPU-only PyTorch.
+# Runtime resolution for symbols not statically bound.
+# aoti_torch_get_current_cuda_stream lives in torch_cuda.dll (Windows) /
+# libtorch_cuda.so (Linux), NOT in torch_cpu.  We resolve it lazily so
+# the module imports with CPU-only PyTorch.
+#
+# torch_tensor_from_pyobject / aoti_torch_delete_tensor_object are only
+# present in PyTorch >= 2.14 (stable PyObject<->Tensor C ABI, pytorch/pytorch#183323).
+# When present, we use them as the primary PyObject -> AtenTensorHandle path;
+# otherwise we fall back to the pyobj_to_aten_handle pointer-arithmetic trick.
 ctypedef AOTITorchError (*_get_cuda_stream_fn_t)(int32_t, void**) nogil
+ctypedef AOTITorchError (*_tensor_from_pyobj_fn_t)(void*, AtenTensorHandle*) nogil
+ctypedef AOTITorchError (*_delete_tensor_fn_t)(AtenTensorHandle) nogil
 
 cdef extern from *:
     """
@@ -123,6 +130,18 @@ cdef extern from *:
         if (!h) return NULL;
         return (void*)GetProcAddress(h, "aoti_torch_get_current_cuda_stream");
     }
+    static void* _resolve_tensor_from_pyobj_fn(void) {
+        HMODULE h = GetModuleHandleA("torch_cpu.dll");
+        if (!h) h = LoadLibraryA("torch_cpu.dll");
+        if (!h) return NULL;
+        return (void*)GetProcAddress(h, "torch_tensor_from_pyobject");
+    }
+    static void* _resolve_delete_tensor_fn(void) {
+        HMODULE h = GetModuleHandleA("torch_cpu.dll");
+        if (!h) h = LoadLibraryA("torch_cpu.dll");
+        if (!h) return NULL;
+        return (void*)GetProcAddress(h, "aoti_torch_delete_tensor_object");
+    }
     #else
     #include <dlfcn.h>
     #ifndef RTLD_DEFAULT
@@ -131,11 +150,52 @@ cdef extern from *:
     static void* _resolve_cuda_stream_fn(void) {
         return dlsym(RTLD_DEFAULT, "aoti_torch_get_current_cuda_stream");
     }
+    static void* _resolve_tensor_from_pyobj_fn(void) {
+        return dlsym(RTLD_DEFAULT, "torch_tensor_from_pyobject");
+    }
+    static void* _resolve_delete_tensor_fn(void) {
+        return dlsym(RTLD_DEFAULT, "aoti_torch_delete_tensor_object");
+    }
     #endif
     """
     void* _resolve_cuda_stream_fn() nogil
+    void* _resolve_tensor_from_pyobj_fn() nogil
+    void* _resolve_delete_tensor_fn() nogil
 
 cdef _get_cuda_stream_fn_t _cached_get_cuda_stream = NULL
+cdef _tensor_from_pyobj_fn_t _cached_tensor_from_pyobj = NULL
+cdef _delete_tensor_fn_t _cached_delete_tensor = NULL
+cdef bint _tried_resolve_pyobj_shim = False
+# Diagnostic/benchmark toggle: when False, the dispatch skips the shim path
+# even if the symbols were resolved.  Lets us benchmark fallback vs shim on
+# the same torch version.  Default True.
+cdef bint _use_shim_if_available = True
+
+# Diagnostic counters: how many view_as_torch_tensor calls used each path.
+cdef Py_ssize_t _shim_path_count = 0
+cdef Py_ssize_t _fallback_path_count = 0
+
+
+def _get_pyobj_path_counts():
+    """Return (shim_hits, fallback_hits) for the view_as_torch_tensor dispatch."""
+    return (_shim_path_count, _fallback_path_count)
+
+
+def _reset_pyobj_path_counts():
+    global _shim_path_count, _fallback_path_count
+    _shim_path_count = 0
+    _fallback_path_count = 0
+
+
+def _set_use_shim(bint enabled):
+    """Toggle whether the shim path is used when available (benchmarking only)."""
+    global _use_shim_if_available
+    _use_shim_if_available = enabled
+
+
+def _get_shim_available():
+    """Return True if the stable PyObject-conversion shim was resolved."""
+    return _cached_tensor_from_pyobj != NULL and _cached_delete_tensor != NULL
 
 import numpy
 import sys
@@ -358,7 +418,7 @@ def view_as_torch_tensor(
         If provided, populate this existing view in-place.  Otherwise a
         new instance is created.
     """
-    cdef AtenTensorHandle handle = pyobj_to_aten_handle(obj)
+    cdef AtenTensorHandle handle
     cdef void* data_ptr
     cdef int64_t ndim
     cdef int64_t* sizes_ptr
@@ -367,86 +427,115 @@ def view_as_torch_tensor(
     cdef int32_t device_type, device_index
     cdef StridedMemoryView buf
     cdef intptr_t _stream_ptr_int
+    cdef int itemsize
+    cdef _StridedLayout layout
+    cdef bint owned = False
+    global _cached_tensor_from_pyobj, _cached_delete_tensor
+    global _tried_resolve_pyobj_shim
+    global _shim_path_count, _fallback_path_count
 
-    # Note: we intentionally skip PyTorch's Python-level __dlpack__ guards
-    # (requires_grad, is_conj, is_neg, non-strided layout, wrong-device)
-    # for the same reason PyTorch's own __dlpack_c_exchange_api__ C path
-    # skips them — the C-level exchange path is designed for performance-
-    # critical consumers.  See DLTensorFromPyObjectNoSync in
-    # torch/csrc/Module.cpp which calls toDLPackNonOwning with zero checks.
+    # -- Resolve the pytorch stable PyObject<->Tensor shims (torch>=2.14) on
+    #    first call.  If present, use them for an owned handle.  Otherwise
+    #    fall back to the pyobj_to_aten_handle pointer-arithmetic trick.
+    if not _tried_resolve_pyobj_shim:
+        _cached_tensor_from_pyobj = <_tensor_from_pyobj_fn_t>_resolve_tensor_from_pyobj_fn()
+        _cached_delete_tensor = <_delete_tensor_fn_t>_resolve_delete_tensor_fn()
+        _tried_resolve_pyobj_shim = True
 
-    check_aoti(aoti_torch_get_data_ptr(handle, &data_ptr),
-               b"aoti_torch_get_data_ptr")
-    check_aoti(aoti_torch_get_dim(handle, &ndim),
-               b"aoti_torch_get_dim")
-    check_aoti(aoti_torch_get_sizes(handle, &sizes_ptr),
-               b"aoti_torch_get_sizes")
-    check_aoti(aoti_torch_get_strides(handle, &strides_ptr),
-               b"aoti_torch_get_strides")
-    check_aoti(aoti_torch_get_dtype(handle, &dtype_code),
-               b"aoti_torch_get_dtype")
-    check_aoti(aoti_torch_get_device_type(handle, &device_type),
-               b"aoti_torch_get_device_type")
-    check_aoti(aoti_torch_get_device_index(handle, &device_index),
-               b"aoti_torch_get_device_index")
-
-    # -- populate StridedMemoryView --
-    if view is not None:
-        buf = <StridedMemoryView>view
+    if (_use_shim_if_available
+            and _cached_tensor_from_pyobj != NULL
+            and _cached_delete_tensor != NULL):
+        check_aoti(_cached_tensor_from_pyobj(<void*>obj, &handle),
+                   b"torch_tensor_from_pyobject")
+        owned = True
+        _shim_path_count += 1
     else:
-        buf = StridedMemoryView.__new__(StridedMemoryView)
+        handle = pyobj_to_aten_handle(obj)
+        _fallback_path_count += 1
 
-    buf.ptr = <intptr_t>data_ptr
-    buf._dtype = None  # clear cached dtype (view may be reused)
-    # PyTorch always reports tensors as writable via both DLPack
-    # (flags=0, no DLPACK_FLAG_BITMASK_READ_ONLY) and CAI
-    # (__cuda_array_interface__["data"] = (ptr, False)).  Tensors that
-    # cannot be safely exported (requires_grad, conjugate, non-strided)
-    # are rejected with BufferError rather than marked read-only.
-    # The AOTI C ABI has no readonly query either, so False is correct.
-    buf.readonly = False
-    buf.exporting_obj = obj
-    buf.dl_tensor = NULL
-    buf.metadata = None
-    buf._buffer = None
+    try:
+        # Note: we intentionally skip PyTorch's Python-level __dlpack__ guards
+        # (requires_grad, is_conj, is_neg, non-strided layout, wrong-device)
+        # for the same reason PyTorch's own __dlpack_c_exchange_api__ C path
+        # skips them — the C-level exchange path is designed for performance-
+        # critical consumers.  See DLTensorFromPyObjectNoSync in
+        # torch/csrc/Module.cpp which calls toDLPackNonOwning with zero checks.
 
-    if device_type == _DEVICE_TYPE_CPU:
-        buf.device_id = -1
-        buf.is_device_accessible = False
-    elif device_type == _DEVICE_TYPE_CUDA:
-        buf.device_id = <int>device_index
-        buf.is_device_accessible = True
+        check_aoti(aoti_torch_get_data_ptr(handle, &data_ptr),
+                   b"aoti_torch_get_data_ptr")
+        check_aoti(aoti_torch_get_dim(handle, &ndim),
+                   b"aoti_torch_get_dim")
+        check_aoti(aoti_torch_get_sizes(handle, &sizes_ptr),
+                   b"aoti_torch_get_sizes")
+        check_aoti(aoti_torch_get_strides(handle, &strides_ptr),
+                   b"aoti_torch_get_strides")
+        check_aoti(aoti_torch_get_dtype(handle, &dtype_code),
+                   b"aoti_torch_get_dtype")
+        check_aoti(aoti_torch_get_device_type(handle, &device_type),
+                   b"aoti_torch_get_device_type")
+        check_aoti(aoti_torch_get_device_index(handle, &device_index),
+                   b"aoti_torch_get_device_index")
 
-        # -- stream ordering (matches the DLPack contract) --
-        # stream_ptr=None is ambiguous for CUDA tensors — the caller must
-        # explicitly choose -1 (no sync) or a valid stream pointer.
-        if stream_ptr is None:
+        # -- populate StridedMemoryView --
+        if view is not None:
+            buf = <StridedMemoryView>view
+        else:
+            buf = StridedMemoryView.__new__(StridedMemoryView)
+
+        buf.ptr = <intptr_t>data_ptr
+        buf._dtype = None  # clear cached dtype (view may be reused)
+        # PyTorch always reports tensors as writable via both DLPack
+        # (flags=0, no DLPACK_FLAG_BITMASK_READ_ONLY) and CAI
+        # (__cuda_array_interface__["data"] = (ptr, False)).  Tensors that
+        # cannot be safely exported (requires_grad, conjugate, non-strided)
+        # are rejected with BufferError rather than marked read-only.
+        # The AOTI C ABI has no readonly query either, so False is correct.
+        buf.readonly = False
+        buf.exporting_obj = obj
+        buf.dl_tensor = NULL
+        buf.metadata = None
+        buf._buffer = None
+
+        if device_type == _DEVICE_TYPE_CPU:
+            buf.device_id = -1
+            buf.is_device_accessible = False
+        elif device_type == _DEVICE_TYPE_CUDA:
+            buf.device_id = <int>device_index
+            buf.is_device_accessible = True
+
+            # -- stream ordering (matches the DLPack contract) --
+            # stream_ptr=None is ambiguous for CUDA tensors — the caller must
+            # explicitly choose -1 (no sync) or a valid stream pointer.
+            if stream_ptr is None:
+                raise BufferError(
+                    "stream_ptr=None is ambiguous for CUDA tensors; "
+                    "pass stream_ptr=-1 to opt out of synchronization, "
+                    "or pass a valid stream pointer")
+            _stream_ptr_int = int(stream_ptr)
+            if _stream_ptr_int != -1:
+                sync_torch_stream(device_index, _stream_ptr_int)
+        else:
             raise BufferError(
-                "stream_ptr=None is ambiguous for CUDA tensors; "
-                "pass stream_ptr=-1 to opt out of synchronization, "
-                "or pass a valid stream pointer")
-        _stream_ptr_int = int(stream_ptr)
-        if _stream_ptr_int != -1:
-            sync_torch_stream(device_index, _stream_ptr_int)
-    else:
-        raise BufferError(
-            f"Unsupported device type from torch tensor "
-            f"(AOTI device type id: {device_type})")
+                f"Unsupported device type from torch tensor "
+                f"(AOTI device type id: {device_type})")
 
-    # Defer full numpy dtype resolution until first .dtype access.
-    # Store the raw AOTI dtype code in metadata for lazy lookup.
-    buf.metadata = <int>dtype_code
+        # Defer full numpy dtype resolution until first .dtype access.
+        # Store the raw AOTI dtype code in metadata for lazy lookup.
+        buf.metadata = <int>dtype_code
 
-    # Build _StridedLayout.  init_from_ptr copies shape/strides so we are
-    # safe even though they are borrowed pointers.
-    cdef int itemsize = _get_aoti_itemsize(dtype_code)
-    cdef _StridedLayout layout = _StridedLayout.__new__(_StridedLayout)
-    layout.init_from_ptr(
-        <int>ndim,
-        sizes_ptr,
-        strides_ptr,
-        itemsize,
-    )
-    buf._layout = layout
+        # Build _StridedLayout.  init_from_ptr copies shape/strides so we are
+        # safe even though they are borrowed pointers (we immediately copy).
+        itemsize = _get_aoti_itemsize(dtype_code)
+        layout = _StridedLayout.__new__(_StridedLayout)
+        layout.init_from_ptr(
+            <int>ndim,
+            sizes_ptr,
+            strides_ptr,
+            itemsize,
+        )
+        buf._layout = layout
 
-    return buf
+        return buf
+    finally:
+        if owned:
+            _cached_delete_tensor(handle)
