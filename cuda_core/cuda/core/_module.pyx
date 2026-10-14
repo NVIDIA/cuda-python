@@ -373,7 +373,7 @@ cdef class KernelOccupancy:
             ))
         return dynamic_smem_size
 
-    def max_potential_cluster_size(self, LaunchConfig config: LaunchConfig, *, stream: Stream) -> int:
+    def max_potential_cluster_size(self, LaunchConfig config not None: LaunchConfig, *, Stream stream not None: Stream) -> int:
         """Maximum potential cluster size.
 
         The maximum potential cluster size for this kernel and given launch configuration.
@@ -401,7 +401,7 @@ cdef class KernelOccupancy:
             HANDLE_RETURN(cydriver.cuOccupancyMaxPotentialClusterSize(&cluster_size, func, &drv_cfg))
         return cluster_size
 
-    def max_active_clusters(self, LaunchConfig config: LaunchConfig, *, stream: Stream) -> int:
+    def max_active_clusters(self, LaunchConfig config not None: LaunchConfig, *, Stream stream not None: Stream) -> int:
         """Maximum number of active clusters on the target device.
 
         The maximum number of clusters that could concurrently execute on the target device.

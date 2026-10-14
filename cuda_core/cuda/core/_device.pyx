@@ -1207,7 +1207,7 @@ class Device:
         return self._memory_resource
 
     @memory_resource.setter
-    def memory_resource(self, MemoryResource mr: MemoryResource) -> None:
+    def memory_resource(self, MemoryResource mr not None: MemoryResource) -> None:
         self._memory_resource = mr
 
     @property

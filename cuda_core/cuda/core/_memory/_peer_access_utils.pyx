@@ -170,7 +170,7 @@ def _set_pool_access(DeviceMemoryResource mr, to_add: tuple[int, ...], to_remove
             PyMem_Free(access_desc)
 
 
-def _apply_peer_access_diff(mr: DeviceMemoryResource, to_add: Iterable[int], to_remove: Iterable[int]) -> None:
+def _apply_peer_access_diff(DeviceMemoryResource mr not None: DeviceMemoryResource, to_add: Iterable[int], to_remove: Iterable[int]) -> None:
     """Apply a peer-access diff in at most one driver call.
 
     Every write path on :class:`PeerAccessibleBySetProxy` and the
@@ -231,7 +231,7 @@ class PeerAccessibleBySetProxy(MutableSet["Device"]):
 
     __slots__ = ("_mr",)
 
-    def __init__(self, DeviceMemoryResource mr: DeviceMemoryResource) -> None:
+    def __init__(self, DeviceMemoryResource mr not None: DeviceMemoryResource) -> None:
         self._mr = mr
 
     @classmethod

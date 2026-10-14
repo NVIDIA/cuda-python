@@ -291,7 +291,7 @@ cdef class StridedMemoryView:
     @classmethod
     def from_buffer(
         cls,
-        buffer : Buffer,
+        cyBuffer buffer not None : Buffer,
         shape : tuple[int, ...],
         strides : tuple[int, ...] | None = None,
         *,
@@ -418,8 +418,8 @@ cdef class StridedMemoryView:
 
     def copy_from(
         self,
-        other: StridedMemoryView,
-        stream: Stream,
+        StridedMemoryView other not None: StridedMemoryView,
+        stream not None: Stream,
         allocator: object = None,
         blocking: bool | None = None,
     ) -> None:
@@ -454,7 +454,7 @@ cdef class StridedMemoryView:
 
     def copy_to(
         self,
-        other: StridedMemoryView,
+        StridedMemoryView other not None: StridedMemoryView,
         stream: Stream | None = None,
         allocator: object = None,
         blocking: bool | None = None,

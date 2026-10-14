@@ -389,8 +389,8 @@ cdef class Buffer:
     @classmethod
     def from_ipc_descriptor(
         cls, mr: DeviceMemoryResource | PinnedMemoryResource,
-        IPCBufferDescriptor ipc_descriptor: IPCBufferDescriptor,
-        *, stream: Stream
+        IPCBufferDescriptor ipc_descriptor not None: IPCBufferDescriptor,
+        *, Stream stream not None: Stream
     ) -> Buffer:
         """Import a buffer that was exported from another process.
 
@@ -542,7 +542,7 @@ cdef class Buffer:
             as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, s, options, "copy_to")
         return dst
 
-    def copy_from(self, Buffer src: Buffer, *, stream: Stream | GraphBuilder,
+    def copy_from(self, Buffer src not None: Buffer, *, stream: Stream | GraphBuilder,
                   options: CopyOptions | None = None) -> None:
         """Copy from the src buffer to this buffer asynchronously on the given stream.
 

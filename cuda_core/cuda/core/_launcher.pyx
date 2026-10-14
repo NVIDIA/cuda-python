@@ -29,8 +29,8 @@ __all__ = ['launch']
 
 def launch(
     stream: Stream | GraphBuilder | IsStreamType,
-    config: LaunchConfig,
-    Kernel kernel: Kernel,
+    LaunchConfig config not None: LaunchConfig,
+    Kernel kernel not None: Kernel,
     *kernel_args
 ) -> None:
     """Launches a :obj:`~_module.Kernel`
