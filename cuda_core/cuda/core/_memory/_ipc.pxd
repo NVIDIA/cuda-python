@@ -53,10 +53,18 @@ cdef class IPCAllocationHandle:
     cpdef close(self)
 
 
+# Descriptor of a VirtualMemoryResource buffer: one exported handle per
+# physical allocation that backs the buffer, in address order.
+cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
+    cdef readonly int   _handle_type
+    cdef readonly tuple _chunk_sizes
+    cdef readonly tuple _handles
+
+
 # Buffer IPC Implementation
 # -------------------------
 cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer)
-cdef Buffer Buffer_from_ipc_descriptor(cls, _MemPool, IPCBufferDescriptor, stream)
+cdef Buffer Buffer_from_ipc_descriptor(cls, object, IPCBufferDescriptor, stream)
 
 
 # _MemPool IPC Implementation
