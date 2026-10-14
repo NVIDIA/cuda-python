@@ -1395,7 +1395,9 @@ def test_cudart_eglFrame():
     assert int(frame.frame.pPitch[2].ysize) == 0
 
 
-def cudart_func_stream_callback(use_host_api):
+@pytest.mark.parametrize("use_host_api", [False, True], ids=["stream_callback", "host_function"])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_cudart_func_callback(use_host_api):
     class testStruct(ctypes.Structure):
         _fields_ = [
             ("a", ctypes.c_int),
@@ -1403,25 +1405,22 @@ def cudart_func_stream_callback(use_host_api):
             ("c", ctypes.c_int),
         ]
 
+    calls = []
+    stream_results = []
+
     def task_callback_host(userData):
         data = testStruct.from_address(userData)
-        assert data.a == 1
-        assert data.b == 2
-        assert data.c == 3
-        return 0
+        calls.append((userData, data.a, data.b, data.c))
 
     def task_callback_stream(stream, status, userData):
-        data = testStruct.from_address(userData)
-        assert data.a == 1
-        assert data.b == 2
-        assert data.c == 3
-        return 0
+        stream_results.append((stream, status))
+        task_callback_host(userData)
 
     if use_host_api:
-        callback_type = ctypes.PYFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
+        callback_type = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
         target_task = task_callback_host
     else:
-        callback_type = ctypes.PYFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p)
+        callback_type = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p)
         target_task = task_callback_stream
 
     # Construct ctype data
@@ -1437,19 +1436,22 @@ def cudart_func_stream_callback(use_host_api):
     # Run
     err, stream = cudart.cudaStreamCreate()
     assertSuccess(err)
-    if use_host_api:
-        (err,) = cudart.cudaLaunchHostFunc(stream, callback, ctypes.addressof(c_data))
+    try:
+        if use_host_api:
+            (err,) = cudart.cudaLaunchHostFunc(stream, callback, ctypes.addressof(c_data))
+        else:
+            (err,) = cudart.cudaStreamAddCallback(stream, callback, ctypes.addressof(c_data), 0)
         assertSuccess(err)
-    else:
-        (err,) = cudart.cudaStreamAddCallback(stream, callback, ctypes.addressof(c_data), 0)
+        (err,) = cudart.cudaStreamSynchronize(stream)
         assertSuccess(err)
-    (err,) = cudart.cudaDeviceSynchronize()
-    assertSuccess(err)
 
-
-def test_cudart_func_callback():
-    cudart_func_stream_callback(use_host_api=False)
-    cudart_func_stream_callback(use_host_api=True)
+        # ctypes swallows callback exceptions, so assert on the test thread.
+        assert calls == [(ctypes.addressof(c_data), 1, 2, 3)]
+        if not use_host_api:
+            assert stream_results == [(int(stream), int(cudart.cudaError_t.cudaSuccess))]
+    finally:
+        (err,) = cudart.cudaStreamDestroy(stream)
+        assertSuccess(err)
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
@@ -1466,29 +1468,32 @@ def test_cudart_host_func_graph_replay():
     callback = cudart.cudaHostFn_t(_ptr=ctypes.addressof(host_fn))
     err, stream = cudart.cudaStreamCreate()
     assertSuccess(err)
-    (err,) = cudart.cudaStreamBeginCapture(stream, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeGlobal)
-    assertSuccess(err)
-    (err,) = cudart.cudaLaunchHostFunc(stream, callback, ctypes.addressof(counter))
-    assertSuccess(err)
-    err, graph = cudart.cudaStreamEndCapture(stream)
-    assertSuccess(err)
-    err, graphExec = cudart.cudaGraphInstantiate(graph, 0)
-    assertSuccess(err)
-
-    launches = 5
-    for _ in range(launches):
-        (err,) = cudart.cudaGraphLaunch(graphExec, stream)
+    try:
+        (err,) = cudart.cudaStreamBeginCapture(stream, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeGlobal)
         assertSuccess(err)
-        (err,) = cudart.cudaStreamSynchronize(stream)
+        (err,) = cudart.cudaLaunchHostFunc(stream, callback, ctypes.addressof(counter))
         assertSuccess(err)
-    assert counter.value == launches
-
-    (err,) = cudart.cudaGraphExecDestroy(graphExec)
-    assertSuccess(err)
-    (err,) = cudart.cudaGraphDestroy(graph)
-    assertSuccess(err)
-    (err,) = cudart.cudaStreamDestroy(stream)
-    assertSuccess(err)
+        err, graph = cudart.cudaStreamEndCapture(stream)
+        assertSuccess(err)
+        try:
+            err, graphExec = cudart.cudaGraphInstantiate(graph, 0)
+            assertSuccess(err)
+            try:
+                for launch in range(1, 6):
+                    (err,) = cudart.cudaGraphLaunch(graphExec, stream)
+                    assertSuccess(err)
+                    (err,) = cudart.cudaStreamSynchronize(stream)
+                    assertSuccess(err)
+                    assert counter.value == launch
+            finally:
+                (err,) = cudart.cudaGraphExecDestroy(graphExec)
+                assertSuccess(err)
+        finally:
+            (err,) = cudart.cudaGraphDestroy(graph)
+            assertSuccess(err)
+    finally:
+        (err,) = cudart.cudaStreamDestroy(stream)
+        assertSuccess(err)
 
 
 @pytest.mark.skipif(

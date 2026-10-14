@@ -705,29 +705,32 @@ def test_cuda_launch_host_func_graph_replay():
     callback = cuda.CUhostFn(_ptr=ctypes.addressof(host_fn))
     err, stream = cuda.cuStreamCreate(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuStreamBeginCapture(stream, cuda.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_GLOBAL)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuLaunchHostFunc(stream, callback, ctypes.addressof(counter))
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, graph = cuda.cuStreamEndCapture(stream)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, graphExec = cuda.cuGraphInstantiate(graph, 0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    launches = 5
-    for _ in range(launches):
-        (err,) = cuda.cuGraphLaunch(graphExec, stream)
+    try:
+        (err,) = cuda.cuStreamBeginCapture(stream, cuda.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_GLOBAL)
         assert err == cuda.CUresult.CUDA_SUCCESS
-        (err,) = cuda.cuStreamSynchronize(stream)
+        (err,) = cuda.cuLaunchHostFunc(stream, callback, ctypes.addressof(counter))
         assert err == cuda.CUresult.CUDA_SUCCESS
-    assert counter.value == launches
-
-    (err,) = cuda.cuGraphExecDestroy(graphExec)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuGraphDestroy(graph)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuStreamDestroy(stream)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+        err, graph = cuda.cuStreamEndCapture(stream)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        try:
+            err, graphExec = cuda.cuGraphInstantiate(graph, 0)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+            try:
+                for launch in range(1, 6):
+                    (err,) = cuda.cuGraphLaunch(graphExec, stream)
+                    assert err == cuda.CUresult.CUDA_SUCCESS
+                    (err,) = cuda.cuStreamSynchronize(stream)
+                    assert err == cuda.CUresult.CUDA_SUCCESS
+                    assert counter.value == launch
+            finally:
+                (err,) = cuda.cuGraphExecDestroy(graphExec)
+                assert err == cuda.CUresult.CUDA_SUCCESS
+        finally:
+            (err,) = cuda.cuGraphDestroy(graph)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+    finally:
+        (err,) = cuda.cuStreamDestroy(stream)
+        assert err == cuda.CUresult.CUDA_SUCCESS
 
 
 def test_profiler():
