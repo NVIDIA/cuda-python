@@ -22,6 +22,7 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
   - [Cloning the repository](#cloning-the-repository)
     - [Recommended clone](#recommended-clone)
     - [Fixing an existing clone](#fixing-an-existing-clone)
+    - [Updating your clone](#updating-your-clone)
     - [Symptoms of a bad clone](#symptoms-of-a-bad-clone)
   - [Development on Windows](#development-on-windows)
     - [Enabling git symlinks](#enabling-git-symlinks)
@@ -86,6 +87,13 @@ The default `git clone` plus the submodules gives you everything you need:
 $ git clone --recurse-submodules https://github.com/NVIDIA/cuda-python.git
 ```
 
+To keep initialized submodules in sync on `git pull`, `git checkout`, and
+`git switch`, set this default once per clone:
+
+```console
+$ git config --local submodule.recurse true
+```
+
 ### Fixing an existing clone
 
 If you already have a shallow clone:
@@ -111,6 +119,14 @@ $ git fetch --tags upstream
 
 Keep doing this periodically — a fork that was correct when you created it will
 drift.
+
+### Updating your clone
+
+If you did not set `git config --local submodule.recurse true`, use
+`git pull --recurse-submodules` to update initialized submodules to the commits
+recorded by the repository.
+Newly added submodules still need initialization; see
+[Fixing an existing clone](#fixing-an-existing-clone).
 
 ### Symptoms of a bad clone
 
