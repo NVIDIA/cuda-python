@@ -16,9 +16,11 @@ import numpy as np
 import pyglet
 import pytest
 from cuda_python_test_helpers.graphics import (
+    gl_context_not_on_nvidia_gpu_reason,
     is_gl_context_unavailable,
     open_gl_window,
     select_headless_egl_device_for_cuda,
+    tcc_skip_reason,
 )
 
 import cuda_python_test_helpers
@@ -57,6 +59,12 @@ def _register_gl_image(tex_id, target):
         if "CUDA_ERROR_OPERATING_SYSTEM" in str(exc):
             pytest.skip(f"CUDA-GL interop refused by driver: {exc}")
         raise
+
+
+def _skip_if_tcc():
+    """Skip on TCC: compute-only driver model, no OpenGL, so CUDA-GL interop is unavailable."""
+    if reason := tcc_skip_reason():
+        pytest.skip(reason)
 
 
 def _configure_pyglet_headless():
@@ -156,6 +164,7 @@ def _allocate_gl_texture(win, width, height):
 @contextlib.contextmanager
 def _gl_context_and_buffer(nbytes=1024):
     """Yield ``(gl_buffer_name, nbytes)`` with a current GL context, or skip if GL is unavailable."""
+    _skip_if_tcc()
     _configure_pyglet_headless()
 
     try:
@@ -167,6 +176,8 @@ def _gl_context_and_buffer(nbytes=1024):
 
     buf_id = None
     try:
+        if reason := gl_context_not_on_nvidia_gpu_reason():
+            pytest.skip(reason)
         buf_id = _allocate_gl_buffer(win, nbytes)
         yield int(buf_id.value), nbytes
     finally:
@@ -184,6 +195,7 @@ def _gl_context_and_buffer(nbytes=1024):
 @contextlib.contextmanager
 def _gl_context_and_texture(width=16, height=16):
     """Yield ``(tex_id, tex_target)`` with a current GL context, or skip if GL is unavailable."""
+    _skip_if_tcc()
     _configure_pyglet_headless()
 
     try:
@@ -195,6 +207,8 @@ def _gl_context_and_texture(width=16, height=16):
 
     tex_id = None
     try:
+        if reason := gl_context_not_on_nvidia_gpu_reason():
+            pytest.skip(reason)
         tex_id, target = _allocate_gl_texture(win, width, height)
         yield int(tex_id.value), int(target)
     finally:

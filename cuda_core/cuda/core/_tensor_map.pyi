@@ -4,9 +4,16 @@ import enum
 from dataclasses import dataclass
 
 import numpy
+from _typeshed import Incomplete
 from cuda.bindings import cydriver
 from cuda.core._device import Device
+from cuda.core._memoryview import StridedMemoryView
+from typing_extensions import TypeAlias
 
+tma_interleave_layout: TypeAlias = int
+tma_swizzle: TypeAlias = int
+tma_l2_fetch_size: TypeAlias = int
+tma_oob_fill: TypeAlias = int
 __all__ = ['TensorMapDescriptor', 'TensorMapDescriptorOptions']
 _TMA_DT_UINT8: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT8)
 _TMA_DT_UINT16: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT16)
@@ -23,6 +30,7 @@ _TMA_DT_TFLOAT32: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_TFLOAT32)
 _TMA_DT_TFLOAT32_FTZ: int = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_TFLOAT32_FTZ)
 _NUMPY_DTYPE_TO_TMA = {numpy.dtype(numpy.uint8): _TMA_DT_UINT8, numpy.dtype(numpy.uint16): _TMA_DT_UINT16, numpy.dtype(numpy.uint32): _TMA_DT_UINT32, numpy.dtype(numpy.int32): _TMA_DT_INT32, numpy.dtype(numpy.uint64): _TMA_DT_UINT64, numpy.dtype(numpy.int64): _TMA_DT_INT64, numpy.dtype(numpy.float16): _TMA_DT_FLOAT16, numpy.dtype(numpy.float32): _TMA_DT_FLOAT32, numpy.dtype(numpy.float64): _TMA_DT_FLOAT64}
 _TMA_DATA_TYPE_SIZE = {_TMA_DT_UINT8: 1, _TMA_DT_UINT16: 2, _TMA_DT_UINT32: 4, _TMA_DT_INT32: 4, _TMA_DT_UINT64: 8, _TMA_DT_INT64: 8, _TMA_DT_FLOAT16: 2, _TMA_DT_FLOAT32: 4, _TMA_DT_FLOAT64: 8, _TMA_DT_BFLOAT16: 2, _TMA_DT_FLOAT32_FTZ: 4, _TMA_DT_TFLOAT32: 4, _TMA_DT_TFLOAT32_FTZ: 4}
+const_int_span: TypeAlias = Incomplete
 
 class TensorMapDataType(enum.IntEnum):
     """Data types for tensor map descriptors.
@@ -140,7 +148,7 @@ class TensorMapDescriptor:
     def device(self) -> Device | None:
         """Return the :obj:`~cuda.core.Device` associated with this descriptor."""
     @classmethod
-    def _from_tiled(cls, view, box_dim=None, *, options=None, element_strides=None, data_type=None, interleave=TensorMapInterleave.NONE, swizzle=TensorMapSwizzle.NONE, l2_promotion=TensorMapL2Promotion.NONE, oob_fill=TensorMapOOBFill.NONE):
+    def _from_tiled(cls, view: StridedMemoryView, box_dim=None, *, options=None, element_strides=None, data_type=None, interleave=TensorMapInterleave.NONE, swizzle=TensorMapSwizzle.NONE, l2_promotion=TensorMapL2Promotion.NONE, oob_fill=TensorMapOOBFill.NONE):
         """Create a tiled TMA descriptor from a validated view.
 
         Parameters
@@ -180,9 +188,11 @@ class TensorMapDescriptor:
         ValueError
             If the tensor rank is outside [1, 5], the pointer is not
             16-byte aligned, or dimension/stride constraints are violated.
+        CUDAError
+            If the CUDA driver rejects the encoded descriptor.
         """
     @classmethod
-    def _from_im2col(cls, view, pixel_box_lower_corner, pixel_box_upper_corner, channels_per_pixel, pixels_per_column, *, element_strides=None, data_type=None, interleave=TensorMapInterleave.NONE, swizzle=TensorMapSwizzle.NONE, l2_promotion=TensorMapL2Promotion.NONE, oob_fill=TensorMapOOBFill.NONE):
+    def _from_im2col(cls, view: StridedMemoryView, pixel_box_lower_corner, pixel_box_upper_corner, channels_per_pixel, pixels_per_column, *, element_strides=None, data_type=None, interleave=TensorMapInterleave.NONE, swizzle=TensorMapSwizzle.NONE, l2_promotion=TensorMapL2Promotion.NONE, oob_fill=TensorMapOOBFill.NONE):
         """Create an im2col TMA descriptor from a validated view.
 
         Im2col layout is used for convolution-style data access patterns.
@@ -229,7 +239,7 @@ class TensorMapDescriptor:
             16-byte aligned, or other constraints are violated.
         """
     @classmethod
-    def _from_im2col_wide(cls, view, pixel_box_lower_corner_width, pixel_box_upper_corner_width, channels_per_pixel, pixels_per_column, *, element_strides=None, data_type=None, interleave=TensorMapInterleave.NONE, mode=TensorMapIm2ColWideMode.W, swizzle=TensorMapSwizzle.SWIZZLE_128B, l2_promotion=TensorMapL2Promotion.NONE, oob_fill=TensorMapOOBFill.NONE):
+    def _from_im2col_wide(cls, view: StridedMemoryView, pixel_box_lower_corner_width, pixel_box_upper_corner_width, channels_per_pixel, pixels_per_column, *, element_strides=None, data_type=None, interleave=TensorMapInterleave.NONE, mode=TensorMapIm2ColWideMode.W, swizzle=TensorMapSwizzle.SWIZZLE_128B, l2_promotion=TensorMapL2Promotion.NONE, oob_fill=TensorMapOOBFill.NONE):
         """Create an im2col-wide TMA descriptor from a validated view.
 
         Im2col-wide layout loads elements exclusively along the W (width)
@@ -294,21 +304,3 @@ def _normalize_tensor_map_data_type(data_type): ...
 def _normalize_tensor_map_sequence(name, values): ...
 def _require_tensor_map_enum(name, value, enum_type): ...
 def _coerce_tensor_map_descriptor_options(box_dim, options, *, element_strides, data_type, interleave, swizzle, l2_promotion, oob_fill): ...
-def _resolve_data_type(view, data_type):
-    """Resolve the TMA data type from an explicit value or the view's dtype."""
-def _get_validated_view(tensor):
-    """Obtain a device-accessible StridedMemoryView with a 16-byte-aligned pointer."""
-def _require_view_device(view, expected_device_id, operation):
-    """Ensure device-local tensors match the current CUDA device.
-
-    DLPack reports host/managed CUDA memory as ``kDLCUDAHost`` /
-    ``kDLCUDAManaged`` with ``device_id=0`` regardless of the current device,
-    so only true ``kDLCUDA`` tensors are rejected by device-id mismatch.
-    """
-def _compute_byte_strides(shape, strides, elem_size):
-    """Compute byte strides from element strides or C-contiguous fallback.
-
-    Returns a tuple of byte strides in row-major order.
-    """
-def _validate_element_strides(element_strides, rank):
-    """Validate or default element_strides to all-ones."""

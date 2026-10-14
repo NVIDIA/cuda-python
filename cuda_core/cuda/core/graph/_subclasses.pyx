@@ -1594,6 +1594,10 @@ cdef class ExecutableMemcpyNode(ExecutableGraphNode):
             c_dst, c_src, size, &params.memcpy.copyParams,
             &dst_type, &src_type)
         # A destroyed node is reported by _set_executable_node_params below.
+        # The memory types are read from the definition node, not from the
+        # instantiated graph. That is correct only while MemcpyNode.update()
+        # keeps a unified operand unified, which it does; an executable update
+        # rejects a change of memory type.
         if node != NULL:
             with nogil:
                 HANDLE_RETURN(cydriver.cuGraphMemcpyNodeGetParams(

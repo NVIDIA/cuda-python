@@ -20,6 +20,8 @@ from cuda.core._rt cimport (
     deviceptr_create_with_owner,
     deviceptr_create_with_mr,
     register_mr_dealloc_callback,
+    live_owned_mempool_count,
+    live_va_reservation_count,
     as_intptr,
     as_cu,
     get_current_context,
@@ -32,6 +34,18 @@ from cuda.core._memory._copy_attributes cimport _to_cu_memcpy_attributes  # no-c
 
 from cuda.core._stream cimport Stream, Stream_accept, Stream_is_legacy_default_token, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
+
+
+# Process-wide counts of live *owned* driver resources, read by the test suite.
+# Counting lives in the C++ RAII layer (owned CUmemoryPool and VA reservations),
+# so borrowed pool references and MemoryResource subclasses that hold no pool or
+# reservation are excluded. conftest.py reads these to gate the per-test collect.
+def _live_owned_mempool_count() -> int:
+    return live_owned_mempool_count()
+
+
+def _live_va_reservation_count() -> int:
+    return live_va_reservation_count()
 
 import warnings
 from collections.abc import Sequence

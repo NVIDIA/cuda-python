@@ -6,7 +6,6 @@ import math
 
 import numpy as np
 import pytest
-from cuda_python_test_helpers.mempool import xfail_if_mempool_oom
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
@@ -524,7 +523,6 @@ def test_cudart_MemPool_attr():
 
     attr_list = [None] * 8
     err, pool = cudart.cudaMemPoolCreate(poolProps)
-    xfail_if_mempool_oom(err, "cudaMemPoolCreate", poolProps.location.id)
     assertSuccess(err)
 
     for idx, attr in enumerate(

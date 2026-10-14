@@ -66,24 +66,25 @@ version is read from the *repository root* rather than the package directory. A
 working build therefore needs all of the following:
 
 1. **A real git clone.** Source zips and GitHub "Download ZIP" archives have no
-   git metadata and the build fails outright. (Tarballs produced by
-   `git archive` do work, thanks to the `.git_archival.txt` substitutions
-   configured in `.gitattributes`.)
+   git metadata and the build fails outright. Tarballs produced by
+   `git archive` still resolve a version via the `.git_archival.txt`
+   substitutions in `.gitattributes`, but they do not include submodule
+   contents, so they cannot compile `cuda.core`.
 2. **The full repository**, not just the package subdirectory, because the
    version lookup walks up to the repository root.
 3. **Tags, reaching back at least as far as the most recent tag** matching the
    package you are building. `git describe` needs to find that tag; the history
    between it and your checkout must be present too.
+4. **The CCCL submodule** when building `cuda.core`. That package compiles
+   against the headers pinned in `cuda_core/third_party/cccl`.
 
 ### Recommended clone
 
-The default `git clone` gives you everything you need:
+The default `git clone` plus the submodules gives you everything you need:
 
 ```console
-$ git clone https://github.com/NVIDIA/cuda-python.git
+$ git clone --recurse-submodules https://github.com/NVIDIA/cuda-python.git
 ```
-
-
 
 ### Fixing an existing clone
 
@@ -91,6 +92,12 @@ If you already have a shallow clone:
 
 ```console
 $ git fetch --unshallow --tags
+```
+
+If you cloned without submodules:
+
+```console
+$ git submodule update --init cuda_core/third_party/cccl
 ```
 
 If you are working from a personal fork, your fork's tags stop tracking upstream
@@ -212,7 +219,9 @@ A few things to keep in mind:
   --config-file cuda_core/pyproject.toml
 
 ## Pre-commit
-This project uses [pre-commit.ci](https://pre-commit.ci/) with GitHub Actions. All pull requests are automatically checked for pre-commit compliance, and any pre-commit failures will block merging until resolved.
+GitHub Actions runs pre-commit checks on Linux and Windows and checks
+documentation links for pull requests. Check failures must be resolved
+before merging.
 
 To set yourself up for running pre-commit checks locally and to catch issues before pushing your changes, follow these steps:
 
@@ -227,8 +236,8 @@ Installing the hook is required, not optional. Some of the automated checks
 keep the tree consistent if they run on *every* commit. Relying on manual
 `pre-commit run --all-files` invocations means these checks can be skipped
 between commits, leaving stale headers or out-of-date stubs in the history.
-If the hook isn't installed, `pre-commit run` (and CI) will print a visible
-warning reminding you to run `pre-commit install`.
+If the hook isn't installed, `pre-commit run` will print a visible warning
+reminding you to run `pre-commit install`.
 
 Windows contributors: see [Pre-commit lychee workaround](#pre-commit-lychee-workaround) under Development on Windows.
 

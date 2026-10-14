@@ -35,6 +35,10 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   or CUDA headers (`CUDA_HOME`/`CUDA_PATH`) and uses it for build decisions.
 - Source builds require CUDA headers available through `CUDA_HOME` or
   `CUDA_PATH`.
+- CCCL headers come from the pinned `cuda_core/third_party/cccl` submodule, not
+  from the CTK, so the CCCL feature set does not vary with the build
+  environment. There is no fallback: a source build without the submodule
+  fails.
 - `cuda_core` requires `cuda-bindings` at or above a per-major *floor* at build
   time and at run time. At build time it also requires a `cuda.h` of the same
   major.minor as that `cuda-bindings` (NVIDIA/cuda-python#2783). The floors are
@@ -99,7 +103,7 @@ accepted. Do not add fallback logic for it. The order is:
 - **Cython tests**:
   - build: `tests/cython/build_tests.sh` (or platform equivalent)
   - run: `pytest tests/cython/`
-- **Examples**: validate affected examples in `examples/` when changing user
+- **Samples**: validate affected samples in `../samples/cuda_core/` when changing user
   workflows or public APIs.
 
 ## Runtime/build environment notes
@@ -116,7 +120,7 @@ accepted. Do not add fallback logic for it. The order is:
 
 ## Editing guidance
 
-- Keep user-facing behaviors coherent with docs and examples, especially around
+- Keep user-facing behaviors coherent with docs and samples, especially around
   stream semantics, memory ownership, and compile/link flows.
 - Reuse existing shared utilities in `cuda/core/_utils/` before adding new
   helpers.
