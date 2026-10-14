@@ -8,3 +8,14 @@ cuda:
     version: "13.4.2"
   prev_build:
     version: "12.9.1"
+python:
+  # Python versions the wheel matrix is built across. ci.yml reads this list
+  # and passes it to build-wheel.yml as the `python-versions` input.
+  supported:
+    - "3.11"
+    - "3.12"
+    - "3.13"
+    - "3.14"
+    - "3.14t"
+    - "3.15"
+    - "3.15t"

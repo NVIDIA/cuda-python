@@ -18,8 +18,7 @@ class CUDAError(Exception):
     The message names the CUDA error and, when one is known, explains it. A
     secondary failure observed while the error was being raised, such as a
     failed restoration of the caller's CUDA context, is attached as a note
-    (``__notes__``) on Python 3.11 and newer and appended to the message on
-    older interpreters. See the error handling page of the ``cuda.core``
+    (``__notes__``). See the error handling page of the ``cuda.core``
     documentation for the guarantees an exception provides.
     """
 

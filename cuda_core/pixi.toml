@@ -8,7 +8,7 @@ platforms = ["linux-64", "linux-aarch64", "win-64"]
 preview = ["pixi-build"]
 
 [workspace.build-variants]
-python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
+python = ["3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 # Keep source-package metadata aligned with the consuming environment's CUDA major.
 cuda-version = ["12.*", "13.4.*"]
 
@@ -25,7 +25,6 @@ docutils = "*"
 psutil = "*"
 pyglet = "*"
 packaging = "*"
-tomli = "*"  # PEP 723 parsing fallback on Python 3.10.
 
 [feature.test.pypi-dependencies]
 cuda-python-test-helpers = { path = "../cuda_python_test_helpers", editable = true }
@@ -41,7 +40,6 @@ cffi = "*"
 pyglet = "*"
 pytest = "*"
 packaging = "*"
-tomli = "*"  # PEP 723 parsing fallback on Python 3.10.
 # numpy pinned <2.5 so `numba` (transitive dep of `numba-cuda` in
 # samples/cuda_core/simplePrint) can install; numba currently requires numpy<2.5.
 numpy = ">=2.2.5,<2.5"
@@ -309,6 +307,10 @@ default-environment = "docs"
 
 [target.linux.tasks.docs-build-latest]
 cmd = ["$PIXI_PROJECT_ROOT/docs/build_docs.sh", "latest-only"]
+default-environment = "docs"
+
+[target.linux.tasks.docs-build-all-latest]
+cmd = ["bash", "$PIXI_PROJECT_ROOT/../ci/tools/build_docs_for_link_check.sh"]
 default-environment = "docs"
 
 [target.linux.tasks.docs-debug]
