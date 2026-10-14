@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+# The resolver has already validated this public main CI run and commit.
 run_id=$PUBLIC_RUN_ID
 sha=$PUBLIC_SHA
 external_id="woa:v1:NVIDIA/cuda-python:$run_id:$sha"
 
+# Any matching check from the reporting App suppresses a duplicate dispatch,
+# including checks that are still running, failed, or cancelled.
 checks=$(gh api \
   -H 'X-GitHub-Api-Version: 2026-03-10' \
   "repos/NVIDIA/cuda-python/commits/$sha/check-runs?check_name=cuda-python%20WoA%20integration&per_page=100")
@@ -16,6 +19,7 @@ if jq -e --arg id "$external_id" '
   exit 0
 fi
 
+# Scan at most 100 main commits, newest first. The candidate must be in this window.
 commits=$(gh api --method GET \
   -H 'X-GitHub-Api-Version: 2026-03-10' \
   repos/NVIDIA/cuda-python/commits -f sha=main -F per_page=100)
@@ -25,6 +29,8 @@ candidate_index=$(jq -er --arg sha "$sha" '
 commit_total=$(jq length <<< "$commits")
 baseline_index=""
 baseline_sha=""
+# The nearest older successful App-owned WoA check is the batching baseline.
+# Failed or cancelled validations do not advance it.
 for ((index = candidate_index + 1; index < commit_total; index++)); do
   older_sha=$(jq -r --argjson index "$index" '.[$index].sha' <<< "$commits")
   older_checks=$(gh api \
@@ -42,16 +48,21 @@ for ((index = candidate_index + 1; index < commit_total; index++)); do
   fi
 done
 
+# Without a baseline in the scan window, validate immediately to bootstrap.
+# The initial count of one is a reporting default, not a measured history count.
 dispatch=true
 commit_count=1
 reason="Bootstrap: no successful App-owned baseline exists in the latest 100 commits."
 if [[ -n "$baseline_index" ]]; then
+  # Count commits after the baseline through the candidate; test only the candidate.
   commit_count=$((baseline_index - candidate_index))
   oldest_pending_index=$((baseline_index - 1))
   oldest_pending_at=$(jq -r \
     --argjson index "$oldest_pending_index" \
     '.[$index].commit.committer.date' <<< "$commits")
+  # Age starts at the oldest pending commit's timestamp, not workflow start time.
   age_seconds=$(($(date +%s) - $(date -d "$oldest_pending_at" +%s)))
+  # Dispatch after three commits or two hours; hourly cron revisits deferred batches.
   if (( commit_count >= 3 )); then
     reason="Batch threshold reached: $commit_count commits."
   elif (( age_seconds >= 7200 )); then
@@ -61,6 +72,7 @@ if [[ -n "$baseline_index" ]]; then
     reason="Deferred: $commit_count/3 commits and oldest pending age $age_seconds/7200 seconds."
   fi
 fi
+# Only dispatch=true enables the separate credential-bearing dispatch job.
 echo "baseline_sha=$baseline_sha" >> "$GITHUB_OUTPUT"
 echo "commit_count=$commit_count" >> "$GITHUB_OUTPUT"
 echo "dispatch=$dispatch" >> "$GITHUB_OUTPUT"
