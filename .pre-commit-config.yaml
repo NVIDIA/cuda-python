@@ -60,6 +60,12 @@ repos:
         exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)|(^cuda_core/cuda/core/_vendored/)'
         args: ["--fix"]
 
+      - id: check-cython-not-none
+        name: Check cdef-class-annotated def parameters carry 'not None'
+        entry: python ./toolshed/check_cython_not_none.py
+        language: python
+        files: ^cuda_core/cuda/.*\.pyx$
+
       - id: check-generated-file-seals
         name: Check generated-file seals
         entry: python ./toolshed/check_generated_file_seals.py
