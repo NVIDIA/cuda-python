@@ -470,6 +470,7 @@ class TestReexport:
         return derived
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
+    @pytest.mark.thread_unsafe(reason="checks mapping state by address; another thread can reuse a freed address")
     def test_export_and_pickling_raise_before_any_driver_call(self, vmm_ipc_device):
         device = vmm_ipc_device
         stream = device.default_stream

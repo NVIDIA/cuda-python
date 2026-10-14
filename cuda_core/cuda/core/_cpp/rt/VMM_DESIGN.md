@@ -239,14 +239,19 @@ exists, in every process that holds one, and nothing else does. The exporting
 buffer keeps no descriptor: `ipc_descriptor` exports again on every access and
 returns a new descriptor that owns one file descriptor per allocation, and
 `VirtualMemoryBuffer.__reduce__` builds a transient one while `multiprocessing`
-pickles the buffer, so a sender holds no file descriptors between sends. One
+pickles the buffer, so a sender holds no file descriptors between sends. The
+numbers set that rule: PyTorch's expandable segments grow in 2 MB to 20 MB
+chunks, so a buffer of several GB holds several hundred allocations, against a
+default process limit of 1024 file descriptors. One
 transport needs more: a `Queue`, `Pipe`, or `Pool` duplicates the file
 descriptors while pickling (the resource sharer), but a spawned `Process`
 records their numbers during pickling and passes them to the child only when
 it is created (`spawnv_passfds`), so `__reduce__` keeps the transient
 descriptor on the spawning `Popen` object, which dies with the `Process`
 object. Without that, the numbers are reused by the spawn's own pipes
-("bad value(s) in fds_to_keep") or the child imports a stranger's fd. The
+("bad value(s) in fds_to_keep") or the child imports a stranger's fd. That
+machinery (`spawnv_passfds`, `get_spawning_popen()`) has not changed since
+Python 3.4 (2014). The
 driver copies
 each shared allocation into a handle of its own during the import and keeps no
 reference to the file descriptor, so the imported buffer does not keep the
