@@ -576,13 +576,14 @@ def main(argv=None):
     @window.event
     def on_key_press(symbol, _modifiers):
         key = pyglet.window.key
-        if symbol == key.BRACKETLEFT:
-            state["lod_bias"] = max(-float(num_levels), state["lod_bias"] - LOD_BIAS_STEP)
-        elif symbol == key.BRACKETRIGHT:
-            state["lod_bias"] = min(float(num_levels), state["lod_bias"] + LOD_BIAS_STEP)
-        elif symbol == key.R:
-            state["zoom"] = 1.0
-            state["lod_bias"] = 0.0
+        match symbol:
+            case key.BRACKETLEFT:
+                state["lod_bias"] = max(-float(num_levels), state["lod_bias"] - LOD_BIAS_STEP)
+            case key.BRACKETRIGHT:
+                state["lod_bias"] = min(float(num_levels), state["lod_bias"] + LOD_BIAS_STEP)
+            case key.R:
+                state["zoom"] = 1.0
+                state["lod_bias"] = 0.0
 
     @window.event
     def on_close():
