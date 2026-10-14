@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+run_id=$PUBLIC_RUN_ID
+sha=$PUBLIC_SHA
+external_id="woa:v1:NVIDIA/cuda-python:$run_id:$sha"
+
+checks=$(gh api \
+  -H 'X-GitHub-Api-Version: 2026-03-10' \
+  "repos/NVIDIA/cuda-python/commits/$sha/check-runs?check_name=cuda-python%20WoA%20integration&per_page=100")
+if jq -e --arg id "$external_id" '
+  any(.check_runs[]; .app.id == 4954254 and .external_id == $id)
+' <<< "$checks" >/dev/null; then
+  echo "dispatch=false" >> "$GITHUB_OUTPUT"
+  echo "This exact public run already has an App-owned attempt." >> "$GITHUB_STEP_SUMMARY"
+  exit 0
+fi
+
+commits=$(gh api --method GET \
+  -H 'X-GitHub-Api-Version: 2026-03-10' \
+  repos/NVIDIA/cuda-python/commits -f sha=main -F per_page=100)
+candidate_index=$(jq -er --arg sha "$sha" '
+  [to_entries[] | select(.value.sha == $sha) | .key][0]
+' <<< "$commits")
+commit_total=$(jq length <<< "$commits")
+baseline_index=""
+baseline_sha=""
+for ((index = candidate_index + 1; index < commit_total; index++)); do
+  older_sha=$(jq -r --argjson index "$index" '.[$index].sha' <<< "$commits")
+  older_checks=$(gh api \
+    -H 'X-GitHub-Api-Version: 2026-03-10' \
+    "repos/NVIDIA/cuda-python/commits/$older_sha/check-runs?check_name=cuda-python%20WoA%20integration&per_page=100")
+  if jq -e '
+    any(.check_runs[];
+      .app.id == 4954254 and
+      .status == "completed" and
+      .conclusion == "success")
+  ' <<< "$older_checks" >/dev/null; then
+    baseline_index=$index
+    baseline_sha=$older_sha
+    break
+  fi
+done
+
+dispatch=true
+commit_count=1
+reason="Bootstrap: no successful App-owned baseline exists in the latest 100 commits."
+if [[ -n "$baseline_index" ]]; then
+  commit_count=$((baseline_index - candidate_index))
+  oldest_pending_index=$((baseline_index - 1))
+  oldest_pending_at=$(jq -r \
+    --argjson index "$oldest_pending_index" \
+    '.[$index].commit.committer.date' <<< "$commits")
+  age_seconds=$(($(date +%s) - $(date -d "$oldest_pending_at" +%s)))
+  if (( commit_count >= 3 )); then
+    reason="Batch threshold reached: $commit_count commits."
+  elif (( age_seconds >= 7200 )); then
+    reason="Two-hour fallback reached: oldest pending commit is $age_seconds seconds old."
+  else
+    dispatch=false
+    reason="Deferred: $commit_count/3 commits and oldest pending age $age_seconds/7200 seconds."
+  fi
+fi
+echo "baseline_sha=$baseline_sha" >> "$GITHUB_OUTPUT"
+echo "commit_count=$commit_count" >> "$GITHUB_OUTPUT"
+echo "dispatch=$dispatch" >> "$GITHUB_OUTPUT"
+echo "$reason" >> "$GITHUB_STEP_SUMMARY"
