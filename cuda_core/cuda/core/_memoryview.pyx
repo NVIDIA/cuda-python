@@ -419,7 +419,7 @@ cdef class StridedMemoryView:
     def copy_from(
         self,
         StridedMemoryView other not None: StridedMemoryView,
-        stream not None: Stream,
+        stream: Stream | None,
         allocator: object = None,
         blocking: bool | None = None,
     ) -> None:

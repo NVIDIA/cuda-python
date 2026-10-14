@@ -494,6 +494,20 @@ def test_launch_cluster_scheduling_policy_smoke(init_cuda):
     stream.sync()
 
 
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+@pytest.mark.parametrize("none_arg", ["config", "kernel"])
+def test_launch_rejects_none(init_cuda, none_arg):
+    """None for a cdef-class argument raises TypeError instead of reaching C."""
+    program = Program('extern "C" __global__ void my_kernel() {}', SourceCodeType.CXX)
+    ker = program.compile(ObjectCodeFormatType.CUBIN).get_kernel("my_kernel")
+    config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1))
+    args = {"config": config, "kernel": ker}
+    args[none_arg] = None
+
+    with pytest.raises(TypeError):
+        launch(Device().create_stream(), args["config"], args["kernel"])
+
+
 def test_launch_invalid_values(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, SourceCodeType.CXX)
