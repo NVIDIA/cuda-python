@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.TensorMapL2Promotion
+==============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoenum:: TensorMapL2Promotion

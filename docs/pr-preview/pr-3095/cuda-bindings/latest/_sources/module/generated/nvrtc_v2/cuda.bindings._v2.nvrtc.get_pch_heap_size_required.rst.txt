@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.nvrtc.get\_pch\_heap\_size\_required
+=======================================================
+
+.. currentmodule:: cuda.bindings._v2.nvrtc
+
+.. autofunction:: get_pch_heap_size_required

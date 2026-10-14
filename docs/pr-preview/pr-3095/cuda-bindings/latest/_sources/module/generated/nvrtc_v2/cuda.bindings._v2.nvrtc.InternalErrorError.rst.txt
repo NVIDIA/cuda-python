@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.nvrtc.InternalErrorError
+===========================================
+
+.. currentmodule:: cuda.bindings._v2.nvrtc
+
+.. autoexception:: InternalErrorError
