@@ -58,6 +58,7 @@ from cuda.core._dlpack import classify_dl_device, make_py_capsule
 from cuda.core._device import Device
 
 if TYPE_CHECKING:
+    from cuda.core._memory._virtual_memory_resource import VirtualMemoryResource
     from cuda.core.graph import GraphBuilder
 
 
@@ -402,7 +403,7 @@ cdef class Buffer:
 
     @classmethod
     def from_ipc_descriptor(
-        cls, mr: DeviceMemoryResource | PinnedMemoryResource,
+        cls, mr: DeviceMemoryResource | PinnedMemoryResource | VirtualMemoryResource,
         IPCBufferDescriptor ipc_descriptor not None: IPCBufferDescriptor,
         *, Stream stream not None: Stream
     ) -> Buffer:
@@ -410,8 +411,13 @@ cdef class Buffer:
 
         Parameters
         ----------
-        mr : :obj:`~_memory.DeviceMemoryResource` | :obj:`~_memory.PinnedMemoryResource`
-            The IPC-enabled memory resource matching the exporting process.
+        mr : :obj:`~_memory.DeviceMemoryResource` | :obj:`~_memory.PinnedMemoryResource` | :obj:`~_memory.VirtualMemoryResource`
+            The IPC-enabled memory resource matching the exporting process. A
+            descriptor exported from a :class:`VirtualMemoryBuffer` is imported
+            with a :class:`VirtualMemoryResource` of this process whose
+            ``handle_type`` matches the exporter's; the import maps the shared
+            physical memory for that resource's device with that resource's
+            access options.
         ipc_descriptor : :obj:`~_memory.IPCBufferDescriptor`
             The descriptor exported from another process.
         stream : :obj:`~_stream.Stream`
@@ -429,7 +435,11 @@ cdef class Buffer:
     @property
     @cython.critical_section
     def ipc_descriptor(self) -> IPCBufferDescriptor:
-        """Descriptor for sharing this buffer with other processes."""
+        """Descriptor for sharing this buffer with other processes.
+
+        A pool-backed buffer caches its descriptor; a
+        :class:`VirtualMemoryBuffer` exports a new one on every access.
+        """
         Buffer_check_open(self)
         cdef object ipc_data
         if self._ipc_data is None:
