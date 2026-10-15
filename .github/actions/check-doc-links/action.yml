@@ -51,6 +51,13 @@ runs:
         echo "prefix=${prefix}" >> "${GITHUB_OUTPUT}"
         echo "key=${prefix}${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_OUTPUT}"
         echo "version=${LYCHEE_VERSION}" >> "${GITHUB_OUTPUT}"
+        # Validate main-branch source links against the actual checkout. Keep
+        # GitHub's file/directory views so rendered checks retain UI fragments.
+        checked_commit="$(git rev-parse HEAD)"
+        for view in blob tree; do
+          LYCHEE_ARGS+=" --remap \"^https://github[.]com/NVIDIA/cuda-python/${view}/main/ ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/${view}/${checked_commit}/\""
+        done
+        echo "Checking repository source links at ${checked_commit}"
         echo "args=${LYCHEE_ARGS}" >> "${GITHUB_OUTPUT}"
 
     - name: Restore successful checks from the nightly baseline

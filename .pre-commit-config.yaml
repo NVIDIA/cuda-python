@@ -121,6 +121,7 @@ repos:
       - id: lychee
         args:
           - LYCHEE_VERSION=0.24.2  # Must match the pinned rev above
+          - --preprocess=./ci/tools/preprocess_repo_links.py
           - --cache
           - --max-concurrency=4
           - --max-retries=3
