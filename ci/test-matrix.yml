@@ -60,12 +60,15 @@ linux:
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     # Python 3.15 jobs test against published cuda-bindings, like every other
-    # job on this branch. cuda-bindings 13.4.4 is the first release with cp315
-    # wheels. A test CUDA version of 13.4 matches the build version, so env-vars
-    # would select the bindings built in this run; the ENV values below select
-    # the published 13.4.* release instead, with the settings that env-vars uses
-    # for published bindings.
+    # job on this branch. cuda-bindings 12.9.10 and 13.4.4 are the first
+    # releases with cp315 wheels. For these test versions, env-vars would select
+    # the bindings built in this run (13.4 matches the build version) or the
+    # 12.9.x branch's CI bindings (12.9). The ENV values below select the
+    # published 12.9.* or 13.4.* release instead, with the settings that
+    # env-vars uses for published bindings.
+    - { ARCH: 'amd64', PY_VER: '3.15',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', ENV: { BINDINGS_SOURCE: 'published', SKIP_CUDA_BINDINGS_TEST: '1', SKIP_CYTHON_TEST: '1' } }
     - { ARCH: 'amd64', PY_VER: '3.15',  CUDA_VER: '13.4.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', ENV: { BINDINGS_SOURCE: 'published', SKIP_CUDA_BINDINGS_TEST: '1', SKIP_CYTHON_TEST: '1' } }
+    - { ARCH: 'amd64', PY_VER: '3.15t', CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', ENV: { BINDINGS_SOURCE: 'published', SKIP_CUDA_BINDINGS_TEST: '1', SKIP_CYTHON_TEST: '1' } }
     - { ARCH: 'amd64', PY_VER: '3.15t', CUDA_VER: '13.4.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', ENV: { BINDINGS_SOURCE: 'published', SKIP_CUDA_BINDINGS_TEST: '1', SKIP_CYTHON_TEST: '1' } }
     # linux-aarch64
     - { ARCH: 'arm64', PY_VER: '3.10',  CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
@@ -141,6 +144,7 @@ windows:
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
     # Python 3.15 tests against published cuda-bindings; see the linux-64 note above.
+    - { ARCH: 'amd64', PY_VER: '3.15',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM', ENV: { BINDINGS_SOURCE: 'published', SKIP_CUDA_BINDINGS_TEST: '1', SKIP_CYTHON_TEST: '1' } }
     - { ARCH: 'amd64', PY_VER: '3.15',  CUDA_VER: '13.4.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM', ENV: { BINDINGS_SOURCE: 'published', SKIP_CUDA_BINDINGS_TEST: '1', SKIP_CYTHON_TEST: '1' } }
     # special runners
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 't4',         GPU_COUNT: '2', DRIVER: 'latest',  DRIVER_MODE: 'TCC' }
