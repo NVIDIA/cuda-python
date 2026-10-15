@@ -46,10 +46,10 @@ subpackage in the `cuda-python` monorepo.
 - **Samples**: sample coverage is pytest-based under `../samples/cuda_bindings/`.
 - **Benchmarks**: run with `pytest --benchmark-only benchmarks/` when needed.
 
-The `legacy_tests` subdirectory tests the old pre-v2 APIs of `driver`, `runtime`
+The `legacy_api` subdirectory tests the old pre-v2 APIs of `driver`, `runtime`
 and `nvrtc`.  These test files should not be added to, only updated when
 necessary to fix test failures.  The canonical set of tests are those outside of
-the `legacy_tests` subdirectory.
+the `legacy_api` subdirectory.
 
 ## Build and environment notes
 

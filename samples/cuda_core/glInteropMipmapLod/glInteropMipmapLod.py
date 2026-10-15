@@ -92,6 +92,7 @@ import os
 import platform
 import sys
 import time
+from pathlib import Path
 
 import numpy as np
 
@@ -114,6 +115,9 @@ from cuda.core.typing import (
     FilterModeType,
     ReadModeType,
 )
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "cuda_python_test_helpers"))
+from cuda_python_test_helpers.graphics import gl_context_not_on_nvidia_gpu_reason
 
 # ---------------------------------------------------------------------------
 # Configuration (feel free to change these)
@@ -463,7 +467,17 @@ def main(argv=None):
     )
 
     # --- Step 4: Open a window and set up the GL/CUDA bridge ---
-    window, gl, pyglet = create_window()
+    try:
+        window, gl, pyglet = create_window()
+    except Exception as exc:
+        print(f"Could not open a pyglet window ({exc}); waiving glInteropMipmapLod.", file=sys.stderr)
+        sys.exit(EXIT_WAIVED)
+
+    if reason := gl_context_not_on_nvidia_gpu_reason():
+        print(f"{reason}; waiving glInteropMipmapLod.", file=sys.stderr)
+        window.close()
+        sys.exit(EXIT_WAIVED)
+
     shader_prog, quad_vao, tex_id = create_display_resources(gl, WIDTH, HEIGHT)
     pbo_id, _ = create_pixel_buffer(gl, WIDTH, HEIGHT)
     resource = GraphicsResource.from_gl_buffer(pbo_id, flags="write_discard")

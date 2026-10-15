@@ -656,6 +656,38 @@ def test_stream_capture():
     pass
 
 
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_cuda_launch_host_func_graph_replay():
+    # A host function captured into a graph runs once per graph launch. The
+    # bindings must hand the function pointer and the user data to CUDA
+    # unchanged so that every launch reaches the same function (issue #790).
+    counter = ctypes.c_int(0)
+
+    @ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+    def host_fn(userData):
+        ctypes.c_int.from_address(userData).value += 1
+
+    callback = ctypes.cast(host_fn, ctypes.c_void_p).value
+    stream = driver.stream_create(0)
+    try:
+        driver.stream_begin_capture_v2(stream, driver.StreamCaptureMode.GLOBAL)
+        driver.launch_host_func(stream, callback, ctypes.addressof(counter))
+        graph = driver.stream_end_capture(stream)
+        try:
+            graph_exec = driver.graph_instantiate(graph, 0)
+            try:
+                for launch in range(1, 6):
+                    driver.graph_launch(graph_exec, stream)
+                    driver.stream_synchronize(stream)
+                    assert counter.value == launch
+            finally:
+                driver.graph_exec_destroy(graph_exec)
+        finally:
+            driver.graph_destroy(graph)
+    finally:
+        driver.stream_destroy_v2(stream)
+
+
 def test_profiler():
     driver.profiler_start()
     driver.profiler_stop()
