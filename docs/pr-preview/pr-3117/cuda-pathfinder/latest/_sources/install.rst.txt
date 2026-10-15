@@ -57,9 +57,14 @@ the following commands:
 Installing from Source
 ~~~~~~~~~~~~~~~~~~~~~~
 
+Use the repository's `Recommended clone
+<https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#recommended-clone>`_
+recipe below. On native Windows outside WSL, complete its Windows setup steps
+before cloning.
+
 .. code-block:: console
 
-   $ git clone https://github.com/NVIDIA/cuda-python.git
+   $ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_pathfinder
    $ pip install .
 

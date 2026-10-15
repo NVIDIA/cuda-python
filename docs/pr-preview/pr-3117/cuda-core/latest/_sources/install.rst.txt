@@ -122,15 +122,15 @@ A source build has two requirements. See :ref:`cuda-core-bindings-floor`.
   constrain it with ``PIP_CONSTRAINT``. A build with ``--no-build-isolation`` uses the installed
   ``cuda-bindings``.
 
-On native Windows outside WSL, configure `Git symlink support
-<https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#enabling-git-symlinks>`_
-*before* cloning. Otherwise, ``cuda_core/_build_shared.py`` is checked out as
-plain text, and ``cuda-core`` source builds and tests fail. The linked guide
-includes setup and recovery steps.
+Use the repository's `Recommended clone
+<https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#recommended-clone>`_
+recipe below. On native Windows outside WSL, complete its Windows setup
+*before* cloning so Git can create the build-critical
+``cuda_core/_build_shared.py`` symlink.
 
 .. code-block:: console
 
-   $ git clone --recurse-submodules https://github.com/NVIDIA/cuda-python.git
+   $ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_core
    $ pip install .
 
@@ -138,7 +138,8 @@ includes setup and recovery steps.
 
    ``--recurse-submodules`` is required: the build compiles against the CCCL
    headers pinned in the ``cuda_core/third_party/cccl`` submodule, and fails
-   without them. For a clone that already exists, run
+   without them. For a clone that already exists, run the following from the
+   repository root:
    ``git submodule update --init cuda_core/third_party/cccl``.
 
 .. note::
@@ -160,7 +161,7 @@ For example, to work on ``cuda-core`` against CUDA 13:
 
 .. code-block:: console
 
-   $ git clone --recurse-submodules https://github.com/NVIDIA/cuda-python.git
+   $ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_core
    $ uv venv
    $ source .venv/bin/activate   # On Windows: .venv\Scripts\activate
@@ -179,11 +180,11 @@ Development with pixi
 
 `pixi`_ provides a reproducible development environment across the repository.
 Before cloning, check the :ref:`source-build prerequisites <cuda-core-source-install>`.
-From the repository root:
+For example, to work against CUDA 13:
 
 .. code-block:: console
 
-   $ git clone --recurse-submodules https://github.com/NVIDIA/cuda-python.git
+   $ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python
    $ pixi run -e cu13 test-core
 
