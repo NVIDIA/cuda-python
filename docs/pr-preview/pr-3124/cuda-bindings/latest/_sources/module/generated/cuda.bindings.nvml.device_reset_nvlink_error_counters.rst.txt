@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_reset\_nvlink\_error\_counters
+=========================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_reset_nvlink_error_counters
