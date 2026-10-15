@@ -161,8 +161,23 @@ target path, and `cuda-core` source builds and tests fail.
 
 On native Windows, materialize the current symlink as follows:
 
-1. **[Activate Developer Mode](https://learn.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development#activate-developer-mode)**
-   so Git can create symlinks without Administrator privileges.
+1. **[Activate Developer Mode](https://learn.microsoft.com/en-us/windows/advanced-settings/developer-mode)**
+   so Git can create symlinks without Administrator privileges. Then verify
+   that Windows recorded Developer Mode in the machine-wide registry:
+
+   ```console
+   $ reg.exe query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v AllowDevelopmentWithoutDevLicense
+   ```
+
+   The output must show `AllowDevelopmentWithoutDevLicense` as a `REG_DWORD`
+   with value `0x1`. If the value is missing or differs, Git may report
+   `unable to create symlink ...: Permission denied` even when Windows Settings
+   shows Developer Mode as enabled. In that case, run the following command
+   once from an Administrator shell:
+
+   ```console
+   $ reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v AllowDevelopmentWithoutDevLicense /t REG_DWORD /d 1 /f
+   ```
 
 2. **Enable Git symlink support globally** so newly-cloned repositories inherit
    the setting:
