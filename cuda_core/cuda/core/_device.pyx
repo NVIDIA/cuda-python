@@ -1633,6 +1633,29 @@ class Device:
             resource, self._context, self._device_id)
 
 
+def _device_from_uuid(device_uuid: str) -> Device:
+    """Return the visible device whose :attr:`Device.uuid` is ``device_uuid``.
+
+    Device ordinals are per process (``CUDA_VISIBLE_DEVICES`` can renumber
+    devices), so objects that cross a process boundary name their devices by
+    UUID, and the receiving process maps each UUID back with this function.
+
+    Raises
+    ------
+    RuntimeError
+        If no device visible to this process has the UUID.
+    """
+    devices = Device.get_all_devices()
+    for device in devices:
+        if device.uuid == device_uuid:
+            return device
+    visible = ", ".join(f"{device.device_id} ({device.uuid})" for device in devices) or "none"
+    raise RuntimeError(
+        f"no CUDA device visible to this process has UUID {device_uuid}; the visible devices are: "
+        f"{visible}. Make the device visible to this process, for example through CUDA_VISIBLE_DEVICES."
+    )
+
+
 cdef inline int Device_ensure_cuda_initialized() except? -1:
     """Initialize CUDA driver and check version compatibility (once per process)."""
     global _is_cuInit

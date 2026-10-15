@@ -197,9 +197,12 @@ class VirtualMemoryResource(MemoryResource):
     access; :meth:`Buffer.from_ipc_descriptor` imports a descriptor with a
     ``VirtualMemoryResource`` of the receiving process for the device that
     owns the memory; and a buffer sent through ``multiprocessing`` does both.
-    Plain ``pickle`` cannot carry the file descriptors; a process with its
-    own file descriptor passing sends the descriptor's ``fds``, ``sizes``,
-    and ``size`` and rebuilds it with
+    A pickled resource names its device and its ``peers`` by UUID, and the
+    receiving process rebuilds it for the devices with those UUIDs, whatever
+    their ordinals are there; it raises ``RuntimeError`` if one of the devices
+    is not visible. Plain ``pickle`` cannot carry the file descriptors; a
+    process with its own file descriptor passing sends the descriptor's
+    ``fds``, ``sizes``, and ``size`` and rebuilds it with
     ``VirtualMemoryIPCBufferDescriptor.from_fds()``. The importing resource
     maps the memory for its device and the devices in its ``peers`` option,
     with its own access options. A descriptor pins the physical memory while
@@ -369,3 +372,6 @@ class VirtualMemoryResource(MemoryResource):
         Returns:
             str: A string describing the object
         """
+
+def _reconstruct_virtual_memory_resource(cls: type, owner_uuid: str | None, peer_uuids: tuple[str, ...], config: VirtualMemoryResourceOptions) -> VirtualMemoryResource:
+    """Rebuild a pickled resource with the receiving process's device ordinals."""
