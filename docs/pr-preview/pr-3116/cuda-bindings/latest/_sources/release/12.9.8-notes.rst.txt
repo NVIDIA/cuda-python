@@ -1,0 +1,59 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. module:: cuda.bindings
+
+``cuda-bindings`` 12.9.8 Release notes
+======================================
+
+Licensing
+---------
+
+* ``cuda-bindings`` and ``cuda-python`` are now relicensed under Apache 2.0.
+  (`PR #2294 <https://github.com/NVIDIA/cuda-python/pull/2294>`_)
+
+Bugfixes
+--------
+
+* Fixed a potential data race in the lazy initialization of the driver,
+  runtime, NVRTC, NVML, nvJitLink, nvFatbin, cuFile and NVVM bindings, where
+  concurrent threads could observe a partially initialized state.
+  (`PR #2382 <https://github.com/NVIDIA/cuda-python/pull/2382>`_)
+* Restored the ``CUcheckpointRestoreArgs`` and ``CUcheckpointRestoreArgs_st``
+  driver bindings, whose generation had regressed to omit the checkpoint
+  restore argument struct and typedef.
+  (`PR #2145 <https://github.com/NVIDIA/cuda-python/pull/2145>`_)
+* Fixed the raw driver and NVRTC function-pointer exception declarations so
+  that a legitimately returned ``CUDA_ERROR_NOT_FOUND`` result is no longer
+  at risk of being mishandled as a spurious exception.
+  (`PR #2206 <https://github.com/NVIDIA/cuda-python/pull/2206>`_)
+* ``from_ptr()`` on several ``cufile`` and ``nvml`` struct wrapper classes
+  now accepts an ``owner`` argument that is held as a strong reference, so
+  the wrapped buffer can no longer be garbage-collected out from under the
+  wrapper.
+  (`PR #2604 <https://github.com/NVIDIA/cuda-python/pull/2604>`_)
+* ``nvml.error_string``, ``nvvm.get_error_string``,
+  ``cufile.handle_deregister``, and ``cufile.batch_io_destroy`` now release
+  the GIL while calling into the underlying C library, improving
+  concurrency for multi-threaded applications.
+  (`PR #2349 <https://github.com/NVIDIA/cuda-python/pull/2349>`_)
+* Fixed a crash in ``nvml.system_event_set_wait`` caused by calling
+  ``resize()`` on a non-owning ``SystemEventData_v1._data`` view.
+  (`PR #2690 <https://github.com/NVIDIA/cuda-python/pull/2690>`_)
+* Fixed ``cuFile`` status checking to no longer raise ``cuFileError``
+  spuriously when ``CUfileError_t.cu_err`` is set on a non-error path (for
+  example, BAR-size queries on GH200 systems).
+  (`PR #2530 <https://github.com/NVIDIA/cuda-python/pull/2530>`_)
+
+Deprecation Notices
+-------------------
+
+* Support for using ``cuda-bindings`` with Python 3.10 is deprecated and will be
+  removed in a future version.  Python 3.10 reaches end of life in October 2026
+  per the `CPython support cycle <https://devguide.python.org/versions/>`_.
+
+Known issues
+------------
+
+* Updating from older versions (v12.6.2.post1 and below) via ``pip install -U cuda-python`` might not work. Please do a clean re-installation by uninstalling ``pip uninstall -y cuda-python`` followed by installing ``pip install cuda-python``.
+* ``nvml.system_get_process_name`` on WSL can return incorrect values.  To work around this, set the locale to "C" before calling ``nvml.device_get_compute_running_processes_v3`` (which sets the process names) and before calling ``nvml.system_get_process_name``. ``cuda_core`` does this automatically, but users of the raw NVML API will need to do this manually.
