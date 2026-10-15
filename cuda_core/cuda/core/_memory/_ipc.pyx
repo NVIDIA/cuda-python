@@ -163,7 +163,7 @@ cdef class IPCAllocationHandle:
         return self._uuid
 
 
-def _reduce_allocation_handle(alloc_handle: IPCAllocationHandle) -> tuple[object, ...]:
+def _reduce_allocation_handle(IPCAllocationHandle alloc_handle not None: IPCAllocationHandle) -> tuple[object, ...]:
     IPCAllocationHandle_check_open(alloc_handle)
     check_multiprocessing_start_method()
     df = multiprocessing.reduction.DupFd(alloc_handle.handle)
