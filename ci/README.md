@@ -24,6 +24,24 @@ The pinned checkout action's
 [`README`](https://github.com/actions/checkout/blob/3d3c42e5aac5ba805825da76410c181273ba90b1/README.md#fetch-all-history-for-all-tags-and-branches)
 documents `fetch-depth: 0` for fetching all history, branches, and tags.
 
+## Repository Links Before Merge
+
+Keep links to the latest repository sources on `main`, even when their targets
+are added or moved by the same pull request. Lychee remaps canonical
+`https://github.com/NVIDIA/cuda-python/blob/main/` and `tree/main/` links
+for validation only; source files and published documentation keep their URLs.
+Links to tags, commit SHAs, other branches, and other repositories are checked
+as written.
+
+CI remaps these links to the CI repository at the actual checked-out commit
+using `--remap`, retaining GitHub's file/directory views and fragment behavior.
+The initial check and all retries use the same remaps. Missing targets in that
+commit still fail.
+
+Local pre-commit uses `ci/tools/preprocess_repo_links.py` through `--preprocess`
+to check these paths in the working tree, including uncommitted and unpushed
+targets. Local checks retain their existing policy of not checking fragments.
+
 ## Temporary Pixi Lockfile Maintenance Pause
 
 Pixi lockfile freshness enforcement and automated refreshes are temporarily
