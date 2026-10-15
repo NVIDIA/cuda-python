@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_gpu\_instance\_profile\_info\_by\_id\_v
+=======================================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_gpu_instance_profile_info_by_id_v
