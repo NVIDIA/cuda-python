@@ -94,13 +94,6 @@ To keep initialized submodules in sync on `git pull`, `git checkout`, and
 $ git config --local submodule.recurse true
 ```
 
-This setting can also make `git push` recurse into submodules. To keep
-`git push` limited to this repository, also set this once per clone:
-
-```console
-$ git config --local push.recurseSubmodules no
-```
-
 ### Fixing an existing clone
 
 If you already have a shallow clone:
