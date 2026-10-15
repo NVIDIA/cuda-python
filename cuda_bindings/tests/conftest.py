@@ -49,8 +49,11 @@ class _ThreadContextPool:
     The pool gives each running thread a context of its own, as before, and
     keeps it for the next test. The plugin empties the pool at the end of each
     test module, so a context lives no longer than the module-scoped ``ctx``
-    fixture does in a run without threads. A context that reports an error at
-    the end of a test is destroyed rather than reused.
+    fixture does in a run without threads.
+
+    The worker threads of a test now run at the same time. Do not add a
+    synchronizing call between tests here: while another thread captures a
+    stream in global mode, such a call fails and breaks that capture.
     """
 
     def __init__(self):
@@ -81,18 +84,13 @@ class _ThreadContextPool:
         try:
             yield device, ctx
         finally:
-            (sync_err,) = cuda.cuCtxSynchronize()
             # Pop rather than unset, so that the context that was current
             # before the test (on the main thread, for tests that are not run
             # in parallel) is current again.
             err, _ = cuda.cuCtxPopCurrent()
             assert err == cuda.CUresult.CUDA_SUCCESS
-            if sync_err == cuda.CUresult.CUDA_SUCCESS:
-                with self._lock:
-                    self._idle.append(entry)
-            else:
-                (err,) = cuda.cuCtxDestroy(ctx)
-                assert err == cuda.CUresult.CUDA_SUCCESS
+            with self._lock:
+                self._idle.append(entry)
 
     def clear(self):
         """Destroy the idle contexts. Call only when no test is running."""
