@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=e090e493"></script>
+    <script src="../_static/documentation_options.js?v=de409a2c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev216';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev224';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1034,7 +1034,7 @@ refers to a different stream on each thread.</p></li>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">mr:</span> <span class="pre">DeviceMemoryResource</span> <span class="pre">|</span> <span class="pre">PinnedMemoryResource</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">mr:</span> <span class="pre">DeviceMemoryResource</span> <span class="pre">|</span> <span class="pre">PinnedMemoryResource</span> <span class="pre">|</span> <span class="pre">VirtualMemoryResource</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">IPCBufferDescriptor</span> <span class="pre">ipc_descriptor:</span> <span class="pre">IPCBufferDescriptor</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span></span></em>,</dd>
@@ -1045,7 +1045,12 @@ refers to a different stream on each thread.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code>) – The IPC-enabled memory resource matching the exporting process.</p></li>
+<li><p><strong>mr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code>) – The IPC-enabled memory resource matching the exporting process. A
+descriptor exported from a <a class="reference internal" href="cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a> is imported
+with a <a class="reference internal" href="cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> of this process whose
+<code class="docutils literal notranslate"><span class="pre">handle_type</span></code> matches the exporter’s; the import maps the shared
+physical memory for that resource’s device with that resource’s
+access options.</p></li>
 <li><p><strong>ipc_descriptor</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">IPCBufferDescriptor</span></code>) – The descriptor exported from another process.</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>) – Keyword-only. The stream used for asynchronous deallocation when
 the buffer is closed or garbage collected.</p></li>
@@ -1149,6 +1154,8 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
 <span class="sig-name descname"><span class="pre">ipc_descriptor</span></span><a class="headerlink" href="#cuda.core.ManagedBuffer.ipc_descriptor" title="Link to this definition">#</a></dt>
 <dd><p>IPCBufferDescriptor</p>
 <p>Descriptor for sharing this buffer with other processes.</p>
+<p>A pool-backed buffer caches its descriptor; a
+<a class="reference internal" href="cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a> exports a new one on every access.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Buffer.ipc_descriptor</p>

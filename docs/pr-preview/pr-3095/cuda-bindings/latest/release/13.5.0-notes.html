@@ -3571,6 +3571,14 @@ replaced the builtin <code class="docutils literal notranslate"><span class="pre
 <li><p>A number of incorrect docstrings have been corrected.</p></li>
 <li><p>Setting a <code class="docutils literal notranslate"><span class="pre">cuda_bindings</span></code> class instance to itself (<code class="docutils literal notranslate"><span class="pre">obj</span> <span class="pre">=</span> <span class="pre">cuda_bindings.driver.Class();</span> <span class="pre">obj[0]</span> <span class="pre">=</span> <span class="pre">obj</span></code>) will no longer crash or use garbage values.</p></li>
 <li><p>Fix a potential use-after-free error in the destructors of classes in <code class="docutils literal notranslate"><span class="pre">driver</span></code> and <code class="docutils literal notranslate"><span class="pre">runtime</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">driver.cuLaunchHostFunc</span></code> and <code class="docutils literal notranslate"><span class="pre">runtime.cudaLaunchHostFunc</span></code> now pass the host
+function and its user data to CUDA unchanged. They used to route the call through
+an internal trampoline that freed its state after the first invocation, so a host
+function captured into a CUDA graph crashed on the second launch of that graph.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/790">Issue #790</a>)
+Callers must retain the callback object and user data storage for the lifetime
+of the graph and its executables, including pending launches; see
+<a class="reference internal" href="../overview.html#host-function-lifetime"><span class="std std-ref">Host functions</span></a>.</p></li>
 </ul>
 </section>
 <section id="prerelease-feature">
