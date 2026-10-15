@@ -25,7 +25,7 @@ runs:
       shell: bash --noprofile --norc -euo pipefail {0}
       env:
         KIND: ${{ inputs.kind }}
-        LYCHEE_VERSION: v0.24.2 # Must match the pinned rev in .pre-commit-config.yaml
+        LYCHEE_VERSION: v0.24.2 # Must match lychee-bin in .pre-commit-config.yaml
         POLICY_HASH: ${{ hashFiles('lychee.toml', '.github/actions/check-doc-links/action.yml', 'ci/tools/prepare_lychee_inputs.py', 'ci/tools/retry_lychee.py') }}
         # The first pass and all retries use the same inputs and cache policy.
         LYCHEE_ARGS: >-
@@ -51,6 +51,13 @@ runs:
         echo "prefix=${prefix}" >> "${GITHUB_OUTPUT}"
         echo "key=${prefix}${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_OUTPUT}"
         echo "version=${LYCHEE_VERSION}" >> "${GITHUB_OUTPUT}"
+        # Validate main-branch source links against the actual checkout. Keep
+        # GitHub's file/directory views so rendered checks retain UI fragments.
+        checked_commit="$(git rev-parse HEAD)"
+        for view in blob tree; do
+          LYCHEE_ARGS+=" --remap \"^https://github[.]com/NVIDIA/cuda-python/${view}/main/ ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/${view}/${checked_commit}/\""
+        done
+        echo "Checking repository source links at ${checked_commit}"
         echo "args=${LYCHEE_ARGS}" >> "${GITHUB_OUTPUT}"
 
     - name: Restore successful checks from the nightly baseline
