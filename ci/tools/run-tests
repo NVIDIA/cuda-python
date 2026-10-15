@@ -20,6 +20,47 @@ fold_pytest_log() {
   python "${CI_TOOLS_DIR}/fold_pytest_sections.py"
 }
 
+# TEMPORARY PROBE (draft PR, never merged): report whether fabric memory handles
+# are usable on this runner. Every command is guarded so the probe cannot fail the job.
+fabric_probe() {
+  echo "=== FABRIC PROBE ==="
+  (
+    set +e
+    nvidia-smi --query-gpu=name,driver_version --format=csv,noheader || true
+    echo "--- /proc/devices (imex)"
+    grep -i imex /proc/devices || true
+    echo "--- /dev/nvidia-caps-imex-channels/"
+    ls -la /dev/nvidia-caps-imex-channels/ || true
+    echo "--- /proc/driver/nvidia/params (imex)"
+    grep -i imex /proc/driver/nvidia/params || true
+    echo "--- device attributes"
+    python - << 'PYEOF' || true
+from cuda.bindings import driver
+
+
+def check(result):
+    err = result[0]
+    if int(err) != 0:
+        raise RuntimeError(f"driver call failed: {err}")
+    return result[1]
+
+
+A = driver.CUdevice_attribute
+fabric = A.CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_FABRIC_SUPPORTED
+posix_fd = A.CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR_SUPPORTED
+check(driver.cuInit(0))
+for i in range(check(driver.cuDeviceGetCount())):
+    dev = check(driver.cuDeviceGet(i))
+    name = check(driver.cuDeviceGetName(128, dev)).split(b"\0")[0].decode()
+    print(
+        f"device {i}: {name}: FABRIC_SUPPORTED={check(driver.cuDeviceGetAttribute(fabric, dev))}"
+        f" POSIX_FILE_DESCRIPTOR_SUPPORTED={check(driver.cuDeviceGetAttribute(posix_fd, dev))}"
+    )
+PYEOF
+  ) || true
+  echo "=== END FABRIC PROBE ==="
+}
+
 # JUnit XML, one file per suite. The test workflows upload this directory as an
 # artifact: a machine-readable record of the run for follow-up tooling.
 TEST_RESULTS_DIR="$(pwd)/test-results"
@@ -78,6 +119,7 @@ elif [[ "${test_module}" == "bindings" ]]; then
     pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group test "${TEST_FT_GROUP[@]}" \
       "cuda-toolkit==${TEST_CUDA_MAJOR_MINOR}.*"
   fi
+  fabric_probe
   echo "Running bindings tests"
   ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize --exclude-warning-annotations "${PYTEST_PARALLEL_ARGS[@]}" --junitxml "${TEST_RESULTS_DIR}/junit-bindings.xml" tests/ | fold_pytest_log
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
@@ -125,6 +167,7 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     pushd ./cuda_core
     echo "Installing bindings (source: ${BINDINGS_SOURCE})"
     pip install "${BINDINGS_ARGS[@]}"
+    fabric_probe
     echo "Installing core wheel"
     # Constrain cuda-toolkit to the requested CTK version to avoid
     # pip pulling in a newer nvidia-cuda-runtime that conflicts with it.
