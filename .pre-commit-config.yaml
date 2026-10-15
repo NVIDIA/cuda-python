@@ -115,13 +115,17 @@ repos:
           - Cython==3.2.9
 
   # Link checking for authored documentation files
-  - repo: https://github.com/lycheeverse/lychee
-    rev: 2bba271688c1abb1503097a064e6c3bc1d1b6a9b  # frozen: lychee-v0.24.2
+  - repo: local
     hooks:
       - id: lychee
+        name: lychee
+        entry: python ./ci/tools/run_lychee.py
+        language: python
+        additional_dependencies:
+          - lychee-bin==0.24.2  # Must match check-doc-links/action.yml
+        types: [text]
+        require_serial: true
         args:
-          - LYCHEE_VERSION=0.24.2  # Must match the pinned rev above
-          - --preprocess=./ci/tools/preprocess_repo_links.py
           - --cache
           - --max-concurrency=4
           - --max-retries=3
