@@ -24,23 +24,43 @@ The pinned checkout action's
 [`README`](https://github.com/actions/checkout/blob/3d3c42e5aac5ba805825da76410c181273ba90b1/README.md#fetch-all-history-for-all-tags-and-branches)
 documents `fetch-depth: 0` for fetching all history, branches, and tags.
 
-## Repository Links Before Merge
+## Repository Links During Main Development
 
-Keep links to the latest repository sources on `main`, even when their targets
-are added or moved by the same pull request. Lychee remaps canonical
-`https://github.com/NVIDIA/cuda-python/blob/main/` and `tree/main/` links
-for validation only; source files and published documentation keep their URLs.
-Links to tags, commit SHAs, other branches, and other repositories are checked
-as written.
+For development targeting `main`, keep links to the latest repository sources
+on `main`, even when their targets are added or moved by the same pull request.
+The link checker treats canonical
+`https://github.com/NVIDIA/cuda-python/blob/main/` and `tree/main/` URLs as
+references to the proposed main tree. Lychee remaps them for validation only;
+source files and published documentation keep their URLs. The remaps match only
+at the start of a URL, leaving URLs embedded in another URL unchanged. Relative
+links and links to tags, commit SHAs, other branches, and other repositories
+are checked as written.
 
 CI remaps these links to the CI repository at the actual checked-out commit
 using `--remap`, retaining GitHub's file/directory views and fragment behavior.
 The initial check and all retries use the same remaps. Missing targets in that
 commit still fail.
 
-Local pre-commit uses `ci/tools/preprocess_repo_links.py` through `--preprocess`
-to check these paths in the working tree, including uncommitted and unpushed
-targets. Local checks retain their existing policy of not checking fragments.
+Local pre-commit runs the Python hook `ci/tools/run_lychee.py`, which computes
+the checkout's file URI and passes anchored native `--remap` rules to Lychee.
+This checks paths in the working tree, including uncommitted and unpushed
+targets. The hook installs the official PyPI `lychee-bin==0.24.2` package in
+its own Python environment and uses the platform's native wheel. Local checks
+retain their existing policy of not checking fragments.
+
+The Linux and Windows pre-commit CI jobs run a bounded smoke check of the
+installed hook against local Markdown and reST fixtures. They check valid
+files and directories and missing targets in paths containing spaces, and
+verify that the source files are unchanged. This smoke check does not scan all
+external documentation links; full authored and rendered checks run in
+documentation CI.
+
+The `check-doc-links` action is not currently present on `12.9.x`, `13.4.x`,
+`12.2.x`, or `11.8.x`; merging changes into `main` does not update those
+branches' workflows. A maintenance branch's `/main/` URLs may intentionally
+refer to a different tree from its checkout. Before adopting this hook or
+action there, choose an explicit validation policy for those links instead of
+assuming that they refer to the maintenance checkout.
 
 ## Temporary Pixi Lockfile Maintenance Pause
 
