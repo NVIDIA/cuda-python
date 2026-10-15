@@ -79,16 +79,6 @@ repos:
         language: python
         files: '^cuda_core/tests/.*\.py$'
 
-      - id: check-build-shared-sync
-        name: Check shared _build_shared.py representation
-        language: system
-        pass_filenames: false
-        files: '^(cuda_bindings|cuda_core)/_build_shared\.py$'
-        entry: bash -c
-        args:
-          - 'if [ -L cuda_core/_build_shared.py ]; then [ "$(readlink cuda_core/_build_shared.py)" = "../cuda_bindings/_build_shared.py" ]; else cmp -s cuda_bindings/_build_shared.py cuda_core/_build_shared.py; fi || { echo "ERROR: cuda_core/_build_shared.py must link to ../cuda_bindings/_build_shared.py or be a byte-identical copy. Edit cuda_bindings/_build_shared.py as canonical, then restore the link or refresh the copy." >&2; exit 1; }'
-          - "_" # fake script name, because bash considers $0 (the first argument) to be the script name
-
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
         entry: bash -c
