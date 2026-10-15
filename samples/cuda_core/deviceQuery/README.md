@@ -100,7 +100,7 @@ The sample has two output modes:
 ### Software:
 
 - CUDA Toolkit 13.0 or newer (recommended; matches `cuda-python` 13.x)
-- Python 3.10 or newer
+- Python 3.11 or newer
 - `cuda-python` package (>=13.0.0)
 - `cuda-core` package (>=1.0.0)
 

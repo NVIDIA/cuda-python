@@ -52,7 +52,7 @@ This sample demonstrates zero-copy access using **`cuda.core`** to compile and l
 ## Requirements
 
 1. **NVIDIA GPU** and a **driver** compatible with your installed `cuda-python` / `cuda-core` wheels.
-2. **Python 3.10 or newer**
+2. **Python 3.11 or newer**
 3. Install **`pip install -r requirements.txt`** (NumPy, `cuda-python`, `cuda-core`). A **system** CUDA Toolkit is not strictly required if the process can load the driver/runtime; use `LD_LIBRARY_PATH` in *How to run* if you hit missing-library errors.
 
 **Install packages:**
