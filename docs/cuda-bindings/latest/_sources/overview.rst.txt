@@ -524,7 +524,7 @@ CUDA objects
 Certain CUDA kernels use native CUDA types as their parameters such as ``cudaTextureObject_t``. These types require special handling since they're neither a primitive ctype nor a custom user type. Since ``cuda.bindings`` exposes each of them as Python classes, they each implement ``getPtr()`` and ``__int__()``. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under `Tips and Tricks <https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#>`_.
 
 For this example, lets use the ``transformKernel`` from
-:cuda-bindings-example:`simple_cubemap_texture.py <0_Introduction/simple_cubemap_texture.py>`.
+:cuda-bindings-example:`simpleCubemapTexture.py <0_Introduction/simpleCubemapTexture/simpleCubemapTexture.py>`.
 The :doc:`examples` page links to more samples covering textures, graphs,
 memory mapping, and multi-GPU workflows.
 
@@ -571,3 +571,25 @@ For ctypes, we leverage the special handling of ``None`` type since each Python 
        None,
    )
    kernelArgs = (kernelValues, kernelTypes)
+
+.. _host-function-lifetime:
+
+Host functions
+--------------
+
+:func:`cuda.bindings.driver.cuLaunchHostFunc` and
+:func:`cuda.bindings.runtime.cudaLaunchHostFunc` enqueue a host function on a
+stream. The caller owns the memory behind ``fn`` and ``userData``; the bindings
+do not keep the corresponding Python objects alive.
+
+Keep strong references to the callback object (such as a ``ctypes.CFUNCTYPE``
+instance) and the storage backing ``userData`` until the host function has
+completed, as confirmed by stream synchronization. A ``CUhostFn`` or
+``cudaHostFn_t`` wrapper alone does not retain the underlying ctypes callback.
+
+When a host function is captured into a CUDA graph, it runs on every launch of
+that graph. Keep both references alive until the graph and all graph executables
+containing that host node have been destroyed and all pending launches have
+completed. Releasing either object after the first invocation can cause later
+graph launches to access freed memory. The same lifetime requirements apply to
+the ``_v2`` variants of these APIs.
