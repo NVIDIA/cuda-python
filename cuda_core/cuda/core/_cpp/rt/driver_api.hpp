@@ -135,6 +135,7 @@ namespace cuda_core::rt {
     X(cuMemMap, 10020)                           \
     X(cuMemUnmap, 10020)                         \
     X(cuMemSetAccess, 10020)                     \
+    X(cuMemImportFromShareableHandle, 10020)     \
     /* cuda-bindings requests 7000 (PTDS) or 2000 (legacy) */ \
     X(cuStreamSynchronize, 7000)                 \
     X(cuStreamIsCapturing, 10000)                \
