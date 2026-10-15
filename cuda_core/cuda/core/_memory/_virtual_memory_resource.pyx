@@ -653,7 +653,7 @@ cdef class VirtualMemoryResource(MemoryResource):
         return Buffer_from_deviceptr_handle(h_ptr, aligned, self, None, VirtualMemoryBuffer)
 
     def modify_allocation(
-        self, buf: Buffer, size_t new_size, config: VirtualMemoryResourceOptions | None = None
+        self, Buffer buf not None: Buffer, size_t new_size, config: VirtualMemoryResourceOptions | None = None
     ) -> VirtualMemoryBuffer:
         """
         Grow a buffer of this resource to at least ``new_size`` bytes.

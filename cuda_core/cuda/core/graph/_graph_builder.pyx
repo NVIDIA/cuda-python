@@ -735,7 +735,7 @@ cdef class GraphBuilder:
         )
         return GraphCondition._from_handle(<cydriver.CUgraphConditionalHandle><intptr_t>int(raw_handle))
 
-    def if_then(self, condition: GraphCondition) -> GraphBuilder:
+    def if_then(self, GraphCondition condition not None: GraphCondition) -> GraphBuilder:
         """Adds an if condition branch and returns a new graph builder for it.
 
         The resulting if graph will only execute the branch if the
@@ -770,7 +770,7 @@ cdef class GraphBuilder:
         node_params.conditional.ctx = self._get_conditional_context()
         return GB_cond_with_params(self, node_params)[0]
 
-    def if_else(self, condition: GraphCondition) -> tuple[GraphBuilder, GraphBuilder]:
+    def if_else(self, GraphCondition condition not None: GraphCondition) -> tuple[GraphBuilder, GraphBuilder]:
         """Adds an if-else condition branch and returns new graph builders for both branches.
 
         The resulting if graph will execute the branch if the condition
@@ -805,7 +805,7 @@ cdef class GraphBuilder:
         node_params.conditional.ctx = self._get_conditional_context()
         return GB_cond_with_params(self, node_params)
 
-    def switch(self, condition: GraphCondition, count: int) -> tuple[GraphBuilder, ...]:
+    def switch(self, GraphCondition condition not None: GraphCondition, count: int) -> tuple[GraphBuilder, ...]:
         """Adds a switch condition branch and returns new graph builders for all cases.
 
         The resulting switch graph will execute the branch whose case index
@@ -843,7 +843,7 @@ cdef class GraphBuilder:
         node_params.conditional.ctx = self._get_conditional_context()
         return GB_cond_with_params(self, node_params)
 
-    def while_loop(self, condition: GraphCondition) -> GraphBuilder:
+    def while_loop(self, GraphCondition condition not None: GraphCondition) -> GraphBuilder:
         """Adds a while loop and returns a new graph builder for it.
 
         The resulting while loop graph will execute the branch repeatedly at runtime
@@ -1279,7 +1279,7 @@ cdef class Graph:
     @overload
     def __getitem__(self, node: HostCallbackNode) -> ExecutableHostCallbackNode: ...
 
-    def __getitem__(self, node: GraphNode) -> ExecutableGraphNode:
+    def __getitem__(self, GraphNode node not None: GraphNode) -> ExecutableGraphNode:
         """Return a view for updating *node* in this executable graph.
 
         *node* is a definition node from the graph used to instantiate this
@@ -1329,7 +1329,7 @@ cdef class Graph:
             raise CUDAError(msg)
         HANDLE_RETURN(err)
 
-    def upload(self, stream: Stream) -> None:
+    def upload(self, Stream stream not None: Stream) -> None:
         """Uploads the graph in a stream.
 
         Parameters
@@ -1345,7 +1345,7 @@ cdef class Graph:
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphUpload(c_exec, c_stream))
 
-    def launch(self, stream: Stream) -> None:
+    def launch(self, Stream stream not None: Stream) -> None:
         """Launches the graph in a stream.
 
         Parameters
