@@ -119,8 +119,23 @@ $ git fetch --tags origin
 ```
 
 On native Windows, if Git checked out symlinks as plain text or reported
-`unable to create symlink ...: Permission denied`, follow the
-[Windows symlink setup and recovery steps](#enabling-git-symlinks).
+`unable to create symlink ...: Permission denied`, first complete the
+[Windows symlink setup](#enabling-git-symlinks).
+
+If you cloned with `core.symlinks=false`, changing the setting does not
+replace the plain text files already checked out. To restore the shared build
+helper from `HEAD`, preserve any local changes to that file first, then run:
+
+```console
+$ git config --local core.symlinks true
+$ git rm --cached cuda_core/_build_shared.py
+$ git checkout HEAD -- cuda_core/_build_shared.py
+```
+
+Alternatively, start a fresh checkout using [Recommended clone](#recommended-clone)
+after completing the Windows setup. This materializes all tracked symlinks in
+the repository. Documentation and metadata links may remain plain text without
+affecting source builds or tests; the shared build helper must be materialized.
 
 If you use a personal fork, fetch release tags from upstream to keep package
 versions current. Add the remote once, unless it already exists:
@@ -231,26 +246,7 @@ once from an Administrator shell:
 $ reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v AllowDevelopmentWithoutDevLicense /t REG_DWORD /d 1 /f
 ```
 
-Then return to [Recommended clone](#recommended-clone). Its
-`--config core.symlinks=true` option enables Git symlink support in the new
-repository before the first checkout.
-
-**Existing clones:** If you cloned with `core.symlinks=false`, changing the
-setting does not replace the plain text files already checked out. After
-completing the Windows setup above, run the following from the repository root
-to restore the shared build helper from `HEAD`. Preserve any local changes to
-that file first:
-
-```console
-$ git config --local core.symlinks true
-$ git rm --cached cuda_core/_build_shared.py
-$ git checkout HEAD -- cuda_core/_build_shared.py
-```
-
-Alternatively, start a fresh checkout using [Recommended clone](#recommended-clone)
-after completing the Windows setup. This materializes all tracked symlinks in
-the repository. Documentation and metadata links may remain plain text without
-affecting source builds or tests; the shared build helper must be materialized.
+Then return to [Recommended clone](#recommended-clone).
 
 ### Pre-commit lychee workaround
 
