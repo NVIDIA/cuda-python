@@ -1846,7 +1846,7 @@ Furthermore, <a class="reference external" href="https://docs.python.org/3/libra
 <h3>CUDA objects<a class="headerlink" href="#cuda-objects" title="Link to this heading">#</a></h3>
 <p>Certain CUDA kernels use native CUDA types as their parameters such as <code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code>. These types require special handling since they’re neither a primitive ctype nor a custom user type. Since <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> exposes each of them as Python classes, they each implement <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code> and <code class="docutils literal notranslate"><span class="pre">__int__()</span></code>. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#">Tips and Tricks</a>.</p>
 <p>For this example, lets use the <code class="docutils literal notranslate"><span class="pre">transformKernel</span></code> from
-<a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/1f412810b714c1fb200723127fad3545d136d49b/samples/cuda_bindings/0_Introduction/simpleCubemapTexture/simpleCubemapTexture.py">simpleCubemapTexture.py</a>.
+<a class="extlink-cuda-bindings-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/d9feb99dd96ad2aa70fc4535ba06d7aef716909f/samples/cuda_bindings/0_Introduction/simpleCubemapTexture/simpleCubemapTexture.py">simpleCubemapTexture.py</a>.
 The <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> page links to more samples covering textures, graphs,
 memory mapping, and multi-GPU workflows.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simpleCubemapTexture</span> <span class="o">=</span> <span class="s2">"""</span><span class="se">\</span>
@@ -1889,6 +1889,23 @@ memory mapping, and multi-GPU workflows.</p>
 </pre></div>
 </div>
 </section>
+</section>
+<section id="host-functions">
+<span id="host-function-lifetime"></span><h2>Host functions<a class="headerlink" href="#host-functions" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuLaunchHostFunc" title="cuda.bindings.driver.cuLaunchHostFunc"><code class="xref py py-func docutils literal notranslate"><span class="pre">cuda.bindings.driver.cuLaunchHostFunc()</span></code></a> and
+<a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaLaunchHostFunc" title="cuda.bindings.runtime.cudaLaunchHostFunc"><code class="xref py py-func docutils literal notranslate"><span class="pre">cuda.bindings.runtime.cudaLaunchHostFunc()</span></code></a> enqueue a host function on a
+stream. The caller owns the memory behind <code class="docutils literal notranslate"><span class="pre">fn</span></code> and <code class="docutils literal notranslate"><span class="pre">userData</span></code>; the bindings
+do not keep the corresponding Python objects alive.</p>
+<p>Keep strong references to the callback object (such as a <code class="docutils literal notranslate"><span class="pre">ctypes.CFUNCTYPE</span></code>
+instance) and the storage backing <code class="docutils literal notranslate"><span class="pre">userData</span></code> until the host function has
+completed, as confirmed by stream synchronization. A <code class="docutils literal notranslate"><span class="pre">CUhostFn</span></code> or
+<code class="docutils literal notranslate"><span class="pre">cudaHostFn_t</span></code> wrapper alone does not retain the underlying ctypes callback.</p>
+<p>When a host function is captured into a CUDA graph, it runs on every launch of
+that graph. Keep both references alive until the graph and all graph executables
+containing that host node have been destroyed and all pending launches have
+completed. Releasing either object after the first invocation can cause later
+graph launches to access freed memory. The same lifetime requirements apply to
+the <code class="docutils literal notranslate"><span class="pre">_v2</span></code> variants of these APIs.</p>
 </section>
 </section>
 
@@ -1949,6 +1966,7 @@ memory mapping, and multi-GPU workflows.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-objects">CUDA objects</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#host-functions">Host functions</a></li>
 </ul>
   </nav></div>
 
