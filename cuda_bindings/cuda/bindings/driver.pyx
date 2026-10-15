@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5883cb5633a3d97ee7d7582823371bd1928ee4a2388183d7433daf02032ece87
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7bd998915de52155f2e27696c9a4d514071b9c721d94e05f0a00c7a07394a961
 from typing import Any, Optional
 import cython
 import ctypes
@@ -39995,19 +39995,6 @@ def cuLaunchCooperativeKernelMultiDevice(launchParamsList : Optional[tuple[CUDA_
         free(cylaunchParamsList)
     return (_CUresult(err),)
 
-ctypedef struct cuHostCallbackData_st:
-    cydriver.CUhostFn callback
-    void *userData
-
-ctypedef cuHostCallbackData_st cuHostCallbackData
-
-@cython.show_performance_hints(False)
-cdef void cuHostCallbackWrapper(void *data) nogil:
-    cdef cuHostCallbackData *cbData = <cuHostCallbackData *>data
-    with gil:
-        cbData.callback(cbData.userData)
-    free(cbData)
-
 @cython.embedsignature(True)
 def cuLaunchHostFunc(hStream, fn, userData):
     """ Enqueues a host function call in a stream.
@@ -40087,18 +40074,8 @@ def cuLaunchHostFunc(hStream, fn, userData):
     cyhStream = <cydriver.CUstream><void_ptr>phStream
     cdef _HelperInputVoidPtrStruct cyuserDataHelper
     cdef void* cyuserData = _helper_input_void_ptr(userData, &cyuserDataHelper)
-
-    cdef cuHostCallbackData *cbData = NULL
-    cbData = <cuHostCallbackData *>malloc(sizeof(cbData[0]))
-    if cbData == NULL:
-        return (CUresult.CUDA_ERROR_OUT_OF_MEMORY,)
-    cbData.callback = cyfn
-    cbData.userData = cyuserData
-
     with nogil:
-        err = cydriver.cuLaunchHostFunc(cyhStream, <cydriver.CUhostFn>cuHostCallbackWrapper, <void *>cbData)
-    if err != cydriver.CUDA_SUCCESS:
-        free(cbData)
+        err = cydriver.cuLaunchHostFunc(cyhStream, cyfn, cyuserData)
     _helper_input_void_ptr_free(&cyuserDataHelper)
     return (_CUresult(err),)
 

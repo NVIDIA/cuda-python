@@ -779,6 +779,58 @@ def test_stream_capture():
     pass
 
 
+@pytest.mark.agent_authored(model="gpt-6")
+def test_cuda_launch_host_func_graph_replay():
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, ctx = cuda.cuCtxCreate(0, device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    try:
+        # A host function captured into a graph runs once per graph launch. The
+        # bindings must hand the function pointer and the user data to CUDA
+        # unchanged so that every launch reaches the same function (issue #790).
+        counter = ctypes.c_int(0)
+
+        @ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+        def host_fn(userData):
+            ctypes.c_int.from_address(userData).value += 1
+
+        callback = cuda.CUhostFn(_ptr=ctypes.addressof(host_fn))
+        err, stream = cuda.cuStreamCreate(0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        try:
+            (err,) = cuda.cuStreamBeginCapture(stream, cuda.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_GLOBAL)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+            (err,) = cuda.cuLaunchHostFunc(stream, callback, ctypes.addressof(counter))
+            assert err == cuda.CUresult.CUDA_SUCCESS
+            err, graph = cuda.cuStreamEndCapture(stream)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+            try:
+                err, graphExec = cuda.cuGraphInstantiate(graph, 0)
+                assert err == cuda.CUresult.CUDA_SUCCESS
+                try:
+                    for launch in range(1, 6):
+                        (err,) = cuda.cuGraphLaunch(graphExec, stream)
+                        assert err == cuda.CUresult.CUDA_SUCCESS
+                        (err,) = cuda.cuStreamSynchronize(stream)
+                        assert err == cuda.CUresult.CUDA_SUCCESS
+                        assert counter.value == launch
+                finally:
+                    (err,) = cuda.cuGraphExecDestroy(graphExec)
+                    assert err == cuda.CUresult.CUDA_SUCCESS
+            finally:
+                (err,) = cuda.cuGraphDestroy(graph)
+                assert err == cuda.CUresult.CUDA_SUCCESS
+        finally:
+            (err,) = cuda.cuStreamDestroy(stream)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+    finally:
+        (err,) = cuda.cuCtxDestroy(ctx)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+
 def test_profiler():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
