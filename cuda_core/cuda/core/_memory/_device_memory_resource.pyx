@@ -348,7 +348,7 @@ def _deep_reduce_device_memory_resource(mr) -> tuple[object, ...]:
 
 
 def _reconstruct_device_memory_resource(
-    cls: type, device_uuid: str, alloc_handle: IPCAllocationHandle
+    cls: type, device_uuid: str, IPCAllocationHandle alloc_handle not None: IPCAllocationHandle
 ) -> DeviceMemoryResource:
     from .._device import _device_from_uuid
     return cls.from_allocation_handle(_device_from_uuid(device_uuid), alloc_handle)
