@@ -21,8 +21,9 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
   - [Table of Contents](#table-of-contents)
   - [Cloning the repository](#cloning-the-repository)
     - [Recommended clone](#recommended-clone)
-    - [Fixing an existing clone](#fixing-an-existing-clone)
     - [Updating your clone](#updating-your-clone)
+    - [Fixing an existing clone](#fixing-an-existing-clone)
+    - [Why the clone matters](#why-the-clone-matters)
     - [Symptoms of a bad clone](#symptoms-of-a-bad-clone)
   - [Development on Windows](#development-on-windows)
     - [Enabling git symlinks](#enabling-git-symlinks)
@@ -45,10 +46,96 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
 
 ## Cloning the repository
 
-> **Windows contributors (not WSL):** the repository currently tracks the
-> build-critical `cuda_core/_build_shared.py` as a symlink. Configure Git for
-> symlinks *before* cloning, or `cuda-core` source builds and tests fail. See
-> [Enabling git symlinks](#enabling-git-symlinks) under Development on Windows.
+### Recommended clone
+
+**On native Windows (not WSL), first [enable symlink creation](#enabling-git-symlinks),
+including the Developer Mode registry check.** Complete that setup before
+running the clone command.
+
+From the directory where you want to create the checkout, run:
+
+```console
+$ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
+$ cd cuda-python
+```
+
+This recipe sets up the repository for source builds and development:
+
+- `core.symlinks=true` materializes symlinks during checkout, including the
+  build-critical `cuda_core/_build_shared.py`.
+- `--recurse-submodules` initializes the CCCL headers needed to build `cuda.core`.
+- `submodule.recurse=true` keeps initialized submodules in sync on `git pull`,
+  `git checkout`, and `git switch`.
+- The clone retains history and release tags for correct package versions.
+  Do not add `--depth` or `--no-tags`.
+
+Both configuration settings are stored in the new clone. Next, follow the
+build and test instructions for
+[`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/install.html),
+[`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html), or
+[`cuda.pathfinder`](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/install.html).
+
+### Updating your clone
+
+From the repository root, run:
+
+```console
+$ git pull --recurse-submodules
+$ git submodule update --init
+```
+
+The recommended clone configures `submodule.recurse=true`, so you can omit
+`--recurse-submodules` from `git pull`. The second command initializes any
+newly added submodules; it is usually a no-op.
+
+### Fixing an existing clone
+
+Run the following commands from the repository root, choosing the steps that
+apply to your checkout.
+
+To keep initialized submodules in sync automatically:
+
+```console
+$ git config --local submodule.recurse true
+```
+
+If you cloned without submodules:
+
+```console
+$ git submodule update --init cuda_core/third_party/cccl
+```
+
+If you have a shallow clone:
+
+```console
+$ git fetch --unshallow --tags
+```
+
+If you cloned with `--no-tags`, enable tag fetching and fetch the missing tags:
+
+```console
+$ git config --local remote.origin.tagOpt --tags
+$ git fetch --tags origin
+```
+
+On native Windows, if Git checked out symlinks as plain text or reported
+`unable to create symlink ...: Permission denied`, follow the
+[Windows symlink setup and recovery steps](#enabling-git-symlinks).
+
+If you use a personal fork, fetch release tags from upstream to keep package
+versions current. Add the remote once, unless it already exists:
+
+```console
+$ git remote add upstream https://github.com/NVIDIA/cuda-python.git
+```
+
+Then fetch tags, and repeat periodically as new releases are cut:
+
+```console
+$ git fetch --tags upstream
+```
+
+### Why the clone matters
 
 Every package in this repository derives its version from git tags using
 [`setuptools-scm`](https://setuptools-scm.readthedocs.io/), so **how you clone
@@ -77,59 +164,6 @@ working build therefore needs all of the following:
    between it and your checkout must be present too.
 4. **The CCCL submodule** when building `cuda.core`. That package compiles
    against the headers pinned in `cuda_core/third_party/cccl`.
-
-### Recommended clone
-
-Clone the repository with its submodules:
-
-```console
-$ git clone --recurse-submodules https://github.com/NVIDIA/cuda-python.git
-```
-
-To keep initialized submodules in sync on `git pull`, `git checkout`, and
-`git switch`, set this default once per clone:
-
-```console
-$ git config --local submodule.recurse true
-```
-
-### Fixing an existing clone
-
-If you already have a shallow clone:
-
-```console
-$ git fetch --unshallow --tags
-```
-
-If you cloned without submodules:
-
-```console
-$ git submodule update --init cuda_core/third_party/cccl
-```
-
-If you are working from a personal fork, your fork's tags stop tracking upstream
-the moment new releases are cut, which silently yields a stale version. Fetch
-tags from upstream directly:
-
-```console
-$ git remote add upstream https://github.com/NVIDIA/cuda-python.git
-$ git fetch --tags upstream
-```
-
-Keep doing this periodically — a fork that was correct when you created it will
-drift.
-
-### Updating your clone
-
-To update your clone and initialize any newly added submodules, run:
-
-```console
-$ git pull --recurse-submodules && git submodule update --init
-```
-
-You can omit `--recurse-submodules` if you have already run
-`git config --local submodule.recurse true`. The second command is usually a
-no-op, but ensures that newly added submodules are initialized.
 
 ### Symptoms of a bad clone
 
@@ -179,49 +213,44 @@ byte-for-byte identical copy, but the current tree uses a symlink. With
 `core.symlinks=false`, Git checks it out as a plain text file containing the
 target path, and `cuda-core` source builds and tests fail.
 
-On native Windows, materialize the current symlink as follows:
-
-1. **[Activate Developer Mode](https://learn.microsoft.com/en-us/windows/advanced-settings/developer-mode)**
-   so Git can create symlinks without Administrator privileges. Then verify
-   that Windows recorded Developer Mode in the machine-wide registry:
-
-   ```console
-   $ reg.exe query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v AllowDevelopmentWithoutDevLicense
-   ```
-
-   The output must show `AllowDevelopmentWithoutDevLicense` as a `REG_DWORD`
-   with value `0x1`. If the value is missing or differs, Git may report
-   `unable to create symlink ...: Permission denied` even when Windows Settings
-   shows Developer Mode as enabled. In that case, run the following command
-   once from an Administrator shell:
-
-   ```console
-   $ reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v AllowDevelopmentWithoutDevLicense /t REG_DWORD /d 1 /f
-   ```
-
-2. **Enable Git symlink support globally** so newly-cloned repositories inherit
-   the setting:
-
-   ```console
-   $ git config --global core.symlinks true
-   ```
-
-Then clone as usual (see [Cloning the repository](#cloning-the-repository)).
-
-If you already cloned with `core.symlinks=false`, the repository-local setting
-overrides the global setting. Enable it locally, then rematerialize the shared
-build helper:
+[Activate Developer Mode](https://learn.microsoft.com/en-us/windows/advanced-settings/developer-mode)
+so Git can create symlinks without Administrator privileges. Then verify
+that Windows recorded Developer Mode in the machine-wide registry:
 
 ```console
-$ git config core.symlinks true
+$ reg.exe query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v AllowDevelopmentWithoutDevLicense
+```
+
+The output must show `AllowDevelopmentWithoutDevLicense` as a `REG_DWORD`
+with value `0x1`. If the value is missing or differs, Git may report
+`unable to create symlink ...: Permission denied` even when Windows Settings
+shows Developer Mode as enabled. In that case, run the following command
+once from an Administrator shell:
+
+```console
+$ reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v AllowDevelopmentWithoutDevLicense /t REG_DWORD /d 1 /f
+```
+
+Then return to [Recommended clone](#recommended-clone). Its
+`--config core.symlinks=true` option enables Git symlink support in the new
+repository before the first checkout.
+
+**Existing clones:** If you cloned with `core.symlinks=false`, changing the
+setting does not replace the plain text files already checked out. After
+completing the Windows setup above, run the following from the repository root
+to restore the shared build helper from `HEAD`. Preserve any local changes to
+that file first:
+
+```console
+$ git config --local core.symlinks true
 $ git rm --cached cuda_core/_build_shared.py
 $ git checkout HEAD -- cuda_core/_build_shared.py
 ```
 
-Re-cloning after enabling Developer Mode and setting the global option is
-simpler and restores every tracked symlink. Documentation and metadata links
-may remain plain text without affecting source builds or tests; the shared
-build helper must be materialized.
+Alternatively, start a fresh checkout using [Recommended clone](#recommended-clone)
+after completing the Windows setup. This materializes all tracked symlinks in
+the repository. Documentation and metadata links may remain plain text without
+affecting source builds or tests; the shared build helper must be materialized.
 
 ### Pre-commit lychee workaround
 
