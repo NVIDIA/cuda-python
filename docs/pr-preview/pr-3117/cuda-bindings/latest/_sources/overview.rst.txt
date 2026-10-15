@@ -571,3 +571,25 @@ For ctypes, we leverage the special handling of ``None`` type since each Python 
        None,
    )
    kernelArgs = (kernelValues, kernelTypes)
+
+.. _host-function-lifetime:
+
+Host functions
+--------------
+
+:func:`cuda.bindings.driver.cuLaunchHostFunc` and
+:func:`cuda.bindings.runtime.cudaLaunchHostFunc` enqueue a host function on a
+stream. The caller owns the memory behind ``fn`` and ``userData``; the bindings
+do not keep the corresponding Python objects alive.
+
+Keep strong references to the callback object (such as a ``ctypes.CFUNCTYPE``
+instance) and the storage backing ``userData`` until the host function has
+completed, as confirmed by stream synchronization. A ``CUhostFn`` or
+``cudaHostFn_t`` wrapper alone does not retain the underlying ctypes callback.
+
+When a host function is captured into a CUDA graph, it runs on every launch of
+that graph. Keep both references alive until the graph and all graph executables
+containing that host node have been destroyed and all pending launches have
+completed. Releasing either object after the first invocation can cause later
+graph launches to access freed memory. The same lifetime requirements apply to
+the ``_v2`` variants of these APIs.
