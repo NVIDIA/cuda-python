@@ -51,18 +51,41 @@ def test_remaps_leave_other_targets_and_nested_urls_unchanged(tmp_path, url):
         assert re.sub(pattern, replacement, url) == url
 
 
+@pytest.mark.parametrize("platform", ["linux", "win32"])
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
-def test_main_passes_arguments_without_shell_and_preserves_failure_status():
+def test_main_uses_hook_environment_despite_other_binary_on_path(tmp_path, monkeypatch, platform):
+    scripts = tmp_path / "hook environment" / ("Scripts" if platform == "win32" else "bin")
+    scripts.mkdir(parents=True)
+    name = "lychee.exe" if platform == "win32" else "lychee"
+    executable = scripts / name
+    executable.touch()
+    other_directory = tmp_path / "other installation"
+    other_directory.mkdir()
+    (other_directory / name).touch(mode=0o755)
+    monkeypatch.setenv("PATH", str(other_directory))
     arguments = ["--cache", "--max-concurrency=4", "guide with spaces.md"]
     with (
-        patch("run_lychee.shutil.which", return_value="/hook environment/bin/lychee"),
+        patch("run_lychee.sysconfig.get_path", return_value=str(scripts)),
+        patch("run_lychee.sys.platform", platform),
         patch("run_lychee.subprocess.run", return_value=subprocess.CompletedProcess([], 2)) as run,
     ):
         assert main(arguments) == 2
-    run.assert_called_once_with(["/hook environment/bin/lychee", *repo_link_remaps(), *arguments], check=False)
+    run.assert_called_once_with([str(executable), *repo_link_remaps(), *arguments], check=False)
 
 
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
-def test_main_reports_missing_binary():
-    with patch("run_lychee.shutil.which", return_value=None), pytest.raises(SystemExit, match="lychee was not found"):
+def test_main_reports_missing_hook_binary_without_falling_back_to_path(tmp_path, monkeypatch):
+    scripts = tmp_path / "hook environment" / "bin"
+    other_directory = tmp_path / "other installation"
+    other_directory.mkdir()
+    (other_directory / "lychee").touch(mode=0o755)
+    monkeypatch.setenv("PATH", str(other_directory))
+    with (
+        patch("run_lychee.sysconfig.get_path", return_value=str(scripts)),
+        patch("run_lychee.sys.platform", "linux"),
+        patch("run_lychee.subprocess.run") as run,
+        pytest.raises(SystemExit, match="lychee was not found") as error,
+    ):
         main(["guide.md"])
+    assert str(scripts / "lychee") in str(error.value)
+    run.assert_not_called()
