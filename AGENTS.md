@@ -8,7 +8,7 @@ guide for package-specific conventions and workflows.
 ## Package map
 
 - `cuda_pathfinder/`: Pure-Python library discovery and loading utilities.
-- `cuda_bindings/`: Low-level CUDA host API bindings (Cython-heavy).
+- `cuda_bindings_13/`: Low-level CUDA host API bindings (Cython-heavy).
 - `cuda_core/`: High-level Pythonic CUDA APIs built on top of bindings.
 - `cuda_python/`: Metapackage and docs aggregation.
 

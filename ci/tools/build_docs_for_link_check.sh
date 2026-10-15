@@ -32,13 +32,13 @@ from importlib import import_module
 from importlib.metadata import version
 from pathlib import Path
 
-for distribution, module_name in (
-    ("cuda-bindings", "cuda.bindings"),
-    ("cuda-core", "cuda.core"),
-    ("cuda-pathfinder", "cuda.pathfinder"),
+for distribution, module_name, package_dir in (
+    ("cuda-bindings", "cuda.bindings", "cuda_bindings_13"),
+    ("cuda-core", "cuda.core", "cuda_core"),
+    ("cuda-pathfinder", "cuda.pathfinder", "cuda_pathfinder"),
 ):
     module = import_module(module_name)
-    source = Path.cwd() / distribution.replace("-", "_")
+    source = Path.cwd() / package_dir
     if not Path(module.__file__).resolve().is_relative_to(source):
         raise RuntimeError(f"{distribution} must be imported from the checkout: {module.__file__}")
     installed_version = version(distribution)

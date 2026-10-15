@@ -402,7 +402,7 @@ def _capture_cythonize_kwargs(monkeypatch, cuda_major):
     build_hooks._determine_cuda_major_version.cache_clear()
     # _build_cuda_core() globs cuda/core/**/*.pyx relative to the cwd.
     monkeypatch.chdir(Path(__file__).parent.parent)
-    # It also prepends cuda_bindings/ to sys.path; swap in a copy so the
+    # It also prepends cuda_bindings_13/ to sys.path; swap in a copy so the
     # mutation lands there and the real list is restored on teardown.
     monkeypatch.setattr(sys, "path", list(sys.path))
 
@@ -462,7 +462,7 @@ def _load_setup_py(monkeypatch):
     guard does not affect real builds.
 
     setup.py does a bare ``import build_hooks``, which resolves to
-    cuda_bindings' copy if that directory is on sys.path. Pin cuda_core's, so
+    cuda_bindings_13' copy if that directory is on sys.path. Pin cuda_core's, so
     the flag the test sets is the one setup.py reads.
     """
     monkeypatch.setitem(sys.modules, "build_hooks", build_hooks)
@@ -1067,7 +1067,7 @@ class TestCythonCacheSmokeTest:
 
     The actual cythonize exercise lives in
     ``cuda_python_test_helpers.cython_cache`` so it is shared with
-    ``cuda_bindings/tests/test_build_hooks.py``.
+    ``cuda_bindings_13/tests/test_build_hooks.py``.
     """
 
     @POSIX_ONLY_CACHE
