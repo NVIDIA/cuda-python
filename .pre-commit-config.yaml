@@ -28,7 +28,7 @@ repos:
     hooks:
       - id: ruff-check
         args: [--fix, --show-fixes]
-        exclude: (^cuda_bindings/cuda/bindings/_internal/_fast_enum\.py$)|(.*\.pyi$)
+        exclude: (^cuda_bindings_13/cuda/bindings/_internal/_fast_enum\.py$)|(.*\.pyi$)
       - id: ruff-format
         exclude: .*\.pyi$
 
@@ -62,7 +62,7 @@ repos:
         name: Check generated-file seals
         entry: python ./toolshed/check_generated_file_seals.py
         language: python
-        files: ^cuda_bindings/
+        files: ^cuda_bindings_13/
         types: [text]
 
       - id: check-pixi-cuda-version
@@ -70,7 +70,7 @@ repos:
         entry: python ./ci/tools/check_pixi_cuda_version.py
         language: python
         additional_dependencies: [pyyaml==6.0.3]
-        files: '^(ci/versions\.yml|cuda_bindings/pixi\.toml|cuda_core/pixi\.toml)$'
+        files: '^(ci/versions\.yml|cuda_bindings_13/pixi\.toml|cuda_core/pixi\.toml)$'
         pass_filenames: false
 
       - id: check-mempool-hygiene
@@ -83,10 +83,10 @@ repos:
         name: Check _build_shared.py copies are identical
         language: system
         pass_filenames: false
-        files: '^(cuda_bindings|cuda_core)/_build_shared\.py$'
+        files: '^(cuda_bindings_13|cuda_core)/_build_shared\.py$'
         entry: bash -c
         args:
-          - 'git diff --no-index --exit-code -- cuda_bindings/_build_shared.py cuda_core/_build_shared.py || { echo "ERROR: cuda_bindings/_build_shared.py and cuda_core/_build_shared.py must be byte-identical. Copy one onto the other and commit both." >&2; exit 1; }'
+          - 'git diff --no-index --exit-code -- cuda_bindings_13/_build_shared.py cuda_core/_build_shared.py || { echo "ERROR: cuda_bindings_13/_build_shared.py and cuda_core/_build_shared.py must be byte-identical. Copy one onto the other and commit both." >&2; exit 1; }'
           - "_" # fake script name, because bash considers $0 (the first argument) to be the script name
 
       - id: no-markdown-in-docs-source
@@ -132,7 +132,7 @@ repos:
     rev: "3e8a8703264a2f4a69428a0aa4dcb512790b2c8c"  # frozen: v6.0.0
     hooks:
     - id: check-added-large-files
-      exclude: cuda_bindings/cuda/bindings/nvml.pyx
+      exclude: cuda_bindings_13/cuda/bindings/nvml.pyx
     - id: check-case-conflict
     - id: check-docstring-first
     - id: check-merge-conflict
@@ -141,14 +141,14 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
-      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?|.*\.pyi)$'
+      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings_13/cuda/bindings/.*\.in?|cuda_bindings_13/docs/source/module/.*\.rst?|.*\.pyi)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
       exclude: |
         (?x)^(?:
           cuda_python/README\.md|
-          cuda_bindings/cuda/bindings/.*\.in?|
-          cuda_bindings/docs/source/module/.*\.rst?|
+          cuda_bindings_13/cuda/bindings/.*\.in?|
+          cuda_bindings_13/docs/source/module/.*\.rst?|
           .*\.patch$
         )$
 
@@ -190,7 +190,7 @@ repos:
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]
-        exclude: ^cuda_bindings/
+        exclude: ^cuda_bindings_13/
         additional_dependencies:
           - Cython==3.2.9
 

@@ -466,7 +466,7 @@ def _build_cuda_core(debug=False):
 
         bindings_path = Path(cuda_bindings.__file__).parent  # .../cuda/bindings/
         print(f"Using cuda-bindings {cuda_bindings.__version__} from {bindings_path}", file=sys.stderr)
-        cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings/ (contains cuda/)
+        cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings_13/ (contains cuda/)
         if str(cuda_package_dir) not in sys.path:
             sys.path.insert(0, str(cuda_package_dir))
             print(f"Added cuda-bindings parent path for Cython: {cuda_package_dir}", file=sys.stderr)
@@ -616,7 +616,7 @@ def _add_cython_include_paths_to_pth(wheel_path: str) -> None:
 
         bindings_path = Path(cuda.bindings.__file__).parent  # .../cuda/bindings/
         # We need the directory containing the 'cuda' package for Cython imports
-        cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings/ (contains cuda/)
+        cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings_13/ (contains cuda/)
         print(f"Found cuda-bindings at: {bindings_path}", file=sys.stderr)
         print(f"Will add to .pth for Cython: {cuda_package_dir}", file=sys.stderr)
     except ImportError:

@@ -86,7 +86,7 @@ version and committed lockfiles are unchanged.
 
 Re-enable maintenance only after a released Pixi passes both upstream issue
 reproducers and repeated byte-stable update/lock/check cycles across all six
-workspaces: the repository root, `cuda_pathfinder`, `cuda_bindings`, `cuda_core`,
+workspaces: the repository root, `cuda_pathfinder`, `cuda_bindings_13`, `cuda_core`,
 `benchmarks/cuda_bindings`, and `benchmarks/cuda_core`. Verify both `pixi update
 --no-install` and `pixi lock`, followed by repeated `pixi lock --check` commands,
 converge to unchanged lockfile bytes. Then restore strict freshness checks,
