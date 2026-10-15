@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=81d29d3c883454c4864665cd1027a72114cacd123e4bfdd997485faedb5a054a
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d429cbad8076b96b3deb6eeceb51bbcb55e7b1fe5a189afa88a3ebce9970fa8d
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -444,7 +444,7 @@ cdef class IOEvents:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=io_events_dtype)
+        arr = _numpy.zeros(size, dtype=io_events_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(CUfileIOEvents_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileIOEvents_t) }"
@@ -790,7 +790,7 @@ cdef class PerGpuStats:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=per_gpu_stats_dtype)
+        arr = _numpy.zeros(size, dtype=per_gpu_stats_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(CUfilePerGpuStats_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfilePerGpuStats_t) }"
@@ -1254,7 +1254,7 @@ cdef class IOVec:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=io_vec_dtype)
+        arr = _numpy.zeros(size, dtype=io_vec_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(CUfileIOVec_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileIOVec_t) }"
@@ -1413,7 +1413,7 @@ cdef class Descr:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=descr_dtype)
+        arr = _numpy.zeros(size, dtype=descr_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(CUfileDescr_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileDescr_t) }"
@@ -2625,7 +2625,7 @@ cdef class IOParams:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=io_params_dtype)
+        arr = _numpy.zeros(size, dtype=io_params_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(CUfileIOParams_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileIOParams_t) }"
@@ -3384,7 +3384,7 @@ cpdef intptr_t handle_register(descr) except? 0:
         the file needs to be opened in O_DIRECT mode to support GPUDirect Storage.
     .. seealso:: `cuFileHandleRegister`
     """
-    cdef intptr_t _descr_ptr_ = int(descr)
+    cdef intptr_t _descr_ptr_ = 0 if descr is None else int(descr)
     cdef Handle fh
     with nogil:
         __status__ = cuFileHandleRegister(&fh, <CUfileDescr_t*>_descr_ptr_)
@@ -3557,14 +3557,14 @@ cpdef intptr_t batch_io_set_up(unsigned nr) except? 0:
 
 
 cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, iocbp, unsigned int flags):
-    cdef intptr_t _iocbp_ptr_ = int(iocbp)
+    cdef intptr_t _iocbp_ptr_ = 0 if iocbp is None else int(iocbp)
     with nogil:
         __status__ = cuFileBatchIOSubmit(<BatchHandle>batch_idp, nr, <CUfileIOParams_t*>_iocbp_ptr_, flags)
     check_status(__status__)
 
 
 cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, iocbp, intptr_t timeout):
-    cdef intptr_t _iocbp_ptr_ = int(iocbp)
+    cdef intptr_t _iocbp_ptr_ = 0 if iocbp is None else int(iocbp)
     with nogil:
         __status__ = cuFileBatchIOGetStatus(<BatchHandle>batch_idp, min_nr, <unsigned*>nr, <CUfileIOEvents_t*>_iocbp_ptr_, <timespec*>timeout)
     check_status(__status__)
@@ -3772,7 +3772,7 @@ cpdef get_stats_l1(stats):
 
     .. seealso:: `cuFileGetStatsL1`
     """
-    cdef intptr_t _stats_ptr_ = int(stats)
+    cdef intptr_t _stats_ptr_ = 0 if stats is None else int(stats)
     with nogil:
         __status__ = cuFileGetStatsL1(<CUfileStatsLevel1_t*>_stats_ptr_)
     check_status(__status__)
@@ -3788,7 +3788,7 @@ cpdef get_stats_l2(stats):
 
     .. seealso:: `cuFileGetStatsL2`
     """
-    cdef intptr_t _stats_ptr_ = int(stats)
+    cdef intptr_t _stats_ptr_ = 0 if stats is None else int(stats)
     with nogil:
         __status__ = cuFileGetStatsL2(<CUfileStatsLevel2_t*>_stats_ptr_)
     check_status(__status__)
@@ -3804,7 +3804,7 @@ cpdef get_stats_l3(stats):
 
     .. seealso:: `cuFileGetStatsL3`
     """
-    cdef intptr_t _stats_ptr_ = int(stats)
+    cdef intptr_t _stats_ptr_ = 0 if stats is None else int(stats)
     with nogil:
         __status__ = cuFileGetStatsL3(<CUfileStatsLevel3_t*>_stats_ptr_)
     check_status(__status__)
