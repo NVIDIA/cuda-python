@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=8097d4cd"></script>
+    <script src="_static/documentation_options.js?v=24ef50d4"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.2.dev4';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.2.dev5';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -790,7 +790,7 @@ dependencies are as follows:</p>
 <p>Including <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code>.</p>
 </aside>
 </aside>
-<p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> supports Python 3.10 - 3.15, on Linux (x86-64, arm64) and Windows (x86-64, arm64). Windows on ARM (arm64) wheels are provided for CUDA 13 only and for Python 3.11 and newer, and require <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> 13.4.1 or newer. Python 3.15 requires <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> 13.4.4 or newer, the first release with Python 3.15 wheels, so Python 3.15 is supported with CUDA 13 only. <strong>Experimental</strong> free-threaded builds for Python 3.14 and 3.15 are also provided.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> supports Python 3.10 - 3.15, on Linux (x86-64, arm64) and Windows (x86-64, arm64). Windows on ARM (arm64) wheels are provided for CUDA 13 only and for Python 3.11 and newer, and require <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> 13.4.1 or newer. Python 3.15 requires <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> 12.9.10 or newer for CUDA 12, or 13.4.4 or newer for CUDA 13, the first releases with Python 3.15 wheels. <strong>Experimental</strong> free-threaded builds for Python 3.14 and 3.15 are also provided.</p>
 <section id="free-threading-build-support">
 <h3>Free-threading Build Support<a class="headerlink" href="#free-threading-build-support" title="Link to this heading">#</a></h3>
 <p>Starting <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> 0.4.0, <strong>experimental</strong> packages for the <a class="reference external" href="https://docs.python.org/3/howto/free-threading-python.html">free-threaded interpreter</a> are shipped.</p>

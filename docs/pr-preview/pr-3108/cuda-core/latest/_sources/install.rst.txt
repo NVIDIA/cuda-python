@@ -26,7 +26,7 @@ dependencies are as follows:
 .. [#f1] Including ``cuda-python``.
 
 
-``cuda.core`` supports Python 3.10 - 3.15, on Linux (x86-64, arm64) and Windows (x86-64, arm64). Windows on ARM (arm64) wheels are provided for CUDA 13 only and for Python 3.11 and newer, and require ``cuda.bindings`` 13.4.1 or newer. Python 3.15 requires ``cuda.bindings`` 13.4.4 or newer, the first release with Python 3.15 wheels, so Python 3.15 is supported with CUDA 13 only. **Experimental** free-threaded builds for Python 3.14 and 3.15 are also provided.
+``cuda.core`` supports Python 3.10 - 3.15, on Linux (x86-64, arm64) and Windows (x86-64, arm64). Windows on ARM (arm64) wheels are provided for CUDA 13 only and for Python 3.11 and newer, and require ``cuda.bindings`` 13.4.1 or newer. Python 3.15 requires ``cuda.bindings`` 12.9.10 or newer for CUDA 12, or 13.4.4 or newer for CUDA 13, the first releases with Python 3.15 wheels. **Experimental** free-threaded builds for Python 3.14 and 3.15 are also provided.
 
 
 Free-threading Build Support
