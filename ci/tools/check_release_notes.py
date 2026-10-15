@@ -5,12 +5,9 @@
 
 Usage:
     python check_release_notes.py --git-tag <tag> --component <component>
-    python check_release_notes.py --git-tag <tag> --component <component> --git-ref refs/tags/<tag>
 
-By default, notes and release configuration come from the working tree.
---git-ref reads those files from the given ref without changing the checkout,
-so the workflow's current checker can validate older release tags. Successful
-checks append the parsed version to GITHUB_OUTPUT when it is set.
+Notes and release configuration come from the working tree. Successful checks
+append the parsed version to GITHUB_OUTPUT when it is set.
 
 Exit codes:
     0 — release-notes policy satisfied
@@ -23,7 +20,6 @@ from __future__ import annotations
 import argparse
 import os
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -70,41 +66,16 @@ def is_post_release(version: str) -> bool:
     return ".post" in version
 
 
-def read_repo_file(path: Path, repo_root: Path, git_ref: str | None = None) -> bytes | None:
-    """Read a file from the working tree or an already-resolved Git commit."""
-    if git_ref is None:
-        full = repo_root / path
-        return full.read_bytes() if full.is_file() else None
-
-    object_name = f"{git_ref}:{path.as_posix()}"
-    result = subprocess.run(
-        ["git", "cat-file", "--batch-check=%(objecttype)"],  # noqa: S607
-        input=f"{object_name}\n",
-        cwd=repo_root,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    object_type = result.stdout.strip()
-    if object_type == f"{object_name} missing" or object_type == "tree":
-        return None
-    if object_type != "blob":
-        raise ValueError(f"Cannot read release-notes source {object_name!r}: unexpected object type {object_type!r}")
-    return subprocess.run(  # noqa: S603 - the resolved commit and path are passed without a shell.
-        ["git", "show", object_name],  # noqa: S607
-        cwd=repo_root,
-        check=True,
-        capture_output=True,
-    ).stdout
-
-
-def load_backport_branch(repo_root: Path = Path("."), git_ref: str | None = None) -> str | None:
-    contents = read_repo_file(Path("ci", "versions.yml"), repo_root, git_ref)
-    if contents is not None:
-        for line in contents.decode("utf-8").splitlines():
-            m = BACKPORT_BRANCH_RE.match(line.strip())
-            if m:
-                return m.group("branch")
+def load_backport_branch(repo_root: Path = Path(".")) -> str | None:
+    path = repo_root / "ci" / "versions.yml"
+    try:
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                m = BACKPORT_BRANCH_RE.match(line.strip())
+                if m:
+                    return m.group("branch")
+    except FileNotFoundError:
+        pass
     github_ref_name = os.environ.get("GITHUB_REF_NAME", "")
     if BACKPORT_BRANCH_NAME_RE.match(github_ref_name):
         return github_ref_name
@@ -121,9 +92,7 @@ def notes_path(package: str, version: str) -> Path:
     return Path(package, "docs", "source", "release", f"{version}-notes.rst")
 
 
-def check_release_notes(
-    git_tag: str, component: str, repo_root: Path = Path("."), git_ref: str | None = None
-) -> list[tuple[str | Path, str]]:
+def check_release_notes(git_tag: str, component: str, repo_root: Path = Path(".")) -> list[tuple[str | Path, str]]:
     """Return a list of (path, reason) for missing or empty release notes.
 
     ``path`` is the repo-relative notes path, or a ``<placeholder>`` naming the
@@ -143,10 +112,10 @@ def check_release_notes(
         return []
 
     path = notes_path(COMPONENT_TO_PACKAGE[component], version)
-    contents = read_repo_file(path, repo_root, git_ref)
-    if contents is None:
+    full = repo_root / path
+    if not full.is_file():
         return [(path, "missing")]
-    if not contents and component != "cuda-pathfinder":
+    if full.stat().st_size == 0 and component != "cuda-pathfinder":
         return [(path, "empty")]
     return []
 
@@ -193,7 +162,6 @@ def validate_backport_decision(
     backport_git_tag: str,
     backport_branch: str | None,
     repo_root: Path,
-    git_ref: str | None = None,
 ) -> tuple[int | None, list[tuple[str | Path, str]]]:
     if component not in BACKPORT_PLANNING_COMPONENTS or is_post_release(version):
         return None, []
@@ -203,7 +171,7 @@ def validate_backport_decision(
         return 2, []
 
     if is_backport_version(version, backport_branch):
-        problems = check_release_notes(git_tag, component, repo_root, git_ref)
+        problems = check_release_notes(git_tag, component, repo_root)
         if problems:
             warn_missing_backport_notes(git_tag, component, problems)
         else:
@@ -241,7 +209,7 @@ def validate_backport_decision(
         )
         return 2, []
 
-    problems = check_release_notes(decision, component, repo_root, git_ref)
+    problems = check_release_notes(decision, component, repo_root)
     if problems:
         return 1, problems
     return None, []
@@ -252,9 +220,6 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--git-tag", required=True)
     parser.add_argument("--component", required=True, choices=list(COMPONENT_TO_PACKAGE))
     parser.add_argument("--repo-root", default=Path("."), type=Path)
-    parser.add_argument(
-        "--git-ref", help="Read notes and release configuration from this Git ref without checking it out"
-    )
     parser.add_argument("--backport-git-tag", default="")
     parser.add_argument("--backport-branch", default="")
     args = parser.parse_args(argv)
@@ -267,33 +232,12 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
 
-    source_ref = args.git_ref
-    try:
-        if args.git_ref is not None:
-            args.git_ref = subprocess.run(  # noqa: S603 - --end-of-options prevents the ref from becoming an option.
-                ["git", "rev-parse", "--verify", "--end-of-options", f"{args.git_ref}^{{commit}}"],  # noqa: S607
-                cwd=args.repo_root,
-                check=True,
-                capture_output=True,
-                text=True,
-            ).stdout.strip()
-        return check_policy(args, version)
-    except subprocess.CalledProcessError as exc:
-        detail = exc.stderr.decode("utf-8") if isinstance(exc.stderr, bytes) else exc.stderr
-        print(f"ERROR: cannot read Git release-notes source {source_ref!r}: {detail.strip()}", file=sys.stderr)
-        return 2
-    except ValueError as exc:
-        print(f"ERROR: {exc}", file=sys.stderr)
-        return 2
-
-
-def check_policy(args: argparse.Namespace, version: str) -> int:
     if is_post_release(version) and args.component != "cuda-pathfinder":
         print(f"Post-release tag ({args.git_tag}), skipping release-notes check.")
         write_version_output(version)
         return 0
 
-    backport_branch = args.backport_branch or load_backport_branch(args.repo_root, args.git_ref)
+    backport_branch = args.backport_branch or load_backport_branch(args.repo_root)
     rc, problems = validate_backport_decision(
         git_tag=args.git_tag,
         component=args.component,
@@ -301,7 +245,6 @@ def check_policy(args: argparse.Namespace, version: str) -> int:
         backport_git_tag=args.backport_git_tag,
         backport_branch=backport_branch,
         repo_root=args.repo_root,
-        git_ref=args.git_ref,
     )
     if rc is not None:
         if problems:
@@ -313,7 +256,7 @@ def check_policy(args: argparse.Namespace, version: str) -> int:
         return rc
 
     if not problems:
-        problems = check_release_notes(args.git_tag, args.component, args.repo_root, args.git_ref)
+        problems = check_release_notes(args.git_tag, args.component, args.repo_root)
 
     if not problems:
         print(f"Release notes present for tag {args.git_tag}, component {args.component}.")
