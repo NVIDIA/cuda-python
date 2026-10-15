@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.PcieLinkState
-================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: PcieLinkState
