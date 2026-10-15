@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-"""Build cuda_bindings Cython test extensions in-place.
+"""Build cuda_bindings_13 Cython test extensions in-place.
 
 pixi-build's editable install exposes the `cuda` namespace package via a
 PEP 660 finder hook. Python's import machinery honors the hook, but

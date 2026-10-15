@@ -207,7 +207,7 @@ class TestMain:
         assert "<backport-git-tag>" in captured.err
 
     def test_mainline_bindings_accepts_not_planned(self, tmp_path):
-        self._make_notes(tmp_path, "cuda_bindings", "13.3.0")
+        self._make_notes(tmp_path, "cuda_bindings_13", "13.3.0")
 
         rc = main(
             [
@@ -227,7 +227,7 @@ class TestMain:
         assert rc == 0
 
     def test_mainline_bindings_checks_planned_backport_notes(self, tmp_path, capsys):
-        self._make_notes(tmp_path, "cuda_bindings", "13.3.0")
+        self._make_notes(tmp_path, "cuda_bindings_13", "13.3.0")
 
         rc = main(
             [
@@ -249,8 +249,8 @@ class TestMain:
         assert "12.9.7-notes.rst" in captured.err
 
     def test_mainline_bindings_accepts_planned_backport_notes(self, tmp_path):
-        self._make_notes(tmp_path, "cuda_bindings", "13.3.0")
-        self._make_notes(tmp_path, "cuda_bindings", "12.9.7")
+        self._make_notes(tmp_path, "cuda_bindings_13", "13.3.0")
+        self._make_notes(tmp_path, "cuda_bindings_13", "12.9.7")
 
         rc = main(
             [
@@ -309,11 +309,11 @@ class TestMain:
 
         captured = capsys.readouterr()
         assert rc == 0
-        assert "::warning file=cuda_bindings/docs/source/release/12.9.7-notes.rst::" in captured.out
+        assert "::warning file=cuda_bindings_13/docs/source/release/12.9.7-notes.rst::" in captured.out
         assert "12.9.7-notes.rst" in summary_path.read_text()
 
     def test_mainline_bindings_rejects_non_backport_tag(self, tmp_path):
-        self._make_notes(tmp_path, "cuda_bindings", "13.3.0")
+        self._make_notes(tmp_path, "cuda_bindings_13", "13.3.0")
 
         rc = main(
             [

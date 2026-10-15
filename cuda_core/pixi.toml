@@ -30,7 +30,7 @@ packaging = "*"
 cuda-python-test-helpers = { path = "../cuda_python_test_helpers", editable = true }
 
 [feature.local-deps.dependencies]
-cuda-bindings = { path = "../cuda_bindings" }
+cuda-bindings = { path = "../cuda_bindings_13" }
 cuda-pathfinder = { path = "../cuda_pathfinder" }
 
 [feature.samples.dependencies]
