@@ -16,7 +16,7 @@ inputs:
     description: "check allows up to 10 rate-limited URLs; cache-warm warns on all link failures"
     default: check
 
-# Callers provide Python 3.10+ on PATH; the helpers use only its standard library.
+# Callers provide Python 3.11+ on PATH; the helpers use only its standard library.
 runs:
   using: composite
   steps:

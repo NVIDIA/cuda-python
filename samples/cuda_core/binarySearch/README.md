@@ -55,7 +55,7 @@ diverge on present values). Results are verified against
 ### Software
 
 - CUDA Toolkit 13.0 or newer
-- Python 3.10 or newer
+- Python 3.11 or newer
 - `cuda-cccl` (>=1.0.0)
 - `cuda-core` (>=1.0.0)
 - `cupy-cuda13x` (>=14.0.0)

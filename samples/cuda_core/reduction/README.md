@@ -29,7 +29,7 @@ Two-stage parallel reduction: each GPU block sums its chunk in **shared memory**
 ## Requirements
 
 - NVIDIA GPU, CUDA-capable driver; **CUDA Toolkit 13+** (for toolchain alignment with `cuda-core`)
-- **Python 3.10+**
+- **Python 3.11+**
 
 ```bash
 pip install -r requirements.txt

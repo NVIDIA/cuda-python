@@ -27,6 +27,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Environment :: GPU :: NVIDIA CUDA",
 ]
 dynamic = ["version", "readme"]
@@ -54,7 +55,6 @@ test = [
     "pytest-github-actions-annotate-failures==0.4.2",
     "pyglet==2.1.14",
     "packaging>=24",
-    "tomli>=2; python_version < '3.11'",
 ]
 test-ft = [
     "pytest-run-parallel==0.10.0",

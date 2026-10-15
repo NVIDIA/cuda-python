@@ -62,7 +62,7 @@ atomicAdd(&histogram[data[i]], 1);  // Thread-safe increment
 
 ### Software:
 - CUDA Toolkit 13.0 or newer
-- Python 3.10 or newer
+- Python 3.11 or newer
 - See `requirements.txt` for Python packages
 
 ## Installation

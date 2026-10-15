@@ -97,7 +97,7 @@ running ---------> locked ------------> checkpointed -----------> locked -------
 - Linux (the CUDA checkpoint API is Linux-only).
 - NVIDIA driver with CUDA process checkpoint support.
 - CUDA Toolkit 13.0 or newer.
-- Python 3.10 or newer.
+- Python 3.11 or newer.
 - `cuda-core >= 1.0.0`.
 
 On non-Linux platforms and integrated GPUs, the sample prints a diagnostic
