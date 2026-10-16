@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_memory\_info\_v2
+================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_memory_info_v2
