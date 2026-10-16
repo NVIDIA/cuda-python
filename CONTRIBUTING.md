@@ -26,7 +26,7 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     - [Symptoms of a bad clone](#symptoms-of-a-bad-clone)
   - [Development on Windows](#development-on-windows)
     - [Enabling git symlinks](#enabling-git-symlinks)
-    - [Pre-commit lychee workaround](#pre-commit-lychee-workaround)
+    - [Lychee on Windows](#lychee-on-windows)
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
   - [Pixi lockfiles](#pixi-lockfiles)
@@ -192,17 +192,11 @@ $ reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v
 
 Then return to [Recommended clone](#recommended-clone).
 
-### Pre-commit lychee workaround
+### Lychee on Windows
 
-For development on Windows (not WSL), the `lychee` pre-commit task will not
-work when running `pre-commit run --all-files`. This problem does not occur
-if you install the pre-commit hook and run it automatically as part of your
-`git commit` workflow. To resolve this, you can either:
-
-1. Run `pre-commit` in Git Bash, rather than directly in PowerShell or cmd
-
-2. Skip it by setting the environment variable `SKIP` to `lychee`. This would
-   be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
+The `lychee` pre-commit hook runs through Python and installs the native
+`lychee-bin==0.24.2` wheel in its own environment. Invoke
+`pre-commit run --all-files` the same way from PowerShell, cmd, or Git Bash.
 
 
 ## Type stubs for cuda.core
@@ -247,7 +241,7 @@ between commits, leaving stale headers or out-of-date stubs in the history.
 If the hook isn't installed, `pre-commit run` will print a visible warning
 reminding you to run `pre-commit install`.
 
-Windows contributors: see [Pre-commit lychee workaround](#pre-commit-lychee-workaround) under Development on Windows.
+Windows contributors: see [Lychee on Windows](#lychee-on-windows) under Development on Windows.
 
 ## Pixi lockfiles
 
