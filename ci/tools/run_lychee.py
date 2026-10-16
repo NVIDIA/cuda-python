@@ -1,24 +1,41 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Run Lychee with this checkout's main-branch source links mapped to local paths."""
+"""Run the installed native Lychee for authored or rendered documentation."""
 
 from __future__ import annotations
 
+import json
+import os
 import subprocess
 import sys
 import sysconfig
+import uuid
 from pathlib import Path
+
+from prepare_lychee_inputs import rendered_inputs, write_inputs
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def repo_link_remaps(root: Path = ROOT) -> list[str]:
-    """Apply the same URL-prefix boundaries as the dedicated CI link check."""
-    local_prefix = root.resolve().as_uri() + "/"
+def repo_link_remaps(root: Path = ROOT, *, rendered: bool = False) -> list[str]:
+    """Check proposed main sources locally, retaining GitHub views for HTML anchors."""
+    if rendered:
+        commit = subprocess.run(  # noqa: S603
+            ["git", "-C", str(root), "rev-parse", "HEAD"],  # noqa: S607
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        server = os.environ.get("GITHUB_SERVER_URL", "https://github.com").rstrip("/")
+        repository = os.environ.get("GITHUB_REPOSITORY", "NVIDIA/cuda-python")
+        prefix = f"{server}/{repository}"
+    else:
+        prefix = root.resolve().as_uri()
     arguments = []
     for view in ("blob", "tree"):
-        arguments.extend(["--remap", f"^https://github[.]com/NVIDIA/cuda-python/{view}/main/ {local_prefix}"])
+        replacement = f"{prefix}/{view}/{commit}/" if rendered else f"{prefix}/"
+        arguments.extend(["--remap", f"^https://github[.]com/NVIDIA/cuda-python/{view}/main/ {replacement}"])
     return arguments
 
 
@@ -29,8 +46,39 @@ def main(arguments: list[str] | None = None) -> int:
         raise SystemExit(
             f"lychee was not found at {executable}; run this script through the configured pre-commit hook"
         )
-    arguments = sys.argv[1:] if arguments is None else arguments
-    return subprocess.run([str(executable), *repo_link_remaps(), *arguments], check=False).returncode  # noqa: S603
+    arguments = list(sys.argv[1:] if arguments is None else arguments)
+    rendered = bool(arguments and arguments[0] == "--rendered")
+    options = {}
+    if rendered:
+        arguments.pop(0)
+        cache = Path(os.environ.get("LYCHEE_CACHE_DIR", ROOT / ".lychee-rendered")).resolve()
+        cache.mkdir(parents=True, exist_ok=True)
+        inputs = cache / "inputs.txt"
+        write_inputs(rendered_inputs(ROOT / "artifacts/docs"), inputs)
+        arguments = [
+            "--files-from",
+            str(inputs),
+            "--include-fragments=full",
+            "--config",
+            str(ROOT / "lychee.toml"),
+            *arguments,
+        ]
+        options["cwd"] = cache
+
+    report = None
+    if report_dir := os.environ.get("LYCHEE_REPORT_DIR"):
+        directory = Path(report_dir).resolve()
+        directory.mkdir(parents=True, exist_ok=True)
+        # pre-commit may split a long file list into several native invocations.
+        report = directory / f"{uuid.uuid4().hex}.json"
+        arguments = ["--format", "json", "--output", str(report), *arguments]
+
+    code = subprocess.run(  # noqa: S603
+        [str(executable), *repo_link_remaps(ROOT, rendered=rendered), *arguments], check=False, **options
+    ).returncode
+    if report is not None:
+        report.with_suffix(".status.json").write_text(json.dumps({"exit_code": code}), encoding="utf-8")
+    return code
 
 
 if __name__ == "__main__":

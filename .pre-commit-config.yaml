@@ -121,17 +121,38 @@ repos:
         name: lychee
         entry: python ./ci/tools/run_lychee.py
         language: python
-        additional_dependencies:
-          - lychee-bin==0.24.2  # Must match check-doc-links/action.yml
+        additional_dependencies: &lychee_dependencies
+          - lychee-bin==0.24.2
         types: [text]
         require_serial: true
         args:
           - --cache
+          - --max-cache-age=1d
           - --max-concurrency=4
           - --max-retries=3
           - --no-progress
         files: '\.(md|rst)$'
         exclude: ^qa/
+
+      # Generated HTML is checked explicitly after the documentation build.
+      - id: lychee-rendered
+        name: lychee (rendered documentation)
+        entry: python ./ci/tools/run_lychee.py --rendered
+        language: python
+        additional_dependencies: *lychee_dependencies
+        stages: [manual]
+        pass_filenames: false
+        always_run: true
+        args:
+          - --cache
+          - --max-cache-age=1d
+          - --max-concurrency=16
+          - --host-concurrency=2
+          - --host-request-interval=250ms
+          - --max-retries=3
+          - --retry-wait-time=5
+          - --timeout=30
+          - --no-progress
 
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
