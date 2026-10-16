@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_modify\_drain\_state
+===============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_modify_drain_state

@@ -1,0 +1,12 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. py:currentmodule:: cuda.pathfinder
+
+``cuda-pathfinder`` 1.8.4 Release notes
+=======================================
+
+Highlights
+----------
+
+* Python 3.10 support was dropped (end of life).
