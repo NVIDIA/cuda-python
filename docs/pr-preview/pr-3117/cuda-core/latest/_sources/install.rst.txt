@@ -150,7 +150,7 @@ recipe below. On native Windows outside WSL, complete its Windows setup
    error but produces a bogus version such as ``0.1.dev1+g0d22cb444``. See
    `Cloning the repository
    <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md>`_
-   for details and recovery steps.
+   for details.
 
 Development with uv
 ~~~~~~~~~~~~~~~~~~~

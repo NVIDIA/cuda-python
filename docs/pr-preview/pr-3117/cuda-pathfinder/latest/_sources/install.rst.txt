@@ -82,4 +82,4 @@ For an editable install (e.g. when developing ``cuda.pathfinder`` itself):
    error but produces a bogus version such as ``0.1.dev1+g0d22cb444``. See
    `Cloning the repository
    <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md>`_
-   for details and recovery steps.
+   for details.
