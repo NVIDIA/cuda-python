@@ -292,7 +292,7 @@ cdef void register_mr_dealloc_callback(MRDeallocCallback cb) noexcept
 cdef DevicePtrHandle deviceptr_import_ipc(
     const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
 cdef StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept nogil
-cdef cydriver.CUresult set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
+cdef cydriver.CUresult set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) except+ nogil
 
 # Virtual memory management (VMM_DESIGN.md)
 cdef MemAllocationHandle create_mem_allocation_handle(

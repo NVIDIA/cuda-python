@@ -171,7 +171,7 @@ StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept {
 }
 
 // Replace the stream that orders a device pointer's deallocation.
-CUresult set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept {
+CUresult set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) {
     if (!h) {
         return CUDA_ERROR_INVALID_VALUE;
     }

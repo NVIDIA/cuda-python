@@ -104,6 +104,10 @@ New features
 Fixes and enhancements
 ----------------------
 
+- :meth:`Buffer.set_deallocation_stream` and :meth:`Buffer.from_handle` now raise
+  :class:`MemoryError` when the host runs out of memory while binding a default
+  stream, instead of aborting the process with ``std::terminate``.
+
 - :attr:`system.Device.uuid_without_prefix` preserves UUIDs that NVML already
   reports without a prefix, such as on Orin. This also allows
   :meth:`system.Device.to_cuda_device` to match those devices correctly.
