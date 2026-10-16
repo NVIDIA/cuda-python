@@ -260,8 +260,12 @@ deviceptr_alloc_raw(CUdeviceptr *ptr, size_t size, const ContextHandle &h_contex
     GILReleaseGuard gil;
     return invoke_in_context_or_undo(
         h_context,
-        [&]() noexcept { return DRIVER_CALL(cuMemAlloc, ptr, size); },
-        [&]() noexcept { pw_cuMemFree(*ptr); },
+        [&]() noexcept {
+            return DRIVER_CALL(cuMemAlloc, ptr, size);
+        },
+        [&]() noexcept {
+            pw_cuMemFree(*ptr);
+        },
         /*undo_requires_target_context=*/false
     );
 }
@@ -335,7 +339,9 @@ deviceptr_create_mapped_graphics(
             deallocation_context(stream),
             "cuGraphicsUnmapResources",
             handle_bits(resource),
-            [&]() noexcept { return DRIVER_CALL(cuGraphicsUnmapResources, 1, &resource, as_cu(stream.h_stream)); }
+            [&]() noexcept {
+                return DRIVER_CALL(cuGraphicsUnmapResources, 1, &resource, as_cu(stream.h_stream));
+            }
         );
         delete b;
     });
@@ -554,7 +560,9 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
                                     as_cu(stream.h_stream)
                                 );
                             },
-                            [&]() noexcept { lock.unlock(); }
+                            [&]() noexcept {
+                                lock.unlock();
+                            }
                         );
                         delete b;
                     });
@@ -600,7 +608,9 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
                 deallocation_context(stream),
                 "cuMemFreeAsync",
                 handle_bits(b->resource),
-                [&]() noexcept { return DRIVER_CALL(cuMemFreeAsync, b->resource, as_cu(stream.h_stream)); }
+                [&]() noexcept {
+                    return DRIVER_CALL(cuMemFreeAsync, b->resource, as_cu(stream.h_stream));
+                }
             );
             delete b;
         });

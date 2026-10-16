@@ -86,8 +86,12 @@ create_event_handle(
     CUevent event = nullptr;
     err = invoke_in_context_or_undo(
         h_ctx,
-        [&]() noexcept { return DRIVER_CALL(cuEventCreate, &event, flags); },
-        [&]() noexcept { pw_cuEventDestroy(event); },
+        [&]() noexcept {
+            return DRIVER_CALL(cuEventCreate, &event, flags);
+        },
+        [&]() noexcept {
+            pw_cuEventDestroy(event);
+        },
         /*undo_requires_target_context=*/false
     );
     if (err != CUDA_SUCCESS) {

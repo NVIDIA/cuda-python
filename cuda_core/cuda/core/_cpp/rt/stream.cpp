@@ -82,8 +82,12 @@ create_stream_handle(const ContextHandle &h_ctx, unsigned int flags, int priorit
     else {
         err = invoke_in_context_or_undo(
             h_ctx,
-            [&]() noexcept { return DRIVER_CALL(cuStreamCreateWithPriority, &stream, flags, priority); },
-            [&]() noexcept { pw_cuStreamDestroy(stream); },
+            [&]() noexcept {
+                return DRIVER_CALL(cuStreamCreateWithPriority, &stream, flags, priority);
+            },
+            [&]() noexcept {
+                pw_cuStreamDestroy(stream);
+            },
             /*undo_requires_target_context=*/false
         );
     }

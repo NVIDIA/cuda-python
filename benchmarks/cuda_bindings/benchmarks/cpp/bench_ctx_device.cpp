@@ -47,19 +47,25 @@ main(int argc, char **argv)
 
     // --- ctx_set_current ---
     {
-        suite.run("ctx_device.ctx_set_current", [&]() { check_cu(cuCtxSetCurrent(ctx), "cuCtxSetCurrent failed"); });
+        suite.run("ctx_device.ctx_set_current", [&]() {
+            check_cu(cuCtxSetCurrent(ctx), "cuCtxSetCurrent failed");
+        });
     }
 
     // --- ctx_get_device ---
     {
         CUdevice dev;
-        suite.run("ctx_device.ctx_get_device", [&]() { check_cu(cuCtxGetDevice(&dev), "cuCtxGetDevice failed"); });
+        suite.run("ctx_device.ctx_get_device", [&]() {
+            check_cu(cuCtxGetDevice(&dev), "cuCtxGetDevice failed");
+        });
     }
 
     // --- device_get ---
     {
         CUdevice dev;
-        suite.run("ctx_device.device_get", [&]() { check_cu(cuDeviceGet(&dev, 0), "cuDeviceGet failed"); });
+        suite.run("ctx_device.device_get", [&]() {
+            check_cu(cuDeviceGet(&dev, 0), "cuDeviceGet failed");
+        });
     }
 
     // --- device_get_attribute ---

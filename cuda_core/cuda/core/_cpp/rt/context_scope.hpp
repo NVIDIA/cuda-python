@@ -149,7 +149,8 @@ template <typename Fn>
 CUresult
 cleanup_in_context(const ContextHandle &h_context, const char *name, unsigned long long handle, Fn &&operation) noexcept
 {
-    return cleanup_in_context(h_context, name, handle, std::forward<Fn>(operation), []() noexcept {});
+    return cleanup_in_context(h_context, name, handle, std::forward<Fn>(operation), []() noexcept {
+    });
 }
 
 #undef ASSERT_NOTHROW_INVOCABLE

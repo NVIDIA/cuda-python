@@ -212,13 +212,19 @@ main(int argc, char **argv)
 
     // Pre-pack pointer params
     void *packed_16[16];
-    for (int i = 0; i < 16; ++i) packed_16[i] = &int_ptrs[i];
+    for (int i = 0; i < 16; ++i) {
+        packed_16[i] = &int_ptrs[i];
+    }
 
     void *packed_256[256];
-    for (int i = 0; i < 256; ++i) packed_256[i] = &int_ptrs[i];
+    for (int i = 0; i < 256; ++i) {
+        packed_256[i] = &int_ptrs[i];
+    }
 
     void *packed_512[512];
-    for (int i = 0; i < 512; ++i) packed_512[i] = &int_ptrs[i];
+    for (int i = 0; i < 512; ++i) {
+        packed_512[i] = &int_ptrs[i];
+    }
 
     // Typed args for 512-arg benchmarks
     bool bool_args[512];
@@ -266,7 +272,9 @@ main(int argc, char **argv)
     // After calibration, drain the persistent stream so the first measured
     // sample does not start on a backlogged stream. Calibration for enqueue-
     // style ops (kernel launches) may queue many thousands of operations.
-    suite.set_post_calibrate([&]() { check_cu(cuStreamSynchronize(stream), "post-calibrate sync failed"); });
+    suite.set_post_calibrate([&]() {
+        check_cu(cuStreamSynchronize(stream), "post-calibrate sync failed");
+    });
 
     suite.run("launch.launch_empty_kernel", [&]() {
         check_cu(cuLaunchKernel(empty_kernel, 1, 1, 1, 1, 1, 1, 0, stream, nullptr, nullptr), "cuLaunchKernel failed");

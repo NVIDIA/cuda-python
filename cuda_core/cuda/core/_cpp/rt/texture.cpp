@@ -117,8 +117,12 @@ create_array_handle(const ContextHandle &h_context, const CUDA_ARRAY3D_DESCRIPTO
     CUarray arr = nullptr;
     err = invoke_in_context_or_undo(
         h_context,
-        [&]() noexcept { return DRIVER_CALL(cuArray3DCreate, &arr, &desc); },
-        [&]() noexcept { pw_cuArrayDestroy(arr); },
+        [&]() noexcept {
+            return DRIVER_CALL(cuArray3DCreate, &arr, &desc);
+        },
+        [&]() noexcept {
+            pw_cuArrayDestroy(arr);
+        },
         /*undo_requires_target_context=*/false
     );
     if (err != CUDA_SUCCESS) {
@@ -165,8 +169,9 @@ create_array_level_handle(const MipmappedArrayHandle &h_mip, unsigned int level)
     }
     // Non-owning level view: storage belongs to the mipmap. Embed the mipmap
     // handle so the parent outlives this level; the deleter does not destroy.
-    auto box =
-        std::shared_ptr<const ArrayBox>(new ArrayBox{arr, h_mip, h_context}, [](const ArrayBox *b) { delete b; });
+    auto box = std::shared_ptr<const ArrayBox>(new ArrayBox{arr, h_mip, h_context}, [](const ArrayBox *b) {
+        delete b;
+    });
     return OpaqueArrayHandle(box, &box->resource);
 }
 
@@ -181,8 +186,12 @@ create_mipmapped_array_handle(
     CUmipmappedArray mip = nullptr;
     err = invoke_in_context_or_undo(
         h_context,
-        [&]() noexcept { return DRIVER_CALL(cuMipmappedArrayCreate, &mip, &desc, num_levels); },
-        [&]() noexcept { pw_cuMipmappedArrayDestroy(mip); },
+        [&]() noexcept {
+            return DRIVER_CALL(cuMipmappedArrayCreate, &mip, &desc, num_levels);
+        },
+        [&]() noexcept {
+            pw_cuMipmappedArrayDestroy(mip);
+        },
         /*undo_requires_target_context=*/false
     );
     if (err != CUDA_SUCCESS) {
@@ -217,8 +226,12 @@ make_tex_object_handle(
     CUtexObject obj = 0;
     err = invoke_in_context_or_undo(
         h_context,
-        [&]() noexcept { return DRIVER_CALL(cuTexObjectCreate, &obj, &res, &tex, nullptr); },
-        [&]() noexcept { pw_cuTexObjectDestroy(obj); },
+        [&]() noexcept {
+            return DRIVER_CALL(cuTexObjectCreate, &obj, &res, &tex, nullptr);
+        },
+        [&]() noexcept {
+            pw_cuTexObjectDestroy(obj);
+        },
         /*undo_requires_target_context=*/true
     );
     if (err != CUDA_SUCCESS) {
@@ -282,8 +295,12 @@ create_surf_object_handle(
     CUsurfObject obj = 0;
     err = invoke_in_context_or_undo(
         h_context,
-        [&]() noexcept { return DRIVER_CALL(cuSurfObjectCreate, &obj, &res); },
-        [&]() noexcept { pw_cuSurfObjectDestroy(obj); },
+        [&]() noexcept {
+            return DRIVER_CALL(cuSurfObjectCreate, &obj, &res);
+        },
+        [&]() noexcept {
+            pw_cuSurfObjectDestroy(obj);
+        },
         /*undo_requires_target_context=*/true
     );
     if (err != CUDA_SUCCESS) {

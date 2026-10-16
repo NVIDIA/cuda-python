@@ -91,7 +91,9 @@ CUresult
 context_synchronize(const ContextHandle &h_context) noexcept
 {
     GILReleaseGuard gil;
-    return invoke_in_context(h_context, []() noexcept { return DRIVER_FN(cuCtxSynchronize)(); });
+    return invoke_in_context(h_context, []() noexcept {
+        return DRIVER_FN(cuCtxSynchronize)();
+    });
 }
 
 // Query the stream priority range for the provided context.
@@ -108,7 +110,9 @@ context_get_stream_priority_range(const ContextHandle &h_context, int *least_pri
 CUresult
 context_get_device(const ContextHandle &h_context, CUdevice *device) noexcept
 {
-    return invoke_in_context(h_context, [&]() noexcept { return DRIVER_CALL(cuCtxGetDevice, device); });
+    return invoke_in_context(h_context, [&]() noexcept {
+        return DRIVER_CALL(cuCtxGetDevice, device);
+    });
 }
 
 // ============================================================================

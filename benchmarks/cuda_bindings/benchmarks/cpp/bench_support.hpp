@@ -261,7 +261,9 @@ print_summary(const std::string &name, const std::vector<RunResult> &results)
         return;
 
     double sum = 0;
-    for (double v : all_values) sum += v;
+    for (double v : all_values) {
+        sum += v;
+    }
 
     double mean = sum / static_cast<double>(all_values.size());
 

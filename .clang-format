@@ -32,3 +32,6 @@ BinPackArguments: false
 BinPackParameters: false
 AllowAllArgumentsOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
+
+# Don't put short lambdas on a single line.
+AllowShortLambdasOnASingleLine: None
