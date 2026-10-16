@@ -26,7 +26,6 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     - [Symptoms of a bad clone](#symptoms-of-a-bad-clone)
   - [Development on Windows](#development-on-windows)
     - [Enabling git symlinks](#enabling-git-symlinks)
-    - [Lychee on Windows](#lychee-on-windows)
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
   - [Pixi lockfiles](#pixi-lockfiles)
@@ -192,13 +191,6 @@ $ reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v
 
 Then return to [Recommended clone](#recommended-clone).
 
-### Lychee on Windows
-
-The `lychee` pre-commit hook runs through Python and installs the native
-`lychee-bin==0.24.2` wheel in its own environment. Invoke
-`pre-commit run --all-files` the same way from PowerShell, cmd, or Git Bash.
-
-
 ## Type stubs for cuda.core
 
 `cuda.core` is a PEP 561-compliant package: it ships a `py.typed` marker and
@@ -231,6 +223,8 @@ To set yourself up for running pre-commit checks locally and to catch issues bef
 * Run this once per checkout: `pre-commit install`
 * You can manually check all files at any time by running: `pre-commit run --all-files`
 
+On Windows, these commands work from PowerShell, cmd, or Git Bash.
+
 This command runs all configured hooks (such as linters and formatters) across your repository, letting you review and address issues before committing.
 
 Installing the hook is required, not optional. Some of the automated checks
@@ -240,8 +234,6 @@ keep the tree consistent if they run on *every* commit. Relying on manual
 between commits, leaving stale headers or out-of-date stubs in the history.
 If the hook isn't installed, `pre-commit run` will print a visible warning
 reminding you to run `pre-commit install`.
-
-Windows contributors: see [Lychee on Windows](#lychee-on-windows) under Development on Windows.
 
 ## Pixi lockfiles
 
