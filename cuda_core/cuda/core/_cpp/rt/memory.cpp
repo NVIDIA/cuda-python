@@ -11,6 +11,7 @@
 #include <atomic>
 #include <cstddef>
 #include <cstring>
+#include <exception>
 #include <memory>
 #include <mutex>
 #include <stdexcept>
@@ -183,6 +184,32 @@ CUresult set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h
     return CUDA_SUCCESS;
 }
 
+// Build the box for a freshly acquired device pointer. Binding the deallocation
+// stream and allocating the box can fail: make_deallocation_stream returns
+// false (err set) when no context is current, and either step can throw
+// std::bad_alloc. On any failure run undo() to release the pointer and return
+// nullptr; a thrown exception is left in `failure` for the caller to rethrow
+// once it holds no lock (undo may not report under a lock, see
+// deviceptr_import_ipc). Never throws.
+template <typename Undo>
+static DevicePtrBox* make_deviceptr_box(
+        CUdeviceptr ptr, const StreamHandle& h_stream, Undo&& undo,
+        std::exception_ptr& failure) noexcept {
+    DevicePtrBox* box = nullptr;
+    try {
+        DeallocationStream ds;
+        if (make_deallocation_stream(h_stream, ds)) {
+            box = new DevicePtrBox{ptr, std::move(ds)};
+        }
+    } catch (...) {
+        failure = std::current_exception();
+    }
+    if (!box) {
+        undo();
+    }
+    return box;
+}
+
 DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h_pool, const StreamHandle& h_stream) {
     GILReleaseGuard gil;
     CUdeviceptr ptr;
@@ -190,14 +217,18 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h
         return {};
     }
 
-    DeallocationStream ds;
-    if (!make_deallocation_stream(h_stream, ds)) {
-        pw_cuMemFreeAsync(ptr, as_cu(h_stream));
+    std::exception_ptr failure;
+    DevicePtrBox* raw = make_deviceptr_box(
+        ptr, h_stream, [&]() noexcept { pw_cuMemFreeAsync(ptr, as_cu(h_stream)); }, failure);
+    if (!raw) {
+        if (failure) {
+            std::rethrow_exception(failure);
+        }
         return {};
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, std::move(ds)},
+        raw,
         [h_pool](DevicePtrBox* b) {
             GILReleaseGuard gil;
             const DeallocationStream& stream = b->deallocation;
@@ -220,14 +251,18 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream)
         return {};
     }
 
-    DeallocationStream ds;
-    if (!make_deallocation_stream(h_stream, ds)) {
-        pw_cuMemFreeAsync(ptr, as_cu(h_stream));
+    std::exception_ptr failure;
+    DevicePtrBox* raw = make_deviceptr_box(
+        ptr, h_stream, [&]() noexcept { pw_cuMemFreeAsync(ptr, as_cu(h_stream)); }, failure);
+    if (!raw) {
+        if (failure) {
+            std::rethrow_exception(failure);
+        }
         return {};
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, std::move(ds)},
+        raw,
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
             const DeallocationStream& stream = b->deallocation;
@@ -488,6 +523,7 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
         GILReleaseGuard gil;
         CUresult discard_status = CUDA_SUCCESS;
         CUdeviceptr discarded = 0;
+        std::exception_ptr failure;
         {
             std::lock_guard<std::mutex> lock(ipc_import_mutex);
 
@@ -500,10 +536,19 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
                 return {};
             }
 
-            DeallocationStream ds;
-            if (make_deallocation_stream(h_stream, ds)) {
+            // No deallocation stream could be recorded (or the box could not be
+            // allocated): discard the import with the raw call (a pw_ report would
+            // acquire the GIL under the mutex).
+            DevicePtrBox* raw = make_deviceptr_box(
+                ptr, h_stream,
+                [&]() noexcept {
+                    discard_status = p_cuMemFreeAsync(ptr, as_cu(h_stream));  // raw: under ipc_import_mutex
+                    discarded = ptr;
+                },
+                failure);
+            if (raw) {
                 auto box = std::shared_ptr<DevicePtrBox>(
-                    new DevicePtrBox{ptr, std::move(ds)},
+                    raw,
                     [h_pool, key](DevicePtrBox* b) {
                         // Release the GIL first (the GIL is the outermost lock), then hold the
                         // mutex across unregister + free: a concurrent import that finds this
@@ -530,11 +575,6 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
                 ipc_ptr_cache.register_handle(key, h);
                 return h;
             }
-
-            // No deallocation stream could be recorded: discard the import with
-            // the raw call (a pw_ report would acquire the GIL under the mutex).
-            discard_status = p_cuMemFreeAsync(ptr, as_cu(h_stream));  // raw: under ipc_import_mutex
-            discarded = ptr;
         }
         if (discard_status != CUDA_SUCCESS) {
             char operation[160];
@@ -542,6 +582,9 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
             report_cuda_error(operation, discard_status,
                               "failed while discarding an IPC import that could not record a "
                               "deallocation stream; the mapping leaked");
+        }
+        if (failure) {
+            std::rethrow_exception(failure);
         }
         return {};
 
@@ -552,14 +595,18 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
             return {};
         }
 
-        DeallocationStream ds;
-        if (!make_deallocation_stream(h_stream, ds)) {
-            pw_cuMemFreeAsync(ptr, as_cu(h_stream));
+        std::exception_ptr failure;
+        DevicePtrBox* raw = make_deviceptr_box(
+            ptr, h_stream, [&]() noexcept { pw_cuMemFreeAsync(ptr, as_cu(h_stream)); }, failure);
+        if (!raw) {
+            if (failure) {
+                std::rethrow_exception(failure);
+            }
             return {};
         }
 
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, std::move(ds)},
+            raw,
             [h_pool](DevicePtrBox* b) {
                 GILReleaseGuard gil;
                 const DeallocationStream& stream = b->deallocation;
