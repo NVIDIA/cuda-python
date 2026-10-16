@@ -14,8 +14,8 @@ from cuda.bindings import runtime
 from cuda_python_test_helpers import driver_version_less_than
 
 # Cap for memory pools created by tests. A pool created with maxSize 0 reserves
-# virtual address space of about twice the device memory, which cannot be
-# satisfied in a 39-bit address space on large-memory GPUs.
+# virtual address space of about twice the device memory, and that reservation
+# can fail on systems with a limited virtual address space.
 POOL_SIZE = 2 * 1024 * 1024  # 2 MiB
 
 
