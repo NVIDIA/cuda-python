@@ -3,11 +3,23 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: "WoA main CI"
-run-name: "WoA main CI for ${{ github.sha }}"
+run-name: "WoA main CI for ${{ inputs.public_run_id || 'latest successful public main CI run' }}"
 
 on:
-  push:
-    branches: [main]
+  workflow_call:
+    inputs:
+      public_run_id:
+        required: true
+        type: string
+    secrets:
+      CUDA_PYTHON_WOA_XREPO_CI_PRIVATE_APP_PRIVATE_KEY:
+        required: true
+  workflow_dispatch:
+    inputs:
+      public_run_id:
+        description: Eligible public main CI run; leave empty to find the latest successful main CI run
+        required: false
+        type: string
 
 permissions: {}
 
@@ -17,9 +29,9 @@ concurrency:
 
 jobs:
   resolve-public-build:
-    if: ${{ github.repository == 'NVIDIA/cuda-python' }}
+    if: ${{ github.repository == 'NVIDIA/cuda-python' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 10
     permissions:
       actions: read
       contents: read
@@ -36,57 +48,56 @@ jobs:
           ref: ${{ github.sha }}
           persist-credentials: false
           sparse-checkout: |
+            ci/tools/lookup-run-id
             ci/tools/select-woa-batch
-            ci/versions.yml
           sparse-checkout-cone-mode: false
 
       - name: Resolve exact public build
         id: resolve
         env:
           GH_TOKEN: ${{ github.token }}
-          PUBLIC_SHA: ${{ github.sha }}
+          PUBLIC_RUN_ID: ${{ inputs.public_run_id }}
         run: |
           set -euo pipefail
-          PUBLIC_RUN_ID=''
-          for ((attempt = 0; attempt < 20; attempt++)); do
-            runs=$(gh api --method GET \
-              -H 'X-GitHub-Api-Version: 2026-03-10' \
-              repos/NVIDIA/cuda-python/actions/workflows/ci.yml/runs \
-              -f event=push -f branch=main -f head_sha="$PUBLIC_SHA" -F per_page=100)
-            PUBLIC_RUN_ID=$(jq -r --arg sha "$PUBLIC_SHA" '
-              [.workflow_runs[] | select(.event == "push" and
-                .head_branch == "main" and .head_sha == $sha)]
-              | max_by(.id) | .id // empty
-            ' <<< "$runs")
-            [[ -z "$PUBLIC_RUN_ID" ]] || break
-            echo "Waiting for main push CI run at $PUBLIC_SHA (attempt $((attempt + 1))/20)."
-            sleep 30
-          done
+          public_sha=''
           if [[ -z "$PUBLIC_RUN_ID" ]]; then
-            echo "::error::No main push CI run appeared for $PUBLIC_SHA within ten minutes."
-            exit 1
+            lookup_output=$(./ci/tools/lookup-run-id --branch main --event push --head-sha NVIDIA/cuda-python CI)
+            mapfile -t lookup_result <<< "$lookup_output"
+            [[ ${#lookup_result[@]} == 2 ]]
+            PUBLIC_RUN_ID=${lookup_result[0]}
+            public_sha=${lookup_result[1]}
+            [[ "$public_sha" =~ ^[0-9a-f]{40}$ ]]
           fi
           [[ "$PUBLIC_RUN_ID" =~ ^[1-9][0-9]*$ ]]
           run=$(gh api \
             -H 'X-GitHub-Api-Version: 2026-03-10' \
             "repos/NVIDIA/cuda-python/actions/runs/$PUBLIC_RUN_ID")
-          jq -e --arg sha "$PUBLIC_SHA" '
+          jq -e --arg sha "$public_sha" '
             .repository.full_name == "NVIDIA/cuda-python" and
             .workflow_id == 155304118 and
             .path == ".github/workflows/ci.yml" and
             .event == "push" and
             .head_branch == "main" and
-            ((.status != "completed" and .conclusion == null) or
+            ((.status == "in_progress" and .conclusion == null) or
              (.status == "completed" and .conclusion == "success")) and
-            .head_sha == $sha and
+            ($sha == "" or .head_sha == $sha) and
             (.head_sha | test("^[0-9a-f]{40}$"))
           ' <<< "$run" >/dev/null
-          correlation_id="v1:NVIDIA/cuda-python:$PUBLIC_RUN_ID:$PUBLIC_SHA"
+          if [[ -z "$public_sha" ]]; then
+            public_sha=$(jq -r .head_sha <<< "$run")
+          fi
+
+          comparison=$(gh api \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/NVIDIA/cuda-python/compare/$public_sha...main")
+          jq -e '.status == "ahead" or .status == "identical"' <<< "$comparison" >/dev/null
+
+          correlation_id="v1:NVIDIA/cuda-python:$PUBLIC_RUN_ID:$public_sha"
           echo "correlation_id=$correlation_id" >> "$GITHUB_OUTPUT"
           echo "public_run_id=$PUBLIC_RUN_ID" >> "$GITHUB_OUTPUT"
-          echo "public_sha=$PUBLIC_SHA" >> "$GITHUB_OUTPUT"
+          echo "public_sha=$public_sha" >> "$GITHUB_OUTPUT"
           {
-            echo "Resolved public run \`$PUBLIC_RUN_ID\` at commit \`$PUBLIC_SHA\`."
+            echo "Resolved public run \`$PUBLIC_RUN_ID\` at commit \`$public_sha\`."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Select public batch
@@ -96,53 +107,6 @@ jobs:
           PUBLIC_RUN_ID: ${{ steps.resolve.outputs.public_run_id }}
           PUBLIC_SHA: ${{ steps.resolve.outputs.public_sha }}
         run: bash ./ci/tools/select-woa-batch
-
-      - name: Wait for public WoA wheel artifacts
-        if: ${{ steps.select.outputs.dispatch == 'true' }}
-        timeout-minutes: 100
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PUBLIC_RUN_ID: ${{ steps.resolve.outputs.public_run_id }}
-          PUBLIC_SHA: ${{ steps.resolve.outputs.public_sha }}
-        run: |
-          set -euo pipefail
-          cuda_version=$(yq -r '.cuda.build.version' ci/versions.yml)
-          mapfile -t python_versions < <(yq -r '.python.supported[]' ci/versions.yml)
-          pending=(cuda-pathfinder-wheel)
-          for version in "${python_versions[@]}"; do
-            python_tag=${version//./}
-            pending+=("cuda-bindings-python$python_tag-cuda$cuda_version-win-arm64-$PUBLIC_SHA"
-                      "cuda-core-python$python_tag-win-arm64-$PUBLIC_SHA")
-          done
-          while (( ${#pending[@]} > 0 )); do
-            run=$(gh api \
-              -H 'X-GitHub-Api-Version: 2026-03-10' \
-              "repos/NVIDIA/cuda-python/actions/runs/$PUBLIC_RUN_ID")
-            if jq -e '.status == "completed" and .conclusion != "success"' <<< "$run" >/dev/null; then
-              echo "::error::Public CI run $PUBLIC_RUN_ID ended with $(jq -r .conclusion <<< "$run")."
-              exit 1
-            fi
-            artifact_name=${pending[0]}
-            artifacts=$(gh api --method GET \
-              -H 'X-GitHub-Api-Version: 2026-03-10' \
-              "repos/NVIDIA/cuda-python/actions/runs/$PUBLIC_RUN_ID/artifacts" \
-              -f name="$artifact_name")
-            if jq -e --arg name "$artifact_name" '
-              .total_count == 1 and (.artifacts | length == 1) and
-              .artifacts[0].name == $name and .artifacts[0].expired == false
-            ' <<< "$artifacts" >/dev/null; then
-              echo "Ready: $artifact_name"
-              pending=("${pending[@]:1}")
-            elif [[ $(jq -r .status <<< "$run") == completed ]]; then
-              echo "::error::Successful public CI run $PUBLIC_RUN_ID is missing usable artifact $artifact_name."
-              jq . <<< "$artifacts"
-              exit 1
-            else
-              echo "Waiting for $artifact_name (${#pending[@]} artifacts remaining)."
-              sleep 60
-            fi
-          done
-          echo "All public WoA wheel artifacts are ready; remaining public CI jobs need not finish." >> "$GITHUB_STEP_SUMMARY"
 
   dispatch-private-validation:
     needs: resolve-public-build
