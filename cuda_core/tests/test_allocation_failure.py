@@ -139,6 +139,9 @@ def run_child(shim, scenario):
     return subprocess.run(  # noqa: S603
         [sys.executable, "-c", CHILD, str(shim), scenario],
         env=env,
+        # Run outside the source tree: "-c" puts the cwd first on sys.path, so a
+        # cwd of cuda_core/ would import the unbuilt source package.
+        cwd=shim.parent,
         capture_output=True,
         text=True,
         timeout=300,
