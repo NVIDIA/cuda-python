@@ -428,9 +428,6 @@ class LinkerOptions:
                 for opt in self.ptxas_options:
                     options.append(f"-Xptxas={opt}")
         if self.split_compile is not None:
-            # nvJitLink requires a non-negative integer; coerce bool (a subtype of
-            # int) so that e.g. ``split_compile=True`` is sent as ``1`` rather
-            # than the literal string "True", which nvJitLink rejects.
             options.append(f"-split-compile={int(self.split_compile)}")
         if self.split_compile_extended is not None:
             options.append(f"-split-compile-extended={int(self.split_compile_extended)}")
