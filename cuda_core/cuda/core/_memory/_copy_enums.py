@@ -6,11 +6,11 @@ from __future__ import annotations
 
 import dataclasses
 from collections.abc import Sequence
+from enum import StrEnum
 
 from cuda.core._device import Device
 from cuda.core._host import Host
 from cuda.core._utils.cuda_utils import driver
-from cuda.core._utils.pycompat import StrEnum
 
 __all__ = ["CopyOptions", "MemcpyOverlapMode", "MemcpySrcAccessOrder"]
 
@@ -125,7 +125,7 @@ class CopyOptions:
 
 # CUDA 12.8 added CUmemcpySrcAccessOrder and CUmemcpyFlags. Every
 # cuda-bindings that cuda.core accepts has them. Keyed by ``str`` (StrEnum
-# members are ``str``; mypy on 3.10 cannot see the enum) and valued as ``int``.
+# members are ``str``) and valued as ``int``.
 _src_order = driver.CUmemcpySrcAccessOrder
 _flags = driver.CUmemcpyFlags
 _SRC_ACCESS_ORDER_TO_DRIVER: dict[str, int] = {

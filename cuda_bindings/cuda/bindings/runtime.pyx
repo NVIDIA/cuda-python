@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4c952a0aa0dcb7a2948769d3eee64d0ef217ca1a8bd72873d99d94e9a34f2a65
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ea95eb12334cbd4c1bf3fc8e890fb6f9493063b12faea853bb3d8c6288934182
 from typing import Any, Optional
 import cython
 import ctypes
@@ -25014,19 +25014,6 @@ def cudaFuncGetParamCount(func):
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, paramCount)
 
-ctypedef struct cudaStreamHostCallbackData_st:
-    cyruntime.cudaHostFn_t callback
-    void *userData
-
-ctypedef cudaStreamHostCallbackData_st cudaStreamHostCallbackData
-
-@cython.show_performance_hints(False)
-cdef void cudaStreamRtHostCallbackWrapper(void *data) nogil:
-    cdef cudaStreamHostCallbackData *cbData = <cudaStreamHostCallbackData *>data
-    with gil:
-        cbData.callback(cbData.userData)
-    free(cbData)
-
 @cython.embedsignature(True)
 def cudaLaunchHostFunc(stream, fn, userData):
     """ Enqueues a host function call in a stream.
@@ -25107,20 +25094,9 @@ def cudaLaunchHostFunc(stream, fn, userData):
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef _HelperInputVoidPtrStruct cyuserDataHelper
     cdef void* cyuserData = _helper_input_void_ptr(userData, &cyuserDataHelper)
-
-    cdef cudaStreamHostCallbackData *cbData = NULL
-    cbData = <cudaStreamHostCallbackData *>malloc(sizeof(cbData[0]))
-    if cbData == NULL:
-        return (cudaError_t.cudaErrorMemoryAllocation,)
-    cbData.callback = cyfn
-    cbData.userData = cyuserData
-
     with nogil:
-        err = cyruntime.cudaLaunchHostFunc(cystream, <cyruntime.cudaHostFn_t>cudaStreamRtHostCallbackWrapper, <void *>cbData)
-    if err != cyruntime.cudaSuccess:
-        free(cbData)
+        err = cyruntime.cudaLaunchHostFunc(cystream, cyfn, cyuserData)
     _helper_input_void_ptr_free(&cyuserDataHelper)
-
     return (_cudaError_t(err),)
 
 @cython.embedsignature(True)

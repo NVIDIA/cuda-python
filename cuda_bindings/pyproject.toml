@@ -18,16 +18,16 @@ authors = [
 ]
 license = "Apache-2.0"
 license-files = ["LICENSE"]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Scientific/Engineering",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Environment :: GPU :: NVIDIA CUDA",
 ]
 dynamic = ["version", "readme"]
@@ -54,6 +54,7 @@ test = [
     # CI: one GitHub annotation per failed test; inert outside GitHub Actions.
     "pytest-github-actions-annotate-failures==0.4.2",
     "pyglet==2.1.14",
+    "packaging>=24",
 ]
 test-ft = [
     "pytest-run-parallel==0.10.0",
@@ -95,6 +96,8 @@ xfail_strict = true
 # Keep this authorship marker registry in sync across all pytest config roots.
 # Search for "agent_authored(model)" before editing.
 markers = [
+    "samples: tests for cuda.bindings standalone samples",
+    "parallel_threads_limit: maximum threads for pytest-run-parallel",
     "agent_authored(model): agent-authored test not yet materially human-reviewed",
     "human_reviewed: agent-authored test materially reviewed or rewritten by a human",
     "human_authored: test authored primarily by a human",

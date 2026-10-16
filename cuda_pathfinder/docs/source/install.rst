@@ -10,7 +10,7 @@ Runtime Requirements
 ``cuda.pathfinder`` is a pure-Python package with no runtime dependencies:
 
 * Linux (x86-64, arm64) and Windows (x86-64, arm64)
-* Python 3.10 - 3.14
+* Python 3.11 - 3.15
 
 Installing from PyPI
 --------------------
@@ -57,9 +57,14 @@ the following commands:
 Installing from Source
 ~~~~~~~~~~~~~~~~~~~~~~
 
+Use the repository's `Recommended clone
+<https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#recommended-clone>`_
+recipe below. On native Windows outside WSL, complete its Windows setup steps
+before cloning.
+
 .. code-block:: console
 
-   $ git clone https://github.com/NVIDIA/cuda-python.git
+   $ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_pathfinder
    $ pip install .
 
@@ -77,4 +82,4 @@ For an editable install (e.g. when developing ``cuda.pathfinder`` itself):
    error but produces a bogus version such as ``0.1.dev1+g0d22cb444``. See
    `Cloning the repository
    <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md>`_
-   for details and recovery steps.
+   for details.

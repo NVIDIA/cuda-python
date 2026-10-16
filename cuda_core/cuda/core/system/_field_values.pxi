@@ -93,7 +93,7 @@ cdef class FieldValues:
     def __init__(self, field_values: nvml.FieldValue):
         self._field_values = field_values
 
-    def __getitem__(self, idx: int) -> FieldValue:
+    def __getitem__(self, Py_ssize_t idx) -> FieldValue:
         return FieldValue(self._field_values[idx])
 
     def __len__(self) -> int:

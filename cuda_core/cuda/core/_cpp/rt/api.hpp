@@ -262,6 +262,25 @@ MemAllocationHandle create_mem_allocation_handle(size_t size, const CUmemAllocat
 // Size of the allocation; the only size cuMemMap accepts for it.
 size_t mem_allocation_size(const MemAllocationHandle& h) noexcept;
 
+// Whether cuMemImportFromShareableHandle produced the allocation. The driver
+// exports only allocations this process created with a handle type, so an
+// imported allocation cannot be exported again; callers check this before
+// cuMemExportToShareableHandle instead of relying on the driver's error. The
+// mark travels with the allocation into every range that maps it.
+bool mem_allocation_is_imported(const MemAllocationHandle& h) noexcept;
+
+// Import a physical allocation that another process exported with
+// cuMemExportToShareableHandle. `os_handle` is the shareable handle in the
+// form cuMemImportFromShareableHandle expects for `handle_type` (a POSIX file
+// descriptor is its value cast to void*). `size` is the allocation's size,
+// which the OS handle does not expose to the importer; the caller takes it
+// from the exporter, and a wrong size fails the later cuMemMap. The result is
+// a MemAllocationHandle like one from create_mem_allocation_handle: the
+// access descriptors are applied to every mapping, and the last reference
+// calls cuMemRelease. Returns empty handle on error (caller must check).
+MemAllocationHandle import_mem_allocation_handle(void* os_handle, CUmemAllocationHandleType handle_type,
+                                                 size_t size, const CUmemAccessDesc* descs, size_t count);
+
 // Reserve an address range via cuMemAddressReserve. Pass alignment 0 for the
 // driver default. When the last reference is released, cuMemAddressFree is
 // called with the exact reserved pair. Returns empty handle on error.
@@ -269,6 +288,15 @@ VaReservationHandle create_va_reservation_handle(size_t size, size_t alignment, 
 
 // Size of the reservation.
 size_t va_reservation_size(const VaReservationHandle& h) noexcept;
+
+// Test-suite instrumentation: process-wide counts of live *owned* driver
+// resources. Owned memory pools (cuMemPoolCreate or imported) and VA
+// reservations (cuMemAddressReserve) are each counted at their RAII create
+// site and uncounted in their deleter. Borrowed pool references and
+// MemoryResource subclasses that hold no pool or reservation are not counted.
+// conftest.py reads these to gate the per-test gc.collect().
+long long live_owned_mempool_count() noexcept;
+long long live_va_reservation_count() noexcept;
 
 // Map the whole allocation at ptr inside the reservation via cuMemMap and
 // apply the allocation's access descriptors. The mapping structurally depends

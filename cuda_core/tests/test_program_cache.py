@@ -2564,3 +2564,485 @@ def test_program_cache_preexisting_shared_root_used_as_is(tmp_path):
 
     assert stat.S_IMODE(os.stat(root).st_mode) == 0o777
     assert stat.S_IMODE(os.stat(root / "tmp").st_mode) == 0o700
+
+
+@pytest.mark.thread_unsafe(reason="monkeypatches the process-global NVVM fingerprint probe")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_make_program_cache_key_nvvm_extra_sources_order_and_content(monkeypatch):
+    """NVVM cache keys distinguish source order, names, and content while normalizing byte-like bodies."""
+    from cuda.core.utils import _program_cache
+
+    monkeypatch.setattr(_program_cache._keys, "_nvvm_fingerprint", lambda: "lib=13.3;ir=2.0.0.0")
+    src_a = ("mod_a", "int a = 1;")
+    src_b = ("mod_b", "int b = 2;")
+    # Caller order is part of the NVVM cache-key fingerprint.
+    k_ab = _make_key(
+        code="abc",
+        code_type="nvvm",
+        target_type="ptx",
+        options=_opts(extra_sources=[src_a, src_b]),
+    )
+    k_ba = _make_key(
+        code="abc",
+        code_type="nvvm",
+        target_type="ptx",
+        options=_opts(extra_sources=[src_b, src_a]),
+    )
+    assert k_ab != k_ba
+
+    k_renamed = _make_key(
+        code="abc",
+        code_type="nvvm",
+        target_type="ptx",
+        options=_opts(extra_sources=[("mod_a2", "int a = 1;"), src_b]),
+    )
+    assert k_renamed != k_ab
+
+    k_changed = _make_key(
+        code="abc",
+        code_type="nvvm",
+        target_type="ptx",
+        options=_opts(extra_sources=[("mod_a", "int a = 99;"), src_b]),
+    )
+    assert k_changed != k_ab
+
+    k_str = _make_key(
+        code="abc",
+        code_type="nvvm",
+        target_type="ptx",
+        options=_opts(extra_sources=[("mod", "hello")]),
+    )
+    k_bytes = _make_key(
+        code="abc",
+        code_type="nvvm",
+        target_type="ptx",
+        options=_opts(extra_sources=[("mod", b"hello")]),
+    )
+    k_bytearray = _make_key(
+        code="abc",
+        code_type="nvvm",
+        target_type="ptx",
+        options=_opts(extra_sources=[("mod", bytearray(b"hello"))]),
+    )
+    assert k_str == k_bytes == k_bytearray
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_make_program_cache_key_nvvm_empty_extra_sources_equals_none():
+    """NVVM cache keys treat empty ``extra_sources`` like no extra sources."""
+    k_none = _make_key(code="abc", code_type="nvvm", target_type="ptx", options=_opts())
+    k_empty = _make_key(
+        code="abc",
+        code_type="nvvm",
+        target_type="ptx",
+        options=_opts(extra_sources=[]),
+    )
+    k_one = _make_key(
+        code="abc",
+        code_type="nvvm",
+        target_type="ptx",
+        options=_opts(extra_sources=[("mod", "int x;")]),
+    )
+    assert k_none == k_empty
+    assert k_one != k_none
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_make_program_cache_key_nvvm_rejects_non_str_bytes_code():
+    """NVVM cache keys reject source code that is not string or bytes-like."""
+    with pytest.raises(TypeError, match="str or bytes"):
+        _make_key(code=123, code_type="nvvm", target_type="ptx")
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_make_program_cache_key_nvvm_accepts_bytearray_code():
+    """``bytearray`` is encoded the same as ``bytes`` (matching ``Program()``)."""
+    k_bytes = _make_key(code=b"abc", code_type="nvvm", target_type="ptx")
+    k_bytearray = _make_key(code=bytearray(b"abc"), code_type="nvvm", target_type="ptx")
+    assert k_bytes == k_bytearray
+
+
+@pytest.mark.thread_unsafe(reason="monkeypatches the process-global NVVM fingerprint probe")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_make_program_cache_key_nvvm_probe_failure_is_stable(monkeypatch):
+    """NVVM cache keys remain stable and distinct when compiler fingerprinting fails."""
+    from cuda.core.utils import _program_cache
+
+    monkeypatch.setattr(_program_cache._keys, "_nvvm_fingerprint", lambda: "lib=13.3,ir=2.0")
+    k_ok = _make_key(code="abc", code_type="nvvm", target_type="ptx")
+    calls = 0
+
+    def _broken():
+        nonlocal calls
+        calls += 1
+        raise RuntimeError(f"nvvm probe failed {calls}")
+
+    monkeypatch.setattr(_program_cache._keys, "_nvvm_fingerprint", _broken)
+    k_broken1 = _make_key(code="abc", code_type="nvvm", target_type="ptx")
+    k_broken2 = _make_key(code="abc", code_type="nvvm", target_type="ptx")
+    assert calls == 2
+    assert k_ok != k_broken1
+    assert k_broken1 == k_broken2
+
+
+@pytest.mark.thread_unsafe(reason="monkeypatches process-global linker probes")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_make_program_cache_key_linker_decision_failure_is_stable(monkeypatch):
+    """Failed linker decisions yield stable PTX keys distinct from working backends."""
+    from cuda.core import _linker
+    from cuda.core.utils import _program_cache
+
+    monkeypatch.setattr(_program_cache._keys, "_linker_backend_and_version", lambda _use_driver: ("nvJitLink", "13030"))
+    monkeypatch.setattr(_linker, "_decide_nvjitlink_or_driver", lambda: False)
+    k_ok = _make_key(code=".version 7.0", code_type="ptx")
+    calls = 0
+
+    def _broken():
+        nonlocal calls
+        calls += 1
+        raise RuntimeError("linker decision failed")
+
+    monkeypatch.setattr(_linker, "_decide_nvjitlink_or_driver", _broken)
+    k1 = _make_key(code=".version 7.0", code_type="ptx")
+    k2 = _make_key(code=".version 7.0", code_type="ptx")
+    assert calls == 2
+    assert k_ok != k1
+    assert k1 == k2
+    # The probe cannot know which linker would run, so it cannot apply the
+    # cuLink-specific unsupported-option gate.
+    k_ptxas = _make_key(
+        code=".version 7.0",
+        code_type="ptx",
+        options=_opts(ptxas_options="-v"),
+    )
+    assert calls == 3
+    assert k_ptxas != k1
+
+
+@pytest.mark.thread_unsafe(reason="monkeypatches process-global linker, module, and import state")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_make_program_cache_key_cold_nvjitlink_import_tracks_version(monkeypatch):
+    """PTX keys are stable after cold nvJitLink imports and change with its version."""
+    import builtins
+    import sys
+    from types import SimpleNamespace
+
+    from cuda import bindings
+
+    observed = set()
+    real_import = builtins.__import__
+
+    def _use_nvjitlink():
+        observed.add("backend")
+        return False
+
+    def _version():
+        observed.add("version")
+        return version
+
+    fake_module = SimpleNamespace(version=_version)
+
+    def _import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "cuda.bindings" and fromlist and "nvjitlink" in fromlist:
+            observed.add("import")
+            return SimpleNamespace(nvjitlink=fake_module)
+        return real_import(name, globals, locals, fromlist, level)
+
+    keys = []
+    for version in ((13, 3), (13, 3), (13, 4)):
+        observed.clear()
+        with monkeypatch.context() as patch:
+            # Each key must discover the module afresh, including the repeated version.
+            patch.delitem(sys.modules, "cuda.bindings.nvjitlink", raising=False)
+            patch.delattr(bindings, "nvjitlink", raising=False)
+            patch.setattr(_linker, "_decide_nvjitlink_or_driver", _use_nvjitlink)
+            patch.setattr(builtins, "__import__", _import)
+            keys.append(_make_key(code=".version 7.0", code_type="ptx"))
+        assert {"backend", "import", "version"} <= observed
+
+    assert keys[0] == keys[1]
+    assert keys[0] != keys[2]
+
+
+@pytest.mark.thread_unsafe(reason="monkeypatches pathlib.Path.stat process-wide")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_filestream_clear_tolerates_entry_vanishing_before_prune(tmp_path, monkeypatch):
+    """``clear`` tolerates an entry vanishing between its snapshot and prune."""
+    from pathlib import Path
+
+    from cuda.core.utils import FileStreamProgramCache
+
+    with FileStreamProgramCache(tmp_path / "fc") as cache:
+        cache[b"k"] = _fake_object_code(b"v")
+        path = cache._path_for_key(b"k")
+        real_stat = Path.stat
+        calls = 0
+
+        def _stat(self, *args, **kwargs):
+            nonlocal calls
+            if self == path:
+                calls += 1
+                if calls == 2:
+                    path.unlink()
+                    raise FileNotFoundError(self)
+            return real_stat(self, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "stat", _stat)
+        cache.clear()
+        assert calls >= 2, "race injection never reached clear()'s prune re-stat"
+        assert not path.exists()
+
+
+@pytest.mark.thread_unsafe(reason="monkeypatches pathlib.Path.unlink process-wide")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_filestream_clear_tolerates_unlink_already_gone(tmp_path, monkeypatch):
+    """``clear`` treats a racing unlink as a successful prune."""
+    from pathlib import Path
+
+    from cuda.core.utils import FileStreamProgramCache
+
+    with FileStreamProgramCache(tmp_path / "fc") as cache:
+        cache[b"k"] = _fake_object_code(b"v")
+        path = cache._path_for_key(b"k")
+        real_unlink = Path.unlink
+        unlink_injected = False
+
+        def _already_gone(self, *args, **kwargs):
+            nonlocal unlink_injected
+            if self != path:
+                return real_unlink(self, *args, **kwargs)
+            unlink_injected = True
+            real_unlink(self, *args, **kwargs)
+            raise FileNotFoundError(self)
+
+        monkeypatch.setattr(Path, "unlink", _already_gone)
+        cache.clear()
+        assert unlink_injected, "race injection never reached clear()'s unlink"
+        assert not path.exists()
+
+
+@pytest.mark.thread_unsafe(reason="monkeypatches pathlib.Path.unlink process-wide")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_filestream_clear_reraises_non_sharing_permission_error(tmp_path, monkeypatch):
+    """File-cache clear propagates non-sharing permission errors."""
+    import errno
+    from pathlib import Path
+
+    from cuda.core.utils import FileStreamProgramCache, _program_cache
+
+    monkeypatch.setattr(_program_cache._file_stream, "_IS_WINDOWS", True)
+
+    with FileStreamProgramCache(tmp_path / "fc") as cache:
+        cache[b"k"] = _fake_object_code(b"v")
+
+        def _denied(self, *args, **kwargs):
+            exc = PermissionError("user mapped file")
+            exc.winerror = 1224  # ERROR_USER_MAPPED_FILE, not a sharing violation
+            exc.errno = errno.EACCES
+            raise exc
+
+        monkeypatch.setattr(Path, "unlink", _denied)
+        with pytest.raises(PermissionError, match="user mapped file"):
+            cache.clear()
+
+
+@pytest.mark.thread_unsafe(reason="monkeypatches pathlib.Path.stat process-wide")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_filestream_read_exhausted_sharing_retry_is_cache_miss(tmp_path, monkeypatch):
+    """Exhausted Windows sharing retries turn file-cache reads into misses."""
+    from pathlib import Path
+
+    from cuda.core.utils import FileStreamProgramCache, _program_cache
+
+    monkeypatch.setattr(_program_cache._file_stream, "_IS_WINDOWS", True)
+    monkeypatch.setattr(_program_cache._file_stream, "_REPLACE_RETRY_DELAYS", (0.0, 0.0))
+
+    with FileStreamProgramCache(tmp_path / "fc") as cache:
+        cache[b"k"] = _fake_object_code(b"v")
+        path = cache._path_for_key(b"k")
+        assert cache[b"k"] == b"v"
+        real_stat = Path.stat
+        attempts = 0
+
+        def _always_sharing(self, *args, **kwargs):
+            nonlocal attempts
+            if self != path:
+                return real_stat(self, *args, **kwargs)
+            attempts += 1
+            exc = PermissionError("sharing violation")
+            exc.winerror = 32
+            raise exc
+
+        monkeypatch.setattr(Path, "stat", _always_sharing)
+        assert cache.get(b"k") is None
+        assert attempts == 2
+
+
+@pytest.mark.thread_unsafe(reason="monkeypatches os.scandir process-wide")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_filestream_iter_skips_shard_dir_that_vanishes(tmp_path, monkeypatch):
+    """File-cache iteration skips shard directories that vanish during traversal."""
+    import os as _os
+    from pathlib import Path
+
+    from cuda.core.utils import FileStreamProgramCache
+
+    with FileStreamProgramCache(tmp_path / "fc") as cache:
+        cache[b"a"] = _fake_object_code(b"A")
+        cache[b"b"] = _fake_object_code(b"B")
+        assert cache._path_for_key(b"a").parent != cache._path_for_key(b"b").parent
+        real_scandir = _os.scandir
+        entries = cache._entries.resolve()
+        shard_scans = 0
+
+        def _scandir(path):
+            nonlocal shard_scans
+            path_p = Path(_os.fspath(path)).resolve()
+            if path_p.parent == entries:
+                shard_scans += 1
+                if shard_scans == 1:
+                    raise FileNotFoundError(path)
+            return real_scandir(path)
+
+        monkeypatch.setattr(_os, "scandir", _scandir)
+        assert len(cache) == 1
+        assert shard_scans == 2
+
+
+@pytest.mark.thread_unsafe(reason="monkeypatches pathlib.Path.stat process-wide")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_filestream_open_with_size_cap_skips_vanished_entries(tmp_path, monkeypatch):
+    """Opening a capped file cache skips entries that vanish during size accounting."""
+    from pathlib import Path
+
+    from cuda.core.utils import FileStreamProgramCache
+
+    root = tmp_path / "fc"
+    values = {b"a": b"A" * 32, b"b": b"B" * 48}
+    with FileStreamProgramCache(root) as cache:
+        for key, value in values.items():
+            cache[key] = value
+        paths = {cache._path_for_key(key): key for key in values}
+
+    real_stat = Path.stat
+    vanished = None
+
+    def _stat(self, *args, **kwargs):
+        nonlocal vanished
+        if self in paths and vanished is None:
+            vanished = self
+            self.unlink()
+            raise FileNotFoundError(self)
+        return real_stat(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "stat", _stat)
+    with FileStreamProgramCache(root, max_size_bytes=10_000) as cache:
+        assert vanished is not None, "race injection never reached the startup size scan"
+        assert not vanished.exists()
+        survivor_key = next(key for path, key in paths.items() if path != vanished)
+        assert cache._tracked_size_bytes == len(values[survivor_key])
+        assert cache[survivor_key] == values[survivor_key]
+        cache[b"new"] = b"new"
+        assert cache[b"new"] == b"new"
+        assert cache._tracked_size_bytes == len(values[survivor_key]) + len(b"new")
+
+
+@pytest.mark.thread_unsafe(reason="monkeypatches os.unlink process-wide")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_filestream_sweep_skips_permission_error_on_stale_tmp(tmp_path, monkeypatch):
+    """File-cache startup ignores permission errors while pruning stale temporary files."""
+    import os as _os
+    from pathlib import Path
+
+    from cuda.core.utils import FileStreamProgramCache, _program_cache
+
+    root = tmp_path / "fc"
+    with FileStreamProgramCache(root):
+        pass
+    ancient = root / "tmp" / "entry-ancient"
+    ancient.write_bytes(b"crashed")
+    ancient_mtime = time.time() - _program_cache._file_stream._TMP_STALE_AGE_SECONDS - 60
+    _os.utime(ancient, (ancient_mtime, ancient_mtime))
+
+    real_unlink = _os.unlink
+    denied = []
+
+    def _denied(path):
+        if Path(path) == ancient:
+            denied.append(Path(path))
+            raise PermissionError("locked tmp")
+        return real_unlink(path)
+
+    monkeypatch.setattr(_os, "unlink", _denied)
+    with FileStreamProgramCache(root):
+        pass
+    assert denied == [ancient]
+    assert ancient.exists()
+
+
+@pytest.mark.thread_unsafe(reason="monkeypatches pathlib.Path.stat process-wide")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_filestream_clear_skips_entry_that_vanishes_during_snapshot(tmp_path, monkeypatch):
+    """File-cache clear skips entries that vanish during its snapshot scan."""
+    from pathlib import Path
+
+    from cuda.core.utils import FileStreamProgramCache
+
+    with FileStreamProgramCache(tmp_path / "fc") as cache:
+        cache[b"a"] = _fake_object_code(b"A")
+        cache[b"b"] = _fake_object_code(b"B")
+        gone = cache._path_for_key(b"a")
+        remaining = cache._path_for_key(b"b")
+        real_stat = Path.stat
+        vanished = False
+
+        def _stat(self, *args, **kwargs):
+            nonlocal vanished
+            if self == gone and not vanished:
+                vanished = True
+                self.unlink()
+                raise FileNotFoundError(self)
+            return real_stat(self, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "stat", _stat)
+        cache.clear()
+        assert vanished, "race injection never reached clear()'s snapshot stat"
+        assert not gone.exists()
+        assert not remaining.exists()
+        assert cache.get(b"b") is None
+
+
+@pytest.mark.thread_unsafe(reason="monkeypatches pathlib.Path.stat process-wide")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_filestream_write_over_cap_skips_vanished_files(tmp_path, monkeypatch):
+    """File-cache eviction skips entries that vanish before unlink."""
+    from pathlib import Path
+
+    from cuda.core.utils import FileStreamProgramCache
+
+    with FileStreamProgramCache(tmp_path / "fc", max_size_bytes=250) as cache:
+        cache[b"a"] = b"a" * 100
+        cache[b"b"] = b"b" * 100
+        gone = cache._path_for_key(b"a")
+        st = gone.stat()
+        os.utime(gone, ns=(st.st_atime_ns - 10_000_000_000, st.st_mtime_ns))
+        real_stat = Path.stat
+        n_stat = {"n": 0}
+
+        def _stat(self, *args, **kwargs):
+            # Let the scan see the file, then remove it on the eviction re-stat.
+            if self == gone:
+                n_stat["n"] += 1
+                if n_stat["n"] == 2:
+                    self.unlink()
+                    raise FileNotFoundError(self)
+            return real_stat(self, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "stat", _stat)
+        cache[b"c"] = b"c" * 100  # must not raise
+        assert n_stat["n"] > 1, "race injection never reached eviction's re-stat"
+        monkeypatch.setattr(Path, "stat", real_stat)
+        assert not gone.exists()
+        assert cache.get(b"b") == b"b" * 100
+        assert cache.get(b"c") == b"c" * 100
+        assert cache._tracked_size_bytes == 200

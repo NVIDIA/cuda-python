@@ -26,7 +26,7 @@ dependencies are as follows:
 .. [#f1] Including ``cuda-python``.
 
 
-``cuda.core`` supports Python 3.10 - 3.14, on Linux (x86-64, arm64) and Windows (x86-64). **Experimental** free-threaded builds for Python 3.14 are also provided.
+``cuda.core`` supports Python 3.11 - 3.15, on Linux (x86-64, arm64) and Windows (x86-64). **Experimental** free-threaded builds for Python 3.14 and 3.15 are also provided.
 
 
 Free-threading Build Support
@@ -78,8 +78,8 @@ The conda-forge package depends on ``cuda-bindings`` of the same CUDA major. The
 Development environment
 -----------------------
 
-The sections above cover end-user installation. The section below focuses on
-a repeatable *development* workflow (editable installs and running tests).
+The sections below cover nightly builds, source installation, and repeatable
+development workflows with editable installs and tests.
 
 Installing the latest nightly (top-of-tree builds)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -106,15 +106,62 @@ Replace ``python312`` with your Python version (e.g. ``python310``, ``python311`
 with ``linux-aarch64``; for Windows, use ``win-64``. Replace ``cu13`` with
 ``cu12`` for CUDA 12.x environments.
 
-Development with uv
-~~~~~~~~~~~~~~~~~~~
+.. _cuda-core-source-install:
 
-`uv`_ is a fast Python package and project manager. For example, to work on
-``cuda-core`` against CUDA 13:
+Installing from Source
+~~~~~~~~~~~~~~~~~~~~~~
+
+A source build has two requirements. See :ref:`cuda-core-bindings-floor`.
+
+- ``cuda-bindings`` 12.x or 13.x at or above the release's floor for that major. An isolated
+  build, the default for ``pip install``, installs a ``cuda-bindings`` no newer than the
+  toolkit's minor. Other builds must provide it.
+- A CUDA Toolkit, located through ``CUDA_PATH`` or ``CUDA_HOME``, whose ``cuda.h`` has the same
+  major.minor as the header that ``cuda-bindings`` was generated from. If the versions differ,
+  the build fails early. To build against a specific ``cuda-bindings`` in an isolated build,
+  constrain it with ``PIP_CONSTRAINT``. A build with ``--no-build-isolation`` uses the installed
+  ``cuda-bindings``.
+
+Use the repository's `Recommended clone
+<https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#recommended-clone>`_
+recipe below. On native Windows outside WSL, complete its Windows setup
+*before* cloning so Git can create the build-critical
+``cuda_core/_build_shared.py`` symlink.
 
 .. code-block:: console
 
-   $ git clone https://github.com/NVIDIA/cuda-python.git
+   $ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
+   $ cd cuda-python/cuda_core
+   $ pip install .
+
+.. note::
+
+   ``--recurse-submodules`` is required: the build compiles against the CCCL
+   headers pinned in the ``cuda_core/third_party/cccl`` submodule, and fails
+   without them. For a clone that already exists, run the following from the
+   repository root:
+   ``git submodule update --init cuda_core/third_party/cccl``.
+
+.. note::
+
+   The version is derived from git tags via ``setuptools-scm``, so the clone
+   must include tags reaching back to at least the latest ``cuda-core-v*`` tag.
+   Do not use ``--depth`` or ``--no-tags``: a shallow clone builds without
+   error but produces a bogus version such as ``0.1.dev1+g0d22cb444``. See
+   `Cloning the repository
+   <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md>`_
+   for details.
+
+Development with uv
+~~~~~~~~~~~~~~~~~~~
+
+`uv`_ is a fast Python package and project manager. Before cloning, check the
+:ref:`source-build prerequisites <cuda-core-source-install>`.
+For example, to work on ``cuda-core`` against CUDA 13:
+
+.. code-block:: console
+
+   $ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_core
    $ uv venv
    $ source .venv/bin/activate   # On Windows: .venv\Scripts\activate
@@ -132,11 +179,12 @@ Development with pixi
 ~~~~~~~~~~~~~~~~~~~~~
 
 `pixi`_ provides a reproducible development environment across the repository.
-From the repository root:
+Before cloning, check the :ref:`source-build prerequisites <cuda-core-source-install>`.
+For example, to work against CUDA 13:
 
 .. code-block:: console
 
-   $ git clone https://github.com/NVIDIA/cuda-python.git
+   $ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python
    $ pixi run -e cu13 test-core
 
@@ -149,37 +197,3 @@ To run all repository tests (pathfinder → bindings → core):
 Use ``-e cu12`` to test against CUDA 12 instead.
 
 .. _pixi: https://pixi.sh/
-
-Installing from Source
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: console
-
-   $ git clone https://github.com/NVIDIA/cuda-python.git
-   $ cd cuda-python/cuda_core
-   $ pip install .
-
-A source build has two requirements. See :ref:`cuda-core-bindings-floor`.
-
-- ``cuda-bindings`` 12.x or 13.x at or above the release's floor for that major. An isolated
-  build, the default for ``pip install``, installs a ``cuda-bindings`` no newer than the
-  toolkit's minor. Other builds must provide it.
-- A CUDA Toolkit, located through ``CUDA_PATH`` or ``CUDA_HOME``, whose ``cuda.h`` has the same
-  major.minor as the header that ``cuda-bindings`` was generated from. If the versions differ,
-  the build fails early. To build against a specific ``cuda-bindings`` in an isolated build,
-  constrain it with ``PIP_CONSTRAINT``. A build with ``--no-build-isolation`` uses the installed
-  ``cuda-bindings``.
-
-.. note::
-
-   The version is derived from git tags via ``setuptools-scm``, so the clone
-   must include tags reaching back to at least the latest ``cuda-core-v*`` tag.
-   Do not use ``--depth`` or ``--no-tags``: a shallow clone builds without
-   error but produces a bogus version such as ``0.1.dev1+g0d22cb444``. See
-   `Cloning the repository
-   <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md>`_
-   for details and recovery steps. Windows contributors building outside of
-   WSL should also see
-   `Development on Windows
-   <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#development-on-windows>`_
-   for the git-symlink configuration that must be set *before* cloning.

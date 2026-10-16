@@ -40,8 +40,7 @@ class CUDAError(Exception):
     The message names the CUDA error and, when one is known, explains it. A
     secondary failure observed while the error was being raised, such as a
     failed restoration of the caller's CUDA context, is attached as a note
-    (``__notes__``) on Python 3.11 and newer and appended to the message on
-    older interpreters. See the error handling page of the ``cuda.core``
+    (``__notes__``). See the error handling page of the ``cuda.core``
     documentation for the guarantees an exception provides.
     """
 
@@ -168,13 +167,8 @@ cdef object _NVRTC_SUCCESS = nvrtc.nvrtcResult.NVRTC_SUCCESS
 
 
 cdef inline void _attach_detail(exc, str detail):
-    # PEP 678 notes (Python 3.11+) keep the detail separable from the message;
-    # older interpreters get it appended to the message instead.
-    add_note = getattr(exc, "add_note", None)
-    if add_note is not None:
-        add_note(detail)
-    else:
-        exc.args = (f"{exc.args[0]} ({detail})", *exc.args[1:])
+    # PEP 678 notes keep the detail separable from the message.
+    exc.add_note(detail)
 
 
 cpdef inline int _check_driver_error(cydriver.CUresult error) except?-1 nogil:

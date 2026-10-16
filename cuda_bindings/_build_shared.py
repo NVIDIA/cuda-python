@@ -3,10 +3,10 @@
 
 """Build helpers shared by the cuda-bindings and cuda-core PEP 517 backends.
 
-This is the single source of truth. ``cuda_core/_build_shared.py`` is a symlink
-to this file. Python does not dereference symlinks in ``__file__``, so any
-``Path(__file__)``-relative location in here resolves under whichever package
-loads it.
+``cuda_bindings/_build_shared.py`` is canonical. ``cuda_core/_build_shared.py``
+is either a symlink to it or a byte-for-byte identical copy. Both backends load
+the helper through their package-local path, keeping ``Path(__file__)``-relative
+state package-local.
 
 PEP 517 build isolation gives each backend its own ``build_hooks.py`` but not a
 shared import path. Both packages declare ``backend-path = ["."]``, which puts
@@ -385,9 +385,8 @@ def _stable_cython_alias(target: Path, alias: Path):
     unstable across runs. This context manager creates a fixed, worktree-
     relative symlink so Cython sees a stable lexical path.
 
-    The symlink is created in the *package directory* (the directory containing
-    this file, which is the package's own copy through the symlink), not in
-    the cwd, to keep aliases package-local and avoid cross-package races.
+    The symlink is created in the package directory containing this file, not
+    in the cwd, to keep aliases package-local and avoid cross-package races.
 
     alias must not already exist as a real file or directory; if it is a
     symlink (including a dangling one) it is atomically replaced.

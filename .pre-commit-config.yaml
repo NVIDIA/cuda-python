@@ -48,8 +48,6 @@ repos:
         language: python
         files: ^(cuda_core/pyproject\.toml|ci/versions\.yml|cuda_core/cuda/core/_bindings_floor\.py|cuda_core/docs/source/.*\.rst|toolshed/check_cuda_core_bindings_floor\.py)$
         pass_filenames: false
-        additional_dependencies:
-          - "tomli>=1.1.0; python_version < '3.11'"
 
       - id: check-spdx
         name: Check SPDX Headers
@@ -57,8 +55,14 @@ repos:
         language: python
         additional_dependencies:
           - https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl
-        exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)|(^cuda_core/cuda/core/_vendored/)'
+        exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)|(^cuda_core/cuda/core/_vendored/)|(^cuda_core/third_party/)'
         args: ["--fix"]
+
+      - id: check-cython-not-none
+        name: Check cdef-class-annotated def parameters carry 'not None'
+        entry: python ./toolshed/check_cython_not_none.py
+        language: python
+        files: ^cuda_core/cuda/.*\.pyx$
 
       - id: check-generated-file-seals
         name: Check generated-file seals

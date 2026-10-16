@@ -12,6 +12,7 @@
 #include "driver_api.hpp"
 #include "error.hpp"
 #include "internal.hpp"
+#include <atomic>
 #include <cstddef>
 #include <memory>
 #include <utility>
@@ -28,15 +29,24 @@ using namespace detail;
 namespace {
 
 struct MemAllocationBox {
-    MemAllocationValue resource;          // from cuMemCreate
+    MemAllocationValue resource;          // from cuMemCreate or cuMemImportFromShareableHandle
     size_t size;                          // the only size cuMemMap accepts for it
     std::vector<CUmemAccessDesc> access;  // applied to every mapping of this allocation
+    bool imported;                        // another process created it; it cannot be exported again
 };
 
 struct VaReservationBox {
     VaReservationValue resource;          // base address from cuMemAddressReserve
     size_t size;                          // exact reserved size; cuMemAddressFree needs both
 };
+
+// Process-wide count of live VA reservations created here with
+// cuMemAddressReserve. Memory-pool VA windows (issue #2381) are not included:
+// owned pools are tracked by the owned-pool count, and the device default pool
+// (cuDeviceGetMemPool) is a borrowed reference that neither count tracks.
+// Read by the test suite to gate the per-test gc.collect(). Atomic for
+// free-threaded builds.
+std::atomic<long long> g_live_va_reservations{0};
 
 struct VaMappingBox {
     VaMappingValue resource;              // mapped address
@@ -50,6 +60,22 @@ template <typename Box, typename Handle>
 const Box* box_of(const Handle& h) noexcept {
     return reinterpret_cast<const Box*>(
         reinterpret_cast<const char*>(h.get()) - offsetof(Box, resource));
+}
+
+// Wrap an allocation handle this process holds one reference to, whether
+// cuMemCreate or cuMemImportFromShareableHandle produced it. The last
+// reference releases it; the memory is freed once no mapping remains.
+MemAllocationHandle wrap_mem_allocation(CUmemGenericAllocationHandle handle, size_t size,
+                                        std::vector<CUmemAccessDesc>&& access, bool imported) {
+    auto box = std::shared_ptr<const MemAllocationBox>(
+        new MemAllocationBox{{handle}, size, std::move(access), imported},
+        [](const MemAllocationBox* b) {
+            GILReleaseGuard gil;
+            pw_cuMemRelease(b->resource.raw);
+            delete b;
+        }
+    );
+    return MemAllocationHandle(box, &box->resource);
 }
 
 }  // namespace
@@ -68,19 +94,28 @@ MemAllocationHandle create_mem_allocation_handle(size_t size, const CUmemAllocat
     if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemCreate, &handle, size, &prop, 0))) {
         return {};
     }
-    auto box = std::shared_ptr<const MemAllocationBox>(
-        new MemAllocationBox{{handle}, size, std::move(access)},
-        [](const MemAllocationBox* b) {
-            GILReleaseGuard gil;
-            pw_cuMemRelease(b->resource.raw);
-            delete b;
-        }
-    );
-    return MemAllocationHandle(box, &box->resource);
+    return wrap_mem_allocation(handle, size, std::move(access), false);
+}
+
+MemAllocationHandle import_mem_allocation_handle(void* os_handle, CUmemAllocationHandleType handle_type,
+                                                 size_t size, const CUmemAccessDesc* descs, size_t count) {
+    // Copy the descriptors before the driver call so a failed copy leaves
+    // nothing to undo.
+    std::vector<CUmemAccessDesc> access(descs, descs + count);
+    GILReleaseGuard gil;
+    CUmemGenericAllocationHandle handle = 0;
+    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemImportFromShareableHandle, &handle, os_handle, handle_type))) {
+        return {};
+    }
+    return wrap_mem_allocation(handle, size, std::move(access), true);
 }
 
 size_t mem_allocation_size(const MemAllocationHandle& h) noexcept {
     return h ? box_of<MemAllocationBox>(h)->size : 0;
+}
+
+bool mem_allocation_is_imported(const MemAllocationHandle& h) noexcept {
+    return h ? box_of<MemAllocationBox>(h)->imported : false;
 }
 
 // ============================================================================
@@ -93,15 +128,25 @@ VaReservationHandle create_va_reservation_handle(size_t size, size_t alignment, 
     if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemAddressReserve, &ptr, size, alignment, hint, 0))) {
         return {};
     }
+    auto* raw = new VaReservationBox{{ptr}, size};
+    // Count before constructing the shared_ptr: if its control-block allocation
+    // throws, it runs the deleter on raw, whose decrement then balances this.
+    g_live_va_reservations.fetch_add(1, std::memory_order_relaxed);
     auto box = std::shared_ptr<const VaReservationBox>(
-        new VaReservationBox{{ptr}, size},
+        raw,
         [](const VaReservationBox* b) {
             GILReleaseGuard gil;
             pw_cuMemAddressFree(b->resource.raw, b->size);
+            g_live_va_reservations.fetch_sub(1, std::memory_order_relaxed);
             delete b;
         }
     );
     return VaReservationHandle(box, &box->resource);
+}
+
+// Test-suite instrumentation; see g_live_va_reservations.
+long long live_va_reservation_count() noexcept {
+    return g_live_va_reservations.load(std::memory_order_relaxed);
 }
 
 size_t va_reservation_size(const VaReservationHandle& h) noexcept {
