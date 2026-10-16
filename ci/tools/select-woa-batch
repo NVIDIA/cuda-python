@@ -63,7 +63,7 @@ if [[ -n "$baseline_index" ]]; then
     '.[$index].commit.committer.date' <<< "$commits")
   # Age starts at the oldest pending commit's timestamp, not workflow start time.
   age_seconds=$(($(date +%s) - $(date -d "$oldest_pending_at" +%s)))
-  # Dispatch after three commits or two hours; hourly cron revisits deferred batches.
+  # Each main push evaluates three commits or two hours; idle batches have no timer.
   if (( commit_count >= 3 )); then
     reason="Batch threshold reached: $commit_count commits."
   elif (( age_seconds >= 7200 )); then
