@@ -115,6 +115,12 @@ published from the corresponding backport branch.
 Installing from Source
 ~~~~~~~~~~~~~~~~~~~~~~
 
+First clone the repository using `Recommended clone
+<https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#recommended-clone>`_.
+On native Windows outside WSL, complete its Windows setup before cloning.
+The recipe preserves release tags and configures symlinks and submodule
+updates for development.
+
 Requirements
 ^^^^^^^^^^^^
 
@@ -126,7 +132,12 @@ Requirements
 
 [^2]: The CUDA Runtime static library (``libcudart_static.a`` on Linux, ``cudart_static.lib`` on Windows) is part of the CUDA Toolkit. If using conda packages, it is contained in the ``cuda-cudart-static`` package.
 
-[^3]: The version is derived from git tags via ``setuptools-scm``, so the clone must include tags reaching back to at least the latest ``v*`` tag. Clone with ``git clone https://github.com/NVIDIA/cuda-python.git``; do not use ``--depth`` or ``--no-tags``, since a shallow clone builds without error but produces a bogus version such as ``0.1.dev1+g0d22cb444``. See `Cloning the repository <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md>`_ for details and recovery steps.
+[^3]: The version is derived from git tags via ``setuptools-scm``, so the clone
+must include tags reaching back to at least the latest ``v*`` tag. Do not use
+``--depth`` or ``--no-tags``: a clone without reachable tags can build with a
+bogus version such as ``0.1.dev1+g0d22cb444``. See `Cloning the repository
+<https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#cloning-the-repository>`_
+for details.
 
 Source builds require that the provided CUDA headers are of the same major.minor version as the ``cuda.bindings`` you're trying to build. Despite this requirement, note that the minor version compatibility is still maintained. The build checks the header before it compiles anything. A mismatch stops the build with a message that names the ``cuda.h`` it found and the version this source tree needs. Use the ``CUDA_PATH`` (or ``CUDA_HOME``) environment variable to specify the location of your headers. If both are set, ``CUDA_PATH`` takes precedence. For example, if your headers are located in ``/usr/local/cuda/include``, then you should set ``CUDA_PATH`` with:
 
@@ -143,10 +154,11 @@ See :doc:`Environment Variables <environment_variables>` for a description of ot
 Editable Install
 ^^^^^^^^^^^^^^^^
 
-You can use:
+From the repository root, run:
 
 .. code-block:: console
 
+   $ cd cuda_bindings
    $ pip install -v -e .
 
-to install the module as editable in your current Python environment (e.g. for testing of porting other libraries to use the binding).
+This installs the module as editable in your current Python environment (e.g. for testing or porting other libraries to use the bindings).
