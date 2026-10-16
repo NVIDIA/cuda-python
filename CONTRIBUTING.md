@@ -210,9 +210,10 @@ The `lychee` pre-commit hook runs through Python and installs the native
 `lychee-bin==0.24.2` wheel in its own environment. Invoke
 `pre-commit run --all-files` the same way from PowerShell, cmd, or Git Bash.
 
-The Linux and Windows CI jobs exercise the installed hook against local
-fixtures, including paths containing spaces and missing targets. The full
-documentation link scan runs separately in documentation CI. See
+The Linux and Windows CI jobs run this same hook against the repository.
+They restore successful URL checks from a shared cache and warm it before
+running the complete pre-commit suite once. Generated HTML and anchors are
+checked after the documentation build through a manual pre-commit hook. See
 [Repository links during main development](ci/README.md#repository-links-during-main-development)
 for how repository source links are checked before merge.
 

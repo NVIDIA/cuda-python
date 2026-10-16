@@ -36,31 +36,87 @@ at the start of a URL, leaving URLs embedded in another URL unchanged. Relative
 links and links to tags, commit SHAs, other branches, and other repositories
 are checked as written.
 
-CI remaps these links to the CI repository at the actual checked-out commit
-using `--remap`, retaining GitHub's file/directory views and fragment behavior.
-The initial check and all retries use the same remaps. Missing targets in that
-commit still fail.
+Authored Markdown and reST are checked through the same `lychee` pre-commit
+hook in development and in Linux/Windows PR CI. The Python wrapper
+`ci/tools/run_lychee.py` computes the checkout's file URI and passes anchored
+native `--remap` rules to Lychee. This checks working-tree paths, including
+uncommitted and unpushed targets, without changing the documentation sources.
+The hook installs the official PyPI `lychee-bin==0.24.2` native wheel in its
+isolated Python environment. Authored checks do not validate fragments.
 
-Local pre-commit runs the Python hook `ci/tools/run_lychee.py`, which computes
-the checkout's file URI and passes anchored native `--remap` rules to Lychee.
-This checks paths in the working tree, including uncommitted and unpushed
-targets. The hook installs the official PyPI `lychee-bin==0.24.2` package in
-its own Python environment and uses the platform's native wheel. Local checks
-retain their existing policy of not checking fragments.
+### PR Checks And Cache Warming
 
-The Linux and Windows pre-commit CI jobs run a bounded smoke check of the
-installed hook against local Markdown and reST fixtures. They check valid
-files and directories and missing targets in paths containing spaces, and
-verify that the source files are unchanged. This smoke check does not scan all
-external documentation links; full authored and rendered checks run in
-documentation CI.
+PR CI restores successful URL checks from the shared baseline, then runs
+`pre-commit run lychee --all-files` through `ci/tools/run_lychee_precommit.py`.
+The helper allows up to three hook attempts, with 60/120-second cooldowns
+when all remaining failures are transient HTTP failures. Successful checks
+accumulate in the local cache; permanent link failures stop additional
+warm-up attempts. A missing baseline simply starts with uncached checks.
 
-The `check-doc-links` action is not currently present on `12.9.x`, `13.4.x`,
-`12.2.x`, or `11.8.x`; merging changes into `main` does not update those
-branches' workflows. A maintenance branch's `/main/` URLs may intentionally
-refer to a different tree from its checkout. Before adopting this hook or
-action there, choose an explicit validation policy for those links instead of
-assuming that they refer to the maintenance checkout.
+After warming, `pre-commit run --all-files --show-diff-on-failure` runs once.
+Its normal strict result is the final gate, including for unresolved HTTP
+429s. This can make four total Lychee invocations, but successful external
+checks are reused. Formatter changes remain failures because the complete
+suite is not retried. A missing or invalid native report, empty check, or
+hook installation/execution error fails the warm-up step.
+
+This replaces the fixture-only hook step and the duplicate authored scan in
+the full-CI documentation job. Standalone CI-tool unit tests remain in nightly
+CI; they are not added as a new per-PR gate.
+
+### Rendered Documentation
+
+After building the documentation, full CI runs the manual hook through the
+same driver:
+
+```bash
+python ci/tools/run_lychee_precommit.py rendered --policy check \
+    --report /path/to/reports/lychee-rendered.json
+```
+
+The driver invokes `pre-commit run lychee-rendered --hook-stage manual
+--all-files`. This hook enumerates generated HTML under `artifacts/docs`,
+excluding `_static` assets, and enables full fragment validation. Generated
+HTML is selected explicitly because it is not part of pre-commit's tracked
+source file list. The hook uses the same pinned wheel and shared wrapper as
+the authored hook, without a separate Lychee action or binary installation.
+
+Rendered checks remap main-branch source URLs to the CI repository at the
+actual checked-out commit, retaining GitHub's file/directory views and their
+fragment behavior. All attempts use the same inputs and remaps. This mode
+retains up to three attempts and the existing warning allowance for at most
+ten distinct URLs that still return HTTP 429; other unresolved links fail.
+
+### Shared URL Caches
+
+Nightly invokes both configured hooks through the driver. Refresh mode skips
+restoring yesterday's URL cache, checks afresh, and publishes the successful
+results. Genuine link failures are advisory during cache warming; build,
+installation, execution, and report errors remain failures. Linux pre-commit
+runs on `main` also publish their accumulated authored results. PR jobs
+restore caches and do not publish them.
+
+`ci/tools/lychee_cache.py` gives all callers the same cache policy and unique
+run-ID/attempt snapshot keys. The namespace includes the hook configuration
+(and native wheel pin), checker configuration, and shared helpers. Authored
+and rendered caches remain separate because only rendered checks validate
+fragments. Only the URL-result file is shared across operating systems;
+pre-commit's installed environments retain their OS/Python-specific caches.
+
+Successful external checks retain their original timestamps and expire after
+one day. Failed URLs are not persisted, and filesystem targets are checked
+afresh. The rendered hook uses its own cache directory, selected by
+`LYCHEE_CACHE_DIR` (default `.lychee-rendered`), so its fragment-aware results
+cannot mix with authored results in the checkout's `.lycheecache`. Per-pass
+JSON reports and a Markdown summary are retained as CI artifacts.
+
+### Maintenance Branches
+
+Merging these changes into `main` does not update maintenance branches'
+workflows. A maintenance branch's `/main/` URLs may intentionally refer to a
+different tree from its checkout. Before adopting these hooks there, choose
+an explicit validation policy for those links instead of assuming that they
+refer to the maintenance checkout.
 
 ## Temporary Pixi Lockfile Maintenance Pause
 
