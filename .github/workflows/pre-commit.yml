@@ -85,6 +85,58 @@ jobs:
       - name: Install pre-commit
         run: python -m pip install --upgrade pip pre-commit
 
+      # Keep this offline hook smoke check before network-dependent Lychee steps,
+      # so hook setup and invocation failures surface before link-check retries.
+      # Invoke pre-commit directly to cover each shell's command lookup and quoting.
+      # Each runner's shells reuse one offline configuration and hook environment.
+      - name: Prepare offline Lychee configuration
+        id: lychee-smoke
+        # pre-commit needs the config on the checkout's drive; spaces exercise quoting.
+        run: |
+          directory="$(mktemp -d 'lychee offline smoke XXXXXX')"
+          echo "directory=$directory" >> "${GITHUB_OUTPUT}"
+          python ci/tools/smoke_test_lychee_precommit.py --prepare "$directory"
+
+      - name: Smoke-test Lychee in ${{ runner.os == 'Windows' && 'Git Bash' || 'Bash' }}
+        if: ${{ !cancelled() && steps.lychee-smoke.outcome == 'success' }}
+        shell: bash
+        env:
+          LYCHEE_SMOKE_DIR: ${{ steps.lychee-smoke.outputs.directory }}
+          SKIP: ""
+          PYTHONUTF8: "1"
+        run: |
+          status=0
+          pre-commit run lychee --config "$LYCHEE_SMOKE_DIR/pre-commit.yaml" --files README.md --verbose > "$LYCHEE_SMOKE_DIR/bash.log" 2>&1 || status=$?
+          python ci/tools/smoke_test_lychee_precommit.py --verify "$LYCHEE_SMOKE_DIR/bash.log" "$status"
+
+      - name: Smoke-test Lychee in PowerShell (Windows)
+        if: ${{ !cancelled() && runner.os == 'Windows' && steps.lychee-smoke.outcome == 'success' }}
+        shell: pwsh
+        env:
+          LYCHEE_SMOKE_DIR: ${{ steps.lychee-smoke.outputs.directory }}
+          SKIP: ""
+          PYTHONUTF8: "1"
+        run: |
+          pre-commit run lychee --config "$env:LYCHEE_SMOKE_DIR/pre-commit.yaml" --files README.md --verbose > "$env:LYCHEE_SMOKE_DIR/pwsh.log" 2>&1
+          python ci/tools/smoke_test_lychee_precommit.py --verify "$env:LYCHEE_SMOKE_DIR/pwsh.log" $LASTEXITCODE
+
+      - name: Smoke-test Lychee in cmd (Windows)
+        if: ${{ !cancelled() && runner.os == 'Windows' && steps.lychee-smoke.outcome == 'success' }}
+        shell: cmd
+        env:
+          LYCHEE_SMOKE_DIR: ${{ steps.lychee-smoke.outputs.directory }}
+          SKIP: ""
+          PYTHONUTF8: "1"
+        run: |
+          pre-commit run lychee --config "%LYCHEE_SMOKE_DIR%\pre-commit.yaml" --files README.md --verbose > "%LYCHEE_SMOKE_DIR%\cmd.log" 2>&1
+          python ci/tools/smoke_test_lychee_precommit.py --verify "%LYCHEE_SMOKE_DIR%\cmd.log" %ERRORLEVEL%
+
+      - name: Remove offline Lychee configuration
+        if: ${{ always() && steps.lychee-smoke.outputs.directory != '' }}
+        env:
+          LYCHEE_SMOKE_DIR: ${{ steps.lychee-smoke.outputs.directory }}
+        run: python ci/tools/smoke_test_lychee_precommit.py --cleanup "$LYCHEE_SMOKE_DIR"
+
       - name: Run pre-commit
         run: pre-commit run --all-files --show-diff-on-failure
 
