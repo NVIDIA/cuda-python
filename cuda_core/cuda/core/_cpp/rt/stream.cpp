@@ -19,7 +19,9 @@ using namespace detail;
 
 namespace {
 // Return whether a stream handle needs a current context to resolve it.
-bool is_default_stream(CUstream stream) noexcept {
+bool
+is_default_stream(CUstream stream) noexcept
+{
     return stream == nullptr || stream == CU_STREAM_LEGACY || stream == CU_STREAM_PER_THREAD;
 }
 }  // namespace
@@ -28,17 +30,19 @@ namespace detail {
 // Return the context a deallocation-stream token must run under. Real streams
 // resolve their own context; default-stream tokens use the context bound at
 // allocation time. Warn when PTDS deallocation crosses host threads.
-ContextHandle deallocation_context(const DeallocationStream& stream) noexcept {
+ContextHandle
+deallocation_context(const DeallocationStream &stream) noexcept
+{
     if (!is_default_stream(as_cu(stream.h_stream))) {
         return {};
     }
-    if (stream.ptds_tid != std::thread::id{}
-            && stream.ptds_tid != std::this_thread::get_id()) {
+    if (stream.ptds_tid != std::thread::id{} && stream.ptds_tid != std::this_thread::get_id()) {
         report_message(
             "Buffer deallocation for a per-thread default stream "
             "is running on a different host thread than the one that recorded "
             "the deallocation stream; ordering relative to the allocating "
-            "thread's PTDS is not preserved");
+            "thread's PTDS is not preserved"
+        );
     }
     return get_stream_context(stream.h_stream);
 }
@@ -54,66 +58,68 @@ struct StreamBox {
     ContextHandle h_context;
 };
 
-static const StreamBox* get_box(const StreamHandle& h) noexcept {
-    const CUstream* p = h.get();
-    return reinterpret_cast<const StreamBox*>(
-        reinterpret_cast<const char*>(p) - offsetof(StreamBox, resource)
-    );
+static const StreamBox *
+get_box(const StreamHandle &h) noexcept
+{
+    const CUstream *p = h.get();
+    return reinterpret_cast<const StreamBox *>(reinterpret_cast<const char *>(p) - offsetof(StreamBox, resource));
 }
 
 // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
 static HandleRegistry<CUstream, StreamHandle> stream_registry;
 }  // namespace
 
-StreamHandle create_stream_handle(const ContextHandle& h_ctx, unsigned int flags, int priority) {
+StreamHandle
+create_stream_handle(const ContextHandle &h_ctx, unsigned int flags, int priority)
+{
     GILReleaseGuard gil;
     CUstream stream = nullptr;
     GreenCtxHandle h_green = get_context_green_ctx(h_ctx);
     if (h_green) {
         // Cython gates this on driver >= 12.5, which introduced cuGreenCtxStreamCreate.
         err = DRIVER_CALL(cuGreenCtxStreamCreate, &stream, as_cu(h_green), flags, priority);
-    } else {
+    }
+    else {
         err = invoke_in_context_or_undo(
             h_ctx,
             [&]() noexcept { return DRIVER_CALL(cuStreamCreateWithPriority, &stream, flags, priority); },
             [&]() noexcept { pw_cuStreamDestroy(stream); },
-            /*undo_requires_target_context=*/false);
+            /*undo_requires_target_context=*/false
+        );
     }
     if (err != CUDA_SUCCESS) {
         return {};
     }
 
-    auto box = std::shared_ptr<const StreamBox>(
-        new StreamBox{stream, h_ctx},
-        [](const StreamBox* b) {
-            stream_registry.unregister_handle(b->resource);
-            GILReleaseGuard gil;
-            pw_cuStreamDestroy(b->resource);
-            delete b;
-        }
-    );
+    auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream, h_ctx}, [](const StreamBox *b) {
+        stream_registry.unregister_handle(b->resource);
+        GILReleaseGuard gil;
+        pw_cuStreamDestroy(b->resource);
+        delete b;
+    });
     StreamHandle h(box, &box->resource);
     stream_registry.register_handle(stream, h);
     return h;
 }
 
-StreamHandle create_stream_handle_ref(CUstream stream) {
+StreamHandle
+create_stream_handle_ref(CUstream stream)
+{
     if (auto h = stream_registry.lookup(stream)) {
         return h;
     }
-    auto box = std::shared_ptr<const StreamBox>(
-        new StreamBox{stream, {}},
-        [](const StreamBox* b) {
-            stream_registry.unregister_handle(b->resource);
-            delete b;
-        }
-    );
+    auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream, {}}, [](const StreamBox *b) {
+        stream_registry.unregister_handle(b->resource);
+        delete b;
+    });
     StreamHandle h(box, &box->resource);
     stream_registry.register_handle(stream, h);
     return h;
 }
 
-StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
+StreamHandle
+create_stream_handle_with_owner(CUstream stream, PyObject *owner)
+{
     if (auto h = stream_registry.lookup(stream)) {
         // Reuse handles that already carry structural context metadata, e.g.
         // cuda-core-owned streams.
@@ -134,35 +140,40 @@ StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
     // Owner-backed handles are NOT registered in the stream registry to avoid
     // corruption when multiple owners wrap the same CUstream (each stacks its
     // own Py_INCREF/Py_DECREF independently).
-    auto box = std::shared_ptr<const StreamBox>(
-        new StreamBox{stream, {}},
-        [owner](const StreamBox* b) {
-            GILAcquireGuard gil;
-            if (gil.acquired()) {
-                Py_DECREF(owner);
-            }
-            delete b;
+    auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream, {}}, [owner](const StreamBox *b) {
+        GILAcquireGuard gil;
+        if (gil.acquired()) {
+            Py_DECREF(owner);
         }
-    );
+        delete b;
+    });
     return StreamHandle(box, &box->resource);
 }
 
 // Return the context retained by a stream handle.
-ContextHandle get_stream_context(const StreamHandle& h) noexcept {
+ContextHandle
+get_stream_context(const StreamHandle &h) noexcept
+{
     return h ? get_box(h)->h_context : ContextHandle{};
 }
 
-StreamHandle get_legacy_stream() {
+StreamHandle
+get_legacy_stream()
+{
     static StreamHandle handle = create_stream_handle_ref(CU_STREAM_LEGACY);
     return handle;
 }
 
-StreamHandle get_per_thread_stream() {
+StreamHandle
+get_per_thread_stream()
+{
     static StreamHandle handle = create_stream_handle_ref(CU_STREAM_PER_THREAD);
     return handle;
 }
 
-StreamHandle create_context_bound_legacy_stream(const ContextHandle& h_context) {
+StreamHandle
+create_context_bound_legacy_stream(const ContextHandle &h_context)
+{
     if (!h_context) {
         return {};
     }
@@ -190,8 +201,9 @@ namespace detail {
 // Real streams are copied unchanged. Default-stream tokens without an embedded
 // context are bound to the current context. Returns false (and sets err) when a
 // default-stream token cannot be bound because no context is current.
-bool make_deallocation_stream(
-        const StreamHandle& h, DeallocationStream& out) noexcept {
+bool
+make_deallocation_stream(const StreamHandle &h, DeallocationStream &out) noexcept
+{
     out = {};
     if (!h) {
         return true;
@@ -214,8 +226,7 @@ bool make_deallocation_stream(
         }
         // Do not register in stream_registry: the token value alone is not
         // a unique stream identity (context is part of the meaning).
-        auto box = std::shared_ptr<const StreamBox>(
-            new StreamBox{stream, h_ctx});
+        auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream, h_ctx});
         h_bound = StreamHandle(box, &box->resource);
     }
 

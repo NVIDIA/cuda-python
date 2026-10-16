@@ -42,7 +42,9 @@ struct RunResult {
     std::vector<double> values;         // seconds per loop
 };
 
-inline Options parse_args(int argc, char** argv) {
+inline Options
+parse_args(int argc, char **argv)
+{
     Options options;
     for (int i = 1; i < argc; ++i) {
         const std::string arg(argv[i]);
@@ -102,7 +104,9 @@ inline Options parse_args(int argc, char** argv) {
     return options;
 }
 
-inline std::string iso_now() {
+inline std::string
+iso_now()
+{
     const auto now = std::chrono::system_clock::now();
     const std::time_t t = std::chrono::system_clock::to_time_t(now);
     std::tm tm{};
@@ -121,16 +125,20 @@ inline std::string iso_now() {
 // true when calibration reached `max_loops` before hitting `min_time_sec`
 // (meaning --min-time was NOT actually satisfied by the calibration).
 template <typename Fn>
-std::uint64_t calibrate_loops(
-    const Options& options,
-    Fn&& fn,
-    const std::function<void()>& post_calibrate = {},
-    bool* capped_out = nullptr,
-    double* last_elapsed_out = nullptr
-) {
+std::uint64_t
+calibrate_loops(
+    const Options &options,
+    Fn &&fn,
+    const std::function<void()> &post_calibrate = {},
+    bool *capped_out = nullptr,
+    double *last_elapsed_out = nullptr
+)
+{
     if (options.min_time_sec <= 0.0) {
-        if (capped_out) *capped_out = false;
-        if (last_elapsed_out) *last_elapsed_out = 0.0;
+        if (capped_out)
+            *capped_out = false;
+        if (last_elapsed_out)
+            *last_elapsed_out = 0.0;
         return options.loops;
     }
 
@@ -175,7 +183,8 @@ std::uint64_t calibrate_loops(
             }
             if (loops > max_loops / 2) {
                 loops = max_loops;
-            } else {
+            }
+            else {
                 loops *= 2;
             }
         }
@@ -187,15 +196,19 @@ std::uint64_t calibrate_loops(
         }
     }
 
-    if (capped_out) *capped_out = best_capped;
-    if (last_elapsed_out) *last_elapsed_out = best_elapsed;
+    if (capped_out)
+        *capped_out = best_capped;
+    if (last_elapsed_out)
+        *last_elapsed_out = best_elapsed;
     return best_loops;
 }
 
 // Run a benchmark function. The function signature is: void fn() — one call = one operation.
 // The harness calls fn() in a tight loop `loops` times per value.
 template <typename Fn>
-std::vector<RunResult> run_benchmark(const Options& options, Fn&& fn) {
+std::vector<RunResult>
+run_benchmark(const Options &options, Fn &&fn)
+{
     std::vector<RunResult> results;
     results.reserve(options.runs);
 
@@ -234,10 +247,12 @@ std::vector<RunResult> run_benchmark(const Options& options, Fn&& fn) {
     return results;
 }
 
-inline void print_summary(const std::string& name, const std::vector<RunResult>& results) {
+inline void
+print_summary(const std::string &name, const std::vector<RunResult> &results)
+{
     // Collect all timed values
     std::vector<double> all_values;
-    for (const auto& run : results) {
+    for (const auto &run : results) {
         for (double v : run.values) {
             all_values.push_back(v);
         }
@@ -246,8 +261,7 @@ inline void print_summary(const std::string& name, const std::vector<RunResult>&
         return;
 
     double sum = 0;
-    for (double v : all_values)
-        sum += v;
+    for (double v : all_values) sum += v;
 
     double mean = sum / static_cast<double>(all_values.size());
 
@@ -258,23 +272,25 @@ inline void print_summary(const std::string& name, const std::vector<RunResult>&
     }
     double stdev = std::sqrt(sq_sum / static_cast<double>(all_values.size()));
 
-    std::cout << name << ": Mean +- std dev: "
-              << std::fixed << std::setprecision(0)
-              << (mean * 1e9) << " ns +- "
+    std::cout << name << ": Mean +- std dev: " << std::fixed << std::setprecision(0) << (mean * 1e9) << " ns +- "
               << (stdev * 1e9) << " ns\n";
 }
 
 // Escape a JSON string (minimal — no control chars expected)
-inline std::string json_str(const std::string& s) {
+inline std::string
+json_str(const std::string &s)
+{
     return "\"" + s + "\"";
 }
 
-inline void write_pyperf_json(
-    const std::string& output_path,
-    const std::string& name,
+inline void
+write_pyperf_json(
+    const std::string &output_path,
+    const std::string &name,
     std::uint64_t loops,
-    const std::vector<RunResult>& results
-) {
+    const std::vector<RunResult> &results
+)
+{
     std::ofstream out(output_path);
     if (!out) {
         std::cerr << "Failed to open output file: " << output_path << '\n';
@@ -293,8 +309,9 @@ inline void write_pyperf_json(
     out << "\"benchmarks\": [{\"runs\": [";
 
     for (std::size_t r = 0; r < results.size(); ++r) {
-        const auto& run = results[r];
-        if (r > 0) out << ", ";
+        const auto &run = results[r];
+        if (r > 0)
+            out << ", ";
 
         out << "{\"metadata\": {";
         out << "\"date\": " << json_str(run.date) << ", ";
@@ -304,7 +321,8 @@ inline void write_pyperf_json(
         // Warmups: array of [loops, value] pairs
         out << "\"warmups\": [";
         for (std::size_t w = 0; w < run.warmup_values.size(); ++w) {
-            if (w > 0) out << ", ";
+            if (w > 0)
+                out << ", ";
             out << "[" << loops << ", " << run.warmup_values[w] << "]";
         }
         out << "], ";
@@ -312,7 +330,8 @@ inline void write_pyperf_json(
         // Values
         out << "\"values\": [";
         for (std::size_t v = 0; v < run.values.size(); ++v) {
-            if (v > 0) out << ", ";
+            if (v > 0)
+                out << ", ";
             out << run.values[v];
         }
         out << "]}";
@@ -331,7 +350,7 @@ struct BenchmarkEntry {
 // Collect multiple benchmarks from a single binary and write them all
 // to one pyperf-compatible JSON file.
 class BenchmarkSuite {
-public:
+   public:
     explicit BenchmarkSuite(Options options) : options_(std::move(options)) {}
 
     // Post-calibration hook. If set, invoked between calibration probes so
@@ -339,7 +358,9 @@ public:
     // next one runs. The final probe leaves the benchmark in a drained state
     // before the first measured warmup/value. Can be overridden per-call via
     // the `post_calibrate` parameter on `run()`.
-    void set_post_calibrate(std::function<void()> hook) {
+    void
+    set_post_calibrate(std::function<void()> hook)
+    {
         post_calibrate_ = std::move(hook);
     }
 
@@ -347,11 +368,9 @@ public:
     // If --min-time is set, loop count is auto-calibrated. `post_calibrate`,
     // if provided, runs between calibration probes to reset async state.
     template <typename Fn>
-    void run(
-        const std::string& name,
-        Fn&& fn,
-        std::function<void()> post_calibrate = {}
-    ) {
+    void
+    run(const std::string &name, Fn &&fn, std::function<void()> post_calibrate = {})
+    {
         std::uint64_t loops = options_.loops;
         Options custom = options_;
         if (options_.min_time_sec > 0.0) {
@@ -367,12 +386,9 @@ public:
     // or a fixed count for slow ops like compilation). When --min-time is set,
     // calibration still runs but starts from `loops_override` as the minimum.
     template <typename Fn>
-    void run(
-        const std::string& name,
-        std::uint64_t loops_override,
-        Fn&& fn,
-        std::function<void()> post_calibrate = {}
-    ) {
+    void
+    run(const std::string &name, std::uint64_t loops_override, Fn &&fn, std::function<void()> post_calibrate = {})
+    {
         std::uint64_t loops = loops_override;
         Options custom = options_;
         custom.loops = loops_override;
@@ -388,18 +404,22 @@ public:
     }
 
     // Write all collected benchmarks to the output file (if -o was given).
-    void write() const {
+    void
+    write() const
+    {
         if (options_.output_path.empty() || entries_.empty())
             return;
         write_multi_pyperf_json(options_.output_path, entries_);
     }
 
-private:
+   private:
     Options options_;
     std::vector<BenchmarkEntry> entries_;
     std::function<void()> post_calibrate_;
 
-    std::function<void()> select_post_calibrate(const std::function<void()>& per_call) const {
+    std::function<void()>
+    select_post_calibrate(const std::function<void()> &per_call) const
+    {
         if (per_call) {
             return per_call;
         }
@@ -407,20 +427,19 @@ private:
     }
 
     template <typename Fn>
-    std::uint64_t calibrate_and_warn(
-        const std::string& name,
-        const Options& calib_opts,
-        Fn&& fn,
-        const std::function<void()>& post_calibrate
-    ) const {
+    std::uint64_t
+    calibrate_and_warn(
+        const std::string &name,
+        const Options &calib_opts,
+        Fn &&fn,
+        const std::function<void()> &post_calibrate
+    ) const
+    {
         bool capped = false;
         double last_elapsed = 0.0;
-        std::uint64_t loops = calibrate_loops(
-            calib_opts, std::forward<Fn>(fn), post_calibrate, &capped, &last_elapsed
-        );
+        std::uint64_t loops = calibrate_loops(calib_opts, std::forward<Fn>(fn), post_calibrate, &capped, &last_elapsed);
         if (capped) {
-            std::cerr << "WARNING: " << name
-                      << ": calibration hit --max-loops (" << calib_opts.max_loops
+            std::cerr << "WARNING: " << name << ": calibration hit --max-loops (" << calib_opts.max_loops
                       << ") before reaching --min-time (" << calib_opts.min_time_sec
                       << "s). Last sample: " << last_elapsed
                       << "s. Raise --max-loops to satisfy --min-time for this benchmark.\n";
@@ -428,10 +447,9 @@ private:
         return loops;
     }
 
-    static void write_multi_pyperf_json(
-        const std::string& output_path,
-        const std::vector<BenchmarkEntry>& entries
-    ) {
+    static void
+    write_multi_pyperf_json(const std::string &output_path, const std::vector<BenchmarkEntry> &entries)
+    {
         std::ofstream out(output_path);
         if (!out) {
             std::cerr << "Failed to open output file: " << output_path << '\n';
@@ -442,8 +460,9 @@ private:
         out << "{\"version\": \"1.0\", \"benchmarks\": [";
 
         for (std::size_t e = 0; e < entries.size(); ++e) {
-            const auto& entry = entries[e];
-            if (e > 0) out << ", ";
+            const auto &entry = entries[e];
+            if (e > 0)
+                out << ", ";
 
             out << "{\"metadata\": {";
             out << "\"name\": " << json_str(entry.name) << ", ";
@@ -452,8 +471,9 @@ private:
             out << "}, \"runs\": [";
 
             for (std::size_t r = 0; r < entry.results.size(); ++r) {
-                const auto& run = entry.results[r];
-                if (r > 0) out << ", ";
+                const auto &run = entry.results[r];
+                if (r > 0)
+                    out << ", ";
 
                 out << "{\"metadata\": {";
                 out << "\"date\": " << json_str(run.date) << ", ";
@@ -462,14 +482,16 @@ private:
 
                 out << "\"warmups\": [";
                 for (std::size_t w = 0; w < run.warmup_values.size(); ++w) {
-                    if (w > 0) out << ", ";
+                    if (w > 0)
+                        out << ", ";
                     out << "[" << entry.loops << ", " << run.warmup_values[w] << "]";
                 }
                 out << "], ";
 
                 out << "\"values\": [";
                 for (std::size_t v = 0; v < run.values.size(); ++v) {
-                    if (v > 0) out << ", ";
+                    if (v > 0)
+                        out << ", ";
                     out << run.values[v];
                 }
                 out << "]}";

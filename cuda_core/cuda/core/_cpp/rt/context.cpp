@@ -22,7 +22,9 @@ namespace {
 thread_local CUresult context_restore_fault = CUDA_SUCCESS;
 }  // namespace
 
-void set_context_restore_fault_for_testing(CUresult status) noexcept {
+void
+set_context_restore_fault_for_testing(CUresult status) noexcept
+{
     context_restore_fault = status;
 }
 
@@ -33,7 +35,9 @@ namespace detail {
 // invoke_in_context_or_undo reject empty handles before getting here; only
 // graph_node_set_params relies on the no-op (pre-13.2 node updates run in the
 // caller's context).
-CUresult enter_context(const ContextHandle& h_context, CUcontext* previous, int* changed) noexcept {
+CUresult
+enter_context(const ContextHandle &h_context, CUcontext *previous, int *changed) noexcept
+{
     *previous = nullptr;
     *changed = 0;
     clear_last_error_detail();
@@ -53,7 +57,9 @@ CUresult enter_context(const ContextHandle& h_context, CUcontext* previous, int*
 }
 
 // Restore the caller's context. Returns the restoration status.
-CUresult restore_context(CUcontext previous) noexcept {
+CUresult
+restore_context(CUcontext previous) noexcept
+{
     if (context_restore_fault != CUDA_SUCCESS) {
         // Test hook: behave as if cuCtxSetCurrent(previous) failed, leaving the
         // target context current exactly as a real failure would.
@@ -68,7 +74,9 @@ CUresult restore_context(CUcontext previous) noexcept {
 // operation error, if any, is returned; otherwise the restoration status is.
 // Either way a restoration failure is recorded as the detail of the returned
 // status, so the eventual CUDAError explains it (see take_last_error_detail()).
-CUresult exit_context(CUcontext previous, int changed, CUresult operation_status) noexcept {
+CUresult
+exit_context(CUcontext previous, int changed, CUresult operation_status) noexcept
+{
     CUresult restore_status = changed ? restore_context(previous) : CUDA_SUCCESS;
     if (restore_status == CUDA_SUCCESS) {
         return operation_status;
@@ -79,17 +87,17 @@ CUresult exit_context(CUcontext previous, int changed, CUresult operation_status
 }  // namespace detail
 
 // Synchronize the provided context.
-CUresult context_synchronize(const ContextHandle& h_context) noexcept {
+CUresult
+context_synchronize(const ContextHandle &h_context) noexcept
+{
     GILReleaseGuard gil;
-    return invoke_in_context(h_context, []() noexcept {
-        return DRIVER_FN(cuCtxSynchronize)();
-    });
+    return invoke_in_context(h_context, []() noexcept { return DRIVER_FN(cuCtxSynchronize)(); });
 }
 
 // Query the stream priority range for the provided context.
-CUresult context_get_stream_priority_range(const ContextHandle& h_context,
-                                           int* least_priority,
-                                           int* greatest_priority) noexcept {
+CUresult
+context_get_stream_priority_range(const ContextHandle &h_context, int *least_priority, int *greatest_priority) noexcept
+{
     GILReleaseGuard gil;
     return invoke_in_context(h_context, [&]() noexcept {
         return DRIVER_CALL(cuCtxGetStreamPriorityRange, least_priority, greatest_priority);
@@ -97,10 +105,10 @@ CUresult context_get_stream_priority_range(const ContextHandle& h_context,
 }
 
 // Query the device of the provided context.
-CUresult context_get_device(const ContextHandle& h_context, CUdevice* device) noexcept {
-    return invoke_in_context(h_context, [&]() noexcept {
-        return DRIVER_CALL(cuCtxGetDevice, device);
-    });
+CUresult
+context_get_device(const ContextHandle &h_context, CUdevice *device) noexcept
+{
+    return invoke_in_context(h_context, [&]() noexcept { return DRIVER_CALL(cuCtxGetDevice, device); });
 }
 
 // ============================================================================
@@ -117,42 +125,45 @@ struct GreenCtxBox {
     CUgreenCtx resource;
 };
 
-static const ContextBox* get_box(const ContextHandle& h) noexcept {
-    const CUcontext* p = h.get();
-    return reinterpret_cast<const ContextBox*>(
-        reinterpret_cast<const char*>(p) - offsetof(ContextBox, resource)
-    );
+static const ContextBox *
+get_box(const ContextHandle &h) noexcept
+{
+    const CUcontext *p = h.get();
+    return reinterpret_cast<const ContextBox *>(reinterpret_cast<const char *>(p) - offsetof(ContextBox, resource));
 }
 
 // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
 static HandleRegistry<CUcontext, ContextHandle> context_registry;
 
 // Create a context handle reference, with optional green context as source.
-ContextHandle create_context_handle_ref(CUcontext ctx, GreenCtxHandle h_green_ctx) {
+ContextHandle
+create_context_handle_ref(CUcontext ctx, GreenCtxHandle h_green_ctx)
+{
     if (!ctx) {
         return {};
     }
     if (auto h = context_registry.lookup(ctx)) {
         return h;
     }
-    auto box = std::shared_ptr<const ContextBox>(
-        new ContextBox{ctx, std::move(h_green_ctx)},
-        [](const ContextBox* b) {
-            context_registry.unregister_handle(b->resource);
-            delete b;
-        }
-    );
+    auto box = std::shared_ptr<const ContextBox>(new ContextBox{ctx, std::move(h_green_ctx)}, [](const ContextBox *b) {
+        context_registry.unregister_handle(b->resource);
+        delete b;
+    });
     ContextHandle h(box, &box->resource);
     context_registry.register_handle(ctx, h);
     return h;
 }
 }  // namespace
 
-ContextHandle create_context_handle_ref(CUcontext ctx) {
+ContextHandle
+create_context_handle_ref(CUcontext ctx)
+{
     return create_context_handle_ref(ctx, {});
 }
 
-ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green_ctx) {
+ContextHandle
+create_context_handle_from_green_ctx(const GreenCtxHandle &h_green_ctx)
+{
     GILReleaseGuard gil;
     if (!h_green_ctx) {
         return {};
@@ -165,15 +176,18 @@ ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green
     return create_context_handle_ref(ctx, h_green_ctx);
 }
 
-GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept {
+GreenCtxHandle
+get_context_green_ctx(const ContextHandle &h) noexcept
+{
     if (!h) {
         return {};
     }
     return get_box(h)->h_green_ctx;
 }
 
-GreenCtxHandle create_green_ctx_handle(CUdevResource* resources, unsigned int nbResources,
-                                       CUdevice dev, unsigned int flags) {
+GreenCtxHandle
+create_green_ctx_handle(CUdevResource *resources, unsigned int nbResources, CUdevice dev, unsigned int flags)
+{
     GILReleaseGuard gil;
     CUdevResourceDesc desc = nullptr;
     if (CUDA_SUCCESS != (err = DRIVER_CALL(cuDevResourceGenerateDesc, &desc, resources, nbResources))) {
@@ -185,18 +199,17 @@ GreenCtxHandle create_green_ctx_handle(CUdevResource* resources, unsigned int nb
         return {};
     }
 
-    auto box = std::shared_ptr<const GreenCtxBox>(
-        new GreenCtxBox{green_ctx},
-        [](const GreenCtxBox* b) {
-            GILReleaseGuard gil;
-            pw_cuGreenCtxDestroy(b->resource);
-            delete b;
-        }
-    );
+    auto box = std::shared_ptr<const GreenCtxBox>(new GreenCtxBox{green_ctx}, [](const GreenCtxBox *b) {
+        GILReleaseGuard gil;
+        pw_cuGreenCtxDestroy(b->resource);
+        delete b;
+    });
     return GreenCtxHandle(box, &box->resource);
 }
 
-GreenCtxHandle create_green_ctx_handle_ref(CUgreenCtx green_ctx) {
+GreenCtxHandle
+create_green_ctx_handle_ref(CUgreenCtx green_ctx)
+{
     if (!green_ctx) {
         return {};
     }
@@ -207,7 +220,9 @@ GreenCtxHandle create_green_ctx_handle_ref(CUgreenCtx green_ctx) {
 // Thread-local cache of primary contexts indexed by device ID
 static thread_local std::vector<ContextHandle> primary_context_cache;
 
-ContextHandle get_primary_context(int device_id) {
+ContextHandle
+get_primary_context(int device_id)
+{
     // Check thread-local cache
     if (static_cast<size_t>(device_id) < primary_context_cache.size()) {
         if (auto cached = primary_context_cache[device_id]) {
@@ -222,20 +237,17 @@ ContextHandle get_primary_context(int device_id) {
         return {};
     }
 
-    auto box = std::shared_ptr<const ContextBox>(
-        new ContextBox{ctx, {}},
-        [device_id](const ContextBox* b) {
-            context_registry.unregister_handle(b->resource);
-            // During interpreter shutdown, leave primary-context cleanup to
-            // process teardown. An unavailable table entry would need Python
-            // to report itself.
-            if (Py_IsInitialized() && !py_is_finalizing()) {
-                GILReleaseGuard gil;
-                DRIVER_CALL(cuDevicePrimaryCtxRelease, device_id);
-            }
-            delete b;
+    auto box = std::shared_ptr<const ContextBox>(new ContextBox{ctx, {}}, [device_id](const ContextBox *b) {
+        context_registry.unregister_handle(b->resource);
+        // During interpreter shutdown, leave primary-context cleanup to
+        // process teardown. An unavailable table entry would need Python
+        // to report itself.
+        if (Py_IsInitialized() && !py_is_finalizing()) {
+            GILReleaseGuard gil;
+            DRIVER_CALL(cuDevicePrimaryCtxRelease, device_id);
         }
-    );
+        delete b;
+    });
     auto h = ContextHandle(box, &box->resource);
     context_registry.register_handle(ctx, h);
 
@@ -247,7 +259,9 @@ ContextHandle get_primary_context(int device_id) {
     return h;
 }
 
-ContextHandle get_current_context() {
+ContextHandle
+get_current_context()
+{
     GILReleaseGuard gil;
     CUcontext ctx = nullptr;
     if (CUDA_SUCCESS != (err = DRIVER_CALL(cuCtxGetCurrent, &ctx))) {
