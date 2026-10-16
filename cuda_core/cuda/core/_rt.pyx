@@ -172,7 +172,7 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
     StreamHandle deallocation_stream "cuda_core::rt::deallocation_stream" (
         const DevicePtrHandle& h) noexcept nogil
     cydriver.CUresult set_deallocation_stream "cuda_core::rt::set_deallocation_stream" (
-        const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
+        const DevicePtrHandle& h, const StreamHandle& h_stream) except+ nogil
 
     # Virtual memory management (VMM_DESIGN.md)
     MemAllocationHandle create_mem_allocation_handle "cuda_core::rt::create_mem_allocation_handle" (

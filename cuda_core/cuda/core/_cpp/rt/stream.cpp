@@ -189,9 +189,11 @@ StreamHandle create_context_bound_legacy_stream(const ContextHandle& h_context) 
 namespace detail {
 // Real streams are copied unchanged. Default-stream tokens without an embedded
 // context are bound to the current context. Returns false (and sets err) when a
-// default-stream token cannot be bound because no context is current.
+// default-stream token cannot be bound because no context is current. Binding
+// a default-stream token allocates (the bound StreamBox and the current-context
+// handle), so this may throw std::bad_alloc and must not be noexcept.
 bool make_deallocation_stream(
-        const StreamHandle& h, DeallocationStream& out) noexcept {
+        const StreamHandle& h, DeallocationStream& out) {
     out = {};
     if (!h) {
         return true;

@@ -59,8 +59,9 @@ struct DeallocationStream {
 
 // Implemented in stream.cpp
 ContextHandle deallocation_context(const DeallocationStream& stream) noexcept;
-// Implemented in stream.cpp
-bool make_deallocation_stream(const StreamHandle& h, DeallocationStream& out) noexcept;
+// Implemented in stream.cpp. Not noexcept: binding a default-stream token
+// allocates. May throw std::bad_alloc.
+bool make_deallocation_stream(const StreamHandle& h, DeallocationStream& out);
 
 // Implemented in virtual_memory.cpp. Synchronize the stream a VMM buffer
 // recorded before its mappings are released. Skips the sync, with a report
