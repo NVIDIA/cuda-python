@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.InsufficientPowerError
+=========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: InsufficientPowerError

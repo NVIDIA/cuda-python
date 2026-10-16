@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_gsp\_firmware\_mode
+===================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_gsp_firmware_mode
