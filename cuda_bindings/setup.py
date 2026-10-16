@@ -10,6 +10,8 @@ from setuptools import setup
 from setuptools.command.build_ext import build_ext as _build_ext
 from setuptools.command.build_py import build_py as _build_py
 
+from _build_shared import drop_empty_venv_include_dir
+
 if os.environ.get("PARALLEL_LEVEL") is not None:
     warn(
         "Environment variable PARALLEL_LEVEL is deprecated. Use CUDA_PYTHON_PARALLEL_LEVEL instead",
@@ -24,6 +26,12 @@ coverage_mode = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
 
 class build_ext(_build_ext):
+    def finalize_options(self):
+        super().finalize_options()
+        # A per-build venv path on every -I line defeats sccache's
+        # preprocessor cache; see _build_shared.drop_empty_venv_include_dir().
+        self.include_dirs = drop_empty_venv_include_dir(self.include_dirs)
+
     def build_extensions(self):
         if nthreads > 0:
             self.parallel = nthreads

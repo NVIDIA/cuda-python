@@ -470,6 +470,46 @@ class BuildKeyStampMixin:
         assert stamp_file.read_text(encoding="utf-8") == "cu13-gnu-opt\n"
 
 
+class DropEmptyVenvIncludeDirMixin:
+    """``drop_empty_venv_include_dir``: remove the venv include dir only when it holds no files."""
+
+    build_shared = None
+
+    @pytest.fixture
+    def venv(self, tmp_path, monkeypatch):
+        venv = tmp_path / "build-env-abc123"
+        monkeypatch.setattr(sys, "exec_prefix", str(venv))
+        monkeypatch.setattr(sys, "base_exec_prefix", str(tmp_path / "python"))
+        return venv
+
+    @pytest.mark.agent_authored(model="claude-opus-5.5")
+    def test_outside_a_venv_returns_the_list_unchanged(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(sys, "exec_prefix", str(tmp_path))
+        monkeypatch.setattr(sys, "base_exec_prefix", str(tmp_path))
+        dirs = ["/opt/cuda/include", os.path.join(str(tmp_path), "include")]
+        assert self.build_shared.drop_empty_venv_include_dir(dirs) == dirs
+
+    @pytest.mark.agent_authored(model="claude-opus-5.5")
+    def test_missing_venv_include_dir_is_dropped(self, venv):
+        venv_include = os.path.join(str(venv), "include")
+        dirs = ["/opt/cuda/include", venv_include, "/usr/include/python3"]
+        assert self.build_shared.drop_empty_venv_include_dir(dirs) == ["/opt/cuda/include", "/usr/include/python3"]
+
+    @pytest.mark.agent_authored(model="claude-opus-5.5")
+    def test_venv_include_dir_with_only_empty_subdirs_is_dropped(self, venv):
+        (venv / "include" / "site" / "python3.14").mkdir(parents=True)
+        dirs = ["/opt/cuda/include", os.path.join(str(venv), "include")]
+        assert self.build_shared.drop_empty_venv_include_dir(dirs) == ["/opt/cuda/include"]
+
+    @pytest.mark.agent_authored(model="claude-opus-5.5")
+    def test_venv_include_dir_with_a_header_is_kept(self, venv):
+        header_dir = venv / "include" / "site" / "python3.14" / "greenlet"
+        header_dir.mkdir(parents=True)
+        (header_dir / "greenlet.h").write_text("", encoding="utf-8")
+        dirs = ["/opt/cuda/include", os.path.join(str(venv), "include")]
+        assert self.build_shared.drop_empty_venv_include_dir(dirs) == dirs
+
+
 class ForceBuildExtReexportMixin:
     """``build_hooks.force_build_ext`` is a live view of ``build_shared.force_build_ext``.
 
