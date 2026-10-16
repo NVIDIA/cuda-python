@@ -1,7 +1,15 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Run the native Lychee installed in this Python environment."""
+"""Run pre-commit's pinned native Lychee executable.
+
+The upstream Lychee hook uses a shell launcher, which requires a compatible
+shell on Windows. We configure a Python hook so pre-commit installs the pinned
+lychee-bin wheel in an isolated environment. This wrapper runs that
+environment's native executable, passing through arguments and returning
+its exit status. The same hook works on Linux and in Windows shells such as
+PowerShell, cmd, and Git Bash.
+"""
 
 from __future__ import annotations
 
@@ -12,7 +20,7 @@ from pathlib import Path
 
 
 def main(arguments: list[str] | None = None) -> int:
-    # Use this Python environment's installation, independent of PATH and the working directory.
+    # Resolve the executable from this hook's environment to honor the pin.
     executable = Path(sysconfig.get_path("scripts")) / ("lychee.exe" if sys.platform == "win32" else "lychee")
     if not executable.is_file():
         raise SystemExit(
