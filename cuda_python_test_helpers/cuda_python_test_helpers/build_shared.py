@@ -509,6 +509,31 @@ class DropEmptyVenvIncludeDirMixin:
         dirs = ["/opt/cuda/include", os.path.join(str(venv), "include")]
         assert self.build_shared.drop_empty_venv_include_dir(dirs) == dirs
 
+    @pytest.mark.agent_authored(model="claude-sonnet-5.5")
+    def test_venv_include_dir_with_a_header_behind_a_symlinked_dir_is_kept(self, venv, tmp_path):
+        vendor = tmp_path / "vendor-headers"
+        vendor.mkdir()
+        (vendor / "config.h").write_text("", encoding="utf-8")
+        (venv / "include").mkdir(parents=True)
+        try:
+            (venv / "include" / "vendor").symlink_to(vendor, target_is_directory=True)
+        except OSError as exc:  # e.g. Windows without symlink privilege
+            pytest.skip(f"cannot create symlinks: {exc}")
+        dirs = ["/opt/cuda/include", os.path.join(str(venv), "include")]
+        assert self.build_shared.drop_empty_venv_include_dir(dirs) == dirs
+
+    @pytest.mark.agent_authored(model="claude-sonnet-5.5")
+    def test_venv_include_dir_with_a_symlink_to_an_empty_dir_is_dropped(self, venv, tmp_path):
+        empty = tmp_path / "empty-headers"
+        empty.mkdir()
+        (venv / "include").mkdir(parents=True)
+        try:
+            (venv / "include" / "vendor").symlink_to(empty, target_is_directory=True)
+        except OSError as exc:  # e.g. Windows without symlink privilege
+            pytest.skip(f"cannot create symlinks: {exc}")
+        dirs = ["/opt/cuda/include", os.path.join(str(venv), "include")]
+        assert self.build_shared.drop_empty_venv_include_dir(dirs) == ["/opt/cuda/include"]
+
 
 class ForceBuildExtReexportMixin:
     """``build_hooks.force_build_ext`` is a live view of ``build_shared.force_build_ext``.

@@ -443,11 +443,14 @@ def drop_empty_venv_include_dir(include_dirs):
     and compiler caches that key on the command line (sccache's preprocessor
     cache) never hit. A directory without files contributes no headers, so
     dropping it leaves the compilation unchanged.
+
+    Symlinked subdirectories are followed: headers reachable through them
+    still count as files.
     """
     if sys.exec_prefix == sys.base_exec_prefix:
         return include_dirs
     venv_include = os.path.join(sys.exec_prefix, "include")
-    if any(files for _, _, files in os.walk(venv_include)):
+    if any(files for _, _, files in os.walk(venv_include, followlinks=True)):
         return include_dirs
     return [d for d in include_dirs if d != venv_include]
 
