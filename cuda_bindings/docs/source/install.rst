@@ -137,7 +137,7 @@ must include tags reaching back to at least the latest ``v*`` tag. Do not use
 ``--depth`` or ``--no-tags``: a clone without reachable tags can build with a
 bogus version such as ``0.1.dev1+g0d22cb444``. See `Cloning the repository
 <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#cloning-the-repository>`_
-for details and recovery steps.
+for details.
 
 Source builds require that the provided CUDA headers are of the same major.minor version as the ``cuda.bindings`` you're trying to build. Despite this requirement, note that the minor version compatibility is still maintained. The build checks the header before it compiles anything. A mismatch stops the build with a message that names the ``cuda.h`` it found and the version this source tree needs. Use the ``CUDA_PATH`` (or ``CUDA_HOME``) environment variable to specify the location of your headers. If both are set, ``CUDA_PATH`` takes precedence. For example, if your headers are located in ``/usr/local/cuda/include``, then you should set ``CUDA_PATH`` with:
 

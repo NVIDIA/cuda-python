@@ -22,7 +22,6 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
   - [Cloning the repository](#cloning-the-repository)
     - [Recommended clone](#recommended-clone)
     - [Updating your clone](#updating-your-clone)
-    - [Fixing an existing clone](#fixing-an-existing-clone)
     - [Why the clone matters](#why-the-clone-matters)
     - [Symptoms of a bad clone](#symptoms-of-a-bad-clone)
   - [Development on Windows](#development-on-windows)
@@ -88,66 +87,11 @@ The recommended clone configures `submodule.recurse=true`, so you can omit
 `--recurse-submodules` from `git pull`. The second command initializes any
 newly added submodules; it is usually a no-op.
 
-### Fixing an existing clone
-
-Run the following commands from the repository root, choosing the steps that
-apply to your checkout.
-
-To keep initialized submodules in sync automatically:
+If you work from a fork, periodically fetch release tags from NVIDIA upstream
+so package versions stay current:
 
 ```console
-$ git config --local submodule.recurse true
-```
-
-If you cloned without submodules:
-
-```console
-$ git submodule update --init cuda_core/third_party/cccl
-```
-
-If you have a shallow clone:
-
-```console
-$ git fetch --unshallow --tags
-```
-
-If you cloned with `--no-tags`, enable tag fetching and fetch the missing tags:
-
-```console
-$ git config --local remote.origin.tagOpt --tags
-$ git fetch --tags origin
-```
-
-On native Windows, if Git checked out symlinks as plain text or reported
-`unable to create symlink ...: Permission denied`, first complete the
-[Windows symlink setup](#enabling-git-symlinks).
-
-If you cloned with `core.symlinks=false`, changing the setting does not
-replace the plain text files already checked out. To restore the shared build
-helper from `HEAD`, preserve any local changes to that file first, then run:
-
-```console
-$ git config --local core.symlinks true
-$ git rm --cached cuda_core/_build_shared.py
-$ git checkout HEAD -- cuda_core/_build_shared.py
-```
-
-Alternatively, start a fresh checkout using [Recommended clone](#recommended-clone)
-after completing the Windows setup. This materializes all tracked symlinks in
-the repository. Documentation and metadata links may remain plain text without
-affecting source builds or tests; the shared build helper must be materialized.
-
-If you use a personal fork, fetch release tags from upstream to keep package
-versions current. Add the remote once, unless it already exists:
-
-```console
-$ git remote add upstream https://github.com/NVIDIA/cuda-python.git
-```
-
-Then fetch tags, and repeat periodically as new releases are cut:
-
-```console
-$ git fetch --tags upstream
+$ git fetch --tags https://github.com/NVIDIA/cuda-python.git
 ```
 
 ### Why the clone matters
