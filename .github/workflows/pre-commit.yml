@@ -51,10 +51,11 @@ jobs:
         if: runner.os == 'Windows'
         run: git config --global core.symlinks true
 
+      # PR workflows run from the merge revision; check out that same revision
+      # so their helper scripts and configuration stay in sync.
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
           persist-credentials: false
 
