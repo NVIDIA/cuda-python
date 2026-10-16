@@ -15,11 +15,14 @@
 namespace cuda_core::rt::detail {
 
 // Implemented in context.cpp
-CUresult enter_context(const ContextHandle& h_context, CUcontext* previous, int* changed) noexcept;
+CUresult
+enter_context(const ContextHandle &h_context, CUcontext *previous, int *changed) noexcept;
 // Implemented in context.cpp
-CUresult restore_context(CUcontext previous) noexcept;
+CUresult
+restore_context(CUcontext previous) noexcept;
 // Implemented in context.cpp
-CUresult exit_context(CUcontext previous, int changed, CUresult operation_status) noexcept;
+CUresult
+exit_context(CUcontext previous, int changed, CUresult operation_status) noexcept;
 
 // Require a callable to be invocable without throwing.
 #define ASSERT_NOTHROW_INVOCABLE(...) \
@@ -27,8 +30,10 @@ CUresult exit_context(CUcontext previous, int changed, CUresult operation_status
 
 // Run an operation with the requested context current.
 template <typename Fn, typename... Args>
-CUresult invoke_in_context(const ContextHandle& h_context, Fn&& operation, Args&&... args) noexcept {
-    ASSERT_NOTHROW_INVOCABLE(Fn&&, Args&&...);
+CUresult
+invoke_in_context(const ContextHandle &h_context, Fn &&operation, Args &&...args) noexcept
+{
+    ASSERT_NOTHROW_INVOCABLE(Fn &&, Args && ...);
     if (!h_context) {
         return CUDA_ERROR_INVALID_CONTEXT;
     }
@@ -46,10 +51,16 @@ CUresult invoke_in_context(const ContextHandle& h_context, Fn&& operation, Args&
 // after verifying that the target context remains current; otherwise the
 // resource leaks rather than risking cleanup in the wrong context.
 template <typename Fn, typename Undo>
-CUresult invoke_in_context_or_undo(const ContextHandle& h_context, Fn&& operation,
-                                   Undo&& undo, bool undo_requires_target_context) noexcept {
-    ASSERT_NOTHROW_INVOCABLE(Fn&&);
-    ASSERT_NOTHROW_INVOCABLE(Undo&&);
+CUresult
+invoke_in_context_or_undo(
+    const ContextHandle &h_context,
+    Fn &&operation,
+    Undo &&undo,
+    bool undo_requires_target_context
+) noexcept
+{
+    ASSERT_NOTHROW_INVOCABLE(Fn &&);
+    ASSERT_NOTHROW_INVOCABLE(Undo &&);
     if (!h_context) {
         return CUDA_ERROR_INVALID_CONTEXT;
     }
@@ -65,16 +76,18 @@ CUresult invoke_in_context_or_undo(const ContextHandle& h_context, Fn&& operatio
         bool undo_ok = true;
         if (undo_requires_target_context) {
             CUcontext current = nullptr;
-            undo_ok = DRIVER_CALL(cuCtxGetCurrent, &current) == CUDA_SUCCESS
-                      && current == as_cu(h_context);
+            undo_ok = DRIVER_CALL(cuCtxGetCurrent, &current) == CUDA_SUCCESS && current == as_cu(h_context);
         }
         if (undo_ok) {
             std::invoke(std::forward<Undo>(undo));
-        } else {
+        }
+        else {
             report_cuda_error(
-                "cuCtxSetCurrent (restoring the caller's context)", composite,
+                "cuCtxSetCurrent (restoring the caller's context)",
+                composite,
                 "failed; cleanup of the new resource skipped because its context "
-                "is no longer current (resource leaked)");
+                "is no longer current (resource leaked)"
+            );
         }
     }
     return composite;
@@ -90,18 +103,25 @@ CUresult invoke_in_context_or_undo(const ContextHandle& h_context, Fn&& operatio
 // outcome; pass a hook that unlocks it. Returns the operation or activation
 // status; restoration never changes it.
 template <typename Fn, typename AfterCleanup>
-CUresult cleanup_in_context(const ContextHandle& h_context, const char* name,
-                            unsigned long long handle, Fn&& operation,
-                            AfterCleanup&& after_cleanup) noexcept {
-    ASSERT_NOTHROW_INVOCABLE(Fn&&);
-    ASSERT_NOTHROW_INVOCABLE(AfterCleanup&&);
+CUresult
+cleanup_in_context(
+    const ContextHandle &h_context,
+    const char *name,
+    unsigned long long handle,
+    Fn &&operation,
+    AfterCleanup &&after_cleanup
+) noexcept
+{
+    ASSERT_NOTHROW_INVOCABLE(Fn &&);
+    ASSERT_NOTHROW_INVOCABLE(AfterCleanup &&);
     CUcontext previous = nullptr;
     int changed = 0;
-    const char* detail = nullptr;
+    const char *detail = nullptr;
     CUresult status = enter_context(h_context, &previous, &changed);
     if (status != CUDA_SUCCESS) {
         detail = "skipped (context activation failed; resource leaked)";
-    } else {
+    }
+    else {
         status = std::invoke(std::forward<Fn>(operation));
     }
     CUresult restore = exit_context(previous, changed, CUDA_SUCCESS);
@@ -126,10 +146,11 @@ CUresult cleanup_in_context(const ContextHandle& h_context, const char* name,
 
 // Same, with nothing to do after the cleanup.
 template <typename Fn>
-CUresult cleanup_in_context(const ContextHandle& h_context, const char* name,
-                            unsigned long long handle, Fn&& operation) noexcept {
-    return cleanup_in_context(h_context, name, handle, std::forward<Fn>(operation),
-                              []() noexcept {});
+CUresult
+cleanup_in_context(const ContextHandle &h_context, const char *name, unsigned long long handle, Fn &&operation) noexcept
+{
+    return cleanup_in_context(h_context, name, handle, std::forward<Fn>(operation), []() noexcept {
+    });
 }
 
 #undef ASSERT_NOTHROW_INVOCABLE

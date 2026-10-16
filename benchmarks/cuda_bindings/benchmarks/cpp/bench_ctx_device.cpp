@@ -9,18 +9,20 @@
 #include <cstdlib>
 #include <iostream>
 
-
-static void check_cu(CUresult status, const char* message) {
+static void
+check_cu(CUresult status, const char *message)
+{
     if (status != CUDA_SUCCESS) {
-        const char* error_name = nullptr;
+        const char *error_name = nullptr;
         cuGetErrorName(status, &error_name);
         std::cerr << message << ": " << (error_name ? error_name : "unknown") << '\n';
         std::exit(1);
     }
 }
 
-
-int main(int argc, char** argv) {
+int
+main(int argc, char **argv)
+{
     bench::Options options = bench::parse_args(argc, argv);
 
     // Setup: init CUDA and create a context
@@ -80,10 +82,7 @@ int main(int argc, char** argv) {
     // --- device_primary_ctx_retain ---
     // Outer retain so the benchmarked retain/release pair just bumps the refcount.
     CUcontext primary_outer = nullptr;
-    check_cu(
-        cuDevicePrimaryCtxRetain(&primary_outer, device),
-        "cuDevicePrimaryCtxRetain (setup) failed"
-    );
+    check_cu(cuDevicePrimaryCtxRetain(&primary_outer, device), "cuDevicePrimaryCtxRetain (setup) failed");
     {
         CUcontext primary = nullptr;
         suite.run("ctx_device.device_primary_ctx_retain", [&]() {
@@ -91,10 +90,7 @@ int main(int argc, char** argv) {
             check_cu(cuDevicePrimaryCtxRelease(device), "cuDevicePrimaryCtxRelease failed");
         });
     }
-    check_cu(
-        cuDevicePrimaryCtxRelease(device),
-        "cuDevicePrimaryCtxRelease (teardown) failed"
-    );
+    check_cu(cuDevicePrimaryCtxRelease(device), "cuDevicePrimaryCtxRelease (teardown) failed");
 
     // Cleanup
     check_cu(cuCtxDestroy(ctx), "cuCtxDestroy failed");
