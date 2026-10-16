@@ -549,10 +549,10 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
                             "cuMemFreeAsync",
                             handle_bits(b->resource),
                             [&]() noexcept {
-                                return p_cuMemFreeAsync(
+                                return p_cuMemFreeAsync(  // raw: under ipc_import_mutex
                                     b->resource,
                                     as_cu(stream.h_stream)
-                                );  // raw: under ipc_import_mutex
+                                );
                             },
                             [&]() noexcept { lock.unlock(); }
                         );
