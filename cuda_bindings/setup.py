@@ -37,7 +37,9 @@ class build_ext(_build_ext):
         # library_dirs into the generated sources, and under build isolation
         # sys.prefix is a fresh /tmp/build-env-<random> per build, which
         # defeats sccache's preprocessor cache.
-        self.library_dirs.append(os.path.join(sys.prefix, "lib"))
+        prefix_lib = os.path.join(sys.prefix, "lib")
+        if prefix_lib not in self.library_dirs:
+            self.library_dirs.append(prefix_lib)
 
     def build_extensions(self):
         if nthreads > 0:
