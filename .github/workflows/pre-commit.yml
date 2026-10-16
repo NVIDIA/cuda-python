@@ -88,6 +88,13 @@ jobs:
       - name: Run pre-commit
         run: pre-commit run --all-files --show-diff-on-failure
 
+      # Keep this offline hook smoke check before network-dependent Lychee steps,
+      # so hook setup and invocation failures surface before link-check retries.
+      - name: Smoke-test the configured Lychee hook offline
+        env:
+          PYTHONUTF8: "1"
+        run: python ci/tools/smoke_test_lychee_precommit.py
+
       - name: Save pre-commit cache
         # Only the default branch saves, so per-PR merge refs don't store their
         # own duplicate copies. !cancelled() keeps a push that fails lint from
