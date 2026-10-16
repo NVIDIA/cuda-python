@@ -18,6 +18,17 @@ import sys
 import sysconfig
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def repo_link_remaps(root: Path = ROOT) -> list[str]:
+    """Apply the same URL-prefix boundaries as the dedicated CI link check."""
+    local_prefix = root.resolve().as_uri() + "/"
+    arguments = []
+    for view in ("blob", "tree"):
+        arguments.extend(["--remap", f"^https://github[.]com/NVIDIA/cuda-python/{view}/main/ {local_prefix}"])
+    return arguments
+
 
 def main(arguments: list[str] | None = None) -> int:
     # Resolve the executable from this hook's environment to honor the pin.
@@ -27,7 +38,7 @@ def main(arguments: list[str] | None = None) -> int:
             f"lychee was not found at {executable}; run this script through the configured pre-commit hook"
         )
     arguments = sys.argv[1:] if arguments is None else arguments
-    return subprocess.run([str(executable), *arguments], check=False).returncode  # noqa: S603
+    return subprocess.run([str(executable), *repo_link_remaps(), *arguments], check=False).returncode  # noqa: S603
 
 
 if __name__ == "__main__":

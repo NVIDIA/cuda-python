@@ -43,6 +43,7 @@ jobs:
     env:
       # Full-CI docs builds and nightly check links. The installation reminder
       # is for developer machines; CI does not install a Git commit hook.
+      # A separate bounded check below exercises Lychee with local fixtures.
       SKIP: lychee,check-precommit-installed
       # Minor version used by setup-python and as the cache restore-key prefix.
       PYTHON_VERSION: "3.14"
@@ -139,6 +140,15 @@ jobs:
 
       - name: Run pre-commit
         run: pre-commit run --all-files --show-diff-on-failure
+
+      # Full link scans generate external network traffic and need cache and
+      # retry handling; documentation CI provides that. These local fixtures
+      # keep per-PR coverage focused on the installed hook on each platform.
+      - name: Exercise the configured Lychee hook with local fixtures
+        env:
+          SKIP: check-precommit-installed
+          PYTHONUTF8: "1"
+        run: python ci/tools/test_lychee_precommit.py
 
       - name: Save pre-commit cache
         # Only the default branch saves, so per-PR merge refs don't store their
