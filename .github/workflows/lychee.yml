@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Build documentation nightly and warm the link cache, reporting unresolved links
-# as warnings. Full PR CI reuses successful checks in build-docs.yml.
-# Ordinary PR updates run pre-commit without Lychee and do not build docs here.
+# Warm authored and rendered link caches through the configured pre-commit
+# hooks. Ordinary PRs reuse authored results; full docs CI reuses rendered
+# results. Nightly starts afresh and reports unresolved links as warnings.
 
 name: "CI: Documentation links"
 
@@ -50,6 +50,8 @@ jobs:
       fail-fast: false
       matrix:
         kind: [authored, rendered]
+    env:
+      PYTHONUTF8: "1"
     steps:
       - name: Checkout checked revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -62,9 +64,25 @@ jobs:
           submodules: ${{ matrix.kind == 'rendered' }}
 
       - name: Set up Python
+        id: python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.14"
+
+      - name: Set link-check cache locations
+        run: |
+          echo "PRE_COMMIT_HOME=${RUNNER_TEMP}/pre-commit" >> "${GITHUB_ENV}"
+          echo "LYCHEE_CACHE_DIR=${RUNNER_TEMP}/lychee-rendered" >> "${GITHUB_ENV}"
+
+      - name: Restore pre-commit environments
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ${{ env.PRE_COMMIT_HOME }}
+          key: pre-commit-${{ runner.os }}-py${{ steps.python.outputs.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: pre-commit-${{ runner.os }}-py3.14
+
+      - name: Install pre-commit
+        run: python -m pip install pre-commit
 
       - name: Setup pixi
         if: ${{ matrix.kind == 'rendered' }}
@@ -74,9 +92,42 @@ jobs:
         if: ${{ matrix.kind == 'rendered' }}
         run: pixi run --manifest-path cuda_core/pixi.toml -e docs docs-build-all-latest
 
-      - name: Check documentation links
-        uses: ./.github/actions/check-doc-links
+      - name: Describe the link cache
+        id: lychee-cache
+        run: python ci/tools/lychee_cache.py "${{ matrix.kind }}" --github-output "${GITHUB_OUTPUT}"
+
+      - name: Restore successful link checks
+        # Refresh mode deliberately skips yesterday's URL results.
+        if: ${{ !inputs.refresh-cache }}
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
-          kind: ${{ matrix.kind }}
-          refresh-cache: ${{ inputs.refresh-cache || false }}
-          failure-policy: ${{ inputs.refresh-cache && 'cache-warm' || 'check' }}
+          path: ${{ steps.lychee-cache.outputs.path }}
+          key: ${{ steps.lychee-cache.outputs.key }}
+          restore-keys: ${{ steps.lychee-cache.outputs.prefix }}
+          enableCrossOsArchive: true
+
+      - name: Check documentation links through pre-commit
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python ci/tools/run_lychee_precommit.py "${{ matrix.kind }}"
+          --policy "${{ inputs.refresh-cache && 'cache-warm' || 'check' }}"
+          --max-attempts 3
+          --report "${RUNNER_TEMP}/lychee-reports/lychee-${{ matrix.kind }}.json"
+
+      - name: Publish fresh successful link checks
+        if: ${{ !cancelled() && inputs.refresh-cache && steps.lychee-cache.outputs.key != '' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ${{ steps.lychee-cache.outputs.path }}
+          key: ${{ steps.lychee-cache.outputs.key }}
+          enableCrossOsArchive: true
+
+      - name: Upload link-check reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: lychee-${{ matrix.kind }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/lychee-reports/
+          if-no-files-found: ignore
+          retention-days: 7
