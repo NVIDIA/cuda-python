@@ -284,12 +284,14 @@ def _build_cuda_bindings(debug=False):
     include_dirs = [
         os.path.dirname(sysconfig.get_path("include")),
     ] + include_path_list
-    library_dirs = [sysconfig.get_path("platlib"), os.path.join(os.sys.prefix, "lib")]
+    # Keep build-environment paths out of the Extensions: Cython copies their
+    # library_dirs into the generated sources. setup.py's build_ext adds
+    # <sys.prefix>/lib instead.
     if sys.platform == "win32":
         cudalib_subdirs = [r"lib\arm64"] if sysconfig.get_platform() == "win-arm64" else [r"lib\x64"]
     else:
         cudalib_subdirs = ["lib64", "lib"]
-    library_dirs.extend(os.path.join(cuda_path, subdir) for subdir in cudalib_subdirs)
+    library_dirs = [os.path.join(cuda_path, subdir) for subdir in cudalib_subdirs]
 
     # Rename architecture-specific files
     dst_files = _rename_architecture_specific_files()

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import sys
 from warnings import warn
 
 import build_hooks
@@ -31,6 +32,12 @@ class build_ext(_build_ext):
         # A per-build venv path on every -I line defeats sccache's
         # preprocessor cache; see _build_shared.drop_empty_venv_include_dir().
         self.include_dirs = drop_empty_venv_include_dir(self.include_dirs)
+        # A conda environment can provide libcudart_static.a in <prefix>/lib.
+        # Added here rather than to the Extensions: Cython copies Extension
+        # library_dirs into the generated sources, and under build isolation
+        # sys.prefix is a fresh /tmp/build-env-<random> per build, which
+        # defeats sccache's preprocessor cache.
+        self.library_dirs.append(os.path.join(sys.prefix, "lib"))
 
     def build_extensions(self):
         if nthreads > 0:
