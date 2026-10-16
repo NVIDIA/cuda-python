@@ -39,7 +39,7 @@ cdef class SystemEvent:
     """
     cdef object _event_data
 
-    def __init__(self, event_data: nvml.SystemEventData_v1):
+    def __init__(self, event_data not None: nvml.SystemEventData_v1):
         assert len(event_data) == 1
         self._event_data = event_data
 
@@ -71,13 +71,13 @@ cdef class SystemEvents:
     """
     cdef object _event_data
 
-    def __init__(self, event_data: nvml.SystemEventData_v1):
+    def __init__(self, event_data not None: nvml.SystemEventData_v1):
         self._event_data = event_data
 
     def __len__(self) -> int:
         return len(self._event_data)
 
-    def __getitem__(self, idx: int) -> SystemEvent:
+    def __getitem__(self, Py_ssize_t idx) -> SystemEvent:
         """
         Get the :obj:`~_system_events.SystemEvent` at the specified index.
         """

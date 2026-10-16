@@ -706,7 +706,10 @@ def test_cuda_launch_host_func_graph_replay():
     err, stream = cuda.cuStreamCreate(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
     try:
-        (err,) = cuda.cuStreamBeginCapture(stream, cuda.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_GLOBAL)
+        # Thread-local mode: pytest-run-parallel runs this test in several threads
+        # at once, and in global mode a call such as cuGraphInstantiate in one
+        # thread fails while another thread is capturing.
+        (err,) = cuda.cuStreamBeginCapture(stream, cuda.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_THREAD_LOCAL)
         assert err == cuda.CUresult.CUDA_SUCCESS
         (err,) = cuda.cuLaunchHostFunc(stream, callback, ctypes.addressof(counter))
         assert err == cuda.CUresult.CUDA_SUCCESS

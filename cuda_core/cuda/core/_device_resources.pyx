@@ -475,7 +475,7 @@ cdef class SMResource:
 
     def split(
         self,
-        options: SMResourceOptions,
+        SMResourceOptions options not None: SMResourceOptions,
         *,
         bint dry_run=False
     ) -> tuple[list[SMResource], SMResource]:
@@ -587,7 +587,7 @@ cdef class WorkqueueResource:
                 "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
             )
 
-    def configure(self, options: WorkqueueResourceOptions) -> None:
+    def configure(self, WorkqueueResourceOptions options not None: WorkqueueResourceOptions) -> None:
         """Configure the workqueue resource in place.
 
         Parameters

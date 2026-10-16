@@ -46,6 +46,24 @@ def test_conditional_rejects_non_condition(init_cuda, method, args):
         getattr(g, method)(*args)
 
 
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+@pytest.mark.parametrize("none_arg", ["config", "kernel"])
+@pytest.mark.parametrize("target", ["GraphDefinition", "GraphNode"])
+def test_launch_rejects_none(init_cuda, target, none_arg):
+    """launch() on a graph or node rejects None for config and kernel."""
+    kernel = compile_common_kernels().get_kernel("add_one")
+    g = GraphDefinition()
+    if target == "GraphDefinition":
+        owner = g
+    else:
+        owner = g.empty()
+    args = {"config": LaunchConfig(grid=1, block=1), "kernel": kernel}
+    args[none_arg] = None
+
+    with pytest.raises(TypeError):
+        owner.launch(args["config"], args["kernel"])
+
+
 def test_embed_rejects_non_graphdef(init_cuda):
     """embed() rejects non-GraphDefinition arguments."""
     g = GraphDefinition()

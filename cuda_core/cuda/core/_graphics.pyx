@@ -223,7 +223,7 @@ cdef class GraphicsResource:
             return None
         return self._mapped_buffer
 
-    def map(self, *, stream: Stream) -> Buffer:
+    def map(self, *, Stream stream not None: Stream) -> Buffer:
         """Map this graphics resource for CUDA access.
 
         After mapping, a CUDA device pointer into the underlying graphics

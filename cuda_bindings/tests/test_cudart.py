@@ -616,7 +616,10 @@ def test_cudart_cudaStreamGetCaptureInfo():
     assert status == cudart.cudaStreamCaptureStatus.cudaStreamCaptureStatusNone
 
     # start capture
-    (err,) = cudart.cudaStreamBeginCapture(stream, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeGlobal)
+    # Thread-local mode: pytest-run-parallel runs this test in several threads
+    # at once, and in global mode a call such as cudaGraphInstantiate in one
+    # thread fails while another thread is capturing.
+    (err,) = cudart.cudaStreamBeginCapture(stream, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeThreadLocal)
     assertSuccess(err)
 
     # validate that stream is capturing now
@@ -1469,7 +1472,10 @@ def test_cudart_host_func_graph_replay():
     err, stream = cudart.cudaStreamCreate()
     assertSuccess(err)
     try:
-        (err,) = cudart.cudaStreamBeginCapture(stream, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeGlobal)
+        # Thread-local mode: pytest-run-parallel runs this test in several threads
+        # at once, and in global mode a call such as cudaGraphInstantiate in one
+        # thread fails while another thread is capturing.
+        (err,) = cudart.cudaStreamBeginCapture(stream, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeThreadLocal)
         assertSuccess(err)
         (err,) = cudart.cudaLaunchHostFunc(stream, callback, ctypes.addressof(counter))
         assertSuccess(err)
