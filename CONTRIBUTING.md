@@ -207,9 +207,8 @@ all links restored.
 ### Lychee on Windows
 
 The `lychee` pre-commit hook runs through Python and installs the native
-`lychee-bin==0.24.2` wheel in its own environment. It has no Git Bash
-dependency; use the same `pre-commit run --all-files` command from PowerShell,
-cmd, or Git Bash.
+`lychee-bin==0.24.2` wheel in its own environment. Invoke
+`pre-commit run --all-files` the same way from PowerShell, cmd, or Git Bash.
 
 The Linux and Windows CI jobs exercise the installed hook against local
 fixtures, including paths containing spaces and missing targets. The full

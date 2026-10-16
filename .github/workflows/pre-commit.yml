@@ -89,6 +89,9 @@ jobs:
       - name: Run pre-commit
         run: pre-commit run --all-files --show-diff-on-failure
 
+      # Full link scans generate external network traffic and need cache and
+      # retry handling; documentation CI provides that. These local fixtures
+      # keep per-PR coverage focused on the installed hook on each platform.
       - name: Exercise the configured Lychee hook with local fixtures
         env:
           SKIP: check-precommit-installed
