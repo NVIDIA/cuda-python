@@ -272,7 +272,7 @@
   "`c": "tests/graph/test_graph_builder.py::test_graph_instantiation_rejects_closed_upload_stream|run",
   "{c": "tests/graph/test_graph_builder.py::test_join_rejects_non_builder|run",
   "|c": "tests/graph/test_graph_builder.py::test_graph_builder_and_graph_cannot_be_constructed_directly|run",
-  "}c": "tests/graph/test_graph_definition_lifetime.py::test_graph_nodes_reconstructed_via_pred_chain[memcpy_host]|run"
+  "}c": "tests/graph/test_graph_definition_lifetime.py::test_destroying_conditional_node_releases_branch_attachments[if_else]|run"
 }
     </script>
     <script src="coverage_html_cb_15cffcd0.js" defer></script>
@@ -335,7 +335,7 @@
             <a id="nextFileLink" class="nav" href="z_2f8b98bdecb6e8b7__graph_definition_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
-            created at 2026-10-15 01:10 +0000
+            created at 2026-10-16 01:23 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -1087,7 +1087,7 @@
     <p class="pln"><span class="n"><a id="t735" href="#t735">735</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t736" href="#t736">736</a></span><span class="t"><span class="txt">        return GraphCondition._from_handle(&lt;cydriver.CUgraphConditionalHandle&gt;&lt;intptr_t&gt;int(raw_handle))</span>&nbsp;</span><input type="checkbox" id="ctxs736"><span class="r"><label for="ctxs736" class="ctx">32 ctx</label></span><span class="ctxs">2x Q z hbb c d e f g h i j k l m n o p q A r s t u v B C D E w a </span></p>
     <p class="pln"><span class="n"><a id="t737" href="#t737">737</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t738" href="#t738">738</a></span><span class="t"><span class="txt">    def if_then(self, condition: GraphCondition) -&gt; GraphBuilder:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t738" href="#t738">738</a></span><span class="t"><span class="txt">    def if_then(self, GraphCondition condition not None: GraphCondition) -&gt; GraphBuilder:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t739" href="#t739">739</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Adds an if condition branch and returns a new graph builder for it.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t740" href="#t740">740</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t741" href="#t741">741</a></span><span class="t"><span class="txt">        The resulting if graph will only execute the branch if the</span>&nbsp;</span><span class="r"></span></p>
@@ -1122,7 +1122,7 @@
     <p class="run"><span class="n"><a id="t770" href="#t770">770</a></span><span class="t"><span class="txt">        node_params.conditional.ctx = self._get_conditional_context()</span>&nbsp;</span><input type="checkbox" id="ctxs770"><span class="r"><label for="ctxs770" class="ctx">15 ctx</label></span><span class="ctxs">2x Q z hbb c d e f g h i A r a </span></p>
     <p class="run"><span class="n"><a id="t771" href="#t771">771</a></span><span class="t"><span class="txt">        return GB_cond_with_params(self, node_params)[0]</span>&nbsp;</span><input type="checkbox" id="ctxs771"><span class="r"><label for="ctxs771" class="ctx">15 ctx</label></span><span class="ctxs">2x Q z hbb c d e f g h i A r a </span></p>
     <p class="pln"><span class="n"><a id="t772" href="#t772">772</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t773" href="#t773">773</a></span><span class="t"><span class="txt">    def if_else(self, condition: GraphCondition) -&gt; tuple[GraphBuilder, GraphBuilder]:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t773" href="#t773">773</a></span><span class="t"><span class="txt">    def if_else(self, GraphCondition condition not None: GraphCondition) -&gt; tuple[GraphBuilder, GraphBuilder]:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t774" href="#t774">774</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Adds an if-else condition branch and returns new graph builders for both branches.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t775" href="#t775">775</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t776" href="#t776">776</a></span><span class="t"><span class="txt">        The resulting if graph will execute the branch if the condition</span>&nbsp;</span><span class="r"></span></p>
@@ -1157,7 +1157,7 @@
     <p class="run"><span class="n"><a id="t805" href="#t805">805</a></span><span class="t"><span class="txt">        node_params.conditional.ctx = self._get_conditional_context()</span>&nbsp;</span><input type="checkbox" id="ctxs805"><span class="r"><label for="ctxs805" class="ctx">8 ctx</label></span><span class="ctxs">1jklmnopq</span></p>
     <p class="run"><span class="n"><a id="t806" href="#t806">806</a></span><span class="t"><span class="txt">        return GB_cond_with_params(self, node_params)</span>&nbsp;</span><input type="checkbox" id="ctxs806"><span class="r"><label for="ctxs806" class="ctx">8 ctx</label></span><span class="ctxs">1jklmnopq</span></p>
     <p class="pln"><span class="n"><a id="t807" href="#t807">807</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t808" href="#t808">808</a></span><span class="t"><span class="txt">    def switch(self, condition: GraphCondition, count: int) -&gt; tuple[GraphBuilder, ...]:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t808" href="#t808">808</a></span><span class="t"><span class="txt">    def switch(self, GraphCondition condition not None: GraphCondition, count: int) -&gt; tuple[GraphBuilder, ...]:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t809" href="#t809">809</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Adds a switch condition branch and returns new graph builders for all cases.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t810" href="#t810">810</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t811" href="#t811">811</a></span><span class="t"><span class="txt">        The resulting switch graph will execute the branch whose case index</span>&nbsp;</span><span class="r"></span></p>
@@ -1195,7 +1195,7 @@
     <p class="run"><span class="n"><a id="t843" href="#t843">843</a></span><span class="t"><span class="txt">        node_params.conditional.ctx = self._get_conditional_context()</span>&nbsp;</span><input type="checkbox" id="ctxs843"><span class="r"><label for="ctxs843" class="ctx">5 ctx</label></span><span class="ctxs">1stuvw</span></p>
     <p class="run"><span class="n"><a id="t844" href="#t844">844</a></span><span class="t"><span class="txt">        return GB_cond_with_params(self, node_params)</span>&nbsp;</span><input type="checkbox" id="ctxs844"><span class="r"><label for="ctxs844" class="ctx">5 ctx</label></span><span class="ctxs">1stuvw</span></p>
     <p class="pln"><span class="n"><a id="t845" href="#t845">845</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t846" href="#t846">846</a></span><span class="t"><span class="txt">    def while_loop(self, condition: GraphCondition) -&gt; GraphBuilder:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t846" href="#t846">846</a></span><span class="t"><span class="txt">    def while_loop(self, GraphCondition condition not None: GraphCondition) -&gt; GraphBuilder:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t847" href="#t847">847</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Adds a while loop and returns a new graph builder for it.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t848" href="#t848">848</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t849" href="#t849">849</a></span><span class="t"><span class="txt">        The resulting while loop graph will execute the branch repeatedly at runtime</span>&nbsp;</span><span class="r"></span></p>
@@ -1631,7 +1631,7 @@
     <p class="mis show_mis"><span class="n"><a id="t1279" href="#t1279">1279</a></span><span class="t"><span class="txt">    @overload</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1280" href="#t1280">1280</a></span><span class="t"><span class="txt">    def __getitem__(self, node: HostCallbackNode) -&gt; ExecutableHostCallbackNode: ...</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1281" href="#t1281">1281</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1282" href="#t1282">1282</a></span><span class="t"><span class="txt">    def __getitem__(self, node: GraphNode) -&gt; ExecutableGraphNode:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1282" href="#t1282">1282</a></span><span class="t"><span class="txt">    def __getitem__(self, GraphNode node not None: GraphNode) -&gt; ExecutableGraphNode:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1283" href="#t1283">1283</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Return a view for updating *node* in this executable graph.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1284" href="#t1284">1284</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1285" href="#t1285">1285</a></span><span class="t"><span class="txt">        *node* is a definition node from the graph used to instantiate this</span>&nbsp;</span><span class="r"></span></p>
@@ -1681,7 +1681,7 @@
     <p class="run"><span class="n"><a id="t1329" href="#t1329">1329</a></span><span class="t"><span class="txt">            raise CUDAError(msg)</span>&nbsp;</span><input type="checkbox" id="ctxs1329"><span class="r"><label for="ctxs1329" class="ctx">5 ctx</label></span><span class="ctxs">2FbO VbWb' </span></p>
     <p class="run"><span class="n"><a id="t1330" href="#t1330">1330</a></span><span class="t"><span class="txt">        HANDLE_RETURN(err)</span>&nbsp;</span><input type="checkbox" id="ctxs1330"><span class="r"><label for="ctxs1330" class="ctx">9 ctx</label></span><span class="ctxs">2QbP V W Rbw Z 2b3b</span></p>
     <p class="pln"><span class="n"><a id="t1331" href="#t1331">1331</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1332" href="#t1332">1332</a></span><span class="t"><span class="txt">    def upload(self, stream: Stream) -&gt; None:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1332" href="#t1332">1332</a></span><span class="t"><span class="txt">    def upload(self, Stream stream not None: Stream) -&gt; None:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1333" href="#t1333">1333</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Uploads the graph in a stream.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1334" href="#t1334">1334</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1335" href="#t1335">1335</a></span><span class="t"><span class="txt">        Parameters</span>&nbsp;</span><span class="r"></span></p>
@@ -1697,7 +1697,7 @@
     <p class="run"><span class="n"><a id="t1345" href="#t1345">1345</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs1345"><span class="r"><label for="ctxs1345" class="ctx">42 ctx</label></span><span class="ctxs">2y 3 5b6b7b8b9bGb!bHb#b$b%b'bIb(bJbKbLb)bMbNb*bOb+b,b-b) 5 ! * 6 # Y T U + 7 $ , 8 % </span></p>
     <p class="run"><span class="n"><a id="t1346" href="#t1346">1346</a></span><span class="t"><span class="txt">            HANDLE_RETURN(cydriver.cuGraphUpload(c_exec, c_stream))</span>&nbsp;</span><input type="checkbox" id="ctxs1346"><span class="r"><label for="ctxs1346" class="ctx">42 ctx</label></span><span class="ctxs">2y 3 5b6b7b8b9bGb!bHb#b$b%b'bIb(bJbKbLb)bMbNb*bOb+b,b-b) 5 ! * 6 # Y T U + 7 $ , 8 % </span></p>
     <p class="pln"><span class="n"><a id="t1347" href="#t1347">1347</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1348" href="#t1348">1348</a></span><span class="t"><span class="txt">    def launch(self, stream: Stream) -&gt; None:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1348" href="#t1348">1348</a></span><span class="t"><span class="txt">    def launch(self, Stream stream not None: Stream) -&gt; None:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1349" href="#t1349">1349</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Launches the graph in a stream.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1350" href="#t1350">1350</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1351" href="#t1351">1351</a></span><span class="t"><span class="txt">        Parameters</span>&nbsp;</span><span class="r"></span></p>
@@ -1727,7 +1727,7 @@
             <a class="nav" href="z_2f8b98bdecb6e8b7__graph_definition_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
-            created at 2026-10-15 01:10 +0000
+            created at 2026-10-16 01:23 +0000
         </p>
     </div>
 </footer>

@@ -811,7 +811,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__linker_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
-            created at 2026-10-15 01:10 +0000
+            created at 2026-10-16 01:23 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -924,7 +924,7 @@
     <p class="mis show_mis"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">    @classmethod</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">    def dense_like(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">        cls,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">        other : _StridedLayout,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">        _StridedLayout other not None : _StridedLayout,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">        stride_order : str | tuple[int] = &quot;K&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">    ) -&gt; _StridedLayout:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
@@ -1340,9 +1340,9 @@
     <p class="pln"><span class="n"><a id="t512" href="#t512">512</a></span><span class="t"><span class="txt">            assert layout.permuted((2, 0, 1)).reshaped((4, 15,)) == _StridedLayout((4, 15), (1, 4), 1)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t513" href="#t513">513</a></span><span class="t"><span class="txt">            # layout.permuted((2, 0, 1)).reshaped((20, 3)) -&gt; error</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t514" href="#t514">514</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t515" href="#t515">515</a></span><span class="t"><span class="txt">        cdef _StridedLayout new_layout = _StridedLayout.__new__(_StridedLayout)</span>&nbsp;</span><input type="checkbox" id="ctxs515"><span class="r"><label for="ctxs515" class="ctx">146 ctx</label></span><span class="ctxs">22cDc'cEcFc3c(cGc.f!g+f@e2gUg3g_eOcPcSbTb)cnc*cBcocCcu v fcgcw VghcicjckcWglcmcx XgYgm n kblbmbnbobpbY s Z t @ qb[ ] ^ rb_ ` sbtbubvb{ wb| } ~ abbbcbdbebxbfbo p yb* , 0 4 zbO Ab( BbCb+ ) - 5 DbP 1 A B ,f/f:f-fZg4gSgFggbGg#g$g5g%g6g0g'g(g1g)ghbHgibjb*gTgIg+ge g h i j 2 Q f k 3 R l q S r T EbFb</span></p>
+    <p class="run"><span class="n"><a id="t515" href="#t515">515</a></span><span class="t"><span class="txt">        cdef _StridedLayout new_layout = _StridedLayout.__new__(_StridedLayout)</span>&nbsp;</span><input type="checkbox" id="ctxs515"><span class="r"><label for="ctxs515" class="ctx">148 ctx</label></span><span class="ctxs">22cDc'cEcFc3c(cGc.f!g+f@e2gUg3g_eOcPcSbTb)cnc*cBcocCcu v fcgcw VghcicjckcWglcmcx XgYgm n kblbmbnbobpbY s Z t @ qb[ ] ^ rb_ ` sbtbubvb{ wb| } ~ abbbcbdbebxbfbo p yb* , 0 4 zbO Ab( BbCb+ ) - 5 DbP 1 A B ,f/f:f-fZg4gSgFggbGg#g$g5g%g6g0g'g(g1g)g6hhbHg7hibjb*gTgIg+ge g h i j 2 Q f k 3 R l q S r T EbFb</span></p>
     <p class="pln"><span class="n"><a id="t516" href="#t516">516</a></span><span class="t"><span class="txt">        cdef BaseLayout new_shape</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t517" href="#t517">517</a></span><span class="t"><span class="txt">        init_base_layout(new_shape, &lt;int&gt;len(shape))</span>&nbsp;</span><input type="checkbox" id="ctxs517"><span class="r"><label for="ctxs517" class="ctx">146 ctx</label></span><span class="ctxs">22cDc'cEcFc3c(cGc.f!g+f@e2gUg3g_eOcPcSbTb)cnc*cBcocCcu v fcgcw VghcicjckcWglcmcx XgYgm n kblbmbnbobpbY s Z t @ qb[ ] ^ rb_ ` sbtbubvb{ wb| } ~ abbbcbdbebxbfbo p yb* , 0 4 zbO Ab( BbCb+ ) - 5 DbP 1 A B ,f/f:f-fZg4gSgFggbGg#g$g5g%g6g0g'g(g1g)ghbHgibjb*gTgIg+ge g h i j 2 Q f k 3 R l q S r T EbFb</span></p>
+    <p class="run"><span class="n"><a id="t517" href="#t517">517</a></span><span class="t"><span class="txt">        init_base_layout(new_shape, &lt;int&gt;len(shape))</span>&nbsp;</span><input type="checkbox" id="ctxs517"><span class="r"><label for="ctxs517" class="ctx">148 ctx</label></span><span class="ctxs">22cDc'cEcFc3c(cGc.f!g+f@e2gUg3g_eOcPcSbTb)cnc*cBcocCcu v fcgcw VghcicjckcWglcmcx XgYgm n kblbmbnbobpbY s Z t @ qb[ ] ^ rb_ ` sbtbubvb{ wb| } ~ abbbcbdbebxbfbo p yb* , 0 4 zbO Ab( BbCb+ ) - 5 DbP 1 A B ,f/f:f-fZg4gSgFggbGg#g$g5g%g6g0g'g(g1g)g6hhbHg7hibjb*gTgIg+ge g h i j 2 Q f k 3 R l q S r T EbFb</span></p>
     <p class="run"><span class="n"><a id="t518" href="#t518">518</a></span><span class="t"><span class="txt">        for i in range(len(shape)):</span>&nbsp;</span><input type="checkbox" id="ctxs518"><span class="r"><label for="ctxs518" class="ctx">146 ctx</label></span><span class="ctxs">22cDc'cEcFc3c(cGc.f!g+f@e2gUg3g_eOcPcSbTb)cnc*cBcocCcu v fcgcw VghcicjckcWglcmcx XgYgm n kblbmbnbobpbY s Z t @ qb[ ] ^ rb_ ` sbtbubvb{ wb| } ~ abbbcbdbebxbfbo p yb* , 0 4 zbO Ab( BbCb+ ) - 5 DbP 1 A B ,f/f:f-fZg4gSgFggbGg#g$g5g%g6g0g'g(g1g)ghbHgibjb*gTgIg+ge g h i j 2 Q f k 3 R l q S r T EbFb</span></p>
     <p class="run"><span class="n"><a id="t519" href="#t519">519</a></span><span class="t"><span class="txt">            new_shape.shape[i] = shape[i]</span>&nbsp;</span><input type="checkbox" id="ctxs519"><span class="r"><label for="ctxs519" class="ctx">142 ctx</label></span><span class="ctxs">22cDcEcFc3cGc.f!g+f@e2gUg3g_eSbTb)cnc*cBcocCcu v fcgcw VghcicjckcWglcmcx XgYgm n kblbmbnbobpbY s Z t @ qb[ ] ^ rb_ ` sbtbubvb{ wb| } ~ abbbcbdbebxbfbo p yb* , 0 4 zbO Ab( BbCb+ ) - 5 DbP 1 A B ,f/f:f-fZg4gSgFggbGg#g$g5g%g6g0g'g(g1g)ghbHgibjb*gTgIg+ge g h i j 2 Q f k 3 R l q S r T EbFb</span></p>
     <p class="run"><span class="n"><a id="t520" href="#t520">520</a></span><span class="t"><span class="txt">        self.reshape_into(new_layout, new_shape)</span>&nbsp;</span><input type="checkbox" id="ctxs520"><span class="r"><label for="ctxs520" class="ctx">146 ctx</label></span><span class="ctxs">22cDc'cEcFc3c(cGc.f!g+f@e2gUg3g_eOcPcSbTb)cnc*cBcocCcu v fcgcw VghcicjckcWglcmcx XgYgm n kblbmbnbobpbY s Z t @ qb[ ] ^ rb_ ` sbtbubvb{ wb| } ~ abbbcbdbebxbfbo p yb* , 0 4 zbO Ab( BbCb+ ) - 5 DbP 1 A B ,f/f:f-fZg4gSgFggbGg#g$g5g%g6g0g'g(g1g)ghbHgibjb*gTgIg+ge g h i j 2 Q f k 3 R l q S r T EbFb</span></p>
@@ -2164,7 +2164,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__linker_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
-            created at 2026-10-15 01:10 +0000
+            created at 2026-10-16 01:23 +0000
         </p>
     </div>
 </footer>

@@ -134,7 +134,7 @@
   "Jb": "tests/nvml/test_device.py::test_gpu_instance_get_compute_instances_empty_result|run",
   "Kb": "tests/nvml/test_pynvml.py::test_device_get_handle_by_pci_bus_id|setup",
   "Lb": "tests/nvml/test_unit.py::test_unit_get_devices_returns_array|setup",
-  "Mb": "tests/system/test_system_system.py::test_kernel_mode_driver_version|run",
+  "Mb": "tests/system/test_system_system.py::test_device_count|run",
   "Nb": "tests/system/test_system_uuid.py::test_to_system_device_propagates_uuid_lookup_error[NotSupportedError-ERROR_NOT_SUPPORTED]|run",
   "Ob": "tests/nvml/test_page_retirement.py::test_page_retirement_supported|run",
   "Pb": "tests/nvml/test_pynvml.py::test_device_get_handle_by_uuid|run",
@@ -220,18 +220,18 @@
   "Gc": "tests/system/test_system_nvlink.py::test_nvlink_queries_propagate_field_error[ERROR_UNKNOWN-UnknownError-get_nvlinks]|run",
   "Hc": "tests/system/test_system_uuid.py::test_to_system_device_propagates_uuid_lookup_error[NotFoundError-ERROR_NOT_FOUND]|run",
   "Ic": "tests/nvml/test_pynvml.py::test_system_get_driver_version|run",
-  "Jc": "tests/nvml/test_pynvml.py::test_system_get_nvml_version|run",
-  "Kc": "tests/system/test_system_system.py::test_nvml_version|run",
-  "Lc": "tests/nvml/test_pynvml.py::test_system_get_cuda_driver_version|run",
-  "Mc": "tests/system/test_system_system.py::test_user_mode_driver_version|run",
-  "Nc": "tests/nvml/test_pynvml.py::test_nvml_system_get_process_name|run",
-  "Oc": "tests/system/test_system_system.py::test_get_driver_branch|run",
-  "Pc": "tests/system/test_system_device.py::test_device_count|run",
-  "Qc": "tests/system/test_system_device.py::test_display_mode|setup",
-  "Rc": "tests/system/test_system_device.py::test_get_p2p_status|run",
-  "Sc": "tests/system/test_system_device.py::test_get_p2p_status|setup",
+  "Jc": "tests/system/test_system_system.py::test_kernel_mode_driver_version|run",
+  "Kc": "tests/nvml/test_pynvml.py::test_system_get_nvml_version|run",
+  "Lc": "tests/system/test_system_system.py::test_nvml_version|run",
+  "Mc": "tests/nvml/test_pynvml.py::test_system_get_cuda_driver_version|run",
+  "Nc": "tests/system/test_system_system.py::test_user_mode_driver_version|run",
+  "Oc": "tests/nvml/test_pynvml.py::test_nvml_system_get_process_name|run",
+  "Pc": "tests/system/test_system_system.py::test_get_driver_branch|run",
+  "Qc": "tests/system/test_system_device.py::test_device_count|run",
+  "Rc": "tests/system/test_system_device.py::test_get_inforom_version|setup",
+  "Sc": "tests/system/test_system_device.py::test_get_p2p_status|run",
   "Tc": "tests/system/test_system_device.py::test_get_topology_common_ancestor|run",
-  "Uc": "tests/system/test_system_system.py::test_device_count|run",
+  "Uc": "tests/system/test_system_device.py::test_unpack_bitmask_single_value|setup",
   "Vc": "tests/system/test_system_device.py::test_device_arg_validation|run",
   "Wc": "tests/system/test_system_device.py::test_temperature_arg_validation|run",
   "Xc": "tests/system/test_system_device.py::test_temperature_threshold_unrecognized_device_arch|run",
@@ -299,7 +299,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cynvrtc_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
-            created at 2026-10-15 01:10 +0000
+            created at 2026-10-16 01:23 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -345,15 +345,15 @@
     <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlSystemGetDriverVersion(char* version, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs31" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">    return _nvml._nvmlSystemGetDriverVersion(version, length)</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">2 ctx</label></span><span class="ctxs">2IcMb</span></p>
+    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">    return _nvml._nvmlSystemGetDriverVersion(version, length)</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">2 ctx</label></span><span class="ctxs">2IcJc</span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlSystemGetNVMLVersion(char* version, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs35" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    return _nvml._nvmlSystemGetNVMLVersion(version, length)</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">2 ctx</label></span><span class="ctxs">2JcKc</span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    return _nvml._nvmlSystemGetNVMLVersion(version, length)</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">2 ctx</label></span><span class="ctxs">2KcLc</span></p>
     <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlSystemGetCudaDriverVersion(int* cudaDriverVersion) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs39" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">    return _nvml._nvmlSystemGetCudaDriverVersion(cudaDriverVersion)</span>&nbsp;</span><input type="checkbox" id="ctxs40"><span class="r"><label for="ctxs40" class="ctx">3 ctx</label></span><span class="ctxs">2a LcMc</span></p>
+    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">    return _nvml._nvmlSystemGetCudaDriverVersion(cudaDriverVersion)</span>&nbsp;</span><input type="checkbox" id="ctxs40"><span class="r"><label for="ctxs40" class="ctx">3 ctx</label></span><span class="ctxs">2a McNc</span></p>
     <p class="pln"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlSystemGetCudaDriverVersion_v2(int* cudaDriverVersion) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs43" class="ctx">(empty)</label></span></p>
@@ -361,7 +361,7 @@
     <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlSystemGetProcessName(unsigned int pid, char* name, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs47" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">    return _nvml._nvmlSystemGetProcessName(pid, name, length)</span>&nbsp;</span><input type="checkbox" id="ctxs48"><span class="r"><label for="ctxs48" class="ctx">2 ctx</label></span><span class="ctxs">2NcZ </span></p>
+    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">    return _nvml._nvmlSystemGetProcessName(pid, name, length)</span>&nbsp;</span><input type="checkbox" id="ctxs48"><span class="r"><label for="ctxs48" class="ctx">2 ctx</label></span><span class="ctxs">2OcZ </span></p>
     <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlSystemGetHicVersion(unsigned int* hwbcCount, nvmlHwbcEntry_t* hwbcEntries) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs51" class="ctx">(empty)</label></span></p>
@@ -373,7 +373,7 @@
     <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlSystemGetDriverBranch(nvmlSystemDriverBranchInfo_t* branchInfo, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs59" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">    return _nvml._nvmlSystemGetDriverBranch(branchInfo, length)</span>&nbsp;</span><input type="checkbox" id="ctxs60"><span class="r"><label for="ctxs60" class="ctx">2 ctx</label></span><span class="ctxs">2a Oc</span></p>
+    <p class="run"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">    return _nvml._nvmlSystemGetDriverBranch(branchInfo, length)</span>&nbsp;</span><input type="checkbox" id="ctxs60"><span class="r"><label for="ctxs60" class="ctx">2 ctx</label></span><span class="ctxs">2a Pc</span></p>
     <p class="pln"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlUnitGetCount(unsigned int* unitCount) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs63" class="ctx">(empty)</label></span></p>
@@ -409,7 +409,7 @@
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlDeviceGetCount_v2(unsigned int* deviceCount) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs95" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">    return _nvml._nvmlDeviceGetCount_v2(deviceCount)</span>&nbsp;</span><input type="checkbox" id="ctxs96"><span class="r"><label for="ctxs96" class="ctx">96 ctx</label></span><span class="ctxs">2a 8 o 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { r | } vbU ~ abbbcbdbw ebfbKbV gbhbibjbkblbmbnbobpbqbrbsbh s i j t b wbk L xbPcM N ybO zb1 Qcu c AbBbRcScTcCbm P l f Q n g R e v S DbUcZ </span></p>
+    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">    return _nvml._nvmlDeviceGetCount_v2(deviceCount)</span>&nbsp;</span><input type="checkbox" id="ctxs96"><span class="r"><label for="ctxs96" class="ctx">96 ctx</label></span><span class="ctxs">2a 8 o 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { r | } vbU ~ abbbcbdbw ebfbKbV gbhbibjbkblbmbnbobpbqbrbsbh s i j t b wbk L xbQcM N ybO zb1 u c RcAbBbScTcCbm P l f Q n g R e v UcS DbMbZ </span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlDeviceGetAttributes_v2(nvmlDevice_t device, nvmlDeviceAttributes_t* attributes) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs99" class="ctx">(empty)</label></span></p>
@@ -1815,7 +1815,7 @@
             <a class="nav" href="z_bb8e88d71740c463_cynvrtc_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
-            created at 2026-10-15 01:10 +0000
+            created at 2026-10-16 01:23 +0000
         </p>
     </div>
 </footer>
