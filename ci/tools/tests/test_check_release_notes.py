@@ -6,6 +6,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from check_release_notes import (
     check_release_notes,
@@ -331,3 +333,70 @@ class TestMain:
         )
 
         assert rc == 2
+
+
+@pytest.mark.parametrize("version", ["1.5.2", "1.5.2.post1"])
+@pytest.mark.parametrize("contents", ["", "Release notes."])
+@pytest.mark.agent_authored(model="gpt-6.1")
+def test_pathfinder_notes_allow_empty_files_and_require_post_notes(tmp_path, monkeypatch, version, contents):
+    notes = tmp_path / "cuda_pathfinder" / "docs" / "source" / "release" / f"{version}-notes.rst"
+    notes.parent.mkdir(parents=True)
+    notes.write_text(contents)
+    output = tmp_path / "output"
+    monkeypatch.setenv("GITHUB_OUTPUT", str(output))
+
+    assert (
+        main(
+            ["--git-tag", f"cuda-pathfinder-v{version}", "--component", "cuda-pathfinder", "--repo-root", str(tmp_path)]
+        )
+        == 0
+    )
+    assert output.read_text() == f"version={version}\n"
+
+
+@pytest.mark.parametrize("version", ["1.5.2", "1.5.2.post1"])
+@pytest.mark.agent_authored(model="gpt-6.1")
+def test_pathfinder_missing_notes_fail_without_version_output(tmp_path, monkeypatch, version):
+    output = tmp_path / "output"
+    monkeypatch.setenv("GITHUB_OUTPUT", str(output))
+
+    assert (
+        main(
+            ["--git-tag", f"cuda-pathfinder-v{version}", "--component", "cuda-pathfinder", "--repo-root", str(tmp_path)]
+        )
+        == 1
+    )
+    assert not output.exists()
+
+
+@pytest.mark.parametrize(
+    "component,tag,version,extra_args",
+    [
+        ("cuda-core", "cuda-core-v0.7.0", "0.7.0", []),
+        ("cuda-bindings", "v12.9.7", "12.9.7", ["--backport-branch", "12.9.x"]),
+        ("cuda-python", "v13.3.0", "13.3.0", ["--backport-branch", "12.9.x", "--backport-git-tag", "not planned"]),
+        ("cuda-bindings", "v12.9.7.post1", "12.9.7.post1", []),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-6.1")
+def test_successful_checks_expose_version_for_every_policy(tmp_path, monkeypatch, component, tag, version, extra_args):
+    if component == "cuda-core" or version == "13.3.0":
+        notes = tmp_path / component.replace("-", "_") / "docs" / "source" / "release" / f"{version}-notes.rst"
+        notes.parent.mkdir(parents=True)
+        notes.write_text("Release notes.")
+    output = tmp_path / "output"
+    output.write_text("existing=value\n")
+    monkeypatch.setenv("GITHUB_OUTPUT", str(output))
+
+    assert main(["--git-tag", tag, "--component", component, "--repo-root", str(tmp_path), *extra_args]) == 0
+    assert output.read_text() == f"existing=value\nversion={version}\n"
+
+
+@pytest.mark.parametrize("tag", ["invalid", "cuda-core-v1.5.2"])
+@pytest.mark.agent_authored(model="gpt-6.1")
+def test_invalid_pathfinder_tags_do_not_expose_version(tmp_path, monkeypatch, tag):
+    output = tmp_path / "output"
+    monkeypatch.setenv("GITHUB_OUTPUT", str(output))
+
+    assert main(["--git-tag", tag, "--component", "cuda-pathfinder", "--repo-root", str(tmp_path)]) == 2
+    assert not output.exists()

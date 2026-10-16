@@ -8,6 +8,9 @@ name: "CI: Release"
 # for the given tag, or uses an existing draft, then publishes the selected wheels
 # to TestPyPI followed by PyPI. The dry-run mode validates the release path
 # without publishing to external release surfaces.
+# Pathfinder additionally prepares standard release metadata and publishes its draft.
+# Before retiring the dedicated Pathfinder workflow, authorize release.yml in
+# its PyPI and TestPyPI trusted publishers; see .github/RELEASE-core.md.
 #
 # Maintenance note: non-trivial changes to this workflow should be validated
 # with dry-run workflow_dispatch runs before merging. Suggested focused matrix:
@@ -29,6 +32,7 @@ name: "CI: Release"
 # Leave run-id blank so determine-run-id is exercised. For exhaustive coverage,
 # add a mainline cuda-python dry-run when changes could affect metapackage
 # artifact validation, docs routing, or component-specific release behavior.
+# Also exercise cuda-core and cuda-pathfinder, including a failed docs build.
 
 on:
   workflow_dispatch:
@@ -92,13 +96,16 @@ jobs:
         id: lookup-run-id
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_GIT_TAG: ${{ inputs.git-tag }}
+          PROVIDED_RUN_ID: ${{ inputs.run-id }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
         run: |
-          if [[ -n "${{ inputs.run-id }}" ]]; then
-            echo "Using provided run ID: ${{ inputs.run-id }}"
-            RUN_ID="${{ inputs.run-id }}"
+          if [[ -n "$PROVIDED_RUN_ID" ]]; then
+            echo "Using provided run ID: $PROVIDED_RUN_ID"
+            RUN_ID="$PROVIDED_RUN_ID"
           else
-            echo "Auto-detecting successful tag-triggered run ID for tag: ${{ inputs.git-tag }}"
-            RUN_ID=$(./ci/tools/lookup-run-id "${{ inputs.git-tag }}" "${{ github.repository }}")
+            echo "Auto-detecting successful tag-triggered run ID for tag: $RELEASE_GIT_TAG"
+            RUN_ID=$(./ci/tools/lookup-run-id "$RELEASE_GIT_TAG" "$RELEASE_REPOSITORY")
             echo "Auto-detected run ID: $RUN_ID"
           fi
           echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
@@ -158,6 +165,8 @@ jobs:
   check-release-notes:
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release-notes.outputs.version }}
     steps:
       - name: Checkout Source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -170,11 +179,74 @@ jobs:
           python-version: "3.12"
 
       - name: Check versioned release notes exist
+        id: release-notes
+        env:
+          RELEASE_GIT_TAG: ${{ inputs.git-tag }}
+          RELEASE_COMPONENT: ${{ inputs.component }}
+          BACKPORT_GIT_TAG: ${{ inputs.backport-git-tag }}
         run: |
           python ci/tools/check_release_notes.py \
-            --git-tag "${{ inputs.git-tag }}" \
-            --component "${{ inputs.component }}" \
-            --backport-git-tag "${{ inputs.backport-git-tag }}"
+            --git-tag "$RELEASE_GIT_TAG" \
+            --component "$RELEASE_COMPONENT" \
+            --backport-git-tag "$BACKPORT_GIT_TAG"
+
+      - name: Require Pathfinder version output
+        if: ${{ inputs.component == 'cuda-pathfinder' }}
+        env:
+          VERSION: ${{ steps.release-notes.outputs.version }}
+        run: |
+          [[ -n "$VERSION" ]] || {
+            echo "::error::The tagged Pathfinder release-note checker must emit a non-empty version output"
+            exit 1
+          }
+
+  ensure-pathfinder-draft:
+    name: Prepare Pathfinder release draft
+    if: ${{ github.repository_owner == 'nvidia' && inputs.component == 'cuda-pathfinder' && inputs.release-action == 'full-release' }}
+    needs: [check-tag, check-release-notes]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ inputs.git-tag }}
+      VERSION: ${{ needs.check-release-notes.outputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Set metadata for a Pathfinder draft
+        run: |
+          [[ -n "$VERSION" ]] || { echo "::error::Empty version output"; exit 1; }
+          # Recognize the shared placeholder across retries without overwriting curated drafts.
+          is_placeholder=$(gh release view "$TAG" --repo "${{ github.repository }}" --json isDraft,name,body \
+            | jq -r --arg placeholder "Release ${TAG}" '
+                if .isDraft != true then error("Release is not a draft")
+                else .name == $placeholder and .body == $placeholder end
+              ')
+          if [[ "$is_placeholder" != "true" ]]; then
+            echo "Reusing draft release ${TAG}"
+            exit 0
+          fi
+          cat > "${RUNNER_TEMP}/release-body.md" <<BODY
+          ## Release notes
+
+          - https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/release/${VERSION}-notes.html
+
+          ## Documentation
+
+          - https://nvidia.github.io/cuda-python/cuda-pathfinder/${VERSION}/
+
+          ## PyPI
+
+          - https://pypi.org/project/cuda-pathfinder/${VERSION}/
+
+          ## Conda
+
+          - https://anaconda.org/conda-forge/cuda-pathfinder/files?version=${VERSION}
+          - \`conda install conda-forge::cuda-pathfinder=${VERSION}\`
+          BODY
+          gh release edit "$TAG" --repo "${{ github.repository }}" \
+            --latest=false \
+            --title "cuda-pathfinder v${VERSION}" \
+            --notes-file "${RUNNER_TEMP}/release-body.md"
 
   doc:
     name: Build release docs
@@ -217,13 +289,20 @@ jobs:
 
   publish-testpypi:
     name: Publish wheels to TestPyPI
-    if: ${{ inputs.release-action == 'full-release' }}
+    if: >-
+      ${{ !cancelled() && inputs.release-action == 'full-release' &&
+          needs.check-tag.result == 'success' &&
+          needs.check-release-notes.result == 'success' &&
+          needs.determine-run-id.result == 'success' &&
+          needs.doc.result == 'success' &&
+          (inputs.component != 'cuda-pathfinder' || needs.ensure-pathfinder-draft.result == 'success') }}
     runs-on: ubuntu-latest
     needs:
       - check-tag
       - check-release-notes
       - determine-run-id
       - doc
+      - ensure-pathfinder-draft
     environment:
       name: testpypi
       url: https://test.pypi.org/p/${{ inputs.component }}/
@@ -250,7 +329,9 @@ jobs:
 
   publish-pypi:
     name: Publish wheels to PyPI
-    if: ${{ inputs.release-action == 'full-release' }}
+    if: >-
+      ${{ !cancelled() && inputs.release-action == 'full-release' &&
+          needs.determine-run-id.result == 'success' && needs.publish-testpypi.result == 'success' }}
     runs-on: ubuntu-latest
     needs:
       - determine-run-id
@@ -277,4 +358,41 @@ jobs:
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # v1.14.2
 
-  # TODO: add another job to make the release leave the draft state?
+  finalize-pathfinder:
+    name: Publish Pathfinder GitHub release
+    if: ${{ inputs.component == 'cuda-pathfinder' && inputs.release-action == 'full-release' }}
+    needs: [doc, check-release-notes, ensure-pathfinder-draft, publish-pypi, upload-archive]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ inputs.git-tag }}
+      VERSION: ${{ needs.check-release-notes.outputs.version }}
+    steps:
+      - name: Verify docs URL
+        run: |
+          [[ -n "$VERSION" ]] || { echo "::error::Empty version output"; exit 1; }
+          url="https://nvidia.github.io/cuda-python/cuda-pathfinder/${VERSION}/"
+          status=$(curl -sL -o /dev/null -w '%{http_code}' "$url")
+          if [[ "$status" != "200" ]]; then
+            echo "::warning::Docs URL returned HTTP ${status} -- docs may not be deployed yet"
+          fi
+
+      - name: Verify release is still a draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          is_draft=$(gh release view "$TAG" --repo "${{ github.repository }}" --json isDraft --jq '.isDraft')
+          if [[ "$is_draft" != "true" ]]; then
+            echo "::error::Release ${TAG} is no longer a draft (was it published manually?)"
+            exit 1
+          fi
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release edit "$TAG" --repo "${{ github.repository }}" --draft=false --latest=false
+          docs_url="https://nvidia.github.io/cuda-python/cuda-pathfinder/${VERSION}/"
+          echo "$docs_url"
+          printf '%s\n' "$docs_url" >> "$GITHUB_STEP_SUMMARY"
