@@ -206,7 +206,7 @@ def test_linker_options_as_bytes_nvjitlink():
     options_str = [opt.decode() for opt in nvjitlink_options]
     assert "-arch=sm_80" in options_str
     assert "-g" in options_str
-    assert "-ftz=true" in options_str
+    assert "-ftz=1" in options_str
     assert "-maxrregcount=32" in options_str
 
 
