@@ -284,21 +284,47 @@ jobs:
           fi
           mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
 
-      # Keep link checks in the existing PR docs build, using the same revision
-      # as its wheels. Nightly supplies shared caches for both kinds of inputs.
-      - name: Check authored documentation links
+      # Authored sources are checked by the ordinary Linux/Windows pre-commit
+      # jobs. Generated HTML and anchors need this completed documentation build.
+      - name: Install pre-commit for rendered link checks
         if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
-        timeout-minutes: 60
-        uses: ./.github/actions/check-doc-links
-        with:
-          kind: authored
+        run: |
+          echo "PRE_COMMIT_HOME=${RUNNER_TEMP}/pre-commit" >> "${GITHUB_ENV}"
+          echo "LYCHEE_CACHE_DIR=${RUNNER_TEMP}/lychee-rendered" >> "${GITHUB_ENV}"
+          python -m pip install pre-commit
 
-      - name: Check rendered documentation links
+      - name: Describe the rendered link cache
+        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
+        id: lychee-cache
+        run: python ci/tools/lychee_cache.py rendered --github-output "${GITHUB_OUTPUT}"
+
+      - name: Restore successful rendered link checks
+        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ${{ steps.lychee-cache.outputs.path }}
+          key: ${{ steps.lychee-cache.outputs.key }}
+          restore-keys: ${{ steps.lychee-cache.outputs.prefix }}
+          enableCrossOsArchive: true
+
+      - name: Check rendered documentation links through pre-commit
         if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         timeout-minutes: 60
-        uses: ./.github/actions/check-doc-links
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python ci/tools/run_lychee_precommit.py rendered
+          --policy check --max-attempts 3
+          --report "${RUNNER_TEMP}/lychee-reports/lychee-rendered.json"
+
+      - name: Upload rendered link-check reports
+        if: ${{ always() && !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
-          kind: rendered
+          name: lychee-rendered-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/lychee-reports/
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Upload docs GitHub Pages artifact
         if: ${{ inputs.deploy-docs }}

@@ -11,6 +11,7 @@ __pycache__/
 .cython-stdlib
 .cython-bindings
 .lycheecache
+.lychee-rendered/
 .pytest_cache/
 .benchmarks/
 *.cpp

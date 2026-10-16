@@ -41,9 +41,10 @@ jobs:
           - name: Windows
             os: windows-latest
     env:
-      # Full-CI docs builds and nightly check links. The installation reminder
-      # is for developer machines; CI does not install a Git commit hook.
-      SKIP: lychee,check-precommit-installed
+      # The installation reminder is for developer machines; CI does not
+      # install a Git commit hook. All other hooks, including Lychee, run.
+      SKIP: check-precommit-installed
+      PYTHONUTF8: "1"
       # Minor version used by setup-python and as the cache restore-key prefix.
       PYTHON_VERSION: "3.14"
     steps:
@@ -138,8 +139,52 @@ jobs:
           LYCHEE_SMOKE_DIR: ${{ steps.lychee-smoke.outputs.directory }}
         run: python ci/tools/smoke_test_lychee_precommit.py --cleanup "$LYCHEE_SMOKE_DIR"
 
+      - name: Describe the authored link cache
+        id: lychee-cache
+        run: python ci/tools/lychee_cache.py authored --github-output "${GITHUB_OUTPUT}"
+
+      - name: Restore successful link checks from the shared baseline
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ${{ steps.lychee-cache.outputs.path }}
+          key: ${{ steps.lychee-cache.outputs.key }}
+          restore-keys: ${{ steps.lychee-cache.outputs.prefix }}
+          enableCrossOsArchive: true
+
+      # Warm only Lychee, retaining successful checks between attempts. The
+      # full suite below runs once: formatter changes must remain failures.
+      # A missing baseline is supported; the first pass then checks afresh.
+      - name: Warm the Lychee cache with up to three hook attempts
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python ci/tools/run_lychee_precommit.py authored
+          --policy cache-warm --max-attempts 3
+          --report "${RUNNER_TEMP}/lychee-reports/lychee-authored.json"
+
       - name: Run pre-commit
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: pre-commit run --all-files --show-diff-on-failure
+
+      - name: Save successful authored link checks from main
+        # Nightly and main pushes supply the shared baseline. PR runs only
+        # restore it; saving preserves timestamps and never caches failures.
+        if: ${{ !cancelled() && runner.os == 'Linux' && github.ref_name == github.event.repository.default_branch && steps.lychee-cache.outputs.key != '' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ${{ steps.lychee-cache.outputs.path }}
+          key: ${{ steps.lychee-cache.outputs.key }}
+          enableCrossOsArchive: true
+
+      - name: Upload Lychee warm-up reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: lychee-precommit-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/lychee-reports/
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Save pre-commit cache
         # Only the default branch saves, so per-PR merge refs don't store their
