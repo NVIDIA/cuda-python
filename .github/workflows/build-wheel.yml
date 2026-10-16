@@ -246,6 +246,7 @@ jobs:
             CC="/host/${{ env.SCCACHE_PATH }} cc"
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
+            SCCACHE_PREPROCESSOR_CACHE_GHA_ENABLED=true
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
@@ -343,6 +344,7 @@ jobs:
             CC="/host/${{ env.SCCACHE_PATH }} cc"
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
+            SCCACHE_PREPROCESSOR_CACHE_GHA_ENABLED=true
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
@@ -620,6 +622,7 @@ jobs:
             CC="/host/${{ env.SCCACHE_PATH }} cc"
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
+            SCCACHE_PREPROCESSOR_CACHE_GHA_ENABLED=true
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
