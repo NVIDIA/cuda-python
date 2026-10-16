@@ -5,15 +5,13 @@
 
 from __future__ import annotations
 
-import argparse
 import html
 import json
 import os
 import re
-import shlex
 import shutil
-import subprocess
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -62,7 +60,7 @@ class Report:
         return bool(self.failures) and all(failure.transient for failure in self.failures)
 
 
-def read_report(path: Path, exit_code: int) -> Report:
+def read_report(path: Path, exit_code: int, *, allow_empty: bool = False) -> Report:
     """Validate the pinned lychee JSON schema and its agreement with the exit code."""
     data = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
@@ -73,7 +71,7 @@ def read_report(path: Path, exit_code: int) -> Report:
         if type(value) is not int or value < 0:
             raise ValueError(f"Lychee report {name} must be a nonnegative integer: {path}")
         counts[name] = value
-    if counts["total"] == 0:
+    if counts["total"] == 0 and not allow_empty:
         raise ValueError(f"Lychee checked no links: {path}")
     if counts["errors"] + counts["timeouts"] > counts["total"]:
         raise ValueError(f"Lychee failure counts exceed the total: {path}")
@@ -173,7 +171,14 @@ def finish_link_failures(report: Path, data: Report, exit_codes: list[int], mess
     return 0 if warning else LINK_CHECK_FAILURE
 
 
-def retry_lychee(initial_exit_code: int, report: Path, max_attempts: int = 3, *, policy: str = "check") -> int:
+def retry_lychee(
+    initial_exit_code: int,
+    report: Path,
+    max_attempts: int = 3,
+    *,
+    policy: str = "check",
+    run_attempt: Callable[[Path], int],
+) -> int:
     """Retry only if every remaining failure is a recognized transient HTTP error."""
     if initial_exit_code not in (0, 1, 2, 3):
         raise ValueError(f"Unexpected initial lychee exit code: {initial_exit_code}")
@@ -188,7 +193,6 @@ def retry_lychee(initial_exit_code: int, report: Path, max_attempts: int = 3, *,
 
     data = read_report(report, initial_exit_code)
     shutil.copyfile(report, attempt_report(report, 1))
-    lychee_args = None
     while True:
         attempt = len(exit_codes)
         if exit_codes[-1] == 0:
@@ -210,11 +214,6 @@ def retry_lychee(initial_exit_code: int, report: Path, max_attempts: int = 3, *,
                 f"Lychee still has transient link failures after {max_attempts} attempts.",
                 policy,
             )
-        if lychee_args is None:
-            raw_args = os.environ.get("LYCHEE_ARGS")
-            if not raw_args or not (lychee_args := shlex.split(raw_args)):
-                raise ValueError("LYCHEE_ARGS must contain the same arguments used by the first lychee pass")
-
         cooldown = min(60 * attempt, 120)
         print(
             f"Lychee attempt {attempt} had transient failures; waiting {cooldown}s before attempt {attempt + 1}/{max_attempts}.",
@@ -222,36 +221,15 @@ def retry_lychee(initial_exit_code: int, report: Path, max_attempts: int = 3, *,
         )
         time.sleep(cooldown)
         current_report = attempt_report(report, attempt + 1)
-        result = subprocess.run(  # noqa: S603
-            ["lychee", *lychee_args, "--mode", "task", "--format", "json", "--output", str(current_report)],  # noqa: S607
-            check=False,
-        )
-        exit_codes.append(result.returncode)
-        if result.returncode not in (0, LINK_CHECK_FAILURE):
+        code = run_attempt(current_report)
+        exit_codes.append(code)
+        if code not in (0, LINK_CHECK_FAILURE):
             finish(
                 report,
                 None,
                 exit_codes,
-                f"Lychee stopped on attempt {attempt + 1} with exit code {result.returncode}; no retry.",
+                f"Lychee stopped on attempt {attempt + 1} with exit code {code}; no retry.",
             )
-            return result.returncode if result.returncode > 0 else 1
-        data = read_report(current_report, result.returncode)
+            return code if code > 0 else 1
+        data = read_report(current_report, code)
         shutil.copyfile(current_report, report)
-
-
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--initial-exit-code", type=int, required=True)
-    parser.add_argument("--report", type=Path, required=True)
-    parser.add_argument("--max-attempts", type=int, default=3)
-    parser.add_argument("--policy", choices=("check", "cache-warm"), default="check")
-    args = parser.parse_args()
-    try:
-        return retry_lychee(args.initial_exit_code, args.report, args.max_attempts, policy=args.policy)
-    except (OSError, ValueError) as error:
-        print(f"::error::{error}", flush=True)
-        return 1
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
