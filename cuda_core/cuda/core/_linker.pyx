@@ -400,13 +400,13 @@ class LinkerOptions:
         if self.lineinfo:
             options.append("-lineinfo")
         if self.ftz is not None:
-            options.append(f"-ftz={'true' if self.ftz else 'false'}")
+            options.append(f"-ftz={'1' if self.ftz else '0'}")
         if self.prec_div is not None:
-            options.append(f"-prec-div={'true' if self.prec_div else 'false'}")
+            options.append(f"-prec-div={'1' if self.prec_div else '0'}")
         if self.prec_sqrt is not None:
-            options.append(f"-prec-sqrt={'true' if self.prec_sqrt else 'false'}")
+            options.append(f"-prec-sqrt={'1' if self.prec_sqrt else '0'}")
         if self.fma is not None:
-            options.append(f"-fma={'true' if self.fma else 'false'}")
+            options.append(f"-fma={'1' if self.fma else '0'}")
         if self.kernels_used is not None:
             if isinstance(self.kernels_used, str):
                 options.append(f"-kernels-used={self.kernels_used}")
@@ -428,9 +428,12 @@ class LinkerOptions:
                 for opt in self.ptxas_options:
                     options.append(f"-Xptxas={opt}")
         if self.split_compile is not None:
-            options.append(f"-split-compile={self.split_compile}")
+            # nvJitLink requires a non-negative integer; coerce bool (a subtype of
+            # int) so that e.g. ``split_compile=True`` is sent as ``1`` rather
+            # than the literal string "True", which nvJitLink rejects.
+            options.append(f"-split-compile={int(self.split_compile)}")
         if self.split_compile_extended is not None:
-            options.append(f"-split-compile-extended={self.split_compile_extended}")
+            options.append(f"-split-compile-extended={int(self.split_compile_extended)}")
         if self.no_cache is True:
             options.append("-no-cache")
 
