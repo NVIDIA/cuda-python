@@ -29,7 +29,8 @@ def main() -> int:
     [hook] = [hook for repo in config["repos"] for hook in repo["hooks"] if hook["id"] == "lychee"]
     hook.setdefault("args", []).append("--offline")
 
-    with TemporaryDirectory(prefix="lychee offline smoke ") as directory:
+    # pre-commit resolves --config relative to the checkout; keep it on the same drive.
+    with TemporaryDirectory(prefix="lychee offline smoke ", dir=ROOT) as directory:
         config_path = Path(directory) / "pre-commit.yaml"
         config_path.write_text(yaml.safe_dump(config), encoding="utf-8")
         result = subprocess.run(  # noqa: S603
