@@ -24,6 +24,7 @@ Usage:
 Options:
   --tag <tag>        Find run by git tag (requires local git repo with the tag)
   --branch <branch>  Find latest successful run on the given branch
+  --event <event>    Restrict branch-mode runs to a trigger event (for example push)
   --artifact <glob>  Require an unexpired artifact matching this shell glob
                      (repeatable; branch mode only)
   --head-sha         Also print the run's head commit SHA (second line)
@@ -33,6 +34,7 @@ Examples:
   $0 --branch main NVIDIA/cuda-python
   $0 --branch 12.9.x --artifact 'cuda-bindings-python313-*' NVIDIA/cuda-python
   $0 --branch main --head-sha NVIDIA/cuda-python "CI"
+  $0 --branch main --event push --head-sha NVIDIA/cuda-python "CI"
 EOF
     exit 1
 }
@@ -41,6 +43,7 @@ EOF
 MODE=""
 REF=""
 HEAD_SHA_FLAG=0
+EVENT=""
 ARTIFACT_PATTERNS=()
 
 while [[ $# -gt 0 ]]; do
@@ -56,6 +59,9 @@ while [[ $# -gt 0 ]]; do
         --artifact)
             [[ $# -ge 2 ]] || usage
             ARTIFACT_PATTERNS+=("${2}"); shift 2 ;;
+        --event)
+            [[ $# -ge 2 && -n "${2}" ]] || usage
+            EVENT="${2}"; shift 2 ;;
         --head-sha)
             HEAD_SHA_FLAG=1; shift ;;
         -h|--help)
@@ -80,6 +86,11 @@ if [[ -z "${REPOSITORY}" ]]; then usage; fi
 
 if [[ "${MODE}" != "branch" && ${#ARTIFACT_PATTERNS[@]} -gt 0 ]]; then
     echo "Error: --artifact is only supported with --branch" >&2
+    exit 1
+fi
+
+if [[ "${MODE}" != "branch" && -n "${EVENT}" ]]; then
+    echo "Error: --event is only supported with --branch" >&2
     exit 1
 fi
 
@@ -176,7 +187,12 @@ if [[ "${MODE}" == "branch" ]]; then
                 "repos/${REPOSITORY}/actions/workflows/${WORKFLOW_ID}/runs" \
                 -f "head_sha=${commit_sha}" \
                 -F "per_page=100" \
-                --jq '[.workflow_runs[] | select(.conclusion == "success") | {id, head_sha, created_at}] | sort_by(.created_at) | reverse'); then
+                | jq -c --arg event "${EVENT}" '
+                    [.workflow_runs[]
+                     | select(.conclusion == "success" and ($event == "" or .event == $event))
+                     | {id, head_sha, created_at}]
+                    | sort_by(.created_at) | reverse
+                '); then
                 echo "Error: Failed to list runs for commit ${commit_sha}" >&2
                 exit 1
             fi
