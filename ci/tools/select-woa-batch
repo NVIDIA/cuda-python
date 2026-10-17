@@ -13,7 +13,7 @@ external_id="woa:v1:NVIDIA/cuda-python:$run_id:$sha"
 # including checks that are still running, failed, or cancelled.
 checks=$(gh api \
   -H 'X-GitHub-Api-Version: 2026-03-10' \
-  "repos/NVIDIA/cuda-python/commits/$sha/check-runs?check_name=cuda-python%20WoA%20integration&per_page=100")
+  "repos/NVIDIA/cuda-python/commits/$sha/check-runs?check_name=cuda-python%20WoA%20integration&filter=all&per_page=100")
 if jq -e --arg id "$external_id" '
   any(.check_runs[]; .app.id == 4954254 and .external_id == $id)
 ' <<< "$checks" >/dev/null; then
@@ -38,7 +38,7 @@ for ((index = candidate_index + 1; index < commit_total; index++)); do
   older_sha=$(jq -r --argjson index "$index" '.[$index].sha' <<< "$commits")
   older_checks=$(gh api \
     -H 'X-GitHub-Api-Version: 2026-03-10' \
-    "repos/NVIDIA/cuda-python/commits/$older_sha/check-runs?check_name=cuda-python%20WoA%20integration&per_page=100")
+    "repos/NVIDIA/cuda-python/commits/$older_sha/check-runs?check_name=cuda-python%20WoA%20integration&filter=all&per_page=100")
   if jq -e '
     any(.check_runs[];
       .app.id == 4954254 and

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from pathlib import Path
+from urllib.parse import parse_qs
 
 import pytest
 import yaml
@@ -37,3 +38,11 @@ def test_ci_dispatch_requires_successful_builds_on_main_push():
     assert dispatch["with"]["public_run_id"] == "${{ github.run_id }}"
     steps = WORKFLOW["jobs"]["resolve-public-build"]["steps"]
     assert "Wait for public WoA wheel artifacts" not in {step["name"] for step in steps}
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_batch_selector_requests_historical_checks_for_duplicates_and_baselines():
+    selector = (ROOT / "ci/tools/select-woa-batch").read_text()
+    queries = [line.split("?", 1)[1].split('"', 1)[0] for line in selector.splitlines() if "/check-runs?" in line]
+    assert len(queries) == 2
+    assert all(parse_qs(query)["filter"] == ["all"] for query in queries)
