@@ -44,6 +44,60 @@ pre-tag bootstrap should validate the resulting release tuple rather than
 hard-code the expected alpha/development suffix, and should report the
 effective `git describe` result for traceability.
 
+# Issues and contribution coordination
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md#coordinate-before-implementing) before
+preparing an issue or contribution. An open issue, a proposed fix, or a passing
+automated review does not by itself establish maintainer agreement to implement
+or merge a change.
+
+Use the user's current request and any existing maintainer agreement to
+determine the authorized scope. Honor explicit requests for local investigation,
+edits, or commits without asking for renewed approval. When preparing a
+contribution that requires coordination under CONTRIBUTING.md, check for
+maintainer agreement on its implementation direction; an explicit maintainer
+request satisfies that coordination step. Local work does not by itself
+authorize publishing an issue, comment, PR, or branch.
+
+When authorized to create an issue:
+
+- Distinguish the observed problem and evidence from possible solutions. State
+  whether the issue reports a bug, tracks an investigation, proposes an
+  approach awaiting agreement, or has an agreed implementation plan. Do not
+  imply a hypothetical fix or savings estimate is established by the
+  observations alone.
+- For an investigation or proposal without an agreed implementation plan,
+  prepend a prominent readiness notice. Match the status to the issue:
+  "Maintainer investigation" for an ongoing maintainer investigation, or
+  "Proposal awaiting maintainer agreement" for an unapproved proposal. Use the
+  following for an ongoing shared CI investigation, adapting the status and
+  reason for other areas:
+
+  > **Maintainer investigation; not currently open for implementation PRs.** This
+  > affects shared CI infrastructure. Please wait for maintainer agreement on the
+  > approach before starting implementation; observations and suggestions are
+  > welcome.
+
+- Routine bug reports do not need this notice solely because a fix has not
+  been agreed upon. Add it when the issue also tracks an unresolved
+  investigation or proposes an approach awaiting maintainer agreement.
+- For approved implementation work, describe the agreed scope and validation
+  expectations instead of marking it as unavailable. Follow explicit user
+  instructions about the issue's readiness and wording; do not invent an
+  approval requirement that conflicts with the current request.
+- Preserve intended behavior when proposing optimizations. Document relevant
+  tradeoffs and validation limits rather than treating a smaller resource
+  footprint as sufficient evidence for a change.
+- Keep private discussions, anecdotes, internal links, and names or other
+  details from private discussions out of public issues and repository
+  documentation unless explicitly authorized for publication. Use public
+  evidence and general explanations.
+
+When authorized to update an issue whose implementation direction has changed,
+make the status clear and update its readiness notice. Follow the user's
+preference for revising the issue or closing it with a linked replacement;
+preserve the rationale and distinguish historical estimates from the new plan.
+
 # Pull requests
 
 Treat the canonical upstream repository as read-only by default. For normal
