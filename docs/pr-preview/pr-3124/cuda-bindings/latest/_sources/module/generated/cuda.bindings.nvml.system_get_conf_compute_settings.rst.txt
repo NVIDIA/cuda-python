@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.system\_get\_conf\_compute\_settings
-=======================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: system_get_conf_compute_settings

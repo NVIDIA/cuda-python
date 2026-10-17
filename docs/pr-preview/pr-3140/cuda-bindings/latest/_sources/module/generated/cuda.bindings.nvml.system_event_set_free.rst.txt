@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.system\_event\_set\_free
-===========================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: system_event_set_free
