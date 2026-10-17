@@ -286,6 +286,19 @@ jobs:
 
       # Authored sources are checked by the ordinary Linux/Windows pre-commit
       # jobs. Generated HTML and anchors need this completed documentation build.
+      - name: Discover repository link targets
+        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
+        # BEGIN SYNCED LYCHEE REPOSITORY METADATA
+        env:
+          LYCHEE_REPOSITORY: ${{ github.repository }}
+          LYCHEE_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: >-
+          python ci/tools/checkout_link_defaults.py
+          --repository "$LYCHEE_REPOSITORY"
+          --default-branch "$LYCHEE_DEFAULT_BRANCH"
+          --github-env "$GITHUB_ENV"
+        # END SYNCED LYCHEE REPOSITORY METADATA
+
       - name: Install pre-commit for rendered link checks
         if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         run: |
