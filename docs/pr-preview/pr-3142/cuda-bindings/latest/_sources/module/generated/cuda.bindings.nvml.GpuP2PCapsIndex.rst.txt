@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.GpuP2PCapsIndex
+==================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: GpuP2PCapsIndex
