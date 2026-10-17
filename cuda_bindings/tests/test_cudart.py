@@ -13,6 +13,11 @@ from cuda import pathfinder
 from cuda.bindings import runtime
 from cuda_python_test_helpers import driver_version_less_than
 
+# Cap for memory pools created by tests. A pool created with maxSize 0 reserves
+# virtual address space of about twice the device memory, and that reservation
+# can fail on systems with a limited virtual address space.
+POOL_SIZE = 2 * 1024 * 1024  # 2 MiB
+
 
 def isSuccess(err):
     return err == cudart.cudaError_t.cudaSuccess
@@ -520,6 +525,7 @@ def test_cudart_MemPool_attr():
     poolProps.allocType = cudart.cudaMemAllocationType.cudaMemAllocationTypePinned
     poolProps.location.id = 0
     poolProps.location.type = cudart.cudaMemLocationType.cudaMemLocationTypeDevice
+    poolProps.maxSize = POOL_SIZE
 
     attr_list = [None] * 8
     err, pool = cudart.cudaMemPoolCreate(poolProps)
