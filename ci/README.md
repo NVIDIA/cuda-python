@@ -31,7 +31,8 @@ hook in development and in Linux/Windows PR CI. The hook installs the official
 PyPI `lychee-bin==0.24.2` native wheel in its isolated Python environment;
 `ci/tools/run_lychee.py` invokes that executable and preserves its exit status.
 Authored checks retain their existing policy of not validating fragments.
-Repository URLs are checked as written.
+Links to the supported repositories' default branches are checked against the
+proposed checkout, as described under [Repository Links](#repository-links).
 
 ### PR Checks And Cache Warming
 
@@ -97,6 +98,62 @@ afresh. The rendered hook uses its own cache directory, selected by
 `LYCHEE_CACHE_DIR` (default `.lychee-rendered`), so its fragment-aware results
 cannot mix with authored results in the checkout's `.lycheecache`. Per-pass
 JSON reports and a Markdown summary are retained as CI artifacts.
+
+### Repository Links
+
+Documentation can link to a path added or moved in the same PR using its
+intended default-branch URL. For example, a URL ending in
+`tree/<default-branch>/new-directory` is validated before that directory
+exists on the remote default branch. Lychee remaps the
+validation target; source files and published documentation keep their URLs.
+
+`ci/tools/checkout_link_defaults.py` discovers each source repository's default
+branch, rather than assuming it is named `main`. It supports the canonical
+public repository and the repository being checked. A synchronized repository
+with a different default branch, such as `ctk-next`, can retain public source
+links and also use its own repository links. Each source URL is matched against
+the default branch of the repository named in that URL.
+
+- Authored Markdown and reST map to file URIs in the working tree, including
+  uncommitted and unpushed paths. Missing files and directories fail even if a
+  prior check succeeded. Authored checks continue to omit fragment validation.
+- Rendered HTML maps to GitHub's file or directory view at the actual
+  checked-out commit in the current repository, preserving fragment checks.
+- Only complete URL prefixes naming a supported repository and its default
+  branch are remapped. Tags, explicit commits, other branches, unrelated
+  repositories, and URLs embedded inside other URLs retain their targets.
+
+CI takes the current repository and default branch from the workflow event.
+When running in another repository, a preparation step also queries the public
+repository's advertised default branch once. Hook invocations use the prepared
+metadata without further discovery requests. The PR base branch and current
+working branch do not determine which source URLs are remapped.
+
+Local hooks use cached remote `HEAD` references and make no discovery requests.
+The `upstream` remote identifies the checkout's repository when present;
+otherwise `origin` does. To select it explicitly, including when using other
+remote names:
+
+```bash
+git config lychee.repository OWNER/REPOSITORY
+```
+
+The helper matches remote URLs to find each selected repository's metadata.
+If a cached default is missing or conflicting, it reports the remote to
+refresh, for example:
+
+```bash
+git remote set-head upstream --auto
+```
+
+A synchronized checkout also needs a remote for the public repository, with
+its default cached in the same way, for example `git remote set-head public_repo
+--auto`. Fetch the default branch first if Git requests it. Refresh these
+references after a repository changes its default branch.
+
+These rules validate the proposed default-branch tree. Before adopting them on
+a maintenance branch, choose an explicit policy for links that intentionally
+point to a different tree from the maintenance checkout.
 
 ## Temporary Pixi Lockfile Maintenance Pause
 

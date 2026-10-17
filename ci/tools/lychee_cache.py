@@ -15,6 +15,7 @@ POLICY_FILES = (
     ".pre-commit-config.yaml",
     "lychee.toml",
     "ci/tools/run_lychee.py",
+    "ci/tools/checkout_link_defaults.py",
     "ci/tools/run_lychee_precommit.py",
     "ci/tools/retry_lychee.py",
     "ci/tools/prepare_lychee_inputs.py",

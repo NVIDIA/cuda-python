@@ -21,6 +21,7 @@ import sysconfig
 import uuid
 from pathlib import Path
 
+from checkout_link_defaults import repo_link_remaps
 from prepare_lychee_inputs import rendered_inputs, write_inputs
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -60,7 +61,9 @@ def main(arguments: list[str] | None = None) -> int:
         report = directory / f"{uuid.uuid4().hex}.json"
         arguments = ["--format", "json", "--output", str(report), *arguments]
 
-    code = subprocess.run([str(executable), *arguments], check=False, **options).returncode  # noqa: S603
+    code = subprocess.run(  # noqa: S603
+        [str(executable), *repo_link_remaps(ROOT, rendered=rendered), *arguments], check=False, **options
+    ).returncode
     if report is not None:
         report.with_suffix(".status.json").write_text(json.dumps({"exit_code": code}), encoding="utf-8")
     return code
