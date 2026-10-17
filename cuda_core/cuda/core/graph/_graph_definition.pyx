@@ -190,7 +190,7 @@ cdef class GraphDefinition:
             dst, value, width, height=height, pitch=pitch, dst_owner=dst_owner
         )
 
-    def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
+    def launch(self, config not None: LaunchConfig, kernel not None: Kernel, *args) -> KernelNode:
         """Add an entry-point kernel launch node (no dependencies).
 
         See :meth:`GraphNode.launch` for full documentation.
@@ -229,21 +229,21 @@ cdef class GraphDefinition:
         """
         return self._entry.memcpy(dst, src, size, dst_owner=dst_owner, src_owner=src_owner)
 
-    def embed(self, child: GraphDefinition) -> ChildGraphNode:
+    def embed(self, GraphDefinition child not None: GraphDefinition) -> ChildGraphNode:
         """Add an entry-point child graph node (no dependencies).
 
         See :meth:`GraphNode.embed` for full documentation.
         """
         return self._entry.embed(child)
 
-    def record(self, event: Event) -> EventRecordNode:
+    def record(self, event not None: Event) -> EventRecordNode:
         """Add an entry-point event record node (no dependencies).
 
         See :meth:`GraphNode.record` for full documentation.
         """
         return self._entry.record(event)
 
-    def wait(self, event: Event) -> EventWaitNode:
+    def wait(self, event not None: Event) -> EventWaitNode:
         """Add an entry-point event wait node (no dependencies).
 
         See :meth:`GraphNode.wait` for full documentation.
@@ -292,28 +292,28 @@ cdef class GraphDefinition:
 
         return GraphCondition._from_handle(c_handle)
 
-    def if_then(self, condition: GraphCondition) -> IfNode:
+    def if_then(self, GraphCondition condition not None: GraphCondition) -> IfNode:
         """Add an entry-point if-conditional node (no dependencies).
 
         See :meth:`GraphNode.if_then` for full documentation.
         """
         return self._entry.if_then(condition)
 
-    def if_else(self, condition: GraphCondition) -> IfElseNode:
+    def if_else(self, GraphCondition condition not None: GraphCondition) -> IfElseNode:
         """Add an entry-point if-else conditional node (no dependencies).
 
         See :meth:`GraphNode.if_else` for full documentation.
         """
         return self._entry.if_else(condition)
 
-    def while_loop(self, condition: GraphCondition) -> WhileNode:
+    def while_loop(self, GraphCondition condition not None: GraphCondition) -> WhileNode:
         """Add an entry-point while-loop conditional node (no dependencies).
 
         See :meth:`GraphNode.while_loop` for full documentation.
         """
         return self._entry.while_loop(condition)
 
-    def switch(self, condition: GraphCondition, unsigned int count) -> SwitchNode:
+    def switch(self, GraphCondition condition not None: GraphCondition, unsigned int count) -> SwitchNode:
         """Add an entry-point switch conditional node (no dependencies).
 
         See :meth:`GraphNode.switch` for full documentation.

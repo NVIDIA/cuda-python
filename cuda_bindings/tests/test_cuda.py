@@ -17,6 +17,11 @@ from cuda.bindings import driver
 from cuda.bindings._internal.utils import FunctionNotFoundError
 from cuda_python_test_helpers import driver_version_less_than
 
+# Cap for memory pools created by tests. A pool created with maxSize 0 reserves
+# virtual address space of about twice the device memory, and that reservation
+# can fail on systems with a limited virtual address space.
+POOL_SIZE = 2 * 1024 * 1024  # 2 MiB
+
 
 def supportsMemoryPool():
     err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
@@ -265,6 +270,7 @@ def test_cuda_memPool_attr():
     poolProps.allocType = cuda.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
     poolProps.location.id = 0
     poolProps.location.type = cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    poolProps.maxSize = POOL_SIZE
 
     attr_list = [None] * 8
     err, pool = cuda.cuMemPoolCreate(poolProps)
@@ -460,11 +466,29 @@ def test_cuda_mem_range_attr(device):
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
+@pytest.fixture
+def xfail_on_graph_mempool_oom():
+    """Return a check that xfails the calling test if the graph memory pool cannot be created.
+
+    The graph memory pool reserves virtual address space of about twice the
+    device memory, and unlike pools from cuMemPoolCreate it cannot be capped.
+    On systems with a limited virtual address space this reservation can fail
+    with CUDA_ERROR_OUT_OF_MEMORY, especially when another uncapped pool
+    already exists in the process.
+    """
+
+    def check(err):
+        if err == cuda.CUresult.CUDA_ERROR_OUT_OF_MEMORY:
+            pytest.xfail("graph memory pool creation failed with CUDA_ERROR_OUT_OF_MEMORY")
+
+    return check
+
+
 @pytest.mark.skipif(
     driver_version_less_than(11040) or not supportsMemoryPool(), reason="Mempool for graphs not supported"
 )
 @pytest.mark.thread_unsafe(reason="used high memory can be higher if threaded.")
-def test_cuda_graphMem_attr(device):
+def test_cuda_graphMem_attr(device, xfail_on_graph_mempool_oom):
     err, stream = cuda.cuStreamCreate(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
@@ -485,6 +509,7 @@ def test_cuda_graphMem_attr(device):
         assert destroy_err == cuda.CUresult.CUDA_SUCCESS
         (destroy_err,) = cuda.cuStreamDestroy(stream)
         assert destroy_err == cuda.CUresult.CUDA_SUCCESS
+        xfail_on_graph_mempool_oom(err)
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, freeNode = cuda.cuGraphAddMemFreeNode(graph, [allocNode], 1, params.dptr)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -689,6 +714,51 @@ def test_get_error_name_and_string():
 @pytest.mark.skipif(driver_version_less_than(11030), reason="Driver too old for cuStreamGetCaptureInfo_v2")
 def test_stream_capture():
     pass
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_cuda_launch_host_func_graph_replay():
+    # A host function captured into a graph runs once per graph launch. The
+    # bindings must hand the function pointer and the user data to CUDA
+    # unchanged so that every launch reaches the same function (issue #790).
+    counter = ctypes.c_int(0)
+
+    @ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+    def host_fn(userData):
+        ctypes.c_int.from_address(userData).value += 1
+
+    callback = cuda.CUhostFn(_ptr=ctypes.addressof(host_fn))
+    err, stream = cuda.cuStreamCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    try:
+        # Thread-local mode: pytest-run-parallel runs this test in several threads
+        # at once, and in global mode a call such as cuGraphInstantiate in one
+        # thread fails while another thread is capturing.
+        (err,) = cuda.cuStreamBeginCapture(stream, cuda.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_THREAD_LOCAL)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        (err,) = cuda.cuLaunchHostFunc(stream, callback, ctypes.addressof(counter))
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        err, graph = cuda.cuStreamEndCapture(stream)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        try:
+            err, graphExec = cuda.cuGraphInstantiate(graph, 0)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+            try:
+                for launch in range(1, 6):
+                    (err,) = cuda.cuGraphLaunch(graphExec, stream)
+                    assert err == cuda.CUresult.CUDA_SUCCESS
+                    (err,) = cuda.cuStreamSynchronize(stream)
+                    assert err == cuda.CUresult.CUDA_SUCCESS
+                    assert counter.value == launch
+            finally:
+                (err,) = cuda.cuGraphExecDestroy(graphExec)
+                assert err == cuda.CUresult.CUDA_SUCCESS
+        finally:
+            (err,) = cuda.cuGraphDestroy(graph)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+    finally:
+        (err,) = cuda.cuStreamDestroy(stream)
+        assert err == cuda.CUresult.CUDA_SUCCESS
 
 
 def test_profiler():

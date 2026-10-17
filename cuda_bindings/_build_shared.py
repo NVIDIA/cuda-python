@@ -18,8 +18,9 @@ Only what genuinely differs per package is parameterized, via the arguments of
 ``tweak`` hook for flags a single package needs.
 
 Besides the toolchain, this module owns the CUDA path lookup and the machinery that both backends use
-around cythonize and build_ext: the opt-in Cython generated-source cache and
-the build stamps that force a rebuild when the build configuration changed.
+around cythonize and build_ext: the opt-in Cython generated-source cache, the
+include-dir cleanup that keeps compile commands stable across isolated builds,
+and the build stamps that force a rebuild when the build configuration changed.
 
 Note: There is no support guarantee for environment variables like
 CUDA_PYTHON_TOOLCHAIN. They may be removed or changed in the future.
@@ -427,6 +428,31 @@ def _stable_cython_alias(target: Path, alias: Path):
                 alias.unlink()
         except OSError:
             pass
+
+
+# -----------------------------------------------------------------------
+# build_ext include dirs
+
+
+def drop_empty_venv_include_dir(include_dirs):
+    """Return ``include_dirs`` without the virtualenv include dir if it holds no files.
+
+    In a virtualenv, setuptools' build_ext appends ``<sys.exec_prefix>/include``.
+    Under PEP 517 build isolation that prefix is a fresh temporary directory
+    (``/tmp/build-env-<random>``), so the ``-I`` flag differs on every build,
+    and compiler caches that key on the command line (sccache's preprocessor
+    cache) never hit. A directory without files contributes no headers, so
+    dropping it leaves the compilation unchanged.
+
+    Symlinked subdirectories are followed: headers reachable through them
+    still count as files.
+    """
+    if sys.exec_prefix == sys.base_exec_prefix:
+        return include_dirs
+    venv_include = os.path.join(sys.exec_prefix, "include")
+    if any(files for _, _, files in os.walk(venv_include, followlinks=True)):
+        return include_dirs
+    return [d for d in include_dirs if d != venv_include]
 
 
 # -----------------------------------------------------------------------

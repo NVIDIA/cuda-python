@@ -170,7 +170,7 @@ class StridedMemoryView:
         individual keyword arguments directly, or provide bundled tiled
         options via ``options=``.
         """
-    def copy_from(self, other: StridedMemoryView, stream: Stream, allocator: object | None=None, blocking: bool | None=None) -> None:
+    def copy_from(self, other: StridedMemoryView, stream: Stream | None, allocator: object | None=None, blocking: bool | None=None) -> None:
         """
         Copies the data from the other view into this view.
 

@@ -8,7 +8,6 @@
 # compatible cuda.bindings version.
 
 import inspect
-import sys
 from enum import StrEnum
 from typing import Any
 
@@ -387,7 +386,6 @@ def test_wrapper_covers_all_binding_members(binding, str_enum, mapping, binding_
             )
 
 
-@pytest.mark.skipif(sys.version_info < (3, 11), reason="Requires Python 3.11+ for StrEnum")
 @pytest.mark.parametrize(
     "module",
     _MODULES,

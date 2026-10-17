@@ -128,13 +128,11 @@ cdef class Stream:
         return Stream._from_handle(cls, get_per_thread_stream())
 
     @classmethod
-    @cython.annotation_typing(False)
     def _init(cls, obj: IsStreamType | None = None, options: StreamOptions | None = None,
-              device_id: int | None = None, ctx: Context | None = None) -> Stream:
+              device_id: int | None = None, Context ctx: Context | None = None) -> Stream:
         cdef StreamHandle h_stream
         cdef cydriver.CUstream borrowed
         cdef ContextHandle h_context
-        cdef Context context
 
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
@@ -148,9 +146,8 @@ cdef class Stream:
 
         if ctx is None:
             raise RuntimeError("A CUDA context is required to create a stream")
-        context = <Context>ctx
-        Context_check_open(context)
-        h_context = context._h_context
+        Context_check_open(ctx)
+        h_context = ctx._h_context
 
         cdef StreamOptions opts = check_or_create_options(StreamOptions, options, "Stream options")
         nonblocking = opts.nonblocking
@@ -161,7 +158,7 @@ cdef class Stream:
         # TODO: we might want to consider memoizing high/low per CUDA context and avoid this call
         cdef int high, low
         cdef cydriver.CUresult res_code
-        res_code = context_get_stream_priority_range(context._h_context, &high, &low)
+        res_code = context_get_stream_priority_range(ctx._h_context, &high, &low)
         HANDLE_RETURN(res_code)
         cdef int prio
         if priority is not None:
@@ -175,7 +172,7 @@ cdef class Stream:
         # For green contexts, the C++ layer auto-dispatches to cuGreenCtxStreamCreate,
         # a 12.5 driver API. cuGreenCtxCreate itself is 12.4. The driver alone
         # decides availability. The gate lives here, not in C++.
-        if context.is_green and cy_driver_version() < (12, 5, 0):
+        if ctx.is_green and cy_driver_version() < (12, 5, 0):
             raise RuntimeError(
                 "Green context stream creation requires CUDA driver 12.5 or newer "
                 f"(current driver: {'.'.join(map(str, cy_driver_version()))})"

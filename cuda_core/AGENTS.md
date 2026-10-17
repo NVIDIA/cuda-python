@@ -224,8 +224,8 @@ below are for contributors. Reviewers and agents should flag violations.
   lock, and when a lock must stay held call `p_`, keep the status, and report
   after the lock is released (`deviceptr_import_ipc` is the model).
 - **Rollback failure**: the original exception propagates; the failed rollback
-  is attached to it with `attach_rollback_failure()` (a PEP 678 note on
-  Python 3.11+, reported out-of-band on 3.10), or chained with
+  is attached to it with `attach_rollback_failure()` (a PEP 678 note),
+  or chained with
   `raise ... from` when a second exception must be raised. Catching everything
   (bare `except:` or `except BaseException:`) is acceptable only for
   rollback-then-`raise` blocks, where the rollback must also run for

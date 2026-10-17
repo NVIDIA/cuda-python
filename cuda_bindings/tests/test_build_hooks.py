@@ -125,6 +125,7 @@ from cuda_python_test_helpers.build_shared import (
     BuildKeyStampMixin,
     CheckToolchainAvailableMixin,
     DistutilsLinkerIntegrationMixin,
+    DropEmptyVenvIncludeDirMixin,
     ForceBuildExtReexportMixin,
     ResolveToolchainMixin,
     WithCompilerMixin,
@@ -158,6 +159,10 @@ class TestAbiStampPath(AbiStampPathMixin):
 
 
 class TestBuildKeyStamp(BuildKeyStampMixin):
+    build_shared = _build_shared
+
+
+class TestDropEmptyVenvIncludeDir(DropEmptyVenvIncludeDirMixin):
     build_shared = _build_shared
 
 

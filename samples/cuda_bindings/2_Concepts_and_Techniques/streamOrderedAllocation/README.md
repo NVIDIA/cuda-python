@@ -64,7 +64,7 @@ Waives on Darwin (Metal-only) and on GPUs without memory-pool support.
 ### Software
 
 - CUDA Toolkit 11.3 or newer (feature gate for `MEMORY_POOLS_SUPPORTED`)
-- Python 3.10 or newer
+- Python 3.11 or newer
 - `cuda-python` (>=13.4.0)
 - `numpy`
 

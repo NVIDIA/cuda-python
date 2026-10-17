@@ -82,7 +82,7 @@ This sample demonstrates peer-to-peer (P2P) memory access between multiple GPUs 
 1. **Two or more NVIDIA Graphics Cards** with CUDA support and P2P capability
 2. **CUDA Drivers** installed on your system
 3. **CUDA Toolkit 13.0+** installed on your system
-4. **Python 3.10 or newer**
+4. **Python 3.11 or newer**
 5. **Proper PCIe topology** (GPUs should be on same PCIe root complex for best performance)
 
 **Note**: This sample will gracefully exit if fewer than 2 GPUs are detected or if P2P is not supported between any GPU pair.
