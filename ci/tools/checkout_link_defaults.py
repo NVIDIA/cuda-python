@@ -93,7 +93,11 @@ def _cached_default(root: Path, repository: str, remotes: dict[str, str]) -> str
     for name in names:
         target = _git(root, "symbolic-ref", "--quiet", f"refs/remotes/{name}/HEAD", optional=True)
         prefix = f"refs/remotes/{name}/"
-        if target.startswith(prefix) and target != prefix + "HEAD":
+        if (
+            target.startswith(prefix)
+            and target != prefix + "HEAD"
+            and _git(root, "rev-parse", "--verify", "--quiet", target, optional=True)
+        ):
             branches.add(target.removeprefix(prefix))
     instructions = "; ".join(f"git remote set-head {name} --auto" for name in names)
     if not branches:
