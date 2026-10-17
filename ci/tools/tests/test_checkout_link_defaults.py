@@ -30,12 +30,26 @@ def checkout(tmp_path):
     root = tmp_path / "checkout space$#"
     root.mkdir()
     git(root, "init")
+    git(
+        root,
+        "-c",
+        "user.name=Link Test",
+        "-c",
+        "user.email=link-test@example.invalid",
+        "-c",
+        "commit.gpgsign=false",
+        "commit",
+        "--allow-empty",
+        "-m",
+        "Initial test revision",
+    )
     return root
 
 
 def remote(root, alias, url, branch=None):
     git(root, "remote", "add", alias, url)
     if branch is not None:
+        git(root, "update-ref", f"refs/remotes/{alias}/{branch}", "HEAD")
         git(root, "symbolic-ref", f"refs/remotes/{alias}/HEAD", f"refs/remotes/{alias}/{branch}")
 
 
@@ -131,6 +145,16 @@ def test_missing_cached_head_gives_matching_remote_refresh_instruction(tmp_path,
     monkeypatch.delenv(links.METADATA_ENV, raising=False)
     root = checkout(tmp_path)
     remote(root, "upstream", "https://github.com/NVIDIA/cuda-python.git")
+    with pytest.raises(ValueError, match="git remote set-head upstream --auto"):
+        links.repository_defaults(root)
+
+
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_dangling_cached_head_requires_refresh_instead_of_using_removed_branch(tmp_path, monkeypatch):
+    monkeypatch.delenv(links.METADATA_ENV, raising=False)
+    root = checkout(tmp_path)
+    remote(root, "upstream", "https://github.com/NVIDIA/cuda-python.git")
+    git(root, "symbolic-ref", "refs/remotes/upstream/HEAD", "refs/remotes/upstream/removed")
     with pytest.raises(ValueError, match="git remote set-head upstream --auto"):
         links.repository_defaults(root)
 
