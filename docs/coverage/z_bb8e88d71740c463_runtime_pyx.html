@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/runtime.pyx: 29.51%</title>
+    <title>Coverage for cuda/bindings/runtime.pyx: 29.55%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
@@ -123,7 +123,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>bindings<span class="sep">/</span>runtime.pyx</b>:
-            <span class="pc_cov">29.51%</span>
+            <span class="pc_cov">29.55%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -166,8 +166,8 @@
         </aside>
         <h2>
             <span class="text">11208 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">3308<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">7900<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">3312<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">7896<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -176,7 +176,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__context_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
-            created at 2026-10-16 01:23 +0000
+            created at 2026-10-17 01:54 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -8687,11 +8687,11 @@
     <p class="run"><span class="n"><a id="t8494" href="#t8494">8494</a></span><span class="t"><span class="txt">        self._extent = cudaExtent(_ptr=&lt;void_ptr&gt;&amp;self._pvt_ptr[0].extent)</span>&nbsp;</span><input type="checkbox" id="ctxs8494"><span class="r"><label for="ctxs8494" class="ctx">3 ctx</label></span><span class="ctxs">1bcj</span></p>
     <p class="run"><span class="n"><a id="t8495" href="#t8495">8495</a></span><span class="t"><span class="txt">        self._extent._owner = self</span>&nbsp;</span><input type="checkbox" id="ctxs8495"><span class="r"><label for="ctxs8495" class="ctx">3 ctx</label></span><span class="ctxs">1bcj</span></p>
     <p class="pln"><span class="n"><a id="t8496" href="#t8496">8496</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t8497" href="#t8497">8497</a></span><span class="t"><span class="txt">        self._srcPos = None</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t8498" href="#t8498">8498</a></span><span class="t"><span class="txt">        self._srcPtr = None</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t8499" href="#t8499">8499</a></span><span class="t"><span class="txt">        self._dstPos = None</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t8500" href="#t8500">8500</a></span><span class="t"><span class="txt">        self._dstPtr = None</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t8501" href="#t8501">8501</a></span><span class="t"><span class="txt">        self._extent = None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t8497" href="#t8497">8497</a></span><span class="t"><span class="txt">        self._srcPos = None</span>&nbsp;</span><input type="checkbox" id="ctxs8497"><span class="r"><label for="ctxs8497" class="ctx">1 ctx</label></span><span class="ctxs">1p</span></p>
+    <p class="run"><span class="n"><a id="t8498" href="#t8498">8498</a></span><span class="t"><span class="txt">        self._srcPtr = None</span>&nbsp;</span><input type="checkbox" id="ctxs8498"><span class="r"><label for="ctxs8498" class="ctx">1 ctx</label></span><span class="ctxs">1p</span></p>
+    <p class="run"><span class="n"><a id="t8499" href="#t8499">8499</a></span><span class="t"><span class="txt">        self._dstPos = None</span>&nbsp;</span><input type="checkbox" id="ctxs8499"><span class="r"><label for="ctxs8499" class="ctx">1 ctx</label></span><span class="ctxs">1p</span></p>
+    <p class="run"><span class="n"><a id="t8500" href="#t8500">8500</a></span><span class="t"><span class="txt">        self._dstPtr = None</span>&nbsp;</span><input type="checkbox" id="ctxs8500"><span class="r"><label for="ctxs8500" class="ctx">1 ctx</label></span><span class="ctxs">1p</span></p>
+    <p class="run"><span class="n"><a id="t8501" href="#t8501">8501</a></span><span class="t"><span class="txt">        self._extent = None</span>&nbsp;</span><input type="checkbox" id="ctxs8501"><span class="r"><label for="ctxs8501" class="ctx">1 ctx</label></span><span class="ctxs">1p</span></p>
     <p class="run"><span class="n"><a id="t8502" href="#t8502">8502</a></span><span class="t"><span class="txt">    def getPtr(self):</span>&nbsp;</span><span class="r"><label for="ctxs8502" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t8503" href="#t8503">8503</a></span><span class="t"><span class="txt">        return &lt;void_ptr&gt;self._pvt_ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t8504" href="#t8504">8504</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
@@ -11046,7 +11046,7 @@
     <p class="pln"><span class="n"><a id="t10853" href="#t10853">10853</a></span><span class="t"><span class="txt">    def __init__(self, void_ptr _ptr):</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t10854" href="#t10854">10854</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><input type="checkbox" id="ctxs10854"><span class="r"><label for="ctxs10854" class="ctx">3 ctx</label></span><span class="ctxs">1bEc</span></p>
     <p class="pln"><span class="n"><a id="t10855" href="#t10855">10855</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t10856" href="#t10856">10856</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><input type="checkbox" id="ctxs10856"><span class="r"><label for="ctxs10856" class="ctx">1 ctx</label></span><span class="ctxs">1p</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t10856" href="#t10856">10856</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t10857" href="#t10857">10857</a></span><span class="t"><span class="txt">    def getPtr(self):</span>&nbsp;</span><span class="r"><label for="ctxs10857" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t10858" href="#t10858">10858</a></span><span class="t"><span class="txt">        return &lt;void_ptr&gt;&amp;self._pvt_ptr[0].localized</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t10859" href="#t10859">10859</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
@@ -11124,8 +11124,8 @@
     <p class="run"><span class="n"><a id="t10931" href="#t10931">10931</a></span><span class="t"><span class="txt">        self._localized = anon_struct6(_ptr=&lt;void_ptr&gt;self._pvt_ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs10931"><span class="r"><label for="ctxs10931" class="ctx">3 ctx</label></span><span class="ctxs">1bEc</span></p>
     <p class="run"><span class="n"><a id="t10932" href="#t10932">10932</a></span><span class="t"><span class="txt">        self._localized._owner = self</span>&nbsp;</span><input type="checkbox" id="ctxs10932"><span class="r"><label for="ctxs10932" class="ctx">3 ctx</label></span><span class="ctxs">1bEc</span></p>
     <p class="pln"><span class="n"><a id="t10933" href="#t10933">10933</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t10934" href="#t10934">10934</a></span><span class="t"><span class="txt">        self._localized = None</span>&nbsp;</span><input type="checkbox" id="ctxs10934"><span class="r"><label for="ctxs10934" class="ctx">1 ctx</label></span><span class="ctxs">1p</span></p>
-    <p class="run"><span class="n"><a id="t10935" href="#t10935">10935</a></span><span class="t"><span class="txt">        if self._val_ptr is not NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs10935"><span class="r"><label for="ctxs10935" class="ctx">1 ctx</label></span><span class="ctxs">1p</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t10934" href="#t10934">10934</a></span><span class="t"><span class="txt">        self._localized = None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t10935" href="#t10935">10935</a></span><span class="t"><span class="txt">        if self._val_ptr is not NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t10936" href="#t10936">10936</a></span><span class="t"><span class="txt">            free(self._val_ptr)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t10937" href="#t10937">10937</a></span><span class="t"><span class="txt">    def getPtr(self):</span>&nbsp;</span><span class="r"><label for="ctxs10937" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t10938" href="#t10938">10938</a></span><span class="t"><span class="txt">        return &lt;void_ptr&gt;self._pvt_ptr</span>&nbsp;</span><span class="r"></span></p>
@@ -11296,7 +11296,7 @@
     <p class="run"><span class="n"><a id="t11103" href="#t11103">11103</a></span><span class="t"><span class="txt">        self._location = cudaMemLocation(_ptr=&lt;void_ptr&gt;&amp;self._pvt_ptr[0].location)</span>&nbsp;</span><input type="checkbox" id="ctxs11103"><span class="r"><label for="ctxs11103" class="ctx">3 ctx</label></span><span class="ctxs">1bEc</span></p>
     <p class="run"><span class="n"><a id="t11104" href="#t11104">11104</a></span><span class="t"><span class="txt">        self._location._owner = self</span>&nbsp;</span><input type="checkbox" id="ctxs11104"><span class="r"><label for="ctxs11104" class="ctx">3 ctx</label></span><span class="ctxs">1bEc</span></p>
     <p class="pln"><span class="n"><a id="t11105" href="#t11105">11105</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t11106" href="#t11106">11106</a></span><span class="t"><span class="txt">        self._location = None</span>&nbsp;</span><input type="checkbox" id="ctxs11106"><span class="r"><label for="ctxs11106" class="ctx">1 ctx</label></span><span class="ctxs">1p</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t11106" href="#t11106">11106</a></span><span class="t"><span class="txt">        self._location = None</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t11107" href="#t11107">11107</a></span><span class="t"><span class="txt">    def getPtr(self):</span>&nbsp;</span><span class="r"><label for="ctxs11107" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t11108" href="#t11108">11108</a></span><span class="t"><span class="txt">        return &lt;void_ptr&gt;self._pvt_ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t11109" href="#t11109">11109</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
@@ -11380,7 +11380,7 @@
     <p class="mis show_mis"><span class="n"><a id="t11187" href="#t11187">11187</a></span><span class="t"><span class="txt">        return self._pvt_ptr[0].maxSize</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t11188" href="#t11188">11188</a></span><span class="t"><span class="txt">    @maxSize.setter</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t11189" href="#t11189">11189</a></span><span class="t"><span class="txt">    def maxSize(self, size_t maxSize):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t11190" href="#t11190">11190</a></span><span class="t"><span class="txt">        self._pvt_ptr[0].maxSize = maxSize</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t11190" href="#t11190">11190</a></span><span class="t"><span class="txt">        self._pvt_ptr[0].maxSize = maxSize</span>&nbsp;</span><input type="checkbox" id="ctxs11190"><span class="r"><label for="ctxs11190" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
     <p class="pln"><span class="n"><a id="t11191" href="#t11191">11191</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t11192" href="#t11192">11192</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t11193" href="#t11193">11193</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
@@ -12426,7 +12426,7 @@
     <p class="pln"><span class="n"><a id="t12233" href="#t12233">12233</a></span><span class="t"><span class="txt">    def __init__(self, void_ptr _ptr = 0):</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t12234" href="#t12234">12234</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><input type="checkbox" id="ctxs12234"><span class="r"><label for="ctxs12234" class="ctx">2 ctx</label></span><span class="ctxs">1d3</span></p>
     <p class="pln"><span class="n"><a id="t12235" href="#t12235">12235</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t12236" href="#t12236">12236</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t12236" href="#t12236">12236</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><input type="checkbox" id="ctxs12236"><span class="r"><label for="ctxs12236" class="ctx">1 ctx</label></span><span class="ctxs">1p</span></p>
     <p class="run"><span class="n"><a id="t12237" href="#t12237">12237</a></span><span class="t"><span class="txt">    def getPtr(self):</span>&nbsp;</span><span class="r"><label for="ctxs12237" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t12238" href="#t12238">12238</a></span><span class="t"><span class="txt">        return &lt;void_ptr&gt;self._pvt_ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t12239" href="#t12239">12239</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
@@ -12859,7 +12859,7 @@
     <p class="run"><span class="n"><a id="t12666" href="#t12666">12666</a></span><span class="t"><span class="txt">        self._uuid = cudaUUID_t(_ptr=&lt;void_ptr&gt;&amp;self._pvt_ptr[0].uuid)</span>&nbsp;</span><input type="checkbox" id="ctxs12666"><span class="r"><label for="ctxs12666" class="ctx">2 ctx</label></span><span class="ctxs">1d3</span></p>
     <p class="run"><span class="n"><a id="t12667" href="#t12667">12667</a></span><span class="t"><span class="txt">        self._uuid._owner = self</span>&nbsp;</span><input type="checkbox" id="ctxs12667"><span class="r"><label for="ctxs12667" class="ctx">2 ctx</label></span><span class="ctxs">1d3</span></p>
     <p class="pln"><span class="n"><a id="t12668" href="#t12668">12668</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t12669" href="#t12669">12669</a></span><span class="t"><span class="txt">        self._uuid = None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t12669" href="#t12669">12669</a></span><span class="t"><span class="txt">        self._uuid = None</span>&nbsp;</span><input type="checkbox" id="ctxs12669"><span class="r"><label for="ctxs12669" class="ctx">1 ctx</label></span><span class="ctxs">1p</span></p>
     <p class="run"><span class="n"><a id="t12670" href="#t12670">12670</a></span><span class="t"><span class="txt">    def getPtr(self):</span>&nbsp;</span><span class="r"><label for="ctxs12670" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t12671" href="#t12671">12671</a></span><span class="t"><span class="txt">        return &lt;void_ptr&gt;self._pvt_ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t12672" href="#t12672">12672</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
@@ -40983,7 +40983,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__context_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
-            created at 2026-10-16 01:23 +0000
+            created at 2026-10-17 01:54 +0000
         </p>
     </div>
 </footer>
