@@ -24,6 +24,7 @@ def test_native_reports_preserve_each_precommit_chunk_exit_code(tmp_path, monkey
     with (
         patch("run_lychee.sysconfig.get_path", return_value=str(tmp_path)),
         patch("run_lychee.sys.platform", "linux"),
+        patch("run_lychee.repo_link_remaps", return_value=[]),
         patch(
             "run_lychee.subprocess.run",
             side_effect=[subprocess.CompletedProcess([], 2), subprocess.CompletedProcess([], 0)],
@@ -57,6 +58,7 @@ def test_rendered_hook_checks_untracked_html_in_its_own_cache(tmp_path, monkeypa
     with (
         patch("run_lychee.sysconfig.get_path", return_value=str(tmp_path)),
         patch("run_lychee.sys.platform", "linux"),
+        patch("run_lychee.repo_link_remaps", return_value=[]),
         patch("run_lychee.subprocess.run", return_value=subprocess.CompletedProcess([], 0)) as run,
     ):
         assert main(["--rendered", "--cache"]) == 0
@@ -83,6 +85,7 @@ def test_rendered_hook_rejects_missing_build_before_invoking_native_checker(tmp_
     with (
         patch("run_lychee.sysconfig.get_path", return_value=str(tmp_path)),
         patch("run_lychee.sys.platform", "linux"),
+        patch("run_lychee.repo_link_remaps", return_value=[]),
         patch("run_lychee.subprocess.run") as run,
         pytest.raises(ValueError, match="No documentation inputs"),
     ):

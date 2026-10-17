@@ -295,6 +295,19 @@ jobs:
         with:
           python-version: "3.14"
 
+      - name: Discover repository link targets
+        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
+        # BEGIN SYNCED LYCHEE REPOSITORY METADATA
+        env:
+          LYCHEE_REPOSITORY: ${{ github.repository }}
+          LYCHEE_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: >-
+          python ci/tools/checkout_link_defaults.py
+          --repository "$LYCHEE_REPOSITORY"
+          --default-branch "$LYCHEE_DEFAULT_BRANCH"
+          --github-env "$GITHUB_ENV"
+        # END SYNCED LYCHEE REPOSITORY METADATA
+
       - name: Check rendered documentation links through pre-commit
         if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         timeout-minutes: 60

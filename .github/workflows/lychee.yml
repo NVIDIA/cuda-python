@@ -75,6 +75,18 @@ jobs:
       - name: Set pre-commit cache location
         run: echo "PRE_COMMIT_HOME=${RUNNER_TEMP}/pre-commit" >> "${GITHUB_ENV}"
 
+      - name: Discover repository link targets
+        # BEGIN SYNCED LYCHEE REPOSITORY METADATA
+        env:
+          LYCHEE_REPOSITORY: ${{ github.repository }}
+          LYCHEE_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: >-
+          python ci/tools/checkout_link_defaults.py
+          --repository "$LYCHEE_REPOSITORY"
+          --default-branch "$LYCHEE_DEFAULT_BRANCH"
+          --github-env "$GITHUB_ENV"
+        # END SYNCED LYCHEE REPOSITORY METADATA
+
       - name: Restore pre-commit environments
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:

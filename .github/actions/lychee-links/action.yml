@@ -69,7 +69,7 @@ runs:
         KIND: ${{ inputs.kind }}
         # Anything that can change a check result or the cache's meaning. The
         # hook configuration carries the native wheel pin and every hook option.
-        POLICY_HASH: ${{ hashFiles('.pre-commit-config.yaml', 'lychee.toml', 'ci/tools/run_lychee.py', 'ci/tools/run_lychee_precommit.py', 'ci/tools/retry_lychee.py') }}
+        POLICY_HASH: ${{ hashFiles('.pre-commit-config.yaml', 'lychee.toml', 'ci/tools/run_lychee.py', 'ci/tools/run_lychee_precommit.py', 'ci/tools/retry_lychee.py', 'ci/tools/checkout_link_defaults.py') }}
       run: |
         # Authored and rendered results stay apart: only rendered checks validate
         # fragments, and Lychee's cache does not record which validation ran.
