@@ -92,8 +92,9 @@ fragments. Only the URL-result file is shared across operating systems;
 pre-commit's installed environments retain their OS/Python-specific caches.
 
 Successful external checks retain their original timestamps and expire after
-one day. Failed URLs are not persisted, and filesystem targets are checked
-afresh. The rendered hook uses its own cache directory, selected by
+three days, allowing reuse when a nightly refresh is missed. Nightly refreshes
+still check links afresh. Failed URLs are not persisted, and filesystem targets
+are checked afresh. The rendered hook uses its own cache directory, selected by
 `LYCHEE_CACHE_DIR` (default `.lychee-rendered`), so its fragment-aware results
 cannot mix with authored results in the checkout's `.lycheecache`. Per-pass
 JSON reports and a Markdown summary are retained as CI artifacts.

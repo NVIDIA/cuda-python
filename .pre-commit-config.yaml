@@ -111,13 +111,16 @@ repos:
         name: lychee (authored documentation)
         entry: python ./ci/tools/run_lychee.py
         language: python
+        # Update this shared pin manually until Dependabot releases support for
+        # local-hook dependencies: https://github.com/dependabot/dependabot-core/issues/15489
+        # Once supported, add lychee-bin to the allowlist in .github/dependabot.yml.
         additional_dependencies: &lychee_dependencies
           - lychee-bin==0.24.2
         types: [text]
         require_serial: true
         args:
           - --cache
-          - --max-cache-age=1d
+          - --max-cache-age=3d
           - --max-concurrency=4
           - --max-retries=3
           - --no-progress
@@ -135,7 +138,7 @@ repos:
         always_run: true
         args:
           - --cache
-          - --max-cache-age=1d
+          - --max-cache-age=3d
           - --max-concurrency=16
           - --host-concurrency=2
           - --host-request-interval=250ms
