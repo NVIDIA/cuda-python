@@ -108,7 +108,7 @@ repos:
   - repo: local
     hooks:
       - id: lychee
-        name: lychee
+        name: lychee (authored documentation)
         entry: python ./ci/tools/run_lychee.py
         language: python
         additional_dependencies: &lychee_dependencies
