@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import pytest
 
 from cuda.bindings import nvml
 
@@ -17,7 +18,12 @@ def test_nvlink_get_link_count(all_devices):
 
         fields = nvml.FieldValue(1)
         fields[0].field_id = nvml.FieldId.DEV_NVLINK_LINK_COUNT
+        fields[0].scope_id = 0
+        # WORKAROUND: Orin NVML can return success without populating field values.
+        fields[0].nvml_return = -1
         value = nvml.device_get_field_values(device, fields)[0]
+        if value.nvml_return == -1 and "Orin" in nvml.device_get_name(device):
+            pytest.xfail("Orin NVML bug: nvmlDeviceGetFieldValues returns success without populating the result")
         assert value.nvml_return == nvml.Return.SUCCESS or value.nvml_return == nvml.Return.ERROR_NOT_SUPPORTED, (
             f"Unexpected return {value.nvml_return} for link count field query"
         )
