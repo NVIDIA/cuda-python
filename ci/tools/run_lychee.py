@@ -56,7 +56,9 @@ def main(arguments: list[str] | None = None) -> int:
     if report_dir := os.environ.get("LYCHEE_REPORT_DIR"):
         directory = Path(report_dir).resolve()
         directory.mkdir(parents=True, exist_ok=True)
-        # pre-commit may split a long file list into several native invocations.
+        # pre-commit can split long file lists even with require_serial enabled.
+        # Give each native invocation a unique report so one chunk's report
+        # cannot overwrite another.
         report = directory / f"{uuid.uuid4().hex}.json"
         arguments = ["--format", "json", "--output", str(report), *arguments]
 
