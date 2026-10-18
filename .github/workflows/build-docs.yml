@@ -284,8 +284,9 @@ jobs:
           fi
           mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
 
-      # Authored sources are checked by the ordinary Linux/Windows pre-commit
-      # jobs. Generated HTML and anchors need this completed documentation build.
+      # Check links and anchors in the rendered HTML built above.
+      # Links in authored Markdown and reST files are checked separately by the
+      # ordinary Linux/Windows pre-commit jobs.
       - name: Install pre-commit for rendered link checks
         if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         run: |
