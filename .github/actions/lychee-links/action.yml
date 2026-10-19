@@ -17,12 +17,51 @@ inputs:
   refresh:
     description: "Check links afresh and publish the successful results as the new baseline"
     default: "false"
+  pr-number:
+    description: "PR whose current maintainer override label should be read; empty skips the lookup"
+    default: ""
+
+outputs:
+  allow-429:
+    description: "Whether the current PR label explicitly enables the HTTP 429 override"
+    value: ${{ steps.lychee-policy.outputs.allow-429 }}
 
 # Callers provide Python and the checked-out repository; the build of any
 # rendered documentation must already be complete.
 runs:
   using: composite
   steps:
+    - name: Read the PR's Lychee rate-limit override
+      id: lychee-policy
+      shell: bash --noprofile --norc -euo pipefail {0}
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+      run: |
+        allow_429=false
+        if [[ -n "$PR_NUMBER" ]]; then
+          # Reruns keep the original event's labels, so query the current decision.
+          # Only an exact boolean response can enable the maintainer override.
+          lookup_ok=false
+          for attempt in 1 2 3; do
+            if result="$(gh pr view "$PR_NUMBER" --json labels --jq '.labels | any(.name == "ci: lychee-non-blocking")')"; then
+              case "$result" in
+                true|false) allow_429="$result"; lookup_ok=true; break ;;
+              esac
+            fi
+            if (( attempt < 3 )); then
+              sleep $((attempt * 5))
+            fi
+          done
+          if [[ "$lookup_ok" != true ]]; then
+            echo "::warning::Could not read a valid PR label decision; using the default link policy. Rerun to apply ci: lychee-non-blocking."
+          elif [[ "$allow_429" == true ]]; then
+            echo "::notice::ci: lychee-non-blocking permits only HTTP 429 failures after retries."
+          fi
+        fi
+        echo "allow-429=$allow_429" >> "$GITHUB_OUTPUT"
+
     - name: Describe the link cache
       id: cache
       shell: bash --noprofile --norc -euo pipefail {0}
@@ -58,7 +97,7 @@ runs:
       shell: bash --noprofile --norc -euo pipefail {0}
       env:
         KIND: ${{ inputs.kind }}
-        POLICY: ${{ inputs.policy }}
+        POLICY: ${{ steps.lychee-policy.outputs.allow-429 == 'true' && 'allow-429' || inputs.policy }}
         GITHUB_TOKEN: ${{ github.token }}
       run: |
         # Install into the interpreter that runs the driver, whatever shell

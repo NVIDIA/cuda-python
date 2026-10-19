@@ -295,28 +295,14 @@ jobs:
         with:
           python-version: "3.14"
 
-      # Full CI runs on a pull-request/N mirror. Use its PR number to query
-      # current labels, including when rerunning an older workflow attempt.
-      - name: Read the PR's Lychee rate-limit override
-        if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
-        id: lychee-policy
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          allow_429="$(gh pr view "$PR_NUMBER" --json labels --jq '.labels | any(.name == "ci: lychee-non-blocking")')"
-          echo "allow-429=$allow_429" >> "$GITHUB_OUTPUT"
-          if [[ "$allow_429" == true ]]; then
-            echo "::notice::ci: lychee-non-blocking permits only HTTP 429 failures after retries."
-          fi
-
       - name: Check rendered documentation links through pre-commit
         if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         timeout-minutes: 60
         uses: ./.github/actions/lychee-links
         with:
           kind: rendered
-          policy: ${{ steps.lychee-policy.outputs.allow-429 == 'true' && 'allow-429' || 'check' }}
+          # Full CI's pull-request/N mirror supplies the PR number.
+          pr-number: ${{ env.PR_NUMBER }}
 
       - name: Upload docs GitHub Pages artifact
         if: ${{ inputs.deploy-docs }}

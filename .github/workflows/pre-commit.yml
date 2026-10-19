@@ -140,22 +140,6 @@ jobs:
           LYCHEE_SMOKE_DIR: ${{ steps.lychee-smoke.outputs.directory }}
         run: python ci/tools/smoke_test_lychee_precommit.py --cleanup "$LYCHEE_SMOKE_DIR"
 
-      # Query current labels so applying or removing the override takes effect
-      # on a rerun, which otherwise keeps the original event's label snapshot.
-      - name: Read the PR's Lychee rate-limit override
-        if: github.event_name == 'pull_request'
-        id: lychee-policy
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          allow_429="$(gh pr view "$PR_NUMBER" --json labels --jq '.labels | any(.name == "ci: lychee-non-blocking")')"
-          echo "allow-429=$allow_429" >> "$GITHUB_OUTPUT"
-          if [[ "$allow_429" == true ]]; then
-            echo "::notice::ci: lychee-non-blocking permits only HTTP 429 failures after retries."
-          fi
-
       # Warm only Lychee from the shared nightly baseline, retaining successful
       # checks between up to three attempts. The full suite below runs once:
       # formatter changes must remain failures. A missing baseline is supported;
@@ -166,17 +150,18 @@ jobs:
         uses: ./.github/actions/lychee-links
         with:
           kind: authored
-          policy: ${{ steps.lychee-policy.outputs.allow-429 == 'true' && 'allow-429' || 'cache-warm' }}
+          policy: cache-warm
+          pr-number: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || '' }}
 
       - name: Run pre-commit
         # Run the remaining hooks even if the override's link gate fails.
         # That earlier failure still makes the job fail.
-        if: ${{ !cancelled() && (success() || (steps.lychee-policy.outputs.allow-429 == 'true' && steps.lychee-check.outcome == 'failure')) }}
+        if: ${{ !cancelled() && (success() || (steps.lychee-check.outputs.allow-429 == 'true' && steps.lychee-check.outcome == 'failure')) }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
           # The override uses the reported link result above. All other hooks
           # still run once; normal runs also invoke Lychee in the full suite.
-          SKIP: ${{ steps.lychee-policy.outputs.allow-429 == 'true' && 'check-precommit-installed,lychee' || 'check-precommit-installed' }}
+          SKIP: ${{ steps.lychee-check.outputs.allow-429 == 'true' && 'check-precommit-installed,lychee' || 'check-precommit-installed' }}
         run: pre-commit run --all-files --show-diff-on-failure
 
       - name: Save pre-commit cache

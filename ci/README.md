@@ -57,8 +57,14 @@ suite skips its duplicate Lychee invocation. Every other hook still runs once.
 When rate limiting persists, maintainers can apply `ci: lychee-non-blocking`
 to the PR and rerun the affected Linux/Windows pre-commit jobs or rendered
 documentation job. Applying or removing the label does not itself start a
-new workflow run. Each job queries the PR's current labels, so a rerun sees
-the current decision rather than the original event's label snapshot.
+new workflow run. The shared link-check action queries the PR's current labels,
+so a rerun sees the current decision rather than the original event's snapshot.
+The lookup makes up to three attempts, waiting 5 and 10 seconds between them.
+If every attempt fails or returns an invalid response, the action warns and
+keeps the caller's default policy without enabling the override: authored
+checks remain strict in the full pre-commit suite, and rendered checks keep
+their allowance for at most ten distinct HTTP 429 URLs. Rerun the affected job
+to retry the lookup and apply the label; other pre-commit hooks still run.
 
 The label selects the driver's `allow-429` policy for both authored and
 rendered checks. Lychee still runs and retries normally; only a final report
@@ -69,8 +75,8 @@ Successful checks retain their usual cache behavior; failures are never cached.
 
 Any other failure still blocks, including a mixture of HTTP 429s and other
 errors, broken local files or fragments, timeouts, and HTTP 403, 404, or 5xx
-responses. Hook setup, invalid or missing reports, failed label lookups, and
-the offline smoke checks remain blocking. Other exceptional failures require
+responses. Hook setup, invalid or missing reports, and the offline smoke
+checks remain blocking. Other exceptional failures require
 the normal admin-merge decision.
 
 The label applies only to PR checks. Local pre-commit runs, default-branch
