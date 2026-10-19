@@ -58,7 +58,8 @@ class VirtualMemoryResourceOptions:
         Host NUMA node of the allocation. Required for
         ``location_type="host_numa"`` and rejected for every other location
         type. Must be >= 0; ``Device.properties.host_numa_id`` is the node
-        closest to a device.
+        closest to a device. On a system without NUMA, ``host_numa_id`` is -1
+        and the driver expects ``numa_id=0``.
     """
     allocation_type: VirtualMemoryAllocationType = VirtualMemoryAllocationType.PINNED
     location_type: VirtualMemoryLocationType = VirtualMemoryLocationType.DEVICE
