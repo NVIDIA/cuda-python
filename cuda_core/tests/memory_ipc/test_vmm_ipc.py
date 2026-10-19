@@ -589,20 +589,22 @@ class TestFileDescriptorLifetime:
     @pytest.mark.thread_unsafe(reason="counts process-global file descriptors")
     def test_process_argument_releases_with_the_process_object(self, vmm_ipc_device):
         """A buffer passed to a spawned Process imports there; its descriptor goes when the Process object does."""
+        # The first spawn opens a process-wide resource-tracker pipe, which
+        # outlives Process objects. Start it before taking the descriptor baseline.
+        _run_child(_noop)
         device = vmm_ipc_device
         mr = _resource(device)
-        buf = mr.allocate(1)
-        fds0 = _settled_open_fds()
-        process = mp.Process(target=_close_argument, args=(buf,))
-        process.start()
-        process.join(timeout=CHILD_TIMEOUT_SEC)
-        survivors = kill_subprocesses(process)
-        assert not survivors, "child did not exit within timeout"
-        assert process.exitcode == 0, f"child exited with {process.exitcode}"
-        del process
-        gc.collect()
-        assert _open_fds() == fds0
-        buf.close()
+        with mr.allocate(1) as buf:
+            fds0 = _settled_open_fds()
+            process = mp.Process(target=_close_argument, args=(buf,))
+            process.start()
+            process.join(timeout=CHILD_TIMEOUT_SEC)
+            survivors = kill_subprocesses(process)
+            assert not survivors, "child did not exit within timeout"
+            assert process.exitcode == 0, f"child exited with {process.exitcode}"
+            del process
+            gc.collect()
+            assert _open_fds() == fds0
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_importer_holds_none_after_the_import(self, vmm_ipc_device):
