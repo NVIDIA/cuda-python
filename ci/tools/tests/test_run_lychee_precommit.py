@@ -128,7 +128,6 @@ def test_retries_real_hook_with_cache_intact_and_stops_after_recovery(tmp_path, 
 
     monkeypatch.setattr(run_lychee_precommit, "run_hook", run_hook)
     monkeypatch.setattr(retry_lychee.time, "sleep", delays.append)
-    monkeypatch.delenv("LYCHEE_ARGS", raising=False)
     assert run_lychee_precommit.run_checks("authored", report, policy="cache-warm") == 0
     assert len(attempts) == 2
     assert delays == [60]
