@@ -24,6 +24,50 @@ The pinned checkout action's
 [`README`](https://github.com/actions/checkout/blob/3d3c42e5aac5ba805825da76410c181273ba90b1/README.md#fetch-all-history-for-all-tags-and-branches)
 documents `fetch-depth: 0` for fetching all history, branches, and tags.
 
+## Documentation Link Checks
+
+Two pre-commit hooks check links with one pinned native wheel (`lychee-bin`,
+see `.pre-commit-config.yaml`) through the wrapper `ci/tools/run_lychee.py`:
+`lychee` checks authored Markdown and reST (fragments unchecked), and the
+manual-stage `lychee-rendered` checks the generated HTML in `artifacts/docs`,
+including fragments. Developers run the same hooks locally.
+
+CI runs a hook through `ci/tools/run_lychee_precommit.py <authored|rendered>`,
+wrapped with the shared cache and report handling in
+`.github/actions/lychee-links`. The driver runs the real hook and merges the
+native JSON report of every invocation (pre-commit may split long file lists).
+It makes up to three attempts with 60/120-second cooldowns, but only while all
+remaining failures are transient HTTP trouble: timeouts, 408, 429, or 5xx.
+Missing, malformed, or inconsistent reports, and scans that check no links,
+fail explicitly. Per-attempt reports and a summary are kept for seven days.
+
+| Where | What runs | Final result |
+| --- | --- | --- |
+| Linux/Windows pre-commit | Offline hook smoke check, then authored link warm-up from the shared cache, then the full suite once | The strict pre-commit result, including unresolved HTTP 429s |
+| Full-CI documentation build | Rendered link check of the HTML it just built | Unresolved links fail, except that up to ten distinct URLs may remain at HTTP 429 as a warning |
+| Nightly (`lychee.yml`) | Afresh authored and rendered checks | Unresolved links are warnings; setup, execution, and report errors fail |
+
+The warm-up only fills the cache so the full suite, whose formatter changes must
+stay failures, mostly reuses successful checks.
+
+### Shared URL Caches
+
+Nightly is the only producer. It skips restoring, checks afresh, and publishes
+successful results; every other job restores the newest baseline and never
+publishes. Failed URLs and filesystem targets are never cached. Successes keep
+their original timestamps and expire after three days, so a missed nightly
+refresh does not break reuse, but a link that breaks after a nightly success
+can stay unnoticed for up to 72 hours.
+
+The action keys each baseline by checker kind and a hash of
+`.pre-commit-config.yaml` (hook options and wheel pin), `lychee.toml`, and
+`ci/tools/run_lychee.py`, `run_lychee_precommit.py`, and `retry_lychee.py`, so
+editing any of them starts a cold cache.
+Authored and rendered caches stay apart because only rendered checks validate
+fragments and Lychee's cache does not record which validation ran. URL results
+are shared across operating systems; pre-commit's installed environments keep
+their OS- and Python-specific caches.
+
 ## Temporary Pixi Lockfile Maintenance Pause
 
 Pixi lockfile freshness enforcement and automated refreshes are temporarily

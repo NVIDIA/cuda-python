@@ -108,20 +108,44 @@ repos:
   - repo: local
     hooks:
       - id: lychee
-        name: lychee
+        name: lychee (authored documentation)
         entry: python ./ci/tools/run_lychee.py
         language: python
-        additional_dependencies:
-          - lychee-bin==0.24.2  # Must match check-doc-links/action.yml
+        # Update this shared pin manually until Dependabot releases support for
+        # local-hook dependencies: https://github.com/dependabot/dependabot-core/issues/15489
+        # Once supported, add lychee-bin to the allowlist in .github/dependabot.yml.
+        additional_dependencies: &lychee_dependencies
+          - lychee-bin==0.24.2
         types: [text]
         require_serial: true
         args:
           - --cache
+          - --max-cache-age=3d
           - --max-concurrency=4
           - --max-retries=3
           - --no-progress
         files: '\.(md|rst)$'
         exclude: ^qa/
+
+      # Generated HTML is checked explicitly after the documentation build.
+      - id: lychee-rendered
+        name: lychee (rendered documentation)
+        entry: python ./ci/tools/run_lychee.py --rendered
+        language: python
+        additional_dependencies: *lychee_dependencies
+        stages: [manual]
+        pass_filenames: false
+        always_run: true
+        args:
+          - --cache
+          - --max-cache-age=3d
+          - --max-concurrency=16
+          - --host-concurrency=2
+          - --host-request-interval=250ms
+          - --max-retries=3
+          - --retry-wait-time=5
+          - --timeout=30
+          - --no-progress
 
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks

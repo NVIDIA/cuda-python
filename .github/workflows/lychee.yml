@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Build documentation nightly and warm the link cache, reporting unresolved links
-# as warnings. Full PR CI reuses successful checks in build-docs.yml.
-# Ordinary PR updates run pre-commit without Lychee and do not build docs here.
+# Warm authored and rendered link caches through the configured pre-commit
+# hooks. Ordinary PRs reuse authored results; full docs CI reuses rendered
+# results. Nightly starts afresh, reports unresolved links as warnings, and is
+# the only producer of both shared baselines.
 
 name: "CI: Documentation links"
 
@@ -50,6 +51,10 @@ jobs:
       fail-fast: false
       matrix:
         kind: [authored, rendered]
+    env:
+      PYTHONUTF8: "1"
+      # Reuse the same minor version for Python setup and cache fallback.
+      PYTHON_VERSION: "3.14"
     steps:
       - name: Checkout checked revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -62,9 +67,20 @@ jobs:
           submodules: ${{ matrix.kind == 'rendered' }}
 
       - name: Set up Python
+        id: python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.14"
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set pre-commit cache location
+        run: echo "PRE_COMMIT_HOME=${RUNNER_TEMP}/pre-commit" >> "${GITHUB_ENV}"
+
+      - name: Restore pre-commit environments
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ${{ env.PRE_COMMIT_HOME }}
+          key: pre-commit-${{ runner.os }}-py${{ steps.python.outputs.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: pre-commit-${{ runner.os }}-py${{ env.PYTHON_VERSION }}
 
       - name: Setup pixi
         if: ${{ matrix.kind == 'rendered' }}
@@ -74,9 +90,9 @@ jobs:
         if: ${{ matrix.kind == 'rendered' }}
         run: pixi run --manifest-path cuda_core/pixi.toml -e docs docs-build-all-latest
 
-      - name: Check documentation links
-        uses: ./.github/actions/check-doc-links
+      - name: Check documentation links through pre-commit
+        uses: ./.github/actions/lychee-links
         with:
           kind: ${{ matrix.kind }}
-          refresh-cache: ${{ inputs.refresh-cache || false }}
-          failure-policy: ${{ inputs.refresh-cache && 'cache-warm' || 'check' }}
+          policy: ${{ inputs.refresh-cache && 'cache-warm' || 'check' }}
+          refresh: ${{ inputs.refresh-cache || false }}
