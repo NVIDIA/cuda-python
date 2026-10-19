@@ -1,0 +1,6 @@
+﻿cuda.pathfinder.find\_static\_lib
+=================================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autofunction:: find_static_lib
