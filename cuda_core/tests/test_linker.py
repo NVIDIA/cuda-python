@@ -210,6 +210,32 @@ def test_linker_options_as_bytes_nvjitlink():
     assert "-maxrregcount=32" in options_str
 
 
+@pytest.mark.agent_authored(model="claude-sonnet-5")
+@pytest.mark.skipif(is_culink_backend, reason="ftz/prec_div/prec_sqrt/fma are nvjitlink-only options")
+def test_linker_lto_enabled_runtime_accepts_bool_options(compile_ltoir_functions):
+    """Regression test for nvbug 6621758: actual LTO-enabled link, not just option setter.
+
+    With ``link_time_optimization=True``, ``-ftz``/``-prec-div``/``-prec-sqrt``/``-fma``
+    are forwarded to libnvvm and actually validated at link time, unlike in a non-LTO
+    link where legacy ``true``/``false`` values are silently ignored. Only ``0``/``1``
+    reliably takes effect here on any CUDA version.
+
+    The test checks that Python ``True``/``False`` values are correctly
+    mapped to ``1``/``0`` and accepted by the nvJitLink backend during an LTO-enabled link.
+    """
+    options = LinkerOptions(
+        arch=ARCH,
+        link_time_optimization=True,
+        ftz=True,
+        prec_div=True,
+        prec_sqrt=True,
+        fma=True,
+    )
+    linker = Linker(*compile_ltoir_functions, options=options)
+    linked_code = linker.link("cubin")
+    assert isinstance(linked_code, ObjectCode)
+
+
 @pytest.mark.agent_authored(model="gpt-5.6")
 @pytest.mark.skipif(is_culink_backend, reason="as_bytes() only supported for nvjitlink backend")
 @pytest.mark.parametrize("value,expected_count", [(None, 0), (False, 0), (True, 1)])
