@@ -36,7 +36,7 @@ def test_native_reports_preserve_each_precommit_chunk_exit_code(tmp_path, monkey
         command = call.args[0]
         assert command[1:4] == ["--format", "json", "--output"]
         report = Path(command[4])
-        assert report.parent == tmp_path / "reports"
+        assert report.parent == (tmp_path / "reports").resolve()
         assert json.loads(report.with_suffix(".status.json").read_text()) == {"exit_code": code}
         reports.append(report)
     assert reports[0] != reports[1]
@@ -51,7 +51,7 @@ def test_rendered_hook_checks_untracked_html_in_its_own_cache(tmp_path, monkeypa
     (docs / "guide.html").write_text('<h1 id="section">Guide</h1>')
     (docs / "_static").mkdir()
     (docs / "_static/theme.html").write_text("ignored theme")
-    cache = tmp_path / "rendered cache"
+    cache = (tmp_path / "rendered cache").resolve()
     monkeypatch.setenv("LYCHEE_CACHE_DIR", str(cache))
     monkeypatch.setattr(run_lychee, "ROOT", tmp_path)
     monkeypatch.delenv("LYCHEE_REPORT_DIR", raising=False)
