@@ -1,0 +1,85 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Check documentation links
+description: Run a configured Lychee pre-commit hook with the shared URL cache and retained reports
+
+inputs:
+  kind:
+    description: "Which hook to run: authored or rendered"
+    required: true
+  policy:
+    description: "check accepts up to 10 rate-limited URLs; cache-warm reports every unresolved link as a warning"
+    default: check
+  refresh:
+    description: "Check links afresh and publish the successful results as the new baseline"
+    default: "false"
+
+# Callers provide Python and the checked-out repository; the build of any
+# rendered documentation must already be complete.
+runs:
+  using: composite
+  steps:
+    - name: Describe the link cache
+      id: cache
+      shell: bash --noprofile --norc -euo pipefail {0}
+      env:
+        KIND: ${{ inputs.kind }}
+        # Anything that can change a check result or the cache's meaning. The
+        # hook configuration carries the native wheel pin and every hook option.
+        POLICY_HASH: ${{ hashFiles('.pre-commit-config.yaml', 'lychee.toml', 'ci/tools/run_lychee.py', 'ci/tools/run_lychee_precommit.py', 'ci/tools/retry_lychee.py') }}
+      run: |
+        # Authored and rendered results stay apart: only rendered checks validate
+        # fragments, and Lychee's cache does not record which validation ran.
+        case "${KIND}" in
+          authored) path=.lycheecache ;;
+          rendered) path=.lychee-rendered/.lycheecache ;;
+          *) echo "::error::Unknown link-check kind: ${KIND}"; exit 1 ;;
+        esac
+        prefix="lychee-v1-${KIND}-${POLICY_HASH}-baseline-"
+        echo "path=${path}" >> "${GITHUB_OUTPUT}"
+        echo "prefix=${prefix}" >> "${GITHUB_OUTPUT}"
+        echo "key=${prefix}${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_OUTPUT}"
+
+    - name: Restore successful link checks
+      # Refresh mode deliberately skips earlier URL results.
+      if: ${{ inputs.refresh != 'true' }}
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+      with:
+        path: ${{ steps.cache.outputs.path }}
+        key: ${{ steps.cache.outputs.key }}
+        restore-keys: ${{ steps.cache.outputs.prefix }}
+        enableCrossOsArchive: true
+
+    - name: Check links through the configured pre-commit hook
+      shell: bash --noprofile --norc -euo pipefail {0}
+      env:
+        KIND: ${{ inputs.kind }}
+        POLICY: ${{ inputs.policy }}
+        GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        # Install into the interpreter that runs the driver, whatever shell
+        # profile the caller's other steps use.
+        python -m pip install pre-commit
+        python ci/tools/run_lychee_precommit.py "${KIND}" --policy "${POLICY}" --max-attempts 3 \
+          --report "${RUNNER_TEMP}/lychee-reports/lychee-${KIND}.json"
+
+    - name: Publish fresh successful link checks
+      # Only nightly refreshes publish, so every pull request restores the same
+      # baseline. Saving keeps original timestamps and never caches failures.
+      if: ${{ !cancelled() && inputs.refresh == 'true' }}
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+      with:
+        path: ${{ steps.cache.outputs.path }}
+        key: ${{ steps.cache.outputs.key }}
+        enableCrossOsArchive: true
+
+    - name: Upload link-check reports
+      if: ${{ always() }}
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      with:
+        name: lychee-${{ inputs.kind }}-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+        path: ${{ runner.temp }}/lychee-reports/
+        if-no-files-found: ignore
+        retention-days: 7

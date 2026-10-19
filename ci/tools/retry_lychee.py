@@ -133,16 +133,11 @@ def attempt_report(report: Path, attempt: int) -> Path:
     return report.with_name(f"{report.stem}-attempt-{attempt}{report.suffix}")
 
 
-def finish(report: Path, data: Report | None, exit_codes: list[int], message: str, *, warning: bool = False) -> None:
+def finish(report: Path, data: Report, exit_codes: list[int], message: str, *, warning: bool = False) -> None:
     """Publish the final result without presenting recovered failures as current."""
     summary = f"## Documentation links\n\n{message}\n\n| Attempt | Exit code |\n| --- | --- |\n"
     summary += "".join(f"| {attempt} | {code} |\n" for attempt, code in enumerate(exit_codes, start=1))
-    if data is not None:
-        summary += f"\n### Final attempt\n\n{render_report(data)}\n"
-    else:
-        summary += (
-            "\nThe final attempt did not produce a link-check report. Earlier reports are retained as artifacts.\n"
-        )
+    summary += f"\n### Final attempt\n\n{render_report(data)}\n"
     report.with_suffix(".md").write_text(summary, encoding="utf-8")
     print(f"::warning::{message}" if warning else message, flush=True)
     if summary_path := os.environ.get("GITHUB_STEP_SUMMARY"):
@@ -171,6 +166,12 @@ def finish_link_failures(report: Path, data: Report, exit_codes: list[int], mess
     return 0 if warning else LINK_CHECK_FAILURE
 
 
+def require_link_check_exit(code: int, attempt: int) -> None:
+    """Native execution failures raise before this point; only 0 and 2 describe link results."""
+    if code not in (0, LINK_CHECK_FAILURE):
+        raise ValueError(f"Unexpected lychee exit code on attempt {attempt}: {code}")
+
+
 def retry_lychee(
     initial_exit_code: int,
     report: Path,
@@ -180,16 +181,12 @@ def retry_lychee(
     run_attempt: Callable[[Path], int],
 ) -> int:
     """Retry only if every remaining failure is a recognized transient HTTP error."""
-    if initial_exit_code not in (0, 1, 2, 3):
-        raise ValueError(f"Unexpected initial lychee exit code: {initial_exit_code}")
+    require_link_check_exit(initial_exit_code, 1)
     if max_attempts < 1:
         raise ValueError("max_attempts must be positive")
     if policy not in ("check", "cache-warm"):
         raise ValueError(f"Unknown lychee failure policy: {policy}")
     exit_codes = [initial_exit_code]
-    if initial_exit_code not in (0, LINK_CHECK_FAILURE):
-        finish(report, None, exit_codes, f"Lychee stopped on attempt 1 with exit code {initial_exit_code}; no retry.")
-        return initial_exit_code
 
     data = read_report(report, initial_exit_code)
     shutil.copyfile(report, attempt_report(report, 1))
@@ -222,14 +219,7 @@ def retry_lychee(
         time.sleep(cooldown)
         current_report = attempt_report(report, attempt + 1)
         code = run_attempt(current_report)
+        require_link_check_exit(code, attempt + 1)
         exit_codes.append(code)
-        if code not in (0, LINK_CHECK_FAILURE):
-            finish(
-                report,
-                None,
-                exit_codes,
-                f"Lychee stopped on attempt {attempt + 1} with exit code {code}; no retry.",
-            )
-            return code if code > 0 else 1
         data = read_report(current_report, code)
         shutil.copyfile(current_report, report)

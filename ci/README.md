@@ -26,78 +26,47 @@ documents `fetch-depth: 0` for fetching all history, branches, and tags.
 
 ## Documentation Link Checks
 
-Authored Markdown and reST are checked through the same `lychee` pre-commit
-hook in development and in Linux/Windows PR CI. The hook installs the official
-PyPI `lychee-bin==0.24.2` native wheel in its isolated Python environment;
-`ci/tools/run_lychee.py` invokes that executable and preserves its exit status.
-Authored checks retain their existing policy of not validating fragments.
-Repository URLs are checked as written.
+Two pre-commit hooks check links with one pinned native wheel (`lychee-bin`,
+see `.pre-commit-config.yaml`) through the wrapper `ci/tools/run_lychee.py`:
+`lychee` checks authored Markdown and reST (fragments unchecked), and the
+manual-stage `lychee-rendered` checks the generated HTML in `artifacts/docs`,
+including fragments. Developers run the same hooks locally.
 
-### PR Checks And Cache Warming
+CI runs a hook through `ci/tools/run_lychee_precommit.py <authored|rendered>`,
+wrapped with the shared cache and report handling in
+`.github/actions/lychee-links`. The driver runs the real hook and merges the
+native JSON report of every invocation (pre-commit may split long file lists).
+It makes up to three attempts with 60/120-second cooldowns, but only while all
+remaining failures are transient HTTP trouble: timeouts, 408, 429, or 5xx.
+Missing, malformed, or inconsistent reports, and scans that check no links,
+fail explicitly. Per-attempt reports and a summary are kept for seven days.
 
-PR CI restores successful URL checks from the shared baseline, then runs
-`pre-commit run lychee --all-files` through `ci/tools/run_lychee_precommit.py`.
-The helper allows up to three hook attempts, with 60/120-second cooldowns
-when all remaining failures are transient HTTP failures. Successful checks
-accumulate in the local cache; permanent link failures stop additional
-warm-up attempts. A missing baseline simply starts with uncached checks.
+| Where | What runs | Final result |
+| --- | --- | --- |
+| Linux/Windows pre-commit | Offline hook smoke check, then authored link warm-up from the shared cache, then the full suite once | The strict pre-commit result, including unresolved HTTP 429s |
+| Full-CI documentation build | Rendered link check of the HTML it just built | Unresolved links fail, except that up to ten distinct URLs may remain at HTTP 429 as a warning |
+| Nightly (`lychee.yml`) | Afresh authored and rendered checks | Unresolved links are warnings; setup, execution, and report errors fail |
 
-After warming, `pre-commit run --all-files --show-diff-on-failure` runs once.
-Its normal strict result is the final gate, including for unresolved HTTP
-429s. This can make four total Lychee invocations, but successful external
-checks are reused. Formatter changes remain failures because the complete
-suite is not retried. A missing or invalid native report, empty check, or
-hook installation/execution error fails the warm-up step.
-
-The permanent offline smoke check runs first, isolating hook setup and shell
-invocation failures from network failures. Standalone CI-tool unit tests run
-in nightly CI. The full-CI documentation job checks generated HTML after its
-build, avoiding a duplicate authored scan.
-
-### Rendered Documentation
-
-After building the documentation, full CI runs the manual hook through the
-same driver:
-
-```bash
-python ci/tools/run_lychee_precommit.py rendered --policy check \
-    --report /path/to/reports/lychee-rendered.json
-```
-
-The driver invokes `pre-commit run lychee-rendered --hook-stage manual
---all-files`. This hook enumerates generated HTML under `artifacts/docs`,
-excluding `_static` assets, and enables full fragment validation. Generated
-HTML is selected explicitly because it is not part of pre-commit's tracked
-source file list. The hook uses the same pinned wheel and shared wrapper as
-the authored hook, without a separate Lychee action or binary installation.
-
-All rendered attempts use the same inputs. This mode retains up to three
-attempts and the existing warning allowance for at most ten distinct URLs
-that still return HTTP 429; other unresolved links fail.
+The warm-up only fills the cache so the full suite, whose formatter changes must
+stay failures, mostly reuses successful checks.
 
 ### Shared URL Caches
 
-Nightly invokes both configured hooks through the driver. Refresh mode skips
-restoring yesterday's URL cache, checks afresh, and publishes the successful
-results. Genuine link failures are advisory during cache warming; build,
-installation, execution, and report errors remain failures. Linux pre-commit
-runs on the default branch also publish their accumulated authored results. PR jobs
-restore caches and do not publish them.
+Nightly is the only producer. It skips restoring, checks afresh, and publishes
+successful results; every other job restores the newest baseline and never
+publishes. Failed URLs and filesystem targets are never cached. Successes keep
+their original timestamps and expire after three days, so a missed nightly
+refresh does not break reuse, but a link that breaks after a nightly success
+can stay unnoticed for up to 72 hours.
 
-`ci/tools/lychee_cache.py` gives all callers the same cache policy and unique
-run-ID/attempt snapshot keys. The namespace includes the hook configuration
-(and native wheel pin), checker configuration, and shared helpers. Authored
-and rendered caches remain separate because only rendered checks validate
-fragments. Only the URL-result file is shared across operating systems;
-pre-commit's installed environments retain their OS/Python-specific caches.
-
-Successful external checks retain their original timestamps and expire after
-three days, allowing reuse when a nightly refresh is missed. Nightly refreshes
-still check links afresh. Failed URLs are not persisted, and filesystem targets
-are checked afresh. The rendered hook uses its own cache directory, selected by
-`LYCHEE_CACHE_DIR` (default `.lychee-rendered`), so its fragment-aware results
-cannot mix with authored results in the checkout's `.lycheecache`. Per-pass
-JSON reports and a Markdown summary are retained as CI artifacts.
+The action keys each baseline by checker kind and a hash of
+`.pre-commit-config.yaml` (hook options and wheel pin), `lychee.toml`, and
+`ci/tools/run_lychee.py`, `run_lychee_precommit.py`, and `retry_lychee.py`, so
+editing any of them starts a cold cache.
+Authored and rendered caches stay apart because only rendered checks validate
+fragments and Lychee's cache does not record which validation ran. URL results
+are shared across operating systems; pre-commit's installed environments keep
+their OS- and Python-specific caches.
 
 ## Temporary Pixi Lockfile Maintenance Pause
 

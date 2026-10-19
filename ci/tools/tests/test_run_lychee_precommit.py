@@ -136,24 +136,6 @@ def test_retries_real_hook_with_cache_intact_and_stops_after_recovery(tmp_path, 
     assert "example.test" not in report.with_suffix(".md").read_text()
 
 
-@pytest.mark.parametrize("policy, expected", [("cache-warm", 0), ("check", 2)])
-@pytest.mark.agent_authored(model="gpt-6.1-sol")
-def test_permanent_link_failure_warns_only_for_cache_warming(tmp_path, monkeypatch, policy, expected):
-    report = tmp_path / "report.json"
-    calls = []
-
-    def run_hook(kind, output):
-        calls.append(kind)
-        output.write_text(json.dumps(native_report(code=2, status=404)))
-        return 2
-
-    monkeypatch.setattr(run_lychee_precommit, "run_hook", run_hook)
-    monkeypatch.setattr(retry_lychee.time, "sleep", lambda _: pytest.fail("Unexpected retry"))
-    assert run_lychee_precommit.run_checks("authored", report, policy=policy) == expected
-    assert calls == ["authored"]
-    assert ("Cache warming is advisory" in report.with_suffix(".md").read_text()) == (policy == "cache-warm")
-
-
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_missing_native_status_is_fatal_even_for_nightly_cache_warming(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(

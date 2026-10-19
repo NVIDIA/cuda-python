@@ -13,7 +13,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 import run_lychee
-from run_lychee import main
+from run_lychee import main, rendered_inputs, write_inputs
 
 
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
@@ -51,8 +51,7 @@ def test_rendered_hook_checks_untracked_html_in_its_own_cache(tmp_path, monkeypa
     (docs / "guide.html").write_text('<h1 id="section">Guide</h1>')
     (docs / "_static").mkdir()
     (docs / "_static/theme.html").write_text("ignored theme")
-    cache = (tmp_path / "rendered cache").resolve()
-    monkeypatch.setenv("LYCHEE_CACHE_DIR", str(cache))
+    cache = tmp_path / ".lychee-rendered"
     monkeypatch.setattr(run_lychee, "ROOT", tmp_path)
     monkeypatch.delenv("LYCHEE_REPORT_DIR", raising=False)
     with (
@@ -81,7 +80,6 @@ def test_rendered_hook_checks_untracked_html_in_its_own_cache(tmp_path, monkeypa
 def test_rendered_hook_rejects_missing_build_before_invoking_native_checker(tmp_path, monkeypatch):
     (tmp_path / "lychee").touch()
     monkeypatch.setattr(run_lychee, "ROOT", tmp_path)
-    monkeypatch.setenv("LYCHEE_CACHE_DIR", str(tmp_path / "cache"))
     with (
         patch("run_lychee.sysconfig.get_path", return_value=str(tmp_path)),
         patch("run_lychee.sys.platform", "linux"),
@@ -90,3 +88,35 @@ def test_rendered_hook_rejects_missing_build_before_invoking_native_checker(tmp_
     ):
         main(["--rendered", "--cache"])
     run.assert_not_called()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_rendered_inputs_include_all_components_and_exclude_static_assets(tmp_path):
+    expected = ["cuda-bindings/latest/api.html", "cuda-core/latest/guide.html", "latest/index.html"]
+    for name in [*expected, "cuda-core/latest/_static/theme.html", "_static/vendor/embed.html", "versions.json"]:
+        path = tmp_path / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("content", encoding="utf-8")
+    (tmp_path / "directory.html").mkdir()
+
+    assert rendered_inputs(tmp_path) == [tmp_path / name for name in expected]
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_write_inputs_keeps_spaces_and_writes_absolute_paths(tmp_path):
+    output = tmp_path / "lists/files.txt"
+    paths = [tmp_path / "docs/a guide.rst", tmp_path / "README.md"]
+
+    write_inputs(paths, output)
+
+    assert output.read_text(encoding="utf-8") == "".join(f"{path}\n" for path in paths)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_write_inputs_rejects_paths_that_would_split_into_multiple_inputs(tmp_path):
+    output = tmp_path / "files.txt"
+
+    with pytest.raises(ValueError, match="must not contain newlines"):
+        write_inputs([tmp_path / "two\ninputs.md"], output)
+
+    assert not output.exists()

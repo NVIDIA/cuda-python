@@ -21,9 +21,27 @@ import sysconfig
 import uuid
 from pathlib import Path
 
-from prepare_lychee_inputs import rendered_inputs, write_inputs
-
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def rendered_inputs(docs_root: Path) -> list[Path]:
+    """Select built HTML, excluding theme assets under _static directories."""
+    return sorted(
+        path
+        for path in docs_root.rglob("*.html")
+        if path.is_file() and "_static" not in path.relative_to(docs_root).parts
+    )
+
+
+def write_inputs(paths: list[Path], output: Path) -> None:
+    """Reject an empty or ambiguous file list before invoking lychee."""
+    if not paths:
+        raise ValueError("No documentation inputs found for lychee")
+    lines = [str(path.absolute()) for path in paths]
+    if any("\n" in line or "\r" in line for line in lines):
+        raise ValueError("Lychee input paths must not contain newlines")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def main(arguments: list[str] | None = None) -> int:
@@ -38,7 +56,9 @@ def main(arguments: list[str] | None = None) -> int:
     options = {}
     if rendered:
         arguments.pop(0)
-        cache = Path(os.environ.get("LYCHEE_CACHE_DIR", ROOT / ".lychee-rendered")).resolve()
+        # Lychee writes .lycheecache into its working directory; keep the
+        # fragment-aware rendered results apart from the authored cache in ROOT.
+        cache = ROOT / ".lychee-rendered"
         cache.mkdir(parents=True, exist_ok=True)
         inputs = cache / "inputs.txt"
         write_inputs(rendered_inputs(ROOT / "artifacts/docs"), inputs)

@@ -226,40 +226,6 @@ def test_three_transient_attempts_exhausted_follow_failure_policy(tmp_path, monk
         assert "remain unverified" in text
 
 
-@pytest.mark.parametrize("code", [1, 3])
-@pytest.mark.parametrize("policy", ["check", "cache-warm"])
-@pytest.mark.agent_authored(model="gpt-6")
-def test_initial_non_link_failure_stops_without_retry(tmp_path, monkeypatch, code, policy):
-    monkeypatch.setattr(retry_lychee.time, "sleep", lambda _delay: pytest.fail("Unexpected sleep"))
-
-    assert (
-        retry_lychee.retry_lychee(code, tmp_path / "missing.json", policy=policy, run_attempt=unexpected_retry) == code
-    )
-
-
-@pytest.mark.parametrize("code", [1, 3, -15])
-@pytest.mark.parametrize("policy", ["check", "cache-warm"])
-@pytest.mark.agent_authored(model="gpt-6")
-def test_retry_non_link_failure_does_not_claim_stale_report(tmp_path, monkeypatch, code, policy):
-    report = tmp_path / "lychee.json"
-    write_report(report, report_data(errors=[response()]))
-    delays = []
-    monkeypatch.setattr(retry_lychee.time, "sleep", delays.append)
-    calls = []
-
-    def run(output):
-        calls.append(output)
-        return code
-
-    assert retry_lychee.retry_lychee(2, report, policy=policy, run_attempt=run) == (code if code > 0 else 1)
-    assert len(calls) == 1
-    assert delays == [60]
-    text = report.with_suffix(".md").read_text(encoding="utf-8")
-    assert "did not produce a link-check report" in text
-    assert "### Final attempt" not in text
-    assert "| Total |" not in text
-
-
 @pytest.mark.parametrize(
     "name,value", [("total", True), ("errors", False), ("timeouts", -1), ("errors", 1.0), ("total", "5")]
 )
@@ -299,15 +265,14 @@ def test_invalid_counts_are_rejected(tmp_path, name, value):
         report_data(errors=[{"url": "https://example.test/", "status": {"text": "Unknown error"}}]),
     ],
 )
-@pytest.mark.parametrize("policy", ["check", "cache-warm"])
 @pytest.mark.agent_authored(model="gpt-6")
-def test_malformed_or_contradictory_json_cannot_pass_or_trigger_retries(tmp_path, monkeypatch, data, policy):
+def test_malformed_or_contradictory_json_cannot_pass_or_trigger_retries(tmp_path, monkeypatch, data):
     report = tmp_path / "lychee.json"
     write_report(report, data)
     monkeypatch.setattr(retry_lychee.time, "sleep", lambda _delay: pytest.fail("Unexpected sleep"))
 
     with pytest.raises(ValueError, match="Lychee"):
-        retry_lychee.retry_lychee(2, report, policy=policy, run_attempt=unexpected_retry)
+        retry_lychee.retry_lychee(2, report, run_attempt=unexpected_retry)
 
 
 @pytest.mark.parametrize(
@@ -324,21 +289,19 @@ def test_report_must_agree_with_exit_code(tmp_path, data, code):
 
 
 @pytest.mark.parametrize("contents", ["", "not json", "{broken}"])
-@pytest.mark.parametrize("policy", ["check", "cache-warm"])
 @pytest.mark.agent_authored(model="gpt-6")
-def test_invalid_json_cannot_pass(tmp_path, contents, policy):
+def test_invalid_json_cannot_pass(tmp_path, contents):
     report = tmp_path / "lychee.json"
     report.write_text(contents, encoding="utf-8")
 
     with pytest.raises(json.JSONDecodeError):
-        retry_lychee.retry_lychee(0, report, policy=policy, run_attempt=unexpected_retry)
+        retry_lychee.retry_lychee(0, report, run_attempt=unexpected_retry)
 
 
-@pytest.mark.parametrize("policy", ["check", "cache-warm"])
 @pytest.mark.agent_authored(model="gpt-6")
-def test_missing_initial_report_cannot_pass(tmp_path, policy):
+def test_missing_initial_report_cannot_pass(tmp_path):
     with pytest.raises(FileNotFoundError):
-        retry_lychee.retry_lychee(0, tmp_path / "missing.json", policy=policy, run_attempt=unexpected_retry)
+        retry_lychee.retry_lychee(0, tmp_path / "missing.json", run_attempt=unexpected_retry)
 
 
 @pytest.mark.agent_authored(model="gpt-6")
@@ -365,11 +328,17 @@ def test_final_markdown_escapes_untrusted_report_fields_and_retains_raw_json(tmp
     assert json.loads(report.read_text(encoding="utf-8")) == data
 
 
-@pytest.mark.parametrize("code", [-1, 4, 255])
+@pytest.mark.parametrize("code", [-15, -1, 1, 3, 4, 255])
 @pytest.mark.agent_authored(model="gpt-6")
-def test_unknown_initial_exit_code_is_rejected(tmp_path, code):
-    with pytest.raises(ValueError, match="Unexpected initial lychee exit code"):
+def test_exit_codes_other_than_clean_or_link_failure_are_rejected(tmp_path, monkeypatch, code):
+    with pytest.raises(ValueError, match="Unexpected lychee exit code on attempt 1"):
         retry_lychee.retry_lychee(code, tmp_path / "missing.json", run_attempt=unexpected_retry)
+
+    report = tmp_path / "lychee.json"
+    write_report(report, report_data(errors=[response()]))
+    monkeypatch.setattr(retry_lychee.time, "sleep", lambda _delay: None)
+    with pytest.raises(ValueError, match="Unexpected lychee exit code on attempt 2"):
+        retry_lychee.retry_lychee(2, report, run_attempt=lambda _output: code)
 
 
 @pytest.mark.agent_authored(model="gpt-6")

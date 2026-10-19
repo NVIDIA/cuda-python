@@ -4,7 +4,8 @@
 
 # Warm authored and rendered link caches through the configured pre-commit
 # hooks. Ordinary PRs reuse authored results; full docs CI reuses rendered
-# results. Nightly starts afresh and reports unresolved links as warnings.
+# results. Nightly starts afresh, reports unresolved links as warnings, and is
+# the only producer of both shared baselines.
 
 name: "CI: Documentation links"
 
@@ -71,10 +72,8 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Set link-check cache locations
-        run: |
-          echo "PRE_COMMIT_HOME=${RUNNER_TEMP}/pre-commit" >> "${GITHUB_ENV}"
-          echo "LYCHEE_CACHE_DIR=${RUNNER_TEMP}/lychee-rendered" >> "${GITHUB_ENV}"
+      - name: Set pre-commit cache location
+        run: echo "PRE_COMMIT_HOME=${RUNNER_TEMP}/pre-commit" >> "${GITHUB_ENV}"
 
       - name: Restore pre-commit environments
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
@@ -82,9 +81,6 @@ jobs:
           path: ${{ env.PRE_COMMIT_HOME }}
           key: pre-commit-${{ runner.os }}-py${{ steps.python.outputs.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
           restore-keys: pre-commit-${{ runner.os }}-py${{ env.PYTHON_VERSION }}
-
-      - name: Install pre-commit
-        run: python -m pip install pre-commit
 
       - name: Setup pixi
         if: ${{ matrix.kind == 'rendered' }}
@@ -94,42 +90,9 @@ jobs:
         if: ${{ matrix.kind == 'rendered' }}
         run: pixi run --manifest-path cuda_core/pixi.toml -e docs docs-build-all-latest
 
-      - name: Describe the link cache
-        id: lychee-cache
-        run: python ci/tools/lychee_cache.py "${{ matrix.kind }}" --github-output "${GITHUB_OUTPUT}"
-
-      - name: Restore successful link checks
-        # Refresh mode deliberately skips yesterday's URL results.
-        if: ${{ !inputs.refresh-cache }}
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        with:
-          path: ${{ steps.lychee-cache.outputs.path }}
-          key: ${{ steps.lychee-cache.outputs.key }}
-          restore-keys: ${{ steps.lychee-cache.outputs.prefix }}
-          enableCrossOsArchive: true
-
       - name: Check documentation links through pre-commit
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: >-
-          python ci/tools/run_lychee_precommit.py "${{ matrix.kind }}"
-          --policy "${{ inputs.refresh-cache && 'cache-warm' || 'check' }}"
-          --max-attempts 3
-          --report "${RUNNER_TEMP}/lychee-reports/lychee-${{ matrix.kind }}.json"
-
-      - name: Publish fresh successful link checks
-        if: ${{ !cancelled() && inputs.refresh-cache && steps.lychee-cache.outputs.key != '' }}
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        uses: ./.github/actions/lychee-links
         with:
-          path: ${{ steps.lychee-cache.outputs.path }}
-          key: ${{ steps.lychee-cache.outputs.key }}
-          enableCrossOsArchive: true
-
-      - name: Upload link-check reports
-        if: ${{ always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: lychee-${{ matrix.kind }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/lychee-reports/
-          if-no-files-found: ignore
-          retention-days: 7
+          kind: ${{ matrix.kind }}
+          policy: ${{ inputs.refresh-cache && 'cache-warm' || 'check' }}
+          refresh: ${{ inputs.refresh-cache || false }}
