@@ -9,8 +9,10 @@ without a driver call, and :attr:`Buffer.size` after a grow is the aligned
 total. The ``config`` argument applies to the chunk that call adds and is no
 longer stored on the resource
 (`#2909 <https://github.com/NVIDIA/cuda-python/issues/2909>`__); it must
-keep the resource's location and passes the constructor's option checks. It
-never changes the access of memory that is already mapped, so a request the
+keep the resource's location and ``handle_type`` and passes the constructor's
+option checks. Every chunk of a buffer must be exportable the same way, so a
+resource created with ``handle_type=None`` needs ``handle_type=None`` in a
+per-call ``config`` as well. It never changes the access of memory that is already mapped, so a request the
 buffer already covers has no effect even with ``config``. Buffers from
 ``allocate()`` free themselves when they close and no longer call
 :meth:`VirtualMemoryResource.deallocate`, which now serves pointers wrapped

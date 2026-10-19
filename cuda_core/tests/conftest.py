@@ -8,6 +8,7 @@ import multiprocessing
 import os
 import pathlib
 import sys
+import warnings
 
 import pytest
 
@@ -29,7 +30,11 @@ except ImportError as e:
 pytest_plugins = ["cuda_python_test_helpers._pytest_plugin"]
 
 from helpers.constants import POOL_SIZE
-from helpers.memory import skip_if_pinned_memory_unsupported
+from helpers.memory import (
+    BaselineMemoryResourceReleasedWarning,
+    UnreleasedMemoryResourceWarning,
+    skip_if_pinned_memory_unsupported,
+)
 
 import cuda.core
 from cuda.bindings import driver
@@ -41,9 +46,20 @@ from cuda.core import (
     ManagedMemoryResourceOptions,
     PinnedMemoryResource,
     PinnedMemoryResourceOptions,
+    VirtualMemoryResource,
+    VirtualMemoryResourceOptions,
     _device,
 )
+from cuda.core._memory._buffer import _live_owned_mempool_count, _live_va_reservation_count
 from cuda.core._utils.cuda_utils import handle_return
+
+
+def pytest_collection_finish(session):
+    # The per-test gc.collect() in init_cuda (below) must not re-traverse the
+    # collected items and the imported modules on every teardown: freeze them
+    # once. Objects created after this point are collected as before (#2381).
+    gc.collect()
+    gc.freeze()
 
 
 def pytest_configure(config):
@@ -117,6 +133,56 @@ def _item_uses_init_cuda(item):
     return "init_cuda" in getattr(item, "fixturenames", ())
 
 
+# init_cuda collects at teardown only if the process-wide count of live *owned*
+# driver resources (owned memory pools and VA reservations) differs from its
+# value at setup. The counts come from the C++ RAII layer, so a borrowed pool
+# reference (the device default pool) and MemoryResource subclasses that hold no
+# pool or reservation do not move them. That makes the gate sound only if no
+# older owned resource is released during a test (it could cancel a new leak),
+# so tests that construct owned resources must use init_cuda, and the leftover
+# check below reports owned resources that outlive a test without it.
+
+
+def _live_resource_counts():
+    """(owned memory pools, VA reservations) live process-wide, as a tuple.
+
+    Only *owned* driver resources are counted (see the C++ accessors), so this
+    excludes borrowed pool references and non-owning MemoryResource subclasses.
+    """
+    return (_live_owned_mempool_count(), _live_va_reservation_count())
+
+
+def _format_counts(counts):
+    owned_pools, va_reservations = counts
+    return f"owned_pools={owned_pools}, va_reservations={va_reservations}"
+
+
+# Counts after the last init_cuda test; None until one has run.
+_mr_expected_live = None
+# Counts at the start of the current item, before its fixtures set up.
+_mr_live_at_item_start = (0, 0)
+_mr_last_init_cuda_nodeid = None
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_protocol(item, nextitem):
+    # Leftover check: compare with the counts after the previous init_cuda test,
+    # not the session start, because they legitimately rise over a run (pools
+    # owned by module- or class-scoped fixtures).
+    global _mr_expected_live, _mr_live_at_item_start, _mr_last_init_cuda_nodeid
+    _mr_live_at_item_start = _live_resource_counts()
+    try:
+        return (yield)
+    finally:
+        live = _live_resource_counts()
+        if _item_uses_init_cuda(item):
+            _mr_expected_live = live
+            _mr_last_init_cuda_nodeid = item.nodeid
+        elif _mr_expected_live is not None:
+            # Only lower each component: a released resource must not hide a later leak.
+            _mr_expected_live = tuple(min(a, b) for a, b in zip(_mr_expected_live, live))
+
+
 class _CudaCoreParallelPlugin:
     """A mini pytest plugin used only for pytest-run-parallel testing.
     pytest-run-parallel spawns new threads for each test and we need to
@@ -164,34 +230,82 @@ def session_setup():
 
 
 @pytest.fixture
-def init_cuda():
+def init_cuda(request):
     # TODO: rename this to e.g. init_context
     device = Device(0)
+    # Everything that can raise after set_current() runs inside the try, so the
+    # finally pops this context; the leftover warning below is escalated to an
+    # error. A failed set_current() leaves nothing for the finally to undo.
+    # live_at_setup stays None until the setup snapshot is recorded.
     device.set_current()
-
-    # Set option to avoid spin-waiting on synchronization.
-    if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
-        handle_return(
-            driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
-        )
-
+    live_at_setup = None
     try:
+        # Set option to avoid spin-waiting on synchronization.
+        if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
+            handle_return(
+                driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
+            )
+
+        # Leftover check: growth since the previous init_cuda test means something
+        # in between left an owned resource alive. Collect first to sweep a cyclic
+        # leftover, and before the counts at setup are recorded so they are reflected there.
+        if _mr_expected_live is not None and any(
+            now > exp for now, exp in zip(_mr_live_at_item_start, _mr_expected_live)
+        ):
+            gc.collect()
+            now_counts = _live_resource_counts()
+            held = tuple(max(n - e, 0) for n, e in zip(now_counts, _mr_expected_live))
+            excess = tuple(s - e for s, e in zip(_mr_live_at_item_start, _mr_expected_live))
+            seed = getattr(request.config.option, "randomly_seed", None)
+            seed_msg = f" (pytest-randomly seed: {seed})" if seed is not None else ""
+            warnings.warn(
+                f"Owned resources were left alive by tests that ran since {_mr_last_init_cuda_nodeid} "
+                f"({_format_counts(excess)}; still alive after a collect: {_format_counts(held)}). "
+                f"A test or fixture that constructs a memory resource must request init_cuda.{seed_msg}",
+                UnreleasedMemoryResourceWarning,
+                stacklevel=2,
+            )
+
+        # Counts at setup. The device default pool is a borrowed reference and is
+        # not counted, so no cached-default bookkeeping is needed.
+        live_at_setup = _live_resource_counts()
         yield device
     finally:
+        # pytest holds fixture values in item.funcargs (a pytest-internal dict)
+        # until all teardown has run; we deliberately drop them so already
+        # torn-down fixtures are not counted below. Revisit if pytest changes
+        # how it retains fixture values.
+        request.node.funcargs.clear()
+        # Only an owned resource in a reference cycle outlives the test frame, so
+        # collect only if the counts differ from their values at setup. A lower
+        # count means an older resource was released, which could mask a leak
+        # in this test: collect in that case too. Skip the comparison when setup
+        # aborted before the snapshot (the leftover warning raises).
+        live_after = _live_resource_counts() if live_at_setup is not None else None
+        if live_after is not None and live_after != live_at_setup:
+            gc.collect()
         # Force any pool/allocation whose only remaining reference was a local
         # in this test's frame to actually get destroyed now, then drain the
         # context so the stream-ordered frees that destruction enqueues retire
-        # before the next test runs. Without this, a memory pool's VA
-        # reservation is not returned until both have happened, and per-test
-        # leftovers accumulate across the run -- which is how full-suite runs
-        # can exhaust address space and hit CUDA_ERROR_OUT_OF_MEMORY on a
-        # device with plenty of free physical memory (issue #2381). gc.collect()
-        # must run first: cuCtxSynchronize alone cannot drain frees that were
-        # never enqueued because their owning object had not been collected yet.
-        # With pytest-run-parallel this runs after worker join.
-        gc.collect()
+        # before the next test runs (issue #2381). gc.collect() above must run
+        # first: cuCtxSynchronize alone cannot drain frees that were never
+        # enqueued because their owning object had not been collected yet.
+        # With pytest-run-parallel this runs after worker join. This also runs
+        # when setup raises, so an escalated leftover warning cannot leave the
+        # context current.
         driver.cuCtxSynchronize()
         _ = _device_unset_current()
+        # After the cleanup, so an escalated warning cannot skip it.
+        if live_after is not None and any(now < snap for now, snap in zip(live_after, live_at_setup)):
+            released = tuple(s - n for s, n in zip(live_at_setup, live_after))
+            warnings.warn(
+                f"{request.node.nodeid} released owned resources that existed before it started "
+                f"({_format_counts(released)}; counts {_format_counts(live_after)}, snapshot "
+                f"{_format_counts(live_at_setup)}). A leak in this test could have been masked by "
+                "that release. Find what held the released resource.",
+                BaselineMemoryResourceReleasedWarning,
+                stacklevel=2,
+            )
 
 
 def _device_unset_current() -> bool:
@@ -271,29 +385,105 @@ def ipc_device(init_cuda):
         yield device
 
 
+def _require_vmm_ipc_device(device):
+    """Return ``device`` if it can export VMM allocations as POSIX file descriptors, otherwise skip."""
+    from cuda_python_test_helpers import IS_WINDOWS, IS_WSL
+
+    props = device.properties
+    if not props.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+    if IS_WINDOWS or IS_WSL or not props.handle_type_posix_file_descriptor_supported:
+        pytest.skip("Sharing virtual memory needs POSIX file descriptor handles")
+    return device
+
+
+@pytest.fixture
+def vmm_ipc_device(init_cuda):
+    """A device whose VirtualMemoryResource buffers can be shared between processes, or skip.
+
+    Tracks spawned ``multiprocessing.Process`` children like :func:`ipc_device`.
+    """
+    from helpers.child_processes import track_child_processes
+
+    device = _require_vmm_ipc_device(init_cuda)
+    with track_child_processes():
+        yield device
+
+
+@pytest.fixture
+def vmm_ipc_device_x2(device_x2):
+    """Two devices whose VirtualMemoryResource buffers can be shared between processes, or skip."""
+    from helpers.child_processes import track_child_processes
+
+    devices = tuple(_require_vmm_ipc_device(device) for device in device_x2)
+    with track_child_processes():
+        yield devices
+
+
+def _make_ipc_memory_resource(kind, device):
+    """Create an IPC-enabled memory resource of the given kind, or skip when the device cannot."""
+    if kind == "device":
+        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+        return DeviceMemoryResource(device, options=options)
+    if kind == "pinned":
+        skip_if_pinned_memory_unsupported(device)
+        options = PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+        return PinnedMemoryResource(options=options)
+    assert kind == "vmm", kind
+    _require_vmm_ipc_device(device)
+    return VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(handle_type="posix_fd"))
+
+
+def _close_memory_resource(mr):
+    # A VirtualMemoryResource owns no pool and has no close(); its buffers free themselves.
+    close = getattr(mr, "close", None)
+    if close is not None:
+        close()
+
+
 @pytest.fixture(
     params=[
         pytest.param("device", id="DeviceMR"),
         pytest.param("pinned", id="PinnedMR"),
+        pytest.param("vmm", id="VirtualMR"),
     ]
 )
 def ipc_memory_resource(request, ipc_device):
-    """Provides IPC-enabled memory resource (either Device or Pinned)."""
-    mr_type = request.param
+    """Provides an IPC-enabled memory resource: a device pool, a pinned pool, or a VirtualMemoryResource.
 
-    if mr_type == "device":
-        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
-        mr = DeviceMemoryResource(ipc_device, options=options)
-    else:  # pinned
-        skip_if_pinned_memory_unsupported(ipc_device)
-        options = PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
-        mr = PinnedMemoryResource(options=options)
-
+    The VMM parameter needs VMM support and POSIX file descriptor handles on
+    top of what :func:`ipc_device` requires; it skips otherwise. Tests that
+    use the pool-only half of the IPC protocol (``allocation_handle``,
+    ``from_allocation_handle``, the registry, ``uuid``, ``is_mapped`` on the
+    resource) guard or skip for it.
+    """
+    mr = _make_ipc_memory_resource(request.param, ipc_device)
     assert mr.is_ipc_enabled
     yield mr
-    mr.close()
+    _close_memory_resource(mr)
     # TODO(seberg): Make sure the `mr` and it's buffers are fully torn down.
     # May be unnecessary as `mr.close()` is not parallel with other work.
+    ipc_device.sync()
+
+
+@pytest.fixture(
+    params=[
+        pytest.param("device", id="DeviceMR"),
+        pytest.param("vmm", id="VirtualMR"),
+    ]
+)
+def ipc_memory_resource_factory(request, ipc_device):
+    """Provides a callable that creates fresh IPC-enabled resources of one kind; all are closed at teardown."""
+    created = []
+
+    def make():
+        mr = _make_ipc_memory_resource(request.param, ipc_device)
+        created.append(mr)
+        return mr
+
+    yield make
+    for mr in created:
+        _close_memory_resource(mr)
     ipc_device.sync()
 
 

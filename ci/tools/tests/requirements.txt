@@ -13,3 +13,6 @@ pytest
 # The release-notes tests run the docs extension in cuda_python/docs/exts.
 # Keep sphinx in sync with cuda_python/docs/environment-docs.yml.
 sphinx<8.2.0
+
+# Other tests here read YAML files (ci/versions.yml, workflows).
+pyyaml

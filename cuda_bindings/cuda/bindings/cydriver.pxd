@@ -3,10 +3,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=26d9c23bcf10595e40a03f65b7b7491e2fa5d7161458b6183c53353665bf6f52
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=650abadba73a2c94411e41b2ae235092bef45e6db706202bb779d8e8dd118375
 
 
 # <<<< PREAMBLE CONTENT >>>>
+
+cdef extern from "<type_traits>":
+    pass
 
 from libc.stdint cimport (
     uint32_t,
@@ -1985,17 +1988,18 @@ cdef extern from 'cuda.h':
     ctypedef CUuuid_st CUuuid
 
 cdef extern from 'cuda.h':
-    ctypedef struct CUstreamMemOpFlushRemoteWritesParams_st 'CUstreamMemOpFlushRemoteWritesParams_st':
+    ctypedef struct CUstreamMemOpFlushRemoteWritesParams_st "std::remove_all_extents<decltype(((CUstreamBatchMemOpParams_v1*)0)->flushRemoteWrites)>::type":
         CUstreamBatchMemOpType operation
         unsigned int flags
 
 cdef extern from 'cuda.h':
-    ctypedef struct CUstreamMemOpMemoryBarrierParams_st 'CUstreamMemOpMemoryBarrierParams_st':
+    ctypedef struct CUstreamMemOpMemoryBarrierParams_st "std::remove_all_extents<decltype(((CUstreamBatchMemOpParams_v1*)0)->memoryBarrier)>::type":
         CUstreamBatchMemOpType operation
         unsigned int flags
 
-cdef struct cuda_bindings_driver__anon_pod3:
-    unsigned long long bytesOverBudget
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod3 "std::remove_all_extents<decltype(((CUasyncNotificationInfo*)0)->info.overBudget)>::type":
+        unsigned long long bytesOverBudget
 
 cdef extern from 'cuda.h':
     ctypedef void (*CUhostFn 'CUhostFn')(
@@ -2017,15 +2021,17 @@ cdef extern from 'cuda.h':
         unsigned char remote
     ctypedef CUlaunchMemSyncDomainMap_st CUlaunchMemSyncDomainMap
 
-cdef struct cuda_bindings_driver__anon_pod5:
-    unsigned int x
-    unsigned int y
-    unsigned int z
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod5 "std::remove_all_extents<decltype(((CUlaunchAttributeValue*)0)->clusterDim)>::type":
+        unsigned int x
+        unsigned int y
+        unsigned int z
 
-cdef struct cuda_bindings_driver__anon_pod8:
-    unsigned int x
-    unsigned int y
-    unsigned int z
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod8 "std::remove_all_extents<decltype(((CUlaunchAttributeValue*)0)->preferredClusterDim)>::type":
+        unsigned int x
+        unsigned int y
+        unsigned int z
 
 cdef extern from 'cuda.h':
     cdef struct CUctxCigParam_st:
@@ -2041,67 +2047,81 @@ cdef extern from 'cuda.h':
         size_t dataWindowSize
     ctypedef CUlibraryHostUniversalFunctionAndDataTable_st CUlibraryHostUniversalFunctionAndDataTable
 
-cdef struct cuda_bindings_driver__anon_pod11:
-    unsigned int width
-    unsigned int height
-    unsigned int depth
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod11 "std::remove_all_extents<decltype(((CUDA_ARRAY_SPARSE_PROPERTIES_v1*)0)->tileExtent)>::type":
+        unsigned int width
+        unsigned int height
+        unsigned int depth
 
-cdef struct cuda_bindings_driver__anon_pod17:
-    int reserved[32]
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod17 "std::remove_all_extents<decltype(((CUDA_RESOURCE_DESC_v1*)0)->res.reserved)>::type":
+        int reserved[32]
 
-cdef struct cuda_bindings_driver__anon_pod19:
-    void* handle
-    void* name
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod19 "std::remove_all_extents<decltype(((CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1*)0)->handle.win32)>::type":
+        void* handle
+        void* name
 
-cdef struct cuda_bindings_driver__anon_pod21:
-    void* handle
-    void* name
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod21 "std::remove_all_extents<decltype(((CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1*)0)->handle.win32)>::type":
+        void* handle
+        void* name
 
-cdef struct cuda_bindings_driver__anon_pod23:
-    unsigned long long value
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod23 "std::remove_all_extents<decltype(((CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1*)0)->params.fence)>::type":
+        unsigned long long value
 
-cdef union cuda_bindings_driver__anon_pod24:
-    void* fence
-    unsigned long long reserved
+cdef extern from 'cuda.h':
+    ctypedef union cuda_bindings_driver__anon_pod24 "std::remove_all_extents<decltype(((CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1*)0)->params.nvSciSync)>::type":
+        void* fence
+        unsigned long long reserved
 
-cdef struct cuda_bindings_driver__anon_pod25:
-    unsigned long long key
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod25 "std::remove_all_extents<decltype(((CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1*)0)->params.keyedMutex)>::type":
+        unsigned long long key
 
-cdef struct cuda_bindings_driver__anon_pod27:
-    unsigned long long value
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod27 "std::remove_all_extents<decltype(((CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1*)0)->params.fence)>::type":
+        unsigned long long value
 
-cdef union cuda_bindings_driver__anon_pod28:
-    void* fence
-    unsigned long long reserved
+cdef extern from 'cuda.h':
+    ctypedef union cuda_bindings_driver__anon_pod28 "std::remove_all_extents<decltype(((CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1*)0)->params.nvSciSync)>::type":
+        void* fence
+        unsigned long long reserved
 
-cdef struct cuda_bindings_driver__anon_pod29:
-    unsigned long long key
-    unsigned int timeoutMs
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod29 "std::remove_all_extents<decltype(((CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1*)0)->params.keyedMutex)>::type":
+        unsigned long long key
+        unsigned int timeoutMs
 
-cdef struct cuda_bindings_driver__anon_pod34:
-    unsigned int level
-    unsigned int layer
-    unsigned int offsetX
-    unsigned int offsetY
-    unsigned int offsetZ
-    unsigned int extentWidth
-    unsigned int extentHeight
-    unsigned int extentDepth
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod34 "std::remove_all_extents<decltype(((CUarrayMapInfo_v1*)0)->subresource.sparseLevel)>::type":
+        unsigned int level
+        unsigned int layer
+        unsigned int offsetX
+        unsigned int offsetY
+        unsigned int offsetZ
+        unsigned int extentWidth
+        unsigned int extentHeight
+        unsigned int extentDepth
 
-cdef struct cuda_bindings_driver__anon_pod35:
-    unsigned int layer
-    unsigned long long offset
-    unsigned long long size
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod35 "std::remove_all_extents<decltype(((CUarrayMapInfo_v1*)0)->subresource.miptail)>::type":
+        unsigned int layer
+        unsigned long long offset
+        unsigned long long size
 
-cdef struct cuda_bindings_driver__anon_pod38:
-    unsigned char deviceId
-    unsigned char localityDomainId
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod38 "std::remove_all_extents<decltype(((CUmemLocation_v1*)0)->localized)>::type":
+        unsigned char deviceId
+        unsigned char localityDomainId
 
-cdef struct cuda_bindings_driver__anon_pod39:
-    unsigned char compressionType
-    unsigned char gpuDirectRDMACapable
-    unsigned short usage
-    unsigned char reserved[4]
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod39 "std::remove_all_extents<decltype(((CUmemAllocationProp_v1*)0)->allocFlags)>::type":
+        unsigned char compressionType
+        unsigned char gpuDirectRDMACapable
+        unsigned short usage
+        unsigned char reserved[4]
 
 cdef extern from 'cuda.h':
     cdef struct CUdevSmResource_st:
@@ -2138,8 +2158,9 @@ cdef extern from 'cuda.h':
         unsigned char data[64]
     ctypedef CUlogicalEndpointFabricHandle_st CUlogicalEndpointFabricHandle
 
-cdef struct cuda_bindings_driver__anon_pod48:
-    unsigned int numDevices
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod48 "std::remove_all_extents<decltype(((CUlogicalEndpointProp*)0)->multicast)>::type":
+        unsigned int numDevices
 
 cdef extern from 'cuda.h':
     cdef struct CUcliqueInfo_st:
@@ -2332,24 +2353,29 @@ cdef extern from 'cuda.h':
         CUcontext ctx
     ctypedef CUDA_KERNEL_NODE_PARAMS_v3_st CUDA_KERNEL_NODE_PARAMS_v3
 
-cdef struct cuda_bindings_driver__anon_pod13:
-    CUarray hArray
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod13 "std::remove_all_extents<decltype(((CUDA_RESOURCE_DESC_v1*)0)->res.array)>::type":
+        CUarray hArray
 
-cdef struct cuda_bindings_driver__anon_pod14:
-    CUmipmappedArray hMipmappedArray
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod14 "std::remove_all_extents<decltype(((CUDA_RESOURCE_DESC_v1*)0)->res.mipmap)>::type":
+        CUmipmappedArray hMipmappedArray
 
-cdef union cuda_bindings_driver__anon_pod32:
-    CUmipmappedArray mipmap
-    CUarray array
+cdef extern from 'cuda.h':
+    ctypedef union cuda_bindings_driver__anon_pod32 "std::remove_all_extents<decltype(((CUarrayMapInfo_v1*)0)->resource)>::type":
+        CUmipmappedArray mipmap
+        CUarray array
 
-cdef struct cuda_bindings_driver__anon_pod6:
-    CUevent event
-    int flags
-    int triggerAtBlockStart
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod6 "std::remove_all_extents<decltype(((CUlaunchAttributeValue*)0)->programmaticEvent)>::type":
+        CUevent event
+        int flags
+        int triggerAtBlockStart
 
-cdef struct cuda_bindings_driver__anon_pod7:
-    CUevent event
-    int flags
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod7 "std::remove_all_extents<decltype(((CUlaunchAttributeValue*)0)->launchCompletionEvent)>::type":
+        CUevent event
+        int flags
 
 cdef extern from 'cuda.h':
     cdef struct CUDA_EVENT_WAIT_NODE_PARAMS_st:
@@ -2399,9 +2425,10 @@ cdef extern from 'cuda.h':
         CUgraphNode errorFromNode
     ctypedef CUgraphExecUpdateResultInfo_st CUgraphExecUpdateResultInfo_v1
 
-cdef struct cuda_bindings_driver__anon_pod9:
-    int deviceUpdatable
-    CUgraphDeviceNode devNode
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod9 "std::remove_all_extents<decltype(((CUlaunchAttributeValue*)0)->deviceUpdatableKernelNode)>::type":
+        int deviceUpdatable
+        CUgraphDeviceNode devNode
 
 cdef extern from 'cuda.h':
     cdef struct CUcheckpointGpuPair_st:
@@ -2409,8 +2436,9 @@ cdef extern from 'cuda.h':
         CUuuid newUuid
     ctypedef CUcheckpointGpuPair_st CUcheckpointGpuPair
 
-cdef union cuda_bindings_driver__anon_pod2:
-    cuda_bindings_driver__anon_pod3 overBudget
+cdef extern from 'cuda.h':
+    ctypedef union cuda_bindings_driver__anon_pod2 "std::remove_all_extents<decltype(((CUasyncNotificationInfo*)0)->info)>::type":
+        cuda_bindings_driver__anon_pod3 overBudget
 
 cdef extern from 'cuda.h':
     cdef struct CUDA_HOST_NODE_PARAMS_st:
@@ -2427,31 +2455,36 @@ cdef extern from 'cuda.h':
         unsigned int reserved[4]
     ctypedef CUDA_ARRAY_SPARSE_PROPERTIES_st CUDA_ARRAY_SPARSE_PROPERTIES_v1
 
-cdef union cuda_bindings_driver__anon_pod18:
-    int fd
-    cuda_bindings_driver__anon_pod19 win32
-    void* nvSciBufObject
+cdef extern from 'cuda.h':
+    ctypedef union cuda_bindings_driver__anon_pod18 "std::remove_all_extents<decltype(((CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1*)0)->handle)>::type":
+        int fd
+        cuda_bindings_driver__anon_pod19 win32
+        void* nvSciBufObject
 
-cdef union cuda_bindings_driver__anon_pod20:
-    int fd
-    cuda_bindings_driver__anon_pod21 win32
-    void* nvSciSyncObj
+cdef extern from 'cuda.h':
+    ctypedef union cuda_bindings_driver__anon_pod20 "std::remove_all_extents<decltype(((CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1*)0)->handle)>::type":
+        int fd
+        cuda_bindings_driver__anon_pod21 win32
+        void* nvSciSyncObj
 
-cdef struct cuda_bindings_driver__anon_pod22:
-    cuda_bindings_driver__anon_pod23 fence
-    cuda_bindings_driver__anon_pod24 nvSciSync
-    cuda_bindings_driver__anon_pod25 keyedMutex
-    unsigned int reserved[12]
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod22 "std::remove_all_extents<decltype(((CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1*)0)->params)>::type":
+        cuda_bindings_driver__anon_pod23 fence
+        cuda_bindings_driver__anon_pod24 nvSciSync
+        cuda_bindings_driver__anon_pod25 keyedMutex
+        unsigned int reserved[12]
 
-cdef struct cuda_bindings_driver__anon_pod26:
-    cuda_bindings_driver__anon_pod27 fence
-    cuda_bindings_driver__anon_pod28 nvSciSync
-    cuda_bindings_driver__anon_pod29 keyedMutex
-    unsigned int reserved[10]
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod26 "std::remove_all_extents<decltype(((CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1*)0)->params)>::type":
+        cuda_bindings_driver__anon_pod27 fence
+        cuda_bindings_driver__anon_pod28 nvSciSync
+        cuda_bindings_driver__anon_pod29 keyedMutex
+        unsigned int reserved[10]
 
-cdef union cuda_bindings_driver__anon_pod33:
-    cuda_bindings_driver__anon_pod34 sparseLevel
-    cuda_bindings_driver__anon_pod35 miptail
+cdef extern from 'cuda.h':
+    ctypedef union cuda_bindings_driver__anon_pod33 "std::remove_all_extents<decltype(((CUarrayMapInfo_v1*)0)->subresource)>::type":
+        cuda_bindings_driver__anon_pod34 sparseLevel
+        cuda_bindings_driver__anon_pod35 miptail
 
 cdef extern from 'cuda.h':
     cdef struct CUstreamCigCaptureParams_st:
@@ -2467,7 +2500,7 @@ cdef extern from 'cuda.h':
         CUcontext ctx
 
 cdef extern from 'cuda.h':
-    ctypedef struct CUstreamMemOpWaitValueParams_st 'CUstreamMemOpWaitValueParams_st':
+    ctypedef struct CUstreamMemOpWaitValueParams_st "std::remove_all_extents<decltype(((CUstreamBatchMemOpParams_v1*)0)->waitValue)>::type":
         CUstreamBatchMemOpType operation
         CUdeviceptr address
         cuuint32_t value
@@ -2476,7 +2509,7 @@ cdef extern from 'cuda.h':
         CUdeviceptr alias
 
 cdef extern from 'cuda.h':
-    ctypedef struct CUstreamMemOpWriteValueParams_st 'CUstreamMemOpWriteValueParams_st':
+    ctypedef struct CUstreamMemOpWriteValueParams_st "std::remove_all_extents<decltype(((CUstreamBatchMemOpParams_v1*)0)->writeValue)>::type":
         CUstreamBatchMemOpType operation
         CUdeviceptr address
         cuuint32_t value
@@ -2485,7 +2518,7 @@ cdef extern from 'cuda.h':
         CUdeviceptr alias
 
 cdef extern from 'cuda.h':
-    ctypedef struct CUstreamMemOpAtomicReductionParams_st 'CUstreamMemOpAtomicReductionParams_st':
+    ctypedef struct CUstreamMemOpAtomicReductionParams_st "std::remove_all_extents<decltype(((CUstreamBatchMemOpParams_v1*)0)->atomicReduction)>::type":
         CUstreamBatchMemOpType operation
         unsigned int flags
         CUstreamAtomicReductionOpType reductionOp
@@ -2593,19 +2626,21 @@ cdef extern from 'cuda.h':
         size_t Depth
     ctypedef CUDA_MEMCPY3D_PEER_st CUDA_MEMCPY3D_PEER_v1
 
-cdef struct cuda_bindings_driver__anon_pod15:
-    CUdeviceptr devPtr
-    CUarray_format format
-    unsigned int numChannels
-    size_t sizeInBytes
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod15 "std::remove_all_extents<decltype(((CUDA_RESOURCE_DESC_v1*)0)->res.linear)>::type":
+        CUdeviceptr devPtr
+        CUarray_format format
+        unsigned int numChannels
+        size_t sizeInBytes
 
-cdef struct cuda_bindings_driver__anon_pod16:
-    CUdeviceptr devPtr
-    CUarray_format format
-    unsigned int numChannels
-    size_t width
-    size_t height
-    size_t pitchInBytes
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod16 "std::remove_all_extents<decltype(((CUDA_RESOURCE_DESC_v1*)0)->res.pitch2D)>::type":
+        CUdeviceptr devPtr
+        CUarray_format format
+        unsigned int numChannels
+        size_t width
+        size_t height
+        size_t pitchInBytes
 
 cdef extern from 'cuda.h':
     cdef struct CUDA_MEM_FREE_NODE_PARAMS_st:
@@ -2626,8 +2661,9 @@ cdef extern from 'cuda.h':
         CUdevWorkqueueConfigScope sharingScope
     ctypedef CUdevWorkqueueConfigResource_st CUdevWorkqueueConfigResource
 
-cdef struct cuda_bindings_driver__anon_pod47:
-    CUdevice device
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod47 "std::remove_all_extents<decltype(((CUlogicalEndpointProp*)0)->unicast)>::type":
+        CUdevice device
 
 cdef extern from 'cuda.h':
     ctypedef void (*CUcoredumpStatusCallback 'CUcoredumpStatusCallback')(
@@ -2637,8 +2673,9 @@ cdef extern from 'cuda.h':
     )
 
 
-cdef union cuda_bindings_driver__anon_pod10:
-    CUexecAffinitySmCount smCount
+cdef extern from 'cuda.h':
+    ctypedef union cuda_bindings_driver__anon_pod10 "std::remove_all_extents<decltype(((CUexecAffinityParam_v1*)0)->param)>::type":
+        CUexecAffinitySmCount smCount
 
 cdef extern from 'cuda.h':
     cdef struct CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
@@ -2648,12 +2685,14 @@ cdef extern from 'cuda.h':
         unsigned int reserved[16]
     ctypedef CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1
 
-cdef union cuda_bindings_driver__anon_pod36:
-    CUmemGenericAllocationHandle memHandle
+cdef extern from 'cuda.h':
+    ctypedef union cuda_bindings_driver__anon_pod36 "std::remove_all_extents<decltype(((CUarrayMapInfo_v1*)0)->memHandle)>::type":
+        CUmemGenericAllocationHandle memHandle
 
-cdef struct cuda_bindings_driver__anon_pod42:
-    CUarray array
-    CUoffset3D offset
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod42 "std::remove_all_extents<decltype(((CUmemcpy3DOperand_v1*)0)->op.array)>::type":
+        CUarray array
+        CUoffset3D offset
 
 cdef extern from 'cuda.h':
     ctypedef CUDA_KERNEL_NODE_PARAMS_v2 CUDA_KERNEL_NODE_PARAMS 'CUDA_KERNEL_NODE_PARAMS'
@@ -2784,12 +2823,13 @@ cdef extern from 'cuda.h':
     ctypedef CUDA_MEMCPY3D_PEER_v1 CUDA_MEMCPY3D_PEER 'CUDA_MEMCPY3D_PEER'
 
 
-cdef union cuda_bindings_driver__anon_pod12:
-    cuda_bindings_driver__anon_pod13 array
-    cuda_bindings_driver__anon_pod14 mipmap
-    cuda_bindings_driver__anon_pod15 linear
-    cuda_bindings_driver__anon_pod16 pitch2D
-    cuda_bindings_driver__anon_pod17 reserved
+cdef extern from 'cuda.h':
+    ctypedef union cuda_bindings_driver__anon_pod12 "std::remove_all_extents<decltype(((CUDA_RESOURCE_DESC_v1*)0)->res)>::type":
+        cuda_bindings_driver__anon_pod13 array
+        cuda_bindings_driver__anon_pod14 mipmap
+        cuda_bindings_driver__anon_pod15 linear
+        cuda_bindings_driver__anon_pod16 pitch2D
+        cuda_bindings_driver__anon_pod17 reserved
 
 cdef extern from 'cuda.h':
     cdef struct CUcheckpointCustomStorageInfo_st:
@@ -3017,11 +3057,12 @@ cdef extern from 'cuda.h':
         unsigned int flags
     ctypedef CUmemcpyAttributes_st CUmemcpyAttributes_v1
 
-cdef struct cuda_bindings_driver__anon_pod41:
-    CUdeviceptr ptr
-    size_t rowLength
-    size_t layerHeight
-    CUmemLocation locHint
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod41 "std::remove_all_extents<decltype(((CUmemcpy3DOperand_v1*)0)->op.ptr)>::type":
+        CUdeviceptr ptr
+        size_t rowLength
+        size_t layerHeight
+        CUmemLocation locHint
 
 cdef extern from 'cuda.h':
     cdef struct CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
@@ -3078,9 +3119,10 @@ cdef extern from 'cuda.h':
     ctypedef CUmemcpyAttributes_v1 CUmemcpyAttributes 'CUmemcpyAttributes'
 
 
-cdef union cuda_bindings_driver__anon_pod40:
-    cuda_bindings_driver__anon_pod41 ptr
-    cuda_bindings_driver__anon_pod42 array
+cdef extern from 'cuda.h':
+    ctypedef union cuda_bindings_driver__anon_pod40 "std::remove_all_extents<decltype(((CUmemcpy3DOperand_v1*)0)->op)>::type":
+        cuda_bindings_driver__anon_pod41 ptr
+        cuda_bindings_driver__anon_pod42 array
 
 cdef extern from 'cuda.h':
     ctypedef CUDA_BATCH_MEM_OP_NODE_PARAMS_v1 CUDA_BATCH_MEM_OP_NODE_PARAMS 'CUDA_BATCH_MEM_OP_NODE_PARAMS'

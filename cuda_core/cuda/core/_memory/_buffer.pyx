@@ -20,6 +20,8 @@ from cuda.core._rt cimport (
     deviceptr_create_with_owner,
     deviceptr_create_with_mr,
     register_mr_dealloc_callback,
+    live_owned_mempool_count,
+    live_va_reservation_count,
     as_intptr,
     as_cu,
     get_current_context,
@@ -33,6 +35,18 @@ from cuda.core._memory._copy_attributes cimport _to_cu_memcpy_attributes  # no-c
 from cuda.core._stream cimport Stream, Stream_accept, Stream_is_legacy_default_token, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
+
+# Process-wide counts of live *owned* driver resources, read by the test suite.
+# Counting lives in the C++ RAII layer (owned CUmemoryPool and VA reservations),
+# so borrowed pool references and MemoryResource subclasses that hold no pool or
+# reservation are excluded. conftest.py reads these to gate the per-test collect.
+def _live_owned_mempool_count() -> int:
+    return live_owned_mempool_count()
+
+
+def _live_va_reservation_count() -> int:
+    return live_va_reservation_count()
+
 import warnings
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
@@ -44,6 +58,7 @@ from cuda.core._dlpack import classify_dl_device, make_py_capsule
 from cuda.core._device import Device
 
 if TYPE_CHECKING:
+    from cuda.core._memory._virtual_memory_resource import VirtualMemoryResource
     from cuda.core.graph import GraphBuilder
 
 
@@ -388,15 +403,21 @@ cdef class Buffer:
 
     @classmethod
     def from_ipc_descriptor(
-        cls, mr: DeviceMemoryResource | PinnedMemoryResource, ipc_descriptor: IPCBufferDescriptor,
-        *, stream: Stream
+        cls, mr: DeviceMemoryResource | PinnedMemoryResource | VirtualMemoryResource,
+        IPCBufferDescriptor ipc_descriptor not None: IPCBufferDescriptor,
+        *, Stream stream not None: Stream
     ) -> Buffer:
         """Import a buffer that was exported from another process.
 
         Parameters
         ----------
-        mr : :obj:`~_memory.DeviceMemoryResource` | :obj:`~_memory.PinnedMemoryResource`
-            The IPC-enabled memory resource matching the exporting process.
+        mr : :obj:`~_memory.DeviceMemoryResource` | :obj:`~_memory.PinnedMemoryResource` | :obj:`~_memory.VirtualMemoryResource`
+            The IPC-enabled memory resource matching the exporting process. A
+            descriptor exported from a :class:`VirtualMemoryBuffer` is imported
+            with a :class:`VirtualMemoryResource` of this process whose
+            ``handle_type`` matches the exporter's; the import maps the shared
+            physical memory for that resource's device with that resource's
+            access options.
         ipc_descriptor : :obj:`~_memory.IPCBufferDescriptor`
             The descriptor exported from another process.
         stream : :obj:`~_stream.Stream`
@@ -414,7 +435,11 @@ cdef class Buffer:
     @property
     @cython.critical_section
     def ipc_descriptor(self) -> IPCBufferDescriptor:
-        """Descriptor for sharing this buffer with other processes."""
+        """Descriptor for sharing this buffer with other processes.
+
+        A pool-backed buffer caches its descriptor; a
+        :class:`VirtualMemoryBuffer` exports a new one on every access.
+        """
         Buffer_check_open(self)
         cdef object ipc_data
         if self._ipc_data is None:
@@ -480,7 +505,7 @@ cdef class Buffer:
         self.close()
         return False
 
-    def copy_to(self, dst: Buffer | None = None, *, stream: Stream | GraphBuilder,
+    def copy_to(self, Buffer dst: Buffer | None = None, *, stream: Stream | GraphBuilder,
                 options: CopyOptions | None = None) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
 
@@ -530,7 +555,7 @@ cdef class Buffer:
                                  "buffer does not have a memory_resource)")
             dst = self._memory_resource.allocate(src_size, stream=s)
         else:
-            Buffer_check_open(<Buffer>dst)
+            Buffer_check_open(dst)
 
         cdef size_t dst_size = dst._size
         if dst_size != src_size:
@@ -541,7 +566,7 @@ cdef class Buffer:
             as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, s, options, "copy_to")
         return dst
 
-    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder,
+    def copy_from(self, Buffer src not None: Buffer, *, stream: Stream | GraphBuilder,
                   options: CopyOptions | None = None) -> None:
         """Copy from the src buffer to this buffer asynchronously on the given stream.
 

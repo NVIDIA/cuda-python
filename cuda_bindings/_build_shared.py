@@ -3,10 +3,10 @@
 
 """Build helpers shared by the cuda-bindings and cuda-core PEP 517 backends.
 
-This is the single source of truth. ``cuda_core/_build_shared.py`` is a symlink
-to this file. Python does not dereference symlinks in ``__file__``, so any
-``Path(__file__)``-relative location in here resolves under whichever package
-loads it.
+``cuda_bindings/_build_shared.py`` is canonical. ``cuda_core/_build_shared.py``
+is either a symlink to it or a byte-for-byte identical copy. Both backends load
+the helper through their package-local path, keeping ``Path(__file__)``-relative
+state package-local.
 
 PEP 517 build isolation gives each backend its own ``build_hooks.py`` but not a
 shared import path. Both packages declare ``backend-path = ["."]``, which puts
@@ -18,8 +18,9 @@ Only what genuinely differs per package is parameterized, via the arguments of
 ``tweak`` hook for flags a single package needs.
 
 Besides the toolchain, this module owns the CUDA path lookup and the machinery that both backends use
-around cythonize and build_ext: the opt-in Cython generated-source cache and
-the build stamps that force a rebuild when the build configuration changed.
+around cythonize and build_ext: the opt-in Cython generated-source cache, the
+include-dir cleanup that keeps compile commands stable across isolated builds,
+and the build stamps that force a rebuild when the build configuration changed.
 
 Note: There is no support guarantee for environment variables like
 CUDA_PYTHON_TOOLCHAIN. They may be removed or changed in the future.
@@ -385,9 +386,8 @@ def _stable_cython_alias(target: Path, alias: Path):
     unstable across runs. This context manager creates a fixed, worktree-
     relative symlink so Cython sees a stable lexical path.
 
-    The symlink is created in the *package directory* (the directory containing
-    this file, which is the package's own copy through the symlink), not in
-    the cwd, to keep aliases package-local and avoid cross-package races.
+    The symlink is created in the package directory containing this file, not
+    in the cwd, to keep aliases package-local and avoid cross-package races.
 
     alias must not already exist as a real file or directory; if it is a
     symlink (including a dangling one) it is atomically replaced.
@@ -428,6 +428,31 @@ def _stable_cython_alias(target: Path, alias: Path):
                 alias.unlink()
         except OSError:
             pass
+
+
+# -----------------------------------------------------------------------
+# build_ext include dirs
+
+
+def drop_empty_venv_include_dir(include_dirs):
+    """Return ``include_dirs`` without the virtualenv include dir if it holds no files.
+
+    In a virtualenv, setuptools' build_ext appends ``<sys.exec_prefix>/include``.
+    Under PEP 517 build isolation that prefix is a fresh temporary directory
+    (``/tmp/build-env-<random>``), so the ``-I`` flag differs on every build,
+    and compiler caches that key on the command line (sccache's preprocessor
+    cache) never hit. A directory without files contributes no headers, so
+    dropping it leaves the compilation unchanged.
+
+    Symlinked subdirectories are followed: headers reachable through them
+    still count as files.
+    """
+    if sys.exec_prefix == sys.base_exec_prefix:
+        return include_dirs
+    venv_include = os.path.join(sys.exec_prefix, "include")
+    if any(files for _, _, files in os.walk(venv_include, followlinks=True)):
+        return include_dirs
+    return [d for d in include_dirs if d != venv_include]
 
 
 # -----------------------------------------------------------------------

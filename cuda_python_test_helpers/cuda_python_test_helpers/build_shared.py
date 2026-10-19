@@ -3,11 +3,11 @@
 
 """Shared tests for the helpers in ``_build_shared.py``.
 
-The helpers live in ``cuda_bindings/_build_shared.py``, and
-``cuda_core/_build_shared.py`` is a symlink to that file, so their behavior is
-identical whichever backend loads them. The mixins here hold the tests of that
-shared behavior. Each package's ``tests/test_build_hooks.py`` mixes them in
-against the ``_build_shared`` module it loaded, by setting the class attribute
+Both backends load the same ``_build_shared.py`` implementation through
+package-local paths, so their behavior is identical. The mixins here hold the
+tests of that shared behavior. Each package's ``tests/test_build_hooks.py``
+mixes them in against the ``_build_shared`` module it loaded, by setting the
+class attribute
 ``build_shared``.
 
 Kept out of the mixins on purpose:
@@ -468,6 +468,71 @@ class BuildKeyStampMixin:
         assert not stamp_file.parent.exists()
         self.build_shared.record_build_key(stamp_file, "cu13-gnu-opt")
         assert stamp_file.read_text(encoding="utf-8") == "cu13-gnu-opt\n"
+
+
+class DropEmptyVenvIncludeDirMixin:
+    """``drop_empty_venv_include_dir``: remove the venv include dir only when it holds no files."""
+
+    build_shared = None
+
+    @pytest.fixture
+    def venv(self, tmp_path, monkeypatch):
+        venv = tmp_path / "build-env-abc123"
+        monkeypatch.setattr(sys, "exec_prefix", str(venv))
+        monkeypatch.setattr(sys, "base_exec_prefix", str(tmp_path / "python"))
+        return venv
+
+    @pytest.mark.agent_authored(model="claude-opus-5.5")
+    def test_outside_a_venv_returns_the_list_unchanged(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(sys, "exec_prefix", str(tmp_path))
+        monkeypatch.setattr(sys, "base_exec_prefix", str(tmp_path))
+        dirs = ["/opt/cuda/include", os.path.join(str(tmp_path), "include")]
+        assert self.build_shared.drop_empty_venv_include_dir(dirs) == dirs
+
+    @pytest.mark.agent_authored(model="claude-opus-5.5")
+    def test_missing_venv_include_dir_is_dropped(self, venv):
+        venv_include = os.path.join(str(venv), "include")
+        dirs = ["/opt/cuda/include", venv_include, "/usr/include/python3"]
+        assert self.build_shared.drop_empty_venv_include_dir(dirs) == ["/opt/cuda/include", "/usr/include/python3"]
+
+    @pytest.mark.agent_authored(model="claude-opus-5.5")
+    def test_venv_include_dir_with_only_empty_subdirs_is_dropped(self, venv):
+        (venv / "include" / "site" / "python3.14").mkdir(parents=True)
+        dirs = ["/opt/cuda/include", os.path.join(str(venv), "include")]
+        assert self.build_shared.drop_empty_venv_include_dir(dirs) == ["/opt/cuda/include"]
+
+    @pytest.mark.agent_authored(model="claude-opus-5.5")
+    def test_venv_include_dir_with_a_header_is_kept(self, venv):
+        header_dir = venv / "include" / "site" / "python3.14" / "greenlet"
+        header_dir.mkdir(parents=True)
+        (header_dir / "greenlet.h").write_text("", encoding="utf-8")
+        dirs = ["/opt/cuda/include", os.path.join(str(venv), "include")]
+        assert self.build_shared.drop_empty_venv_include_dir(dirs) == dirs
+
+    @pytest.mark.agent_authored(model="claude-sonnet-5.5")
+    def test_venv_include_dir_with_a_header_behind_a_symlinked_dir_is_kept(self, venv, tmp_path):
+        vendor = tmp_path / "vendor-headers"
+        vendor.mkdir()
+        (vendor / "config.h").write_text("", encoding="utf-8")
+        (venv / "include").mkdir(parents=True)
+        try:
+            (venv / "include" / "vendor").symlink_to(vendor, target_is_directory=True)
+        except OSError as exc:  # e.g. Windows without symlink privilege
+            pytest.skip(f"cannot create symlinks: {exc}")
+        dirs = ["/opt/cuda/include", os.path.join(str(venv), "include")]
+        assert self.build_shared.drop_empty_venv_include_dir(dirs) == dirs
+
+    @pytest.mark.agent_authored(model="claude-sonnet-5.5")
+    def test_venv_include_dir_with_a_symlink_to_an_empty_dir_is_dropped(self, venv, tmp_path):
+        empty = tmp_path / "empty-headers"
+        empty.mkdir()
+        (venv / "include").mkdir(parents=True)
+        try:
+            (venv / "include" / "vendor").symlink_to(empty, target_is_directory=True)
+        except OSError as exc:  # e.g. Windows without symlink privilege
+            pytest.skip(f"cannot create symlinks: {exc}")
+        dirs = ["/opt/cuda/include", os.path.join(str(venv), "include")]
+        assert self.build_shared.drop_empty_venv_include_dir(dirs) == ["/opt/cuda/include"]
 
 
 class ForceBuildExtReexportMixin:
