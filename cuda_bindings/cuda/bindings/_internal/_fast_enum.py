@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=581469c1fadb5f72c43b478d73f2b905562136c8723a25e2f4240b5b681e2894
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=35d522fae601127f3ffc9d0de45d9adf2572934ee3308f5d99567aa8efd5ae77
 """
 This is a replacement for the stdlib enum.IntEnum.
 
@@ -33,10 +33,14 @@ class FastEnumMetaclass(type):
             else:
                 continue
 
-            singleton = int.__new__(cls, value)
-            singleton.__doc__ = doc
-            singleton._name = name
-            cls.__singletons__[value] = singleton
+            # A name sharing a value with an already-processed member is an
+            # alias (e.g. a deprecated name kept for backward compatibility):
+            # it resolves to the same singleton, but isn't a distinct member.
+            if (singleton := cls.__singletons__.get(value)) is None:
+                singleton = int.__new__(cls, value)
+                singleton.__doc__ = doc
+                singleton._name = name
+                cls.__singletons__[value] = singleton
             cls.__members__[name] = singleton
 
         for name, member in cls.__members__.items():
@@ -46,10 +50,10 @@ class FastEnumMetaclass(type):
         return f"<enum '{cls.__name__}'>"
 
     def __len__(cls) -> int:
-        return len(cls.__members__)
+        return len(cls.__singletons__)
 
     def __iter__(cls) -> Iterator["FastEnum"]:
-        return iter(cls.__members__.values())
+        return iter(cls.__singletons__.values())
 
     def __contains__(cls, item: Any) -> bool:
         return item in cls.__singletons__

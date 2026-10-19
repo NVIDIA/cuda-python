@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ba23f6c3908c2fa6496002f8def30ec166cec8643e4de22c1741040b2c4b2965
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7b6ce83d58b42aae0455e262bb73a1c97c41e08e4ed6c8ec7dfb74e3cc754202
 cimport cuda.bindings.cynvrtc as cynvrtc
 
 include "_lib/utils.pxd"
@@ -57,5 +57,6 @@ cdef class nvrtcBundledHeadersInfo:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cynvrtc.nvrtcBundledHeadersInfo _pvt_val
     cdef cynvrtc.nvrtcBundledHeadersInfo* _pvt_ptr
