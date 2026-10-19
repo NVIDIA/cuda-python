@@ -23,7 +23,9 @@ def test_nvlink_get_link_count(all_devices):
         fields[0].nvml_return = -1
         value = nvml.device_get_field_values(device, fields)[0]
         if value.nvml_return == -1 and "Orin" in nvml.device_get_name(device):
-            pytest.xfail("Orin NVML bug: nvmlDeviceGetFieldValues returns success without populating the result")
+            pytest.xfail(
+                "Orin NVML nvbug 6952048: nvmlDeviceGetFieldValues returns success without populating the result"
+            )
         assert value.nvml_return == nvml.Return.SUCCESS or value.nvml_return == nvml.Return.ERROR_NOT_SUPPORTED, (
             f"Unexpected return {value.nvml_return} for link count field query"
         )
