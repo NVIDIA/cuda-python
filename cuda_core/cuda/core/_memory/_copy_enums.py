@@ -6,11 +6,11 @@ from __future__ import annotations
 
 import dataclasses
 from collections.abc import Sequence
+from enum import StrEnum
 
 from cuda.core._device import Device
 from cuda.core._host import Host
 from cuda.core._utils.cuda_utils import driver
-from cuda.core._utils.pycompat import StrEnum
 
 __all__ = ["CopyOptions", "MemcpyOverlapMode", "MemcpySrcAccessOrder"]
 

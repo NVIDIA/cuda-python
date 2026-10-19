@@ -70,7 +70,7 @@ async-copy machinery that ``cuda.core``'s newer APIs sit on top of.
 ### Software
 
 - CUDA Toolkit 13.0 or newer
-- Python 3.10 or newer
+- Python 3.11 or newer
 - `cuda-python` (>=13.4.0)
 - `numpy`
 

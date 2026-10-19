@@ -70,7 +70,7 @@ The sample **waives itself** when:
 
 - CUDA Toolkit 13.0 or newer with `cooperative_groups.h` in its `include/`
   directory. Set `CUDA_PATH` or `CUDA_HOME`.
-- Python 3.10 or newer
+- Python 3.11 or newer
 - `cuda-python` (>=13.0.0)
 - `cuda-core` (>=1.0.0)
 - `numpy` (>=2.2.5)

@@ -13,6 +13,11 @@ from cuda import pathfinder
 from cuda.bindings import runtime
 from cuda_python_test_helpers import driver_version_less_than
 
+# Cap for memory pools created by tests. A pool created with maxSize 0 reserves
+# virtual address space of about twice the device memory, and that reservation
+# can fail on systems with a limited virtual address space.
+POOL_SIZE = 2 * 1024 * 1024  # 2 MiB
+
 
 def isSuccess(err):
     return err == cudart.cudaError_t.cudaSuccess
@@ -520,6 +525,7 @@ def test_cudart_MemPool_attr():
     poolProps.allocType = cudart.cudaMemAllocationType.cudaMemAllocationTypePinned
     poolProps.location.id = 0
     poolProps.location.type = cudart.cudaMemLocationType.cudaMemLocationTypeDevice
+    poolProps.maxSize = POOL_SIZE
 
     attr_list = [None] * 8
     err, pool = cudart.cudaMemPoolCreate(poolProps)
@@ -616,7 +622,10 @@ def test_cudart_cudaStreamGetCaptureInfo():
     assert status == cudart.cudaStreamCaptureStatus.cudaStreamCaptureStatusNone
 
     # start capture
-    (err,) = cudart.cudaStreamBeginCapture(stream, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeGlobal)
+    # Thread-local mode: pytest-run-parallel runs this test in several threads
+    # at once, and in global mode a call such as cudaGraphInstantiate in one
+    # thread fails while another thread is capturing.
+    (err,) = cudart.cudaStreamBeginCapture(stream, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeThreadLocal)
     assertSuccess(err)
 
     # validate that stream is capturing now
@@ -1469,7 +1478,10 @@ def test_cudart_host_func_graph_replay():
     err, stream = cudart.cudaStreamCreate()
     assertSuccess(err)
     try:
-        (err,) = cudart.cudaStreamBeginCapture(stream, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeGlobal)
+        # Thread-local mode: pytest-run-parallel runs this test in several threads
+        # at once, and in global mode a call such as cudaGraphInstantiate in one
+        # thread fails while another thread is capturing.
+        (err,) = cudart.cudaStreamBeginCapture(stream, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeThreadLocal)
         assertSuccess(err)
         (err,) = cudart.cudaLaunchHostFunc(stream, callback, ctypes.addressof(counter))
         assertSuccess(err)

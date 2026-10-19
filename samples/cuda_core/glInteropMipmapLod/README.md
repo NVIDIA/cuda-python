@@ -37,7 +37,7 @@ The sample:
 ### Software
 
 - CUDA Toolkit 13.0 or newer
-- Python 3.10 or newer
+- Python 3.11 or newer
 - `cuda-python` (>=13.0.0)
 - `cuda-core` (>=1.0.0)
 - `numpy` (>=1.24)

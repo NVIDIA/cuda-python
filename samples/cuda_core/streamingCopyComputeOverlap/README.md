@@ -43,7 +43,7 @@ Stream 2:           [H2D][Compute][D2H]
 ## Requirements
 
 - CUDA Toolkit 13.0+
-- Python 3.10+
+- Python 3.11+
 - `cuda-python`, `cuda-core`, `numpy`
 
 ## Installation

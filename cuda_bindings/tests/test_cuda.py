@@ -19,6 +19,11 @@ from cuda_python_test_helpers import driver_version_less_than
 # NULL dependency array: the node has no dependencies.
 NO_DEPS = 0
 
+# Cap for memory pools created by tests. A pool created with maxSize 0 reserves
+# virtual address space of about twice the device memory, and that reservation
+# can fail on systems with a limited virtual address space.
+POOL_SIZE = 2 * 1024 * 1024  # 2 MiB
+
 
 def supportsMemoryPool():
     err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
@@ -281,6 +286,7 @@ def test_cuda_memPool_attr():
     poolProps.alloc_type = driver.MemAllocationType.PINNED
     poolProps.location.id = 0
     poolProps.location.type = driver.MemLocationType.DEVICE
+    poolProps.max_size = POOL_SIZE
 
     attr_list = [None] * 8
     pool = driver.mem_pool_create(poolProps)
@@ -446,11 +452,29 @@ def test_cuda_mem_range_attr(device):
     driver.mem_free_v2(ptr)
 
 
+@pytest.fixture
+def xfail_on_graph_mempool_oom():
+    """Return a check that xfails the calling test if the graph memory pool cannot be created.
+
+    The graph memory pool reserves virtual address space of about twice the
+    device memory, and unlike pools from cuMemPoolCreate it cannot be capped.
+    On systems with a limited virtual address space this reservation can fail
+    with CUDA_ERROR_OUT_OF_MEMORY, especially when another uncapped pool
+    already exists in the process.
+    """
+
+    def check(exc_type):
+        if exc_type is driver.OutOfMemoryError:
+            pytest.xfail("graph memory pool creation failed with CUDA_ERROR_OUT_OF_MEMORY")
+
+    return check
+
+
 @pytest.mark.skipif(
     driver_version_less_than(11040) or not supportsMemoryPool(), reason="Mempool for graphs not supported"
 )
 @pytest.mark.thread_unsafe(reason="used high memory can be higher if threaded.")
-def test_cuda_graphMem_attr(device):
+def test_cuda_graphMem_attr(device, xfail_on_graph_mempool_oom):
     stream = driver.stream_create(0)
 
     graph = driver.graph_create(0)
@@ -468,6 +492,7 @@ def test_cuda_graphMem_attr(device):
     except driver.OutOfMemoryError:
         driver.graph_destroy(graph)
         driver.stream_destroy_v2(stream)
+        xfail_on_graph_mempool_oom(driver.OutOfMemoryError)
         raise
     deps = node_array([allocNode])
     freeNode = driver.graph_add_mem_free_node(graph, ctypes.addressof(deps), 1, params.dptr)
@@ -670,7 +695,10 @@ def test_cuda_launch_host_func_graph_replay():
     callback = ctypes.cast(host_fn, ctypes.c_void_p).value
     stream = driver.stream_create(0)
     try:
-        driver.stream_begin_capture_v2(stream, driver.StreamCaptureMode.GLOBAL)
+        # Thread-local mode: pytest-run-parallel runs this test in several threads
+        # at once, and in global mode a call such as graph_instantiate in one
+        # thread fails while another thread is capturing.
+        driver.stream_begin_capture_v2(stream, driver.StreamCaptureMode.THREAD_LOCAL)
         driver.launch_host_func(stream, callback, ctypes.addressof(counter))
         graph = driver.stream_end_capture(stream)
         try:

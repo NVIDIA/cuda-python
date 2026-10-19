@@ -63,7 +63,7 @@ reference on the host.
 ### Software
 
 - CUDA Toolkit 13.0 or newer
-- Python 3.10 or newer
+- Python 3.11 or newer
 - `cuda-python` (>=13.4.0)
 - `numpy`
 

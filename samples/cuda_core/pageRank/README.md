@@ -65,7 +65,7 @@ Demonstrates GPU-accelerated PageRank computation for graph analysis using RAPID
 ### Software:
 
 - CUDA Toolkit 13.0 or newer
-- Python 3.10 or newer
+- Python 3.11 or newer
 - See requirements.txt for package dependencies
 
 ### Platform Support:

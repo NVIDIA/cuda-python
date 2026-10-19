@@ -21,11 +21,11 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
   - [Table of Contents](#table-of-contents)
   - [Cloning the repository](#cloning-the-repository)
     - [Recommended clone](#recommended-clone)
-    - [Fixing an existing clone](#fixing-an-existing-clone)
+    - [Updating your clone](#updating-your-clone)
+    - [Why the clone matters](#why-the-clone-matters)
     - [Symptoms of a bad clone](#symptoms-of-a-bad-clone)
   - [Development on Windows](#development-on-windows)
     - [Enabling git symlinks](#enabling-git-symlinks)
-    - [Pre-commit lychee workaround](#pre-commit-lychee-workaround)
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
   - [Pixi lockfiles](#pixi-lockfiles)
@@ -44,11 +44,56 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
 
 ## Cloning the repository
 
-> **Windows contributors (not WSL):** source builds and tests work with
-> `core.symlinks=false`. Git symlink support is optional and only affects the
-> remaining documentation and metadata links (`CLAUDE.md`,
-> `cuda_python/README.md`, and `.git_archival.txt`). See
-> [Enabling git symlinks](#enabling-git-symlinks) if you want those links materialized.
+### Recommended clone
+
+**On native Windows (not WSL), first [enable symlink creation](#enabling-git-symlinks),
+including the Developer Mode registry check.** Complete that setup before
+running the clone command.
+
+From the directory where you want to create the checkout, run:
+
+```console
+$ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
+$ cd cuda-python
+```
+
+This recipe sets up the repository for source builds and development:
+
+- `core.symlinks=true` materializes symlinks during checkout, including the
+  build-critical `cuda_core/_build_shared.py`.
+- `--recurse-submodules` initializes the CCCL headers needed to build `cuda.core`.
+- `submodule.recurse=true` keeps initialized submodules in sync on `git pull`,
+  `git checkout`, and `git switch`.
+- The clone retains history and release tags for correct package versions.
+  Do not add `--depth` or `--no-tags`.
+
+Both configuration settings are stored in the new clone. Next, follow the
+build and test instructions for
+[`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/install.html),
+[`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html), or
+[`cuda.pathfinder`](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/install.html).
+
+### Updating your clone
+
+From the repository root, run:
+
+```console
+$ git pull --recurse-submodules
+$ git submodule update --init
+```
+
+The recommended clone configures `submodule.recurse=true`, so you can omit
+`--recurse-submodules` from `git pull`. The second command initializes any
+newly added submodules; it is usually a no-op.
+
+If you work from a fork, periodically fetch release tags from NVIDIA upstream
+so package versions stay current:
+
+```console
+$ git fetch --tags https://github.com/NVIDIA/cuda-python.git
+```
+
+### Why the clone matters
 
 Every package in this repository derives its version from git tags using
 [`setuptools-scm`](https://setuptools-scm.readthedocs.io/), so **how you clone
@@ -77,40 +122,6 @@ working build therefore needs all of the following:
    between it and your checkout must be present too.
 4. **The CCCL submodule** when building `cuda.core`. That package compiles
    against the headers pinned in `cuda_core/third_party/cccl`.
-
-### Recommended clone
-
-The default `git clone` plus the submodules gives you everything you need:
-
-```console
-$ git clone --recurse-submodules https://github.com/NVIDIA/cuda-python.git
-```
-
-### Fixing an existing clone
-
-If you already have a shallow clone:
-
-```console
-$ git fetch --unshallow --tags
-```
-
-If you cloned without submodules:
-
-```console
-$ git submodule update --init cuda_core/third_party/cccl
-```
-
-If you are working from a personal fork, your fork's tags stop tracking upstream
-the moment new releases are cut, which silently yields a stale version. Fetch
-tags from upstream directly:
-
-```console
-$ git remote add upstream https://github.com/NVIDIA/cuda-python.git
-$ git fetch --tags upstream
-```
-
-Keep doing this periodically — a fork that was correct when you created it will
-drift.
 
 ### Symptoms of a bad clone
 
@@ -151,51 +162,34 @@ document.
 
 ### Enabling git symlinks
 
-The repository still contains documentation and metadata symlinks, including
+The repository contains documentation and metadata symlinks, including
 `CLAUDE.md`, `cuda_python/README.md`, and the per-package `.git_archival.txt`
-files. With `core.symlinks=false`, Git checks them out as plain text files
-containing the target path. This does not affect source builds or tests.
+files. It also currently tracks the build-critical
+`cuda_core/_build_shared.py` as a symlink to the canonical
+`cuda_bindings/_build_shared.py`. The core path may instead be maintained as a
+byte-for-byte identical copy, but the current tree uses a symlink. With
+`core.symlinks=false`, Git checks it out as a plain text file containing the
+target path, and `cuda-core` source builds and tests fail.
 
-If you want these links materialized as symlinks:
-
-1. **[Activate Developer Mode](https://learn.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development#activate-developer-mode)**
-   so Git can create symlinks without Administrator privileges.
-
-2. **Enable Git symlink support globally** so newly-cloned repositories inherit
-   the setting:
-
-   ```console
-   $ git config --global core.symlinks true
-   ```
-
-Then clone as usual (see [Cloning the repository](#cloning-the-repository)).
-
-If you already cloned with `core.symlinks=false`, the repository-local
-setting overrides the global setting. Enable it locally, then rematerialize
-all tracked symlinks. For example:
+[Activate Developer Mode](https://learn.microsoft.com/en-us/windows/advanced-settings/developer-mode)
+so Git can create symlinks without Administrator privileges. Then verify
+that Windows recorded Developer Mode in the machine-wide registry:
 
 ```console
-$ git config core.symlinks true
-$ git rm --cached cuda_python/README.md
-$ git checkout HEAD -- cuda_python/README.md
+$ reg.exe query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v AllowDevelopmentWithoutDevLicense
 ```
 
-Repeat the last two commands for every other tracked symlink. Re-cloning after
-enabling Developer Mode and setting the global option is simpler if you want
-all links restored.
+The output must show `AllowDevelopmentWithoutDevLicense` as a `REG_DWORD`
+with value `0x1`. If the value is missing or differs, Git may report
+`unable to create symlink ...: Permission denied` even when Windows Settings
+shows Developer Mode as enabled. In that case, run the following command
+once from an Administrator shell:
 
-### Pre-commit lychee workaround
+```console
+$ reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v AllowDevelopmentWithoutDevLicense /t REG_DWORD /d 1 /f
+```
 
-For development on Windows (not WSL), the `lychee` pre-commit task will not
-work when running `pre-commit run --all-files`. This problem does not occur
-if you install the pre-commit hook and run it automatically as part of your
-`git commit` workflow. To resolve this, you can either:
-
-1. Run `pre-commit` in Git Bash, rather than directly in PowerShell or cmd
-
-2. Skip it by setting the environment variable `SKIP` to `lychee`. This would
-   be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
-
+Then return to [Recommended clone](#recommended-clone).
 
 ## Type stubs for cuda.core
 
@@ -229,6 +223,8 @@ To set yourself up for running pre-commit checks locally and to catch issues bef
 * Run this once per checkout: `pre-commit install`
 * You can manually check all files at any time by running: `pre-commit run --all-files`
 
+On Windows, these commands work from PowerShell, cmd, or Git Bash.
+
 This command runs all configured hooks (such as linters and formatters) across your repository, letting you review and address issues before committing.
 
 Installing the hook is required, not optional. Some of the automated checks
@@ -238,8 +234,6 @@ keep the tree consistent if they run on *every* commit. Relying on manual
 between commits, leaving stale headers or out-of-date stubs in the history.
 If the hook isn't installed, `pre-commit run` will print a visible warning
 reminding you to run `pre-commit install`.
-
-Windows contributors: see [Pre-commit lychee workaround](#pre-commit-lychee-workaround) under Development on Windows.
 
 ## Pixi lockfiles
 

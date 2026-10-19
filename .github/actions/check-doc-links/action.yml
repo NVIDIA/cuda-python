@@ -16,7 +16,7 @@ inputs:
     description: "check allows up to 10 rate-limited URLs; cache-warm warns on all link failures"
     default: check
 
-# Callers provide Python 3.10+ on PATH; the helpers use only its standard library.
+# Callers provide Python 3.11+ on PATH; the helpers use only its standard library.
 runs:
   using: composite
   steps:
@@ -25,7 +25,7 @@ runs:
       shell: bash --noprofile --norc -euo pipefail {0}
       env:
         KIND: ${{ inputs.kind }}
-        LYCHEE_VERSION: v0.24.2 # Must match the pinned rev in .pre-commit-config.yaml
+        LYCHEE_VERSION: v0.24.2 # Must match lychee-bin in .pre-commit-config.yaml
         POLICY_HASH: ${{ hashFiles('lychee.toml', '.github/actions/check-doc-links/action.yml', 'ci/tools/prepare_lychee_inputs.py', 'ci/tools/retry_lychee.py') }}
         # The first pass and all retries use the same inputs and cache policy.
         LYCHEE_ARGS: >-
