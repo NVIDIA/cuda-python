@@ -284,19 +284,21 @@ jobs:
           fi
           mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
 
-      # Keep link checks in the existing PR docs build, using the same revision
-      # as its wheels. Nightly supplies shared caches for both kinds of inputs.
-      - name: Check authored documentation links
+      # Check links and anchors in the rendered HTML built above.
+      # Links in authored Markdown and reST files are checked separately by the
+      # ordinary Linux/Windows pre-commit jobs.
+      # The link-check action runs in a non-login shell, so give it a known
+      # interpreter instead of the conda environment used above.
+      - name: Set up Python for link checks
         if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
-        timeout-minutes: 60
-        uses: ./.github/actions/check-doc-links
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          kind: authored
+          python-version: "3.14"
 
-      - name: Check rendered documentation links
+      - name: Check rendered documentation links through pre-commit
         if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
         timeout-minutes: 60
-        uses: ./.github/actions/check-doc-links
+        uses: ./.github/actions/lychee-links
         with:
           kind: rendered
 
