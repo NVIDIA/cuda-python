@@ -649,6 +649,71 @@ class TestFileDescriptorLifetime:
         from_child.put(counts)
 
 
+_FORKSERVER_UNAVAILABLE = "forkserver" not in mp.get_all_start_methods()
+
+
+def _forkserver_child(device_id, buffer, report):
+    """Read the parent's pattern from the imported buffer, then write a new one."""
+    device = Device(device_id)
+    device.set_current()
+    report.put(_read(buffer, 0, 16))
+    _fill(buffer, 0x6C)
+    buffer.close()
+
+
+@pytest.mark.skipif(_FORKSERVER_UNAVAILABLE, reason="the forkserver start method is not available on this platform")
+class TestForkserver:
+    """The conftest forces ``spawn``; a forkserver context passes descriptors the same way and must work too."""
+
+    @pytest.mark.agent_authored(model="claude-sonnet-5-5")
+    def test_process_argument(self, vmm_ipc_device):
+        """A buffer passed as a forkserver Process argument imports in the child, and writes go both ways."""
+        device = vmm_ipc_device
+        buf = _resource(device).allocate(1)
+        _fill(buf, 0x5D)
+        ctx = mp.get_context("forkserver")
+        report = ctx.Queue()
+        process = ctx.Process(target=_forkserver_child, args=(device.device_id, buf, report))
+        process.start()
+        seen = report.get(timeout=CHILD_TIMEOUT_SEC)
+        process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
+        assert process.exitcode == 0, f"child exited with {process.exitcode}"
+        assert seen == b"\x5d" * 16
+        assert _read(buf, 0, 16) == b"\x6c" * 16
+        buf.close()
+
+    @pytest.mark.agent_authored(model="claude-sonnet-5-5")
+    def test_queue_round_trip(self, vmm_ipc_device):
+        """A buffer sent through a forkserver Queue imports in the child, and writes go both ways."""
+        device = vmm_ipc_device
+        buf = _resource(device).allocate(1)
+        _fill(buf, 0x5E)
+        ctx = mp.get_context("forkserver")
+        to_child, from_child = ctx.Queue(), ctx.Queue()
+        process = ctx.Process(target=self.child_main, args=(device.device_id, to_child, from_child))
+        process.start()
+        to_child.put(buf)
+        seen = from_child.get(timeout=CHILD_TIMEOUT_SEC)
+        process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
+        assert process.exitcode == 0, f"child exited with {process.exitcode}"
+        assert seen == b"\x5e" * 16
+        assert _read(buf, 0, 16) == b"\x6d" * 16
+        buf.close()
+
+    @staticmethod
+    def child_main(device_id, to_child, from_child):
+        device = Device(device_id)
+        device.set_current()
+        buffer = to_child.get(timeout=CHILD_TIMEOUT_SEC)
+        from_child.put(_read(buffer, 0, 16))
+        _fill(buffer, 0x6D)
+        buffer.close()
+
+
 class TestFileDescriptorLimit:
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     @pytest.mark.thread_unsafe(reason="changes the process-wide file descriptor limit")
