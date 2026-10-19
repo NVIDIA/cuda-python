@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=1b247e63"></script>
+    <script src="../_static/documentation_options.js?v=8d77c002"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev179';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev237';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -706,6 +706,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../release/unreleased-notes.html">In development</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.2.2-notes.html">1.2.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.2.1-notes.html">1.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.2.0-notes.html">1.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.1.1-notes.html">1.1.1</a></li>
@@ -830,7 +831,9 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResourceOptions.handle_type">
 <span class="sig-name descname"><span class="pre">handle_type</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryResourceOptions.handle_type" title="Link to this definition">#</a></dt>
-<dd><p>Export handle type for the physical allocation. Use <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> on
+<dd><p>Export handle type for the physical allocation, and the switch for
+sharing buffers with other processes (see
+<a class="reference internal" href="cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="cuda.core.VirtualMemoryResource.is_ipc_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VirtualMemoryResource.is_ipc_enabled</span></code></a>). Use <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> on
 Linux if you plan to import/export the allocation. Use <cite>None</cite> if you
 don’t need an exportable handle. <code class="docutils literal notranslate"><span class="pre">location_type=&quot;host&quot;</span></code> requires
 <cite>None</cite>.</p>
@@ -847,7 +850,7 @@ don’t need an exportable handle. <code class="docutils literal notranslate"><s
 <dd><p>Hint that the allocation should be GDR-capable (if supported).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -869,7 +872,7 @@ don’t need an exportable handle. <code class="docutils literal notranslate"><s
 <dd><p>A (optional) virtual address hint to try to reserve at. Setting it to 0 lets the CUDA driver decide.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -880,7 +883,7 @@ don’t need an exportable handle. <code class="docutils literal notranslate"><s
 <dd><p>Alignment for the VA reservation. If <cite>None</cite>, use the queried granularity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -891,7 +894,7 @@ don’t need an exportable handle. <code class="docutils literal notranslate"><s
 <dd><p>Extra device IDs that should be granted access in addition to <code class="docutils literal notranslate"><span class="pre">device</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Iterable[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a>]</p>
+<dd class="field-odd"><p>Iterable[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>

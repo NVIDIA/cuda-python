@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=1b247e63"></script>
+    <script src="../_static/documentation_options.js?v=8d77c002"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev179';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev237';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -706,6 +706,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../release/unreleased-notes.html">In development</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.2.2-notes.html">1.2.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.2.1-notes.html">1.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.2.0-notes.html">1.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.1.1-notes.html">1.1.1</a></li>
@@ -788,8 +789,8 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">VirtualMemoryResource</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><span class="pre">VirtualMemoryResourceOptions</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><span class="pre">VirtualMemoryResourceOptions</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.VirtualMemoryResource" title="Link to this definition">#</a></dt>
@@ -797,7 +798,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>device_id</strong> (<a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><em>Device</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device for which a memory resource is constructed.</p></li>
+<li><p><strong>device_id</strong> (<a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><em>Device</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – Device for which a memory resource is constructed.</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><em>VirtualMemoryResourceOptions</em></a><em>, </em><em>optional</em>) – A configuration object for the VirtualMemoryResource</p></li>
 </ul>
 </dd>
@@ -807,6 +808,11 @@
 <p>This is a low-level API that is provided only for convenience. Make sure you fully understand
 how CUDA Virtual Memory Management works before using this. Other MemoryResource subclasses
 in cuda.core should already meet the common needs.</p>
+<p>A shared buffer’s descriptor comes from the exporting process and is not trusted:
+<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a> checks what it can, and the driver rejects a size that
+does not match the exported allocation. Unpickling a shared buffer performs a live import,
+so unpickle buffers only from a trusted principal. A descriptor pins the physical memory
+while it exists; release it when the receiver has imported it.</p>
 </div>
 <p class="rubric">Notes</p>
 <p>Every buffer this resource returns is a <a class="reference internal" href="cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a> that
@@ -817,6 +823,25 @@ the work queued on its deallocation stream. A buffer released by the
 garbage collector waits at that point instead. To control when the wait
 happens, close the buffer explicitly or record an idle stream with
 <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.set_deallocation_stream" title="cuda.core.Buffer.set_deallocation_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.set_deallocation_stream()</span></code></a>.</p>
+<p>Buffers can be shared with other processes when <code class="docutils literal notranslate"><span class="pre">config.handle_type</span></code>
+is <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> (Linux), the only handle type cuda.core shares today;
+<code class="docutils literal notranslate"><span class="pre">handle_type</span></code> is the switch and <a class="reference internal" href="#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="cuda.core.VirtualMemoryResource.is_ipc_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">is_ipc_enabled</span></code></a> the query. The
+rules that follow describe POSIX file descriptors.
+<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.ipc_descriptor" title="cuda.core.Buffer.ipc_descriptor"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.ipc_descriptor</span></code></a> exports the physical allocations that back
+a buffer, one file descriptor each, into a new descriptor on every
+access; <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a> imports a descriptor with a
+<code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code> of the receiving process for the device that
+owns the memory; and a buffer sent through <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> does both.
+Plain <code class="docutils literal notranslate"><span class="pre">pickle</span></code> cannot carry the file descriptors; a process with its
+own file descriptor passing sends the descriptor’s <code class="docutils literal notranslate"><span class="pre">fds</span></code>, <code class="docutils literal notranslate"><span class="pre">sizes</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">size</span></code> and rebuilds it with
+<code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor.from_fds()</span></code>. The importing resource
+maps the memory for its device and the devices in its <code class="docutils literal notranslate"><span class="pre">peers</span></code> option,
+with its own access options. A descriptor pins the physical memory while
+it exists, in every process that holds one, and nothing else does. A
+buffer that contains imported memory (an import, or anything
+<a class="reference internal" href="#cuda.core.VirtualMemoryResource.modify_allocation" title="cuda.core.VirtualMemoryResource.modify_allocation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">modify_allocation()</span></code></a> derived from one) cannot be exported again;
+forward the descriptor it came from, or copy into a buffer you own.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResource.__init__">
@@ -839,7 +864,7 @@ happens, close the buffer explicitly or record an idle stream with
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size in bytes of the buffer to allocate. It is rounded up to the
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The size in bytes of the buffer to allocate. It is rounded up to the
 allocation granularity; the returned buffer reports the rounded size.</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, optional) – Keyword-only. The allocation itself is synchronous. A real stream is
 recorded as the buffer’s deallocation stream and synchronized when
@@ -859,7 +884,7 @@ without a synchronization unless a real stream was given.</p></li>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><strong>CUDAError</strong></a> – If any CUDA driver API call fails during allocation. Nothing is
     left allocated when this method raises.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#OverflowError" title="(in Python v3.14)"><strong>OverflowError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">size</span></code> rounded up to the granularity does not fit in <code class="docutils literal notranslate"><span class="pre">size_t</span></code>.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#OverflowError" title="(in Python v3.15)"><strong>OverflowError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">size</span></code> rounded up to the granularity does not fit in <code class="docutils literal notranslate"><span class="pre">size_t</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -871,13 +896,13 @@ without a synchronization unless a real stream was given.</p></li>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">ptr:</span> <span class="pre">DevicePointerType</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">size:</span> <span class="pre">int</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">GraphBuilder</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">ptr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DevicePointerType</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><span class="pre">GraphBuilder</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.VirtualMemoryResource.deallocate" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.VirtualMemoryResource.deallocate" title="Link to this definition">#</a></dt>
 <dd><p>Unmap and free one address range that was reserved and mapped outside this resource.</p>
 <p>Buffers returned by <a class="reference internal" href="#cuda.core.VirtualMemoryResource.allocate" title="cuda.core.VirtualMemoryResource.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">allocate()</span></code></a> and <a class="reference internal" href="#cuda.core.VirtualMemoryResource.modify_allocation" title="cuda.core.VirtualMemoryResource.modify_allocation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">modify_allocation()</span></code></a> free
 themselves when they close and never call this method. It exists for
@@ -889,7 +914,7 @@ physical memory is freed by the unmap.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ptr</strong> (<em>DevicePointerType</em>) – The start of the reservation.</p></li>
-<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the reservation in bytes.</p></li>
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The size of the reservation in bytes.</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, optional) – Keyword-only. If given, <code class="docutils literal notranslate"><span class="pre">stream.sync()</span></code> is called before the
 range is unmapped, except for a default-stream token on a
 host-located resource, which has no context to synchronize in.</p></li>
@@ -916,17 +941,20 @@ returned buffer aliases it: both map the same physical memory, which is
 freed when the last of the two closes. When the driver can extend the
 address range in place, the returned buffer has the same pointer;
 otherwise it has a new one and the existing contents are reachable
-through both. Closing the returned buffer never closes <code class="docutils literal notranslate"><span class="pre">buf</span></code>.</p>
+through both. Closing the returned buffer never closes <code class="docutils literal notranslate"><span class="pre">buf</span></code>. A
+buffer grown from an imported buffer maps imported memory and cannot
+be exported again.</p>
 <p>Concurrent calls on buffers that alias one another are safe.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>buf</strong> (<a class="reference internal" href="cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><em>VirtualMemoryBuffer</em></a>) – A buffer returned by <a class="reference internal" href="#cuda.core.VirtualMemoryResource.allocate" title="cuda.core.VirtualMemoryResource.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">allocate()</span></code></a> or by this method.</p></li>
-<li><p><strong>new_size</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The requested total size in bytes; rounded up to the granularity.</p></li>
+<li><p><strong>new_size</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The requested total size in bytes; rounded up to the granularity.</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><em>VirtualMemoryResourceOptions</em></a><em>, </em><em>optional</em>) – Configuration for the new physical memory chunk only. Existing
 chunks keep the access they were created with, and the resource’s
 own configuration is unchanged. It must name the resource’s
-<code class="docutils literal notranslate"><span class="pre">location_type</span></code> and passes the same checks as the constructor.
+<code class="docutils literal notranslate"><span class="pre">location_type</span></code> and <code class="docutils literal notranslate"><span class="pre">handle_type</span></code> and passes the same checks
+as the constructor.
 When <code class="docutils literal notranslate"><span class="pre">buf</span></code> already covers <code class="docutils literal notranslate"><span class="pre">new_size</span></code> there is no new chunk, so
 <code class="docutils literal notranslate"><span class="pre">config</span></code> has no effect. This method never changes the access of
 memory that is already mapped.</p></li>
@@ -942,12 +970,12 @@ full alias of it and no driver call is made.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">buf</span></code> did not come from this resource.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">config</span></code> names a different location than the resource, or
-    the constructor would reject it.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">buf</span></code> is closed, or <code class="docutils literal notranslate"><span class="pre">config</span></code> requests GPUDirect RDMA on a
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.15)"><strong>TypeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">buf</span></code> did not come from this resource.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">config</span></code> names a different location or handle type than the
+    resource, or the constructor would reject it.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.15)"><strong>RuntimeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">buf</span></code> is closed, or <code class="docutils literal notranslate"><span class="pre">config</span></code> requests GPUDirect RDMA on a
     device without support.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#OverflowError" title="(in Python v3.14)"><strong>OverflowError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">new_size</span></code> rounded up to the granularity does not fit in
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#OverflowError" title="(in Python v3.15)"><strong>OverflowError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">new_size</span></code> rounded up to the granularity does not fit in
     <code class="docutils literal notranslate"><span class="pre">size_t</span></code>.</p></li>
 <li><p><a class="reference internal" href="cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><strong>CUDAError</strong></a> – If a driver call fails. <code class="docutils literal notranslate"><span class="pre">buf</span></code> is untouched when this method raises.</p></li>
 </ul>
@@ -991,7 +1019,14 @@ full alias of it and no driver call is made.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResource.is_ipc_enabled">
 <span class="sig-name descname"><span class="pre">is_ipc_enabled</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="Link to this definition">#</a></dt>
-<dd><p>Return False. Buffers of this resource cannot be shared through IPC descriptors.</p>
+<dd><p>Whether buffers of this resource can be shared with other processes.</p>
+<p>True when <code class="docutils literal notranslate"><span class="pre">config.handle_type</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> on Linux and the
+memory lives on a device; <code class="docutils literal notranslate"><span class="pre">handle_type</span></code> is the only switch, there is
+no separate option. With <code class="docutils literal notranslate"><span class="pre">handle_type=None</span></code> the allocations cannot
+be exported, Win32 KMT handles are not transported by cuda.core, and
+fabric handles are not supported yet. Host-located virtual memory
+(<code class="docutils literal notranslate"><span class="pre">location_type</span></code> <code class="docutils literal notranslate"><span class="pre">&quot;host&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;host_numa&quot;</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">&quot;host_numa_current&quot;</span></code>) is not shared yet.</p>
 </dd></dl>
 
 <dl class="py attribute">
