@@ -241,7 +241,7 @@ Windows contributors: see [Pre-commit lychee workaround](#pre-commit-lychee-work
 
 ## Release notes
 
-Release notes are one small YAML file per change, kept next to the code in the
+Release notes are one small reStructuredText file per change, kept next to the code in the
 PR that makes the change. (The design is inspired by
 [reno](https://docs.openstack.org/reno/latest/), but behaves quite differently.)
 All four packages work this way: `cuda-bindings` and
@@ -259,30 +259,33 @@ need one. A CI check enforces this. If a PR touches the sources but truly needs
 no note, a maintainer can apply the `skip-release-note` label.
 
 Create a note with the `add_note.py` script. It can be run from any directory,
-and takes the package and a few words describing the change:
+and takes the package, the type of note and a few words describing the change:
 
 ```bash
-python toolshed/add_note.py cuda-core "Fix the thing" [--edit]
+python toolshed/add_note.py cuda-core fix "Fix the thing" [--edit]
 ```
 
 The package is one of `cuda-bindings`, `cuda-core`, `cuda-pathfinder` and
-`cuda-python` (the `cuda-` prefix is optional). The new file is created in
-`<package>/releasenotes/`. `--edit` opens it in `$VISUAL` or `$EDITOR`.
+`cuda-python` (the `cuda-` prefix is optional). The type is one of the values in
+the table below. The new file is created in `<package>/releasenotes/` and named
+`<type>-<short-description>-<hash>.rst`. `--edit` opens it in `$VISUAL` or
+`$EDITOR`.
 
-Edit the new file: keep the sections that apply and delete the rest, and replace
-the `TODO` text. Each entry is reStructuredText, written for users of the
-package. A pre-commit hook checks the notes for obvious mistakes, such as a
-misspelled section or leftover `TODO` text.
+Edit the new file and replace the `TODO` text. A note is reStructuredText,
+written for users of the package, and has exactly one type, which is the start
+of its file name. A change that needs two kinds of entry, such as a bug fix that
+is also a breaking change, gets two notes. A pre-commit hook checks the notes
+for obvious mistakes, such as an unknown type or leftover `TODO` text.
 
-| Section | Use for |
+| Type | Use for |
 |---|---|
-| `features` | New functionality, including experimental APIs (say so in the text) |
+| `feature` | New functionality, including experimental APIs (say so in the text) |
 | `upgrade` | Changes users may need to act on, including behavior changes |
-| `deprecations` | Newly deprecated functionality |
+| `deprecation` | Newly deprecated functionality |
 | `critical` | Critical issues users must know about |
 | `security` | Security issues |
-| `fixes` | Bug fixes |
-| `issues` | Known issues (see below) |
+| `fix` | Bug fixes |
+| `issue` | Known issues (see below) |
 | `other` | Anything else |
 | `prelude` | An introduction to a release's notes. Useful to highlight important themes in a release. |
 
@@ -291,8 +294,8 @@ Some details:
 * You do not need to add a link to the pull request: one is added automatically,
   taken from the `(#N)` in the squash-merge commit that introduced the note.
 * To name the pull request(s) yourself instead, write `(#1234)` or
-  `(#1234, #1235)` anywhere in an entry, usually at the end. Each marker is
-  replaced with links, and the automatic lookup is skipped for that entry. This
+  `(#1234, #1235)` anywhere in a note, usually at the end. Each marker is
+  replaced with links, and the automatic lookup is skipped for that note. This
   is rarely needed. It is for a note whose file is added by a different PR than
   the one that made the change, for example a note written afterwards or notes
   moved in from another place. The marker can go anywhere in ordinary text. A
@@ -311,11 +314,10 @@ Some details:
 
 ### Known issues
 
-Unlike the other sections, which appear only on the release that first contains
+Unlike the other types, which appear only on the release that first contains
 them, known issues are listed on **every** release until they are resolved. To
-record one, add an `issues` entry to a note. To resolve it, delete the entry (or
-the whole note, if it has nothing else) in the PR that fixes the problem, and
-describe the fix in a new `fixes` entry. The pages of releases that were already
+record one, add a note of type `issue`. To resolve it, delete that note in the
+PR that fixes the problem, and describe the fix in a new `fix` note. The pages of releases that were already
 tagged keep listing the issue, with the text it had when its note was deleted.
 
 ### How release notes are assembled

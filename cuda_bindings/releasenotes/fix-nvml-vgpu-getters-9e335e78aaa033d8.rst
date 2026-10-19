@@ -1,0 +1,4 @@
+``nvml.device_get_supported_vgpus``, ``nvml.device_get_creatable_vgpus``,
+``nvml.device_get_active_vgpus``: The old implementations would return a
+``NameError`` at runtime whenever there was at least one result to return. Now
+fixed. (#2862)

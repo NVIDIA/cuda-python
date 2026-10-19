@@ -1,0 +1,7 @@
+:meth:`Stream.wait` given a stream now works when that stream belongs to a
+device that is not current. The temporary ordering event is created in the
+waited-on stream's context rather than the current one, which
+``cuEventRecord`` rejects when the two differ. The stream ordering applied
+when importing foreign arrays and tensors uses the producer stream's context
+the same way.
+(`#2311 <https://github.com/NVIDIA/cuda-python/issues/2311>`__) (#2750)

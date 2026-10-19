@@ -15,49 +15,49 @@ from typing import NamedTuple
 
 Version = tuple[int, int, int]
 
-#: The sections of a note, in the order and with the titles they have on a release page.  A note
-#: is a YAML mapping from these keys to lists of reStructuredText entries.  Known issues come last.
-#: ``prelude`` is not here: it is an untitled introduction at the top of a page.
-SECTIONS: tuple[tuple[str, str], ...] = (
-    ("features", "New Features"),
-    ("upgrade", "Breaking Changes"),
-    ("deprecations", "Deprecation Notes"),
-    ("critical", "Critical Issues"),
-    ("security", "Security Issues"),
-    ("fixes", "Bug Fixes"),
-    ("other", "Other Notes"),
-    ("issues", "Known Issues"),
-)
-PRELUDE = "prelude"
+# The sections of a release page, in order, mapping each note type to its heading.  The first part of a note's
+# file name is one of these types, and the file is a single reStructuredText entry for that section.
+# The ``prelude`` section has no heading: it is the untitled introduction at the top of a page.
+# Known issues come last.
+SECTIONS: dict[str, str | None] = {
+    "prelude": None,
+    "feature": "New Features",
+    "upgrade": "Breaking Changes",
+    "deprecation": "Deprecation Notes",
+    "critical": "Critical Issues",
+    "security": "Security Issues",
+    "fix": "Bug Fixes",
+    "other": "Other Notes",
+    "issue": "Known Issues",
+}
 
 
-def section_key_re(key: str) -> str:
-    """The pattern a section key must match, written plainly at the start of a line.
-
-    The docs find the notes with known issues by grepping for ``section_key_re("issues")``, so
-    ``lint_release_notes.py`` rejects other spellings of any key (``"issues":``, ``issues :``).
-    """
-    return rf"^{re.escape(key)}:"
+# The file name of a note: ``<type>-<short-description>-<16 hex digits>.rst``, as
+# ``toolshed/add_note.py`` makes them.  The type is one of the ``SECTIONS`` keys and has no hyphen.
+NOTE_NAME_RE = re.compile(r"(?P<type>[a-z]+)-[a-z0-9]+(?:-[a-z0-9]+)*-[0-9a-f]{16}\.rst")
 
 
-#: The file name of a note: a short description and a random suffix, as ``toolshed/add_note.py``
-#: makes them.
-NOTE_NAME_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*-[0-9a-f]{16}\.yaml")
+def note_type(filename: str) -> str | None:
+    """The type (a ``SECTIONS`` key) of the note file named *filename*, or None if it is not a note name."""
+    m = NOTE_NAME_RE.fullmatch(filename)
+    if m is None:
+        return None
+    return m.group("type")
 
 
 class NotesPackage(NamedTuple):
-    #: Directory with the package's note files (``*.yaml``), relative to the repo root.
+    # Directory with the package's note files (``*.rst``), relative to the repo root.
     notes_dir: str
-    #: Prefix of the package's release tags, e.g. ``v`` for ``v13.5.0``.
+    # Prefix of the package's release tags, e.g. ``v`` for ``v13.5.0``.
     tag_prefix: str
-    #: First release whose notes are note files; earlier ones are hand-written pages.
+    # First release whose notes are note files; earlier ones are hand-written pages.
     first_version: Version
-    #: Changes to these paths (a trailing ``/`` marks a directory) need a release note.
-    #: Everything else (docs, tests, CI, pixi files, ...) does not.
+    # Changes to these paths (a trailing ``/`` marks a directory) need a release note.
+    # Everything else (docs, tests, CI, pixi files, ...) does not.
     source_paths: tuple[str, ...]
 
 
-#: Packages whose release notes are built from note files, by release component name.
+# Packages whose release notes are built from note files, by release component name.
 PACKAGES: dict[str, NotesPackage] = {
     "cuda-core": NotesPackage(
         "cuda_core/releasenotes",

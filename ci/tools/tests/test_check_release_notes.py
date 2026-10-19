@@ -346,9 +346,9 @@ def _git(repo: Path, *args: str) -> None:
 def _release(repo: Path, tag: str, note: str | None) -> None:
     """Commit an optional note file, then tag."""
     if note is not None:
-        path = repo / NOTES / f"{note}.yaml"
+        path = repo / NOTES / f"fix-{note}.rst"
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text("---\nfixes:\n  - x\n", encoding="utf-8")
+        path.write_text("x\n", encoding="utf-8")
     else:
         (repo / "unrelated.txt").write_text(tag, encoding="utf-8")
     _git(repo, "add", "-A")
@@ -442,9 +442,9 @@ class TestReleaseNotes:
         problems = check_release_notes("cuda-core-v1.3.0", "cuda-core", notes_repo)
         assert [reason for _path, reason in problems] == ["no release notes added in the tree"]
 
-        path = notes_repo / "cuda_core" / "releasenotes" / "b-0000000000000002.yaml"
+        path = notes_repo / "cuda_core" / "releasenotes" / "fix-b-0000000000000002.rst"
         path.parent.mkdir(parents=True)
-        path.write_text("---\nfixes:\n  - x\n", encoding="utf-8")
+        path.write_text("x\n", encoding="utf-8")
         _git(notes_repo, "add", "-A")
         _git(notes_repo, "commit", "-q", "-m", "core note")
         _git(notes_repo, "tag", "cuda-core-v1.3.1")

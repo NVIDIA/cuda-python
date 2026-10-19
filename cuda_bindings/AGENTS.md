@@ -57,12 +57,12 @@ the `legacy_tests` subdirectory.
 - Changes to `cuda/`, `pyproject.toml`, `setup.py`, `build_hooks.py` or
   `MANIFEST.in` need a note, unless the PR has the `skip-release-note` label.
   Create one with
-  `python toolshed/add_note.py cuda-bindings <short-description>`.
-- Entries use `cuda.bindings` as the current module, so a Sphinx role can say
+  `python toolshed/add_note.py cuda-bindings <type> <short-description>`.
+- Notes use `cuda.bindings` as the current module, so a Sphinx role can say
   `:func:`nvml.device_get_samples``, without the `cuda.bindings.` prefix.
 - Do not add PR links to notes (they are added automatically) and do not
   rename merged notes.
-- `issues` (known issues) entries are repeated on every later release until
+- `issue` (known issues) notes are repeated on every later release until
   deleted. See the "Release notes" section of the top-level `CONTRIBUTING.md`.
 
 ## Build and environment notes

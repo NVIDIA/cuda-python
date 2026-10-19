@@ -40,10 +40,10 @@ monorepo.
 - Changes to `pyproject.toml` or `setup.py` (for example a dependency pin bump
   for a new `cuda-core` or `cuda-bindings` release) need a note, unless the PR
   has the `skip-release-note` label. Create one with
-  `python toolshed/add_note.py cuda-python <short-description>`.
+  `python toolshed/add_note.py cuda-python <type> <short-description>`.
 - `cuda-python` shares the `v` tag namespace with `cuda-bindings`; each package
   scans only its own notes, so a release of both needs a note in each.
 - Do not add PR links to notes (they are added automatically) and do not
-  rename merged notes. `issues` (known issues) entries are repeated on every
+  rename merged notes. `issue` (known issues) notes are repeated on every
   later release until deleted. See the "Release notes" section of the top-level
   `CONTRIBUTING.md`.

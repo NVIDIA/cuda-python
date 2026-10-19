@@ -1,0 +1,5 @@
+A failed rollback of a partially embedded child graph node is now attached
+as a note to the exception that triggered the rollback (reported as
+:class:`CUDAWarning` on Python 3.10), and a failed ``cuStreamEndCapture``
+made when a still-building :class:`~graph.GraphBuilder` is garbage collected
+is now reported as :class:`CUDAWarning`; both were silent. (#2759)

@@ -76,9 +76,9 @@ Windows.
   hand-written pages to `docs/source/release/` for new releases.
 - Changes to `cuda/` or `pyproject.toml` need a note, unless the PR has the
   `skip-release-note` label. Create one with
-  `python toolshed/add_note.py cuda-pathfinder <short-description>`. The old "Highlights" section is `prelude`.
-- Entries use `cuda.pathfinder` as the current module for Sphinx roles.
+  `python toolshed/add_note.py cuda-pathfinder <type> <short-description>`. The old "Highlights" section is the `prelude` type.
+- Notes use `cuda.pathfinder` as the current module for Sphinx roles.
 - Do not add PR links to notes (they are added automatically) and do not
-  rename merged notes. `issues` (known issues) entries are repeated on every
+  rename merged notes. `issue` (known issues) notes are repeated on every
   later release until deleted. See the "Release notes" section of the top-level
   `CONTRIBUTING.md`.

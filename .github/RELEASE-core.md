@@ -118,11 +118,11 @@ tag is cut, because the page is built from the tagged commit:
   the note files in a PR. Edits to notes that already shipped in an earlier
   release also change that release's page the next time the docs are published
   from `main`, so older notes can be corrected too.
-- Highlight a few notable items by adding a note with a `prelude` section. All
+- Highlight a few notable items by adding a note of type `prelude`. All
   preludes in the release are combined at the top of its page, so the full
-  entries stay in their own sections below.
-- Check the known issues (`issues` entries). They are listed on every release
-  until their entry is deleted, so delete the ones that this release resolves
+  notes stay in their own sections below.
+- Check the known issues (`issue` notes). They are listed on every release
+  until their note is deleted, so delete the ones that this release resolves
   and make sure the remaining ones are still true.
 - Make sure the notes make it to `main`. The release workflow fails if no note
   was added in the release's range, but that does not mean every PR had one

@@ -16,10 +16,10 @@ import release_notes
 import release_ranges
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_SECTION_KEYS = {"features", "issues", "upgrade", "deprecations", "critical", "security", "fixes", "other"}
+DEFAULT_SECTION_KEYS = {"prelude", "feature", "issue", "upgrade", "deprecation", "critical", "security", "fix", "other"}
 NOTES_DIR = "pkg/releasenotes"
 
-SECTIONS = [("features", "New Features"), ("fixes", "Bug Fixes"), ("issues", "Known Issues")]
+SECTIONS = {"prelude": None, "feature": "New Features", "fix": "Bug Fixes", "issue": "Known Issues"}
 PR_URL = "https://example.test/pull/{number}"
 
 
@@ -88,11 +88,14 @@ def test_previous_release_skips_missing_patch_numbers():
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
 def test_render_page_orders_sections_links_prs_and_uses_issue_source():
     notes = [
-        {"data": {"fixes": ["A fix."], "issues": ["Not shown: issues come from the issue source."]}, "pr": "7"},
-        {"data": {"features": ["A feature.\n\nMore detail."]}, "pr": None},
+        release_notes.Note("fix", "A fix.\n", "7"),
+        release_notes.Note("issue", "Not shown: issues come from the issue source.\n", "7"),
+        release_notes.Note("feature", "A feature.\n\nMore detail.\n", None),
+        release_notes.Note("prelude", "An introduction.\n", None),
     ]
-    issues = [{"data": {"issues": ["An open issue."]}, "pr": "3"}]
+    issues = [release_notes.Note("issue", "An open issue.\n", "3")]
     page = release_notes.render_page("Title", SECTIONS, notes, issues, PR_URL)
+    assert page.index("An introduction.") < page.index("New Features")
     assert page.index("New Features") < page.index("Bug Fixes") < page.index("Known Issues")
     assert "- A fix. (`PR #7 <https://example.test/pull/7>`__)" in page
     assert "- A feature.\n\n  More detail." in page
@@ -116,9 +119,9 @@ def _git(repo: Path, *args: str) -> str:
 
 
 def _note(repo: Path, name: str, section: str, text: str, uid: str) -> Path:
-    path = repo / NOTES_DIR / f"{name}-{uid:0>16}.yaml"
+    path = repo / NOTES_DIR / f"{section}-{name}-{uid:0>16}.rst"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(f"---\n{section}:\n  - |\n    {text}\n", encoding="utf-8")
+    path.write_text(f"{text}\n", encoding="utf-8")
     return path
 
 
@@ -137,27 +140,27 @@ def repo(tmp_path):
     (root / NOTES_DIR).mkdir(parents=True)
     (root / "docs" / "source").mkdir(parents=True)
 
-    _note(root, "first-fix", "fixes", "First fix.", "1")
-    _note(root, "open-issue", "issues", "Open issue.", "2")
-    _note(root, "wsl-issue", "issues", "Resolved issue.", "3")
+    _note(root, "first-fix", "fix", "First fix.", "1")
+    _note(root, "open-issue", "issue", "Open issue.", "2")
+    _note(root, "wsl-issue", "issue", "Resolved issue.", "3")
     _commit(root, "Initial notes (#1)")
     _git(root, "tag", "v1.0.0")
     _git(root, "tag", "v1.0.0rc1")
 
-    _note(root, "new-feature", "features", "New feature.", "4")
+    _note(root, "new-feature", "feature", "New feature.", "4")
     _commit(root, "Add feature (#2)")
-    _note(root, "patch-fix", "fixes", "Fix needed in the patch.", "5")
+    _note(root, "patch-fix", "fix", "Fix needed in the patch.", "5")
     _commit(root, "Fix (#3)")
     _git(root, "tag", "v1.1.0")
 
     # The patch release is tagged on a maintenance branch that diverges from main.
     _git(root, "checkout", "-q", "-b", "maint", "v1.0.0")
-    _note(root, "patch-fix", "fixes", "Fix needed in the patch.", "5")
+    _note(root, "patch-fix", "fix", "Fix needed in the patch.", "5")
     _commit(root, "Backport fix (#3)")
     _git(root, "tag", "v1.0.1")
 
     _git(root, "checkout", "-q", "main")
-    _git(root, "rm", "-q", str(root / NOTES_DIR / "wsl-issue-0000000000000003.yaml"))
+    _git(root, "rm", "-q", str(root / NOTES_DIR / "issue-wsl-issue-0000000000000003.rst"))
     _note(root, "after", "upgrade", "Change after the release.", "6")
     _commit(root, "Resolve issue and add change")
     return root
@@ -227,12 +230,11 @@ def test_generate_pages_ranges_and_known_issues(repo):
 
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
 def test_edited_known_issues_do_not_change_earlier_pages(repo):
-    # The issues entry of a note that still exists is removed (the note keeps another section).
-    path = _note(repo, "open-issue", "fixes", "Now a fix.", "2")
+    # The note with the known issue is removed.
+    _git(repo, "rm", "-q", str(repo / NOTES_DIR / "issue-open-issue-0000000000000002.rst"))
     _commit(repo, "Resolve the open issue")
     release_notes._generate_pages(_app(repo))
     pages = _pages(repo)
-    assert path.is_file()
     # Pages for tags keep the issue as it was at the tag ...
     assert "Open issue." in pages["1.0.0-notes.rst"]
     assert "Open issue." in pages["1.1.0-notes.rst"]
@@ -242,8 +244,8 @@ def test_edited_known_issues_do_not_change_earlier_pages(repo):
 
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
 def test_empty_note_at_a_tag_is_tolerated(repo):
-    empty = repo / NOTES_DIR / "empty-note-00000000000000ff.yaml"
-    empty.write_text("# nothing yet\n", encoding="utf-8")
+    empty = repo / NOTES_DIR / "fix-empty-note-00000000000000ff.rst"
+    empty.write_text("", encoding="utf-8")
     _commit(repo, "Add empty note (#9)")
     _git(repo, "tag", "v1.2.0")
     empty.unlink()
@@ -354,22 +356,21 @@ def test_a_marker_outside_backquoted_text_still_works_next_to_one_inside():
     # The real marker replaces the automatic link; the literal one is untouched.
     assert release_notes._render_entry("Use ``f(#5)`` (#8).", "1", PR_URL) == f"Use ``f(#5)`` ({link})."
     # Notes whose only markers are literal still use the git lookup.
-    assert release_notes._needs_pr_lookup({"fixes": ["Use ``f(#5)``."]})
-    assert not release_notes._needs_pr_lookup({"fixes": ["Use ``f(#5)`` (#8)."]})
+    assert not release_notes._has_explicit_prs("Use ``f(#5)``.")
+    assert release_notes._has_explicit_prs("Use ``f(#5)`` (#8).")
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
 def test_explicit_pr_numbers_skip_the_git_lookup_and_apply_per_entry(repo):
     # The note file is added by a "move" commit (#9) but its entries name the real PRs.
     _git(repo, "checkout", "-q", "main")
-    path = repo / NOTES_DIR / "moved-0000000000000007.yaml"
-    path.write_text(
-        "---\nfixes:\n  - |\n    Moved fix. (#77, #78)\n  - |\n    Entry without a number.\n"
-        "issues:\n  - |\n    Moved issue. (#99)\n",
-        encoding="utf-8",
-    )
-    only_explicit = repo / NOTES_DIR / "explicit-0000000000000008.yaml"
-    only_explicit.write_text("---\nfeatures:\n  - |\n    All explicit. (#55)\n", encoding="utf-8")
+    for name, text in {
+        "fix-moved-0000000000000007.rst": "Moved fix. (#77, #78)",
+        "fix-no-number-0000000000000009.rst": "Note without a number.",
+        "issue-moved-0000000000000007.rst": "Moved issue. (#99)",
+        "feature-explicit-0000000000000008.rst": "All explicit. (#55)",
+    }.items():
+        (repo / NOTES_DIR / name).write_text(f"{text}\n", encoding="utf-8")
     _commit(repo, "Move notes into place (#9)")
     _git(repo, "tag", "v1.2.0")
     release_notes._generate_pages(_app(repo))
@@ -378,8 +379,8 @@ def test_explicit_pr_numbers_skip_the_git_lookup_and_apply_per_entry(repo):
     assert "Moved fix. (`PR #77 <https://example.test/pull/77>`__, `PR #78 <https://example.test/pull/78>`__)" in page
     assert "Moved issue. (`PR #99 <https://example.test/pull/99>`__)" in page
     assert "All explicit. (`PR #55 <https://example.test/pull/55>`__)" in page
-    # An entry without a number in the same note still uses the commit subject.
-    assert "Entry without a number. (`PR #9 <https://example.test/pull/9>`__)" in page
+    # A note without a number still uses the commit subject.
+    assert "Note without a number. (`PR #9 <https://example.test/pull/9>`__)" in page
     assert page.count("pull/9>") == 1
 
 
@@ -387,14 +388,14 @@ def test_explicit_pr_numbers_skip_the_git_lookup_and_apply_per_entry(repo):
 def test_minor_release_starting_at_a_patch_number_and_relisted_patches(repo):
     # 2.0.0 and 2.0.1, then a line that starts at 2.1.1 (2.1.0 was only a pre-release).
     _git(repo, "checkout", "-q", "main")
-    _note(repo, "n200", "fixes", "Fix in 2.0.0.", "c")
+    _note(repo, "n200", "fix", "Fix in 2.0.0.", "c")
     _commit(repo, "Fix (#20)")
     _git(repo, "tag", "v2.0.0")
     _git(repo, "tag", "v2.1.0rc1")
-    _note(repo, "n201", "fixes", "Fix in 2.0.1.", "d")
+    _note(repo, "n201", "fix", "Fix in 2.0.1.", "d")
     _commit(repo, "Fix (#21)")
     _git(repo, "tag", "v2.0.1")
-    _note(repo, "n211", "fixes", "Fix in 2.1.1.", "e")
+    _note(repo, "n211", "fix", "Fix in 2.1.1.", "e")
     _commit(repo, "Fix (#22)")
     _git(repo, "tag", "v2.1.1")
     release_notes._generate_pages(_app(repo))
@@ -413,7 +414,7 @@ def test_minor_release_starting_at_a_patch_number_and_relisted_patches(repo):
 def test_pages_for_releases_on_other_branches_and_the_unreleased_page(repo):
     # The newest tag, v1.1.1, is only on a maintenance branch; main continues after v1.1.0.
     _git(repo, "checkout", "-q", "-b", "maint-1.1", "v1.1.0")
-    _note(repo, "maint-fix", "fixes", "Fix only on the maintenance branch.", "b")
+    _note(repo, "maint-fix", "fix", "Fix only on the maintenance branch.", "b")
     _commit(repo, "Backport (#30)")
     _git(repo, "tag", "v1.1.1")
     _git(repo, "checkout", "-q", "main")
@@ -431,11 +432,11 @@ def test_pages_for_releases_on_other_branches_and_the_unreleased_page(repo):
     # (Remove the generated pages first so that committing does not sweep them into git.)
     shutil.rmtree(repo / "docs" / "source" / "release")
     _git(repo, "checkout", "-q", "main")
-    _note(repo, "next", "features", "Next minor feature.", "c")
+    _note(repo, "next", "feature", "Next minor feature.", "c")
     _commit(repo, "Next feature (#31)")
     _git(repo, "tag", "v1.2.0")
     _git(repo, "checkout", "-q", "maint-1.1")
-    _note(repo, "maint-only", "fixes", "Not yet released on the maintenance branch.", "d")
+    _note(repo, "maint-only", "fix", "Not yet released on the maintenance branch.", "d")
     _commit(repo, "Another fix (#32)")
     (repo / "docs" / "source").mkdir(parents=True, exist_ok=True)
     release_notes._generate_pages(_app(repo))
@@ -449,7 +450,7 @@ def test_pages_for_releases_on_other_branches_and_the_unreleased_page(repo):
 
 def _rewrite(repo, name, uid, text):
     """Edit a note in the checkout, without committing (as when the docs are built from main)."""
-    path = next((repo / NOTES_DIR).glob(f"{name}-*{uid}.yaml"))
+    path = next((repo / NOTES_DIR).glob(f"*-{name}-*{uid}.rst"))
     path.write_text(path.read_text(encoding="utf-8").replace(OLD_TEXTS[name], text), encoding="utf-8")
 
 
@@ -498,7 +499,7 @@ def test_a_note_missing_from_the_checkout_keeps_its_text_at_the_tag(repo):
     # (Remove the generated pages first so that committing does not sweep them into git.)
     shutil.rmtree(repo / "docs" / "source" / "release")
     _git(repo, "checkout", "-q", "-b", "maint-only", "v1.0.1")
-    _note(repo, "branch-only", "fixes", "Only on a maintenance branch.", "f")
+    _note(repo, "branch-only", "fix", "Only on a maintenance branch.", "f")
     _commit(repo, "Branch-only fix (#40)")
     _git(repo, "tag", "v1.0.2")
     _git(repo, "checkout", "-q", "main")
@@ -509,17 +510,17 @@ def test_a_note_missing_from_the_checkout_keeps_its_text_at_the_tag(repo):
 
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
 def test_sections_use_only_the_default_keys_with_known_issues_last():
-    keys = [key for key, _title in release_ranges.SECTIONS]
+    keys = list(release_ranges.SECTIONS)
     assert set(keys) == DEFAULT_SECTION_KEYS
     assert len(keys) == len(DEFAULT_SECTION_KEYS)
-    assert keys[-1] == "issues"
-    assert release_ranges.PRELUDE not in keys
+    assert keys[0] == "prelude"
+    assert keys[-1] == "issue"
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
 def test_the_upgrade_section_is_titled_breaking_changes():
     # cuda_core/docs/source/support.rst points readers to "Breaking Changes" in the release notes.
-    assert dict(release_ranges.SECTIONS)["upgrade"] == "Breaking Changes"
+    assert release_ranges.SECTIONS["upgrade"] == "Breaking Changes"
 
 
 def _ignored(package_dir, name):
@@ -568,8 +569,8 @@ def test_a_renamed_note_counts_as_a_new_note_in_the_release_that_contains_the_re
     # note is not lost (git would otherwise report a rename, not an add), and it is not listed
     # twice.
     _git(repo, "checkout", "-q", "main")
-    old = next((repo / NOTES_DIR).glob("new-feature-*.yaml"))
-    new = old.with_name("renamed-feature-0000000000000004.yaml")
+    old = next((repo / NOTES_DIR).glob("feature-new-feature-*.rst"))
+    new = old.with_name("feature-renamed-feature-0000000000000004.rst")
     _git(repo, "mv", str(old), str(new))
     _git(repo, "commit", "-q", "-m", "Rename a note (#50)")
     _git(repo, "tag", "v1.2.0")

@@ -9,21 +9,23 @@
 """Create a new release note for one of the packages.
 
 Usage:
-    python toolshed/add_note.py PACKAGE SHORT-DESCRIPTION [--edit]
+    python toolshed/add_note.py PACKAGE TYPE SHORT-DESCRIPTION [--edit]
 
 PACKAGE is one of the packages that have release notes (``cuda-bindings``, ``cuda-core``,
 ``cuda-pathfinder`` or ``cuda-python``; the ``cuda-`` prefix is optional and ``_`` also works).
+TYPE is the kind of note: one of the keys of ``release_ranges.SECTIONS`` (``feature``,
+``upgrade``, ..., ``prelude``); it becomes the start of the file name.
 SHORT-DESCRIPTION is a few words that become part of the file name.  It can be run from any
 directory: the note is always created in the package's ``releasenotes`` directory of this checkout.
 
-Edit the new file: keep the sections that apply, delete the rest, and replace the ``TODO`` text.
+Edit the new file and replace the ``TODO`` text with a reStructuredText entry.  A note has one
+type; to record two kinds of change, create two notes.
 See "Release notes" in CONTRIBUTING.md.
 """
 
 from __future__ import annotations
 
 import argparse
-import datetime
 import os
 import re
 import secrets
@@ -36,42 +38,9 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "cuda_python" / "docs" / "exts"))
 import release_ranges  # noqa: E402
 
-# The sections must be those of release_ranges.SECTIONS (checked by the tests).
-TEMPLATE = """\
-# SPDX-FileCopyrightText: Copyright (c) {year} NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
+TEMPLATE = "TODO: Describe the change in reStructuredText.\n"
 
-# Keep only the sections that apply and delete the rest.  Each entry is reStructuredText, wrapped at
-# 100 columns.  A link to the pull request is added automatically.
-#
-# Entries under ``issues`` (known issues) are different: they are listed in the release notes of
-# every release until the entry is removed, so remove the entry in the PR that resolves the issue.
----
-features:
-  - |
-    TODO: New functionality.
-upgrade:
-  - |
-    TODO: Breaking changes, including behavior changes users may need to act on.
-deprecations:
-  - |
-    TODO: Newly deprecated functionality.
-critical:
-  - |
-    TODO: Critical issues users must know about.
-security:
-  - |
-    TODO: Security issues.
-fixes:
-  - |
-    TODO: Bug fixes.
-other:
-  - |
-    TODO: Anything else.
-issues:
-  - |
-    TODO: Known issues.
-"""
+NOTE_TYPES = tuple(release_ranges.SECTIONS)
 
 MAX_SLUG_LENGTH = 60
 
@@ -100,16 +69,16 @@ def slugify(description: str) -> str:
     return slug
 
 
-def create_note(package: str, description: str, repo_root: Path | None = None) -> Path:
+def create_note(package: str, note_type: str, description: str, repo_root: Path | None = None) -> Path:
+    if note_type not in NOTE_TYPES:
+        raise ValueError(f"unknown note type {note_type!r}; choose one of: {', '.join(NOTE_TYPES)}")
     if repo_root is None:
         repo_root = REPO_ROOT
     component = find_package(package)
     notes_dir = repo_root / release_ranges.PACKAGES[component].notes_dir
     notes_dir.mkdir(parents=True, exist_ok=True)
-    path = notes_dir / f"{slugify(description)}-{secrets.token_hex(8)}.yaml"
-    path.write_text(
-        TEMPLATE.replace("{year}", str(datetime.datetime.now(tz=datetime.timezone.utc).year)), encoding="utf-8"
-    )
+    path = notes_dir / f"{note_type}-{slugify(description)}-{secrets.token_hex(8)}.rst"
+    path.write_text(TEMPLATE, encoding="utf-8")
     return path
 
 
@@ -121,12 +90,13 @@ def main(argv: list[str] | None = None) -> int:
         choices=sorted(release_ranges.PACKAGES),
         help="the package to add a release note to (the cuda- prefix is optional)",
     )
+    parser.add_argument("type", choices=NOTE_TYPES, help="the kind of note, which is the section it is listed under")
     parser.add_argument("description", help="a few words describing the change, used in the file name")
     parser.add_argument("--edit", action="store_true", help="open the new file in $VISUAL or $EDITOR")
     args = parser.parse_args(argv)
 
     try:
-        path = create_note(args.package, args.description)
+        path = create_note(args.package, args.type, args.description)
     except ValueError as e:
         print(f"ERROR: {e}", file=sys.stderr)
         return 2

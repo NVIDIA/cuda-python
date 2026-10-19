@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import check_pr_release_notes
 from check_pr_release_notes import EXIT_GH_FAILED, EXIT_PROBLEMS, ChangedFile, changed_files, find_problems, main
 
-NOTE = "cuda_bindings/releasenotes/fix-thing-0123456789abcdef.yaml"
+NOTE = "cuda_bindings/releasenotes/fix-thing-0123456789abcdef.rst"
 SOURCE = "cuda_bindings/cuda/bindings/driver.pyx"
 
 
@@ -86,7 +86,7 @@ def test_cuda_pathfinder_source_changes_need_a_pathfinder_note(path):
     problems = find_problems(_files(path), [])
     assert len(problems) == 1
     assert "cuda-pathfinder" in problems[0]
-    assert find_problems(_files(path, "cuda_pathfinder/releasenotes/x-0123456789abcdef.yaml"), []) == []
+    assert find_problems(_files(path, "cuda_pathfinder/releasenotes/fix-x-0123456789abcdef.rst"), []) == []
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
@@ -95,7 +95,7 @@ def test_cuda_python_source_changes_need_a_python_note(path):
     problems = find_problems(_files(path), [])
     assert len(problems) == 1
     assert "cuda-python" in problems[0]
-    assert find_problems(_files(path, "cuda_python/releasenotes/x-0123456789abcdef.yaml"), []) == []
+    assert find_problems(_files(path, "cuda_python/releasenotes/fix-x-0123456789abcdef.rst"), []) == []
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
@@ -104,7 +104,7 @@ def test_each_touched_package_needs_its_own_note():
     problems = find_problems(changed, [])
     assert len(problems) == 1
     assert "cuda-core" in problems[0]
-    changed += _files("cuda_core/releasenotes/other-0123456789abcdef.yaml")
+    changed += _files("cuda_core/releasenotes/fix-other-0123456789abcdef.rst")
     assert find_problems(changed, []) == []
 
 
@@ -123,10 +123,10 @@ def test_deleting_a_note_does_not_satisfy_the_check():
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
 def test_renaming_a_note_away_does_not_satisfy_the_check():
     # The new path is outside notes/; the old path (previous_filename) is not a note either.
-    changed = [ChangedFile(SOURCE, "modified"), ChangedFile("docs/old-note.yaml", "renamed", NOTE)]
+    changed = [ChangedFile(SOURCE, "modified"), ChangedFile("docs/old-note.rst", "renamed", NOTE)]
     assert len(find_problems(changed, [])) == 1
     # Renaming one *into* notes/ is a note.
-    changed = [ChangedFile(SOURCE, "modified"), ChangedFile(NOTE, "renamed", "somewhere/else.yaml")]
+    changed = [ChangedFile(SOURCE, "modified"), ChangedFile(NOTE, "renamed", "somewhere/else.rst")]
     assert find_problems(changed, []) == []
 
 
@@ -136,14 +136,14 @@ def test_renaming_a_note_away_does_not_satisfy_the_check():
     [
         "cuda_bindings/releasenotes/.gitkeep",
         "cuda_bindings/releasenotes/README.md",
-        "cuda_bindings/releasenotes/fix-0123456789abcdef.yaml.orig",
+        "cuda_bindings/releasenotes/fix-x-0123456789abcdef.rst.orig",
         "cuda_bindings/releasenotes/config.yaml",
-        "cuda_bindings/releasenotes/fix.yaml",  # not named like a note (no random suffix)
-        "cuda_bindings/releasenotes/sub/fix-0123456789abcdef.yaml",  # not directly in the directory
-        "cuda_core/releasenotes/fix-0123456789abcdef.yaml",  # another package's note
+        "cuda_bindings/releasenotes/fix-x.rst",  # not named like a note (no random suffix)
+        "cuda_bindings/releasenotes/sub/fix-x-0123456789abcdef.rst",  # not directly in the directory
+        "cuda_core/releasenotes/fix-x-0123456789abcdef.rst",  # another package's note
     ],
 )
-def test_only_yaml_files_in_the_packages_notes_dir_are_notes(path):
+def test_only_note_files_in_the_packages_notes_dir_are_notes(path):
     assert len(find_problems(_files(SOURCE, path), [])) == 1
 
 
