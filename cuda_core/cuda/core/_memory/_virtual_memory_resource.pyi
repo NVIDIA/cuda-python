@@ -30,7 +30,9 @@ class VirtualMemoryResourceOptions:
     allocation_type: :obj:`~_memory.VirtualMemoryAllocationType` | str
         Controls the type of allocation.
     location_type: :obj:`~_memory.VirtualMemoryLocationType` | str
-        Controls the location of the allocation.
+        Controls the location of the allocation. ``"host_numa"`` requires
+        ``numa_id``. ``"host_numa_current"`` is rejected because the driver
+        does not accept it for physical allocations.
     handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str
         Export handle type for the physical allocation, and the switch for
         sharing buffers with other processes (see
@@ -52,6 +54,11 @@ class VirtualMemoryResourceOptions:
         Access flags for the owning device.
     peer_access: :obj:`~_memory.VirtualMemoryAccessType` | None | str
         Access flags for peers.
+    numa_id: int | None
+        Host NUMA node of the allocation. Required for
+        ``location_type="host_numa"`` and rejected for every other location
+        type. Must be >= 0; ``Device.properties.host_numa_id`` is the node
+        closest to a device.
     """
     allocation_type: VirtualMemoryAllocationType = VirtualMemoryAllocationType.PINNED
     location_type: VirtualMemoryLocationType = VirtualMemoryLocationType.DEVICE
@@ -63,6 +70,7 @@ class VirtualMemoryResourceOptions:
     peers: Iterable[int] = field(default_factory=tuple)
     self_access: VirtualMemoryAccessType = VirtualMemoryAccessType.READ_WRITE
     peer_access: VirtualMemoryAccessType = VirtualMemoryAccessType.READ_WRITE
+    numa_id: int | None = None
     _a = driver.CUmemAccess_flags
     _access_flags = {VirtualMemoryAccessType.READ_WRITE: _a.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, VirtualMemoryAccessType.READ: _a.CU_MEM_ACCESS_FLAGS_PROT_READ, None: 0}
     _h = driver.CUmemAllocationHandleType
