@@ -30,9 +30,9 @@ Two pre-commit hooks check links with one pinned native wheel (`lychee-bin`,
 see `.pre-commit-config.yaml`) through the wrapper `ci/tools/run_lychee.py`:
 `lychee` checks authored Markdown and reST (fragments unchecked), and the
 manual-stage `lychee-rendered` checks the generated HTML in `artifacts/docs`,
-including fragments. Developers run the same hooks locally. Links to supported
-repositories' default branches are checked against the proposed checkout, as
-described under [Repository Links](#repository-links).
+including fragments. Developers run the same hooks locally. Public repository
+`main` links are checked against the proposed checkout, as described under
+[Repository Links](#repository-links).
 
 CI runs a hook through `ci/tools/run_lychee_precommit.py <authored|rendered>`,
 wrapped with the shared cache and report handling in
@@ -98,7 +98,7 @@ can stay unnoticed for up to 72 hours.
 The action keys each baseline by checker kind and a hash of
 `.pre-commit-config.yaml` (hook options and wheel pin), `lychee.toml`, and
 `ci/tools/run_lychee.py`, `run_lychee_precommit.py`, `retry_lychee.py`, and
-`checkout_link_defaults.py`, so editing any of them starts a cold cache.
+`checkout_source_links.py`, so editing any of them starts a cold cache.
 Authored and rendered caches stay apart because only rendered checks validate
 fragments and Lychee's cache does not record which validation ran. URL results
 are shared across operating systems; pre-commit's installed environments keep
@@ -107,58 +107,49 @@ their OS- and Python-specific caches.
 ### Repository Links
 
 Documentation can link to a path added or moved in the same PR using its
-intended default-branch URL. For example, a URL ending in
-`tree/<default-branch>/new-directory` is validated before that directory
-exists on the remote default branch. Lychee remaps the
-validation target; source files and published documentation keep their URLs.
+intended public URL, for example
+`https://github.com/NVIDIA/cuda-python/tree/main/new-directory`. Lychee
+validates the proposed target before it exists on public `main`. Only the
+validation target changes; source files and built documentation retain their URLs.
 
-`ci/tools/checkout_link_defaults.py` discovers each source repository's default
-branch, rather than assuming it is named `main`. It supports the canonical
-public repository and the repository being checked. A synchronized repository
-with a different default branch, such as `ctk-next`, can retain public source
-links and also use its own repository links. Each source URL is matched against
-the default branch of the repository named in that URL.
+`ci/tools/checkout_source_links.py` matches the complete public repository
+prefix followed by `blob/main/` or `tree/main/`:
 
 - Authored Markdown and reST map to file URIs in the working tree, including
-  uncommitted and unpushed paths. Missing files and directories fail even if a
-  prior check succeeded. Authored checks continue to omit fragment validation.
-- Rendered HTML maps to GitHub's file or directory view at the actual
-  checked-out commit in the current repository, preserving fragment checks.
-- Only complete URL prefixes naming a supported repository and its default
-  branch are remapped. Tags, explicit commits, other branches, unrelated
-  repositories, and URLs embedded inside other URLs retain their targets.
+  uncommitted and unpushed paths. Missing files and directories fail even after
+  an earlier success. These checks need no repository metadata and retain the
+  existing policy of omitting fragments.
+- Rendered HTML from the public repository maps source links to GitHub's file
+  or directory view at the actual checked-out commit, retaining fragment checks.
+  That commit must be available on GitHub.
+- Rendered HTML from other repositories maps the same public source links to
+  local files and directories. Only those source links omit fragments, since
+  local files do not reproduce every GitHub source-view anchor. Generated
+  documentation pages and their anchors still receive full validation.
 
-CI takes the current repository and default branch from the workflow event.
-When running in another repository, a preparation step also queries the public
-repository's advertised default branch once. Hook invocations use the prepared
-metadata without further discovery requests. The PR base branch and current
-working branch do not determine which source URLs are remapped.
+Tags, explicit commits, other branches, unrelated repositories, and URLs embedded
+inside other URLs retain their original targets. There is no default-branch
+lookup or remote `HEAD` requirement. A future change to the public URL convention
+would require an explicit update to these matching rules.
 
-Local hooks use cached remote `HEAD` references and make no discovery requests.
-The `upstream` remote identifies the checkout's repository when present;
-otherwise `origin` does. To select it explicitly, including when using other
-remote names:
-
-```bash
-git config lychee.repository OWNER/REPOSITORY
-```
-
-The helper matches remote URLs to find each selected repository's metadata.
-If a cached default is missing or conflicting, it reports the remote to
-refresh, for example:
+For rendered checks and checking builds, CI supplies the checkout identity
+through `GITHUB_REPOSITORY`. Local runs use `git config lychee.repository`, or
+otherwise the `upstream` remote followed by `origin`. A checkout whose remotes
+only name a fork can select public-repository validation explicitly:
 
 ```bash
-git remote set-head upstream --auto
+git config lychee.repository NVIDIA/cuda-python
 ```
 
-A synchronized checkout also needs a remote for the public repository, with
-its default cached in the same way, for example `git remote set-head public_repo
---auto`. Fetch the default branch first if Git requests it. Refresh these
-references after a repository changes its default branch.
+The checking build uses the public checkout's actual commit for generated
+example links. In other repositories it uses `main`, allowing those public URLs
+to receive the same local target checks without inserting another repository's
+commit into public links. An explicit `CUDA_PYTHON_DOCS_GITHUB_REF` override is
+retained; release builds continue to use their release tags.
 
-These rules validate the proposed default-branch tree. Before adopting them on
-a maintenance branch, choose an explicit policy for links that intentionally
-point to a different tree from the maintenance checkout.
+These rules validate the proposed source tree. Before adopting them on a
+maintenance branch, choose an explicit policy for links that intentionally point
+to a different tree from the maintenance checkout.
 
 ## Temporary Pixi Lockfile Maintenance Pause
 

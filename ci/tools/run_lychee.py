@@ -21,7 +21,7 @@ import sysconfig
 import uuid
 from pathlib import Path
 
-from checkout_link_defaults import repo_link_remaps
+from checkout_source_links import repo_link_remaps
 
 ROOT = Path(__file__).resolve().parents[2]
 
