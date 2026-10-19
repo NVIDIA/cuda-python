@@ -10,7 +10,9 @@ inputs:
     description: "Which hook to run: authored or rendered"
     required: true
   policy:
-    description: "check accepts up to 10 rate-limited URLs; cache-warm reports every unresolved link as a warning"
+    description: >-
+      check accepts up to 10 rate-limited URLs; cache-warm warns for any unresolved
+      link; allow-429 accepts only HTTP 429 failures under the maintainer override
     default: check
   refresh:
     description: "Check links afresh and publish the successful results as the new baseline"

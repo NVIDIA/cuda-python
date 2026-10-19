@@ -136,16 +136,40 @@ def test_retries_real_hook_with_cache_intact_and_stops_after_recovery(tmp_path, 
     assert "example.test" not in report.with_suffix(".md").read_text()
 
 
+@pytest.mark.parametrize("policy", ["cache-warm", "allow-429"])
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
-def test_missing_native_status_is_fatal_even_for_nightly_cache_warming(tmp_path, monkeypatch, capsys):
+def test_missing_native_status_is_fatal_even_under_relaxed_link_policies(tmp_path, monkeypatch, capsys, policy):
     monkeypatch.setattr(
         run_lychee_precommit.subprocess, "run", lambda *_args, **_kwargs: subprocess.CompletedProcess([], 1)
     )
-    assert (
-        run_lychee_precommit.main(["authored", "--policy", "cache-warm", "--report", str(tmp_path / "report.json")])
-        == 1
-    )
+    assert run_lychee_precommit.main(["authored", "--policy", policy, "--report", str(tmp_path / "report.json")]) == 1
     assert "no native status" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("kind", ["authored", "rendered"])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_cli_maintainer_override_accepts_only_rate_limits_after_retrying(tmp_path, monkeypatch, kind):
+    report = tmp_path / "report.json"
+    calls = []
+
+    def run_hook(selected_kind, output):
+        calls.append(selected_kind)
+        data = native_report(code=2, total=20, status=429)
+        data["errors"] = 11
+        data["error_map"]["guide.md"] = [
+            {"url": f"https://example.test/{number}", "status": {"text": "Rate limited", "code": 429}}
+            for number in range(11)
+        ]
+        output.write_text(json.dumps(data))
+        return 2
+
+    monkeypatch.setattr(run_lychee_precommit, "run_hook", run_hook)
+    monkeypatch.setattr(retry_lychee.time, "sleep", lambda _: None)
+
+    assert run_lychee_precommit.main([kind, "--policy", "allow-429", "--report", str(report)]) == 0
+    assert calls == [kind] * 3
+    assert len(list(tmp_path.glob("report-attempt-*.json"))) == 3
+    assert "maintainer" in report.with_suffix(".md").read_text().lower()
 
 
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
