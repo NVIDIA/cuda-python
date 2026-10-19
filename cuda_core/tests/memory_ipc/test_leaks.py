@@ -13,7 +13,7 @@ except ImportError:
 else:
     HAVE_PSUTIL = True
 import pytest
-from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.child_processes import child_timeout_sec, kill_subprocesses, noop, run_child, warmup_multiprocessing
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
@@ -40,16 +40,7 @@ def test_alloc_handle(ipc_memory_resource):
 def exec_success(obj, number=1):
     """Successfully run a child process."""
     for _ in range(number):
-        process = mp.Process(target=child_main, args=(obj,))
-        process.start()
-        process.join(timeout=CHILD_TIMEOUT_SEC)
-        survivors = kill_subprocesses(process)
-        assert not survivors, "child did not exit within timeout"
-        assert process.exitcode == 0
-
-
-def child_main(obj, *args):
-    pass
+        run_child(noop, obj)
 
 
 def exec_launch_failure(obj, number=1):
@@ -78,7 +69,7 @@ def exec_reduce_failure(obj, number=1):
     for _ in range(number):
         fails_to_reduce = Irreducible()
         with contextlib.suppress(RuntimeError):
-            mp.Process(target=child_main, args=(obj, fails_to_reduce)).start()
+            mp.Process(target=noop, args=(obj, fails_to_reduce)).start()
 
 
 class Irreducible:
@@ -137,7 +128,7 @@ class CheckFDLeaks:
         self.process = psutil.Process()
 
     def __enter__(self):
-        prime()
+        warmup_multiprocessing()
         gc.collect()
         self.initial_fds = self.process.num_fds()
         return self
@@ -150,20 +141,3 @@ class CheckFDLeaks:
             final_fds = self.process.num_fds()
             assert final_fds == self.initial_fds, f"file descriptors leaked: {self.initial_fds} -> {final_fds}"
         return False
-
-
-prime_was_run = False
-
-
-def prime():
-    """Multiprocessing consumes a file descriptor on first launch."""
-    assert mp.get_start_method() == "spawn"
-    global prime_was_run
-    if not prime_was_run:
-        process = mp.Process()
-        process.start()
-        process.join(timeout=CHILD_TIMEOUT_SEC)
-        survivors = kill_subprocesses(process)
-        assert not survivors, "child did not exit within timeout"
-        assert process.exitcode == 0
-        prime_was_run = True
