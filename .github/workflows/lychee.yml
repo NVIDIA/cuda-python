@@ -7,7 +7,7 @@
 # results. Nightly starts afresh, reports unresolved links as warnings, and is
 # the only producer of both shared baselines.
 
-name: "CI: Documentation links"
+name: "CI: Lychee checks and caches"
 
 on:
   workflow_call:
