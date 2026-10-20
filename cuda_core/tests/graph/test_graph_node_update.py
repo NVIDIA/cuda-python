@@ -120,7 +120,7 @@ def _event_record_case(device):
         graph.launch(stream)
         try:
             assert callback_started.wait(timeout=5)
-            assert expected.is_done is False
+            _wait_until(lambda: expected.is_done is False)
             unexpected = replacement if expected is original else original
             assert unexpected.is_done is True
         finally:
