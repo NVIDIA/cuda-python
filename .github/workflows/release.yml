@@ -8,7 +8,7 @@ name: "CI: Release"
 # for the given tag, or uses an existing draft, then publishes the selected wheels
 # to TestPyPI followed by PyPI. The dry-run mode validates the release path
 # without publishing to external release surfaces.
-# Pathfinder additionally prepares standard release metadata and publishes its draft.
+# Pathfinder additionally prepares metadata, verifies both indexes, and publishes its draft.
 # Before retiring the dedicated Pathfinder workflow, authorize release.yml in
 # its PyPI and TestPyPI trusted publishers; see .github/RELEASE-core.md.
 #
@@ -73,6 +73,11 @@ on:
         required: false
         type: string
         default: ""
+
+concurrency:
+  # Serialize releases per component without canceling an active run.
+  group: release-${{ inputs.component }}
+  cancel-in-progress: false
 
 defaults:
   run:
@@ -327,15 +332,59 @@ jobs:
         with:
           repository-url: https://test.pypi.org/legacy/
 
+  verify-testpypi:
+    name: Verify Pathfinder on TestPyPI
+    if: ${{ inputs.component == 'cuda-pathfinder' && inputs.release-action == 'full-release' }}
+    needs: [check-release-notes, publish-testpypi]
+    runs-on: ubuntu-latest
+    permissions: {}
+    env:
+      VERSION: ${{ needs.check-release-notes.outputs.version }}
+      INDEX_URL: https://test.pypi.org/simple/
+      EXTRA_INDEX_URL: https://pypi.org/simple/
+      INDEX_NAME: TestPyPI
+    steps: &verify-pathfinder-steps
+      - name: Install Pathfinder from index and verify
+        run: |
+          [[ -n "$VERSION" ]] || { echo "::error::Empty version output"; exit 1; }
+          python3 -m venv "${RUNNER_TEMP}/verify"
+          source "${RUNNER_TEMP}/verify/bin/activate"
+          index_args=()
+          if [[ -n "$INDEX_URL" ]]; then
+            index_args+=( --index-url "$INDEX_URL" )
+          fi
+          if [[ -n "$EXTRA_INDEX_URL" ]]; then
+            index_args+=( --extra-index-url "$EXTRA_INDEX_URL" )
+          fi
+          max_attempts=6
+          retry_seconds=30
+          for ((attempt=1; attempt<=max_attempts; attempt++)); do
+            if pip install "${index_args[@]}" "cuda-pathfinder==${VERSION}"; then
+              break
+            fi
+            if (( attempt == max_attempts )); then
+              echo "::error::Failed to install cuda-pathfinder==${VERSION} from ${INDEX_NAME} after ${max_attempts} attempts"
+              exit 1
+            fi
+            sleep "$retry_seconds"
+          done
+          installed=$(python -c "from cuda.pathfinder import __version__; print(__version__)")
+          if [[ "$installed" != "$VERSION" ]]; then
+            echo "::error::Version mismatch: expected ${VERSION}, got ${installed}"
+            exit 1
+          fi
+
   publish-pypi:
     name: Publish wheels to PyPI
     if: >-
       ${{ !cancelled() && inputs.release-action == 'full-release' &&
-          needs.determine-run-id.result == 'success' && needs.publish-testpypi.result == 'success' }}
+          needs.determine-run-id.result == 'success' && needs.publish-testpypi.result == 'success' &&
+          (inputs.component != 'cuda-pathfinder' || needs.verify-testpypi.result == 'success') }}
     runs-on: ubuntu-latest
     needs:
       - determine-run-id
       - publish-testpypi
+      - verify-testpypi
     environment:
       name: pypi
       url: https://pypi.org/p/${{ inputs.component }}/
@@ -358,10 +407,23 @@ jobs:
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # v1.14.2
 
+  verify-pypi:
+    name: Verify Pathfinder on PyPI
+    if: ${{ inputs.component == 'cuda-pathfinder' && inputs.release-action == 'full-release' }}
+    needs: [check-release-notes, publish-pypi]
+    runs-on: ubuntu-latest
+    permissions: {}
+    env:
+      VERSION: ${{ needs.check-release-notes.outputs.version }}
+      INDEX_URL: ""
+      EXTRA_INDEX_URL: ""
+      INDEX_NAME: PyPI
+    steps: *verify-pathfinder-steps
+
   finalize-pathfinder:
     name: Publish Pathfinder GitHub release
     if: ${{ inputs.component == 'cuda-pathfinder' && inputs.release-action == 'full-release' }}
-    needs: [doc, check-release-notes, ensure-pathfinder-draft, publish-pypi, upload-archive]
+    needs: [doc, check-release-notes, ensure-pathfinder-draft, publish-pypi, verify-pypi, upload-archive]
     runs-on: ubuntu-latest
     permissions:
       contents: write

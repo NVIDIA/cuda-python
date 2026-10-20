@@ -15,7 +15,8 @@ to `full-release`, and `git-tag` set to the existing
 `cuda-pathfinder-v<VERSION>` tag. The workflow finds the successful
 tag-triggered CI run, checks release notes, creates or reuses a draft,
 builds and deploys versioned docs, and uploads the source archive, checksum,
-and wheels. It publishes to TestPyPI followed by PyPI, then publishes the
+and wheels. It publishes to TestPyPI, verifies installation and the imported
+version, then publishes to PyPI and verifies again before publishing the
 GitHub Release without marking it as latest. A failed
 docs build prevents asset uploads, package publication, and finalization.
 
