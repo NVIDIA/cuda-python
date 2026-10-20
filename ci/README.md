@@ -88,9 +88,9 @@ existing allowance for at most ten distinct HTTP 429 URLs.
 
 ### Shared URL Caches
 
-Nightly is the only producer. It skips restoring, checks afresh, and publishes
-successful results; every other job restores the newest baseline and never
-publishes. Failed URLs and filesystem targets are never cached. Successes keep
+Nightly and manual refreshes skip restoring, check afresh, and publish
+successful results; ordinary checks restore the newest baseline and never
+publish. Failed URLs and filesystem targets are never cached. Successes keep
 their original timestamps and expire after three days, so a missed nightly
 refresh does not break reuse, but a link that breaks after a nightly success
 can stay unnoticed for up to 72 hours.
@@ -103,6 +103,21 @@ Authored and rendered caches stay apart because only rendered checks validate
 fragments and Lychee's cache does not record which validation ran. URL results
 are shared across operating systems; pre-commit's installed environments keep
 their OS- and Python-specific caches.
+
+#### Refreshing Shared Caches
+
+To rebuild both shared caches manually, open
+[CI: Lychee checks and caches](https://github.com/NVIDIA/cuda-python/actions/workflows/lychee.yml)
+(`.github/workflows/lychee.yml`), select the default branch, and enable
+`refresh-cache` before choosing **Run workflow**. This runs the cache refresh
+without the rest of nightly CI.
+
+Checks that restore no matching baseline add a notice and a job-summary hint.
+They still check links, with potentially more runtime and network traffic.
+Checker changes in a PR intentionally start with a cold cache; refreshing the
+default branch cannot seed a cache for settings that exist only in that PR.
+Refreshing rebuilds cached successes; broken links and upstream rate limits
+still need their usual investigation.
 
 ### Repository Links
 
