@@ -138,6 +138,20 @@ validation explicitly:
 git config lychee.repository NVIDIA/cuda-python
 ```
 
+For rendered checks of an unpublished local commit, select your fork's identity
+to validate source links against local files:
+
+```bash
+git config lychee.repository YOUR_GITHUB_USER/cuda-python
+```
+
+Use your actual fork's owner and repository. Set this before both the checking
+documentation build and the rendered hook; rebuild existing checking output if
+its example links contain an unpublished SHA. Clear any explicit
+`CUDA_PYTHON_DOCS_GITHUB_REF` override to use this selection. Only GitHub
+source-view fragments are omitted; generated HTML anchors remain checked.
+CI uses `GITHUB_REPOSITORY` and retains its normal validation policy.
+
 The checking build uses the public checkout's actual commit for generated
 example links. In other repositories it uses `main`, allowing those public URLs
 to receive the same local target checks without inserting another repository's
