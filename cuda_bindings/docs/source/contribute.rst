@@ -1,27 +1,36 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
+.. _contributor_guide:
+
 Contributing
 ============
 
-Thank you for your interest in contributing to ``cuda-bindings``! Based on the
-type of contribution, it will fall into two categories:
+Thank you for your interest in contributing to ``cuda-bindings``! The repository
+`contribution guide
+<https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md>`_ covers all
+CUDA Python components, so the details live there. In short, if you are
+contributing from outside NVIDIA:
 
-1. You want to report a bug, feature request, or documentation issue.
+- Found a bug or have an idea? `File an issue
+  <https://github.com/NVIDIA/cuda-python/issues/new/choose>`_. No assignment
+  is needed, and a comment on the issue is the right way to tell us that
+  something needs urgent attention.
+- Fixing a small, self-contained bug or documentation error? Open a PR
+  directly and explain what was wrong and how you checked the fix.
+- Want to work on an existing issue? Comment on it and wait for a maintainer
+  to assign it to you before you start.
+- Planning a new feature, a design change, or anything touching CI or release
+  infrastructure? Open an issue first and agree on scope and testing with a
+  maintainer before writing code.
 
-   File an `issue <https://github.com/NVIDIA/cuda-python/issues/new/choose>`_
-   describing what you encountered or what you want to see changed. The NVIDIA
-   team will evaluate the issue, triage it, and schedule it for a release. If
-   you believe the issue needs priority attention, comment on the issue to
-   notify the team.
+The `Coordinate before implementing
+<https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#coordinate-before-implementing>`_
+section explains these steps, what you can expect from us in return, and how
+they apply when a coding agent helps you.
 
-2. You want to implement a feature, improvement, or bug fix.
-
-   Before starting work on an existing issue, comment on the issue to express
-   your interest and wait to be assigned by a maintainer. This helps avoid
-   redundant effort.
-
-   Follow the repository `contribution guide
-   <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md>`_, including
-   signing off each commit under the Developer Certificate of Origin (DCO) and
-   cryptographically signing commits.
+Please also follow the `commit sign-off
+<https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#signing-your-work>`_
+and `commit signing
+<https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#code-signing>`_
+requirements described in the guide.
