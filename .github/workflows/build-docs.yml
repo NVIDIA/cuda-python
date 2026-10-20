@@ -301,6 +301,8 @@ jobs:
         uses: ./.github/actions/lychee-links
         with:
           kind: rendered
+          # Full CI's pull-request/N mirror supplies the PR number.
+          pr-number: ${{ env.PR_NUMBER }}
 
       - name: Upload docs GitHub Pages artifact
         if: ${{ inputs.deploy-docs }}

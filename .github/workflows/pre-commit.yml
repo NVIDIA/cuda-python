@@ -22,6 +22,7 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: read
 
 defaults:
   run:
@@ -142,16 +143,25 @@ jobs:
       # Warm only Lychee from the shared nightly baseline, retaining successful
       # checks between up to three attempts. The full suite below runs once:
       # formatter changes must remain failures. A missing baseline is supported;
-      # the first pass then checks afresh.
+      # the first pass then checks afresh. With the maintainer label, this is
+      # also the final 429-only link gate.
       - name: Warm the Lychee cache
+        id: lychee-check
         uses: ./.github/actions/lychee-links
         with:
           kind: authored
           policy: cache-warm
+          pr-number: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || '' }}
 
       - name: Run pre-commit
+        # Run the remaining hooks even if the override's link gate fails.
+        # That earlier failure still makes the job fail.
+        if: ${{ !cancelled() && (success() || (steps.lychee-check.outputs.allow-429 == 'true' && steps.lychee-check.outcome == 'failure')) }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          # The override uses the reported link result above. All other hooks
+          # still run once; normal runs also invoke Lychee in the full suite.
+          SKIP: ${{ steps.lychee-check.outputs.allow-429 == 'true' && 'check-precommit-installed,lychee' || 'check-precommit-installed' }}
         run: pre-commit run --all-files --show-diff-on-failure
 
       - name: Save pre-commit cache

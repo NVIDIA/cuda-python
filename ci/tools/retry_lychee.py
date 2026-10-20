@@ -157,7 +157,10 @@ def finish_link_failures(report: Path, data: Report, exit_codes: list[int], mess
         warning = True
     elif all(failure.rate_limited for failure in data.failures):
         message += f" {distinct_urls} distinct HTTP 429 URLs remain unverified"
-        if distinct_urls <= MAX_RATE_LIMITED_URLS:
+        if policy == "allow-429":
+            message += "; the maintainer override accepts only these rate limits with a warning."
+            warning = True
+        elif distinct_urls <= MAX_RATE_LIMITED_URLS:
             message += f" (limit: {MAX_RATE_LIMITED_URLS}); accepting these rate limits with a warning."
             warning = True
         else:
@@ -184,7 +187,7 @@ def retry_lychee(
     require_link_check_exit(initial_exit_code, 1)
     if max_attempts < 1:
         raise ValueError("max_attempts must be positive")
-    if policy not in ("check", "cache-warm"):
+    if policy not in ("check", "cache-warm", "allow-429"):
         raise ValueError(f"Unknown lychee failure policy: {policy}")
     exit_codes = [initial_exit_code]
 

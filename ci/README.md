@@ -48,7 +48,41 @@ fail explicitly. Per-attempt reports and a summary are kept for seven days.
 | Nightly (`lychee.yml`) | Afresh authored and rendered checks | Unresolved links are warnings; setup, execution, and report errors fail |
 
 The warm-up only fills the cache so the full suite, whose formatter changes must
-stay failures, mostly reuses successful checks.
+stay failures, mostly reuses successful checks. With the maintainer override,
+the driver's report-based result becomes the final link gate, and the full
+suite skips its duplicate Lychee invocation. Every other hook still runs once.
+
+### Maintainer Override For HTTP 429
+
+When rate limiting persists, maintainers can apply `ci: lychee-non-blocking`
+to the PR and rerun the affected Linux/Windows pre-commit jobs or rendered
+documentation job. Applying or removing the label does not itself start a
+new workflow run. The shared link-check action queries the PR's current labels,
+so a rerun sees the current decision rather than the original event's snapshot.
+The lookup makes up to three attempts, waiting 5 and 10 seconds between them.
+If every attempt fails or returns an invalid response, the action warns and
+keeps the caller's default policy without enabling the override: authored
+checks remain strict in the full pre-commit suite, and rendered checks keep
+their allowance for at most ten distinct HTTP 429 URLs. Rerun the affected job
+to retry the lookup and apply the label; other pre-commit hooks still run.
+
+The label selects the driver's `allow-429` policy for both authored and
+rendered checks. Lychee still runs and retries normally; only a final report
+whose remaining failures are all HTTP 429 responses from external HTTP(S)
+URLs can pass with a warning. This explicit override has no URL-count limit.
+The warning and retained reports identify the URLs that remain unverified.
+Successful checks retain their usual cache behavior; failures are never cached.
+
+Any other failure still blocks, including a mixture of HTTP 429s and other
+errors, broken local files or fragments, timeouts, and HTTP 403, 404, or 5xx
+responses. Hook setup, invalid or missing reports, and the offline smoke
+checks remain blocking. Other exceptional failures require
+the normal admin-merge decision.
+
+The label applies only to PR checks. Local pre-commit runs, default-branch
+checks, and nightly cache production keep their existing policies. Without
+the label, authored checks remain strict and rendered checks retain their
+existing allowance for at most ten distinct HTTP 429 URLs.
 
 ### Shared URL Caches
 

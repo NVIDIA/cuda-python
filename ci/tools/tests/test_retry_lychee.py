@@ -350,10 +350,10 @@ def test_one_attempt_limit_keeps_transient_failure_without_retry(tmp_path, monke
     assert retry_lychee.retry_lychee(2, report, max_attempts=1, run_attempt=unexpected_retry) == 2
 
 
-@pytest.mark.parametrize("url_count,expected", [(10, 0), (11, 2)])
+@pytest.mark.parametrize("policy,url_count,expected", [("check", 10, 0), ("check", 11, 2), ("allow-429", 11, 0)])
 @pytest.mark.agent_authored(model="gpt-6")
 def test_rate_limit_allowance_counts_distinct_urls_after_all_attempts(
-    tmp_path, monkeypatch, capsys, url_count, expected
+    tmp_path, monkeypatch, capsys, policy, url_count, expected
 ):
     report = tmp_path / "lychee.json"
     data = report_data(errors=[response(f"https://example.test/{number}") for number in range(url_count)], total=100)
@@ -365,13 +365,16 @@ def test_rate_limit_allowance_counts_distinct_urls_after_all_attempts(
         write_report(output, data)
         return 2
 
-    assert retry_lychee.retry_lychee(2, report, run_attempt=run) == expected
+    assert retry_lychee.retry_lychee(2, report, policy=policy, run_attempt=run) == expected
     assert delays == [60, 120]
     assert json.loads(report.read_text(encoding="utf-8")) == data
     text = report.with_suffix(".md").read_text(encoding="utf-8")
     assert f"{url_count} distinct HTTP 429 URLs remain unverified" in text
     assert "| 1 | 2 |\n| 2 | 2 |\n| 3 | 2 |" in text
     assert ("::warning::" in capsys.readouterr().out) == (expected == 0)
+    if policy == "allow-429":
+        assert "maintainer" in text.lower()
+        assert len(list(tmp_path.glob("lychee-attempt-*.json"))) == 3
     for number in range(url_count):
         assert f"https://example.test/{number}" in text
 
@@ -393,23 +396,27 @@ def test_rate_limit_allowance_deduplicates_exact_urls_across_sources(tmp_path, c
     "other_failure,timed_out",
     [
         (response(code=404), False),
+        (response(code=403), False),
         (response(code=503), False),
         (response(code=None), True),
         (response(code=429), True),
         (response("mailto:someone@example.test"), False),
         (response("https:missing-host"), False),
         (response("https://[malformed"), False),
+        (response("file:///docs/guide.html", code=429), False),
+        (response("file:///docs/guide.html#missing", code=None, details="Anchor not found"), False),
     ],
 )
+@pytest.mark.parametrize("policy", ["check", "allow-429"])
 @pytest.mark.agent_authored(model="gpt-6")
-def test_429_allowance_never_accepts_other_failures(tmp_path, capsys, other_failure, timed_out):
+def test_429_allowance_never_accepts_other_failures(tmp_path, capsys, other_failure, timed_out, policy):
     report = tmp_path / "lychee.json"
     data = report_data(
         errors=[response(), *([] if timed_out else [other_failure])], timeouts=[other_failure] if timed_out else []
     )
     write_report(report, data)
 
-    assert retry_lychee.retry_lychee(2, report, max_attempts=1, run_attempt=unexpected_retry) == 2
+    assert retry_lychee.retry_lychee(2, report, max_attempts=1, policy=policy, run_attempt=unexpected_retry) == 2
     assert "::warning::" not in capsys.readouterr().out
 
 
