@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests for cuda_bindings/build_hooks.py build infrastructure.
+"""Tests for cuda_bindings_13/build_hooks.py build infrastructure.
 
 These tests do NOT require cuda.bindings to be built/installed since they test
 build-time infrastructure. Run with --noconftest to avoid loading conftest.py

@@ -1,4 +1,4 @@
-This file describes `cuda_bindings`, the low-level CUDA host API bindings
+This file describes `cuda_bindings_13`, the low-level CUDA host API bindings
 subpackage in the `cuda-python` monorepo.
 
 ## Scope and principles
@@ -22,7 +22,7 @@ subpackage in the `cuda-python` monorepo.
   Cythonization. Logic shared with `cuda_core` and `cuda_pathfinder`
   (toolchain selection, the compiler flag set, the Cython cache helpers, the
   rebuild stamps and the release-tag pinning of README links) lives in
-  `_build_shared.py`. `cuda_bindings/_build_shared.py` is canonical;
+  `_build_shared.py`. `cuda_bindings_13/_build_shared.py` is canonical;
   the `cuda_core` and `cuda_pathfinder` copies must each be either a symlink to
   it or a byte-for-byte identical copy.
 
