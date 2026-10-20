@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.system\_set\_conf\_compute\_gpus\_ready\_state
-=================================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: system_set_conf_compute_gpus_ready_state
