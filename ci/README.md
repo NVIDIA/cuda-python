@@ -24,6 +24,144 @@ The pinned checkout action's
 [`README`](https://github.com/actions/checkout/blob/3d3c42e5aac5ba805825da76410c181273ba90b1/README.md#fetch-all-history-for-all-tags-and-branches)
 documents `fetch-depth: 0` for fetching all history, branches, and tags.
 
+## Documentation Link Checks
+
+Two pre-commit hooks check links with one pinned native wheel (`lychee-bin`,
+see `.pre-commit-config.yaml`) through the wrapper `ci/tools/run_lychee.py`:
+`lychee` checks authored Markdown and reST (fragments unchecked), and the
+manual-stage `lychee-rendered` checks the generated HTML in `artifacts/docs`,
+including fragments. Developers run the same hooks locally. Public repository
+`main` links are checked against the proposed checkout, as described under
+[Repository Links](#repository-links).
+
+CI runs a hook through `ci/tools/run_lychee_precommit.py <authored|rendered>`,
+wrapped with the shared cache and report handling in
+`.github/actions/lychee-links`. The driver runs the real hook and merges the
+native JSON report of every invocation (pre-commit may split long file lists).
+It makes up to three attempts with 60/120-second cooldowns, but only while all
+remaining failures are transient HTTP trouble: timeouts, 408, 429, or 5xx.
+Missing, malformed, or inconsistent reports, and scans that check no links,
+fail explicitly. Per-attempt reports and a summary are kept for seven days.
+
+| Where | What runs | Final result |
+| --- | --- | --- |
+| Linux/Windows pre-commit | Offline hook smoke check, then authored link warm-up from the shared cache, then the full suite once | The strict pre-commit result, including unresolved HTTP 429s |
+| Full-CI documentation build | Rendered link check of the HTML it just built | Unresolved links fail, except that up to ten distinct URLs may remain at HTTP 429 as a warning |
+| Nightly (`lychee.yml`) | Afresh authored and rendered checks | Unresolved links are warnings; setup, execution, and report errors fail |
+
+The warm-up only fills the cache so the full suite, whose formatter changes must
+stay failures, mostly reuses successful checks. With the maintainer override,
+the driver's report-based result becomes the final link gate, and the full
+suite skips its duplicate Lychee invocation. Every other hook still runs once.
+
+### Maintainer Override For HTTP 429
+
+When rate limiting persists, maintainers can apply `ci: lychee-non-blocking`
+to the PR and rerun the affected Linux/Windows pre-commit jobs or rendered
+documentation job. Applying or removing the label does not itself start a
+new workflow run. The shared link-check action queries the PR's current labels,
+so a rerun sees the current decision rather than the original event's snapshot.
+The lookup makes up to three attempts, waiting 5 and 10 seconds between them.
+If every attempt fails or returns an invalid response, the action warns and
+keeps the caller's default policy without enabling the override: authored
+checks remain strict in the full pre-commit suite, and rendered checks keep
+their allowance for at most ten distinct HTTP 429 URLs. Rerun the affected job
+to retry the lookup and apply the label; other pre-commit hooks still run.
+
+The label selects the driver's `allow-429` policy for both authored and
+rendered checks. Lychee still runs and retries normally; only a final report
+whose remaining failures are all HTTP 429 responses from external HTTP(S)
+URLs can pass with a warning. This explicit override has no URL-count limit.
+The warning and retained reports identify the URLs that remain unverified.
+Successful checks retain their usual cache behavior; failures are never cached.
+
+Any other failure still blocks, including a mixture of HTTP 429s and other
+errors, broken local files or fragments, timeouts, and HTTP 403, 404, or 5xx
+responses. Hook setup, invalid or missing reports, and the offline smoke
+checks remain blocking. Other exceptional failures require
+the normal admin-merge decision.
+
+The label applies only to PR checks. Local pre-commit runs, default-branch
+checks, and nightly cache production keep their existing policies. Without
+the label, authored checks remain strict and rendered checks retain their
+existing allowance for at most ten distinct HTTP 429 URLs.
+
+### Shared URL Caches
+
+Nightly is the only producer. It skips restoring, checks afresh, and publishes
+successful results; every other job restores the newest baseline and never
+publishes. Failed URLs and filesystem targets are never cached. Successes keep
+their original timestamps and expire after three days, so a missed nightly
+refresh does not break reuse, but a link that breaks after a nightly success
+can stay unnoticed for up to 72 hours.
+
+The action keys each baseline by checker kind and a hash of
+`.pre-commit-config.yaml` (hook options and wheel pin), `lychee.toml`, and
+`ci/tools/run_lychee.py`, `run_lychee_precommit.py`, `retry_lychee.py`, and
+`checkout_source_links.py`, so editing any of them starts a cold cache.
+Authored and rendered caches stay apart because only rendered checks validate
+fragments and Lychee's cache does not record which validation ran. URL results
+are shared across operating systems; pre-commit's installed environments keep
+their OS- and Python-specific caches.
+
+### Repository Links
+
+Documentation can link to a path added or moved in the same PR using its
+intended public URL, for example
+`https://github.com/NVIDIA/cuda-python/tree/main/new-directory`. Lychee
+validates the proposed target before it exists on public `main`. Only the
+validation target changes; source files and built documentation retain their URLs.
+
+`ci/tools/checkout_source_links.py` matches the complete public repository
+prefix followed by `blob/main/` or `tree/main/`:
+
+- Authored Markdown and reST map to file URIs in the working tree, including
+  uncommitted and unpushed paths. Missing files and directories fail even after
+  an earlier success. These checks need no repository metadata and retain the
+  existing policy of omitting fragments.
+- Rendered HTML from the public repository maps source links to GitHub's file
+  or directory view at the actual checked-out commit, retaining fragment checks.
+  That commit must be available on GitHub.
+- Rendered HTML from other repositories maps the same public source links to
+  local files and directories. Only those source links omit fragments, since
+  local files do not reproduce every GitHub source-view anchor. Generated
+  documentation pages and their anchors still receive full validation.
+
+Tags, explicit commits, other branches, unrelated repositories, and URLs embedded
+inside other URLs retain their original targets. For rendered checks and checking
+builds, CI supplies the checkout identity through `GITHUB_REPOSITORY`. Local runs
+use `git config lychee.repository`, or otherwise the `upstream` remote followed by
+`origin`. A checkout whose remotes only name a fork can select public-repository
+validation explicitly:
+
+```bash
+git config lychee.repository NVIDIA/cuda-python
+```
+
+For rendered checks of an unpublished local commit, select your fork's identity
+to validate source links against local files:
+
+```bash
+git config lychee.repository YOUR_GITHUB_USER/cuda-python
+```
+
+Use your actual fork's owner and repository. Set this before both the checking
+documentation build and the rendered hook; rebuild existing checking output if
+its example links contain an unpublished SHA. Clear any explicit
+`CUDA_PYTHON_DOCS_GITHUB_REF` override to use this selection. Only GitHub
+source-view fragments are omitted; generated HTML anchors remain checked.
+CI uses `GITHUB_REPOSITORY` and retains its normal validation policy.
+
+The checking build uses the public checkout's actual commit for generated
+example links. In other repositories it uses `main`, allowing those public URLs
+to receive the same local target checks without inserting another repository's
+commit into public links. An explicit `CUDA_PYTHON_DOCS_GITHUB_REF` override is
+retained; release builds continue to use their release tags.
+
+These rules validate the proposed source tree. Before adopting them on a
+maintenance branch, choose an explicit policy for links that intentionally point
+to a different tree from the maintenance checkout.
+
 ## Temporary Pixi Lockfile Maintenance Pause
 
 Pixi lockfile freshness enforcement and automated refreshes are temporarily

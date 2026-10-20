@@ -36,10 +36,6 @@ updates:
     # Match hook repositories, leaving additional_dependencies pins unchanged.
     allow:
       - dependency-name: "https://github.com/*"
-    # Lychee's hook revision, LYCHEE_VERSION argument, and CI binary pin must
-    # be upgraded together in a coordinated manual update.
-    ignore:
-      - dependency-name: "https://github.com/lycheeverse/lychee"
 
     groups:
       pre-commit-monthly:
