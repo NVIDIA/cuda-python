@@ -103,7 +103,7 @@ conflicts = [
 [project.urls]
 homepage = "https://nvidia.github.io/cuda-python/"
 documentation = "https://nvidia.github.io/cuda-python/cuda-core/"
-repository = "https://github.com/NVIDIA/cuda-python/tree/main/cuda_core"
+repository = "https://github.com/NVIDIA/cuda-python"
 issues = "https://github.com/NVIDIA/cuda-python/issues/"
 
 [tool.setuptools.packages.find]
