@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.InvalidStateError
+====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: InvalidStateError
