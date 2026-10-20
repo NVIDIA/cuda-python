@@ -56,8 +56,26 @@ def test_checking_build_uses_local_output_and_source_ref(
         text=True,
     ).strip()
 
-    # Skip package installation/import checks while running the helper's actual
-    # environment setup and artifact copy. Sphinx is not a CI-tools dependency.
+    # Use tiny source packages to exercise import provenance without CUDA or
+    # Sphinx. Distribution names stay unchanged when a source directory moves.
+    package_dirs = []
+    for distribution, directory, module in (
+        ("cuda-bindings", "cuda_bindings_13", "bindings"),
+        ("cuda-core", "cuda_core", "core"),
+        ("cuda-pathfinder", "cuda_pathfinder", "pathfinder"),
+        ("cuda-python", "cuda_python", None),
+    ):
+        package_dir = checkout / directory
+        package_dirs.append(str(package_dir))
+        metadata = package_dir / f"{distribution.replace('-', '_')}-1.0.dist-info" / "METADATA"
+        metadata.parent.mkdir(parents=True)
+        metadata.write_text(f"Name: {distribution}\nVersion: 1.0\n", encoding="utf-8")
+        if module is not None:
+            module_file = package_dir / "cuda" / module / "__init__.py"
+            module_file.parent.mkdir(parents=True)
+            module_file.write_text('__version__ = "1.0"\n', encoding="utf-8")
+
+    # Skip installation while keeping the helper's actual import checks.
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
     python = bin_dir / "python"
@@ -65,9 +83,6 @@ def test_checking_build_uses_local_output_and_source_ref(
         """#!/usr/bin/env bash
 set -euo pipefail
 if [[ "$1" == '-m' && "$2" == 'pip' ]]; then
-    exit 0
-elif [[ "$1" == '-' ]]; then
-    cat >/dev/null
     exit 0
 fi
 exec "$TEST_PYTHON" "$@"
@@ -99,6 +114,7 @@ PY
 
     monkeypatch.setenv("PATH", f"{bin_dir}{os.pathsep}{os.environ['PATH']}")
     monkeypatch.setenv("TEST_PYTHON", sys.executable)
+    monkeypatch.setenv("PYTHONPATH", os.pathsep.join(package_dirs))
     monkeypatch.setenv("PIXI_ENVIRONMENT_NAME", "docs")
     monkeypatch.setenv("GITHUB_REPOSITORY", repository)
     if explicit_ref is None:

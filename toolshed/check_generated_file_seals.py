@@ -62,7 +62,7 @@ def load_previously_sealed_paths():
             GENERATED_FILE_MARKER_FRAGMENT,
             "HEAD",
             "--",
-            "cuda_bindings",
+            "cuda_bindings_13",
         ],
         capture_output=True,
         text=True,
