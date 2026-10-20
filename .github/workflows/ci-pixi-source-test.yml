@@ -131,7 +131,7 @@ jobs:
   # The round trip (not just cu13 -> cu12) is what catches the second half:
   # coming back to cu13 must not silently reuse the cu12 extension.
   #
-  # cuda_core only: cuda_bindings_13 cannot be source-built in its cu12
+  # cuda_core only: cuda-bindings cannot be source-built in its cu12
   # environment at all, for reasons unrelated to stale artifacts.
   build-identity-roundtrip:
     name: "cu13 -> cu12 -> cu13 round trip (linux-64, CPU)"
