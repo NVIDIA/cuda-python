@@ -7,7 +7,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 import pytest
 
@@ -20,11 +20,12 @@ from run_lychee import main, rendered_inputs, write_inputs
 def test_native_reports_preserve_each_precommit_chunk_exit_code(tmp_path, monkeypatch):
     executable = tmp_path / "lychee"
     executable.touch()
+    remap_arguments = ["--remap", "source target"]
     monkeypatch.setenv("LYCHEE_REPORT_DIR", str(tmp_path / "reports"))
     with (
         patch("run_lychee.sysconfig.get_path", return_value=str(tmp_path)),
         patch("run_lychee.sys.platform", "linux"),
-        patch("run_lychee.repo_link_remaps", return_value=[]),
+        patch("run_lychee.repo_link_remaps", return_value=remap_arguments) as remaps,
         patch(
             "run_lychee.subprocess.run",
             side_effect=[subprocess.CompletedProcess([], 2), subprocess.CompletedProcess([], 0)],
@@ -32,11 +33,13 @@ def test_native_reports_preserve_each_precommit_chunk_exit_code(tmp_path, monkey
     ):
         assert main(["one.md"]) == 2
         assert main(["two.rst"]) == 0
+    assert remaps.call_args_list == [call(run_lychee.ROOT, rendered=False)] * 2
     reports = []
-    for call, code in zip(run.call_args_list, (2, 0), strict=True):
-        command = call.args[0]
-        assert command[1:4] == ["--format", "json", "--output"]
-        report = Path(command[4])
+    for invocation, code in zip(run.call_args_list, (2, 0), strict=True):
+        command = invocation.args[0]
+        assert command[1:3] == remap_arguments
+        assert command[3:6] == ["--format", "json", "--output"]
+        report = Path(command[6])
         assert report.parent == (tmp_path / "reports").resolve()
         assert json.loads(report.with_suffix(".status.json").read_text()) == {"exit_code": code}
         reports.append(report)
@@ -53,19 +56,22 @@ def test_rendered_hook_checks_untracked_html_in_its_own_cache(tmp_path, monkeypa
     (docs / "_static").mkdir()
     (docs / "_static/theme.html").write_text("ignored theme")
     cache = tmp_path / ".lychee-rendered"
+    remap_arguments = ["--remap", "source target"]
     monkeypatch.setattr(run_lychee, "ROOT", tmp_path)
     monkeypatch.delenv("LYCHEE_REPORT_DIR", raising=False)
     with (
         patch("run_lychee.sysconfig.get_path", return_value=str(tmp_path)),
         patch("run_lychee.sys.platform", "linux"),
-        patch("run_lychee.repo_link_remaps", return_value=[]),
+        patch("run_lychee.repo_link_remaps", return_value=remap_arguments) as remaps,
         patch("run_lychee.subprocess.run", return_value=subprocess.CompletedProcess([], 0)) as run,
     ):
         assert main(["--rendered", "--cache"]) == 0
+    remaps.assert_called_once_with(tmp_path, rendered=True)
     assert (cache / "inputs.txt").read_text().splitlines() == [str(docs / "guide.html"), str(docs / "index.html")]
     run.assert_called_once_with(
         [
             str(tmp_path / "lychee"),
+            *remap_arguments,
             "--files-from",
             str(cache / "inputs.txt"),
             "--include-fragments=full",
@@ -85,11 +91,12 @@ def test_rendered_hook_rejects_missing_build_before_invoking_native_checker(tmp_
     with (
         patch("run_lychee.sysconfig.get_path", return_value=str(tmp_path)),
         patch("run_lychee.sys.platform", "linux"),
-        patch("run_lychee.repo_link_remaps", return_value=[]),
+        patch("run_lychee.repo_link_remaps") as remaps,
         patch("run_lychee.subprocess.run") as run,
         pytest.raises(ValueError, match="No documentation inputs"),
     ):
         main(["--rendered", "--cache"])
+    remaps.assert_not_called()
     run.assert_not_called()
 
 
