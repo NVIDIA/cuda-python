@@ -3,7 +3,7 @@
 
 """Build helpers shared by the cuda-bindings and cuda-core PEP 517 backends.
 
-``cuda_bindings/_build_shared.py`` is canonical. ``cuda_core/_build_shared.py``
+``cuda_bindings_13/_build_shared.py`` is canonical. ``cuda_core/_build_shared.py``
 is either a symlink to it or a byte-for-byte identical copy. Both backends load
 the helper through their package-local path, keeping ``Path(__file__)``-relative
 state package-local.

@@ -22,7 +22,7 @@ from pathlib import Path
 
 COMPONENT_TO_PACKAGE: dict[str, str] = {
     "cuda-core": "cuda_core",
-    "cuda-bindings": "cuda_bindings",
+    "cuda-bindings": "cuda_bindings_13",
     "cuda-pathfinder": "cuda_pathfinder",
     "cuda-python": "cuda_python",
 }

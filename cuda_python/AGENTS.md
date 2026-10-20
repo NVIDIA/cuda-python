@@ -5,7 +5,7 @@ monorepo.
 
 - `cuda_python` is primarily packaging and documentation glue.
 - It does not host substantial runtime APIs like `cuda_core`,
-  `cuda_bindings`, or `cuda_pathfinder`.
+  `cuda_bindings_13`, or `cuda_pathfinder`.
 
 ## Main files to edit
 
@@ -31,4 +31,4 @@ monorepo.
 - Users should pin `cuda-python` alone. A separate `cuda-core` pin next to it
   can make the install unresolvable after a `cuda-core` release.
 - If you update docs structure, ensure `docs/build_all_docs.sh` still collects
-  docs from `cuda_python`, `cuda_bindings`, `cuda_core`, and `cuda_pathfinder`.
+  docs from `cuda_python`, `cuda_bindings_13`, `cuda_core`, and `cuda_pathfinder`.

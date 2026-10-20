@@ -69,7 +69,7 @@ runs:
         KIND: ${{ inputs.kind }}
         # Anything that can change a check result or the cache's meaning. The
         # hook configuration carries the native wheel pin and every hook option.
-        POLICY_HASH: ${{ hashFiles('.pre-commit-config.yaml', 'lychee.toml', 'ci/tools/run_lychee.py', 'ci/tools/run_lychee_precommit.py', 'ci/tools/retry_lychee.py') }}
+        POLICY_HASH: ${{ hashFiles('.pre-commit-config.yaml', 'lychee.toml', 'ci/tools/run_lychee.py', 'ci/tools/run_lychee_precommit.py', 'ci/tools/retry_lychee.py', 'ci/tools/checkout_source_links.py') }}
       run: |
         # Authored and rendered results stay apart: only rendered checks validate
         # fragments, and Lychee's cache does not record which validation ran.
@@ -84,6 +84,7 @@ runs:
         echo "key=${prefix}${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_OUTPUT}"
 
     - name: Restore successful link checks
+      id: cache-restore
       # Refresh mode deliberately skips earlier URL results.
       if: ${{ inputs.refresh != 'true' }}
       uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
@@ -92,6 +93,25 @@ runs:
         key: ${{ steps.cache.outputs.key }}
         restore-keys: ${{ steps.cache.outputs.prefix }}
         enableCrossOsArchive: true
+
+    - name: Explain a missing shared Lychee cache
+      # Prefix restores are normal; cache-hit only identifies exact key matches.
+      if: ${{ inputs.refresh != 'true' && steps.cache-restore.outputs.cache-matched-key == '' }}
+      shell: bash --noprofile --norc -euo pipefail {0}
+      env:
+        KIND: ${{ inputs.kind }}
+        DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/workflows/lychee.yml
+      run: |
+        message="No shared Lychee ${KIND} cache was restored for this checker configuration. Checking links without this baseline may take longer and make more network requests."
+        context="This is expected after checker changes in a PR; a refresh on ${DEFAULT_BRANCH} cannot seed settings that exist only in a PR."
+        hint="For an unexpected miss on ${DEFAULT_BRANCH}, maintainers can run CI: Lychee checks and caches (lychee.yml) on ${DEFAULT_BRANCH} with refresh-cache enabled."
+        echo "::notice title=Lychee ${KIND} cache::${message} ${context} ${hint} ${WORKFLOW_URL}"
+        {
+          printf '### Lychee %s cache\n\n' "$KIND"
+          printf '%s\n\n%s\n\n%s\n\n' "$message" "$context" "$hint"
+          printf '[Open the cache refresh workflow](%s).\n' "$WORKFLOW_URL"
+        } >> "$GITHUB_STEP_SUMMARY"
 
     - name: Check links through the configured pre-commit hook
       shell: bash --noprofile --norc -euo pipefail {0}
@@ -107,7 +127,7 @@ runs:
           --report "${RUNNER_TEMP}/lychee-reports/lychee-${KIND}.json"
 
     - name: Publish fresh successful link checks
-      # Only nightly refreshes publish, so every pull request restores the same
+      # Only refresh runs publish, so every pull request restores the same
       # baseline. Saving keeps original timestamps and never caches failures.
       if: ${{ !cancelled() && inputs.refresh == 'true' }}
       uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
