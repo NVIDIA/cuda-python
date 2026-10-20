@@ -1,0 +1,4 @@
+Updating a memcpy or memset graph node whose context differs from the current
+one no longer risks a dangling node parameter when the caller's context
+cannot be restored after the update: the resources referenced by the new
+parameters are now retained before the restoration failure is raised. (#2759)

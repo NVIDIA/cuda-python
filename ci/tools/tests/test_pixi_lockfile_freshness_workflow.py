@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import itertools
 import shlex
 import subprocess
 from pathlib import Path
@@ -115,6 +116,12 @@ def test_nightly_ci_declares_workflow_test_dependencies():
     workflow = _workflow("ci-nightly.yml")
     step = next(step for step in workflow["jobs"]["test-ci-tools-for-release"]["steps"] if "run" in step)
     install = next(line for line in step["run"].splitlines() if "pip install" in line)
-    dependencies = {argument.lower().split("==")[0] for argument in shlex.split(install)}
+    arguments = shlex.split(install)
+    # `-r <file>` installs the requirements listed in that file.
+    for flag, requirements_file in itertools.pairwise(arguments):
+        if flag == "-r":
+            lines = (ROOT / requirements_file).read_text(encoding="utf-8").splitlines()
+            arguments.extend(line for line in lines if line.strip() and not line.startswith("#"))
+    dependencies = {argument.lower().split("==")[0] for argument in arguments}
 
     assert {"pytest", "pyyaml"} <= dependencies

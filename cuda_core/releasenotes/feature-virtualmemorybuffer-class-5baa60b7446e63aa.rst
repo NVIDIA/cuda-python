@@ -1,0 +1,6 @@
+Added :class:`VirtualMemoryBuffer`, the :class:`Buffer` subclass that
+:class:`VirtualMemoryResource` returns. Closing it on a capturing stream
+other than a default stream raises, because virtual memory deallocation
+cannot be captured. A release ordered on a default stream that would
+disturb a capture in its context is reported as a :class:`CUDAWarning`
+and proceeds without the synchronization. (#2917)

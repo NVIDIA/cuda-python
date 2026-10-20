@@ -3,6 +3,11 @@
 
 """Check that versioned release-notes files exist before releasing.
 
+Releases of components listed in ``release_ranges.PACKAGES`` (at or after their
+first version with note files) are checked differently: at least one note must have
+been added in the release's range (see ``release_notes`` in
+``cuda_python/docs/exts``); the release tag must be in a full clone.
+
 Usage:
     python check_release_notes.py --git-tag <tag> --component <component>
 
@@ -17,8 +22,13 @@ from __future__ import annotations
 import argparse
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
+
+# The release-notes rules are shared with the docs build.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "cuda_python" / "docs" / "exts"))
+import release_ranges
 
 COMPONENT_TO_PACKAGE: dict[str, str] = {
     "cuda-core": "cuda_core",
@@ -85,6 +95,69 @@ def is_backport_version(version: str, backport_branch: str) -> bool:
     return version == backport_branch
 
 
+_BASE_VERSION_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)")
+
+
+def notes_package(component: str, version: str) -> release_ranges.NotesPackage | None:
+    """Return the notes settings if *version* of *component* has note files."""
+    package = release_ranges.PACKAGES.get(component)
+    if package is None:
+        return None
+    m = _BASE_VERSION_RE.match(version)
+    if m is None:
+        return None
+    if tuple(int(part) for part in m.groups()) < package.first_version:
+        return None
+    return package
+
+
+def _git(repo_root: Path, *args: str) -> str:
+    result = subprocess.run(  # noqa: S603
+        ["git", *args],  # noqa: S607
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"`git {' '.join(args)}` failed: {result.stderr.strip()}")
+    return result.stdout
+
+
+def check_notes_in_range(
+    git_tag: str, package: release_ranges.NotesPackage, repo_root: Path = Path(".")
+) -> list[tuple[str | Path, str]]:
+    """Return problems if no note was added in *git_tag*'s release range.
+
+    The range is the one the docs use (see ``release_ranges.previous_release``).
+    Pre-release tags need no notes; theirs roll into the final release.
+    """
+    notes_path = package.notes_dir
+    if _git(repo_root, "rev-parse", "--is-shallow-repository").strip() == "true":
+        return [("<clone>", "shallow clone: fetch the full history and tags (fetch-depth: 0)")]
+
+    parsed = release_ranges.parse_release_tags([git_tag], package.tag_prefix)
+    if not parsed:
+        return []  # a pre-release tag
+    (version,) = parsed
+    releases = release_ranges.parse_release_tags(_git(repo_root, "tag", "--list").split(), package.tag_prefix)
+    if version not in releases:
+        return [("<tag>", f"tag {git_tag} not found in the clone; fetch tags")]
+    notes_releases = sorted(v for v in releases if v >= package.first_version)
+    previous = release_ranges.previous_release(version, notes_releases)
+
+    if previous is None:
+        added = _git(repo_root, "ls-tree", "-r", "--name-only", git_tag, "--", notes_path)
+        range_text = "in the tree"
+    else:
+        previous_tag = releases[previous]
+        added = _git(repo_root, "diff", "--name-only", "--diff-filter=A", previous_tag, git_tag, "--", notes_path)
+        range_text = f"since {previous_tag}"
+    if not added.strip():
+        return [(Path(notes_path), f"no release notes added {range_text}")]
+    return []
+
+
 def notes_path(package: str, version: str) -> Path:
     return Path(package, "docs", "source", "release", f"{version}-notes.rst")
 
@@ -107,6 +180,10 @@ def check_release_notes(git_tag: str, component: str, repo_root: Path = Path("."
 
     if is_post_release(version):
         return []
+
+    package = notes_package(component, version)
+    if package is not None:
+        return check_notes_in_range(git_tag, package, repo_root)
 
     path = notes_path(COMPONENT_TO_PACKAGE[component], version)
     full = repo_root / path
@@ -198,6 +275,12 @@ def validate_backport_decision(
             file=sys.stderr,
         )
         return 2, []
+
+    if notes_package(component, backport_version) is not None:
+        # Patch notes are note files on the maintenance branch, collected at the
+        # backport tag; there is nothing to prepare on this branch.
+        print(f"Backport release notes for {decision} come from note files at that tag, skipping check.")
+        return None, []
 
     problems = check_release_notes(decision, component, repo_root)
     if problems:

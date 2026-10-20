@@ -1,0 +1,4 @@
+Before a source build compiles anything, it now checks that the CUDA Toolkit's ``cuda.h`` has
+the major.minor the source tree was generated from. A mismatch stops the build with a message
+that names the header found and the version needed. Previously a mismatch surfaced as a long
+list of C++ redefinition errors. (#2920)

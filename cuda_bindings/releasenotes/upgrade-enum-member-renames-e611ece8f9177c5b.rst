@@ -1,26 +1,10 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-.. SPDX-License-Identifier: Apache-2.0
-
-.. module:: cuda.bindings
-
-``cuda-bindings`` 13.5.0 Release notes
-======================================
-
-Highlights
-----------
-
-- Python 3.10 support was dropped (end of life).
-
-Changes
--------
-
-- Many ``cuda.bindings.cudla`` and ``cuda.bindings.nvml`` enum members had a
-  redundant prefix stripped from their name,
-  e.g. ``nvml.BrandType.BRAND_GEFORCE`` is now ``nvml.BrandType.GEFORCE``.
-  The old, longer names remain available as backward-compatible aliases and
-  will continue to work. The full list of renames, excluding the 447
-  similarly-renamed ``nvml.GpmMetricId`` members (which had their
-  ``GPM_METRIC_`` prefix stripped the same way), is below.
+Many ``cuda.bindings.cudla`` and ``cuda.bindings.nvml`` enum members had a
+redundant prefix stripped from their name,
+e.g. ``nvml.BrandType.BRAND_GEFORCE`` is now ``nvml.BrandType.GEFORCE``.
+The old, longer names remain available as backward-compatible aliases and
+will continue to work. The full list of renames, excluding the 447
+similarly-renamed ``nvml.GpmMetricId`` members (which had their
+``GPM_METRIC_`` prefix stripped the same way), is below.
 
 .. csv-table:: Enum member renames (old names remain available as backward-compatible aliases)
    :header: "Module", "Enum class", "New name", "Deprecated alias"
@@ -262,86 +246,4 @@ Changes
    "nvml", "VgpuVmIdType", "DOMAIN_ID", "VGPU_VM_ID_DOMAIN_ID"
    "nvml", "VgpuVmIdType", "UUID", "VGPU_VM_ID_UUID"
 
-- ``nvml.device_get_samples``: On a zero-sample result, the old implementation
-  returned a bare ``Sample`` instance instead of the documented
-  ``(sample_val_type, samples)`` tuple. It now always returns the correct 2-tuple.
-
-- ``nvml.device_get_supported_vgpus``, ``nvml.device_get_creatable_vgpus``,
-  ``nvml.device_get_active_vgpus``: The old implementations would return a
-  ``NameError`` at runtime whenever there was at least one result to return. Now
-  fixed.
-
-- ``nvml.device_get_gpu_instances``,
-  ``nvml.gpu_instance_get_compute_instances``: The old implementations would fail
-  with ``ValueError: Invalid shape in axis 0: 0`` whenever the result is empty.
-  Now correctly returns an empty array in that case.
-
-- ``nvml.device_get_vgpu_utilization``: The old implementation would only fill
-  in the first element of the returned array; the rest was uninitialized
-  garbage. It is now correctly returned as a properly-sized array. In addition,
-  the first element of the returned tuple, ``sample_val_type``, is now a plain
-  ``int`` rather than a length-1 array, since it is a single output parameter,
-  not a per-sample value.
-
-- ``nvml.device_get_vgpu_process_utilization``: The old implementation returned
-  a tuple ``(sample_count, samples)``, and the ``samples`` array only ever
-  contained one element. It is now correctly returned as a properly-sized array
-  (and the redundant ``sample_count`` — which was only ever the array's own size —
-  is no longer part of the returned value; use ``len(result)`` instead).
-
-- ``nvml.NvlinkFirmwareInfo``: The ``firmware_version`` member now returns only
-  valid entries.  The ``num_valid_entries`` member is removed, as its design made
-  it possible to access invalid memory.
-
-Enhancements
-------------
-
-- ``cuda-bindings`` docstrings now include the full documentation from the upstream CTK, not just the first paragraph.
-- The following functions now accept ``None`` for their buffer-like pointer argument (an integer address or an object supporting the buffer protocol), which is treated as ``NULL``.
-
-  - ``cudla.module_load_from_memory`` (``p_module``)
-  - ``nvfatbin.add_cubin``, ``nvfatbin.add_index``, ``nvfatbin.add_ltoir``, ``nvfatbin.add_ptx``, ``nvfatbin.add_reloc``, ``nvfatbin.add_tile_ir`` (``code``)
-  - ``nvfatbin.get`` (``buffer``)
-  - ``nvjitlink.add_data`` (``data``)
-  - ``nvjitlink.get_error_log``, ``nvjitlink.get_info_log`` (``log``)
-  - ``nvjitlink.get_linked_cubin`` (``cubin``)
-  - ``nvjitlink.get_linked_ltoir`` (``ltoir``)
-  - ``nvjitlink.get_linked_ptx`` (``ptx``)
-  - ``nvvm.add_module_to_program``, ``nvvm.lazy_add_module_to_program``, ``nvvm.get_compiled_result``, ``nvvm.get_program_log`` (``buffer``)
-- For all ``cuda-bindings`` APIs, functions that accept a struct wrapper will accept the struct wrapper directly, rather than requiring getting the ``.ptr`` property.
-- Creating class instances in ``cuda-bindings`` should now be faster in most cases, because it requires 1 heap allocation rather than 2.
-- Before a source build compiles anything, it now checks that the CUDA Toolkit's ``cuda.h`` has the major.minor the source tree was generated from. A mismatch stops the build with a message that names the header found and the version needed. Previously a mismatch surfaced as a long list of C++ redefinition errors.
-
-Behavior changes
-----------------
-
-- Passing a ``None`` to ``nvvm.add_module_to_program`` or ``nvvm.lazy_add_module_to_program`` will now raise a ``nvvm.nvvmError`` (``INVALID_INPUT``) rather than a ``ValueError``.
-
-Bugfixes
---------
-
-- A number of incorrect docstrings have been corrected.
-- Setting a ``cuda_bindings`` class instance to itself (``obj = cuda_bindings.driver.Class(); obj[0] = obj``) will no longer crash or use garbage values.
-- Fix a potential use-after-free error in the destructors of classes in ``driver`` and ``runtime``.
-- ``driver.cuLaunchHostFunc`` and ``runtime.cudaLaunchHostFunc`` now pass the host
-  function and its user data to CUDA unchanged. They used to route the call through
-  an internal trampoline that freed its state after the first invocation, so a host
-  function captured into a CUDA graph crashed on the second launch of that graph.
-  (`Issue #790 <https://github.com/NVIDIA/cuda-python/issues/790>`_)
-  Callers must retain the callback object and user data storage for the lifetime
-  of the graph and its executables, including pending launches; see
-  :ref:`host-function-lifetime`.
-
-Prerelease feature
-------------------
-
-A new version of the ``nvrtc`` API is available as ``cuda.bindings._v2.nvrtc``.  The
-primary improvements are: (1) raising exceptions rather than returning error
-codes, (2) uses PEP8-compliant naming, and (3) more performance.  This API is
-still experimental and subject to change.
-
-Known issues
-------------
-
-* Updating from older versions (v12.6.2.post1 and below) via ``pip install -U cuda-python`` might not work. Please do a clean re-installation by uninstalling ``pip uninstall -y cuda-python`` followed by installing ``pip install cuda-python``.
-* ``nvml.system_get_process_name`` on WSL can return incorrect values.  To work around this, set the locale to "C" before calling ``nvml.device_get_compute_running_processes_v3`` (which sets the process names) and before calling ``nvml.system_get_process_name``. ``cuda_core`` does this automatically, but users of the raw NVML API will need to do this manually.
+(#2822)

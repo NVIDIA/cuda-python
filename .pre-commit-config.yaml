@@ -55,7 +55,7 @@ repos:
         language: python
         additional_dependencies:
           - https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl
-        exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)|(^cuda_core/cuda/core/_vendored/)|(^cuda_core/third_party/)'
+        exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)|(^cuda_core/cuda/core/_vendored/)|(^cuda_core/third_party/)|(^|/)releasenotes/'
         args: ["--fix"]
 
       - id: check-cython-not-none
@@ -77,6 +77,13 @@ repos:
         language: python
         additional_dependencies: [pyyaml==6.0.3]
         files: '^(ci/versions\.yml|cuda_bindings/pixi\.toml|cuda_core/pixi\.toml)$'
+        pass_filenames: false
+
+      - id: release-notes-lint
+        name: Lint release notes
+        entry: python ./ci/tools/lint_release_notes.py
+        language: python
+        files: '^(cuda_bindings|cuda_core|cuda_pathfinder|cuda_python)/releasenotes/'
         pass_filenames: false
 
       - id: check-mempool-hygiene

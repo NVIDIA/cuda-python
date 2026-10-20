@@ -6,8 +6,8 @@
 For every release-notes page (``release/<version>-notes``), this
 extension looks up the corresponding git tag and injects a
 ``Released on <date>`` line after the RST title.  Pages that already
-contain such a line, or whose version has no tag yet, are left
-untouched.
+start with such a line after the title, or whose version has no tag yet, are
+left untouched.
 """
 
 from __future__ import annotations
@@ -63,7 +63,14 @@ def _on_source_read(app: Sphinx, docname: str, source: list[str]) -> None:
         return
 
     text = source[0]
-    if _RELEASED_ON_RE.search(text):
+    underline = _UNDERLINE_RE.search(text)
+    if not underline:
+        return
+
+    # An existing date line is the first thing after the title; the words may well
+    # appear elsewhere in the page, in an entry.
+    after = text[underline.end() :]
+    if _RELEASED_ON_RE.match(after.lstrip()):
         return
 
     version = m.group(1)
@@ -76,15 +83,10 @@ def _on_source_read(app: Sphinx, docname: str, source: list[str]) -> None:
     if not iso_date:
         return
 
-    underline = _UNDERLINE_RE.search(text)
-    if not underline:
-        return
-
     date_line = f"Released on {_format_date(iso_date)}"
 
     # Insert after the title underline: skip any blank lines, then place
     # the date line surrounded by single blank lines before the content.
-    after = text[underline.end() :]
     stripped = after.lstrip("\n")
     source[0] = text[: underline.end()] + f"\n\n{date_line}\n\n" + stripped
 
