@@ -9,7 +9,8 @@ Contributing
 Thank you for your interest in contributing to ``cuda-pathfinder``! The repository
 `contribution guide
 <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md>`_ covers all
-CUDA Python components, so the details live there. In short:
+CUDA Python components, so the details live there. In short, if you are
+contributing from outside NVIDIA:
 
 - Found a bug or have an idea? `File an issue
   <https://github.com/NVIDIA/cuda-python/issues/new/choose>`_. No assignment
