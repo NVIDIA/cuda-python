@@ -46,77 +46,103 @@ effective `git describe` result for traceability.
 
 # Issues and contribution coordination
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md#coordinate-before-implementing) before
-preparing an issue or contribution. An open issue, a proposed fix, or a passing
-automated review does not by itself establish maintainer agreement to implement
-or merge a change.
+Read the "Coordinate before implementing" section of
+[CONTRIBUTING.md](CONTRIBUTING.md#coordinate-before-implementing) before
+helping with an issue or a contribution. The short version: external
+contributors check in with a maintainer before implementing anything beyond a
+small standalone fix, because an open issue, a proposed fix, or a passing
+automated review does not by itself mean maintainers have agreed to take the
+change.
 
-The additional requirements for assignment and maintainer agreement apply to
-external contributors. NVIDIA employees follow the team's existing planning
-and maintainer direction; do not add a separate permission or assignment step
-for them. Use affiliation stated by the user or already established in the
-session. If it is unclear, describe the external requirements conditionally;
-do not assume external status or pause authorized local work to establish
-affiliation. Quality, validation, review, and authorization requirements for
-publication apply to everyone.
+## Who the coordination step applies to
 
-Before helping an external contributor choose an issue, volunteer for work,
-or start implementation intended for a PR, briefly explain the applicable
-expectations and how they apply to that task. Check any issue's readiness
-notice, assignment, and maintainer discussion. State whether coordination is
-already satisfied, still needed, or the small standalone-fix exception applies.
-When coordination is needed, suggest a concrete next step, such as a reproducer
-or a short scope and validation proposal. Give this explanation before
-implementation effort is spent; silently reading the rules or linking them is
-not sufficient. Do not repeat coordination already established in the session.
+The assignment and maintainer-agreement requirements apply to external
+contributors, meaning anyone contributing from outside NVIDIA. NVIDIA
+colleagues coordinate through the team's internal planning and maintainer
+direction; do not add a separate permission or assignment step for them. Use
+the affiliation the user states or that is already established in the
+session. If it is unclear, describe the external requirements conditionally,
+for example "if you are contributing from outside NVIDIA, ...". Do not assume
+external status, and do not pause authorized local work to establish
+affiliation. Quality, validation, review, and publication-authorization
+expectations apply to everyone.
+
+## Have the conversation early
+
+Before helping an external contributor choose an issue, volunteer for one, or
+start an implementation intended for a PR, check the issue's readiness notice,
+assignment, labels, and maintainer discussion, and tell the contributor which
+of these applies:
+
+- Maintainer agreement already exists: the issue is assigned to them, or a
+  maintainer explicitly asked for the change. Proceed.
+- The change is a [small standalone
+  fix](CONTRIBUTING.md#small-standalone-fixes). A direct PR is fine; suggest
+  linking any existing issue.
+- Coordination is still needed. Suggest the concrete next step, such as a
+  comment asking to take the issue, a reproducer, or a short scope and
+  validation proposal, and offer to help prepare it.
+
+Keep this brief and friendly: two or three sentences, specific to the issue at
+hand, framed as saving the contributor's time rather than as a rule they
+tripped over. For example: "This issue is still marked as a maintainer
+investigation, so a PR would be premature. A reproducer or a short scope
+proposal in the issue would help move it along; I can draft either." Give the
+explanation before implementation effort is spent. Reading the rules silently,
+or pointing to them after the patch is complete, is too late. Do not repeat
+coordination that is already established in the session.
+
+## Authorized scope
 
 Use the user's current request and any existing maintainer agreement to
-determine the authorized scope. A contributor's request for local work does not
-establish maintainer agreement to accept the contribution. Honor explicit
-requests for local investigation, edits, or commits without asking for renewed
-approval. When preparing a contribution that requires coordination under
-CONTRIBUTING.md, check for maintainer agreement on its implementation direction;
-an explicit maintainer request satisfies that coordination step. Local work
-does not by itself authorize publishing an issue, comment, PR, or branch.
+determine what is authorized. Honor explicit requests for local investigation,
+edits, or commits without asking for renewed approval. A request for local
+work is not a claim that maintainers will accept the result, and local work
+does not by itself authorize publishing an issue, comment, PR, or branch. When
+a contribution requires coordination under CONTRIBUTING.md, look for
+maintainer agreement on its implementation direction; an explicit maintainer
+request satisfies that step.
+
+## Writing and updating issues
 
 When authorized to create an issue:
 
-- Distinguish the observed problem and evidence from possible solutions. State
-  whether the issue reports a bug, tracks an investigation, proposes an
-  approach awaiting agreement, or has an agreed implementation plan. Do not
-  imply a hypothetical fix or savings estimate is established by the
+- Separate what was observed, with evidence, from what might be done about it.
+  Say which kind of issue it is: a bug report, an investigation, a proposal
+  awaiting agreement, or approved work with an agreed plan. Do not present a
+  hypothetical fix, or its estimated benefit, as established by the
   observations alone.
-- For an investigation or proposal without an agreed implementation plan,
-  prepend a prominent readiness notice. Match the status to the issue:
-  "Maintainer investigation" for an ongoing maintainer investigation, or
-  "Proposal awaiting maintainer agreement" for an unapproved proposal. Use the
-  following for an ongoing shared CI investigation, adapting the status and
-  reason for other areas:
+- For an investigation or a proposal without an agreed implementation plan,
+  put a readiness notice at the top. Use "Maintainer investigation" for an
+  ongoing maintainer investigation and "Proposal awaiting maintainer
+  agreement" for an unapproved proposal, adapt the reason, and keep the
+  wording in sync with the [readiness notice
+  section](CONTRIBUTING.md#readiness-notices-on-issues) of CONTRIBUTING.md:
 
-  > **Maintainer investigation; not currently open for external implementation
-  > PRs.** This affects shared CI infrastructure. External contributors should
-  > agree on the approach with a maintainer before starting implementation;
-  > observations and suggestions are welcome.
+  > **Maintainer investigation; not yet open for external implementation
+  > PRs.** The approach touches shared CI infrastructure and is still being
+  > decided. Reproducers, measurements, and suggestions are very welcome here;
+  > please check with a maintainer before starting on an implementation.
 
-- Routine bug reports do not need this notice solely because a fix has not
-  been agreed upon. Add it when the issue also tracks an unresolved
-  investigation or proposes an approach awaiting maintainer agreement.
-- For approved implementation work, describe the agreed scope and validation
-  expectations instead of marking it as unavailable. Follow explicit user
-  instructions about the issue's readiness and wording; do not invent an
-  approval requirement that conflicts with the current request.
-- Preserve intended behavior when proposing optimizations. Document relevant
-  tradeoffs and validation limits rather than treating a smaller resource
-  footprint as sufficient evidence for a change.
-- Keep private discussions, anecdotes, internal links, and names or other
-  details from private discussions out of public issues and repository
-  documentation unless explicitly authorized for publication. Use public
+- Routine bug reports do not need a notice just because a fix has not been
+  designed yet. Add one when the issue also tracks an unresolved investigation
+  or proposes an approach awaiting agreement.
+- For approved work, describe the agreed scope and validation expectations
+  instead of marking the issue unavailable. Follow the user's explicit
+  instructions about readiness and wording; do not invent an approval
+  requirement that conflicts with the current request.
+- When proposing an optimization, preserve intended behavior and document the
+  tradeoffs and validation limits. A smaller footprint alone is not sufficient
+  evidence for a change.
+- Keep private discussions, internal links, anecdotes, and names or other
+  details from private channels out of public issues and repository
+  documentation unless their publication is explicitly authorized. Use public
   evidence and general explanations.
 
-When authorized to update an issue whose implementation direction has changed,
-make the status clear and update its readiness notice. Follow the user's
-preference for revising the issue or closing it with a linked replacement;
-preserve the rationale and distinguish historical estimates from the new plan.
+When authorized to update an issue whose direction has changed, make the new
+status clear and update the readiness notice. Follow the user's preference for
+revising the issue or closing it with a linked replacement, preserve the
+rationale, and distinguish historical estimates from the new plan.
 
 # Pull requests
 
