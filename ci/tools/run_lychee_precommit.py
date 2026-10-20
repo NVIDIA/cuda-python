@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Warm link caches or check rendered HTML through the configured pre-commit hooks."""
+"""Check documentation links or warm caches through the configured pre-commit hooks."""
 
 from __future__ import annotations
 
@@ -89,7 +89,7 @@ def run_checks(kind: str, report: Path, max_attempts: int = 3, *, policy: str = 
 def main(arguments: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("kind", choices=("authored", "rendered"))
-    parser.add_argument("--policy", choices=("cache-warm", "check"), default="check")
+    parser.add_argument("--policy", choices=("cache-warm", "check", "allow-429"), default="check")
     parser.add_argument("--max-attempts", type=int, default=3)
     parser.add_argument("--report", type=Path, required=True)
     args = parser.parse_args(arguments)
