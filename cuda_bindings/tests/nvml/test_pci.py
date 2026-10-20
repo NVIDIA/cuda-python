@@ -3,12 +3,20 @@
 
 
 import contextlib
+import os
+import sys
+
+import pytest
 
 from cuda.bindings import nvml
 
 from .conftest import unsupported_before
 
 
+@pytest.mark.skipif(
+    sys.platform == "linux" and os.geteuid() != 0,
+    reason="nvmlDeviceDiscoverGpus requires administrator privileges",
+)
 def test_discover_gpus(all_devices, subtests):
     for device in all_devices:
         with (
