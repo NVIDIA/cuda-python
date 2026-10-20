@@ -1,0 +1,6 @@
+﻿cuda.pathfinder.DynamicLibUnknownError
+======================================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autoexception:: DynamicLibUnknownError

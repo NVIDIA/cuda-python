@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_clk\_mon\_status
+================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_clk_mon_status
