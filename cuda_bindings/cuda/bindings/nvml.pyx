@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0e14261df396c087ab467037853a05290c6a90be1f3a69d6f8f2f9aea22e8e64
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3ad6204c7b246450b2e3435a0d69234211002cc179ccacdc65342f8554aebc7f
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -36699,7 +36699,6 @@ cpdef object device_get_field_values(intptr_t device, values):
     cdef FieldValue values_ = _cast_field_values(values)
     cdef nvmlFieldValue_t *ptr = <nvmlFieldValue_t *>values_._get_ptr()
     cdef unsigned int valuesCount = len(values)
-    cdef unsigned int i
 
     # Passing a valuesCount of 0 to nvmlDeviceGetFieldValues returns NVML_INVALID_ARGUMENT
     if valuesCount == 0:
@@ -36707,8 +36706,7 @@ cpdef object device_get_field_values(intptr_t device, values):
 
     # nvbug 6952048: native NVML can return success without populating an entry.
     # Reset every query so untouched entries cannot retain stale success statuses.
-    for i in range(valuesCount):
-        ptr[i].nvmlReturn = NVML_ERROR_UNKNOWN
+    values_.nvml_return = NVML_ERROR_UNKNOWN
 
     with nogil:
         __status__ = nvmlDeviceGetFieldValues(<Device>device, valuesCount, ptr)
