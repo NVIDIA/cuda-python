@@ -73,6 +73,7 @@ non-interactive run.
 - `cuda-python` (>=13.4.0)
 - `numpy`
 - `matplotlib` (optional)
+- `pillow` (>=13.0.0, installed with Matplotlib)
 
 ## Installation
 
