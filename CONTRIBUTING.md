@@ -2,9 +2,10 @@
 
 Thank you for your interest in contributing to CUDA Python! We welcome bug
 reports, reproducible examples, documentation improvements, and code changes
-that address demonstrated needs. Review capacity is limited, so agreeing on
-the work before implementing it helps us use both contributors' and
-maintainers' time well.
+that address demonstrated needs. Review capacity is limited, so establish
+expectations before investing in implementation. Early coordination helps
+contributors avoid spending effort on changes the project cannot take on and
+helps maintainers focus review time on agreed priorities.
 
 ## Table of Contents
 
@@ -53,17 +54,23 @@ user impact, release plans, and available review and maintenance capacity.
 
 ## Coordinate before implementing
 
+The additional requirements for assignment and maintainer agreement in this
+section apply to external contributors. NVIDIA employees follow the team's
+existing planning and maintainer direction; this guide adds no separate
+permission or assignment step for them. Quality, validation, and review
+expectations apply to everyone.
+
 An open issue may record an idea, an investigation, or a proposed approach
 that has not been agreed upon. Its existence, even with a detailed suggested
 implementation, does not mean the work is ready for a PR.
 
-Before starting implementation on an existing issue, comment to express your
-interest and wait to be assigned by a maintainer. For a new feature or changes
-involving design decisions or shared infrastructure, open an issue to discuss
-the problem and approach first. Confirm the scope and validation plan with the
-maintainer; an explicit request from a maintainer to implement the change
-satisfies this coordination step. This helps avoid duplicate work and proposals
-that are no longer being pursued.
+If you are an external contributor, comment on an existing issue to express
+your interest and wait to be assigned by a maintainer before implementing it.
+For a new feature or changes involving design decisions or shared
+infrastructure, open an issue to discuss the problem and approach first.
+Confirm the scope and validation plan with the maintainer; an explicit request
+from a maintainer to implement the change satisfies this coordination step.
+This helps avoid duplicate work and proposals that are no longer being pursued.
 
 Small, self-contained bug fixes and documentation corrections without an
 existing issue can be proposed directly in a PR. Explain the problem being
@@ -73,14 +80,15 @@ Review includes understanding the problem, checking behavior and tests, and
 considering ongoing maintenance. A submitted PR does not change the project's
 priorities or guarantee immediate review. Focus on demonstrated user problems
 and improvements that maintainers have agreed to accept. Issues marked
-`help wanted` or `good first issue` are useful starting points; the assignment
-and coordination requirements still apply.
+`help wanted` or `good first issue` are useful starting points; external
+contributors should still follow the assignment and coordination requirements.
 
-Keep each PR focused and independently reviewable. Discuss work requiring
-multiple dependent PRs or access to shared CI resources with a maintainer
-before starting; ordinary contributions can be developed in a fork. If some
-validation requires NVIDIA infrastructure, agree on which checks you can run
-and which need maintainer help, and describe those limits in the PR.
+Keep each PR focused and independently reviewable. External contributors
+should discuss work requiring multiple dependent PRs or access to shared CI
+resources with a maintainer before starting; external contributions can be
+developed in a fork. If some validation requires NVIDIA infrastructure, agree
+on which checks you can run and which need maintainer help, and describe those
+limits in the PR.
 
 Please also read the relevant component's guidelines:
 
@@ -92,17 +100,17 @@ Please also read the relevant component's guidelines:
 
 Changes to workflows, shared caches, runners, and release infrastructure often
 require operational context and validation that are not available in the issue
-alone. Please agree on the approach with the responsible maintainer before
-implementing such changes.
+alone. External contributors should agree on the approach with the responsible
+maintainer before implementing such changes.
 
 For investigations and proposals that are not ready for implementation,
 maintainers should state that at the top of the issue. For example, an ongoing
 CI investigation can use:
 
-> **Maintainer investigation; not currently open for implementation PRs.** This
-> affects shared CI infrastructure. Please wait for maintainer agreement on the
-> approach before starting implementation; observations and suggestions are
-> welcome.
+> **Maintainer investigation; not currently open for external implementation
+> PRs.** This affects shared CI infrastructure. External contributors should
+> agree on the approach with a maintainer before starting implementation;
+> observations and suggestions are welcome.
 
 For an unapproved proposal, use "Proposal awaiting maintainer agreement"
 instead of "Maintainer investigation" and explain what remains to be decided.
@@ -112,9 +120,18 @@ discussion remain welcome while a plan is being developed.
 
 ## Using coding agents
 
-Agent-assisted contributions follow the same coordination and quality
-requirements as other contributions. Generating a patch quickly does not
-reduce the review and maintenance work needed to accept it.
+Agent-assisted contributions follow the same quality requirements as other
+contributions and the coordination requirements for the contributor's role.
+Generating a patch quickly does not reduce the review and maintenance work
+needed to accept it.
+
+Give your agent [AGENTS.md](AGENTS.md) and this guide. For an external
+contribution, ask it to explain how the coordination requirements apply before
+it helps you select or volunteer for an issue, or implement a contribution.
+Establish whether maintainer agreement already exists, coordination is needed,
+or the small standalone-fix exception applies. Resolve expectations before
+investing in implementation; a completed patch does not establish that the
+project can take on its review and maintenance.
 
 Before submitting an agent-assisted PR:
 
@@ -127,8 +144,9 @@ Before submitting an agent-assisted PR:
 - Validate the change against the reported problem and run the relevant
   checks. Report what actually ran and any remaining validation gaps. Follow
   the repository's test authorship markers in [AGENTS.md](AGENTS.md#test-authorship-markers).
-- Keep the change within the agreed scope. Avoid sending batches of speculative
-  PRs picked from the backlog; coordinate additional work with maintainers.
+- Keep the change within the agreed scope. External contributors should avoid
+  sending batches of speculative PRs picked from the backlog and coordinate
+  additional work with maintainers.
 
 ## Cloning the repository
 

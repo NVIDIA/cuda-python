@@ -51,13 +51,33 @@ preparing an issue or contribution. An open issue, a proposed fix, or a passing
 automated review does not by itself establish maintainer agreement to implement
 or merge a change.
 
+The additional requirements for assignment and maintainer agreement apply to
+external contributors. NVIDIA employees follow the team's existing planning
+and maintainer direction; do not add a separate permission or assignment step
+for them. Use affiliation stated by the user or already established in the
+session. If it is unclear, describe the external requirements conditionally;
+do not assume external status or pause authorized local work to establish
+affiliation. Quality, validation, review, and authorization requirements for
+publication apply to everyone.
+
+Before helping an external contributor choose an issue, volunteer for work,
+or start implementation intended for a PR, briefly explain the applicable
+expectations and how they apply to that task. Check any issue's readiness
+notice, assignment, and maintainer discussion. State whether coordination is
+already satisfied, still needed, or the small standalone-fix exception applies.
+When coordination is needed, suggest a concrete next step, such as a reproducer
+or a short scope and validation proposal. Give this explanation before
+implementation effort is spent; silently reading the rules or linking them is
+not sufficient. Do not repeat coordination already established in the session.
+
 Use the user's current request and any existing maintainer agreement to
-determine the authorized scope. Honor explicit requests for local investigation,
-edits, or commits without asking for renewed approval. When preparing a
-contribution that requires coordination under CONTRIBUTING.md, check for
-maintainer agreement on its implementation direction; an explicit maintainer
-request satisfies that coordination step. Local work does not by itself
-authorize publishing an issue, comment, PR, or branch.
+determine the authorized scope. A contributor's request for local work does not
+establish maintainer agreement to accept the contribution. Honor explicit
+requests for local investigation, edits, or commits without asking for renewed
+approval. When preparing a contribution that requires coordination under
+CONTRIBUTING.md, check for maintainer agreement on its implementation direction;
+an explicit maintainer request satisfies that coordination step. Local work
+does not by itself authorize publishing an issue, comment, PR, or branch.
 
 When authorized to create an issue:
 
@@ -73,10 +93,10 @@ When authorized to create an issue:
   following for an ongoing shared CI investigation, adapting the status and
   reason for other areas:
 
-  > **Maintainer investigation; not currently open for implementation PRs.** This
-  > affects shared CI infrastructure. Please wait for maintainer agreement on the
-  > approach before starting implementation; observations and suggestions are
-  > welcome.
+  > **Maintainer investigation; not currently open for external implementation
+  > PRs.** This affects shared CI infrastructure. External contributors should
+  > agree on the approach with a maintainer before starting implementation;
+  > observations and suggestions are welcome.
 
 - Routine bug reports do not need this notice solely because a fix has not
   been agreed upon. Add it when the issue also tracks an unresolved
