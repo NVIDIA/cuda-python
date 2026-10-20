@@ -118,7 +118,7 @@ jobs:
             fi
           else
             FILE_HASH="${{ github.sha }}"
-            DOCS_GITHUB_REF="${{ github.sha }}"
+            DOCS_GITHUB_REF=$(python ci/tools/checkout_source_links.py --github-ref)
           fi
 
           # make outputs from the previous job as env vars

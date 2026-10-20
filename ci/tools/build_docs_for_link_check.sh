@@ -15,7 +15,10 @@ if [[ "${PIXI_ENVIRONMENT_NAME:-}" != "docs" ]]; then
     exit 1
 fi
 
-export CUDA_PYTHON_DOCS_GITHUB_REF="${CUDA_PYTHON_DOCS_GITHUB_REF:-$(git rev-parse HEAD)}"
+if [[ -z "${CUDA_PYTHON_DOCS_GITHUB_REF:-}" ]]; then
+    CUDA_PYTHON_DOCS_GITHUB_REF=$(python ci/tools/checkout_source_links.py --github-ref)
+fi
+export CUDA_PYTHON_DOCS_GITHUB_REF
 export BUILD_LATEST=1
 export BUILD_PREVIEW=0
 
