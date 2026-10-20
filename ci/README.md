@@ -128,14 +128,11 @@ prefix followed by `blob/main/` or `tree/main/`:
   documentation pages and their anchors still receive full validation.
 
 Tags, explicit commits, other branches, unrelated repositories, and URLs embedded
-inside other URLs retain their original targets. There is no default-branch
-lookup or remote `HEAD` requirement. A future change to the public URL convention
-would require an explicit update to these matching rules.
-
-For rendered checks and checking builds, CI supplies the checkout identity
-through `GITHUB_REPOSITORY`. Local runs use `git config lychee.repository`, or
-otherwise the `upstream` remote followed by `origin`. A checkout whose remotes
-only name a fork can select public-repository validation explicitly:
+inside other URLs retain their original targets. For rendered checks and checking
+builds, CI supplies the checkout identity through `GITHUB_REPOSITORY`. Local runs
+use `git config lychee.repository`, or otherwise the `upstream` remote followed by
+`origin`. A checkout whose remotes only name a fork can select public-repository
+validation explicitly:
 
 ```bash
 git config lychee.repository NVIDIA/cuda-python
